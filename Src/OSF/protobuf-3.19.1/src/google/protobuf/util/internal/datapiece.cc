@@ -6,26 +6,20 @@
 // modification, are permitted provided that the following conditions are
 // met:
 //
-//     * Redistributions of source code must retain the above copyright
+// * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
+// * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-//     * Neither the name of Google Inc. nor the names of its
+// * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/util/internal/datapiece.h>
 #include <google/protobuf/struct.pb.h>
 #include <google/protobuf/type.pb.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/util/internal/utility.h>
-#include <google/protobuf/stubs/status.h>
-#include <google/protobuf/stubs/strutil.h>
-#include <google/protobuf/stubs/mathutil.h>
 
 namespace google {
 namespace protobuf {
@@ -34,49 +28,47 @@ namespace converter {
 using util::Status;
 
 namespace {
-template <typename To, typename From>
-util::StatusOr<To> ValidateNumberConversion(To after, From before) {
-	if(after == before &&
-	    MathUtil::Sign<From>(before) == MathUtil::Sign<To>(after)) {
+template <typename To, typename From> util::StatusOr<To> ValidateNumberConversion(To after, From before) 
+{
+	if(after == before && MathUtil::Sign<From>(before) == MathUtil::Sign<To>(after)) {
 		return after;
 	}
 	else {
-		return util::InvalidArgumentError(
-			std::is_integral<From>::value       ? ValueAsString(before)
-			: std::is_same<From, double>::value ? DoubleAsString(before)
-			: FloatAsString(before));
+		return util::InvalidArgumentError(std::is_integral<From>::value ? ValueAsString(before)
+			: std::is_same<From, double>::value ? DoubleAsString(before) : FloatAsString(before));
 	}
 }
 
 // For general conversion between
 //     int32, int64, uint32, uint64, double and float
 // except conversion between double and float.
-template <typename To, typename From>
-util::StatusOr<To> NumberConvertAndCheck(From before) {
-	if(std::is_same<From, To>::value) return before;
-
+template <typename To, typename From> util::StatusOr<To> NumberConvertAndCheck(From before) 
+{
+	if(std::is_same<From, To>::value) 
+		return before;
 	To after = static_cast<To>(before);
 	return ValidateNumberConversion(after, before);
 }
 
 // For conversion to integer types (int32, int64, uint32, uint64) from floating
 // point types (double, float) only.
-template <typename To, typename From>
-util::StatusOr<To> FloatingPointToIntConvertAndCheck(From before) {
-	if(std::is_same<From, To>::value) return before;
-
+template <typename To, typename From> util::StatusOr<To> FloatingPointToIntConvertAndCheck(From before) 
+{
+	if(std::is_same<From, To>::value) 
+		return before;
 	To after = static_cast<To>(before);
 	return ValidateNumberConversion(after, before);
 }
 
 // For conversion between double and float only.
-util::StatusOr<double> FloatToDouble(float before) {
-	// Casting float to double should just work as double has more precision
-	// than float.
+util::StatusOr<double> FloatToDouble(float before) 
+{
+	// Casting float to double should just work as double has more precision than float.
 	return static_cast<double>(before);
 }
 
-util::StatusOr<float> DoubleToFloat(double before) {
+util::StatusOr<float> DoubleToFloat(double before) 
+{
 	if(std::isnan(before)) {
 		return std::numeric_limits<float>::quiet_NaN();
 	}
@@ -95,59 +87,52 @@ util::StatusOr<float> DoubleToFloat(double before) {
 }
 }  // namespace
 
-util::StatusOr<int32_t> DataPiece::ToInt32() const {
+util::StatusOr<int32_t> DataPiece::ToInt32() const 
+{
 	if(type_ == TYPE_STRING)
 		return StringToNumber<int32_t>(safe_strto32);
-
 	if(type_ == TYPE_DOUBLE)
 		return FloatingPointToIntConvertAndCheck<int32_t, double>(double_);
-
 	if(type_ == TYPE_FLOAT)
 		return FloatingPointToIntConvertAndCheck<int32_t, float>(float_);
-
 	return GenericConvert<int32_t>();
 }
 
-util::StatusOr<uint32_t> DataPiece::ToUint32() const {
+util::StatusOr<uint32_t> DataPiece::ToUint32() const 
+{
 	if(type_ == TYPE_STRING)
 		return StringToNumber<uint32_t>(safe_strtou32);
-
 	if(type_ == TYPE_DOUBLE)
 		return FloatingPointToIntConvertAndCheck<uint32_t, double>(double_);
-
 	if(type_ == TYPE_FLOAT)
 		return FloatingPointToIntConvertAndCheck<uint32_t, float>(float_);
-
 	return GenericConvert<uint32_t>();
 }
 
-util::StatusOr<int64_t> DataPiece::ToInt64() const {
+util::StatusOr<int64_t> DataPiece::ToInt64() const 
+{
 	if(type_ == TYPE_STRING)
 		return StringToNumber<int64_t>(safe_strto64);
-
 	if(type_ == TYPE_DOUBLE)
 		return FloatingPointToIntConvertAndCheck<int64_t, double>(double_);
-
 	if(type_ == TYPE_FLOAT)
 		return FloatingPointToIntConvertAndCheck<int64_t, float>(float_);
-
 	return GenericConvert<int64_t>();
 }
 
-util::StatusOr<uint64_t> DataPiece::ToUint64() const {
+util::StatusOr<uint64_t> DataPiece::ToUint64() const 
+{
 	if(type_ == TYPE_STRING)
 		return StringToNumber<uint64_t>(safe_strtou64);
-
 	if(type_ == TYPE_DOUBLE)
 		return FloatingPointToIntConvertAndCheck<uint64_t, double>(double_);
-
 	if(type_ == TYPE_FLOAT)
 		return FloatingPointToIntConvertAndCheck<uint64_t, float>(float_);
-
 	return GenericConvert<uint64_t>();
 }
 
-util::StatusOr<double> DataPiece::ToDouble() const {
+util::StatusOr<double> DataPiece::ToDouble() const 
+{
 	if(type_ == TYPE_FLOAT) {
 		return FloatToDouble(float_);
 	}
@@ -168,7 +153,8 @@ util::StatusOr<double> DataPiece::ToDouble() const {
 	return GenericConvert<double>();
 }
 
-util::StatusOr<float> DataPiece::ToFloat() const {
+util::StatusOr<float> DataPiece::ToFloat() const 
+{
 	if(type_ == TYPE_DOUBLE) {
 		return DoubleToFloat(double_);
 	}
@@ -230,17 +216,17 @@ std::string DataPiece::ValueAsStringOrDefault(StringPiece default_string) const
 
 util::StatusOr<std::string> DataPiece::ToBytes() const 
 {
-	if(type_ == TYPE_BYTES) return str_.ToString();
-	if(type_ == TYPE_STRING) {
+	if(type_ == TYPE_BYTES) 
+		return str_.ToString();
+	else if(type_ == TYPE_STRING) {
 		std::string decoded;
-		if(!DecodeBase64(str_, &decoded)) {
+		if(!DecodeBase64(str_, &decoded))
 			return util::InvalidArgumentError(ValueAsStringOrDefault("Invalid data in input."));
-		}
-		return decoded;
+		else
+			return decoded;
 	}
-	else {
+	else
 		return util::InvalidArgumentError(ValueAsStringOrDefault("Wrong type. Only String or Bytes can be converted to Bytes."));
-	}
 }
 
 util::StatusOr<int> DataPiece::ToEnum(const google::protobuf::Enum* enum_type, bool use_lower_camel_for_enums, bool case_insensitive_enum_parsing,

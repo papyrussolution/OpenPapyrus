@@ -1429,6 +1429,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 			SlipDocCommonParam sdc_param;
 			const SString format_name("CCheck");
 			SlipLineParam sl_param;
+			bool   prn_total_sale = true;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
 				SJson * p_inner = new SJson(SJson::tARRAY);
@@ -1530,6 +1531,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 						*/
 						//
 						p_inner->InsertChild(p_js_item);
+						prn_total_sale = false;
 					}
 					else if(sl_param.Kind == sl_param.lkBarcode) {
 						;
@@ -1550,7 +1552,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 						*/
 						SJson * p_js_item = new SJson(SJson::tOBJECT);
 						p_js_item->InsertString("type", "text");
-						p_js_item->InsertString("text", sl_param.Text.Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						p_js_item->InsertString("text", line_buf.Transf(CTRANSF_OUTER_TO_UTF8).Escape());
 						p_js_item->InsertString("alignment", "left");
 						p_js_item->InsertInt("font", 0);
 						p_js_item->InsertBool("doubleWidth", false);
@@ -1559,6 +1561,8 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 					}
 				}
 				p_result->Insert("items", p_inner);
+				if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
+					sum = running_total;
 				{
 					SJson * p_paym_list = new SJson(SJson::tARRAY);
 					{
@@ -1673,7 +1677,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		pPack->Rec.Code = static_cast<long>(stb.ReceiptNumber);
 		if(P_SlipFmt) {
-			int    prn_total_sale = 1;
+			bool   prn_total_sale = true;
 			int    r = 0;
 			SString line_buf;
 			const SString format_name("CCheck");
@@ -1907,7 +1911,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
 						}
 						Flags |= sfOpenCheck;
-						prn_total_sale = 0;
+						prn_total_sale = false;
 					}
 					else if(sl_param.Kind == sl_param.lkBarcode) {
 						;

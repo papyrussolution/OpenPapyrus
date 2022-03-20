@@ -22,18 +22,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- * Keith Packard <keithp@keithp.com>
- *	Graydon Hoare <graydon@redhat.com>
- *	Carl Worth <cworth@cworth.org>
+ * Contributor(s): Keith Packard <keithp@keithp.com> Graydon Hoare <graydon@redhat.com> Carl Worth <cworth@cworth.org>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -75,33 +67,9 @@
  * permission (and suggested modification of doubling sizes) by Keith
  * Packard.
  */
-
 static const ulong hash_table_sizes[] = {
-	43,
-	73,
-	151,
-	283,
-	571,
-	1153,
-	2269,
-	4519,
-	9013,
-	18043,
-	36109,
-	72091,
-	144409,
-	288361,
-	576883,
-	1153459,
-	2307163,
-	4613893,
-	9227641,
-	18455029,
-	36911011,
-	73819861,
-	147639589,
-	295279081,
-	590559793
+	43, 73, 151, 283, 571, 1153, 2269, 4519, 9013, 18043, 36109, 72091, 144409, 288361, 576883, 1153459,
+	2307163, 4613893, 9227641, 18455029, 36911011, 73819861, 147639589, 295279081, 590559793 
 };
 
 struct _cairo_hash_table {
@@ -130,7 +98,6 @@ static boolint _cairo_hash_table_uid_keys_equal(const void * key_a, const void *
 {
 	return TRUE;
 }
-
 /**
  * _cairo_hash_table_create:
  * @keys_equal: a function to return %TRUE if two keys are equal

@@ -1,5 +1,5 @@
 // V_JOBP.CPP
-// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2007, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Редактирование списка задач JobServer'а
 //
@@ -31,6 +31,7 @@ public:
 		StrAssocArray cmd_txt_list;
 		PPID   cmd_id = 0;
 		RVALUEPTR(Data, pData);
+		PreserveDbSymb = Data.DbSymb; // @v11.3.5
 		setCtrlString(CTL_JOBITEM_NAME, Data.Name);
 		setCtrlData(CTL_JOBITEM_SYMB, Data.Symb);
 		setCtrlLong(CTL_JOBITEM_ID, Data.ID);
@@ -76,18 +77,24 @@ public:
 	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
-		PPID   cmd_id = 0;
+		PPID   job_id = 0;
 		uint   sel = 0;
 		getCtrlString(sel = CTL_JOBITEM_NAME, Data.Name);
 		THROW_PP(Data.Name.NotEmptyS(), PPERR_NAMENEEDED);
 		getCtrlData(sel = CTL_JOBITEM_SYMB, Data.Symb);
 		THROW(P_JobPool->CheckUniqueJob(&Data));
-		getCtrlData(sel = CTLSEL_JOBITEM_CMD, &cmd_id);
-		THROW_PP(CmdSymbList.Search(cmd_id), PPERR_INVJOBCMD);
-		THROW(P_Mngr->LoadResource(cmd_id, &Data.Descr));
+		getCtrlData(sel = CTLSEL_JOBITEM_CMD, &job_id);
+		THROW_PP(CmdSymbList.Search(job_id), PPERR_INVJOBCMD);
+		THROW(P_Mngr->LoadResource(job_id, &Data.Descr));
 		getCtrlData(sel = CTLSEL_JOBITEM_NEXTJOB, &Data.NextJobID);
 		GetClusterData(CTL_JOBITEM_FLAGS, &Data.Flags);
 		Data.ScheduleBeforeTime = getCtrlTime(CTL_JOBITEM_SCHDLBEFORE);
+		// @v11.3.5 {
+		if(job_id == PPJOB_STYLOQSENDINDEXINGCONTENT)
+			Data.DbSymb.Z();
+		else
+			Data.DbSymb = PreserveDbSymb;
+		// } @v11.3.5 
 		THROW(CheckRecursion(&Data));
 		ASSIGN_PTR(pData, Data);
 		CATCHZOKPPERRBYDLG
@@ -102,6 +109,7 @@ private:
 	PPJobMngr * P_Mngr;
 	StrAssocArray CmdSymbList;
 	StrAssocArray JobList;
+	SString PreserveDbSymb; // @v11.3.5
 };
 
 IMPL_HANDLE_EVENT(JobItemDialog)
@@ -110,8 +118,14 @@ IMPL_HANDLE_EVENT(JobItemDialog)
 	if(TVCOMMAND)
 		if(event.isCbSelected(CTLSEL_JOBITEM_CMD)) {
 			PPJobDescr job_descr;
-			PPID   job_id = getCtrlLong(CTLSEL_JOBITEM_CMD);
+			const PPID job_id = getCtrlLong(CTLSEL_JOBITEM_CMD);
 			if(job_id && P_Mngr->LoadResource(job_id, &job_descr) > 0) {
+				// @v11.3.5 {
+				if(job_id == PPJOB_STYLOQSENDINDEXINGCONTENT)
+					Data.DbSymb.Z();
+				else
+					Data.DbSymb = PreserveDbSymb;
+				// } @v11.3.5 
 				enableCommand(cmJobParam, !(job_descr.Flags & PPJobDescr::fNoParam));
 				SString name_buf;
 				getCtrlString(CTL_JOBITEM_NAME, name_buf);
@@ -311,8 +325,7 @@ int ViewJobPool()
 	JobPoolDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_READ, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	/*THROW(mngr.LoadPool(db_symb, &pool, 0));*/ //@erik v10.7.4
-	THROW(mngr.LoadPool2(db_symb, &pool, 0)); //@erik v10.7.4
+	THROW(mngr.LoadPool2(db_symb, &pool, 0)); //@erik v10.7.4 LoadPool-->LoadPool2
 	THROW(CheckDialogPtrErr(&(dlg = new JobPoolDialog(&mngr, &pool))));
 	while(ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0));
@@ -413,8 +426,7 @@ int PPViewJob::LoadPool()
 	ZDELETE(P_Pool);
 	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	//THROW(Mngr.LoadPool(db_symb, P_Pool, 0)); //@erik v10.7.4
-	THROW(Mngr.LoadPool2(db_symb, P_Pool, 0)); //@erik v10.7.4
+	THROW(Mngr.LoadPool2(db_symb, P_Pool, 0)); // @erik v10.7.4 LoadPool-->LoadPool2
 	Mngr.GetResourceList(0, CmdSymbList);
 	CATCH
 		ZDELETE(P_Pool);

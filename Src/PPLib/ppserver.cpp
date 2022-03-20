@@ -819,8 +819,9 @@ void PPJobSession::Run()
 {
 	int    ok = 1;
 	int    debug_r = 0;
-	int    is_logged_in = 0, heap_corrupted = 0;
+	int    heap_corrupted = 0;
 	char   secret[64];
+	bool   is_logged_in = false;
 	PPJobMngr mngr;
 	//
 		const PPThreadLocalArea & r_tla = DS.GetConstTLA();
@@ -833,7 +834,7 @@ void PPJobSession::Run()
 		debug_r = 2;
 		THROW(DS.Login(Job.DbSymb, PPSession::P_JobLogin, secret, PPSession::loginfSkipLicChecking));
 		memzero(secret, sizeof(secret));
-		is_logged_in = 1;
+		is_logged_in = true;
 	}
 	debug_r = 3;
 	THROW(DoJob(&mngr, &Job));
@@ -1200,12 +1201,12 @@ int PPJobServer::LoadStat()
 
 int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOnStartUpList, LDATE * pPlanDate)
 {
-	int    ok = -1, r;
-	SString fmt_buf, msg_buf;
-	LDATETIME curdtm = getcurdatetime_();
+	int    ok = -1;
+	SString fmt_buf;
+	SString msg_buf;
+	const LDATETIME curdtm = getcurdatetime_();
 	pPlan->freeAll();
-	//if((r = Mngr.LoadPool(0, pPool, 1))>0) { //@erik v10.7.4
-	r = Mngr.LoadPool2(0, pPool, 1);
+	int    r = Mngr.LoadPool2(0, pPool, 1); 
 	if(r > 0) { //@erik v10.7.4
 		PPJob job;
 		for(PPID id = 0; pPool->Enum(&id, &job) > 0;) {
@@ -4484,17 +4485,17 @@ int run_client()
 				}
 				// } @v7.3.2 @debug
 				else if(sstreqi_ascii(cmd, "connect")) {
-					if(cli.GetState() & PPJobSrvClient::stConnected) {
-						printf("Allready connected\n");
-					}
-					else if(cli.Connect(0, 0)) {
-						printf("Connection OK\n");
-					}
+					const char * p_msg = 0;
+					if(cli.GetState() & PPJobSrvClient::stConnected)
+						p_msg = "Allready connected\n";
+					else if(cli.Connect(0, 0))
+						p_msg = "Connection OK\n";
 					else
-						printf("Connection failed\n");
+						p_msg = "Connection failed\n";
+					printf(p_msg);
 				}
 				else if(cli.GetState() & PPJobSrvClient::stConnected) {
-					int is_quit = (strnicmp(cmd, "quit", 4) == 0) ? 1 : 0;
+					const bool is_quit = (strnicmp(cmd, "quit", 4) == 0);
 					if(cli.Exec(cmd, reply)) {
 						int r = reply.StartReading(&reply_str);
 						if(r == 2) {
@@ -4607,7 +4608,7 @@ int run_service()
 	SERVICE_TABLE_ENTRY dispatch_table[] = {
 		{ _T(SERVICE_NAME), (LPSERVICE_MAIN_FUNCTION)ServiceProcWrapper::ServiceMain }, { NULL, NULL }
 	};
-	return StartServiceCtrlDispatcher(dispatch_table) ? 1 : 0; // @unicodeproblem
+	return StartServiceCtrlDispatcher(dispatch_table) ? 1 : 0;
 }
 
 int RFIDPrcssr()

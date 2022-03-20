@@ -590,18 +590,21 @@ int GtinStruc::Parse(const char * pCode)
 		else if(nta.Has(SNTOK_CHZN_CIGBLOCK)) {
 			// 0104600818007879 21t"XzgHU 8005095000 930p2J24014518552
 			//assert(oneof2(code_buf.Len(), 52, 35));
-			if(code_buf.HasPrefix("01")) {
-				code_buf.ShiftLeft(2);
+			uint prefix_len = code_buf.HasPrefix("01") ? 2 : (code_buf.HasPrefix("(01)") ? 4 : 0);
+			if(prefix_len) {
+				code_buf.ShiftLeft(prefix_len);
 				temp_buf.Z().CatN(code_buf, 14);
 				StrAssocArray::Add(fldGTIN14, temp_buf);
 				code_buf.ShiftLeft(14);
-				if(code_buf.HasPrefix("21")) {
-					code_buf.ShiftLeft(2);
+				prefix_len = code_buf.HasPrefix("21") ? 2 : (code_buf.HasPrefix("(21)") ? 4 : 0);
+				if(prefix_len) {
+					code_buf.ShiftLeft(prefix_len);
 					temp_buf.Z().CatN(code_buf, 7);
 					StrAssocArray::Add(fldSerial, temp_buf);
 					code_buf.ShiftLeft(7);
-					if(code_buf.HasPrefix("8005")) {
-						code_buf.ShiftLeft(4);
+					prefix_len = code_buf.HasPrefix("8005") ? 4 : (code_buf.HasPrefix("(8005)") ? 6 : 0);
+					if(prefix_len) {
+						code_buf.ShiftLeft(prefix_len);
 						temp_buf.Z().CatN(code_buf, 6);
 						StrAssocArray::Add(fldPrice, temp_buf);
 						code_buf.ShiftLeft(6);

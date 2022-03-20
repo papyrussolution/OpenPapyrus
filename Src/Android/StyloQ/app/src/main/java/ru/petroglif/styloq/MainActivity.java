@@ -490,7 +490,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							if(stream != null) {
 								StrStore sst = new StrStore();
 								if(sst.Load(stream)) {
-									test_str_result = sst.GetSring(app_ctx.GetCurrentLang(), "databaserecover");
+									test_str_result = sst.GetString(app_ctx.GetCurrentLang(), "databaserecover");
 									test_str_result = sst.GetString(app_ctx.GetCurrentLang(), ppstr2.PPSTR_ERROR, ppstr2.PPERR_SMS_PASSWNEEDED);
 									test_str_result = sst.GetString(app_ctx.GetCurrentLang(), ppstr2.PPSTR_INFORMATION, ppstr2.PPINF_RECOVERSUCCESS);
 								}

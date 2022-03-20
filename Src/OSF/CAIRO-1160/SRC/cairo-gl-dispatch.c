@@ -21,12 +21,7 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
- * Contributor(s):
- * Alexandros Frantzis <alexandros.frantzis@linaro.org>
+ * Contributor(s): Alexandros Frantzis <alexandros.frantzis@linaro.org>
  */
 #include "cairoint.h"
 #pragma hdrstop

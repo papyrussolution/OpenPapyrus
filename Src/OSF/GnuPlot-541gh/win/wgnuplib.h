@@ -157,6 +157,7 @@ struct TW {
 	void   NewLine();
 	void   UpdateText(int count);
 	int    TextPutChW(WCHAR ch);
+	void   PopupError(LPCWSTR pText);
 	GP_PRINT * P_Lpr;        // must be first 
 	HINSTANCE hInstance;     // required 
 	HINSTANCE hPrevInstance; // required 

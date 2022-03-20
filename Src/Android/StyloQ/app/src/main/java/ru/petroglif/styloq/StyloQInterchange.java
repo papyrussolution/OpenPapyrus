@@ -1705,6 +1705,14 @@ public class StyloQInterchange {
 				//    за информацией о конфигурации сервиса.
 				//
 				if(SLib.GetLen(param.AccsPoint) <= 0) {
+					StyloQConfig svc_cfg = QuerySvcConfig(appCtx, param.SvcIdent);
+					if(svc_cfg != null) {
+						param.AccsPoint = svc_cfg.Get(StyloQConfig.tagUrl);
+						param.MqbAuth = svc_cfg.Get(StyloQConfig.tagMqbAuth);
+						param.MqbSecret = svc_cfg.Get(StyloQConfig.tagMqbSecret);
+					}
+				}
+				if(SLib.GetLen(param.AccsPoint) <= 0) {
 					StyloQDatabase.SecStoragePacket svc_pack = dbs.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, param.SvcIdent);
 					if(svc_pack != null) {
 						byte [] raw_svc_cfg = svc_pack.Pool.Get(SecretTagPool.tagConfig);
@@ -1719,14 +1727,6 @@ public class StyloQInterchange {
 								}
 							}
 						}
-					}
-				}
-				if(SLib.GetLen(param.AccsPoint) <= 0) {
-					StyloQConfig svc_cfg = QuerySvcConfig(appCtx, param.SvcIdent);
-					if(svc_cfg != null) {
-						param.AccsPoint = svc_cfg.Get(StyloQConfig.tagUrl);
-						param.MqbAuth = svc_cfg.Get(StyloQConfig.tagMqbAuth);
-						param.MqbSecret = svc_cfg.Get(StyloQConfig.tagMqbSecret);
 					}
 				}
 				if(SLib.GetLen(param.AccsPoint) > 0) {

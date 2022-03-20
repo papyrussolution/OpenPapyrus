@@ -88,7 +88,7 @@ constexpr int NullValue_ARRAYSIZE = NullValue_MAX + 1;
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* NullValue_descriptor();
 template<typename T>
-inline const std::string & NullValue_Name(T enum_t_value) {
+inline const std::string& NullValue_Name(T enum_t_value) {
   static_assert(::std::is_same<T, NullValue>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function NullValue_Name.");
@@ -411,15 +411,15 @@ class Value final :
   bool _internal_has_string_value() const;
   public:
   void clear_string_value();
-  const std::string & string_value() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& string_value() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_string_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_string_value();
   PROTOBUF_NODISCARD std::string* release_string_value();
   void set_allocated_string_value(std::string* string_value);
   private:
-  const std::string & _internal_string_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_string_value(const std::string & value);
+  const std::string& _internal_string_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_string_value(const std::string& value);
   std::string* _internal_mutable_string_value();
   public:
 
@@ -774,7 +774,7 @@ inline void Value::clear_string_value() {
     clear_has_kind();
   }
 }
-inline const std::string & Value::string_value() const {
+inline const std::string& Value::string_value() const {
   // @@protoc_insertion_point(field_get:google.protobuf.Value.string_value)
   return _internal_string_value();
 }
@@ -793,13 +793,13 @@ inline std::string* Value::mutable_string_value() {
   // @@protoc_insertion_point(field_mutable:google.protobuf.Value.string_value)
   return _s;
 }
-inline const std::string & Value::_internal_string_value() const {
+inline const std::string& Value::_internal_string_value() const {
   if(_internal_has_string_value()) {
     return kind_.string_value_.Get();
   }
   return ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited();
 }
-inline void Value::_internal_set_string_value(const std::string & value) {
+inline void Value::_internal_set_string_value(const std::string& value) {
   if(!_internal_has_string_value()) {
     clear_kind();
     set_has_string_value();

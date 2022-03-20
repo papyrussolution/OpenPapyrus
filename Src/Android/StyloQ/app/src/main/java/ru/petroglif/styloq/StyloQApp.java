@@ -202,6 +202,10 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
+	public String GetString(String signature)
+	{
+		return _StrStor.GetString(GetCurrentLang(), signature);
+	}
 	public void DisplayMessage(View anchorView, String msg, int duration)
 	{
 		Toast window = Toast.makeText(this, msg, duration);

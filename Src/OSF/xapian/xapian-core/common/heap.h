@@ -53,10 +53,10 @@
 // of the Software, and to permit persons to whom the Software is furnished to do
 // so, subject to the following conditions:
 //
-//     * Redistributions of source code must retain the above copyright notice,
+// * Redistributions of source code must retain the above copyright notice,
 //       this list of conditions and the following disclaimers.
 //
-//     * Redistributions in binary form must reproduce the above copyright notice,
+// * Redistributions in binary form must reproduce the above copyright notice,
 //       this list of conditions and the following disclaimers in the
 //       documentation and/or other materials provided with the distribution.
 //

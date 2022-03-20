@@ -23,17 +23,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *	Carl Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -208,48 +201,38 @@ cairo_device_t * cairo_glx_device_create(Display * dpy, GLXContext gl_ctx)
 	ctx->base.make_current = _glx_make_current;
 	ctx->base.swap_buffers = _glx_swap_buffers;
 	ctx->base.destroy = _glx_destroy;
-
-	status = _cairo_gl_dispatch_init(&ctx->base.dispatch,
-		(cairo_gl_get_proc_addr_func_t)glXGetProcAddress);
+	status = _cairo_gl_dispatch_init(&ctx->base.dispatch, (cairo_gl_get_proc_addr_func_t)glXGetProcAddress);
 	if(UNLIKELY(status)) {
 		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
-
 	status = _cairo_gl_context_init(&ctx->base);
 	if(UNLIKELY(status)) {
 		SAlloc::F(ctx);
 		return _cairo_gl_context_create_in_error(status);
 	}
-
 	glx_extensions = glXQueryExtensionsString(dpy, DefaultScreen(dpy));
 	if(strstr(glx_extensions, "GLX_MESA_multithread_makecurrent")) {
 		ctx->has_multithread_makecurrent = TRUE;
 	}
-
 	ctx->base.release(ctx);
-
 	return &ctx->base.base;
 }
 
 Display * cairo_glx_device_get_display(cairo_device_t * device)
 {
 	cairo_glx_context_t * ctx;
-
 	if(device->backend->type != CAIRO_DEVICE_TYPE_GL) {
 		_cairo_error_throw(CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
 		return NULL;
 	}
-
 	ctx = (cairo_glx_context_t*)device;
-
 	return ctx->display;
 }
 
 GLXContext cairo_glx_device_get_context(cairo_device_t * device)
 {
 	cairo_glx_context_t * ctx;
-
 	if(device->backend->type != CAIRO_DEVICE_TYPE_GL) {
 		_cairo_error_throw(CAIRO_STATUS_DEVICE_TYPE_MISMATCH);
 		return NULL;

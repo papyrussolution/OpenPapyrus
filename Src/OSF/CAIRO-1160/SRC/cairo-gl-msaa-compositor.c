@@ -25,18 +25,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
- *
- * Contributor(s):
- *	Henry Song <hsong@sisa.samsung.com>
- *	Martin Robinson <mrobinson@igalia.com>
+ * Contributor(s): Henry Song <hsong@sisa.samsung.com> Martin Robinson <mrobinson@igalia.com>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -48,9 +40,7 @@
 #include "cairo-path-private.h"
 //#include "cairo-traps-private.h"
 
-static boolint can_use_msaa_compositor(cairo_gl_surface_t * surface,
-    cairo_antialias_t antialias);
-
+static boolint can_use_msaa_compositor(cairo_gl_surface_t * surface, cairo_antialias_t antialias);
 static void query_surface_capabilities(cairo_gl_surface_t * surface);
 
 struct _tristrip_composite_info {
@@ -58,57 +48,36 @@ struct _tristrip_composite_info {
 	cairo_gl_context_t * ctx;
 };
 
-static cairo_int_status_t _draw_trap(cairo_gl_context_t * ctx,
-    cairo_gl_composite_t * setup,
-    cairo_trapezoid_t * trap)
+static cairo_int_status_t _draw_trap(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, cairo_trapezoid_t * trap)
 {
 	cairo_point_t quad[4];
-
-	quad[0].x = _cairo_edge_compute_intersection_x_for_y(&trap->left.p1,
-		&trap->left.p2,
-		trap->top);
+	quad[0].x = _cairo_edge_compute_intersection_x_for_y(&trap->left.p1, &trap->left.p2, trap->top);
 	quad[0].y = trap->top;
-
-	quad[1].x = _cairo_edge_compute_intersection_x_for_y(&trap->left.p1,
-		&trap->left.p2,
-		trap->bottom);
+	quad[1].x = _cairo_edge_compute_intersection_x_for_y(&trap->left.p1, &trap->left.p2, trap->bottom);
 	quad[1].y = trap->bottom;
-
-	quad[2].x = _cairo_edge_compute_intersection_x_for_y(&trap->right.p1,
-		&trap->right.p2,
-		trap->bottom);
+	quad[2].x = _cairo_edge_compute_intersection_x_for_y(&trap->right.p1, &trap->right.p2, trap->bottom);
 	quad[2].y = trap->bottom;
-
-	quad[3].x = _cairo_edge_compute_intersection_x_for_y(&trap->right.p1,
-		&trap->right.p2,
-		trap->top);
+	quad[3].x = _cairo_edge_compute_intersection_x_for_y(&trap->right.p1, &trap->right.p2, trap->top);
 	quad[3].y = trap->top;
 	return _cairo_gl_composite_emit_quad_as_tristrip(ctx, setup, quad);
 }
 
-static cairo_int_status_t _draw_traps(cairo_gl_context_t * ctx,
-    cairo_gl_composite_t * setup,
-    cairo_traps_t * traps)
+static cairo_int_status_t _draw_traps(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, cairo_traps_t * traps)
 {
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
 	int i;
-
 	for(i = 0; i < traps->num_traps; i++) {
 		cairo_trapezoid_t * trap = traps->traps + i;
 		if(UNLIKELY((status = _draw_trap(ctx, setup, trap))))
 			return status;
 	}
-
 	return status;
 }
 
-static cairo_int_status_t _draw_int_rect(cairo_gl_context_t * ctx,
-    cairo_gl_composite_t * setup,
-    cairo_rectangle_int_t * rect)
+static cairo_int_status_t _draw_int_rect(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, cairo_rectangle_int_t * rect)
 {
 	cairo_box_t box;
 	cairo_point_t quad[4];
-
 	_cairo_box_from_rectangle(&box, rect);
 	quad[0].x = box.p1.x;
 	quad[0].y = box.p1.y;
@@ -118,28 +87,21 @@ static cairo_int_status_t _draw_int_rect(cairo_gl_context_t * ctx,
 	quad[2].y = box.p2.y;
 	quad[3].x = box.p2.x;
 	quad[3].y = box.p1.y;
-
 	return _cairo_gl_composite_emit_quad_as_tristrip(ctx, setup, quad);
 }
 
-static cairo_int_status_t _draw_triangle_fan(cairo_gl_context_t * ctx,
-    cairo_gl_composite_t * setup,
-    const cairo_point_t * midpt,
-    const cairo_point_t * points,
-    int npoints)
+static cairo_int_status_t _draw_triangle_fan(cairo_gl_context_t * ctx, cairo_gl_composite_t * setup, const cairo_point_t * midpt,
+    const cairo_point_t * points, int npoints)
 {
 	int i;
-
 	/* Our strategy here is to not even try to build a triangle fan, but to
 	   draw each triangle as if it was an unconnected member of a triangle strip. */
 	for(i = 1; i < npoints; i++) {
 		cairo_int_status_t status;
 		cairo_point_t triangle[3];
-
 		triangle[0] = *midpt;
 		triangle[1] = points[i - 1];
 		triangle[2] = points[i];
-
 		status = _cairo_gl_composite_emit_triangle_as_tristrip(ctx, setup, triangle);
 		if(UNLIKELY(status))
 			return status;

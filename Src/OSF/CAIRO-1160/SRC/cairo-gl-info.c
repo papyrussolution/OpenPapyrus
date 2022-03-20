@@ -21,12 +21,7 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
- * Contributor(s):
- * Alexandros Frantzis <alexandros.frantzis@linaro.org>
+ * Contributor(s): Alexandros Frantzis <alexandros.frantzis@linaro.org>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -40,7 +35,6 @@ int _cairo_gl_get_version(void)
 	const char * version = (const char *)glGetString(GL_VERSION);
 	const char * dot = version == NULL ? NULL : sstrchr(version, '.');
 	const char * major_start = dot;
-
 	/* Sanity check */
 	if(dot == NULL || dot == version || *(dot + 1) == '\0') {
 		major = 0;
@@ -61,7 +55,6 @@ cairo_gl_flavor_t _cairo_gl_get_flavor(void)
 {
 	const char * version = (const char *)glGetString(GL_VERSION);
 	cairo_gl_flavor_t flavor;
-
 	if(version == NULL)
 		flavor = CAIRO_GL_FLAVOR_NONE;
 	else if(strstr(version, "OpenGL ES 3") != NULL)

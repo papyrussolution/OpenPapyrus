@@ -6,13 +6,13 @@
 // modification, are permitted provided that the following conditions are
 // met:
 //
-//     * Redistributions of source code must retain the above copyright
+// * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
+// * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-//     * Neither the name of Google Inc. nor the names of its
+// * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
@@ -34,35 +34,35 @@
 #include <google/protobuf/port_def.inc>
 
 namespace google {
-namespace protobuf {
-namespace internal {
-// Basic operations that can be performed using reflection.
-// These can be used as a cheap way to implement the corresponding
-// methods of the Message interface, though they are likely to be
-// slower than implementations tailored for the specific message type.
-//
-// This class should stay limited to operations needed to implement
-// the Message interface.
-//
-// This class is really a namespace that contains only static methods.
-class PROTOBUF_EXPORT ReflectionOps {
-public:
-	static void Copy(const Message& from, Message* to);
-	static void Merge(const Message& from, Message* to);
-	static void Clear(Message* message);
-	static bool IsInitialized(const Message& message);
-	static bool IsInitialized(const Message& message, bool check_fields, bool check_descendants);
-	static void DiscardUnknownFields(Message* message);
-	// Finds all unset required fields in the message and adds their full
-	// paths (e.g. "foo.bar[5].baz") to *names.  "prefix" will be attached to
-	// the front of each name.
-	static void FindInitializationErrors(const Message& message, const std::string & prefix, std::vector<std::string>* errors);
-private:
-	// All methods are static.  No need to construct.
-	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReflectionOps);
-};
-}  // namespace internal
-}  // namespace protobuf
+	namespace protobuf {
+		namespace internal {
+			// Basic operations that can be performed using reflection.
+			// These can be used as a cheap way to implement the corresponding
+			// methods of the Message interface, though they are likely to be
+			// slower than implementations tailored for the specific message type.
+			//
+			// This class should stay limited to operations needed to implement
+			// the Message interface.
+			//
+			// This class is really a namespace that contains only static methods.
+			class PROTOBUF_EXPORT ReflectionOps {
+			public:
+				static void Copy(const Message& from, Message* to);
+				static void Merge(const Message& from, Message* to);
+				static void Clear(Message* message);
+				static bool IsInitialized(const Message& message);
+				static bool IsInitialized(const Message& message, bool check_fields, bool check_descendants);
+				static void DiscardUnknownFields(Message* message);
+				// Finds all unset required fields in the message and adds their full
+				// paths (e.g. "foo.bar[5].baz") to *names.  "prefix" will be attached to
+				// the front of each name.
+				static void FindInitializationErrors(const Message& message, const std::string & prefix, std::vector<std::string>* errors);
+			private:
+				// All methods are static.  No need to construct.
+				GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReflectionOps);
+			};
+		}  // namespace internal
+	}  // namespace protobuf
 }  // namespace google
 
 #include <google/protobuf/port_undef.inc>

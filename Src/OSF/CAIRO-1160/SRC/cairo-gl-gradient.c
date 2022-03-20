@@ -23,19 +23,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *	Benjamin Otte <otte@gnome.org>
- *	Carl Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Eric Anholt <eric@anholt.net>
+ * Contributor(s): Benjamin Otte <otte@gnome.org> Carl Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk> Eric Anholt <eric@anholt.net>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -44,40 +35,30 @@
 #include "cairo-gl-gradient-private.h"
 #include "cairo-gl-private.h"
 
-static int _cairo_gl_gradient_sample_width(uint n_stops,
-    const cairo_gradient_stop_t * stops)
+static int _cairo_gl_gradient_sample_width(uint n_stops, const cairo_gradient_stop_t * stops)
 {
 	uint n;
-	int width;
-
-	width = 8;
+	int width = 8;
 	for(n = 1; n < n_stops; n++) {
 		double dx = stops[n].offset - stops[n-1].offset;
 		double delta, max;
 		int ramp;
-
 		if(dx == 0)
 			return 1024; /* we need to emulate an infinitely sharp step */
-
 		max = fabs(stops[n].color.red - stops[n-1].color.red);
-
 		delta = fabs(stops[n].color.green - stops[n-1].color.green);
 		if(delta > max)
 			max = delta;
-
 		delta = fabs(stops[n].color.blue - stops[n-1].color.blue);
 		if(delta > max)
 			max = delta;
-
 		delta = fabs(stops[n].color.alpha - stops[n-1].color.alpha);
 		if(delta > max)
 			max = delta;
-
 		ramp = 128 * max / dx;
 		if(ramp > width)
 			width = ramp;
 	}
-
 	return (width + 7) & -8;
 }
 

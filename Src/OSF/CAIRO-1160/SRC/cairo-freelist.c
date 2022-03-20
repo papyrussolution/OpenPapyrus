@@ -66,12 +66,10 @@ void _cairo_freepool_init(cairo_freepool_t * freepool, unsigned nodesize)
 	freepool->pools = &freepool->embedded_pool;
 	freepool->freepools = NULL;
 	freepool->nodesize = nodesize;
-
 	freepool->embedded_pool.next = NULL;
 	freepool->embedded_pool.size = sizeof(freepool->embedded_data);
 	freepool->embedded_pool.rem = sizeof(freepool->embedded_data);
 	freepool->embedded_pool.data = freepool->embedded_data;
-
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(freepool->embedded_data, sizeof(freepool->embedded_data)));
 }
 
@@ -96,16 +94,13 @@ void * _cairo_freepool_alloc_from_new_pool(cairo_freepool_t * freepool)
 {
 	cairo_freelist_pool_t * pool;
 	int poolsize;
-	if(freepool->freepools != NULL) {
+	if(freepool->freepools) {
 		pool = freepool->freepools;
 		freepool->freepools = pool->next;
 		poolsize = pool->size;
 	}
 	else {
-		if(freepool->pools != &freepool->embedded_pool)
-			poolsize = 2 * freepool->pools->size;
-		else
-			poolsize = (128 * freepool->nodesize + 8191) & -8192;
+		poolsize = (freepool->pools != &freepool->embedded_pool) ? (2 * freepool->pools->size) : ((128 * freepool->nodesize + 8191) & -8192);
 		pool = (cairo_freelist_pool_t *)_cairo_malloc(sizeof(cairo_freelist_pool_t) + poolsize);
 		if(UNLIKELY(pool == NULL))
 			return pool;

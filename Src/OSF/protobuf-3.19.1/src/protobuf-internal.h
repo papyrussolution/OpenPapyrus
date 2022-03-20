@@ -70,6 +70,8 @@
 #include <google/protobuf/stubs/map_util.h>
 #include <google/protobuf/stubs/stringprintf.h>
 #include <google/protobuf/stubs/bytestream.h>
+#include <google/protobuf/stubs/status.h>
+#include <google/protobuf/stubs/mathutil.h>
 #include <google/protobuf/map_field.h>
 #include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/any.h>
@@ -102,5 +104,7 @@
 #include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/message.h>
+#include <google/protobuf/util/internal/datapiece.h>
+#include <google/protobuf/util/internal/utility.h>
 
 #endif // PROTOBUF_INTERNAL_H

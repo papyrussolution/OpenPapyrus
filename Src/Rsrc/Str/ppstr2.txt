@@ -4678,6 +4678,7 @@ PPTXT_EGAIS_RECADVCFMACCEPTED       "Для ТТН @{brand_egais} '%s' выпо�
 PPTXT_EGAIS_RECADVCFMREJECTED       "Подтверждение RECADV для ТТН @{brand_egais} '%s' отклонено сервером @{brand_egais}"
 PPTXT_EGAIS_REGRADING     /!/       "Пересортица"
 PPTXT_EGAIS_LACK          /!/       "Недостача"
+PPTXT_EGAIS_SALE          /!/       "Реализация"
 PPTXT_EGAIS_QP_INN        /!/       "ИНН"
 PPTXT_EGAIS_QP_CIO        /!/       "СИО"
 PPTXT_EGAIS_QP_KOD        /!/       "КОД"
@@ -17189,13 +17190,13 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @fias_prevhistrecid                           "Идентификатор записи связывания с предыдушей исторической записью"
 @fias_nexthistrecid                           "Идентификатор записи связывания с последующей исторической записью"
 
-@styloq_binderykind_nativeservice             "Собственная идентификация" // 1
-@styloq_binderykind_foreignservice            "Сервис"                    // 2
-@styloq_binderykind_client                    "Клиент"                    // 3
-@styloq_binderykind_session                   "Сессия"                    // 4
-@styloq_binderykind_face                      "Лик"                       // 5
-@styloq_binderykind_docincoming               "Входящий документ"         // 6
-@styloq_binderykind_docoutcominig             "Исходящий документ"        // 7
+@styloq_binderykind_nativeservice             "Собственная идентификация Stylo-Q" // 1
+@styloq_binderykind_foreignservice            "Сервис Stylo-Q"             // 2
+@styloq_binderykind_client                    "Клиент Stylo-Q"             // 3
+@styloq_binderykind_session                   "Сессия Stylo-Q"             // 4
+@styloq_binderykind_face                      "Лик Stylo-Q"                // 5
+@styloq_binderykind_docincoming               "Входящий документ Stylo-Q"  // 6
+@styloq_binderykind_docoutcominig             "Исходящий документ Stylo-Q" // 7
 
 @styloqbasecmd_personevent                    "@{personevent}"
 @styloqbasecmd_report                         "@{report}"
@@ -17269,6 +17270,12 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @complexlayouttype_inplbl                     "Поле ввода - этикетка"
 @complexlayouttype_inplblbtn                  "Поле ввода - этикетка - кнопка"
 @complexlayouttype_inplblbtn2                 "Поле ввода - этикетка - кнопка - кнопка"
+
+@styloqindexingparam                          "Параметры индексации сервиса StyloQ"
+@styloqindexingparam_fgoods                   "Индексировать товары"
+@styloqindexingparam_fgoodsgroups             "Индексировать товарные группы"
+@styloqindexingparam_fbrands                  "Индексировать бренды"
+@styloqindexingparam_fprocessors              "Индексировать процессоры"
 
 [121]
 1   "Вход"

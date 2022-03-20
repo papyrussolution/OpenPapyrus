@@ -2977,7 +2977,7 @@ int PPEgaisProcessor::Helper_Write(Packet & rPack, PPID locID, xmlTextWriter * p
 							n_h.PutInner(SXml::nst("awr", "ActNumber"), EncText(temp_buf = p_bp->Rec.Code));
 							n_h.PutInner(SXml::nst("awr", "ActDate"), EncText(temp_buf.Z().Cat(p_bp->Rec.Dt, DATF_ISO8601|DATF_CENTURY)));
 							if(p_bp->BTagL.GetItemStr(PPTAG_BILL_FORMALREASON, temp_buf) <= 0) {
-								PPLoadText(PPTXT_EGAIS_LACK, temp_buf);
+								PPLoadText(/*PPTXT_EGAIS_LACK*/PPTXT_EGAIS_SALE, temp_buf); // @v11.3.5 PPTXT_EGAIS_LACK-->PPTXT_EGAIS_SALE
 							}
 							n_h.PutInner(SXml::nst("awr", "TypeWriteOff"), EncText(temp_buf));
 						}

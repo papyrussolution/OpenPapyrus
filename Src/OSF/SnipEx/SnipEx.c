@@ -347,6 +347,10 @@ struct SnipExGlobals {
 	{
 		MessageBoxW(gMainWindowHandle, pMsg, L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
 	}
+	void    PopupMessageErr_ZP(LPCWSTR pMsg)
+	{
+		MessageBoxW(0, pMsg, L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+	}
 	HRESULT AddAllMenuItems(_In_ HINSTANCE Instance)
 	{
 		HRESULT Result = S_OK;
@@ -627,7 +631,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	UNREFERENCED_PARAMETER(CommandLine);
 	UNREFERENCED_PARAMETER(WindowShowCode);
 	if((SnExG.gFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT)) == NULL) {
-		MessageBoxW(0, L"Failed to retrieve default GUI font!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to retrieve default GUI font!");
 		return 0;
 	}
 	SnExG.gFontColor = RGB(255, 0, 255);
@@ -642,7 +646,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	SnExG.gDisplayLeft   = (INT16)GetSystemMetrics(SM_XVIRTUALSCREEN);
 	SnExG.gDisplayTop    = (INT16)GetSystemMetrics(SM_YVIRTUALSCREEN);
 	if(!SnExG.gDisplayWidth || !SnExG.gDisplayHeight) {
-		MessageBoxW(0, L"Failed to retrieve display area via GetSystemMetrics!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to retrieve display area via GetSystemMetrics!");
 		return 0;
 	}
 	MyOutputDebugStringW(L"[%s] Line %d: Detected a screen area of %dx%d.\n", __FUNCTIONW__, __LINE__, SnExG.gDisplayWidth, SnExG.gDisplayHeight);
@@ -660,7 +664,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	CaptureWindowClass.lpfnWndProc   = CaptureWindowCallback;
 	if(RegisterClassEx(&CaptureWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassEx failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(0, L"Failed to register CaptureWindowClass with error 0x%lx!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to register CaptureWindowClass with error 0x%lx!");
 		return 0;
 	}
 	// This window will capture the entire display surface, including multiple monitors. It will then display an
@@ -672,14 +676,14 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		CaptureWindowClass.lpszClassName, L"", 0/*Not visible*/, CW_USEDEFAULT, CW_USEDEFAULT, 0/*Will size it later*/, 0, NULL, NULL, Instance, NULL);
 	if(SnExG.gCaptureWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (capture window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(0, L"Failed to create Capture Window!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to create Capture Window!");
 		return 0;
 	}
 	// Remove all window style, including title bar. We're trying to make the "capture window" indistinguishable
 	// from the real desktop that lay underneath it.
 	if(SetWindowLongPtrW(SnExG.gCaptureWindowHandle, GWL_STYLE, 0) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: SetWindowLongPtwW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(0, L"SetWindowLongPtrW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"SetWindowLongPtrW failed!");
 		return 0;
 	}
 	// The main window class that appears when the application is first launched.
@@ -695,7 +699,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	MainWindowClass.hIconSm       = LoadIconW(Instance, MAKEINTRESOURCEW(IDI_MAINAPPICON));
 	if(RegisterClassExW(&MainWindowClass) == 0) {
 		MyOutputDebugStringW(L"[%s] Line %d: RegisterClassExW failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(0, L"RegisterClassExW failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"RegisterClassExW failed!");
 		return 0;
 	}
 	SnExG.gMainWindowHandle = CreateWindowExW(0, MainWindowClass.lpszClassName, L"SnipEx",
@@ -703,7 +707,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 		CW_USEDEFAULT, CW_USEDEFAULT, SnExG.gStartingMainWindowWidth, SnExG.gStartingMainWindowHeight, NULL, NULL, Instance, NULL);
 	if(SnExG.gMainWindowHandle == NULL) {
 		MyOutputDebugStringW(L"[%s] Line %d: CreateWindowEx (main window) failed with 0x%lx!\n", __FUNCTIONW__, __LINE__, GetLastError());
-		MessageBoxW(0, L"CreateWindowEx (main window) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"CreateWindowEx (main window) failed!");
 		return 0;
 	}
 	#if _DEBUG
@@ -722,7 +726,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			p_button->Rectangle.bottom, SnExG.gMainWindowHandle, (HMENU)p_button->Id, (HINSTANCE)GetWindowLongPtr(SnExG.gMainWindowHandle, GWLP_HINSTANCE), NULL);
 		if(ButtonHandle == NULL) {
 			MyOutputDebugStringW(L"[%s] Line %d: Failed to create %s button with error 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->Caption, GetLastError());
-			MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+			SnExG.PopupMessageErr_ZP(L"Failed to create button!");
 			return 0;
 		}
 		p_button->Handle = ButtonHandle;
@@ -730,7 +734,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			p_button->EnabledIcon = (HBITMAP)LoadImageW(Instance, MAKEINTRESOURCEW(p_button->EnabledIconId), IMAGE_BITMAP, 0, 0, 0);
 			if(p_button->EnabledIcon == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->EnabledIconId, GetLastError());
-				MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+				SnExG.PopupMessageErr_ZP(L"Failed to create button!");
 				return 0;
 			}
 		}
@@ -739,7 +743,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 				IMAGE_BITMAP, 0, 0, 0);
 			if(p_button->DisabledIcon == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->DisabledIconId, GetLastError());
-				MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+				SnExG.PopupMessageErr_ZP(L"Failed to create button!");
 				return 0;
 			}
 		}
@@ -747,7 +751,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 			p_button->Cursor = LoadCursor(Instance, MAKEINTRESOURCE(p_button->CursorId));
 			if(p_button->Cursor == NULL) {
 				MyOutputDebugStringW(L"[%s] Line %d: Loading resource %d failed! Error: 0x%lx\n", __FUNCTIONW__, __LINE__, p_button->CursorId, GetLastError());
-				MessageBoxW(0, L"Failed to create button!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+				SnExG.PopupMessageErr_ZP(L"Failed to create button!");
 				return 0;
 			}
 		}
@@ -756,7 +760,7 @@ int CALLBACK WinMain(_In_ HINSTANCE Instance, _In_opt_ HINSTANCE PreviousInstanc
 	// Add custom menu items to the form's system menu in the top left
 	if(SnExG.AddAllMenuItems(Instance) != S_OK) {
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR: Adding drop-down menu items failed!\n", __FUNCTIONW__, __LINE__);
-		MessageBoxW(0, L"Failed to create drop-down menu items!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to create drop-down menu items!");
 		return 0;
 	}
 	SnExG.AdjustWindowSizeForThickTitleBars(); // @20201025
@@ -972,28 +976,28 @@ LRESULT CALLBACK MainWindowCallback(_In_ HWND Window, _In_ UINT Message, _In_ WP
 				    BYTE HilightBits[] = { 0, 0, 0, 0 };
 				    switch(gHilighterButton.Color) {
 					    case COLOR_YELLOW:
-							memset(&HilightBits[0], 0x00, 1);
-							memset(&HilightBits[1], 0xFF, 1);
-							memset(&HilightBits[2], 0xFF, 1);
-							memset(&HilightBits[3], 0xFF, 1);
+							HilightBits[0] = 0x00;
+							HilightBits[1] = 0xFF;
+							HilightBits[2] = 0xFF;
+							HilightBits[3] = 0xFF;
 							break;
 					    case COLOR_PINK:
-							memset(&HilightBits[0], 0xDC, 1);
-							memset(&HilightBits[1], 0x00, 1);
-							memset(&HilightBits[2], 0xFF, 1);
-							memset(&HilightBits[3], 0xFF, 1);
+							HilightBits[0] = 0xDC;
+							HilightBits[1] = 0x00;
+							HilightBits[2] = 0xFF;
+							HilightBits[3] = 0xFF;
 							break;
 					    case COLOR_ORANGE:
-							memset(&HilightBits[0], 0x00, 1);
-							memset(&HilightBits[1], 0x6A, 1);
-							memset(&HilightBits[2], 0xFF, 1);
-							memset(&HilightBits[3], 0xFF, 1);
+							HilightBits[0] = 0x00;
+							HilightBits[1] = 0x6A;
+							HilightBits[2] = 0xFF;
+							HilightBits[3] = 0xFF;
 							break;
 					    case COLOR_GREEN:
-							memset(&HilightBits[0], 0x00, 1);
-							memset(&HilightBits[1], 0xFF, 1);
-							memset(&HilightBits[2], 0x00, 1);
-							memset(&HilightBits[3], 0xFF, 1);
+							HilightBits[0] = 0x00;
+							HilightBits[1] = 0xFF;
+							HilightBits[2] = 0x00;
+							HilightBits[3] = 0xFF;
 							break;
 					    default:
 							MyOutputDebugStringW(L"[%s] Line %d: BUG: Unknown color in hilighter function!\n", __FUNCTIONW__, __LINE__);
@@ -1883,17 +1887,17 @@ BOOL NewButton_Click(void)
 	Sleep(250);
 	ScreenDC = GetDC(NULL);
 	if(ScreenDC == NULL) {
-		MessageBoxW(0, L"GetDC(NULL) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"GetDC(NULL) failed!");
 		goto Cleanup;
 	}
 	MemoryDC = CreateCompatibleDC(ScreenDC);
 	if(MemoryDC == NULL) {
-		MessageBoxW(0, L"CreateCompatibleDC(ScreenDC) failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"CreateCompatibleDC(ScreenDC) failed!");
 		goto Cleanup;
 	}
 	SnExG.gCleanScreenShot = CreateCompatibleBitmap(ScreenDC, SnExG.gDisplayWidth, SnExG.gDisplayHeight);
 	if(SnExG.gCleanScreenShot == NULL) {
-		MessageBoxW(0, L"CreateCompatibleBitmap failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"CreateCompatibleBitmap failed!");
 		goto Cleanup;
 	}
 	SelectObject(MemoryDC, SnExG.gCleanScreenShot);
@@ -1924,12 +1928,12 @@ BOOL SaveButton_Click(void)
 	BOOL Result = FALSE;
 	COMError = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED);
 	if(FAILED(COMError)) {
-		MessageBoxW(0, L"Failed to initialize COM!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to initialize COM!");
 		goto Cleanup;
 	}
 	COMError = CoCreateInstance(CLSID_FileSaveDialog, NULL, CLSCTX_INPROC_SERVER, IID_IFileSaveDialog, (void**)&DialogInterface);
 	if(FAILED(COMError)) {
-		MessageBoxW(0, L"Failed to create COM instance of IFileDialog!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to create COM instance of IFileDialog!");
 		goto Cleanup;
 	}
 	DialogInterface->/*lpVtbl->*/SetFileTypes(_countof(FileTypeFilters), FileTypeFilters);
@@ -1942,14 +1946,13 @@ BOOL SaveButton_Click(void)
 	}
 	ResultItem->/*lpVtbl->*/GetDisplayName(SIGDN_FILESYSPATH, &FilePathFromDialogW);
 	if(wcslen(FilePathFromDialogW) <= 3 || wcslen(FilePathFromDialogW) >= MAX_PATH - 5) {
-		MessageBoxW(0, L"File path was too short or too long!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"File path was too short or too long!");
 		goto Cleanup;
 	}
 	wcscpy_s(FinalFilePathW, MAX_PATH, FilePathFromDialogW);
 	DialogInterface->/*lpVtbl->*/GetFileTypeIndex(&SelectedFileTypeIndex);
 	switch(SelectedFileTypeIndex) {
 		case 1:
-	    {
 		    if(wcslen(FinalFilePathW) < 5) {
 			    wcscat_s(FinalFilePathW, MAX_PATH, L".png");
 		    }
@@ -1963,9 +1966,7 @@ BOOL SaveButton_Click(void)
 			    goto Cleanup;
 		    }
 		    break;
-	    }
 		case 2:
-	    {
 		    if(wcslen(FinalFilePathW) < 5) {
 			    wcscat_s(FinalFilePathW, MAX_PATH, L".bmp");
 		    }
@@ -1979,20 +1980,15 @@ BOOL SaveButton_Click(void)
 			    goto Cleanup;
 		    }
 		    break;
-	    }
 		default:
-		    MessageBoxW(0, L"File type selection was not in the expected range of values!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		    SnExG.PopupMessageErr_ZP(L"File type selection was not in the expected range of values!");
 		    goto Cleanup;
 	}
 	// If nothing has gone wrong up to this point, set Success to TRUE.
 	Result = TRUE;
 Cleanup:
-	if(ResultItem) {
-		ResultItem->/*lpVtbl->*/Release();
-	}
-	if(DialogInterface) {
-		DialogInterface->/*lpVtbl->*/Release();
-	}
+	CALLPTRMEMB(ResultItem, Release());
+	CALLPTRMEMB(DialogInterface, Release());
 	CoUninitialize();
 	gSaveButton.SelectedTool = FALSE;
 	gSaveButton.State = BUTTONSTATE_NORMAL;
@@ -2018,15 +2014,15 @@ BOOL CopyButton_Click(void)
 	SelectObject(DestinationDC, ClipboardCopy);
 	BitBlt(DestinationDC, 0, 0, Bitmap.bmWidth, Bitmap.bmHeight, SourceDC, 0, 0, SRCCOPY);
 	if(OpenClipboard(SnExG.gMainWindowHandle) == 0) {
-		MessageBoxW(0, L"OpenClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"OpenClipboard failed!");
 		goto Cleanup;
 	}
 	if(EmptyClipboard() == 0) {
-		MessageBoxW(0, L"EmptyClipboard failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"EmptyClipboard failed!");
 		goto Cleanup;
 	}
 	if(SetClipboardData(CF_BITMAP, ClipboardCopy) == NULL) {
-		MessageBoxW(0, L"SetClipboardData failed!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"SetClipboardData failed!");
 		goto Cleanup;
 	}
 	Result = TRUE;
@@ -2056,7 +2052,7 @@ BOOL SaveBitmapToFile(_In_ wchar_t * FilePath)
 	BYTE * BytePointer = 0;
 	HANDLE FileHandle = CreateFileW(FilePath, GENERIC_READ | GENERIC_WRITE, (DWORD)0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if(FileHandle == INVALID_HANDLE_VALUE) {
-		MessageBoxW(0, L"Failed to create bitmap file!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to create bitmap file!");
 		goto Cleanup;
 	}
 	if(GetObject(SnExG.GetCurrentSnipState(), sizeof(BITMAP), &Bitmap) == 0) {
@@ -2088,7 +2084,7 @@ BOOL SaveBitmapToFile(_In_ wchar_t * FilePath)
 		BitmapInfoPointer = (PBITMAPINFO)LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER));
 	}
 	if(BitmapInfoPointer == NULL) {
-		MessageBoxW(0, L"Failed to allocate memory!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to allocate memory!");
 		MyOutputDebugStringW(L"[%s] Line %d: LocalAlloc failed!\n", __FUNCTIONW__, __LINE__);
 		goto Cleanup;
 	}
@@ -2113,7 +2109,7 @@ BOOL SaveBitmapToFile(_In_ wchar_t * FilePath)
 	BitmapInfoHeaderPointer = (PBITMAPINFOHEADER)BitmapInfoPointer;
 	Bits = (LPBYTE)GlobalAlloc(GMEM_FIXED, BitmapInfoHeaderPointer->biSizeImage);
 	if(Bits == 0) {
-		MessageBoxW(0, L"Failed to allocate memory!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Failed to allocate memory!");
 		MyOutputDebugStringW(L"[%s] Line %d: GlobalAlloc failed!\n", __FUNCTIONW__, __LINE__);
 		goto Cleanup;
 	}
@@ -2295,11 +2291,11 @@ BOOL AdjustForCustomScaling(void)
 		DeleteDC(h_dc);
 	}
 	if(!DPIx || !DPIy) {
-		MessageBoxW(0, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Unable to determine the monitor DPI of your primary monitor!");
 		return FALSE;
 	}
 	/*if(GetDpiForMonitor(MonitorFromWindow(GetDesktopWindow(), MONITOR_DEFAULTTOPRIMARY), MDT_EFFECTIVE_DPI, &DPIx, &DPIy) != S_OK) {
-		MessageBoxW(0, L"Unable to determine the monitor DPI of your primary monitor!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Unable to determine the monitor DPI of your primary monitor!");
 		return FALSE;
 	}*/
 	MyOutputDebugStringW(L"[%s] Line %d: Detected a monitor DPI of %d.\n", __FUNCTIONW__, __LINE__, DPIx);
@@ -2366,8 +2362,7 @@ BOOL AdjustForCustomScaling(void)
 			}
 		}
 		if(!_f) {
-			MessageBoxW(0, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
-				L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+			SnExG.PopupMessageErr_ZP(L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.");
 			MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unsupported DPI!\n", __FUNCTIONW__, __LINE__);
 		}
 		return _f;
@@ -2451,8 +2446,7 @@ BOOL AdjustForCustomScaling(void)
 		SnExG.gStartingMainWindowWidth  += 10;
 	}
 	else {
-		MessageBoxW(0, L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.",
-		    L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Unable to deal with your custom scaling level. I can only handle up to 200% scaling. Contact me at ryanries09@gmail.com if you want me to add support for your scaling level.");
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unsupported DPI!\n", __FUNCTIONW__, __LINE__);
 		return FALSE;
 	}
@@ -2468,7 +2462,7 @@ LSTATUS DeleteSnipExRegValue(_In_ const wchar_t * ValueName)
 	DWORD SnipExKeyDisposition = 0;
 	// This key should always exist. Something is very wrong if we can't open it.
 	if((Result = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE", 0, KEY_ALL_ACCESS, &SoftwareKey)) != ERROR_SUCCESS) {
-		MessageBoxW(0, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Unable to read HKCU\\SOFTWARE registry key!");
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read HKCU\\SOFTWARE registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 	else {
@@ -2509,7 +2503,7 @@ LSTATUS SetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData)
 	DWORD SnipExKeyDisposition = 0;
 	// This key should always exist. Something is very wrong if we can't open it.
 	if((Result = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE", 0, KEY_ALL_ACCESS, &SoftwareKey)) != ERROR_SUCCESS) {
-		MessageBoxW(0, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Unable to read HKCU\\SOFTWARE registry key!");
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read HKCU\\SOFTWARE registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 	else {
@@ -2547,7 +2541,7 @@ LSTATUS GetSnipExRegValue(_In_ const wchar_t * ValueName, _In_ DWORD* ValueData)
 	DWORD ValueSize = sizeof(DWORD);
 	// This key should always exist. Something is very wrong if we can't open it.
 	if((Result = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE", 0, KEY_ALL_ACCESS, &SoftwareKey)) != ERROR_SUCCESS) {
-		MessageBoxW(0, L"Unable to read HKCU\\SOFTWARE registry key!", L"Error", MB_OK|MB_ICONERROR|MB_SYSTEMMODAL);
+		SnExG.PopupMessageErr_ZP(L"Unable to read HKCU\\SOFTWARE registry key!");
 		MyOutputDebugStringW(L"[%s] Line %d: ERROR! Unable to read HKCU\\SOFTWARE registry key! LSTATUS = 0x%lx\n", __FUNCTIONW__, __LINE__, Result);
 	}
 	else {

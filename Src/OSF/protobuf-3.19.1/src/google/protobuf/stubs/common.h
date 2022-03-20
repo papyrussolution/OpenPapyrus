@@ -6,28 +6,16 @@
 // modification, are permitted provided that the following conditions are
 // met:
 //
-//     * Redistributions of source code must retain the above copyright
+// * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
+// * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-//     * Neither the name of Google Inc. nor the names of its
+// * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // Author: kenton@google.com (Kenton Varda) and others
 //
 // Contains basic types and utilities used by the rest of the library.
@@ -65,7 +53,8 @@
 #include <TargetConditionals.h>  // for TARGET_OS_IPHONE
 #endif
 
-#if defined(__ANDROID__) || defined(GOOGLE_PROTOBUF_OS_ANDROID) || (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || defined(GOOGLE_PROTOBUF_OS_IPHONE)
+#if defined(__ANDROID__) || defined(GOOGLE_PROTOBUF_OS_ANDROID) || (defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) || \
+	defined(GOOGLE_PROTOBUF_OS_IPHONE)
 #include <pthread.h>
 #endif
 
@@ -76,7 +65,6 @@ namespace std {}
 namespace google {
 namespace protobuf {
 namespace internal {
-
 // Some of these constants are macros rather than const ints so that they can
 // be used in #if directives.
 
@@ -103,11 +91,10 @@ static const int kMinHeaderVersionForProtoc = 3019000;
 // Verifies that the headers and libraries are compatible.  Use the macro
 // below to call this.
 void PROTOBUF_EXPORT VerifyVersion(int headerVersion, int minLibraryVersion,
-                                   const char* filename);
+    const char* filename);
 
 // Converts a numeric version number to a string.
 std::string PROTOBUF_EXPORT VersionString(int version);
-
 }  // namespace internal
 
 // Place this macro in your main() function (or somewhere before you attempt
@@ -115,22 +102,20 @@ std::string PROTOBUF_EXPORT VersionString(int version);
 // matches the headers you compiled against.  If a version mismatch is
 // detected, the process will abort.
 #define GOOGLE_PROTOBUF_VERIFY_VERSION                                    \
-  ::google::protobuf::internal::VerifyVersion(                            \
-    GOOGLE_PROTOBUF_VERSION, GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION,         \
-    __FILE__)
-
+	::google::protobuf::internal::VerifyVersion(                            \
+		GOOGLE_PROTOBUF_VERSION, GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION,         \
+		__FILE__)
 
 // ===================================================================
 // from google3/util/utf8/public/unilib.h
 
 namespace internal {
-
 // Checks if the buffer contains structurally-valid UTF-8.  Implemented in
 // structurally_valid.cc.
 PROTOBUF_EXPORT bool IsStructurallyValidUTF8(const char* buf, int len);
 
 inline bool IsStructurallyValidUTF8(StringPiece str) {
-  return IsStructurallyValidUTF8(str.data(), static_cast<int>(str.length()));
+	return IsStructurallyValidUTF8(str.data(), static_cast<int>(str.length()));
 }
 
 // Returns initial number of bytes of structurally valid UTF-8.
@@ -149,8 +134,7 @@ PROTOBUF_EXPORT int UTF8SpnStructurallyValid(StringPiece str);
 // Optimized for: all structurally valid and no byte copying is done.
 //
 PROTOBUF_EXPORT char* UTF8CoerceToStructurallyValid(StringPiece str, char* dst,
-                                                    char replace_char);
-
+    char replace_char);
 }  // namespace internal
 
 // This lives in message_lite.h now, but we leave this here for any users that
@@ -158,41 +142,49 @@ PROTOBUF_EXPORT char* UTF8CoerceToStructurallyValid(StringPiece str, char* dst,
 PROTOBUF_EXPORT void ShutdownProtobufLibrary();
 
 namespace internal {
-
 // Strongly references the given variable such that the linker will be forced
 // to pull in this variable's translation unit.
 template <typename T>
 void StrongReference(const T& var) {
-  auto volatile unused = &var;
-  (void)&unused;  // Use address to avoid an extra load of "unused".
+	auto volatile unused = &var;
+	(void)&unused; // Use address to avoid an extra load of "unused".
 }
-
 }  // namespace internal
 
 #if PROTOBUF_USE_EXCEPTIONS
 class FatalException : public std::exception {
- public:
-  FatalException(const char* filename, int line, const std::string& message)
-      : filename_(filename), line_(line), message_(message) {}
-  virtual ~FatalException() throw();
+public:
+	FatalException(const char* filename, int line, const std::string& message)
+		: filename_(filename), line_(line), message_(message) {
+	}
 
-  const char* what() const throw() override;
+	virtual ~FatalException() throw();
 
-  const char* filename() const { return filename_; }
-  int line() const { return line_; }
-  const std::string& message() const { return message_; }
+	const char* what() const throw() override;
 
- private:
-  const char* filename_;
-  const int line_;
-  const std::string message_;
+	const char* filename() const {
+		return filename_;
+	}
+
+	int line() const {
+		return line_;
+	}
+
+	const std::string& message() const {
+		return message_;
+	}
+
+private:
+	const char* filename_;
+	const int line_;
+	const std::string message_;
 };
+
 #endif
 
 // This is at the end of the file instead of the beginning to work around a bug
 // in some versions of MSVC.
 using std::string;
-
 }  // namespace protobuf
 }  // namespace google
 

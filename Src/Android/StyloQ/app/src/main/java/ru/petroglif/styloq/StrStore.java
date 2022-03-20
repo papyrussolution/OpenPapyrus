@@ -72,7 +72,7 @@ public class StrStore {
 					int ipe = buf.indexOf("}", ips+2);
 					if(ipe > ips+2) {
 						String inner_signature = buf.substring(ips+2, ipe);
-						String temp_buf = GetSring(lang, inner_signature);
+						String temp_buf = GetString(lang, inner_signature);
 						if(SLib.GetLen(temp_buf) > 0) {
 							buf = ((ips > 0) ? buf.substring(0, ips-1) : "") + temp_buf + buf.substring(ipe+1);
 						}
@@ -110,13 +110,13 @@ public class StrStore {
 			ExpandString(rBuf, 0);
 		 */
 	}
-	String GetString(int lang, int group, int code)
+	public String GetString(int lang, int group, int code)
 	{
 		//#define MakeLong(low,high)    (static_cast<long>((static_cast<uint16>(low)) | ((static_cast<ulong>(static_cast<uint16>(high))) << 16)))
 		int ident = ((short)code) | (group << 16);
 		return Helper_GetString(lang, ident);
 	}
-	String GetSring(int lang, String signature)
+	public String GetString(int lang, String signature)
 	{
 		if(SignatureHash != null) { // if(P_SignatureHash)
 			Integer hval = SignatureHash.get(signature);

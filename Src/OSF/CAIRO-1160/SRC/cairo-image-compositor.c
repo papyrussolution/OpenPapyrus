@@ -23,20 +23,11 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
- *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 /* The primarily reason for keeping a traps-compositor around is
  * for validating cairo-xlib (which currently also uses traps).
  */
@@ -46,20 +37,9 @@
 #include "cairo-tristrip-private.h"
 #include "cairo-pixman-private.h"
 
-static pixman_image_t * to_pixman_image(cairo_surface_t * s)
-{
-	return reinterpret_cast<cairo_image_surface_t *>(s)->pixman_image;
-}
-
-static cairo_int_status_t acquire(void * abstract_dst)
-{
-	return CAIRO_STATUS_SUCCESS;
-}
-
-static cairo_int_status_t release(void * abstract_dst)
-{
-	return CAIRO_STATUS_SUCCESS;
-}
+static pixman_image_t * to_pixman_image(cairo_surface_t * s) { return reinterpret_cast<cairo_image_surface_t *>(s)->pixman_image; }
+static cairo_int_status_t acquire(void * abstract_dst) { return CAIRO_STATUS_SUCCESS; }
+static cairo_int_status_t release(void * abstract_dst) { return CAIRO_STATUS_SUCCESS; }
 
 static cairo_int_status_t set_clip_region(void * _surface, cairo_region_t * region)
 {

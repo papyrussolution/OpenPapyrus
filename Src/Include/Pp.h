@@ -16369,8 +16369,7 @@ extern "C" typedef PPJobHandler * (*FN_JOB_FACTORY)(PPJobDescr *);
 
 #define JOB_HDL_FACTORY(jobSymb)  JFF_##jobSymb
 #define IMPLEMENT_JOB_HDL_FACTORY(jobSymb) \
-	extern "C" __declspec(dllexport) PPJobHandler * JFF_##jobSymb(PPJobDescr * pDescr) \
-	{ return new JOB_HDL_CLS(jobSymb)(pDescr); }
+	extern "C" __declspec(dllexport) PPJobHandler * JFF_##jobSymb(PPJobDescr * pDescr) { return new JOB_HDL_CLS(jobSymb)(pDescr); }
 #define JOB_HDL_CLS(jobSymb)      JobHandler_##jobSymb
 //
 // Descr: Пул задач. Хранит задачи, конкретизированные относительно базы данных
@@ -16428,7 +16427,6 @@ public:
 	~PPJobMngr();
 	int    LoadResource(PPID jobID, PPJobDescr * pJob);
 	int    GetResourceList(int loadText, StrAssocArray & rList);
-	int    LoadPool(const char * pDbSymb, PPJobPool *, int readOnly);
 	int    SavePool(const PPJobPool *);
 	int    LoadPool2(const char * pDbSymb, PPJobPool *, int readOnly); //@erik v10.7.4
 	int    SavePool2(const PPJobPool *); //@erik v10.7.4
@@ -16441,6 +16439,7 @@ public:
 	void   FASTCALL UpdateLastId(long id);
 	const  SString & GetFileName() const { return XmlFilePath; }
 private:
+	int    LoadPool(const char * pDbSymb, PPJobPool *, int readOnly); // @obsolete function. Used only for convertation.
 	int    Helper_ReadHeader(SFile & rF, void * pHdr, int lockMode);
 	int    CreatePool();
 	void   CloseFile();
@@ -46607,6 +46606,13 @@ public:
 	StyloQIndexingParam(const StyloQIndexingParam & rS);
 	StyloQIndexingParam & FASTCALL operator = (const StyloQIndexingParam & rS);
 
+	enum {
+		fGoods       = 0x0001,
+		fGoodsGroups = 0x0002,
+		fBrands      = 0x0004,
+		fProcessors  = 0x0008
+	};
+
 	uint8  ReserveStart[64]; // @reserve
 	long   Flags;
 	PPID   GoodsGroupID;
@@ -46948,7 +46954,7 @@ public:
 	// Descr: Высокоуровневая процедура, реализующая регистрацию или обновление собственных данных
 	//   у сервиса-медиатора.
 	//
-	int    ServiceSelfregisterInMediator(const StyloQCore::StoragePacket * pOwnPack, SysJournal * pSjOuter);
+	int    ServiceSelfregisterInMediator(const StyloQCore::StoragePacket & rOwnPack, SysJournal * pSjOuter);
 	//
 	// Descr: Сохраняет в базе данных параметры сессии для того, чтобы в следующий раз можно было бы
 	//   быстро установить соединение с противоположной стороной.
@@ -46979,7 +46985,7 @@ public:
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
-	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, long expirationSec, SString & rResult);
+	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, SString & rResult);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
@@ -53147,9 +53153,9 @@ class FileBrowseCtrlGroup : public CtrlGroup {
 public:
 	static int Setup(TDialog * dlg, uint btnCtlID, uint inputCtlID, uint grpID, int titleTextId, int patternId, long flags);
 	enum {
-		fbcgfFile = 0x0001,
+		fbcgfFile         = 0x0001,
 		fbcgfLogFile      = 0x0002,
-		fbcgfPath = 0x0004,
+		fbcgfPath         = 0x0004,
 		fbcgfAllowNExists = 0x0008, // Позволяет выбирать несуществующие файлы
 		fbcgfSaveLastPath = 0x0010
 	};

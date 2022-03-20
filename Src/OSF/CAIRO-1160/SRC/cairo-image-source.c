@@ -23,20 +23,11 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
+ * The Initial Developer of the Original Code is University of Southern California.
  *
- * The Initial Developer of the Original Code is University of Southern
- * California.
- *
- * Contributor(s):
- *	Carl D. Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
+ * Contributor(s): Carl D. Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk>
  */
-
 /* The purpose of this file/surface is to simply translate a pattern
  * to a pixman_image_t and thence to feed it back to the general
  * compositor interface.

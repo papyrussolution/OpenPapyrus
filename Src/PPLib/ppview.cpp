@@ -1560,8 +1560,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 		PPNamedFilt nf;
 		PPID   nf_id = 0, sel_nf_id = 0;
 		StrAssocArray nf_list;
-		/*THROW(nf_mngr.LoadPool(db_symb, &nf_pool, 0));*/ //@erik v10.7.5
-		THROW(nf_mngr.LoadPool2(db_symb, &nf_pool, 0)); //@erik v10.7.5
+		THROW(nf_mngr.LoadPool2(db_symb, &nf_pool, 0)); //@erik v10.7.5 LoadPool-->LoadPool2
 		for(nf_id = 0; nf_pool.Enum(&nf_id, &nf) > 0;) {
 			if(rData.NfSymb.NotEmpty() && rData.NfSymb.CmpNC(nf.Symb) == 0)
 				sel_nf_id = nf.ID;

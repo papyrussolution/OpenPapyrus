@@ -192,7 +192,7 @@ constexpr int FieldDescriptorProto_Type_Type_ARRAYSIZE = FieldDescriptorProto_Ty
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldDescriptorProto_Type_descriptor();
 template<typename T>
-inline const std::string & FieldDescriptorProto_Type_Name(T enum_t_value) {
+inline const std::string& FieldDescriptorProto_Type_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FieldDescriptorProto_Type>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FieldDescriptorProto_Type_Name.");
@@ -216,7 +216,7 @@ constexpr int FieldDescriptorProto_Label_Label_ARRAYSIZE = FieldDescriptorProto_
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldDescriptorProto_Label_descriptor();
 template<typename T>
-inline const std::string & FieldDescriptorProto_Label_Name(T enum_t_value) {
+inline const std::string& FieldDescriptorProto_Label_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FieldDescriptorProto_Label>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FieldDescriptorProto_Label_Name.");
@@ -240,7 +240,7 @@ constexpr int FileOptions_OptimizeMode_OptimizeMode_ARRAYSIZE = FileOptions_Opti
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FileOptions_OptimizeMode_descriptor();
 template<typename T>
-inline const std::string & FileOptions_OptimizeMode_Name(T enum_t_value) {
+inline const std::string& FileOptions_OptimizeMode_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FileOptions_OptimizeMode>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FileOptions_OptimizeMode_Name.");
@@ -264,7 +264,7 @@ constexpr int FieldOptions_CType_CType_ARRAYSIZE = FieldOptions_CType_CType_MAX 
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldOptions_CType_descriptor();
 template<typename T>
-inline const std::string & FieldOptions_CType_Name(T enum_t_value) {
+inline const std::string& FieldOptions_CType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FieldOptions_CType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FieldOptions_CType_Name.");
@@ -288,7 +288,7 @@ constexpr int FieldOptions_JSType_JSType_ARRAYSIZE = FieldOptions_JSType_JSType_
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* FieldOptions_JSType_descriptor();
 template<typename T>
-inline const std::string & FieldOptions_JSType_Name(T enum_t_value) {
+inline const std::string& FieldOptions_JSType_Name(T enum_t_value) {
   static_assert(::std::is_same<T, FieldOptions_JSType>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function FieldOptions_JSType_Name.");
@@ -312,7 +312,7 @@ constexpr int MethodOptions_IdempotencyLevel_IdempotencyLevel_ARRAYSIZE = Method
 
 const ::PROTOBUF_NAMESPACE_ID::EnumDescriptor* MethodOptions_IdempotencyLevel_descriptor();
 template<typename T>
-inline const std::string & MethodOptions_IdempotencyLevel_Name(T enum_t_value) {
+inline const std::string& MethodOptions_IdempotencyLevel_Name(T enum_t_value) {
   static_assert(::std::is_same<T, MethodOptions_IdempotencyLevel>::value ||
     ::std::is_integral<T>::value,
     "Incorrect type passed to function MethodOptions_IdempotencyLevel_Name.");
@@ -590,21 +590,21 @@ class FileDescriptorProto final :
   int _internal_dependency_size() const;
   public:
   void clear_dependency();
-  const std::string & dependency(int index) const;
+  const std::string& dependency(int index) const;
   std::string* mutable_dependency(int index);
-  void set_dependency(int index, const std::string & value);
-  void set_dependency(int index, std::string && value);
+  void set_dependency(int index, const std::string& value);
+  void set_dependency(int index, std::string&& value);
   void set_dependency(int index, const char * value);
   void set_dependency(int index, const char* value, size_t size);
   std::string* add_dependency();
-  void add_dependency(const std::string & value);
-  void add_dependency(std::string && value);
+  void add_dependency(const std::string& value);
+  void add_dependency(std::string&& value);
   void add_dependency(const char* value);
   void add_dependency(const char* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& dependency() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_dependency();
   private:
-  const std::string & _internal_dependency(int index) const;
+  const std::string& _internal_dependency(int index) const;
   std::string* _internal_add_dependency();
   public:
 
@@ -730,15 +730,15 @@ class FileDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -748,15 +748,15 @@ class FileDescriptorProto final :
   bool _internal_has_package() const;
   public:
   void clear_package();
-  const std::string & package() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& package() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_package(ArgT0&& arg0, ArgT... args);
   std::string* mutable_package();
   PROTOBUF_NODISCARD std::string* release_package();
   void set_allocated_package(std::string* package);
   private:
-  const std::string & _internal_package() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_package(const std::string & value);
+  const std::string& _internal_package() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_package(const std::string& value);
   std::string* _internal_mutable_package();
   public:
 
@@ -766,15 +766,15 @@ class FileDescriptorProto final :
   bool _internal_has_syntax() const;
   public:
   void clear_syntax();
-  const std::string & syntax() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& syntax() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_syntax(ArgT0&& arg0, ArgT... args);
   std::string* mutable_syntax();
   PROTOBUF_NODISCARD std::string* release_syntax();
   void set_allocated_syntax(std::string* syntax);
   private:
-  const std::string & _internal_syntax() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_syntax(const std::string & value);
+  const std::string& _internal_syntax() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_syntax(const std::string& value);
   std::string* _internal_mutable_syntax();
   public:
 
@@ -1411,21 +1411,21 @@ class DescriptorProto final :
   int _internal_reserved_name_size() const;
   public:
   void clear_reserved_name();
-  const std::string & reserved_name(int index) const;
+  const std::string& reserved_name(int index) const;
   std::string* mutable_reserved_name(int index);
-  void set_reserved_name(int index, const std::string & value);
-  void set_reserved_name(int index, std::string && value);
+  void set_reserved_name(int index, const std::string& value);
+  void set_reserved_name(int index, std::string&& value);
   void set_reserved_name(int index, const char * value);
   void set_reserved_name(int index, const char* value, size_t size);
   std::string* add_reserved_name();
-  void add_reserved_name(const std::string & value);
-  void add_reserved_name(std::string && value);
+  void add_reserved_name(const std::string& value);
+  void add_reserved_name(std::string&& value);
   void add_reserved_name(const char* value);
   void add_reserved_name(const char* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& reserved_name() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_reserved_name();
   private:
-  const std::string & _internal_reserved_name(int index) const;
+  const std::string& _internal_reserved_name(int index) const;
   std::string* _internal_add_reserved_name();
   public:
 
@@ -1435,15 +1435,15 @@ class DescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -1938,7 +1938,7 @@ class FieldDescriptorProto final :
     return FieldDescriptorProto_Type_descriptor();
   }
   template<typename T>
-  static inline const std::string & Type_Name(T enum_t_value) {
+  static inline const std::string& Type_Name(T enum_t_value) {
     static_assert(::std::is_same<T, Type>::value ||
       ::std::is_integral<T>::value,
       "Incorrect type passed to function Type_Name.");
@@ -1970,7 +1970,7 @@ class FieldDescriptorProto final :
     return FieldDescriptorProto_Label_descriptor();
   }
   template<typename T>
-  static inline const std::string & Label_Name(T enum_t_value) {
+  static inline const std::string& Label_Name(T enum_t_value) {
     static_assert(::std::is_same<T, Label>::value ||
       ::std::is_integral<T>::value,
       "Incorrect type passed to function Label_Name.");
@@ -2002,15 +2002,15 @@ class FieldDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -2020,15 +2020,15 @@ class FieldDescriptorProto final :
   bool _internal_has_extendee() const;
   public:
   void clear_extendee();
-  const std::string & extendee() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& extendee() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_extendee(ArgT0&& arg0, ArgT... args);
   std::string* mutable_extendee();
   PROTOBUF_NODISCARD std::string* release_extendee();
   void set_allocated_extendee(std::string* extendee);
   private:
-  const std::string & _internal_extendee() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_extendee(const std::string & value);
+  const std::string& _internal_extendee() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_extendee(const std::string& value);
   std::string* _internal_mutable_extendee();
   public:
 
@@ -2038,15 +2038,15 @@ class FieldDescriptorProto final :
   bool _internal_has_type_name() const;
   public:
   void clear_type_name();
-  const std::string & type_name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& type_name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_type_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_type_name();
   PROTOBUF_NODISCARD std::string* release_type_name();
   void set_allocated_type_name(std::string* type_name);
   private:
-  const std::string & _internal_type_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_type_name(const std::string & value);
+  const std::string& _internal_type_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_type_name(const std::string& value);
   std::string* _internal_mutable_type_name();
   public:
 
@@ -2056,15 +2056,15 @@ class FieldDescriptorProto final :
   bool _internal_has_default_value() const;
   public:
   void clear_default_value();
-  const std::string & default_value() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& default_value() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_default_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_default_value();
   PROTOBUF_NODISCARD std::string* release_default_value();
   void set_allocated_default_value(std::string* default_value);
   private:
-  const std::string & _internal_default_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_default_value(const std::string & value);
+  const std::string& _internal_default_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_default_value(const std::string& value);
   std::string* _internal_mutable_default_value();
   public:
 
@@ -2074,15 +2074,15 @@ class FieldDescriptorProto final :
   bool _internal_has_json_name() const;
   public:
   void clear_json_name();
-  const std::string & json_name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& json_name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_json_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_json_name();
   PROTOBUF_NODISCARD std::string* release_json_name();
   void set_allocated_json_name(std::string* json_name);
   private:
-  const std::string & _internal_json_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_json_name(const std::string & value);
+  const std::string& _internal_json_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_json_name(const std::string& value);
   std::string* _internal_mutable_json_name();
   public:
 
@@ -2308,15 +2308,15 @@ class OneofDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -2659,21 +2659,21 @@ class EnumDescriptorProto final :
   int _internal_reserved_name_size() const;
   public:
   void clear_reserved_name();
-  const std::string & reserved_name(int index) const;
+  const std::string& reserved_name(int index) const;
   std::string* mutable_reserved_name(int index);
-  void set_reserved_name(int index, const std::string & value);
-  void set_reserved_name(int index, std::string && value);
+  void set_reserved_name(int index, const std::string& value);
+  void set_reserved_name(int index, std::string&& value);
   void set_reserved_name(int index, const char * value);
   void set_reserved_name(int index, const char* value, size_t size);
   std::string* add_reserved_name();
-  void add_reserved_name(const std::string & value);
-  void add_reserved_name(std::string && value);
+  void add_reserved_name(const std::string& value);
+  void add_reserved_name(std::string&& value);
   void add_reserved_name(const char* value);
   void add_reserved_name(const char* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& reserved_name() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_reserved_name();
   private:
-  const std::string & _internal_reserved_name(int index) const;
+  const std::string& _internal_reserved_name(int index) const;
   std::string* _internal_add_reserved_name();
   public:
 
@@ -2683,15 +2683,15 @@ class EnumDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -2847,15 +2847,15 @@ class EnumValueDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -3040,15 +3040,15 @@ class ServiceDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -3205,15 +3205,15 @@ class MethodDescriptorProto final :
   bool _internal_has_name() const;
   public:
   void clear_name();
-  const std::string & name() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name();
   PROTOBUF_NODISCARD std::string* release_name();
   void set_allocated_name(std::string* name);
   private:
-  const std::string & _internal_name() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string & value);
+  const std::string& _internal_name() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name(const std::string& value);
   std::string* _internal_mutable_name();
   public:
 
@@ -3223,15 +3223,15 @@ class MethodDescriptorProto final :
   bool _internal_has_input_type() const;
   public:
   void clear_input_type();
-  const std::string & input_type() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& input_type() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_input_type(ArgT0&& arg0, ArgT... args);
   std::string* mutable_input_type();
   PROTOBUF_NODISCARD std::string* release_input_type();
   void set_allocated_input_type(std::string* input_type);
   private:
-  const std::string & _internal_input_type() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_input_type(const std::string & value);
+  const std::string& _internal_input_type() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_input_type(const std::string& value);
   std::string* _internal_mutable_input_type();
   public:
 
@@ -3241,15 +3241,15 @@ class MethodDescriptorProto final :
   bool _internal_has_output_type() const;
   public:
   void clear_output_type();
-  const std::string & output_type() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& output_type() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_output_type(ArgT0&& arg0, ArgT... args);
   std::string* mutable_output_type();
   PROTOBUF_NODISCARD std::string* release_output_type();
   void set_allocated_output_type(std::string* output_type);
   private:
-  const std::string & _internal_output_type() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_output_type(const std::string & value);
+  const std::string& _internal_output_type() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_output_type(const std::string& value);
   std::string* _internal_mutable_output_type();
   public:
 
@@ -3440,7 +3440,7 @@ class FileOptions final :
     return FileOptions_OptimizeMode_descriptor();
   }
   template<typename T>
-  static inline const std::string & OptimizeMode_Name(T enum_t_value) {
+  static inline const std::string& OptimizeMode_Name(T enum_t_value) {
     static_assert(::std::is_same<T, OptimizeMode>::value ||
       ::std::is_integral<T>::value,
       "Incorrect type passed to function OptimizeMode_Name.");
@@ -3500,15 +3500,15 @@ class FileOptions final :
   bool _internal_has_java_package() const;
   public:
   void clear_java_package();
-  const std::string & java_package() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& java_package() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_java_package(ArgT0&& arg0, ArgT... args);
   std::string* mutable_java_package();
   PROTOBUF_NODISCARD std::string* release_java_package();
   void set_allocated_java_package(std::string* java_package);
   private:
-  const std::string & _internal_java_package() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_java_package(const std::string & value);
+  const std::string& _internal_java_package() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_java_package(const std::string& value);
   std::string* _internal_mutable_java_package();
   public:
 
@@ -3518,15 +3518,15 @@ class FileOptions final :
   bool _internal_has_java_outer_classname() const;
   public:
   void clear_java_outer_classname();
-  const std::string & java_outer_classname() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& java_outer_classname() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_java_outer_classname(ArgT0&& arg0, ArgT... args);
   std::string* mutable_java_outer_classname();
   PROTOBUF_NODISCARD std::string* release_java_outer_classname();
   void set_allocated_java_outer_classname(std::string* java_outer_classname);
   private:
-  const std::string & _internal_java_outer_classname() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_java_outer_classname(const std::string & value);
+  const std::string& _internal_java_outer_classname() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_java_outer_classname(const std::string& value);
   std::string* _internal_mutable_java_outer_classname();
   public:
 
@@ -3536,15 +3536,15 @@ class FileOptions final :
   bool _internal_has_go_package() const;
   public:
   void clear_go_package();
-  const std::string & go_package() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& go_package() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_go_package(ArgT0&& arg0, ArgT... args);
   std::string* mutable_go_package();
   PROTOBUF_NODISCARD std::string* release_go_package();
   void set_allocated_go_package(std::string* go_package);
   private:
-  const std::string & _internal_go_package() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_go_package(const std::string & value);
+  const std::string& _internal_go_package() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_go_package(const std::string& value);
   std::string* _internal_mutable_go_package();
   public:
 
@@ -3554,15 +3554,15 @@ class FileOptions final :
   bool _internal_has_objc_class_prefix() const;
   public:
   void clear_objc_class_prefix();
-  const std::string & objc_class_prefix() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& objc_class_prefix() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_objc_class_prefix(ArgT0&& arg0, ArgT... args);
   std::string* mutable_objc_class_prefix();
   PROTOBUF_NODISCARD std::string* release_objc_class_prefix();
   void set_allocated_objc_class_prefix(std::string* objc_class_prefix);
   private:
-  const std::string & _internal_objc_class_prefix() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_objc_class_prefix(const std::string & value);
+  const std::string& _internal_objc_class_prefix() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_objc_class_prefix(const std::string& value);
   std::string* _internal_mutable_objc_class_prefix();
   public:
 
@@ -3572,15 +3572,15 @@ class FileOptions final :
   bool _internal_has_csharp_namespace() const;
   public:
   void clear_csharp_namespace();
-  const std::string & csharp_namespace() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& csharp_namespace() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_csharp_namespace(ArgT0&& arg0, ArgT... args);
   std::string* mutable_csharp_namespace();
   PROTOBUF_NODISCARD std::string* release_csharp_namespace();
   void set_allocated_csharp_namespace(std::string* csharp_namespace);
   private:
-  const std::string & _internal_csharp_namespace() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_csharp_namespace(const std::string & value);
+  const std::string& _internal_csharp_namespace() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_csharp_namespace(const std::string& value);
   std::string* _internal_mutable_csharp_namespace();
   public:
 
@@ -3590,15 +3590,15 @@ class FileOptions final :
   bool _internal_has_swift_prefix() const;
   public:
   void clear_swift_prefix();
-  const std::string & swift_prefix() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& swift_prefix() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_swift_prefix(ArgT0&& arg0, ArgT... args);
   std::string* mutable_swift_prefix();
   PROTOBUF_NODISCARD std::string* release_swift_prefix();
   void set_allocated_swift_prefix(std::string* swift_prefix);
   private:
-  const std::string & _internal_swift_prefix() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_swift_prefix(const std::string & value);
+  const std::string& _internal_swift_prefix() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_swift_prefix(const std::string& value);
   std::string* _internal_mutable_swift_prefix();
   public:
 
@@ -3608,15 +3608,15 @@ class FileOptions final :
   bool _internal_has_php_class_prefix() const;
   public:
   void clear_php_class_prefix();
-  const std::string & php_class_prefix() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& php_class_prefix() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_php_class_prefix(ArgT0&& arg0, ArgT... args);
   std::string* mutable_php_class_prefix();
   PROTOBUF_NODISCARD std::string* release_php_class_prefix();
   void set_allocated_php_class_prefix(std::string* php_class_prefix);
   private:
-  const std::string & _internal_php_class_prefix() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_php_class_prefix(const std::string & value);
+  const std::string& _internal_php_class_prefix() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_php_class_prefix(const std::string& value);
   std::string* _internal_mutable_php_class_prefix();
   public:
 
@@ -3626,15 +3626,15 @@ class FileOptions final :
   bool _internal_has_php_namespace() const;
   public:
   void clear_php_namespace();
-  const std::string & php_namespace() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& php_namespace() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_php_namespace(ArgT0&& arg0, ArgT... args);
   std::string* mutable_php_namespace();
   PROTOBUF_NODISCARD std::string* release_php_namespace();
   void set_allocated_php_namespace(std::string* php_namespace);
   private:
-  const std::string & _internal_php_namespace() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_php_namespace(const std::string & value);
+  const std::string& _internal_php_namespace() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_php_namespace(const std::string& value);
   std::string* _internal_mutable_php_namespace();
   public:
 
@@ -3644,15 +3644,15 @@ class FileOptions final :
   bool _internal_has_php_metadata_namespace() const;
   public:
   void clear_php_metadata_namespace();
-  const std::string & php_metadata_namespace() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& php_metadata_namespace() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_php_metadata_namespace(ArgT0&& arg0, ArgT... args);
   std::string* mutable_php_metadata_namespace();
   PROTOBUF_NODISCARD std::string* release_php_metadata_namespace();
   void set_allocated_php_metadata_namespace(std::string* php_metadata_namespace);
   private:
-  const std::string & _internal_php_metadata_namespace() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_php_metadata_namespace(const std::string & value);
+  const std::string& _internal_php_metadata_namespace() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_php_metadata_namespace(const std::string& value);
   std::string* _internal_mutable_php_metadata_namespace();
   public:
 
@@ -3662,15 +3662,15 @@ class FileOptions final :
   bool _internal_has_ruby_package() const;
   public:
   void clear_ruby_package();
-  const std::string & ruby_package() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& ruby_package() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_ruby_package(ArgT0&& arg0, ArgT... args);
   std::string* mutable_ruby_package();
   PROTOBUF_NODISCARD std::string* release_ruby_package();
   void set_allocated_ruby_package(std::string* ruby_package);
   private:
-  const std::string & _internal_ruby_package() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ruby_package(const std::string & value);
+  const std::string& _internal_ruby_package() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_ruby_package(const std::string& value);
   std::string* _internal_mutable_ruby_package();
   public:
 
@@ -4476,7 +4476,7 @@ class FieldOptions final :
     return FieldOptions_CType_descriptor();
   }
   template<typename T>
-  static inline const std::string & CType_Name(T enum_t_value) {
+  static inline const std::string& CType_Name(T enum_t_value) {
     static_assert(::std::is_same<T, CType>::value ||
       ::std::is_integral<T>::value,
       "Incorrect type passed to function CType_Name.");
@@ -4508,7 +4508,7 @@ class FieldOptions final :
     return FieldOptions_JSType_descriptor();
   }
   template<typename T>
-  static inline const std::string & JSType_Name(T enum_t_value) {
+  static inline const std::string& JSType_Name(T enum_t_value) {
     static_assert(::std::is_same<T, JSType>::value ||
       ::std::is_integral<T>::value,
       "Incorrect type passed to function JSType_Name.");
@@ -6174,7 +6174,7 @@ class MethodOptions final :
     return MethodOptions_IdempotencyLevel_descriptor();
   }
   template<typename T>
-  static inline const std::string & IdempotencyLevel_Name(T enum_t_value) {
+  static inline const std::string& IdempotencyLevel_Name(T enum_t_value) {
     static_assert(::std::is_same<T, IdempotencyLevel>::value ||
       ::std::is_integral<T>::value,
       "Incorrect type passed to function IdempotencyLevel_Name.");
@@ -6524,15 +6524,15 @@ class UninterpretedOption_NamePart final :
   bool _internal_has_name_part() const;
   public:
   void clear_name_part();
-  const std::string & name_part() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& name_part() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_name_part(ArgT0&& arg0, ArgT... args);
   std::string* mutable_name_part();
   PROTOBUF_NODISCARD std::string* release_name_part();
   void set_allocated_name_part(std::string* name_part);
   private:
-  const std::string & _internal_name_part() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name_part(const std::string & value);
+  const std::string& _internal_name_part() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_name_part(const std::string& value);
   std::string* _internal_mutable_name_part();
   public:
 
@@ -6706,15 +6706,15 @@ class UninterpretedOption final :
   bool _internal_has_identifier_value() const;
   public:
   void clear_identifier_value();
-  const std::string & identifier_value() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& identifier_value() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_identifier_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_identifier_value();
   PROTOBUF_NODISCARD std::string* release_identifier_value();
   void set_allocated_identifier_value(std::string* identifier_value);
   private:
-  const std::string & _internal_identifier_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_identifier_value(const std::string & value);
+  const std::string& _internal_identifier_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_identifier_value(const std::string& value);
   std::string* _internal_mutable_identifier_value();
   public:
 
@@ -6724,15 +6724,15 @@ class UninterpretedOption final :
   bool _internal_has_string_value() const;
   public:
   void clear_string_value();
-  const std::string & string_value() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& string_value() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_string_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_string_value();
   PROTOBUF_NODISCARD std::string* release_string_value();
   void set_allocated_string_value(std::string* string_value);
   private:
-  const std::string & _internal_string_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_string_value(const std::string & value);
+  const std::string& _internal_string_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_string_value(const std::string& value);
   std::string* _internal_mutable_string_value();
   public:
 
@@ -6742,15 +6742,15 @@ class UninterpretedOption final :
   bool _internal_has_aggregate_value() const;
   public:
   void clear_aggregate_value();
-  const std::string & aggregate_value() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& aggregate_value() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_aggregate_value(ArgT0&& arg0, ArgT... args);
   std::string* mutable_aggregate_value();
   PROTOBUF_NODISCARD std::string* release_aggregate_value();
   void set_allocated_aggregate_value(std::string* aggregate_value);
   private:
-  const std::string & _internal_aggregate_value() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_aggregate_value(const std::string & value);
+  const std::string& _internal_aggregate_value() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_aggregate_value(const std::string& value);
   std::string* _internal_mutable_aggregate_value();
   public:
 
@@ -6975,21 +6975,21 @@ class SourceCodeInfo_Location final :
   int _internal_leading_detached_comments_size() const;
   public:
   void clear_leading_detached_comments();
-  const std::string & leading_detached_comments(int index) const;
+  const std::string& leading_detached_comments(int index) const;
   std::string* mutable_leading_detached_comments(int index);
-  void set_leading_detached_comments(int index, const std::string & value);
-  void set_leading_detached_comments(int index, std::string && value);
+  void set_leading_detached_comments(int index, const std::string& value);
+  void set_leading_detached_comments(int index, std::string&& value);
   void set_leading_detached_comments(int index, const char * value);
   void set_leading_detached_comments(int index, const char* value, size_t size);
   std::string* add_leading_detached_comments();
-  void add_leading_detached_comments(const std::string & value);
-  void add_leading_detached_comments(std::string && value);
+  void add_leading_detached_comments(const std::string& value);
+  void add_leading_detached_comments(std::string&& value);
   void add_leading_detached_comments(const char* value);
   void add_leading_detached_comments(const char* value, size_t size);
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>& leading_detached_comments() const;
   ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>* mutable_leading_detached_comments();
   private:
-  const std::string & _internal_leading_detached_comments(int index) const;
+  const std::string& _internal_leading_detached_comments(int index) const;
   std::string* _internal_add_leading_detached_comments();
   public:
 
@@ -6999,15 +6999,15 @@ class SourceCodeInfo_Location final :
   bool _internal_has_leading_comments() const;
   public:
   void clear_leading_comments();
-  const std::string & leading_comments() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& leading_comments() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_leading_comments(ArgT0&& arg0, ArgT... args);
   std::string* mutable_leading_comments();
   PROTOBUF_NODISCARD std::string* release_leading_comments();
   void set_allocated_leading_comments(std::string* leading_comments);
   private:
-  const std::string & _internal_leading_comments() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_leading_comments(const std::string & value);
+  const std::string& _internal_leading_comments() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_leading_comments(const std::string& value);
   std::string* _internal_mutable_leading_comments();
   public:
 
@@ -7017,15 +7017,15 @@ class SourceCodeInfo_Location final :
   bool _internal_has_trailing_comments() const;
   public:
   void clear_trailing_comments();
-  const std::string & trailing_comments() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& trailing_comments() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_trailing_comments(ArgT0&& arg0, ArgT... args);
   std::string* mutable_trailing_comments();
   PROTOBUF_NODISCARD std::string* release_trailing_comments();
   void set_allocated_trailing_comments(std::string* trailing_comments);
   private:
-  const std::string & _internal_trailing_comments() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_trailing_comments(const std::string & value);
+  const std::string& _internal_trailing_comments() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_trailing_comments(const std::string& value);
   std::string* _internal_mutable_trailing_comments();
   public:
 
@@ -7329,15 +7329,15 @@ class GeneratedCodeInfo_Annotation final :
   bool _internal_has_source_file() const;
   public:
   void clear_source_file();
-  const std::string & source_file() const;
-  template <typename ArgT0 = const std::string &, typename... ArgT>
+  const std::string& source_file() const;
+  template <typename ArgT0 = const std::string&, typename... ArgT>
   void set_source_file(ArgT0&& arg0, ArgT... args);
   std::string* mutable_source_file();
   PROTOBUF_NODISCARD std::string* release_source_file();
   void set_allocated_source_file(std::string* source_file);
   private:
-  const std::string & _internal_source_file() const;
-  inline PROTOBUF_ALWAYS_INLINE void _internal_set_source_file(const std::string & value);
+  const std::string& _internal_source_file() const;
+  inline PROTOBUF_ALWAYS_INLINE void _internal_set_source_file(const std::string& value);
   std::string* _internal_mutable_source_file();
   public:
 
@@ -7589,7 +7589,7 @@ inline void FileDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & FileDescriptorProto::name() const {
+inline const std::string& FileDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileDescriptorProto.name)
 	return _internal_name();
 }
@@ -7605,8 +7605,8 @@ inline std::string* FileDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.name)
 	return _s;
 }
-inline const std::string & FileDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void FileDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& FileDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void FileDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -7653,7 +7653,7 @@ inline void FileDescriptorProto::clear_package() {
   package_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string & FileDescriptorProto::package() const {
+inline const std::string& FileDescriptorProto::package() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileDescriptorProto.package)
 	return _internal_package();
 }
@@ -7669,8 +7669,8 @@ inline std::string* FileDescriptorProto::mutable_package() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.package)
 	return _s;
 }
-inline const std::string & FileDescriptorProto::_internal_package() const { return package_.Get(); }
-inline void FileDescriptorProto::_internal_set_package(const std::string & value) {
+inline const std::string& FileDescriptorProto::_internal_package() const { return package_.Get(); }
+inline void FileDescriptorProto::_internal_set_package(const std::string& value) {
 	_has_bits_[0] |= 0x00000002u;
 	package_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -7718,8 +7718,8 @@ inline std::string* FileDescriptorProto::add_dependency() {
   // @@protoc_insertion_point(field_add_mutable:google.protobuf.FileDescriptorProto.dependency)
   return _s;
 }
-inline const std::string & FileDescriptorProto::_internal_dependency(int index) const { return dependency_.Get(index); }
-inline const std::string & FileDescriptorProto::dependency(int index) const {
+inline const std::string& FileDescriptorProto::_internal_dependency(int index) const { return dependency_.Get(index); }
+inline const std::string& FileDescriptorProto::dependency(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.FileDescriptorProto.dependency)
   return _internal_dependency(index);
 }
@@ -7727,11 +7727,11 @@ inline std::string* FileDescriptorProto::mutable_dependency(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.dependency)
   return dependency_.Mutable(index);
 }
-inline void FileDescriptorProto::set_dependency(int index, const std::string & value) {
+inline void FileDescriptorProto::set_dependency(int index, const std::string& value) {
   dependency_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set:google.protobuf.FileDescriptorProto.dependency)
 }
-inline void FileDescriptorProto::set_dependency(int index, std::string && value) {
+inline void FileDescriptorProto::set_dependency(int index, std::string&& value) {
   dependency_.Mutable(index)->assign(std::move(value));
   // @@protoc_insertion_point(field_set:google.protobuf.FileDescriptorProto.dependency)
 }
@@ -7746,11 +7746,11 @@ inline void FileDescriptorProto::set_dependency(int index, const char* value, si
   // @@protoc_insertion_point(field_set_pointer:google.protobuf.FileDescriptorProto.dependency)
 }
 inline std::string* FileDescriptorProto::_internal_add_dependency() { return dependency_.Add(); }
-inline void FileDescriptorProto::add_dependency(const std::string & value) {
+inline void FileDescriptorProto::add_dependency(const std::string& value) {
   dependency_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:google.protobuf.FileDescriptorProto.dependency)
 }
-inline void FileDescriptorProto::add_dependency(std::string && value) {
+inline void FileDescriptorProto::add_dependency(std::string&& value) {
   dependency_.Add(std::move(value));
   // @@protoc_insertion_point(field_add:google.protobuf.FileDescriptorProto.dependency)
 }
@@ -8200,7 +8200,7 @@ inline void FileDescriptorProto::clear_syntax() {
   syntax_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000004u;
 }
-inline const std::string & FileDescriptorProto::syntax() const {
+inline const std::string& FileDescriptorProto::syntax() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileDescriptorProto.syntax)
 	return _internal_syntax();
 }
@@ -8216,8 +8216,8 @@ inline std::string* FileDescriptorProto::mutable_syntax() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileDescriptorProto.syntax)
 	return _s;
 }
-inline const std::string & FileDescriptorProto::_internal_syntax() const { return syntax_.Get(); }
-inline void FileDescriptorProto::_internal_set_syntax(const std::string & value) {
+inline const std::string& FileDescriptorProto::_internal_syntax() const { return syntax_.Get(); }
+inline void FileDescriptorProto::_internal_set_syntax(const std::string& value) {
 	_has_bits_[0] |= 0x00000004u;
 	syntax_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -8470,7 +8470,7 @@ inline void DescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & DescriptorProto::name() const {
+inline const std::string& DescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.DescriptorProto.name)
 	return _internal_name();
 }
@@ -8486,8 +8486,8 @@ inline std::string* DescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.name)
 	return _s;
 }
-inline const std::string & DescriptorProto::_internal_name() const { return name_.Get(); }
-inline void DescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& DescriptorProto::_internal_name() const { return name_.Get(); }
+inline void DescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -8891,8 +8891,8 @@ inline std::string* DescriptorProto::add_reserved_name() {
   // @@protoc_insertion_point(field_add_mutable:google.protobuf.DescriptorProto.reserved_name)
   return _s;
 }
-inline const std::string & DescriptorProto::_internal_reserved_name(int index) const { return reserved_name_.Get(index); }
-inline const std::string & DescriptorProto::reserved_name(int index) const {
+inline const std::string& DescriptorProto::_internal_reserved_name(int index) const { return reserved_name_.Get(index); }
+inline const std::string& DescriptorProto::reserved_name(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.DescriptorProto.reserved_name)
   return _internal_reserved_name(index);
 }
@@ -8900,11 +8900,11 @@ inline std::string* DescriptorProto::mutable_reserved_name(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.DescriptorProto.reserved_name)
   return reserved_name_.Mutable(index);
 }
-inline void DescriptorProto::set_reserved_name(int index, const std::string & value) {
+inline void DescriptorProto::set_reserved_name(int index, const std::string& value) {
   reserved_name_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set:google.protobuf.DescriptorProto.reserved_name)
 }
-inline void DescriptorProto::set_reserved_name(int index, std::string && value) {
+inline void DescriptorProto::set_reserved_name(int index, std::string&& value) {
   reserved_name_.Mutable(index)->assign(std::move(value));
   // @@protoc_insertion_point(field_set:google.protobuf.DescriptorProto.reserved_name)
 }
@@ -8919,11 +8919,11 @@ inline void DescriptorProto::set_reserved_name(int index, const char* value, siz
   // @@protoc_insertion_point(field_set_pointer:google.protobuf.DescriptorProto.reserved_name)
 }
 inline std::string* DescriptorProto::_internal_add_reserved_name() { return reserved_name_.Add(); }
-inline void DescriptorProto::add_reserved_name(const std::string & value) {
+inline void DescriptorProto::add_reserved_name(const std::string& value) {
   reserved_name_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:google.protobuf.DescriptorProto.reserved_name)
 }
-inline void DescriptorProto::add_reserved_name(std::string && value) {
+inline void DescriptorProto::add_reserved_name(std::string&& value) {
   reserved_name_.Add(std::move(value));
   // @@protoc_insertion_point(field_add:google.protobuf.DescriptorProto.reserved_name)
 }
@@ -9005,7 +9005,7 @@ inline void FieldDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & FieldDescriptorProto::name() const {
+inline const std::string& FieldDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FieldDescriptorProto.name)
 	return _internal_name();
 }
@@ -9021,8 +9021,8 @@ inline std::string* FieldDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FieldDescriptorProto.name)
 	return _s;
 }
-inline const std::string & FieldDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void FieldDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& FieldDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void FieldDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9149,7 +9149,7 @@ inline void FieldDescriptorProto::clear_type_name() {
   type_name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000004u;
 }
-inline const std::string & FieldDescriptorProto::type_name() const {
+inline const std::string& FieldDescriptorProto::type_name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FieldDescriptorProto.type_name)
 	return _internal_type_name();
 }
@@ -9165,8 +9165,8 @@ inline std::string* FieldDescriptorProto::mutable_type_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FieldDescriptorProto.type_name)
 	return _s;
 }
-inline const std::string & FieldDescriptorProto::_internal_type_name() const { return type_name_.Get(); }
-inline void FieldDescriptorProto::_internal_set_type_name(const std::string & value) {
+inline const std::string& FieldDescriptorProto::_internal_type_name() const { return type_name_.Get(); }
+inline void FieldDescriptorProto::_internal_set_type_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000004u;
 	type_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9213,7 +9213,7 @@ inline void FieldDescriptorProto::clear_extendee() {
   extendee_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string & FieldDescriptorProto::extendee() const {
+inline const std::string& FieldDescriptorProto::extendee() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FieldDescriptorProto.extendee)
 	return _internal_extendee();
 }
@@ -9229,8 +9229,8 @@ inline std::string* FieldDescriptorProto::mutable_extendee() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FieldDescriptorProto.extendee)
 	return _s;
 }
-inline const std::string & FieldDescriptorProto::_internal_extendee() const { return extendee_.Get(); }
-inline void FieldDescriptorProto::_internal_set_extendee(const std::string & value) {
+inline const std::string& FieldDescriptorProto::_internal_extendee() const { return extendee_.Get(); }
+inline void FieldDescriptorProto::_internal_set_extendee(const std::string& value) {
 	_has_bits_[0] |= 0x00000002u;
 	extendee_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9277,7 +9277,7 @@ inline void FieldDescriptorProto::clear_default_value() {
   default_value_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000008u;
 }
-inline const std::string & FieldDescriptorProto::default_value() const {
+inline const std::string& FieldDescriptorProto::default_value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FieldDescriptorProto.default_value)
 	return _internal_default_value();
 }
@@ -9293,8 +9293,8 @@ inline std::string* FieldDescriptorProto::mutable_default_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FieldDescriptorProto.default_value)
 	return _s;
 }
-inline const std::string & FieldDescriptorProto::_internal_default_value() const { return default_value_.Get(); }
-inline void FieldDescriptorProto::_internal_set_default_value(const std::string & value) {
+inline const std::string& FieldDescriptorProto::_internal_default_value() const { return default_value_.Get(); }
+inline void FieldDescriptorProto::_internal_set_default_value(const std::string& value) {
 	_has_bits_[0] |= 0x00000008u;
 	default_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9367,7 +9367,7 @@ inline void FieldDescriptorProto::clear_json_name() {
   json_name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000010u;
 }
-inline const std::string & FieldDescriptorProto::json_name() const {
+inline const std::string& FieldDescriptorProto::json_name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FieldDescriptorProto.json_name)
 	return _internal_json_name();
 }
@@ -9383,8 +9383,8 @@ inline std::string* FieldDescriptorProto::mutable_json_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FieldDescriptorProto.json_name)
 	return _s;
 }
-inline const std::string & FieldDescriptorProto::_internal_json_name() const { return json_name_.Get(); }
-inline void FieldDescriptorProto::_internal_set_json_name(const std::string & value) {
+inline const std::string& FieldDescriptorProto::_internal_json_name() const { return json_name_.Get(); }
+inline void FieldDescriptorProto::_internal_set_json_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000010u;
 	json_name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9551,7 +9551,7 @@ inline void OneofDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & OneofDescriptorProto::name() const {
+inline const std::string& OneofDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.OneofDescriptorProto.name)
 	return _internal_name();
 }
@@ -9567,8 +9567,8 @@ inline std::string* OneofDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.OneofDescriptorProto.name)
 	return _s;
 }
-inline const std::string & OneofDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void OneofDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& OneofDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void OneofDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9765,7 +9765,7 @@ inline void EnumDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & EnumDescriptorProto::name() const {
+inline const std::string& EnumDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.EnumDescriptorProto.name)
 	return _internal_name();
 }
@@ -9781,8 +9781,8 @@ inline std::string* EnumDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.EnumDescriptorProto.name)
 	return _s;
 }
-inline const std::string & EnumDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void EnumDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& EnumDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void EnumDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -9996,8 +9996,8 @@ inline std::string* EnumDescriptorProto::add_reserved_name() {
   // @@protoc_insertion_point(field_add_mutable:google.protobuf.EnumDescriptorProto.reserved_name)
   return _s;
 }
-inline const std::string & EnumDescriptorProto::_internal_reserved_name(int index) const { return reserved_name_.Get(index); }
-inline const std::string & EnumDescriptorProto::reserved_name(int index) const {
+inline const std::string& EnumDescriptorProto::_internal_reserved_name(int index) const { return reserved_name_.Get(index); }
+inline const std::string& EnumDescriptorProto::reserved_name(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.EnumDescriptorProto.reserved_name)
   return _internal_reserved_name(index);
 }
@@ -10005,11 +10005,11 @@ inline std::string* EnumDescriptorProto::mutable_reserved_name(int index) {
   // @@protoc_insertion_point(field_mutable:google.protobuf.EnumDescriptorProto.reserved_name)
   return reserved_name_.Mutable(index);
 }
-inline void EnumDescriptorProto::set_reserved_name(int index, const std::string & value) {
+inline void EnumDescriptorProto::set_reserved_name(int index, const std::string& value) {
   reserved_name_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set:google.protobuf.EnumDescriptorProto.reserved_name)
 }
-inline void EnumDescriptorProto::set_reserved_name(int index, std::string && value) {
+inline void EnumDescriptorProto::set_reserved_name(int index, std::string&& value) {
   reserved_name_.Mutable(index)->assign(std::move(value));
   // @@protoc_insertion_point(field_set:google.protobuf.EnumDescriptorProto.reserved_name)
 }
@@ -10024,11 +10024,11 @@ inline void EnumDescriptorProto::set_reserved_name(int index, const char* value,
   // @@protoc_insertion_point(field_set_pointer:google.protobuf.EnumDescriptorProto.reserved_name)
 }
 inline std::string* EnumDescriptorProto::_internal_add_reserved_name() { return reserved_name_.Add(); }
-inline void EnumDescriptorProto::add_reserved_name(const std::string & value) {
+inline void EnumDescriptorProto::add_reserved_name(const std::string& value) {
   reserved_name_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:google.protobuf.EnumDescriptorProto.reserved_name)
 }
-inline void EnumDescriptorProto::add_reserved_name(std::string && value) {
+inline void EnumDescriptorProto::add_reserved_name(std::string&& value) {
   reserved_name_.Add(std::move(value));
   // @@protoc_insertion_point(field_add:google.protobuf.EnumDescriptorProto.reserved_name)
 }
@@ -10068,7 +10068,7 @@ inline void EnumValueDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & EnumValueDescriptorProto::name() const {
+inline const std::string& EnumValueDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.EnumValueDescriptorProto.name)
 	return _internal_name();
 }
@@ -10084,8 +10084,8 @@ inline std::string* EnumValueDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.EnumValueDescriptorProto.name)
 	return _s;
 }
-inline const std::string & EnumValueDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void EnumValueDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& EnumValueDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void EnumValueDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -10252,7 +10252,7 @@ inline void ServiceDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & ServiceDescriptorProto::name() const {
+inline const std::string& ServiceDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.ServiceDescriptorProto.name)
 	return _internal_name();
 }
@@ -10268,8 +10268,8 @@ inline std::string* ServiceDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.ServiceDescriptorProto.name)
 	return _s;
 }
-inline const std::string & ServiceDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void ServiceDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& ServiceDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void ServiceDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -10448,7 +10448,7 @@ inline void MethodDescriptorProto::clear_name() {
   name_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & MethodDescriptorProto::name() const {
+inline const std::string& MethodDescriptorProto::name() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.MethodDescriptorProto.name)
 	return _internal_name();
 }
@@ -10464,8 +10464,8 @@ inline std::string* MethodDescriptorProto::mutable_name() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.MethodDescriptorProto.name)
 	return _s;
 }
-inline const std::string & MethodDescriptorProto::_internal_name() const { return name_.Get(); }
-inline void MethodDescriptorProto::_internal_set_name(const std::string & value) {
+inline const std::string& MethodDescriptorProto::_internal_name() const { return name_.Get(); }
+inline void MethodDescriptorProto::_internal_set_name(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -10512,7 +10512,7 @@ inline void MethodDescriptorProto::clear_input_type() {
   input_type_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string & MethodDescriptorProto::input_type() const {
+inline const std::string& MethodDescriptorProto::input_type() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.MethodDescriptorProto.input_type)
 	return _internal_input_type();
 }
@@ -10528,8 +10528,8 @@ inline std::string* MethodDescriptorProto::mutable_input_type() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.MethodDescriptorProto.input_type)
 	return _s;
 }
-inline const std::string & MethodDescriptorProto::_internal_input_type() const { return input_type_.Get(); }
-inline void MethodDescriptorProto::_internal_set_input_type(const std::string & value) {
+inline const std::string& MethodDescriptorProto::_internal_input_type() const { return input_type_.Get(); }
+inline void MethodDescriptorProto::_internal_set_input_type(const std::string& value) {
 	_has_bits_[0] |= 0x00000002u;
 	input_type_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -10576,7 +10576,7 @@ inline void MethodDescriptorProto::clear_output_type() {
   output_type_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000004u;
 }
-inline const std::string & MethodDescriptorProto::output_type() const {
+inline const std::string& MethodDescriptorProto::output_type() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.MethodDescriptorProto.output_type)
 	return _internal_output_type();
 }
@@ -10592,8 +10592,8 @@ inline std::string* MethodDescriptorProto::mutable_output_type() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.MethodDescriptorProto.output_type)
 	return _s;
 }
-inline const std::string & MethodDescriptorProto::_internal_output_type() const { return output_type_.Get(); }
-inline void MethodDescriptorProto::_internal_set_output_type(const std::string & value) {
+inline const std::string& MethodDescriptorProto::_internal_output_type() const { return output_type_.Get(); }
+inline void MethodDescriptorProto::_internal_set_output_type(const std::string& value) {
 	_has_bits_[0] |= 0x00000004u;
 	output_type_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -10786,7 +10786,7 @@ inline void FileOptions::clear_java_package() {
   java_package_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & FileOptions::java_package() const {
+inline const std::string& FileOptions::java_package() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.java_package)
 	return _internal_java_package();
 }
@@ -10802,8 +10802,8 @@ inline std::string* FileOptions::mutable_java_package() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.java_package)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_java_package() const { return java_package_.Get(); }
-inline void FileOptions::_internal_set_java_package(const std::string & value) {
+inline const std::string& FileOptions::_internal_java_package() const { return java_package_.Get(); }
+inline void FileOptions::_internal_set_java_package(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	java_package_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -10850,7 +10850,7 @@ inline void FileOptions::clear_java_outer_classname() {
   java_outer_classname_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string & FileOptions::java_outer_classname() const {
+inline const std::string& FileOptions::java_outer_classname() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.java_outer_classname)
 	return _internal_java_outer_classname();
 }
@@ -10866,8 +10866,8 @@ inline std::string* FileOptions::mutable_java_outer_classname() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.java_outer_classname)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_java_outer_classname() const { return java_outer_classname_.Get(); }
-inline void FileOptions::_internal_set_java_outer_classname(const std::string & value) {
+inline const std::string& FileOptions::_internal_java_outer_classname() const { return java_outer_classname_.Get(); }
+inline void FileOptions::_internal_set_java_outer_classname(const std::string& value) {
 	_has_bits_[0] |= 0x00000002u;
 	java_outer_classname_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11019,7 +11019,7 @@ inline void FileOptions::clear_go_package() {
   go_package_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000004u;
 }
-inline const std::string & FileOptions::go_package() const {
+inline const std::string& FileOptions::go_package() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.go_package)
 	return _internal_go_package();
 }
@@ -11035,8 +11035,8 @@ inline std::string* FileOptions::mutable_go_package() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.go_package)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_go_package() const { return go_package_.Get(); }
-inline void FileOptions::_internal_set_go_package(const std::string & value) {
+inline const std::string& FileOptions::_internal_go_package() const { return go_package_.Get(); }
+inline void FileOptions::_internal_set_go_package(const std::string& value) {
 	_has_bits_[0] |= 0x00000004u;
 	go_package_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11239,7 +11239,7 @@ inline void FileOptions::clear_objc_class_prefix() {
   objc_class_prefix_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000008u;
 }
-inline const std::string & FileOptions::objc_class_prefix() const {
+inline const std::string& FileOptions::objc_class_prefix() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.objc_class_prefix)
 	return _internal_objc_class_prefix();
 }
@@ -11255,8 +11255,8 @@ inline std::string* FileOptions::mutable_objc_class_prefix() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.objc_class_prefix)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_objc_class_prefix() const { return objc_class_prefix_.Get(); }
-inline void FileOptions::_internal_set_objc_class_prefix(const std::string & value) {
+inline const std::string& FileOptions::_internal_objc_class_prefix() const { return objc_class_prefix_.Get(); }
+inline void FileOptions::_internal_set_objc_class_prefix(const std::string& value) {
 	_has_bits_[0] |= 0x00000008u;
 	objc_class_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11303,7 +11303,7 @@ inline void FileOptions::clear_csharp_namespace() {
   csharp_namespace_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000010u;
 }
-inline const std::string & FileOptions::csharp_namespace() const {
+inline const std::string& FileOptions::csharp_namespace() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.csharp_namespace)
 	return _internal_csharp_namespace();
 }
@@ -11319,8 +11319,8 @@ inline std::string* FileOptions::mutable_csharp_namespace() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.csharp_namespace)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_csharp_namespace() const { return csharp_namespace_.Get(); }
-inline void FileOptions::_internal_set_csharp_namespace(const std::string & value) {
+inline const std::string& FileOptions::_internal_csharp_namespace() const { return csharp_namespace_.Get(); }
+inline void FileOptions::_internal_set_csharp_namespace(const std::string& value) {
 	_has_bits_[0] |= 0x00000010u;
 	csharp_namespace_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11367,7 +11367,7 @@ inline void FileOptions::clear_swift_prefix() {
   swift_prefix_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000020u;
 }
-inline const std::string & FileOptions::swift_prefix() const {
+inline const std::string& FileOptions::swift_prefix() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.swift_prefix)
 	return _internal_swift_prefix();
 }
@@ -11383,8 +11383,8 @@ inline std::string* FileOptions::mutable_swift_prefix() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.swift_prefix)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_swift_prefix() const { return swift_prefix_.Get(); }
-inline void FileOptions::_internal_set_swift_prefix(const std::string & value) {
+inline const std::string& FileOptions::_internal_swift_prefix() const { return swift_prefix_.Get(); }
+inline void FileOptions::_internal_set_swift_prefix(const std::string& value) {
 	_has_bits_[0] |= 0x00000020u;
 	swift_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11431,7 +11431,7 @@ inline void FileOptions::clear_php_class_prefix() {
   php_class_prefix_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000040u;
 }
-inline const std::string & FileOptions::php_class_prefix() const {
+inline const std::string& FileOptions::php_class_prefix() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.php_class_prefix)
 	return _internal_php_class_prefix();
 }
@@ -11447,8 +11447,8 @@ inline std::string* FileOptions::mutable_php_class_prefix() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.php_class_prefix)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_php_class_prefix() const { return php_class_prefix_.Get(); }
-inline void FileOptions::_internal_set_php_class_prefix(const std::string & value) {
+inline const std::string& FileOptions::_internal_php_class_prefix() const { return php_class_prefix_.Get(); }
+inline void FileOptions::_internal_set_php_class_prefix(const std::string& value) {
 	_has_bits_[0] |= 0x00000040u;
 	php_class_prefix_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11495,7 +11495,7 @@ inline void FileOptions::clear_php_namespace() {
   php_namespace_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000080u;
 }
-inline const std::string & FileOptions::php_namespace() const {
+inline const std::string& FileOptions::php_namespace() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.php_namespace)
 	return _internal_php_namespace();
 }
@@ -11511,8 +11511,8 @@ inline std::string* FileOptions::mutable_php_namespace() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.php_namespace)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_php_namespace() const { return php_namespace_.Get(); }
-inline void FileOptions::_internal_set_php_namespace(const std::string & value) {
+inline const std::string& FileOptions::_internal_php_namespace() const { return php_namespace_.Get(); }
+inline void FileOptions::_internal_set_php_namespace(const std::string& value) {
 	_has_bits_[0] |= 0x00000080u;
 	php_namespace_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11559,7 +11559,7 @@ inline void FileOptions::clear_php_metadata_namespace() {
   php_metadata_namespace_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000100u;
 }
-inline const std::string & FileOptions::php_metadata_namespace() const {
+inline const std::string& FileOptions::php_metadata_namespace() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.php_metadata_namespace)
 	return _internal_php_metadata_namespace();
 }
@@ -11575,8 +11575,8 @@ inline std::string* FileOptions::mutable_php_metadata_namespace() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.php_metadata_namespace)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_php_metadata_namespace() const { return php_metadata_namespace_.Get(); }
-inline void FileOptions::_internal_set_php_metadata_namespace(const std::string & value) {
+inline const std::string& FileOptions::_internal_php_metadata_namespace() const { return php_metadata_namespace_.Get(); }
+inline void FileOptions::_internal_set_php_metadata_namespace(const std::string& value) {
 	_has_bits_[0] |= 0x00000100u;
 	php_metadata_namespace_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -11623,7 +11623,7 @@ inline void FileOptions::clear_ruby_package() {
   ruby_package_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000200u;
 }
-inline const std::string & FileOptions::ruby_package() const {
+inline const std::string& FileOptions::ruby_package() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.FileOptions.ruby_package)
 	return _internal_ruby_package();
 }
@@ -11639,8 +11639,8 @@ inline std::string* FileOptions::mutable_ruby_package() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.FileOptions.ruby_package)
 	return _s;
 }
-inline const std::string & FileOptions::_internal_ruby_package() const { return ruby_package_.Get(); }
-inline void FileOptions::_internal_set_ruby_package(const std::string & value) {
+inline const std::string& FileOptions::_internal_ruby_package() const { return ruby_package_.Get(); }
+inline void FileOptions::_internal_set_ruby_package(const std::string& value) {
 	_has_bits_[0] |= 0x00000200u;
 	ruby_package_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -12442,7 +12442,7 @@ inline void UninterpretedOption_NamePart::clear_name_part() {
   name_part_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & UninterpretedOption_NamePart::name_part() const {
+inline const std::string& UninterpretedOption_NamePart::name_part() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.UninterpretedOption.NamePart.name_part)
 	return _internal_name_part();
 }
@@ -12458,8 +12458,8 @@ inline std::string* UninterpretedOption_NamePart::mutable_name_part() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.UninterpretedOption.NamePart.name_part)
 	return _s;
 }
-inline const std::string & UninterpretedOption_NamePart::_internal_name_part() const { return name_part_.Get(); }
-inline void UninterpretedOption_NamePart::_internal_set_name_part(const std::string & value) {
+inline const std::string& UninterpretedOption_NamePart::_internal_name_part() const { return name_part_.Get(); }
+inline void UninterpretedOption_NamePart::_internal_set_name_part(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	name_part_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -12574,7 +12574,7 @@ inline void UninterpretedOption::clear_identifier_value() {
   identifier_value_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & UninterpretedOption::identifier_value() const {
+inline const std::string& UninterpretedOption::identifier_value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.UninterpretedOption.identifier_value)
 	return _internal_identifier_value();
 }
@@ -12590,8 +12590,8 @@ inline std::string* UninterpretedOption::mutable_identifier_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.UninterpretedOption.identifier_value)
 	return _s;
 }
-inline const std::string & UninterpretedOption::_internal_identifier_value() const { return identifier_value_.Get(); }
-inline void UninterpretedOption::_internal_set_identifier_value(const std::string & value) {
+inline const std::string& UninterpretedOption::_internal_identifier_value() const { return identifier_value_.Get(); }
+inline void UninterpretedOption::_internal_set_identifier_value(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	identifier_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -12716,7 +12716,7 @@ inline void UninterpretedOption::clear_string_value() {
   string_value_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string & UninterpretedOption::string_value() const {
+inline const std::string& UninterpretedOption::string_value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.UninterpretedOption.string_value)
 	return _internal_string_value();
 }
@@ -12732,8 +12732,8 @@ inline std::string* UninterpretedOption::mutable_string_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.UninterpretedOption.string_value)
 	return _s;
 }
-inline const std::string & UninterpretedOption::_internal_string_value() const { return string_value_.Get(); }
-inline void UninterpretedOption::_internal_set_string_value(const std::string & value) {
+inline const std::string& UninterpretedOption::_internal_string_value() const { return string_value_.Get(); }
+inline void UninterpretedOption::_internal_set_string_value(const std::string& value) {
 	_has_bits_[0] |= 0x00000002u;
 	string_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -12780,7 +12780,7 @@ inline void UninterpretedOption::clear_aggregate_value() {
   aggregate_value_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000004u;
 }
-inline const std::string & UninterpretedOption::aggregate_value() const {
+inline const std::string& UninterpretedOption::aggregate_value() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.UninterpretedOption.aggregate_value)
 	return _internal_aggregate_value();
 }
@@ -12796,8 +12796,8 @@ inline std::string* UninterpretedOption::mutable_aggregate_value() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.UninterpretedOption.aggregate_value)
 	return _s;
 }
-inline const std::string & UninterpretedOption::_internal_aggregate_value() const { return aggregate_value_.Get(); }
-inline void UninterpretedOption::_internal_set_aggregate_value(const std::string & value) {
+inline const std::string& UninterpretedOption::_internal_aggregate_value() const { return aggregate_value_.Get(); }
+inline void UninterpretedOption::_internal_set_aggregate_value(const std::string& value) {
 	_has_bits_[0] |= 0x00000004u;
 	aggregate_value_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -12930,7 +12930,7 @@ inline void SourceCodeInfo_Location::clear_leading_comments() {
   leading_comments_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & SourceCodeInfo_Location::leading_comments() const {
+inline const std::string& SourceCodeInfo_Location::leading_comments() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.SourceCodeInfo.Location.leading_comments)
 	return _internal_leading_comments();
 }
@@ -12946,8 +12946,8 @@ inline std::string* SourceCodeInfo_Location::mutable_leading_comments() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.SourceCodeInfo.Location.leading_comments)
 	return _s;
 }
-inline const std::string & SourceCodeInfo_Location::_internal_leading_comments() const { return leading_comments_.Get(); }
-inline void SourceCodeInfo_Location::_internal_set_leading_comments(const std::string & value) {
+inline const std::string& SourceCodeInfo_Location::_internal_leading_comments() const { return leading_comments_.Get(); }
+inline void SourceCodeInfo_Location::_internal_set_leading_comments(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	leading_comments_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -12994,7 +12994,7 @@ inline void SourceCodeInfo_Location::clear_trailing_comments() {
   trailing_comments_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000002u;
 }
-inline const std::string & SourceCodeInfo_Location::trailing_comments() const {
+inline const std::string& SourceCodeInfo_Location::trailing_comments() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.SourceCodeInfo.Location.trailing_comments)
 	return _internal_trailing_comments();
 }
@@ -13010,8 +13010,8 @@ inline std::string* SourceCodeInfo_Location::mutable_trailing_comments() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.SourceCodeInfo.Location.trailing_comments)
 	return _s;
 }
-inline const std::string & SourceCodeInfo_Location::_internal_trailing_comments() const { return trailing_comments_.Get(); }
-inline void SourceCodeInfo_Location::_internal_set_trailing_comments(const std::string & value) {
+inline const std::string& SourceCodeInfo_Location::_internal_trailing_comments() const { return trailing_comments_.Get(); }
+inline void SourceCodeInfo_Location::_internal_set_trailing_comments(const std::string& value) {
 	_has_bits_[0] |= 0x00000002u;
 	trailing_comments_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }
@@ -13059,8 +13059,8 @@ inline std::string* SourceCodeInfo_Location::add_leading_detached_comments() {
   // @@protoc_insertion_point(field_add_mutable:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
   return _s;
 }
-inline const std::string & SourceCodeInfo_Location::_internal_leading_detached_comments(int index) const { return leading_detached_comments_.Get(index); }
-inline const std::string & SourceCodeInfo_Location::leading_detached_comments(int index) const {
+inline const std::string& SourceCodeInfo_Location::_internal_leading_detached_comments(int index) const { return leading_detached_comments_.Get(index); }
+inline const std::string& SourceCodeInfo_Location::leading_detached_comments(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
   return _internal_leading_detached_comments(index);
 }
@@ -13068,11 +13068,11 @@ inline std::string* SourceCodeInfo_Location::mutable_leading_detached_comments(i
   // @@protoc_insertion_point(field_mutable:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
   return leading_detached_comments_.Mutable(index);
 }
-inline void SourceCodeInfo_Location::set_leading_detached_comments(int index, const std::string & value) {
+inline void SourceCodeInfo_Location::set_leading_detached_comments(int index, const std::string& value) {
   leading_detached_comments_.Mutable(index)->assign(value);
   // @@protoc_insertion_point(field_set:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
 }
-inline void SourceCodeInfo_Location::set_leading_detached_comments(int index, std::string && value) {
+inline void SourceCodeInfo_Location::set_leading_detached_comments(int index, std::string&& value) {
   leading_detached_comments_.Mutable(index)->assign(std::move(value));
   // @@protoc_insertion_point(field_set:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
 }
@@ -13087,11 +13087,11 @@ inline void SourceCodeInfo_Location::set_leading_detached_comments(int index, co
   // @@protoc_insertion_point(field_set_pointer:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
 }
 inline std::string* SourceCodeInfo_Location::_internal_add_leading_detached_comments() { return leading_detached_comments_.Add(); }
-inline void SourceCodeInfo_Location::add_leading_detached_comments(const std::string & value) {
+inline void SourceCodeInfo_Location::add_leading_detached_comments(const std::string& value) {
   leading_detached_comments_.Add()->assign(value);
   // @@protoc_insertion_point(field_add:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
 }
-inline void SourceCodeInfo_Location::add_leading_detached_comments(std::string && value) {
+inline void SourceCodeInfo_Location::add_leading_detached_comments(std::string&& value) {
   leading_detached_comments_.Add(std::move(value));
   // @@protoc_insertion_point(field_add:google.protobuf.SourceCodeInfo.Location.leading_detached_comments)
 }
@@ -13214,7 +13214,7 @@ inline void GeneratedCodeInfo_Annotation::clear_source_file() {
   source_file_.ClearToEmpty();
   _has_bits_[0] &= ~0x00000001u;
 }
-inline const std::string & GeneratedCodeInfo_Annotation::source_file() const {
+inline const std::string& GeneratedCodeInfo_Annotation::source_file() const {
 	// @@protoc_insertion_point(field_get:google.protobuf.GeneratedCodeInfo.Annotation.source_file)
 	return _internal_source_file();
 }
@@ -13230,8 +13230,8 @@ inline std::string* GeneratedCodeInfo_Annotation::mutable_source_file() {
 	// @@protoc_insertion_point(field_mutable:google.protobuf.GeneratedCodeInfo.Annotation.source_file)
 	return _s;
 }
-inline const std::string & GeneratedCodeInfo_Annotation::_internal_source_file() const { return source_file_.Get(); }
-inline void GeneratedCodeInfo_Annotation::_internal_set_source_file(const std::string & value) {
+inline const std::string& GeneratedCodeInfo_Annotation::_internal_source_file() const { return source_file_.Get(); }
+inline void GeneratedCodeInfo_Annotation::_internal_set_source_file(const std::string& value) {
 	_has_bits_[0] |= 0x00000001u;
 	source_file_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, value, GetArenaForAllocation());
 }

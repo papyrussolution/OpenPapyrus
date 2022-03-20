@@ -723,10 +723,7 @@ PPJobPool::PPJobPool(PPJobMngr * pMngr, const char * pDbSymb, int readOnly) : TS
 	SETFLAG(Flags, fReadOnly, readOnly);
 }
 
-const SString & PPJobPool::GetDbSymb() const
-{
-	return DbSymb;
-}
+const SString & PPJobPool::GetDbSymb() const { return DbSymb; }
 
 int FASTCALL PPJobPool::IsJobSuited(const PPJob * pJob) const
 {

@@ -7565,16 +7565,34 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 				else if(oneof5(toklen, 25, 35, 41, 52, 55)) {
+					int    sig_prefix = 0; // 0 - no, 1 - '0', 2 - '(01)'
 					size_t _offs = 0;
-					if(pToken[_offs++] == '0') {
+					if(pToken[_offs] == '0') {
+						sig_prefix = 1;
+						_offs++;
+					}
+					else if(pToken[_offs] == '(' && pToken[_offs+1] == '0' && pToken[_offs+2] == '1' && pToken[_offs+3] == ')') {
+						sig_prefix = 2;
+						_offs += 4;
+					}
+					if(sig_prefix) {
 						int    is_chzn_cigblock = 1;
-						while(_offs < 16) {
-							if(!isdec(pToken[_offs]))
-								is_chzn_cigblock = 0;
-							_offs++;
+						if(sig_prefix == 1) {
+							while(_offs < 16) {
+								if(!isdec(pToken[_offs]))
+									is_chzn_cigblock = 0;
+								_offs++;
+							}
+						}
+						else if(sig_prefix == 2) {
+							while(_offs < 18) {
+								if(!isdec(pToken[_offs]))
+									is_chzn_cigblock = 0;
+								_offs++;
+							}
 						}
 						if(is_chzn_cigblock) {
-							assert(_offs == 16);
+							assert(_offs == 16 || _offs == 18);
 							if(strstr(PTRCHRC_(pToken)+_offs, "8005")) // код сигаретного блока может содержать тег цены с префиксом 80005
 								rResultList.Add(SNTOK_CHZN_CIGBLOCK, 0.8f);
 							else if(toklen == 25)

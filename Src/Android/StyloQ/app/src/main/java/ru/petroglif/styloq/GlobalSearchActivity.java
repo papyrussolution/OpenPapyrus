@@ -147,6 +147,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 						try {
 							// RecyclerView
 							if(JsResultList != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
+								StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 								View iv = ev_subj.RvHolder.itemView;
 								JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);
 								String rtext = js_entry.optString("text", "");
@@ -154,11 +155,16 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 								String scope_name = "";
 								String key_s = js_entry.optString("scope", "");
 								if(SLib.GetLen(key_s) > 0) {
-									String key_si = js_entry.optString("scopeident", "");
-									if(SLib.GetLen(key_si) > 0) {
-										JSONObject js_scope = SearchScope(key_s, key_si);
-										if(js_scope != null)
-											scope_name = js_scope.optString("nm", "");
+									if(key_s.equalsIgnoreCase("styloqsvc")) {
+										scope_name = app_ctx.GetString("styloq_binderykind_foreignservice");
+									}
+									if(SLib.GetLen(scope_name) <= 0) {
+										String key_si = js_entry.optString("scopeident", "");
+										if(SLib.GetLen(key_si) > 0) {
+											JSONObject js_scope = SearchScope(key_s, key_si);
+											if(js_scope != null)
+												scope_name = js_scope.optString("nm", "");
+										}
 									}
 								}
 								SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_SCOPE, scope_name);

@@ -483,6 +483,12 @@ int TextPutCh(TW * lptw, BYTE ch)
 	return ch;
 }
 
+void TW::PopupError(LPCWSTR pText)
+{
+	if(!isempty(pText))
+		MessageBoxW(hWndParent, pText, Title, MB_ICONEXCLAMATION);
+}
+
 int TW::TextPutChW(WCHAR ch)
 {
 	switch(ch) {

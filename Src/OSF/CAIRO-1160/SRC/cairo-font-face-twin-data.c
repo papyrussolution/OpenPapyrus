@@ -1,5 +1,5 @@
-/* See cairo-font-face-twin.c for copyright info */
-
+// See cairo-font-face-twin.c for copyright info 
+//
 #include "cairoint.h"
 #pragma hdrstop
 

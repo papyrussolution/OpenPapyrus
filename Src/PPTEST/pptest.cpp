@@ -1487,11 +1487,11 @@ int DoConstructionTest()
 		QueryPerformanceCounter(&qpc2);
 		SDelay(1);
 	}*/
-	//TestGtinStruc();
+	TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
-	{
+	/*{
 		SString _cmd;
 		SString _svcident;
 		SString _svcident2;
@@ -1518,7 +1518,7 @@ int DoConstructionTest()
 			}
 		}
 		ZDELETE(p_json);
-	}
+	}*/
 #if(_MSC_VER >= 1900)
 	Test_Fts();
 #endif

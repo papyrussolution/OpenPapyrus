@@ -11,10 +11,6 @@
 #include <openssl/bn.h>
 #include <openssl/rand.h>
 
-// uhtt.ru service
-// url:  http://217.77.50.185:17863;
-// Q9vunMMIu5XY9PnVToWjmpO9bnA=
-
 const int ec_curve_name_id = NID_X9_62_prime256v1;
 const long __DefMqbConsumeTimeout = 5000;
 /*
@@ -2965,7 +2961,7 @@ int StyloQCore::GetMediatorList(TSCollection <StyloQCore::IgnitionServerEntry> &
 	return ok;
 }
 
-int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::StoragePacket * pOwnPack, SysJournal * pSjOuter)
+int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::StoragePacket & rOwnPack, SysJournal * pSjOuter)
 {
 	int    ok = 1;
 	SString temp_buf;
@@ -2978,7 +2974,7 @@ int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::Storage
 	SString own_ident_hex;
 	SysJournal * p_sj = pSjOuter ? pSjOuter : DS.GetTLA().P_SysJ;
 	bool done = false; // Если последняя регистрация была позже последнего изменения собственной записи, то done становится true - ничего делать не надо.
-	THROW(P_T && pOwnPack);
+	THROW(P_T);
 	if(p_sj) {
 		LDATETIME last_self_reg_dtm = ZERODATETIME;
 		SysJournalTbl::Rec last_self_reg_rec;
@@ -2986,22 +2982,22 @@ int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::Storage
 			int cr = 0;
 			LDATETIME last_mod_dtm = ZERODATETIME;
 			SysJournalTbl::Rec last_mod_rec;
-			if(p_sj->GetLastObjModifEvent(PPOBJ_STYLOQBINDERY, pOwnPack->Rec.ID, &last_mod_dtm, &cr, &last_mod_rec) > 0) {
+			if(p_sj->GetLastObjModifEvent(PPOBJ_STYLOQBINDERY, rOwnPack.Rec.ID, &last_mod_dtm, &cr, &last_mod_rec) > 0) {
 				if(cmp(last_self_reg_dtm, last_mod_dtm) > 0)
 					done = true;
 			}
 		}
 	}
 	if(!done) {
-		THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &temp_bch), PPERR_SQ_UNDEFSVCID);
+		THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagSvcIdent, &temp_bch), PPERR_SQ_UNDEFSVCID);
 		assert(temp_bch.Len() > 0);
 		temp_bch.Mime64(own_ident_hex);
-		THROW_PP(pOwnPack->Pool.Get(SSecretTagPool::tagConfig, &temp_bch), PPERR_SQ_UNDEFOWNCFG);
+		THROW_PP(rOwnPack.Pool.Get(SSecretTagPool::tagConfig, &temp_bch), PPERR_SQ_UNDEFOWNCFG);
 		temp_bch.ToRawStr(temp_buf);
 		THROW(StyloQConfig::MakeTransmissionJson(temp_buf, my_transmission_cfg_json_buf)); // @todo @err
 		//p_js_adv_cfg = StyloQConfig::MakeTransmissionJson(temp_buf);
 		THROW(my_transmission_cfg.FromJson(my_transmission_cfg_json_buf)); // @todo @err
-		if(pOwnPack->Pool.Get(SSecretTagPool::tagSelfyFace, &temp_bch)) {
+		if(rOwnPack.Pool.Get(SSecretTagPool::tagSelfyFace, &temp_bch)) {
 			temp_bch.ToRawStr(my_face_json_buf);
 			//if(my_face.FromJson(my_face_json_buf))
 				//p_js_adv_face = my_face.ToJson();
@@ -3035,7 +3031,7 @@ int PPStyloQInterchange::ServiceSelfregisterInMediator(const StyloQCore::Storage
 						query.ToStr(dip.CommandJson);
 						if(DoInterchange(dip, svc_reply)) {
 							if(p_sj)
-								p_sj->LogEvent(PPACN_STYLOQSVCSELFREG, PPOBJ_STYLOQBINDERY, pOwnPack->Rec.ID, 0/*extData*/, 1/*use_ta*/);
+								p_sj->LogEvent(PPACN_STYLOQSVCSELFREG, PPOBJ_STYLOQBINDERY, rOwnPack.Rec.ID, 0/*extData*/, 1/*use_ta*/);
 							ok = 1;
 							break;
 						}
@@ -5219,7 +5215,7 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 	return ok;
 }
 
-int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, long expirationSec, SString & rResult)
+int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, SString & rResult)
 {
 	/*
 		service { nm; descr; segment_list [ { nm } ] }
@@ -5231,13 +5227,39 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 	*/
 	assert(pOwnPack);
 	int    ok = 1;
+	StyloQIndexingParam * p_param_ = 0;
 	SString temp_buf;
 	SBinaryChunk own_svc_ident;
-	StyloQIndexingParam * p_param = 0;
 	SJson  js(SJson::tOBJECT);
-	THROW(pOwnPack->Rec.Kind == StyloQCore::kNativeService);
-	THROW(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident))
-	THROW(own_svc_ident.Len() <= sizeof(pOwnPack->Rec.BI) && own_svc_ident.IsEq(pOwnPack->Rec.BI, own_svc_ident.Len()));
+	THROW(!pCmd || pCmd->BaseCmdId == StyloQCommandList::sqbcRsrvPushIndexContent); // @todo @err
+	THROW(pOwnPack->Rec.Kind == StyloQCore::kNativeService); // @todo @err
+	THROW(pOwnPack->Pool.Get(SSecretTagPool::tagSvcIdent, &own_svc_ident)) // @todo @err
+	THROW(own_svc_ident.Len() <= sizeof(pOwnPack->Rec.BI) && own_svc_ident.IsEq(pOwnPack->Rec.BI, own_svc_ident.Len())); // @todo @err
+	if(pCmd) {
+		size_t sav_offs = 0;
+		uint   pos = 0;
+		{
+			const StyloQIndexingParam pattern_filt;
+			sav_offs = pCmd->Param.GetRdOffs();
+			{
+				SBuffer temp_filt_buf(pCmd->Param);
+				if(temp_filt_buf.GetAvailableSize()) {
+					PPBaseFilt * p_base_filt = 0;
+					THROW(PPView::ReadFiltPtr(temp_filt_buf, &p_base_filt));
+					if(p_base_filt) {
+						if(p_base_filt->GetSignature() == pattern_filt.GetSignature()) {
+							p_param_ = static_cast<StyloQIndexingParam *>(p_base_filt);
+						}
+						else {
+							assert(p_param_ == 0);
+							// Путаница в фильтрах - убиваем считанный фильтр чтобы создать новый.
+							ZDELETE(p_base_filt);
+						}
+					}
+				}
+			}
+		}
+	}
 	//if(p_param && p_param->GoodsGroupID)
 	js.InsertString("cmd", "pushindexingcontent");
 	js.InsertString("time", temp_buf.Z().Cat(time(0)));
@@ -5253,110 +5275,114 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 			StyloQFace my_face;
 			temp_bch.ToRawStr(my_face_json_buf);
 			if(my_face.FromJson(my_face_json_buf)) {
-				if(my_face.Get(StyloQFace::tagCommonName, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagCommonName, 0, temp_buf))
 					p_js_svc->InsertString("nm", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagDescr, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagDescr, 0, temp_buf))
 					p_js_svc->InsertString("descr", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagGLN, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagGLN, 0, temp_buf))
 					p_js_svc->InsertString("gln", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagRuINN, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagRuINN, 0, temp_buf))
 					p_js_svc->InsertString("ruinn", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagRuKPP, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagRuKPP, 0, temp_buf))
 					p_js_svc->InsertString("rukpp", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagPhone, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagPhone, 0, temp_buf))
 					p_js_svc->InsertString("phone", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagCityName, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagCityName, 0, temp_buf))
 					p_js_svc->InsertString("city", temp_buf.Escape());
-				}
-				if(my_face.Get(StyloQFace::tagEMail, 0, temp_buf)) {
+				if(my_face.Get(StyloQFace::tagEMail, 0, temp_buf))
 					p_js_svc->InsertString("email", temp_buf.Escape());
-				}
 			}
 		}
 		js.Insert("service", p_js_svc);
 	}
 	{
-		SJson * p_js_goodslist = 0;
 		PPIDArray goodsgrp_id_list;
 		PPIDArray brand_id_list;
-		GoodsFilt gf;
-		BarcodeArray bc_list;
 		PPObjGoods goods_obj;
-		gf.Flags |= (GoodsFilt::fHideGeneric|GoodsFilt::fHidePassive);
-		if(p_param && p_param->GoodsGroupID)
-			gf.GrpIDList.Add(p_param->GoodsGroupID);
-		//StrAssocArray goods_list;
-		//GoodsIterator::GetListByFilt(&gf, &goods_list)
 		Goods2Tbl::Rec goods_rec;
-		for(GoodsIterator gi(&gf, 0); gi.Next(&goods_rec) > 0;) {
-			goodsgrp_id_list.addnz(goods_rec.ParentID);
-			brand_id_list.addnz(goods_rec.BrandID);
-			SETIFZ(p_js_goodslist, new SJson(SJson::tARRAY));
-			SJson * p_js_ware = new SJson(SJson::tOBJECT);
-			p_js_ware->InsertInt("id", goods_rec.ID);
-			p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-			if(goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, bc_list) > 0 && bc_list.getCount()) {
-				SJson * p_js_codelist = new SJson(SJson::tARRAY);
-				for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
-					const BarcodeTbl::Rec & r_bc = bc_list.at(bcidx);
-					SJson * p_js_item = new SJson(SJson::tOBJECT);
-					p_js_item->InsertString("cod", (temp_buf = r_bc.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					p_js_codelist->InsertChild(p_js_item);
+		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fGoods) {
+			SJson * p_js_goodslist = 0;
+			GoodsFilt gf;
+			BarcodeArray bc_list;
+			gf.Flags |= (GoodsFilt::fHideGeneric|GoodsFilt::fHidePassive);
+			if(p_param_ && p_param_->GoodsGroupID)
+				gf.GrpIDList.Add(p_param_->GoodsGroupID);
+			//StrAssocArray goods_list;
+			//GoodsIterator::GetListByFilt(&gf, &goods_list)
+			for(GoodsIterator gi(&gf, 0); gi.Next(&goods_rec) > 0;) {
+				goodsgrp_id_list.addnz(goods_rec.ParentID);
+				brand_id_list.addnz(goods_rec.BrandID);
+				SETIFZ(p_js_goodslist, new SJson(SJson::tARRAY));
+				SJson * p_js_ware = new SJson(SJson::tOBJECT);
+				p_js_ware->InsertInt("id", goods_rec.ID);
+				p_js_ware->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+				if(goods_obj.P_Tbl->ReadBarcodes(goods_rec.ID, bc_list) > 0 && bc_list.getCount()) {
+					SJson * p_js_codelist = new SJson(SJson::tARRAY);
+					for(uint bcidx = 0; bcidx < bc_list.getCount(); bcidx++) {
+						const BarcodeTbl::Rec & r_bc = bc_list.at(bcidx);
+						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						p_js_item->InsertString("cod", (temp_buf = r_bc.Code).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						p_js_codelist->InsertChild(p_js_item);
+					}
+					p_js_ware->Insert("code_list", p_js_codelist);
 				}
-				p_js_ware->Insert("code_list", p_js_codelist);
+				p_js_goodslist->InsertChild(p_js_ware);
 			}
-			p_js_goodslist->InsertChild(p_js_ware);
+			if(p_js_goodslist) {
+				js.Insert("goods_list", p_js_goodslist);
+			}
 		}
-		if(p_js_goodslist) {
-			js.Insert("goods_list", p_js_goodslist);
-		}
-		if(goodsgrp_id_list.getCount()) {
-			goodsgrp_id_list.sortAndUndup();
-			SJson * p_js_grplist = new SJson(SJson::tARRAY);
-			for(uint i = 0; i < goodsgrp_id_list.getCount(); i++) {
-				const PPID item_id = goodsgrp_id_list.get(i);
-				if(goods_obj.Fetch(item_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GROUP) {
-					SJson * p_js_item = new SJson(SJson::tOBJECT);
-					p_js_item->InsertInt("id", goods_rec.ID);
-					p_js_item->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					p_js_grplist->InsertChild(p_js_item);
+		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fGoodsGroups) {
+			if(goodsgrp_id_list.getCount()) {
+				goodsgrp_id_list.sortAndUndup();
+				SJson * p_js_grplist = new SJson(SJson::tARRAY);
+				for(uint i = 0; i < goodsgrp_id_list.getCount(); i++) {
+					const PPID item_id = goodsgrp_id_list.get(i);
+					if(goods_obj.Fetch(item_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GROUP) {
+						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						p_js_item->InsertInt("id", goods_rec.ID);
+						p_js_item->InsertString("nm", (temp_buf = goods_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						p_js_grplist->InsertChild(p_js_item);
+					}
 				}
+				js.Insert("goodsgroup_list", p_js_grplist);
 			}
-			js.Insert("goodsgroup_list", p_js_grplist);
 		}
-		if(brand_id_list.getCount()) {
-			PPObjBrand brand_obj;
-			PPBrandPacket brand_pack;
-			brand_id_list.sortAndUndup();
-			SJson * p_js_brandlist = new SJson(SJson::tARRAY);
-			for(uint i = 0; i < brand_id_list.getCount(); i++) {
-				const PPID item_id = brand_id_list.get(i);
-				brand_pack.Init();
-				if(brand_obj.Get(item_id, &brand_pack) > 0) {
-					SJson * p_js_item = new SJson(SJson::tOBJECT);
-					p_js_item->InsertInt("id", brand_pack.Rec.ID);
-					p_js_item->InsertString("nm", (temp_buf = brand_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					p_js_brandlist->InsertChild(p_js_item);
+		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fBrands) {
+			if(brand_id_list.getCount()) {
+				PPObjBrand brand_obj;
+				PPBrandPacket brand_pack;
+				brand_id_list.sortAndUndup();
+				SJson * p_js_brandlist = new SJson(SJson::tARRAY);
+				for(uint i = 0; i < brand_id_list.getCount(); i++) {
+					const PPID item_id = brand_id_list.get(i);
+					brand_pack.Init();
+					if(brand_obj.Get(item_id, &brand_pack) > 0) {
+						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						p_js_item->InsertInt("id", brand_pack.Rec.ID);
+						p_js_item->InsertString("nm", (temp_buf = brand_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+						p_js_brandlist->InsertChild(p_js_item);
+					}
 				}
+				js.Insert("brand_list", p_js_brandlist);
 			}
-			js.Insert("brand_list", p_js_brandlist);
 		}
-		{
+		if(!p_param_ || p_param_->Flags & StyloQIndexingParam::fProcessors) {
 			PPObjProcessor prc_obj;
 			ProcessorTbl::Rec prc_rec;
 			SJson * p_js_prclist = 0;
 			for(SEnum en = prc_obj.P_Tbl->Enum(PPPRCK_PROCESSOR, 0); en.Next(&prc_rec) > 0;) {
-				SETIFZ(p_js_prclist, new SJson(SJson::tARRAY));
-				SJson * p_js_item = new SJson(SJson::tOBJECT);
-				p_js_item->InsertInt("id", prc_rec.ID);
-				p_js_item->InsertString("nm", (temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-				p_js_prclist->InsertChild(p_js_item);
+				bool   skip = false;
+				if(p_param_ && p_param_->PrcList.GetCount() && !p_param_->PrcList.CheckID(prc_rec.ID)) {
+					skip = true;
+				}
+				if(!skip) {
+					SETIFZ(p_js_prclist, new SJson(SJson::tARRAY));
+					SJson * p_js_item = new SJson(SJson::tOBJECT);
+					p_js_item->InsertInt("id", prc_rec.ID);
+					p_js_item->InsertString("nm", (temp_buf = prc_rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+					p_js_prclist->InsertChild(p_js_item);
+				}
 			}
 			if(p_js_prclist) {
 				js.Insert("processor_list", p_js_prclist);
@@ -5376,6 +5402,7 @@ int PPStyloQInterchange::MakeIndexingRequestCommand(const StyloQCore::StoragePac
 	}
 	// } @debug
 	CATCHZOK
+	ZDELETE(p_param_);
 	return ok;
 }
 
@@ -6053,9 +6080,8 @@ protected:
 			P_Box->freeAll();
 			for(uint i = 0; i < P_Data->GetCount(); i++) {
 				const PPID prc_id = P_Data->Get(i);
-				if(PrcObj.Fetch(prc_id, &prc_rec) > 0) {
+				if(PrcObj.Fetch(prc_id, &prc_rec) > 0)
 					P_Box->addItem(prc_id, prc_rec.Name);
-				}
 			}
 			P_Box->Draw_();
 			P_Box->focusItem(sav_pos);
@@ -6106,6 +6132,11 @@ int StyloQIndexingParam::InitInstance()
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			//
+			AddClusterAssoc(CTL_STQIDXCPARAM_FLAGS, 0, StyloQIndexingParam::fGoods);
+			AddClusterAssoc(CTL_STQIDXCPARAM_FLAGS, 1, StyloQIndexingParam::fGoodsGroups);
+			AddClusterAssoc(CTL_STQIDXCPARAM_FLAGS, 2, StyloQIndexingParam::fBrands);
+			AddClusterAssoc(CTL_STQIDXCPARAM_FLAGS, 3, StyloQIndexingParam::fProcessors);
+			SetClusterData(CTL_STQIDXCPARAM_FLAGS, Data.Flags);
 			SetupPPObjCombo(this, CTLSEL_STQIDXCPARAM_GGRP, PPOBJ_GOODSGROUP, Data.GoodsGroupID, OLW_CANSELUPLEVEL);
 			SetupPPObjCombo(this, CTLSEL_STQIDXCPARAM_PSNK, PPOBJ_PERSONKIND, Data.PersonKindID, 0);
 			SetDataRef(&Data.PrcList);
@@ -6114,6 +6145,7 @@ int StyloQIndexingParam::InitInstance()
 		DECL_DIALOG_GETDTS()
 		{
 			int    ok = 1;
+			GetClusterData(CTL_STQIDXCPARAM_FLAGS, &Data.Flags);
 			getCtrlData(CTLSEL_STQIDXCPARAM_GGRP, &Data.GoodsGroupID);
 			getCtrlData(CTLSEL_STQIDXCPARAM_PSNK, &Data.PersonKindID);
 			ASSIGN_PTR(pData, Data);
@@ -6563,7 +6595,7 @@ void PPStyloQInterchange::Debug_Command(const StyloQCommandList::Item * pCmd) //
 			StyloQCore::StoragePacket own_pack;
 			SString result;
 			if(GetOwnPeerEntry(&own_pack) > 0) {
-				MakeIndexingRequestCommand(&own_pack, 3600*24, result);
+				MakeIndexingRequestCommand(&own_pack, pCmd, 3600*24, result);
 			}
 		}
 		else if(pCmd->BaseCmdId == StyloQCommandList::sqbcReport) {
@@ -6628,24 +6660,19 @@ int PPStyloQInterchange::AcceptStyloQClientAsPerson(const StyloQCore::StoragePac
 					}
 					else {
 						SString compound_name;
-						if(cli_face.Get(StyloQFace::tagSurName, 0/*lang*/, temp_buf)) {
+						if(cli_face.Get(StyloQFace::tagSurName, 0/*lang*/, temp_buf))
 							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
-						}
-						if(cli_face.Get(StyloQFace::tagName, 0/*lang*/, temp_buf)) {
+						if(cli_face.Get(StyloQFace::tagName, 0/*lang*/, temp_buf))
 							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
-						}
-						if(cli_face.Get(StyloQFace::tagPatronymic, 0/*lang*/, temp_buf)) {
+						if(cli_face.Get(StyloQFace::tagPatronymic, 0/*lang*/, temp_buf))
 							compound_name.CatDivIfNotEmpty(' ', 0).Cat(temp_buf);
-						}
 						if(compound_name.NotEmptyS())
 							STRNSCPY(psn_pack.Rec.Name, compound_name);
 					}
-					if(cli_face.Get(StyloQFace::tagPhone, 0/*lang*/, temp_buf)) {
+					if(cli_face.Get(StyloQFace::tagPhone, 0/*lang*/, temp_buf))
 						psn_pack.ELA.AddItem(PPELK_MOBILE, temp_buf);
-					}
-					if(cli_face.Get(StyloQFace::tagEMail, 0/*lang*/, temp_buf)) {
+					if(cli_face.Get(StyloQFace::tagEMail, 0/*lang*/, temp_buf))
 						psn_pack.ELA.AddItem(PPELK_EMAIL, temp_buf);
-					}
 					if(cli_face.Get(StyloQFace::tagRuINN, 0/*lang*/, temp_buf)) {
 						PPObjRegister::InitPacket(&new_reg_rec, PPREGT_TPID, PPObjID(PPOBJ_PERSON, 0), temp_buf);
 						psn_pack.Regs.insert(&new_reg_rec);
@@ -8093,215 +8120,6 @@ static int SetupCorrelationIdent(const PPMqbClient::Envelope & rMqbEnv, StyloQPr
 	return ok;
 }
 
-
-//
-// Descr: Вариант централизованного сервера, обслуживающего MQB-запросы. В этом варианте сервер может обслуживать запросы
-//   к нескольким сервисам (базам данных), в отличии от локального Mqb-сервера, который может обслуживать локальные запросы
-//   в пределах одной базы данных (или, даже, сеанса).
-//
-class StyloQServer2 : public PPThread {
-public:
-	struct LaunchEntry {
-		PPStyloQInterchange::RunServerParam P;
-		DbLoginBlock LB;
-	};
-private:
-	TSCollection <LaunchEntry> Entries;
-	class RunBlock {
-	public:
-		struct Entry {
-			Entry(const LaunchEntry * pLe, uint connIdx) : /*P_Cli(0),*/ ConnIdx(connIdx)
-			{
-				if(pLe) {
-					LB = pLe->LB;
-					P = pLe->P;
-				}
-			}
-			const uint ConnIdx; // Позиция [1..] MQB-клиента в списке RunBlock::ConnList
-			PPStyloQInterchange::RunServerParam P;
-			DbLoginBlock LB;
-		};
-		TSCollection <Entry> EntryList;
-		TSCollection <PPMqbClient> ConnList;
-	};
-public:
-	StyloQServer2(const TSCollection <LaunchEntry> & rEntries) : PPThread(kStyloQServer, 0, 0)
-	{
-		TSCollection_Copy(Entries, rEntries);
-	}
-	virtual void Run()
-	{
-		const int   do_debug_log = 0; // @debug
-		const long  pollperiod_mqc = 500;
-		EvPollTiming pt_mqc(pollperiod_mqc, false);
-		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
-		const int  use_sj_scan_alg2 = 0;
-		SString msg_buf, temp_buf;
-		RunBlock run_blk;
-		for(uint i = 0; i < Entries.getCount(); i++) {
-			const LaunchEntry * p_le = Entries.at(i);
-			if(p_le) {
-				uint   conn_idx = 0;
-				for(uint j = 0; !conn_idx && j < run_blk.ConnList.getCount(); j++) {
-					const PPMqbClient * p_conn = run_blk.ConnList.at(j);
-					if(p_conn && p_conn->IsHostEqual(p_le->P.MqbInitParam.Host, p_le->P.MqbInitParam.Port))
-						conn_idx = j+1;							
-				}
-				if(conn_idx) {
-					RunBlock::Entry * p_new_entry = new RunBlock::Entry(p_le, conn_idx);
-					{
-						PPMqbClient * p_conn = run_blk.ConnList.at(conn_idx-1);
-						if(p_le->P.MqbInitParam.ConsumeParamList.getCount()) {
-							for(uint cplidx = 0; cplidx < p_le->P.MqbInitParam.ConsumeParamList.getCount(); cplidx++) {
-								PPMqbClient::RoutingParamEntry * p_rpe = p_le->P.MqbInitParam.ConsumeParamList.at(cplidx);
-								if(p_rpe) {
-									p_conn->ApplyRoutingParamEntry(*p_rpe);
-									p_conn->Consume(p_rpe->QueueName, &p_rpe->ConsumeTag.Z(), 0);
-								}
-							}
-						}
-					}
-					run_blk.EntryList.insert(p_new_entry);
-				}
-				else {
-					PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(p_le->P.MqbInitParam);
-					if(p_mqb_cli) {
-						if(run_blk.ConnList.insert(p_mqb_cli)) {
-							conn_idx = run_blk.ConnList.getCount();
-							RunBlock::Entry * p_new_entry = new RunBlock::Entry(p_le, conn_idx);
-							run_blk.EntryList.insert(p_new_entry);
-						}
-					}
-				}
-			}
-		}
-		{
-			//
-			// Здесь мы запустим авторегистрацию сервисов у медиаторов (если необходимо)
-			//
-			for(uint i = 0; i < run_blk.EntryList.getCount(); i++) {
-				const RunBlock::Entry * p_entry = run_blk.EntryList.at(i);
-				assert(p_entry);
-				if(p_entry) {
-					p_entry->LB.GetAttr(DbLoginBlock::attrDbSymb, temp_buf);
-					assert(temp_buf.NotEmpty());
-					if(temp_buf.NotEmpty()) {
-						PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(temp_buf, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
-						if(p_ldb) {
-							PPStyloQInterchange ic(p_ldb->P_Sqc);
-							StyloQCore::StoragePacket own_pack;
-							if(p_ldb->P_Sqc->GetOwnPeerEntry(&own_pack))
-								ic.ServiceSelfregisterInMediator(&own_pack, p_ldb->P_Sj);
-							delete p_ldb;
-						}
-					}
-				}
-			}
-		}
-		if(run_blk.EntryList.getCount()) {
-			PPMqbClient::Envelope mqb_envelop;
-			const long __cycle_hs = 37; // Период таймера в сотых долях секунды (37)
-			int    queue_stat_flags_inited = 0;
-			StyloQProtocol tpack;
-			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
-			for(int stop = 0; !stop;) {
-				uint   h_count = 0;
-				HANDLE h_list[32];
-				h_list[h_count++] = stop_event;
-				h_list[h_count++] = EvLocalStop;
-				//
-				STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
-				__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
-				h_list[h_count++] = __timer;
-				uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
-				switch(r) {
-					case (WAIT_OBJECT_0 + 0): // stop event
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "StopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						stop = 1; // quit loop
-						break;
-					case (WAIT_OBJECT_0 + 1): // local stop event
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "LocalStopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						stop = 1; // quit loop
-						break;
-					case WAIT_TIMEOUT:
-						// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
-						// Предполагается, что это событие крайне маловероятно!
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						break;
-					case (WAIT_OBJECT_0 + 2): // __timer event
-						{
-							if(pt_purge.IsTime()) {
-								;
-							}
-							if(pt_mqc.IsTime()) {
-								for(uint connidx = 0; connidx < run_blk.ConnList.getCount(); connidx++) {
-									PPMqbClient * p_mqb_cli = run_blk.ConnList.at(connidx);
-									if(p_mqb_cli) {
-										while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
-											p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
-											if(tpack.Read(mqb_envelop.Msg, 0)) {
-												bool local_error = false;
-												SString a("debug"); // @debug
-												SBinaryChunk msg_svc_ident; // Идент сервиса, переданный с прикладным сообщение
-												SBinaryChunk evn_svc_ident; // Идент сервиса, полученный из mqb_envelop.RoutingKey 
-												if(mqb_envelop.RoutingKey.NotEmpty()) {
-													evn_svc_ident.FromMime64(mqb_envelop.RoutingKey);
-												}
-												// @v11.3.1 {
-												if(!SetupCorrelationIdent(mqb_envelop, tpack))
-													local_error = true;
-												// } @v11.3.1 
-												tpack.P.Get(SSecretTagPool::tagSvcIdent, &msg_svc_ident);
-												const RunBlock::Entry * p_target_entry = 0;
-												for(uint j = 0; !p_target_entry && j < run_blk.EntryList.getCount(); j++) {
-													const RunBlock::Entry * p_entry = run_blk.EntryList.at(j);
-													if(p_entry) {
-														if(msg_svc_ident.Len()) {
-															if(p_entry->P.SvcIdent == msg_svc_ident) {
-																p_target_entry = p_entry;
-															}
-														}
-														else if(evn_svc_ident.Len()) {
-															if(p_entry->P.SvcIdent == evn_svc_ident) {
-																p_target_entry = p_entry;
-															}
-														}
-													}
-												}
-												if(p_target_entry) {
-													StyloQServerSession * p_new_sess = new StyloQServerSession(p_target_entry->LB, p_target_entry->P, tpack);
-													CALLPTRMEMB(p_new_sess, Start(0));													
-												}
-											}
-											else {
-												PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
-											}
-										}										
-									}
-								}
-							}
-						}
-						break;
-					case WAIT_FAILED:
-						if(do_debug_log) {
-							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "QueueFailed", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
-						}
-						// error
-						break;
-				}
-			}
-		}
-		//delete p_mqb_cli;
-		DBS.CloseDictionary();
-	}
-};
-
 int StyloQCore::IndexingContent()
 {
 	int    ok = -1;
@@ -8358,6 +8176,184 @@ int StyloQCore::IndexingContent()
 	return ok;
 }
 
+//
+// Descr: Вариант централизованного сервера, обслуживающего MQB-запросы. В этом варианте сервер может обслуживать запросы
+//   к нескольким сервисам (базам данных), в отличии от локального Mqb-сервера, который может обслуживать локальные запросы
+//   в пределах одной базы данных (или, даже, сеанса).
+//
+class StyloQServer2 : public PPThread {
+public:
+	struct LaunchEntry {
+		PPStyloQInterchange::RunServerParam P;
+		DbLoginBlock LB;
+	};
+private:
+	TSCollection <LaunchEntry> Entries;
+	class RunBlock {
+	public:
+		struct Entry {
+			Entry(const LaunchEntry * pLe, uint connIdx) : /*P_Cli(0),*/ ConnIdx(connIdx)
+			{
+				if(pLe) {
+					LB = pLe->LB;
+					P = pLe->P;
+				}
+			}
+			const uint ConnIdx; // Позиция [1..] MQB-клиента в списке RunBlock::ConnList
+			PPStyloQInterchange::RunServerParam P;
+			DbLoginBlock LB;
+		};
+		TSCollection <Entry> EntryList;
+		TSCollection <PPMqbClient> ConnList;
+	};
+public:
+	StyloQServer2(const TSCollection <LaunchEntry> & rEntries) : PPThread(kStyloQServer, 0, 0)
+	{
+		TSCollection_Copy(Entries, rEntries);
+	}
+	virtual void Run()
+	{
+		const int   do_debug_log = 0; // @debug
+		const long  pollperiod_mqc = 500;
+		EvPollTiming pt_mqc(pollperiod_mqc, false);
+		EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
+		const int  use_sj_scan_alg2 = 0;
+		SString msg_buf, temp_buf;
+		RunBlock run_blk;
+		for(uint i = 0; i < Entries.getCount(); i++) {
+			const LaunchEntry * p_le = Entries.at(i);
+			if(p_le) {
+				uint   conn_idx = 0;
+				for(uint j = 0; !conn_idx && j < run_blk.ConnList.getCount(); j++) {
+					const PPMqbClient * p_mqb_cli = run_blk.ConnList.at(j);
+					if(p_mqb_cli && p_mqb_cli->IsHostEqual(p_le->P.MqbInitParam.Host, p_le->P.MqbInitParam.Port))
+						conn_idx = j+1;							
+				}
+				if(conn_idx) {
+					RunBlock::Entry * p_new_entry = new RunBlock::Entry(p_le, conn_idx);
+					PPMqbClient * p_mqb_cli = run_blk.ConnList.at(conn_idx-1);
+					if(p_le->P.MqbInitParam.ConsumeParamList.getCount()) {
+						for(uint cplidx = 0; cplidx < p_le->P.MqbInitParam.ConsumeParamList.getCount(); cplidx++) {
+							PPMqbClient::RoutingParamEntry * p_rpe = p_le->P.MqbInitParam.ConsumeParamList.at(cplidx);
+							if(p_rpe) {
+								p_mqb_cli->ApplyRoutingParamEntry(*p_rpe);
+								p_mqb_cli->Consume(p_rpe->QueueName, &p_rpe->ConsumeTag.Z(), 0);
+							}
+						}
+					}
+					run_blk.EntryList.insert(p_new_entry);
+				}
+				else {
+					PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(p_le->P.MqbInitParam);
+					if(p_mqb_cli) {
+						if(run_blk.ConnList.insert(p_mqb_cli)) {
+							conn_idx = run_blk.ConnList.getCount();
+							RunBlock::Entry * p_new_entry = new RunBlock::Entry(p_le, conn_idx);
+							run_blk.EntryList.insert(p_new_entry);
+						}
+					}
+				}
+			}
+		}
+		if(run_blk.EntryList.getCount()) {
+			PPMqbClient::Envelope mqb_envelop;
+			const long __cycle_hs = 37; // Период таймера в сотых долях секунды (37)
+			int    queue_stat_flags_inited = 0;
+			StyloQProtocol tpack;
+			Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
+			for(int stop = 0; !stop;) {
+				uint   h_count = 0;
+				HANDLE h_list[32];
+				h_list[h_count++] = stop_event;
+				h_list[h_count++] = EvLocalStop;
+				//
+				STimer __timer;  // Таймер для отмера времени до следующего опроса источников событий
+				__timer.Set(getcurdatetime_().addhs(__cycle_hs), 0);
+				h_list[h_count++] = __timer;
+				uint   r = ::WaitForMultipleObjects(h_count, h_list, 0, /*CycleMs*//*INFINITE*/60000);
+				switch(r) {
+					case (WAIT_OBJECT_0 + 0): // stop event
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "StopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						stop = 1; // quit loop
+						break;
+					case (WAIT_OBJECT_0 + 1): // local stop event
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "LocalStopEvent", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						stop = 1; // quit loop
+						break;
+					case WAIT_TIMEOUT:
+						// Если по каким-то причинам сработал таймаут, то перезаряжаем цикл по-новой
+						// Предполагается, что это событие крайне маловероятно!
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "TimeOut", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						break;
+					case (WAIT_OBJECT_0 + 2): // __timer event
+						if(pt_purge.IsTime()) {
+							;
+						}
+						if(pt_mqc.IsTime()) {
+							for(uint connidx = 0; connidx < run_blk.ConnList.getCount(); connidx++) {
+								PPMqbClient * p_mqb_cli = run_blk.ConnList.at(connidx);
+								if(p_mqb_cli) {
+									while(p_mqb_cli->ConsumeMessage(mqb_envelop, 200) > 0) {
+										p_mqb_cli->Ack(mqb_envelop.DeliveryTag, 0);
+										if(tpack.Read(mqb_envelop.Msg, 0)) {
+											bool local_error = false;
+											SString a("debug"); // @debug
+											SBinaryChunk msg_svc_ident; // Идент сервиса, переданный с прикладным сообщение
+											SBinaryChunk evn_svc_ident; // Идент сервиса, полученный из mqb_envelop.RoutingKey 
+											if(mqb_envelop.RoutingKey.NotEmpty()) {
+												evn_svc_ident.FromMime64(mqb_envelop.RoutingKey);
+											}
+											// @v11.3.1 {
+											if(!SetupCorrelationIdent(mqb_envelop, tpack))
+												local_error = true;
+											// } @v11.3.1 
+											tpack.P.Get(SSecretTagPool::tagSvcIdent, &msg_svc_ident);
+											const RunBlock::Entry * p_target_entry = 0;
+											for(uint j = 0; !p_target_entry && j < run_blk.EntryList.getCount(); j++) {
+												const RunBlock::Entry * p_entry = run_blk.EntryList.at(j);
+												if(p_entry) {
+													if(msg_svc_ident.Len()) {
+														if(p_entry->P.SvcIdent == msg_svc_ident)
+															p_target_entry = p_entry;
+													}
+													else if(evn_svc_ident.Len()) {
+														if(p_entry->P.SvcIdent == evn_svc_ident)
+															p_target_entry = p_entry;
+													}
+												}
+											}
+											if(p_target_entry) {
+												StyloQServerSession * p_new_sess = new StyloQServerSession(p_target_entry->LB, p_target_entry->P, tpack);
+												CALLPTRMEMB(p_new_sess, Start(0));													
+											}
+										}
+										else
+											PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_COMP);
+									}										
+								}
+							}
+						}
+						break;
+					case WAIT_FAILED:
+						if(do_debug_log) {
+							PPLogMessage(PPFILNAM_DEBUG_AEQ_LOG, "QueueFailed", LOGMSGF_DBINFO|LOGMSGF_TIME|LOGMSGF_USER);
+						}
+						// error
+						break;
+				}
+			}
+		}
+		//delete p_mqb_cli;
+		DBS.CloseDictionary();
+	}
+};
+
 void RunStyloQMqbServer()
 {
 	int    ok = 1;
@@ -8382,7 +8378,7 @@ void RunStyloQMqbServer()
 			const StyloQCore::SvcDbSymbMapEntry * p_map_entry = dbmap.at(i);
 			if(p_map_entry && p_map_entry->DbSymb.NotEmpty() && p_map_entry->SvcIdent.Len()) {
 				StyloQCore::StoragePacket sp;
-				PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore);
+				PPSession::LimitedDatabaseBlock * p_ldb = DS.LimitedOpenDatabase(p_map_entry->DbSymb, PPSession::lodfReference|PPSession::lodfStyloQCore|PPSession::lodfSysJournal);
 				if(p_ldb && p_ldb->P_Sqc->GetOwnPeerEntry(&sp) > 0 && sp.Pool.Get(SSecretTagPool::tagSvcIdent, &bc)) {
 					bool svc_id_reckoned = false;
 					for(uint rslidx = 0; !svc_id_reckoned && rslidx < reckoned_svc_id_list.getCount(); rslidx++) {
@@ -8391,6 +8387,15 @@ void RunStyloQMqbServer()
 					}
 					if(!svc_id_reckoned) {
 						if(sp.Pool.Get(SSecretTagPool::tagConfig, &cfg_bytes) && cfg_bytes.Len()) {
+							{
+								//
+								// Здесь запустим авторегистрацию сервисов у медиаторов независимо от того, какой протокол этот сервис использует
+								// Эта точка кода выбрана потому, что здесь уже известны: символ базы данных, ограниченная сессия p_ldb, наличие
+								//   конфигурации у сервиса.
+								//
+								PPStyloQInterchange ic(p_ldb->P_Sqc);
+								ic.ServiceSelfregisterInMediator(sp, p_ldb->P_Sj);
+							}
 							StyloQConfig _cfg;
 							cfg_bytes.ToRawStr(temp_buf);
 							if(_cfg.FromJson(temp_buf)) {
@@ -8478,17 +8483,17 @@ int PPStyloQInterchange::RunStyloQLocalMqbServer(RunServerParam & rP, const DbLo
 		}
 		virtual void Run()
 		{
-			const int   do_debug_log = 0; // @debug
+			const bool  do_debug_log = false; // @debug
 			const long  pollperiod_mqc = 500;
 			EvPollTiming pt_mqc(pollperiod_mqc, false);
 			EvPollTiming pt_purge(3600000, true); // этот тайминг не надо исполнять при запуске. Потому registerImmediate = 1
 			const int  use_sj_scan_alg2 = 0;
-			SString msg_buf, temp_buf;
+			SString msg_buf;
+			SString temp_buf;
 			PPMqbClient * p_mqb_cli = PPMqbClient::CreateInstance(P.MqbInitParam); // @v11.0.9
 			if(p_mqb_cli) {
 				PPMqbClient::Envelope mqb_envelop;
 				const long __cycle_hs = (p_mqb_cli ? 37 : 293); // Период таймера в сотых долях секунды (37)
-				int    queue_stat_flags_inited = 0;
 				StyloQProtocol tpack;
 				Evnt   stop_event(SLS.GetStopEventName(temp_buf), Evnt::modeOpen);
 				for(int stop = 0; !stop;) {
@@ -8833,118 +8838,19 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 		SString Invitation;
 	};
 	int    ok = -1;
-	//Invitation inv;
 	StyloQCore::StoragePacket sp;
 	SString inv_code;
 	PPID   own_peer_id = 0;
 	int    spir = SetupPeerInstance(&own_peer_id, 1);
 	if(spir) {
-		//SBinaryChunk _ident;
-		//PPMqbClient::InitParam mqb_init_param;
-		//InetUrl url;
-		//THROW(GetOwnPeerEntry(&sp) > 0);
-		//sp.Pool.Get(SSecretTagPool::tagSvcIdent, &_ident);
-		//THROW(PPMqbClient::SetupInitParam(mqb_init_param, "styloq", 0));
-		//url.SetProtocol(InetUrl::protAMQP);
-		//url.SetComponent(InetUrl::cHost, mqb_init_param.Host);
-		//url.SetPort_(mqb_init_param.Port);
-		//url.SetComponent(InetUrl::cUserName, mqb_init_param.Auth);
-		//url.SetComponent(InetUrl::cPassword, mqb_init_param.Secret);
-		//url.Composite(InetUrl::stAll, inv.AccessPoint);
-		//THROW(sp.Pool.Get(SSecretTagPool::tagSvcIdent, &inv.SvcIdent));
 		THROW(MakeInvitation(rData, inv_code));
 		StQInvDialog * dlg = new StQInvDialog(inv_code);
-		if(CheckDialogPtr(&dlg)) {
+		if(CheckDialogPtr(&dlg))
 			ExecViewAndDestroy(dlg);
-		}
 	}
 	CATCHZOKPPERR
 	return ok;
 }
-//
-// Набросок формата команды sqbcRsrvOrderPrereq
-//
-// Unit
-//    ID, Name, Code, Flags, Base, BaseRatio, Fragmentation, Rounding
-// QuotKind
-//    ID, Name, Code
-// GoodsGroup
-//    ID, Name, Code
-// Goods
-//    ID, Name, Unit, Parent
-//        CodeList
-//           Code
-//           Qtty
-//        QuotList
-//           QuotKind
-//           Value
-// Client
-//    ID, Name
-//        AddressList
-// Warehouse
-//    ID, Name
-//
-#if 0 // {
-class MakeRsrvPriceListResponse_ExportBlock {
-public:
-	struct GoodsGrpEntry { // @flat
-		PPID   ID;
-		PPID   ParentID;
-		char   Name[64];
-	};
-	struct BrandEntry { // @flat
-		PPID   BrandID;
-		PPID   OwnerID;
-		char   BrandName[64];
-		char   OwnerName[128];
-	};
-	struct WhEntry { // @flat
-		PPID   WhID;
-		char   WhName[48];
-	};
-	struct GoodsEntry {
-		GoodsEntry(PPID goodsID) : GoodsID(goodsID), Rest(0.0), Cost(0.0), Price(0.0), UnitPerPack(0.0)
-		{
-		}
-		PPID   GoodsID;
-		double Rest;
-		double Cost;
-		double Price;
-		double UnitPerPack;
-	};
-	MakeRsrvPriceListResponse_ExportBlock() : P_DebtView(0), P_GrView(0), P_BrandList(0), P_WhList(0), P_GgList(0)
-	{
-		P_GObj = new PPObjGoods;
-		P_BrObj = new PPObjBrand;
-		P_PsnObj = new PPObjPerson;
-		P_LocObj = new PPObjLocation;
-		P_ArObj = new PPObjArticle;
-	}
-	~MakeRsrvPriceListResponse_ExportBlock()
-	{
-		delete P_GObj;
-		delete P_BrObj;
-		delete P_PsnObj;
-		delete P_LocObj;
-		delete P_ArObj;
-		delete P_DebtView;
-		delete P_GrView;
-		delete P_BrandList;
-		delete P_WhList;
-		delete P_GgList;
-	}
-    PPObjGoods * P_GObj;
-    PPObjBrand * P_BrObj;
-    PPObjPerson * P_PsnObj;
-    PPObjLocation * P_LocObj;
-    PPObjArticle * P_ArObj;
-    PPViewDebtTrnovr * P_DebtView;
-    PPViewGoodsRest * P_GrView;
-    TSVector <BrandEntry> * P_BrandList;
-    TSVector <WhEntry> * P_WhList;
-    TSVector <GoodsGrpEntry> * P_GgList;
-};
-#endif // } 0
 
 int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 {
@@ -9013,7 +8919,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				else if(cmd == cmdIndexing) {
 					StyloQCore::StoragePacket own_pack;
 					if(P_Ic->GetOwnPeerEntry(&own_pack) > 0) {
-						if(P_Ic->MakeIndexingRequestCommand(&own_pack, 3600*24, dip.CommandJson)) {
+						if(P_Ic->MakeIndexingRequestCommand(&own_pack, 0, 3600*24, dip.CommandJson)) {
 							int ir = P_Ic->DoInterchange(dip, svc_reply);
 							SBinaryChunk raw_data;
 							if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
@@ -9150,7 +9056,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 												PPStyloQInterchange::InterchangeParam dip;
 												dip.SvcIdent = p_mediator_entry->Ident;
 												dip.AccessPoint = p_mediator_entry->Url;
-												if(ic.MakeIndexingRequestCommand(&sp, 3600*24, dip.CommandJson)) {
+												if(ic.MakeIndexingRequestCommand(&sp, p_cmd_item, 3600*24, dip.CommandJson)) {
 													SSecretTagPool svc_reply;
 													int ir = ic.DoInterchange(dip, svc_reply);
 													if(ir > 0) {

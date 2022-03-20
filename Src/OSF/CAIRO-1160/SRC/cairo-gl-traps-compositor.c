@@ -24,19 +24,10 @@
  * compliance with the License. You may obtain a copy of the License at
  * http://www.mozilla.org/MPL/
  *
- * This software is distributed on an "AS IS" basis, WITHOUT WARRANTY
- * OF ANY KIND, either express or implied. See the LGPL or the MPL for
- * the specific language governing rights and limitations.
- *
  * The Original Code is the cairo graphics library.
- *
  * The Initial Developer of the Original Code is Red Hat, Inc.
  *
- * Contributor(s):
- *	Benjamin Otte <otte@gnome.org>
- *	Carl Worth <cworth@cworth.org>
- *	Chris Wilson <chris@chris-wilson.co.uk>
- *	Eric Anholt <eric@anholt.net>
+ * Contributor(s): Benjamin Otte <otte@gnome.org> Carl Worth <cworth@cworth.org> Chris Wilson <chris@chris-wilson.co.uk> Eric Anholt <eric@anholt.net>
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -315,143 +306,86 @@ static cairo_int_status_t traps_to_operand(void * _dst,
 
 	operand->texture.owns_surface = (cairo_gl_surface_t*)mask;
 	return CAIRO_STATUS_SUCCESS;
-
 error:
 	cairo_surface_destroy(mask);
 	return status;
 }
 
-static cairo_int_status_t composite_traps(void * _dst,
-    cairo_operator_t op,
-    cairo_surface_t * abstract_src,
-    int src_x,
-    int src_y,
-    int dst_x,
-    int dst_y,
-    const cairo_rectangle_int_t * extents,
-    cairo_antialias_t antialias,
-    cairo_traps_t * traps)
+static cairo_int_status_t composite_traps(void * _dst, cairo_operator_t op, cairo_surface_t * abstract_src,
+    int src_x, int src_y, int dst_x, int dst_y, const cairo_rectangle_int_t * extents, cairo_antialias_t antialias, cairo_traps_t * traps)
 {
 	cairo_gl_composite_t setup;
 	cairo_gl_context_t * ctx;
-	cairo_int_status_t status;
-
-	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
+	cairo_int_status_t status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
 	if(UNLIKELY(status))
 		goto FAIL;
-
-	_cairo_gl_composite_set_source_operand(&setup,
-	    source_to_operand(abstract_src));
+	_cairo_gl_composite_set_source_operand(&setup, source_to_operand(abstract_src));
 	_cairo_gl_operand_translate(&setup.src, -src_x-dst_x, -src_y-dst_y);
 	status = traps_to_operand(_dst, extents, antialias, traps, &setup.mask, dst_x, dst_y);
 	if(UNLIKELY(status))
 		goto FAIL;
-
 	status = _cairo_gl_composite_begin(&setup, &ctx);
 	if(UNLIKELY(status))
 		goto FAIL;
-
 	/* XXX clip */
-	_cairo_gl_context_emit_rect(ctx,
-	    extents->x-dst_x, extents->y-dst_y,
-	    extents->x-dst_x+extents->width,
-	    extents->y-dst_y+extents->height);
+	_cairo_gl_context_emit_rect(ctx, extents->x-dst_x, extents->y-dst_y, extents->x-dst_x+extents->width, extents->y-dst_y+extents->height);
 	status = _cairo_gl_context_release(ctx, CAIRO_STATUS_SUCCESS);
-
 FAIL:
 	_cairo_gl_composite_fini(&setup);
 	return status;
 }
 
-static cairo_gl_surface_t * tristrip_to_surface(void * _dst,
-    const cairo_rectangle_int_t * extents,
-    cairo_antialias_t antialias,
-    cairo_tristrip_t * strip)
+static cairo_gl_surface_t * tristrip_to_surface(void * _dst, const cairo_rectangle_int_t * extents,
+    cairo_antialias_t antialias, cairo_tristrip_t * strip)
 {
 	pixman_format_code_t pixman_format;
 	pixman_image_t * pixman_image;
 	cairo_surface_t * image, * mask;
 	cairo_status_t status;
-
 	pixman_format = antialias != CAIRO_ANTIALIAS_NONE ? PIXMAN_a8 : PIXMAN_a1,
-	pixman_image = pixman_image_create_bits(pixman_format,
-		extents->width,
-		extents->height,
-		NULL, 0);
+	pixman_image = pixman_image_create_bits(pixman_format, extents->width, extents->height, NULL, 0);
 	if(UNLIKELY(pixman_image == NULL))
 		return (cairo_gl_surface_t*)_cairo_surface_create_in_error(_cairo_error(CAIRO_STATUS_NO_MEMORY));
-
 	_pixman_image_add_tristrip(pixman_image, extents->x, extents->y, strip);
-	image = _cairo_image_surface_create_for_pixman_image(pixman_image,
-		pixman_format);
+	image = _cairo_image_surface_create_for_pixman_image(pixman_image, pixman_format);
 	if(UNLIKELY(image->status)) {
 		pixman_image_unref(pixman_image);
 		return (cairo_gl_surface_t*)image;
 	}
-
-	mask = _cairo_surface_create_scratch(_dst,
-		CAIRO_CONTENT_COLOR_ALPHA,
-		extents->width,
-		extents->height,
-		NULL);
+	mask = _cairo_surface_create_scratch(_dst, CAIRO_CONTENT_COLOR_ALPHA, extents->width, extents->height, NULL);
 	if(UNLIKELY(mask->status)) {
 		cairo_surface_destroy(image);
 		return (cairo_gl_surface_t*)mask;
 	}
-
-	status = _cairo_gl_surface_draw_image((cairo_gl_surface_t*)mask,
-		(cairo_image_surface_t*)image,
-		0, 0,
-		extents->width, extents->height,
-		0, 0,
-		TRUE);
+	status = _cairo_gl_surface_draw_image((cairo_gl_surface_t*)mask, (cairo_image_surface_t*)image, 0, 0, extents->width, extents->height, 0, 0, TRUE);
 	cairo_surface_destroy(image);
 	if(UNLIKELY(status)) {
 		cairo_surface_destroy(mask);
 		return (cairo_gl_surface_t*)_cairo_surface_create_in_error(status);
 	}
-
 	return (cairo_gl_surface_t*)mask;
 }
 
-static cairo_int_status_t composite_tristrip(void * _dst,
-    cairo_operator_t op,
-    cairo_surface_t * abstract_src,
-    int src_x,
-    int src_y,
-    int dst_x,
-    int dst_y,
-    const cairo_rectangle_int_t * extents,
-    cairo_antialias_t antialias,
-    cairo_tristrip_t * strip)
+static cairo_int_status_t composite_tristrip(void * _dst, cairo_operator_t op, cairo_surface_t * abstract_src,
+    int src_x, int src_y, int dst_x, int dst_y, const cairo_rectangle_int_t * extents, cairo_antialias_t antialias, cairo_tristrip_t * strip)
 {
 	cairo_gl_composite_t setup;
 	cairo_gl_context_t * ctx;
 	cairo_gl_surface_t * mask;
 	cairo_int_status_t status;
-
 	mask = tristrip_to_surface(_dst, extents, antialias, strip);
 	if(UNLIKELY(mask->base.status))
 		return mask->base.status;
-
 	status = _cairo_gl_composite_init(&setup, op, _dst, FALSE);
 	if(UNLIKELY(status))
 		goto FAIL;
-
-	_cairo_gl_composite_set_source_operand(&setup,
-	    source_to_operand(abstract_src));
-
+	_cairo_gl_composite_set_source_operand(&setup, source_to_operand(abstract_src));
 	//_cairo_gl_composite_set_mask_surface (&setup, mask, 0, 0);
-
 	status = _cairo_gl_composite_begin(&setup, &ctx);
 	if(UNLIKELY(status))
 		goto FAIL;
-
 	/* XXX clip */
-	_cairo_gl_context_emit_rect(ctx,
-	    dst_x, dst_y,
-	    dst_x+extents->width,
-	    dst_y+extents->height);
+	_cairo_gl_context_emit_rect(ctx, dst_x, dst_y, dst_x+extents->width, dst_y+extents->height);
 	status = _cairo_gl_context_release(ctx, CAIRO_STATUS_SUCCESS);
 
 FAIL:

@@ -6,13 +6,13 @@
 // modification, are permitted provided that the following conditions are
 // met:
 //
-//     * Redistributions of source code must retain the above copyright
+// * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
-//     * Redistributions in binary form must reproduce the above
+// * Redistributions in binary form must reproduce the above
 // copyright notice, this list of conditions and the following disclaimer
 // in the documentation and/or other materials provided with the
 // distribution.
-//     * Neither the name of Google Inc. nor the names of its
+// * Neither the name of Google Inc. nor the names of its
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
@@ -23,16 +23,15 @@
 namespace google {
 	namespace protobuf {
 		namespace internal {
-			bool AnyMetadata::PackFrom(Arena* arena, const Message& message) {
+			bool AnyMetadata::PackFrom(Arena* arena, const Message& message) 
+			{
 				return PackFrom(arena, message, kTypeGoogleApisComPrefix);
 			}
-
 			bool AnyMetadata::PackFrom(Arena* arena, const Message& message, StringPiece type_url_prefix) 
 			{
 				type_url_->Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString(), GetTypeUrl(message.GetDescriptor()->full_name(), type_url_prefix), arena);
 				return message.SerializeToString(value_->Mutable(ArenaStringPtr::EmptyDefault{}, arena));
 			}
-
 			bool AnyMetadata::UnpackTo(Message* message) const 
 			{
 				if(!InternalIs(message->GetDescriptor()->full_name())) {
@@ -40,7 +39,6 @@ namespace google {
 				}
 				return message->ParseFromString(value_->Get());
 			}
-
 			bool GetAnyFieldDescriptors(const Message& message, const FieldDescriptor** type_url_field, const FieldDescriptor** value_field) 
 			{
 				const Descriptor* descriptor = message.GetDescriptor();
