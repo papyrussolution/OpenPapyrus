@@ -2020,22 +2020,22 @@ int FASTCALL SV_Uint32::Copy(const SV_Uint32 & s)
 	return 1;
 }
 
-int FASTCALL SV_Uint32::IsEq(const SV_Uint32 & rPat) const
+bool FASTCALL SV_Uint32::IsEq(const SV_Uint32 & rPat) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(P_Data == 0 && rPat.P_Data == 0)
-		ok = 1;
+		ok = true;
 	else if(P_Data && rPat.P_Data) {
-		uint   c = P_Data[0];
+		const uint c = P_Data[0];
 		if(c == rPat.P_Data[0])
-			ok = memcmp(P_Data+1, rPat.P_Data+1, sizeof(uint32) * c) ? 0 : 1;
+			ok = (memcmp(P_Data+1, rPat.P_Data+1, sizeof(uint32) * c) == 0);
 	}
 	return ok;
 }
 
 bool SV_Uint32::Search(uint val, uint * pPos) const
 {
-	uint   c = P_Data ? P_Data[0] : 0;
+	const uint c = P_Data ? P_Data[0] : 0;
 	for(uint i = 1; i <= c; i++)
 		if(P_Data[i] == val) {
 			ASSIGN_PTR(pPos, i-1);
@@ -3561,9 +3561,9 @@ int FASTCALL StrStrAssocArray::Copy(const StrStrAssocArray & rS)
 	return 1;
 }
 
-int FASTCALL StrStrAssocArray::IsEq(const StrStrAssocArray & src) const
+bool FASTCALL StrStrAssocArray::IsEq(const StrStrAssocArray & src) const // @notimplemented
 {
-	return 0;
+	return false; // @todo
 }
 
 uint StrStrAssocArray::getCount() const
@@ -3798,8 +3798,8 @@ int FASTCALL LongArray::removeByID(long id)
 	return lsearch(id, &pos) ? atFree(pos) : -1;
 }
 
-int    FASTCALL LongArray::operator == (const LongArray & rS) const { return IsEq(&rS); }
-int    FASTCALL LongArray::operator != (const LongArray & rS) const { return BIN(!IsEq(&rS)); }
+bool   FASTCALL LongArray::operator == (const LongArray & rS) const { return IsEq(&rS); }
+bool   FASTCALL LongArray::operator != (const LongArray & rS) const { return !IsEq(&rS); }
 int    FASTCALL LongArray::add(long id) { return insert(&id); }
 int    FASTCALL LongArray::addnz(long id) { return id ? insert(&id) : -1; }
 int    FASTCALL LongArray::addUnique(long id) { return lsearch(id) ? -1 : add(id); }
@@ -3807,7 +3807,7 @@ int    FASTCALL LongArray::addUnique(const LongArray * pS) { return addUniqueExc
 int    LongArray::ordInsert(long i, uint * p) { return SVector::ordInsert(&i, p, CMPF_LONG); }
 int    FASTCALL LongArray::bsearch(long i, uint * p) const { return SVector::bsearch(&i, p, CMPF_LONG); }
 int    FASTCALL LongArray::bsearch(long i) const { return SVector::bsearch(&i, 0, CMPF_LONG); }
-int    LongArray::isList() const { return BIN(count > 1); }
+bool   LongArray::isList() const { return (count > 1); }
 long   FASTCALL LongArray::get(uint pos) const { return at(pos); }
 long   LongArray::getSingle() const { return (count == 1) ? at(0) : 0L; }
 long   LongArray::getLast() const { return (count ? at(count-1) : 0); }
@@ -3840,16 +3840,16 @@ void LongArray::sortAndUndup()
 	}
 }
 
-int LongArray::isSorted() const
+bool LongArray::isSorted() const
 {
-	int   yes = 1;
+	bool   yes = true;
     const uint c = getCount();
     if(c > 1) {
 		long   prev = get(0);
 		for(uint i = 1; yes && i < c; i++) {
 			const long curr = get(i);
 			if(curr < prev)
-				yes = 0;
+				yes = false;
 			else
 				prev = curr;
 		}
@@ -4070,8 +4070,8 @@ void Int64Array::intersect(const Int64Array * pList, int binary)
 //
 //
 FloatArray::FloatArray() : TSVector <float>() {}
-int    FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEq(&rS); }
-int    FASTCALL FloatArray::operator != (const FloatArray & rS) const { return BIN(!IsEq(&rS)); }
+bool   FASTCALL FloatArray::operator == (const FloatArray & rS) const { return IsEq(&rS); }
+bool   FASTCALL FloatArray::operator != (const FloatArray & rS) const { return !IsEq(&rS); }
 int    FASTCALL FloatArray::add(float item) { return insert(&item); }
 int    FASTCALL FloatArray::add(SPoint2F p) { return insertChunk(2, &p); }
 float  FASTCALL FloatArray::get(uint i) const { return at(i); }
@@ -4089,18 +4089,18 @@ const SPoint2F & FASTCALL FloatArray::getPoint(uint i) const
 	return *static_cast<const SPoint2F *>(SVector::at(i)); // @v9.8.4 SArray-->SVector
 }
 
-int FASTCALL FloatArray::IsEq(const FloatArray * pS) const
+bool FASTCALL FloatArray::IsEq(const FloatArray * pS) const
 {
 	if(pS) {
 		const uint c = getCount();
 		if(pS->getCount() == c) {
 			for(uint i = 0; i < c; i++)
 				if(pS->at(i) != at(i))
-					return 0;
-			return 1;
+					return false;
+			return true;
 		}
 	}
-	return 0;
+	return false;
 }
 //
 //

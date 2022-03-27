@@ -168,11 +168,11 @@ static string encode_valuestats(Xapian::doccount freq,
 }
 
 static void merge_postlists(Xapian::Compactor * compactor,
-    GlassTable * out, vector<Xapian::docid>::const_iterator offset,
-    vector<const GlassTable*>::const_iterator b,
-    vector<const GlassTable*>::const_iterator e)
+    GlassTable * out, vector <Xapian::docid>::const_iterator offset,
+    vector <const GlassTable*>::const_iterator b,
+    vector <const GlassTable*>::const_iterator e)
 {
-	priority_queue<PostlistCursor *, vector<PostlistCursor *>, PostlistCursorGt> pq;
+	priority_queue<PostlistCursor *, vector <PostlistCursor *>, PostlistCursorGt> pq;
 	for(; b != e; ++b, ++offset) {
 		const GlassTable * in = *b;
 		if(in->empty()) {
@@ -186,7 +186,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 	string last_key;
 	{
 		// Merge user metadata.
-		vector<string> tags;
+		vector <string> tags;
 		while(!pq.empty()) {
 			PostlistCursor * cur = pq.top();
 			const string & key = cur->key;
@@ -325,7 +325,7 @@ static void merge_postlists(Xapian::Compactor * compactor,
 	}
 
 	Xapian::termcount tf = 0, cf = 0; // Initialise to avoid warnings.
-	vector<pair<Xapian::docid, string> > tags;
+	vector <pair<Xapian::docid, string> > tags;
 	while(true) {
 		PostlistCursor * cur = NULL;
 		if(!pq.empty()) {
@@ -393,10 +393,10 @@ struct CursorGt {
 };
 
 static void merge_spellings(GlassTable * out,
-    vector<const GlassTable*>::const_iterator b,
-    vector<const GlassTable*>::const_iterator e)
+    vector <const GlassTable*>::const_iterator b,
+    vector <const GlassTable*>::const_iterator e)
 {
-	priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
+	priority_queue<MergeCursor *, vector <MergeCursor *>, CursorGt> pq;
 	for(; b != e; ++b) {
 		const GlassTable * in = *b;
 		if(!in->empty()) {
@@ -429,12 +429,12 @@ static void merge_spellings(GlassTable * out,
 			// We just want the union of words, so copy over the first instance
 			// and skip any identical ones.
 			priority_queue<PrefixCompressedStringItor *,
-			    vector<PrefixCompressedStringItor *>,
+			    vector <PrefixCompressedStringItor *>,
 			    PrefixCompressedStringItorGt> pqtag;
 			// Stick all the MergeCursor pointers in a vector because their
 			// current_tag members must remain valid while we're merging their
 			// tags, but we need to call next() on them all afterwards.
-			vector<MergeCursor *> vec;
+			vector <MergeCursor *> vec;
 			vec.reserve(pq.size());
 
 			while(true) {
@@ -465,7 +465,7 @@ static void merge_spellings(GlassTable * out,
 				}
 			}
 
-			vector<MergeCursor *>::const_iterator i;
+			vector <MergeCursor *>::const_iterator i;
 			for(i = vec.begin(); i != vec.end(); ++i) {
 				cur = *i;
 				if(cur->next()) {
@@ -506,10 +506,10 @@ static void merge_spellings(GlassTable * out,
 }
 
 static void merge_synonyms(GlassTable * out,
-    vector<const GlassTable*>::const_iterator b,
-    vector<const GlassTable*>::const_iterator e)
+    vector <const GlassTable*>::const_iterator b,
+    vector <const GlassTable*>::const_iterator e)
 {
-	priority_queue<MergeCursor *, vector<MergeCursor *>, CursorGt> pq;
+	priority_queue<MergeCursor *, vector <MergeCursor *>, CursorGt> pq;
 	for(; b != e; ++b) {
 		const GlassTable * in = *b;
 		if(!in->empty()) {
@@ -542,9 +542,9 @@ static void merge_synonyms(GlassTable * out,
 		// We just want the union of words, so copy over the first instance
 		// and skip any identical ones.
 		priority_queue<ByteLengthPrefixedStringItor *,
-		    vector<ByteLengthPrefixedStringItor *>,
+		    vector <ByteLengthPrefixedStringItor *>,
 		    ByteLengthPrefixedStringItorGt> pqtag;
-		vector<MergeCursor *> vec;
+		vector <MergeCursor *> vec;
 
 		while(true) {
 			cur->read_tag();
@@ -573,7 +573,7 @@ static void merge_synonyms(GlassTable * out,
 			}
 		}
 
-		vector<MergeCursor *>::const_iterator i;
+		vector <MergeCursor *>::const_iterator i;
 		for(i = vec.begin(); i != vec.end(); ++i) {
 			cur = *i;
 			if(cur->next()) {
@@ -590,14 +590,14 @@ static void merge_synonyms(GlassTable * out,
 
 static void multimerge_postlists(Xapian::Compactor * compactor,
     GlassTable * out, const char * tmpdir,
-    vector<const GlassTable *> tmp,
-    vector<Xapian::docid> off)
+    vector <const GlassTable *> tmp,
+    vector <Xapian::docid> off)
 {
 	uint c = 0;
 	while(tmp.size() > 3) {
-		vector<const GlassTable *> tmpout;
+		vector <const GlassTable *> tmpout;
 		tmpout.reserve(tmp.size() / 2);
-		vector<Xapian::docid> newoff;
+		vector <Xapian::docid> newoff;
 		newoff.resize(tmp.size() / 2);
 		for(uint i = 0, j; i < tmp.size(); i = j) {
 			j = i + 2;
@@ -688,10 +688,10 @@ public:
 	}
 };
 
-static void merge_positions(GlassTable * out, const vector<const GlassTable*> & inputs,
-    const vector<Xapian::docid> & offset)
+static void merge_positions(GlassTable * out, const vector <const GlassTable*> & inputs,
+    const vector <Xapian::docid> & offset)
 {
-	priority_queue<PositionCursor *, vector<PositionCursor *>, PositionCursorGt> pq;
+	priority_queue<PositionCursor *, vector <PositionCursor *>, PositionCursorGt> pq;
 	for(size_t i = 0; i < inputs.size(); ++i) {
 		const GlassTable * in = inputs[i];
 		if(in->empty()) {
@@ -715,8 +715,8 @@ static void merge_positions(GlassTable * out, const vector<const GlassTable*> & 
 	}
 }
 
-static void merge_docid_keyed(GlassTable * out, const vector<const GlassTable*> & inputs,
-    const vector<Xapian::docid> & offset)
+static void merge_docid_keyed(GlassTable * out, const vector <const GlassTable*> & inputs,
+    const vector <Xapian::docid> & offset)
 {
 	for(size_t i = 0; i < inputs.size(); ++i) {
 		Xapian::docid off = offset[i];
@@ -763,8 +763,8 @@ using namespace GlassCompact;
 void GlassDatabase::compact(Xapian::Compactor * compactor,
     const char * destdir,
     int fd,
-    const vector<const Xapian::Database::Internal*>& sources,
-    const vector<Xapian::docid> & offset,
+    const vector <const Xapian::Database::Internal*>& sources,
+    const vector <Xapian::docid> & offset,
     size_t block_size,
     Xapian::Compactor::compaction_level compaction,
     unsigned flags,
@@ -855,7 +855,7 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 		fl.pack(fl_serialised);
 	}
 
-	vector<GlassTable *> tabs;
+	vector <GlassTable *> tabs;
 	tabs.reserve(tables_end - tables);
 	off_t prev_size = block_size;
 	for(const table_list * t = tables; t < tables_end; ++t) {
@@ -887,7 +887,7 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 
 		off_t in_size = 0;
 
-		vector<const GlassTable*> inputs;
+		vector <const GlassTable*> inputs;
 		inputs.reserve(sources.size());
 		size_t inputs_present = 0;
 		for(auto src : sources) {

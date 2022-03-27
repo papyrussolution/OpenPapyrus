@@ -8,11 +8,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -27,24 +22,12 @@
 using namespace std;
 
 namespace Xapian {
-static inline bool U_isupper(uint ch)
-{
-	return ch < 128 && C_isupper(static_cast<uchar>(ch));
-}
-
-static inline unsigned check_wordchar(uint ch)
-{
-	if(Unicode::is_wordchar(ch)) return Unicode::tolower(ch);
-	return 0;
-}
+static inline bool U_isupper(uint ch) { return (ch < 128 && C_isupper(static_cast<uchar>(ch))); }
+static inline uint check_wordchar(uint ch) { return Unicode::is_wordchar(ch) ? Unicode::tolower(ch) : 0; }
 
 static inline bool should_stem(const std::string & term)
 {
-	const uint SHOULD_STEM_MASK =
-	    (1 << Unicode::LOWERCASE_LETTER) |
-	    (1 << Unicode::TITLECASE_LETTER) |
-	    (1 << Unicode::MODIFIER_LETTER) |
-	    (1 << Unicode::OTHER_LETTER);
+	const uint SHOULD_STEM_MASK = (1 << Unicode::LOWERCASE_LETTER) | (1 << Unicode::TITLECASE_LETTER) | (1 << Unicode::MODIFIER_LETTER) | (1 << Unicode::OTHER_LETTER);
 	Utf8Iterator u(term);
 	return ((SHOULD_STEM_MASK >> Unicode::get_category(*u)) & 1);
 }
@@ -71,7 +54,7 @@ static inline unsigned check_infix(uint ch)
 	return 0;
 }
 
-static inline unsigned check_infix_digit(uint ch)
+static inline uint check_infix_digit(uint ch)
 {
 	// This list of characters comes from Unicode's word identifying algorithm.
 	switch(ch) {
@@ -88,28 +71,15 @@ static inline unsigned check_infix_digit(uint ch)
 		case 0xFE14: // PRESENTATION FORM FOR VERTICAL SEMICOLON
 		    return ch;
 	}
-	if(ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff))
-		return UNICODE_IGNORE;
-	return 0;
+	return (ch >= 0x200b && (ch <= 0x200d || ch == 0x2060 || ch == 0xfeff)) ? UNICODE_IGNORE : 0;
 }
 
-static inline bool is_digit(uint ch) {
-	return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER);
-}
+static inline bool is_digit(uint ch) { return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER); }
+static inline uint check_suffix(uint ch) { return (ch == '+' || ch == '#') ? ch : 0; /* FIXME: what about '-'? */ }
 
-static inline unsigned check_suffix(uint ch)
+template <typename ACTION> static bool parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions, ACTION action)
 {
-	if(ch == '+' || ch == '#') return ch;
-	// FIXME: what about '-'?
-	return 0;
-}
-
-template <typename ACTION>
-static bool parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions,
-    ACTION action)
-{
-	static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS,
-	    "CJK_WORDS flags have same value");
+	static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS, "CJK_WORDS flags have same value");
 #ifdef USE_ICU
 	if(cjk_flags & MSet::SNIPPET_CJK_WORDS) {
 		const char* cjk_start = itor.raw();
@@ -631,7 +601,7 @@ inline bool SnipPipe::drain(const string & input, const string & hi_start, const
 }
 
 static void check_query(const Xapian::Query & query,
-    list<vector<string> > & exact_phrases,
+    list<vector <string> > & exact_phrases,
     unordered_map<string, double> & loose_terms,
     list<const Xapian::Internal::QueryWildcard*> & wildcards,
     list<const Xapian::Internal::QueryEditDistance*> & fuzzies,
@@ -664,8 +634,8 @@ static void check_query(const Xapian::Query & query,
 			}
 
 			// Tight phrase of terms.
-			exact_phrases.push_back(vector<string>());
-			vector<string> & terms = exact_phrases.back();
+			exact_phrases.push_back(vector <string>());
+			vector <string> & terms = exact_phrases.back();
 			terms.reserve(n_subqs);
 			for(size_t i = 0; i != n_subqs; ++i) {
 				Xapian::Query q = query.get_subquery(i);
@@ -726,69 +696,59 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 	else {
 		// Scale up by (1 + 1/64) so that highlighting works better for terms
 		// with termweight 0 (which happens for terms not in the database, and
-		// also with some weighting schemes for terms which occur in almost all
-		// documents.
+		// also with some weighting schemes for terms which occur in almost all documents.
 		max_tw *= 1.015625;
 	}
-
 	Xapian::Query query;
 	if(enquire.get()) {
 		query = enquire->query;
 	}
 	SnipPipe snip(length);
-
-	list<vector<string> > exact_phrases;
+	list<vector <string> > exact_phrases;
 	unordered_map<string, double> loose_terms;
 	list<const Xapian::Internal::QueryWildcard*> wildcards;
 	list<const Xapian::Internal::QueryEditDistance*> fuzzies;
 	size_t longest_phrase = 0;
-	check_query(query, exact_phrases, loose_terms,
-	    wildcards, fuzzies, longest_phrase);
-
-	vector<double> exact_phrases_relevance;
+	check_query(query, exact_phrases, loose_terms, wildcards, fuzzies, longest_phrase);
+	vector <double> exact_phrases_relevance;
 	exact_phrases_relevance.reserve(exact_phrases.size());
 	for(auto&& terms : exact_phrases) {
 		// FIXME: What relevance to use?
 		exact_phrases_relevance.push_back(max_tw * terms.size());
 	}
-
-	vector<double> wildcards_relevance;
+	vector <double> wildcards_relevance;
 	wildcards_relevance.reserve(wildcards.size());
 	for(auto&& pattern : wildcards) {
 		// FIXME: What relevance to use?
 		(void)pattern;
 		wildcards_relevance.push_back(max_tw + min_tw);
 	}
-
-	vector<double> fuzzies_relevance;
+	vector <double> fuzzies_relevance;
 	fuzzies_relevance.reserve(fuzzies.size());
 	for(auto&& pattern : fuzzies) {
 		// FIXME: What relevance to use?
 		(void)pattern;
 		fuzzies_relevance.push_back(max_tw + min_tw);
 	}
-
 	// Background relevance is the same for a given MSet, so cache it
 	// between calls to MSet::snippet() on the same object.
 	unordered_map<string, double>& background = snippet_bg_relevance;
-
-	vector<string> phrase;
-	if(longest_phrase) phrase.resize(longest_phrase - 1);
+	vector <string> phrase;
+	if(longest_phrase) 
+		phrase.resize(longest_phrase - 1);
 	size_t phrase_next = 0;
 	bool matchfound = false;
-	parse_terms(Utf8Iterator(text), cjk_flags, true,
-	    [&](const string & term, bool positional, size_t left) {
+	parse_terms(Utf8Iterator(text), cjk_flags, true, [&](const string & term, bool positional, size_t left) {
 			// FIXME: Don't hardcode this here.
 			const size_t max_word_length = 64;
-
-			if(!positional) return true;
-			if(term.size() > max_word_length) return true;
-
+			if(!positional) 
+				return true;
+			if(term.size() > max_word_length) 
+				return true;
 			// We get segments with any "inter-word" characters in front of
 			// each word, e.g.:
 			// [The][ cat][ sat][ on][ the][ mat]
 			size_t term_end = text.size() - left;
-
 			double* relevance = 0;
 			size_t highlight = 0;
 			if(stats) {
@@ -804,7 +764,7 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 							}
 						}
 						if(match) {
-			                                // FIXME: Sort phrases, highest score first!
+							// FIXME: Sort phrases, highest score first!
 							relevance = &exact_phrases_relevance[i];
 							highlight = terms.size();
 							goto relevance_done;
@@ -812,25 +772,22 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 					}
 					++i;
 				}
-
 				relevance = check_term(loose_terms, stats.get(), term, max_tw);
 				if(relevance) {
-			                // Matched unstemmed term.
+					// Matched unstemmed term.
 					highlight = 1;
 					goto relevance_done;
 				}
-
 				string stem = "Z";
 				stem += stemmer(term);
 				relevance = check_term(loose_terms, stats.get(), stem, max_tw);
 				if(relevance) {
-			                // Matched stemmed term.
+					// Matched stemmed term.
 					highlight = 1;
 					goto relevance_done;
 				}
-
-			        // Check wildcards.
-			        // FIXME: Sort wildcards, cheapest to check first or something?
+				// Check wildcards.
+				// FIXME: Sort wildcards, cheapest to check first or something?
 				i = 0;
 				for(auto&& qw : wildcards) {
 					if(qw->test(term)) {
@@ -844,24 +801,23 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 		        // FIXME: Sort fuzzies, cheapest to check first or something?
 				i = 0;
 				for(auto&& qed : fuzzies) {
-			                // test() returns 0 for no match, or edit_distance + 1.
+					// test() returns 0 for no match, or edit_distance + 1.
 					int ed_result = qed->test(term);
 					if(ed_result) {
-			                        // FIXME: Reduce relevance the more edits there are?
-			                        // We can't just divide by ed_result here as this
-			                        // relevance is used by any term matching this
-			                        // subquery.
+						// FIXME: Reduce relevance the more edits there are?
+						// We can't just divide by ed_result here as this
+						// relevance is used by any term matching this subquery.
 						relevance = &fuzzies_relevance[i];
 						highlight = 1;
 						goto relevance_done;
 					}
 					++i;
 				}
-
 				if(flags & Xapian::MSet::SNIPPET_BACKGROUND_MODEL) {
-			                // Background document model.
+					// Background document model.
 					auto bgit = background.find(term);
-					if(bgit == background.end()) bgit = background.find(stem);
+					if(bgit == background.end()) 
+						bgit = background.find(stem);
 					if(bgit == background.end()) {
 						Xapian::doccount tf = enquire->db.get_termfreq(term);
 						if(!tf) {
@@ -937,24 +893,19 @@ string MSet::Internal::snippet(const string &text, size_t length, const Xapian::
 				phrase[phrase_next] = term;
 				phrase_next = (phrase_next + 1) % (longest_phrase - 1);
 			}
-
 			if(highlight) matchfound = true;
-
 			if(!snip.pump(relevance, term_end, highlight, flags)) return false;
-
 			term_start = term_end;
 			return true;
 		});
 
 	snip.done();
-
 	// Put together the snippet.
 	string result;
 	if(matchfound || (flags & SNIPPET_EMPTY_WITHOUT_MATCH) == 0) {
 		while(snip.drain(text, hi_start, hi_end, omit, result)) {
 		}
 	}
-
 	return result;
 }
 }

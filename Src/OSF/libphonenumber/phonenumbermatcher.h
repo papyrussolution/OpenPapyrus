@@ -109,16 +109,16 @@ namespace i18n {
 			bool CheckNumberGroupingIsValid(const PhoneNumber& phone_number,
 				const string & candidate,
 				ResultCallback4<bool, const PhoneNumberUtil&, const PhoneNumber&,
-				const string &, const vector<string>&>* checker) const;
+				const string &, const vector <string>&>* checker) const;
 			// Helper method to get the national-number part of a number, formatted
 			// without any national prefix, and return it as a set of digit blocks that
 			// would be formatted together following standard formatting rules.
-			void GetNationalNumberGroups(const PhoneNumber& number, vector<string>* digit_blocks) const;
+			void GetNationalNumberGroups(const PhoneNumber& number, vector <string>* digit_blocks) const;
 			// Helper method to get the national-number part of a number, formatted
 			// without any national prefix, and return it as a set of digit blocks that
 			// should be formatted together according to the formatting pattern passed in.
-			void GetNationalNumberGroupsForPattern(const PhoneNumber& number, const NumberFormat* formatting_pattern, vector<string>* digit_blocks) const;
-			bool AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil& util, const PhoneNumber& phone_number, const string & normalized_candidate, const vector<string>& formatted_number_groups) const;
+			void GetNationalNumberGroupsForPattern(const PhoneNumber& number, const NumberFormat* formatting_pattern, vector <string>* digit_blocks) const;
+			bool AllNumberGroupsAreExactlyPresent(const PhoneNumberUtil& util, const PhoneNumber& phone_number, const string & normalized_candidate, const vector <string>& formatted_number_groups) const;
 			bool VerifyAccordingToLeniency(Leniency leniency, const PhoneNumber& number, const string & candidate) const;
 			// In interface for testing purposes.
 			static bool ContainsMoreThanOneSlashInNationalNumber(const PhoneNumber& number, const string & candidate, const PhoneNumberUtil& util);

@@ -980,7 +980,7 @@ void Reflection::Swap(Message* message1, Message* message2) const {
 
 template <bool unsafe_shallow_swap>
 void Reflection::SwapFieldsImpl(Message* message1, Message* message2,
-    const std::vector<const FieldDescriptor*>& fields) const {
+    const std::vector <const FieldDescriptor*>& fields) const {
 	if(message1 == message2) return;
 
 	// TODO(kenton):  Other Reflection methods should probably check this too.
@@ -1051,17 +1051,17 @@ void Reflection::SwapFieldsImpl(Message* message1, Message* message2,
 }
 
 void Reflection::SwapFields(Message* message1, Message* message2,
-    const std::vector<const FieldDescriptor*>& fields) const {
+    const std::vector <const FieldDescriptor*>& fields) const {
 	SwapFieldsImpl<false>(message1, message2, fields);
 }
 
 void Reflection::UnsafeShallowSwapFields(Message* message1, Message* message2,
-    const std::vector<const FieldDescriptor*>& fields) const {
+    const std::vector <const FieldDescriptor*>& fields) const {
 	SwapFieldsImpl<true>(message1, message2, fields);
 }
 
 void Reflection::UnsafeArenaSwapFields(Message* lhs, Message* rhs,
-    const std::vector<const FieldDescriptor*>& fields) const {
+    const std::vector <const FieldDescriptor*>& fields) const {
 	GOOGLE_DCHECK_EQ(lhs->GetArenaForAllocation(), rhs->GetArenaForAllocation());
 	UnsafeShallowSwapFields(lhs, rhs, fields);
 }
@@ -1471,7 +1471,7 @@ bool CreateUnknownEnumValues(const FieldDescriptor* field) {
 using internal::CreateUnknownEnumValues;
 
 void Reflection::ListFieldsMayFailOnStripped(const Message& message, bool should_fail,
-    std::vector<const FieldDescriptor*>* output) const {
+    std::vector <const FieldDescriptor*>* output) const {
 	output->clear();
 
 	// Optimization:  The default instance never has any fields set.
@@ -1531,11 +1531,11 @@ void Reflection::ListFieldsMayFailOnStripped(const Message& message, bool should
 }
 
 void Reflection::ListFields(const Message& message,
-    std::vector<const FieldDescriptor*>* output) const {
+    std::vector <const FieldDescriptor*>* output) const {
 	ListFieldsMayFailOnStripped(message, true, output);
 }
 
-void Reflection::ListFieldsOmitStripped(const Message& message, std::vector<const FieldDescriptor*>* output) const {
+void Reflection::ListFieldsOmitStripped(const Message& message, std::vector <const FieldDescriptor*>* output) const {
 	ListFieldsMayFailOnStripped(message, false, output);
 }
 
@@ -2940,7 +2940,7 @@ private:
 	MetadataOwner() = default; // private because singleton
 
 	WrappedMutex mu_;
-	std::vector<std::pair<const Metadata*, const Metadata*> > metadata_arrays_;
+	std::vector <std::pair<const Metadata*, const Metadata*> > metadata_arrays_;
 };
 
 void AddDescriptors(const DescriptorTable* table);

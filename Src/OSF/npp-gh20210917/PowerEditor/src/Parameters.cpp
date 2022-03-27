@@ -619,7 +619,7 @@ int base64ToAscii(char * dest, const char * base64Str)
 }
 } // anonymous namespace
 
-void cutString(const TCHAR* str2cut, vector<generic_string>& patternVect)
+void cutString(const TCHAR* str2cut, vector <generic_string>& patternVect)
 {
 	if(str2cut) {
 		const TCHAR * pBegin = str2cut;
@@ -878,7 +878,7 @@ NppParameters::~NppParameters()
 		delete _userLangArray[i];
 	if(_hUXTheme)
 		FreeLibrary(_hUXTheme);
-	for(std::vector<TiXmlDocument *>::iterator it = _pXmlExternalLexerDoc.begin(), end = _pXmlExternalLexerDoc.end(); it != end; ++it)
+	for(std::vector <TiXmlDocument *>::iterator it = _pXmlExternalLexerDoc.begin(), end = _pXmlExternalLexerDoc.end(); it != end; ++it)
 		delete (*it);
 	_pXmlExternalLexerDoc.clear();
 }
@@ -1185,7 +1185,7 @@ bool NppParameters::load()
 	PathAppend(_userDefineLangPath, TEXT("userDefineLang.xml"));
 	PathAppend(_userDefineLangsFolderPath, TEXT("userDefineLangs"));
 
-	std::vector<generic_string> udlFiles;
+	std::vector <generic_string> udlFiles;
 	getFilesInFolder(udlFiles, TEXT("*.xml"), _userDefineLangsFolderPath);
 
 	_pXmlUserLangDoc = new TiXmlDocument(_userDefineLangPath);
@@ -1415,7 +1415,7 @@ const TCHAR * NppParameters::getUserDefinedLangNameFromExt(TCHAR * ext, TCHAR * 
 	if((!ext) || (!ext[0]))
 		return nullptr;
 
-	std::vector<generic_string> extVect;
+	std::vector <generic_string> extVect;
 	int iMatched = -1;
 	for(int i = 0; i < _nbUserLang; ++i) {
 		extVect.clear();
@@ -1480,7 +1480,7 @@ void NppParameters::setCurLineHilitingColour(COLORREF colour2Set)
 
 static int CALLBACK EnumFontFamExProc(const LOGFONT* lpelfe, const TEXTMETRIC*, DWORD, LPARAM lParam)
 {
-	std::vector<generic_string>& strVect = *(std::vector<generic_string> *)lParam;
+	std::vector <generic_string>& strVect = *(std::vector <generic_string> *)lParam;
 	const int32_t vectSize = static_cast<int32_t>(strVect.size());
 	const TCHAR* lfFaceName = ((ENUMLOGFONTEX*)lpelfe)->elfLogFont.lfFaceName;
 	//Search through all the fonts, EnumFontFamiliesEx never states anything about order
@@ -1715,7 +1715,7 @@ int NppParameters::getCmdIdFromMenuEntryItemName(HMENU mainMenuHadle, const gene
 		TCHAR menuEntryString[64];
 		::GetMenuString(mainMenuHadle, i, menuEntryString, 64, MF_BYPOSITION);
 		if(generic_stricmp(menuEntryName.c_str(), purgeMenuItemString(menuEntryString).c_str()) == 0) {
-			vector< pair<HMENU, int> > parentMenuPos;
+			vector < pair<HMENU, int> > parentMenuPos;
 			HMENU topMenu = ::GetSubMenu(mainMenuHadle, i);
 			int maxTopMenuPos = ::GetMenuItemCount(topMenu);
 			HMENU currMenu = topMenu;
@@ -2639,7 +2639,7 @@ bool NppParameters::writeSettingsFilesOnCloudForThe1stTime(const generic_string 
 void NppParameters::writeDefaultUDL()
 {
 	bool firstCleanDone = false;
-	std::vector<bool> deleteState;
+	std::vector <bool> deleteState;
 	for(auto udl : _pXmlUserLangsDoc) {
 		if(!_pXmlUserLangDoc) {
 			_pXmlUserLangDoc = new TiXmlDocument(_userDefineLangPath);
@@ -2817,7 +2817,7 @@ void NppParameters::writeSession(const Session & session, const TCHAR * fileName
 
 		struct ViewElem {
 			TiXmlNode * viewNode;
-			vector<sessionFileInfo> * viewFiles;
+			vector <sessionFileInfo> * viewFiles;
 			size_t activeIndex;
 		};
 
@@ -2825,15 +2825,15 @@ void NppParameters::writeSession(const Session & session, const TCHAR * fileName
 		ViewElem viewElems[nbElem];
 		viewElems[0].viewNode = sessionNode->InsertEndChild(TiXmlElement(TEXT("mainView")));
 		viewElems[1].viewNode = sessionNode->InsertEndChild(TiXmlElement(TEXT("subView")));
-		viewElems[0].viewFiles = (vector<sessionFileInfo> *)(&(session._mainViewFiles));
-		viewElems[1].viewFiles = (vector<sessionFileInfo> *)(&(session._subViewFiles));
+		viewElems[0].viewFiles = (vector <sessionFileInfo> *)(&(session._mainViewFiles));
+		viewElems[1].viewFiles = (vector <sessionFileInfo> *)(&(session._subViewFiles));
 		viewElems[0].activeIndex = session._activeMainIndex;
 		viewElems[1].activeIndex = session._activeSubIndex;
 
 		for(size_t k = 0; k < nbElem; ++k) {
 			(viewElems[k].viewNode->ToElement())->SetAttribute(TEXT("activeIndex"),
 			    static_cast<int32_t>(viewElems[k].activeIndex));
-			vector<sessionFileInfo> & viewSessionFiles = *(viewElems[k].viewFiles);
+			vector <sessionFileInfo> & viewSessionFiles = *(viewElems[k].viewFiles);
 
 			for(size_t i = 0, len = viewElems[k].viewFiles->size(); i < len; ++i) {
 				TiXmlNode * fileNameNode = viewElems[k].viewNode->InsertEndChild(TiXmlElement(TEXT("File")));
@@ -3349,7 +3349,7 @@ bool NppParameters::writeProjectPanelsSettings() const
 	return true;
 }
 
-bool NppParameters::writeFileBrowserSettings(const vector<generic_string> & rootPaths, const generic_string & latestSelectedItemPath) const
+bool NppParameters::writeFileBrowserSettings(const vector <generic_string> & rootPaths, const generic_string & latestSelectedItemPath) const
 {
 	if(!_pXmlUserDoc) return false;
 

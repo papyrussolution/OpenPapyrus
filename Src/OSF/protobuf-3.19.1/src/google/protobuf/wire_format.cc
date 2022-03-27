@@ -1041,7 +1041,7 @@ uint8_t* WireFormat::_InternalSerialize(const Message& message, uint8_t* target,
 	const Descriptor* descriptor = message.GetDescriptor();
 	const Reflection* message_reflection = message.GetReflection();
 
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 
 	// Fields of map entry should always be serialized.
 	if(descriptor->options().map_entry()) {
@@ -1146,10 +1146,10 @@ static uint8_t* SerializeMapValueRefWithCachedSizes(const FieldDescriptor* field
 
 class MapKeySorter {
 public:
-	static std::vector<MapKey> SortKey(const Message& message,
+	static std::vector <MapKey> SortKey(const Message& message,
 	    const Reflection* reflection,
 	    const FieldDescriptor* field) {
-		std::vector<MapKey> sorted_key_list;
+		std::vector <MapKey> sorted_key_list;
 		for(MapIterator it =
 		    reflection->MapBegin(const_cast<Message*>(&message), field);
 		    it != reflection->MapEnd(const_cast<Message*>(&message), field);
@@ -1240,9 +1240,9 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
 		    message_reflection->GetMapData(message, field);
 		if(map_field->IsMapValid()) {
 			if(stream->IsSerializationDeterministic()) {
-				std::vector<MapKey> sorted_key_list =
+				std::vector <MapKey> sorted_key_list =
 				    MapKeySorter::SortKey(message, message_reflection, field);
-				for(std::vector<MapKey>::iterator it = sorted_key_list.begin();
+				for(std::vector <MapKey>::iterator it = sorted_key_list.begin();
 				    it != sorted_key_list.end(); ++it) {
 					MapValueConstRef map_value;
 					message_reflection->LookupMapValue(message, field, *it, &map_value);
@@ -1278,7 +1278,7 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
 	}
 
 	// map_entries is for maps that'll be deterministically serialized.
-	std::vector<const Message*> map_entries;
+	std::vector <const Message*> map_entries;
 	if(count > 1 && field->is_map() && stream->IsSerializationDeterministic()) {
 		map_entries =
 		    DynamicMapSorter::Sort(message, count, message_reflection, field);
@@ -1460,7 +1460,7 @@ size_t WireFormat::ByteSize(const Message& message) {
 
 	size_t our_size = 0;
 
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 
 	// Fields of map entry should always be serialized.
 	if(descriptor->options().map_entry()) {

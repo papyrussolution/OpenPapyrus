@@ -2194,6 +2194,9 @@ PPERR_MQBC_NOTINITED                "@{err_internal}: соединение с б
 PPERR_MQBC_EMPTYQUEUENAME           "@{err_internal}: не определено имя очереди сообщений"
 PPERR_MQBC_HOSTEMPTY                "Ошибка MQ-клиента: не определен хост"
 PPERR_MQBC_CONSUMETIMEOUT           "Очередь брокера сообщений пуста (%s)"
+PPERR_MQBC_SERVER                   "Ошибка MQ-сервера: %s"
+PPERR_MQBC_NORESPONSE               "Ошибка MQ-клиента: нет ответа от сервера"
+PPERR_MQBC_LIBRARYEXCEPTION         "Ошибка MQ-клиента: библиотечное исключение"
 PPERR_SC_SINGLEPKSERIESNEEDED       "Для выполнения операции необходимо выбрать единственную серию карт подходящего типа"
 PPERR_HOSTUNAVAILABLE               "Хост '%s' недоступен"
 PPERR_JEXN_SQL                      "Исключение SQL: %s"
@@ -4870,6 +4873,7 @@ PPTXT_STYLOSCRIMP_MARKISNTEGAISCHZN "Импорт StyloScanner: код '%s' не
 PPTXT_STYLOSCRIMP_MARKIMPORTED      "Импорт StyloScanner: марка '%s' импортирована в строку с товаром '%s'"
 PPTXT_STYLOSCRIMP_MARKVALIMPORTED   "Импорт StyloScanner: валидирующая марка '%s' импортирована в документ '%s'"
 PPTXT_STYLOSCRIMP_NOGOODSBYMARKEAN  "Импорт StyloScanner: не найден товар с кодом '%s'"
+PPTXT_STYLOQMQBSVR_NOTHINGTODO      "Сервер StyloQ для обслуживания MQB-очередей не запущен поскольку нет ни одной точки обработки"
 
 PPTXT_LAYOUTGRAVITYAREA             "1,Левый верхний угол;2,Правый верхний угол;3,Правый нижний угол;4,Левый нижний угол;5,Верхняя сторона;6,Правая сторона;7,Нижняя сторона;8,Левая сторона;9,Центр"
 PPTXT_LAYOUTALIGNMENT               "1,Растяжка;2,Центрирование;3,По начальной позиции;4,По конечной позиции;5,Пространство между элементами;6,Пространство вокруг элементов;7,Равномерное распределение"
@@ -5695,6 +5699,9 @@ DVCPARAM_OFDVER                       "OFDVER" // @v11.1.9 Версия ОФД, 
 DVCPARAM_CHZNPPRESULT                 "CHZNPPRESULT" // @v11.1.11 Результат проверки марки честный знак на фазе препроцессинга
 DVCPARAM_CHZNPPSTATUS                 "CHZNPPSTATUS" // @v11.1.11 Статус, присвоенный марке честный знак на фазе препроцессинга
 DVCPARAM_UOMFRAGM                     "UOMFRAGM"     // @v11.2.5 Фрагментация единицы измерения товара. Используется для передачи в честный знак продажи части упаковки
+DVCPARAM_BUYERSPHONE                  "BUYERSPHONE"  // @v11.3.6
+DVCPARAM_BUYERSEMAIL                  "BUYERSEMAIL"  // @v11.3.6
+DVCPARAM_PAPERLESS                    "PAPERLESS"    // @v11.3.6
 
 [120]
 IMPEXPCMD_ORDRSP        "ORDRSP"
@@ -9877,6 +9884,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_cchkf_zcheck                      "Z-отчет"
 @ccheck_cchkf_spfinished                  "Финишированный чек"
 @ccheck_cchkf_altreg                      "@{alternativeregistrar}"
+@ccheck_cchkf_paperless                   "Не печатать бумажный чек"
 @ccheck_code                              "@{code}"
 @ccheck_discount                          "@{discount}"
 @ccheck_discount_amp                      "Скидка по чеку"
@@ -9903,6 +9911,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @ccheck_doattachphonetocard               "Привязать телефон к карте" // command
 @ccheck_docreatecardbyphone               "Создать новую карту, привязанную к телефону" // command
 @ccheck_status                            "Статус чека" // generic
+@ccheck_buyerseaddr                       "Электронный адрес (телефон или электронная почта)"
 @ccheckline_discount_amp                  "Скидка на строку чека"
 @ccheckline_id                            "ИД строки чека"
 
@@ -10118,7 +10127,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @cfgclibnkas_op                           "@{oprkind}"
 
 @cfgclientdeal_agtf_autoorder             "Автоматический расчет заказа"
-@cfgclientdeal_agtf_ddlist715             "Запись сохранена  в БД  с форматом списка DebtLimitList"
+@cfgclientdeal_agtf_ddlist715             "Запись сохранена в БД с форматом списка DebtLimitList"
 @cfgclientdeal_agtf_dontcalcdebtinbill    "Не рассчитывать долг в документах"
 @cfgclientdeal_agtf_dontuseminshipmqtty   "Не применять минимальное отгружаемое количество"
 @cfgclientdeal_agtf_pricerounding         "Округлять цены"
@@ -15076,6 +15085,8 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @pospaymblock_amttopaym                   ""
 @pospaymblock_fusebonus                   "Использовать бонус"
 @pospaymblock_altcashreg                  "@{alternativeregistrar}"
+@pospaymblock_eaddr                       "@{ccheck_buyerseaddr}"
+@pospaymblock_paperless                   "Не печатать бумажный чек"
 
 @posnodecmd                               "Операции по кассе"
 @posnodecmd_sync                          "@{posnode_sync}"

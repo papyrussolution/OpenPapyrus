@@ -237,7 +237,7 @@ INT_PTR CALLBACK RunDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 					}
 			    case IDC_BUTTON_SAVE:
 					{
-						std::vector<UserCommand> & theUserCmds = (NppParameters::getInstance()).getUserCommandList();
+						std::vector <UserCommand> & theUserCmds = (NppParameters::getInstance()).getUserCommandList();
 						int nbCmd = static_cast<int32_t>(theUserCmds.size());
 						int cmdID = ID_USER_CMD + nbCmd;
 						TCHAR cmd[MAX_PATH];

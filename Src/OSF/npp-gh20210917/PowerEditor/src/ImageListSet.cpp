@@ -66,7 +66,7 @@ void IconList::addIcons(int size) const
 		addIcon(_pIconIDArray[i]);
 }
 
-void ToolBarIcons::init(ToolBarButtonUnit * buttonUnitArray, int arraySize, std::vector<DynamicCmdIcoBmp> moreCmds)
+void ToolBarIcons::init(ToolBarButtonUnit * buttonUnitArray, int arraySize, std::vector <DynamicCmdIcoBmp> moreCmds)
 {
 	for(int i = 0; i < arraySize; ++i)
 		_tbiis.push_back(buttonUnitArray[i]);

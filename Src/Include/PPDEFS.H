@@ -6527,6 +6527,7 @@
 	#define CTL_CCHECKINFO_PAYMLIST      (18 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_SESSUUID      (19 + WINDOWS_ID_BIAS)
 	#define CTL_CCHECKINFO_RPRCTAID      (20 + WINDOWS_ID_BIAS) // remote-processing-transation-id
+	#define CTL_CCHECKINFO_EADDR         (21 + WINDOWS_ID_BIAS) // @v11.3.6 Электронный адрес покупателя //
 #define DLG_PSNRELTYPE            638 // Тип связи между персоналиями
 	#define CTL_PSNRELTYPE_NAME          (1 + WINDOWS_ID_BIAS)
 	#define CTL_PSNRELTYPE_ID            (2 + WINDOWS_ID_BIAS)
@@ -9557,6 +9558,9 @@
 	#define CTL_CPPAYM_IMG_SCARD      (14 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_CCRDLIST       (15 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_ALTCASHREG     (16 + WINDOWS_ID_BIAS)
+	#define CTL_CPPAYM_EADDR          (17 + WINDOWS_ID_BIAS)
+	#define CTL_CPPAYM_EADDRINF       (18 + WINDOWS_ID_BIAS)
+	#define CTL_CPPAYM_PAPERLESS      (19 + WINDOWS_ID_BIAS)
 // DLG_TAGVGUID                      1150
 #define DLG_QUOTKINDRESTR            1151 // Ограничения применимости вида котировки
 	#define CTL_QKRESTR_PERIOD        (1 + WINDOWS_ID_BIAS)

@@ -35,57 +35,25 @@ using namespace Scintilla;
  * 32 - bin digit
  * 64 - letter
  */
-static int character_classification[128] =
-{
-0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  1,  0,  0,
-0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
-1,  2,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  10, 2,
-60, 60, 28, 28, 28, 28, 28, 28, 28, 28,  2,  2,  2,  2,  2,  2,
-2, 84, 84, 84, 84, 84, 84, 68, 68, 68, 68, 68, 68, 68, 68, 68,
-68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68,  2,  2,  2,  2, 68,
-2, 84, 84, 84, 84, 84, 84, 68, 68, 68, 68, 68, 68, 68, 68, 68,
-68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68,  2,  2,  2,  2,  0
+static int character_classification[128] = {
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  1,  0,  0,
+	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
+	1,  2,  0,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  2,  10, 2,
+	60, 60, 28, 28, 28, 28, 28, 28, 28, 28,  2,  2,  2,  2,  2,  2,
+	2, 84, 84, 84, 84, 84, 84, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+	68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68,  2,  2,  2,  2, 68,
+	2, 84, 84, 84, 84, 84, 84, 68, 68, 68, 68, 68, 68, 68, 68, 68,
+	68, 68, 68, 68, 68, 68, 68, 68, 68, 68, 68,  2,  2,  2,  2,  0
 };
 
-static bool IsSpace(int c)
-{
-	return c < 128 && (character_classification[c] & 1);
-}
-
-static bool IsOperator(int c)
-{
-	return c < 128 && (character_classification[c] & 2);
-}
-
-static bool IsIdentifier(int c)
-{
-	return c < 128 && (character_classification[c] & 4);
-}
-
-static bool IsDigit(int c)
-{
-	return c < 128 && (character_classification[c] & 8);
-}
-
-static bool IsHexDigit(int c)
-{
-	return c < 128 && (character_classification[c] & 16);
-}
-
-static bool IsBinDigit(int c)
-{
-	return c < 128 && (character_classification[c] & 32);
-}
-
-static bool IsLetter(int c)
-{
-	return c < 128 && (character_classification[c] & 64);
-}
-
-static int LowerCase(int c)
-{
-	return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c;
-}
+static bool IsSpace(int c) { return c < 128 && (character_classification[c] & 1); }
+static bool IsOperator(int c) { return c < 128 && (character_classification[c] & 2); }
+static bool IsIdentifier(int c) { return c < 128 && (character_classification[c] & 4); }
+static bool IsDigit(int c) { return c < 128 && (character_classification[c] & 8); }
+static bool IsHexDigit(int c) { return c < 128 && (character_classification[c] & 16); }
+static bool IsBinDigit(int c) { return c < 128 && (character_classification[c] & 32); }
+static bool IsLetter(int c) { return c < 128 && (character_classification[c] & 64); }
+static int  LowerCase(int c) { return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c; }
 
 static int CheckBlitzFoldPoint(char const * token, int &level)
 {

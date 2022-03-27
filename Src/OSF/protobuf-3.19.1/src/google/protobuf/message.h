@@ -258,7 +258,7 @@ public:
 	// This is much, much slower than IsInitialized() as it is implemented
 	// purely via reflection.  Generally, you should not call this unless you
 	// have already determined that an error exists by calling IsInitialized().
-	void FindInitializationErrors(std::vector<std::string>* errors) const;
+	void FindInitializationErrors(std::vector <std::string>* errors) const;
 
 	// Like FindInitializationErrors, but joins all the strings, delimited by
 	// commas, and returns them.
@@ -493,7 +493,7 @@ public:
 	// Swap the complete contents of two messages.
 	void Swap(Message* message1, Message* message2) const;
 	// Swap fields listed in fields vector of two messages.
-	void SwapFields(Message* message1, Message* message2, const std::vector<const FieldDescriptor*>& fields) const;
+	void SwapFields(Message* message1, Message* message2, const std::vector <const FieldDescriptor*>& fields) const;
 	// Swap two elements of a repeated field.
 	void SwapElements(Message* message, const FieldDescriptor* field, int index1, int index2) const;
 	// Swap without internal safety and ownership checks. This method should only
@@ -501,7 +501,7 @@ public:
 	void UnsafeArenaSwap(Message* lhs, Message* rhs) const;
 	// SwapFields without internal safety and ownership checks. This method should
 	// only be used when the objects are on the same arena.
-	void UnsafeArenaSwapFields(Message* lhs, Message* rhs, const std::vector<const FieldDescriptor*>& fields) const;
+	void UnsafeArenaSwapFields(Message* lhs, Message* rhs, const std::vector <const FieldDescriptor*>& fields) const;
 	// List all fields of the message which are currently set, except for unknown
 	// fields, but including extension known to the parser (i.e. compiled in).
 	// Singular fields will only be listed if HasField(field) would return true
@@ -510,7 +510,7 @@ public:
 	// ordered by field number.
 	// Use Reflection::GetUnknownFields() or message.unknown_fields() to also get
 	// access to fields/extensions unknown to the parser.
-	void ListFields(const Message& message, std::vector<const FieldDescriptor*>* output) const;
+	void ListFields(const Message& message, std::vector <const FieldDescriptor*>* output) const;
 
 	// Singular field getters ------------------------------------------
 	// These get the value of a non-repeated field.  They return the default
@@ -924,7 +924,7 @@ private:
 	// Lists all fields of the message which are currently set, except for unknown
 	// fields and stripped fields. See ListFields for details.
 	void ListFieldsOmitStripped(const Message& message,
-	    std::vector<const FieldDescriptor*>* output) const;
+	    std::vector <const FieldDescriptor*>* output) const;
 
 	bool IsMessageStripped(const Descriptor* descriptor) const {
 		return schema_.IsMessageStripped(descriptor);
@@ -933,7 +933,7 @@ private:
 	friend class TextFormat;
 
 	void ListFieldsMayFailOnStripped(const Message& message, bool should_fail,
-	    std::vector<const FieldDescriptor*>* output) const;
+	    std::vector <const FieldDescriptor*>* output) const;
 
 	// Returns true if the message field is backed by a LazyField.
 	//
@@ -1100,7 +1100,7 @@ private:
 	// Shallow-swap fields listed in fields vector of two messages. It is the
 	// caller's responsibility to make sure shallow swap is safe.
 	void UnsafeShallowSwapFields(Message* message1, Message* message2,
-	    const std::vector<const FieldDescriptor*>& fields) const;
+	    const std::vector <const FieldDescriptor*>& fields) const;
 
 	// This function only swaps the field. Should swap corresponding has_bit
 	// before or after using this function.
@@ -1113,7 +1113,7 @@ private:
 
 	template <bool unsafe_shallow_swap>
 	void SwapFieldsImpl(Message* message1, Message* message2,
-	    const std::vector<const FieldDescriptor*>& fields) const;
+	    const std::vector <const FieldDescriptor*>& fields) const;
 
 	template <bool unsafe_shallow_swap>
 	void SwapOneofField(Message* lhs, Message* rhs,

@@ -45,7 +45,7 @@ ABSL_CONST_INIT bool tryfromenv_needs_processing
     ABSL_GUARDED_BY(processing_checks_guard) = false;
 
 ABSL_CONST_INIT absl::Mutex specified_flags_guard(absl::kConstInit);
-ABSL_CONST_INIT std::vector<const CommandLineFlag*>* specified_flags
+ABSL_CONST_INIT std::vector <const CommandLineFlag*>* specified_flags
     ABSL_GUARDED_BY(specified_flags_guard) = nullptr;
 
 struct SpecifiedFlagsCompare {
@@ -66,7 +66,7 @@ struct SpecifiedFlagsCompare {
 ABSL_NAMESPACE_END
 }  // namespace absl
 
-ABSL_FLAG(std::vector<std::string>, flagfile, {},
+ABSL_FLAG(std::vector <std::string>, flagfile, {},
     "comma-separated list of files to load flags from")
 .OnUpdate([]() {
 	if(absl::GetFlag(FLAGS_flagfile).empty()) return;
@@ -81,7 +81,7 @@ ABSL_FLAG(std::vector<std::string>, flagfile, {},
 
 	absl::flags_internal::flagfile_needs_processing = true;
 });
-ABSL_FLAG(std::vector<std::string>, fromenv, {},
+ABSL_FLAG(std::vector <std::string>, fromenv, {},
     "comma-separated list of flags to set from the environment"
     " [use 'export FLAGS_flag1=value']")
 .OnUpdate([]() {
@@ -97,7 +97,7 @@ ABSL_FLAG(std::vector<std::string>, fromenv, {},
 
 	absl::flags_internal::fromenv_needs_processing = true;
 });
-ABSL_FLAG(std::vector<std::string>, tryfromenv, {},
+ABSL_FLAG(std::vector <std::string>, tryfromenv, {},
     "comma-separated list of flags to try to set from the environment if "
     "present")
 .OnUpdate([]() {
@@ -115,7 +115,7 @@ ABSL_FLAG(std::vector<std::string>, tryfromenv, {},
 	absl::flags_internal::tryfromenv_needs_processing = true;
 });
 
-ABSL_FLAG(std::vector<std::string>, undefok, {},
+ABSL_FLAG(std::vector <std::string>, undefok, {},
     "comma-separated list of flag names that it is okay to specify "
     "on the command line even if the program does not define a flag "
     "with that name");
@@ -132,7 +132,7 @@ public:
 	ArgsList(int argc, char* argv[]) : args_(argv, argv + argc), next_arg_(0) {
 	}
 
-	explicit ArgsList(const std::vector<std::string>& args)
+	explicit ArgsList(const std::vector <std::string>& args)
 		: args_(args), next_arg_(0) {
 	}
 
@@ -156,7 +156,7 @@ public:
 	}
 
 private:
-	std::vector<std::string> args_;
+	std::vector <std::string> args_;
 	int next_arg_;
 };
 
@@ -319,8 +319,8 @@ void CheckDefaultValuesParsingRoundtrip() {
 // of file names in the input flagfiles list. This order ensures that flags from
 // the first flagfile in the input list are processed before the second flagfile
 // etc.
-bool ReadFlagfiles(const std::vector<std::string>& flagfiles,
-    std::vector<ArgsList>& input_args) {
+bool ReadFlagfiles(const std::vector <std::string>& flagfiles,
+    std::vector <ArgsList>& input_args) {
 	bool success = true;
 	for(auto it = flagfiles.rbegin(); it != flagfiles.rend(); ++it) {
 		ArgsList al;
@@ -341,11 +341,11 @@ bool ReadFlagfiles(const std::vector<std::string>& flagfiles,
 // variable names are expected to be of the form `FLAGS_<flag_name>`, where
 // `flag_name` is a string from the input flag_names list. If successful we
 // append a single ArgList at the end of the input_args.
-bool ReadFlagsFromEnv(const std::vector<std::string>& flag_names,
-    std::vector<ArgsList>& input_args,
+bool ReadFlagsFromEnv(const std::vector <std::string>& flag_names,
+    std::vector <ArgsList>& input_args,
     bool fail_on_absent_in_env) {
 	bool success = true;
-	std::vector<std::string> args;
+	std::vector <std::string> args;
 
 	// This argument represents fake argv[0], which should be present in all arg
 	// lists.
@@ -388,8 +388,8 @@ bool ReadFlagsFromEnv(const std::vector<std::string>& flag_names,
 
 // Returns success status, which is true if were able to handle all generator
 // flags (flagfile, fromenv, tryfromemv) successfully.
-bool HandleGeneratorFlags(std::vector<ArgsList>& input_args,
-    std::vector<std::string>& flagfile_value) {
+bool HandleGeneratorFlags(std::vector <ArgsList>& input_args,
+    std::vector <std::string>& flagfile_value) {
 	bool success = true;
 
 	absl::MutexLock l(&flags_internal::processing_checks_guard);
@@ -448,7 +448,7 @@ bool HandleGeneratorFlags(std::vector<ArgsList>& input_args,
 
 // --------------------------------------------------------------------
 
-void ResetGeneratorFlags(const std::vector<std::string>& flagfile_value) {
+void ResetGeneratorFlags(const std::vector <std::string>& flagfile_value) {
 	// Setting flagfile to the value which collates all the values set on a
 	// command line and programmatically. So if command line looked like
 	// --flagfile=f1 --flagfile=f2 the final value of the FLAGS_flagfile flag is
@@ -598,7 +598,7 @@ bool WasPresentOnCommandLine(absl::string_view flag_name) {
 
 // --------------------------------------------------------------------
 
-std::vector<char*> ParseCommandLineImpl(int argc, char* argv[],
+std::vector <char*> ParseCommandLineImpl(int argc, char* argv[],
     ArgvListAction arg_list_act,
     UsageFlagsAction usage_flag_act,
     OnUndefinedFlag on_undef_flag) {
@@ -612,20 +612,20 @@ std::vector<char*> ParseCommandLineImpl(int argc, char* argv[],
 	// This routine does not return anything since we abort on failure.
 	CheckDefaultValuesParsingRoundtrip();
 
-	std::vector<std::string> flagfile_value;
+	std::vector <std::string> flagfile_value;
 
-	std::vector<ArgsList> input_args;
+	std::vector <ArgsList> input_args;
 	input_args.push_back(ArgsList(argc, argv));
 
-	std::vector<char*> output_args;
-	std::vector<char*> positional_args;
+	std::vector <char*> output_args;
+	std::vector <char*> positional_args;
 	output_args.reserve(argc);
 
 	// This is the list of undefined flags. The element of the list is the pair
 	// consisting of boolean indicating if flag came from command line (vs from
 	// some flag file we've read) and flag name.
 	// TODO(rogeeff): Eliminate the first element in the pair after cleanup.
-	std::vector<std::pair<bool, std::string> > undefined_flag_names;
+	std::vector <std::pair<bool, std::string> > undefined_flag_names;
 
 	// Set program invocation name if it is not set before.
 	if(ProgramInvocationName() == "UNKNOWN") {
@@ -635,7 +635,7 @@ std::vector<char*> ParseCommandLineImpl(int argc, char* argv[],
 
 	absl::MutexLock l(&specified_flags_guard);
 	if(specified_flags == nullptr) {
-		specified_flags = new std::vector<const CommandLineFlag*>;
+		specified_flags = new std::vector <const CommandLineFlag*>;
 	}
 	else {
 		specified_flags->clear();
@@ -806,7 +806,7 @@ std::vector<char*> ParseCommandLineImpl(int argc, char* argv[],
 
 // --------------------------------------------------------------------
 
-std::vector<char*> ParseCommandLine(int argc, char* argv[]) {
+std::vector <char*> ParseCommandLine(int argc, char* argv[]) {
 	return flags_internal::ParseCommandLineImpl(
 		argc, argv, flags_internal::ArgvListAction::kRemoveParsedArgs,
 		flags_internal::UsageFlagsAction::kHandleUsage,

@@ -1063,7 +1063,7 @@ int Tddo::Helper_Process(TddoProcessBlock & rBlk, SBuffer & rOut, Meta & rMeta, 
 				char cc = Scan[0];
 				if(!skip)
 					rOut.WriteByte(cc);
-				if(cc == '\xD' && Scan[1] == '\xA') {
+				if(cc == '\x0D' && Scan[1] == '\x0A') {
 					Scan.Incr();
 					LineNo++;
 				}

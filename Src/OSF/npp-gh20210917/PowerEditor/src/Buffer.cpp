@@ -1,19 +1,14 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+//
 #include <npp-internal.h>
 #pragma hdrstop
 #include "uchardet.h"
@@ -297,12 +292,12 @@ Position& Buffer::getPosition(ScintillaEditView* identifier)
 	return _positions.at(index);
 }
 
-void Buffer::setHeaderLineState(const std::vector<size_t> & folds, ScintillaEditView * identifier)
+void Buffer::setHeaderLineState(const std::vector <size_t> & folds, ScintillaEditView * identifier)
 {
 	int index = indexOfReference(identifier);
 	if(index >= 0) {
 		//deep copy
-		std::vector<size_t> & local = _foldStates[index];
+		std::vector <size_t> & local = _foldStates[index];
 		local.clear();
 		size_t size = folds.size();
 		for(size_t i = 0; i < size; ++i)
@@ -310,7 +305,7 @@ void Buffer::setHeaderLineState(const std::vector<size_t> & folds, ScintillaEdit
 	}
 }
 
-const std::vector<size_t> & Buffer::getHeaderLineState(const ScintillaEditView * identifier) const
+const std::vector <size_t> & Buffer::getHeaderLineState(const ScintillaEditView * identifier) const
 {
 	int index = indexOfReference(identifier);
 	return _foldStates.at(index);
@@ -348,7 +343,7 @@ int Buffer::addReference(ScintillaEditView * identifier)
 
 	_referees.push_back(identifier);
 	_positions.push_back(Position());
-	_foldStates.push_back(std::vector<size_t>());
+	_foldStates.push_back(std::vector <size_t>());
 	++_references;
 	return _references;
 }
@@ -388,7 +383,7 @@ void Buffer::setDeferredReload() // triggers a reload on the next Document acces
 
 FileManager::~FileManager()
 {
-	for(std::vector<Buffer *>::iterator it = _buffers.begin(), end = _buffers.end(); it != end; ++it) {
+	for(std::vector <Buffer *>::iterator it = _buffers.begin(), end = _buffers.end(); it != end; ++it) {
 		delete *it;
 	}
 }
@@ -901,7 +896,7 @@ SavingStatus FileManager::saveBuffer(BufferID id, const TCHAR * filename, bool i
 
 size_t FileManager::nextUntitledNewNumber() const
 {
-	std::vector<size_t> usedNumbers;
+	std::vector <size_t> usedNumbers;
 	for(size_t i = 0; i < _buffers.size(); i++) {
 		Buffer * buf = _buffers.at(i);
 		if(buf->isUntitled()) {

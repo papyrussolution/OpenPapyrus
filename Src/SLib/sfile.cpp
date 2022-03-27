@@ -1610,8 +1610,7 @@ int FASTCALL SFile::WriteLine(const char * pBuf)
 		else if(F)
 			ok = (fputs(pBuf, F) >= 0) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
 		else if(IH >= 0) {
-			// @v9.5.10 ok = Write(pBuf, size_to_write);
-			ok = (write(IH, pBuf, size_to_write) == size_to_write) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name); // @v9.5.10
+			ok = (write(IH, pBuf, size_to_write) == size_to_write) ? 1 : SLS.SetError(SLERR_WRITEFAULT, Name);
 		}
 		else
 			ok = (SLibError = SLERR_FILENOTOPENED, 0);
@@ -1654,7 +1653,7 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 				size_t act_size = 0;
 				THROW(rr = Read(rd_buf, 1, &act_size));
 				if(act_size) {
-					if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\xA' && rBuf.Last() == '\xD'))
+					if(rd_buf[act_size-1] == '\n' || (rd_buf[act_size-1] == '\x0A' && rBuf.Last() == '\x0D'))
                         _done = 1;
 					rBuf.CatN(reinterpret_cast<const char *>(rd_buf), act_size);
 				}
@@ -1685,7 +1684,7 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 				if(p) {
 					const size_t _len = sstrlen(LB.cptr());
 					rBuf.CatN(LB, _len);
-					Seek64(last_pos + _len); // @v9.5.9
+					Seek64(last_pos + _len);
 					break;
 				}
 				else {
@@ -1702,6 +1701,43 @@ int FASTCALL SFile::ReadLine(SString & rBuf)
 	else
 		ok = 0;
 	CATCHZOK
+	return ok;
+}
+
+int SFile::ReadAll(STempBuffer & rBuf, size_t maxSize, size_t * pActualSize)
+{
+	int    ok = 1;
+	size_t actual_size = 0;
+	THROW(IsValid());
+	{
+		const int64 current_pos = Tell64();
+		THROW(Seek64(0, SEEK_END));
+		{
+			const int64 end_pos = Tell64();
+			assert(end_pos >= current_pos);
+			THROW(end_pos >= current_pos);
+			THROW(Seek64(current_pos, SEEK_SET));
+			if(end_pos == current_pos) {
+				ok = -1;
+			}
+			else {
+				const int64 insurance = 64; // Страховочный "хвостик" в конце буфера
+				int64 rest_size = (end_pos - current_pos);
+				if(maxSize)
+					SETMIN(rest_size, static_cast<int64>(maxSize));
+				THROW((rest_size+insurance) < UINT_MAX);
+				if((rest_size+insurance) > static_cast<int64>(rBuf.GetSize())) {
+					THROW(rBuf.Alloc(static_cast<size_t>(rest_size+insurance))); // Преобразование (to size_t) корректно из-за оператора выше (THROW(rest_size < MAXSIZE_T)).
+				}
+				THROW(Read(rBuf, static_cast<size_t>(rest_size), &actual_size)); // Преобразование (to size_t) корректно из-за оператора выше (THROW(rest_size < MAXSIZE_T)).
+				// Мы все предварительно расчитали, следовательно rest_size должен быть строго равен actual_size, НО
+				// с файлом может что-то происходить параллельно, могут быть проблемы с трактовкой символов перевода строки и т.д.
+				// По-этому, от соблазна строгой проверки уклонимся.
+			}
+		}
+	}
+	CATCHZOK
+	ASSIGN_PTR(pActualSize, actual_size);
 	return ok;
 }
 

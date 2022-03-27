@@ -100,7 +100,7 @@ public:
 		// Empty string - do nothing.
 		if(str.empty()) return;
 
-		std::vector<absl::string_view> tokens;
+		std::vector <absl::string_view> tokens;
 		if(wrap_line) {
 			for(auto line : absl::StrSplit(str, absl::ByAnyChar("\n\r"))) {
 				if(!tokens.empty()) {
@@ -234,7 +234,7 @@ void FlagsHelpImpl(std::ostream& out, PerFlagFilter filter_cb,
 	// This map is used to output matching flags grouped by package and file
 	// name.
 	std::map<std::string,
-	    std::map<std::string, std::vector<const absl::CommandLineFlag*> > >
+	    std::map<std::string, std::vector <const absl::CommandLineFlag*> > >
 	matching_flags;
 
 	flags_internal::ForEachFlag([&](absl::CommandLineFlag& flag) {

@@ -538,7 +538,7 @@ struct ShutdownData {
 		return data;
 	}
 
-	std::vector<std::pair<void (*)(const void*), const void*> > functions;
+	std::vector <std::pair<void (*)(const void*), const void*> > functions;
 	Mutex mutex;
 };
 

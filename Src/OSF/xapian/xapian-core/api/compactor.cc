@@ -37,10 +37,10 @@
 using namespace std;
 
 class CmpByFirstUsed {
-	const vector<pair<Xapian::docid, Xapian::docid> >& used_ranges;
+	const vector <pair<Xapian::docid, Xapian::docid> >& used_ranges;
 
 public:
-	explicit CmpByFirstUsed(const vector<pair<Xapian::docid, Xapian::docid> >& ur) : used_ranges(ur) 
+	explicit CmpByFirstUsed(const vector <pair<Xapian::docid, Xapian::docid> >& ur) : used_ranges(ur) 
 	{
 	}
 	bool operator()(Xapian::doccount a, Xapian::doccount b) const { return used_ranges[a].first < used_ranges[b].first; }
@@ -111,9 +111,9 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 	Xapian::docid tot_off = 0;
 	Xapian::docid last_docid = 0;
 
-	vector<Xapian::docid> offset;
-	vector<pair<Xapian::docid, Xapian::docid> > used_ranges;
-	vector<const Xapian::Database::Internal*> internals;
+	vector <Xapian::docid> offset;
+	vector <pair<Xapian::docid, Xapian::docid> > used_ranges;
+	vector <const Xapian::Database::Internal*> internals;
 	offset.reserve(n_shards);
 	used_ranges.reserve(n_shards);
 	internals.reserve(n_shards);
@@ -203,7 +203,7 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 		// We want to process the sources in ascending order of first
 		// docid.  So we create a vector "order" with ascending integers
 		// and then sort so the indirected order is right.
-		vector<Xapian::doccount> order;
+		vector <Xapian::doccount> order;
 		order.reserve(n_shards);
 		for(Xapian::doccount i = 0; i < n_shards; ++i)
 			order.push_back(i);
@@ -212,9 +212,9 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 
 		// Now use order to reorder internals to be in ascending order by first
 		// docid, and while we're at it check the ranges are disjoint.
-		vector<const Xapian::Database::Internal*> internals_;
+		vector <const Xapian::Database::Internal*> internals_;
 		internals_.reserve(n_shards);
-		vector<pair<Xapian::docid, Xapian::docid> > used_ranges_;
+		vector <pair<Xapian::docid, Xapian::docid> > used_ranges_;
 		used_ranges_.reserve(n_shards);
 
 		Xapian::docid last_start = 0, last_end = 0;

@@ -1,5 +1,5 @@
 // SMUKM30.CPP
-// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2013, 2015, 2016, 2019, 2020, 2022
 // @codepage windows-1251
 //
 // Интерфейс (асинхронный) к драйверу ККМ "СуперМаг УКМ" (IPC)
@@ -219,7 +219,6 @@ int ACS_SMUKM30::ExportData(int updOnly)
 			size_t bclen;
 	   		if(info.ID != prev_goods_id) {
 				DbfRecord dbfrG(p_out_tbl_goods);
-				dbfrG.empty();
 				dbfrG.put(1,  ltoa(info.ID, tempbuf, 10));
 				dbfrG.put(2,  info.Name);
 		   		unit_obj.Fetch(info.UnitID, &unit_rec);
@@ -240,7 +239,6 @@ int ACS_SMUKM30::ExportData(int updOnly)
 			bclen = sstrlen(info.BarCode);
 			if(bclen) {
 				DbfRecord dbfrB(p_out_tbl_barcode);
-				dbfrB.empty();
 				if(bclen != 3 && bclen != (7+check_dig) && bclen < (12+check_dig))
 					padleft(info.BarCode, '0', (12+check_dig) - bclen);
 				size_t l = sstrlen(info.BarCode);

@@ -181,13 +181,8 @@ ngx_int_t ngx_http_special_response_handler(ngx_http_request_t * r, ngx_int_t er
 	ngx_uint_t i, err;
 	ngx_http_err_page_t  * err_page;
 	ngx_http_core_loc_conf_t  * clcf;
-
-	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http special response: %i, \"%V?%V\"",
-	    error, &r->uri, &r->args);
-
+	ngx_log_debug3(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http special response: %i, \"%V?%V\"", error, &r->uri, &r->args);
 	r->err_status = error;
-
 	if(r->keepalive) {
 		switch(error) {
 			case NGX_HTTP_BAD_REQUEST:
@@ -201,7 +196,6 @@ ngx_int_t ngx_http_special_response_handler(ngx_http_request_t * r, ngx_int_t er
 			    r->keepalive = 0;
 		}
 	}
-
 	if(r->lingering_close) {
 		switch(error) {
 			case NGX_HTTP_BAD_REQUEST:
@@ -262,16 +256,14 @@ ngx_int_t ngx_http_special_response_handler(ngx_http_request_t * r, ngx_int_t er
 		/* unknown code, zero body */
 		err = 0;
 	}
-
 	return ngx_http_send_special_response(r, clcf, err);
 }
 
 ngx_int_t ngx_http_filter_finalize_request(ngx_http_request_t * r, ngx_module_t * m, ngx_int_t error)
 {
-	void * ctx;
+	void * ctx = 0;
 	ngx_int_t rc;
 	ngx_http_clean_header(r);
-	ctx = NULL;
 	if(m) {
 		ctx = r->ctx[m->ctx_index];
 	}

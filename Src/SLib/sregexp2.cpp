@@ -1,5 +1,5 @@
 // SREGEXP2.CPP
-// Copyright (c) A.Sobolev 2021
+// Copyright (c) A.Sobolev 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -217,9 +217,9 @@ int SRegExp2::Compile(const char * pPattern, SCodepage cp, int syntax, uint flag
 	return ok;
 }
 	
-int SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) // TRUE if regexp in char * arg
+bool SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * pResult) // TRUE if regexp in char * arg
 {
-	int    ok = 0;
+	bool   ok = false;
 	CALLPTRMEMB(pResult, Z());
 	if(H) {
 		OnigRegion region;
@@ -237,21 +237,16 @@ int SRegExp2::Find(const char * pText, size_t textLen, uint flags, FindResult * 
 					pResult->insert(&ritem);
 				}
 			}
-			ok = 1;
+			ok = true;
 		}
 		onig_region_free(&region, 0);
 	}
 	return ok;
 }
 
-int SRegExp2::Find(const char * pText)
+bool SRegExp2::Find(SStrScan * pScan, uint flags)
 {
-	return Find(pText, sstrlen(pText), 0, 0);
-}
-	
-int SRegExp2::Find(SStrScan * pScan, uint flags)
-{
-	int    ok = 0;
+	bool   ok = false;
 	const  char * p = pScan ? static_cast<const char *>(*pScan) : 0;
 	if(!isempty(p)) {
 		size_t plen = strlen(p);
@@ -267,22 +262,15 @@ int SRegExp2::Find(SStrScan * pScan, uint flags)
 				pScan->Incr(start);
 				pScan->SetLen(end - start);
 			}
-			ok = 1;
+			ok = true;
 		}
 	}
 	return ok;
 }
 
-int SRegExp2::Find(SStrScan * pScan)
-{
-	return Find(pScan, 0);
-}
-
-SRegExp2::Error SRegExp2::GetLastErr() const
-{
-	return LastErr;
-}
-	
+bool SRegExp2::Find(const char * pText) { return Find(pText, sstrlen(pText), 0, 0); }
+bool SRegExp2::Find(SStrScan * pScan) { return Find(pScan, 0); }
+SRegExp2::Error SRegExp2::GetLastErr() const { return LastErr; }
 bool SRegExp2::IsValid() const { return (H != 0); }
 
 #if SLTEST_RUNNING // {

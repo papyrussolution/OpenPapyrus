@@ -157,8 +157,8 @@ int _plug_ipfromstring(const sasl_utils_t * utils, const char * addr, struct soc
 
 int _plug_iovec_to_buf(const sasl_utils_t * utils, const struct iovec * vec, unsigned numiov, buffer_info_t ** output)
 {
-	unsigned i;
-	int ret;
+	uint   i;
+	int    ret;
 	buffer_info_t * out;
 	char * pos;
 	if(!utils || !vec || !output) {
@@ -606,16 +606,13 @@ int _plug_decode(decode_context_t * text,
 		if(ret != SASL_OK) return ret;
 
 		/* append the decoded packet to the output */
-		ret = _plug_buf_alloc(text->utils, output, outputsize,
-			*outputlen + tmplen + 1); /* +1 for NUL */
-		if(ret != SASL_OK) return ret;
-
+		ret = _plug_buf_alloc(text->utils, output, outputsize, *outputlen + tmplen + 1); /* +1 for NUL */
+		if(ret != SASL_OK) 
+			return ret;
 		memcpy(*output + *outputlen, tmp, tmplen);
 		*outputlen += tmplen;
-
 		/* protect stupid clients */
 		*(*output + *outputlen) = '\0';
-
 		/* reset for the next packet */
 		text->needsize = 4;
 	}

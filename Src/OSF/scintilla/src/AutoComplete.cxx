@@ -110,7 +110,7 @@ char AutoComplete::GetTypesep() const
 struct Sorter {
 	AutoComplete * ac;
 	const char * list;
-	std::vector<int> indices;
+	std::vector <int> indices;
 	Sorter(AutoComplete * ac_, const char * list_) : ac(ac_), list(list_)
 	{
 		int i = 0;

@@ -1074,7 +1074,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    Macro m = _macro;
 
 			    if(indexMacro != -1) {
-				    vector<MacroShortcut> & ms = nppParam.getMacroList();
+				    vector <MacroShortcut> & ms = nppParam.getMacroList();
 				    m = ms[indexMacro].getMacro();
 			    }
 
@@ -1347,7 +1347,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    if(wParam == MODELESSDIALOGREMOVE) {
 				    for(size_t i = 0, len = _hModelessDlgs.size(); i < len; ++i) {
 					    if(_hModelessDlgs[i] == reinterpret_cast<HWND>(lParam)) {
-						    vector<HWND>::iterator hDlg = _hModelessDlgs.begin() + i;
+						    vector <HWND>::iterator hDlg = _hModelessDlgs.begin() + i;
 						    _hModelessDlgs.erase(hDlg);
 						    return NULL;
 					    }
@@ -1365,7 +1365,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 				POINT p;
 				::GetCursorPos(&p);
 				ContextMenu scintillaContextmenu;
-				std::vector<MenuItemUnit>& tmp = nppParam.getContextMenuItems();
+				std::vector <MenuItemUnit>& tmp = nppParam.getContextMenuItems();
 				bool copyLink = (_pEditView->getSelectedTextCount() == 0) && _pEditView->getIndicatorRange(URL_INDIC);
 				scintillaContextmenu.create(hwnd, tmp, _mainMenuHandle, copyLink);
 				scintillaContextmenu.display(p);
@@ -1814,9 +1814,9 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 			    return NULL;
 		    TCHAR * moduleName = reinterpret_cast<TCHAR *>(lParam);
 		    TCHAR * windowName = reinterpret_cast<TCHAR *>(wParam);
-		    std::vector<DockingCont *> dockContainer = _dockingManager.getContainerInfo();
+		    std::vector <DockingCont *> dockContainer = _dockingManager.getContainerInfo();
 		    for(size_t i = 0, len = dockContainer.size(); i < len; ++i) {
-			    std::vector<tTbData *> tbData = dockContainer[i]->getDataOfAllTb();
+			    std::vector <tTbData *> tbData = dockContainer[i]->getDataOfAllTb();
 			    for(size_t j = 0, len2 = tbData.size(); j < len2; ++j) {
 				    if(generic_stricmp(moduleName, tbData[j]->pszModuleName) == 0) {
 					    if(!windowName)
@@ -2244,7 +2244,7 @@ LRESULT Notepad_plus::process(HWND hwnd, UINT message, WPARAM wParam, LPARAM lPa
 					if(nmdlg->nItems != _pDocTab->nbItem()) // sanity check, if mismatch just abort
 						break;
 					//Collect all buffers
-					std::vector<BufferID> tempBufs;
+					std::vector <BufferID> tempBufs;
 					for(uint i = 0; i < nmdlg->nItems; ++i) {
 						tempBufs.push_back(_pDocTab->getBufferByIndex(i));
 					}

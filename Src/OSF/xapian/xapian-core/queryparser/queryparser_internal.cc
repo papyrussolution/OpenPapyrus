@@ -40,11 +40,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -397,7 +392,7 @@ Query * Term::as_fuzzy_query(State* state_) const
     const auto& prefixes = field_info->prefixes;
     Xapian::termcount max = state_->get_max_fuzzy_expansion();
     int query_flags = state_->get_max_fuzzy_type();
-    vector<Query> subqs;
+    vector <Query> subqs;
     subqs.reserve(prefixes.size());
     for(auto&& prefix : prefixes) {
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
@@ -417,7 +412,7 @@ Query * Term::as_wildcarded_query(State * state_) const
 	query_flags |= Query::WILDCARD_PATTERN_SINGLE;
     if(state_->flags & QueryParser::FLAG_WILDCARD_MULTI)
 	query_flags |= Query::WILDCARD_PATTERN_MULTI;
-    vector<Query> subqs;
+    vector <Query> subqs;
     subqs.reserve(prefixes.size());
     for(string root : prefixes) {
 	root += name;
@@ -434,8 +429,8 @@ Query * Term::as_partial_query(State * state_) const
 {
     Xapian::termcount max = state_->get_max_partial_expansion();
     int max_type = state_->get_max_partial_type();
-    vector<Query> subqs_partial; // A synonym of all the partial terms.
-    vector<Query> subqs_full; // A synonym of all the full terms.
+    vector <Query> subqs_partial; // A synonym of all the partial terms.
+    vector <Query> subqs_full; // A synonym of all the full terms.
 
     for(const string & prefix : field_info->prefixes) {
 	string root = prefix;
@@ -457,7 +452,7 @@ Query * Term::as_cjk_query() const
     Query *q;
 #ifdef USE_ICU
     if(state->flags & QueryParser::FLAG_CJK_WORDS) {
-	vector<Query> prefix_cjk;
+	vector <Query> prefix_cjk;
 	for(CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
 	    const string & token = *tk;
 	    for(const string & prefix : prefixes) {
@@ -472,8 +467,8 @@ Query * Term::as_cjk_query() const
     }
 #endif
 
-    vector<Query> prefix_subqs;
-    vector<Query> cjk_subqs;
+    vector <Query> prefix_subqs;
+    vector <Query> cjk_subqs;
 
     for(const string & prefix : prefixes) {
 	for(CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
@@ -845,7 +840,7 @@ string QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &e
     return term;
 }
 
-#line 1441 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1436 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
 
 struct ProbQuery {
@@ -903,7 +898,7 @@ struct ProbQuery {
 
 /// A group of terms separated only by whitespace.
 class TermGroup {
-    vector<Term *> terms;
+    vector <Term *> terms;
     /** Controls how to handle a group where all terms are stopwords.
      *
      *  If true, then as_group() returns NULL.  If false, then the
@@ -939,20 +934,20 @@ Query * TermGroup::as_group(State *state) const
     bool default_op_is_positional = is_positional(state->default_op());
 reprocess:
     Query::op default_op = state->default_op();
-    vector<Query> subqs;
+    vector <Query> subqs;
     subqs.reserve(terms.size());
     if(state->flags & QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS) {
 	// Check for multi-word synonyms.
 	Database db = state->get_database();
 
 	string key;
-	vector<Term*>::size_type begin = 0;
-	vector<Term*>::size_type i = begin;
+	vector <Term*>::size_type begin = 0;
+	vector <Term*>::size_type i = begin;
 	while(terms.size() - i > 0) {
 	    size_t longest_match = 0;
 	    // This value is never used, but GCC 4.8 warns with
 	    // -Wmaybe-uninitialized (GCC 5.4 doesn't).
-	    vector<Term*>::size_type longest_match_end = 0;
+	    vector <Term*>::size_type longest_match_end = 0;
 	    if(terms.size() - i >= 2) {
 		// Greedily try to match as many consecutive words as possible.
 		key = terms[i]->name;
@@ -994,7 +989,7 @@ reprocess:
 	    i = longest_match_end;
 	    key.resize(longest_match);
 
-	    vector<Query> subqs2;
+	    vector <Query> subqs2;
 	    for(auto j = begin; j != i; ++j) {
 		if(stopper && (*stopper)(terms[j]->name)) {
 		    state->add_to_stoplist(terms[j]);
@@ -1025,7 +1020,7 @@ reprocess:
 	    begin = i;
 	}
     } else {
-	vector<Term*>::const_iterator i;
+	vector <Term*>::const_iterator i;
 	for(i = terms.begin(); i != terms.end(); ++i) {
 	    if(stopper && (*stopper)((*i)->name)) {
 		state->add_to_stoplist(*i);
@@ -1060,7 +1055,7 @@ reprocess:
 
 /// Some terms which form a positional sub-query.
 class Terms {
-    vector<Term *> terms;
+    vector <Term *> terms;
 
     /** Window size.
      *
@@ -1082,9 +1077,9 @@ class Terms {
     /** The list of prefixes of the terms added.
      *  This will be NULL if the terms have different prefixes.
      */
-    const vector<string>* prefixes;
+    const vector <string>* prefixes;
 
-    Query opwindow_subq(Query::op op, const vector<Query>& v, Xapian::termcount w) const {
+    Query opwindow_subq(Query::op op, const vector <Query>& v, Xapian::termcount w) const {
 	if(op == Query::OP_AND) {
 	    return Query(op, v.begin(), v.end());
 	}
@@ -1100,7 +1095,7 @@ class Terms {
 	if(uniform_prefixes) {
 	    if(prefixes) {
 			for(auto&& prefix : *prefixes) {
-				vector<Query> subqs;
+				vector <Query> subqs;
 				subqs.reserve(n_terms);
 				for(Term* t : terms) {
 					subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
@@ -1110,7 +1105,7 @@ class Terms {
 	    }
 	} 
 	else {
-	    vector<Query> subqs;
+	    vector <Query> subqs;
 	    subqs.reserve(n_terms);
 	    for(Term* t : terms) {
 			subqs.push_back(t->get_query());
@@ -1220,7 +1215,7 @@ void Term::as_positional_cjk_term(Terms * terms) const
 	}\
     } while(0)
 
-#line 1224 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1219 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 /**************** End of %include directives **********************************/
 /* These constants specify the various numeric values for terminal symbols
 ** in a format understandable to "makeheaders".  This section is blank unless
@@ -1796,9 +1791,9 @@ static void yy_destructor(
     case 23: /* CJKTERM */
     case 24: /* EMPTY_GROUP_OK */
 {
-#line 1818 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1813 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy0); 
-#line 1802 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1797 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 27: /* expr */
@@ -1808,17 +1803,17 @@ static void yy_destructor(
     case 33: /* stop_term */
     case 34: /* compound_term */
 {
-#line 1895 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1890 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy45); 
-#line 1814 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1809 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 30: /* prob */
     case 32: /* stop_prob */
 {
-#line 2009 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2004 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy64); 
-#line 1822 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1817 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 35: /* phrase */
@@ -1826,16 +1821,16 @@ static void yy_destructor(
     case 38: /* near_expr */
     case 39: /* adj_expr */
 {
-#line 2203 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2198 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy14); 
-#line 1832 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1827 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
     case 37: /* group */
 {
-#line 2244 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2239 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
  delete (yypminor->yy60); 
-#line 1839 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 1834 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
       break;
 /********* End destructor definitions *****************************************/
@@ -2237,7 +2232,7 @@ static void yy_reduce(
 /********** Begin reduce actions **********************************************/
         YYMINORTYPE yylhsminor;
       case 0: /* query ::= expr */
-#line 1877 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1872 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // Save the parsed query in the State structure so we can return it.
     if(yymsp[0].minor.yy45) {
@@ -2247,28 +2242,28 @@ static void yy_reduce(
 	state->query = Query();
     }
 }
-#line 2251 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2246 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 1: /* query ::= */
-#line 1887 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1882 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // Handle a query string with no terms in.
     state->query = Query();
 }
-#line 2259 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2254 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 2: /* expr ::= bool_arg AND bool_arg */
-#line 1899 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1894 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-2].minor.yy45, yymsp[0].minor.yy45, "AND");
     *yymsp[-2].minor.yy45 &= *yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2268 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2263 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,4,&yymsp[-1].minor);
         break;
       case 3: /* expr ::= bool_arg NOT bool_arg */
-#line 1905 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1900 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     if(!yymsp[-2].minor.yy45 && (state->flags & QueryParser::FLAG_PURE_NOT)) {
 	// 'NOT foo' -> '(0 * <alldocuments>) NOT foo'
@@ -2283,63 +2278,63 @@ static void yy_reduce(
     *yymsp[-2].minor.yy45 &= ~*yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2287 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2282 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,5,&yymsp[-1].minor);
         break;
       case 4: /* expr ::= bool_arg AND NOT bool_arg */
-#line 1920 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1915 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-3].minor.yy45, yymsp[0].minor.yy45, "AND NOT");
     *yymsp[-3].minor.yy45 &= ~*yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2297 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2292 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,5,&yymsp[-1].minor);
         break;
       case 5: /* expr ::= bool_arg AND HATE_AFTER_AND bool_arg */
-#line 1926 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1921 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-3].minor.yy45, yymsp[0].minor.yy45, "AND");
     *yymsp[-3].minor.yy45 &= ~*yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2308 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2303 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,4,&yymsp[-2].minor);
   yy_destructor(yypParser,10,&yymsp[-1].minor);
         break;
       case 6: /* expr ::= bool_arg OR bool_arg */
-#line 1932 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1927 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-2].minor.yy45, yymsp[0].minor.yy45, "OR");
     *yymsp[-2].minor.yy45 |= *yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2319 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2314 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,2,&yymsp[-1].minor);
         break;
       case 7: /* expr ::= bool_arg XOR bool_arg */
-#line 1938 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1933 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     VET_BOOL_ARGS(yymsp[-2].minor.yy45, yymsp[0].minor.yy45, "XOR");
     *yymsp[-2].minor.yy45 ^= *yymsp[0].minor.yy45;
     delete yymsp[0].minor.yy45;
 }
-#line 2329 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2324 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,3,&yymsp[-1].minor);
         break;
       case 8: /* bool_arg ::= */
-#line 1951 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1946 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // Set the argument to NULL, which enables the bool_arg-using rules in
     // expr above to report uses of AND, OR, etc which don't have two
     // arguments.
     yymsp[1].minor.yy45 = NULL;
 }
-#line 2340 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2335 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 9: /* prob_expr ::= prob */
-#line 1963 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1958 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy45 = yymsp[0].minor.yy64->query;
     yymsp[0].minor.yy64->query = NULL;
@@ -2377,30 +2372,30 @@ static void yy_reduce(
     }
     delete yymsp[0].minor.yy64;
 }
-#line 2381 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2376 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy45 = yylhsminor.yy45;
         break;
       case 10: /* prob ::= RANGE */
-#line 2011 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2006 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     string grouping = yymsp[0].minor.yy0->name;
     const Query & range = yymsp[0].minor.yy0->as_range_query();
     yymsp[0].minor.yy64 = new ProbQuery; /*P-overwrites-R*/
     yymsp[0].minor.yy64->add_filter_range(grouping, range);
 }
-#line 2392 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2387 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 11: /* prob ::= stop_prob RANGE */
-#line 2018 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2013 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     string grouping = yymsp[0].minor.yy0->name;
     const Query & range = yymsp[0].minor.yy0->as_range_query();
     yymsp[-1].minor.yy64->append_filter_range(grouping, range);
 }
-#line 2401 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2396 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 12: /* prob ::= stop_term stop_term */
-#line 2024 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2019 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery(yymsp[-1].minor.yy45); /*P-overwrites-T*/
     if(yymsp[0].minor.yy45) {
@@ -2417,19 +2412,19 @@ static void yy_reduce(
 	}
     }
 }
-#line 2421 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2416 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 13: /* prob ::= prob stop_term */
-#line 2041 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2036 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // If yymsp[0].minor.yy45 is a stopword, there's nothing to do here.
     if(yymsp[0].minor.yy45) add_to_query(yymsp[-1].minor.yy64->query, state->default_op(), yymsp[0].minor.yy45);
 }
-#line 2429 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2424 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 14: /* prob ::= LOVE term */
 {  yy_destructor(yypParser,8,&yymsp[-1].minor);
-#line 2046 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2041 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery;
     if(state->default_op() == Query::OP_AND) {
@@ -2438,11 +2433,11 @@ static void yy_reduce(
 	yymsp[-1].minor.yy64->love = yymsp[0].minor.yy45;
     }
 }
-#line 2442 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2437 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 15: /* prob ::= stop_prob LOVE term */
-#line 2055 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2050 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     if(state->default_op() == Query::OP_AND) {
 	/* The default op is AND, so we just put loved terms into the query
@@ -2453,79 +2448,79 @@ static void yy_reduce(
 	add_to_query(yymsp[-2].minor.yy64->love, Query::OP_AND, yymsp[0].minor.yy45);
     }
 }
-#line 2457 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2452 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,8,&yymsp[-1].minor);
         break;
       case 16: /* prob ::= HATE term */
 {  yy_destructor(yypParser,9,&yymsp[-1].minor);
-#line 2066 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2061 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery;
     yymsp[-1].minor.yy64->hate = yymsp[0].minor.yy45;
 }
-#line 2467 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2462 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 17: /* prob ::= stop_prob HATE term */
-#line 2071 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2066 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     add_to_query(yymsp[-2].minor.yy64->hate, Query::OP_OR, yymsp[0].minor.yy45);
 }
-#line 2475 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2470 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,9,&yymsp[-1].minor);
         break;
       case 18: /* prob ::= HATE BOOLEAN_FILTER */
 {  yy_destructor(yypParser,9,&yymsp[-1].minor);
-#line 2075 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2070 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64 = new ProbQuery;
     yymsp[-1].minor.yy64->hate = new Query(yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2486 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2481 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 19: /* prob ::= stop_prob HATE BOOLEAN_FILTER */
-#line 2081 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2076 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     add_to_query(yymsp[-2].minor.yy64->hate, Query::OP_OR, yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2495 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2490 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,9,&yymsp[-1].minor);
         break;
       case 20: /* prob ::= BOOLEAN_FILTER */
-#line 2086 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2081 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy64 = new ProbQuery;
     yylhsminor.yy64->add_filter(yymsp[0].minor.yy0->get_grouping(), yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2505 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2500 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy64 = yylhsminor.yy64;
         break;
       case 21: /* prob ::= stop_prob BOOLEAN_FILTER */
-#line 2092 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2087 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy64->append_filter(yymsp[0].minor.yy0->get_grouping(), yymsp[0].minor.yy0->get_query());
     delete yymsp[0].minor.yy0;
 }
-#line 2514 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2509 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 22: /* prob ::= LOVE BOOLEAN_FILTER */
 {  yy_destructor(yypParser,8,&yymsp[-1].minor);
-#line 2097 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2092 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // LOVE BOOLEAN_FILTER(yymsp[0].minor.yy0) is just the same as BOOLEAN_FILTER
     yymsp[-1].minor.yy64 = new ProbQuery;
     yymsp[-1].minor.yy64->filter[yymsp[0].minor.yy0->get_grouping()] = yymsp[0].minor.yy0->get_query();
     delete yymsp[0].minor.yy0;
 }
-#line 2525 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2520 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 23: /* prob ::= stop_prob LOVE BOOLEAN_FILTER */
-#line 2104 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2099 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     // LOVE BOOLEAN_FILTER(yymsp[0].minor.yy0) is just the same as BOOLEAN_FILTER
     // We OR filters with the same prefix...
@@ -2533,18 +2528,18 @@ static void yy_reduce(
     q |= yymsp[0].minor.yy0->get_query();
     delete yymsp[0].minor.yy0;
 }
-#line 2537 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2532 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,8,&yymsp[-1].minor);
         break;
       case 24: /* stop_prob ::= stop_term */
-#line 2119 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2114 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[0].minor.yy64 = new ProbQuery(yymsp[0].minor.yy45); /*P-overwrites-T*/
 }
-#line 2545 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2540 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 25: /* stop_term ::= TERM */
-#line 2132 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2127 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     if(state->is_stopword(yymsp[0].minor.yy0)) {
 	yylhsminor.yy45 = NULL;
@@ -2554,153 +2549,153 @@ static void yy_reduce(
     }
     delete yymsp[0].minor.yy0;
 }
-#line 2558 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2553 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy45 = yylhsminor.yy45;
         break;
       case 26: /* term ::= TERM */
-#line 2149 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2144 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy45 = new Query(yymsp[0].minor.yy0->get_query_with_auto_synonyms());
     delete yymsp[0].minor.yy0;
 }
-#line 2567 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2562 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy45 = yylhsminor.yy45;
         break;
       case 27: /* compound_term ::= EDIT_TERM */
-#line 2164 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2159 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_fuzzy_query(state); /*T-overwrites-U*/ }
-#line 2573 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2568 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 28: /* compound_term ::= WILD_TERM */
-#line 2167 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2162 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_wildcarded_query(state); /*T-overwrites-U*/ }
-#line 2578 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2573 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 29: /* compound_term ::= PARTIAL_TERM */
-#line 2170 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2165 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_partial_query(state); /*T-overwrites-U*/ }
-#line 2583 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2578 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 30: /* compound_term ::= QUOTE phrase QUOTE */
 {  yy_destructor(yypParser,20,&yymsp[-2].minor);
-#line 2173 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2168 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[-2].minor.yy45 = yymsp[-1].minor.yy14->as_phrase_query(); }
-#line 2589 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2584 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,20,&yymsp[0].minor);
 }
         break;
       case 31: /* compound_term ::= phrased_term */
-#line 2176 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2171 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy14->as_phrase_query(); /*T-overwrites-P*/ }
-#line 2596 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2591 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 32: /* compound_term ::= group */
-#line 2179 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2174 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy60->as_group(state); /*T-overwrites-P*/ }
-#line 2601 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2596 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 33: /* compound_term ::= near_expr */
-#line 2182 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2177 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy14->as_near_query(); /*T-overwrites-P*/ }
-#line 2606 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2601 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 34: /* compound_term ::= adj_expr */
-#line 2185 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2180 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[0].minor.yy45 = yymsp[0].minor.yy14->as_adj_query(); /*T-overwrites-P*/ }
-#line 2611 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2606 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 35: /* compound_term ::= BRA expr KET */
 {  yy_destructor(yypParser,21,&yymsp[-2].minor);
-#line 2188 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2183 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 { yymsp[-2].minor.yy45 = yymsp[-1].minor.yy45; }
-#line 2617 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2612 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,22,&yymsp[0].minor);
 }
         break;
       case 36: /* compound_term ::= SYNONYM TERM */
 {  yy_destructor(yypParser,11,&yymsp[-1].minor);
-#line 2190 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2185 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy45 = new Query(yymsp[0].minor.yy0->get_query_with_synonyms());
     delete yymsp[0].minor.yy0;
 }
-#line 2628 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2623 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 }
         break;
       case 37: /* compound_term ::= CJKTERM */
-#line 2195 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2190 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     { yymsp[0].minor.yy45 = yymsp[0].minor.yy0->as_cjk_query(); /*T-overwrites-U*/ }
 }
-#line 2636 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2631 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 38: /* phrase ::= TERM */
-#line 2205 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2200 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[0].minor.yy0);
 }
-#line 2644 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2639 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy14 = yylhsminor.yy14;
         break;
       case 39: /* phrase ::= CJKTERM */
-#line 2210 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2205 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yymsp[0].minor.yy0->as_positional_cjk_term(yylhsminor.yy14);
 }
-#line 2653 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2648 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[0].minor.yy14 = yylhsminor.yy14;
         break;
       case 40: /* phrase ::= phrase TERM */
       case 43: /* phrased_term ::= phrased_term PHR_TERM */ yytestcase(yyruleno==43);
-#line 2215 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2210 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy14->add_positional_term(yymsp[0].minor.yy0);
 }
-#line 2662 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2657 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 41: /* phrase ::= phrase CJKTERM */
-#line 2219 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2214 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[0].minor.yy0->as_positional_cjk_term(yymsp[-1].minor.yy14);
 }
-#line 2669 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2664 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 42: /* phrased_term ::= TERM PHR_TERM */
-#line 2230 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2225 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[-1].minor.yy0);
     yylhsminor.yy14->add_positional_term(yymsp[0].minor.yy0);
 }
-#line 2678 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2673 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[-1].minor.yy14 = yylhsminor.yy14;
         break;
       case 44: /* group ::= TERM GROUP_TERM */
-#line 2246 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2241 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy60 = TermGroup::create(yymsp[-1].minor.yy0, yymsp[0].minor.yy0); /*P-overwrites-T*/
 }
-#line 2686 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2681 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 45: /* group ::= group GROUP_TERM */
-#line 2250 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2245 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy60->add_term(yymsp[0].minor.yy0);
 }
-#line 2693 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2688 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 46: /* group ::= group EMPTY_GROUP_OK */
-#line 2254 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2249 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-1].minor.yy60->set_empty_ok();
 }
-#line 2700 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2695 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yy_destructor(yypParser,24,&yymsp[0].minor);
         break;
       case 47: /* near_expr ::= TERM NEAR TERM */
-#line 2264 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2259 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[-2].minor.yy0);
@@ -2710,11 +2705,11 @@ static void yy_reduce(
 		delete yymsp[-1].minor.yy0;
     }
 }
-#line 2714 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2709 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[-2].minor.yy14 = yylhsminor.yy14;
         break;
       case 48: /* near_expr ::= near_expr NEAR TERM */
-#line 2274 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2269 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-2].minor.yy14->add_positional_term(yymsp[0].minor.yy0);
     if(yymsp[-1].minor.yy0) {
@@ -2722,10 +2717,10 @@ static void yy_reduce(
 		delete yymsp[-1].minor.yy0;
     }
 }
-#line 2726 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2721 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       case 49: /* adj_expr ::= TERM ADJ TERM */
-#line 2288 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2283 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yylhsminor.yy14 = Terms::create(state);
     yylhsminor.yy14->add_positional_term(yymsp[-2].minor.yy0);
@@ -2735,11 +2730,11 @@ static void yy_reduce(
 	delete yymsp[-1].minor.yy0;
     }
 }
-#line 2739 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2734 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
   yymsp[-2].minor.yy14 = yylhsminor.yy14;
         break;
       case 50: /* adj_expr ::= adj_expr ADJ TERM */
-#line 2298 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 2293 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 {
     yymsp[-2].minor.yy14->add_positional_term(yymsp[0].minor.yy0);
     if(yymsp[-1].minor.yy0) {
@@ -2747,7 +2742,7 @@ static void yy_reduce(
 	delete yymsp[-1].minor.yy0;
     }
 }
-#line 2751 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2746 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
         break;
       default:
       /* (51) expr ::= prob_expr (OPTIMIZED OUT) */ Assert(yyruleno!=51);
@@ -2793,11 +2788,11 @@ static void yy_parse_failed(
   /* Here code is inserted which will be executed whenever the
   ** parser fails */
 /************ Begin %parse_failure code ***************************************/
-#line 1822 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1817 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
     // If we've not already set an error message, set a default one.
     if(!state->error) state->error = "parse error";
-#line 2801 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2796 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 /************ End %parse_failure code *****************************************/
   ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
@@ -2816,10 +2811,10 @@ static void yy_syntax_error(
   (void)yyminor;
 #define TOKEN yyminor
 /************ Begin %syntax_error code ****************************************/
-#line 1827 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 1822 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
     yy_parse_failed(yypParser);
-#line 2823 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 2818 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
 /************ End %syntax_error code ******************************************/
   ParseARG_STORE; /* Suppress warning about unused %extra_argument variable */
 }
@@ -3018,7 +3013,7 @@ void Parse(
 }
 
 // Select C++ syntax highlighting in vim editor: vim: syntax=cpp
-#line 822 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
+#line 817 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser.lemony"
 
 
 Query QueryParser::Internal::parse_query(const string &qs, uint flags, const string &default_prefix)
@@ -3637,4 +3632,4 @@ done:
     return state.query;
 }
 
-#line 3641 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"
+#line 3636 "D:\\Papyrus\\Src\\OSF\\xapian\\xapian-core\\queryparser\\queryparser_internal.cc"

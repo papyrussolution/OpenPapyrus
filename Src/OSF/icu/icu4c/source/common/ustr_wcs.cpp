@@ -32,13 +32,12 @@
 #if !defined(U_WCHAR_IS_UTF16) && !defined(U_WCHAR_IS_UTF32)
 // TODO: We should use CharString for char buffers and UnicodeString for UChar buffers.
 // Then we could change this to work only with wchar_t buffers.
-static inline bool u_growAnyBufferFromStatic(void * context,
-    void ** pBuffer, int32_t * pCapacity, int32_t reqCapacity,
-    int32_t length, int32_t size) {
+static inline bool u_growAnyBufferFromStatic(void * context, void ** pBuffer, int32_t * pCapacity, int32_t reqCapacity, int32_t length, int32_t size) 
+{
 	// Use char * not void * to avoid the compiler's strict-aliasing assumptions
 	// and related warnings.
 	char * newBuffer = (char *)uprv_malloc(reqCapacity*size);
-	if(newBuffer!=NULL) {
+	if(newBuffer) {
 		if(length>0) {
 			uprv_memcpy(newBuffer, *pBuffer, (size_t)length*size);
 		}
@@ -47,23 +46,18 @@ static inline bool u_growAnyBufferFromStatic(void * context,
 	else {
 		*pCapacity = 0;
 	}
-
 	/* release the old pBuffer if it was not statically allocated */
 	if(*pBuffer!=(char *)context) {
 		uprv_free(*pBuffer);
 	}
-
 	*pBuffer = newBuffer;
 	return (bool)(newBuffer!=NULL);
 }
 
 /* helper function */
-static wchar_t * _strToWCS(wchar_t * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const UChar * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode) {
+static wchar_t * _strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDestLength, const UChar * src,
+    int32_t srcLength, UErrorCode * pErrorCode) 
+{
 	char stackBuffer [_STACK_BUFFER_CAPACITY];
 	char * tempBuf = stackBuffer;
 	int32_t tempBufCapacity = _STACK_BUFFER_CAPACITY;
@@ -73,12 +67,9 @@ static wchar_t * _strToWCS(wchar_t * dest,
 	wchar_t * intTarget = NULL;
 	int32_t intTargetCapacity = 0;
 	int count = 0, retVal = 0;
-
 	const UChar * pSrcLimit = NULL;
 	const UChar * pSrc = src;
-
 	conv = u_getDefaultConverter(pErrorCode);
-
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}

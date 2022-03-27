@@ -754,21 +754,16 @@ static int xmlwrite_string(struct archive_write * a, xmlTextWriterPtr writer, co
 	}
 	r = xmlTextWriterEndElement(writer);
 	if(r < 0) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "xmlTextWriterEndElement() failed: %d", r);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
 }
 
-static int xmlwrite_fstring(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, const char * fmt, ...)
+static int xmlwrite_fstring(struct archive_write * a, xmlTextWriterPtr writer, const char * key, const char * fmt, ...)
 {
-	struct xar * xar;
 	va_list ap;
-
-	xar = (struct xar *)a->format_data;
+	struct xar * xar = (struct xar *)a->format_data;
 	va_start(ap, fmt);
 	archive_string_empty(&xar->vstr);
 	archive_string_vsprintf(&xar->vstr, fmt, ap);
@@ -776,15 +771,13 @@ static int xmlwrite_fstring(struct archive_write * a, xmlTextWriterPtr writer,
 	return (xmlwrite_string(a, writer, key, xar->vstr.s));
 }
 
-static int xmlwrite_time(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, time_t t, int z)
+static int xmlwrite_time(struct archive_write * a, xmlTextWriterPtr writer, const char * key, time_t t, int z)
 {
 	char timestr[100];
 	struct tm tm;
 #if defined(HAVE__GMTIME64_S)
 	__time64_t tmptime;
 #endif
-
 #if defined(HAVE_GMTIME_R)
 	gmtime_r(&t, &tm);
 #elif defined(HAVE__GMTIME64_S)
@@ -801,22 +794,18 @@ static int xmlwrite_time(struct archive_write * a, xmlTextWriterPtr writer,
 	return (xmlwrite_string(a, writer, key, timestr));
 }
 
-static int xmlwrite_mode(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, mode_t mode)
+static int xmlwrite_mode(struct archive_write * a, xmlTextWriterPtr writer, const char * key, mode_t mode)
 {
 	char ms[5];
-
 	ms[0] = '0';
 	ms[1] = '0' + ((mode >> 6) & 07);
 	ms[2] = '0' + ((mode >> 3) & 07);
 	ms[3] = '0' + (mode & 07);
 	ms[4] = '\0';
-
 	return (xmlwrite_string(a, writer, key, ms));
 }
 
-static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * key, struct chksumval * sum)
+static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer, const char * key, struct chksumval * sum)
 {
 	const char * algname;
 	int algsize;
@@ -824,7 +813,6 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer,
 	char * p;
 	uchar * s;
 	int i, r;
-
 	if(sum->len > 0) {
 		algname = getalgname(sum->alg);
 		algsize = getalgsize(sum->alg);
@@ -838,9 +826,7 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer,
 				s++;
 			}
 			*p = '\0';
-			r = xmlwrite_string_attr(a, writer,
-				key, buff,
-				"style", algname);
+			r = xmlwrite_string_attr(a, writer, key, buff, "style", algname);
 			if(r < 0)
 				return ARCHIVE_FATAL;
 		}
@@ -848,13 +834,10 @@ static int xmlwrite_sum(struct archive_write * a, xmlTextWriterPtr writer,
 	return ARCHIVE_OK;
 }
 
-static int xmlwrite_heap(struct archive_write * a, xmlTextWriterPtr writer,
-    struct heap_data * heap)
+static int xmlwrite_heap(struct archive_write * a, xmlTextWriterPtr writer, struct heap_data * heap)
 {
 	const char * encname;
-	int r;
-
-	r = xmlwrite_fstring(a, writer, "length", "%ju", heap->length);
+	int r = xmlwrite_fstring(a, writer, "length", "%ju", heap->length);
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	r = xmlwrite_fstring(a, writer, "offset", "%ju", heap->temp_offset);
@@ -864,19 +847,13 @@ static int xmlwrite_heap(struct archive_write * a, xmlTextWriterPtr writer,
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	switch(heap->compression) {
-		case GZIP:
-		    encname = "application/x-gzip"; break;
-		case BZIP2:
-		    encname = "application/x-bzip2"; break;
-		case LZMA:
-		    encname = "application/x-lzma"; break;
-		case XZ:
-		    encname = "application/x-xz"; break;
-		default:
-		    encname = "application/octet-stream"; break;
+		case GZIP: encname = "application/x-gzip"; break;
+		case BZIP2: encname = "application/x-bzip2"; break;
+		case LZMA: encname = "application/x-lzma"; break;
+		case XZ: encname = "application/x-xz"; break;
+		default: encname = "application/octet-stream"; break;
 	}
-	r = xmlwrite_string_attr(a, writer, "encoding", NULL,
-		"style", encname);
+	r = xmlwrite_string_attr(a, writer, "encoding", NULL, "style", encname);
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	r = xmlwrite_sum(a, writer, "archived-checksum", &(heap->a_sum));
@@ -887,7 +864,6 @@ static int xmlwrite_heap(struct archive_write * a, xmlTextWriterPtr writer,
 		return ARCHIVE_FATAL;
 	return ARCHIVE_OK;
 }
-
 /*
  * xar utility records fflags as following xml elements:
  *   <flags>
@@ -905,14 +881,12 @@ static int xmlwrite_heap(struct archive_write * a, xmlTextWriterPtr writer,
  *
  * Our implements records both <flags> and <ext2> if it's necessary.
  */
-static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
-    const char * element, const char * fflags_text)
+static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer, const char * element, const char * fflags_text)
 {
 	static const struct flagentry {
 		const char      * name;
 		const char      * xarname;
 	}
-
 	flagbsd[] = {
 		{ "sappnd",     "SystemAppend"},
 		{ "sappend",    "SystemAppend"},
@@ -966,20 +940,16 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
 	const struct flagentry * avail[FLAGENTRY_MAXSIZE];
 	const char * p;
 	int i, n, r;
-
-	if(strcmp(element, "ext2") == 0)
+	if(sstreq(element, "ext2"))
 		flagentry = flagext2;
 	else
 		flagentry = flagbsd;
 	n = 0;
 	p = fflags_text;
 	do {
-		const char * cp;
-
-		cp = strchr(p, ',');
+		const char * cp = strchr(p, ',');
 		if(cp == NULL)
 			cp = p + strlen(p);
-
 		for(fe = flagentry; fe->name != NULL; fe++) {
 			if(fe->name[cp - p] != '\0' || p[0] != fe->name[0])
 				continue;
@@ -993,7 +963,6 @@ static int make_fflags_entry(struct archive_write * a, xmlTextWriterPtr writer,
 		else
 			p = NULL;
 	} while(p != NULL);
-
 	if(n > 0) {
 		r = xmlTextWriterStartElement(writer, BAD_CAST_CONST(element));
 		if(r < 0) {
@@ -1024,7 +993,6 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	const char * p;
 	size_t len;
 	int r, r2, l, ll;
-
 	xar = (struct xar *)a->format_data;
 	r2 = ARCHIVE_OK;
 	/*
@@ -1049,8 +1017,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
-		r = xmlTextWriterWriteBase64(writer, file->basename.s,
-			0, archive_strlen(&(file->basename)));
+		r = xmlTextWriterWriteBase64(writer, file->basename.s, 0, archive_strlen(&(file->basename)));
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteBase64() failed: %d", r);
 			return ARCHIVE_FATAL;
@@ -1066,25 +1033,18 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		if(r < 0)
 			return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Make a file type entry, "<type>".
 	 */
 	filelink = NULL;
 	archive_string_init(&linkto);
 	switch(archive_entry_filetype(file->entry)) {
-		case AE_IFDIR:
-		    filetype = "directory"; break;
-		case AE_IFLNK:
-		    filetype = "symlink"; break;
-		case AE_IFCHR:
-		    filetype = "character special"; break;
-		case AE_IFBLK:
-		    filetype = "block special"; break;
-		case AE_IFSOCK:
-		    filetype = "socket"; break;
-		case AE_IFIFO:
-		    filetype = "fifo"; break;
+		case AE_IFDIR: filetype = "directory"; break;
+		case AE_IFLNK: filetype = "symlink"; break;
+		case AE_IFCHR: filetype = "character special"; break;
+		case AE_IFBLK: filetype = "block special"; break;
+		case AE_IFSOCK: filetype = "socket"; break;
+		case AE_IFIFO: filetype = "fifo"; break;
 		case AE_IFREG:
 		default:
 		    if(file->hardlink_target != NULL) {
@@ -1093,8 +1053,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 			    if(file->hardlink_target == file)
 				    archive_strcpy(&linkto, "original");
 			    else
-				    archive_string_sprintf(&linkto, "%d",
-					file->hardlink_target->id);
+				    archive_string_sprintf(&linkto, "%d", file->hardlink_target->id);
 		    }
 		    else
 			    filetype = "file";
@@ -1273,7 +1232,6 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 		r = xmlwrite_string(a, writer, "name", name);
 		if(r < 0)
 			return ARCHIVE_FATAL;
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
@@ -1294,40 +1252,28 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 			return ARCHIVE_FATAL;
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	if(archive_strlen(&file->script) > 0) {
 		r = xmlTextWriterStartElement(writer, BAD_CAST("content"));
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterStartElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
-
-		r = xmlwrite_string(a, writer,
-			"interpreter", file->script.s);
+		r = xmlwrite_string(a, writer, "interpreter", file->script.s);
 		if(r < 0)
 			return ARCHIVE_FATAL;
-
 		r = xmlwrite_string(a, writer, "type", "script");
 		if(r < 0)
 			return ARCHIVE_FATAL;
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "xmlTextWriterEndElement() failed: %d", r);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	return (r2);
 }
 /*
@@ -1335,19 +1281,16 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
  */
 static int make_toc(struct archive_write * a)
 {
-	struct xar * xar;
 	struct file * np;
-	xmlBuffer * bp;
-	xmlTextWriterPtr writer;
 	int algsize;
-	int r, ret;
-	xar = (struct xar *)a->format_data;
-	ret = ARCHIVE_FATAL;
+	int r;
+	struct xar * xar = (struct xar *)a->format_data;
+	int ret = ARCHIVE_FATAL;
 	/*
 	 * Initialize xml writer.
 	 */
-	writer = NULL;
-	bp = xmlBufferCreate();
+	xmlTextWriterPtr writer = NULL;
+	xmlBuffer * bp = xmlBufferCreate();
 	if(bp == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "xmlBufferCreate() couldn't create xml buffer");
 		goto exit_toc;
@@ -1367,7 +1310,6 @@ static int make_toc(struct archive_write * a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterSetIndent() failed: %d", r);
 		goto exit_toc;
 	}
-
 	/*
 	 * Start recording TOC
 	 */
@@ -1381,14 +1323,12 @@ static int make_toc(struct archive_write * a)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartDocument() failed: %d", r);
 		goto exit_toc;
 	}
-
 	/*
 	 * Record the creation time of the archive file.
 	 */
 	r = xmlwrite_time(a, writer, "creation-time", time(NULL), 0);
 	if(r < 0)
 		goto exit_toc;
-
 	/*
 	 * Record the checksum value of TOC
 	 */
@@ -1402,27 +1342,23 @@ static int make_toc(struct archive_write * a)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 			goto exit_toc;
 		}
-		r = xmlTextWriterWriteAttribute(writer, BAD_CAST("style"),
-			BAD_CAST_CONST(getalgname(xar->opt_toc_sumalg)));
+		r = xmlTextWriterWriteAttribute(writer, BAD_CAST("style"), BAD_CAST_CONST(getalgname(xar->opt_toc_sumalg)));
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 			goto exit_toc;
 		}
-
 		/*
 		 * Record the offset of the value of checksum of TOC
 		 */
 		r = xmlwrite_string(a, writer, "offset", "0");
 		if(r < 0)
 			goto exit_toc;
-
 		/*
 		 * Record the size of the value of checksum of TOC
 		 */
 		r = xmlwrite_fstring(a, writer, "size", "%d", algsize);
 		if(r < 0)
 			goto exit_toc;
-
 		r = xmlTextWriterEndElement(writer);
 		if(r < 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterEndElement() failed: %d", r);
@@ -1436,18 +1372,15 @@ static int make_toc(struct archive_write * a)
 			if(r != ARCHIVE_OK)
 				goto exit_toc;
 		}
-
 		if(np->dir && np->children.first != NULL) {
 			/* Enter to sub directories. */
 			np = np->children.first;
-			r = xmlTextWriterStartElement(writer,
-				BAD_CAST("file"));
+			r = xmlTextWriterStartElement(writer, BAD_CAST("file"));
 			if(r < 0) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterStartElement() failed: %d", r);
 				goto exit_toc;
 			}
-			r = xmlTextWriterWriteFormatAttribute(
-				writer, BAD_CAST("id"), "%d", np->id);
+			r = xmlTextWriterWriteFormatAttribute(writer, BAD_CAST("id"), "%d", np->id);
 			if(r < 0) {
 				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "xmlTextWriterWriteAttribute() failed: %d", r);
 				goto exit_toc;
@@ -1856,7 +1789,6 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 	 */
 	while(len > 0) {
 		size_t ll = len;
-
 		if(p[len-1] == '/') {
 			p[len-1] = '\0';
 			len--;
@@ -1865,8 +1797,7 @@ static int file_gen_utility_names(struct archive_write * a, struct file * file)
 			p[len-2] = '\0';
 			len -= 2;
 		}
-		if(len > 2 && p[len-3] == '/' && p[len-2] == '.' &&
-		    p[len-1] == '.') {
+		if(len > 2 && p[len-3] == '/' && p[len-2] == '.' && p[len-1] == '.') {
 			p[len-3] = '\0';
 			len -= 3;
 		}

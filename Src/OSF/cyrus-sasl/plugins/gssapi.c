@@ -225,8 +225,7 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 
 		if(GSS_ERROR(maj_stat)) {
 			if(logonly) {
-				utils->log(utils->conn, SASL_LOG_FAIL,
-				    "GSSAPI Failure: (could not get major error message)");
+				utils->log(utils->conn, SASL_LOG_FAIL, "GSSAPI Failure: (could not get major error message)");
 			}
 			else {
 				utils->seterror(utils->conn, 0,
@@ -263,58 +262,42 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 		utils->free(out);
 		return SASL_NOMEM;
 	}
-
 	strcat(out, " (");
-
 	msg_ctx = 0;
 	while(1) {
 		GSS_LOCK_MUTEX(utils);
-		maj_stat = gss_display_status(&min_stat, min,
-			GSS_C_MECH_CODE, GSS_C_NULL_OID,
-			&msg_ctx, &msg);
+		maj_stat = gss_display_status(&min_stat, min, GSS_C_MECH_CODE, GSS_C_NULL_OID, &msg_ctx, &msg);
 		GSS_UNLOCK_MUTEX(utils);
-
 		if(GSS_ERROR(maj_stat)) {
 			if(logonly) {
-				utils->log(utils->conn, SASL_LOG_FAIL,
-				    "GSSAPI Failure: (could not get minor error message)");
+				utils->log(utils->conn, SASL_LOG_FAIL, "GSSAPI Failure: (could not get minor error message)");
 			}
 			else {
-				utils->seterror(utils->conn, 0,
-				    "GSSAPI Failure "
-				    "(could not get minor error message)");
+				utils->seterror(utils->conn, 0, "GSSAPI Failure (could not get minor error message)");
 			}
 			utils->free(out);
 			return SASL_OK;
 		}
-
 		len += len + msg.length;
-
 		ret = _plug_buf_alloc(utils, &out, &curlen, len);
 		if(ret != SASL_OK) {
 			utils->free(out);
 			return SASL_NOMEM;
 		}
-
 		strcat(out, msg.value);
-
 		GSS_LOCK_MUTEX(utils);
 		gss_release_buffer(&min_stat, &msg);
 		GSS_UNLOCK_MUTEX(utils);
-
 		if(!msg_ctx)
 			break;
 	}
-
 	len += 1;
 	ret = _plug_buf_alloc(utils, &out, &curlen, len);
 	if(ret != SASL_OK) {
 		utils->free(out);
 		return SASL_NOMEM;
 	}
-
 	strcat(out, ")");
-
 	if(logonly) {
 		utils->log(utils->conn, SASL_LOG_FAIL, "%s", out);
 	}
@@ -322,7 +305,6 @@ static int sasl_gss_seterror_(const sasl_utils_t * utils, OM_uint32 maj, OM_uint
 		utils->seterror(utils->conn, 0, "%s", out);
 	}
 	utils->free(out);
-
 	return SASL_OK;
 }
 
@@ -1422,15 +1404,10 @@ static int gssapi_server_mech_step(void * conn_context,
 		PARAMERROR(text->utils);
 		return SASL_BADPARAM;
 	}
-
 	*serverout = NULL;
 	*serveroutlen = 0;
-
 	if(text == NULL) return SASL_BADPROT;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "GSSAPI server step %d\n", text->state);
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "GSSAPI server step %d\n", text->state);
 	switch(text->state) {
 		case SASL_GSSAPI_STATE_AUTHNEG:
 		    ret = gssapi_server_mech_authneg(text, params, clientin, clientinlen,
@@ -1453,8 +1430,7 @@ static int gssapi_server_mech_step(void * conn_context,
 		    break;
 
 		default:
-		    params->utils->log(params->utils->conn, SASL_LOG_ERR,
-			"Invalid GSSAPI server step %d\n", text->state);
+		    params->utils->log(params->utils->conn, SASL_LOG_ERR, "Invalid GSSAPI server step %d\n", text->state);
 		    return SASL_FAIL;
 	}
 
@@ -1567,23 +1543,17 @@ int gssapiv2_server_plug_init(
 	utils->getopt(utils->getopt_context, "GSSAPI", "keytab", &keytab, &rl);
 	if(keytab != NULL) {
 		if(access(keytab, R_OK) != 0) {
-			utils->log(NULL, SASL_LOG_ERR,
-			    "Could not find keytab file: %s: %m", keytab);
+			utils->log(NULL, SASL_LOG_ERR, "Could not find keytab file: %s: %m", keytab);
 			return SASL_FAIL;
 		}
-
 		if(strlen(keytab) > 1024) {
-			utils->log(NULL, SASL_LOG_ERR,
-			    "path to keytab is > 1024 characters");
+			utils->log(NULL, SASL_LOG_ERR, "path to keytab is > 1024 characters");
 			return SASL_BUFOVER;
 		}
-
 		strncpy(keytab_path, keytab, 1024);
-
 		gsskrb5_register_acceptor_identity(keytab_path);
 	}
 #endif
-
 	*out_version = SASL_SERVER_PLUG_VERSION;
 	*pluglist = gssapi_server_plugins;
 #ifdef HAVE_GSS_SPNEGO
@@ -1657,15 +1627,11 @@ static int gssapi_client_mech_step(void * conn_context,
 	gss_cred_id_t client_creds = (gss_cred_id_t)params->gss_creds;
 	gss_channel_bindings_t bindings = GSS_C_NO_CHANNEL_BINDINGS;
 	struct gss_channel_bindings_struct cb = {0};
-
 	if(clientout)
 		*clientout = NULL;
 	if(clientoutlen)
 		*clientoutlen = 0;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "GSSAPI client step %d", text->state);
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "GSSAPI client step %d", text->state);
 	switch(text->state) {
 		case SASL_GSSAPI_STATE_AUTHNEG:
 		    /* try to get the userid */
@@ -2172,16 +2138,12 @@ static int gssapi_client_mech_step(void * conn_context,
 		    _plug_decode_init(&text->decode_context, text->utils,
 			(params->props.maxbufsize > 0xFFFFFF) ? 0xFFFFFF :
 			params->props.maxbufsize);
-
 		    return SASL_OK;
 	    }
-
 		default:
-		    params->utils->log(params->utils->conn, SASL_LOG_ERR,
-			"Invalid GSSAPI client step %d\n", text->state);
+		    params->utils->log(params->utils->conn, SASL_LOG_ERR, "Invalid GSSAPI client step %d\n", text->state);
 		    return SASL_FAIL;
 	}
-
 	return SASL_FAIL; /* should never get here */
 }
 

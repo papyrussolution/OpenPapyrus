@@ -11,7 +11,7 @@
 
 using namespace std;
 
-collapse_result CollapseData::check_item(const vector<Result>& results,
+collapse_result CollapseData::check_item(const vector <Result>& results,
     const Result& result,
     Xapian::doccount collapse_max, MSetCmp mcmp,
     Xapian::doccount& old_item)
@@ -82,7 +82,7 @@ void CollapseData::set_item(Xapian::doccount item)
 	items[0].first = item;
 }
 
-void CollapseData::add_item(const vector<Result>& results,
+void CollapseData::add_item(const vector <Result>& results,
     Xapian::doccount item,
     Xapian::doccount collapse_max,
     MSetCmp mcmp)

@@ -12,8 +12,8 @@
 using namespace std;
 
 ExactPhrasePostList::ExactPhrasePostList(PostList * source_,
-    const vector<PostList*>::const_iterator &terms_begin,
-    const vector<PostList*>::const_iterator &terms_end,
+    const vector <PostList*>::const_iterator &terms_begin,
+    const vector <PostList*>::const_iterator &terms_end,
     PostListTree* pltree_)
 	: SelectPostList(source_, pltree_), terms(terms_begin, terms_end)
 {
@@ -41,10 +41,10 @@ void ExactPhrasePostList::start_position_list(uint i)
 }
 
 class TermCompare {
-	vector<PostList *> & terms;
+	vector <PostList *> & terms;
 
 public:
-	explicit TermCompare(vector<PostList *> & terms_) : terms(terms_) {
+	explicit TermCompare(vector <PostList *> & terms_) : terms(terms_) {
 	}
 
 	bool operator()(unsigned a, unsigned b) const {
@@ -115,7 +115,7 @@ Xapian::termcount ExactPhrasePostList::get_wdf() const
 	//
 	// We use the minimum wdf of a sub-postlist as our estimate.  See the
 	// comment in NearPostList::get_wdf() for justification of this estimate.
-	vector<PostList *>::const_iterator i = terms.begin();
+	vector <PostList *>::const_iterator i = terms.begin();
 	Xapian::termcount wdf = (*i)->get_wdf();
 	while(++i != terms.end()) {
 		wdf = min(wdf, (*i)->get_wdf());

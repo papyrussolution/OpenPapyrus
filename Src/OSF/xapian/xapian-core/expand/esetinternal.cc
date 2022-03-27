@@ -45,7 +45,7 @@ static TermList * build_termlist_tree(const Xapian::Database &db, const RSet & r
 {
 	Assert(!rset.empty());
 	const set<Xapian::docid> & docids = rset.internal->docs;
-	vector<TermList*> termlists;
+	vector <TermList*> termlists;
 	termlists.reserve(docids.size());
 	try {
 		for(Xapian::docid did : docids) {
@@ -140,7 +140,7 @@ string ESet::Internal::get_description() const
 	string desc("ESet::Internal(ebound=");
 	desc += str(ebound);
 
-	vector<Xapian::Internal::ExpandTerm>::const_iterator i;
+	vector <Xapian::Internal::ExpandTerm>::const_iterator i;
 	for(i = items.begin(); i != items.end(); ++i) {
 		desc += ", ";
 		desc += i->get_description();

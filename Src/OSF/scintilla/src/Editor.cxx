@@ -851,7 +851,7 @@ void Editor::MultipleSelectAdd(AddNumber addNumber)
 		const Range rangeMainSelection(Sel.RangeMain().Start().Position(), Sel.RangeMain().End().Position());
 		const std::string selectedText = RangeText(rangeMainSelection.start, rangeMainSelection.end);
 		const Range rangeTarget(targetStart, targetEnd);
-		std::vector<Range> searchRanges;
+		std::vector <Range> searchRanges;
 		// Search should be over the target range excluding the current selection so
 		// may need to search 2 ranges, after the selection then before the selection.
 		if(rangeTarget.Overlaps(rangeMainSelection)) {
@@ -866,7 +866,7 @@ void Editor::MultipleSelectAdd(AddNumber addNumber)
 			// No overlap
 			searchRanges.push_back(rangeTarget);
 		}
-		for(std::vector<Range>::const_iterator it = searchRanges.begin(); it != searchRanges.end(); ++it) {
+		for(std::vector <Range>::const_iterator it = searchRanges.begin(); it != searchRanges.end(); ++it) {
 			int searchStart = it->start;
 			const int searchEnd = it->end;
 			for(;; ) {
@@ -1962,14 +1962,14 @@ void Editor::AddCharUTF(const char * s, uint len, bool treatAsDBCS)
 	{
 		UndoGroup ug(pdoc, (Sel.Count() > 1) || !Sel.Empty() || (EditModelFlags & fInOverstrike));
 		// Vector elements point into selection in order to change selection.
-		std::vector<SelectionRange *> selPtrs;
+		std::vector <SelectionRange *> selPtrs;
 		for(size_t r = 0; r < Sel.Count(); r++) {
 			selPtrs.push_back(&Sel.Range(r));
 		}
 		// Order selections by position in document.
 		std::sort(selPtrs.begin(), selPtrs.end(), cmpSelPtrs);
 		// Loop in reverse to avoid disturbing positions of selections yet to be processed.
-		for(std::vector<SelectionRange *>::reverse_iterator rit = selPtrs.rbegin(); rit != selPtrs.rend(); ++rit) {
+		for(std::vector <SelectionRange *>::reverse_iterator rit = selPtrs.rbegin(); rit != selPtrs.rend(); ++rit) {
 			SelectionRange * currentSel = *rit;
 			if(!RangeContainsProtected(currentSel->Start().Position(), currentSel->End().Position())) {
 				int positionInsert = currentSel->Start().Position();

@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -155,10 +150,10 @@ void ClientRectToScreenRect(HWND hWnd, RECT* rect)
 	rect->bottom = pt.y;
 }
 
-std::vector<generic_string> tokenizeString(const generic_string & tokenString, const char delim)
+std::vector <generic_string> tokenizeString(const generic_string & tokenString, const char delim)
 {
 	//Vector is created on stack and copied on return
-	std::vector<generic_string> tokens;
+	std::vector <generic_string> tokens;
 
 	// Skip delimiters at beginning.
 	generic_string::size_type lastPos = tokenString.find_first_not_of(delim, 0);
@@ -380,7 +375,7 @@ std::wstring string2wstring(const std::string & rString, UINT codepage)
 {
 	int len = MultiByteToWideChar(codepage, 0, rString.c_str(), -1, NULL, 0);
 	if(len > 0) {
-		std::vector<wchar_t> vw(len);
+		std::vector <wchar_t> vw(len);
 		MultiByteToWideChar(codepage, 0, rString.c_str(), -1, &vw[0], len);
 		return &vw[0];
 	}
@@ -391,7 +386,7 @@ std::string wstring2string(const std::wstring & rwString, UINT codepage)
 {
 	int len = WideCharToMultiByte(codepage, 0, rwString.c_str(), -1, NULL, 0, NULL, NULL);
 	if(len > 0) {
-		std::vector<char> vw(len);
+		std::vector <char> vw(len);
 		WideCharToMultiByte(codepage, 0, rwString.c_str(), -1, &vw[0], len, NULL, NULL);
 		return &vw[0];
 	}
@@ -414,7 +409,7 @@ generic_string convertFileName(T beg, T end)
 
 generic_string intToString(int val)
 {
-	std::vector<TCHAR> vt;
+	std::vector <TCHAR> vt;
 	bool isNegative = val < 0;
 	// can't use abs here because std::numeric_limits<int>::MIN() has no positive representation
 	//val = std::abs(val);
@@ -434,7 +429,7 @@ generic_string intToString(int val)
 
 generic_string uintToString(uint val)
 {
-	std::vector<TCHAR> vt;
+	std::vector <TCHAR> vt;
 
 	vt.push_back('0' + static_cast<TCHAR>(val % 10));
 	val /= 10;
@@ -464,7 +459,7 @@ generic_string BuildMenuFileName(int filenameLen, uint pos, const generic_string
 	strTemp.append(TEXT(": "));
 
 	if(filenameLen > 0) {
-		std::vector<TCHAR> vt(filenameLen + 1);
+		std::vector <TCHAR> vt(filenameLen + 1);
 		// W removed from PathCompactPathExW due to compiler errors for ANSI version.
 		PathCompactPathEx(&vt[0], filename.c_str(), filenameLen + 1, 0);
 		strTemp.append(convertFileName(vt.begin(), vt.begin() + lstrlen(&vt[0])));
@@ -593,11 +588,11 @@ generic_string stringReplace(generic_string subject, const generic_string& searc
 	return subject;
 }
 
-std::vector<generic_string> stringSplit(const generic_string& input, const generic_string& delimiter)
+std::vector <generic_string> stringSplit(const generic_string& input, const generic_string& delimiter)
 {
 	size_t start = 0U;
 	size_t end = input.find(delimiter);
-	std::vector<generic_string> output;
+	std::vector <generic_string> output;
 	const size_t delimiterLength = delimiter.length();
 	while(end != std::string::npos) {
 		output.push_back(input.substr(start, end - start));
@@ -608,7 +603,7 @@ std::vector<generic_string> stringSplit(const generic_string& input, const gener
 	return output;
 }
 
-bool str2numberVector(generic_string str2convert, std::vector<size_t>& numVect)
+bool str2numberVector(generic_string str2convert, std::vector <size_t>& numVect)
 {
 	numVect.clear();
 	for(auto i : str2convert) {
@@ -622,7 +617,7 @@ bool str2numberVector(generic_string str2convert, std::vector<size_t>& numVect)
 			    return false;
 		}
 	}
-	std::vector<generic_string> v = stringSplit(str2convert, TEXT(" "));
+	std::vector <generic_string> v = stringSplit(str2convert, TEXT(" "));
 	for(auto i : v) {
 		// Don't treat empty string and the number greater than 9999
 		if(!i.empty() && i.length() < 5) {
@@ -632,7 +627,7 @@ bool str2numberVector(generic_string str2convert, std::vector<size_t>& numVect)
 	return true;
 }
 
-generic_string stringJoin(const std::vector<generic_string>& strings, const generic_string& separator)
+generic_string stringJoin(const std::vector <generic_string>& strings, const generic_string& separator)
 {
 	generic_string joined;
 	const size_t length = strings.size();
@@ -765,7 +760,7 @@ bool str2Clipboard(const generic_string &str2cpy, HWND hwnd)
 	return true;
 }
 
-bool matchInList(const TCHAR * fileName, const std::vector<generic_string> & patterns)
+bool matchInList(const TCHAR * fileName, const std::vector <generic_string> & patterns)
 {
 	bool is_matched = false;
 	for(size_t i = 0, len = patterns.size(); i < len; ++i) {
@@ -781,7 +776,7 @@ bool matchInList(const TCHAR * fileName, const std::vector<generic_string> & pat
 	return is_matched;
 }
 
-bool allPatternsAreExclusion(const std::vector<generic_string> patterns)
+bool allPatternsAreExclusion(const std::vector <generic_string> patterns)
 {
 	bool oneInclusionPatternFound = false;
 	for(size_t i = 0, len = patterns.size(); i < len; ++i) {
@@ -1028,7 +1023,7 @@ bool deleteFileOrFolder(const generic_string& f2delete)
 
 // Get a vector of full file paths in a given folder. File extension type filter should be *.*, *.xml, *.dll...
 // according the type of file you want to get.
-void getFilesInFolder(std::vector<generic_string>& files, const generic_string& extTypeFilter, const generic_string& inFolder)
+void getFilesInFolder(std::vector <generic_string>& files, const generic_string& extTypeFilter, const generic_string& inFolder)
 {
 	generic_string filter = inFolder;
 	PathAppend(filter, extTypeFilter);

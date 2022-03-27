@@ -112,7 +112,7 @@ void DockingCont::removeToolbar(tTbData TbData)
 			removeTab(_vTbData[iTb]);
 			// free resources
 			delete _vTbData[iTb];
-			vector<tTbData*>::iterator itr = _vTbData.begin() + iTb;
+			vector <tTbData*>::iterator itr = _vTbData.begin() + iTb;
 			_vTbData.erase(itr);
 		}
 	}
@@ -172,9 +172,9 @@ tTbData* DockingCont::getDataOfActiveTb()
 	return pTbData;
 }
 
-vector<tTbData*> DockingCont::getDataOfVisTb()
+vector <tTbData*> DockingCont::getDataOfVisTb()
 {
-	vector<tTbData*> vTbData;
+	vector <tTbData*> vTbData;
 	TCITEM tcItem = {0};
 	int iItemCnt = static_cast<int32_t>(::SendMessage(_hContTab, TCM_GETITEMCOUNT, 0, 0));
 

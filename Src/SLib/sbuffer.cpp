@@ -1180,12 +1180,12 @@ bool SBinarySet::Get(uint32 id, SBinaryChunk * pResult) const
 	return ok;
 }
 
-int SBinarySet::Put(uint32 id, const SBinaryChunk & rData, DeflateStrategy * pDs/*= 0*/)
+int SBinarySet::Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs/*= 0*/)
 {
 	return Put(id, rData.PtrC(), rData.Len(), pDs);
 }
 
-int SBinarySet::Put(uint32 id, const void * pData, uint32 size, DeflateStrategy * pDs/*= 0*/)
+int SBinarySet::Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs/*= 0*/)
 {
 	int    ok = 0;
 	assert(id);

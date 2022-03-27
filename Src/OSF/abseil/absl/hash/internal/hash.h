@@ -490,29 +490,29 @@ typename std::enable_if<is_hashable<T>::value, H>::type AbslHashValue(
 
 // AbslHashValue for hashing std::vector
 //
-// Do not use this for vector<bool> on platforms that have a working
+// Do not use this for vector <bool> on platforms that have a working
 // implementation of std::hash. It does not have a .data(), and a fallback for
 // std::hash<> is most likely faster.
 template <typename H, typename T, typename Allocator>
 typename std::enable_if<is_hashable<T>::value && !std::is_same<T, bool>::value,
                         H>::type
-AbslHashValue(H hash_state, const std::vector<T, Allocator>& vector) {
+AbslHashValue(H hash_state, const std::vector <T, Allocator>& vector) {
   return H::combine(H::combine_contiguous(std::move(hash_state), vector.data(),
                                           vector.size()),
                     vector.size());
 }
 
-// AbslHashValue special cases for hashing std::vector<bool>
+// AbslHashValue special cases for hashing std::vector <bool>
 #if defined(ABSL_IS_BIG_ENDIAN) && \
     (defined(__GLIBCXX__) || defined(__GLIBCPP__))
-// std::hash in libstdc++ does not work correctly with vector<bool> on Big
+// std::hash in libstdc++ does not work correctly with vector <bool> on Big
 // Endian platforms therefore we need to implement a custom AbslHashValue for
 // it. More details on the bug:
 // https://gcc.gnu.org/bugzilla/show_bug.cgi?id=102531
 template <typename H, typename T, typename Allocator>
 typename std::enable_if<is_hashable<T>::value && std::is_same<T, bool>::value,
                         H>::type
-AbslHashValue(H hash_state, const std::vector<T, Allocator>& vector) {
+AbslHashValue(H hash_state, const std::vector <T, Allocator>& vector) {
   typename H::AbslInternalPiecewiseCombiner combiner;
   for (const auto& i : vector) {
     unsigned char c = static_cast<unsigned char>(i);
@@ -522,18 +522,18 @@ AbslHashValue(H hash_state, const std::vector<T, Allocator>& vector) {
 }
 #else
 // When not working around the libstdc++ bug above, we still have to contend
-// with the fact that std::hash<vector<bool>> is often poor quality, hashing
+// with the fact that std::hash<vector <bool>> is often poor quality, hashing
 // directly on the internal words and on no other state.  On these platforms,
-// vector<bool>{1, 1} and vector<bool>{1, 1, 0} hash to the same value.
+// vector <bool>{1, 1} and vector <bool>{1, 1, 0} hash to the same value.
 //
-// Mixing in the size (as we do in our other vector<> implementations) on top
+// Mixing in the size (as we do in our other vector <> implementations) on top
 // of the library-provided hash implementation avoids this QOI issue.
 template <typename H, typename T, typename Allocator>
 typename std::enable_if<is_hashable<T>::value && std::is_same<T, bool>::value,
                         H>::type
-AbslHashValue(H hash_state, const std::vector<T, Allocator>& vector) {
+AbslHashValue(H hash_state, const std::vector <T, Allocator>& vector) {
   return H::combine(std::move(hash_state),
-                    std::hash<std::vector<T, Allocator>>{}(vector),
+                    std::hash<std::vector <T, Allocator>>{}(vector),
                     vector.size());
 }
 #endif
@@ -631,7 +631,7 @@ AbslHashValue(H hash_state, const absl::variant<T...>& v) {
 // -----------------------------------------------------------------------------
 
 // AbslHashValue for hashing std::bitset is not defined on Little Endian
-// platforms, for the same reason as for vector<bool> (see std::vector above):
+// platforms, for the same reason as for vector <bool> (see std::vector above):
 // It does not expose the raw bytes, and a fallback to std::hash<> is most
 // likely faster.
 

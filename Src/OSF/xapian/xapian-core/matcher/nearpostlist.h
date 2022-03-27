@@ -40,7 +40,7 @@ class PostListTree;
 class NearPostList : public SelectPostList {
     Xapian::termpos window;
 
-    std::vector<PostList*> terms;
+    std::vector <PostList*> terms;
 
     PositionList ** poslists;
 
@@ -50,8 +50,8 @@ class NearPostList : public SelectPostList {
   public:
     NearPostList(PostList *source_,
 		 Xapian::termpos window_,
-		 const std::vector<PostList*>::const_iterator &terms_begin,
-		 const std::vector<PostList*>::const_iterator &terms_end,
+		 const std::vector <PostList*>::const_iterator &terms_begin,
+		 const std::vector <PostList*>::const_iterator &terms_end,
 		 PostListTree* pltree_);
 
     ~NearPostList();

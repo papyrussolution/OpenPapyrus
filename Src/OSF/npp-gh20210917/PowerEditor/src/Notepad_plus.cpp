@@ -278,7 +278,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_docTabIconList.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs, SIZEOFARRAY(docTabIconIDs));
 	_docTabIconListAlt.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs_alt, SIZEOFARRAY(docTabIconIDs_alt));
 	_docTabIconListDarkMode.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs_darkMode, SIZEOFARRAY(docTabIconIDs_darkMode));
-	vector<IconList *> pIconListVector;
+	vector <IconList *> pIconListVector;
 	pIconListVector.push_back(&_docTabIconList);        // 0
 	pIconListVector.push_back(&_docTabIconListAlt);     // 1
 	pIconListVector.push_back(&_docTabIconListDarkMode);// 2
@@ -443,7 +443,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	// ------------ //
 	setupColorSampleBitmapsOnMainMenuItems();
 	// Macro Menu
-	std::vector<MacroShortcut> & macros = nppParam.getMacroList();
+	std::vector <MacroShortcut> & macros = nppParam.getMacroList();
 	HMENU hMacroMenu = ::GetSubMenu(_mainMenuHandle, MENUINDEX_MACRO);
 	size_t const posBase = 6;
 	size_t nbMacro = macros.size();
@@ -456,7 +456,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 		::InsertMenu(hMacroMenu, static_cast<UINT>(posBase + nbMacro + 2), MF_BYCOMMAND, IDM_SETTING_SHORTCUT_MAPPER_MACRO, TEXT("Modify Shortcut/Delete Macro..."));
 	}
 	// Run Menu
-	std::vector<UserCommand> & userCommands = nppParam.getUserCommandList();
+	std::vector <UserCommand> & userCommands = nppParam.getUserCommandList();
 	HMENU hRunMenu = ::GetSubMenu(_mainMenuHandle, MENUINDEX_RUN);
 	int const runPosBase = 2;
 	size_t nbUserCommand = userCommands.size();
@@ -562,7 +562,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_windowsMenu.init(_pPublicInterface->getHinst(), _mainMenuHandle, windowTrans.c_str());
 
 	// Update context menu strings (translated)
-	vector<MenuItemUnit> & tmp = nppParam.getContextMenuItems();
+	vector <MenuItemUnit> & tmp = nppParam.getContextMenuItems();
 	size_t len = tmp.size();
 	TCHAR menuName[64];
 	for(size_t i = 0; i < len; ++i) {
@@ -585,7 +585,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	nppParam.setAccelerator(&_accelerator);
 
 	// Scintilla key accelerator
-	vector<HWND> scints;
+	vector <HWND> scints;
 	scints.push_back(_mainEditView.getHSelf());
 	scints.push_back(_subEditView.getHSelf());
 	_scintaccelerator.init(&scints, _mainMenuHandle, hwnd);
@@ -822,7 +822,7 @@ bool Notepad_plus::saveProjectPanelsParams()
 bool Notepad_plus::saveFileBrowserParam()
 {
 	if(_pFileBrowser) {
-		vector<generic_string> rootPaths = _pFileBrowser->getRoots();
+		vector <generic_string> rootPaths = _pFileBrowser->getRoots();
 		generic_string selectedItemPath = _pFileBrowser->getSelectedItemPath();
 		return (NppParameters::getInstance()).writeFileBrowserSettings(rootPaths, selectedItemPath);
 	}
@@ -843,15 +843,15 @@ void Notepad_plus::saveDockingParams()
 	nppGUI._dockingData._containerTabInfo.clear();
 
 	// create a vector to save the current information
-	vector<PluginDlgDockingInfo>    vPluginDockInfo;
-	vector<FloatingWindowInfo>              vFloatingWindowInfo;
+	vector <PluginDlgDockingInfo>    vPluginDockInfo;
+	vector <FloatingWindowInfo>              vFloatingWindowInfo;
 
 	// save every container
-	vector<DockingCont*> vCont = _dockingManager.getContainerInfo();
+	vector <DockingCont*> vCont = _dockingManager.getContainerInfo();
 
 	for(size_t i = 0, len = vCont.size(); i < len; ++i) {
 		// save at first the visible Tb's
-		vector<tTbData *>       vDataVis        = vCont[i]->getDataOfVisTb();
+		vector <tTbData *>       vDataVis        = vCont[i]->getDataOfVisTb();
 
 		for(size_t j = 0, len2 = vDataVis.size(); j < len2; ++j) {
 			if(vDataVis[j]->pszName && vDataVis[j]->pszName[0]) {
@@ -865,7 +865,7 @@ void Notepad_plus::saveDockingParams()
 		}
 
 		// save the hidden Tb's
-		vector<tTbData *>       vDataAll        = vCont[i]->getDataOfAllTb();
+		vector <tTbData *>       vDataAll        = vCont[i]->getDataOfAllTb();
 
 		for(size_t j = 0, len3 = vDataAll.size(); j < len3; ++j) {
 			if((vDataAll[j]->pszName && vDataAll[j]->pszName[0]) && (!vCont[i]->isTbVis(vDataAll[j]))) {
@@ -1117,8 +1117,8 @@ void Notepad_plus::wsTabConvert(spaceTab whichWay)
 		int newCurrentPos = 0;
 		int tabStop = static_cast<int32_t>(tabWidth - 1);   // remember, counting from zero !
 		bool onlyLeading = false;
-		vector<int> bookmarks;
-		vector<int> folding;
+		vector <int> bookmarks;
+		vector <int> folding;
 		for(int i = 0; i<lastLine; ++i) {
 			if(bookmarkPresent(i))
 				bookmarks.push_back(i);
@@ -1348,8 +1348,8 @@ void Notepad_plus::removeDuplicateLines()
 }
 
 void Notepad_plus::getMatchedFileNames(const TCHAR * dir,
-    const vector<generic_string> & patterns,
-    vector<generic_string> & fileNames,
+    const vector <generic_string> & patterns,
+    vector <generic_string> & fileNames,
     bool isRecursive,
     bool isInHiddenDir)
 {
@@ -1408,14 +1408,14 @@ void Notepad_plus::getMatchedFileNames(const TCHAR * dir,
 	::FindClose(hFile);
 }
 
-bool Notepad_plus::createFilelistForFiles(vector<generic_string> & fileNames)
+bool Notepad_plus::createFilelistForFiles(vector <generic_string> & fileNames)
 {
 	const TCHAR * dir2Search = _findReplaceDlg.getDir2Search();
 	if(!dir2Search[0] || !::PathFileExists(dir2Search)) {
 		return false;
 	}
 
-	vector<generic_string> patterns2Match;
+	vector <generic_string> patterns2Match;
 	_findReplaceDlg.getAndValidatePatterns(patterns2Match);
 
 	bool isRecursive = _findReplaceDlg.isRecursive();
@@ -1424,9 +1424,9 @@ bool Notepad_plus::createFilelistForFiles(vector<generic_string> & fileNames)
 	return true;
 }
 
-bool Notepad_plus::createFilelistForProjects(vector<generic_string> & fileNames)
+bool Notepad_plus::createFilelistForProjects(vector <generic_string> & fileNames)
 {
-	vector<generic_string> patterns2Match;
+	vector <generic_string> patterns2Match;
 	_findReplaceDlg.getAndValidatePatterns(patterns2Match);
 	bool somethingIsSelected = false; // at least one Project Panel is open and checked
 
@@ -1451,7 +1451,7 @@ bool Notepad_plus::replaceInFiles()
 {
 	std::lock_guard<std::mutex> lock(replaceInFiles_mutex);
 
-	std::vector<generic_string> fileNames;
+	std::vector <generic_string> fileNames;
 	if(!createFilelistForFiles(fileNames))
 		return false;
 
@@ -1462,14 +1462,14 @@ bool Notepad_plus::replaceInProjects()
 {
 	std::lock_guard<std::mutex> lock(replaceInFiles_mutex);
 
-	std::vector<generic_string> fileNames;
+	std::vector <generic_string> fileNames;
 	if(!createFilelistForProjects(fileNames))
 		return false;
 
 	return replaceInFilelist(fileNames);
 }
 
-bool Notepad_plus::replaceInFilelist(std::vector<generic_string> & fileNames)
+bool Notepad_plus::replaceInFilelist(std::vector <generic_string> & fileNames)
 {
 	int nbTotal = 0;
 
@@ -1561,7 +1561,7 @@ bool Notepad_plus::findInFinderFiles(FindersInfo * findInFolderInfo)
 	_pEditView = &_invisibleEditView;
 	Document oldDoc = _invisibleEditView.execute(SCI_GETDOCPOINTER);
 
-	vector<generic_string> fileNames = findInFolderInfo->_pSourceFinder->getResultFilePaths();
+	vector <generic_string> fileNames = findInFolderInfo->_pSourceFinder->getResultFilePaths();
 
 	findInFolderInfo->_pDestFinder->beginNewFilesSearch();
 	findInFolderInfo->_pDestFinder->addSearchLine(findInFolderInfo->_findOption._str2Search.c_str());
@@ -1628,7 +1628,7 @@ bool Notepad_plus::findInFinderFiles(FindersInfo * findInFolderInfo)
 
 bool Notepad_plus::findInFiles()
 {
-	std::vector<generic_string> fileNames;
+	std::vector <generic_string> fileNames;
 	if(!createFilelistForFiles(fileNames))
 		return false;
 
@@ -1637,14 +1637,14 @@ bool Notepad_plus::findInFiles()
 
 bool Notepad_plus::findInProjects()
 {
-	vector<generic_string> fileNames;
+	vector <generic_string> fileNames;
 	if(!createFilelistForProjects(fileNames))
 		return false;
 
 	return findInFilelist(fileNames);
 }
 
-bool Notepad_plus::findInFilelist(std::vector<generic_string> & fileNames)
+bool Notepad_plus::findInFilelist(std::vector <generic_string> & fileNames)
 {
 	int nbTotal = 0;
 	ScintillaEditView * pOldView = _pEditView;
@@ -2027,7 +2027,7 @@ void Notepad_plus::setupColorSampleBitmapsOnMainMenuItems()
 	struct {
 		int firstOfThisColorMenuId;
 		int styleIndic;
-		std::vector<int> sameColorMenuIds;
+		std::vector <int> sameColorMenuIds;
 	}
 
 	bitmapOnStyleMenuItemsInfo[] =
@@ -3358,8 +3358,8 @@ void Notepad_plus::dropFiles(HDROP hdrop)
 
 		int filesDropped = ::DragQueryFile(hdrop, 0xffffffff, NULL, 0);
 
-		vector<generic_string> folderPaths;
-		vector<generic_string> filePaths;
+		vector <generic_string> folderPaths;
+		vector <generic_string> filePaths;
 		for(int i = 0; i < filesDropped; ++i) {
 			TCHAR pathDropped[MAX_PATH];
 			::DragQueryFile(hdrop, i, pathDropped, MAX_PATH);
@@ -4492,7 +4492,7 @@ void Notepad_plus::saveScintillasZoom()
 bool Notepad_plus::addCurrentMacro()
 {
 	NppParameters& nppParams = NppParameters::getInstance();
-	vector<MacroShortcut> & theMacros = nppParams.getMacroList();
+	vector <MacroShortcut> & theMacros = nppParams.getMacroList();
 	int nbMacro = static_cast<int32_t>(theMacros.size());
 	int cmdID = ID_MACRO + nbMacro;
 	MacroShortcut ms(Shortcut(), _macro, cmdID);
@@ -4973,7 +4973,7 @@ void Notepad_plus::distractionFreeToggle()
 		}
 
 		// check if any dockable panel is visible
-		std::vector<DockingCont*> & container = _dockingManager.getContainerInfo();
+		std::vector <DockingCont*> & container = _dockingManager.getContainerInfo();
 		_beforeSpecialView._pVisibleDockingContainers.clear();
 		for(auto i : container) {
 			if(i->isVisible()) {
@@ -5103,8 +5103,8 @@ void Notepad_plus::getCurrentOpenedFiles(Session & session, bool includUntitledD
 			BufferID bufID = docTab[k]->getBufferByIndex(i);
 			ScintillaEditView * editView = k == 0 ? &_mainEditView : &_subEditView;
 			size_t activeIndex = k == 0 ? session._activeMainIndex : session._activeSubIndex;
-			vector<sessionFileInfo> * viewFiles =
-			    (vector<sessionFileInfo> *)(k == 0 ? &(session._mainViewFiles) : &(session._subViewFiles));
+			vector <sessionFileInfo> * viewFiles =
+			    (vector <sessionFileInfo> *)(k == 0 ? &(session._mainViewFiles) : &(session._subViewFiles));
 
 			Buffer * buf = MainFileManager.getBufferByID(bufID);
 
@@ -5410,10 +5410,10 @@ void Notepad_plus::notifyBufferActivated(BufferID bufid, int view)
 	_linkTriggered = true;
 }
 
-std::vector<generic_string> Notepad_plus::loadCommandlineParams(const TCHAR * commandLine, const CmdLineParamsDTO * pCmdParams)
+std::vector <generic_string> Notepad_plus::loadCommandlineParams(const TCHAR * commandLine, const CmdLineParamsDTO * pCmdParams)
 {
 	if(!commandLine || !pCmdParams)
-		return std::vector<generic_string>();
+		return std::vector <generic_string>();
 	NppParameters& nppParams = NppParameters::getInstance();
 	FileNameStringSplitter fnss(commandLine);
 	// loading file as session file is allowed only when there is only one file
@@ -5424,7 +5424,7 @@ std::vector<generic_string> Notepad_plus::loadCommandlineParams(const TCHAR * co
 			const bool shouldLoadFileBrowser = true;
 			loadSession(session2Load, isSnapshotMode, shouldLoadFileBrowser);
 		}
-		return std::vector<generic_string>();
+		return std::vector <generic_string>();
 	}
 
 	LangType lt = pCmdParams->_langType;
@@ -5445,7 +5445,7 @@ std::vector<generic_string> Notepad_plus::loadCommandlineParams(const TCHAR * co
 	BufferID lastOpened = BUFFER_INVALID;
 	for(int i = 0, len = fnss.size(); i < len; ++i) {
 		const TCHAR * pFn = fnss.getFileName(i);
-		if(!pFn) return std::vector<generic_string>();
+		if(!pFn) return std::vector <generic_string>();
 
 		BufferID bufID = doOpen(pFn, recursive, readOnly);
 		if(bufID == BUFFER_INVALID)     //cannot open file
@@ -5525,7 +5525,7 @@ void Notepad_plus::setFindReplaceFolderFilter(const TCHAR * dir, const TCHAR * f
 
 		if(ext && ext[0]) {
 			fltr = TEXT("");
-			vector<generic_string> vStr;
+			vector <generic_string> vStr;
 			cutString(ext, vStr);
 			for(size_t i = 0, len = vStr.size(); i < len; ++i) {
 				fltr += TEXT("*.");
@@ -5540,12 +5540,12 @@ void Notepad_plus::setFindReplaceFolderFilter(const TCHAR * dir, const TCHAR * f
 	_findReplaceDlg.setFindInFilesDirFilter(dir, filter);
 }
 
-vector<generic_string> Notepad_plus::addNppComponents(const TCHAR * destDir, const TCHAR * extFilterName, const TCHAR * extFilter)
+vector <generic_string> Notepad_plus::addNppComponents(const TCHAR * destDir, const TCHAR * extFilterName, const TCHAR * extFilter)
 {
 	CustomFileDialog fDlg(_pPublicInterface->getHSelf());
 	fDlg.setExtFilter(extFilterName, extFilter);
 
-	vector<generic_string> copiedFiles;
+	vector <generic_string> copiedFiles;
 
 	const auto& fns = fDlg.doOpenMultiFilesDlg();
 	if(!fns.empty()) {
@@ -5573,12 +5573,12 @@ vector<generic_string> Notepad_plus::addNppComponents(const TCHAR * destDir, con
 	return copiedFiles;
 }
 
-vector<generic_string> Notepad_plus::addNppPlugins(const TCHAR * extFilterName, const TCHAR * extFilter)
+vector <generic_string> Notepad_plus::addNppPlugins(const TCHAR * extFilterName, const TCHAR * extFilter)
 {
 	CustomFileDialog fDlg(_pPublicInterface->getHSelf());
 	fDlg.setExtFilter(extFilterName, extFilter);
 
-	vector<generic_string> copiedFiles;
+	vector <generic_string> copiedFiles;
 
 	const auto& fns = fDlg.doOpenMultiFilesDlg();
 	if(!fns.empty()) {
@@ -5722,7 +5722,7 @@ bool Notepad_plus::reloadLang()
 		::ModifyMenu(_mainMenuHandle, IDM_WINDOW_WINDOWS, MF_BYCOMMAND, IDM_WINDOW_WINDOWS, windowTrans.c_str());
 	}
 	// Update scintilla context menu strings
-	vector<MenuItemUnit> & tmp = nppParam.getContextMenuItems();
+	vector <MenuItemUnit> & tmp = nppParam.getContextMenuItems();
 	size_t len = tmp.size();
 	TCHAR menuName[64];
 	for(size_t i = 0; i < len; ++i) {
@@ -5949,7 +5949,7 @@ void Notepad_plus::launchAnsiCharPanel()
 	_pAnsiCharPanel->display();
 }
 
-void Notepad_plus::launchFileBrowser(const vector<generic_string> & folders, const generic_string& selectedItemPath, bool fromScratch)
+void Notepad_plus::launchFileBrowser(const vector <generic_string> & folders, const generic_string& selectedItemPath, bool fromScratch)
 {
 	if(!_pFileBrowser) {
 		_pFileBrowser = new FileBrowser;
@@ -6682,7 +6682,7 @@ int Notepad_plus::getRandomAction(int ranNum)
 	return actionArray[ranNum % nbAct];
 }
 
-bool isInList(int elem, vector<int> elemList)
+bool isInList(int elem, vector <int> elemList)
 {
 	for(size_t i = 0, len = elemList.size(); i < len; ++i) {
 		if(elem == elemList[i])
@@ -6739,7 +6739,7 @@ DWORD WINAPI Notepad_plus::threadTextPlayer(void * params)
 	HWND curScintilla = pCurrentView->getHSelf();
 	const int nbMaxTrolling = 1;
 	int nbTrolling = 0;
-	vector<int> generatedRans;
+	vector <int> generatedRans;
 	wchar_t previousChar = '\0';
 
 	for(size_t i = 0, len = lstrlen(text2display); i < len; ++i) {
@@ -7347,7 +7347,7 @@ void Notepad_plus::monitoringStartOrStopAndUpdateUI(Buffer* pBuf, bool isStartin
 void Notepad_plus::updateCommandShortcuts()
 {
 	NppParameters& nppParam = NppParameters::getInstance();
-	vector<CommandShortcut> & shortcuts = nppParam.getUserShortcuts();
+	vector <CommandShortcut> & shortcuts = nppParam.getUserShortcuts();
 	size_t len = shortcuts.size();
 	for(size_t i = 0; i < len; ++i) {
 		CommandShortcut & csc = shortcuts[i];

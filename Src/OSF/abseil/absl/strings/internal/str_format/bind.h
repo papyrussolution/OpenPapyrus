@@ -168,7 +168,7 @@ private:
 	FormatArgImpl few_args_[4] = {FormatArgImpl(0), FormatArgImpl(0),
 				      FormatArgImpl(0), FormatArgImpl(0)};
 	// if args_.size() is more than 4:
-	std::vector<FormatArgImpl> many_args_;
+	std::vector <FormatArgImpl> many_args_;
 };
 
 // for testing

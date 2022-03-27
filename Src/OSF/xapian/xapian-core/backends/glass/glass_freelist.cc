@@ -8,11 +8,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
@@ -33,11 +28,10 @@ using namespace Glass;
 // FIXME: Sort out a way we can set this dynamically while running the
 // testsuite.
 #ifdef GLASS_FREELIST_SIZE
-#define FREELIST_END_ \
-	(8 + (GLASS_FREELIST_SIZE < 3 ? 3 : GLASS_FREELIST_SIZE) * 4)
-#define FREELIST_END (FREELIST_END_ < 2048 ? FREELIST_END_ : 2048)
+	#define FREELIST_END_ (8 + (GLASS_FREELIST_SIZE < 3 ? 3 : GLASS_FREELIST_SIZE) * 4)
+	#define FREELIST_END  (FREELIST_END_ < 2048 ? FREELIST_END_ : 2048)
 #else
-#define FREELIST_END block_size
+	#define FREELIST_END block_size
 #endif
 
 /** The first offset to use for storing free block info.
@@ -58,8 +52,7 @@ void GlassFreeList::read_block(const GlassTable * B, uint4 n, uint8 * ptr)
 		throw Xapian::DatabaseCorruptError("Freelist corrupt");
 }
 
-void GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8 * ptr,
-    uint4 rev)
+void GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8 * ptr, uint4 rev)
 {
 	SET_REVISION(ptr, rev);
 	aligned_write4(ptr + 4, 0);
@@ -67,13 +60,11 @@ void GlassFreeList::write_block(const GlassTable * B, uint4 n, uint8 * ptr,
 	B->write_block(n, ptr, flw_appending);
 }
 
-uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size,
-    uint4 * blk_to_free)
+uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size, uint4 * blk_to_free)
 {
 	if(fl == fl_end) {
 		return first_unused_block++;
 	}
-
 	if(p == 0) {
 		if(fl.n == UNUSED) {
 			throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
@@ -82,11 +73,9 @@ uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size,
 		p = new uint8[block_size];
 		read_block(B, fl.n, p);
 	}
-
 	// Either the freelist end is in this block, or this freelist block has a
 	// next pointer.
 	Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
-
 	if(fl.c != FREELIST_END - 4) {
 		uint4 blk = aligned_read4(p + fl.c);
 		if(blk == UNUSED)
@@ -94,11 +83,9 @@ uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size,
 		fl.c += 4;
 		return blk;
 	}
-
 	// Delay handling marking old block as unused until after we've
 	// started a new one.
 	uint4 old_fl_blk = fl.n;
-
 	fl.n = aligned_read4(p + fl.c);
 	if(fl.n == UNUSED) {
 		throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
@@ -106,11 +93,9 @@ uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size,
 	// Allow for mini-header at start of freelist block.
 	fl.c = C_BASE;
 	read_block(B, fl.n, p);
-
 	// Either the freelist end is in this block, or this freelist block has
 	// a next pointer.
 	Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
-
 	if(blk_to_free) {
 		Assert(*blk_to_free == BLK_UNUSED);
 		*blk_to_free = old_fl_blk;
@@ -118,17 +103,14 @@ uint4 GlassFreeList::get_block(const GlassTable * B, uint4 block_size,
 	else {
 		mark_block_unused(B, block_size, old_fl_blk);
 	}
-
 	return get_block(B, block_size);
 }
 
 uint4 GlassFreeList::walk(const GlassTable * B, uint4 block_size, bool inclusive)
 {
 	if(fl == fl_end) {
-		// It's expected that the caller checks !empty() first.
-		return UNUSED;
+		return UNUSED; // It's expected that the caller checks !empty() first.
 	}
-
 	if(p == 0) {
 		if(fl.n == UNUSED) {
 			throw Xapian::DatabaseCorruptError("Freelist pointer invalid");
@@ -140,17 +122,14 @@ uint4 GlassFreeList::walk(const GlassTable * B, uint4 block_size, bool inclusive
 			return fl.n;
 		}
 	}
-
 	// Either the freelist end is in this block, or this freelist block has
 	// a next pointer.
 	Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
-
 	if(fl.c != FREELIST_END - 4) {
 		uint4 blk = aligned_read4(p + fl.c);
 		fl.c += 4;
 		return blk;
 	}
-
 	fl.n = aligned_read4(p + fl.c);
 	if(fl.n == UNUSED) {
 		throw Xapian::DatabaseCorruptError("Freelist next pointer invalid");
@@ -158,11 +137,9 @@ uint4 GlassFreeList::walk(const GlassTable * B, uint4 block_size, bool inclusive
 	// Allow for mini-header at start of freelist block.
 	fl.c = C_BASE;
 	read_block(B, fl.n, p);
-
 	// Either the freelist end is in this block, or this freelist block has
 	// a next pointer.
 	Assert(fl.n == fl_end.n || aligned_read4(p + FREELIST_END - 4) != UNUSED);
-
 	if(inclusive)
 		return fl.n;
 	return walk(B, block_size, inclusive);
@@ -176,7 +153,6 @@ void GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, ui
 	// problematic, so we instead note down that block and mark it as unused
 	// once we've processed the original request.
 	uint4 blk_to_free = BLK_UNUSED;
-
 	if(!pw) {
 		pw = new uint8[block_size];
 		if(flw.c != 0) {
@@ -215,10 +191,8 @@ void GlassFreeList::mark_block_unused(const GlassTable * B, uint4 block_size, ui
 		flw_appending = (n == first_unused_block - 1);
 		aligned_write4(pw + FREELIST_END - 4, UNUSED);
 	}
-
 	aligned_write4(pw + flw.c, blk);
 	flw.c += 4;
-
 	if(blk_to_free != BLK_UNUSED)
 		mark_block_unused(B, block_size, blk_to_free);
 }
@@ -294,7 +268,6 @@ uint4 GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 			}
 			*p_first_bad_blk = first_bad_blk;
 		}
-
 		// Count set bits in elt.
 		add_popcount(c, elt);
 	}

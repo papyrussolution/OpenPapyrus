@@ -406,7 +406,7 @@ protected:
  *
  *  This means that for the fairly common cases of pair-wise Query operators
  *  and Database objects with one or two subdatabases, we use less space than
- *  std::vector<Xapian::Foo::Internal*> would.
+ *  std::vector <Xapian::Foo::Internal*> would.
  */
 template <typename TI>
 class SmallVectorI : public SmallVector_ {
@@ -476,7 +476,7 @@ public:
  *
  *  This means that for the fairly common cases of pair-wise Query operators
  *  and Database objects with one or two subdatabases, we use less space than
- *  std::vector<Xapian::Foo> would.
+ *  std::vector <Xapian::Foo> would.
  */
 template <typename T>
 class SmallVector : public SmallVectorI<typename T::Internal> {

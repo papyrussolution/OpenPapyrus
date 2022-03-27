@@ -53,7 +53,7 @@
 // Thread Safety
 //
 // Cord has the same thread-safety properties as many other types like
-// std::string, std::vector<>, int, etc -- it is thread-compatible. In
+// std::string, std::vector <>, int, etc -- it is thread-compatible. In
 // particular, if threads do not call non-const methods, then it is safe to call
 // const methods without synchronization. Copying a Cord produces a new instance
 // that can be used concurrently with the original in arbitrary ways.

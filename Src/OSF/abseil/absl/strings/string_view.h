@@ -115,7 +115,7 @@ ABSL_NAMESPACE_BEGIN
 // pointed to by the `string_view` outlives the `string_view`.
 //
 // A `string_view` may represent a whole string or just part of a string. For
-// example, when splitting a string, `std::vector<absl::string_view>` is a
+// example, when splitting a string, `std::vector <absl::string_view>` is a
 // natural data type for the output.
 //
 // For another example, a Cord is a non-contiguous, potentially very

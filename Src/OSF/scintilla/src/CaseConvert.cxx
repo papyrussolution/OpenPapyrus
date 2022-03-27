@@ -386,11 +386,11 @@ class CaseConverter : public ICaseConverter {
 		}
 	};
 
-	typedef std::vector<CharacterConversion> CharacterToConversion;
+	typedef std::vector <CharacterConversion> CharacterToConversion;
 	CharacterToConversion characterToConversion;
 	// The parallel arrays
-	std::vector<int> characters;
-	std::vector<ConversionString> conversions;
+	std::vector <int> characters;
+	std::vector <ConversionString> conversions;
 public:
 	CaseConverter()
 	{
@@ -405,7 +405,7 @@ public:
 	}
 	const char * Find(int character)
 	{
-		const std::vector<int>::iterator it = std::lower_bound(characters.begin(), characters.end(), character);
+		const std::vector <int>::iterator it = std::lower_bound(characters.begin(), characters.end(), character);
 		if(it == characters.end())
 			return 0;
 		else if(*it == character)

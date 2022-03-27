@@ -8,16 +8,10 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_SERIALISE_H
 #define XAPIAN_INCLUDED_SERIALISE_H
 
@@ -27,8 +21,8 @@
 // Forward class declarations:
 
 namespace Xapian {
-    class Document;
-    class RSet;
+	class Document;
+	class RSet;
 }
 
 /** Serialise a stats object.
@@ -45,8 +39,7 @@ std::string serialise_stats(const Xapian::Weight::Internal &stats);
  *  @param p_end	End of data to unserialise.
  *  @param stats	The stats object to unserialise to.
  */
-void unserialise_stats(const char* p, const char* p_end,
-		       Xapian::Weight::Internal& stats);
+void unserialise_stats(const char* p, const char* p_end, Xapian::Weight::Internal& stats);
 
 /** Serialise a Xapian::RSet object.
  *

@@ -125,9 +125,7 @@ static int do_open(const sasl_utils_t * utils, sasl_conn_t * conn, int rdwr, MDB
 	ret = mdb_txn_begin(env, NULL, rdwr ? 0 : MDB_RDONLY, &txn);
 	if(ret) {
 		mdb_env_close(env);
-		utils->log(conn, SASL_LOG_ERR,
-		    "unable to open MDB transaction: %s",
-		    mdb_strerror(ret));
+		utils->log(conn, SASL_LOG_ERR, "unable to open MDB transaction: %s", mdb_strerror(ret));
 		utils->seterror(conn, SASL_NOLOG, "Unable to open MDB transaction");
 		return SASL_FAIL;
 	}
@@ -137,9 +135,7 @@ static int do_open(const sasl_utils_t * utils, sasl_conn_t * conn, int rdwr, MDB
 		if(ret) {
 			mdb_txn_abort(txn);
 			mdb_env_close(env);
-			utils->log(conn, SASL_LOG_ERR,
-			    "unable to open MDB database: %s",
-			    mdb_strerror(ret));
+			utils->log(conn, SASL_LOG_ERR, "unable to open MDB database: %s", mdb_strerror(ret));
 			utils->seterror(conn, SASL_NOLOG, "Unable to open MDB database");
 			return SASL_FAIL;
 		}

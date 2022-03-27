@@ -10,7 +10,7 @@ ABSL_NAMESPACE_BEGIN
 namespace random_internal {
 // Initializes the distribution table for Walker's Aliasing algorithm, described
 // in Knuth, Vol 2. as well as in https://en.wikipedia.org/wiki/Alias_method
-std::vector<std::pair<double, size_t> > InitDiscreteDistribution(std::vector<double>* probabilities) {
+std::vector <std::pair<double, size_t> > InitDiscreteDistribution(std::vector <double>* probabilities) {
 	// The empty-case should already be handled by the constructor.
 	assert(probabilities);
 	assert(!probabilities->empty());
@@ -38,11 +38,11 @@ std::vector<std::pair<double, size_t> > InitDiscreteDistribution(std::vector<dou
 	// The larger may still be greater than 1.0/n, or may now be less than 1.0/n,
 	// and put back onto the appropriate collection.
 	const size_t n = probabilities->size();
-	std::vector<std::pair<double, size_t> > q;
+	std::vector <std::pair<double, size_t> > q;
 	q.reserve(n);
 
-	std::vector<size_t> over;
-	std::vector<size_t> under;
+	std::vector <size_t> over;
+	std::vector <size_t> under;
 	size_t idx = 0;
 	for(const double item : *probabilities) {
 		assert(item >= 0);

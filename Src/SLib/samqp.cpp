@@ -1,6 +1,5 @@
 // PPAMQP.CPP
 //
-// ***** BEGIN LICENSE BLOCK *****
 // Version: MIT
 // 
 // Portions created by Alan Antonuk are Copyright (c) 2012-2013 Alan Antonuk. All Rights Reserved.
@@ -17,15 +16,6 @@
 // 
 // The above copyright notice and this permission notice shall be
 // included in all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-// BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-// ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// ***** END LICENSE BLOCK *****
 // 
 #include <slib-internal.h>
 #pragma hdrstop
@@ -4696,7 +4686,8 @@ int amqp_socket_close(amqp_socket_t * self, amqp_socket_close_enum force)
 	return self->klass->close(self, force);
 }
 
-void amqp_socket_delete(amqp_socket_t * self) {
+void amqp_socket_delete(amqp_socket_t * self) 
+{
 	if(self) {
 		assert(self->klass->FnDelete);
 		self->klass->FnDelete(self);
@@ -5504,8 +5495,7 @@ error_out:
 }
 
 static amqp_rpc_reply_t amqp_login_inner(amqp_connection_state_t state, char const * vhost, int channel_max,
-    int frame_max, int heartbeat, const amqp_table_t * client_properties,
-    struct timeval * timeout, amqp_sasl_method_enum sasl_method, va_list vl) 
+    int frame_max, int heartbeat, const amqp_table_t * client_properties, struct timeval * timeout, amqp_sasl_method_enum sasl_method, va_list vl) 
 {
 	int res;
 	amqp_method_t method;

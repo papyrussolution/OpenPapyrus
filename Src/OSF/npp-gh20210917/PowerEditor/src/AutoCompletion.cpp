@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -19,7 +14,7 @@
 
 using namespace std;
 
-static bool isInList(const generic_string& word, const vector<generic_string> & wordArray)
+static bool isInList(const generic_string& word, const vector <generic_string> & wordArray)
 {
 	for(size_t i = 0, len = wordArray.size(); i < len; ++i)
 		if(wordArray[i] == word)
@@ -87,7 +82,7 @@ bool AutoCompletion::showApiAndWordComplete()
 
 	// Get word array containing all words beginning with beginChars, excluding word equal to allChars
 
-	vector<generic_string> wordArray;
+	vector <generic_string> wordArray;
 	getWordArray(wordArray, beginChars, allChars);
 
 	// Add keywords to word array
@@ -135,7 +130,7 @@ bool AutoCompletion::showApiAndWordComplete()
 	return true;
 }
 
-void AutoCompletion::getWordArray(vector<generic_string> & wordArray, TCHAR * beginChars, TCHAR * allChars)
+void AutoCompletion::getWordArray(vector <generic_string> & wordArray, TCHAR * beginChars, TCHAR * allChars)
 {
 	const size_t bufSize = 256;
 	const NppGUI & nppGUI = NppParameters::getInstance().getNppGUI();
@@ -341,7 +336,7 @@ bool AutoCompletion::showWordComplete(bool autoInsert)
 
 	// Get word array containing all words beginning with beginChars, excluding word equal to allChars
 
-	vector<generic_string> wordArray;
+	vector <generic_string> wordArray;
 	getWordArray(wordArray, beginChars, allChars);
 
 	if(wordArray.size() == 0) return false;
@@ -529,7 +524,7 @@ int InsertedMatchedChars::search(char startChar, char endChar, int posToDetect)
 
 void AutoCompletion::insertMatchedChars(int character, const MatchedPairConf & matchedPairConf)
 {
-	const vector< pair<char, char> > & matchedPairs = matchedPairConf._matchedPairs;
+	const vector < pair<char, char> > & matchedPairs = matchedPairConf._matchedPairs;
 	int caretPos = static_cast<int32_t>(_pEditView->execute(SCI_GETCURRENTPOS));
 	const char * matchedChars = NULL;
 
@@ -795,22 +790,18 @@ bool AutoCompletion::setLanguage(LangType language)
 				_funcCalltip._additionalWordChar = val;
 		}
 	}
-
 	if(_funcCompletionActive) {
 		_funcCalltip.setLanguageXML(_pXmlKeyword);
 	}
 	else {
 		_funcCalltip.setLanguageXML(NULL);
 	}
-
 	_keyWords.clear();
 	_keyWordArray.clear();
-
 	if(_funcCompletionActive) {
 		//Cache the keywords
 		//Iterate through all keywords
 		TiXmlElement * funcNode = _pXmlKeyword;
-
 		for(; funcNode; funcNode = funcNode->NextSiblingElement(TEXT("KeyWord"))) {
 			const TCHAR * name = funcNode->Attribute(TEXT("name"));
 			if(name) {
@@ -822,9 +813,7 @@ bool AutoCompletion::setLanguage(LangType language)
 				}
 			}
 		}
-
 		sort(_keyWordArray.begin(), _keyWordArray.end());
-
 		for(size_t i = 0, len = _keyWordArray.size(); i < len; ++i) {
 			_keyWords.append(_keyWordArray[i]);
 			_keyWords.append(TEXT(" "));
@@ -841,15 +830,11 @@ const TCHAR * AutoCompletion::getApiFileName()
 			return currentBuf->getUserDefineLangName();
 		}
 	}
-
 	if(_curLang >= L_EXTERNAL && _curLang < NppParameters::getInstance().L_END)
 		return NppParameters::getInstance().getELCFromIndex(_curLang - L_EXTERNAL)._name;
-
 	if(_curLang > L_EXTERNAL)
 		_curLang = L_TEXT;
-
 	if(_curLang == L_JAVASCRIPT)
 		_curLang = L_JS;
-
 	return ScintillaEditView::langNames[_curLang].lexerName;
 }

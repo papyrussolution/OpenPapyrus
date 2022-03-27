@@ -103,7 +103,7 @@ public:
 		vlls[line] = lls;
 	}
 private:
-	std::vector<LinePPState> vlls;
+	std::vector <LinePPState> vlls;
 };
 
 // Options used for LexerVerilog
@@ -273,7 +273,7 @@ public:
 	{
 		return style & ~activeFlag;
 	}
-	std::vector<std::string> Tokenize(const std::string &expr) const;
+	std::vector <std::string> Tokenize(const std::string &expr) const;
 };
 
 Sci_Position SCI_METHOD LexerVerilog::WordListSet(int n, const char * wl)
@@ -398,13 +398,13 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 	// Truncate ppDefineHistory before current line
 	if(!options.updatePreprocessor)
 		ppDefineHistory.clear();
-	std::vector<PPDefinition>::iterator itInvalid = std::find_if(ppDefineHistory.begin(), ppDefineHistory.end(), After(curLine-1));
+	std::vector <PPDefinition>::iterator itInvalid = std::find_if(ppDefineHistory.begin(), ppDefineHistory.end(), After(curLine-1));
 	if(itInvalid != ppDefineHistory.end()) {
 		ppDefineHistory.erase(itInvalid, ppDefineHistory.end());
 		definitionsChanged = true;
 	}
 	SymbolTable preprocessorDefinitions = preprocessorDefinitionsStart;
-	for(std::vector<PPDefinition>::iterator itDef = ppDefineHistory.begin(); itDef != ppDefineHistory.end(); ++itDef) {
+	for(std::vector <PPDefinition>::iterator itDef = ppDefineHistory.begin(); itDef != ppDefineHistory.end(); ++itDef) {
 		if(itDef->isUndef)
 			preprocessorDefinitions.erase(itDef->key);
 		else
@@ -692,7 +692,7 @@ void SCI_METHOD LexerVerilog::Lex(Sci_PositionU startPos, Sci_Position length, i
 						else if(sc.Match("undef")) {
 							if(options.updatePreprocessor && !preproc.IsInactive()) {
 								std::string restOfLine = GetRestOfLine(styler, sc.currentPos + 5, true);
-								std::vector<std::string> tokens = Tokenize(restOfLine);
+								std::vector <std::string> tokens = Tokenize(restOfLine);
 								std::string key;
 								if(tokens.size() >= 1) {
 									key = tokens[0];
@@ -981,10 +981,10 @@ void SCI_METHOD LexerVerilog::Fold(Sci_PositionU startPos, Sci_Position length, 
 	}
 }
 
-std::vector<std::string> LexerVerilog::Tokenize(const std::string &expr) const
+std::vector <std::string> LexerVerilog::Tokenize(const std::string &expr) const
 {
 	// Break into tokens
-	std::vector<std::string> tokens;
+	std::vector <std::string> tokens;
 	const char * cp = expr.c_str();
 	while(*cp) {
 		std::string word;

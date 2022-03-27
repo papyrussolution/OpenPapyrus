@@ -318,7 +318,8 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 							    size_t const maxML = MIN(currentSegmentLength, srcPatternLength);
 							    if((size_t)longest < maxML) {
 								    assert(base + matchIndex < ip);
-								    if(ip - (base+matchIndex) > MAX_DISTANCE) break;
+								    if(ip - (base+matchIndex) > MAX_DISTANCE) 
+										break;
 								    assert(maxML < 2 GB);
 								    longest = (int)maxML;
 								    *matchpos = base + matchIndex; //virtual pos, relative to ip, to retrieve offset 
@@ -353,7 +354,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 				int mlt;
 				int back = 0;
 				const uint8 * vLimit = ip + (dictEndOffset - dictMatchIndex);
-				if(vLimit > iHighLimit) vLimit = iHighLimit;
+				SETMIN(vLimit, iHighLimit);
 				mlt = LZ4_count(ip+MINMATCH, matchPtr+MINMATCH, vLimit) + MINMATCH;
 				back = lookBackLength ? LZ4HC_countBack(ip, matchPtr, iLowLimit, dictCtx->base + dictCtx->dictLimit) : 0;
 				mlt -= back;
@@ -363,13 +364,13 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 					*startpos = ip + back;
 				}
 			}
-
-			{   uint32 const nextOffset = DELTANEXTU16(dictCtx->chainTable, dictMatchIndex);
+			{   
+				uint32 const nextOffset = DELTANEXTU16(dictCtx->chainTable, dictMatchIndex);
 			    dictMatchIndex -= nextOffset;
-			    matchIndex -= nextOffset;}
+			    matchIndex -= nextOffset;
+			}
 		}
 	}
-
 	return longest;
 }
 
@@ -409,7 +410,6 @@ LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8 ** ip, uint8 ** op, const 
 	//DEBUGLOG(6, "pos:%7u -- literals:%3u, match:%4i, offset:%5u, cost:%3u + %u", pos, (uint32)(*ip - *anchor), matchLength, (uint32)(*ip-match), cost, totalCost);
 	totalCost += cost;
 #endif
-
 	/* Encode Literal length */
 	length = (size_t)(*ip - *anchor);
 	if((limit) && ((*op + (length >> 8) + length + (2 + 1 + LASTLITERALS)) > oend)) 

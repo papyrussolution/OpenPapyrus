@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------
+//
 //  Copyright 2008-2010 (c) Jeff Brown <spadix@users.sourceforge.net>
 //
 //  This file is part of the ZBar Bar Code Reader.
@@ -19,7 +19,7 @@
 //  Boston, MA  02110-1301  USA
 //
 //  http://sourceforge.net/projects/zbar
-//------------------------------------------------------------------------
+//
 #ifndef _QZBARIMAGE_H_
 #define _QZBARIMAGE_H_
 
@@ -35,24 +35,25 @@
 
 class QZBarImage : public Image {
 public:
-    /// construct a zbar library image based on an existing QImage.
-    QZBarImage (const QImage &qimg) : qimg(qimg)
-    {
-        QImage::Format fmt = qimg.format();
-        if(fmt != QImage::Format_RGB32 && fmt != QImage::Format_ARGB32 && fmt != QImage::Format_ARGB32_Premultiplied)
-            throw FormatError();
-        uint bpl = qimg.bytesPerLine();
-        uint width = bpl / 4;
-        uint height = qimg.height();
-        set_size(width, height);
-        set_format(zbar_fourcc('B','G','R','4'));
-        ulong datalen = qimg.numBytes();
-        set_data(qimg.bits(), datalen);
-        if((width * 4 != bpl) || (width * height * 4 > datalen))
-            throw FormatError();
-    }
+	/// construct a zbar library image based on an existing QImage.
+	QZBarImage (const QImage &qimg) : qimg(qimg)
+	{
+		QImage::Format fmt = qimg.format();
+		if(fmt != QImage::Format_RGB32 && fmt != QImage::Format_ARGB32 && fmt != QImage::Format_ARGB32_Premultiplied)
+			throw FormatError();
+		uint bpl = qimg.bytesPerLine();
+		uint width = bpl / 4;
+		uint height = qimg.height();
+		set_size(width, height);
+		set_format(zbar_fourcc('B', 'G', 'R', '4'));
+		ulong datalen = qimg.numBytes();
+		set_data(qimg.bits(), datalen);
+		if((width * 4 != bpl) || (width * height * 4 > datalen))
+			throw FormatError();
+	}
+
 private:
-    QImage qimg;
+	QImage qimg;
 };
 
 //};

@@ -717,8 +717,8 @@ void NativeLangSpeaker::changeShortcutLang()
 	if(!_nativeLangA) 
 		return;
 	NppParameters& nppParam = NppParameters::getInstance();
-	vector<CommandShortcut> & mainshortcuts = nppParam.getUserShortcuts();
-	vector<ScintillaKeyMap> & scinshortcuts = nppParam.getScintillaKeyList();
+	vector <CommandShortcut> & mainshortcuts = nppParam.getUserShortcuts();
+	vector <ScintillaKeyMap> & scinshortcuts = nppParam.getScintillaKeyList();
 	TiXmlNodeA * shortcuts = _nativeLangA->FirstChild("Shortcuts");
 	if(!shortcuts) return;
 	shortcuts = shortcuts->FirstChild("Main");
@@ -858,7 +858,7 @@ bool NativeLangSpeaker::changeDlgLang(HWND hDlg, const char * dlgTagName, char *
 	}
 	// Set the text of child control
 	for(TiXmlNodeA * childNode = dlgNode->FirstChildElement("ComboBox"); childNode; childNode = childNode->NextSibling("ComboBox")) {
-		std::vector<generic_string> comboElms;
+		std::vector <generic_string> comboElms;
 		TiXmlElementA * element = childNode->ToElement();
 		int id;
 		element->Attribute("id", &id);

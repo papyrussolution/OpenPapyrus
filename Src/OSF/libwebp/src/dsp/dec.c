@@ -5,12 +5,11 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Speed-critical decoding functions, default plain-C implementations.
 //
 // Author: Skal (pascal.massimino@gmail.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
 //#include <assert.h>
@@ -19,12 +18,10 @@
 //#include "src/utils/utils.h"
 
 static FORCEINLINE uint8 clip_8b(int v) { return (!(v & ~0xff)) ? v : (v < 0) ? 0 : 255; }
-
-//------------------------------------------------------------------------------
+//
 // Transforms (Paragraph 14.4)
-
-#define STORE(x, y, v) \
-	dst[(x) + (y) * BPS] = clip_8b(dst[(x) + (y) * BPS] + ((v) >> 3))
+//
+#define STORE(x, y, v) dst[(x) + (y) * BPS] = clip_8b(dst[(x) + (y) * BPS] + ((v) >> 3))
 
 #define STORE2(y, dc, d, c) do {    \
 		const int DC = (dc);              \
@@ -129,10 +126,9 @@ static void TransformDCUV_C(const int16_t* in, uint8* dst) {
 }
 
 #undef STORE
-
-//------------------------------------------------------------------------------
+//
 // Paragraph 14.3
-
+//
 #if !WEBP_NEON_OMIT_C_CODE
 static void TransformWHT_C(const int16_t* in, int16_t* out) {
 	int tmp[16];
@@ -164,10 +160,9 @@ static void TransformWHT_C(const int16_t* in, int16_t* out) {
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
 void (* VP8TransformWHT)(const int16_t* in, int16_t* out);
-
-//------------------------------------------------------------------------------
+//
 // Intra predictions
-
+//
 #define DST(x, y) dst[(x) + (y) * BPS]
 
 #if !WEBP_NEON_OMIT_C_CODE
@@ -196,75 +191,75 @@ static void TM8uv_C(uint8* dst) {
 static void TM16_C(uint8* dst)  {
 	TrueMotion(dst, 16);
 }
-
-//------------------------------------------------------------------------------
+//
 // 16x16
-
-static void VE16_C(uint8* dst) {     // vertical
-	int j;
-	for(j = 0; j < 16; ++j) {
+//
+static void VE16_C(uint8* dst)  // vertical
+{     
+	for(int j = 0; j < 16; ++j) {
 		memcpy(dst + j * BPS, dst - BPS, 16);
 	}
 }
 
-static void HE16_C(uint8* dst) {     // horizontal
-	int j;
-	for(j = 16; j > 0; --j) {
+static void HE16_C(uint8* dst) // horizontal
+{
+	for(int j = 16; j > 0; --j) {
 		memset(dst, dst[-1], 16);
 		dst += BPS;
 	}
 }
 
-static FORCEINLINE void Put16(int v, uint8* dst) {
-	int j;
-	for(j = 0; j < 16; ++j) {
+static FORCEINLINE void Put16(int v, uint8* dst) 
+{
+	for(int j = 0; j < 16; ++j) {
 		memset(dst + j * BPS, v, 16);
 	}
 }
 
-static void DC16_C(uint8* dst) {    // DC
+static void DC16_C(uint8* dst) // DC
+{
 	int DC = 16;
-	int j;
-	for(j = 0; j < 16; ++j) {
+	for(int j = 0; j < 16; ++j) {
 		DC += dst[-1 + j * BPS] + dst[j - BPS];
 	}
 	Put16(DC >> 5, dst);
 }
 
-static void DC16NoTop_C(uint8* dst) {   // DC with top samples not available
+static void DC16NoTop_C(uint8* dst) // DC with top samples not available
+{
 	int DC = 8;
-	int j;
-	for(j = 0; j < 16; ++j) {
+	for(int j = 0; j < 16; ++j) {
 		DC += dst[-1 + j * BPS];
 	}
 	Put16(DC >> 4, dst);
 }
 
-static void DC16NoLeft_C(uint8* dst) {  // DC with left samples not available
+static void DC16NoLeft_C(uint8* dst) // DC with left samples not available
+{
 	int DC = 8;
-	int i;
-	for(i = 0; i < 16; ++i) {
+	for(int i = 0; i < 16; ++i) {
 		DC += dst[i - BPS];
 	}
 	Put16(DC >> 4, dst);
 }
 
-static void DC16NoTopLeft_C(uint8* dst) {  // DC with no top and left samples
+static void DC16NoTopLeft_C(uint8* dst) // DC with no top and left samples
+{
 	Put16(0x80, dst);
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
 VP8PredFunc VP8PredLuma16[NUM_B_DC_MODES];
-
-//------------------------------------------------------------------------------
+//
 // 4x4
-
+//
 #define AVG3(a, b, c) ((uint8)(((a) + 2 * (b) + (c) + 2) >> 2))
 #define AVG2(a, b) (((a) + (b) + 1) >> 1)
 
 #if !WEBP_NEON_OMIT_C_CODE
-static void VE4_C(uint8* dst) {    // vertical
+static void VE4_C(uint8* dst) // vertical
+{
 	const uint8* top = dst - BPS;
 	const uint8 vals[4] = {
 		AVG3(top[-1], top[0], top[1]),
@@ -272,15 +267,15 @@ static void VE4_C(uint8* dst) {    // vertical
 		AVG3(top[ 1], top[2], top[3]),
 		AVG3(top[ 2], top[3], top[4])
 	};
-	int i;
-	for(i = 0; i < 4; ++i) {
+	for(int i = 0; i < 4; ++i) {
 		memcpy(dst + i * BPS, vals, sizeof(vals));
 	}
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
-static void HE4_C(uint8* dst) {    // horizontal
+static void HE4_C(uint8* dst) // horizontal
+{
 	const int A = dst[-1 - BPS];
 	const int B = dst[-1];
 	const int C = dst[-1 + BPS];
@@ -428,10 +423,9 @@ static void HD4_C(uint8* dst) {  // Horizontal-Down
 #undef AVG2
 
 VP8PredFunc VP8PredLuma4[NUM_BMODES];
-
-//------------------------------------------------------------------------------
+//
 // Chroma
-
+//
 #if !WEBP_NEON_OMIT_C_CODE
 static void VE8uv_C(uint8* dst) {    // vertical
 	int j;
@@ -490,10 +484,9 @@ static void DC8uvNoTopLeft_C(uint8* dst) {    // DC with nothing
 #endif  // !WEBP_NEON_OMIT_C_CODE
 
 VP8PredFunc VP8PredChroma8[NUM_B_DC_MODES];
-
-//------------------------------------------------------------------------------
+//
 // Edge filtering functions
-
+//
 #if !WEBP_NEON_OMIT_C_CODE || WEBP_NEON_WORK_AROUND_GCC
 // 4 pixels in, 2 pixels out
 static FORCEINLINE void DoFilter2_C(uint8* p, int step) 
@@ -565,10 +558,9 @@ static FORCEINLINE int NeedsFilter2_C(const uint8* p,
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE || WEBP_NEON_WORK_AROUND_GCC
-
-//------------------------------------------------------------------------------
+//
 // Simple In-loop filtering (Paragraph 15.2)
-
+//
 #if !WEBP_NEON_OMIT_C_CODE
 static void SimpleVFilter16_C(uint8* p, int stride, int thresh) {
 	int i;
@@ -607,10 +599,9 @@ static void SimpleHFilter16i_C(uint8* p, int stride, int thresh) {
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
-
-//------------------------------------------------------------------------------
+//
 // Complex In-loop filtering (Paragraph 15.3)
-
+//
 #if !WEBP_NEON_OMIT_C_CODE || WEBP_NEON_WORK_AROUND_GCC
 static FORCEINLINE void FilterLoop26_C(uint8* p,
     int hstride, int vstride, int size,
@@ -723,10 +714,8 @@ static void HFilter8i_C(uint8* u, uint8* v, int stride,
 
 #endif  // !WEBP_NEON_OMIT_C_CODE || WEBP_NEON_WORK_AROUND_GCC
 
-//------------------------------------------------------------------------------
-
-static void DitherCombine8x8_C(const uint8* dither, uint8* dst,
-    int dst_stride) {
+static void DitherCombine8x8_C(const uint8* dither, uint8* dst, int dst_stride) 
+{
 	int i, j;
 	for(j = 0; j < 8; ++j) {
 		for(i = 0; i < 8; ++i) {
@@ -739,8 +728,6 @@ static void DitherCombine8x8_C(const uint8* dither, uint8* dst,
 		dither += 8;
 	}
 }
-
-//------------------------------------------------------------------------------
 
 VP8DecIdct2 VP8Transform;
 VP8DecIdct VP8TransformAC3;

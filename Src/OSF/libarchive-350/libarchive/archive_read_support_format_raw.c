@@ -36,34 +36,19 @@ int archive_read_support_format_raw(struct archive * _a)
 	struct raw_info * info;
 	struct archive_read * a = (struct archive_read *)_a;
 	int r;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_format_raw");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	info = (struct raw_info *)SAlloc::C(1, sizeof(*info));
 	if(info == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate raw_info data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate raw_info data");
 		return ARCHIVE_FATAL;
 	}
-
-	r = __archive_read_register_format(a,
-		info,
-		"raw",
-		archive_read_format_raw_bid,
-		NULL,
-		archive_read_format_raw_read_header,
-		archive_read_format_raw_read_data,
-		archive_read_format_raw_read_data_skip,
-		NULL,
-		archive_read_format_raw_cleanup,
-		NULL,
-		NULL);
+	r = __archive_read_register_format(a, info, "raw", archive_read_format_raw_bid, NULL,
+		archive_read_format_raw_read_header, archive_read_format_raw_read_data, archive_read_format_raw_read_data_skip,
+		NULL, archive_read_format_raw_cleanup, NULL, NULL);
 	if(r != ARCHIVE_OK)
 		SAlloc::F(info);
 	return r;
 }
-
 /*
  * Bid 1 if this is a non-empty file.  Anyone who can really support
  * this should outbid us, so it should generally be safe to use "raw"
@@ -77,19 +62,14 @@ static int archive_read_format_raw_bid(struct archive_read * a, int best_bid)
 		return 1;
 	return -1;
 }
-
 /*
  * Mock up a fake header.
  */
-static int archive_read_format_raw_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_raw_read_header(struct archive_read * a, struct archive_entry * entry)
 {
-	struct raw_info * info;
-
-	info = (struct raw_info *)(a->format->data);
+	struct raw_info * info = (struct raw_info *)(a->format->data);
 	if(info->end_of_file)
 		return (ARCHIVE_EOF);
-
 	a->archive.archive_format = ARCHIVE_FORMAT_RAW;
 	a->archive.archive_format_name = "raw";
 	archive_entry_set_pathname(entry, "data");

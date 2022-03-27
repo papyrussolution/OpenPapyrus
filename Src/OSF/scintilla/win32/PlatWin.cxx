@@ -678,7 +678,7 @@ void SurfaceGDI::Polygon(SciPoint * pts, int npts, ColourDesired fore, ColourDes
 {
 	PenColour(fore);
 	BrushColor(back);
-	std::vector<POINT> outline;
+	std::vector <POINT> outline;
 	for(int i = 0; i<npts; i++) {
 		POINT pt = {static_cast<LONG>(pts[i].x), static_cast<LONG>(pts[i].y)};
 		outline.push_back(pt);
@@ -1448,7 +1448,7 @@ void SurfaceD2D::DrawRGBAImage(PRectangle rc, int width, int height, const uchar
 			rc.top += static_cast<int>((rc.Height() - height) / 2);
 		rc.bottom = rc.top + height;
 
-		std::vector<uchar> image(height * width * 4);
+		std::vector <uchar> image(height * width * 4);
 		for(int yPixel = 0; yPixel<height; yPixel++) {
 			for(int xPixel = 0; xPixel<width; xPixel++) {
 				uchar * pixel = &image[0] + (yPixel*width + xPixel) * 4;
@@ -2029,12 +2029,12 @@ public:
 	}
 	char * SetWords(const char * s)
 	{
-		words = std::vector<char>(s, s+sstrlen(s)+1);
+		words = std::vector <char>(s, s+sstrlen(s)+1);
 		return &words[0];
 	}
 private:
-	std::vector<char> words;
-	std::vector<ListItemData> data;
+	std::vector <char> words;
+	std::vector <ListItemData> data;
 };
 
 const TCHAR ListBoxX_ClassName[] = TEXT("ListBoxX");

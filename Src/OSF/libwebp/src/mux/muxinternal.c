@@ -5,18 +5,14 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Internal objects and utils for mux.
 //
-// Authors: Urvang (urvang@google.com)
-//          Vikas (vikasa@google.com)
-
+// Authors: Urvang (urvang@google.com) Vikas (vikasa@google.com)
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
 #include "src/mux/muxi.h"
-//#include "src/utils/utils.h"
 
 #define UNDEFINED_CHUNK_SIZE ((uint32_t)(-1))
 
@@ -35,15 +31,13 @@ const ChunkInfo kChunks[] = {
 	{ NIL_TAG,                       WEBP_CHUNK_NIL,     UNDEFINED_CHUNK_SIZE }
 };
 
-//------------------------------------------------------------------------------
-
-int WebPGetMuxVersion(void) {
+int WebPGetMuxVersion(void) 
+{
 	return (MUX_MAJ_VERSION << 16) | (MUX_MIN_VERSION << 8) | MUX_REV_VERSION;
 }
-
-//------------------------------------------------------------------------------
+//
 // Life of a chunk object.
-
+//
 void ChunkInit(WebPChunk* const chunk) 
 {
 	assert(chunk);
@@ -62,22 +56,22 @@ WebPChunk* ChunkRelease(WebPChunk* const chunk)
 	ChunkInit(chunk);
 	return next;
 }
-
-//------------------------------------------------------------------------------
+//
 // Chunk misc methods.
-
-CHUNK_INDEX ChunkGetIndexFromTag(uint32_t tag) {
-	int i;
-	for(i = 0; kChunks[i].tag != NIL_TAG; ++i) {
+//
+CHUNK_INDEX ChunkGetIndexFromTag(uint32_t tag) 
+{
+	for(int i = 0; kChunks[i].tag != NIL_TAG; ++i) {
 		if(tag == kChunks[i].tag) return (CHUNK_INDEX)i;
 	}
 	return IDX_UNKNOWN;
 }
 
-WebPChunkId ChunkGetIdFromTag(uint32_t tag) {
-	int i;
-	for(i = 0; kChunks[i].tag != NIL_TAG; ++i) {
-		if(tag == kChunks[i].tag) return kChunks[i].id;
+WebPChunkId ChunkGetIdFromTag(uint32_t tag) 
+{
+	for(int i = 0; kChunks[i].tag != NIL_TAG; ++i) {
+		if(tag == kChunks[i].tag) 
+			return kChunks[i].id;
 	}
 	return WEBP_CHUNK_UNKNOWN;
 }
@@ -90,12 +84,12 @@ CHUNK_INDEX ChunkGetIndexFromFourCC(const char fourcc[4]) {
 	const uint32_t tag = ChunkGetTagFromFourCC(fourcc);
 	return ChunkGetIndexFromTag(tag);
 }
-
-//------------------------------------------------------------------------------
+//
 // Chunk search methods.
-
+//
 // Returns next chunk in the chunk list with the given tag.
-static WebPChunk* ChunkSearchNextInList(WebPChunk* chunk, uint32_t tag) {
+static WebPChunk* ChunkSearchNextInList(WebPChunk* chunk, uint32_t tag) 
+{
 	while(chunk != NULL && chunk->tag_ != tag) {
 		chunk = chunk->next_;
 	}
@@ -114,19 +108,16 @@ WebPChunk* ChunkSearchList(WebPChunk* first, uint32_t nth, uint32_t tag) {
 	}
 	return ((nth > 0) && (iter > 0)) ? NULL : first;
 }
-
-//------------------------------------------------------------------------------
+//
 // Chunk writer methods.
-
-WebPMuxError ChunkAssignData(WebPChunk* chunk, const WebPData* const data,
-    int copy_data, uint32_t tag) {
+//
+WebPMuxError ChunkAssignData(WebPChunk* chunk, const WebPData* const data, int copy_data, uint32_t tag) 
+{
 	// For internally allocated chunks, always copy data & make it owner of data.
 	if(tag == kChunks[IDX_VP8X].tag || tag == kChunks[IDX_ANIM].tag) {
 		copy_data = 1;
 	}
-
 	ChunkRelease(chunk);
-
 	if(data != NULL) {
 		if(copy_data) { // Copy data.
 			if(!WebPDataCopy(data, &chunk->data_)) return WEBP_MUX_MEMORY_ERROR;
@@ -140,15 +131,13 @@ WebPMuxError ChunkAssignData(WebPChunk* chunk, const WebPData* const data,
 	return WEBP_MUX_OK;
 }
 
-WebPMuxError ChunkSetHead(WebPChunk* const chunk,
-    WebPChunk** const chunk_list) {
+WebPMuxError ChunkSetHead(WebPChunk* const chunk, WebPChunk** const chunk_list) 
+{
 	WebPChunk* new_chunk;
-
 	assert(chunk_list != NULL);
 	if(*chunk_list != NULL) {
 		return WEBP_MUX_NOT_FOUND;
 	}
-
 	new_chunk = (WebPChunk*)WebPSafeMalloc(1ULL, sizeof(*new_chunk));
 	if(new_chunk == NULL) return WEBP_MUX_MEMORY_ERROR;
 	*new_chunk = *chunk;
@@ -173,26 +162,27 @@ WebPMuxError ChunkAppend(WebPChunk* const chunk,
 	}
 	return WEBP_MUX_OK;
 }
-
-//------------------------------------------------------------------------------
+//
 // Chunk deletion method(s).
-
-WebPChunk* ChunkDelete(WebPChunk* const chunk) {
+//
+WebPChunk* ChunkDelete(WebPChunk* const chunk) 
+{
 	WebPChunk* const next = ChunkRelease(chunk);
 	WebPSafeFree(chunk);
 	return next;
 }
 
-void ChunkListDelete(WebPChunk** const chunk_list) {
+void ChunkListDelete(WebPChunk** const chunk_list) 
+{
 	while(*chunk_list != NULL) {
 		*chunk_list = ChunkDelete(*chunk_list);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Chunk serialization methods.
-
-static uint8* ChunkEmit(const WebPChunk* const chunk, uint8* dst) {
+//
+static uint8* ChunkEmit(const WebPChunk* const chunk, uint8* dst) 
+{
 	const size_t chunk_size = chunk->data_.size;
 	assert(chunk);
 	assert(chunk->tag_ != NIL_TAG);
@@ -205,7 +195,8 @@ static uint8* ChunkEmit(const WebPChunk* const chunk, uint8* dst) {
 	return dst + ChunkDiskSize(chunk);
 }
 
-uint8* ChunkListEmit(const WebPChunk* chunk_list, uint8* dst) {
+uint8* ChunkListEmit(const WebPChunk* chunk_list, uint8* dst) 
+{
 	while(chunk_list != NULL) {
 		dst = ChunkEmit(chunk_list, dst);
 		chunk_list = chunk_list->next_;
@@ -213,7 +204,8 @@ uint8* ChunkListEmit(const WebPChunk* chunk_list, uint8* dst) {
 	return dst;
 }
 
-size_t ChunkListDiskSize(const WebPChunk* chunk_list) {
+size_t ChunkListDiskSize(const WebPChunk* chunk_list) 
+{
 	size_t size = 0;
 	while(chunk_list != NULL) {
 		size += ChunkDiskSize(chunk_list);
@@ -221,10 +213,9 @@ size_t ChunkListDiskSize(const WebPChunk* chunk_list) {
 	}
 	return size;
 }
-
-//------------------------------------------------------------------------------
+//
 // Life of a MuxImage object.
-
+//
 void MuxImageInit(WebPMuxImage* const wpi) 
 {
 	assert(wpi);
@@ -246,10 +237,9 @@ WebPMuxImage* MuxImageRelease(WebPMuxImage* const wpi)
 	MuxImageInit(wpi);
 	return next;
 }
-
-//------------------------------------------------------------------------------
+//
 // MuxImage search methods.
-
+//
 // Get a reference to appropriate chunk list within an image given chunk tag.
 static WebPChunk** GetChunkListFromId(const WebPMuxImage* const wpi,
     WebPChunkId id) {
@@ -303,13 +293,12 @@ static int SearchImageToGetOrDelete(WebPMuxImage** wpi_list, uint32_t nth,
 	}
 	return 0; // Not found.
 }
-
-//------------------------------------------------------------------------------
+//
 // MuxImage writer methods.
-
-WebPMuxError MuxImagePush(const WebPMuxImage* wpi, WebPMuxImage** wpi_list) {
+//
+WebPMuxError MuxImagePush(const WebPMuxImage* wpi, WebPMuxImage** wpi_list) 
+{
 	WebPMuxImage* new_wpi;
-
 	while(*wpi_list != NULL) {
 		WebPMuxImage* const cur_wpi = *wpi_list;
 		if(cur_wpi->next_ == NULL) break;
@@ -329,18 +318,19 @@ WebPMuxError MuxImagePush(const WebPMuxImage* wpi, WebPMuxImage** wpi_list) {
 	}
 	return WEBP_MUX_OK;
 }
-
-//------------------------------------------------------------------------------
+//
 // MuxImage deletion methods.
-
-WebPMuxImage* MuxImageDelete(WebPMuxImage* const wpi) {
+//
+WebPMuxImage* MuxImageDelete(WebPMuxImage* const wpi) 
+{
 	// Delete the components of wpi. If wpi is NULL this is a noop.
 	WebPMuxImage* const next = MuxImageRelease(wpi);
 	WebPSafeFree(wpi);
 	return next;
 }
 
-WebPMuxError MuxImageDeleteNth(WebPMuxImage** wpi_list, uint32_t nth) {
+WebPMuxError MuxImageDeleteNth(WebPMuxImage** wpi_list, uint32_t nth) 
+{
 	assert(wpi_list);
 	if(!SearchImageToGetOrDelete(wpi_list, nth, &wpi_list)) {
 		return WEBP_MUX_NOT_FOUND;
@@ -348,12 +338,11 @@ WebPMuxError MuxImageDeleteNth(WebPMuxImage** wpi_list, uint32_t nth) {
 	*wpi_list = MuxImageDelete(*wpi_list);
 	return WEBP_MUX_OK;
 }
-
-//------------------------------------------------------------------------------
+//
 // MuxImage reader methods.
-
-WebPMuxError MuxImageGetNth(const WebPMuxImage** wpi_list, uint32_t nth,
-    WebPMuxImage** wpi) {
+//
+WebPMuxError MuxImageGetNth(const WebPMuxImage** wpi_list, uint32_t nth, WebPMuxImage** wpi) 
+{
 	assert(wpi_list);
 	assert(wpi);
 	if(!SearchImageToGetOrDelete((WebPMuxImage**)wpi_list, nth,
@@ -363,12 +352,12 @@ WebPMuxError MuxImageGetNth(const WebPMuxImage** wpi_list, uint32_t nth,
 	*wpi = (WebPMuxImage*)*wpi_list;
 	return WEBP_MUX_OK;
 }
-
-//------------------------------------------------------------------------------
+//
 // MuxImage serialization methods.
-
+//
 // Size of an image.
-size_t MuxImageDiskSize(const WebPMuxImage* const wpi) {
+size_t MuxImageDiskSize(const WebPMuxImage* const wpi) 
+{
 	size_t size = 0;
 	if(wpi->header_ != NULL) size += ChunkDiskSize(wpi->header_);
 	if(wpi->alpha_ != NULL) size += ChunkDiskSize(wpi->alpha_);
@@ -407,11 +396,11 @@ uint8* MuxImageEmit(const WebPMuxImage* const wpi, uint8* dst) {
 	if(wpi->unknown_ != NULL) dst = ChunkListEmit(wpi->unknown_, dst);
 	return dst;
 }
-
-//------------------------------------------------------------------------------
+//
 // Helper methods for mux.
-
-int MuxHasAlpha(const WebPMuxImage* images) {
+//
+int MuxHasAlpha(const WebPMuxImage* images) 
+{
 	while(images != NULL) {
 		if(images->has_alpha_) return 1;
 		images = images->next_;
@@ -554,5 +543,3 @@ WebPMuxError MuxValidate(const WebPMux* const mux) {
 }
 
 #undef NO_FLAG
-
-//------------------------------------------------------------------------------

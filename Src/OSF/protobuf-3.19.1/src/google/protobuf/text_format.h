@@ -496,13 +496,13 @@ private:
 		ParseInfoTree* CreateNested(const FieldDescriptor* field);
 
 		// Defines the map from the index-th field descriptor to its parse location.
-		typedef std::map<const FieldDescriptor*, std::vector<ParseLocationRange> >
+		typedef std::map<const FieldDescriptor*, std::vector <ParseLocationRange> >
 		    LocationMap;
 
 		// Defines the map from the index-th field descriptor to the nested parse
 		// info tree.
 		typedef std::map<const FieldDescriptor*,
-			std::vector<std::unique_ptr<ParseInfoTree> > >
+			std::vector <std::unique_ptr<ParseInfoTree> > >
 		    NestedMap;
 
 		LocationMap locations_;

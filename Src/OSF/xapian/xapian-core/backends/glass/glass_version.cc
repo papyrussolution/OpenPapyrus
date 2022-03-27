@@ -49,7 +49,7 @@ using namespace std;
 #define GLASS_VERSION_MAGIC_AND_VERSION_LEN 16
 
 static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
-	'\x0f', '\x0d', 'X', 'a', 'p', 'i', 'a', 'n', ' ', 'G', 'l', 'a', 's', 's',
+	'\x0f', '\x0D', 'X', 'a', 'p', 'i', 'a', 'n', ' ', 'G', 'l', 'a', 's', 's',
 	char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 

@@ -434,13 +434,10 @@ static int choose_filters(struct archive_read * a)
 	struct archive_read_filter * filter;
 	ssize_t avail;
 	int r;
-
 	for(number_filters = 0; number_filters < MAX_NUMBER_FILTERS; ++number_filters) {
 		number_bidders = sizeof(a->bidders) / sizeof(a->bidders[0]);
-
 		best_bid = 0;
 		best_bidder = NULL;
-
 		bidder = a->bidders;
 		for(i = 0; i < number_bidders; i++, bidder++) {
 			if(bidder->bid != NULL) {
@@ -451,10 +448,9 @@ static int choose_filters(struct archive_read * a)
 				}
 			}
 		}
-
-		/* If no bidder, we're done. */
+		// If no bidder, we're done. 
 		if(best_bidder == NULL) {
-			/* Verify the filter by asking it for some data. */
+			// Verify the filter by asking it for some data. 
 			__archive_read_filter_ahead(a->filter, 1, &avail);
 			if(avail < 0) {
 				__archive_read_free_filters(a);
@@ -464,9 +460,7 @@ static int choose_filters(struct archive_read * a)
 			a->archive.compression_code = a->filter->code;
 			return ARCHIVE_OK;
 		}
-
-		filter
-			= (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
+		filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
 		if(filter == NULL)
 			return ARCHIVE_FATAL;
 		filter->bidder = best_bidder;
@@ -479,8 +473,7 @@ static int choose_filters(struct archive_read * a)
 			return ARCHIVE_FATAL;
 		}
 	}
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-	    "Input requires too many filters for decoding");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Input requires too many filters for decoding");
 	return ARCHIVE_FATAL;
 }
 
@@ -491,7 +484,6 @@ int __archive_read_header(struct archive_read * a, struct archive_entry * entry)
 	else
 		return ARCHIVE_OK;
 }
-
 /*
  * Read header of next entry.
  */
@@ -515,13 +507,10 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	/* Record start-of-header offset in uncompressed stream. */
 	a->header_position = a->filter->position;
-
 	++_a->file_count;
 	r2 = (a->format->read_header)(a, entry);
-
 	/*
 	 * EOF and FATAL are persistent at this layer.  By
 	 * modifying the state, we guarantee that future calls to
@@ -544,9 +533,7 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 		    a->archive.state = ARCHIVE_STATE_FATAL;
 		    break;
 	}
-
 	__archive_reset_read_data(&a->archive);
-
 	a->data_start_node = a->client.cursor;
 	/* EOF always wins; otherwise return the worst error. */
 	return (r2 < r1 || r2 == ARCHIVE_EOF) ? r2 : r1;
@@ -561,23 +548,18 @@ static int _archive_read_next_header(struct archive * _a, struct archive_entry *
 	*entryp = a->entry;
 	return ret;
 }
-
 /*
  * Allow each registered format to bid on whether it wants to handle
  * the next entry.  Return index of winning bidder.
  */
 static int choose_format(struct archive_read * a)
 {
-	int slots;
 	int i;
-	int bid, best_bid;
-	int best_bid_slot;
-
-	slots = sizeof(a->formats) / sizeof(a->formats[0]);
-	best_bid = -1;
-	best_bid_slot = -1;
-
-	/* Set up a->format for convenience of bidders. */
+	int bid;
+	int slots = sizeof(a->formats) / sizeof(a->formats[0]);
+	int best_bid = -1;
+	int best_bid_slot = -1;
+	// Set up a->format for convenience of bidders
 	a->format = &(a->formats[0]);
 	for(i = 0; i < slots; i++, a->format++) {
 		if(a->format->bid) {
@@ -592,30 +574,24 @@ static int choose_format(struct archive_read * a)
 			}
 		}
 	}
-
 	/*
 	 * There were no bidders; this is a serious programmer error
 	 * and demands a quick and definitive abort.
 	 */
 	if(best_bid_slot < 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "No formats registered");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "No formats registered");
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * There were bidders, but no non-zero bids; this means we
 	 * can't support this stream.
 	 */
 	if(best_bid < 1) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Unrecognized archive format");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Unrecognized archive format");
 		return ARCHIVE_FATAL;
 	}
-
 	return (best_bid_slot);
 }
-
 /*
  * Return the file offset (within the uncompressed data stream) where
  * the last header started.
@@ -626,7 +602,6 @@ la_int64_t archive_read_header_position(struct archive * _a)
 	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, "archive_read_header_position");
 	return (a->header_position);
 }
-
 /*
  * Returns 1 if the archive contains at least one encrypted entry.
  * If the archive format not support encryption at all
@@ -648,23 +623,18 @@ la_int64_t archive_read_header_position(struct archive * _a)
 int archive_read_has_encrypted_entries(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	int format_supports_encryption = archive_read_format_capabilities(_a)
-	    & (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA | ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
-
+	int format_supports_encryption = archive_read_format_capabilities(_a) & (ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_DATA | ARCHIVE_READ_FORMAT_CAPS_ENCRYPT_METADATA);
 	if(!_a || !format_supports_encryption) {
 		/* Format in general doesn't support encryption */
 		return ARCHIVE_READ_FORMAT_ENCRYPTION_UNSUPPORTED;
 	}
-
 	/* A reader potentially has read enough data now. */
 	if(a->format && a->format->has_encrypted_entries) {
 		return (a->format->has_encrypted_entries)(a);
 	}
-
 	/* For any other reason we cannot say how many entries are there. */
 	return ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
 }
-
 /*
  * Returns a bitmask of capabilities that are supported by the archive format reader.
  * If the reader has no special capabilities, ARCHIVE_READ_FORMAT_CAPS_NONE is returned.
@@ -677,7 +647,6 @@ int archive_read_format_capabilities(struct archive * _a)
 	}
 	return ARCHIVE_READ_FORMAT_CAPS_NONE;
 }
-
 /*
  * Read data from an archive entry, using a read(2)-style interface.
  * This is a convenience routine that just calls
@@ -692,13 +661,11 @@ int archive_read_format_capabilities(struct archive * _a)
 la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 {
 	struct archive * a = (struct archive *)_a;
-	char    * dest;
 	const void * read_buf;
-	size_t bytes_read;
 	size_t len;
 	int r;
-	bytes_read = 0;
-	dest = (char *)buff;
+	size_t bytes_read = 0;
+	char * dest = (char *)buff;
 	while(s > 0) {
 		if(a->read_data_offset == a->read_data_output_offset && a->read_data_remaining == 0) {
 			read_buf = a->read_data_block;
@@ -716,13 +683,10 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 			if(r < ARCHIVE_OK)
 				return r;
 		}
-
 		if(a->read_data_offset < a->read_data_output_offset) {
-			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Encountered out-of-order sparse blocks");
+			archive_set_error(a, ARCHIVE_ERRNO_FILE_FORMAT, "Encountered out-of-order sparse blocks");
 			return (ARCHIVE_RETRY);
 		}
-
 		/* Compute the amount of zero padding needed. */
 		if(a->read_data_output_offset + (int64)s <
 		    a->read_data_offset) {
@@ -730,8 +694,7 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 		}
 		else if(a->read_data_output_offset <
 		    a->read_data_offset) {
-			len = (size_t)(a->read_data_offset -
-			    a->read_data_output_offset);
+			len = (size_t)(a->read_data_offset - a->read_data_output_offset);
 		}
 		else
 			len = 0;
@@ -762,7 +725,6 @@ la_ssize_t archive_read_data(struct archive * _a, void * buff, size_t s)
 	a->read_data_requested = 0;
 	return (bytes_read);
 }
-
 /*
  * Reset the read_data_* variables, used for starting a new entry.
  */
@@ -772,12 +734,10 @@ void __archive_reset_read_data(struct archive * a)
 	a->read_data_remaining = 0;
 	a->read_data_is_posix_read = 0;
 	a->read_data_requested = 0;
-
 	/* extra resets, from rar.c */
 	a->read_data_block = NULL;
 	a->read_data_offset = 0;
 }
-
 /*
  * Skip over all remaining data in this entry.
  */
@@ -792,15 +752,11 @@ int archive_read_data_skip(struct archive * _a)
 	if(a->format->read_data_skip != NULL)
 		r = (a->format->read_data_skip)(a);
 	else {
-		while((r = archive_read_data_block(&a->archive,
-		    &buff, &size, &offset))
-		    == ARCHIVE_OK)
+		while((r = archive_read_data_block(&a->archive, &buff, &size, &offset)) == ARCHIVE_OK)
 			;
 	}
-
 	if(r == ARCHIVE_EOF)
 		r = ARCHIVE_OK;
-
 	a->archive.state = ARCHIVE_STATE_HEADER;
 	return r;
 }
@@ -815,7 +771,6 @@ la_int64_t archive_seek_data(struct archive * _a, int64 offset, int whence)
 	}
 	return (a->format->seek_data)(a, offset, whence);
 }
-
 /*
  * Read the next block of entry data from the archive.
  * This is a zero-copy interface; the client receives a pointer,
@@ -859,14 +814,12 @@ void __archive_read_free_filters(struct archive_read * a)
 {
 	/* Make sure filters are closed and their buffers are freed */
 	close_filters(a);
-
-	while(a->filter != NULL) {
+	while(a->filter) {
 		struct archive_read_filter * t = a->filter->upstream;
 		SAlloc::F(a->filter);
 		a->filter = t;
 	}
 }
-
 /*
  * return the count of # of filters in use
  */
@@ -881,7 +834,6 @@ static int _archive_filter_count(struct archive * _a)
 	}
 	return count;
 }
-
 /*
  * Close the file and all I/O.
  */
@@ -901,7 +853,6 @@ static int _archive_read_close(struct archive * _a)
 		r = r1;
 	return r;
 }
-
 /*
  * Release memory and other resources.
  */
@@ -957,11 +908,11 @@ static int _archive_read_free(struct archive * _a)
 	return r;
 }
 
-static struct archive_read_filter * get_filter(struct archive * _a, int n)                                     {
+static struct archive_read_filter * get_filter(struct archive * _a, int n)
+{
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter * f = a->filter;
-	/* We use n == -1 for 'the last filter', which is always the
-	 * client proxy. */
+	// We use n == -1 for 'the last filter', which is always the client proxy
 	if(n == -1 && f != NULL) {
 		struct archive_read_filter * last = f;
 		f = f->upstream;
@@ -997,23 +948,15 @@ static int64 _archive_filter_bytes(struct archive * _a, int n)
 	struct archive_read_filter * f = get_filter(_a, n);
 	return f == NULL ? -1 : f->position;
 }
-
 /*
  * Used internally by read format handlers to register their bid and
  * initialization functions.
  */
-int __archive_read_register_format(struct archive_read * a,
-    void * format_data,
-    const char * name,
-    int (*bid)(struct archive_read *, int),
-    int (*options)(struct archive_read *, const char *, const char *),
-    int (*read_header)(struct archive_read *, struct archive_entry *),
-    int (* read_data)(struct archive_read *, const void **, size_t *, int64 *),
-    int (*read_data_skip)(struct archive_read *),
-    int64 (* seek_data)(struct archive_read *, int64, int),
-    int (*cleanup)(struct archive_read *),
-    int (* format_capabilities)(struct archive_read *),
-    int (* has_encrypted_entries)(struct archive_read *))
+int __archive_read_register_format(struct archive_read * a, void * format_data, const char * name,
+    int (*bid)(struct archive_read *, int), int (*options)(struct archive_read *, const char *, const char *),
+    int (*read_header)(struct archive_read *, struct archive_entry *), int (* read_data)(struct archive_read *, const void **, size_t *, int64 *),
+    int (*read_data_skip)(struct archive_read *), int64 (* seek_data)(struct archive_read *, int64, int),
+    int (*cleanup)(struct archive_read *), int (* format_capabilities)(struct archive_read *), int (* has_encrypted_entries)(struct archive_read *))
 {
 	int i, number_slots;
 	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "__archive_read_register_format");
@@ -1039,7 +982,6 @@ int __archive_read_register_format(struct archive_read * a,
 	archive_set_error(&a->archive, ENOMEM, "Not enough slots for format registration");
 	return ARCHIVE_FATAL;
 }
-
 /*
  * Used internally by decompression routines to register their bid and
  * initialization functions.
@@ -1151,8 +1093,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter, si
 			return (filter->client_next);
 		}
 		/* Move data forward in copy buffer if necessary. */
-		if(filter->next > filter->buffer &&
-		    filter->next + min > filter->buffer + filter->buffer_size) {
+		if(filter->next > filter->buffer && filter->next + min > filter->buffer + filter->buffer_size) {
 			if(filter->avail > 0)
 				memmove(filter->buffer, filter->next, filter->avail);
 			filter->next = filter->buffer;
@@ -1164,7 +1105,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter, si
 				return NULL;
 			}
 			bytes_read = (filter->read)(filter, &filter->client_buff);
-			if(bytes_read < 0) {            /* Read error. */
+			if(bytes_read < 0) { /* Read error. */
 				filter->client_total = filter->client_avail = 0;
 				filter->client_next = static_cast<const char *>(filter->client_buff = NULL);
 				filter->fatal = 1;
@@ -1304,11 +1245,10 @@ static int64 advance_file_pointer(struct archive_read_filter * filter, int64 req
 	}
 	if(request == 0)
 		return (total_bytes_skipped);
-
-	/* If there's an optimized skip function, use it. */
-	if(filter->skip != NULL) {
+	// If there's an optimized skip function, use it
+	if(filter->skip) {
 		bytes_skipped = (filter->skip)(filter, request);
-		if(bytes_skipped < 0) {         /* error */
+		if(bytes_skipped < 0) { // error
 			filter->fatal = 1;
 			return (bytes_skipped);
 		}
@@ -1318,7 +1258,7 @@ static int64 advance_file_pointer(struct archive_read_filter * filter, int64 req
 		if(request == 0)
 			return (total_bytes_skipped);
 	}
-	/* Use ordinary reads as necessary to complete the request. */
+	// Use ordinary reads as necessary to complete the request
 	for(;;) {
 		bytes_read = (filter->read)(filter, &filter->client_buff);
 		if(bytes_read < 0) {
@@ -1387,9 +1327,7 @@ int64 __archive_read_filter_seek(struct archive_read_filter * filter, int64 offs
 			    if((r = client_seek_proxy(filter, 0, SEEK_END)) < 0)
 				    return r;
 			    client->dataset[cursor].total_size = r;
-			    if(client->dataset[cursor].begin_position +
-				client->dataset[cursor].total_size - 1 > offset ||
-				cursor + 1 >= client->nodes)
+			    if(client->dataset[cursor].begin_position + client->dataset[cursor].total_size - 1 > offset || cursor + 1 >= client->nodes)
 				    break;
 			    r = client->dataset[cursor].begin_position +
 				client->dataset[cursor].total_size;

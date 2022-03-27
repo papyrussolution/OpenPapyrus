@@ -22,12 +22,10 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_format_ustar.c 191579 
 struct ustar {
 	uint64 entry_bytes_remaining;
 	uint64 entry_padding;
-
 	struct archive_string_conv * opt_sconv;
 	struct archive_string_conv * sconv_default;
 	int init_default_conversion;
 };
-
 /*
  * Define structure of POSIX 'ustar' tar header.
  */
@@ -72,7 +70,6 @@ struct ustar {
 #define USTAR_prefix_size 155
 #define USTAR_padding_offset 500
 #define USTAR_padding_size 12
-
 /*
  * A filled-in copy of the header for initialization.
  */
@@ -82,18 +79,12 @@ static const char template_header[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0,
-	/* Mode, space-null termination: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* uid, space-null termination: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* gid, space-null termination: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* size, space termination: 12 bytes */
-	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ',
-	/* mtime, space termination: 12 bytes */
-	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ',
-	/* Initial checksum value: 8 spaces */
-	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ',
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* Mode, space-null termination: 8 bytes */
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* uid, space-null termination: 8 bytes */
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* gid, space-null termination: 8 bytes */
+	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ', /* size, space termination: 12 bytes */
+	'0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', ' ', /* mtime, space termination: 12 bytes */
+	' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', /* Initial checksum value: 8 spaces */
 	/* Typeflag: 1 byte */
 	'0',                    /* '0' = regular file */
 	/* Linkname: 100 bytes */
@@ -101,35 +92,26 @@ static const char template_header[] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0,
-	/* Magic: 6 bytes, Version: 2 bytes */
-	'u', 's', 't', 'a', 'r', '\0', '0', '0',
-	/* Uname: 32 bytes */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	/* Gname: 32 bytes */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	/* rdevmajor + space/null padding: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
-	/* rdevminor + space/null padding: 8 bytes */
-	'0', '0', '0', '0', '0', '0', ' ', '\0',
+	'u', 's', 't', 'a', 'r', '\0', '0', '0', /* Magic: 6 bytes, Version: 2 bytes */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* Uname: 32 bytes */
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* Gname: 32 bytes */
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* rdevmajor + space/null padding: 8 bytes */
+	'0', '0', '0', '0', '0', '0', ' ', '\0', /* rdevminor + space/null padding: 8 bytes */
 	/* Prefix: 155 bytes */
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-	/* Padding: 12 bytes */
-	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 /* Padding: 12 bytes */
 };
 
-static ssize_t  archive_write_ustar_data(struct archive_write * a, const void * buff,
-    size_t s);
+static ssize_t  archive_write_ustar_data(struct archive_write * a, const void * buff, size_t s);
 static int archive_write_ustar_free(struct archive_write *);
 static int archive_write_ustar_close(struct archive_write *);
 static int archive_write_ustar_finish_entry(struct archive_write *);
-static int archive_write_ustar_header(struct archive_write *,
-    struct archive_entry * entry);
-static int archive_write_ustar_options(struct archive_write *,
-    const char *, const char *);
+static int archive_write_ustar_header(struct archive_write *, struct archive_entry * entry);
+static int archive_write_ustar_options(struct archive_write *, const char *, const char *);
 static int format_256(int64, char *, int);
 static int format_number(int64, char *, int size, int max, int strict);
 static int format_octal(int64, char *, int);
@@ -141,26 +123,18 @@ int archive_write_set_format_ustar(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct ustar * ustar;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_ustar");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_ustar");
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	/* Basic internal sanity test. */
 	if(sizeof(template_header) != 512) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Internal: template_header wrong size: %zu should be 512",
-		    sizeof(template_header));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Internal: template_header wrong size: %zu should be 512", sizeof(template_header));
 		return ARCHIVE_FATAL;
 	}
-
 	ustar = (struct ustar *)SAlloc::C(1, sizeof(*ustar));
 	if(ustar == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate ustar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 		return ARCHIVE_FATAL;
 	}
 	a->format_data = ustar;
@@ -202,37 +176,27 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 {
 	char buff[512];
 	int ret, ret2;
-	struct ustar * ustar;
 	struct archive_entry * entry_main;
 	struct archive_string_conv * sconv;
-
-	ustar = (struct ustar *)a->format_data;
-
+	struct ustar * ustar = (struct ustar *)a->format_data;
 	/* Setup default string conversion. */
 	if(ustar->opt_sconv == NULL) {
 		if(!ustar->init_default_conversion) {
-			ustar->sconv_default =
-			    archive_string_default_conversion_for_write(&(a->archive));
+			ustar->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 			ustar->init_default_conversion = 1;
 		}
 		sconv = ustar->sconv_default;
 	}
 	else
 		sconv = ustar->opt_sconv;
-
 	/* Sanity check. */
 	if(archive_entry_pathname(entry) == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't record entry in tar file without pathname");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't record entry in tar file without pathname");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Only regular files (not hardlinks) have data. */
-	if(archive_entry_hardlink(entry) != NULL ||
-	    archive_entry_symlink(entry) != NULL ||
-	    !(archive_entry_filetype(entry) == AE_IFREG))
+	if(archive_entry_hardlink(entry) != NULL || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
 		archive_entry_set_size(entry, 0);
-
 	if(AE_IFDIR == archive_entry_filetype(entry)) {
 		const char * p;
 		size_t path_length;
@@ -241,18 +205,14 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 		 * the client sees the change.
 		 */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-		const wchar_t * wp;
-
-		wp = archive_entry_pathname_w(entry);
+		const wchar_t * wp = archive_entry_pathname_w(entry);
 		if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
 			struct archive_wstring ws;
-
 			archive_string_init(&ws);
 			path_length = wcslen(wp);
 			if(archive_wstring_ensure(&ws,
 			    path_length + 2) == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate ustar data");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_wstring_free(&ws);
 				return(ARCHIVE_FATAL);
 			}
@@ -297,14 +257,12 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 			archive_string_free(&as);
 		}
 	}
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/* Make sure the path separators in pathname, hardlink and symlink
 	 * are all slash '/', not the Windows path separator '\'. */
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate ustar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 		return(ARCHIVE_FATAL);
 	}
 	if(entry != entry_main)
@@ -326,13 +284,11 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
 	}
 	if(ret2 < ret)
 		ret = ret2;
-
 	ustar->entry_bytes_remaining = archive_entry_size(entry);
 	ustar->entry_padding = 0x1ff & (-(int64)ustar->entry_bytes_remaining);
 	archive_entry_free(entry_main);
 	return ret;
 }
-
 /*
  * Format a basic 512-byte "ustar" header.
  *
@@ -343,25 +299,20 @@ static int archive_write_ustar_header(struct archive_write * a, struct archive_e
  *
  * This is exported so that other 'tar' formats can use it.
  */
-int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
-    struct archive_entry * entry, int tartype, int strict,
-    struct archive_string_conv * sconv)
+int __archive_write_format_header_ustar(struct archive_write * a, char h[512], struct archive_entry * entry, int tartype, int strict, struct archive_string_conv * sconv)
 {
 	uint checksum;
-	int i, r, ret;
+	int i, r;
 	size_t copy_length;
 	const char * p, * pp;
-	int mytartype;
-
-	ret = 0;
-	mytartype = -1;
+	int ret = 0;
+	int mytartype = -1;
 	/*
 	 * The "template header" already includes the "ustar"
 	 * signature, various end-of-field markers and other required
 	 * elements.
 	 */
 	memcpy(h, &template_header, 512);
-
 	/*
 	 * Because the block is already null-filled, and strings
 	 * are allowed to exactly fill their destination (without null),
@@ -370,13 +321,10 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 	r = archive_entry_pathname_l(entry, &pp, &copy_length, sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to %s",
-		    pp, archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to %s", pp, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 	}
 	if(copy_length <= USTAR_name_size)
@@ -394,8 +342,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		/* Fail if the name won't fit. */
 		if(!p) {
 			/* No separator. */
-			archive_set_error(&a->archive, ENAMETOOLONG,
-			    "Pathname too long");
+			archive_set_error(&a->archive, ENAMETOOLONG, "Pathname too long");
 			ret = ARCHIVE_FAILED;
 		}
 		else if(p[1] == '\0') {
@@ -405,35 +352,27 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 			 * an empty name, which POSIX doesn't
 			 * explicitly forbid, but it just feels wrong.
 			 */
-			archive_set_error(&a->archive, ENAMETOOLONG,
-			    "Pathname too long");
+			archive_set_error(&a->archive, ENAMETOOLONG, "Pathname too long");
 			ret = ARCHIVE_FAILED;
 		}
 		else if(p  > pp + USTAR_prefix_size) {
 			/* Prefix is too long. */
-			archive_set_error(&a->archive, ENAMETOOLONG,
-			    "Pathname too long");
+			archive_set_error(&a->archive, ENAMETOOLONG, "Pathname too long");
 			ret = ARCHIVE_FAILED;
 		}
 		else {
 			/* Copy prefix and remainder to appropriate places */
 			memcpy(h + USTAR_prefix_offset, pp, p - pp);
-			memcpy(h + USTAR_name_offset, p + 1,
-			    pp + copy_length - p - 1);
+			memcpy(h + USTAR_name_offset, p + 1, pp + copy_length - p - 1);
 		}
 	}
-
 	r = archive_entry_hardlink_l(entry, &p, &copy_length, sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Linkname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate linkname '%s' to %s",
-		    p, archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", p, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 	}
 	if(copy_length > 0)
@@ -442,52 +381,40 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		r = archive_entry_symlink_l(entry, &p, &copy_length, sconv);
 		if(r != 0) {
 			if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for Linkname");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return ARCHIVE_FATAL;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate linkname '%s' to %s",
-			    p, archive_string_conversion_charset_name(sconv));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", p, archive_string_conversion_charset_name(sconv));
 			ret = ARCHIVE_WARN;
 		}
 	}
 	if(copy_length > 0) {
 		if(copy_length > USTAR_linkname_size) {
-			archive_set_error(&a->archive, ENAMETOOLONG,
-			    "Link contents too long");
+			archive_set_error(&a->archive, ENAMETOOLONG, "Link contents too long");
 			ret = ARCHIVE_FAILED;
 			copy_length = USTAR_linkname_size;
 		}
 		memcpy(h + USTAR_linkname_offset, p, copy_length);
 	}
-
 	r = archive_entry_uname_l(entry, &p, &copy_length, sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Uname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate uname '%s' to %s",
-		    p, archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate uname '%s' to %s", p, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 	}
 	if(copy_length > 0) {
 		if(copy_length > USTAR_uname_size) {
 			if(tartype != 'x') {
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC, "Username too long");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Username too long");
 				ret = ARCHIVE_FAILED;
 			}
 			copy_length = USTAR_uname_size;
 		}
 		memcpy(h + USTAR_uname_offset, p, copy_length);
 	}
-
 	r = archive_entry_gname_l(entry, &p, &copy_length, sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
@@ -507,61 +434,41 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 		}
 		memcpy(h + USTAR_gname_offset, p, copy_length);
 	}
-
 	if(format_number(archive_entry_mode(entry) & 07777,
 	    h + USTAR_mode_offset, USTAR_mode_size, USTAR_mode_max_size, strict)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Numeric mode too large");
+		archive_set_error(&a->archive, ERANGE, "Numeric mode too large");
 		ret = ARCHIVE_FAILED;
 	}
-
 	if(format_number(archive_entry_uid(entry),
 	    h + USTAR_uid_offset, USTAR_uid_size, USTAR_uid_max_size, strict)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Numeric user ID too large");
+		archive_set_error(&a->archive, ERANGE, "Numeric user ID too large");
 		ret = ARCHIVE_FAILED;
 	}
-
 	if(format_number(archive_entry_gid(entry),
 	    h + USTAR_gid_offset, USTAR_gid_size, USTAR_gid_max_size, strict)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Numeric group ID too large");
+		archive_set_error(&a->archive, ERANGE, "Numeric group ID too large");
 		ret = ARCHIVE_FAILED;
 	}
-
 	if(format_number(archive_entry_size(entry),
 	    h + USTAR_size_offset, USTAR_size_size, USTAR_size_max_size, strict)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "File size out of range");
+		archive_set_error(&a->archive, ERANGE, "File size out of range");
 		ret = ARCHIVE_FAILED;
 	}
-
 	if(format_number(archive_entry_mtime(entry),
 	    h + USTAR_mtime_offset, USTAR_mtime_size, USTAR_mtime_max_size, strict)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "File modification time too large");
+		archive_set_error(&a->archive, ERANGE, "File modification time too large");
 		ret = ARCHIVE_FAILED;
 	}
-
-	if(archive_entry_filetype(entry) == AE_IFBLK
-	   || archive_entry_filetype(entry) == AE_IFCHR) {
-		if(format_number(archive_entry_rdevmajor(entry),
-		    h + USTAR_rdevmajor_offset, USTAR_rdevmajor_size,
-		    USTAR_rdevmajor_max_size, strict)) {
-			archive_set_error(&a->archive, ERANGE,
-			    "Major device number too large");
+	if(archive_entry_filetype(entry) == AE_IFBLK || archive_entry_filetype(entry) == AE_IFCHR) {
+		if(format_number(archive_entry_rdevmajor(entry), h + USTAR_rdevmajor_offset, USTAR_rdevmajor_size, USTAR_rdevmajor_max_size, strict)) {
+			archive_set_error(&a->archive, ERANGE, "Major device number too large");
 			ret = ARCHIVE_FAILED;
 		}
-
-		if(format_number(archive_entry_rdevminor(entry),
-		    h + USTAR_rdevminor_offset, USTAR_rdevminor_size,
-		    USTAR_rdevminor_max_size, strict)) {
-			archive_set_error(&a->archive, ERANGE,
-			    "Minor device number too large");
+		if(format_number(archive_entry_rdevminor(entry), h + USTAR_rdevminor_offset, USTAR_rdevminor_size, USTAR_rdevminor_max_size, strict)) {
+			archive_set_error(&a->archive, ERANGE, "Minor device number too large");
 			ret = ARCHIVE_FAILED;
 		}
 	}
-
 	if(tartype >= 0) {
 		h[USTAR_typeflag_offset] = tartype;
 	}
@@ -577,21 +484,18 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512],
 			case AE_IFDIR: h[USTAR_typeflag_offset] = '5'; break;
 			case AE_IFIFO: h[USTAR_typeflag_offset] = '6'; break;
 			default: /* AE_IFSOCK and unknown */
-			    __archive_write_entry_filetype_unsupported(
-				    &a->archive, entry, "ustar");
+			    __archive_write_entry_filetype_unsupported(&a->archive, entry, "ustar");
 			    ret = ARCHIVE_FAILED;
 		}
 	}
-
 	checksum = 0;
 	for(i = 0; i < 512; i++)
 		checksum += 255 & (uint)h[i];
-	h[USTAR_checksum_offset + 6] = '\0'; /* Can't be pre-set in the template. */
-	/* h[USTAR_checksum_offset + 7] = ' '; */ /* This is pre-set in the template. */
+	h[USTAR_checksum_offset + 6] = '\0'; // Can't be pre-set in the template.
+	// h[USTAR_checksum_offset + 7] = ' '; */ /* This is pre-set in the template.
 	format_octal(checksum, h + USTAR_checksum_offset, 6);
 	return ret;
 }
-
 /*
  * Format a number into a field, with some intelligence.
  */
@@ -604,8 +508,7 @@ static int format_number(int64 v, char * p, int s, int maxsize, int strict)
 	/*
 	 * In non-strict mode, we allow the number to overwrite one or
 	 * more bytes of the field termination.  Even old tar
-	 * implementations should be able to handle this with no
-	 * problem.
+	 * implementations should be able to handle this with no problem.
 	 */
 	if(v >= 0) {
 		while(s <= maxsize) {
@@ -615,11 +518,9 @@ static int format_number(int64 v, char * p, int s, int maxsize, int strict)
 			limit <<= 3;
 		}
 	}
-
 	/* Base-256 can handle any number, positive or negative. */
 	return (format_256(v, p, maxsize));
 }
-
 /*
  * Format a number into the specified field using base-256.
  */
@@ -633,7 +534,6 @@ static int format_256(int64 v, char * p, int s)
 	*p |= 0x80; /* Set the base-256 marker bit. */
 	return 0;
 }
-
 /*
  * Format a number into the specified field.
  */
@@ -674,9 +574,8 @@ static int archive_write_ustar_free(struct archive_write * a)
 
 static int archive_write_ustar_finish_entry(struct archive_write * a)
 {
-	int ret;
 	struct ustar * ustar = (struct ustar *)a->format_data;
-	ret = __archive_write_nulls(a, (size_t)(ustar->entry_bytes_remaining + ustar->entry_padding));
+	int ret = __archive_write_nulls(a, (size_t)(ustar->entry_bytes_remaining + ustar->entry_padding));
 	ustar->entry_bytes_remaining = ustar->entry_padding = 0;
 	return ret;
 }

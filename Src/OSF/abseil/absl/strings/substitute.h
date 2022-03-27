@@ -159,13 +159,13 @@ class Arg {
   Arg(Hex hex);  // NOLINT(runtime/explicit)
   Arg(Dec dec);  // NOLINT(runtime/explicit)
 
-  // vector<bool>::reference and const_reference require special help to convert
+  // vector <bool>::reference and const_reference require special help to convert
   // to `Arg` because it requires two user defined conversions.
   template <typename T,
             absl::enable_if_t<
                 std::is_class<T>::value &&
-                (std::is_same<T, std::vector<bool>::reference>::value ||
-                 std::is_same<T, std::vector<bool>::const_reference>::value)>* =
+                (std::is_same<T, std::vector <bool>::reference>::value ||
+                 std::is_same<T, std::vector <bool>::const_reference>::value)>* =
                 nullptr>
   Arg(T value)  // NOLINT(google-explicit-constructor)
       : Arg(static_cast<bool>(value)) {}

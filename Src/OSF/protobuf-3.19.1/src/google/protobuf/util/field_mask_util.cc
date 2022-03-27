@@ -37,7 +37,7 @@ std::string FieldMaskUtil::ToString(const FieldMask& mask)
 void FieldMaskUtil::FromString(StringPiece str, FieldMask* out) 
 {
 	out->Clear();
-	std::vector<std::string> paths = Split(str, ",");
+	std::vector <std::string> paths = Split(str, ",");
 	for(const std::string & path : paths) {
 		if(path.empty()) continue;
 		out->add_paths(path);
@@ -109,7 +109,7 @@ bool FieldMaskUtil::ToJsonString(const FieldMask& mask, std::string* out)
 bool FieldMaskUtil::FromJsonString(StringPiece str, FieldMask* out) 
 {
 	out->Clear();
-	std::vector<std::string> paths = Split(str, ",");
+	std::vector <std::string> paths = Split(str, ",");
 	for(const std::string & path : paths) {
 		if(path.empty()) continue;
 		std::string snakecase_path;
@@ -121,11 +121,11 @@ bool FieldMaskUtil::FromJsonString(StringPiece str, FieldMask* out)
 	return true;
 }
 
-bool FieldMaskUtil::GetFieldDescriptors(const Descriptor* descriptor, StringPiece path, std::vector<const FieldDescriptor*>* field_descriptors) 
+bool FieldMaskUtil::GetFieldDescriptors(const Descriptor* descriptor, StringPiece path, std::vector <const FieldDescriptor*>* field_descriptors) 
 {
 	if(field_descriptors)
 		field_descriptors->clear();
-	std::vector<std::string> parts = Split(path, ".");
+	std::vector <std::string> parts = Split(path, ".");
 	for(const std::string & field_name : parts) {
 		if(descriptor == nullptr) {
 			return false;
@@ -294,7 +294,7 @@ void FieldMaskTree::MergeToFieldMask(const std::string & prefix, const Node* nod
 
 void FieldMaskTree::AddPath(const std::string & path) 
 {
-	std::vector<std::string> parts = Split(path, ".");
+	std::vector <std::string> parts = Split(path, ".");
 	if(!parts.empty()) {
 		bool new_branch = false;
 		Node* node = &root_;
@@ -325,11 +325,11 @@ void FieldMaskTree::RemovePath(const std::string & path, const Descriptor* descr
 		// tree won't be interpreted as a field mask containing all fields by the code below.
 		return;
 	}
-	std::vector<std::string> parts = Split(path, ".");
+	std::vector <std::string> parts = Split(path, ".");
 	if(parts.empty()) {
 		return;
 	}
-	std::vector<Node*> nodes(parts.size());
+	std::vector <Node*> nodes(parts.size());
 	Node* node = &root_;
 	const Descriptor* current_descriptor = descriptor;
 	Node* new_branch_node = nullptr;
@@ -374,7 +374,7 @@ void FieldMaskTree::RemovePath(const std::string & path, const Descriptor* descr
 
 void FieldMaskTree::IntersectPath(const std::string & path, FieldMaskTree* out) 
 {
-	std::vector<std::string> parts = Split(path, ".");
+	std::vector <std::string> parts = Split(path, ".");
 	if(parts.empty()) {
 		return;
 	}

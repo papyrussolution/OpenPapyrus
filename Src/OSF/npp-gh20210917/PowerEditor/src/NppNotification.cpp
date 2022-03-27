@@ -201,7 +201,7 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 				    if(!_tabPopupDropMenu.isCreated()) {
 					    TCHAR goToView[32] = TEXT("Move to Other View");
 					    TCHAR cloneToView[32] = TEXT("Clone to Other View");
-					    vector<MenuItemUnit> itemUnitArray;
+					    vector <MenuItemUnit> itemUnitArray;
 					    itemUnitArray.push_back(MenuItemUnit(IDM_VIEW_GOTO_ANOTHER_VIEW, goToView));
 					    itemUnitArray.push_back(MenuItemUnit(IDM_VIEW_CLONE_TO_ANOTHER_VIEW, cloneToView));
 					    _tabPopupDropMenu.create(_pPublicInterface->getHSelf(), itemUnitArray, _mainMenuHandle);
@@ -418,7 +418,7 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 
 			    if(_pDocumentListPanel->nbSelectedFiles() > 1) {
 				    if(!_fileSwitcherMultiFilePopupMenu.isCreated()) {
-					    vector<MenuItemUnit> itemUnitArray;
+					    vector <MenuItemUnit> itemUnitArray;
 					    itemUnitArray.push_back(MenuItemUnit(IDM_DOCLIST_FILESCLOSE, TEXT("Close Selected files")));
 					    itemUnitArray.push_back(MenuItemUnit(IDM_DOCLIST_FILESCLOSEOTHERS, TEXT("Close others files")));
 
@@ -436,7 +436,7 @@ BOOL Notepad_plus::notify(SCNotification * notification)
 		    if(!_tabPopupMenu.isCreated()) {
 			    // IMPORTANT: If list below is modified, you have to change the value of
 			    // tabContextMenuItemPos[] in localization.cpp file
-			    std::vector<MenuItemUnit> itemUnitArray;
+			    std::vector <MenuItemUnit> itemUnitArray;
 			    itemUnitArray.push_back(MenuItemUnit(IDM_FILE_CLOSE, TEXT("Close")));
 			    itemUnitArray.push_back(MenuItemUnit(IDM_FILE_CLOSEALL_BUT_CURRENT, TEXT("Close All BUT This")));
 			    itemUnitArray.push_back(MenuItemUnit(IDM_FILE_CLOSEALL_TOLEFT, TEXT("Close All to the Left")));

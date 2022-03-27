@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------
+//
 //  Copyright 2007-2010 (c) Jeff Brown <spadix@users.sourceforge.net>
 //
 //  This file is part of the ZBar Bar Code Reader.
@@ -19,7 +19,7 @@
 //  Boston, MA  02110-1301  USA
 //
 //  http://sourceforge.net/projects/zbar
-//------------------------------------------------------------------------
+//
 #ifndef _ZBAR_PROCESSOR_H_
 #define _ZBAR_PROCESSOR_H_
 
@@ -27,7 +27,7 @@
 /// Processor C++ wrapper
 
 #ifndef _ZBAR_H_
-#error "include zbar.h in your application, **not** zbar/Processor.h"
+	#error "include zbar.h in your application, **not** zbar/Processor.h"
 #endif
 
 #include "Exception.h"

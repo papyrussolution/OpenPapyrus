@@ -1,5 +1,5 @@
 // PALM.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -3273,7 +3273,6 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 				PPQuotKind qk_rec;
 				if(qk_obj.Fetch(qk_id, &qk_rec) > 0) {
 					DbfRecord drec_qk(p_qk_tbl);
-					drec_qk.empty();
 					drec_qk.put(1, qk_rec.ID);
 					drec_qk.put(2, static_cast<long>(i+1));
 					drec_qk.put(3, qk_rec.Name);
@@ -3321,7 +3320,6 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 				if(rBlk.P_GObj->Fetch(r_goods_entry.GoodsID, &goods_rec) > 0) {
 					THROW(grp_list.add(goods_rec.ParentID));
 					DbfRecord drec_goods(p_goods_tbl);
-					drec_goods.empty();
 					drec_goods.put(1, r_goods_entry.GoodsID);
 					drec_goods.put(2, goods_rec.Name);
 					rBlk.P_GObj->FetchSingleBarcode(r_goods_entry.GoodsID, temp_buf);
@@ -3430,7 +3428,6 @@ int PPObjStyloPalm::ExportGoods(const PPStyloPalmPacket * pPack, ExportBlock & r
 			NameEntry * p_entry;
 			for(uint i = 0; name_list.enumItems(&i, (void **)&p_entry);) {
 				DbfRecord drec_grp(p_grp_tbl);
-				drec_grp.empty();
 				drec_grp.put(1, p_entry->ID);
 				drec_grp.put(2, p_entry->ParentID);
 				drec_grp.put(3, p_entry->Name);
@@ -3652,11 +3649,9 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 					THROW(rBlk.P_PsnObj->GetDlvrLocList(ar_item.ObjID, &dlvr_loc_list));
 					for(i = 0; i < dlvr_loc_list.getCount(); i++) {
 						const PPID dlvr_loc_id = dlvr_loc_list.at(i);
-						// @v9.5.5 rBlk.P_LocObj->P_Tbl->GetAddress(dlvr_loc_id, 0, addr);
-						rBlk.P_LocObj->GetAddress(dlvr_loc_id, 0, addr); // @v9.5.5
+						rBlk.P_LocObj->GetAddress(dlvr_loc_id, 0, addr);
 						if(addr.NotEmptyS()) {
 							DbfRecord drec_addr(p_addr_tbl);
-							drec_addr.empty();
 							drec_addr.put(1, dlvr_loc_id);
 							drec_addr.put(2, ar_item.ID);
 							drec_addr.put(3, addr);
@@ -3705,8 +3700,6 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 								PPFreight freight;
 								DbfRecord drec_debt(p_debt_tbl);
 								p_bobj->FetchExt(p_pb_item->ID, &bill_ext);
-
-								drec_debt.empty();
 								drec_debt.put(1, ar_item.ID);
 								drec_debt.put(2, p_pb_item->ID);
 								drec_debt.put(3, bill_rec.Code);
@@ -3727,7 +3720,6 @@ int PPObjStyloPalm::ExportClients(PPID acsID, long palmFlags, ExportBlock & rBlk
 					}
 					int    valid_debt = (rBlk.P_DebtView && rBlk.P_DebtView->GetItem(ar_item.ID, 0L, 0L, &debt_item) > 0) ? 1 : 0;
 					DbfRecord drec_ar(p_client_tbl);
-					drec_ar.empty();
 					drec_ar.put(1, ar_item.ID);
 					drec_ar.put(2, ar_item.Name);
 					drec_ar.put(3, ar_item.Article);
@@ -3997,7 +3989,6 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 					for(ta_view.InitIteration(PPViewTrfrAnlz::OrdByDefault); ta_view.NextIteration(&ta_item) > 0;) {
 						PPWaitPercent(ta_view.GetCounter(), wait_msg);
 						DbfRecord rec(p_dbf_tbl);
-						rec.empty();
 						rec.put(1, ta_item.ArticleID);
 						rec.put(2, ta_item.DlvrLocID);
 						rec.put(3, ta_item.GoodsID);
@@ -4045,7 +4036,6 @@ int PPObjStyloPalm::ExportData(const PalmPaneData & rParam)
 							THROW(v_todo.Init_(&todo_filt));
 							for(v_todo.InitIteration(); v_todo.NextIteration(&item) > 0;) {
 								DbfRecord rec(p_dbf_tbl);
-								rec.empty();
 								rec.put(1, item.ID);
 								rec.put(2, item.Priority);
 								rec.put(3, BIN(item.Status == TODOSTTS_COMPLETED));

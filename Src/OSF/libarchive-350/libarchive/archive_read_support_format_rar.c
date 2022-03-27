@@ -2075,22 +2075,17 @@ static int read_next_symbol(struct archive_read * a, struct huffman_code * code)
 	}
 	rar = (struct rar *)(a->format->data);
 	br = &(rar->br);
-
 	/* Look ahead (peek) at bits */
 	if(!rar_br_read_ahead(a, br, code->tablesize)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Truncated RAR file data");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated RAR file data");
 		rar->valid = 0;
 		return -1;
 	}
 	bits = rar_br_bits(br, code->tablesize);
-
 	length = code->table[bits].length;
 	value = code->table[bits].value;
-
 	if(length < 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Invalid prefix code in bitstream");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid prefix code in bitstream");
 		return -1;
 	}
 	if(length <= code->tablesize) {
@@ -2115,7 +2110,6 @@ static int read_next_symbol(struct archive_read * a, struct huffman_code * code)
 		}
 		node = code->tree[node].branches[bit];
 	}
-
 	return code->tree[node].branches[0];
 }
 
@@ -2168,24 +2162,18 @@ static int add_value(struct archive_read * a, struct huffman_code * code, int va
 	   && (((codebits >> (repeatpos - 1)) & 3) == 0
 	 || ((codebits >> (repeatpos - 1)) & 3) == 3)))
 	   {
-	   archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-	                    "Invalid repeat position");
+	   archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid repeat position");
 	   return ARCHIVE_FATAL;
 	   }
 	 */
-
 	lastnode = 0;
 	for(bitpos = length - 1; bitpos >= 0; bitpos--) {
 		bit = (codebits >> bitpos) & 1;
-
 		/* Leaf node check */
-		if(code->tree[lastnode].branches[0] ==
-		    code->tree[lastnode].branches[1]) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Prefix found");
+		if(code->tree[lastnode].branches[0] == code->tree[lastnode].branches[1]) {
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Prefix found");
 			return ARCHIVE_FATAL;
 		}
-
 		/*
 		 * Dead code, repeatpos was -1, bitpos >=0
 		 *
@@ -2194,19 +2182,16 @@ static int add_value(struct archive_read * a, struct huffman_code * code, int va
 		 * Open branch check *
 		   if (!(code->tree[lastnode].branches[bit] < 0))
 		   {
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		                      "Invalid repeating code");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Invalid repeating code");
 		    return ARCHIVE_FATAL;
 		   }
 
 		   if ((repeatnode = new_node(code)) < 0) {
-		    archive_set_error(&a->archive, ENOMEM,
-		                      "Unable to allocate memory for node data.");
+		    archive_set_error(&a->archive, ENOMEM, "Unable to allocate memory for node data.");
 		    return ARCHIVE_FATAL;
 		   }
 		   if ((nextnode = new_node(code)) < 0) {
-		    archive_set_error(&a->archive, ENOMEM,
-		                      "Unable to allocate memory for node data.");
+		    archive_set_error(&a->archive, ENOMEM, "Unable to allocate memory for node data.");
 		    return ARCHIVE_FATAL;
 		   }
 
@@ -2224,29 +2209,22 @@ static int add_value(struct archive_read * a, struct huffman_code * code, int va
 		/* Open branch check */
 		if(code->tree[lastnode].branches[bit] < 0) {
 			if(new_node(code) < 0) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Unable to allocate memory for node data.");
+				archive_set_error(&a->archive, ENOMEM, "Unable to allocate memory for node data.");
 				return ARCHIVE_FATAL;
 			}
 			code->tree[lastnode].branches[bit] = code->numentries++;
 		}
-
 		/* set to branch */
 		lastnode = code->tree[lastnode].branches[bit];
 		/* } */
 	}
-
-	if(!(code->tree[lastnode].branches[0] == -1
-	    && code->tree[lastnode].branches[1] == -2)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Prefix found");
+	if(!(code->tree[lastnode].branches[0] == -1 && code->tree[lastnode].branches[1] == -2)) {
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Prefix found");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Set leaf value */
 	code->tree[lastnode].branches[0] = value;
 	code->tree[lastnode].branches[1] = value;
-
 	return ARCHIVE_OK;
 }
 

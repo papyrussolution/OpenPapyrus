@@ -132,7 +132,7 @@ Document::Document()
 
 Document::~Document()
 {
-	for(std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
+	for(std::vector <WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
 		it->watcher->NotifyDeleted(this, it->userData);
 	}
 	for(int j = 0; j<ldSize; j++) {
@@ -380,7 +380,7 @@ Sci_Position SCI_METHOD Document::LineEnd(Sci_Position line) const
 void SCI_METHOD Document::SetErrorStatus(int status)
 {
 	// Tell the watchers an error has occurred.
-	for(std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
+	for(std::vector <WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
 		it->watcher->NotifyErrorOccurred(this, it->userData, status);
 	}
 }
@@ -1869,7 +1869,7 @@ long Document::FindText(int minPos, int maxPos, const char * search, int flags, 
 		}
 		else if(SC_CP_UTF8 == dbcsCodePage) {
 			const size_t maxFoldingExpansion = 4;
-			std::vector<char> searchThing(lengthFind * UTF8MaxBytes * maxFoldingExpansion + 1);
+			std::vector <char> searchThing(lengthFind * UTF8MaxBytes * maxFoldingExpansion + 1);
 			const int lenSearch = static_cast<int>(
 			    pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind));
 			char bytes[UTF8MaxBytes + 1];
@@ -1924,7 +1924,7 @@ long Document::FindText(int minPos, int maxPos, const char * search, int flags, 
 		else if(dbcsCodePage) {
 			const size_t maxBytesCharacter = 2;
 			const size_t maxFoldingExpansion = 4;
-			std::vector<char> searchThing(lengthFind * maxBytesCharacter * maxFoldingExpansion + 1);
+			std::vector <char> searchThing(lengthFind * maxBytesCharacter * maxFoldingExpansion + 1);
 			const int lenSearch = static_cast<int>(
 			    pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind));
 			while(forward ? (pos < endPos) : (pos >= endPos)) {
@@ -1959,7 +1959,7 @@ long Document::FindText(int minPos, int maxPos, const char * search, int flags, 
 		}
 		else {
 			const int endSearch = (startPos <= endPos) ? endPos - lengthFind + 1 : endPos;
-			std::vector<char> searchThing(lengthFind + 1);
+			std::vector <char> searchThing(lengthFind + 1);
 			pcf->Fold(&searchThing[0], searchThing.size(), search, lengthFind);
 			while(forward ? (pos < endSearch) : (pos >= endSearch)) {
 				bool found = (pos + lengthFind) <= limitPos;
@@ -2069,7 +2069,7 @@ void Document::EnsureStyledTo(int pos)
 		}
 		else {
 			// Ask the watchers to style, and stop as soon as one responds.
-			for(std::vector<WatcherWithUserData>::iterator it = watchers.begin();
+			for(std::vector <WatcherWithUserData>::iterator it = watchers.begin();
 			    (pos > GetEndStyled()) && (it != watchers.end()); ++it) {
 				it->watcher->NotifyStyleNeeded(this, it->userData, pos);
 			}
@@ -2109,7 +2109,7 @@ void Document::StyleToAdjustingLineDuration(int pos)
 void Document::LexerChanged()
 {
 	// Tell the watchers the lexer has changed.
-	for(std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
+	for(std::vector <WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
 		it->watcher->NotifyLexerChanged(this, it->userData);
 	}
 }
@@ -2272,7 +2272,7 @@ void SCI_METHOD Document::DecorationFillRange(Sci_Position position, int value, 
 bool Document::AddWatcher(DocWatcher * watcher, void * userData)
 {
 	WatcherWithUserData wwud(watcher, userData);
-	std::vector<WatcherWithUserData>::iterator it = std::find(watchers.begin(), watchers.end(), wwud);
+	std::vector <WatcherWithUserData>::iterator it = std::find(watchers.begin(), watchers.end(), wwud);
 	if(it != watchers.end())
 		return false;
 	else {
@@ -2283,7 +2283,7 @@ bool Document::AddWatcher(DocWatcher * watcher, void * userData)
 
 bool Document::RemoveWatcher(DocWatcher * watcher, void * userData)
 {
-	std::vector<WatcherWithUserData>::iterator it = std::find(watchers.begin(), watchers.end(), WatcherWithUserData(watcher, userData));
+	std::vector <WatcherWithUserData>::iterator it = std::find(watchers.begin(), watchers.end(), WatcherWithUserData(watcher, userData));
 	if(it != watchers.end()) {
 		watchers.erase(it);
 		return true;
@@ -2294,14 +2294,14 @@ bool Document::RemoveWatcher(DocWatcher * watcher, void * userData)
 
 void Document::NotifyModifyAttempt()
 {
-	for(std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
+	for(std::vector <WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
 		it->watcher->NotifyModifyAttempt(this, it->userData);
 	}
 }
 
 void Document::NotifySavePoint(bool atSavePoint)
 {
-	for(std::vector<WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
+	for(std::vector <WatcherWithUserData>::iterator it = watchers.begin(); it != watchers.end(); ++it) {
 		it->watcher->NotifySavePoint(this, it->userData, atSavePoint);
 	}
 }
@@ -2934,7 +2934,7 @@ long Cxx11RegexFindText(Document * doc, int minPos, int maxPos, const char * s, 
 		bool matched = false;
 		if(SC_CP_UTF8 == doc->dbcsCodePage) {
 			uint lenS = static_cast<uint>(sstrlen(s));
-			std::vector<wchar_t> ws(lenS + 1);
+			std::vector <wchar_t> ws(lenS + 1);
 #if WCHAR_T_IS_16
 			size_t outLen = UTF16FromUTF8(s, lenS, &ws[0], lenS);
 #else

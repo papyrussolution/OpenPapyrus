@@ -37,7 +37,7 @@
 //
 // Example:
 //
-//   std::vector<std::string> v = {"foo", "bar", "baz"};
+//   std::vector <std::string> v = {"foo", "bar", "baz"};
 //   std::string s = absl::StrJoin(v, "-");
 //   EXPECT_EQ("foo-bar-baz", s);
 //
@@ -84,7 +84,7 @@ ABSL_NAMESPACE_BEGIN
 // You would use the above formatter by passing an instance of it as the final
 // argument to `absl::StrJoin()`:
 //
-//   std::vector<int> v = {1, 2, 3, 4};
+//   std::vector <int> v = {1, 2, 3, 4};
 //   std::string s = absl::StrJoin(v, "-", MyFormatter());
 //   EXPECT_EQ("1-2-3-4", s);
 //
@@ -168,7 +168,7 @@ DereferenceFormatter() {
 // Example 1:
 //   // Joins a collection of strings. This pattern also works with a collection
 //   // of `absl::string_view` or even `const char*`.
-//   std::vector<std::string> v = {"foo", "bar", "baz"};
+//   std::vector <std::string> v = {"foo", "bar", "baz"};
 //   std::string s = absl::StrJoin(v, "-");
 //   EXPECT_EQ("foo-bar-baz", s);
 //
@@ -182,7 +182,7 @@ DereferenceFormatter() {
 // Example 3:
 //   // Joins a collection of ints. This pattern also works with floats,
 //   // doubles, int64s -- any `StrCat()`-compatible type.
-//   std::vector<int> v = {1, 2, 3, -4};
+//   std::vector <int> v = {1, 2, 3, -4};
 //   std::string s = absl::StrJoin(v, "-");
 //   EXPECT_EQ("1-2-3--4", s);
 //
@@ -190,16 +190,16 @@ DereferenceFormatter() {
 //   // Joins a collection of pointer-to-int. By default, pointers are
 //   // dereferenced and the pointee is formatted using the default format for
 //   // that type; such dereferencing occurs for all levels of indirection, so
-//   // this pattern works just as well for `std::vector<int**>` as for
-//   // `std::vector<int*>`.
+//   // this pattern works just as well for `std::vector <int**>` as for
+//   // `std::vector <int*>`.
 //   int x = 1, y = 2, z = 3;
-//   std::vector<int*> v = {&x, &y, &z};
+//   std::vector <int*> v = {&x, &y, &z};
 //   std::string s = absl::StrJoin(v, "-");
 //   EXPECT_EQ("1-2-3", s);
 //
 // Example 5:
 //   // Dereferencing of `std::unique_ptr<>` is also supported:
-//   std::vector<std::unique_ptr<int>> v
+//   std::vector <std::unique_ptr<int>> v
 //   v.emplace_back(new int(1));
 //   v.emplace_back(new int(2));
 //   v.emplace_back(new int(3));
@@ -209,7 +209,7 @@ DereferenceFormatter() {
 // Example 6:
 //   // Joins a `std::map`, with each key-value pair separated by an equals
 //   // sign. This pattern would also work with, say, a
-//   // `std::vector<std::pair<>>`.
+//   // `std::vector <std::pair<>>`.
 //   std::map<std::string, int> m = {
 //       std::make_pair("a", 1),
 //       std::make_pair("b", 2),
@@ -220,19 +220,19 @@ DereferenceFormatter() {
 // Example 7:
 //   // These examples show how `absl::StrJoin()` handles a few common edge
 //   // cases:
-//   std::vector<std::string> v_empty;
+//   std::vector <std::string> v_empty;
 //   EXPECT_EQ("", absl::StrJoin(v_empty, "-"));
 //
-//   std::vector<std::string> v_one_item = {"foo"};
+//   std::vector <std::string> v_one_item = {"foo"};
 //   EXPECT_EQ("foo", absl::StrJoin(v_one_item, "-"));
 //
-//   std::vector<std::string> v_empty_string = {""};
+//   std::vector <std::string> v_empty_string = {""};
 //   EXPECT_EQ("", absl::StrJoin(v_empty_string, "-"));
 //
-//   std::vector<std::string> v_one_item_empty_string = {"a", ""};
+//   std::vector <std::string> v_one_item_empty_string = {"a", ""};
 //   EXPECT_EQ("a-", absl::StrJoin(v_one_item_empty_string, "-"));
 //
-//   std::vector<std::string> v_two_empty_string = {"", ""};
+//   std::vector <std::string> v_two_empty_string = {"", ""};
 //   EXPECT_EQ("-", absl::StrJoin(v_two_empty_string, "-"));
 //
 // Example 8:

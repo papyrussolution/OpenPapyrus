@@ -175,7 +175,7 @@ void DefaultValueObjectWriter::RegisterFieldScrubCallBack(
 DefaultValueObjectWriter::Node* DefaultValueObjectWriter::CreateNewNode(
     const std::string & name, const google::protobuf::Type* type, NodeKind kind,
     const DataPiece& data, bool is_placeholder,
-    const std::vector<std::string>& path, bool suppress_empty_list,
+    const std::vector <std::string>& path, bool suppress_empty_list,
     bool preserve_proto_field_names, bool use_ints_for_enums,
     FieldScrubCallBack field_scrub_callback) {
   return new Node(name, type, kind, data, is_placeholder, path,
@@ -186,7 +186,7 @@ DefaultValueObjectWriter::Node* DefaultValueObjectWriter::CreateNewNode(
 DefaultValueObjectWriter::Node::Node(
     const std::string & name, const google::protobuf::Type* type, NodeKind kind,
     const DataPiece& data, bool is_placeholder,
-    const std::vector<std::string>& path, bool suppress_empty_list,
+    const std::vector <std::string>& path, bool suppress_empty_list,
     bool preserve_proto_field_names, bool use_ints_for_enums,
     FieldScrubCallBack field_scrub_callback)
     : name_(name),
@@ -294,7 +294,7 @@ void DefaultValueObjectWriter::Node::PopulateChildren(
       type_->name() == kDurationType || type_->name() == kStructValueType) {
     return;
   }
-  std::vector<Node*> new_children;
+  std::vector <Node*> new_children;
   std::unordered_map<std::string, int> orig_children_map;
 
   // Creates a map of child nodes to speed up lookup.
@@ -307,7 +307,7 @@ void DefaultValueObjectWriter::Node::PopulateChildren(
 
     // This code is checking if the field to be added to the tree should be
     // scrubbed or not by calling the field_scrub_callback_ callback function.
-    std::vector<std::string> path;
+    std::vector <std::string> path;
     if (!path_.empty()) {
       path.insert(path.begin(), path_.begin(), path_.end());
     }
@@ -486,7 +486,7 @@ DataPiece DefaultValueObjectWriter::CreateDefaultDataPieceForField(
 DefaultValueObjectWriter* DefaultValueObjectWriter::StartObject(
     StringPiece name) {
   if (current_ == nullptr) {
-    std::vector<std::string> path;
+    std::vector <std::string> path;
     root_.reset(CreateNewNode(std::string(name), &type_, OBJECT,
                               DataPiece::NullData(), false, path,
                               suppress_empty_list_, preserve_proto_field_names_,
@@ -537,7 +537,7 @@ DefaultValueObjectWriter* DefaultValueObjectWriter::EndObject() {
 DefaultValueObjectWriter* DefaultValueObjectWriter::StartList(
     StringPiece name) {
   if (current_ == nullptr) {
-    std::vector<std::string> path;
+    std::vector <std::string> path;
     root_.reset(CreateNewNode(std::string(name), &type_, LIST,
                               DataPiece::NullData(), false, path,
                               suppress_empty_list_, preserve_proto_field_names_,

@@ -159,10 +159,10 @@ class XAPIAN_VISIBILITY_DEFAULT LatLongCoordsIterator {
 	friend class LatLongCoords;
 
 	/// The current position of the iterator.
-	std::vector<LatLongCoord>::const_iterator iter;
+	std::vector <LatLongCoord>::const_iterator iter;
 
 	/// Constructor used by LatLongCoords.
-	LatLongCoordsIterator(std::vector<LatLongCoord>::const_iterator iter_)
+	LatLongCoordsIterator(std::vector <LatLongCoord>::const_iterator iter_)
 		: iter(iter_) {
 	}
 
@@ -220,7 +220,7 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT LatLongCoords {
 	/// The coordinates.
-	std::vector<LatLongCoord> coords;
+	std::vector <LatLongCoord> coords;
 
 public:
 	/// Get a begin iterator for the coordinates.

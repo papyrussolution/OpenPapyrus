@@ -56,7 +56,7 @@ namespace google {
 				// Finds all unset required fields in the message and adds their full
 				// paths (e.g. "foo.bar[5].baz") to *names.  "prefix" will be attached to
 				// the front of each name.
-				static void FindInitializationErrors(const Message& message, const std::string & prefix, std::vector<std::string>* errors);
+				static void FindInitializationErrors(const Message& message, const std::string & prefix, std::vector <std::string>* errors);
 			private:
 				// All methods are static.  No need to construct.
 				GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ReflectionOps);

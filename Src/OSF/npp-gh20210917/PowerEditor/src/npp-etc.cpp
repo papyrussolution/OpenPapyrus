@@ -523,7 +523,7 @@ ScintillaEditView * ScintillaCtrls::getScintillaEditViewFrom(HWND handle2Find)
                 return false;
         _scintVector[i]->destroy();
         delete _scintVector[i];
-        std::vector<ScintillaEditView *>::iterator it2delete = _scintVector.begin()+ i;
+        std::vector <ScintillaEditView *>::iterator it2delete = _scintVector.begin()+ i;
         _scintVector.erase(it2delete);
         return true;
    }

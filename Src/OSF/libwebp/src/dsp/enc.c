@@ -5,28 +5,23 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Speed-critical encoding functions.
 //
 // Author: Skal (pascal.massimino@gmail.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include <assert.h>
-//#include <stdlib.h>  // for abs()
-//#include "src/dsp/dsp.h"
 #include "src/enc/vp8i_enc.h"
 
 static FORCEINLINE uint8 clip_8b(int v) { return (!(v & ~0xff)) ? v : (v < 0) ? 0 : 255; }
 #if !WEBP_NEON_OMIT_C_CODE
 	static FORCEINLINE int clip_max(int v, int max) { return (v > max) ? max : v; }
 #endif  // !WEBP_NEON_OMIT_C_CODE
-
-//------------------------------------------------------------------------------
+//
 // Compute susceptibility based on DCT-coeff histograms:
 // the higher, the "easier" the macroblock is to compress.
-
+//
 const int VP8DspScan[16 + 4 + 4] = {
 	// Luma
 	0 +  0 * BPS,  4 +  0 * BPS, 8 +  0 * BPS, 12 +  0 * BPS,
@@ -74,10 +69,9 @@ static void CollectHistogram_C(const uint8* ref, const uint8* pred, int start_bl
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE
-
-//------------------------------------------------------------------------------
+//
 // run-time tables (~4k)
-
+//
 static uint8 clip1[255 + 510 + 1];    // clips [-255,510] to [0,255]
 
 // We declare this variable 'volatile' to prevent instruction reordering
@@ -93,10 +87,9 @@ static WEBP_TSAN_IGNORE_FUNCTION void InitTables(void)
 		tables_ok = 1;
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Transforms (Paragraph 14.4)
-
+//
 #if !WEBP_NEON_OMIT_C_CODE
 
 #define STORE(x, y, v) dst[(x) + (y) * BPS] = clip_8b(ref[(x) + (y) * BPS] + ((v) >> 3))
@@ -219,10 +212,9 @@ static void FTransformWHT_C(const int16_t* in, int16_t* out)
 
 #undef MUL
 #undef STORE
-
-//------------------------------------------------------------------------------
+//
 // Intra predictions
-
+//
 static FORCEINLINE void Fill(uint8* dst, int value, int size) 
 {
 	for(int j = 0; j < size; ++j) {
@@ -312,12 +304,11 @@ static FORCEINLINE void DCMode(uint8* dst, const uint8* left, const uint8* top, 
 	}
 	Fill(dst, DC, size);
 }
-
-//------------------------------------------------------------------------------
+//
 // Chroma 8x8 prediction (paragraph 12.2)
-
-static void IntraChromaPreds_C(uint8* dst, const uint8* left,
-    const uint8* top) {
+//
+static void IntraChromaPreds_C(uint8* dst, const uint8* left, const uint8* top) 
+{
 	// U block
 	DCMode(C8DC8 + dst, left, top, 8, 8, 4);
 	VerticalPred(C8VE8 + dst, top, 8);
@@ -332,21 +323,19 @@ static void IntraChromaPreds_C(uint8* dst, const uint8* left,
 	HorizontalPred(C8HE8 + dst, left, 8);
 	TrueMotion(C8TM8 + dst, left, top, 8);
 }
-
-//------------------------------------------------------------------------------
+//
 // luma 16x16 prediction (paragraph 12.3)
-
-static void Intra16Preds_C(uint8* dst,
-    const uint8* left, const uint8* top) {
+//
+static void Intra16Preds_C(uint8* dst, const uint8* left, const uint8* top) 
+{
 	DCMode(I16DC16 + dst, left, top, 16, 16, 5);
 	VerticalPred(I16VE16 + dst, top, 16);
 	HorizontalPred(I16HE16 + dst, left, 16);
 	TrueMotion(I16TM16 + dst, left, top, 16);
 }
-
-//------------------------------------------------------------------------------
+//
 // luma 4x4 prediction
-
+//
 #define DST(x, y) dst[(x) + (y) * BPS]
 #define AVG3(a, b, c) ((uint8)(((a) + 2 * (b) + (c) + 2) >> 2))
 #define AVG2(a, b) (((a) + (b) + 1) >> 1)
@@ -532,10 +521,9 @@ static void Intra4Preds_C(uint8* dst, const uint8* top) {
 	HD4(I4HD4 + dst, top);
 	HU4(I4HU4 + dst, top);
 }
-
-//------------------------------------------------------------------------------
+//
 // Metric
-
+//
 #if !WEBP_NEON_OMIT_C_CODE
 static FORCEINLINE int GetSSE(const uint8* a, const uint8* b,
     int w, int h) {
@@ -678,10 +666,9 @@ static int Quantize2Blocks_C(int16_t in[32], int16_t out[32], const VP8Matrix* c
 }
 
 #endif  // !WEBP_NEON_OMIT_C_CODE || WEBP_NEON_WORK_AROUND_GCC
-
-//------------------------------------------------------------------------------
+//
 // Block copy
-
+//
 static FORCEINLINE void Copy(const uint8* src, uint8* dst, int w, int h) 
 {
 	for(int y = 0; y < h; ++y) {

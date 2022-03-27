@@ -2737,8 +2737,8 @@ void ProcessError(EDIWebServiceSoapProxy & rProxy)
 	ErrorCode = IEERR_SOAP;
 	rProxy.soap_sprint_fault(temp_err_buf, sizeof(temp_err_buf));
 	temp_buf = temp_err_buf;
-	temp_buf.ReplaceChar('\xA', ' ');
-	temp_buf.ReplaceChar('\xD', ' ');
+	temp_buf.ReplaceChar('\x0A', ' ');
+	temp_buf.ReplaceChar('\x0D', ' ');
 	temp_buf.ReplaceStr("  ", " ", 0);
 	StrError = temp_buf;
 }

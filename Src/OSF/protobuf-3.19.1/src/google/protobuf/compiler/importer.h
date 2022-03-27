@@ -298,7 +298,7 @@ private:
 		}
 	};
 
-	std::vector<Mapping> mappings_;
+	std::vector <Mapping> mappings_;
 	std::string last_error_message_;
 
 	// Like Open(), but returns the on-disk path in disk_file if disk_file is

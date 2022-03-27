@@ -851,22 +851,18 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 			return lenRes;
 		}
 		p->optimumCurrentIndex = p->optimumEndIndex = 0;
-
 		if(p->additionalOffset == 0)
 			mainLen = ReadMatchDistances(p, &numPairs);
 		else {
 			mainLen = p->longestMatchLength;
 			numPairs = p->numPairs;
 		}
-
 		numAvail = p->numAvail;
 		if(numAvail < 2) {
 			*backRes = (uint32)(-1);
 			return 1;
 		}
-		if(numAvail > LZMA_MATCH_LEN_MAX)
-			numAvail = LZMA_MATCH_LEN_MAX;
-
+		SETMIN(numAvail, LZMA_MATCH_LEN_MAX);
 		data = p->matchFinder.GetPointerToCurrentPos(p->matchFinderObj) - 1;
 		repMaxIndex = 0;
 		for(i = 0; i < LZMA_NUM_REPS; i++) {
@@ -957,7 +953,6 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 			for(;; len++) {
 				COptimal * opt;
 				uint32 distance = matches[(size_t)offs + 1];
-
 				uint32 curAndLenPrice = normalMatchPrice + p->lenEnc.prices[posState][(size_t)len - LZMA_MATCH_LEN_MIN];
 				uint32 lenToPosState = GetLenToPosState(len);
 				if(distance < kNumFullDistances)
@@ -1044,10 +1039,7 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 			}
 			else {
 				pos = curOpt->backPrev;
-				if(pos < LZMA_NUM_REPS)
-					state = kRepNextStates[state];
-				else
-					state = kMatchNextStates[state];
+				state = (pos < LZMA_NUM_REPS) ? kRepNextStates[state] : kMatchNextStates[state];
 			}
 			prevOpt = &p->opt[posPrev];
 			if(pos < LZMA_NUM_REPS) {
@@ -1059,9 +1051,8 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 					reps[i] = prevOpt->backs[i];
 			}
 			else {
-				uint32 i;
 				reps[0] = (pos - LZMA_NUM_REPS);
-				for(i = 1; i < LZMA_NUM_REPS; i++)
+				for(uint32 i = 1; i < LZMA_NUM_REPS; i++)
 					reps[i] = prevOpt->backs[(size_t)i - 1];
 			}
 		}
@@ -1143,8 +1134,7 @@ static uint32 GetOptimum(CLzmaEnc * p, uint32 position, uint32 * backRes)
 		}
 		startLen = 2; /* speed optimization */
 		{
-			uint32 repIndex;
-			for(repIndex = 0; repIndex < LZMA_NUM_REPS; repIndex++) {
+			for(uint32 repIndex = 0; repIndex < LZMA_NUM_REPS; repIndex++) {
 				uint32 lenTest;
 				uint32 lenTestTemp;
 				uint32 price;

@@ -229,14 +229,12 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	ret_final = ARCHIVE_OK;
 	sconv = get_sconv(a);
-
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	/* Make sure the path separators in pathname, hardlink and symlink
 	 * are all slash '/', not the Windows path separator '\'. */
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate ustar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 		return(ARCHIVE_FATAL);
 	}
 	if(entry != entry_main)
@@ -246,19 +244,14 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 #else
 	entry_main = NULL;
 #endif
-
 	ret = archive_entry_pathname_l(entry, &path, &len, sconv);
 	if(ret != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			ret_final = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to %s",
-		    archive_entry_pathname(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to %s", archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
 	/* Include trailing null. */

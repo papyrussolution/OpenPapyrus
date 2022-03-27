@@ -120,7 +120,7 @@ wstring normalize(wstring path)
 	static const wstring dot(L".");
 	static const wstring dotdot(L"..");
 	const WCHAR* p = path.c_str();
-	std::vector<wstring> segments;
+	std::vector <wstring> segments;
 	int segment_start = -1;
 	// Find the path segments in `path` (separated by "/").
 	for(int i = 0;; ++i) {

@@ -62,7 +62,7 @@ void ReflectionOps::Merge(const Message& from, Message* to) {
 	bool is_to_generated = (to_reflection->GetMessageFactory() ==
 	    google::protobuf::MessageFactory::generated_factory());
 
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 	from_reflection->ListFieldsOmitStripped(from, &fields);
 	for(const FieldDescriptor* field : fields) {
 		if(field->is_repeated()) {
@@ -150,7 +150,7 @@ void ReflectionOps::Merge(const Message& from, Message* to) {
 void ReflectionOps::Clear(Message* message) 
 {
 	const Reflection* reflection = GetReflectionOrDie(*message);
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 	reflection->ListFieldsOmitStripped(*message, &fields);
 	for(const FieldDescriptor* field : fields) {
 		reflection->ClearField(message, field);
@@ -239,7 +239,7 @@ bool ReflectionOps::IsInitialized(const Message& message) {
 	}
 
 	// Check that sub-messages are initialized.
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 	// Should be safe to skip stripped fields because required fields are not
 	// stripped.
 	reflection->ListFieldsOmitStripped(message, &fields);
@@ -300,7 +300,7 @@ void ReflectionOps::DiscardUnknownFields(Message* message) {
 
 	// Walk through the fields of this message and DiscardUnknownFields on any
 	// messages present.
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 	reflection->ListFields(*message, &fields);
 	for(const FieldDescriptor* field : fields) {
 		// Skip over non-message fields.
@@ -357,7 +357,7 @@ static std::string SubMessagePrefix(const std::string & prefix,
 
 void ReflectionOps::FindInitializationErrors(const Message& message,
     const std::string & prefix,
-    std::vector<std::string>* errors) {
+    std::vector <std::string>* errors) {
 	const Descriptor* descriptor = message.GetDescriptor();
 	const Reflection* reflection = GetReflectionOrDie(message);
 
@@ -374,7 +374,7 @@ void ReflectionOps::FindInitializationErrors(const Message& message,
 	}
 
 	// Check sub-messages.
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 	reflection->ListFieldsOmitStripped(message, &fields);
 	for(const FieldDescriptor* field : fields) {
 		if(field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE) {

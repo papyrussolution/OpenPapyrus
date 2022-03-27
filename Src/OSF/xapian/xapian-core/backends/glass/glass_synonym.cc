@@ -122,7 +122,7 @@ void GlassSynonymTable::clear_synonyms(const string & term)
 
 TermList * GlassSynonymTable::open_termlist(const string & term)
 {
-	vector<string> synonyms;
+	vector <string> synonyms;
 
 	if(last_term == term) {
 		if(last_synonyms.empty()) return NULL;

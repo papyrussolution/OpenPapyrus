@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -23,14 +18,12 @@
 #define IDC_DRAG_OUT_TAB 1407
 
 bool TabBarPlus::_doDragNDrop = false;
-
 bool TabBarPlus::_drawTopBar = true;
 bool TabBarPlus::_drawInactiveTab = true;
 bool TabBarPlus::_drawTabCloseButton = false;
 bool TabBarPlus::_isDbClk2Close = false;
 bool TabBarPlus::_isCtrlVertical = false;
 bool TabBarPlus::_isCtrlMultiLine = false;
-
 COLORREF TabBarPlus::_activeTextColour = ::GetSysColor(COLOR_BTNTEXT);
 COLORREF TabBarPlus::_activeTopBarFocusedColour = RGB(250, 170, 60);
 COLORREF TabBarPlus::_activeTopBarUnfocusedColour = RGB(250, 210, 150);

@@ -76,12 +76,12 @@ public:
 	 *  Used to implement "check_at_least".
 	 */
 	Xapian::doccount known_matching_docs = 0;
-	std::vector<Result> results; /// The items in the proto-MSet.
+	std::vector <Result> results; /// The items in the proto-MSet.
 	/** A heap of offsets into @a results.
 	 *
 	 *  Created lazily once we actually need it.
 	 */
-	std::vector<Xapian::doccount> min_heap;
+	std::vector <Xapian::doccount> min_heap;
 	Xapian::doccount first; /// First entry wanted in MSet.
 	/** How many weighted leaf subqueries there are.
 	 *

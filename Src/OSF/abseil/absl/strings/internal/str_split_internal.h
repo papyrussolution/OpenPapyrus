@@ -205,7 +205,7 @@ struct IsInitializerList
 // a const_iterator member type) and also to disable conversion to an
 // std::initializer_list (which also has a const_iterator). Otherwise, code
 // compiled in C++11 will get an error due to ambiguous conversion paths (in
-// C++11 std::vector<T>::operator= is overloaded to take either a std::vector<T>
+// C++11 std::vector <T>::operator= is overloaded to take either a std::vector <T>
 // or an std::initializer_list<T>).
 
 template <typename C, bool has_value_type, bool has_mapped_type>
@@ -325,15 +325,15 @@ class Splitter {
     }
   };
 
-  // Partial specialization for a std::vector<absl::string_view>.
+  // Partial specialization for a std::vector <absl::string_view>.
   //
   // Optimized for the common case of splitting to a
-  // std::vector<absl::string_view>. In this case we first split the results to
+  // std::vector <absl::string_view>. In this case we first split the results to
   // a small array of absl::string_view on the stack, to reduce reallocations.
   template <typename A>
-  struct ConvertToContainer<std::vector<absl::string_view, A>,
+  struct ConvertToContainer<std::vector <absl::string_view, A>,
                             absl::string_view, false> {
-    std::vector<absl::string_view, A> operator()(
+    std::vector <absl::string_view, A> operator()(
         const Splitter& splitter) const {
       struct raw_view {
         const char* data;
@@ -342,7 +342,7 @@ class Splitter {
           return {data, size};
         }
       };
-      std::vector<absl::string_view, A> v;
+      std::vector <absl::string_view, A> v;
       std::array<raw_view, 16> ar;
       for (auto it = splitter.begin(); !it.at_end();) {
         size_t index = 0;
@@ -357,17 +357,17 @@ class Splitter {
     }
   };
 
-  // Partial specialization for a std::vector<std::string>.
+  // Partial specialization for a std::vector <std::string>.
   //
-  // Optimized for the common case of splitting to a std::vector<std::string>.
-  // In this case we first split the results to a std::vector<absl::string_view>
-  // so the returned std::vector<std::string> can have space reserved to avoid
+  // Optimized for the common case of splitting to a std::vector <std::string>.
+  // In this case we first split the results to a std::vector <absl::string_view>
+  // so the returned std::vector <std::string> can have space reserved to avoid
   // std::string moves.
   template <typename A>
-  struct ConvertToContainer<std::vector<std::string, A>, std::string, false> {
-    std::vector<std::string, A> operator()(const Splitter& splitter) const {
-      const std::vector<absl::string_view> v = splitter;
-      return std::vector<std::string, A>(v.begin(), v.end());
+  struct ConvertToContainer<std::vector <std::string, A>, std::string, false> {
+    std::vector <std::string, A> operator()(const Splitter& splitter) const {
+      const std::vector <absl::string_view> v = splitter;
+      return std::vector <std::string, A>(v.begin(), v.end());
     }
   };
 

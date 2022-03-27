@@ -142,7 +142,7 @@ TextFormat::ParseLocationRange TextFormat::ParseInfoTree::GetLocationRange(const
 		index = 0;
 	}
 
-	const std::vector<TextFormat::ParseLocationRange>* locations =
+	const std::vector <TextFormat::ParseLocationRange>* locations =
 	    FindOrNull(locations_, field);
 	if(locations == nullptr ||
 	    index >= static_cast<int64_t>(locations->size())) {
@@ -1630,7 +1630,7 @@ bool TextFormat::Parser::MergeUsingImpl(io::ZeroCopyInputStream* /* input */,
     ParserImpl* parser_impl) {
 	if(!parser_impl->Parse(output)) return false;
 	if(!allow_partial_ && !output->IsInitialized()) {
-		std::vector<std::string> missing_fields;
+		std::vector <std::string> missing_fields;
 		output->FindInitializationErrors(&missing_fields);
 		parser_impl->ReportError(-1, 0,
 		    "Message missing required fields: " +
@@ -2196,7 +2196,7 @@ void TextFormat::Printer::Print(const Message& message,
 	    PrintAny(message, generator)) {
 		return;
 	}
-	std::vector<const FieldDescriptor*> fields;
+	std::vector <const FieldDescriptor*> fields;
 	if(descriptor->options().map_entry()) {
 		fields.push_back(descriptor->field(0));
 		fields.push_back(descriptor->field(1));
@@ -2287,13 +2287,13 @@ class MapFieldPrinterHelper {
 public:
 	// DynamicMapSorter::Sort cannot be used because it enfores syncing with
 	// repeated field.
-	static bool SortMap(const Message& message, const Reflection* reflection, const FieldDescriptor* field, std::vector<const Message*>* sorted_map_field);
+	static bool SortMap(const Message& message, const Reflection* reflection, const FieldDescriptor* field, std::vector <const Message*>* sorted_map_field);
 	static void CopyKey(const MapKey& key, Message* message, const FieldDescriptor* field_desc); 
 	static void CopyValue(const MapValueRef& value, Message* message, const FieldDescriptor* field_desc);
 };
 
 // Returns true if elements contained in sorted_map_field need to be released.
-bool MapFieldPrinterHelper::SortMap(const Message& message, const Reflection* reflection, const FieldDescriptor* field, std::vector<const Message*>* sorted_map_field) 
+bool MapFieldPrinterHelper::SortMap(const Message& message, const Reflection* reflection, const FieldDescriptor* field, std::vector <const Message*>* sorted_map_field) 
 {
 	bool need_release = false;
 	const MapFieldBase& base = *reflection->GetMapData(message, field);
@@ -2409,7 +2409,7 @@ void TextFormat::Printer::PrintField(const Message& message, const Reflection* r
 	    field->containing_type()->options().map_entry()) {
 		count = 1;
 	}
-	std::vector<const Message*> sorted_map_field;
+	std::vector <const Message*> sorted_map_field;
 	bool need_release = false;
 	bool is_map = field->is_map();
 	if(is_map) {

@@ -74,7 +74,7 @@ void FASTCALL PPSoapClientSession::SetMsg(const char * pUtf8Text)
 {
 	SString temp_buf;
 	(temp_buf = pUtf8Text).Transf(CTRANSF_UTF8_TO_INNER);
-	temp_buf.ReplaceChar('\xA', ' ');
+	temp_buf.ReplaceChar('\x0A', ' ');
 	temp_buf.CopyTo(ErrMsg, sizeof(ErrMsg));
 }
 //

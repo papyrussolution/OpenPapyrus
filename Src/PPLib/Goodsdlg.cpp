@@ -539,7 +539,7 @@ static int _EditBarcodeItem(BarcodeTbl::Rec * pRec, PPID goodsGrpID)
 			}
 			else if(event.isKeyDown(kbF8)) {
 				getCtrlString(CTL_BARCODE_CODE, code);
-				if(code.Len() == 13 || code.Len() == 8) {
+				if(oneof2(code.Len(), 13, 8)) {
 					code.TrimRight();
 					PPBarcode::BarcodeImageParam bip;
 					bip.Code = code;

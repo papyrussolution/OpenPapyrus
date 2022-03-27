@@ -199,7 +199,7 @@ generic_string commafyInt(size_t n);
 void writeLog(const TCHAR * logFileName, const char * log2write);
 int filter(uint code, struct _EXCEPTION_POINTERS * ep);
 generic_string purgeMenuItemString(const TCHAR * menuItemStr, bool keepAmpersand = false);
-std::vector<generic_string> tokenizeString(const generic_string & tokenString, const char delim);
+std::vector <generic_string> tokenizeString(const generic_string & tokenString, const char delim);
 void ClientRectToScreenRect(HWND hWnd, RECT* rect);
 void ScreenRectToClientRect(HWND hWnd, RECT* rect);
 std::wstring string2wstring(const std::string & rString, UINT codepage);
@@ -209,8 +209,8 @@ generic_string BuildMenuFileName(int filenameLen, uint pos, const generic_string
 std::string getFileContent(const TCHAR * file2read);
 generic_string relativeFilePathToFullFilePath(const TCHAR * relativeFilePath);
 void writeFileContent(const TCHAR * file2write, const char * content2write);
-bool matchInList(const TCHAR * fileName, const std::vector<generic_string> & patterns);
-bool allPatternsAreExclusion(const std::vector<generic_string> patterns);
+bool matchInList(const TCHAR * fileName, const std::vector <generic_string> & patterns);
+bool allPatternsAreExclusion(const std::vector <generic_string> patterns);
 
 class WcharMbcsConvertor final {
 public:
@@ -286,9 +286,9 @@ COLORREF getCtrlBgColor(HWND hWnd);
 generic_string stringToUpper(generic_string strToConvert);
 generic_string stringToLower(generic_string strToConvert);
 generic_string stringReplace(generic_string subject, const generic_string& search, const generic_string& replace);
-std::vector<generic_string> stringSplit(const generic_string& input, const generic_string& delimiter);
-bool str2numberVector(generic_string str2convert, std::vector<size_t>& numVect);
-generic_string stringJoin(const std::vector<generic_string>& strings, const generic_string& separator);
+std::vector <generic_string> stringSplit(const generic_string& input, const generic_string& delimiter);
+bool str2numberVector(generic_string str2convert, std::vector <size_t>& numVect);
+generic_string stringJoin(const std::vector <generic_string>& strings, const generic_string& separator);
 generic_string stringTakeWhileAdmissable(const generic_string& input, const generic_string& admissable);
 double stodLocale(const generic_string& str, _locale_t loc, size_t* idx = NULL);
 int OrdinalIgnoreCaseCompareStrings(LPCTSTR sz1, LPCTSTR sz2);
@@ -303,16 +303,16 @@ bool isAssoCommandExisting(LPCTSTR FullPathName);
 std::wstring s2ws(const std::string & str);
 std::string ws2s(const std::wstring& wstr);
 bool deleteFileOrFolder(const generic_string& f2delete);
-void getFilesInFolder(std::vector<generic_string>& files, const generic_string& extTypeFilter, const generic_string& inFolder);
+void getFilesInFolder(std::vector <generic_string>& files, const generic_string& extTypeFilter, const generic_string& inFolder);
 
-template <typename T> size_t vecRemoveDuplicates(std::vector<T>& vec, bool isSorted = false, bool canSort = false)
+template <typename T> size_t vecRemoveDuplicates(std::vector <T>& vec, bool isSorted = false, bool canSort = false)
 {
 	if(!isSorted && canSort) {
 		std::sort(vec.begin(), vec.end());
 		isSorted = true;
 	}
 	if(isSorted) {
-		typename std::vector<T>::iterator it;
+		typename std::vector <T>::iterator it;
 		it = std::unique(vec.begin(), vec.end());
 		vec.resize(distance(vec.begin(), it));  // unique() does not shrink the vector
 	}
@@ -428,7 +428,7 @@ struct DynamicCmdIcoBmp {
 	HICON _hIcon_DM = nullptr; // dark mode icon for toolbar
 };
 
-typedef std::vector<ToolBarButtonUnit> ToolBarIconIDs;
+typedef std::vector <ToolBarButtonUnit> ToolBarIconIDs;
 
 // Light Mode list
 const int HLIST_DEFAULT = 0;
@@ -444,7 +444,7 @@ const int HLIST_DISABLE_DM2 = 7;
 class ToolBarIcons {
 public:
 	ToolBarIcons() = default;
-	void init(ToolBarButtonUnit * buttonUnitArray, int arraySize, std::vector<DynamicCmdIcoBmp> cmds2add);
+	void init(ToolBarButtonUnit * buttonUnitArray, int arraySize, std::vector <DynamicCmdIcoBmp> cmds2add);
 	void create(HINSTANCE hInst, int iconSize);
 	void destroy();
 	HIMAGELIST getDefaultLst() const { return _iconListVector[HLIST_DEFAULT].getHandle(); };
@@ -466,8 +466,8 @@ public:
 	}
 private:
 	ToolBarIconIDs _tbiis;
-	std::vector<DynamicCmdIcoBmp> _moreCmds;
-	std::vector<IconList> _iconListVector;
+	std::vector <DynamicCmdIcoBmp> _moreCmds;
+	std::vector <IconList> _iconListVector;
 };
 //
 //#include "ToolBar.h"
@@ -523,14 +523,14 @@ private:
 	TBBUTTON * _pTBB = nullptr;
 	ToolBarIcons _toolBarIcons;
 	toolBarStatusType _state = TB_SMALL;
-	std::vector<DynamicCmdIcoBmp> _vDynBtnReg;
+	std::vector <DynamicCmdIcoBmp> _vDynBtnReg;
 	size_t _nbButtons = 0;
 	size_t _nbDynButtons = 0;
 	size_t _nbTotalButtons = 0;
 	size_t _nbCurrentButtons = 0;
 	ReBar * _pRebar = nullptr;
 	REBARBANDINFO _rbBand;
-	std::vector<iconLocator> _customIconVect;
+	std::vector <iconLocator> _customIconVect;
 	TiXmlNode * _toolIcons = nullptr;
 	void setDefaultImageList();
 	void setDisableImageList();
@@ -556,7 +556,7 @@ public:
 	bool getIDVisible(int id);
 	void setGrayBackground(int id);
 private:
-	std::vector<int> usedIDs;
+	std::vector <int> usedIDs;
 	int  getNewID();
 	void releaseID(int id);
 	bool isIDTaken(int id);
@@ -759,7 +759,7 @@ public:
 private:
 	ulong _scintillaKeyID;
 	int _menuCmdID;
-	std::vector<KeyCombo> _keyCombos;
+	std::vector <KeyCombo> _keyCombos;
 	size_t _size;
 	void applyToCurrentIndex();
 	void validateDialog();
@@ -798,7 +798,7 @@ struct recordedMacroStep {
 	void PlayBack(Window* pNotepad, ScintillaEditView * pEditView);
 };
 
-typedef std::vector<recordedMacroStep> Macro;
+typedef std::vector <recordedMacroStep> Macro;
 
 class MacroShortcut : public CommandShortcut {
 	friend class NppParameters;
@@ -879,13 +879,13 @@ private:
 class ScintillaAccelerator {    //Handles accelerator keys for scintilla
 public:
 	ScintillaAccelerator() = default;
-	void init(std::vector<HWND> * vScintillas, HMENU hMenu, HWND menuParent);
+	void init(std::vector <HWND> * vScintillas, HMENU hMenu, HWND menuParent);
 	void updateKeys();
 	size_t nbScintillas() { return _vScintillas.size(); }
 private:
 	HMENU _hAccelMenu = nullptr;
 	HWND _hMenuParent = nullptr;
-	std::vector<HWND> _vScintillas;
+	std::vector <HWND> _vScintillas;
 
 	void updateMenuItemByID(const ScintillaKeyMap& skm, int id);
 };
@@ -906,7 +906,7 @@ struct MenuItemUnit final {
 class ContextMenu final {
 public:
 	~ContextMenu();
-	void create(HWND hParent, const std::vector<MenuItemUnit> & menuItemArray, const HMENU mainMenuHandle = NULL, bool copyLink = false);
+	void create(HWND hParent, const std::vector <MenuItemUnit> & menuItemArray, const HMENU mainMenuHandle = NULL, bool copyLink = false);
 	bool isCreated() const { return _hMenu != NULL; }
 	void display(const POINT & p) const;
 	void enableItem(int cmdID, bool doEnable) const;
@@ -915,7 +915,7 @@ public:
 private:
 	HWND _hParent = NULL;
 	HMENU _hMenu = NULL;
-	std::vector<HMENU> _subMenus;
+	std::vector <HMENU> _subMenus;
 };
 //
 //#include "dpiManager.h"
@@ -1192,7 +1192,7 @@ const TCHAR localConfFile[] = TEXT("doLocalConf.xml");
 const TCHAR notepadStyleFile[] = TEXT("asNotepad.xml");
 const TCHAR pluginsForAllUsersFile[] = TEXT("pluginsForAllUsers.xml");
 
-void cutString(const TCHAR * str2cut, std::vector<generic_string> & patternVect);
+void cutString(const TCHAR * str2cut, std::vector <generic_string> & patternVect);
 
 struct Position {
 	int _firstVisibleLine = 0;
@@ -1236,8 +1236,8 @@ struct sessionFileInfo : public Position {
 	}
 	generic_string _fileName;
 	generic_string _langName;
-	std::vector<size_t> _marks;
-	std::vector<size_t> _foldStates;
+	std::vector <size_t> _marks;
+	std::vector <size_t> _foldStates;
 	int _encoding = -1;
 	bool _isUserReadOnly = false;
 	bool _isMonitoring = false;
@@ -1255,9 +1255,9 @@ struct Session {
 	bool   _includeFileBrowser = false;
 	uint8  Reserve[3]; // @alignment
 	generic_string _fileBrowserSelectedItem;
-	std::vector<sessionFileInfo> _mainViewFiles;
-	std::vector<sessionFileInfo> _subViewFiles;
-	std::vector<generic_string> _fileBrowserRoots;
+	std::vector <sessionFileInfo> _mainViewFiles;
+	std::vector <sessionFileInfo> _subViewFiles;
+	std::vector <generic_string> _fileBrowserRoots;
 };
 
 struct CmdLineParams {
@@ -1365,9 +1365,9 @@ struct DockingManagerData final {
 	int _topHeight = 200;
 	int _bottomHight = 200;
 
-	std::vector<FloatingWindowInfo> _flaotingWindowInfo;
-	std::vector<PluginDlgDockingInfo> _pluginDockInfo;
-	std::vector<ContainerTabInfo> _containerTabInfo;
+	std::vector <FloatingWindowInfo> _flaotingWindowInfo;
+	std::vector <PluginDlgDockingInfo> _pluginDockInfo;
+	std::vector <ContainerTabInfo> _containerTabInfo;
 
 	bool getFloatingRCFrom(int floatCont, RECT& rc) const
 	{
@@ -1479,7 +1479,7 @@ struct LexerStylerArray {
 	LexerStyler * getLexerStylerByName(const TCHAR * lexerName);
 	void addLexerStyler(const TCHAR * lexerName, const TCHAR * lexerDesc, const TCHAR * lexerUserExt, TiXmlNode * lexerNode);
 private:
-	std::vector<LexerStyler> _lexerStylerVect;
+	std::vector <LexerStyler> _lexerStylerVect;
 };
 
 struct NewDocDefaultSettings final {
@@ -1551,8 +1551,8 @@ public:
 	bool hasDefaultPairs() const { return _doParentheses||_doBrackets||_doCurlyBrackets||_doQuotes||_doDoubleQuotes||_doHtmlXmlTag; }
 	bool hasAnyPairsPair() const { return hasUserDefinedPairs() || hasDefaultPairs(); }
 public:
-	std::vector<std::pair<char, char> > _matchedPairs;
-	std::vector<std::pair<char, char> > _matchedPairsInit; // used only on init
+	std::vector <std::pair<char, char> > _matchedPairs;
+	std::vector <std::pair<char, char> > _matchedPairsInit; // used only on init
 	bool _doHtmlXmlTag = false;
 	bool _doParentheses = false;
 	bool _doBrackets = false;
@@ -1648,7 +1648,7 @@ struct NppGUI final {
 	bool _dateTimeReverseDefaultOrder = false;
 	void setTabReplacedBySpace(bool b) { _tabReplacedBySpace = b; };
 	const NewDocDefaultSettings & getNewDocDefaultSettings() const { return _newDocDefaultSettings; };
-	std::vector<LangMenuItem> _excludedLangList;
+	std::vector <LangMenuItem> _excludedLangList;
 	bool _isLangMenuCompact = true;
 
 	PrintSettings _printSettings;
@@ -1716,7 +1716,7 @@ struct ScintillaViewParams {
 	bool _wrapSymbolShow = false;
 	bool _doWrap = false;
 	bool _isEdgeBgMode = false;
-	std::vector<size_t> _edgeMultiColumnPos;
+	std::vector <size_t> _edgeMultiColumnPos;
 	int _zoom = 0;
 	int _zoom2 = 0;
 	bool _whiteSpaceShow = false;
@@ -1885,10 +1885,10 @@ struct FindHistory final {
 	int _nbMaxFindHistoryFilter  = 10;
 	int _nbMaxFindHistoryFind    = 10;
 	int _nbMaxFindHistoryReplace = 10;
-	std::vector<generic_string> _findHistoryPaths;
-	std::vector<generic_string> _findHistoryFilters;
-	std::vector<generic_string> _findHistoryFinds;
-	std::vector<generic_string> _findHistoryReplaces;
+	std::vector <generic_string> _findHistoryPaths;
+	std::vector <generic_string> _findHistoryFilters;
+	std::vector <generic_string> _findHistoryFinds;
+	std::vector <generic_string> _findHistoryReplaces;
 	bool _isMatchWord = false;
 	bool _isMatchCase = false;
 	bool _isWrap = true;
@@ -1936,7 +1936,7 @@ public:
 	}
 	std::string getFileName() const { return _fileName; }
 private:
-	std::vector< std::pair< std::wstring, std::wstring > > _localizationList;
+	std::vector < std::pair< std::wstring, std::wstring > > _localizationList;
 	std::wstring _nativeLangPath;
 	std::string _fileName;
 };
@@ -1988,7 +1988,7 @@ public:
 		_themeStylerSavePath[key] = val;
 	}
 private:
-	std::vector<std::pair<generic_string, generic_string> > _themeList;
+	std::vector <std::pair<generic_string, generic_string> > _themeList;
 	std::map<generic_string, generic_string> _themeStylerSavePath;
 	generic_string _themeDirPath;
 	const generic_string _defaultThemeLabel = TEXT("Default (stylers.xml)");
@@ -2002,7 +2002,7 @@ public:
 		_list.push_back(std::pair<generic_string, bool>(fn, isInBL));
 	}
 private:
-	std::vector<std::pair<generic_string, bool> >_list;
+	std::vector <std::pair<generic_string, bool> >_list;
 };
 
 struct UdlXmlFileState final {
@@ -2056,7 +2056,7 @@ public:
 	bool writeRecentFileHistorySettings(int nbMaxFile = -1) const;
 	bool writeHistory(const TCHAR * fullpath);
 	bool writeProjectPanelsSettings() const;
-	bool writeFileBrowserSettings(const std::vector<generic_string> & rootPath, const generic_string & latestSelectedItemPath) const;
+	bool writeFileBrowserSettings(const std::vector <generic_string> & rootPath, const generic_string & latestSelectedItemPath) const;
 	TiXmlNode * getChildElementByAttribut(TiXmlNode * pere, const TCHAR * childName, const TCHAR * attributName, const TCHAR * attributVal) const;
 	bool writeScintillaParams();
 	void createXmlTreeFromGUIParams();
@@ -2071,7 +2071,7 @@ public:
 	void setCurLineHilitingColour(COLORREF colour2Set);
 	void setFontList(HWND hWnd);
 	bool isInFontList(const generic_string& fontName2Search) const;
-	const std::vector<generic_string>& getFontList() const { return _fontlist; }
+	const std::vector <generic_string>& getFontList() const { return _fontlist; }
 	HFONT getDefaultUIFont();
 	int getNbUserLang() const { return _nbUserLang; }
 	UserLangContainer & getULCFromIndex(size_t i) { return *_userLangArray[i]; }
@@ -2081,7 +2081,7 @@ public:
 	ExternalLangContainer & getELCFromIndex(int i) { return *_externalLangArray[i]; }
 	bool ExternalLangHasRoom() const { return _nbExternalLang < NB_MAX_EXTERNAL_LANG; }
 	void getExternalLexerFromXmlTree(TiXmlDocument * doc);
-	std::vector<TiXmlDocument *> * getExternalLexerDoc() { return &_pXmlExternalLexerDoc; }
+	std::vector <TiXmlDocument *> * getExternalLexerDoc() { return &_pXmlExternalLexerDoc; }
 	void writeDefaultUDL();
 	void writeNonDefaultUDL();
 	void writeNeed2SaveUDL();
@@ -2109,18 +2109,18 @@ public:
 	void setFileSaveDlgFilterIndex(int ln) { _fileSaveDlgFilterIndex = ln; };
 	int getFileSaveDlgFilterIndex() const { return _fileSaveDlgFilterIndex; }
 	bool isRemappingShortcut() const { return _shortcuts.size() != 0; }
-	std::vector<CommandShortcut> & getUserShortcuts() { return _shortcuts; }
-	std::vector<size_t> & getUserModifiedShortcuts() { return _customizedShortcuts; }
+	std::vector <CommandShortcut> & getUserShortcuts() { return _shortcuts; }
+	std::vector <size_t> & getUserModifiedShortcuts() { return _customizedShortcuts; }
 	void addUserModifiedIndex(size_t index);
-	std::vector<MacroShortcut> & getMacroList() { return _macros; }
-	std::vector<UserCommand> & getUserCommandList() { return _userCommands; }
-	std::vector<PluginCmdShortcut> & getPluginCommandList() { return _pluginCommands; }
-	std::vector<size_t> & getPluginModifiedKeyIndices() { return _pluginCustomizedCmds; }
+	std::vector <MacroShortcut> & getMacroList() { return _macros; }
+	std::vector <UserCommand> & getUserCommandList() { return _userCommands; }
+	std::vector <PluginCmdShortcut> & getPluginCommandList() { return _pluginCommands; }
+	std::vector <size_t> & getPluginModifiedKeyIndices() { return _pluginCustomizedCmds; }
 	void addPluginModifiedIndex(size_t index);
-	std::vector<ScintillaKeyMap> & getScintillaKeyList() { return _scintillaKeyCommands; }
-	std::vector<int> & getScintillaModifiedKeyIndices() { return _scintillaModifiedKeyIndices; }
+	std::vector <ScintillaKeyMap> & getScintillaKeyList() { return _scintillaKeyCommands; }
+	std::vector <int> & getScintillaModifiedKeyIndices() { return _scintillaModifiedKeyIndices; }
 	void addScintillaModifiedIndex(int index);
-	std::vector<MenuItemUnit> & getContextMenuItems() { return _contextMenuItems; }
+	std::vector <MenuItemUnit> & getContextMenuItems() { return _contextMenuItems; }
 	const Session & getSession() const { return _session; }
 	bool hasCustomContextMenu() const { return !_contextMenuItems.empty(); }
 	void setAccelerator(Accelerator * pAccel) { _pAccelerator = pAccel; }
@@ -2135,7 +2135,7 @@ public:
 	const TCHAR * getUserPluginConfDir() const { return _userPluginConfDir.c_str(); }
 	const TCHAR * getWorkingDir() const { return _currentDirectory.c_str(); }
 	const TCHAR * getWorkSpaceFilePath(int i) const { return (i < 0 || i > 2) ? nullptr : _workSpaceFilePathes[i].c_str(); }
-	const std::vector<generic_string> getFileBrowserRoots() const { return _fileBrowserRoot; }
+	const std::vector <generic_string> getFileBrowserRoots() const { return _fileBrowserRoot; }
 	generic_string getFileBrowserSelectedItemPath() const { return _fileBrowserSelectedItemPath; }
 	void setWorkSpaceFilePath(int i, const TCHAR * wsFile);
 	void setWorkingDir(const TCHAR * newPath);
@@ -2169,7 +2169,7 @@ public:
 	void safeWow64EnableWow64FsRedirection(BOOL Wow64FsEnableRedirection);
 	LocalizationSwitcher & getLocalizationSwitcher() { return _localizationSwitcher; }
 	ThemeSwitcher & getThemeSwitcher() { return _themeSwitcher; }
-	std::vector<generic_string> & getBlackList() { return _blacklist; }
+	std::vector <generic_string> & getBlackList() { return _blacklist; }
 	bool isInBlackList(const TCHAR * fn) const;
 	PluginList & getPluginList() { return _pluginList; }
 	bool importUDLFromFile(const generic_string& sourceFile);
@@ -2213,13 +2213,13 @@ private:
 	TiXmlDocument * _pXmlUserDoc = nullptr;
 	TiXmlDocument * _pXmlUserStylerDoc = nullptr;
 	TiXmlDocument * _pXmlUserLangDoc = nullptr;
-	std::vector<UdlXmlFileState> _pXmlUserLangsDoc;
+	std::vector <UdlXmlFileState> _pXmlUserLangsDoc;
 	TiXmlDocument * _pXmlToolIconsDoc = nullptr;
 	TiXmlDocument * _pXmlShortcutDoc = nullptr;
 	TiXmlDocument * _pXmlBlacklistDoc = nullptr;
 	TiXmlDocumentA * _pXmlNativeLangDocA = nullptr;
 	TiXmlDocumentA * _pXmlContextMenuDocA = nullptr;
-	std::vector<TiXmlDocument *> _pXmlExternalLexerDoc;
+	std::vector <TiXmlDocument *> _pXmlExternalLexerDoc;
 	NppGUI _nppGUI;
 	ScintillaViewParams _svp;
 	Lang* _langList[NB_LANG] = { nullptr };
@@ -2244,8 +2244,8 @@ private:
 	// All Styles (colours & fonts)
 	LexerStylerArray _lexerStylerVect;
 	StyleArray _widgetStyleArray;
-	std::vector<generic_string> _fontlist;
-	std::vector<generic_string> _blacklist;
+	std::vector <generic_string> _fontlist;
+	std::vector <generic_string> _blacklist;
 	PluginList _pluginList;
 	HMODULE _hUXTheme = nullptr;
 	WNDPROC _transparentFuncAddr = nullptr;
@@ -2263,23 +2263,23 @@ public:
 	bool isSelectFgColorEnabled() const { return _isSelectFgColorEnabled; }
 private:
 	bool _isAnyShortcutModified = false;
-	std::vector<CommandShortcut> _shortcuts;                        //main menu shortuts. Static size
-	std::vector<size_t> _customizedShortcuts;                       //altered main menu shortcuts. Indices static.
+	std::vector <CommandShortcut> _shortcuts;                        //main menu shortuts. Static size
+	std::vector <size_t> _customizedShortcuts;                       //altered main menu shortcuts. Indices static.
 	                                                                // Needed when saving alterations
-	std::vector<MacroShortcut> _macros; // macro shortcuts, dynamic size, defined on loading macros and adding/deleting them
-	std::vector<UserCommand> _userCommands; //run shortcuts, dynamic size, defined on loading run commands and adding/deleting them
-	std::vector<PluginCmdShortcut> _pluginCommands; //plugin commands, dynamic size, defined on loading plugins
-	std::vector<size_t> _pluginCustomizedCmds; // plugincommands that have been altered. Indices determined after loading ALL plugins. Needed
+	std::vector <MacroShortcut> _macros; // macro shortcuts, dynamic size, defined on loading macros and adding/deleting them
+	std::vector <UserCommand> _userCommands; //run shortcuts, dynamic size, defined on loading run commands and adding/deleting them
+	std::vector <PluginCmdShortcut> _pluginCommands; //plugin commands, dynamic size, defined on loading plugins
+	std::vector <size_t> _pluginCustomizedCmds; // plugincommands that have been altered. Indices determined after loading ALL plugins. Needed
 		// when saving alterations
-	std::vector<ScintillaKeyMap> _scintillaKeyCommands; // scintilla keycommands. Static size
-	std::vector<int> _scintillaModifiedKeyIndices; // modified scintilla keys. Indices static, determined by
+	std::vector <ScintillaKeyMap> _scintillaKeyCommands; // scintilla keycommands. Static size
+	std::vector <int> _scintillaModifiedKeyIndices; // modified scintilla keys. Indices static, determined by
 		// searching for commandId. Needed when saving alterations
 
 	LocalizationSwitcher _localizationSwitcher;
 	generic_string _startWithLocFileName;
 	ThemeSwitcher _themeSwitcher;
-	//vector<generic_string> _noMenuCmdNames;
-	std::vector<MenuItemUnit> _contextMenuItems;
+	//vector <generic_string> _noMenuCmdNames;
+	std::vector <MenuItemUnit> _contextMenuItems;
 	Session _session;
 	generic_string _shortcutsPath;
 	generic_string _contextMenuPath;
@@ -2293,7 +2293,7 @@ private:
 	generic_string _userPluginConfDir; // plugins config dir for per user where the plugin parameters are saved / loaded
 	generic_string _currentDirectory;
 	generic_string _workSpaceFilePathes[3];
-	std::vector<generic_string> _fileBrowserRoot;
+	std::vector <generic_string> _fileBrowserRoot;
 	generic_string _fileBrowserSelectedItemPath;
 	Accelerator* _pAccelerator = nullptr;
 	ScintillaAccelerator* _pScintAccelerator = nullptr;
@@ -2480,7 +2480,7 @@ private:
 	Notepad_plus* _pNotepadPlus = nullptr;
 	ScintillaEditView* _pscratchTilla = nullptr;
 	Document _scratchDocDefault;
-	std::vector<Buffer*> _buffers;
+	std::vector <Buffer*> _buffers;
 	BufferID _nextBufferID = 0;
 	size_t _nbBufs = 0;
 };
@@ -2544,8 +2544,8 @@ public:
 	void setDirty(bool dirty);
 	void setPosition(const Position & pos, ScintillaEditView * identifier);
 	Position & getPosition(ScintillaEditView * identifier);
-	void setHeaderLineState(const std::vector<size_t> & folds, ScintillaEditView * identifier);
-	const std::vector<size_t> & getHeaderLineState(const ScintillaEditView * identifier) const;
+	void setHeaderLineState(const std::vector <size_t> & folds, ScintillaEditView * identifier);
+	const std::vector <size_t> & getHeaderLineState(const ScintillaEditView * identifier) const;
 	bool isUserDefineLangExt() const { return (_userLangExt[0] != '\0'); }
 	const TCHAR * getUserDefineLangName() const { return _userLangExt.c_str(); }
 	const TCHAR * getCommentLineSymbol() const
@@ -2642,9 +2642,9 @@ private:
 	bool _needLexer = false; // new buffers do not need lexing, Scintilla takes care of that
 	//these properties have to be duplicated because of multiple references
 	//All the vectors must have the same size at all times
-	std::vector<ScintillaEditView *> _referees; // Instances of ScintillaEditView which contain this buffer
-	std::vector<Position> _positions;
-	std::vector<std::vector<size_t> > _foldStates;
+	std::vector <ScintillaEditView *> _referees; // Instances of ScintillaEditView which contain this buffer
+	std::vector <Position> _positions;
+	std::vector <std::vector <size_t> > _foldStates;
 
 	//Environment properties
 	DocFileStatus _currentStatus = DOC_REGULAR;
@@ -2860,7 +2860,7 @@ struct DlgInfo {
 	}
 };
 
-typedef std::vector<DlgInfo> WindowVector;
+typedef std::vector <DlgInfo> WindowVector;
 
 class ControlsTab final : public TabBar {
 public:
@@ -3243,20 +3243,20 @@ struct ColumnModeInfo {
 };
 
 //
-// SortClass for vector<ColumnModeInfo>
+// SortClass for vector <ColumnModeInfo>
 // sort in _order : increased order
 struct SortInSelectOrder {
 	bool operator()(ColumnModeInfo & l, ColumnModeInfo & r) { return (l._order < r._order); }
 };
 
 //
-// SortClass for vector<ColumnModeInfo>
+// SortClass for vector <ColumnModeInfo>
 // sort in _selLpos : increased order
 struct SortInPositionOrder {
 	bool operator()(ColumnModeInfo & l, ColumnModeInfo & r) { return (l._selLpos < r._selLpos); }
 };
 
-typedef std::vector<ColumnModeInfo> ColumnModeInfos;
+typedef std::vector <ColumnModeInfo> ColumnModeInfos;
 
 struct LanguageName {
 	const TCHAR * lexerName = nullptr;
@@ -3277,8 +3277,8 @@ public:
 	virtual void init(HINSTANCE hInst, HWND hPere);
 	LRESULT execute(UINT Msg, WPARAM wParam = 0, LPARAM lParam = 0) const;
 	void activateBuffer(BufferID buffer);
-	void getCurrentFoldStates(std::vector<size_t> & lineStateVector);
-	void syncFoldStateWith(const std::vector<size_t> & lineStateVectorNew);
+	void getCurrentFoldStates(std::vector <size_t> & lineStateVector);
+	void syncFoldStateWith(const std::vector <size_t> & lineStateVectorNew);
 	void getText(char * dest, size_t start, size_t end) const;
 	void getGenericText(TCHAR * dest, size_t destlen, size_t start, size_t end) const;
 	void getGenericText(TCHAR * dest, size_t deslen, int start, int end, int * mstart, int * mend) const;
@@ -3858,7 +3858,7 @@ public:
 	// setStyleOption() should be called before init()
 	void setStyleOption(int32_t extraStyle) { _extraStyle = extraStyle; }
 	size_t findAlphabeticalOrderPos(const generic_string& string2search, SortDirection sortDir);
-	void addLine(const std::vector<generic_string> & values2Add, LPARAM lParam = 0, int pos2insert = -1);
+	void addLine(const std::vector <generic_string> & values2Add, LPARAM lParam = 0, int pos2insert = -1);
 	size_t nbItem() const { return ListView_GetItemCount(_hSelf); }
 	long getSelectedIndex() const { return ListView_GetSelectionMark(_hSelf); }
 	void setSelection(int itemIndex) const;
@@ -3867,13 +3867,13 @@ public:
 	{
 		return (i >= nbItem()) ? false : (ListView_DeleteItem(_hSelf, i) == TRUE);
 	}
-	std::vector<size_t> getCheckedIndexes() const;
+	std::vector <size_t> getCheckedIndexes() const;
 	virtual void init(HINSTANCE hInst, HWND hwnd);
 	virtual void destroy();
 protected:
 	WNDPROC _defaultProc = nullptr;
 	int32_t _extraStyle = 0;
-	std::vector<columnInfo> _columnInfos;
+	std::vector <columnInfo> _columnInfos;
 	LRESULT runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	static LRESULT CALLBACK staticProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam) 
 	{
@@ -3892,7 +3892,7 @@ public:
 	DocTabView();
 	virtual ~DocTabView();
 	virtual void destroy();
-	void init(HINSTANCE hInst, HWND parent, ScintillaEditView * pView, std::vector<IconList *> pIconListVector, uchar indexChoice);
+	void init(HINSTANCE hInst, HWND parent, ScintillaEditView * pView, std::vector <IconList *> pIconListVector, uchar indexChoice);
 	void changeIcons(uchar choice);
 	void addBuffer(BufferID buffer);
 	void closeBuffer(BufferID buffer);
@@ -3915,7 +3915,7 @@ public:
 private:
 	ScintillaEditView * _pView = nullptr;
 	static bool _hideTabBarStatus;
-	std::vector<IconList *> _pIconListVector;
+	std::vector <IconList *> _pIconListVector;
 	int _iconListIndexChoice = -1;
 };
 //
@@ -4068,7 +4068,7 @@ public:
 private:
 	virtual void init(HINSTANCE hInst, HWND hPere) override;
 private:
-	std::vector<int> _partWidthArray;
+	std::vector <int> _partWidthArray;
 	int * _lpParts = nullptr;
 	generic_string _lastSetText;
 	StatusBarSubclassInfo* _pStatusBarInfo = nullptr;
@@ -4178,7 +4178,7 @@ public:
 	void gotoNextFoundResult(int direction);
 	void gotoFoundLine();
 	void deleteResult();
-	std::vector<generic_string> getResultFilePaths() const;
+	std::vector <generic_string> getResultFilePaths() const;
 	bool canFind(const TCHAR * fileName, size_t lineNumber) const;
 	void setVolatiled(bool val) { _canBeVolatiled = val; }
 	generic_string getHitsString(int count) const;
@@ -4189,12 +4189,12 @@ private:
 	enum { searchHeaderLevel = SC_FOLDLEVELBASE, fileHeaderLevel, resultLevel };
 
 	ScintillaEditView ** _ppEditView = nullptr;
-	std::vector<FoundInfo> _foundInfos1;
-	std::vector<FoundInfo> _foundInfos2;
-	std::vector<FoundInfo>* _pMainFoundInfos = &_foundInfos1;
-	std::vector<SearchResultMarking> _markings1;
-	std::vector<SearchResultMarking> _markings2;
-	std::vector<SearchResultMarking>* _pMainMarkings = &_markings1;
+	std::vector <FoundInfo> _foundInfos1;
+	std::vector <FoundInfo> _foundInfos2;
+	std::vector <FoundInfo>* _pMainFoundInfos = &_foundInfos1;
+	std::vector <SearchResultMarking> _markings1;
+	std::vector <SearchResultMarking> _markings2;
+	std::vector <SearchResultMarking>* _pMainMarkings = &_markings1;
 	SearchResultMarkings _markingsStruct;
 	ScintillaEditView _scintView;
 	uint _nbFoundFiles = 0;
@@ -4286,8 +4286,8 @@ public:
 	}
 	void putFindResult(int result) { _findAllResult = result; }
 	const TCHAR * getDir2Search() const { return _env->_directory.c_str(); }
-	void getPatterns(std::vector<generic_string> & patternVect);
-	void getAndValidatePatterns(std::vector<generic_string> & patternVect);
+	void getPatterns(std::vector <generic_string> & patternVect);
+	void getAndValidatePatterns(std::vector <generic_string> & patternVect);
 	void launchFindInFilesDlg() { doDialog(FINDINFILES_DLG); }
 	void launchFindInProjectsDlg() { doDialog(FINDINPROJECTS_DLG); }
 	void setFindInFilesDirFilter(const TCHAR * dir, const TCHAR * filters);
@@ -4336,7 +4336,7 @@ private:
 	ScintillaEditView ** _ppEditView = nullptr;
 	Finder  * _pFinder = nullptr;
 	generic_string _findResTitle;
-	std::vector<Finder *> _findersOfFinder;
+	std::vector <Finder *> _findersOfFinder;
 	HWND _shiftTrickUpTip = nullptr;
 	HWND _2ButtonsTip = nullptr;
 	HWND _filterTip = nullptr;
@@ -4378,8 +4378,8 @@ private:
 	void updateCombos();
 	void updateCombo(int comboID);
 	void fillFindHistory();
-	void fillComboHistory(int id, const std::vector<generic_string> & strings);
-	int saveComboHistory(int id, int maxcount, std::vector<generic_string> & strings, bool saveEmpty);
+	void fillComboHistory(int id, const std::vector <generic_string> & strings);
+	int saveComboHistory(int id, int maxcount, std::vector <generic_string> & strings, bool saveEmpty);
 	static const int FR_OP_FIND = 1;
 	static const int FR_OP_REPLACE = 2;
 	static const int FR_OP_FIF = 4;
@@ -4887,9 +4887,9 @@ private:
 
 	NppData _nppData;
 	HMENU _hPluginsMenu = NULL;
-	std::vector<PluginInfo *> _pluginInfos;
-	std::vector<PluginCommand> _pluginsCommands;
-	std::vector<LoadedDllInfo> _loadedDlls;
+	std::vector <PluginInfo *> _pluginInfos;
+	std::vector <PluginCommand> _pluginsCommands;
+	std::vector <LoadedDllInfo> _loadedDlls;
 	bool _isDisabled = false;
 	IDAllocator _dynamicIDAlloc;
 	IDAllocator _markerAlloc;
@@ -5023,7 +5023,7 @@ private:
 	LexerStylerArray _lsArray;
 	URLCtrl _tabSizeVal;
 	INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
-	std::vector<LangMenuItem> _langList;
+	std::vector <LangMenuItem> _langList;
 };
 
 class HighlightingSubDlg : public StaticDialog {
@@ -5053,7 +5053,7 @@ public:
 	PrintSubDlg() = default;
 private:
 	INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
-	std::vector<strCouple> varList;
+	std::vector <strCouple> varList;
 	int _focusedEditCtrl = 0;
 };
 
@@ -5478,7 +5478,7 @@ protected:
 	SIZE _szMinButton = { 0 };
 	SIZE _szMinListCtrl = { 0 };
 	DocTabView * _pTab = nullptr;
-	std::vector<int> _idxMap;
+	std::vector <int> _idxMap;
 	int _currentColumn = -1;
 	int _lastSort = -1;
 	bool _reverseSort = false;
@@ -5555,8 +5555,8 @@ public:
 	void setActiveTb(int iItem);
 	int getActiveTb();
 	tTbData * getDataOfActiveTb();
-	std::vector<tTbData *> getDataOfAllTb() { return _vTbData; }
-	std::vector<tTbData *> getDataOfVisTb();
+	std::vector <tTbData *> getDataOfAllTb() { return _vTbData; }
+	std::vector <tTbData *> getDataOfVisTb();
 	bool isTbVis(tTbData* data);
 	void doDialog(bool willBeShown = true, bool isFloating = false);
 	bool isFloating() const { return _isFloating; }
@@ -5648,7 +5648,7 @@ private:
 	int _closeButtonPosTopDynamic = CLOSEBTN_POS_TOP;
 	int _closeButtonWidth = 12;
 	int _closeButtonHeight = 12;
-	std::vector<tTbData *> _vTbData; // data of added windows
+	std::vector <tTbData *> _vTbData; // data of added windows
 };
 //
 //#include "DockingManager.h"
@@ -5679,7 +5679,7 @@ public:
 	// get number of container
 	int  GetContainer(DockingCont* pCont);
 	// get all container in vector
-	std::vector<DockingCont*> & getContainerInfo() { return _vContainer; }
+	std::vector <DockingCont*> & getContainerInfo() { return _vContainer; }
 	// get dock data (sized areas)
 	void getDockInfo(tDockMgr * pDockData) 
 	{
@@ -5697,14 +5697,14 @@ private:
 	RECT _rcWork = { 0 };
 	RECT _rect = { 0 };
 	Window ** _ppMainWindow = nullptr;
-	std::vector<HWND> _vImageList;
+	std::vector <HWND> _vImageList;
 	HIMAGELIST _hImageList = nullptr;
-	std::vector<DockingCont*> _vContainer;
+	std::vector <DockingCont*> _vContainer;
 	tDockMgr _dockData;
 	static BOOL _isRegistered;
 	BOOL _isInitialized = FALSE;
 	int _iContMap[CONT_MAP_MAX] = { 0 };
-	std::vector<DockingSplitter*> _vSplitter;
+	std::vector <DockingSplitter*> _vSplitter;
 
 	static LRESULT CALLBACK staticWinProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
 	LRESULT runProc(HWND hwnd, UINT Message, WPARAM wParam, LPARAM lParam);
@@ -5733,7 +5733,7 @@ protected:
 };
 //
 //#include "FunctionCallTip.h"
-typedef std::vector<const TCHAR *> stringVec;
+typedef std::vector <const TCHAR *> stringVec;
 
 class FunctionCallTip { // Copyright (C) 2008 Harry Bruin <harrybharry@users.sourceforge.net>
 	friend class AutoCompletion;
@@ -5763,7 +5763,7 @@ private:
 	//cache some XML values n stuff
 	TCHAR * _funcName = nullptr;                            //name of function
 	stringVec _retVals;                             //vector of overload return values/types
-	std::vector<stringVec> _overloads;      //vector of overload params (=vector)
+	std::vector <stringVec> _overloads;      //vector of overload params (=vector)
 	stringVec _descriptions;                //vecotr of function descriptions
 	size_t _currentNbOverloads = 0;         //current amount of overloads
 	size_t _currentOverload = 0;                    //current chosen overload
@@ -5809,7 +5809,7 @@ public:
 	bool isEmpty() const { return _insertedMatchedChars.size() == 0; }
 	int search(char startChar, char endChar, int posToDetect);
 private:
-	std::vector<MatchedCharInserted> _insertedMatchedChars;
+	std::vector <MatchedCharInserted> _insertedMatchedChars;
 	ScintillaEditView * _pEditView = nullptr;
 };
 
@@ -5847,12 +5847,12 @@ private:
 	TiXmlElement * _pXmlKeyword = nullptr;
 	InsertedMatchedChars _insertedMatchedChars;
 	bool _ignoreCase = true;
-	std::vector<generic_string> _keyWordArray;
+	std::vector <generic_string> _keyWordArray;
 	generic_string _keyWords;
 	size_t _keyWordMaxLen = 0;
 	FunctionCallTip _funcCalltip;
 	const TCHAR * getApiFileName();
-	void getWordArray(std::vector<generic_string> & wordArray, TCHAR * beginChars, TCHAR * excludeChars);
+	void getWordArray(std::vector <generic_string> & wordArray, TCHAR * beginChars, TCHAR * excludeChars);
 };
 //
 //#include "SmartHighlighter.h"
@@ -5878,7 +5878,7 @@ public:
 	//bool destroyScintilla(HWND handle2Destroy);
 	void destroy();
 private:
-	std::vector<ScintillaEditView *> _scintVector;
+	std::vector <ScintillaEditView *> _scintVector;
 	HINSTANCE _hInst = nullptr;
 	HWND _hParent = nullptr;
 	int getIndexFrom(HWND handle2Find);
@@ -6053,8 +6053,8 @@ public:
 	void pushBack(PluginUpdateInfo* pi);
 	HWND getViewHwnd() { return _ui.getHSelf(); }
 	void displayView(bool doShow) const { _ui.display(doShow); }
-	std::vector<size_t> getCheckedIndexes() const { return _ui.getCheckedIndexes(); }
-	std::vector<PluginUpdateInfo*> fromUiIndexesToPluginInfos(const std::vector<size_t>&) const;
+	std::vector <size_t> getCheckedIndexes() const { return _ui.getCheckedIndexes(); }
+	std::vector <PluginUpdateInfo*> fromUiIndexesToPluginInfos(const std::vector <size_t>&) const;
 	long getSelectedIndex() const { return _ui.getSelectedIndex(); }
 	void setSelection(int index) const { _ui.setSelection(index); }
 	void initView(HINSTANCE hInst, HWND parent) { _ui.init(hInst, parent); }
@@ -6076,7 +6076,7 @@ public:
 	bool removeFromPluginInfoPtr(PluginUpdateInfo* pluginInfo2hide);
 	void changeColumnName(COLUMN_TYPE index, const TCHAR * name2change);
 private:
-	std::vector<PluginUpdateInfo*> _list;
+	std::vector <PluginUpdateInfo*> _list;
 	ListView _ui;
 	SORT_TYPE _sortType = DISPLAY_NAME_ALPHABET_ENCREASE;
 };
@@ -6143,7 +6143,7 @@ private:
 		pa_remove = 2
 	};
 
-	bool exitToInstallRemovePlugins(Operation op, const std::vector<PluginUpdateInfo*>& puis);
+	bool exitToInstallRemovePlugins(Operation op, const std::vector <PluginUpdateInfo*>& puis);
 };
 //
 //#include "documentSnapshot.h"
@@ -6207,7 +6207,7 @@ struct VisibleGUIConf final {
 	bool _isStatusbarShown = true;
 	bool _was2ViewModeOn = false; // used by distractionFree
 	WINDOWPLACEMENT _winPlace = {0}; // used by fullscreen
-	std::vector<DockingCont*> _pVisibleDockingContainers;
+	std::vector <DockingCont*> _pVisibleDockingContainers;
 };
 
 struct QuoteParams {
@@ -6273,7 +6273,7 @@ public:
 	bool fileClose(BufferID id = BUFFER_INVALID, int curView = -1); //use curView to override view to close from
 	bool fileCloseAll(bool doDeleteBackup, bool isSnapshotMode = false);
 	bool fileCloseAllButCurrent();
-	bool fileCloseAllGiven(const std::vector<int>& krvecBufferIndexes);
+	bool fileCloseAllGiven(const std::vector <int>& krvecBufferIndexes);
 	bool fileCloseAllToLeft();
 	bool fileCloseAllToRight();
 	bool fileCloseAllUnchanged();
@@ -6314,17 +6314,17 @@ public:
 	void prepareBufferChangedDialog(Buffer * buffer);
 	void notifyBufferChanged(Buffer * buffer, int mask);
 	bool findInFinderFiles(FindersInfo * findInFolderInfo);
-	bool createFilelistForFiles(std::vector<generic_string> & fileNames);
-	bool createFilelistForProjects(std::vector<generic_string> & fileNames);
+	bool createFilelistForFiles(std::vector <generic_string> & fileNames);
+	bool createFilelistForProjects(std::vector <generic_string> & fileNames);
 	bool findInFiles();
 	bool findInProjects();
-	bool findInFilelist(std::vector<generic_string> & fileList);
+	bool findInFilelist(std::vector <generic_string> & fileList);
 	bool replaceInFiles();
 	bool replaceInProjects();
-	bool replaceInFilelist(std::vector<generic_string> & fileList);
+	bool replaceInFilelist(std::vector <generic_string> & fileList);
 	void setFindReplaceFolderFilter(const TCHAR * dir, const TCHAR * filters);
-	std::vector<generic_string> addNppComponents(const TCHAR * destDir, const TCHAR * extFilterName, const TCHAR * extFilter);
-	std::vector<generic_string> addNppPlugins(const TCHAR * extFilterName, const TCHAR * extFilter);
+	std::vector <generic_string> addNppComponents(const TCHAR * destDir, const TCHAR * extFilterName, const TCHAR * extFilter);
+	std::vector <generic_string> addNppPlugins(const TCHAR * extFilterName, const TCHAR * extFilter);
 	int getHtmlXmlEncoding(const TCHAR * fileName) const;
 	HACCEL getAccTable() const { return _accelerator.getAccTable(); }
 	bool emergency(const generic_string& emergencySavedDir);
@@ -6341,7 +6341,7 @@ private:
 	Notepad_plus_Window* _pPublicInterface = nullptr;
 	Window* _pMainWindow = nullptr;
 	DockingManager _dockingManager;
-	std::vector<int> _internalFuncIDs;
+	std::vector <int> _internalFuncIDs;
 	AutoCompletion _autoCompleteMain;
 	AutoCompletion _autoCompleteSub; // each Scintilla has its own autoComplete
 	SmartHighlighter _smartHighlighter;
@@ -6386,7 +6386,7 @@ private:
 	FindCharsInRangeDlg _findCharsInRangeDlg;
 	PluginsAdminDlg _pluginsAdminDlg;
 	DocumentPeeker _documentPeeker;
-	std::vector<HWND> _hModelessDlgs; // a handle list of all the Notepad++ dialogs
+	std::vector <HWND> _hModelessDlgs; // a handle list of all the Notepad++ dialogs
 	LastRecentFileList _lastRecentFileList;
 	WindowsMenu _windowsMenu;
 	HMENU _mainMenuHandle = NULL;
@@ -6437,7 +6437,7 @@ private:
 	// then WM_ENDSESSION is send with wParam == FALSE
 	// in this case this boolean is set true, so Notepad++ will quit and its current session will be saved
 	ScintillaCtrls _scintillaCtrls4Plugins;
-	std::vector<std::pair<int, int> > _hideLinesMarks;
+	std::vector <std::pair<int, int> > _hideLinesMarks;
 	StyleArray _hotspotStyles;
 	AnsiCharPanel* _pAnsiCharPanel = nullptr;
 	ClipboardHistoryPanel* _pClipboardHistoryPanel = nullptr;
@@ -6448,7 +6448,7 @@ private:
 	FileBrowser* _pFileBrowser = nullptr;
 	DocumentMap* _pDocMap = nullptr;
 	FunctionListPanel* _pFuncList = nullptr;
-	std::vector<HWND> _sysTrayHiddenHwnd;
+	std::vector <HWND> _sysTrayHiddenHwnd;
 
 	BOOL notify(SCNotification * notification);
 	void command(int id);
@@ -6549,7 +6549,7 @@ private:
 	bool replaceInOpenedFiles();
 	bool findInOpenedFiles();
 	bool findInCurrentFile(bool isEntireDoc);
-	void getMatchedFileNames(const TCHAR * dir, const std::vector<generic_string> & patterns, std::vector<generic_string> & fileNames, bool isRecursive, bool isInHiddenDir);
+	void getMatchedFileNames(const TCHAR * dir, const std::vector <generic_string> & patterns, std::vector <generic_string> & fileNames, bool isRecursive, bool isInHiddenDir);
 	void doSynScorll(HWND hW);
 	void setWorkingDir(const TCHAR * dir);
 	bool str2Cliboard(const generic_string & str2cpy);
@@ -6564,12 +6564,12 @@ private:
 	bool dumpFiles(const TCHAR * outdir, const TCHAR * fileprefix = TEXT(""));      //helper func
 	void drawTabbarColoursFromStylerArray();
 	void drawDocumentMapColoursFromStylerArray();
-	std::vector<generic_string> loadCommandlineParams(const TCHAR * commandLine, const CmdLineParams * pCmdParams) 
+	std::vector <generic_string> loadCommandlineParams(const TCHAR * commandLine, const CmdLineParams * pCmdParams) 
 	{
 		const CmdLineParamsDTO dto = CmdLineParamsDTO::FromCmdLineParams(*pCmdParams);
 		return loadCommandlineParams(commandLine, &dto);
 	}
-	std::vector<generic_string> loadCommandlineParams(const TCHAR * commandLine, const CmdLineParamsDTO * pCmdParams);
+	std::vector <generic_string> loadCommandlineParams(const TCHAR * commandLine, const CmdLineParamsDTO * pCmdParams);
 	bool noOpenedDoc() const;
 	bool goToPreviousIndicator(int indicID2Search, bool isWrap = true) const;
 	bool goToNextIndicator(int indicID2Search, bool isWrap = true) const;
@@ -6585,7 +6585,7 @@ private:
 	void launchProjectPanel(int cmdID, ProjectPanel ** pProjPanel, int panelID);
 	void launchDocMap();
 	void launchFunctionList();
-	void launchFileBrowser(const std::vector<generic_string> & folders, const generic_string& selectedItemPath, bool fromScratch = false);
+	void launchFileBrowser(const std::vector <generic_string> & folders, const generic_string& selectedItemPath, bool fromScratch = false);
 	void showAllQuotes() const;
 	static DWORD WINAPI threadTextPlayer(void * text2display);
 	static DWORD WINAPI threadTextTroller(void * params);
@@ -6809,13 +6809,13 @@ private:
 	const static int _nbTab = 5;
 	generic_string _tabNames[_nbTab];
 	generic_string _shortcutFilter;
-	std::vector<size_t> _shortcutIndex;
+	std::vector <size_t> _shortcutIndex;
 	//save/restore the last view
-	std::vector<size_t> _lastHomeRow;
-	std::vector<size_t> _lastCursorRow;
+	std::vector <size_t> _lastHomeRow;
+	std::vector <size_t> _lastCursorRow;
 	generic_string _conflictInfoOk;
 	generic_string _conflictInfoEditing;
-	std::vector<HFONT> _hGridFonts;
+	std::vector <HFONT> _hGridFonts;
 
 	enum GridFonts : uint_fast8_t {
 		GFONT_HEADER,
@@ -6872,14 +6872,14 @@ struct TreeStateNode {
 	generic_string _extraData;
 	bool _isExpanded = false;
 	bool _isSelected = false;
-	std::vector<TreeStateNode> _children;
+	uint8 Reserve[2]; // @alignment
+	std::vector <TreeStateNode> _children;
 };
 
 class TreeView : public Window {
 public:
 	TreeView() = default;
 	virtual ~TreeView() = default;
-
 	virtual void init(HINSTANCE hInst, HWND parent, int treeViewID);
 	virtual void destroy();
 	HTREEITEM addItem(const TCHAR * itemName, HTREEITEM hParentItem, int iImage, LPARAM lParam = NULL);
@@ -6935,8 +6935,8 @@ protected:
 	HTREEITEM _draggedItem = nullptr;
 	HIMAGELIST _draggedImageList = nullptr;
 	bool _isItemDragged = false;
-	std::vector<int> _canNotDragOutList;
-	std::vector<int> _canNotDropInList;
+	std::vector <int> _canNotDragOutList;
+	std::vector <int> _canNotDropInList;
 	bool canBeDropped(HTREEITEM draggedItem, HTREEITEM targetItem);
 	void moveTreeViewItem(HTREEITEM draggedItem, HTREEITEM targetItem);
 	bool isParent(HTREEITEM targetItem, HTREEITEM draggedItem);
@@ -6988,12 +6988,12 @@ public:
 	generic_string getName() const { return _name; }
 	void addFile(const generic_string& fn) { _files.push_back(FileInfo(fn, this)); }
 	void addSubFolder(FolderInfo subDirectoryStructure) { _subFolders.push_back(subDirectoryStructure); }
-	bool addToStructure(generic_string & fullpath, std::vector<generic_string> linarPathArray);
-	bool removeFromStructure(std::vector<generic_string> linarPathArray);
-	bool renameInStructure(std::vector<generic_string> linarPathArrayFrom, std::vector<generic_string> linarPathArrayTo);
+	bool addToStructure(generic_string & fullpath, std::vector <generic_string> linarPathArray);
+	bool removeFromStructure(std::vector <generic_string> linarPathArray);
+	bool renameInStructure(std::vector <generic_string> linarPathArrayFrom, std::vector <generic_string> linarPathArrayTo);
 private:
-	std::vector<FolderInfo> _subFolders;
-	std::vector<FileInfo> _files;
+	std::vector <FolderInfo> _subFolders;
+	std::vector <FileInfo> _files;
 	FolderInfo* _parent = nullptr;
 	generic_string _name;
 	generic_string _rootPath; // set only for root folder; empty for normal folder
@@ -7020,7 +7020,7 @@ private:
 	HANDLE _watchThreadHandle = nullptr;
 	HANDLE _EventHandle = nullptr;
 	static DWORD WINAPI watching(void * param);
-	static void processChange(DWORD dwAction, std::vector<generic_string> filesToChange, FolderUpdater* thisFolderUpdater);
+	static void processChange(DWORD dwAction, std::vector <generic_string> filesToChange, FolderUpdater* thisFolderUpdater);
 };
 
 struct SortingData4lParam {
@@ -7048,10 +7048,10 @@ public:
 	void addRootFolder(generic_string rootFolderPath);
 	HTREEITEM getRootFromFullPath(const generic_string & rootPath) const;
 	HTREEITEM findChildNodeFromName(HTREEITEM parent, const generic_string& label) const;
-	HTREEITEM findInTree(const generic_string& rootPath, HTREEITEM node, std::vector<generic_string> linarPathArray) const;
+	HTREEITEM findInTree(const generic_string& rootPath, HTREEITEM node, std::vector <generic_string> linarPathArray) const;
 	void deleteAllFromTree() { popupMenuCmd(IDM_FILEBROWSER_REMOVEALLROOTS); }
-	bool renameInTree(const generic_string& rootPath, HTREEITEM node, const std::vector<generic_string>& linarPathArrayFrom, const generic_string & renameTo);
-	std::vector<generic_string> getRoots() const;
+	bool renameInTree(const generic_string& rootPath, HTREEITEM node, const std::vector <generic_string>& linarPathArrayFrom, const generic_string & renameTo);
+	std::vector <generic_string> getRoots() const;
 	generic_string getSelectedItemPath() const;
 	bool selectItemFromPath(const generic_string& itemPath) const;
 protected:
@@ -7062,9 +7062,9 @@ protected:
 	HMENU _hRootMenu = NULL;
 	HMENU _hFolderMenu = NULL;
 	HMENU _hFileMenu = NULL;
-	std::vector<FolderUpdater *> _folderUpdaters;
+	std::vector <FolderUpdater *> _folderUpdaters;
 	generic_string _selectedNodeFullPath; // this member is used only for PostMessage call
-	std::vector<SortingData4lParam*> sortingDataArray;
+	std::vector <SortingData4lParam*> sortingDataArray;
 	generic_string _expandAllFolders = TEXT("Expand all folders");
 	generic_string _collapseAllFolders = TEXT("Collapse all folders");
 	generic_string _locateCurrentFile = TEXT("Locate current file");
@@ -7078,20 +7078,20 @@ protected:
 	struct FilesToChange {
 		generic_string _commonPath; // Common path between all the files. _rootPath + _linarWithoutLastPathElement
 		generic_string _rootPath;
-		std::vector<generic_string> _linarWithoutLastPathElement;
-		std::vector<generic_string> _files; // file/folder names
+		std::vector <generic_string> _linarWithoutLastPathElement;
+		std::vector <generic_string> _files; // file/folder names
 	};
-	std::vector<FilesToChange> getFilesFromParam(LPARAM lParam) const;
+	std::vector <FilesToChange> getFilesFromParam(LPARAM lParam) const;
 	bool addToTree(FilesToChange & group, HTREEITEM node);
 	bool deleteFromTree(FilesToChange & group);
-	std::vector<HTREEITEM> findInTree(FilesToChange & group, HTREEITEM node) const;
-	std::vector<HTREEITEM> findChildNodesFromNames(HTREEITEM parent, std::vector<generic_string> & labels) const;
-	void removeNamesAlreadyInNode(HTREEITEM parent, std::vector<generic_string> & labels) const;
+	std::vector <HTREEITEM> findInTree(FilesToChange & group, HTREEITEM node) const;
+	std::vector <HTREEITEM> findChildNodesFromNames(HTREEITEM parent, std::vector <generic_string> & labels) const;
+	void removeNamesAlreadyInNode(HTREEITEM parent, std::vector <generic_string> & labels) const;
 	virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
 	void notified(LPNMHDR notification);
 	void showContextMenu(int x, int y);
 	void openSelectFile();
-	void getDirectoryStructure(const TCHAR * dir, const std::vector<generic_string> & patterns, FolderInfo & directoryStructure,
+	void getDirectoryStructure(const TCHAR * dir, const std::vector <generic_string> & patterns, FolderInfo & directoryStructure,
 	    bool isRecursive, bool isInHiddenDir);
 	HTREEITEM createFolderItemsFromDirStruct(HTREEITEM hParentItem, const FolderInfo & directoryStructure);
 	static int CALLBACK categorySortFunc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSort);
@@ -7335,29 +7335,29 @@ public:
 	    const TCHAR * displayName,
 	    const TCHAR * commentExpr,
 	    const generic_string& functionExpr,
-	    const std::vector<generic_string>& functionNameExprArray,
-	    const std::vector<generic_string>& classNameExprArray) :
+	    const std::vector <generic_string>& functionNameExprArray,
+	    const std::vector <generic_string>& classNameExprArray) :
 		_id(id), _displayName(displayName), _commentExpr(commentExpr ? commentExpr : TEXT("")), _functionExpr(functionExpr),
 		_functionNameExprArray(functionNameExprArray), _classNameExprArray(classNameExprArray)
 	{
 	}
-	virtual void parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end,
+	virtual void parse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end,
 	    ScintillaEditView ** ppEditView, generic_string classStructName = TEXT("")) = 0;
-	void funcParse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView,
-	    generic_string classStructName = TEXT(""), const std::vector< std::pair<int, int> > * commentZones = NULL);
-	bool isInZones(int pos2Test, const std::vector< std::pair<int, int> > & zones);
+	void funcParse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView,
+	    generic_string classStructName = TEXT(""), const std::vector < std::pair<int, int> > * commentZones = NULL);
+	bool isInZones(int pos2Test, const std::vector < std::pair<int, int> > & zones);
 	virtual ~FunctionParser() = default;
 protected:
 	generic_string _id;
 	generic_string _displayName;
 	generic_string _commentExpr;
 	generic_string _functionExpr;
-	std::vector<generic_string> _functionNameExprArray;
-	std::vector<generic_string> _classNameExprArray;
-	void getCommentZones(std::vector< std::pair<int, int> > & commentZone, size_t begin, size_t end, ScintillaEditView ** ppEditView);
-	void getInvertZones(std::vector< std::pair<int, int> > & destZones,
-	    std::vector< std::pair<int, int> > & sourceZones, size_t begin, size_t end);
-	generic_string parseSubLevel(size_t begin, size_t end, std::vector< generic_string > dataToSearch,
+	std::vector <generic_string> _functionNameExprArray;
+	std::vector <generic_string> _classNameExprArray;
+	void getCommentZones(std::vector < std::pair<int, int> > & commentZone, size_t begin, size_t end, ScintillaEditView ** ppEditView);
+	void getInvertZones(std::vector < std::pair<int, int> > & destZones,
+	    std::vector < std::pair<int, int> > & sourceZones, size_t begin, size_t end);
+	generic_string parseSubLevel(size_t begin, size_t end, std::vector < generic_string > dataToSearch,
 	    int & foundPos, ScintillaEditView ** ppEditView);
 };
 
@@ -7365,32 +7365,32 @@ class FunctionZoneParser : public FunctionParser {
 public:
 	FunctionZoneParser() = delete;
 	FunctionZoneParser(const TCHAR * id, const TCHAR * displayName, const TCHAR * commentExpr, const generic_string& rangeExpr,
-	    const generic_string& openSymbole, const generic_string& closeSymbole, const std::vector<generic_string>& classNameExprArray,
-	    const generic_string& functionExpr, const std::vector<generic_string>& functionNameExprArray) :
+	    const generic_string& openSymbole, const generic_string& closeSymbole, const std::vector <generic_string>& classNameExprArray,
+	    const generic_string& functionExpr, const std::vector <generic_string>& functionNameExprArray) :
 		FunctionParser(id, displayName, commentExpr, functionExpr, functionNameExprArray, classNameExprArray),
 		_rangeExpr(rangeExpr), _openSymbole(openSymbole), _closeSymbole(closeSymbole) 
 	{
 	}
-	void parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
+	void parse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
 protected:
-	void classParse(std::vector<foundInfo> & foundInfos, std::vector< std::pair<int, int> > & scannedZones, const std::vector< std::pair<int, int> > & commentZones,
+	void classParse(std::vector <foundInfo> & foundInfos, std::vector < std::pair<int, int> > & scannedZones, const std::vector < std::pair<int, int> > & commentZones,
 	    size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
 private:
 	generic_string _rangeExpr;
 	generic_string _openSymbole;
 	generic_string _closeSymbole;
-	size_t getBodyClosePos(size_t begin, const TCHAR * bodyOpenSymbol, const TCHAR * bodyCloseSymbol, const std::vector< std::pair<int,
+	size_t getBodyClosePos(size_t begin, const TCHAR * bodyOpenSymbol, const TCHAR * bodyCloseSymbol, const std::vector < std::pair<int,
 	    int> > & commentZones, ScintillaEditView ** ppEditView);
 };
 
 class FunctionUnitParser : public FunctionParser {
 public:
 	FunctionUnitParser(const TCHAR * id, const TCHAR * displayName, const TCHAR * commentExpr,
-	    const generic_string& mainExpr, const std::vector<generic_string>& functionNameExprArray,
-	    const std::vector<generic_string>& classNameExprArray) : FunctionParser(id, displayName, commentExpr, mainExpr, functionNameExprArray, classNameExprArray)
+	    const generic_string& mainExpr, const std::vector <generic_string>& functionNameExprArray,
+	    const std::vector <generic_string>& classNameExprArray) : FunctionParser(id, displayName, commentExpr, mainExpr, functionNameExprArray, classNameExprArray)
 	{
 	}
-	void parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
+	void parse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
 };
 
 class FunctionMixParser : public FunctionZoneParser {
@@ -7401,9 +7401,9 @@ public:
 	    const generic_string& rangeExpr,
 	    const generic_string& openSymbole,
 	    const generic_string& closeSymbole,
-	    const std::vector<generic_string>& classNameExprArray,
+	    const std::vector <generic_string>& classNameExprArray,
 	    const generic_string& functionExpr,
-	    const std::vector<generic_string>& functionNameExprArray,
+	    const std::vector <generic_string>& functionNameExprArray,
 	    FunctionUnitParser * funcUnitPaser) :
 		FunctionZoneParser(id, displayName, commentExpr, rangeExpr, openSymbole, closeSymbole,
 		    classNameExprArray, functionExpr, functionNameExprArray), _funcUnitPaser(funcUnitPaser){
@@ -7412,7 +7412,7 @@ public:
 	{
 		delete _funcUnitPaser;
 	}
-	void parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
+	void parse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName = TEXT(""));
 private:
 	FunctionUnitParser* _funcUnitPaser = nullptr;
 };
@@ -7451,7 +7451,7 @@ class FunctionParsersManager final {
 public:
 	~FunctionParsersManager();
 	bool init(const generic_string& xmlPath, const generic_string& xmlInstalledPath, ScintillaEditView ** ppEditView);
-	bool parse(std::vector<foundInfo> & foundInfos, const AssociationInfo & assoInfo);
+	bool parse(std::vector <foundInfo> & foundInfos, const AssociationInfo & assoInfo);
 private:
 	ScintillaEditView ** _ppEditView = nullptr;
 	generic_string _xmlDirPath; // The 1st place to load function list files. Usually it's "%APPDATA%\Notepad++\functionList\"
@@ -7465,13 +7465,13 @@ private:
 	    generic_string &mainExprStr,
 	    generic_string &openSymboleStr,
 	    generic_string &closeSymboleStr,
-	    std::vector<generic_string> &classNameExprArray,
+	    std::vector <generic_string> &classNameExprArray,
 	    generic_string &functionExprStr,
-	    std::vector<generic_string> &functionNameExprArray);
+	    std::vector <generic_string> &functionNameExprArray);
 	bool getUnitPaserParameters(TiXmlNode * functionParser,
 	    generic_string &mainExprStr,
-	    std::vector<generic_string> &functionNameExprArray,
-	    std::vector<generic_string> &classNameExprArray);
+	    std::vector <generic_string> &functionNameExprArray,
+	    std::vector <generic_string> &classNameExprArray);
 	FunctionParser * getParser(const AssociationInfo & assoInfo);
 };
 //
@@ -7554,7 +7554,7 @@ public:
 	generic_string doSaveDlg();
 	generic_string pickFolder();
 	generic_string doOpenSingleFileDlg();
-	std::vector<generic_string> doOpenMultiFilesDlg();
+	std::vector <generic_string> doOpenMultiFilesDlg();
 	bool getCheckboxState() const;
 	bool isReadOnly() const;
 private:
@@ -7621,7 +7621,7 @@ private:
 };
 //
 //#include "FileNameStringSplitter.h"
-typedef std::vector<generic_string> stringVector;
+typedef std::vector <generic_string> stringVector;
 
 class FileNameStringSplitter {
 public:
@@ -7693,7 +7693,7 @@ private:
 	FindResult findOpenTag(const std::string & tagName, int start, int end);
 	FindResult findCloseTag(const std::string & tagName, int start, int end);
 	int findCloseAngle(int startPosition, int endPosition);
-	std::vector< std::pair<int, int> > getAttributesPos(int start, int end);
+	std::vector < std::pair<int, int> > getAttributesPos(int start, int end);
 };
 //
 //#include "asciiListView.h"
@@ -7733,7 +7733,7 @@ private:
 };
 //
 //#include "clipboardHistoryPanel.h"
-typedef std::vector<uchar> ClipboardData;
+typedef std::vector <uchar> ClipboardData;
 
 class ByteArray {
 public:
@@ -7786,7 +7786,7 @@ protected:
 	virtual INT_PTR CALLBACK run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam);
 private:
 	ScintillaEditView ** _ppEditView = nullptr;
-	std::vector<ClipboardData> _clipboardDataVector;
+	std::vector <ClipboardData> _clipboardDataVector;
 	HWND _hwndNextCbViewer = nullptr;
 	int _lbBgColor = -1;
 	int _lbFgColor = -1;
@@ -7812,7 +7812,7 @@ struct TaskLstFnStatus {
 };
 
 struct TaskListInfo {
-	std::vector<TaskLstFnStatus> _tlfsLst;
+	std::vector <TaskLstFnStatus> _tlfsLst;
 	int _currentIndex = -1;
 };
 
@@ -7890,7 +7890,7 @@ public:
 	void resizeColumns(int totalWidth);
 	void deleteColumn(size_t i) { ListView_DeleteColumn(_hSelf, i); };
 	int nbSelectedFiles() const { return static_cast<int32_t>(SendMessage(_hSelf, LVM_GETSELECTEDCOUNT, 0, 0)); };
-	std::vector<SwitcherFileInfo> getSelectedFiles(bool reverse = false) const;
+	std::vector <SwitcherFileInfo> getSelectedFiles(bool reverse = false) const;
 	void reload();
 	void setBackgroundColor(COLORREF bgColour);
 	void setForegroundColor(COLORREF fgColour);
@@ -7953,7 +7953,7 @@ public:
 	int setHeaderOrder(int columnIndex);
 	void updateHeaderArrow();
 	int nbSelectedFiles() const { return _fileListView.nbSelectedFiles(); }
-	std::vector<SwitcherFileInfo> getSelectedFiles(bool reverse = false) const { return _fileListView.getSelectedFiles(reverse); }
+	std::vector <SwitcherFileInfo> getSelectedFiles(bool reverse = false) const { return _fileListView.getSelectedFiles(reverse); }
 	void startColumnSort();
 	void reload()
 	{
@@ -8021,7 +8021,7 @@ public:
 	bool checkIfNeedSave();
 	virtual void setBackgroundColor(COLORREF bgColour);
 	virtual void setForegroundColor(COLORREF fgColour);
-	bool enumWorkSpaceFiles(HTREEITEM tvFrom, const std::vector<generic_string> & patterns, std::vector<generic_string> & fileNames);
+	bool enumWorkSpaceFiles(HTREEITEM tvFrom, const std::vector <generic_string> & patterns, std::vector <generic_string> & fileNames);
 protected:
 	TreeView _treeView;
 	HIMAGELIST _hImaLst = nullptr;
@@ -8059,7 +8059,7 @@ protected:
 	generic_string getAbsoluteFilePath(const TCHAR * relativePath);
 	void openSelectFile();
 	void setFileExtFilter(CustomFileDialog & fDlg);
-	std::vector<generic_string*> fullPathStrs;
+	std::vector <generic_string*> fullPathStrs;
 };
 
 class FileRelocalizerDlg : public StaticDialog {
@@ -8144,15 +8144,15 @@ private:
 	HTREEITEM _findItem = nullptr;
 	generic_string _sortTipStr = TEXT("Sort");
 	generic_string _reloadTipStr = TEXT("Reload");
-	std::vector<foundInfo> _foundFuncInfos;
-	std::vector<generic_string*> posStrs;
+	std::vector <foundInfo> _foundFuncInfos;
+	std::vector <generic_string*> posStrs;
 	ScintillaEditView **_ppEditView = nullptr;
 	FunctionParsersManager _funcParserMgr;
-	std::vector< std::pair<int, int> > _skipZones;
-	std::vector<TreeParams> _treeParams;
+	std::vector < std::pair<int, int> > _skipZones;
+	std::vector <TreeParams> _treeParams;
 	HIMAGELIST _hTreeViewImaLst = nullptr;
 
-	generic_string parseSubLevel(size_t begin, size_t end, std::vector< generic_string > dataToSearch, int & foundPos);
+	generic_string parseSubLevel(size_t begin, size_t end, std::vector < generic_string > dataToSearch, int & foundPos);
 	size_t getBodyClosePos(size_t begin, const TCHAR *bodyOpenSymbol, const TCHAR *bodyCloseSymbol);
 	void notified(LPNMHDR notification);
 	void addInStateArray(TreeStateNode tree2Update, const TCHAR *searchText, bool isSorted);
@@ -8252,10 +8252,10 @@ namespace ReadDirectoryChangesPrivate { // Copyright (c) 2010 James E Beveridge
 		// Data buffer for the request.
 		// Since the memory is allocated by malloc, it will always
 		// be aligned as required by ReadDirectoryChangesW().
-		vector<BYTE> m_Buffer;
+		vector <BYTE> m_Buffer;
 		// Double buffer strategy so that we can issue a new read
 		// request before we process the current buffer.
-		vector<BYTE> m_BackupBuffer;
+		vector <BYTE> m_BackupBuffer;
 	};
 	//
 	// All functions in CReadChangesServer run in the context of the worker thread.
@@ -8314,7 +8314,7 @@ namespace ReadDirectoryChangesPrivate { // Copyright (c) 2010 James E Beveridge
 			}
 			m_pBlocks.clear();
 		}
-		vector<CReadChangesRequest*> m_pBlocks;
+		vector <CReadChangesRequest*> m_pBlocks;
 		bool m_bTerminate = false;
 	};
 }
@@ -8380,9 +8380,9 @@ public:
 private:
 	// SHA256
 	static SecurityMode _securityMode;
-	std::vector<std::wstring> _scilexerSha256;
-	std::vector<std::wstring> _gupSha256;
-	std::vector<std::wstring> _pluginListSha256;
+	std::vector <std::wstring> _scilexerSha256;
+	std::vector <std::wstring> _gupSha256;
+	std::vector <std::wstring> _pluginListSha256;
 	bool checkSha256(const std::wstring& filePath, NppModule module2check);
 	// Code signing certificate
 	std::wstring _signer_display_name = TEXT("Notepad++");
@@ -8696,7 +8696,7 @@ public:
 	virtual ~ISorter() 
 	{
 	}
-	virtual std::vector<generic_string> sort(std::vector<generic_string> lines) = 0;
+	virtual std::vector <generic_string> sort(std::vector <generic_string> lines) = 0;
 };
 
 // Implementation of lexicographic sorting of lines.
@@ -8705,7 +8705,7 @@ public:
 	LexicographicSorter(bool isDescending, size_t fromColumn, size_t toColumn) : ISorter(isDescending, fromColumn, toColumn) 
 	{
 	}
-	std::vector<generic_string> sort(std::vector<generic_string> lines) override;
+	std::vector <generic_string> sort(std::vector <generic_string> lines) override;
 };
 
 // Implementation of lexicographic sorting of lines, ignoring character casing
@@ -8714,7 +8714,7 @@ public:
 	LexicographicCaseInsensitiveSorter(bool isDescending, size_t fromColumn, size_t toColumn) : ISorter(isDescending, fromColumn, toColumn) 
 	{
 	}
-	std::vector<generic_string> sort(std::vector<generic_string> lines) override;
+	std::vector <generic_string> sort(std::vector <generic_string> lines) override;
 };
 
 // Treat consecutive numerals as one number
@@ -8724,7 +8724,7 @@ public:
 	NaturalSorter(bool isDescending, size_t fromColumn, size_t toColumn) : ISorter(isDescending, fromColumn, toColumn) 
 	{
 	}
-	std::vector<generic_string> sort(std::vector<generic_string> lines) override;
+	std::vector <generic_string> sort(std::vector <generic_string> lines) override;
 };
 
 class ReverseSorter : public ISorter {
@@ -8732,7 +8732,7 @@ public:
 	ReverseSorter(bool isDescending, size_t fromColumn, size_t toColumn) : ISorter(isDescending, fromColumn, toColumn) 
 	{
 	}
-	std::vector<generic_string> sort(std::vector<generic_string> lines) override
+	std::vector <generic_string> sort(std::vector <generic_string> lines) override
 	{
 		std::reverse(lines.begin(), lines.end());
 		return lines;
@@ -8746,7 +8746,7 @@ public:
 	{
 		seed = static_cast<unsigned>(time(NULL));
 	}
-	std::vector<generic_string> sort(std::vector<generic_string> lines) override
+	std::vector <generic_string> sort(std::vector <generic_string> lines) override
 	{
 		std::shuffle(lines.begin(), lines.end(), std::default_random_engine(seed));
 		return lines;

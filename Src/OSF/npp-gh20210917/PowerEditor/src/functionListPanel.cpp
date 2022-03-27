@@ -103,7 +103,7 @@ size_t FunctionListPanel::getBodyClosePos(size_t begin, const TCHAR * bodyOpenSy
 	return targetEnd;
 }
 
-generic_string FunctionListPanel::parseSubLevel(size_t begin, size_t end, std::vector< generic_string > dataToSearch, int & foundPos)
+generic_string FunctionListPanel::parseSubLevel(size_t begin, size_t end, std::vector < generic_string > dataToSearch, int & foundPos)
 {
 	if(begin >= end) {
 		foundPos = -1;

@@ -590,7 +590,7 @@ struct SUiLayoutParam { // @persistent
 	int    FASTCALL operator == (const SUiLayoutParam & rS) const;
 	int    FASTCALL operator != (const SUiLayoutParam & rS) const;
 	SUiLayoutParam & SetDefault();
-	int    FASTCALL IsEq(const SUiLayoutParam & rS) const;
+	bool   FASTCALL IsEq(const SUiLayoutParam & rS) const;
 	//
 	// Descr: Проверяет параметры (возможно, не все) блока на непротиворечивость.
 	// Returns:
@@ -2195,8 +2195,8 @@ public:
 	TView * GetLastView() const { return P_Last; }
 	void   redraw();
 	uint   GetCurrId() const;
-	int    FASTCALL IsCurrentView(const TView * pV) const;
-	int    FASTCALL isCurrCtlID(uint ctlID) const;
+	bool   FASTCALL IsCurrentView(const TView * pV) const;
+	bool   FASTCALL isCurrCtlID(uint ctlID) const;
 	void   SetCurrentView(TView * p, selectMode mode);
 protected:
 	TView * P_Current;
@@ -4976,22 +4976,22 @@ public:
 	// ARG(fmt   IN): Формат вывода данных (используйте MKSFMT или MKSFMTD)
 	// ARG(opt   IN): Опции вывода данных в столбце (BCO_XXX see tvdefs.h)
 	//
-	virtual int   insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
-	virtual int   insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
-	virtual void  setViewHight(int);
-	virtual void  getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int   valid();
-	virtual int   FASTCALL go(long);
-	virtual int   FASTCALL step(long);
-	virtual int   top();
-	virtual int   bottom();
-	virtual long  getRecsCount();
-	virtual const void * FASTCALL getRow(long) const;
+	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
+	virtual int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
+	virtual void   setViewHight(int);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    valid();
+	virtual int    FASTCALL go(long);
+	virtual int    FASTCALL step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual const  void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
-	virtual int   refresh();
-	virtual int   search(const void * pPattern, CompFunc, int srchMode, int srchCol);
-	virtual int   search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
+	virtual int    refresh();
+	virtual int    search(const void * pPattern, CompFunc, int srchMode, int srchCol);
+	virtual int    search2(const void * pSrchData, CompFunc, int srchMode, size_t offs);
 	BroColumn & FASTCALL at(uint) const;
 	void   initOffset(int);
 	int    addColumn(const BroColumn *, int = UNDEF);
@@ -5057,10 +5057,10 @@ public:
 	~AryBrowserDef();
 	int     setArray(SArray * pData, const BNFieldList * pFl, int setupPosition /*= 1*/);
 	const   SArray * getArray() const;
-	virtual int   valid();
-	virtual int   insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
-	virtual long  getRecsCount();
-	virtual const void * FASTCALL getRow(long) const;
+	virtual int    valid();
+	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID typ, long fmt, uint opt);
+	virtual long   getRecsCount();
+	virtual const  void * FASTCALL getRow(long) const;
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
 protected:
@@ -5079,20 +5079,20 @@ public:
 	~DBQBrowserDef();
 	const  DBQuery * getQuery() const { return query; }
 	int    setQuery(DBQuery & rQuery, uint aBufSize = defaultFrameSize);
-	virtual int   insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID, long fmt, uint opt);
-	virtual int   insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
-	virtual void  setViewHight(int);
-	virtual void  getScrollData(long * pScrollDelta, long * pScrollPos);
-	virtual int   valid();
-	virtual int   FASTCALL go(long);
-	virtual int   FASTCALL step(long);
-	virtual int   top();
-	virtual int   bottom();
-	virtual long  getRecsCount();
-	virtual const void * FASTCALL getRow(long) const;
+	virtual int    insertColumn(int atPos, const char * pTxt, uint fldNo, TYPEID, long fmt, uint opt);
+	virtual int    insertColumn(int atPos, const char * pTxt, const char * pFldName, TYPEID typ, long fmt, uint opt);
+	virtual void   setViewHight(int);
+	virtual void   getScrollData(long * pScrollDelta, long * pScrollPos);
+	virtual int    valid();
+	virtual int    FASTCALL go(long);
+	virtual int    FASTCALL step(long);
+	virtual int    top();
+	virtual int    bottom();
+	virtual long   getRecsCount();
+	virtual const  void * FASTCALL getRow(long) const;
+	virtual int    refresh();
 	// @v10.9.0 virtual int   FASTCALL getData(void *);
 	// @v10.9.0 virtual int   FASTCALL setData(void *);
-	virtual int   refresh();
 protected:
 	void   setupView();
 	DBQuery * query;

@@ -146,10 +146,8 @@ int archive_write_add_filter_lzop(struct archive * _a)
 		return ARCHIVE_FATAL;
 	}
 	data->compression_level = 0;
-	/* Note: We return "warn" to inform of using an external lzop
-	 * program. */
-	archive_set_error(_a, ARCHIVE_ERRNO_MISC,
-	    "Using external lzop program for lzop compression");
+	// Note: We return "warn" to inform of using an external lzop program.
+	archive_set_error(_a, ARCHIVE_ERRNO_MISC, "Using external lzop program for lzop compression");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -157,7 +155,6 @@ int archive_write_add_filter_lzop(struct archive * _a)
 static int archive_write_lzop_free(struct archive_write_filter * f)
 {
 	struct write_lzop * data = (struct write_lzop *)f->data;
-
 #if defined(HAVE_LZO_LZOCONF_H) && defined(HAVE_LZO_LZO1X_H)
 	SAlloc::F(data->uncompressed);
 	SAlloc::F(data->compressed);
@@ -216,29 +213,23 @@ static int archive_write_lzop_open(struct archive_write_filter * f)
 	if(data->work_buffer == NULL) {
 		data->work_buffer = (lzo_voidp)SAlloc::M(data->work_buffer_size);
 		if(data->work_buffer == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
 	if(data->compressed == NULL) {
-		data->compressed_buffer_size = sizeof(header) +
-		    BLOCK_SIZE + (BLOCK_SIZE >> 4) + 64 + 3;
-		data->compressed = (uchar *)
-		    SAlloc::M(data->compressed_buffer_size);
+		data->compressed_buffer_size = sizeof(header) + BLOCK_SIZE + (BLOCK_SIZE >> 4) + 64 + 3;
+		data->compressed = (uchar *)SAlloc::M(data->compressed_buffer_size);
 		if(data->compressed == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 	}
 	if(data->uncompressed == NULL) {
 		data->uncompressed_buffer_size = BLOCK_SIZE;
-		data->uncompressed = (uchar *)
-		    SAlloc::M(data->uncompressed_buffer_size);
+		data->uncompressed = (uchar *)SAlloc::M(data->uncompressed_buffer_size);
 		if(data->uncompressed == NULL) {
-			archive_set_error(f->archive, ENOMEM,
-			    "Can't allocate data for compression buffer");
+			archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 			return ARCHIVE_FATAL;
 		}
 		data->uncompressed_avail_bytes = BLOCK_SIZE;
@@ -307,23 +298,18 @@ static int drive_compressor(struct archive_write_filter * f)
 			    data->work_buffer);
 		    break;
 		case METHOD_LZO1X_999:
-		    r = lzo1x_999_compress_level(data->uncompressed, usize,
-			    p + header_bytes + block_info_bytes, &csize,
-			    data->work_buffer, NULL, 0, 0, data->level);
+		    r = lzo1x_999_compress_level(data->uncompressed, usize, p + header_bytes + block_info_bytes, &csize, data->work_buffer, NULL, 0, 0, data->level);
 		    break;
 	}
 	if(r != LZO_E_OK) {
-		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-		    "Lzop compression failed: returned status %d", r);
+		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Lzop compression failed: returned status %d", r);
 		return ARCHIVE_FATAL;
 	}
-
 	/* Store uncompressed size. */
 	archive_be32enc(p + header_bytes, (uint32)usize);
 	/* Store the checksum of the uncompressed data. */
 	checksum = lzo_adler32(1, data->uncompressed, usize);
 	archive_be32enc(p + header_bytes + 8, checksum);
-
 	if(csize < usize) {
 		/* Store compressed size. */
 		archive_be32enc(p + header_bytes + 4, (uint32)csize);

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------
+//
 //  Copyright 2007-2009 (c) Jeff Brown <spadix@users.sourceforge.net>
 //
 //  This file is part of the ZBar Bar Code Reader.
@@ -19,7 +19,7 @@
 //  Boston, MA  02110-1301  USA
 //
 //  http://sourceforge.net/projects/zbar
-//------------------------------------------------------------------------
+//
 #ifndef _ZBAR_WINDOW_H_
 #define _ZBAR_WINDOW_H_
 
@@ -27,7 +27,7 @@
 /// Output Window C++ wrapper
 
 #ifndef _ZBAR_H_
-#error "include zbar.h in your application, **not** zbar/Window.h"
+	#error "include zbar.h in your application, **not** zbar/Window.h"
 #endif
 
 #include "Image.h"
@@ -39,96 +39,93 @@
 
 class Window {
 public:
-    /// constructor.
-    Window (zbar_window_t *window = NULL)
-    {
-        if(window)
-            _window = window;
-        else
-            _window = zbar_window_create();
-    }
+	/// constructor.
+	Window(zbar_window_t * window = NULL)
+	{
+		if(window)
+			_window = window;
+		else
+			_window = zbar_window_create();
+	}
 
-    /// constructor.
-    Window (void *x11_display_w32_hwnd,
-            ulong x11_drawable)
-    {
-        _window = zbar_window_create();
-        attach(x11_display_w32_hwnd, x11_drawable);
-    }
+	/// constructor.
+	Window(void * x11_display_w32_hwnd, ulong x11_drawable)
+	{
+		_window = zbar_window_create();
+		attach(x11_display_w32_hwnd, x11_drawable);
+	}
+	~Window()
+	{
+		zbar_window_destroy(_window);
+	}
+	/// cast to C window object.
+	operator zbar_window_t*() const
+	{
+		return (_window);
+	}
 
-    ~Window ()
-    {
-        zbar_window_destroy(_window);
-    }
+	/// associate reader with an existing platform window.
+	/// see zbar_window_attach()
+	void attach(void * x11_display_w32_hwnd,
+	    ulong x11_drawable = 0)
+	{
+		if(zbar_window_attach(_window,
+		    x11_display_w32_hwnd, x11_drawable) < 0)
+			throw_exception(_window);
+	}
 
-    /// cast to C window object.
-    operator zbar_window_t* () const
-    {
-        return (_window);
-    }
+	/// control content level of the reader overlay.
+	/// see zbar_window_set_overlay()
+	void set_overlay(int level)
+	{
+		zbar_window_set_overlay(_window, level);
+	}
 
-    /// associate reader with an existing platform window.
-    /// see zbar_window_attach()
-    void attach (void *x11_display_w32_hwnd,
-                 ulong x11_drawable = 0)
-    {
-        if(zbar_window_attach(_window,
-                               x11_display_w32_hwnd, x11_drawable) < 0)
-            throw_exception(_window);
-    }
+	/// retrieve current content level of reader overlay.
+	/// see zbar_window_get_overlay()
 
-    /// control content level of the reader overlay.
-    /// see zbar_window_set_overlay()
-    void set_overlay (int level)
-    {
-        zbar_window_set_overlay(_window, level);
-    }
+	/// draw a new image into the output window.
+	/// see zbar_window_draw()
+	void draw(Image& image)
+	{
+		if(zbar_window_draw(_window, image) < 0)
+			throw_exception(_window);
+	}
 
-    /// retrieve current content level of reader overlay.
-    /// see zbar_window_get_overlay()
+	/// clear the image from the output window.
+	/// see zbar_window_draw()
+	void clear()
+	{
+		if(zbar_window_draw(_window, NULL) < 0)
+			throw_exception(_window);
+	}
 
-    /// draw a new image into the output window.
-    /// see zbar_window_draw()
-    void draw (Image& image)
-    {
-        if(zbar_window_draw(_window, image) < 0)
-            throw_exception(_window);
-    }
+	/// redraw the last image.
+	/// zbar_window_redraw()
+	void redraw()
+	{
+		if(zbar_window_redraw(_window) < 0)
+			throw_exception(_window);
+	}
 
-    /// clear the image from the output window.
-    /// see zbar_window_draw()
-    void clear ()
-    {
-        if(zbar_window_draw(_window, NULL) < 0)
-            throw_exception(_window);
-    }
-
-    /// redraw the last image.
-    /// zbar_window_redraw()
-    void redraw ()
-    {
-        if(zbar_window_redraw(_window) < 0)
-            throw_exception(_window);
-    }
-
-    /// resize the image window.
-    /// zbar_window_resize()
-    void resize (uint width, uint height)
-    {
-        if(zbar_window_resize(_window, width, height) < 0)
-            throw_exception(_window);
-    }
+	/// resize the image window.
+	/// zbar_window_resize()
+	void resize(uint width, uint height)
+	{
+		if(zbar_window_resize(_window, width, height) < 0)
+			throw_exception(_window);
+	}
 
 private:
-    zbar_window_t *_window;
+	zbar_window_t * _window;
 };
 
 /// select a compatible format between video input and output window.
 /// see zbar_negotiate_format()
-static inline void negotiate_format (Video& video, Window& window)
+static inline void negotiate_format(Video& video, Window& window)
 {
-    if(zbar_negotiate_format(video, window) < 0)
-        throw_exception(video);
+	if(zbar_negotiate_format(video, window) < 0)
+		throw_exception(video);
 }
 
 //}

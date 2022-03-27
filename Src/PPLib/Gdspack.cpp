@@ -179,7 +179,7 @@ int PPGoodsPacket::IsExtRecEmpty() const
 
 static SString & FASTCALL PreprocessDataStr(SString & rBuf)
 {
-	rBuf.ReplaceChar('\t', ' ').ReplaceChar('\xD', ' ').ReplaceChar('\xA', ' ');
+	rBuf.ReplaceChar('\t', ' ').ReplaceChar('\x0D', ' ').ReplaceChar('\x0A', ' ');
 	while(rBuf.ReplaceStrR("  ", " ", 0))
 		;
 	return rBuf;

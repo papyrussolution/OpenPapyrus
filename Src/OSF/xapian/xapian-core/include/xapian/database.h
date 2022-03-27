@@ -52,7 +52,7 @@ class WritableDatabase;
  *
  *  @since 1.5.0 This class is a reference counted handle like many other
  *	   Xapian API classes.  In earlier versions, it worked like a typedef
- *	   to std::vector<database_shard>.  The key difference is that
+ *	   to std::vector <database_shard>.  The key difference is that
  *	   previously copying or assigning a Xapian::Database made a deep copy,
  *	   whereas now it makes a shallow copy.
  *
@@ -822,7 +822,7 @@ public:
  *
  *  @since 1.5.0 This class is a reference counted handle like many other
  *	   Xapian API classes.  In earlier versions, it worked like a typedef
- *	   to std::vector<database_shard>.  The key difference is that
+ *	   to std::vector <database_shard>.  The key difference is that
  *	   previously copying or assigning a Xapian::Database made a deep copy,
  *	   whereas now it makes a shallow copy.
  *

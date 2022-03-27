@@ -5,26 +5,21 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // SSE2 version of speed-critical encoding functions.
 //
 // Author: Christian Duvivier (cduvivier@google.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
 #if defined(WEBP_USE_SSE2)
-//#include <assert.h>
-//#include <stdlib.h>  // for abs()
 #include <emmintrin.h>
 #include "src/dsp/common_sse2.h"
 #include "src/enc/cost_enc.h"
 #include "src/enc/vp8i_enc.h"
-
-//------------------------------------------------------------------------------
+//
 // Transforms (Paragraph 14.4)
-
+//
 // Does one or two inverse transforms.
 static void ITransform_SSE2(const uint8* ref, const int16_t* in, uint8* dst,
     int do_two) {
@@ -431,14 +426,12 @@ static void FTransformWHT_SSE2(const int16_t* in, int16_t* out) {
 		_mm_storeu_si128((__m128i*)&out[8], _mm_srai_epi16(b2b3, 1));
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Compute susceptibility based on DCT-coeff histograms:
 // the higher, the "easier" the macroblock is to compress.
-
-static void CollectHistogram_SSE2(const uint8* ref, const uint8* pred,
-    int start_block, int end_block,
-    VP8Histogram* const histo) {
+//
+static void CollectHistogram_SSE2(const uint8* ref, const uint8* pred, int start_block, int end_block, VP8Histogram* const histo) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i max_coeff_thresh = _mm_set1_epi16(MAX_COEFF_THRESH);
 	int j;
@@ -446,9 +439,7 @@ static void CollectHistogram_SSE2(const uint8* ref, const uint8* pred,
 	for(j = start_block; j < end_block; ++j) {
 		int16_t out[16];
 		int k;
-
 		FTransform_SSE2(ref + VP8DspScan[j], pred + VP8DspScan[j], out);
-
 		// Convert coefficients to bin (within out[]).
 		{
 			// Load.
@@ -468,7 +459,6 @@ static void CollectHistogram_SSE2(const uint8* ref, const uint8* pred,
 			_mm_storeu_si128((__m128i*)&out[0], bin0);
 			_mm_storeu_si128((__m128i*)&out[8], bin1);
 		}
-
 		// Convert coefficients to bin.
 		for(k = 0; k < 16; ++k) {
 			++distribution[out[k]];
@@ -476,31 +466,30 @@ static void CollectHistogram_SSE2(const uint8* ref, const uint8* pred,
 	}
 	VP8SetHistogramData(distribution, histo);
 }
-
-//------------------------------------------------------------------------------
+//
 // Intra predictions
-
+//
 // helper for chroma-DC predictions
-static FORCEINLINE void Put8x8uv_SSE2(uint8 v, uint8* dst) {
-	int j;
+static FORCEINLINE void Put8x8uv_SSE2(uint8 v, uint8* dst) 
+{
 	const __m128i values = _mm_set1_epi8(v);
-	for(j = 0; j < 8; ++j) {
+	for(int j = 0; j < 8; ++j) {
 		_mm_storel_epi64((__m128i*)(dst + j * BPS), values);
 	}
 }
 
-static FORCEINLINE void Put16_SSE2(uint8 v, uint8* dst) {
-	int j;
+static FORCEINLINE void Put16_SSE2(uint8 v, uint8* dst) 
+{
 	const __m128i values = _mm_set1_epi8(v);
-	for(j = 0; j < 16; ++j) {
+	for(int j = 0; j < 16; ++j) {
 		_mm_store_si128((__m128i*)(dst + j * BPS), values);
 	}
 }
 
-static FORCEINLINE void Fill_SSE2(uint8* dst, int value, int size) {
+static FORCEINLINE void Fill_SSE2(uint8* dst, int value, int size) 
+{
 	if(size == 4) {
-		int j;
-		for(j = 0; j < 4; ++j) {
+		for(int j = 0; j < 4; ++j) {
 			memset(dst + j * BPS, value, 4);
 		}
 	}
@@ -512,24 +501,24 @@ static FORCEINLINE void Fill_SSE2(uint8* dst, int value, int size) {
 	}
 }
 
-static FORCEINLINE void VE8uv_SSE2(uint8* dst, const uint8* top) {
-	int j;
+static FORCEINLINE void VE8uv_SSE2(uint8* dst, const uint8* top) 
+{
 	const __m128i top_values = _mm_loadl_epi64((const __m128i*)top);
-	for(j = 0; j < 8; ++j) {
+	for(int j = 0; j < 8; ++j) {
 		_mm_storel_epi64((__m128i*)(dst + j * BPS), top_values);
 	}
 }
 
-static FORCEINLINE void VE16_SSE2(uint8* dst, const uint8* top) {
+static FORCEINLINE void VE16_SSE2(uint8* dst, const uint8* top) 
+{
 	const __m128i top_values = _mm_load_si128((const __m128i*)top);
-	int j;
-	for(j = 0; j < 16; ++j) {
+	for(int j = 0; j < 16; ++j) {
 		_mm_store_si128((__m128i*)(dst + j * BPS), top_values);
 	}
 }
 
-static FORCEINLINE void VerticalPred_SSE2(uint8* dst,
-    const uint8* top, int size) {
+static FORCEINLINE void VerticalPred_SSE2(uint8* dst, const uint8* top, int size) 
+{
 	if(top != NULL) {
 		if(size == 8) {
 			VE8uv_SSE2(dst, top);
@@ -543,26 +532,26 @@ static FORCEINLINE void VerticalPred_SSE2(uint8* dst,
 	}
 }
 
-static FORCEINLINE void HE8uv_SSE2(uint8* dst, const uint8* left) {
-	int j;
-	for(j = 0; j < 8; ++j) {
+static FORCEINLINE void HE8uv_SSE2(uint8* dst, const uint8* left) 
+{
+	for(int j = 0; j < 8; ++j) {
 		const __m128i values = _mm_set1_epi8(left[j]);
 		_mm_storel_epi64((__m128i*)dst, values);
 		dst += BPS;
 	}
 }
 
-static FORCEINLINE void HE16_SSE2(uint8* dst, const uint8* left) {
-	int j;
-	for(j = 0; j < 16; ++j) {
+static FORCEINLINE void HE16_SSE2(uint8* dst, const uint8* left) 
+{
+	for(int j = 0; j < 16; ++j) {
 		const __m128i values = _mm_set1_epi8(left[j]);
 		_mm_store_si128((__m128i*)dst, values);
 		dst += BPS;
 	}
 }
 
-static FORCEINLINE void HorizontalPred_SSE2(uint8* dst,
-    const uint8* left, int size) {
+static FORCEINLINE void HorizontalPred_SSE2(uint8* dst, const uint8* left, int size) 
+{
 	if(left != NULL) {
 		if(size == 8) {
 			HE8uv_SSE2(dst, left);
@@ -576,8 +565,8 @@ static FORCEINLINE void HorizontalPred_SSE2(uint8* dst,
 	}
 }
 
-static FORCEINLINE void TM_SSE2(uint8* dst, const uint8* left,
-    const uint8* top, int size) {
+static FORCEINLINE void TM_SSE2(uint8* dst, const uint8* left, const uint8* top, int size) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	int y;
 	if(size == 8) {
@@ -605,8 +594,8 @@ static FORCEINLINE void TM_SSE2(uint8* dst, const uint8* left,
 	}
 }
 
-static FORCEINLINE void TrueMotion_SSE2(uint8* dst, const uint8* left,
-    const uint8* top, int size) {
+static FORCEINLINE void TrueMotion_SSE2(uint8* dst, const uint8* left, const uint8* top, int size) 
+{
 	if(left != NULL) {
 		if(top != NULL) {
 			TM_SSE2(dst, left, top, size);
@@ -714,10 +703,9 @@ static FORCEINLINE void DC16Mode_SSE2(uint8* dst, const uint8* left,
 		DC16NoTopLeft_SSE2(dst);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // 4x4 predictions
-
+//
 #define DST(x, y) dst[(x) + (y) * BPS]
 #define AVG3(a, b, c) (((a) + 2 * (b) + (c) + 2) >> 2)
 #define AVG2(a, b) (((a) + (b) + 1) >> 1)
@@ -907,10 +895,9 @@ static FORCEINLINE void TM4_SSE2(uint8* dst, const uint8* top) {
 #undef DST
 #undef AVG3
 #undef AVG2
-
-//------------------------------------------------------------------------------
+//
 // luma 4x4 prediction
-
+//
 // Left samples are top[-5 .. -2], top_left is top[-1], top are
 // located at top[0..3], and top right is top[4..7]
 static void Intra4Preds_SSE2(uint8* dst, const uint8* top) {
@@ -925,12 +912,11 @@ static void Intra4Preds_SSE2(uint8* dst, const uint8* top) {
 	HD4_SSE2(I4HD4 + dst, top);
 	HU4_SSE2(I4HU4 + dst, top);
 }
-
-//------------------------------------------------------------------------------
+//
 // Chroma 8x8 prediction (paragraph 12.2)
-
-static void IntraChromaPreds_SSE2(uint8* dst, const uint8* left,
-    const uint8* top) {
+//
+static void IntraChromaPreds_SSE2(uint8* dst, const uint8* left, const uint8* top) 
+{
 	// U block
 	DC8uvMode_SSE2(C8DC8 + dst, left, top);
 	VerticalPred_SSE2(C8VE8 + dst, top, 8);
@@ -945,24 +931,21 @@ static void IntraChromaPreds_SSE2(uint8* dst, const uint8* left,
 	HorizontalPred_SSE2(C8HE8 + dst, left, 8);
 	TrueMotion_SSE2(C8TM8 + dst, left, top, 8);
 }
-
-//------------------------------------------------------------------------------
+//
 // luma 16x16 prediction (paragraph 12.3)
-
-static void Intra16Preds_SSE2(uint8* dst,
-    const uint8* left, const uint8* top) {
+//
+static void Intra16Preds_SSE2(uint8* dst, const uint8* left, const uint8* top) 
+{
 	DC16Mode_SSE2(I16DC16 + dst, left, top);
 	VerticalPred_SSE2(I16VE16 + dst, top, 16);
 	HorizontalPred_SSE2(I16HE16 + dst, left, 16);
 	TrueMotion_SSE2(I16TM16 + dst, left, top, 16);
 }
-
-//------------------------------------------------------------------------------
+//
 // Metric
-
-static FORCEINLINE void SubtractAndAccumulate_SSE2(const __m128i a,
-    const __m128i b,
-    __m128i* const sum) {
+//
+static FORCEINLINE void SubtractAndAccumulate_SSE2(const __m128i a, const __m128i b, __m128i* const sum) 
+{
 	// take abs(a-b) in 8b
 	const __m128i a_b = _mm_subs_epu8(a, b);
 	const __m128i b_a = _mm_subs_epu8(b, a);
@@ -1073,8 +1056,6 @@ static int SSE4x4_SSE2(const uint8* a, const uint8* b) {
 	return (tmp[3] + tmp[2] + tmp[1] + tmp[0]);
 }
 
-//------------------------------------------------------------------------------
-
 static void Mean16x4_SSE2(const uint8* ref, uint32_t dc[4]) {
 	const __m128i mask = _mm_set1_epi16(0x00ff);
 	const __m128i a0 = _mm_loadu_si128((const __m128i*)&ref[BPS * 0]);
@@ -1103,8 +1084,7 @@ static void Mean16x4_SSE2(const uint8* ref, uint32_t dc[4]) {
 	dc[2] = tmp[4] + tmp[5];
 	dc[3] = tmp[6] + tmp[7];
 }
-
-//------------------------------------------------------------------------------
+//
 // Texture distortion
 //
 // We try to match the spectral content (weighted) between source and
@@ -1231,14 +1211,11 @@ static int Disto16x16_SSE2(const uint8* const a, const uint8* const b,
 	}
 	return D;
 }
-
-//------------------------------------------------------------------------------
+//
 // Quantization
 //
-
-static FORCEINLINE int DoQuantizeBlock_SSE2(int16_t in[16], int16_t out[16],
-    const uint16_t* const sharpen,
-    const VP8Matrix* const mtx) {
+static FORCEINLINE int DoQuantizeBlock_SSE2(int16_t in[16], int16_t out[16], const uint16_t* const sharpen, const VP8Matrix* const mtx) 
+{
 	const __m128i max_coeff_2047 = _mm_set1_epi16(MAX_LEVEL);
 	const __m128i zero = _mm_setzero_si128();
 	__m128i coeff0, coeff8;
@@ -1348,18 +1325,18 @@ static FORCEINLINE int DoQuantizeBlock_SSE2(int16_t in[16], int16_t out[16],
 	return (_mm_movemask_epi8(_mm_cmpeq_epi8(packed_out, zero)) != 0xffff);
 }
 
-static int QuantizeBlock_SSE2(int16_t in[16], int16_t out[16],
-    const VP8Matrix* const mtx) {
+static int QuantizeBlock_SSE2(int16_t in[16], int16_t out[16], const VP8Matrix* const mtx) 
+{
 	return DoQuantizeBlock_SSE2(in, out, &mtx->sharpen_[0], mtx);
 }
 
-static int QuantizeBlockWHT_SSE2(int16_t in[16], int16_t out[16],
-    const VP8Matrix* const mtx) {
+static int QuantizeBlockWHT_SSE2(int16_t in[16], int16_t out[16], const VP8Matrix* const mtx) 
+{
 	return DoQuantizeBlock_SSE2(in, out, NULL, mtx);
 }
 
-static int Quantize2Blocks_SSE2(int16_t in[32], int16_t out[32],
-    const VP8Matrix* const mtx) {
+static int Quantize2Blocks_SSE2(int16_t in[32], int16_t out[32], const VP8Matrix* const mtx) 
+{
 	int nz;
 	const uint16_t* const sharpen = &mtx->sharpen_[0];
 	nz  = DoQuantizeBlock_SSE2(in + 0 * 16, out + 0 * 16, sharpen, mtx) << 0;
@@ -1367,12 +1344,10 @@ static int Quantize2Blocks_SSE2(int16_t in[32], int16_t out[32],
 	return nz;
 }
 
-//------------------------------------------------------------------------------
-// Entry point
+extern void VP8EncDspInitSSE2(void); // Entry point
 
-extern void VP8EncDspInitSSE2(void);
-
-WEBP_TSAN_IGNORE_FUNCTION void VP8EncDspInitSSE2(void) {
+WEBP_TSAN_IGNORE_FUNCTION void VP8EncDspInitSSE2(void) 
+{
 	VP8CollectHistogram = CollectHistogram_SSE2;
 	VP8EncPredLuma16 = Intra16Preds_SSE2;
 	VP8EncPredChroma8 = IntraChromaPreds_SSE2;

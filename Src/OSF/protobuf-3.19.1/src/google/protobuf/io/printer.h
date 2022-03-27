@@ -44,7 +44,7 @@ namespace google {
 
 				// Records that the bytes in file_path beginning with begin_offset and ending
 				// before end_offset are associated with the SourceCodeInfo-style path.
-				virtual void AddAnnotation(size_t begin_offset, size_t end_offset, const std::string & file_path, const std::vector<int>& path) = 0;
+				virtual void AddAnnotation(size_t begin_offset, size_t end_offset, const std::string & file_path, const std::vector <int>& path) = 0;
 				// TODO(gerbens) I don't see why we need virtuals here. Just a vector of
 				// range, payload pairs stored in a context should suffice.
 				virtual void AddAnnotationNew(Annotation& /* a */) 
@@ -66,7 +66,7 @@ namespace google {
 				{
 				}
 				// Override for AnnotationCollector::AddAnnotation.
-				void AddAnnotation(size_t begin_offset, size_t end_offset, const std::string & file_path, const std::vector<int>& path) override 
+				void AddAnnotation(size_t begin_offset, size_t end_offset, const std::string & file_path, const std::vector <int>& path) override 
 				{
 					typename AnnotationProto::Annotation* annotation = annotation_proto_->add_annotation();
 					for(int i = 0; i < path.size(); ++i) {
@@ -188,7 +188,7 @@ namespace google {
 						// of building the location path.
 						return;
 					}
-					std::vector<int> path;
+					std::vector <int> path;
 					descriptor->GetLocationPath(&path);
 					Annotate(begin_varname, end_varname, descriptor->file()->name(), path);
 				}
@@ -207,7 +207,7 @@ namespace google {
 					if(annotation_collector_ == NULL) {
 						return; // Annotations aren't turned on for this Printer.
 					}
-					std::vector<int> empty_path;
+					std::vector <int> empty_path;
 					Annotate(begin_varname, end_varname, file_name, empty_path);
 				}
 				// Print some text after applying variable substitutions.  If a particular
@@ -243,7 +243,7 @@ namespace google {
 				// formatting text using named variables (eq. "$foo$) from a lookup map (vars)
 				// and variables directly supplied by arguments (eq "$1$" meaning first
 				// argument which is the zero index element of args).
-				void FormatInternal(const std::vector<std::string>& args, const std::map<std::string, std::string>& vars, const char* format);
+				void FormatInternal(const std::vector <std::string>& args, const std::map<std::string, std::string>& vars, const char* format);
 				// True if any write to the underlying stream failed.  (We don't just
 				// crash in this case because this is an I/O failure, not a programming
 				// error.)
@@ -255,7 +255,7 @@ namespace google {
 				// begin_varname's value and ends after the last character of the value
 				// substituted for end_varname. Note that begin_varname and end_varname
 				// may refer to the same variable.
-				void Annotate(const char* begin_varname, const char* end_varname, const std::string & file_path, const std::vector<int>& path);
+				void Annotate(const char* begin_varname, const char* end_varname, const std::string & file_path, const std::vector <int>& path);
 				// Base case
 				void PrintInternal(std::map<std::string, std::string>* vars, const char* text) 
 				{
@@ -283,8 +283,8 @@ namespace google {
 				}
 				bool Next();
 				inline void IndentIfAtStart();
-				const char* WriteVariable(const std::vector<std::string>& args, const std::map<std::string, std::string>& vars, const char* format,
-					int* arg_index, std::vector<AnnotationCollector::Annotation>* annotations);
+				const char* WriteVariable(const std::vector <std::string>& args, const std::map<std::string, std::string>& vars, const char* format,
+					int* arg_index, std::vector <AnnotationCollector::Annotation>* annotations);
 
 				const char variable_delimiter_;
 				ZeroCopyOutputStream* const output_;
@@ -308,7 +308,7 @@ namespace google {
 				// Keeps track of the keys in substitutions_ that need to be updated when
 				// indents are inserted. These are keys that refer to the beginning of the
 				// current line.
-				std::vector<std::string> line_start_variables_;
+				std::vector <std::string> line_start_variables_;
 				// Returns true and sets range to the substitution range in the output for
 				// varname if varname was used once in the last call to Print. If varname
 				// was not used, or if it was used multiple times, returns false (and

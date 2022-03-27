@@ -2654,7 +2654,7 @@ DBQuery * PPViewLot::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 //
 int PPViewLot::Detail(const void * pHdr, PPViewBrowser * pBrw)
 {
-	PPID   lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
+	const PPID lot_id = pHdr ? *static_cast<const PPID *>(pHdr) : 0;
 	return lot_id ? ::ViewOpersByLot(lot_id, 0) : -1;
 }
 
@@ -2716,17 +2716,18 @@ int PPViewLot::ExportGoodsLabelData()
 {
 	int    ok = 1;
 	SString path;
-	PPID   goods_id = 0, prev_goods_id = 0;
+	PPID   goods_id = 0;
+	PPID   prev_goods_id = 0;
 	LotViewItem lv_item;
 	PPObjWorld  w_obj;
-	DbfTable   * out_tbl = 0, * out_tblh = 0;
+	DbfTable   * out_tbl = 0;
+	DbfTable   * out_tblh = 0;
 	DbfRecord  * p_tblh_rec = 0;
 	SString main_org_name;
 	PPWaitStart();
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_GLABELH_DBF, path);
 	THROW(out_tblh = CreateDbfTable(DBFS_RETAILGOODSHDR, path, 1));
 	THROW_MEM(p_tblh_rec = new DbfRecord(out_tblh));
-	p_tblh_rec->empty();
 	p_tblh_rec->put(1, GetMainOrgName(main_org_name));
 	if(/*Filt.LocID*/LocList.getSingle()) {
 		SString loc_name;
@@ -2743,7 +2744,6 @@ int PPViewLot::ExportGoodsLabelData()
 			RetailGoodsInfo rgi;
 			if(GObj.GetRetailGoodsInfo(goods_id, lv_item.LocID, &rgi) > 0) {
 				DbfRecord dbfr(out_tbl);
-				dbfr.empty();
 				dbfr.put(1, rgi.ID);
 				dbfr.put(2, rgi.Name);
 				dbfr.put(3, rgi.BarCode);

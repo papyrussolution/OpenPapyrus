@@ -1054,10 +1054,10 @@ static int FASTCALL Lexer2(JsonParsingBlock * pBlk, const char * pBuffer)
 				break;
 			case 18: // number: '0'
 				switch(*pBlk->P_Cur) {
-					case '\x20':	/* space */
-					case '\x09':	/* horizontal tab */
-					case '\x0A':	/* line feed or new line */
-					case '\x0D':	/* Carriage return */
+					case '\x20': // space 
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
 						++pBlk->P_Cur;
 					case ']':
 					case '}':
@@ -1406,10 +1406,10 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 				break;
 			case 18:	/* number: '0' */
 				switch(**p) {
-					case '\x20':	/* space */
-					case '\x09':	/* horizontal tab */
-					case '\x0A':	/* line feed or new line */
-					case '\x0D':	/* Carriage return */
+					case '\x20': // space
+					case '\x09': // horizontal tab
+					case '\x0A': // line feed or new line
+					case '\x0D': // Carriage return
 						++*p;
 					case ']':
 					case '}':
@@ -1419,13 +1419,13 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 					case '.':
 						rText.CatChar(**p);
 						++*p;
-						*state = 20;	/* number: frac start */
+						*state = 20; // number: frac start
 						break;
 					case 'e':
 					case 'E':
 						rText.CatChar(**p);
 						++*p;
-						*state = 22;	/* number: exp start */
+						*state = 22; // number: exp start
 						break;
 					default: return LEX_INVALID_CHARACTER;
 				}
@@ -1962,21 +1962,21 @@ enum json_error json_saxy_parse(json_saxy_parser_status * jsps, json_saxy_functi
 			case '\x20':
 			case '\x09':
 			case '\x0A':
-			case '\x0D':	/* JSON insignificant white spaces */
+			case '\x0D': // JSON insignificant white spaces
 				break;
-			case '\"':	/* starting a string */
+			case '\"': // starting a string
 				jsps->StringLengthLimitReached = 0;
 				jsps->State = 1;
 				break;
 			case '{':
 				if(jsf->open_object)
 					jsf->open_object();
-				jsps->State = 25;	/*open object */
+				jsps->State = 25; // open object
 				break;
 			case '}':
 				if(jsf->close_object)
 					jsf->close_object();
-				jsps->State = 26;	/* close object/array */
+				jsps->State = 26; // close object/array
 				break;
 			case '[':
 				if(jsf->open_array)
@@ -2307,7 +2307,7 @@ state19: // parse number: fraccional part
 			case '\x20':
 			case '\x09':
 			case '\x0A':
-			case '\x0D':	/* JSON insignificant white spaces */
+			case '\x0D': // JSON insignificant white spaces
 				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
@@ -2395,7 +2395,7 @@ state21: // parse number: exponent part
 			case '\x20':
 			case '\x09':
 			case '\x0A':
-			case '\x0D':	/* JSON insignificant white spaces */
+			case '\x0D': // JSON insignificant white spaces
 				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
@@ -2513,7 +2513,7 @@ state24: // parse number: decimal part
 			case '\x20':
 			case '\x09':
 			case '\x0A':
-			case '\x0D':	/* JSON insignificant white spaces */
+			case '\x0D': // JSON insignificant white spaces
 				if(!jsps->P_Temp)
 					return JSON_MEMORY;
 				if(jsf->new_number)
@@ -2563,7 +2563,7 @@ state25:			/* open object */
 			case '\x20':
 			case '\x09':
 			case '\x0A':
-			case '\x0D':	/* JSON insignificant white spaces */
+			case '\x0D': // JSON insignificant white spaces
 				break;
 			case '\"':
 				jsps->P_Temp = NULL;
@@ -2572,7 +2572,7 @@ state25:			/* open object */
 			case '}':
 				if(jsf->close_object)
 					jsf->close_object();
-				jsps->State = 26;	/* close object */
+				jsps->State = 26; // close object
 				break;
 			default:
 				return JSON_ILLEGAL_CHARACTER;

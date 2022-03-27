@@ -40,7 +40,7 @@ size_t FindNth(const string & s, char c, int n);
 // Splits a string using a character delimiter. Appends the components to the
 // provided vector. Note that empty tokens are ignored.
 void SplitStringUsing(const string & s, const string & delimiter,
-    vector<string>* result);
+    vector <string>* result);
 
 // Replaces any occurrence of the character 'remove' (or the characters
 // in 'remove') with the character 'replacewith'.

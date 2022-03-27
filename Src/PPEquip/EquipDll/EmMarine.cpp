@@ -142,7 +142,7 @@ int PPDrvReader::Listen(SString & rOutput)
 		uint   i;
 		eff_data_size = data_size;
 		for(i = 0; i < data_size; i++) {
-			if(oneof2(data_buf[i], '\xD', '\xA')) {
+			if(oneof2(data_buf[i], '\x0D', '\x0A')) {
 				eff_data_size = i;
 				break;
 			}

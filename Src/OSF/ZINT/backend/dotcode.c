@@ -160,40 +160,32 @@ int score_array(char Dots[], int Hgt, int Wid)
 
 	return (worstedge - sum * sum);
 }
-
-//-------------------------------------------------------------------------
+//
 // "rsencode(nd,nc)" adds "nc" R-S check words to "nd" data words in wd[]
 // employing Galois Field GF, where GF is prime, with a prime modulus of PM
-//-------------------------------------------------------------------------
-
+//
 void rsencode(int nd, int nc, uchar * wd)
 {
 	int i, j, k, nw, start, step, root[GF], c[GF];
-
 	// Start by generating "nc" roots (antilogs):
 	root[0] = 1;
 	for(i = 1; i <= nc; i++)
 		root[i] = (PM * root[i - 1]) % GF;
-
 	// Here we compute how many interleaved R-S blocks will be needed
 	nw = nd + nc;
 	step = (nw + GF - 2) / (GF - 1);
-
 	// ...& then for each such block:
 	for(start = 0; start < step; start++) {
 		int ND = (nd - start + step - 1) / step, NW = (nw - start + step - 1) / step, NC = NW - ND;
-
 		// first compute the generator polynomial "c" of order "NC":
 		for(i = 1; i <= NC; i++)
 			c[i] = 0;
 		c[0] = 1;
-
 		for(i = 1; i <= NC; i++) {
 			for(j = NC; j >= 1; j--) {
 				c[j] = (GF + c[j] - (root[i] * c[j - 1]) % GF) % GF;
 			}
 		}
-
 		// & then compute the corresponding checkword values into wd[]
 		// ... (a) starting at wd[start] & (b) stepping by step
 		for(i = ND; i < NW; i++)
@@ -214,13 +206,11 @@ void rsencode(int nd, int nc, uchar * wd)
 int datum_a(const uchar source[], int position, int length)
 {
 	int retval = 0;
-
 	if(position < length) {
 		if(source[position] <= 95) {
 			retval = 1;
 		}
 	}
-
 	return retval;
 }
 
@@ -228,12 +218,10 @@ int datum_a(const uchar source[], int position, int length)
 int datum_b(const uchar source[], int position, int length)
 {
 	int retval = 0;
-
 	if(position < length) {
 		if(source[position] >= 32) {
 			retval = 1;
 		}
-
 		switch(source[position]) {
 			case 9: // HT
 			case 28: // FS
@@ -241,14 +229,12 @@ int datum_b(const uchar source[], int position, int length)
 			case 30: // RS
 			    retval = 1;
 		}
-
 		if(position != length - 2) {
 			if((source[position] == 13) && (source[position + 1] == 10)) { // CRLF
 				retval = 1;
 			}
 		}
 	}
-
 	return retval;
 }
 
@@ -257,8 +243,7 @@ int datum_c(const uchar source[], int position, int length)
 {
 	int retval = 0;
 	if(position < length - 2) {
-		if(((source[position] >= '0') && (source[position] <= '9'))
-		    && ((source[position + 1] >= '0') && (source[position + 1] <= '9')))
+		if(((source[position] >= '0') && (source[position] <= '9')) && ((source[position + 1] >= '0') && (source[position + 1] <= '9')))
 			retval = 1;
 	}
 	return retval;
@@ -301,13 +286,11 @@ int ahead_c(const uchar source[], int position, int length)
 int try_c(const uchar source[], int position, int length)
 {
 	int retval = 0;
-
 	if(n_digits(source, position, length) > 0) {
 		if(ahead_c(source, position, length) > ahead_c(source, position + 1, length)) {
 			retval = ahead_c(source, position, length);
 		}
 	}
-
 	return retval;
 }
 
@@ -350,38 +333,31 @@ int dotcode_encode_message(struct ZintSymbol * symbol, const uchar source[], int
 	int debug = 0;
 	int binary_buffer_size = 0;
 	int lawrencium[6]; // Reversed radix 103 values
-
 #if defined(_MSC_VER) && _MSC_VER == 1200
 	uint64_t binary_buffer = 0;
 #else
 	uint64_t binary_buffer = 0ULL;
 #endif
-
 	input_position = 0;
 	array_length = 0;
 	encoding_mode = 'C';
 	inside_macro = 0;
-
 	if(symbol->output_options & READER_INIT) {
 		codeword_array[array_length] = 109; // FNC3
 		array_length++;
 	}
-
 	if(symbol->input_mode != GS1_MODE) {
 		codeword_array[array_length] = 107; // FNC1
 		array_length++;
 	}
-
 	if(symbol->eci > 3) {
 		codeword_array[array_length] = 108; // FNC2
 		array_length++;
 		codeword_array[array_length] = symbol->eci;
 		array_length++;
 	}
-
 	do {
 		done = 0;
-
 		/* Step A */
 		if((input_position == length - 2) && (inside_macro != 0) && (inside_macro != 100)) {
 			// inside_macro only gets set to 97, 98 or 99 if the last two characters are RS/EOT
@@ -391,7 +367,6 @@ int dotcode_encode_message(struct ZintSymbol * symbol, const uchar source[], int
 				printf("A ");
 			}
 		}
-
 		if((input_position == length - 1) && (inside_macro == 100)) {
 			// inside_macro only gets set to 100 if the last character is EOT
 			input_position++;
@@ -400,14 +375,11 @@ int dotcode_encode_message(struct ZintSymbol * symbol, const uchar source[], int
 				printf("A ");
 			}
 		}
-
 		/* Step B1 */
 		if((!done) && (encoding_mode == 'C')) {
 			if((array_length == 0) && (length > 9)) {
-				if((source[input_position] == '[')
-				    && (source[input_position + 1] == ')')
-				    && (source[input_position + 2] == '>')
-				    && (source[input_position + 3] == 30) // RS
+				if((source[input_position] == '[') && (source[input_position + 1] == ')') && (source[input_position + 2] == '>') 
+					&& (source[input_position + 3] == 30) // RS
 				    && (source[length - 1] == 04)) { // EOT
 					codeword_array[array_length] = 106; // Latch B
 					array_length++;

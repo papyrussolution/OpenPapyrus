@@ -2522,6 +2522,7 @@ public:
 	int    ReceiveRouts(TSCollection <iSalesRoutePacket> & rResult);
 	int    ReceiveReceipts();
 	int    ReceiveOrders();
+	int    ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen);
 	int    ReceiveVDocs();
 	int    ReceiveUnclosedInvoices(TSCollection <iSalesBillDebt> & rResult);
 	int    SendPrices();
@@ -3070,7 +3071,7 @@ void iSalesPepsi::SetupLocalPeriod(DateRange & rPeriod) const
 {
 	rPeriod = P.ExpPeriod;
 	if(!checkdate(rPeriod.low))
-		rPeriod.low = encodedate(1, 1, 2020); // @v10.8.7 2016-->2020
+		rPeriod.low = encodedate(1, 1, 2020);
 	if(!checkdate(rPeriod.upp))
 		rPeriod.upp = encodedate(31, 12, 2030);
 }
@@ -3250,6 +3251,286 @@ int iSalesPepsi::ReceiveVDocs()
     CATCHZOK
 	return ok;
 }
+
+// @v11.3.6 @construction {
+/*
+Пример файла в csv-формате для резервного приема заказов через email
+--------------------
+r01;Order No;83542-180322-134410-17948383;-180322-134410-20438;1C_PAYER_ID;20438
+r02;;;0.07
+r03;SalesOrg;RU20;iSales_Dealer_Id;491;isales_Doc_Type_ID;13;Order_date;18.03.2022
+r04;Shipment Date;19.03.2022;ID customer;;20438
+r05;GPIDCR;80917084;Route;RU6890
+r06;1C CR Code;;1C_Warehouse_ID;101;Doc_Attributes;;;;;
+r07;Comments;;
+r08;Product;Product Name;Category;Product Quantity;Product unit code;Promo Applied;1C product code;UOM;Promo discount;Promo discount without VAT;Promo Desc;isales_Product_Code;Price for one Unit;Amount_without_VAT;Price for one Unit with VAT;Amount_with_VAT
+r09;340033481;Чудо ЙогФр ЯгоднМорож 2.4% 270г БП 15Х;МОЛОЧНЫЕ ПРОДУКТЫ;1.00;EA;;407212;1004;0.0000000000;0.0000000000;;18252;58.9454550000;58.9454550000;64.8400000000;64.8400000000
+*/
+int iSalesPepsi::ReceiveOrder_Csv(const char * pInBuf, size_t inBufLen)
+{
+	class InnerBlock {
+	public:
+		static size_t ReadLine(const char * pInBuf, size_t inBufLen, SString & rBuf)
+		{
+			rBuf.Z();
+			size_t result = 0;
+			if(!isempty(pInBuf)) {
+				for(size_t p = 0; p < inBufLen; p++) {
+					if(pInBuf[p] == 0) {
+						// Здесь result не инкрементируем дабы при следующем вызове функции не оказаться "за нулем".
+						break;
+					}
+					else {
+						uint el = iseol(pInBuf+p, eolAny);
+						if(el) {
+							result += el;
+							break;
+						}
+						else {
+							rBuf.CatChar(pInBuf[p]);
+							result++;
+						}
+					}
+				}
+			}
+			return result;
+		}
+	};
+	int    ok = -1;
+	SString msg_buf;
+	if(!isempty(pInBuf) && inBufLen) {
+		SString line_buf;
+		StringSet ss(";");
+		PPAlbatrossConfig acfg;
+		PPAlbatrosCfgMngr::Get(&acfg);
+		PPOprKind op_rec;
+		LocationTbl::Rec loc_rec;
+		PPID   loc_id = 0;
+		const PPID  op_id = acfg.Hdr.OpID;
+		if(op_id && GetOpData(op_id, &op_rec) > 0 && oneof2(op_rec.OpTypeID, PPOPT_GOODSORDER, PPOPT_DRAFTEXPEND)) {
+			PPBillPacket pack;
+			SString isales_ident;
+			SString token;
+			SString prev_token;
+			PPBillPacket::SetupObjectBlock sob;
+			THROW(pack.CreateBlank_WithoutCode(op_id, 0, /*loc_id*/0, 1));
+			for(size_t offs = 0; inBufLen > offs;) {
+				size_t ll = InnerBlock::ReadLine(pInBuf+offs, inBufLen-offs, line_buf);
+				offs += ll;
+				if(line_buf.NotEmptyS()) {
+					ss.setBuf(line_buf.Chomp());
+					//line_buf.Tokenize(";", ss.Z());
+					uint ssp = 0;
+					if(ss.get(&ssp, token)) {
+						if(token.IsEqiAscii("r01")) {
+							// ID агента iSales-Дата-Время-Код клиента iSales
+							// r01;Order No;83542-180322-134410-17948383;-180322-134410-20438;1C_PAYER_ID;20438
+							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
+								if(prev_token.IsEqiAscii("Order No")) {
+									STRNSCPY(pack.Rec.Code, token);
+								}
+								else if(prev_token.IsEqiAscii("1C_PAYER_ID")) {
+									;
+								}
+							}
+						}
+						else if(token.IsEqiAscii("r02")) {
+							// r02;;;0.07
+						}
+						else if(token.IsEqiAscii("r03")) {
+							// r03;SalesOrg;RU20;iSales_Dealer_Id;491;isales_Doc_Type_ID;13;Order_date;18.03.2022
+							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
+								if(prev_token.IsEqiAscii("SalesOrg")) {
+									;
+								}
+								else if(prev_token.IsEqiAscii("iSales_Dealer_Id")) {
+									;
+								}
+								else if(prev_token.IsEqiAscii("isales_Doc_Type_ID")) {
+									;
+								}
+								else if(prev_token.IsEqiAscii("Order_date")) {
+									LDATE dt = strtodate_(token, DATF_GERMAN);
+									if(checkdate(dt))
+										pack.Rec.Dt = dt;
+								}
+							}
+						}
+						else if(token.IsEqiAscii("r04")) {
+							// r04;Shipment Date;19.03.2022;ID customer;;20438
+							PPID   native_cli_id = 0;
+							PPID   native_dlvrloc_id = 0;
+							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
+								if(prev_token.IsEqiAscii("Shipment Date")) {
+									LDATE dt = strtodate_(token, DATF_GERMAN);
+									if(checkdate(dt))
+										pack.Rec.DueDate = dt;
+								}
+								else if(prev_token.IsEqiAscii("ID customer")) {
+									native_cli_id = token.ToLong();
+									//
+									prev_token = token;
+									if(ss.get(&ssp, token)) {
+										native_dlvrloc_id = token.ToLong();
+									}
+								}
+							}
+							{
+								PPID   local_psn_id = native_cli_id;
+								PPID   ar_id = 0;
+								if(native_dlvrloc_id && LocObj.Search(native_dlvrloc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_ADDRESS && 
+									(!loc_rec.OwnerID || !native_cli_id || loc_rec.OwnerID == native_cli_id || native_cli_id == native_dlvrloc_id)) {
+									if(!native_cli_id)
+										local_psn_id = loc_rec.OwnerID;
+									else if(native_cli_id == native_dlvrloc_id && loc_rec.OwnerID)
+										local_psn_id = loc_rec.OwnerID;
+									pack.SetFreight_DlvrAddrOnly(native_dlvrloc_id);
+								}
+								else
+									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_DLVRLOCNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), native_dlvrloc_id));
+								if(local_psn_id && ArObj.P_Tbl->PersonToArticle(local_psn_id, op_rec.AccSheetID, &ar_id) > 0) {
+									sob.Flags |= sob.fEnableStop;
+									if(!pack.SetupObject(ar_id, sob))
+										R_Logger.LogLastError();
+								}
+								else
+									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_CLINID, &msg_buf, static_cast<const char *>(pack.Rec.Code), native_cli_id));
+							}
+						}
+						else if(token.IsEqiAscii("r05")) {
+							// r05;GPIDCR;80917084;Route;RU6890
+							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
+								if(prev_token.IsEqiAscii("GPIDCR")) {
+									;
+								}
+								else if(prev_token.IsEqiAscii("Route")) {
+									;
+								}
+							}
+						}
+						else if(token.IsEqiAscii("r06")) {
+							// r06;1C CR Code;;1C_Warehouse_ID;101;Doc_Attributes;;;;;
+							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
+								if(prev_token.IsEqiAscii("1C CR Code")) {
+									;
+								}
+								else if(prev_token.IsEqiAscii("1C_Warehouse_ID")) {
+									loc_id = token.ToLong();
+									LocationTbl::Rec loc_rec;
+									if(LocObj.Search(loc_id, &loc_rec) > 0 && loc_rec.Type == LOCTYP_WAREHOUSE) {
+										pack.Rec.LocID = loc_rec.ID;
+									}
+								}
+								else if(prev_token.IsEqiAscii("Doc_Attributes")) {
+									;
+								}
+							}
+						}
+						else if(token.IsEqiAscii("r07")) {
+							// r07;Comments;;
+							for(prev_token = token; ss.get(&ssp, token); prev_token = token) {
+								if(prev_token.IsEqiAscii("Comments")) {
+									token.Transf(CTRANSF_UTF8_TO_INNER).Strip();
+									pack.SMemo = token;
+								}
+							}
+						}
+						else if(token.IsEqiAscii("r08")) {
+							// r08;Product;Product Name;Category;Product Quantity;Product unit code;Promo Applied;1C product code;UOM;Promo discount;Promo discount without VAT;Promo Desc;isales_Product_Code;Price for one Unit;Amount_without_VAT;Price for one Unit with VAT;Amount_with_VAT
+						}
+						else if(token.IsEqiAscii("r09")) {
+							// r09;340033481;Чудо ЙогФр ЯгоднМорож 2.4% 270г БП 15Х;МОЛОЧНЫЕ ПРОДУКТЫ;1.00;EA;;407212;1004;0.0000000000;0.0000000000;;18252;58.9454550000;58.9454550000;64.8400000000;64.8400000000
+							PPTransferItem ti;
+							PPID   native_goods_id = 0;
+							PPID   native_unit_id = 0;
+							double qtty = 0.0;
+							double price = 0.0;
+							double discount = 0.0;
+							ti.Init(&pack.Rec);
+							for(uint tok_n = 1; ss.get(&ssp, token); tok_n++) {
+								switch(tok_n) {
+									case 1: // Product
+										break;
+									case 2: // Product Name 
+										break;
+									case 3: // Category
+										break;
+									case 4: // Product Quantity
+										qtty = token.ToReal();
+										break;
+									case 5: // Product unit code
+										break;
+									case 6: // Promo Applied
+										break;
+									case 7: // 1C product code
+										native_goods_id = token.ToLong();
+										break;
+									case 8: // UOM
+										native_unit_id = token.ToLong();
+										break;
+									case 9: // Promo discount
+										discount = token.ToReal();
+										break;
+									case 10: // Promo discount without VAT
+										break;
+									case 11: // Promo Desc
+										break;
+									case 12: // isales_Product_Code
+										break;
+									case 13: // Price for one Unit
+										break;
+									case 14: // Amount_without_VAT
+										break;
+									case 15: // Price for one Unit with VAT
+										price = token.ToReal();
+										break;
+									case 16: // Amount_with_VAT
+										break;
+								}
+							}
+							{
+								Goods2Tbl::Rec goods_rec;
+								if(native_goods_id && GObj.Fetch(native_goods_id, &goods_rec) > 0 && goods_rec.Kind == PPGDSK_GOODS) {
+									const double src_qtty = fabs(qtty);
+									double my_qtty = src_qtty;
+									if(Ep.Fb.DefUnitID && native_unit_id != Ep.Fb.DefUnitID) {
+										const iSalesGoodsPacket * p_entry = SearchGoodsMappingEntry(goods_rec.ID);
+										if(p_entry)
+											my_qtty = p_entry->RecalcUnits(native_unit_id, Ep.Fb.DefUnitID, my_qtty);
+									}
+									ti.GoodsID = goods_rec.ID;
+									ti.Quantity_ = my_qtty;
+									ti.Price = price;
+									if(discount <= price)
+										ti.Discount = discount;
+									THROW(pack.LoadTItem(&ti, 0, 0));
+								}
+								else
+									R_Logger.Log(PPFormatT(PPTXT_LOG_SUPPLIX_GOODSNID, &msg_buf, static_cast<const char *>(pack.Rec.Code), native_goods_id));
+							}
+						}
+					}
+				}
+			}
+			if(pack.GetTCount()) {
+				TSCollection <iSalesBillPacket> * p_result = 0;
+				TSCollection <iSalesTransferStatus> status_list; // Список статусов приема заказов. Это список отправляется серверу в ответ на прием заказов
+				pack.SetupEdiAttributes(PPEDIOP_SALESORDER, "ISALES-PEPSI", /*p_src_pack->iSalesId*/isales_ident);
+				pack.InitAmounts();
+				THROW(P_BObj->TurnPacket(&pack, 1));
+				{
+					iSalesTransferStatus * p_new_status = status_list.CreateNewItem();
+					THROW_SL(p_new_status);
+					p_new_status->Ifc = iSalesTransferStatus::ifcOrder;
+					//p_new_status->Ident.Z().CatChar('O').Cat(src_order_code);
+				}
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+// } @v11.3.6 @construction
 
 int iSalesPepsi::ReceiveOrders()
 {
@@ -7108,6 +7389,23 @@ int PrcssrSupplInterchange::Run()
 					logger.LogLastError();
 			}
 			if(actions & SupplInterchangeFilt::opImportOrders) {
+				// @v11.3.6 {
+				if(r_eb.P.Flags & SupplInterchangeFilt::fTestMode) {
+					/* @debug
+					const char * p_test_filename = "D:/Papyrus/Src/VBA/iSales-WBD-Sann/TASK/491-0a2b2e00-a9a6-43e2-bed3-6ebc83ef0b9f.csv";
+					SFile f_in(p_test_filename, SFile::mRead|SFile::mBinary);
+					STempBuffer in_buf(SMEGABYTE(1));
+					if(f_in.IsValid()) {
+						size_t actual_size = 0;
+						if(f_in.ReadAll(in_buf, 0, &actual_size)) {
+							SUnicodeMode um = SDetermineUtfEncoding(in_buf, actual_size);
+							size_t bom_size = SGetUnicodeModeBomSize(um);
+							cli.ReceiveOrder_Csv(in_buf+bom_size, actual_size);
+						}
+					}
+					*/
+				}
+				// } @v11.3.6 
 				// @v10.8.12 {
 				if(!cli.ReceiveVDocs())
 					logger.LogLastError();

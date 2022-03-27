@@ -35,7 +35,7 @@ using Xapian::Internal::intrusive_ptr;
 inline void InMemoryTerm::add_posting(InMemoryPosting&& post)
 {
 	// Add document to right place in list
-	vector<InMemoryPosting>::iterator p;
+	vector <InMemoryPosting>::iterator p;
 	p = lower_bound(docs.begin(), docs.end(),
 		post, InMemoryPostingLessThan());
 	if(p == docs.end() || InMemoryPostingLessThan()(post, *p)) {
@@ -52,7 +52,7 @@ inline void InMemoryTerm::add_posting(InMemoryPosting&& post)
 inline void InMemoryDoc::add_posting(InMemoryTermEntry&& post)
 {
 	// Add document to right place in list
-	vector<InMemoryTermEntry>::iterator p;
+	vector <InMemoryTermEntry>::iterator p;
 	p = lower_bound(terms.begin(), terms.end(),
 		post, InMemoryTermEntryLessThan());
 	if(p == terms.end() || InMemoryTermEntryLessThan()(post, *p)) {
@@ -709,7 +709,7 @@ void InMemoryDatabase::delete_document(Xapian::docid did)
 	// InMemory structure without being very inefficient.
 	if(totdocs == 0) positions_present = false;
 
-	vector<InMemoryTermEntry>::const_iterator i;
+	vector <InMemoryTermEntry>::const_iterator i;
 	for(i = termlists[did - 1].terms.begin();
 	    i != termlists[did - 1].terms.end();
 	    ++i) {
@@ -764,7 +764,7 @@ void InMemoryDatabase::replace_document(Xapian::docid did,
 		termlists[did - 1].is_valid = true;
 	}
 
-	vector<InMemoryTermEntry>::const_iterator i;
+	vector <InMemoryTermEntry>::const_iterator i;
 	for(i = termlists[did - 1].terms.begin();
 	    i != termlists[did - 1].terms.end();
 	    ++i) {

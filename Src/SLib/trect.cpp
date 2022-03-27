@@ -205,8 +205,8 @@ SPoint2S operator + (SPoint2S one, SPoint2S two)
 	return result;
 }
 
-int operator == (SPoint2S one, SPoint2S two) { return (one.x == two.x && one.y == two.y); }
-int operator != (SPoint2S one, SPoint2S two) { return (one.x != two.x || one.y != two.y); }
+bool operator == (SPoint2S one, SPoint2S two) { return (one.x == two.x && one.y == two.y); }
+bool operator != (SPoint2S one, SPoint2S two) { return (one.x != two.x || one.y != two.y); }
 //
 // FRect
 //
@@ -994,8 +994,8 @@ int FASTCALL TRect::contains(SPoint2S p) const
 	//return (p.x >= a.x && p.x <= b.x && p.y >= a.y && p.y <= b.y);
 }
 
-int  FASTCALL TRect::operator == (const TRect& r) const { return (a == r.a && b == r.b); }
-int  FASTCALL TRect::operator != (const TRect& r) const { return (!(*this == r)); }
+bool FASTCALL TRect::operator == (const TRect& r) const { return (a == r.a && b == r.b); }
+bool FASTCALL TRect::operator != (const TRect& r) const { return (!(*this == r)); }
 bool TRect::IsEmpty() const { return (a.x == 0 && b.x == 0 && a.y == 0 && b.y == 0); }
 int  TRect::IsDegenerated() const { return (a.x == b.x) ? ((a.y == b.y) ? SIDE_CENTER : SIDE_RIGHT) : ((a.y == b.y) ? SIDE_TOP : 0); }
 
@@ -1755,7 +1755,7 @@ void SRegion::Destroy()
 	}
 }
 
-int SRegion::operator !() const
+bool SRegion::operator !() const
 {
 	return (!H);
 }
@@ -1772,14 +1772,14 @@ SRegion & FASTCALL SRegion::operator = (const SRegion & rS)
 	return *this;
 }
 
-int FASTCALL SRegion::operator == (const SRegion & rS) const
+bool FASTCALL SRegion::operator == (const SRegion & rS) const
 {
-	int    c = 0;
+	bool   c = false;
 	if(!!H && !!rS.H) {
-		c = BIN(EqualRgn(static_cast<HRGN>(static_cast<void *>(H)), static_cast<HRGN>(static_cast<void *>(rS.H))));
+		c = LOGIC(EqualRgn(static_cast<HRGN>(static_cast<void *>(H)), static_cast<HRGN>(static_cast<void *>(rS.H))));
 	}
 	else if(!H && !rS.H)
-		c = 1;
+		c = true;
 	return c;
 }
 

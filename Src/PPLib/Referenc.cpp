@@ -1964,34 +1964,6 @@ int PPSetPrinterCfg(PPID obj, PPID id, PPPrinterCfg * pCfg)
 //
 //
 //
-
-#if 0 // {
-/*static*/int FASTCALL UuidRefCore::TextToUuid(const char * pText, S_GUID & rUuid)
-{
-	int    ok = 1;
-    if(isempty(pText)) {
-		rUuid.SetZero();
-		ok = -1;
-    }
-    else if(!rUuid.FromStr(pText))
-		ok = 0;
-	return ok;
-}
-
-/*static*/int FASTCALL UuidRefCore::UuidToText(const S_GUID & rUuid, SString & rText)
-{
-	int    ok = 1;
-	if(rUuid.IsZero()) {
-		rText.Z();
-		ok = -1;
-	}
-	else {
-		rUuid.ToStr(S_GUID::fmtPlain, rText);
-	}
-	return ok;
-}
-#endif // } 0
-
 UuidRefCore::UuidRefCore() : UuidRefTbl(), P_Hash(0)
 {
 }

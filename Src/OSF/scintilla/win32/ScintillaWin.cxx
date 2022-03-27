@@ -109,7 +109,7 @@ public:
 	VFunction ** vtbl;
 	int ref;
 	uint pos;
-	std::vector<CLIPFORMAT> formats;
+	std::vector <CLIPFORMAT> formats;
 };
 
 class DropSource {
@@ -151,10 +151,10 @@ public:
 	{
 		return ImmGetCompositionStringW(hIMC, GCS_CURSORPOS, NULL, 0);
 	}
-	std::vector<BYTE> GetImeAttributes()
+	std::vector <BYTE> GetImeAttributes()
 	{
 		int attrLen = ::ImmGetCompositionStringW(hIMC, GCS_COMPATTR, NULL, 0);
-		std::vector<BYTE> attr(attrLen, 0);
+		std::vector <BYTE> attr(attrLen, 0);
 		::ImmGetCompositionStringW(hIMC, GCS_COMPATTR, &attr[0], static_cast<DWORD>(attr.size()));
 		return attr;
 	}
@@ -915,9 +915,9 @@ void ScintillaWin::ToggleHanja()
 }
 
 namespace {
-std::vector<int> MapImeIndicators(std::vector<BYTE> inputStyle)
+std::vector <int> MapImeIndicators(std::vector <BYTE> inputStyle)
 {
-	std::vector<int> imeIndicator(inputStyle.size(), SC_INDICATOR_UNKNOWN);
+	std::vector <int> imeIndicator(inputStyle.size(), SC_INDICATOR_UNKNOWN);
 	for(size_t i = 0; i < inputStyle.size(); i++) {
 		switch(static_cast<int>(inputStyle.at(i))) {
 			case ATTR_INPUT: imeIndicator[i] = SC_INDICATOR_INPUT; break;
@@ -974,7 +974,7 @@ sptr_t ScintillaWin::HandleCompositionInline(uptr_t, sptr_t lParam)
 			return 0;
 		}
 		pdoc->TentativeStart(); // TentativeActive from now on.
-		std::vector<int> imeIndicator = MapImeIndicators(imc.GetImeAttributes());
+		std::vector <int> imeIndicator = MapImeIndicators(imc.GetImeAttributes());
 		bool tmpRecordingMacro = BIN(Flags & fRecordingMacro);
 		Flags &= ~fRecordingMacro;
 		int codePage = CodePageOfDocument();
@@ -1075,7 +1075,7 @@ sptr_t ScintillaWin::GetTextLength()
 {
 	sptr_t result_len = 0;
 	if(pdoc->Length() > 0) {
-		std::vector<char> docBytes(pdoc->Length(), '\0');
+		std::vector <char> docBytes(pdoc->Length(), '\0');
 		pdoc->GetCharRange(&docBytes[0], 0, pdoc->Length());
 		if(IsUnicodeMode())
 			result_len = UTF16Length(&docBytes[0], static_cast<uint>(docBytes.size()));
@@ -1093,7 +1093,7 @@ sptr_t ScintillaWin::GetText(uptr_t wParam, sptr_t lParam)
 		return 0;
 	}
 	else {
-		std::vector<char> docBytes(pdoc->Length(), '\0');
+		std::vector <char> docBytes(pdoc->Length(), '\0');
 		pdoc->GetCharRange(&docBytes[0], 0, pdoc->Length());
 		if(IsUnicodeMode()) {
 			size_t lengthUTF16 = UTF16Length(&docBytes[0], static_cast<uint>(docBytes.size()));
@@ -1854,8 +1854,8 @@ public:
 private:
 	// Allocate the expandable storage here so that it does not need to be reallocated
 	// for each call to Fold.
-	std::vector<wchar_t> utf16Mixed;
-	std::vector<wchar_t> utf16Folded;
+	std::vector <wchar_t> utf16Mixed;
+	std::vector <wchar_t> utf16Folded;
 	UINT cp;
 };
 
@@ -2033,7 +2033,7 @@ void ScintillaWin::Paste()
 			wchar_t * uptr = static_cast<wchar_t *>(memUSelection.ptr);
 			if(uptr) {
 				uint len;
-				std::vector<char> putf;
+				std::vector <char> putf;
 				// Default Scintilla behaviour in Unicode mode
 				if(IsUnicodeMode()) {
 					uint bytes = static_cast<uint>(memUSelection.Size());
@@ -2067,10 +2067,10 @@ void ScintillaWin::Paste()
 					}
 					// In Unicode mode, convert clipboard text to UTF-8
 					if(IsUnicodeMode()) {
-						std::vector<wchar_t> uptr(len+1);
+						std::vector <wchar_t> uptr(len+1);
 						uint ulen = ::MultiByteToWideChar(CP_ACP, 0, ptr, len, &uptr[0], len+1);
 						uint mlen = UTF8Length(&uptr[0], ulen);
-						std::vector<char> putf(mlen+1);
+						std::vector <char> putf(mlen+1);
 						UTF8FromUTF16(&uptr[0], ulen, &putf[0], mlen);
 
 						InsertPasteShape(&putf[0], mlen, pasteShape);
@@ -2852,7 +2852,7 @@ STDMETHODIMP ScintillaWin::Drop(LPDATAOBJECT pIDataSource, DWORD grfKeyState, PO
 			return E_POINTER;
 		SetDragPosition(SelectionPosition(invalidPosition));
 		STGMEDIUM medium = {0, {0}, 0};
-		std::vector<char> data; // Includes terminating NUL
+		std::vector <char> data; // Includes terminating NUL
 		FORMATETC fmtu = {CF_UNICODETEXT, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
 		HRESULT hr = pIDataSource->GetData(&fmtu, &medium);
 		if(SUCCEEDED(hr) && medium.hGlobal) {
@@ -3008,7 +3008,7 @@ BOOL ScintillaWin::CreateSystemCaret()
 	SETIFZ(sysCaretWidth, 1);
 	sysCaretHeight = vs.lineHeight;
 	int bitmapSize = (((sysCaretWidth + 15) & ~15) >> 3) * sysCaretHeight;
-	std::vector<char> bits(bitmapSize);
+	std::vector <char> bits(bitmapSize);
 	sysCaretBitmap = ::CreateBitmap(sysCaretWidth, sysCaretHeight, 1, 1, reinterpret_cast<BYTE *>(&bits[0]));
 	BOOL retval = ::CreateCaret(MainHWND(), sysCaretBitmap, sysCaretWidth, sysCaretHeight);
 	if(technology == SC_TECHNOLOGY_DEFAULT)

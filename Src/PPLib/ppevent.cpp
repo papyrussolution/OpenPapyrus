@@ -1,5 +1,5 @@
 // OBJEVENT.CPP
-// Copyright (c) A.Sobolev 2020, 2021
+// Copyright (c) A.Sobolev 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -1107,28 +1107,28 @@ int PPObjEventSubscription::Run()
 	}
 	if(evp_list.getCount()) {
 		SysJournal * p_sj = DS.GetTLA().P_SysJ;
-		PPEventCore evc;
-		LAssocArray detected_id_list;
-		PPTransaction tra(1);
-		THROW(tra);
-		for(uint j = 0; j < evp_list.getCount(); j++) {
-			PPID ev_id = 0;
-			const PPEventCore::Packet * p_pack = evp_list.at(j);
-			if(p_pack) {
-				if(evc.Put(&ev_id, p_pack, 0)) {
-					detected_id_list.Add(p_pack->EvSubscrID, ev_id);
-				}
-				else
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
-			}
-		}
 		if(p_sj) {
+			PPEventCore evc;
+			LAssocArray detected_id_list;
+			PPTransaction tra(1);
+			THROW(tra);
+			for(uint j = 0; j < evp_list.getCount(); j++) {
+				PPID ev_id = 0;
+				const PPEventCore::Packet * p_pack = evp_list.at(j);
+				if(p_pack) {
+					if(evc.Put(&ev_id, p_pack, 0)) {
+						detected_id_list.Add(p_pack->EvSubscrID, ev_id);
+					}
+					else
+						PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_USER);
+				}
+			}
 			for(uint dlidx = 0; dlidx < detected_id_list.getCount(); dlidx++) {
 				const LAssoc & r_item = detected_id_list.at(dlidx);
 				THROW(DS.LogAction(PPACN_EVENTDETECTION, PPOBJ_EVENTSUBSCRIPTION, r_item.Key, r_item.Val, 0));
 			}
+			THROW(tra.Commit());
 		}
-		THROW(tra.Commit());
 	}
 	CATCHZOK
 	return ok;

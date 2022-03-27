@@ -5,7 +5,6 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // CPU detection
 //
@@ -21,11 +20,9 @@
 #if defined(WEBP_ANDROID_NEON)
 	#include <cpu-features.h>
 #endif
-
-//------------------------------------------------------------------------------
+//
 // SSE2 detection.
 //
-
 // apple/darwin gcc-4.0.1 defines __PIC__, but not __pic__ with -fPIC.
 #if (defined(__pic__) || defined(__PIC__)) && defined(__i386__)
 	static FORCEINLINE void GetCPUInfo(int cpu_info[4], int info_type) 

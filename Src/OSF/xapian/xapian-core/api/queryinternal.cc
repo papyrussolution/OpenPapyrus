@@ -133,11 +133,11 @@ class Context {
 	 *
 	 *  No initialisation is needed for this case.
 	 */
-	void init_tf_(vector<PostList*>&) {
+	void init_tf_(vector <PostList*>&) {
 	}
 
 	/** Helper for initialisation when T = PostListAndTermFreq. */
-	void init_tf_(vector<PostListAndTermFreq>&) {
+	void init_tf_(vector <PostListAndTermFreq>&) {
 		if(pls.empty() || pls.front().tf != 0) return;
 		for(auto&& elt : pls) {
 			elt.tf = elt.pl->get_termfreq_est();
@@ -147,7 +147,7 @@ class Context {
 protected:
 	QueryOptimiser* qopt;
 
-	vector<T> pls;
+	vector <T> pls;
 
 	/** Helper for initialisation.
 	 *
@@ -520,7 +520,7 @@ public:
 		}
 
 		PostList * postlist(PostList* pl,
-		    const vector<PostList*>& pls,
+		    const vector <PostList*>& pls,
 		    PostListTree* pltree) const;
 	};
 
@@ -579,11 +579,11 @@ public:
 
 PostList *
 AndContext::PosFilter::postlist(PostList* pl,
-    const vector<PostList*>&pls,
+    const vector <PostList*>&pls,
     PostListTree* pltree) const
 try {
-	vector<PostList *>::const_iterator terms_begin = pls.begin() + begin;
-	vector<PostList *>::const_iterator terms_end = pls.begin() + end;
+	vector <PostList *>::const_iterator terms_begin = pls.begin() + begin;
+	vector <PostList *>::const_iterator terms_end = pls.begin() + end;
 
 	if(op_ == Xapian::Query::OP_NEAR) {
 		pl = new NearPostList(pl, window, terms_begin, terms_end, pltree);
@@ -1128,8 +1128,8 @@ void QueryTerm::gather_terms(void * void_terms) const
 {
 	// Skip Xapian::Query::MatchAll (aka Xapian::Query("")).
 	if(!term.empty()) {
-		vector<pair<Xapian::termpos, string> > &terms =
-		    *static_cast<vector<pair<Xapian::termpos, string> >*>(void_terms);
+		vector <pair<Xapian::termpos, string> > &terms =
+		    *static_cast<vector <pair<Xapian::termpos, string> >*>(void_terms);
 		terms.push_back(make_pair(pos, term));
 	}
 }
@@ -1867,7 +1867,7 @@ PostList * QueryBranch::do_synonym(QueryOptimiser * qopt, double factor) const
 		// Detect common easy case where all subqueries are OP_WILDCARD whose
 		// constant prefixes form a prefix-free set.
 		wdf_disjoint = true;
-		vector<string> prefixes;
+		vector <string> prefixes;
 		for(auto&& q : subqueries) {
 			if(q.get_type() != Query::OP_WILDCARD) {
 				wdf_disjoint = false;
@@ -2067,7 +2067,7 @@ void QueryPostingSource::serialise(string & result) const
 void QueryScaleWeight::serialise(string & result) const
 {
 	Assert(subquery.internal.get());
-	result += '\x0d';
+	result += '\x0D';
 	result += serialise_double(scale_factor);
 	subquery.internal->serialise(result);
 }

@@ -1863,7 +1863,7 @@ void EditView::PaintText(SciSurface * surfaceWindow, const EditModel &model, PRe
 
 		int lineDocPrevious = -1;       // Used to avoid laying out one document line multiple times
 		AutoLineLayout ll(llc, 0);
-		std::vector<DrawPhase> phases;
+		std::vector <DrawPhase> phases;
 		if((phasesDraw == phasesMultiple) && /*!bufferedDraw*/!(EditViewFlags & fBufferedDraw)) {
 			for(DrawPhase phase = drawBack; phase <= drawCarets; phase = static_cast<DrawPhase>(phase * 2)) {
 				phases.push_back(phase);
@@ -1872,7 +1872,7 @@ void EditView::PaintText(SciSurface * surfaceWindow, const EditModel &model, PRe
 		else {
 			phases.push_back(drawAll);
 		}
-		for(std::vector<DrawPhase>::iterator it = phases.begin(); it != phases.end(); ++it) {
+		for(std::vector <DrawPhase>::iterator it = phases.begin(); it != phases.end(); ++it) {
 			int ypos = 0;
 			if(/*!bufferedDraw*/!(EditViewFlags & fBufferedDraw))
 				ypos += screenLinePaintFirst * vsDraw.lineHeight;

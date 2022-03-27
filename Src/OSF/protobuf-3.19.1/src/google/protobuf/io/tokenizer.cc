@@ -695,7 +695,7 @@ namespace {
 class CommentCollector {
 public:
 	CommentCollector(std::string* prev_trailing_comments,
-	    std::vector<std::string>* detached_comments,
+	    std::vector <std::string>* detached_comments,
 	    std::string* next_leading_comments)
 		: prev_trailing_comments_(prev_trailing_comments),
 		detached_comments_(detached_comments),
@@ -768,7 +768,7 @@ public:
 
 private:
 	std::string* prev_trailing_comments_;
-	std::vector<std::string>* detached_comments_;
+	std::vector <std::string>* detached_comments_;
 	std::string* next_leading_comments_;
 
 	std::string comment_buffer_;
@@ -787,7 +787,7 @@ private:
 }  // namespace
 
 bool Tokenizer::NextWithComments(std::string* prev_trailing_comments,
-    std::vector<std::string>* detached_comments,
+    std::vector <std::string>* detached_comments,
     std::string* next_leading_comments) {
 	CommentCollector collector(prev_trailing_comments, detached_comments,
 	    next_leading_comments);

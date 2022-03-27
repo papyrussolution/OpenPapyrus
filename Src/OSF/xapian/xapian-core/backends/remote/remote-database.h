@@ -197,7 +197,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 		   int percent_threshold, double weight_threshold,
 		   const Xapian::Weight& wtscheme,
 		   const Xapian::RSet &omrset,
-		   const std::vector<opt_ptr_spy>& matchspies) const;
+		   const std::vector <opt_ptr_spy>& matchspies) const;
 
     /** Get the underlying fd this remote connection reads from.
      *
@@ -219,7 +219,7 @@ class RemoteDatabase : public Xapian::Database::Internal {
 			   const Xapian::Weight::Internal &stats) const;
 
     /// Get the MSet from the remote server.
-    Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) const;
+    Xapian::MSet get_mset(const std::vector <opt_ptr_spy>& matchspies) const;
 
     /// Get remote metadata key list.
     TermList * open_metadata_keylist(const std::string & prefix) const;

@@ -219,7 +219,7 @@ void ExtensionSet::DeleteFlatMap(const ExtensionSet::KeyValue* flat,
 // Defined in extension_set_heavy.cc.
 // void ExtensionSet::AppendToList(const Descriptor* extendee,
 //                                 const DescriptorPool* pool,
-//                                 vector<const FieldDescriptor*>* output) const
+//                                 vector <const FieldDescriptor*>* output) const
 
 bool ExtensionSet::Has(int number) const {
   const Extension* ext = FindOrNull(number);

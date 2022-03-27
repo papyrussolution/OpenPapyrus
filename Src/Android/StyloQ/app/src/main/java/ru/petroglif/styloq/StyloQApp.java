@@ -340,7 +340,7 @@ public class StyloQApp extends SLib.App {
 	@NotNull public PostDocumentResult RunSvcPostDocumentCommand(byte [] svcIdent, Document doc)
 	{
 		PostDocumentResult result = new PostDocumentResult();
-		if(doc != null && doc.H != null && doc.TiList != null && doc.TiList.size() > 0) {
+		if(doc != null && doc.H != null && (doc.TiList != null && doc.TiList.size() > 0) || (doc.BkList != null && doc.BkList.size() > 0)) {
 			try {
 				if(Db != null) {
 					StyloQDatabase.SecStoragePacket svc_pack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);

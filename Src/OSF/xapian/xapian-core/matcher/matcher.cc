@@ -166,14 +166,14 @@ Matcher::Matcher(const Xapian::Database& db_,
     Xapian::Enquire::Internal::sort_setting sort_by,
     bool sort_val_reverse,
     double time_limit,
-    const vector<opt_intrusive_ptr<Xapian::MatchSpy> >& matchspies)
+    const vector <opt_intrusive_ptr<Xapian::MatchSpy> >& matchspies)
 	: db(db_), query(query_)
 {
 	// An empty query should get handled higher up.
 	Assert(!query.empty());
 
 	Xapian::doccount n_shards = db.internal->size();
-	vector<Xapian::RSet> subrsets;
+	vector <Xapian::RSet> subrsets;
 	if(rset && rset->internal.get()) {
 		rset->internal->shard(n_shards, subrsets);
 	}
@@ -305,7 +305,7 @@ Xapian::MSet Matcher::get_local_mset(Xapian::doccount first,
     Xapian::Enquire::Internal::sort_setting sort_by,
     bool sort_val_reverse,
     double time_limit,
-    const vector<opt_ptr_spy>& matchspies)
+    const vector <opt_ptr_spy>& matchspies)
 {
 	Assert(!locals.empty());
 
@@ -313,7 +313,7 @@ Xapian::MSet Matcher::get_local_mset(Xapian::doccount first,
 	++vsdoc._refs;
 	Xapian::Document doc(&vsdoc);
 
-	vector<PostList*> postlists;
+	vector <PostList*> postlists;
 	postlists.reserve(locals.size());
 	PostListTree pltree(vsdoc, db, wtscheme);
 	Xapian::termcount total_subqs = 0;
@@ -342,7 +342,7 @@ Xapian::MSet Matcher::get_local_mset(Xapian::doccount first,
 		Assert(!postlists.empty());
 
 		if(all_null) {
-			vector<Result> dummy;
+			vector <Result> dummy;
 			return Xapian::MSet(new Xapian::MSet::Internal(first, 0, 0, 0, 0,
 				   0, 0, 0.0, 0.0,
 				   std::move(dummy),
@@ -391,7 +391,7 @@ Xapian::MSet Matcher::get_local_mset(Xapian::doccount first,
 				matches_lower_bound = collapse_max;
 		}
 
-		vector<Result> dummy;
+		vector <Result> dummy;
 		return Xapian::MSet(new Xapian::MSet::Internal(first,
 			   matches_upper_bound,
 			   matches_lower_bound,
@@ -504,7 +504,7 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
     Xapian::Enquire::Internal::sort_setting sort_by,
     bool sort_val_reverse,
     double time_limit,
-    const vector<opt_intrusive_ptr<Xapian::MatchSpy> >& matchspies)
+    const vector <opt_intrusive_ptr<Xapian::MatchSpy> >& matchspies)
 {
 	AssertRel(check_at_least, >=, first + maxitems);
 
@@ -591,7 +591,7 @@ Xapian::MSet Matcher::get_mset(Xapian::doccount first,
 	// We need to merge MSet objects.  We only need the number of remote shards
 	// + 1 if there are any local shards, so reserving n_shards may be more
 	// than we need.
-	vector<pair<Xapian::MSet, Xapian::doccount> > msets;
+	vector <pair<Xapian::MSet, Xapian::doccount> > msets;
 	Xapian::MSet merged_mset;
 	for_all_remotes(
 		[&](RemoteSubMatch* submatch) {

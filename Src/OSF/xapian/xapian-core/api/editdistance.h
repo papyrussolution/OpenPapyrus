@@ -36,9 +36,9 @@
 class EditDistanceCalculator {
 	EditDistanceCalculator& operator=(const EditDistanceCalculator&) = delete; /// Don't allow assignment.
 	EditDistanceCalculator(const EditDistanceCalculator&) = delete; /// Don't allow copying.
-	std::vector<uint> target; /// Target in UTF-32.
+	std::vector <uint> target; /// Target in UTF-32.
 	size_t target_bytes;
-	mutable std::vector<uint> utf32; /// Current candidate in UTF-32.
+	mutable std::vector <uint> utf32; /// Current candidate in UTF-32.
 	mutable int* array = nullptr;
 	/** The type to use for the occurrence bitmaps.
 	 *

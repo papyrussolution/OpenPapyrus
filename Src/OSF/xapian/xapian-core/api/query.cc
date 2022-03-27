@@ -166,10 +166,10 @@ const TermIterator Query::get_terms_begin() const
 {
 	if(!internal.get())
 		return TermIterator();
-	vector<pair<Xapian::termpos, string> > terms;
+	vector <pair<Xapian::termpos, string> > terms;
 	internal->gather_terms(static_cast<void*>(&terms));
 	sort(terms.begin(), terms.end());
-	vector<string> v;
+	vector <string> v;
 	const string * old_term = NULL;
 	Xapian::termpos old_pos = 0;
 	for(auto && i : terms) {
@@ -189,7 +189,7 @@ const TermIterator Query::get_unique_terms_begin() const
 	if(!internal.get())
 		return TermIterator();
 
-	vector<pair<Xapian::termpos, string> > terms;
+	vector <pair<Xapian::termpos, string> > terms;
 	internal->gather_terms(static_cast<void*>(&terms));
 	sort(terms.begin(), terms.end(), [](
 		    const pair<Xapian::termpos, string>& a,
@@ -197,7 +197,7 @@ const TermIterator Query::get_unique_terms_begin() const
 			return a.second < b.second;
 		});
 
-	vector<string> v;
+	vector <string> v;
 	const string * old_term = NULL;
 	for(auto && i : terms) {
 		// Remove duplicate term names.

@@ -309,9 +309,9 @@ const UFieldResolutionTable* ChineseCalendar::getFieldResolutionTable() const {
  * day of the given month and year
  * @stable ICU 2.8
  */
-int32_t ChineseCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool useMonth) const {
+int32_t ChineseCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, bool useMonth) const 
+{
 	ChineseCalendar * nonConstThis = (ChineseCalendar*)this; // cast away const
-
 	// If the month is out of range, adjust it into range, and
 	// modify the extended year value accordingly.
 	if(month < 0 || month > 11) {
@@ -319,53 +319,43 @@ int32_t ChineseCalendar::handleComputeMonthStart(int32_t eyear, int32_t month, b
 		eyear += (int32_t)ClockMath::floorDivide(m, 12.0, m);
 		month = (int32_t)m;
 	}
-
 	int32_t gyear = eyear + fEpochYear - 1; // Gregorian year
 	int32_t theNewYear = newYear(gyear);
 	int32_t newMoon = newMoonNear(theNewYear + month * 29, TRUE);
-
 	int32_t julianDay = newMoon + kEpochStartAsJulianDay;
-
 	// Save fields for later restoration
 	int32_t saveMonth = internalGet(UCAL_MONTH);
 	int32_t saveIsLeapMonth = internalGet(UCAL_IS_LEAP_MONTH);
-
-	// Ignore IS_LEAP_MONTH field if useMonth is false
-	int32_t isLeapMonth = useMonth ? saveIsLeapMonth : 0;
-
+	int32_t isLeapMonth = useMonth ? saveIsLeapMonth : 0; // Ignore IS_LEAP_MONTH field if useMonth is false
 	UErrorCode status = U_ZERO_ERROR;
 	nonConstThis->computeGregorianFields(julianDay, status);
 	if(U_FAILURE(status))
 		return 0;
-
 	// This will modify the MONTH and IS_LEAP_MONTH fields (only)
-	nonConstThis->computeChineseFields(newMoon, getGregorianYear(),
-	    getGregorianMonth(), FALSE);
-
-	if(month != internalGet(UCAL_MONTH) ||
-	    isLeapMonth != internalGet(UCAL_IS_LEAP_MONTH)) {
+	nonConstThis->computeChineseFields(newMoon, getGregorianYear(), getGregorianMonth(), FALSE);
+	if(month != internalGet(UCAL_MONTH) || isLeapMonth != internalGet(UCAL_IS_LEAP_MONTH)) {
 		newMoon = newMoonNear(newMoon + SYNODIC_GAP, TRUE);
 		julianDay = newMoon + kEpochStartAsJulianDay;
 	}
-
 	nonConstThis->internalSet(UCAL_MONTH, saveMonth);
 	nonConstThis->internalSet(UCAL_IS_LEAP_MONTH, saveIsLeapMonth);
-
 	return julianDay - 1;
 }
-
 /**
  * Override Calendar to handle leap months properly.
  * @stable ICU 2.8
  */
-void ChineseCalendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & status) {
+void ChineseCalendar::add(UCalendarDateFields field, int32_t amount, UErrorCode & status) 
+{
 	switch(field) {
 		case UCAL_MONTH:
 		    if(amount != 0) {
 			    int32_t dom = get(UCAL_DAY_OF_MONTH, status);
-			    if(U_FAILURE(status)) break;
+			    if(U_FAILURE(status)) 
+					break;
 			    int32_t day = get(UCAL_JULIAN_DAY, status) - kEpochStartAsJulianDay; // Get local day
-			    if(U_FAILURE(status)) break;
+			    if(U_FAILURE(status)) 
+					break;
 			    int32_t moon = day - dom + 1; // New moon
 			    offsetMonth(moon, dom, amount);
 		    }
@@ -375,29 +365,30 @@ void ChineseCalendar::add(UCalendarDateFields field, int32_t amount, UErrorCode 
 		    break;
 	}
 }
-
 /**
  * Override Calendar to handle leap months properly.
  * @stable ICU 2.8
  */
-void ChineseCalendar::add(EDateFields field, int32_t amount, UErrorCode & status) {
+void ChineseCalendar::add(EDateFields field, int32_t amount, UErrorCode & status) 
+{
 	add((UCalendarDateFields)field, amount, status);
 }
-
 /**
  * Override Calendar to handle leap months properly.
  * @stable ICU 2.8
  */
-void ChineseCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) {
+void ChineseCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode & status) 
+{
 	switch(field) {
 		case UCAL_MONTH:
 		    if(amount != 0) {
 			    int32_t dom = get(UCAL_DAY_OF_MONTH, status);
-			    if(U_FAILURE(status)) break;
+			    if(U_FAILURE(status)) 
+					break;
 			    int32_t day = get(UCAL_JULIAN_DAY, status) - kEpochStartAsJulianDay; // Get local day
-			    if(U_FAILURE(status)) break;
+			    if(U_FAILURE(status)) 
+					break;
 			    int32_t moon = day - dom + 1; // New moon (start of this month)
-
 			    // Note throughout the following:  Months 12 and 1 are never
 			    // followed by a leap month (D&R p. 185).
 
@@ -405,7 +396,8 @@ void ChineseCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode
 			    // value from 0..11 in a non-leap year, and from 0..12 in a
 			    // leap year.
 			    int32_t m = get(UCAL_MONTH, status); // 0-based month
-			    if(U_FAILURE(status)) break;
+			    if(U_FAILURE(status)) 
+					break;
 			    if(isLeapYear) { // (member variable)
 				    if(get(UCAL_IS_LEAP_MONTH, status) == 1) {
 					    ++m;
@@ -418,16 +410,15 @@ void ChineseCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode
 					    // moon1 will be the start of month 0 if there is
 					    // no leap month between month 0 and month m;
 					    // otherwise it will be the start of month 1.
-					    int moon1 = moon -
-						(int)(CalendarAstronomer::SYNODIC_MONTH * (m - 0.5));
+					    int moon1 = moon - (int)(CalendarAstronomer::SYNODIC_MONTH * (m - 0.5));
 					    moon1 = newMoonNear(moon1, TRUE);
 					    if(isLeapMonthBetween(moon1, moon)) {
 						    ++m;
 					    }
 				    }
-				    if(U_FAILURE(status)) break;
+				    if(U_FAILURE(status)) 
+						break;
 			    }
-
 			    // Now do the standard roll computation on m, with the
 			    // allowed range of 0..n-1, where n is 12 or 13.
 			    int32_t n = isLeapYear ? 13 : 12; // Months in this year
@@ -435,7 +426,6 @@ void ChineseCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode
 			    if(newM < 0) {
 				    newM += n;
 			    }
-
 			    if(newM != m) {
 				    offsetMonth(moon, dom, newM - m);
 			    }
@@ -447,14 +437,13 @@ void ChineseCalendar::roll(UCalendarDateFields field, int32_t amount, UErrorCode
 	}
 }
 
-void ChineseCalendar::roll(EDateFields field, int32_t amount, UErrorCode & status) {
+void ChineseCalendar::roll(EDateFields field, int32_t amount, UErrorCode & status) 
+{
 	roll((UCalendarDateFields)field, amount, status);
 }
-
-//------------------------------------------------------------------
+//
 // Support methods and constants
-//------------------------------------------------------------------
-
+//
 /**
  * Convert local days to UTC epoch milliseconds.
  * This is not an accurate conversion in that getTimezoneOffset
@@ -467,7 +456,8 @@ void ChineseCalendar::roll(EDateFields field, int32_t amount, UErrorCode & statu
  * @param days days after January 1, 1970 0:00 in the astronomical base zone
  * @return milliseconds after January 1, 1970 0:00 GMT
  */
-double ChineseCalendar::daysToMillis(double days) const {
+double ChineseCalendar::daysToMillis(double days) const 
+{
 	double millis = days * (double)kOneDay;
 	if(fZoneAstroCalc != NULL) {
 		int32_t rawOffset, dstOffset;
@@ -479,15 +469,16 @@ double ChineseCalendar::daysToMillis(double days) const {
 	}
 	return millis - (double)CHINA_OFFSET;
 }
-
 /**
  * Convert UTC epoch milliseconds to local days.
  * @param millis milliseconds after January 1, 1970 0:00 GMT
  * @return days after January 1, 1970 0:00 in the astronomical base zone
  */
-double ChineseCalendar::millisToDays(double millis) const {
-	if(fZoneAstroCalc != NULL) {
-		int32_t rawOffset, dstOffset;
+double ChineseCalendar::millisToDays(double millis) const 
+{
+	if(fZoneAstroCalc) {
+		int32_t rawOffset;
+		int32_t dstOffset;
 		UErrorCode status = U_ZERO_ERROR;
 		fZoneAstroCalc->getOffset(millis, FALSE, rawOffset, dstOffset, status);
 		if(U_SUCCESS(status)) {
@@ -496,11 +487,9 @@ double ChineseCalendar::millisToDays(double millis) const {
 	}
 	return ClockMath::floorDivide(millis + (double)CHINA_OFFSET, kOneDay);
 }
-
-//------------------------------------------------------------------
+//
 // Astronomical computations
-//------------------------------------------------------------------
-
+//
 /**
  * Return the major solar term on or after December 15 of the given
  * Gregorian year, that is, the winter solstice of the given year.
@@ -509,17 +498,16 @@ double ChineseCalendar::millisToDays(double millis) const {
  * @return days after January 1, 1970 0:00 Asia/Shanghai of the
  * winter solstice of the given year
  */
-int32_t ChineseCalendar::winterSolstice(int32_t gyear) const {
+int32_t ChineseCalendar::winterSolstice(int32_t gyear) const 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t cacheValue = CalendarCache::get(&gChineseCalendarWinterSolsticeCache, gyear, status);
-
 	if(cacheValue == 0) {
 		// In books December 15 is used, but it fails for some years
 		// using our algorithms, e.g.: 1298 1391 1492 1553 1560.  That
 		// is, winterSolstice(1298) starts search at Dec 14 08:00:00
 		// PST 1298 with a final result of Dec 14 10:31:59 PST 1299.
 		double ms = daysToMillis(Grego::fieldsToDay(gyear, UCAL_DECEMBER, 1));
-
 		umtx_lock(&astroLock);
 		if(gChineseCalendarAstro == NULL) {
 			gChineseCalendarAstro = new CalendarAstronomer();
@@ -528,7 +516,6 @@ int32_t ChineseCalendar::winterSolstice(int32_t gyear) const {
 		gChineseCalendarAstro->setTime(ms);
 		UDate solarLong = gChineseCalendarAstro->getSunTime(CalendarAstronomer::WINTER_SOLSTICE(), TRUE);
 		umtx_unlock(&astroLock);
-
 		// Winter solstice is 270 degrees solar longitude aka Dongzhi
 		cacheValue = (int32_t)millisToDays(solarLong);
 		CalendarCache::put(&gChineseCalendarWinterSolsticeCache, gyear, cacheValue, status);
@@ -538,7 +525,6 @@ int32_t ChineseCalendar::winterSolstice(int32_t gyear) const {
 	}
 	return cacheValue;
 }
-
 /**
  * Return the closest new moon to the given date, searching either
  * forward or backward in time.
@@ -548,7 +534,8 @@ int32_t ChineseCalendar::winterSolstice(int32_t gyear) const {
  * @return days after January 1, 1970 0:00 Asia/Shanghai of the nearest
  * new moon after or before <code>days</code>
  */
-int32_t ChineseCalendar::newMoonNear(double days, bool after) const {
+int32_t ChineseCalendar::newMoonNear(double days, bool after) const 
+{
 	umtx_lock(&astroLock);
 	if(gChineseCalendarAstro == NULL) {
 		gChineseCalendarAstro = new CalendarAstronomer();
@@ -557,10 +544,8 @@ int32_t ChineseCalendar::newMoonNear(double days, bool after) const {
 	gChineseCalendarAstro->setTime(daysToMillis(days));
 	UDate newMoon = gChineseCalendarAstro->getMoonTime(CalendarAstronomer::NEW_MOON(), after);
 	umtx_unlock(&astroLock);
-
 	return (int32_t)millisToDays(newMoon);
 }
-
 /**
  * Return the nearest integer number of synodic months between
  * two dates.
@@ -568,18 +553,19 @@ int32_t ChineseCalendar::newMoonNear(double days, bool after) const {
  * @param day2 days after January 1, 1970 0:00 Asia/Shanghai
  * @return the nearest integer number of months between day1 and day2
  */
-int32_t ChineseCalendar::synodicMonthsBetween(int32_t day1, int32_t day2) const {
+int32_t ChineseCalendar::synodicMonthsBetween(int32_t day1, int32_t day2) const 
+{
 	double roundme = ((day2 - day1) / CalendarAstronomer::SYNODIC_MONTH);
 	return (int32_t)(roundme + (roundme >= 0 ? .5 : -.5));
 }
-
 /**
  * Return the major solar term on or before a given date.  This
  * will be an integer from 1..12, with 1 corresponding to 330 degrees,
  * 2 to 0 degrees, 3 to 30 degrees,..., and 12 to 300 degrees.
  * @param days days after January 1, 1970 0:00 Asia/Shanghai
  */
-int32_t ChineseCalendar::majorSolarTerm(int32_t days) const {
+int32_t ChineseCalendar::majorSolarTerm(int32_t days) const 
+{
 	umtx_lock(&astroLock);
 	if(gChineseCalendarAstro == NULL) {
 		gChineseCalendarAstro = new CalendarAstronomer();
@@ -588,7 +574,6 @@ int32_t ChineseCalendar::majorSolarTerm(int32_t days) const {
 	gChineseCalendarAstro->setTime(daysToMillis(days));
 	UDate solarLongitude = gChineseCalendarAstro->getSunLongitude();
 	umtx_unlock(&astroLock);
-
 	// Compute (floor(solarLongitude / (pi/6)) + 2) % 12
 	int32_t term = ( ((int32_t)(6 * solarLongitude / CalendarAstronomer::PI)) + 2 ) % 12;
 	if(term < 1) {
@@ -602,11 +587,10 @@ int32_t ChineseCalendar::majorSolarTerm(int32_t days) const {
  * @param newMoon days after January 1, 1970 0:00 Asia/Shanghai of a new
  * moon
  */
-bool ChineseCalendar::hasNoMajorSolarTerm(int32_t newMoon) const {
-	return majorSolarTerm(newMoon) ==
-	       majorSolarTerm(newMoonNear(newMoon + SYNODIC_GAP, TRUE));
+bool ChineseCalendar::hasNoMajorSolarTerm(int32_t newMoon) const 
+{
+	return majorSolarTerm(newMoon) == majorSolarTerm(newMoonNear(newMoon + SYNODIC_GAP, TRUE));
 }
-
 //------------------------------------------------------------------
 // Time to fields
 //------------------------------------------------------------------

@@ -134,7 +134,7 @@ bool FunctionCallTip::getCursorFunction()
 	//line aquired, find the functionname
 	//first split line into tokens to parse
 	//token is identifier or some expression, whitespace is ignored
-	std::vector< Token > tokenVector;
+	std::vector < Token > tokenVector;
 	int tokenLen = 0;
 	TCHAR ch;
 	for(int i = 0; i < offset; ++i) {       //we dont care about stuff after the offset
@@ -165,7 +165,7 @@ bool FunctionCallTip::getCursorFunction()
 	size_t vsize = tokenVector.size();
 	//mind nested funcs, like |blblb a (x, b(), c);|
 	//therefore, use stack
-	std::vector<FunctionValues> valueVec;
+	std::vector <FunctionValues> valueVec;
 
 	FunctionValues curValue, newValue;
 	int scopeLevel = 0;

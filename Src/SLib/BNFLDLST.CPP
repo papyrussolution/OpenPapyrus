@@ -1,22 +1,22 @@
 // BNFLDLST.CPP
-// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021
+// Copyright (c) Sobolev A. 1995, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2019, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
 
-int BNField::IsEq(const BNField & rS, int nameAndTypeOnly) const
+bool BNField::IsEq(const BNField & rS, int nameAndTypeOnly) const
 {
 	if(T != rS.T)
-		return 0;
+		return false;
 	else if(stricmp(Name, rS.Name) != 0)
-		return 0;
+		return false;
 	else if(!nameAndTypeOnly) {
 		if(Id != rS.Id)
-			return 0;
+			return false;
 		else if(Offs != rS.Offs)
-			return 0;
+			return false;
 	}
-	return 1;
+	return true;
 }
 
 int BNField::getValue(const void * pDataBuf, void * pBuf, size_t * pSize) const
@@ -86,17 +86,17 @@ void BNFieldList::reset()
 	}
 }
 
-int BNFieldList::IsEq(const BNFieldList & rS, int nameAndTypeOnly) const
+bool BNFieldList::IsEq(const BNFieldList & rS, int nameAndTypeOnly) const
 {
 	if(count != rS.count)
-		return 0;
+		return false;
 	else {
 		for(uint i = 0; i < count; i++) {
 			if(!fields[i].IsEq(rS.fields[i], nameAndTypeOnly))
-				return 0;
+				return false;
 		}
 	}
-	return 1;
+	return true;
 }
 
 BNFieldList & FASTCALL BNFieldList::operator = (const BNFieldList & s)

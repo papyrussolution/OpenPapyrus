@@ -1370,8 +1370,7 @@ struct digest_cipher available_ciphers[] =
 	{ NULL, 0, 0, 0, NULL, NULL, NULL, NULL }
 };
 
-static int create_layer_keys(context_t * text, const sasl_utils_t * utils, HASH key, int keylen,
-    unsigned char enckey[16], unsigned char deckey[16])
+static int create_layer_keys(context_t * text, const sasl_utils_t * utils, HASH key, int keylen, unsigned char enckey[16], unsigned char deckey[16])
 {
 	Cyrus_MD5_CTX Md5Ctx;
 	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 create_layer_keys()");
@@ -1630,20 +1629,15 @@ static int digestmd5_decode(void * context,
 	return ret;
 }
 
-static void digestmd5_common_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils)
+static void digestmd5_common_mech_dispose(void * conn_context, const sasl_utils_t * utils)
 {
 	context_t * text = (context_t*)conn_context;
 	int lup;
-
-	if(!text || !utils) return;
-
-	utils->log(utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 common mech dispose");
-
+	if(!text || !utils) 
+		return;
+	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 common mech dispose");
 	if(text->authid) utils->free(text->authid);
 	if(text->realm) utils->free(text->realm);
-
 	if(text->realms) {
 		/* need to free all the realms */
 		for(lup = 0; lup < text->realm_cnt; lup++)
@@ -1695,15 +1689,10 @@ static void digestmd5_common_mech_free(void * glob_context,
 	    (digest_glob_context_t*)glob_context;
 	reauth_cache_t * reauth_cache = my_glob_context->reauth;
 	size_t n;
-
-	utils->log(utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 common mech free");
-
+	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 common mech free");
 	/* Prevent anybody else from freeing this as well */
 	my_glob_context->reauth = NULL;
-
 	if(!reauth_cache) return;
-
 	for(n = 0; n < reauth_cache->size; n++) {
 		clear_reauth_entry(&reauth_cache->e[n], reauth_cache->i_am, utils);
 	}
@@ -1967,10 +1956,7 @@ static int digestmd5_server_mech_step1(server_context_t * stext,
 	unsigned resplen;
 	int added_conf = 0;
 	char maxbufstr[64];
-
-	sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 server step 1");
-
+	sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 server step 1");
 	/* get realm */
 	result = get_server_realm(sparams, &realm);
 	if(result != SASL_OK) return result;
@@ -2229,10 +2215,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	char           * in_start = NULL;
 	char           * in = NULL;
 	cipher_free_t  * old_cipher_free = NULL;
-
-	sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 server step 2");
-
+	sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 server step 2");
 	if(clientinlen == 0) {
 		SETERROR(sparams->utils, "input expected in DIGEST-MD5, step 2");
 		result = SASL_BADAUTH;
@@ -2425,12 +2408,9 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 			}
 		}
 		else {
-			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-			    "DIGEST-MD5 unrecognized pair %s/%s: ignoring",
-			    name, value);
+			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 unrecognized pair %s/%s: ignoring", name, value);
 		}
 	}
-
 	/*
 	 * username         = "username" "=" <"> username-value <">
 	 * username-value   = qdstr-val
@@ -2487,8 +2467,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		   If the directive is missing, "realm-value" will set to
 		   the empty string when computing A1. */
 		_plug_strdup(sparams->utils, "", &realm, NULL);
-		sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-		    "The client didn't send a realm, assuming empty string.");
+		sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "The client didn't send a realm, assuming empty string.");
 #if 0
 		if(text->realm[0] != '\0') {
 			SETERROR(sparams->utils,
@@ -2527,8 +2506,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 
 		if(!text->nonce) {
 			/* we don't have any reauth info */
-			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-			    "No reauth info for '%s' found", nonce);
+			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "No reauth info for '%s' found", nonce);
 
 			/* we will continue processing the response to determine
 			   if the client knows the password and return stale accordingly */
@@ -2539,8 +2517,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 	if(text->nonce) {
 		/* CLAIM: realm is not NULL below */
 		if(text->realm == NULL) {
-			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-			    "The client specifies a realm when the server hasn't provided one. Using client's realm.");
+			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "The client specifies a realm when the server hasn't provided one. Using client's realm.");
 			_plug_strdup(sparams->utils, realm, &text->realm, NULL);
 		}
 		else if((strcmp(realm, text->realm) != 0) &&
@@ -2548,8 +2525,7 @@ static int digestmd5_server_mech_step2(server_context_t * stext,
 		       as it should always be non-empty */
 		    (text->realm[0] != 0)) {
 			client_ignores_realm = 1;
-			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG,
-			    "The client tries to override server provided realm");
+			sparams->utils->log(sparams->utils->conn, SASL_LOG_DEBUG, "The client tries to override server provided realm");
 			if(text->realm) sparams->utils->free(text->realm);
 			_plug_strdup(sparams->utils, realm, &text->realm, NULL);
 		}
@@ -3387,10 +3363,7 @@ static int make_client_response(context_t * text,
 	cipher_free_t  * old_cipher_free = NULL;
 	sasl_http_request_t rfc2831_request;
 	const sasl_http_request_t * request;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 make_client_response()");
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 make_client_response()");
 	if(oparams->mech_ssf > 1) {
 		/* Remember the old cipher free function (if any).
 		   It will be called later, once we are absolutely
@@ -3660,16 +3633,11 @@ static int parse_server_challenge(client_context_t * ctext,
 	int maxbuf_count = 0;
 	int algorithm_count = 0;
 	int opaque_count = 0;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 parse_server_challenge()");
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 parse_server_challenge()");
 	if(!serverin || !serverinlen) {
-		params->utils->seterror(params->utils->conn, 0,
-		    "no server challenge");
+		params->utils->seterror(params->utils->conn, 0, "no server challenge");
 		return SASL_FAIL;
 	}
-
 	in_start = in = (char *)params->utils->malloc(serverinlen + 1);
 	if(in == NULL) return SASL_NOMEM;
 
@@ -3770,11 +3738,8 @@ SKIP_SPACES_IN_QOP:
 					protection |= DIGEST_NOLAYER;
 				}
 				else {
-					params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-					    "Server supports unknown layer: %s\n",
-					    value);
+					params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "Server supports unknown layer: %s\n", value);
 				}
-
 				value = comma;
 			}
 		}
@@ -3824,11 +3789,8 @@ SKIP_SPACES_IN_CIPHER:
 					ciphers |= cipher->flag;
 				}
 				else {
-					params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-					    "Server supports unknown cipher: %s\n",
-					    value);
+					params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "Server supports unknown cipher: %s\n", value);
 				}
-
 				value = comma;
 			}
 		}
@@ -3924,12 +3886,9 @@ SKIP_SPACES_IN_CIPHER:
 			}
 		}
 		else {
-			params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-			    "DIGEST-MD5 unrecognized pair %s/%s: ignoring",
-			    name, value);
+			params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 unrecognized pair %s/%s: ignoring", name, value);
 		}
 	}
-
 	if(protection == 0) {
 		/* From RFC 2831[bis]:
 		   This directive is optional; if not present it defaults to "auth". */
@@ -4073,19 +4032,14 @@ static int ask_user_info(client_context_t * ctext,
 	int realm_result = SASL_FAIL;
 	int i;
 	size_t len;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 ask_user_info()");
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 ask_user_info()");
 	/* try to get the authid */
 	if(oparams->authid == NULL) {
 		auth_result = _plug_get_authid(params->utils, &authid, prompt_need);
-
 		if((auth_result != SASL_OK) && (auth_result != SASL_INTERACT)) {
 			return auth_result;
 		}
 	}
-
 	/* try to get the userid */
 	if(oparams->user == NULL) {
 		user_result = _plug_get_userid(params->utils, &userid, prompt_need);
@@ -4250,13 +4204,9 @@ static int digestmd5_client_mech_step1(client_context_t * ctext,
 	context_t * text = (context_t*)ctext;
 	int result = SASL_FAIL;
 	unsigned val;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 client step 1");
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 client step 1");
 	result = ask_user_info(ctext, params, NULL, 0, prompt_need, oparams);
 	if(result != SASL_OK) return result;
-
 	/* check if we have cached info for this user on this server */
 	val = hash(params->serverFQDN) % text->reauth->size;
 	if(params->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
@@ -4326,20 +4276,14 @@ static int digestmd5_client_mech_step2(client_context_t * ctext,
 	int result = SASL_FAIL;
 	char ** realms = NULL;
 	int nrealm = 0;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 client step 2");
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 client step 2");
 	if(params->props.min_ssf > params->props.max_ssf) {
 		return SASL_BADPARAM;
 	}
-
 	/* don't bother parsing the challenge more than once */
 	if(text->nonce == NULL) {
-		result = parse_server_challenge(ctext, params, serverin, serverinlen,
-			&realms, &nrealm);
+		result = parse_server_challenge(ctext, params, serverin, serverinlen, &realms, &nrealm);
 		if(result != SASL_OK) goto FreeAllocatedMem;
-
 		if(nrealm == 1) {
 			/* only one choice! */
 			if(text->realm) params->utils->free(text->realm);
@@ -4397,17 +4341,12 @@ static int digestmd5_client_mech_step3(client_context_t * ctext,
 	char           * in = NULL;
 	char           * in_start;
 	int result = SASL_FAIL;
-
-	params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 client step 3");
-
+	params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 client step 3");
 	/* Verify that server is really what he claims to be */
 	in_start = in = (char *)params->utils->malloc(serverinlen + 1);
 	if(in == NULL) return SASL_NOMEM;
-
 	memcpy(in, serverin, serverinlen);
 	in[serverinlen] = 0;
-
 	/* parse the response */
 	while(in[0] != '\0') {
 		char * name, * value;
@@ -4426,8 +4365,7 @@ static int digestmd5_client_mech_step3(client_context_t * ctext,
 
 		if(strcasecmp(name, "rspauth") == 0) {
 			if(strcmp(text->response_value, value) != 0) {
-				params->utils->seterror(params->utils->conn, 0,
-				    "DIGEST-MD5: This server wants us to believe that he knows shared secret");
+				params->utils->seterror(params->utils->conn, 0, "DIGEST-MD5: This server wants us to believe that he knows shared secret");
 				result = SASL_BADSERV;
 			}
 			else {
@@ -4439,14 +4377,10 @@ static int digestmd5_client_mech_step3(client_context_t * ctext,
 			break;
 		}
 		else {
-			params->utils->log(params->utils->conn, SASL_LOG_DEBUG,
-			    "DIGEST-MD5 unrecognized pair %s/%s: ignoring",
-			    name, value);
+			params->utils->log(params->utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 unrecognized pair %s/%s: ignoring", name, value);
 		}
 	}
-
 	params->utils->free(in_start);
-
 	if(params->utils->mutex_lock(text->reauth->mutex) == SASL_OK) { /* LOCK */
 		unsigned val = hash(params->serverFQDN) % text->reauth->size;
 		switch(result) {
@@ -4578,28 +4512,20 @@ step3:
 			       oparams);
 
 		default:
-		    params->utils->log(NULL, SASL_LOG_ERR,
-			"Invalid DIGEST-MD5 client step %d\n", text->state);
+		    params->utils->log(NULL, SASL_LOG_ERR, "Invalid DIGEST-MD5 client step %d\n", text->state);
 		    return SASL_FAIL;
 	}
-
 	return SASL_FAIL; /* should never get here */
 }
 
-static void digestmd5_client_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils)
+static void digestmd5_client_mech_dispose(void * conn_context, const sasl_utils_t * utils)
 {
 	client_context_t * ctext = (client_context_t*)conn_context;
-
 	if(!ctext || !utils) return;
-
-	utils->log(utils->conn, SASL_LOG_DEBUG,
-	    "DIGEST-MD5 client mech dispose");
-
+	utils->log(utils->conn, SASL_LOG_DEBUG, "DIGEST-MD5 client mech dispose");
 	if(ctext->free_password) _plug_free_secret(utils, &ctext->password);
 	if(ctext->algorithm) utils->free(ctext->algorithm);
 	if(ctext->opaque) utils->free(ctext->opaque);
-
 	digestmd5_common_mech_dispose(conn_context, utils);
 }
 

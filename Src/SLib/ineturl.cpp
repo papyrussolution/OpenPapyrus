@@ -64,9 +64,9 @@ InetAddr & InetAddr::Z()
 	return *this;
 }
 
-int    FASTCALL InetAddr::IsEq(const InetAddr & rS) const { return BIN(V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
-int    FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEq(rS); }
-int    FASTCALL InetAddr::operator != (const InetAddr & rS) const { return BIN(!IsEq(rS)); }
+bool   FASTCALL InetAddr::IsEq(const InetAddr & rS) const { return (V4 == rS.V4 && Port == rS.Port && HostName == rS.HostName); }
+bool   FASTCALL InetAddr::operator == (const InetAddr & rS) const { return IsEq(rS); }
+bool   FASTCALL InetAddr::operator != (const InetAddr & rS) const { return !IsEq(rS); }
 bool   InetAddr::IsEmpty() const { return (V4 == 0 && HostName.IsEmpty()); }
 int    InetAddr::Set(const sockaddr_in * pAddr) { return Set(pAddr->sin_addr.s_addr, pAddr->sin_port); }
 

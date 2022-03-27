@@ -3601,8 +3601,9 @@ int PPViewCCheck::RemoveAll()
 	if(Filt.Flags & CCheckFilt::fZeroSess && CONFIRMCRIT(PPCFM_DELETE)) {
 		CCheckViewItem item;
 		PPIDArray id_list;
-		for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter()))
-			THROW(id_list.add(item.ID));
+		for(InitIteration(0); NextIteration(&item) > 0; PPWaitPercent(GetCounter())) {
+			THROW_SL(id_list.add(item.ID));
+		}
 		id_list.sortAndUndup();
 		{
 			PPTransaction tra(1);
@@ -3725,7 +3726,7 @@ public:
 		setCtrlData(CTL_CCHECKINFO_AMOUNT,   Data.Rec.Amount);
 		setCtrlData(CTL_CCHECKINFO_DSCNT,    Data.Rec.Discount);
 		setCtrlReal(CTL_CCHECKINFO_ADDPAYM,  0.0); // @v9.0.4 fdiv100i(Data.Ext.AddPaym)-->0.0
-		if((Data.Rec.SessID == 0 || CsObj.Search(Data.Rec.SessID, &csess_rec) <= 0) && PPMaster) {
+		if((!Data.Rec.SessID || CsObj.Search(Data.Rec.SessID, &csess_rec) <= 0) && PPMaster) {
 			//
 			// Если ИД сессии равен нулю или сессия не найдена и работает master,
 			// то следующие поля не блокируем
@@ -3752,7 +3753,7 @@ public:
 		if(ScObj.Search(Data.Rec.SCardID, &sc_rec) > 0)
 			STRNSCPY(scard_no, sc_rec.Code);
 		else
-			scard_no[0] = 0;
+			PTR32(scard_no)[0] = 0;
 		setCtrlData(CTL_CCHECKINFO_CARDNO, scard_no);
 		disableCtrl(CTL_CCHECKINFO_CARDNO, !ScObj.CheckRights(SCRDRT_BINDING));
 		SetupArCombo(this, CTLSEL_CCHECKINFO_AGENT, Data.Ext.SalerID, OLW_LOADDEFONOPEN, GetAgentAccSheet(), sacfDisableIfZeroSheet);
@@ -3781,6 +3782,7 @@ public:
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 3, CCHKF_FIXEDPRICE);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 4, CCHKF_SPFINISHED);
 		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 5, CCHKF_ALTREG);
+		AddClusterAssoc(CTL_CCHECKINFO_FLAGS2, 6, CCHKF_PAPERLESS); // @v11.3.6
 		SetClusterData(CTL_CCHECKINFO_FLAGS2, Data.Rec.Flags);
 		if(Data.AL_Const().getCount()) {
 			SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_CCHECKINFO_PAYMLIST));
@@ -3823,6 +3825,18 @@ public:
 			setCtrlString(CTL_CCHECKINFO_RPRCTAID, temp_buf);
 		}
 		// } @v10.9.0 
+		// @v11.3.6 {
+		{
+			SString email;
+			SString phone;
+			Data.GetExtStrData(CCheckPacket::extssBuyerEMail, email);
+			Data.GetExtStrData(CCheckPacket::extssBuyerPhone, phone);
+			if(email.NotEmpty())
+				setCtrlString(CTL_CCHECKINFO_EADDR, email);
+			else if(phone.NotEmpty())
+				setCtrlString(CTL_CCHECKINFO_EADDR, phone);
+		}
+		// } @v11.3.6 
 		return ok;
 	}
 	DECL_DIALOG_GETDTS()

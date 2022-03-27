@@ -63,6 +63,6 @@
 #define ABSL_FLAGS_INTERNAL_SUPPORTED_TYPES(A) \
   ABSL_FLAGS_INTERNAL_BUILTIN_TYPES(A)         \
   A(std::string, std_string)                   \
-  A(std::vector<std::string>, std_vector_of_string)
+  A(std::vector <std::string>, std_vector_of_string)
 
 #endif  // ABSL_FLAGS_CONFIG_H_

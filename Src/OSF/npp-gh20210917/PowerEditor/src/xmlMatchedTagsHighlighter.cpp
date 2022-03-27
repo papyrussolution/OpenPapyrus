@@ -1,19 +1,14 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+//
 // Tags matching routing rewritten by Dave Brotherstone May 2012
 // to remove need for regular expression searches (especially reverse regex searches)
 // Reverse regex are slow using the new regex engine, and hence cost too much time.
@@ -23,14 +18,12 @@
 
 using namespace std;
 
-vector< pair<int, int> > XmlMatchedTagsHighlighter::getAttributesPos(int start, int end)
+vector < pair<int, int> > XmlMatchedTagsHighlighter::getAttributesPos(int start, int end)
 {
-	vector< pair<int, int> > attributes;
-
+	vector < pair<int, int> > attributes;
 	int bufLen = end - start + 1;
 	char * buf = new char[bufLen+1];
 	_pEditView->getText(buf, start, end);
-
 	enum {
 		attr_invalid,
 		attr_key,
@@ -585,7 +578,7 @@ void XmlMatchedTagsHighlighter::tagMatch(bool doHiliteAttr)
 
 		// Colouising its attributs
 		if(doHiliteAttr) {
-			vector< pair<int, int> > attributes = getAttributesPos(xmlTags.tagNameEnd, xmlTags.tagOpenEnd - openTagTailLen);
+			vector < pair<int, int> > attributes = getAttributesPos(xmlTags.tagNameEnd, xmlTags.tagOpenEnd - openTagTailLen);
 			_pEditView->execute(SCI_SETINDICATORCURRENT,  SCE_UNIVERSAL_TAGATTR);
 			for(size_t i = 0, len = attributes.size(); i < len; ++i) {
 				_pEditView->execute(SCI_INDICATORFILLRANGE,  attributes[i].first,

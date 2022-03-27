@@ -51,7 +51,7 @@ class CollapseData {
 	 *  preallocate space for that many entries and/or allocate space in
 	 *  larger blocks to divvy up?
 	 */
-	std::vector<std::pair<Xapian::doccount, Xapian::docid> > items;
+	std::vector <std::pair<Xapian::doccount, Xapian::docid> > items;
 	double next_best_weight; /// The highest weight of a document we've rejected.
 	Xapian::doccount collapse_count; /// The number of documents we've rejected.
 public:
@@ -74,7 +74,7 @@ public:
 	 *
 	 *  @return How to handle @a result: ADD, REJECT or REPLACE.
 	 */
-	collapse_result check_item(const std::vector<Result>& results, const Result& result, Xapian::doccount collapse_max,
+	collapse_result check_item(const std::vector <Result>& results, const Result& result, Xapian::doccount collapse_max,
 	    MSetCmp mcmp, Xapian::doccount& old_item);
 	/** Set item after constructing with a placeholder.
 	 *
@@ -88,7 +88,7 @@ public:
 	 *  @param collapse_max	Max no. of items for each collapse key value.
 	 *  @param mcmp		Result comparison functor.
 	 */
-	void add_item(const std::vector<Result>& results, Xapian::doccount item, Xapian::doccount collapse_max, MSetCmp mcmp);
+	void add_item(const std::vector <Result>& results, Xapian::doccount item, Xapian::doccount collapse_max, MSetCmp mcmp);
 	/** Process relocation of entry in results.
 	 *
 	 *  @param from	The old item (index into results).
@@ -134,7 +134,7 @@ class Collapser {
 	Xapian::doccount docs_considered = 0;
 	Xapian::valueno slot; /** The value slot we're getting collapse keys from. */
 	Xapian::doccount collapse_max; /** The maximum number of items to keep for each collapse key value. */
-	std::vector<Result>& results;
+	std::vector <Result>& results;
 	MSetCmp mcmp;
 	CollapseData* ptr = NULL; /** Pointer to CollapseData when NEW or ADD is in progress. */
 	/// Adapt @a mcmp to be usable with min_heap.
@@ -145,7 +145,7 @@ class Collapser {
 public:
 	/// Replaced item when REPLACE is returned by @a collapse().
 	Xapian::doccount old_item = 0;
-	Collapser(Xapian::valueno slot_, Xapian::doccount collapse_max_, std::vector<Result>& results_, MSetCmp mcmp_) : 
+	Collapser(Xapian::valueno slot_, Xapian::doccount collapse_max_, std::vector <Result>& results_, MSetCmp mcmp_) : 
 		slot(slot_), collapse_max(collapse_max_), results(results_), mcmp(mcmp_) 
 	{
 	}
@@ -268,7 +268,7 @@ public:
 	Xapian::doccount get_dups_ignored() const { return dups_ignored; }
 	Xapian::doccount get_entries() const { return entry_count; }
 	Xapian::doccount get_matches_lower_bound() const { return no_collapse_key + entry_count; }
-	void finalise(std::vector<Result>& results, int percent_threshold) 
+	void finalise(std::vector <Result>& results, int percent_threshold) 
 	{
 		if(table.empty() || results.empty())
 			return;

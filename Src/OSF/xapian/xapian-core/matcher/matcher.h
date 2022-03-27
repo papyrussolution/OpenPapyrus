@@ -50,7 +50,7 @@ class Matcher {
 	 *  The entries are at the same index as the corresponding shard in the
 	 *  Database object, with NULL entries for any remote shards.
 	 */
-	std::vector<std::unique_ptr<LocalSubMatch> > locals;
+	std::vector <std::unique_ptr<LocalSubMatch> > locals;
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
 	/** RemoteSubMatch objects for remote databases.
@@ -63,7 +63,7 @@ class Matcher {
 	 *  come first, and those with an fd >= FD_SETSIZE are put at the end with
 	 *  @a first_oversize recording the partition point.
 	 */
-	std::vector<std::unique_ptr<RemoteSubMatch> > remotes;
+	std::vector <std::unique_ptr<RemoteSubMatch> > remotes;
 
 #ifndef HAVE_POLL
 	/** Partition point in @a remotes for fds < FD_SETSIZE.
@@ -80,7 +80,7 @@ class Matcher {
 	    const Xapian::Weight& wtscheme, const Xapian::MatchDecider* mdecider, const Xapian::KeyMaker* sorter, Xapian::valueno collapse_key,
 	    Xapian::doccount collapse_max, int percent_threshold, double percent_threshold_factor, double weight_threshold,
 	    Xapian::Enquire::docid_order order, Xapian::valueno sort_key, Xapian::Enquire::Internal::sort_setting sort_by, bool sort_val_reverse,
-	    double time_limit, const std::vector<opt_ptr_spy>& matchspies);
+	    double time_limit, const std::vector <opt_ptr_spy>& matchspies);
 	/// Perform action on remotes as they become ready using poll() or select().
 	template <typename Action> void for_all_remotes(Action action);
 public:
@@ -107,7 +107,7 @@ public:
 	Matcher(const Xapian::Database& db_, const Xapian::Query& query, Xapian::termcount query_length, const Xapian::RSet* rset, Xapian::Weight::Internal& stats,
 	    const Xapian::Weight& wtscheme, bool have_mdecider, Xapian::valueno collapse_key, Xapian::doccount collapse_max, int percent_threshold,
 	    double weight_threshold, Xapian::Enquire::docid_order order, Xapian::valueno sort_key, Xapian::Enquire::Internal::sort_setting sort_by, bool sort_val_reverse,
-	    double time_limit, const std::vector<opt_ptr_spy>& matchspies);
+	    double time_limit, const std::vector <opt_ptr_spy>& matchspies);
 	/** Run the match and produce an MSet object.
 	 *
 	 *  @param first		Zero-based index of the first result to return (which supports retrieving pages of results).
@@ -142,7 +142,7 @@ public:
 	    const Xapian::Weight& wtscheme, const Xapian::MatchDecider* mdecider, const Xapian::KeyMaker* sorter, Xapian::valueno collapse_key,
 	    Xapian::doccount collapse_max, int percent_threshold, double weight_threshold, Xapian::Enquire::docid_order order,
 	    Xapian::valueno sort_key, Xapian::Enquire::Internal::sort_setting sort_by, bool sort_val_reverse, double time_limit,
-	    const std::vector<opt_ptr_spy>& matchspies);
+	    const std::vector <opt_ptr_spy>& matchspies);
 };
 
 #endif // XAPIAN_INCLUDED_MATCHER_H

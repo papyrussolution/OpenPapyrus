@@ -62,7 +62,7 @@ class FieldContext;  // declared below MessageDifferencer
 // In case of internal google codebase we are using absl::FixedArray instead
 // of vector. It significantly speeds up proto comparison (by ~30%) by
 // reducing the number of malloc/free operations
-typedef std::vector<const FieldDescriptor*> FieldDescriptorArray;
+typedef std::vector <const FieldDescriptor*> FieldDescriptorArray;
 
 // A basic differencer that can be used to determine
 // the differences between two specified Protocol Messages. If any differences
@@ -225,15 +225,15 @@ public:
 
 		// Reports that a field has been added into Message2.
 		virtual void ReportAdded(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) = 0;
+		    const std::vector <SpecificField>& field_path) = 0;
 
 		// Reports that a field has been deleted from Message1.
 		virtual void ReportDeleted(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) = 0;
+		    const std::vector <SpecificField>& field_path) = 0;
 
 		// Reports that the value of a field has been modified.
 		virtual void ReportModified(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) = 0;
+		    const std::vector <SpecificField>& field_path) = 0;
 
 		// Reports that a repeated field has been moved to another location.  This
 		// only applies when using TreatAsSet or TreatAsMap()  -- see below. Also
@@ -241,7 +241,7 @@ public:
 		// mutually exclusive. If a field has been both moved and modified, then
 		// only ReportModified will be called.
 		virtual void ReportMoved(const Message& /* message1 */, const Message& /* message2 */,
-		    const std::vector<SpecificField>& /* field_path */) {
+		    const std::vector <SpecificField>& /* field_path */) {
 		}
 
 		// Reports that two fields match. Useful for doing side-by-side diffs.
@@ -249,7 +249,7 @@ public:
 		// Note that you must call set_report_matches(true) before calling Compare
 		// to make use of this function.
 		virtual void ReportMatched(const Message& /* message1 */, const Message& /* message2 */,
-		    const std::vector<SpecificField>& /* field_path */) {
+		    const std::vector <SpecificField>& /* field_path */) {
 		}
 
 		// Reports that two fields would have been compared, but the
@@ -272,14 +272,14 @@ public:
 		// the fields are equal or not (perhaps with a second call to
 		// Compare()), if it cares.
 		virtual void ReportIgnored(const Message& /* message1 */, const Message& /* message2 */,
-		    const std::vector<SpecificField>& /* field_path */) {
+		    const std::vector <SpecificField>& /* field_path */) {
 		}
 
 		// Report that an unknown field is ignored. (see comment above).
 		// Note this is a different function since the last SpecificField in field
 		// path has a null field.  This could break existing Reporter.
 		virtual void ReportUnknownFieldIgnored(const Message& /* message1 */, const Message& /* message2 */,
-		    const std::vector<SpecificField>& /* field_path */) {
+		    const std::vector <SpecificField>& /* field_path */) {
 		}
 
 private:
@@ -294,7 +294,7 @@ public:
 		virtual ~MapKeyComparator();
 
 		virtual bool IsMatch(const Message& /* message1 */, const Message& /* message2 */,
-		    const std::vector<SpecificField>& /* parent_fields */) const {
+		    const std::vector <SpecificField>& /* parent_fields */) const {
 			GOOGLE_CHECK(false) << "IsMatch() is not implemented.";
 			return false;
 		}
@@ -317,14 +317,14 @@ public:
 		// Returns true if the field should be ignored.
 		virtual bool IsIgnored(const Message& /* message1 */, const Message& /* message2 */,
 		    const FieldDescriptor* /* field */,
-		    const std::vector<SpecificField>& /* parent_fields */) = 0;
+		    const std::vector <SpecificField>& /* parent_fields */) = 0;
 
 		// Returns true if the unknown field should be ignored.
 		// Note: This will be called for unknown fields as well in which case
 		//       field.field will be null.
 		virtual bool IsUnknownFieldIgnored(const Message& /* message1 */, const Message& /* message2 */,
 		    const SpecificField& /* field */,
-		    const std::vector<SpecificField>& /* parent_fields */) {
+		    const std::vector <SpecificField>& /* parent_fields */) {
 			return false;
 		}
 	};
@@ -445,7 +445,7 @@ public:
 	// matching algorithm. The second step is O(k * n) where k is the average
 	// size of each element.
 	void TreatAsMapWithMultipleFieldsAsKey(const FieldDescriptor* field,
-	    const std::vector<const FieldDescriptor*>& key_fields);
+	    const std::vector <const FieldDescriptor*>& key_fields);
 	// Same as TreatAsMapWithMultipleFieldsAsKey, except that each of the field
 	// do not necessarily need to be a direct subfield. Each element in
 	// key_field_paths indicate a path from the message being compared, listing
@@ -460,7 +460,7 @@ public:
 	//       key_field_path[i]->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE
 	//       !key_field_path[i]->is_repeated()
 	void TreatAsMapWithMultipleFieldPathsAsKey(const FieldDescriptor* field,
-	    const std::vector<std::vector<const FieldDescriptor*> >& key_field_paths);
+	    const std::vector <std::vector <const FieldDescriptor*> >& key_field_paths);
 
 	// Uses a custom MapKeyComparator to determine if two elements have the same
 	// key when comparing a repeated field as a map.
@@ -473,7 +473,7 @@ public:
 	    const MapKeyComparator* key_comparator);
 
 	// Initiates and returns a new instance of MultipleFieldsMapKeyComparator.
-	MapKeyComparator* CreateMultipleFieldsMapKeyComparator(const std::vector<std::vector<const FieldDescriptor*> >& key_field_paths);
+	MapKeyComparator* CreateMultipleFieldsMapKeyComparator(const std::vector <std::vector <const FieldDescriptor*> >& key_field_paths);
 
 	// Add a custom ignore criteria that is evaluated in addition to the
 	// ignored fields added with IgnoreField.
@@ -575,8 +575,8 @@ public:
 	// Same as above, except comparing only the list of fields specified by the
 	// two vectors of FieldDescriptors.
 	bool CompareWithFields(const Message& message1, const Message& message2,
-	    const std::vector<const FieldDescriptor*>& message1_fields,
-	    const std::vector<const FieldDescriptor*>& message2_fields);
+	    const std::vector <const FieldDescriptor*>& message1_fields,
+	    const std::vector <const FieldDescriptor*>& message2_fields);
 
 	// Automatically creates a reporter that will output the differences
 	// found (if any) to the specified output string pointer. Note that this
@@ -633,25 +633,25 @@ public:
 		// The following are implementations of the methods described above.
 
 		void ReportAdded(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		void ReportDeleted(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		void ReportModified(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		void ReportMoved(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		void ReportMatched(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		void ReportIgnored(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		void ReportUnknownFieldIgnored(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& field_path) override;
+		    const std::vector <SpecificField>& field_path) override;
 
 		// Messages that are being compared must be provided to StreamReporter prior
 		// to processing
@@ -659,7 +659,7 @@ public:
 
 protected:
 		// Prints the specified path of fields to the buffer.
-		virtual void PrintPath(const std::vector<SpecificField>& field_path,
+		virtual void PrintPath(const std::vector <SpecificField>& field_path,
 		    bool left_side);
 
 		// Prints the value of fields to the buffer.  left_side is true if the
@@ -668,7 +668,7 @@ protected:
 		// unknown_field_index1 or unknown_field_index2 when an unknown field
 		// is encountered in field_path.
 		virtual void PrintValue(const Message& message,
-		    const std::vector<SpecificField>& field_path,
+		    const std::vector <SpecificField>& field_path,
 		    bool left_side);
 
 		// Prints the specified path of unknown fields to the buffer.
@@ -704,7 +704,7 @@ private:
 public:
 		explicit MapEntryKeyComparator(MessageDifferencer* message_differencer);
 		bool IsMatch(const Message& message1, const Message& message2,
-		    const std::vector<SpecificField>& parent_fields) const override;
+		    const std::vector <SpecificField>& parent_fields) const override;
 
 private:
 		MessageDifferencer* message_differencer_;
@@ -733,12 +733,12 @@ private:
 	// (i.e. if the current message is an embedded message, the parent_fields
 	// vector will contain the field that has this embedded message).
 	bool Compare(const Message& message1, const Message& message2,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Compares all the unknown fields in two messages.
 	bool CompareUnknownFields(const Message& message1, const Message& message2,
 	    const UnknownFieldSet&, const UnknownFieldSet&,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Compares the specified messages for the requested field lists. The field
 	// lists are modified depending on comparison settings, and then passed to
@@ -746,38 +746,38 @@ private:
 	bool CompareRequestedFieldsUsingSettings(const Message& message1, const Message& message2,
 	    const FieldDescriptorArray& message1_fields,
 	    const FieldDescriptorArray& message2_fields,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Compares the specified messages with the specified field lists.
 	bool CompareWithFieldsInternal(const Message& message1,
 	    const Message& message2,
 	    const FieldDescriptorArray& message1_fields,
 	    const FieldDescriptorArray& message2_fields,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Compares the repeated fields, and report the error.
 	bool CompareRepeatedField(const Message& message1, const Message& message2,
 	    const FieldDescriptor* field,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Compares map fields, and report the error.
 	bool CompareMapField(const Message& message1, const Message& message2,
 	    const FieldDescriptor* field,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Helper for CompareRepeatedField and CompareMapField: compares and reports
 	// differences element-wise. This is the implementation for non-map fields,
 	// and can also compare map fields by using the underlying representation.
 	bool CompareRepeatedRep(const Message& message1, const Message& message2,
 	    const FieldDescriptor* field,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Helper for CompareMapField: compare the map fields using map reflection
 	// instead of sync to repeated.
 	bool CompareMapFieldByMapReflection(const Message& message1,
 	    const Message& message2,
 	    const FieldDescriptor* field,
-	    std::vector<SpecificField>* parent_fields,
+	    std::vector <SpecificField>* parent_fields,
 	    DefaultFieldComparator* comparator);
 
 	// Shorthand for CompareFieldValueUsingParentFields with NULL parent_fields.
@@ -795,7 +795,7 @@ private:
 	// Reporter to handle the change of parent_fields correctly.
 	bool CompareFieldValueUsingParentFields(const Message& message1, const Message& message2,
 	    const FieldDescriptor* field, int index1, int index2,
-	    std::vector<SpecificField>* parent_fields);
+	    std::vector <SpecificField>* parent_fields);
 
 	// Compares the specified field on the two messages, returning comparison
 	// result, as returned by appropriate FieldComparator.
@@ -809,7 +809,7 @@ private:
 	bool IsMatch(const FieldDescriptor* repeated_field,
 	    const MapKeyComparator* key_comparator, const Message* message1,
 	    const Message* message2,
-	    const std::vector<SpecificField>& parent_fields,
+	    const std::vector <SpecificField>& parent_fields,
 	    Reporter* reporter, int index1, int index2);
 
 	// Returns true when this repeated field has been configured to be treated
@@ -822,7 +822,7 @@ private:
 	// by default to find the longest matching sequence from the first matching
 	// element. The callback takes two vectors showing the matching indices from
 	// the other vector, where -1 means an unmatch.
-	void SetMatchIndicesForSmartListCallback(std::function<void(std::vector<int>*, std::vector<int>*)> callback);
+	void SetMatchIndicesForSmartListCallback(std::function<void(std::vector <int>*, std::vector <int>*)> callback);
 
 	// Returns true when this repeated field is to be compared as a subset, ie.
 	// has been configured to be treated as a set or map and scope is set to
@@ -833,13 +833,13 @@ private:
 	// MessageDifferencer compares messages.
 	bool IsIgnored(const Message& message1, const Message& message2,
 	    const FieldDescriptor* field,
-	    const std::vector<SpecificField>& parent_fields);
+	    const std::vector <SpecificField>& parent_fields);
 
 	// Returns true if this unknown field is to be ignored when this
 	// MessageDifferencer compares messages.
 	bool IsUnknownFieldIgnored(const Message& message1, const Message& message2,
 	    const SpecificField& field,
-	    const std::vector<SpecificField>& parent_fields);
+	    const std::vector <SpecificField>& parent_fields);
 
 	// Returns MapKeyComparator* when this field has been configured to be treated
 	// as a map or its is_map() return true.  If not, returns NULL.
@@ -856,11 +856,11 @@ private:
 	bool MatchRepeatedFieldIndices(const Message& message1, const Message& message2,
 	    const FieldDescriptor* repeated_field,
 	    const MapKeyComparator* key_comparator,
-	    const std::vector<SpecificField>& parent_fields,
-	    std::vector<int>* match_list1, std::vector<int>* match_list2);
+	    const std::vector <SpecificField>& parent_fields,
+	    std::vector <int>* match_list1, std::vector <int>* match_list2);
 
 	// Checks if index is equal to new_index in all the specific fields.
-	static bool CheckPathChanged(const std::vector<SpecificField>& parent_fields);
+	static bool CheckPathChanged(const std::vector <SpecificField>& parent_fields);
 
 	// CHECKs that the given repeated field can be compared according to
 	// new_comparison.
@@ -890,12 +890,12 @@ private:
 	// When TreatAsMap or TreatAsMapWithMultipleFieldsAsKey is called, we don't
 	// store the supplied FieldDescriptors directly. Instead, a new
 	// MapKeyComparator is created for comparison purpose.
-	std::vector<MapKeyComparator*> owned_key_comparators_;
+	std::vector <MapKeyComparator*> owned_key_comparators_;
 	FieldKeyComparatorMap map_field_key_comparator_;
 	MapEntryKeyComparator map_entry_key_comparator_;
-	std::vector<IgnoreCriteria*> ignore_criteria_;
+	std::vector <IgnoreCriteria*> ignore_criteria_;
 	// Reused multiple times in RetrieveFields to avoid extra allocations
-	std::vector<const FieldDescriptor*> tmp_message_fields_;
+	std::vector <const FieldDescriptor*> tmp_message_fields_;
 
 	FieldSet ignored_fields_;
 
@@ -912,7 +912,7 @@ private:
 	std::string* output_string_;
 
 	// Callback to post-process the matched indices to support SMART_LIST.
-	std::function<void(std::vector<int>*, std::vector<int>*)>
+	std::function<void(std::vector <int>*, std::vector <int>*)>
 	match_indices_for_smart_list_callback_;
 
 	MessageDifferencer::UnpackAnyField unpack_any_field_;
@@ -923,16 +923,16 @@ private:
 // function.
 class PROTOBUF_EXPORT FieldContext {
 public:
-	explicit FieldContext(std::vector<MessageDifferencer::SpecificField>* parent_fields)
+	explicit FieldContext(std::vector <MessageDifferencer::SpecificField>* parent_fields)
 		: parent_fields_(parent_fields) {
 	}
 
-	std::vector<MessageDifferencer::SpecificField>* parent_fields() const {
+	std::vector <MessageDifferencer::SpecificField>* parent_fields() const {
 		return parent_fields_;
 	}
 
 private:
-	std::vector<MessageDifferencer::SpecificField>* parent_fields_;
+	std::vector <MessageDifferencer::SpecificField>* parent_fields_;
 };
 }  // namespace util
 }  // namespace protobuf

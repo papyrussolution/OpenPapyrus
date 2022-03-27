@@ -74,7 +74,7 @@ bool Printer::GetSubstitutionRange(const char* varname,
 
 void Printer::Annotate(const char* begin_varname, const char* end_varname,
                        const std::string & file_path,
-                       const std::vector<int>& path) {
+                       const std::vector <int>& path) {
   if (annotation_collector_ == NULL) {
     // Can't generate signatures with this Printer.
     return;
@@ -197,7 +197,7 @@ void Printer::WriteRaw(const char* data, int size) {
     if (failed_) return;
     // Fix up empty variables (e.g., "{") that should be annotated as
     // coming after the indent.
-    for (std::vector<std::string>::iterator i = line_start_variables_.begin();
+    for (std::vector <std::string>::iterator i = line_start_variables_.begin();
          i != line_start_variables_.end(); ++i) {
       substitutions_[*i].first += indent_.size();
       substitutions_[*i].second += indent_.size();
@@ -257,12 +257,12 @@ void Printer::IndentIfAtStart() {
   }
 }
 
-void Printer::FormatInternal(const std::vector<std::string>& args,
+void Printer::FormatInternal(const std::vector <std::string>& args,
                              const std::map<std::string, std::string>& vars,
                              const char* format) {
   auto save = format;
   int arg_index = 0;
-  std::vector<AnnotationCollector::Annotation> annotations;
+  std::vector <AnnotationCollector::Annotation> annotations;
   while (*format) {
     char c = *format++;
     switch (c) {
@@ -288,9 +288,9 @@ void Printer::FormatInternal(const std::vector<std::string>& args,
 }
 
 const char* Printer::WriteVariable(
-    const std::vector<std::string>& args,
+    const std::vector <std::string>& args,
     const std::map<std::string, std::string>& vars, const char* format,
-    int* arg_index, std::vector<AnnotationCollector::Annotation>* annotations) {
+    int* arg_index, std::vector <AnnotationCollector::Annotation>* annotations) {
   auto start = format;
   auto end = strchr(format, '$');
   if (!end) {

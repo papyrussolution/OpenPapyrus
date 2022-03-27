@@ -17,19 +17,15 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,7 +33,6 @@ import java.util.Comparator;
 public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	public CmdROrderPrereqActivity()
 	{
-		CurrentOrder = null;
 		CPM = new CommonPrereqModule();
 	}
 	private static class CliEntry {
@@ -183,29 +178,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	private ArrayList <JSONObject> BrandListData;
 	private ArrayList <CliEntry> CliListData;
 	private ArrayList <Document.Head> OrderHList;
-	private Document CurrentOrder;
-	private enum Tab {
-		tabUndef,
-		tabGoodsGroups,
-		tabBrands,
-		tabGoods,
-		tabClients,
-		tabCurrentOrder,
-		tabOrders,
-		tabSearch
-	}
-	private static class TabEntry {
-		TabEntry(Tab id, String text, /*View*/SLib.SlFragmentStatic view)
-		{
-			TabId = id;
-			TabText = text;
-			TabView = view;
-		}
-		Tab TabId;
-		String TabText;
-		/*View*/SLib.SlFragmentStatic TabView;
-	}
-	private ArrayList <TabEntry> TabList;
 
 	static class TransferItemDialog extends SLib.SlDialog {
 		CmdROrderPrereqActivity ActivityCtx;
@@ -315,14 +287,14 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		boolean ok = false;
 		StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 		if(app_ctx != null) {
-			StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(CPM.SvcIdent, CurrentOrder);
+			StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(CPM.SvcIdent, CPM.CurrentOrder);
 			ok = result.PostResult;
 			if(ok) {
 				NotifyDocListChanged();
-				CurrentOrder = null;
+				CPM.CurrentOrder = null;
 				NotifyCurrentOrderChanged();
 				NotifyDocListChanged();
-				SetTabVisibility(Tab.tabCurrentOrder, View.GONE);
+				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 			}
 		}
 		return ok;
@@ -355,69 +327,45 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	{
 		final int tab_layout_rcid = R.id.TABLAYOUT_ORDERPREREQ;
 		StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-		if(app_ctx != null && (TabList == null || force)) {
-			TabList = new ArrayList<TabEntry>();
+		if(app_ctx != null && (CPM.TabList == null || force)) {
+			CPM.TabList = new ArrayList<CommonPrereqModule.TabEntry>();
 			LayoutInflater inflater = LayoutInflater.from(this);
 			if(CPM.GoodsGroupListData != null) {
-				final Tab _tab = Tab.tabGoodsGroups;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabGoodsGroups;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_goodsgroups, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{group_pl}"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{group_pl}"), f));
 			}
 			if(BrandListData != null) {
-				final Tab _tab = Tab.tabBrands;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabBrands;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_brands, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{brand_pl}"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{brand_pl}"), f));
 			}
 			if(CPM.GoodsListData != null) {
-				final Tab _tab = Tab.tabGoods;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabGoods;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_goods, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{ware_pl}"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{ware_pl}"), f));
 			}
 			if(CliListData != null) {
-				final Tab _tab = Tab.tabClients;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabClients;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_clients, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{client_pl}"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{client_pl}"), f));
 			}
 			{
-				final Tab _tab = Tab.tabCurrentOrder;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabCurrentOrder;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_ordr, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{orderdocument}"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{orderdocument}"), f));
 			}
 			{
-				final Tab _tab = Tab.tabOrders;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabOrders;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_orderprereq_orders, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "@{booking_pl}"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{booking_pl}"), f));
 			}
 			{
-				final Tab _tab = Tab.tabSearch;
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabSearch;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_searchpane, tab_layout_rcid);
-				TabList.add(new TabEntry(_tab, SLib.ExpandString(app_ctx, "[search]"), f));
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "[search]"), f));
 			}
 		}
-	}
-	private double GetAmountOfCurrentOrder()
-	{
-		double result = 0.0;
-		if(CurrentOrder != null && CurrentOrder.TiList != null) {
-			for(int i = 0; i < CurrentOrder.TiList.size(); i++) {
-				Document.TransferItem ti = CurrentOrder.TiList.get(i);
-				if(ti != null)
-					result += Math.abs(ti.Set.Qtty * ti.Set.Price);
-			}
-		}
-		return result;
-	}
-	private double GetGoodsQttyInCurrentOrder(int goodsID)
-	{
-		double result = 0.0;
-		if(CurrentOrder != null && CurrentOrder.TiList != null) {
-			for(int i = 0; i < CurrentOrder.TiList.size(); i++) {
-				Document.TransferItem ti = CurrentOrder.TiList.get(i);
-				if(ti != null && ti.GoodsID == goodsID)
-					result += Math.abs(ti.Set.Qtty);
-			}
-		}
-		return result;
 	}
 	/* @todo use to replace loops in other funtions
 	private TabEntry SearchTabEntry(Tab tab)
@@ -434,13 +382,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}*/
-	private void GotoTab(Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
+	private void GotoTab(CommonPrereqModule.Tab tab, @IdRes int recyclerViewToUpdate, int goToIndex, int nestedIndex)
 	{
-		if(tab != Tab.tabUndef) {
+		if(tab != CommonPrereqModule.Tab.tabUndef) {
 			ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 			if(view_pager != null) {
-				for(int tidx = 0; tidx < TabList.size(); tidx++) {
-					final TabEntry te = TabList.get(tidx);
+				for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
+					final CommonPrereqModule.TabEntry te = CPM.TabList.get(tidx);
 					if(te.TabId == tab) {
 						SLib.SlFragmentStatic f = te.TabView;
 						if(f != null) {
@@ -470,12 +418,12 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
-	private void SetTabVisibility(Tab tabId, int visibilityMode)
+	private void SetTabVisibility(CommonPrereqModule.Tab tabId, int visibilityMode)
 	{
 		ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
-		if(view_pager != null && TabList != null) {
-			for(int tidx = 0; tidx < TabList.size(); tidx++) {
-				if(TabList.get(tidx).TabId == tabId) {
+		if(view_pager != null && CPM.TabList != null) {
+			for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
+				if(CPM.TabList.get(tidx).TabId == tabId) {
 					View v_lo_tab = findViewById(R.id.TABLAYOUT_ORDERPREREQ);
 					if(v_lo_tab != null && v_lo_tab instanceof TabLayout) {
 						TabLayout lo_tab = (TabLayout)v_lo_tab;
@@ -486,13 +434,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
-	private void NotifyTabContentChanged(Tab tabId, int innerViewId)
+	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
 		ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
-		if(view_pager != null && TabList != null) {
-			for(int tidx = 0; tidx < TabList.size(); tidx++) {
-				if(TabList.get(tidx).TabId == tabId) {
-					SLib.SlFragmentStatic f = TabList.get(tidx).TabView;
+		if(view_pager != null && CPM.TabList != null) {
+			for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
+				if(CPM.TabList.get(tidx).TabId == tabId) {
+					SLib.SlFragmentStatic f = CPM.TabList.get(tidx).TabView;
 					if(f != null) {
 						View fv = f.getView();
 						if(innerViewId != 0 && fv != null && fv instanceof ViewGroup) {
@@ -509,8 +457,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
-	private void NotifyDocListChanged() { NotifyTabContentChanged(Tab.tabOrders, R.id.orderPrereqOrderListView); }
-	private void NotifyCurrentOrderChanged() { NotifyTabContentChanged(Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView); }
+	private void NotifyDocListChanged() { NotifyTabContentChanged(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView); }
+	private void NotifyCurrentOrderChanged() { NotifyTabContentChanged(CommonPrereqModule.Tab.tabCurrentOrder, R.id.orderPrereqOrdrListView); }
 	private JSONObject FindClientEntry(int cliID)
 	{
 		JSONObject result = null;
@@ -609,33 +557,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				if(final_cli_js != null) {
 					int cli_id = final_cli_js.optInt("id", 0);
 					int dlvrloc_id = (dlvrLocItem != null) ? dlvrLocItem.optInt("id", 0) : 0;
-					if(cli_id > 0) {
-						if(CurrentOrder == null) {
-							CurrentOrder = new Document(SLib.PPEDIOP_ORDER, CPM.SvcIdent, (StyloQApp)getApplicationContext());
-							CurrentOrder.H.ClientID = cli_id;
-							CurrentOrder.H.DlvrLocID = dlvrloc_id;
-							result = true;
-						}
-						else {
-							if(CurrentOrder.H.ClientID == 0) {
-								CurrentOrder.H.ClientID = cli_id;
-								CurrentOrder.H.DlvrLocID = dlvrloc_id;
-								result = true;
-							}
-							else if(CurrentOrder.H.ClientID == cli_id) {
-								if(dlvrloc_id != CurrentOrder.H.DlvrLocID) {
-									CurrentOrder.H.DlvrLocID = dlvrloc_id;
-									result = true;
-								}
-							}
-							else {
-								// Здесь надо как-то умнО обработать изменение контрагента
-							}
-						}
-						if(result) {
-							SetTabVisibility(Tab.tabCurrentOrder, View.VISIBLE);
-							NotifyCurrentOrderChanged();
-						}
+					result = CPM.SetClientToCurrentDocument((StyloQApp)getApplicationContext(), cli_id, dlvrloc_id);
+					if(result) {
+						SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+						NotifyCurrentOrderChanged();
 					}
 				}
 			}
@@ -652,20 +577,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				int goods_id = goodsItem.optInt("id", 0);
 				if(goods_id > 0) {
 					double price = goodsItem.optDouble("price", 0.0);
-					if(CurrentOrder == null) {
-						CurrentOrder = new Document(SLib.PPEDIOP_ORDER, CPM.SvcIdent, (StyloQApp)getApplicationContext());
-					}
+					if(CPM.CurrentOrder == null)
+						CPM.CurrentOrder = new Document(SLib.PPEDIOP_ORDER, CPM.SvcIdent, (StyloQApp)getApplicationContext());
 					Document.TransferItem ti = new Document.TransferItem();
 					ti.GoodsID = goods_id;
-					ti.Set = new Document.TransferItem.ValuSet();
+					ti.Set = new Document.ValuSet();
 					ti.Set.Qtty = 1.0;
 					ti.Set.Price = price;
 
 					int max_row_idx = 0;
 					boolean merged = false;
-					if(CurrentOrder.TiList != null) {
-						for(int i = 0; !merged && i < CurrentOrder.TiList.size(); i++) {
-							Document.TransferItem iter_ti = CurrentOrder.TiList.get(i);
+					if(CPM.CurrentOrder.TiList != null) {
+						for(int i = 0; !merged && i < CPM.CurrentOrder.TiList.size(); i++) {
+							Document.TransferItem iter_ti = CPM.CurrentOrder.TiList.get(i);
 							merged = iter_ti.Merge(ti);
 							if(max_row_idx < iter_ti.RowIdx)
 								max_row_idx = iter_ti.RowIdx;
@@ -673,11 +597,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 					if(!merged) {
 						ti.RowIdx = max_row_idx + 1;
-						if(CurrentOrder.TiList == null)
-							CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
-						CurrentOrder.TiList.add(ti);
+						if(CPM.CurrentOrder.TiList == null)
+							CPM.CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
+						CPM.CurrentOrder.TiList.add(ti);
 					}
-					SetTabVisibility(Tab.tabCurrentOrder, View.VISIBLE);
+					SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
 					NotifyCurrentOrderChanged();
 					result = true;
 				}
@@ -848,15 +772,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							TabLayout lo_tab = findViewById(R.id.TABLAYOUT_ORDERPREREQ);
 							if(lo_tab != null) {
 								CreateTabList(false);
-								for(int i = 0; i < TabList.size(); i++) {
+								for(int i = 0; i < CPM.TabList.size(); i++) {
 									TabLayout.Tab tab = lo_tab.newTab();
-									tab.setText(TabList.get(i).TabText);
+									tab.setText(CPM.TabList.get(i).TabText);
 									lo_tab.addTab(tab);
 								}
 								SLib.SetupTabLayoutStyle(lo_tab);
 								SLib.SetupTabLayoutListener(lo_tab, view_pager);
-								if(CurrentOrder == null || CurrentOrder.H == null) {
-									SetTabVisibility(Tab.tabCurrentOrder, View.GONE);
+								if(CPM.CurrentOrder == null || CPM.CurrentOrder.H == null) {
+									SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 								}
 								//SetTabVisibility(Tab.tabSearch, View.GONE);
 							}
@@ -871,7 +795,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_LISTVIEWCOUNT:
 				if(srcObj instanceof SLib.FragmentAdapter) {
 					CreateTabList(false);
-					result = new Integer(TabList.size());
+					result = new Integer(CPM.TabList.size());
 				}
 				else if(srcObj instanceof SLib.RecyclerListAdapter) {
 					SLib.RecyclerListAdapter a = (SLib.RecyclerListAdapter)srcObj;
@@ -879,7 +803,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						case R.id.orderPrereqGoodsListView: result = new Integer(CPM.GetGoodsListSize()); break;
 						case R.id.orderPrereqGoodsGroupListView: result = new Integer((CPM.GoodsGroupListData != null) ? CPM.GoodsGroupListData.size() : 0); break;
 						case R.id.orderPrereqBrandListView: result = new Integer((BrandListData != null) ? BrandListData.size() : 0); break;
-						case R.id.orderPrereqOrdrListView: result = new Integer((CurrentOrder != null && CurrentOrder.TiList != null) ? CurrentOrder.TiList.size() : 0); break;
+						case R.id.orderPrereqOrdrListView: result = new Integer((CPM.CurrentOrder != null && CPM.CurrentOrder.TiList != null) ? CPM.CurrentOrder.TiList.size() : 0); break;
 						case R.id.orderPrereqOrderListView: result = new Integer((OrderHList != null) ? OrderHList.size() : 0); break;
 						case R.id.orderPrereqClientsListView: result = new Integer((CliListData != null) ? CliListData.size() : 0); break;
 						case R.id.searchPaneListView:
@@ -896,7 +820,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					ViewGroup vg = (ViewGroup)srcObj;
 					int vg_id = vg.getId();
 					if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
-						if(CurrentOrder == null || CurrentOrder.H == null) {
+						if(CPM.CurrentOrder == null || CPM.CurrentOrder.H == null) {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CLI, "");
@@ -904,13 +828,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, "");
 						}
 						else {
-							if(SLib.GetLen(CurrentOrder.H.Code) > 0)
-								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, CurrentOrder.H.Code);
+							if(SLib.GetLen(CPM.CurrentOrder.H.Code) > 0)
+								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CODE, CPM.CurrentOrder.H.Code);
 							SLib.LDATE d = null;
-							if(CurrentOrder.H.Time > 0)
-								d = SLib.BuildDateByEpoch(CurrentOrder.H.Time);
-							else if(CurrentOrder.H.CreationTime > 0)
-								d = SLib.BuildDateByEpoch(CurrentOrder.H.CreationTime);
+							if(CPM.CurrentOrder.H.Time > 0)
+								d = SLib.BuildDateByEpoch(CPM.CurrentOrder.H.Time);
+							else if(CPM.CurrentOrder.H.CreationTime > 0)
+								d = SLib.BuildDateByEpoch(CPM.CurrentOrder.H.CreationTime);
 							if(d != null) {
 								String ds = d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY);
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DATE, ds);
@@ -918,15 +842,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							{
 								String cli_name = "";
 								String addr = "";
-								if(CurrentOrder.H.ClientID > 0) {
-									JSONObject cli_entry = FindClientEntry(CurrentOrder.H.ClientID);
+								if(CPM.CurrentOrder.H.ClientID > 0) {
+									JSONObject cli_entry = FindClientEntry(CPM.CurrentOrder.H.ClientID);
 									if(cli_entry != null)
 										cli_name = cli_entry.optString("nm", "");
 								}
-								if(CurrentOrder.H.DlvrLocID > 0) {
-									JSONObject cli_entry = FindClientEntryByDlvrLocID(CurrentOrder.H.DlvrLocID);
+								if(CPM.CurrentOrder.H.DlvrLocID > 0) {
+									JSONObject cli_entry = FindClientEntryByDlvrLocID(CPM.CurrentOrder.H.DlvrLocID);
 									if(cli_entry != null) {
-										JSONObject dlvrlov_entry = FindDlvrLocEntryInCliEntry(cli_entry, CurrentOrder.H.DlvrLocID);
+										JSONObject dlvrlov_entry = FindDlvrLocEntryInCliEntry(cli_entry, CPM.CurrentOrder.H.DlvrLocID);
 										if(dlvrlov_entry != null)
 											addr = dlvrlov_entry.optString("addr", "");
 									}
@@ -935,7 +859,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, addr);
 							}
 							{
-								double amount = GetAmountOfCurrentOrder();
+								double amount = CPM.GetAmountOfCurrentDocument();
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, String.format("%.2f", amount));
 							}
 						}
@@ -1035,7 +959,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											View ctl = iv.findViewById(R.id.buttonOrder);
 											if(ctl != null && ctl instanceof Button) {
 												Button btn = (Button)ctl;
-												double val = GetGoodsQttyInCurrentOrder(cur_id);
+												double val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
 												if(val > 0.0)
 													btn.setText(String.format("%.0f", val));
 												else
@@ -1083,9 +1007,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqOrdrListView) { // Текущий заказ (точнее, его строки)
-									if(CurrentOrder != null && CurrentOrder.TiList != null && ev_subj.ItemIdx < CurrentOrder.TiList.size()) {
+									if(CPM.CurrentOrder != null && CPM.CurrentOrder.TiList != null && ev_subj.ItemIdx < CPM.CurrentOrder.TiList.size()) {
 										View iv = ev_subj.RvHolder.itemView;
-										Document.TransferItem ti = CurrentOrder.TiList.get(ev_subj.ItemIdx);
+										Document.TransferItem ti = CPM.CurrentOrder.TiList.get(ev_subj.ItemIdx);
 										if(ti != null) {
 											CommonPrereqModule.WareEntry goods_item = CPM.FindGoodsItemByGoodsID(ti.GoodsID);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, (goods_item != null) ? goods_item.JsItem.optString("nm", "") : "");
@@ -1107,8 +1031,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_CREATEFRAGMENT:
 				if(subj instanceof Integer) {
 					int item_idx = (Integer)subj;
-					if(TabList != null && item_idx >= 0 && item_idx < TabList.size()) {
-						TabEntry cur_entry = (TabEntry)TabList.get(item_idx);
+					if(CPM.TabList != null && item_idx >= 0 && item_idx < CPM.TabList.size()) {
+						CommonPrereqModule.TabEntry cur_entry = (CommonPrereqModule.TabEntry)CPM.TabList.get(item_idx);
 						if(cur_entry.TabView != null)
 							result = cur_entry.TabView;
 					}
@@ -1217,9 +1141,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 																		View lv = findViewById(R.id.searchPaneListView);
 																		if(lv != null && lv instanceof RecyclerView) {
 																			RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
-																			if(gva != null) {
+																			if(gva != null)
 																				gva.notifyDataSetChanged();
-																			}
 																		}
 																	}
 																});
@@ -1260,11 +1183,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										CPM.SearchResult.SetSelectedItemIndex(CPM.SearchResult.FindIndexOfItem(se));
 										if(se.ObjType == SLib.PPOBJ_GOODS) {
 											int _idx = CPM.FindGoodsItemIndexByID(se.ObjID);
-											GotoTab(Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
+											GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, _idx, -1);
 										}
 										else if(se.ObjType == SLib.PPOBJ_PERSON) {
 											int _idx = FindClientItemIndexByID(se.ObjID);
-											GotoTab(Tab.tabClients, R.id.orderPrereqClientsListView, _idx, -1);
+											GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, -1);
 										}
 										else if(se.ObjType == SLib.PPOBJ_LOCATION) {
 											JSONObject cli_js_obj = FindClientEntryByDlvrLocID(se.ObjID);
@@ -1273,18 +1196,18 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												if(cli_id > 0) {
 													int _idx = FindClientItemIndexByID(cli_id);
 													int _dlvr_loc_idx = FindDlvrLocEntryIndexInCliEntry(cli_js_obj, se.ObjID);
-													GotoTab(Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
+													GotoTab(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView, _idx, _dlvr_loc_idx);
 												}
 											}
 											//tab_to_select = Tab.tabClients;
 										}
 										else if(se.ObjType == SLib.PPOBJ_GOODSGROUP) {
 											int _idx = CPM.FindGoodsGroupItemIndexByID(se.ObjID);
-											GotoTab(Tab.tabGoodsGroups, R.id.orderPrereqGoodsGroupListView, _idx, -1);
+											GotoTab(CommonPrereqModule.Tab.tabGoodsGroups, R.id.orderPrereqGoodsGroupListView, _idx, -1);
 										}
 										else if(se.ObjType == SLib.PPOBJ_BRAND) {
 											int _idx = FindBrandItemIndexByID(se.ObjID);
-											GotoTab(Tab.tabBrands, R.id.orderPrereqBrandListView, _idx, -1);
+											GotoTab(CommonPrereqModule.Tab.tabBrands, R.id.orderPrereqBrandListView, _idx, -1);
 										}
 									}
 								}
@@ -1345,8 +1268,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 							}
 							else if(a.GetListRcId() == R.id.orderPrereqOrdrListView) {
-								if(app_ctx != null && CurrentOrder != null && CurrentOrder.TiList != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CurrentOrder.TiList.size()) {
-									Document.TransferItem ti = CurrentOrder.TiList.get(ev_subj.ItemIdx);
+								if(app_ctx != null && CPM.CurrentOrder != null && CPM.CurrentOrder.TiList != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.CurrentOrder.TiList.size()) {
+									Document.TransferItem ti = CPM.CurrentOrder.TiList.get(ev_subj.ItemIdx);
 									if(ti != null) {
 										TransferItemDialog dialog = new TransferItemDialog(this, ti);
 										dialog.show();
@@ -1354,7 +1277,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 							}
 							if(do_update_goods_list_and_toggle_to_it) {
-								GotoTab(Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
+								GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
 							}
 						}
 					}
@@ -1363,7 +1286,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_COMMAND:
 				int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
 				if(view_id == R.id.tbButtonSearch) {
-					GotoTab(Tab.tabSearch, 0, -1, -1);
+					GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
 				}
 				else if(view_id == R.id.STDCTL_COMMITBUTTON) {
 					CommitCurrentDocument();
@@ -1372,14 +1295,14 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			case SLib.EV_IADATAEDITCOMMIT:
 				if(srcObj != null && srcObj instanceof TransferItemDialog && subj != null && subj instanceof Document.TransferItem) {
 					Document.TransferItem _data = (Document.TransferItem)subj;
-					if(CurrentOrder != null && CurrentOrder.TiList != null) {
-						for(int i = 0; i < CurrentOrder.TiList.size(); i++) {
-							Document.TransferItem ti = CurrentOrder.TiList.get(i);
+					if(CPM.CurrentOrder != null && CPM.CurrentOrder.TiList != null) {
+						for(int i = 0; i < CPM.CurrentOrder.TiList.size(); i++) {
+							Document.TransferItem ti = CPM.CurrentOrder.TiList.get(i);
 							if(ti.RowIdx == _data.RowIdx) {
 								if(_data.Set.Qtty > 0)
-									CurrentOrder.TiList.get(i).Set.Qtty = _data.Set.Qtty;
+									CPM.CurrentOrder.TiList.get(i).Set.Qtty = _data.Set.Qtty;
 								else
-									CurrentOrder.TiList.remove(i);
+									CPM.CurrentOrder.TiList.remove(i);
 								NotifyCurrentOrderChanged();
 								break;
 							}

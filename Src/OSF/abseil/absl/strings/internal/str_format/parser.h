@@ -303,7 +303,7 @@ private:
 
 	bool has_error_;
 	std::unique_ptr<char[]> data_;
-	std::vector<ConversionItem> items_;
+	std::vector <ConversionItem> items_;
 };
 
 // A value type representing a preparsed format.  These can be created, copied

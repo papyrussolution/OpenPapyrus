@@ -758,31 +758,19 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 			errno = 0;
 			text->iteration_count = strtoul(s_iteration_count, &end, 10);
 			if(s_iteration_count == end || *end != '\0' || errno != 0) {
-				sparams->utils->log(NULL,
-				    SASL_LOG_DEBUG,
-				    "Invalid iteration-count in scram_iteration_count SASL option: not a number. Using the default instead.");
+				sparams->utils->log(NULL, SASL_LOG_DEBUG, "Invalid iteration-count in scram_iteration_count SASL option: not a number. Using the default instead.");
 				s_iteration_count = NULL;
 			}
 		}
-
 		if(s_iteration_count == NULL) {
 			text->iteration_count = DEFAULT_ITERATION_COUNTER;
 		}
-
-		result = GenerateScramSecrets(sparams->utils,
-			text->md,
-			auxprop_values[0].values[0],
-			strlen(auxprop_values[0].values[0]),
-			text->salt,
-			text->salt_len,
-			text->iteration_count,
-			text->StoredKey,
-			text->ServerKey,
-			&error_text);
+		result = GenerateScramSecrets(sparams->utils, text->md, auxprop_values[0].values[0],
+			strlen(auxprop_values[0].values[0]), text->salt, text->salt_len, text->iteration_count,
+			text->StoredKey, text->ServerKey, &error_text);
 		if(result != SASL_OK) {
 			if(error_text != NULL) {
-				sparams->utils->seterror(sparams->utils->conn, 0, "%s",
-				    error_text);
+				sparams->utils->seterror(sparams->utils->conn, 0, "%s", error_text);
 			}
 			goto cleanup;
 		}
@@ -993,14 +981,8 @@ static int scram_server_mech_step1(server_context_t * text, sasl_server_params_t
 	}
 	base64_salt[base64len] = '\0';
 	/* Now we generate server challenge */
-	estimated_challenge_len = client_nonce_len + NONCE_SIZE +
-	    base64len +
-	    ITERATION_COUNTER_BUF_LEN +
-	    strlen("r=,s=,i=");
-	result = _plug_buf_alloc(sparams->utils,
-		&(text->out_buf),
-		&(text->out_buf_len),
-		(unsigned)estimated_challenge_len + 1);
+	estimated_challenge_len = client_nonce_len + NONCE_SIZE + base64len + ITERATION_COUNTER_BUF_LEN + strlen("r=,s=,i=");
+	result = _plug_buf_alloc(sparams->utils, &(text->out_buf), &(text->out_buf_len), (unsigned)estimated_challenge_len + 1);
 	if(result != SASL_OK) {
 		SASL_UTILS_MEMERROR(sparams->utils);
 		result = SASL_NOMEM;
@@ -1457,23 +1439,14 @@ static int scram_server_mech_step(void * conn_context,
 			       oparams);
 
 		default: /* should never get here */
-		    sparams->utils->log(NULL, SASL_LOG_ERR,
-			"Invalid %s server step %d\n",
-			scram_sasl_mech, text->state);
+		    sparams->utils->log(NULL, SASL_LOG_ERR, "Invalid %s server step %d\n", scram_sasl_mech, text->state);
 		    return SASL_FAIL;
 	}
-
 	return SASL_FAIL; /* should never get here */
 }
 
-static int scram_setpass(void * glob_context,
-    sasl_server_params_t * sparams,
-    const char * userstr,
-    const char * pass,
-    unsigned passlen,
-    const char * oldpass __attribute__((unused)),
-    unsigned oldpasslen __attribute__((unused)),
-    unsigned flags)
+static int scram_setpass(void * glob_context, sasl_server_params_t * sparams, const char * userstr,
+    const char * pass, unsigned passlen, const char * oldpass __attribute__((unused)), unsigned oldpasslen __attribute__((unused)), unsigned flags)
 {
 	int r;
 	char * user = NULL;
@@ -1558,33 +1531,18 @@ static int scram_setpass(void * glob_context,
 			errno = 0;
 			iteration_count = strtoul(s_iteration_count, &end, 10);
 			if(s_iteration_count == end || *end != '\0' || errno != 0) {
-				sparams->utils->log(NULL,
-				    SASL_LOG_DEBUG,
-				    "Invalid iteration-count in scram_iteration_count SASL option: not a number. Using the default instead.");
+				sparams->utils->log(NULL, SASL_LOG_DEBUG, "Invalid iteration-count in scram_iteration_count SASL option: not a number. Using the default instead.");
 				s_iteration_count = NULL;
 			}
 		}
-
 		if(s_iteration_count == NULL) {
 			iteration_count = DEFAULT_ITERATION_COUNTER;
 		}
-
 		sparams->utils->rand(sparams->utils->rpool, salt, SALT_SIZE);
-
-		r = GenerateScramSecrets(sparams->utils,
-			md,
-			pass,
-			passlen,
-			salt,
-			SALT_SIZE,
-			iteration_count,
-			StoredKey,
-			ServerKey,
-			&error_text);
+		r = GenerateScramSecrets(sparams->utils, md, pass, passlen, salt, SALT_SIZE, iteration_count, StoredKey, ServerKey, &error_text);
 		if(r != SASL_OK) {
 			if(error_text != NULL) {
-				sparams->utils->seterror(sparams->utils->conn, 0, "%s",
-				    error_text);
+				sparams->utils->seterror(sparams->utils->conn, 0, "%s", error_text);
 			}
 			goto cleanup;
 		}
@@ -1639,33 +1597,23 @@ static int scram_setpass(void * glob_context,
 	if(propctx) {
 		sparams->utils->prop_dispose(&propctx);
 	}
-
 	if(r) {
-		sparams->utils->seterror(sparams->utils->conn, 0,
-		    "Error putting %s secret",
-		    scram_sasl_mech);
+		sparams->utils->seterror(sparams->utils->conn, 0, "Error putting %s secret", scram_sasl_mech);
 		goto cleanup;
 	}
-
-	sparams->utils->log(NULL, SASL_LOG_DEBUG, "Setpass for %s successful\n",
-	    scram_sasl_mech);
-
+	sparams->utils->log(NULL, SASL_LOG_DEBUG, "Setpass for %s successful\n", scram_sasl_mech);
 cleanup:
 	if(user) _plug_free_string(sparams->utils, &user);
 	if(user_only) _plug_free_string(sparams->utils, &user_only);
 	if(realm) _plug_free_string(sparams->utils, &realm);
 	if(sec) _plug_free_secret(sparams->utils, &sec);
-
 	return r;
 }
 
-static void scram_server_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils)
+static void scram_server_mech_dispose(void * conn_context, const sasl_utils_t * utils)
 {
 	server_context_t * text = (server_context_t*)conn_context;
-
 	if(!text) return;
-
 	if(text->authentication_id) _plug_free_string(utils, &(text->authentication_id));
 	if(text->authorization_id) _plug_free_string(utils, &(text->authorization_id));
 	if(text->out_buf) _plug_free_string(utils, &(text->out_buf));
@@ -2018,34 +1966,20 @@ static int scram_client_mech_step1(client_context_t * text,
 		result = SASL_NOMEM;
 		goto cleanup;
 	}
-	maxsize = strlen("p=,a=,n=,r=") +
-	    ((channel_binding_name != NULL) ? strlen(channel_binding_name) : 0) +
-	    ((encoded_authorization_id != NULL) ? strlen(encoded_authorization_id) : 0) +
-	    strlen(encoded_authcid) +
-	    strlen(text->nonce);
-	result = _plug_buf_alloc(params->utils,
-		&(text->out_buf),
-		&(text->out_buf_len),
-		(unsigned)maxsize + 1);
+	maxsize = strlen("p=,a=,n=,r=") + ((channel_binding_name != NULL) ? strlen(channel_binding_name) : 0) +
+	    ((encoded_authorization_id != NULL) ? strlen(encoded_authorization_id) : 0) + strlen(encoded_authcid) + strlen(text->nonce);
+	result = _plug_buf_alloc(params->utils, &(text->out_buf), &(text->out_buf_len), (unsigned)maxsize + 1);
 	if(result != SASL_OK) {
 		SASL_UTILS_MEMERROR(params->utils);
 		result = SASL_NOMEM;
 		goto cleanup;
 	}
-
-	snprintf(text->out_buf,
-	    maxsize + 1,
-	    "%c%s%s,%s%s,",
-	    channel_binding_state,
-	    (channel_binding_name != NULL) ? "=" : "",
-	    (channel_binding_name != NULL) ? channel_binding_name : "",
-	    (encoded_authorization_id != NULL) ? "a=" : "",
-	    (encoded_authorization_id != NULL) ? encoded_authorization_id : "");
-
+	snprintf(text->out_buf, maxsize + 1, "%c%s%s,%s%s,", channel_binding_state,
+	    (channel_binding_name != NULL) ? "=" : "", (channel_binding_name != NULL) ? channel_binding_name : "",
+	    (encoded_authorization_id != NULL) ? "a=" : "", (encoded_authorization_id != NULL) ? encoded_authorization_id : "");
 	text->gs2_header_length = strlen(text->out_buf);
 	_plug_strdup(params->utils, text->out_buf, &text->gs2_header, NULL);
 	sprintf(text->out_buf + text->gs2_header_length, "n=%s,r=%s", encoded_authcid, text->nonce);
-
 	/* Save the copy of the client-first-message */
 	/* Need to skip the GS2 prefix here */
 	_plug_strdup(params->utils, text->out_buf + text->gs2_header_length, &text->auth_message, NULL);
@@ -2054,18 +1988,13 @@ static int scram_client_mech_step1(client_context_t * text,
 		result = SASL_NOMEM;
 		goto cleanup;
 	}
-
 	text->auth_message_len = strlen(text->auth_message);
-
 	*clientout = text->out_buf;
 	*clientoutlen = (unsigned)strlen(*clientout);
-
 	result = SASL_CONTINUE;
-
 cleanup:
 	if(freeme != NULL) _plug_free_string(params->utils, &freeme);
 	if(freeme2 != NULL) _plug_free_string(params->utils, &freeme2);
-
 	return result;
 }
 
@@ -2586,25 +2515,19 @@ static int scram_client_mech_step(void * conn_context,
 		    break;
 
 		default: /* should never get here */
-		    params->utils->log(NULL, SASL_LOG_ERR,
-			"Invalid %s client step %d\n",
-			scram_sasl_mech, text->state);
+		    params->utils->log(NULL, SASL_LOG_ERR, "Invalid %s client step %d\n", scram_sasl_mech, text->state);
 		    return SASL_FAIL;
 	}
-
 	if(result != SASL_INTERACT) {
 		text->state++;
 	}
 	return result;
 }
 
-static void scram_client_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils)
+static void scram_client_mech_dispose(void * conn_context, const sasl_utils_t * utils)
 {
 	client_context_t * text = (client_context_t*)conn_context;
-
 	if(!text) return;
-
 	/* get rid of all sensitive info */
 	if(text->free_password) {
 		_plug_free_secret(utils, &text->password);

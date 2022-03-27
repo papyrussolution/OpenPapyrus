@@ -362,7 +362,7 @@ double NominalCPUFrequency()
 	// We set a bit per thread in this array to indicate that an ID is in
 	// use. ID 0 is unused because it is the default value returned by
 	// pthread_getspecific().
-	ABSL_CONST_INIT static std::vector<uint32_t> * tid_array ABSL_GUARDED_BY(tid_lock) = nullptr;
+	ABSL_CONST_INIT static std::vector <uint32_t> * tid_array ABSL_GUARDED_BY(tid_lock) = nullptr;
 	static constexpr int kBitsPerWord = 32;  // tid_array is uint32_t.
 
 	// Returns the TID to tid_array.
@@ -385,7 +385,7 @@ double NominalCPUFrequency()
 		}
 		// Initialize tid_array.
 		absl::base_internal::SpinLockHolder lock(&tid_lock);
-		tid_array = new std::vector<uint32_t>(1);
+		tid_array = new std::vector <uint32_t>(1);
 		(*tid_array)[0] = 1; // ID 0 is never-allocated.
 	}
 

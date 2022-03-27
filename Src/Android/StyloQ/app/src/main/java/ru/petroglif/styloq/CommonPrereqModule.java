@@ -15,9 +15,11 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -31,6 +33,114 @@ public class CommonPrereqModule {
 	public ArrayList<JSONObject> GoodsGroupListData;
 	public GoodsFilt Gf;
 	public ArrayList <WareEntry> GoodsListData;
+	public ArrayList <CommonPrereqModule.TabEntry> TabList;
+	protected Document CurrentOrder;
+	public enum Tab {
+		tabUndef,
+		tabGoodsGroups,
+		tabBrands,
+		tabGoods,
+		tabClients,
+		tabProcessors,
+		tabAttendance,
+		tabCurrentOrder,
+		tabBookingDocument,
+		tabOrders,
+		tabSearch
+	}
+	public static class TabEntry {
+		TabEntry(CommonPrereqModule.Tab id, String text, /*View*/SLib.SlFragmentStatic view)
+		{
+			TabId = id;
+			TabText = text;
+			TabView = view;
+		}
+		CommonPrereqModule.Tab TabId;
+		String TabText;
+		/*View*/SLib.SlFragmentStatic TabView;
+	}
+	// sqbdtSvcReq
+	protected boolean SetClientToCurrentDocument(StyloQApp appCtx, int cliID, int dlvrLocID) throws StyloQException
+	{
+		boolean result = false;
+		if(cliID > 0 && appCtx != null) {
+			if(CurrentOrder == null) {
+				CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, appCtx);
+				CurrentOrder.H.ClientID = cliID;
+				CurrentOrder.H.DlvrLocID = dlvrLocID;
+				result = true;
+			}
+			else {
+				if(CurrentOrder.H.ClientID == 0) {
+					CurrentOrder.H.ClientID = cliID;
+					CurrentOrder.H.DlvrLocID = dlvrLocID;
+					result = true;
+				}
+				else if(CurrentOrder.H.ClientID == cliID) {
+					if(dlvrLocID != CurrentOrder.H.DlvrLocID) {
+						CurrentOrder.H.DlvrLocID = dlvrLocID;
+						result = true;
+					}
+				}
+				else {
+					// Здесь надо как-то умнО обработать изменение контрагента
+				}
+			}
+		}
+		return result;
+	}
+	public ArrayList <SLib.STimeChunk> GetCurrentDocumentBusyList(int prcID)
+	{
+		ArrayList <SLib.STimeChunk> result = null;
+		if(prcID > 0 && CurrentOrder != null && CurrentOrder.BkList != null && CurrentOrder.BkList.size() > 0) {
+			for(int i = 0; i < CurrentOrder.BkList.size(); i++) {
+				Document.BookingItem bi = CurrentOrder.BkList.get(i);
+				if(bi != null && bi.PrcID == prcID && bi.ReqTime != null && bi.EstimatedDurationSec > 0) {
+					SLib.LDATETIME finish_dtm = SLib.plusdatetimesec(bi.ReqTime, bi.EstimatedDurationSec);
+					if(finish_dtm != null) {
+						SLib.STimeChunk tc = new SLib.STimeChunk(bi.ReqTime, finish_dtm);
+						if(result == null)
+							result = new ArrayList<SLib.STimeChunk>();
+						result.add(tc);
+					}
+				}
+			}
+		}
+		return result;
+	}
+	protected double GetAmountOfCurrentDocument()
+	{
+		double result = 0.0;
+		if(CurrentOrder != null) {
+			if(CurrentOrder.TiList != null) {
+				for(int i = 0; i < CurrentOrder.TiList.size(); i++) {
+					Document.TransferItem ti = CurrentOrder.TiList.get(i);
+					if(ti != null && ti.Set != null)
+						result += Math.abs(ti.Set.Qtty * ti.Set.Price);
+				}
+			}
+			if(CurrentOrder.BkList != null) {
+				for(int i = 0; i < CurrentOrder.BkList.size(); i++) {
+					Document.BookingItem bi = CurrentOrder.BkList.get(i);
+					if(bi != null && bi.Set != null)
+						result += Math.abs(bi.Set.Qtty * bi.Set.Price);
+				}
+			}
+		}
+		return result;
+	}
+	protected double GetGoodsQttyInCurrentDocument(int goodsID)
+	{
+		double result = 0.0;
+		if(CurrentOrder != null && CurrentOrder.TiList != null) {
+			for(int i = 0; i < CurrentOrder.TiList.size(); i++) {
+				Document.TransferItem ti = CurrentOrder.TiList.get(i);
+				if(ti != null && ti.GoodsID == goodsID)
+					result += Math.abs(ti.Set.Qtty);
+			}
+		}
+		return result;
+	}
 	public static class WareEntry {
 		WareEntry(JSONObject jsItem)
 		{
@@ -210,6 +320,7 @@ public class CommonPrereqModule {
 		GoodsGroupListData = null;
 		GoodsListData = null;
 		Gf = null;
+		CurrentOrder = null;
 	}
 	public void GetAttributesFromIntent(Intent intent)
 	{

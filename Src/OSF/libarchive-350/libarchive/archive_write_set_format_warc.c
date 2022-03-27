@@ -164,10 +164,8 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 			/* jackpot! */
 			/* now also use HDR buffer for the actual warcinfo */
 			archive_strncat(&hdr, warcinfo, sizeof(warcinfo) -1);
-
 			/* append end-of-record indicator */
 			archive_strncat(&hdr, "\r\n\r\n", 4);
-
 			/* write to output stream */
 			__archive_write_output(a, hdr.s, archive_strlen(&hdr));
 		}
@@ -175,13 +173,10 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 		w->omit_warcinfo = 1U;
 		archive_string_free(&hdr);
 	}
-
 	if(archive_entry_pathname(entry) == NULL) {
-		archive_set_error(&a->archive, EINVAL,
-		    "Invalid filename");
+		archive_set_error(&a->archive, EINVAL, "Invalid filename");
 		return ARCHIVE_WARN;
 	}
-
 	w->typ = archive_entry_filetype(entry);
 	w->populz = 0U;
 	if(w->typ == AE_IFREG) {
@@ -199,15 +194,11 @@ static int _warc_header(struct archive_write * a, struct archive_entry * entry)
 		rh.rtime = w->now;
 		rh.mtime = archive_entry_mtime(entry);
 		rh.cntlen = (size_t)archive_entry_size(entry);
-
 		archive_string_init(&hdr);
 		r = _popul_ehdr(&hdr, MAX_HDR_SIZE, rh);
 		if(r < 0) {
 			/* don't bother */
-			archive_set_error(
-				&a->archive,
-				ARCHIVE_ERRNO_FILE_FORMAT,
-				"cannot archive file");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "cannot archive file");
 			return ARCHIVE_WARN;
 		}
 		/* otherwise append to output stream */

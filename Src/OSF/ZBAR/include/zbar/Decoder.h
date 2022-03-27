@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------
+//
 //  Copyright 2007-2010 (c) Jeff Brown <spadix@users.sourceforge.net>
 //
 //  This file is part of the ZBar Bar Code Reader.
@@ -19,7 +19,7 @@
 //  Boston, MA  02110-1301  USA
 //
 //  http://sourceforge.net/projects/zbar
-//------------------------------------------------------------------------
+//
 #ifndef _ZBAR_DECODER_H_
 #define _ZBAR_DECODER_H_
 

@@ -533,7 +533,7 @@ const UChar * Normalizer2Impl::copyLowPrefixFromNulTerminated(const UChar * src,
 	// Back out the last character for full processing.
 	// Copy this prefix.
 	if(--src!=prevSrc) {
-		if(buffer!=NULL) {
+		if(buffer) {
 			buffer->appendZeroCC(prevSrc, src, errorCode);
 		}
 	}
@@ -573,9 +573,8 @@ void Normalizer2Impl::decompose(const UChar * src, const UChar * limit,
 // Dual functionality:
 // buffer!=NULL: normalize
 // buffer==NULL: isNormalized/spanQuickCheckYes
-const UChar * Normalizer2Impl::decompose(const UChar * src, const UChar * limit,
-    ReorderingBuffer * buffer,
-    UErrorCode & errorCode) const {
+const UChar * Normalizer2Impl::decompose(const UChar * src, const UChar * limit, ReorderingBuffer * buffer, UErrorCode & errorCode) const 
+{
 	UChar32 minNoCP = minDecompNoCP;
 	if(!limit) {
 		src = copyLowPrefixFromNulTerminated(src, minNoCP, buffer, errorCode);
@@ -623,7 +622,7 @@ const UChar * Normalizer2Impl::decompose(const UChar * src, const UChar * limit,
 		}
 		// copy these code units all at once
 		if(src!=prevSrc) {
-			if(buffer!=NULL) {
+			if(buffer) {
 				if(!buffer->appendZeroCC(prevSrc, src, errorCode)) {
 					break;
 				}
@@ -636,10 +635,9 @@ const UChar * Normalizer2Impl::decompose(const UChar * src, const UChar * limit,
 		if(src==limit) {
 			break;
 		}
-
 		// Check one above-minimum, relevant code point.
 		src += U16_LENGTH(c);
-		if(buffer!=NULL) {
+		if(buffer) {
 			if(!decompose(c, norm16, *buffer, errorCode)) {
 				break;
 			}
@@ -2380,7 +2378,7 @@ const UChar * Normalizer2Impl::makeFCD(const UChar * src, const UChar * limit, R
 		}
 		// copy these code units all at once
 		if(src!=prevSrc) {
-			if(buffer!=NULL && !buffer->appendZeroCC(prevSrc, src, errorCode)) {
+			if(buffer && !buffer->appendZeroCC(prevSrc, src, errorCode)) {
 				break;
 			}
 			if(src==limit) {
@@ -2420,7 +2418,6 @@ const UChar * Normalizer2Impl::makeFCD(const UChar * src, const UChar * limit, R
 		else if(src==limit) {
 			break;
 		}
-
 		src += U16_LENGTH(c);
 		// The current character (c) at [prevSrc..src[ has a non-zero lead combining class.
 		// Check for proper order, and decompose locally if necessary.
@@ -2429,13 +2426,13 @@ const UChar * Normalizer2Impl::makeFCD(const UChar * src, const UChar * limit, R
 			if((fcd16&0xff)<=1) {
 				prevBoundary = src;
 			}
-			if(buffer!=NULL && !buffer->appendZeroCC(c, errorCode)) {
+			if(buffer && !buffer->appendZeroCC(c, errorCode)) {
 				break;
 			}
 			prevFCD16 = fcd16;
 			continue;
 		}
-		else if(buffer==NULL) {
+		else if(!buffer) {
 			return prevBoundary; // quick check "no"
 		}
 		else {

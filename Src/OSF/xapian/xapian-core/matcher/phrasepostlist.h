@@ -40,7 +40,7 @@ class PostListTree;
 class PhrasePostList : public SelectPostList {
     Xapian::termpos window;
 
-    std::vector<PostList*> terms;
+    std::vector <PostList*> terms;
 
     PositionList ** poslists;
 
@@ -53,8 +53,8 @@ class PhrasePostList : public SelectPostList {
   public:
     PhrasePostList(PostList *source_,
 		   Xapian::termpos window_,
-		   const std::vector<PostList*>::const_iterator &terms_begin,
-		   const std::vector<PostList*>::const_iterator &terms_end,
+		   const std::vector <PostList*>::const_iterator &terms_begin,
+		   const std::vector <PostList*>::const_iterator &terms_end,
 		   PostListTree* pltree_);
 
     ~PhrasePostList();

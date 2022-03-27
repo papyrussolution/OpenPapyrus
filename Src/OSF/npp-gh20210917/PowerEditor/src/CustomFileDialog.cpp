@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -88,7 +83,7 @@ void expandEnv(generic_string& s)
 		}
 		else {
 			// Buffer was too small, try with a bigger buffer of the required size.
-			std::vector<TCHAR> buffer2(ret, 0);
+			std::vector <TCHAR> buffer2(ret, 0);
 			ret = ExpandEnvironmentStrings(s.c_str(), buffer2.data(), static_cast<DWORD>(buffer2.size()));
 			assert(ret == static_cast<DWORD>(lstrlen(buffer2.data()) + 1));
 			s = buffer2.data();
@@ -315,7 +310,7 @@ public:
 		return E_NOTIMPL;
 	}
 
-	FileDialogEventHandler(IFileDialog* dlg, const std::vector<Filter>& filterSpec, int fileIndex, int wildcardIndex)
+	FileDialogEventHandler(IFileDialog* dlg, const std::vector <Filter>& filterSpec, int fileIndex, int wildcardIndex)
 		: _cRef(1), _dialog(dlg), _customize(dlg), _filterSpec(filterSpec), _currentType(fileIndex + 1),
 		_lastSelectedType(fileIndex + 1), _wildcardType(wildcardIndex >= 0 ? wildcardIndex + 1 : 0)
 	{
@@ -550,7 +545,7 @@ private:
 	long _cRef;
 	com_ptr<IFileDialog> _dialog;
 	com_ptr<IFileDialogCustomize> _customize;
-	const std::vector<Filter> _filterSpec;
+	const std::vector <Filter> _filterSpec;
 	generic_string _lastUsedFolder;
 	HWND _hwndNameEdit = nullptr;
 	HWND _hwndButton = nullptr;
@@ -616,7 +611,7 @@ public:
 		}
 
 		if(SUCCEEDED(hr) && !_filterSpec.empty()) {
-			std::vector<COMDLG_FILTERSPEC> fileTypes;
+			std::vector <COMDLG_FILTERSPEC> fileTypes;
 			fileTypes.reserve(_filterSpec.size());
 			for(auto&& filter : _filterSpec)
 				fileTypes.push_back({ filter.name.data(), filter.ext.data() });
@@ -728,9 +723,9 @@ public:
 			return attrs & SFGAO_READONLY;
 		return false;
 	}
-	std::vector<generic_string> getFilenames()
+	std::vector <generic_string> getFilenames()
 	{
-		std::vector<generic_string> result;
+		std::vector <generic_string> result;
 		// Only the open dialog can have multiple results.
 		com_ptr<IFileOpenDialog> pfd = _dialog;
 		if(pfd) {
@@ -760,7 +755,7 @@ public:
 	generic_string _fallbackFolder;
 	const TCHAR* _checkboxLabel = nullptr;
 	const TCHAR* _initialFileName = nullptr;
-	std::vector<Filter> _filterSpec;
+	std::vector <Filter> _filterSpec;
 	int _fileTypeIndex = -1;        // preferred file type index
 	int _wildcardIndex = -1;        // *.* file type index
 	bool _isCheckboxActive = true;
@@ -871,7 +866,7 @@ generic_string CustomFileDialog::doOpenSingleFileDlg()
 	return bOk ? _impl->getResultFilename() : _T("");
 }
 
-std::vector<generic_string> CustomFileDialog::doOpenMultiFilesDlg()
+std::vector <generic_string> CustomFileDialog::doOpenMultiFilesDlg()
 {
 	if(!_impl->initOpen())
 		return {};

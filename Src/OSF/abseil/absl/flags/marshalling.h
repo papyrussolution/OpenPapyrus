@@ -32,7 +32,7 @@
 // * `float`
 // * `double`
 // * `std::string`
-// * `std::vector<std::string>`
+// * `std::vector <std::string>`
 // * `absl::LogSeverity` (provided natively for layering reasons)
 //
 // Note that support for integral types is implemented using overloads for
@@ -186,7 +186,7 @@ bool AbslParseFlag(absl::string_view, unsigned long long*,             // NOLINT
 bool AbslParseFlag(absl::string_view, float*, std::string*);
 bool AbslParseFlag(absl::string_view, double*, std::string*);
 bool AbslParseFlag(absl::string_view, std::string*, std::string*);
-bool AbslParseFlag(absl::string_view, std::vector<std::string>*, std::string*);
+bool AbslParseFlag(absl::string_view, std::vector <std::string>*, std::string*);
 
 template <typename T>
 bool InvokeParseFlag(absl::string_view input, T* dst, std::string* err) {
@@ -199,7 +199,7 @@ bool InvokeParseFlag(absl::string_view input, T* dst, std::string* err) {
 // considerations as fundamental types. Naming these 'AbslUnparseFlag' means we
 // can avoid the need for additional specializations of Unparse (below).
 std::string AbslUnparseFlag(absl::string_view v);
-std::string AbslUnparseFlag(const std::vector<std::string>&);
+std::string AbslUnparseFlag(const std::vector <std::string>&);
 
 template <typename T>
 std::string Unparse(const T& v) {

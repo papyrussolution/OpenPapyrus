@@ -989,7 +989,7 @@ int SlSession::LogMessage(const char * pFileName, const char * pStr, ulong maxFi
 			if(maxFileSize && (current_size + msg_buf.Len()) > maxFileSize*1024) {
 				counter = 0;
 				SString ext;
-				SString b = file_name;
+				SString b(file_name);
 				do {
 					SPathStruc::ReplaceExt(b, ext.Z().CatLongZ(++counter, 3), 1);
 				} while(fileExists(b));

@@ -332,7 +332,7 @@ bool Parser::TryConsumeEndOfDeclaration(const char* text,
     const LocationRecorder* location) {
 	if(LookingAt(text)) {
 		std::string leading, trailing;
-		std::vector<std::string> detached;
+		std::vector <std::string> detached;
 		input_->NextWithComments(&trailing, &detached, &leading);
 
 		// Save the leading comments for next time, and recall the leading comments
@@ -486,7 +486,7 @@ int Parser::LocationRecorder::CurrentPathSize() const {
 }
 
 void Parser::LocationRecorder::AttachComments(std::string* leading, std::string* trailing,
-    std::vector<std::string>* detached_comments) const {
+    std::vector <std::string>* detached_comments) const {
 	GOOGLE_CHECK(!location_->has_leading_comments());
 	GOOGLE_CHECK(!location_->has_trailing_comments());
 

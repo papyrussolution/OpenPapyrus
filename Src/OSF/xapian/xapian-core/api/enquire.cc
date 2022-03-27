@@ -258,7 +258,7 @@ TermIterator Enquire::Internal::get_matching_terms_begin(docid did) const
 		}
 	};
 
-	vector<term_and_pos> query_terms;
+	vector <term_and_pos> query_terms;
 	Xapian::termpos pos = 1;
 	for(auto t = query.get_terms_begin(); t != query.get_terms_end(); ++t) {
 		query_terms.emplace_back(*t, pos++);
@@ -303,8 +303,8 @@ TermIterator Enquire::Internal::get_matching_terms_begin(docid did) const
 
 	// Iterator adaptor to present query_terms as a container of just strings.
 	struct Itor {
-		vector<term_and_pos>::const_iterator it;
-		explicit Itor(vector<term_and_pos>::const_iterator it_) : it(it_) 
+		vector <term_and_pos>::const_iterator it;
+		explicit Itor(vector <term_and_pos>::const_iterator it_) : it(it_) 
 		{
 		}
 		const std::string & operator*() const { return it->term; }

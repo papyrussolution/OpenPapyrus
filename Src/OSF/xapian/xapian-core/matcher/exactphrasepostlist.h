@@ -38,7 +38,7 @@ class PostListTree;
  *  sub-postings (just like an AndPostList).
  */
 class ExactPhrasePostList : public SelectPostList {
-    std::vector<PostList*> terms;
+    std::vector <PostList*> terms;
 
     PositionList ** poslists;
 
@@ -52,8 +52,8 @@ class ExactPhrasePostList : public SelectPostList {
 
   public:
     ExactPhrasePostList(PostList *source_,
-			const std::vector<PostList*>::const_iterator &terms_begin,
-			const std::vector<PostList*>::const_iterator &terms_end,
+			const std::vector <PostList*>::const_iterator &terms_begin,
+			const std::vector <PostList*>::const_iterator &terms_end,
 			PostListTree* pltree_);
 
     ~ExactPhrasePostList();

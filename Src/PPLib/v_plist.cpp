@@ -2048,7 +2048,6 @@ int PPViewPriceList::SendPList()
 		for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
 			PPUnit unit_rec;
 			DbfRecord plst_rec(plst_tbl);
-			plst_rec.empty();                   // upp
 			(temp_buf = item.GoodsGrpName_).Transf(CTRANSF_INNER_TO_OUTER);
 			plst_rec.put(1, temp_buf);
 			(temp_buf = item.GoodsName_).Transf(CTRANSF_INNER_TO_OUTER);

@@ -110,13 +110,13 @@ public:
 	// Only comments that were extracted entirely within that
 	// range are returned: no range splitting of atomically-extracted
 	// comments is performed.
-	void GetComments(int start, int end, std::vector<StringPiece> * ranges);
+	void GetComments(int start, int end, std::vector <StringPiece> * ranges);
 
 	// Append to vector ranges the comments added
 	// since the last time this was called. This
 	// functionality is provided for efficiency when
 	// interleaving scanning with parsing.
-	void GetNextComments(std::vector<StringPiece> * ranges);
+	void GetNextComments(std::vector <StringPiece> * ranges);
 
 private:
 	std::string data_;      // All the input data
@@ -129,7 +129,7 @@ private:
 	// the skipped comments
 	// @todo later consider requiring that the StringPieces be added
 	// in order by their start position
-	std::vector<StringPiece> * comments_;
+	std::vector <StringPiece> * comments_;
 
 	// the offset into comments_ that has been returned by GetNextComments
 	int comments_offset_;

@@ -1,4 +1,4 @@
-//------------------------------------------------------------------------
+//
 //  Copyright 2007-2010 (c) Jeff Brown <spadix@users.sourceforge.net>
 //
 //  This file is part of the ZBar Bar Code Reader.
@@ -19,7 +19,7 @@
 //  Boston, MA  02110-1301  USA
 //
 //  http://sourceforge.net/projects/zbar
-//------------------------------------------------------------------------
+//
 #ifndef _ZBAR_SYMBOL_H_
 #define _ZBAR_SYMBOL_H_
 
@@ -108,23 +108,16 @@ public:
 public:
 		int x; ///< x-coordinate.
 		int y; ///< y-coordinate.
-
 		Point ()
 		{
 		}
-
-		Point(int x, int y)
-			: x(x), y(y)
+		Point(int x, int y) : x(x), y(y)
 		{
 		}
-
 		/// copy constructor.
-		Point (const Point& pt)
-			: x(pt.x),
-			y(pt.y)
+		Point (const Point& pt) : x(pt.x), y(pt.y)
 		{
 		}
-
 		/// assignment.
 		Point& operator=(const Point& pt)
 		{
@@ -146,23 +139,18 @@ public:
 			    (uint)_index >= zbar_symbol_get_loc_size(*_sym))
 				_index = -1;
 		}
-
 		/// copy constructor.
-		PointIterator (const PointIterator& iter)
-			: _sym(iter._sym),
-			_index(iter._index)
+		PointIterator (const PointIterator& iter) : _sym(iter._sym), _index(iter._index)
 		{
 			if(_sym)
 				_sym->ref();
 		}
-
 		/// destructor.
 		~PointIterator ()
 		{
 			if(_sym)
 				_sym->ref(-1);
 		}
-
 		/// assignment.
 		PointIterator& operator=(const PointIterator& iter)
 		{

@@ -145,6 +145,8 @@ struct CheckStruct {
 		ChZnPpResult = 0; // @v11.1.11
 		ChZnPpStatus = 0; // @v11.1.11
 		Timestamp.Z(); // @v11.2.3
+		BuyersEmail.Z(); // @v11.3.6
+		BuyersPhone.Z(); // @v11.3.6
 		return *this;
 	}
 	int    CheckType;
@@ -182,6 +184,8 @@ struct CheckStruct {
 	SString ChZnSerial;  // @v10.7.2
 	SString ChZnPartN;   // @v10.7.8
 	SString ChZnSid;     // @v10.8.12 Ид предприятия для передачи в честный знак
+	SString BuyersEmail; // @v11.3.6
+	SString BuyersPhone; // @v11.3.6
 };
 
 class PiritEquip {
@@ -1165,6 +1169,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				OfdVer.FromStr(param_val);
 			}
 			// } @v11.1.9
+			// @v11.3.6 {
+			if(pb.Get("PAPERLESS", param_val) > 0) {
+				Check.CheckType |= 0x80;
+			}
+			// } @v11.3.6 
 			THROW(RunCheck(0));
 		}
 		else if(cmd.IsEqiAscii("CLOSECHECK")) {
@@ -1181,6 +1190,12 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				Check.PaymCCrdCard = param_val.ToReal();
 			if(pb.Get("CHZNSID", param_val) > 0) // @v10.8.12
 				Check.ChZnSid = param_val;
+			// @v11.3.6 {
+			if(pb.Get("BUYERSPHONE", param_val) > 0)
+				Check.BuyersPhone = param_val;
+			if(pb.Get("BUYERSEMAIL", param_val) > 0)
+				Check.BuyersEmail = param_val;
+			// } @v11.3.6 
 			THROW(RunCheck(1));
 		}
 		else if(cmd.IsEqiAscii("CHECKCORRECTION")) { // @v10.0.0
@@ -1966,7 +1981,7 @@ int PiritEquip::StartWork(bool force)
 		THROW(ExecCmd("10", in_data, out_data, r_error));
 		THROW(GetCurFlags(2, flag));
 		if(!force) { // @v11.3.2
-			if(!(flag & 0x4) && (r_error.CmpNC("0B") == 0)) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
+			if(!(flag & 0x4) && r_error.IsEqiAscii("0B")) {  // Проверяем что смена закрыта и код ошибки "дата и время отличаются от текущих даты и времени ККМ более чем на 8 минут"
 				in_data.Z();
 				GetLocalTime(&sys_dt_tm);
 				GetDateTime(sys_dt_tm, datetime, 0);
@@ -2159,11 +2174,13 @@ int PiritEquip::PreprocessChZnMark(const char * pMarkCode, double qtty, uint uom
 		{
 			int fatal_flags = 0;
 			if(GetCurFlags(1, fatal_flags) && fatal_flags != 0) {
-				if(LogFileName.NotEmpty()) {
-					(out_data = "Try to reset fatal state flags after 79/1").Space().CatHex((long)fatal_flags);
-					SLS.LogMessage(LogFileName, out_data, 8192);
+				if(false) { // @v11.3.6
+					if(LogFileName.NotEmpty()) {
+						(out_data = "Try to reset fatal state flags after 79/1").Space().CatHex((long)fatal_flags);
+						SLS.LogMessage(LogFileName, out_data, 8192);
+					}
+					THROW(StartWork(/*force*/true));
 				}
-				THROW(StartWork(/*force*/true));
 			}
 		}
 		// } @v11.3.2 
@@ -2246,7 +2263,15 @@ int PiritEquip::RunCheck(int opertype)
 					CreateStr(1, in_data); // Чек не отрезаем (только для сервисных документов)
 				else
 					CreateStr(0, in_data); // Чек отрезаем
-				CreateStr("", in_data); // @v10.1.9 Адрес покупателя
+				// Адрес покупателя {
+				// @v11.3.6 {
+				if(Check.BuyersPhone.NotEmptyS())
+					CreateStr(Check.BuyersPhone, in_data); 
+				else if(Check.BuyersEmail.NotEmptyS())
+					CreateStr(Check.BuyersEmail, in_data); 
+				else // } // @v11.3.6
+					CreateStr("", in_data); 
+				// } 
 				CreateStr(static_cast<int>(0), in_data); // @v10.1.9 (число) Разные флаги
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано
 				CreateStr("", in_data); // @v10.8.11 Зарезервировано

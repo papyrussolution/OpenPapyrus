@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -479,11 +478,10 @@ static const vector<const ModifierAndValue*> GetModifierForContext(TemplateConte
 // be in the same XssClass as the modifier we had.
 // For example :h:x-bla is not safe in HTML context because x-bla is
 // in a different XssClass as our :h whereas :h:j would be safe.
-static size_t FindLongestMatch(const vector<ModifierAndValue>& modvals_man,
-    const vector<const ModifierAndValue*>& modvals_auto) {
+static size_t FindLongestMatch(const vector<ModifierAndValue>& modvals_man, const vector<const ModifierAndValue*>& modvals_auto) 
+{
 	if(modvals_auto.empty())
 		return 0;
-
 	// See if modvals_auto is "consistent" with the modifiers that are
 	// already present (modvals_man).  This is true if all the
 	// modifiers in auto also occur in man, and any gaps between them
@@ -492,24 +490,17 @@ static size_t FindLongestMatch(const vector<ModifierAndValue>& modvals_man,
 	// If all of modvals_auto is not consistent, maybe a prefix of it
 	// is; that's better than nothing, since we only need to auto-apply
 	// the suffix that's not already in modvals_man.
-	typedef vector<const ModifierAndValue*>::const_reverse_iterator
-	    ModAutoIterator;
+	typedef vector<const ModifierAndValue*>::const_reverse_iterator ModAutoIterator;
 	typedef vector<ModifierAndValue>::const_reverse_iterator ModManIterator;
-	for(ModAutoIterator end_of_prefix = modvals_auto.rbegin();
-	    end_of_prefix != modvals_auto.rend();
-	    ++end_of_prefix) {
+	for(ModAutoIterator end_of_prefix = modvals_auto.rbegin(); end_of_prefix != modvals_auto.rend(); ++end_of_prefix) {
 		ModAutoIterator curr_auto = end_of_prefix;
 		ModManIterator curr_man = modvals_man.rbegin();
-		while(curr_auto != modvals_auto.rend() &&
-		    curr_man != modvals_man.rend()) {
-			if(IsSafeXSSAlternative(*(*curr_auto)->modifier_info,
-			    *curr_man->modifier_info)) {
+		while(curr_auto != modvals_auto.rend() && curr_man != modvals_man.rend()) {
+			if(IsSafeXSSAlternative(*(*curr_auto)->modifier_info, *curr_man->modifier_info)) {
 				++curr_auto;
 				++curr_man;
 			}
-			else if((curr_man->modifier_info->xss_class ==
-			    (*curr_auto)->modifier_info->xss_class) &&
-			    (curr_man->modifier_info->xss_class != XSS_UNIQUE)) {
+			else if((curr_man->modifier_info->xss_class == (*curr_auto)->modifier_info->xss_class) && (curr_man->modifier_info->xss_class != XSS_UNIQUE)) {
 				++curr_man; // Ignore this modifier: it's harmless.
 			}
 			else {
@@ -534,7 +525,6 @@ static size_t FindLongestMatch(const vector<ModifierAndValue>& modvals_man,
 static void WriteOneHeaderEntry(string * outstring, const string& variable, const string& full_pathname)
 LOCKS_EXCLUDED(g_header_mutex) {
 	MutexLock ml(&g_header_mutex);
-
 	// we use hash_map instead of hash_set just to keep the stl size down
 	static unordered_map<string, bool, StringHash> vars_seen
 	    GUARDED_BY(g_header_mutex);
@@ -545,13 +535,10 @@ LOCKS_EXCLUDED(g_header_mutex) {
 		// changed files so re-initialize the static variables
 		vars_seen.clear();
 		current_file = full_pathname;
-
 		// remove the path before the filename
 		string filename(Basename(full_pathname));
-
 		prefix = "k";
 		bool take_next = true;
-
 		for(string::size_type i = 0; i < filename.length(); i++) {
 			if(filename[i] == '.') {
 				// stop when we find the dot
@@ -2590,17 +2577,14 @@ bool Template::ExpandLocked(ExpandEmitter * expand_emitter, const TemplateDictio
 		// Remove the machine dependent prefix from the template file name.
 		const char* file = template_file();
 		const char* short_file = strstr(file, per_expand_data->annotate_path());
-		if(short_file != NULL) {
+		if(short_file)
 			file = short_file;
-		}
 		per_expand_data->annotator()->EmitOpenFile(expand_emitter, string(file));
 	}
-
 	// If the client registered an expand-modifier, which is a modifier
 	// meant to modify all templates after they are expanded, apply it
 	// now.
-	const TemplateModifier* modifier =
-	    per_expand_data->template_expansion_modifier();
+	const TemplateModifier* modifier = per_expand_data->template_expansion_modifier();
 	if(modifier && modifier->MightModify(per_expand_data, template_file())) {
 		// We found a expand TemplateModifier.  Apply it.
 		//
@@ -2623,10 +2607,9 @@ bool Template::ExpandLocked(ExpandEmitter * expand_emitter, const TemplateDictio
 	return error_free;
 }
 
-bool Template::ExpandWithDataAndCache(ExpandEmitter * expand_emitter,
-    const TemplateDictionaryInterface * dict,
-    PerExpandData * per_expand_data,
-    const TemplateCache * cache) const LOCKS_EXCLUDED(g_template_mutex) {
+bool Template::ExpandWithDataAndCache(ExpandEmitter * expand_emitter, const TemplateDictionaryInterface * dict, 
+	PerExpandData * per_expand_data, const TemplateCache * cache) const LOCKS_EXCLUDED(g_template_mutex) 
+{
 	// We hold g_template_mutex the entire time we expand, because
 	// ReloadIfChanged(), which also holds template_mutex, is allowed to
 	// delete tree_, and we want to make sure it doesn't do that (in another

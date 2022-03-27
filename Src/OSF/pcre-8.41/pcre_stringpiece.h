@@ -170,7 +170,7 @@ public:
 // ------------------------------------------------------------------
 
 #ifdef HAVE_TYPE_TRAITS
-// This makes vector<StringPiece> really fast for some STL implementations
+// This makes vector <StringPiece> really fast for some STL implementations
 template <> struct __type_traits<pcrecpp::StringPiece> {
 	typedef __true_type has_trivial_default_constructor;
 	typedef __true_type has_trivial_copy_constructor;

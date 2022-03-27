@@ -44,19 +44,14 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_uuencode * state;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_add_filter_uu");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	state = (struct private_uuencode *)SAlloc::C(1, sizeof(*state));
 	if(state == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for uuencode filter");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for uuencode filter");
 		return ARCHIVE_FATAL;
 	}
 	archive_strcpy(&state->name, "-");
 	state->mode = 0644;
-
 	f->data = state;
 	f->name = "uuencode";
 	f->code = ARCHIVE_FILTER_UU;
@@ -65,37 +60,30 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 	f->write = archive_filter_uuencode_write;
 	f->close = archive_filter_uuencode_close;
 	f->free = archive_filter_uuencode_free;
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Set write options.
  */
-static int archive_filter_uuencode_options(struct archive_write_filter * f, const char * key,
-    const char * value)
+static int archive_filter_uuencode_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_uuencode * state = (struct private_uuencode *)f->data;
-
-	if(strcmp(key, "mode") == 0) {
+	if(sstreq(key, "mode")) {
 		if(value == NULL) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			    "mode option requires octal digits");
+			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "mode option requires octal digits");
 			return ARCHIVE_FAILED;
 		}
 		state->mode = (int)atol8(value, strlen(value)) & 0777;
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "name") == 0) {
+	else if(sstreq(key, "name")) {
 		if(value == NULL) {
-			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC,
-			    "name option requires a string");
+			archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "name option requires a string");
 			return ARCHIVE_FAILED;
 		}
 		archive_strcpy(&state->name, value);
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */

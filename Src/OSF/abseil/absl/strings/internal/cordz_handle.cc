@@ -27,7 +27,7 @@ CordzHandle::CordzHandle(bool is_snapshot) : is_snapshot_(is_snapshot) {
 CordzHandle::~CordzHandle() {
 	ODRCheck();
 	if(is_snapshot_) {
-		std::vector<CordzHandle*> to_delete;
+		std::vector <CordzHandle*> to_delete;
 		{
 			SpinLockHolder lock(&queue_->mutex);
 			CordzHandle* next = dq_next_;
@@ -79,8 +79,8 @@ void CordzHandle::Delete(CordzHandle* handle) {
 	}
 }
 
-std::vector<const CordzHandle*> CordzHandle::DiagnosticsGetDeleteQueue() {
-	std::vector<const CordzHandle*> handles;
+std::vector <const CordzHandle*> CordzHandle::DiagnosticsGetDeleteQueue() {
+	std::vector <const CordzHandle*> handles;
 	SpinLockHolder lock(&global_queue_.mutex);
 	CordzHandle* dq_tail = global_queue_.dq_tail.load(std::memory_order_acquire);
 	for(const CordzHandle* p = dq_tail; p; p = p->dq_prev_) {
@@ -104,9 +104,9 @@ bool CordzHandle::DiagnosticsHandleIsSafeToInspect(const CordzHandle* handle) co
 	return true;
 }
 
-std::vector<const CordzHandle*>CordzHandle::DiagnosticsGetSafeToInspectDeletedHandles() {
+std::vector <const CordzHandle*>CordzHandle::DiagnosticsGetSafeToInspectDeletedHandles() {
 	ODRCheck();
-	std::vector<const CordzHandle*> handles;
+	std::vector <const CordzHandle*> handles;
 	if(!is_snapshot()) {
 		return handles;
 	}

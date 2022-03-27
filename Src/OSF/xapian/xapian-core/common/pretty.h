@@ -255,7 +255,7 @@ operator<<(PrettyOStream<S> &ps, const std::map<K, V> & m) {
 
 template<class S, typename T>
 inline PrettyOStream<S> &
-operator<<(PrettyOStream<S> &ps, const std::vector<T> & v) {
+operator<<(PrettyOStream<S> &ps, const std::vector <T> & v) {
     ps.os << "std::vector(" << v.size() << ')';
     // FIXME: could show first up to N elements.
     return ps;

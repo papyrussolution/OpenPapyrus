@@ -57,7 +57,7 @@ class CordzHandle {
   static void Delete(CordzHandle* handle);
 
   // Returns the current entries in the delete queue in LIFO order.
-  static std::vector<const CordzHandle*> DiagnosticsGetDeleteQueue();
+  static std::vector <const CordzHandle*> DiagnosticsGetDeleteQueue();
 
   // Returns true if the provided handle is nullptr or guarded by this handle.
   // Since the CordzSnapshot token is itself a CordzHandle, this method will
@@ -72,7 +72,7 @@ class CordzHandle {
   // included in the return vector. For each of the handles in the return
   // vector, the earliest that their memory can be freed is when this
   // CordzSnapshot object is deleted.
-  std::vector<const CordzHandle*> DiagnosticsGetSafeToInspectDeletedHandles();
+  std::vector <const CordzHandle*> DiagnosticsGetSafeToInspectDeletedHandles();
 
  protected:
   explicit CordzHandle(bool is_snapshot);

@@ -6,18 +6,13 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <npp-internal.h>
 #pragma hdrstop
 
-typedef std::vector<generic_string> ParamVector;
+typedef std::vector <generic_string> ParamVector;
 
 namespace {
 void allowWmCopydataMessages(Notepad_plus_Window& notepad_plus_plus, const NppParameters& nppParameters, winVer ver)
@@ -70,7 +65,7 @@ void parseCommandLine(const TCHAR* commandLine, ParamVector& paramVector)
 		bool isStringInArg = false;
 		bool isInWhiteSpace = true;
 		size_t commandLength = lstrlen(cmdLinePtr);
-		std::vector<TCHAR *> args;
+		std::vector <TCHAR *> args;
 		for(size_t i = 0; i < commandLength; ++i) {
 			switch(cmdLinePtr[i]) {
 				case '\"': //quoted filename, ignore any following whitespace

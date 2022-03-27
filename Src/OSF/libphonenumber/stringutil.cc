@@ -48,7 +48,7 @@ size_t FindNth(const string & s, char c, int n)
 	return pos;
 }
 
-void SplitStringUsing(const string & s, const string & delimiter, vector<string>* result) 
+void SplitStringUsing(const string & s, const string & delimiter, vector <string>* result) 
 {
 	assert(result);
 	size_t start_pos = 0;

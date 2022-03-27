@@ -46,7 +46,7 @@ void ListView::destroy()
 	_hSelf = NULL;
 }
 
-void ListView::addLine(const vector<generic_string> & values2Add, LPARAM lParam, int pos2insert)
+void ListView::addLine(const vector <generic_string> & values2Add, LPARAM lParam, int pos2insert)
 {
 	if(!values2Add.size())
 		return;
@@ -114,9 +114,9 @@ LPARAM ListView::getLParamFromIndex(int itemIndex) const
 	return item.lParam;
 }
 
-std::vector<size_t> ListView::getCheckedIndexes() const
+std::vector <size_t> ListView::getCheckedIndexes() const
 {
-	vector<size_t> checkedIndexes;
+	vector <size_t> checkedIndexes;
 	size_t nbItem = ListView_GetItemCount(_hSelf);
 	for(size_t i = 0; i < nbItem; ++i) {
 		UINT st = ListView_GetItemState(_hSelf, i, LVIS_STATEIMAGEMASK);

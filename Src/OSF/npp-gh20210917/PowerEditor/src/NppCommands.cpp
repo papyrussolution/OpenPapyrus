@@ -32,11 +32,11 @@ public:
 		::_free_locale(_usLocale);
 #endif
 	}
-	std::vector<generic_string> sort(std::vector<generic_string> lines) override
+	std::vector <generic_string> sort(std::vector <generic_string> lines) override
 	{
 		// Note that empty lines are filtered out and added back manually to the output at the end.
-		std::vector<std::pair<size_t, T_Num> > nonEmptyInputAsNumbers;
-		std::vector<generic_string> empties;
+		std::vector <std::pair<size_t, T_Num> > nonEmptyInputAsNumbers;
+		std::vector <generic_string> empties;
 		nonEmptyInputAsNumbers.reserve(lines.size());
 		for(size_t lineIndex = 0; lineIndex < lines.size(); ++lineIndex) {
 			const generic_string originalLine = lines[lineIndex];
@@ -58,7 +58,7 @@ public:
 		const bool descending = isDescending();
 		std::sort(nonEmptyInputAsNumbers.begin(), nonEmptyInputAsNumbers.end(), [descending](std::pair<size_t, T_Num> a, std::pair<size_t, T_Num> b)
 			{ return descending ? (a.second > b.second) : (a.second < b.second); });
-		std::vector<generic_string> output;
+		std::vector <generic_string> output;
 		output.reserve(lines.size());
 		if(!isDescending()) {
 			output.insert(output.end(), empties.begin(), empties.end());
@@ -211,7 +211,7 @@ void Notepad_plus::command(int id)
 		    if(!_pFileBrowser) {
 			    command(IDM_VIEW_FILEBROWSER);
 		    }
-		    vector<generic_string> folders;
+		    vector <generic_string> folders;
 		    folders.push_back(currentDir);
 		    launchFileBrowser(folders, currentFile);
 	    }
@@ -247,7 +247,7 @@ void Notepad_plus::command(int id)
 				folderBrowser(_pPublicInterface->getHSelf(), TEXT("Select a folder to add in Folder as Workspace panel"));
 				if(!folderPath.empty()) {
 					if(_pFileBrowser == nullptr) {    // first launch, check in params to open folders
-						vector<generic_string> dummy;
+						vector <generic_string> dummy;
 						generic_string emptyStr;
 						launchFileBrowser(dummy, emptyStr);
 						if(_pFileBrowser != nullptr) {
@@ -274,7 +274,7 @@ void Notepad_plus::command(int id)
 		case IDM_DOCLIST_FILESCLOSE:
 		case IDM_DOCLIST_FILESCLOSEOTHERS:
 		    if(_pDocumentListPanel) {
-			    vector<SwitcherFileInfo> files = _pDocumentListPanel->getSelectedFiles(id == IDM_DOCLIST_FILESCLOSEOTHERS);
+			    vector <SwitcherFileInfo> files = _pDocumentListPanel->getSelectedFiles(id == IDM_DOCLIST_FILESCLOSEOTHERS);
 			    for(size_t i = 0, len = files.size(); i < len; ++i) {
 				    fileClose((BufferID)files[i]._bufID, files[i]._iView);
 			    }
@@ -784,7 +784,7 @@ void Notepad_plus::command(int id)
 				    _toolBar.setCheck(IDM_VIEW_FILEBROWSER, false);
 			    }
 			    else {
-				    vector<generic_string> dummy;
+				    vector <generic_string> dummy;
 				    generic_string emptyStr;
 				    launchFileBrowser(dummy, emptyStr);
 				    checkMenuItem(IDM_VIEW_FILEBROWSER, true);
@@ -2433,7 +2433,7 @@ void Notepad_plus::command(int id)
 		    // Copy plugins to Plugins Home
 		    const TCHAR * extFilterName = TEXT("Notepad++ plugin");
 		    const TCHAR * extFilter = TEXT(".dll");
-		    vector<generic_string> copiedFiles = addNppPlugins(extFilterName, extFilter);
+		    vector <generic_string> copiedFiles = addNppPlugins(extFilterName, extFilter);
 
 		    // Tell users to restart Notepad++ to load plugin
 		    if(copiedFiles.size()) {
@@ -2458,7 +2458,7 @@ void Notepad_plus::command(int id)
 		    NppParameters& nppParams = NppParameters::getInstance();
 		    ThemeSwitcher & themeSwitcher = nppParams.getThemeSwitcher();
 
-		    vector<generic_string> copiedFiles = addNppComponents(destDir, extFilterName, extFilter);
+		    vector <generic_string> copiedFiles = addNppComponents(destDir, extFilterName, extFilter);
 		    for(size_t i = 0, len = copiedFiles.size(); i < len; ++i) {
 			    generic_string themeName(themeSwitcher.getThemeFromXmlFileName(copiedFiles[i].c_str()));
 			    if(!themeSwitcher.themeNameExists(themeName.c_str())) {
@@ -3092,12 +3092,12 @@ void Notepad_plus::command(int id)
 		    }
 		    else if((id >= ID_MACRO) && (id < ID_MACRO_LIMIT)) {
 			    int i = id - ID_MACRO;
-			    vector<MacroShortcut> & theMacros = (NppParameters::getInstance()).getMacroList();
+			    vector <MacroShortcut> & theMacros = (NppParameters::getInstance()).getMacroList();
 			    macroPlayback(theMacros[i].getMacro());
 		    }
 		    else if((id >= ID_USER_CMD) && (id < ID_USER_CMD_LIMIT)) {
 			    int i = id - ID_USER_CMD;
-			    vector<UserCommand> & theUserCommands = (NppParameters::getInstance()).getUserCommandList();
+			    vector <UserCommand> & theUserCommands = (NppParameters::getInstance()).getUserCommandList();
 			    UserCommand ucmd = theUserCommands[i];
 
 			    Command cmd(ucmd.getCmd());

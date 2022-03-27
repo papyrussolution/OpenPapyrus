@@ -121,7 +121,7 @@ bool AbslParseFlag(absl::string_view text, std::string* dst, std::string*) {
 // --------------------------------------------------------------------
 // AbslParseFlag for vector of strings.
 
-bool AbslParseFlag(absl::string_view text, std::vector<std::string>* dst,
+bool AbslParseFlag(absl::string_view text, std::vector <std::string>* dst,
     std::string*) {
 	// An empty flag value corresponds to an empty vector, not a vector
 	// with a single, empty std::string.
@@ -204,7 +204,7 @@ std::string AbslUnparseFlag(absl::string_view v) {
 	return std::string(v);
 }
 
-std::string AbslUnparseFlag(const std::vector<std::string>& v) {
+std::string AbslUnparseFlag(const std::vector <std::string>& v) {
 	return absl::StrJoin(v, ",");
 }
 }  // namespace flags_internal

@@ -53,8 +53,8 @@ void RecordMessageNames(const FileDescriptorProto& file_proto,
 
 template <typename Fn>
 bool ForAllFileProtos(DescriptorDatabase* db, Fn callback,
-    std::vector<std::string>* output) {
-	std::vector<std::string> file_names;
+    std::vector <std::string>* output) {
+	std::vector <std::string> file_names;
 	if(!db->FindAllFileNames(&file_names)) {
 		return false;
 	}
@@ -76,7 +76,7 @@ bool ForAllFileProtos(DescriptorDatabase* db, Fn callback,
 DescriptorDatabase::~DescriptorDatabase() {
 }
 
-bool DescriptorDatabase::FindAllPackageNames(std::vector<std::string>* output) {
+bool DescriptorDatabase::FindAllPackageNames(std::vector <std::string>* output) {
 	return ForAllFileProtos(
 		this,
 		[](const FileDescriptorProto& file_proto, std::set<std::string>* set) {
@@ -85,7 +85,7 @@ bool DescriptorDatabase::FindAllPackageNames(std::vector<std::string>* output) {
 		output);
 }
 
-bool DescriptorDatabase::FindAllMessageNames(std::vector<std::string>* output) {
+bool DescriptorDatabase::FindAllMessageNames(std::vector <std::string>* output) {
 	return ForAllFileProtos(
 		this,
 		[](const FileDescriptorProto& file_proto, std::set<std::string>* set) {
@@ -292,7 +292,7 @@ Value SimpleDescriptorDatabase::DescriptorIndex<Value>::FindExtension(const std:
 
 template <typename Value>
 bool SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllExtensionNumbers(const std::string & containing_type,
-    std::vector<int>* output) {
+    std::vector <int>* output) {
 	typename std::map<std::pair<std::string, int>, Value>::const_iterator it =
 	    by_extension_.lower_bound(std::make_pair(containing_type, 0));
 	bool success = false;
@@ -307,7 +307,7 @@ bool SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllExtensionNumbers(c
 }
 
 template <typename Value>
-void SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllFileNames(std::vector<std::string>* output) {
+void SimpleDescriptorDatabase::DescriptorIndex<Value>::FindAllFileNames(std::vector <std::string>* output) {
 	output->resize(by_name_.size());
 	int i = 0;
 	for(const auto& kv : by_name_) {
@@ -343,11 +343,11 @@ bool SimpleDescriptorDatabase::FindFileContainingExtension(const std::string & c
 	return MaybeCopy(index_.FindExtension(containing_type, field_number), output);
 }
 
-bool SimpleDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
+bool SimpleDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector <int>* output) {
 	return index_.FindAllExtensionNumbers(extendee_type, output);
 }
 
-bool SimpleDescriptorDatabase::FindAllFileNames(std::vector<std::string>* output) {
+bool SimpleDescriptorDatabase::FindAllFileNames(std::vector <std::string>* output) {
 	index_.FindAllFileNames(output);
 	return true;
 }
@@ -374,8 +374,8 @@ public:
 	Value FindSymbolOnlyFlat(StringPiece name) const;
 	Value FindExtension(StringPiece containing_type, int field_number);
 	bool FindAllExtensionNumbers(StringPiece containing_type,
-	    std::vector<int>* output);
-	void FindAllFileNames(std::vector<std::string>* output) const;
+	    std::vector <int>* output);
+	void FindAllFileNames(std::vector <std::string>* output) const;
 
 private:
 	friend class EncodedDescriptorDatabase;
@@ -390,7 +390,7 @@ private:
 
 	// All the maps below have two representations:
 	//  - a std::set<> where we insert initially.
-	//  - a std::vector<> where we flatten the structure on demand.
+	//  - a std::vector <> where we flatten the structure on demand.
 	// The initial tree helps avoid O(N) behavior of inserting into a sorted
 	// vector, while the vector reduces the heap requirements of the data
 	// structure.
@@ -419,7 +419,7 @@ private:
 		}
 	};
 
-	std::vector<EncodedEntry> all_values_;
+	std::vector <EncodedEntry> all_values_;
 
 	struct FileEntry {
 		int data_offset;
@@ -447,7 +447,7 @@ private:
 	};
 
 	std::set<FileEntry, FileCompare> by_name_{FileCompare{*this}};
-	std::vector<FileEntry> by_name_flat_;
+	std::vector <FileEntry> by_name_flat_;
 
 	struct SymbolEntry {
 		int data_offset;
@@ -509,7 +509,7 @@ private:
 	};
 
 	std::set<SymbolEntry, SymbolCompare> by_symbol_{SymbolCompare{*this}};
-	std::vector<SymbolEntry> by_symbol_flat_;
+	std::vector <SymbolEntry> by_symbol_flat_;
 
 	struct ExtensionEntry {
 		int data_offset;
@@ -543,7 +543,7 @@ private:
 	std::set<ExtensionEntry, ExtensionCompare> by_extension_{
 		ExtensionCompare{*this}
 	};
-	std::vector<ExtensionEntry> by_extension_flat_;
+	std::vector <ExtensionEntry> by_extension_flat_;
 };
 
 bool EncodedDescriptorDatabase::Add(const void* encoded_file_descriptor,
@@ -610,7 +610,7 @@ bool EncodedDescriptorDatabase::FindFileContainingExtension(const std::string & 
 		   output);
 }
 
-bool EncodedDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
+bool EncodedDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector <int>* output) {
 	return index_->FindAllExtensionNumbers(extendee_type, output);
 }
 
@@ -793,9 +793,9 @@ EncodedDescriptorDatabase::DescriptorIndex::FindExtension(
 }
 
 template <typename T, typename Less>
-static void MergeIntoFlat(std::set<T, Less>* s, std::vector<T>* flat) {
+static void MergeIntoFlat(std::set<T, Less>* s, std::vector <T>* flat) {
 	if(s->empty()) return;
-	std::vector<T> new_flat(s->size() + flat->size());
+	std::vector <T> new_flat(s->size() + flat->size());
 	std::merge(s->begin(), s->end(), flat->begin(), flat->end(), &new_flat[0],
 	    s->key_comp());
 	*flat = std::move(new_flat);
@@ -810,7 +810,7 @@ void EncodedDescriptorDatabase::DescriptorIndex::EnsureFlat() {
 	MergeIntoFlat(&by_extension_, &by_extension_flat_);
 }
 
-bool EncodedDescriptorDatabase::DescriptorIndex::FindAllExtensionNumbers(StringPiece containing_type, std::vector<int>* output) {
+bool EncodedDescriptorDatabase::DescriptorIndex::FindAllExtensionNumbers(StringPiece containing_type, std::vector <int>* output) {
 	EnsureFlat();
 
 	bool success = false;
@@ -827,7 +827,7 @@ bool EncodedDescriptorDatabase::DescriptorIndex::FindAllExtensionNumbers(StringP
 	return success;
 }
 
-void EncodedDescriptorDatabase::DescriptorIndex::FindAllFileNames(std::vector<std::string>* output) const {
+void EncodedDescriptorDatabase::DescriptorIndex::FindAllFileNames(std::vector <std::string>* output) const {
 	output->resize(by_name_.size() + by_name_flat_.size());
 	int i = 0;
 	for(const auto& entry : by_name_) {
@@ -852,7 +852,7 @@ EncodedDescriptorDatabase::DescriptorIndex::FindFile(
 	       : all_values_[it->data_offset].value();
 }
 
-bool EncodedDescriptorDatabase::FindAllFileNames(std::vector<std::string>* output) {
+bool EncodedDescriptorDatabase::FindAllFileNames(std::vector <std::string>* output) {
 	index_->FindAllFileNames(output);
 	return true;
 }
@@ -912,11 +912,11 @@ bool DescriptorPoolDatabase::FindFileContainingExtension(const std::string & con
 	return true;
 }
 
-bool DescriptorPoolDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
+bool DescriptorPoolDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector <int>* output) {
 	const Descriptor* extendee = pool_.FindMessageTypeByName(extendee_type);
 	if(extendee == nullptr) return false;
 
-	std::vector<const FieldDescriptor*> extensions;
+	std::vector <const FieldDescriptor*> extensions;
 	pool_.FindAllExtensions(extendee, &extensions);
 
 	for(const FieldDescriptor* extension : extensions) {
@@ -933,7 +933,7 @@ MergedDescriptorDatabase::MergedDescriptorDatabase(DescriptorDatabase* source1, 
 	sources_.push_back(source2);
 }
 
-MergedDescriptorDatabase::MergedDescriptorDatabase(const std::vector<DescriptorDatabase*>& sources)
+MergedDescriptorDatabase::MergedDescriptorDatabase(const std::vector <DescriptorDatabase*>& sources)
 	: sources_(sources) {
 }
 
@@ -992,9 +992,9 @@ bool MergedDescriptorDatabase::FindFileContainingExtension(const std::string & c
 	return false;
 }
 
-bool MergedDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector<int>* output) {
+bool MergedDescriptorDatabase::FindAllExtensionNumbers(const std::string & extendee_type, std::vector <int>* output) {
 	std::set<int> merged_results;
-	std::vector<int> results;
+	std::vector <int> results;
 	bool success = false;
 
 	for(DescriptorDatabase* source : sources_) {
@@ -1008,7 +1008,7 @@ bool MergedDescriptorDatabase::FindAllExtensionNumbers(const std::string & exten
 	}
 
 	std::copy(merged_results.begin(), merged_results.end(),
-	    std::insert_iterator<std::vector<int> >(*output, output->end()));
+	    std::insert_iterator<std::vector <int> >(*output, output->end()));
 
 	return success;
 }

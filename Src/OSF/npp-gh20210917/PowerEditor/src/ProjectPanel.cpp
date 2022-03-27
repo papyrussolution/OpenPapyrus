@@ -529,8 +529,8 @@ void ProjectPanel::buildProjectXml(TiXmlNode * node, HTREEITEM hItem, const TCHA
 }
 
 bool ProjectPanel::enumWorkSpaceFiles(HTREEITEM tvFrom,
-    const std::vector<generic_string> & patterns,
-    std::vector<generic_string> & fileNames)
+    const std::vector <generic_string> & patterns,
+    std::vector <generic_string> & fileNames)
 {
 	TCHAR textBuffer[MAX_PATH];
 	TVITEM tvItem;
@@ -1280,7 +1280,7 @@ void ProjectPanel::recursiveAddFilesFrom(const TCHAR * folderPath, HTREEITEM hTr
 
 	dirFilter += TEXT("*.*");
 	WIN32_FIND_DATA foundData;
-	std::vector<generic_string> files;
+	std::vector <generic_string> files;
 
 	HANDLE hFile = ::FindFirstFile(dirFilter.c_str(), &foundData);
 

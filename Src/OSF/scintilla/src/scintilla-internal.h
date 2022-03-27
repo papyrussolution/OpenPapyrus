@@ -1814,7 +1814,7 @@ private:
 	Range lineRange;
 	int posLineStart;
 	int nextBreak;
-	std::vector<int> selAndEdge;
+	std::vector <int> selAndEdge;
 	uint saeCurrentPos;
 	int saeNext;
 	int subBreak;
@@ -1916,7 +1916,7 @@ public:
 private:
 	ColourDesired ColourFromCode(int ch) const;
 	void FillRun(SciSurface *surface, int code, int startX, int y, int x) const;
-	static std::vector<const char *>LinesFormFromTextForm(const char *textForm);
+	static std::vector <const char *>LinesFormFromTextForm(const char *textForm);
 
 	std::vector <uchar> Pixels; // @firstmember
 	int    height;
@@ -3372,7 +3372,7 @@ template <typename T> class SparseState {
 		T      value;
 	};
 	int positionFirst;
-	typedef std::vector<State> stateVector;
+	typedef std::vector <State> stateVector;
 	stateVector states;
 
 	typename stateVector::iterator Find(int position)

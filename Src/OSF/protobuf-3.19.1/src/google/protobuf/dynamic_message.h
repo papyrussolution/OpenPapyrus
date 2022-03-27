@@ -126,10 +126,10 @@ private:
 // Helper for computing a sorted list of map entries via reflection.
 class PROTOBUF_EXPORT DynamicMapSorter {
 public:
-	static std::vector<const Message*> Sort(const Message& message, int map_size,
+	static std::vector <const Message*> Sort(const Message& message, int map_size,
 	    const Reflection* reflection,
 	    const FieldDescriptor* field) {
-		std::vector<const Message*> result;
+		std::vector <const Message*> result;
 		result.reserve(map_size);
 		RepeatedFieldRef<Message> map_field =
 		    reflection->GetRepeatedFieldRef<Message>(message, field);

@@ -535,7 +535,7 @@ public:
  *  This clusterer implements the K-Means clustering algorithm
  */
 class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
-	std::vector<Point> points; /// Contains the initialised points that are to be clustered
+	std::vector <Point> points; /// Contains the initialised points that are to be clustered
 	unsigned int k; /// Specifies that the clusterer needs to form 'k' clusters
 	unsigned int max_iters; /// Specifies the maximum number of iterations that KMeans will have
 	Xapian::Internal::opt_intrusive_ptr<const Xapian::Stopper> stopper; /// Pointer to stopper object for identifying stopwords

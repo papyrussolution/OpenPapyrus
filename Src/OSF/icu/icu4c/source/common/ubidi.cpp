@@ -1,21 +1,12 @@
+// ubidi.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1999-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ubidi.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 1999jul27
- *   created by: Markus W. Scherer, updated by Matitiahu Allouche
- *
- */
+// Copyright (C) 1999-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// 
+// encoding:   UTF-8
+// created on: 1999jul27
+// created by: Markus W. Scherer, updated by Matitiahu Allouche
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ubidi.h"
@@ -263,21 +254,17 @@ U_CAPI void U_EXPORT2 ubidi_close(UBiDi * pBiDi)
 
 /* set to approximate "inverse BiDi" ---------------------------------------- */
 
-U_CAPI void U_EXPORT2 ubidi_setInverse(UBiDi * pBiDi, bool isInverse) {
-	if(pBiDi!=NULL) {
+U_CAPI void U_EXPORT2 ubidi_setInverse(UBiDi * pBiDi, bool isInverse) 
+{
+	if(pBiDi) {
 		pBiDi->isInverse = isInverse;
-		pBiDi->reorderingMode = isInverse ? UBIDI_REORDER_INVERSE_NUMBERS_AS_L
-		    : UBIDI_REORDER_DEFAULT;
+		pBiDi->reorderingMode = isInverse ? UBIDI_REORDER_INVERSE_NUMBERS_AS_L : UBIDI_REORDER_DEFAULT;
 	}
 }
 
-U_CAPI bool U_EXPORT2 ubidi_isInverse(UBiDi * pBiDi) {
-	if(pBiDi!=NULL) {
-		return pBiDi->isInverse;
-	}
-	else {
-		return FALSE;
-	}
+U_CAPI bool U_EXPORT2 ubidi_isInverse(UBiDi * pBiDi) 
+{
+	return pBiDi ? pBiDi->isInverse : FALSE;
 }
 
 /* FOOD FOR THOUGHT: currently the reordering modes are a mixture of
@@ -295,55 +282,44 @@ U_CAPI bool U_EXPORT2 ubidi_isInverse(UBiDi * pBiDi) {
  * This would need to document which ones are supported and what are the
  * fallbacks for unsupported combinations.
  */
-U_CAPI void U_EXPORT2 ubidi_setReorderingMode(UBiDi * pBiDi, UBiDiReorderingMode reorderingMode) {
-	if((pBiDi!=NULL) && (reorderingMode >= UBIDI_REORDER_DEFAULT)
-	 && (reorderingMode < UBIDI_REORDER_COUNT)) {
+U_CAPI void U_EXPORT2 ubidi_setReorderingMode(UBiDi * pBiDi, UBiDiReorderingMode reorderingMode) 
+{
+	if((pBiDi!=NULL) && (reorderingMode >= UBIDI_REORDER_DEFAULT) && (reorderingMode < UBIDI_REORDER_COUNT)) {
 		pBiDi->reorderingMode = reorderingMode;
 		pBiDi->isInverse = (bool)(reorderingMode == UBIDI_REORDER_INVERSE_NUMBERS_AS_L);
 	}
 }
 
-U_CAPI UBiDiReorderingMode U_EXPORT2 ubidi_getReorderingMode(UBiDi * pBiDi) {
-	if(pBiDi!=NULL) {
-		return pBiDi->reorderingMode;
-	}
-	else {
-		return UBIDI_REORDER_DEFAULT;
-	}
+U_CAPI UBiDiReorderingMode U_EXPORT2 ubidi_getReorderingMode(UBiDi * pBiDi) 
+{
+	return pBiDi ? pBiDi->reorderingMode : UBIDI_REORDER_DEFAULT;
 }
 
-U_CAPI void U_EXPORT2 ubidi_setReorderingOptions(UBiDi * pBiDi, uint32_t reorderingOptions) {
+U_CAPI void U_EXPORT2 ubidi_setReorderingOptions(UBiDi * pBiDi, uint32_t reorderingOptions) 
+{
 	if(reorderingOptions & UBIDI_OPTION_REMOVE_CONTROLS) {
 		reorderingOptions &= ~UBIDI_OPTION_INSERT_MARKS;
 	}
-	if(pBiDi!=NULL) {
+	if(pBiDi)
 		pBiDi->reorderingOptions = reorderingOptions;
-	}
 }
 
-U_CAPI uint32_t U_EXPORT2 ubidi_getReorderingOptions(UBiDi * pBiDi) {
-	if(pBiDi!=NULL) {
-		return pBiDi->reorderingOptions;
-	}
-	else {
-		return 0;
-	}
+U_CAPI uint32_t U_EXPORT2 ubidi_getReorderingOptions(UBiDi * pBiDi) 
+{
+	return pBiDi ? pBiDi->reorderingOptions : 0;
 }
 
-U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const UChar * text,
-    int32_t length) {
+U_CAPI UBiDiDirection U_EXPORT2 ubidi_getBaseDirection(const UChar * text, int32_t length) 
+{
 	int32_t i;
 	UChar32 uchar;
 	UCharDirection dir;
-
 	if(text==NULL || length<-1) {
 		return UBIDI_NEUTRAL;
 	}
-
 	if(length==-1) {
 		length = u_strlen(text);
 	}
-
 	for(i = 0; i < length;) {
 		/* i is incremented by U16_NEXT */
 		U16_NEXT(text, i, length, uchar);
@@ -390,7 +366,8 @@ static DirProp firstL_R_AL(UBiDi * pBiDi) {
 /*
  * Check that there are enough entries in the array pointed to by pBiDi->paras
  */
-static bool checkParaCount(UBiDi * pBiDi) {
+static bool checkParaCount(UBiDi * pBiDi) 
+{
 	int32_t count = pBiDi->paraCount;
 	if(pBiDi->paras==pBiDi->simpleParas) {
 		if(count<=SIMPLE_PARAS_COUNT)
@@ -415,10 +392,10 @@ static bool checkParaCount(UBiDi * pBiDi) {
  * default. Only if a strong R or AL is found within its scope will the LRI be
  * replaced by an RLI.
  */
-static bool getDirProps(UBiDi * pBiDi) {
+static bool getDirProps(UBiDi * pBiDi) 
+{
 	const UChar * text = pBiDi->text;
 	DirProp * dirProps = pBiDi->dirPropsMemory; /* pBiDi->dirProps is const */
-
 	int32_t i = 0, originalLength = pBiDi->originalLength;
 	Flags flags = 0; /* collect all directionalities in the text */
 	UChar32 uchar;
@@ -1058,25 +1035,22 @@ static UBiDiDirection directionFromFlags(UBiDi * pBiDi)
  * Returns normally the direction; -1 if there was a memory shortage
  *
  */
-static UBiDiDirection resolveExplicitLevels(UBiDi * pBiDi, UErrorCode * pErrorCode) {
+static UBiDiDirection resolveExplicitLevels(UBiDi * pBiDi, UErrorCode * pErrorCode) 
+{
 	DirProp * dirProps = pBiDi->dirProps;
 	UBiDiLevel * levels = pBiDi->levels;
 	const UChar * text = pBiDi->text;
-
 	int32_t i = 0, length = pBiDi->length;
 	Flags flags = pBiDi->flags; /* collect all directionalities in the text */
 	DirProp dirProp;
 	UBiDiLevel level = GET_PARALEVEL(pBiDi, 0);
 	UBiDiDirection direction;
 	pBiDi->isolateCount = 0;
-
 	if(U_FAILURE(*pErrorCode)) {
 		return UBIDI_LTR;
 	}
-
 	/* determine if the text is mixed-directional or single-directional */
 	direction = directionFromFlags(pBiDi);
-
 	/* we may not need to resolve any explicit levels */
 	if((direction!=UBIDI_MIXED)) {
 		/* not mixed directionality: levels don't matter - trailingWSStart will be 0 */
@@ -1822,7 +1796,6 @@ static void addPoint(UBiDi * pBiDi, int32_t pos, int32_t flag)
 #define FIRSTALLOC  10
 	Point point;
 	InsertPoints * pInsertPoints = &(pBiDi->insertPoints);
-
 	if(pInsertPoints->capacity == 0) {
 		pInsertPoints->points = static_cast<Point *>(uprv_malloc(sizeof(Point)*FIRSTALLOC));
 		if(pInsertPoints->points == NULL) {
@@ -2717,37 +2690,27 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 		  *  Choose the right implicit state table
 		     */
 		    switch(pBiDi->reorderingMode) {
-			    case UBIDI_REORDER_DEFAULT:
-				pBiDi->pImpTabPair = &impTab_DEFAULT;
-				break;
-			    case UBIDI_REORDER_NUMBERS_SPECIAL:
-				pBiDi->pImpTabPair = &impTab_NUMBERS_SPECIAL;
-				break;
-			    case UBIDI_REORDER_GROUP_NUMBERS_WITH_R:
-				pBiDi->pImpTabPair = &impTab_GROUP_NUMBERS_WITH_R;
-				break;
-			    case UBIDI_REORDER_INVERSE_NUMBERS_AS_L:
-				pBiDi->pImpTabPair = &impTab_INVERSE_NUMBERS_AS_L;
-				break;
+			    case UBIDI_REORDER_DEFAULT: pBiDi->pImpTabPair = &impTab_DEFAULT; break;
+			    case UBIDI_REORDER_NUMBERS_SPECIAL: pBiDi->pImpTabPair = &impTab_NUMBERS_SPECIAL; break;
+			    case UBIDI_REORDER_GROUP_NUMBERS_WITH_R: pBiDi->pImpTabPair = &impTab_GROUP_NUMBERS_WITH_R; break;
+			    case UBIDI_REORDER_INVERSE_NUMBERS_AS_L: pBiDi->pImpTabPair = &impTab_INVERSE_NUMBERS_AS_L; break;
 			    case UBIDI_REORDER_INVERSE_LIKE_DIRECT:
-				if(pBiDi->reorderingOptions & UBIDI_OPTION_INSERT_MARKS) {
-					pBiDi->pImpTabPair = &impTab_INVERSE_LIKE_DIRECT_WITH_MARKS;
-				}
-				else {
-					pBiDi->pImpTabPair = &impTab_INVERSE_LIKE_DIRECT;
-				}
-				break;
+					if(pBiDi->reorderingOptions & UBIDI_OPTION_INSERT_MARKS) {
+						pBiDi->pImpTabPair = &impTab_INVERSE_LIKE_DIRECT_WITH_MARKS;
+					}
+					else {
+						pBiDi->pImpTabPair = &impTab_INVERSE_LIKE_DIRECT;
+					}
+					break;
 			    case UBIDI_REORDER_INVERSE_FOR_NUMBERS_SPECIAL:
-				if(pBiDi->reorderingOptions & UBIDI_OPTION_INSERT_MARKS) {
-					pBiDi->pImpTabPair = &impTab_INVERSE_FOR_NUMBERS_SPECIAL_WITH_MARKS;
-				}
-				else {
-					pBiDi->pImpTabPair = &impTab_INVERSE_FOR_NUMBERS_SPECIAL;
-				}
-				break;
-			    default:
-				/* we should never get here */
-				UPRV_UNREACHABLE_EXIT;
+					if(pBiDi->reorderingOptions & UBIDI_OPTION_INSERT_MARKS) {
+						pBiDi->pImpTabPair = &impTab_INVERSE_FOR_NUMBERS_SPECIAL_WITH_MARKS;
+					}
+					else {
+						pBiDi->pImpTabPair = &impTab_INVERSE_FOR_NUMBERS_SPECIAL;
+					}
+					break;
+			    default: UPRV_UNREACHABLE_EXIT; // we should never get here 
 		    }
 		    /*
 		  * If there are no external levels specified and there
@@ -2762,9 +2725,7 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 		     */
 		    if(embeddingLevels==NULL && pBiDi->paraCount<=1 &&
 			!(pBiDi->flags&DIRPROP_FLAG_MULTI_RUNS)) {
-			    resolveImplicitLevels(pBiDi, 0, length,
-				GET_LR_FROM_LEVEL(GET_PARALEVEL(pBiDi, 0)),
-				GET_LR_FROM_LEVEL(GET_PARALEVEL(pBiDi, length-1)));
+			    resolveImplicitLevels(pBiDi, 0, length, GET_LR_FROM_LEVEL(GET_PARALEVEL(pBiDi, 0)), GET_LR_FROM_LEVEL(GET_PARALEVEL(pBiDi, length-1)));
 		    }
 		    else {
 			    /* sor, eor: start and end types of same-level-run */
@@ -2772,7 +2733,6 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 			    int32_t start, limit = 0;
 			    UBiDiLevel level, nextLevel;
 			    DirProp sor, eor;
-
 			    /* determine the first sor and set eor to it because of the loop body (sor=eor there) */
 			    level = GET_PARALEVEL(pBiDi, 0);
 			    nextLevel = levels[0];
@@ -2796,13 +2756,9 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 				    else {
 					    sor = eor;
 				    }
-
 				    /* search for the limit of this run */
-				    while((++limit<length) &&
-					((levels[limit]==level) ||
-					(DIRPROP_FLAG(dirProps[limit])&MASK_BN_EXPLICIT))) {
+				    while((++limit<length) && ((levels[limit]==level) || (DIRPROP_FLAG(dirProps[limit])&MASK_BN_EXPLICIT))) {
 				    }
-
 				    /* get the correct level of the next run */
 				    if(limit<length) {
 					    nextLevel = levels[limit];
@@ -2810,7 +2766,6 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 				    else {
 					    nextLevel = GET_PARALEVEL(pBiDi, length-1);
 				    }
-
 				    /* determine eor from max(level, nextLevel); sor is last run's eor */
 				    if(NO_OVERRIDE(level)<NO_OVERRIDE(nextLevel)) {
 					    eor = GET_LR_FROM_LEVEL(nextLevel);
@@ -2874,7 +2829,6 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 			}
 		}
 	}
-
 	if(pBiDi->reorderingOptions & UBIDI_OPTION_REMOVE_CONTROLS) {
 		pBiDi->resultLength -= pBiDi->controlCount;
 	}
@@ -2884,96 +2838,61 @@ U_CAPI void U_EXPORT2 ubidi_setPara(UBiDi * pBiDi, const UChar * text, int32_t l
 	setParaSuccess(pBiDi); /* mark successful setPara */
 }
 
-U_CAPI void U_EXPORT2 ubidi_orderParagraphsLTR(UBiDi * pBiDi, bool orderParagraphsLTR) {
-	if(pBiDi!=NULL) {
+U_CAPI void U_EXPORT2 ubidi_orderParagraphsLTR(UBiDi * pBiDi, bool orderParagraphsLTR) 
+{
+	if(pBiDi)
 		pBiDi->orderParagraphsLTR = orderParagraphsLTR;
-	}
 }
 
-U_CAPI bool U_EXPORT2 ubidi_isOrderParagraphsLTR(UBiDi * pBiDi) {
-	if(pBiDi!=NULL) {
-		return pBiDi->orderParagraphsLTR;
-	}
-	else {
-		return FALSE;
-	}
+U_CAPI bool U_EXPORT2 ubidi_isOrderParagraphsLTR(UBiDi * pBiDi) 
+{
+	return pBiDi ? pBiDi->orderParagraphsLTR : FALSE;
 }
 
-U_CAPI UBiDiDirection U_EXPORT2 ubidi_getDirection(const UBiDi * pBiDi) {
-	if(IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return pBiDi->direction;
-	}
-	else {
-		return UBIDI_LTR;
-	}
+U_CAPI UBiDiDirection U_EXPORT2 ubidi_getDirection(const UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->direction : UBIDI_LTR;
 }
 
-U_CAPI const UChar * U_EXPORT2 ubidi_getText(const UBiDi * pBiDi) {
-	if(IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return pBiDi->text;
-	}
-	else {
-		return NULL;
-	}
+U_CAPI const UChar * U_EXPORT2 ubidi_getText(const UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->text : NULL;
 }
 
-U_CAPI int32_t U_EXPORT2 ubidi_getLength(const UBiDi * pBiDi) {
-	if(IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return pBiDi->originalLength;
-	}
-	else {
-		return 0;
-	}
+U_CAPI int32_t U_EXPORT2 ubidi_getLength(const UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->originalLength : 0;
 }
 
-U_CAPI int32_t U_EXPORT2 ubidi_getProcessedLength(const UBiDi * pBiDi) {
-	if(IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return pBiDi->length;
-	}
-	else {
-		return 0;
-	}
+U_CAPI int32_t U_EXPORT2 ubidi_getProcessedLength(const UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->length : 0;
 }
 
-U_CAPI int32_t U_EXPORT2 ubidi_getResultLength(const UBiDi * pBiDi) {
-	if(IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return pBiDi->resultLength;
-	}
-	else {
-		return 0;
-	}
+U_CAPI int32_t U_EXPORT2 ubidi_getResultLength(const UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->resultLength : 0;
 }
 
 /* paragraphs API functions ------------------------------------------------- */
 
-U_CAPI UBiDiLevel U_EXPORT2 ubidi_getParaLevel(const UBiDi * pBiDi) {
-	if(IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return pBiDi->paraLevel;
-	}
-	else {
-		return 0;
-	}
+U_CAPI UBiDiLevel U_EXPORT2 ubidi_getParaLevel(const UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->paraLevel : 0;
 }
 
-U_CAPI int32_t U_EXPORT2 ubidi_countParagraphs(UBiDi * pBiDi) {
-	if(!IS_VALID_PARA_OR_LINE(pBiDi)) {
-		return 0;
-	}
-	else {
-		return pBiDi->paraCount;
-	}
+U_CAPI int32_t U_EXPORT2 ubidi_countParagraphs(UBiDi * pBiDi) 
+{
+	return IS_VALID_PARA_OR_LINE(pBiDi) ? pBiDi->paraCount : 0;
 }
 
-U_CAPI void U_EXPORT2 ubidi_getParagraphByIndex(const UBiDi * pBiDi, int32_t paraIndex,
-    int32_t * pParaStart, int32_t * pParaLimit,
-    UBiDiLevel * pParaLevel, UErrorCode * pErrorCode) {
+U_CAPI void U_EXPORT2 ubidi_getParagraphByIndex(const UBiDi * pBiDi, int32_t paraIndex, int32_t * pParaStart, int32_t * pParaLimit, UBiDiLevel * pParaLevel, UErrorCode * pErrorCode) 
+{
 	int32_t paraStart;
-
 	/* check the argument values */
 	RETURN_VOID_IF_NULL_OR_FAILING_ERRCODE(pErrorCode);
 	RETURN_VOID_IF_NOT_VALID_PARA_OR_LINE(pBiDi, *pErrorCode);
 	RETURN_VOID_IF_BAD_RANGE(paraIndex, 0, pBiDi->paraCount, *pErrorCode);
-
 	pBiDi = pBiDi->pParaBiDi; /* get Para object if Line object */
 	if(paraIndex) {
 		paraStart = pBiDi->paras[paraIndex-1].limit;
@@ -2992,61 +2911,47 @@ U_CAPI void U_EXPORT2 ubidi_getParagraphByIndex(const UBiDi * pBiDi, int32_t par
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 ubidi_getParagraph(const UBiDi * pBiDi, int32_t charIndex,
-    int32_t * pParaStart, int32_t * pParaLimit,
-    UBiDiLevel * pParaLevel, UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 ubidi_getParagraph(const UBiDi * pBiDi, int32_t charIndex, int32_t * pParaStart, int32_t * pParaLimit, UBiDiLevel * pParaLevel, UErrorCode * pErrorCode) 
+{
 	int32_t paraIndex;
-
 	/* check the argument values */
 	/* pErrorCode will be checked by the call to ubidi_getParagraphByIndex */
 	RETURN_IF_NULL_OR_FAILING_ERRCODE(pErrorCode, -1);
 	RETURN_IF_NOT_VALID_PARA_OR_LINE(pBiDi, *pErrorCode, -1);
 	pBiDi = pBiDi->pParaBiDi; /* get Para object if Line object */
 	RETURN_IF_BAD_RANGE(charIndex, 0, pBiDi->length, *pErrorCode, -1);
-
 	for(paraIndex = 0; charIndex>=pBiDi->paras[paraIndex].limit; paraIndex++);
 	ubidi_getParagraphByIndex(pBiDi, paraIndex, pParaStart, pParaLimit, pParaLevel, pErrorCode);
 	return paraIndex;
 }
 
 U_CAPI void U_EXPORT2 ubidi_setClassCallback(UBiDi * pBiDi, UBiDiClassCallback * newFn,
-    const void * newContext, UBiDiClassCallback ** oldFn,
-    const void ** oldContext, UErrorCode * pErrorCode)
+    const void * newContext, UBiDiClassCallback ** oldFn, const void ** oldContext, UErrorCode * pErrorCode)
 {
 	RETURN_VOID_IF_NULL_OR_FAILING_ERRCODE(pErrorCode);
-	if(pBiDi==NULL) {
+	if(!pBiDi) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
-		return;
 	}
-	if(oldFn) {
-		*oldFn = pBiDi->fnClassCallback;
+	else {
+		ASSIGN_PTR(oldFn, pBiDi->fnClassCallback);
+		ASSIGN_PTR(oldContext, pBiDi->coClassCallback);
+		pBiDi->fnClassCallback = newFn;
+		pBiDi->coClassCallback = newContext;
 	}
-	if(oldContext) {
-		*oldContext = pBiDi->coClassCallback;
-	}
-	pBiDi->fnClassCallback = newFn;
-	pBiDi->coClassCallback = newContext;
 }
 
 U_CAPI void U_EXPORT2 ubidi_getClassCallback(UBiDi * pBiDi, UBiDiClassCallback ** fn, const void ** context)
 {
-	if(pBiDi==NULL) {
-		return;
-	}
-	if(fn) {
-		*fn = pBiDi->fnClassCallback;
-	}
-	if(context) {
-		*context = pBiDi->coClassCallback;
+	if(pBiDi) {
+		ASSIGN_PTR(fn, pBiDi->fnClassCallback);
+		ASSIGN_PTR(context, pBiDi->coClassCallback);
 	}
 }
 
 U_CAPI UCharDirection U_EXPORT2 ubidi_getCustomizedClass(UBiDi * pBiDi, UChar32 c)
 {
 	UCharDirection dir;
-
-	if(pBiDi->fnClassCallback == NULL ||
-	    (dir = (*pBiDi->fnClassCallback)(pBiDi->coClassCallback, c)) == U_BIDI_CLASS_DEFAULT) {
+	if(pBiDi->fnClassCallback == NULL || (dir = (*pBiDi->fnClassCallback)(pBiDi->coClassCallback, c)) == U_BIDI_CLASS_DEFAULT) {
 		dir = ubidi_getClass(c);
 	}
 	if(dir >= U_CHAR_DIRECTION_COUNT) {

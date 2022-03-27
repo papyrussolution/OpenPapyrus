@@ -199,7 +199,7 @@ int FASTCALL PPViewStyloQBindery::GetDataForBrowser(SBrowserDataProcBlock * pBlk
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
-static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+/*static*/int PPViewStyloQBindery::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
 	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
@@ -216,6 +216,32 @@ int PPViewStyloQBindery::CellStyleFunc_(const void * pData, long col, int paintA
 	if(pBrw && pData && pCellStyle && col >= 0) {
 		const BrowserDef * p_def = pBrw->getDef();
 		if(col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			if(r_col.OrgOffs == 1) { // kind
+				const BrwItem * p_item = static_cast<const BrwItem *>(pData);
+				switch(p_item->Kind) {
+					case StyloQCore::kNativeService:
+						ok = pCellStyle->SetFullCellColor(GetColorRef(SClrLightblue));
+						break;
+					case StyloQCore::kForeignService:
+						ok = pCellStyle->SetFullCellColor(GetColorRef(SClrCyan));
+						break;
+					case StyloQCore::kClient:
+						ok = pCellStyle->SetFullCellColor(GetColorRef(SClrLightgreen));
+						break;
+					case StyloQCore::kSession:
+						ok = pCellStyle->SetFullCellColor(GetColorRef(SClrLightyellow));
+						break;
+					case StyloQCore::kFace:
+						break;
+					case StyloQCore::kDocIncoming:
+						break;
+					case StyloQCore::kDocOutcominig:
+						break;
+					case StyloQCore::kCounter:
+						break;
+				}
+			}
 			/*
 			const BroColumn & r_col = p_def->at(col);
 			if(col == 0) { // id
@@ -490,11 +516,37 @@ int PPViewStyloQCommand::MakeList(PPViewBrowser * pBrw)
 	return p_array;
 }
 
+int PPViewStyloQCommand::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pCellStyle && col >= 0) {
+		const BrowserDef * p_def = pBrw->getDef();
+		if(col < static_cast<long>(p_def->getCount())) {
+			const BroColumn & r_col = p_def->at(col);
+			/*if(r_col.OrgOffs == 1) { // kind
+				const BrwItem * p_item = static_cast<const BrwItem *>(pData);
+			}*/
+		}
+	}
+	return ok;
+}
+
+/*static*/int PPViewStyloQCommand::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewStyloQCommand * p_view = static_cast<PPViewStyloQCommand *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
 /*virtual*/void PPViewStyloQCommand::PreprocessBrowser(PPViewBrowser * pBrw)
 {
 	if(pBrw) {
 		pBrw->SetDefUserProc(PPViewStyloQCommand::GetDataForBrowser, this);
-		pBrw->SetCellStyleFunc(CellStyleFunc, pBrw);
+		pBrw->SetCellStyleFunc(PPViewStyloQCommand::CellStyleFunc, pBrw);
 		//pBrw->Helper_SetAllColumnsSortable();
 	}
 }

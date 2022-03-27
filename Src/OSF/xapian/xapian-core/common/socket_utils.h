@@ -9,16 +9,10 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_SOCKET_UTILS_H
 #define XAPIAN_INCLUDED_SOCKET_UTILS_H
 
@@ -31,7 +25,6 @@
 
 /// Convert an fd (which might be a socket) to a WIN32 HANDLE.
 extern HANDLE fd_to_handle(int fd);
-
 /// Close an fd, which might be a socket.
 extern void close_fd_or_socket(int fd);
 
@@ -55,8 +48,7 @@ inline void close_fd_or_socket(int fd) { close(fd); }
  */
 void set_socket_timeouts(int fd, double timeout);
 
-constexpr size_t PRETTY_IP6_LEN =
-    (INET6_ADDRSTRLEN > INET_ADDRSTRLEN ? INET6_ADDRSTRLEN : INET_ADDRSTRLEN);
+constexpr size_t PRETTY_IP6_LEN = (INET6_ADDRSTRLEN > INET_ADDRSTRLEN ? INET6_ADDRSTRLEN : INET_ADDRSTRLEN);
 
 int pretty_ip6(const void* p, char* buf);
 

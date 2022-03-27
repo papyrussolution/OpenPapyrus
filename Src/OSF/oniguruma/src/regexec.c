@@ -2825,7 +2825,6 @@ set_region:
 end_best_len:
 #endif
 		SOP_OUT;
-
 		if(OPTON_FIND_CONDITION(option)) {
 			if(OPTON_FIND_NOT_EMPTY(option) && s == sstart) {
 				best_len = ONIG_MISMATCH;
@@ -2838,10 +2837,8 @@ end_best_len:
 					goto fail; /* for retry */
 			}
 		}
-
 		/* default behavior: return first-matching result. */
 		goto match_at_end;
-
 		CASE_OP(STR_1)
 		DATA_ENSURE(1);
 		ps = p->exact.s;

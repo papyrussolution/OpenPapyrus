@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -421,7 +416,7 @@ INT_PTR CALLBACK WindowsDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM lPa
 	    {
 		    if(!_listMenu.isCreated()) {
 			    NativeLangSpeaker* pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
-			    const std::vector<MenuItemUnit> itemUnitArray
+			    const std::vector <MenuItemUnit> itemUnitArray
 			    {
 				    {IDM_WINDOW_COPY_NAME,
 				     pNativeSpeaker->getAttrNameStr(TEXT("Copy Name(s)"), WD_ROOTNODE, WD_MENUCOPYNAME)},
@@ -448,7 +443,7 @@ void WindowsDlg::doColumnSort()
 	if(_currentColumn != -1) {
 		size_t i;
 		size_t n = _idxMap.size();
-		vector<int> sortMap;
+		vector <int> sortMap;
 		sortMap.resize(n);
 		for(i = 0; i < n; ++i)
 			sortMap[_idxMap[i]] = ListView_GetItemState(_hList, i, LVIS_SELECTED);
@@ -701,7 +696,7 @@ void WindowsDlg::resetSelection()
 {
 	auto curSel = _pTab->getCurrentTabIndex();
 	int pos = 0;
-	for(vector<int>::iterator itr = _idxMap.begin(), end = _idxMap.end(); itr != end; ++itr, ++pos) {
+	for(vector <int>::iterator itr = _idxMap.begin(), end = _idxMap.end(); itr != end; ++itr, ++pos) {
 		if(*itr == curSel) {
 			ListView_SetItemState(_hList, pos, LVIS_SELECTED | LVIS_FOCUSED, LVIS_SELECTED | LVIS_FOCUSED);
 		}
@@ -767,7 +762,7 @@ void WindowsDlg::doClose()
 	nmdlg.code = WDN_NOTIFY;
 	UINT n = nmdlg.nItems = ListView_GetSelectedCount(_hList);
 	nmdlg.Items = new UINT[nmdlg.nItems];
-	vector<int> key;
+	vector <int> key;
 	key.resize(n, 0x7fffffff);
 	for(int i = -1, j = 0;; ++j) {
 		i = ListView_GetNextItem(_hList, i, LVNI_SELECTED);
@@ -779,12 +774,12 @@ void WindowsDlg::doClose()
 	SendMessage(_hParent, WDN_NOTIFY, 0, LPARAM(&nmdlg));
 	if(nmdlg.processed) {
 		// Trying to retain sort order. fairly sure there is a much better algorithm for this
-		vector<int>::iterator kitr = key.begin();
+		vector <int>::iterator kitr = key.begin();
 		for(UINT i = 0; i<n; ++i, ++kitr) {
 			if(nmdlg.Items[i] == -1) {
 				int oldVal = _idxMap[*kitr];
 				_idxMap[*kitr] = -1;
-				for(vector<int>::iterator itr = _idxMap.begin(), end = _idxMap.end(); itr != end; ++itr)
+				for(vector <int>::iterator itr = _idxMap.begin(), end = _idxMap.end(); itr != end; ++itr)
 					if(*itr > oldVal)
 						--(*itr);
 			}
@@ -985,7 +980,7 @@ void WindowsMenu::initPopupMenu(HMENU hMenu, DocTabView * pTab)
 			generic_string strBuffer(BuildMenuFileName(60, static_cast<int32_t>(pos), buf->getFileName()));
 			// Can't make mii.dwTypeData = strBuffer.c_str() because of const cast.
 			// So, making temporary buffer for this.
-			std::vector<TCHAR> vBuffer(strBuffer.begin(), strBuffer.end());
+			std::vector <TCHAR> vBuffer(strBuffer.begin(), strBuffer.end());
 			vBuffer.push_back('\0');
 			mii.dwTypeData = (&vBuffer[0]);
 			mii.fState &= ~(MF_GRAYED|MF_DISABLED|MF_CHECKED);

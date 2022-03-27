@@ -34,7 +34,7 @@ struct latexFoldSave {
 
 class LexerLaTeX : public LexerBase {
 private:
-	vector<int> modes;
+	vector <int> modes;
 	void setMode(Sci_Position line, int mode) 
 	{
 		if(line >= static_cast<Sci_Position>(modes.size())) 

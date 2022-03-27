@@ -1,5 +1,5 @@
 // CHKPAN.CPP
-// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1998-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Панель ввода кассовых чеков
 //
@@ -283,6 +283,24 @@ void FASTCALL CPosProcessor::Packet::SetupCCheckPacket(CCheckPacket * pPack, con
 		SETFLAG(pPack->Rec.Flags, CCHKF_DELIVERY,   Eccd.Flags & Eccd.fDelivery);
 		SETFLAG(pPack->Rec.Flags, CCHKF_FIXEDPRICE, Eccd.Flags & Eccd.fFixedPrice);
 		SETFLAG(pPack->Rec.Flags, CCHKF_SPFINISHED, Eccd.Flags & Eccd.fSpFinished);
+		// @v11.3.6 {
+		if(BuyersEAddr.NotEmpty()) {
+			if(BuyersEAddrType == SNTOK_EMAIL) {
+				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, BuyersEAddr);
+				pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
+			}
+			else if(BuyersEAddrType == SNTOK_PHONE) {
+				pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
+				pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, BuyersEAddr);
+			}
+			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, Paperless);
+		}
+		else {
+			pPack->PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
+			pPack->PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
+			SETFLAG(pPack->Rec.Flags, CCHKF_PAPERLESS, 0);
+		}
+		// } @v11.3.6 
 		if(Eccd.Flags & Eccd.fDelivery) {
 			pPack->SetDlvrAddr(&Eccd.Addr_);
 			pPack->Ext.StartOrdDtm = Eccd.DlvrDtm;
@@ -2288,7 +2306,9 @@ int CPosProcessor::AutosaveCheck()
 	const  int turn_check_before_printing = 1;
 	const  int reprint_regular = BIN(mode == accmAveragePrinting && Flags & fReprinting); // @v10.6.12
 	int    was_turned_before_printing = 0;
-	SString before_printing_check_text, msg_buf, fmt_buf;
+	SString before_printing_check_text;
+	SString msg_buf;
+	SString fmt_buf;
 	THROW_INVARG((mode != accmAveragePrinting || reprint_regular) || P_ChkPack); // @v10.6.11 (|| reprint_regular)
 	if(CashNodeID) {
 		AcceptCheckProcessBlock epb;
@@ -4198,10 +4218,24 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 							{
 								paym_blk2.ExclSCardID = CSt.GetID();
 								const double ccpl_total = paym_blk2.CcPl.GetTotal();
-								paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
+								// @v11.3.6 paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
+								SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID); // @v11.3.6 
+								paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse; // @v11.3.6 
 								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
+									// @v11.3.6 {
+									if(paym_blk2.BuyersEAddr.NotEmpty() && oneof2(paym_blk2.BuyersEAddrType, SNTOK_PHONE, SNTOK_EMAIL)) {
+										P.BuyersEAddrType = paym_blk2.BuyersEAddrType;
+										P.BuyersEAddr = paym_blk2.BuyersEAddr;
+										P.Paperless = LOGIC(paym_blk2.Flags & PosPaymentBlock::fPaperless);
+									}
+									else {
+										P.BuyersEAddrType = 0;
+										P.BuyersEAddr.Z();
+										P.Paperless = false;
+									}
+									// } @v11.3.6 
 									if(CsObj.GetEqCfg().Flags & PPEquipConfig::fUnifiedPaymentCfmBank &&
 										paym_blk2.CcPl.Get(CCAMTTYP_CASH) == 0.0 && !ConfirmPosPaymBank(paym_blk2.CcPl.Get(CCAMTTYP_BANK))) {
 										_again = 1;
@@ -4232,7 +4266,8 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 											CDispCommand(cdispcmdChange, 0, paym_blk2.Amount, 0.0);
 										if(bnk_paym_result) {
 											PrintBankingSlip(0/*beforeReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип до чека
-											const PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
+											// @v11.3.6 const PPID alt_reg_id = (paym_blk2.AltCashReg > 0) ? AltRegisterID : 0;
+											const PPID alt_reg_id = ((paym_blk2.Flags & PosPaymentBlock::fAltCashRegUse) && (paym_blk2.Flags & PosPaymentBlock::fAltCashRegEnabled)) ? AltRegisterID : 0; // @v11.3.6
 											AcceptCheck(&paym_blk2.CcPl, alt_reg_id, paym_blk2.NoteAmt, accmRegular);
 											PrintBankingSlip(1/*afterReceipt*/, bnk_slip_buf); // @v10.9.11 Печатать банковский слип после чека
 										}
@@ -4433,7 +4468,8 @@ IMPL_HANDLE_EVENT(ComplexDinnerDialog)
 	else if(event.isCmd(cmLBItemSelected) && event.isCtlEvent(CTL_COMPLDIN_ALTLIST)) {
 		SmartListBox * p_box = static_cast<SmartListBox *>(getCtrlView(CTL_COMPLDIN_ALTLIST));
 		if(p_box) {
-			long   main_pos = 0, subst_pos = 0;
+			long   main_pos = 0;
+			long   subst_pos = 0;
 			getSelection(&main_pos);
 			p_box->getCurID(&subst_pos);
 			if(main_pos > 0 && subst_pos > 0 && Data.Subst((uint)(main_pos-1), (uint)(subst_pos-1)))
@@ -9370,7 +9406,10 @@ private:
 int SCardInfoDialog::SetupCard(PPID scardID, SCardSpecialTreatment::IdentifyReplyBlock * pStirb)
 {
 	const  LDATETIME cur_dtm = getcurdatetime_();
-	SString temp_buf, card, info_buf, psn_name;
+	SString temp_buf;
+	SString card;
+	SString info_buf;
+	SString psn_name;
 	SString sc_phone;
 	SString psn_phone;
 	SString series_name;
@@ -9847,107 +9886,103 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 	else
 		PPListDialog::handleEvent(event);
 	if(TVCOMMAND) {
-		if(TVCMD == cmClear) {
-			SetupCard(0, 0);
-			selectCtrl(CTL_SCARDVIEW_INPUT);
-		}
-		else if(TVCMD == cmEditPerson) {
-			const int enbl_psn = BIN(OwnerID && PsnObj.CheckRights(PPR_MOD));
-			if(enbl_psn) {
-                if(PsnObj.Edit(&OwnerID, 0) > 0) {
-                	SetupCard(SCardID, 0);
-                }
-			}
-		}
-		else if(TVCMD == cmCreateSCard) {
-			if(SCardID) {
-				PPID   temp_sc_id = SCardID;
-				if(ScObj.Edit(&temp_sc_id, 0) > 0) {
-					assert(temp_sc_id == SCardID);
-					SetupCard(SCardID, 0);
-				}
-			}
-			else {
-				const  int preserve_slui_flag = SLS.CheckUiFlag(sluifUseLargeDialogs);
-				int    do_create = 0;
-				PPSCardConfig sc_cfg;
-				PPObjSCardSeries scs_obj;
-				PPSCardSeries scs_rec;
-				PPObjPerson::EditBlock peb;
-				ScObj.FetchConfig(&sc_cfg);
-				if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0) {
-					PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
-					peb.SCardSeriesID = sc_cfg.DefCreditSerID;
-					do_create = 1;
-				}
-				else if(scs_obj.Fetch(sc_cfg.DefSerID, &scs_rec) > 0) {
-					PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
-					peb.SCardSeriesID = sc_cfg.DefSerID;
-					do_create = 1;
-				}
-				if(do_create) {
-					peb.ShortDialog = 1;
-					PPID   psn_id = 0;
-					if(PsnObj.Edit_(&psn_id, peb) == cmOK) {
-						SetupCard(peb.RetSCardID, 0);
+		switch(TVCMD) {
+			case cmClear:
+				SetupCard(0, 0);
+				selectCtrl(CTL_SCARDVIEW_INPUT);
+				break;
+			case cmEditPerson: 
+				if((OwnerID && PsnObj.CheckRights(PPR_MOD)) && PsnObj.Edit(&OwnerID, 0) > 0)
+              			SetupCard(SCardID, 0);
+				break;
+			case cmCreateSCard:
+				if(SCardID) {
+					PPID   temp_sc_id = SCardID;
+					if(ScObj.Edit(&temp_sc_id, 0) > 0) {
+						assert(temp_sc_id == SCardID);
+						SetupCard(SCardID, 0);
 					}
 				}
-				selectCtrl(CTL_SCARDVIEW_INPUT);
-				SLS.SetUiFlag(sluifUseLargeDialogs, preserve_slui_flag);
-			}
-		}
-		else if(TVCMD == cmSelectByOwner) {
-			SString text;
-			getCtrlString(CTL_SCARDVIEW_INPUT, text);
-			if(text.Strip().Len() > 0/*2*/) {
-				OwnerList.Clear();
-				PersonTbl::Rec psn_rec;
-				PPIDArray psn_list, sc_list;
-				PPObjPerson::SrchAnalogPattern sap(text, 0);
-				PsnObj.GetListByPattern(&sap, &psn_list);
-				for(uint i = 0; i < psn_list.getCount(); i++) {
-					const PPID psn_id = psn_list.get(i);
-					sc_list.clear();
-					if(ScObj.P_Tbl->GetListByPerson(psn_id, 0, &sc_list) > 0) {
-						if(PsnObj.Fetch(psn_id, &psn_rec) > 0) {
-							for(uint j = 0; j < sc_list.getCount(); j++) {
-								const PPID sc_id = sc_list.get(j);
-								if(ScObj.Search(sc_id, &sc_rec) > 0) {
-									OwnerList.Add(psn_id, sc_id, sc_rec.SeriesID, psn_rec.Name, sc_rec.Code, sc_rec.Expiry);
+				else {
+					const  int preserve_slui_flag = SLS.CheckUiFlag(sluifUseLargeDialogs);
+					bool   do_create = false;
+					PPSCardConfig sc_cfg;
+					PPObjSCardSeries scs_obj;
+					PPSCardSeries scs_rec;
+					PPObjPerson::EditBlock peb;
+					ScObj.FetchConfig(&sc_cfg);
+					if(scs_obj.Fetch(sc_cfg.DefCreditSerID, &scs_rec) > 0) {
+						PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
+						peb.SCardSeriesID = sc_cfg.DefCreditSerID;
+						do_create = true;
+					}
+					else if(scs_obj.Fetch(sc_cfg.DefSerID, &scs_rec) > 0) {
+						PsnObj.InitEditBlock(NZOR(scs_rec.PersonKindID, NZOR(sc_cfg.PersonKindID, PPPRK_CLIENT)), peb);
+						peb.SCardSeriesID = sc_cfg.DefSerID;
+						do_create = true;
+					}
+					if(do_create) {
+						peb.ShortDialog = 1;
+						PPID   psn_id = 0;
+						if(PsnObj.Edit_(&psn_id, peb) == cmOK)
+							SetupCard(peb.RetSCardID, 0);
+					}
+					selectCtrl(CTL_SCARDVIEW_INPUT);
+					SLS.SetUiFlag(sluifUseLargeDialogs, preserve_slui_flag);
+				}
+				break;
+			case cmSelectByOwner: 
+				{
+					SString text;
+					getCtrlString(CTL_SCARDVIEW_INPUT, text);
+					if(text.Strip().Len() > 0/*2*/) {
+						OwnerList.Clear();
+						PersonTbl::Rec psn_rec;
+						PPIDArray psn_list, sc_list;
+						PPObjPerson::SrchAnalogPattern sap(text, 0);
+						PsnObj.GetListByPattern(&sap, &psn_list);
+						for(uint i = 0; i < psn_list.getCount(); i++) {
+							const PPID psn_id = psn_list.get(i);
+							sc_list.clear();
+							if(ScObj.P_Tbl->GetListByPerson(psn_id, 0, &sc_list) > 0) {
+								if(PsnObj.Fetch(psn_id, &psn_rec) > 0) {
+									for(uint j = 0; j < sc_list.getCount(); j++) {
+										const PPID sc_id = sc_list.get(j);
+										if(ScObj.Search(sc_id, &sc_rec) > 0) {
+											OwnerList.Add(psn_id, sc_id, sc_rec.SeriesID, psn_rec.Name, sc_rec.Code, sc_rec.Expiry);
+										}
+									}
 								}
 							}
 						}
+						if(OwnerList.getCount())
+							SetupMode(modeSelectByOwner, 1);
 					}
+					setCtrlString(CTL_SCARDVIEW_INPUT, text.Z());
 				}
-				if(OwnerList.getCount()) {
-					SetupMode(modeSelectByOwner, 1);
+				break;
+			case cmSCardMovCrd:
+				if(SCardID && LocalState & stCreditCard) {
+					if(Mode != modeMovCrd)
+						OwnerList.Clear();
+					SetupMode(modeMovCrd, 0);
+					selectCtrl(CTL_SCARDVIEW_INPUT);
 				}
-			}
-			setCtrlString(CTL_SCARDVIEW_INPUT, text.Z());
-		}
-		else if(TVCMD == cmSCardMovCrd) {
-			if(SCardID && LocalState & stCreditCard) {
-				if(Mode != modeMovCrd)
-					OwnerList.Clear();
-				SetupMode(modeMovCrd, 0);
+				break;
+			case cmCommit:
+				CommitMovCrd();
 				selectCtrl(CTL_SCARDVIEW_INPUT);
-			}
-		}
-		else if(TVCMD == cmCommit) {
-			CommitMovCrd();
-			selectCtrl(CTL_SCARDVIEW_INPUT);
-		}
-		else if(TVCMD == cmCheckOpSwitch) {
-			if(SCardID) {
-				if(Mode == modeCheckView)
-					SetupMode(modeOpView, 0);
-				else if(Mode == modeOpView)
-					SetupMode(modeCheckView, 0);
-			}
-		}
-		else if(TVCMD == cmActivate) {
-			if(LocalState & stNeedActivation) {
-				if(ScObj.Search(SCardID, &sc_rec) > 0) {
+				break;
+			case cmCheckOpSwitch:
+				if(SCardID) {
+					if(Mode == modeCheckView)
+						SetupMode(modeOpView, 0);
+					else if(Mode == modeOpView)
+						SetupMode(modeCheckView, 0);
+				}
+				break;
+			case cmActivate:
+				if(LocalState & stNeedActivation && ScObj.Search(SCardID, &sc_rec) > 0) {
 					if(ScObj.ActivateRec(&sc_rec) > 0) {
 						if(ScObj.P_Tbl->Update(sc_rec.ID, &sc_rec, 1))
 							SetupCard(sc_rec.ID, 0);
@@ -9955,52 +9990,54 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 							PPError();
 					}
 				}
-			}
-		}
-		else if(TVCMD == cmVerify) { // @v10.1.5
-			if(SCardID) {
-				PPSCardPacket sc_pack;
-				if(ScObj.GetPacket(SCardID, &sc_pack) > 0) {
-					int r = ScObj.VerifyOwner(sc_pack, PosNodeID, 1 /*updatImmediately*/);
-					if(r > 0)
-						SetupCard(sc_rec.ID, 0);
-					else if(r == 0)
-						PPError();
+				break;
+			case cmVerify: // @v10.1.5
+				if(SCardID) {
+					PPSCardPacket sc_pack;
+					if(ScObj.GetPacket(SCardID, &sc_pack) > 0) {
+						const int r = ScObj.VerifyOwner(sc_pack, PosNodeID, 1 /*updatImmediately*/);
+						if(r > 0)
+							SetupCard(sc_rec.ID, 0);
+						else if(r == 0)
+							PPError();
+					}
 				}
-			}
-		}
-		else if(TVCMD == cmCtlColor) {
-			TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
-			if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SALDO) == p_dc->H_Ctl) {
-				double saldo = getCtrlReal(CTL_SCARDVIEW_SALDO);
-				::SetBkMode(p_dc->H_DC, TRANSPARENT);
-				::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-				int  br_ident = brRed; // default color
-				if(Mode == modeMovCrd)
-					br_ident = brMovCrdRest;
-				else if(!(LocalState & stCreditCard) || saldo > 0.0)
-					br_ident = brGreen;
-				p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(br_ident));
-	 		}
-			else if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SCINFO) == p_dc->H_Ctl) {
-				if(LocalState & stWarnCardInfo) {
-					::SetBkMode(p_dc->H_DC, TRANSPARENT);
-					::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
-					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brRed));
+				break;
+			case cmCtlColor:
+				{
+					TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+					if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SALDO) == p_dc->H_Ctl) {
+						const double saldo = getCtrlReal(CTL_SCARDVIEW_SALDO);
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+						int  br_ident = brRed; // default color
+						if(Mode == modeMovCrd)
+							br_ident = brMovCrdRest;
+						else if(!(LocalState & stCreditCard) || saldo > 0.0)
+							br_ident = brGreen;
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(br_ident));
+	 				}
+					else if(p_dc && getCtrlHandle(CTL_SCARDVIEW_SCINFO) == p_dc->H_Ctl) {
+						if(LocalState & stWarnCardInfo) {
+							::SetBkMode(p_dc->H_DC, TRANSPARENT);
+							::SetTextColor(p_dc->H_DC, GetColorRef(SClrWhite));
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brRed));
+						}
+						else if(LocalState & stNeedActivation) {
+							::SetBkMode(p_dc->H_DC, TRANSPARENT);
+							::SetTextColor(p_dc->H_DC, GetColorRef(SClrBlack));
+							p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((LocalState & stAutoActivation) ? brOrange : brYellow));
+						}
+						else
+							return;
+					}
+					else
+						return;
 				}
-				else if(LocalState & stNeedActivation) {
-					::SetBkMode(p_dc->H_DC, TRANSPARENT);
-					::SetTextColor(p_dc->H_DC, GetColorRef(SClrBlack));
-					p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get((LocalState & stAutoActivation) ? brOrange : brYellow));
-				}
-				else
-					return;
-			}
-			else
+				break;
+			default:
 				return;
 		}
-		else
-			return;
 		clearEvent(event);
 	}
 }
@@ -10097,9 +10134,9 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec, const SCa
 		}
 	}
 	SETFLAG(CSt.Flags, CardState::fNoGift, rScRec.Flags & SCRDF_NOGIFT);
-	// @v10.2.4 {
 	CSt.OwnerID = rScRec.PersonID;
 	if(CSt.OwnerID) {
+		// Детектируем день рождения владельца карты
 		ObjTagItem tag_item;
 		if(PPRef->Ot.GetTag(PPOBJ_PERSON, CSt.OwnerID, PPTAG_PERSON_DOB, &tag_item) > 0) {
 			LDATE   dob_dt = ZERODATE;
@@ -10110,7 +10147,6 @@ int CPosProcessor::Implement_AcceptSCard(const SCardTbl::Rec & rScRec, const SCa
 			}
 		}
 	}
-	// } @v10.2.4
 	return ok;
 }
 
@@ -10135,9 +10171,8 @@ int CPosProcessor::SetupSCard(PPID scID, const SCardTbl::Rec * pScRec)
 		if(!CalcRestByCrdCard_(0))
 			ResetSCard();
 	}
-	else {
+	else
 		ResetSCard();
-	}
 	OnUpdateList(0);
 	CATCHZOK
 	return ok;
@@ -10153,7 +10188,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 	}
 	else {
 		Flags |= fSuspSleepTimeout;
-		const  int prev_no_gift_status = BIN(CSt.Flags & CardState::fNoGift);
+		const  bool prev_no_gift_status = LOGIC(CSt.Flags & CardState::fNoGift);
 		//
 		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - ошибка, -1 - скидка по карте)
 		//
@@ -10161,7 +10196,6 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 		CSt.SetID(scardID, 0);
 		//
 		if(row_dscnt < 0 && !oneof2(GetState(), sLISTSEL_EMPTYBUF, sLISTSEL_BUF)) {
-			int    is_found = 0;
 			SCardTbl::Rec sc_rec;
 			const  PPID sc_id = CSt.GetID();
 			//
@@ -10178,7 +10212,7 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 			if(ok) {
 				if(sc_id && ScObj.Search(sc_id, &sc_rec) > 0) {
 					const int only_charge_goods = IsOnlyChargeGoodsInPacket(sc_id, 0);
-					int    cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? PPObjSCard::chkrfIgnoreUsageTime : 0), getcurdatetime_());
+					const int cr = ScObj.CheckRestrictions(&sc_rec, (only_charge_goods ? PPObjSCard::chkrfIgnoreUsageTime : 0), getcurdatetime_());
 					if(!cr) {
 						ok = MessageError(-1, 0, eomPopup | eomBeep);
 						CSt.SetID(0, 0);
@@ -10226,11 +10260,8 @@ int CPosProcessor::Backend_AcceptSCard(PPID scardID, const SCardSpecialTreatment
 				*/
 			}
 		}
-		{
-			const  int cur_no_gift_status = BIN(CSt.Flags & CardState::fNoGift);
-			if(cur_no_gift_status != prev_no_gift_status)
-				ProcessGift();
-		}
+		if(LOGIC(CSt.Flags & CardState::fNoGift) != prev_no_gift_status)
+			ProcessGift();
 		Flags &= ~fSuspSleepTimeout;
 	}
 	CATCHZOK
@@ -10286,7 +10317,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 	}
 	else {
 		Flags |= fSuspSleepTimeout;
-		const  int prev_no_gift_status = BIN(CSt.Flags & CardState::fNoGift);
+		const  bool prev_no_gift_status = LOGIC(CSt.Flags & CardState::fNoGift);
 		//
 		// Признак того, что скидка устанавливается только на текущую строку чека (1 скидка по строке, 0 - ошибка, -1 - скидка по карте)
 		//
@@ -10467,11 +10498,8 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 			}
 		}
 		ClearInput(0);
-		{
-			const  int cur_no_gift_status = BIN(CSt.Flags & CardState::fNoGift);
-			if(cur_no_gift_status != prev_no_gift_status)
-				ProcessGift();
-		}
+		if(LOGIC(CSt.Flags & CardState::fNoGift) != prev_no_gift_status)
+			ProcessGift();
 		Flags &= ~fSuspSleepTimeout;
 	}
 }
@@ -10486,9 +10514,7 @@ void CheckPaneDialog::AcceptSCard(PPID scardID, const SCardSpecialTreatment::Ide
 		buf.Space().CatChar('{').CatChar('+');
 		for(uint i = 0; i < P.CurModifList.getCount(); i++) {
 			GetGoodsName(P.CurModifList.at(i).GoodsID, temp_buf);
-			if(i)
-				buf.CatDiv(';', 2);
-			buf.Cat(temp_buf);
+			buf.CatDivConditionally(';', 2, i > 0).Cat(temp_buf);
 		}
 		buf.CatChar('}');
 	}
@@ -12892,7 +12918,7 @@ int PrcssrCCheckGenerator::Init(const Param * pParam)
 	}
 	PPWaitMsg(PPSTR_TEXT, PPTXT_CCGENINIT, 0);
 	{
-		const  int  dont_sel_passive = BIN(GObj.GetConfig().Flags & GCF_DONTSELPASSIVE);
+		const  bool dont_sel_passive = LOGIC(GObj.GetConfig().Flags & GCF_DONTSELPASSIVE);
 		GoodsFilt gf;
 		if(dont_sel_passive)
 			gf.Flags |= GoodsFilt::fHidePassive;
@@ -12937,9 +12963,9 @@ int PrcssrCCheckGenerator::Run()
 	while((!P.MaxCc || cc_count < P.MaxCc) && (!P.MaxTime || cmp(tm_cur, tm_limit) < 0) && PPCheckUserBreak()) {
 		const uint cl_count = (uint)fabs(P_RngCount->GetGaussian(3.0) + 10.0);
 		for(uint i = 0; i < cl_count;) {
-			uint goods_pos = P_RngCount->GetUniformInt(GoodsList.getCount());
+			const uint goods_pos = P_RngCount->GetUniformInt(GoodsList.getCount());
 			if(goods_pos < GoodsList.getCount()) {
-				PPID   goods_id = GoodsList.get(goods_pos);
+				const PPID goods_id = GoodsList.get(goods_pos);
 				Goods2Tbl::Rec goods_rec;
 				if(GObj.Fetch(goods_id, &goods_rec) > 0) {
 					double qtty = fabs(P_RngQtty->GetGaussian(3.0) + 1.0);
@@ -12954,7 +12980,7 @@ int PrcssrCCheckGenerator::Run()
 		}
 		P.P_Pan->AcceptRow();
 		if(sc_count) {
-			uint sc_pos = P_RngSCard->GetUniformInt(sc_count * P.SCardPeriod);
+			const uint sc_pos = P_RngSCard->GetUniformInt(sc_count * P.SCardPeriod);
 			if(sc_pos < sc_count) {
 				sc_code = P_ScList->Get(sc_pos).Txt;
 				if(sc_code.NotEmptyS())
@@ -12967,17 +12993,12 @@ int PrcssrCCheckGenerator::Run()
 			// выбор метода платежа и проведение чека
 			//
 			CcAmountList pl;
-			if(cc_count%20 == 0) {
-				pl.Add(CCAMTTYP_BANK, cct.Amount);
-			}
-			else {
-				pl.Add(CCAMTTYP_CASH, cct.Amount);
-			}
+			pl.Add((cc_count%20 == 0) ? CCAMTTYP_BANK : CCAMTTYP_CASH, cct.Amount);
 			P.P_Pan->AcceptCheck(&pl, 0, cct.Amount, CPosProcessor::accmRegular);
 			P.P_Pan->ClearCheck();
 		}
 		if(P.MaxCheckDelay) {
-			uint t = P_RngDelay->GetUniformInt(P.MaxCheckDelay);
+			const uint t = P_RngDelay->GetUniformInt(P.MaxCheckDelay);
 			temp_buf.Z().Cat(t);
 			PPWaitMsg(PPSTR_TEXT, PPTXT_CCGENCHECKDELAY, temp_buf);
 			SDelay(t * 1000);

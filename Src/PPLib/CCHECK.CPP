@@ -1,5 +1,5 @@
 // CCHECK.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -23,9 +23,9 @@ CcAmountEntry::CcAmountEntry()
 	THISZERO();
 }
 
-int FASTCALL CcAmountEntry::IsEq(const CcAmountEntry & rS) const
+bool FASTCALL CcAmountEntry::IsEq(const CcAmountEntry & rS) const
 {
-	return BIN(CheckID == rS.CheckID && Type == rS.Type && AddedID == rS.AddedID && Amount == rS.Amount &&
+	return (CheckID == rS.CheckID && Type == rS.Type && AddedID == rS.AddedID && Amount == rS.Amount &&
 		CurID == rS.CurID && CurAmount == rS.CurAmount);
 }
 
@@ -905,6 +905,7 @@ static const int ccpack_textext_ident_list[] = {
 	CCheckPacket::extssBuyerINN,          // @v11.0.4 ИНН покупателя (при формировании чека по документу)
 	CCheckPacket::extssBuyerName,         // @v11.0.4 Наименование покупателя (при формировании чека по документу)
 	CCheckPacket::extssBuyerPhone,        // @v11.0.4 Телефон покупателя //
+	CCheckPacket::extssBuyerEMail         // @v11.3.6 
 };
 
 int CCheckPacket::PackTextExt(SString & rResult) const

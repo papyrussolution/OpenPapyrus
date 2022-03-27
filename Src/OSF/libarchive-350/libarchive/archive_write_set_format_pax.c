@@ -499,11 +499,9 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 
 	/* Sanity check. */
 	if(archive_entry_pathname(entry_original) == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't record entry in tar file without pathname");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't record entry in tar file without pathname");
 		return ARCHIVE_FAILED;
 	}
-
 	/*
 	 * Choose a header encoding.
 	 */
@@ -522,19 +520,14 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		}
 		sconv = pax->sconv_utf8;
 	}
-
-	r = get_entry_hardlink(a, entry_original, &hardlink,
-		&hardlink_length, sconv);
+	r = get_entry_hardlink(a, entry_original, &hardlink, &hardlink_length, sconv);
 	if(r == ARCHIVE_FATAL)
 		return r;
 	else if(r != ARCHIVE_OK) {
-		r = get_entry_hardlink(a, entry_original, &hardlink,
-			&hardlink_length, NULL);
+		r = get_entry_hardlink(a, entry_original, &hardlink, &hardlink_length, NULL);
 		if(r == ARCHIVE_FATAL)
 			return r;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate linkname '%s' to %s", hardlink,
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", hardlink, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 		sconv = NULL; /* The header charset switches to binary mode. */
 	}
@@ -555,18 +548,14 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			     * entry so the client sees the change.
 			     */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-			    const wchar_t * wp;
-
-			    wp = archive_entry_pathname_w(entry_original);
+			    const wchar_t * wp = archive_entry_pathname_w(entry_original);
 			    if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
 				    struct archive_wstring ws;
-
 				    archive_string_init(&ws);
 				    path_length = wcslen(wp);
 				    if(archive_wstring_ensure(&ws,
 					path_length + 2) == NULL) {
-					    archive_set_error(&a->archive, ENOMEM,
-						"Can't allocate pax data");
+					    archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
 					    archive_wstring_free(&ws);
 					    return(ARCHIVE_FATAL);
 				    }
@@ -590,13 +579,10 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			     */
 			    if(p != NULL && p[0] != '\0' && p[strlen(p) - 1] != '/') {
 				    struct archive_string as;
-
 				    archive_string_init(&as);
 				    path_length = strlen(p);
-				    if(archive_string_ensure(&as,
-					path_length + 2) == NULL) {
-					    archive_set_error(&a->archive, ENOMEM,
-						"Can't allocate pax data");
+				    if(archive_string_ensure(&as, path_length + 2) == NULL) {
+					    archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
 					    archive_string_free(&as);
 					    return(ARCHIVE_FATAL);
 				    }
@@ -720,8 +706,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	entry_main = archive_entry_clone(entry_original);
 #endif
 	if(entry_main == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate pax data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate pax data");
 		return(ARCHIVE_FATAL);
 	}
 	archive_string_empty(&(pax->pax_header)); /* Blank our work area. */
@@ -761,15 +746,12 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		return r;
 	}
 	else if(r != ARCHIVE_OK) {
-		r = get_entry_pathname(a, entry_main, &path,
-			&path_length, NULL);
+		r = get_entry_pathname(a, entry_main, &path, &path_length, NULL);
 		if(r == ARCHIVE_FATAL) {
 			archive_entry_free(entry_main);
 			return r;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to %s", path,
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to %s", path, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 		sconv = NULL; /* The header charset switches to binary mode. */
 	}
@@ -784,9 +766,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			archive_entry_free(entry_main);
 			return r;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate uname '%s' to %s", uname,
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate uname '%s' to %s", uname, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 		sconv = NULL; /* The header charset switches to binary mode. */
 	}
@@ -801,43 +781,33 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			archive_entry_free(entry_main);
 			return r;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate gname '%s' to %s", gname,
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate gname '%s' to %s", gname, archive_string_conversion_charset_name(sconv));
 		ret = ARCHIVE_WARN;
 		sconv = NULL; /* The header charset switches to binary mode. */
 	}
 	linkpath = hardlink;
 	linkpath_length = hardlink_length;
 	if(linkpath == NULL) {
-		r = get_entry_symlink(a, entry_main, &linkpath,
-			&linkpath_length, sconv);
+		r = get_entry_symlink(a, entry_main, &linkpath, &linkpath_length, sconv);
 		if(r == ARCHIVE_FATAL) {
 			archive_entry_free(entry_main);
 			return r;
 		}
 		else if(r != ARCHIVE_OK) {
-			r = get_entry_symlink(a, entry_main, &linkpath,
-				&linkpath_length, NULL);
+			r = get_entry_symlink(a, entry_main, &linkpath, &linkpath_length, NULL);
 			if(r == ARCHIVE_FATAL) {
 				archive_entry_free(entry_main);
 				return r;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate linkname '%s' to %s", linkpath,
-			    archive_string_conversion_charset_name(sconv));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", linkpath, archive_string_conversion_charset_name(sconv));
 			ret = ARCHIVE_WARN;
 			sconv = NULL;
 		}
 	}
-
-	/* If any string conversions failed, get all attributes
-	 * in binary-mode. */
+	// If any string conversions failed, get all attributes in binary-mode. 
 	if(sconv == NULL && !pax->opt_binary) {
 		if(hardlink != NULL) {
-			r = get_entry_hardlink(a, entry_main, &hardlink,
-				&hardlink_length, NULL);
+			r = get_entry_hardlink(a, entry_main, &hardlink, &hardlink_length, NULL);
 			if(r == ARCHIVE_FATAL) {
 				archive_entry_free(entry_main);
 				return r;
@@ -845,8 +815,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			linkpath = hardlink;
 			linkpath_length = hardlink_length;
 		}
-		r = get_entry_pathname(a, entry_main, &path,
-			&path_length, NULL);
+		r = get_entry_pathname(a, entry_main, &path, &path_length, NULL);
 		if(r == ARCHIVE_FATAL) {
 			archive_entry_free(entry_main);
 			return r;
@@ -862,11 +831,9 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			return r;
 		}
 	}
-
-	/* Store the header encoding first, to be nice to readers. */
+	// Store the header encoding first, to be nice to readers
 	if(sconv == NULL)
 		add_pax_attr(&(pax->pax_header), "hdrcharset", "BINARY");
-
 	/*
 	 * If name is too long, or has non-ASCII characters, add
 	 * 'path' to pax extended attrs.  (Note that an unconvertible
@@ -875,9 +842,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	if(has_non_ASCII(path)) {
 		/* We have non-ASCII characters. */
 		add_pax_attr(&(pax->pax_header), "path", path);
-		archive_entry_set_pathname(entry_main,
-		    build_ustar_entry_name(ustar_entry_name,
-		    path, path_length, NULL));
+		archive_entry_set_pathname(entry_main, build_ustar_entry_name(ustar_entry_name, path, path_length, NULL));
 		need_extension = 1;
 	}
 	else {
@@ -1158,60 +1123,41 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			 * - Make a sparse map, which will precede a file data.
 			 * - Get the total size of available data of sparse.
 			 */
-			archive_string_sprintf(&(pax->sparse_map), "%d\n",
-			    sparse_count);
-			while(archive_entry_sparse_next(entry_main,
-			    &soffset, &slength) == ARCHIVE_OK) {
-				archive_string_sprintf(&(pax->sparse_map),
-				    "%jd\n%jd\n",
-				    (intmax_t)soffset,
-				    (intmax_t)slength);
+			archive_string_sprintf(&(pax->sparse_map), "%d\n", sparse_count);
+			while(archive_entry_sparse_next(entry_main, &soffset, &slength) == ARCHIVE_OK) {
+				archive_string_sprintf(&(pax->sparse_map), "%jd\n%jd\n", (intmax_t)soffset, (intmax_t)slength);
 				sparse_total += slength;
-				if(sparse_list_add(pax, soffset, slength)
-				    != ARCHIVE_OK) {
-					archive_set_error(&a->archive,
-					    ENOMEM,
-					    "Can't allocate memory");
+				if(sparse_list_add(pax, soffset, slength) != ARCHIVE_OK) {
+					archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
 					archive_entry_free(entry_main);
 					archive_string_free(&entry_name);
 					return ARCHIVE_FATAL;
 				}
 			}
 		}
-
 		/* Store extended attributes */
-		if(archive_write_pax_header_xattrs(a, pax, entry_original)
-		    == ARCHIVE_FATAL) {
+		if(archive_write_pax_header_xattrs(a, pax, entry_original) == ARCHIVE_FATAL) {
 			archive_entry_free(entry_main);
 			archive_string_free(&entry_name);
 			return ARCHIVE_FATAL;
 		}
-
 		/* Store extended symlink information */
-		if(archive_entry_symlink_type(entry_main) ==
-		    AE_SYMLINK_TYPE_FILE) {
-			add_pax_attr(&(pax->pax_header),
-			    "LIBARCHIVE.symlinktype", "file");
+		if(archive_entry_symlink_type(entry_main) == AE_SYMLINK_TYPE_FILE) {
+			add_pax_attr(&(pax->pax_header), "LIBARCHIVE.symlinktype", "file");
 		}
-		else if(archive_entry_symlink_type(entry_main) ==
-		    AE_SYMLINK_TYPE_DIRECTORY) {
-			add_pax_attr(&(pax->pax_header),
-			    "LIBARCHIVE.symlinktype", "dir");
+		else if(archive_entry_symlink_type(entry_main) == AE_SYMLINK_TYPE_DIRECTORY) {
+			add_pax_attr(&(pax->pax_header), "LIBARCHIVE.symlinktype", "dir");
 		}
 	}
-
 	/* Only regular files have data. */
 	if(archive_entry_filetype(entry_main) != AE_IFREG)
 		archive_entry_set_size(entry_main, 0);
-
 	/*
 	 * Pax-restricted does not store data for hardlinks, in order
 	 * to improve compatibility with ustar.
 	 */
-	if(a->archive.archive_format != ARCHIVE_FORMAT_TAR_PAX_INTERCHANGE &&
-	    hardlink != NULL)
+	if(a->archive.archive_format != ARCHIVE_FORMAT_TAR_PAX_INTERCHANGE && hardlink != NULL)
 		archive_entry_set_size(entry_main, 0);
-
 	/*
 	 * XXX Full pax interchange format does permit a hardlink
 	 * entry to have data associated with it.  I'm not supporting
@@ -1224,7 +1170,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 */
 	if(hardlink != NULL)
 		archive_entry_set_size(entry_main, 0);
-
 	/* Save a real file size. */
 	real_size = archive_entry_size(entry_main);
 	/*
@@ -1235,10 +1180,8 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	if(archive_strlen(&(pax->sparse_map))) {
 		size_t mapsize = archive_strlen(&(pax->sparse_map));
 		pax->sparse_map_padding = 0x1ff & (-(ssize_t)mapsize);
-		archive_entry_set_size(entry_main,
-		    mapsize + pax->sparse_map_padding + sparse_total);
+		archive_entry_set_size(entry_main, mapsize + pax->sparse_map_padding + sparse_total);
 	}
-
 	/* Format 'ustar' header for main entry.
 	 *
 	 * The trouble with file size: If the reader can't understand
@@ -1265,26 +1208,21 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 * The non-strict formatter uses similar logic for other
 	 * numeric fields, though they're less critical.
 	 */
-	if(__archive_write_format_header_ustar(a, ustarbuff, entry_main, -1, 0,
-	    NULL) == ARCHIVE_FATAL) {
+	if(__archive_write_format_header_ustar(a, ustarbuff, entry_main, -1, 0, NULL) == ARCHIVE_FATAL) {
 		archive_entry_free(entry_main);
 		archive_string_free(&entry_name);
 		return ARCHIVE_FATAL;
 	}
-
 	/* If we built any extended attributes, write that entry first. */
 	if(archive_strlen(&(pax->pax_header)) > 0) {
 		struct archive_entry * pax_attr_entry;
 		time_t s;
 		int64 uid, gid;
 		int mode;
-
 		pax_attr_entry = archive_entry_new2(&a->archive);
 		p = entry_name.s;
-		archive_entry_set_pathname(pax_attr_entry,
-		    build_pax_attribute_name(pax_entry_name, p));
-		archive_entry_set_size(pax_attr_entry,
-		    archive_strlen(&(pax->pax_header)));
+		archive_entry_set_pathname(pax_attr_entry, build_pax_attribute_name(pax_entry_name, p));
+		archive_entry_set_size(pax_attr_entry, archive_strlen(&(pax->pax_header)));
 		/* Copy uid/gid (but clip to ustar limits). */
 		uid = archive_entry_uid(entry_main);
 		if(uid >= 1 << 18)
@@ -1306,13 +1244,9 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		mode &= ~S_ISVTX;
 #endif
 		archive_entry_set_mode(pax_attr_entry, mode);
-
 		/* Copy uname/gname. */
-		archive_entry_set_uname(pax_attr_entry,
-		    archive_entry_uname(entry_main));
-		archive_entry_set_gname(pax_attr_entry,
-		    archive_entry_gname(entry_main));
-
+		archive_entry_set_uname(pax_attr_entry, archive_entry_uname(entry_main));
+		archive_entry_set_gname(pax_attr_entry, archive_entry_gname(entry_main));
 		/* Copy mtime, but clip to ustar limits. */
 		s = archive_entry_mtime(entry_main);
 		if(s < 0) {
@@ -1322,23 +1256,15 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			s = 0x7fffffff;
 		}
 		archive_entry_set_mtime(pax_attr_entry, s, 0);
-
 		/* Standard ustar doesn't support atime. */
 		archive_entry_set_atime(pax_attr_entry, 0, 0);
-
 		/* Standard ustar doesn't support ctime. */
 		archive_entry_set_ctime(pax_attr_entry, 0, 0);
-
-		r = __archive_write_format_header_ustar(a, paxbuff,
-			pax_attr_entry, 'x', 1, NULL);
-
+		r = __archive_write_format_header_ustar(a, paxbuff, pax_attr_entry, 'x', 1, NULL);
 		archive_entry_free(pax_attr_entry);
-
 		/* Note that the 'x' header shouldn't ever fail to format */
 		if(r < ARCHIVE_WARN) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "archive_write_pax_header: "
-			    "'x' header failed?!  This can't happen.\n");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "archive_write_pax_header: 'x' header failed?!  This can't happen.\n");
 			archive_entry_free(entry_main);
 			archive_string_free(&entry_name);
 			return ARCHIVE_FATAL;
@@ -1354,13 +1280,9 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			archive_string_free(&entry_name);
 			return ARCHIVE_FATAL;
 		}
-
 		pax->entry_bytes_remaining = archive_strlen(&(pax->pax_header));
-		pax->entry_padding =
-		    0x1ff & (-(int64)pax->entry_bytes_remaining);
-
-		r = __archive_write_output(a, pax->pax_header.s,
-			archive_strlen(&(pax->pax_header)));
+		pax->entry_padding = 0x1ff & (-(int64)pax->entry_bytes_remaining);
+		r = __archive_write_output(a, pax->pax_header.s, archive_strlen(&(pax->pax_header)));
 		if(r != ARCHIVE_OK) {
 			/* If a write fails, we're pretty much toast. */
 			archive_entry_free(entry_main);
@@ -1377,7 +1299,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		}
 		pax->entry_bytes_remaining = pax->entry_padding = 0;
 	}
-
 	/* Write the header for main entry. */
 	r = __archive_write_output(a, ustarbuff, 512);
 	if(r != ARCHIVE_OK) {
@@ -1385,7 +1306,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		archive_string_free(&entry_name);
 		return r;
 	}
-
 	/*
 	 * Inform the client of the on-disk size we're using, so
 	 * they can avoid unnecessarily writing a body for something
@@ -1393,18 +1313,15 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 */
 	archive_entry_set_size(entry_original, real_size);
 	if(pax->sparse_list == NULL && real_size > 0) {
-		/* This is not a sparse file but we handle its data as
-		 * a sparse block. */
+		// This is not a sparse file but we handle its data as a sparse block.
 		sparse_list_add(pax, 0, real_size);
 		sparse_total = real_size;
 	}
 	pax->entry_padding = 0x1ff & (-(int64)sparse_total);
 	archive_entry_free(entry_main);
 	archive_string_free(&entry_name);
-
 	return ret;
 }
-
 /*
  * We need a valid name for the regular 'ustar' entry.  This routine
  * tries to hack something more-or-less reasonable.
@@ -1759,7 +1676,6 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 			total += ws;
 			continue;
 		}
-
 		ret = __archive_write_output(a, p, ws);
 		pax->sparse_list->remaining -= ws;
 		total += ws;
@@ -1772,14 +1688,12 @@ static ssize_t archive_write_pax_data(struct archive_write * a, const void * buf
 static int has_non_ASCII(const char * _p)
 {
 	const uchar * p = (const uchar *)_p;
-
 	if(!p)
 		return 1;
 	while(*p != '\0' && *p < 128)
 		p++;
 	return (*p != '\0');
 }
-
 /*
  * Used by extended attribute support; encodes the name
  * so that there will be no '=' characters in the result.
@@ -1790,18 +1704,15 @@ static char * url_encode(const char * in)
 	char * d;
 	int out_len = 0;
 	char * out;
-
 	for(s = in; *s != '\0'; s++) {
 		if(*s < 33 || *s > 126 || *s == '%' || *s == '=')
 			out_len += 3;
 		else
 			out_len++;
 	}
-
 	out = (char *)SAlloc::M(out_len + 1);
 	if(out == NULL)
 		return NULL;
-
 	for(s = in, d = out; *s != '\0'; s++) {
 		/* encode any non-printable ASCII character or '%' or '=' */
 		if(*s < 33 || *s > 126 || *s == '%' || *s == '=') {
@@ -1834,18 +1745,14 @@ static char * base64_encode(const char * s, size_t len)
 	  '8', '9', '+', '/' };
 	int v;
 	char * d, * out;
-
 	/* 3 bytes becomes 4 chars, but round up and allow for trailing NUL */
 	out = (char *)SAlloc::M((len * 4 + 2) / 3 + 1);
 	if(out == NULL)
 		return NULL;
 	d = out;
-
 	/* Convert each group of 3 bytes into 4 characters. */
 	while(len >= 3) {
-		v = (((int)s[0] << 16) & 0xff0000)
-		    | (((int)s[1] << 8) & 0xff00)
-		    | (((int)s[2]) & 0x00ff);
+		v = (((int)s[0] << 16) & 0xff0000) | (((int)s[1] << 8) & 0xff00) | (((int)s[2]) & 0x00ff);
 		s += 3;
 		len -= 3;
 		*d++ = digits[(v >> 18) & 0x3f];
@@ -1876,7 +1783,7 @@ static char * base64_encode(const char * s, size_t len)
 
 static void sparse_list_clear(struct pax * pax)
 {
-	while(pax->sparse_list != NULL) {
+	while(pax->sparse_list) {
 		struct sparse_block * sb = pax->sparse_list;
 		pax->sparse_list = sb->next;
 		SAlloc::F(sb);

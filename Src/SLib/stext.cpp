@@ -1345,8 +1345,8 @@ SCodepageIdent::SCodepageIdent(int cp) : Cp(cp)
 
 SCodepageIdent::operator int() const { return static_cast<int>(Cp); }
 SCodepageIdent::operator SCodepage() const { return static_cast<SCodepage>(Cp); }
-int FASTCALL SCodepageIdent::operator == (SCodepage cp) const { return BIN(Cp == cp); }
-int FASTCALL SCodepageIdent::operator != (SCodepage cp) const { return BIN(Cp != cp); }
+bool FASTCALL SCodepageIdent::operator == (SCodepage cp) const { return (Cp == cp); }
+bool FASTCALL SCodepageIdent::operator != (SCodepage cp) const { return (Cp != cp); }
 
 SCodepageIdent & FASTCALL SCodepageIdent::operator = (SCodepage cp)
 {
@@ -1737,6 +1737,11 @@ char * FASTCALL stpcpy(char * to, const char * from)
 //size_t FASTCALL sstrlen(const char * pStr) { return implement_sstrlen(pStr); }
 //size_t FASTCALL sstrlen(const uchar * pStr) { return implement_sstrlen(pStr); }
 //size_t FASTCALL sstrlen(const wchar_t * pStr) { return implement_sstrlen(pStr); }
+
+uint FASTCALL iseol(const char * pStr, SEOLFormat eolf)
+{
+	return isempty(pStr) ? 0 : implement_iseol(pStr, eolf);
+}
 
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen)
 {
@@ -2687,7 +2692,7 @@ ApproxStrComparator::ApproxStrComparator(const char * pPattern, const ApproxStrS
 double FASTCALL ApproxStrComparator::Next(const char * b2)
 {
 	double result = 1.0;
-	SString & r_temp = SLS.AcquireRvlStr(); // @v9.9.4
+	SString & r_temp = SLS.AcquireRvlStr();
 	r_temp = b2;
 	if(P.no_case) {
 		r_temp.ToLower();
@@ -2865,16 +2870,6 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 			}
 			if(div) {
 				const int r1 = ExtStrSrch(pBuffer, temp_buf, flags); // @recursion
-				/* @v10.5.11
-				const int r2 = ExtStrSrch(pBuffer, pPattern+p+inc, flags); // @recursion
-				if(div == 1 && (r1 || r2))
-					ok = 1;
-				else if(div == 2 && (r1 && r2))
-					ok = 1;
-				else
-					ok = 0;
-				*/
-				// @v10.5.11 {
 				if(div == 1) { // OR
 					if(r1)
 						ok = 1;
@@ -2893,7 +2888,6 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 				}
 				else
 					ok = 0;
-				// } @v10.5.11 
 				done = 1;
 			}
 			else
@@ -2964,6 +2958,16 @@ static const uint8 Utf_k_Boms[][3] = {
 	{0xFF, 0xFE, 0x00},  // Little endian
 };
 
+size_t FASTCALL SGetUnicodeModeBomSize(SUnicodeMode m)
+{
+	switch(m) {
+		case suni16BE: return 2;
+		case suni16LE: return 2;
+		case suniUTF8: return 3;
+	}
+	return 0;
+}
+
 SUnicodeMode FASTCALL SDetermineUtfEncoding(const void * pBuf, size_t bufLen)
 {
 	// detect UTF-16 big-endian with BOM
@@ -2980,13 +2984,13 @@ SUnicodeMode FASTCALL SDetermineUtfEncoding(const void * pBuf, size_t bufLen)
 SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen)
 {
 	for(size_t i = 0 ; i < bufLen; i++) {
-		if(PTR8C(pBuf)[i] == '\xD') {
-			if((i+1) < bufLen && PTR8C(pBuf)[i+1] == '\xA')
+		if(PTR8C(pBuf)[i] == '\x0D') {
+			if((i+1) < bufLen && PTR8C(pBuf)[i+1] == '\x0A')
 				return eolWindows;
 			else
 				return eolMac;
 		}
-		else if(PTR8C(pBuf)[i] == '\xA')
+		else if(PTR8C(pBuf)[i] == '\x0A')
 			return eolUnix;
 	}
 	return eolUndef;
@@ -3053,9 +3057,9 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 			const uint8 c = p[i];
 			ChrFreq[c]++;
 			if(checkirange(c, 1, 127)) {
-				if(c == '\xD') {
+				if(c == '\x0D') {
 					skip_eolf_pos = i+1;
-					if((i+1) < size && p[i+1] == '\xA') {
+					if((i+1) < size && p[i+1] == '\x0A') {
 						if(Eolf == eolUndef)
 							Eolf = eolWindows;
 						else if(Eolf != eolWindows)
@@ -3068,7 +3072,7 @@ int STextEncodingStat::Add(const void * pData, size_t size)
 							Flags |= fMiscEolf;
 					}
 				}
-				else if(c == '\xA' && i != skip_eolf_pos) {
+				else if(c == '\x0A' && i != skip_eolf_pos) {
 					if(Eolf == eolUndef)
 						Eolf = eolUnix;
 					else if(Eolf != eolUnix)
@@ -3137,6 +3141,10 @@ SCodepageIdent STextEncodingStat::GetAutodetectedCp() const
 		cp.FromStr(p_cp_name);
 	return cp;
 }
+//
+//
+//
+
 //
 //
 //

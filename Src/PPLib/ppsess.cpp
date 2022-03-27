@@ -5901,6 +5901,7 @@ int SysMaintenanceEventResponder::IsConsistent() const
 			PROFILE_END 
 		}
 		// } @v10.8.12 
+#if 0 // @v11.3.6 {
 		if(SLS.GetTLA().Rg.GetProbabilityEvent(prob_common_mqs_config)) {
 			SString logmsg_buf;
 			LDATETIME last_ev_dtm = ZERODATETIME;
@@ -5960,6 +5961,7 @@ int SysMaintenanceEventResponder::IsConsistent() const
 				PPLogMessage(PPFILNAM_INFO_LOG, logmsg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_COMP|LOGMSGF_DBINFO);
 			}
 		}
+#endif // } @v11.3.6
 	}
 	return ok;
 }

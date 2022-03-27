@@ -8,11 +8,6 @@
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -24,14 +19,8 @@
 
 using namespace std;
 
-PhrasePostList::PhrasePostList(PostList * source_,
-    Xapian::termpos window_,
-    const vector<PostList*>::const_iterator &terms_begin,
-    const vector<PostList*>::const_iterator &terms_end,
-    PostListTree* pltree_)
-	: SelectPostList(source_, pltree_),
-	window(window_),
-	terms(terms_begin, terms_end)
+PhrasePostList::PhrasePostList(PostList * source_, Xapian::termpos window_, const vector <PostList*>::const_iterator &terms_begin,
+    const vector <PostList*>::const_iterator &terms_end, PostListTree* pltree_) : SelectPostList(source_, pltree_), window(window_), terms(terms_begin, terms_end)
 {
 	size_t n = terms.size();
 	Assert(n > 1);
@@ -51,11 +40,9 @@ void PhrasePostList::start_position_list(uint i)
 bool PhrasePostList::test_doc()
 {
 	LOGCALL(MATCH, bool, "PhrasePostList::test_doc", NO_ARGS);
-
 	start_position_list(0);
 	if(!poslists[0]->next())
 		RETURN(false);
-
 	unsigned read_hwm = 0;
 	Xapian::termpos b;
 	do {
@@ -85,7 +72,7 @@ Xapian::termcount PhrasePostList::get_wdf() const
 	//
 	// We use the minimum wdf of a sub-postlist as our estimate.  See the
 	// comment in NearPostList::get_wdf() for justification of this estimate.
-	vector<PostList *>::const_iterator i = terms.begin();
+	vector <PostList *>::const_iterator i = terms.begin();
 	Xapian::termcount wdf = (*i)->get_wdf();
 	while(++i != terms.end()) {
 		wdf = min(wdf, (*i)->get_wdf());

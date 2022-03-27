@@ -118,13 +118,11 @@ static void ColouriseAPDLDoc(Sci_PositionU startPos, Sci_Position length, int in
 	}
 	sc.Complete();
 }
-
-//------------------------------------------------------------------------------
+//
 // 06-27-07 Sergio Lucato
 // - Included code folding for Ansys APDL lexer
 // - Copyied from LexBasic.cxx and modified for APDL
-//------------------------------------------------------------------------------
-
+//
 /* Bits:
  * 1  - whitespace
  * 2  - operator
@@ -144,20 +142,9 @@ static int character_classification[128] = {
 	4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  2,  2,  2,  2,  0
 };
 
-static bool IsSpace(int c)
-{
-	return c < 128 && (character_classification[c] & 1);
-}
-
-static bool IsIdentifier(int c)
-{
-	return c < 128 && (character_classification[c] & 4);
-}
-
-static int LowerCase(int c)
-{
-	return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c;
-}
+static bool IsSpace(int c) { return c < 128 && (character_classification[c] & 1); }
+static bool IsIdentifier(int c) { return c < 128 && (character_classification[c] & 4); }
+static int LowerCase(int c) { return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c; }
 
 static int CheckAPDLFoldPoint(char const * token, int &level)
 {

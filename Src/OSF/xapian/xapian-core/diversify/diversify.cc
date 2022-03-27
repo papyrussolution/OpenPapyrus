@@ -74,9 +74,9 @@ void Diversify::Internal::compute_similarities(const Xapian::ClusterSet& cset)
 	}
 }
 
-vector<Xapian::docid> Diversify::Internal::compute_diff_dmset(const vector<Xapian::docid>&dmset)
+vector <Xapian::docid> Diversify::Internal::compute_diff_dmset(const vector <Xapian::docid>&dmset)
 {
-	vector<Xapian::docid> diff_dmset;
+	vector <Xapian::docid> diff_dmset;
 	for(auto point : points) {
 		Xapian::docid point_id = point.first;
 		bool found_point = false;
@@ -93,7 +93,7 @@ vector<Xapian::docid> Diversify::Internal::compute_diff_dmset(const vector<Xapia
 	return diff_dmset;
 }
 
-double Diversify::Internal::evaluate_dmset(const vector<Xapian::docid>&dmset, const Xapian::ClusterSet& cset)
+double Diversify::Internal::evaluate_dmset(const vector <Xapian::docid>&dmset, const Xapian::ClusterSet& cset)
 {
 	double score_1 = 0, score_2 = 0;
 	for(auto doc_id : dmset)
@@ -131,7 +131,7 @@ DocumentSet Diversify::Internal::get_dmset(const MSet &mset)
 	compute_similarities(cset);
 
 	// topC contains union of top-r relevant documents of each cluster
-	vector<Xapian::docid> topc;
+	vector <Xapian::docid> topc;
 
 	// Build topC
 	for(uint c = 0; c < cset.size(); ++c) {
@@ -141,7 +141,7 @@ DocumentSet Diversify::Internal::get_dmset(const MSet &mset)
 			topc.push_back(doc_id);
 		}
 	}
-	vector<Xapian::docid> curr_dmset = main_dmset;
+	vector <Xapian::docid> curr_dmset = main_dmset;
 	while(true) {
 		bool found_better_dmset = false;
 		for(uint i = 0; i < main_dmset.size(); ++i) {
@@ -180,7 +180,7 @@ DocumentSet Diversify::Internal::get_dmset(const MSet &mset)
 	DocumentSet dmset;
 	for(auto doc_id : main_dmset)
 		dmset.add_document(points.at(doc_id).get_document());
-	vector<Xapian::docid> diff_dmset = compute_diff_dmset(main_dmset);
+	vector <Xapian::docid> diff_dmset = compute_diff_dmset(main_dmset);
 	for(auto doc_id : diff_dmset)
 		dmset.add_document(points.at(doc_id).get_document());
 	return dmset;

@@ -2772,8 +2772,6 @@ int CrystalCashServer::SendPLU(const ScalePLU * pScalePLU)
 			if(!P_AddStrAry)
 				THROW_MEM(P_AddStrAry = new SArray(sizeof(_AddStrEntry)));
 		}
-
-		dbfrS.empty();
 		dbfrS.put(1, Data.Rec.LogNum);
 		dbfrS.put(2, head.Z().Cat(pScalePLU->GoodsID));
 		head.Z().Cat(GCfg.WghtPrefix).CatLongZ(pScalePLU->Barcode % 100000, 5);

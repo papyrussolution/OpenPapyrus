@@ -155,7 +155,7 @@ int MailSession::putLine(const char * pStr)
 static char * FASTCALL searcheol(char * p, size_t len)
 {
 	for(size_t n = 1; n < len; n++)
-		if(p[n] == '\xA' && p[n-1] == '\xD')
+		if(p[n] == '\x0A' && p[n-1] == '\x0D')
 			return p+n-1;
 	return 0;
 }

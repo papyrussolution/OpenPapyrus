@@ -1655,7 +1655,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					PPWaitPercent(iter.GetCounter(), msg_buf);
 					const char * p_mode = (info.Flags & AsyncCashSCardInfo::fClosed) ? "-" : "+";
 					DbfRecord dbfrC(p_tbl);
-					dbfrC.empty();
 					dbfrC.put(1,  p_mode);                         // Тип действия //
 					dbfrC.put(2,  info.Rec.Code);                  // Код дисконтной карты
 					dbfrC.put(3,  info.PsnName);                   // Владелец карты
@@ -1744,7 +1743,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			uint  pos;
 			_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 			DbfRecord dbfrGG(p_out_tbl_group);
-			dbfrGG.empty();
 			dbfrGG.put(1, grpe.GrpName);
 			for(k = 0; k <= grpe.Level; k++)
 				dbfrGG.put(k + 2, grpe.GrpID[grpe.Level - k]);
@@ -1757,7 +1755,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 				PPQuot quot_by_qtty = grp_dscnt_ary.at(pos);
 				if(use_new_dscnt_code_alg || dscnt_code_ary.Search(quot_by_qtty.Kind, &old_dscnt_code_bias, &p)) {
 					DbfRecord  dbfrGGQD(p_out_tbl_grpqtty_dscnt);
-					dbfrGGQD.empty();
 					for(k = 0; k <= grpe.Level; k++)
 						dbfrGGQD.put(k + 1, grpe.GrpID[grpe.Level - k]);
 					for(; k <= grpe.Level; k++)
@@ -1817,7 +1814,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			if(CConfig.Flags & CCFLG_DEBUG)
 				LogExportingGoodsItem(&gi);
 			DbfRecord dbfrG(p_out_tbl_goods);
-			dbfrG.empty();
 			dbfrG.put(1,  ltoa(gi.ID, tempbuf, 10));
 			dbfrG.put(2,  gi.Name);
 		   	unit_obj.Fetch(gi.UnitID, &unit_rec);
@@ -1866,7 +1862,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					PPID   sub_grp_id = 0;
 					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
 						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
-						dbfrSGI.empty();
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrSGI.put(2, p_sentry->Code);
 						THROW_PP(p_tbl->appendRec(&dbfrSGI), PPERR_DBFWRFAULT);
@@ -1896,7 +1891,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 						dscnt_code_ary.Search(scard_quot_ary.at(i).Val, &old_dscnt_code_bias, &pos))) {
 						int   next_fld = 0;
 						DbfRecord dbfrD(p_tbl);
-						dbfrD.empty();
 						dbfrD.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrD.put(2, scard_quot_ary.at(i).Key); // Категория карты (ID серии карт)
 						dbfrD.put(3, dscnt_sum);                // Сумма скидки
@@ -1935,7 +1929,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 					PPQuot quot_by_qtty = gi.P_QuotByQttyList->at(i);
 					if(use_new_dscnt_code_alg || dscnt_code_ary.Search(quot_by_qtty.Kind, &old_dscnt_code_bias, &pos)) {
 						DbfRecord dbfrGQD(p_tbl);
-						dbfrGQD.empty();
 						dbfrGQD.put(1, ltoa(gi.ID, tempbuf, 10)); // Ид товара
 						if(use_new_dscnt_code_alg)
 							dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // Код скидки
@@ -1967,7 +1960,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 							double dscnt_sum = gi.Price - quot;
 							if(dscnt_sum != 0.0) {
 								DbfRecord dbfr(p_tbl);
-								dbfr.empty();
 								dbfr.put(1, ltoa(gi.ID, tempbuf, 10));
 								if(qk_rec.HasWeekDayRestriction()) {
 									for(uint d = 0; d < 7; d++)
@@ -1997,7 +1989,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			THROW(p_tbl);
 			{
 				DbfRecord dbfrB(p_tbl);
-				dbfrB.empty();
 				gi.AdjustBarcode(check_dig);
 				AddCheckDigToBarcode(gi.BarCode);
 				dbfrB.put(1, ltoa(gi.ID, tempbuf, 10));
@@ -2024,7 +2015,6 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			cshr_iter.Init(NodeID);
 			while(cshr_iter.Next(&cshr_info) > 0) {
 				DbfRecord dbfrC(p_tbl);
-				dbfrC.empty();
 				dbfrC.put(1, cshr_info.IsWorked ? "+" : "-");
 				dbfrC.put(2, cshr_info.TabNum);
 				dbfrC.put(3, cshr_info.Name);
@@ -2052,7 +2042,7 @@ int ACS_CRCSHSRV::ExportData__(int updOnly)
 			DbfRecord dbfrSGG(p_tbl);
 			_SalesGrpEntry * p_sgitem = 0;
 			for(uint i = 0; sales_grp_list.enumItems(&i, (void **)&p_sgitem) > 0;) {
-				dbfrSGG.empty();
+				dbfrSGG.Z();
 				dbfrSGG.put(1, p_sgitem->GrpName);
 				dbfrSGG.put(2, p_sgitem->Code);
 				THROW_PP(p_tbl->appendRec(&dbfrSGG), PPERR_DBFWRFAULT);
@@ -2208,7 +2198,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					for(iter.Init(&scs_pack); iter.Next(&info) > 0;) {
 						const char * p_mode = (info.Flags & AsyncCashSCardInfo::fClosed) ? "-" : "+";
 						DbfRecord dbfrC(p_out_tbl_cards);
-						dbfrC.empty();
 						dbfrC.put(1,  p_mode);                         // Тип действия //
 						dbfrC.put(2,  info.Rec.Code);                  // Код дисконтной карты
 						dbfrC.put(3,  info.PsnName);                   // Владелец карты
@@ -2279,7 +2268,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				uint  pos;
 				_GroupEntry  grpe = *static_cast<const _GroupEntry *>(grp_list.at(i));
 				DbfRecord dbfrGG(p_out_tbl_group);
-				dbfrGG.empty();
 				dbfrGG.put(1, grpe.GrpName);
 				for(k = 0; k <= grpe.Level; k++)
 					dbfrGG.put(k + 2, grpe.GrpID[grpe.Level - k]);
@@ -2292,7 +2280,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 					PPQuot quot_by_qtty = grp_dscnt_ary.at(pos);
 					if(use_new_dscnt_code_alg || dscnt_code_ary.Search(quot_by_qtty.Kind, &old_dscnt_code_bias, &p)) {
 						DbfRecord  dbfrGGQD(p_out_tbl_grpqtty_dscnt);
-						dbfrGGQD.empty();
 						for(k = 0; k <= grpe.Level; k++)
 							dbfrGGQD.put(k + 1, grpe.GrpID[grpe.Level - k]);
 						for(; k <= grpe.Level; k++)
@@ -2335,7 +2322,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				if(CConfig.Flags & CCFLG_DEBUG)
 					LogExportingGoodsItem(&gi);
 				DbfRecord dbfrG(p_out_tbl_goods);
-				dbfrG.empty();
 				dbfrG.put(1,  ltoa(gi.ID, tempbuf, 10));
 				dbfrG.put(2,  gi.Name);
 		   		unit_obj.Fetch(gi.UnitID, &unit_rec);
@@ -2355,8 +2341,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				}
 				// } Группа товаров 1-5
 				dbfrG.put(10, gi.Price);	  // Цена товара
-				// @v6.7.8 dbfrG.put(11, fpow10i(-3));       // Мерность товара
-				dbfrG.put(11, gi.Precision);           // @v6.7.8 Мерность товара
+				dbfrG.put(11, gi.Precision);  // Мерность товара
 				dbfrG.put(12, (cn_data.Flags & CASHF_EXPDIVN) ? gi.DivN : 1); // Номер секции
 				dbfrG.put(13,  gi.ID);       // ID ограничения на скидку
 				dbfrG.put(14, (gi.NoDis > 0) ? 100.0 : 0.0); // Min цена товара
@@ -2370,10 +2355,9 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				if(r_eq_cfg.SalesGoodsGrp != 0) {
 					uint   sg_pos = 0;
 					PPID   sub_grp_id = 0;
-					DbfRecord dbfrSGI(p_out_tbl_sggrpi);
 					if(ggobj.BelongToGroup(gi.ID, r_eq_cfg.SalesGoodsGrp, &sub_grp_id) > 0 && sub_grp_id && sales_grp_list.bsearch(&sub_grp_id, &sg_pos, CMPF_LONG)) {
 						const _SalesGrpEntry * p_sentry = static_cast<const _SalesGrpEntry *>(sales_grp_list.at(sg_pos));
-						dbfrSGI.empty();
+						DbfRecord dbfrSGI(p_out_tbl_sggrpi);
 						dbfrSGI.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrSGI.put(2, p_sentry->Code);
 						THROW_PP(p_out_tbl_sggrpi->appendRec(&dbfrSGI), PPERR_DBFWRFAULT);
@@ -2402,7 +2386,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						dscnt_code_ary.Search(scard_quot_ary.at(i).Val, &old_dscnt_code_bias, &pos))) {
 						int   next_fld = 0;
 						DbfRecord dbfrD(p_out_tbl_dscnt);
-						dbfrD.empty();
 						dbfrD.put(1, ltoa(gi.ID, tempbuf, 10));
 						dbfrD.put(2, scard_quot_ary.at(i).Key); // Категория карты (ID серии карт)
 						dbfrD.put(3, dscnt_sum);        // Сумма скидки
@@ -2435,7 +2418,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						PPQuot quot_by_qtty = gi.P_QuotByQttyList->at(i);
 						if(use_new_dscnt_code_alg || dscnt_code_ary.Search(quot_by_qtty.Kind, &old_dscnt_code_bias, &pos)) {
 							DbfRecord dbfrGQD(p_out_tbl_gdsqtty_dscnt);
-							dbfrGQD.empty();
 							dbfrGQD.put(1, ltoa(gi.ID, tempbuf, 10)); // Ид товара
 							if(use_new_dscnt_code_alg)
 								dbfrGQD.put(2, GetDscntCode(gi.ID, quot_by_qtty.Kind, 1)); // Код скидки
@@ -2462,9 +2444,8 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 						}
 					}
 			}
-			if(sstrlen(gi.BarCode) != 0) {
+			if(sstrlen(gi.BarCode)) {
 				DbfRecord dbfrB(p_out_tbl_barcode);
-				dbfrB.empty();
 				gi.AdjustBarcode(check_dig);
 				AddCheckDigToBarcode(gi.BarCode);
 				dbfrB.put(1, ltoa(gi.ID, tempbuf, 10));
@@ -2487,7 +2468,6 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 			cshr_iter.Init(NodeID);
 			while(cshr_iter.Next(&cshr_info) > 0) {
 				DbfRecord dbfrC(p_out_tbl_cashiers);
-				dbfrC.empty();
 				dbfrC.put(1, cshr_info.IsWorked ? "+" : "-");
 				dbfrC.put(2, cshr_info.TabNum);
 				dbfrC.put(3, cshr_info.Name);
@@ -2511,7 +2491,7 @@ int ACS_CRCSHSRV::Prev_ExportData(int updOnly)
 				_SalesGrpEntry * p_sgitem = 0;
 				DbfRecord dbfrSGG(p_out_tbl_sggrp);
 				for(uint i = 0; sales_grp_list.enumItems(&i, (void **)&p_sgitem) > 0;) {
-					dbfrSGG.empty();
+					dbfrSGG.Z();
 					dbfrSGG.put(1, p_sgitem->GrpName);
 					dbfrSGG.put(2, p_sgitem->Code);
 					THROW_PP(p_out_tbl_sggrp->appendRec(&dbfrSGG), PPERR_DBFWRFAULT);
@@ -4177,7 +4157,6 @@ int ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate)
 			THROW(p_qtbl = CreateDbfTable(DBFS_CRCS_SIGNAL_ALL_EXPORT, PathQue[filTyp], 1));
 			{
 				DbfRecord dbfr_signal(p_qtbl);
-				dbfr_signal.empty();
 				dbfr_signal.put(1, queryDate);
 				dbfr_signal.put(2, "*");
 				THROW_PP(p_qtbl->appendRec(&dbfr_signal), PPERR_DBFWRFAULT);

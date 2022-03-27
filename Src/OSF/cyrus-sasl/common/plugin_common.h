@@ -124,42 +124,22 @@ extern int gethostname(char *, int);
 extern "C" {
 #endif
 
-int _plug_ipfromstring(const sasl_utils_t * utils, const char * addr,
-    struct sockaddr * out, socklen_t outlen);
-int _plug_iovec_to_buf(const sasl_utils_t * utils, const struct iovec * vec,
-    unsigned numiov, buffer_info_t ** output);
-int _plug_buf_alloc(const sasl_utils_t * utils, char ** rwbuf,
-    unsigned * curlen, unsigned newlen);
-int _plug_strdup(const sasl_utils_t * utils, const char * in,
-    char ** out, int * outlen);
+int _plug_ipfromstring(const sasl_utils_t * utils, const char * addr, struct sockaddr * out, socklen_t outlen);
+int _plug_iovec_to_buf(const sasl_utils_t * utils, const struct iovec * vec, unsigned numiov, buffer_info_t ** output);
+int _plug_buf_alloc(const sasl_utils_t * utils, char ** rwbuf, unsigned * curlen, unsigned newlen);
+int _plug_strdup(const sasl_utils_t * utils, const char * in, char ** out, int * outlen);
 void _plug_free_string(const sasl_utils_t * utils, char ** str);
 void _plug_free_secret(const sasl_utils_t * utils, sasl_secret_t ** secret);
 
-#define _plug_get_userid(utils, result, prompt_need) \
-	_plug_get_simple(utils, SASL_CB_USER, 0, result, prompt_need)
-#define _plug_get_authid(utils, result, prompt_need) \
-	_plug_get_simple(utils, SASL_CB_AUTHNAME, 1, result, prompt_need)
-int _plug_get_simple(const sasl_utils_t * utils, unsigned int id, int required,
-    const char ** result, sasl_interact_t ** prompt_need);
-
-int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** secret,
-    unsigned int * iscopy, sasl_interact_t ** prompt_need);
-
-int _plug_challenge_prompt(const sasl_utils_t * utils, unsigned int id,
-    const char * challenge, const char * promptstr,
-    const char ** result, sasl_interact_t ** prompt_need);
-
-int _plug_get_realm(const sasl_utils_t * utils, const char ** availrealms,
-    const char ** realm, sasl_interact_t ** prompt_need);
-
-int _plug_make_prompts(const sasl_utils_t * utils,
-    sasl_interact_t ** prompts_res,
-    const char * user_prompt, const char * user_def,
-    const char * auth_prompt, const char * auth_def,
-    const char * pass_prompt, const char * pass_def,
-    const char * echo_chal,
-    const char * echo_prompt, const char * echo_def,
-    const char * realm_chal,
+#define _plug_get_userid(utils, result, prompt_need) _plug_get_simple(utils, SASL_CB_USER, 0, result, prompt_need)
+#define _plug_get_authid(utils, result, prompt_need) _plug_get_simple(utils, SASL_CB_AUTHNAME, 1, result, prompt_need)
+int _plug_get_simple(const sasl_utils_t * utils, unsigned int id, int required, const char ** result, sasl_interact_t ** prompt_need);
+int _plug_get_password(const sasl_utils_t * utils, sasl_secret_t ** secret, unsigned int * iscopy, sasl_interact_t ** prompt_need);
+int _plug_challenge_prompt(const sasl_utils_t * utils, unsigned int id, const char * challenge, const char * promptstr, const char ** result, sasl_interact_t ** prompt_need);
+int _plug_get_realm(const sasl_utils_t * utils, const char ** availrealms, const char ** realm, sasl_interact_t ** prompt_need);
+int _plug_make_prompts(const sasl_utils_t * utils, sasl_interact_t ** prompts_res, const char * user_prompt, const char * user_def,
+    const char * auth_prompt, const char * auth_def, const char * pass_prompt, const char * pass_def,
+    const char * echo_chal, const char * echo_prompt, const char * echo_def, const char * realm_chal,
     const char * realm_prompt, const char * realm_def);
 
 typedef struct decode_context {

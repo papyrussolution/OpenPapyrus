@@ -1,28 +1,14 @@
+// CMEMORY.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 1997-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *
- * File CMEMORY.H
- *
- *  Contains stdlib.h/string.h memory functions
- *
- * @author       Bertrand A. Damiba
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   6/20/98     Bertrand    Created.
- *  05/03/99     stephen     Changed from functions to macros.
- *
- ******************************************************************************
- */
-
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Contains stdlib.h/string.h memory functions
+// @author       Bertrand A. Damiba
+// Modification History:
+// Date        Name        Description
+// 6/20/98     Bertrand    Created.
+// 05/03/99     stephen     Changed from functions to macros.
+// 
 #ifndef CMEMORY_H
 #define CMEMORY_H
 
@@ -73,14 +59,10 @@
 } UPRV_BLOCK_MACRO_END
 #else
 #define uprv_memcpy(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
-		U_ASSERT(dst != NULL); \
-		U_ASSERT(src != NULL); \
-		U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); \
+		U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memcpy(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
 #define uprv_memmove(dst, src, size) UPRV_BLOCK_MACRO_BEGIN { \
-		U_ASSERT(dst != NULL); \
-		U_ASSERT(src != NULL); \
-		U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); \
+		U_ASSERT(dst != NULL); U_ASSERT(src != NULL); U_STANDARD_CPP_NAMESPACE memmove(dst, src, size); \
 } UPRV_BLOCK_MACRO_END
 #endif
 
@@ -128,10 +110,7 @@ U_CAPI void * U_EXPORT2 uprv_calloc(size_t num, size_t size) U_MALLOC_ATTR U_ALL
  * This is defined as a macro rather than a template function because each invocation
  * must define distinct static storage for the object being returned.
  */
-#define STATIC_NEW(type) [] () { \
-		alignas(type) static char storage[sizeof(type)]; \
-		return new(storage) type();} ()
-
+#define STATIC_NEW(type) [] () { alignas(type) static char storage[sizeof(type)]; return new(storage) type();} ()
 /**
  *  Heap clean up function, called from u_cleanup()
  *    Clears any user heap functions from u_setMemoryFunctions()
@@ -168,8 +147,7 @@ U_NAMESPACE_BEGIN
  *
  * @see LocalPointerBase
  */
-template <typename T>
-class LocalMemory : public LocalPointerBase<T> {
+template <typename T> class LocalMemory : public LocalPointerBase<T> {
 public:
 	using LocalPointerBase<T>::operator*;
 	using LocalPointerBase<T>::operator->;
@@ -264,9 +242,7 @@ public:
 	 * @param i array index
 	 * @return reference to the array item
 	 */
-	T & operator[](ptrdiff_t i) const {
-		return LocalPointerBase<T>::ptr[i];
-	}
+	T & operator[](ptrdiff_t i) const { return LocalPointerBase<T>::ptr[i]; }
 };
 
 template <typename T> inline T * LocalMemory<T>::allocateInsteadAndReset(int32_t newCapacity) 
@@ -285,8 +261,8 @@ template <typename T> inline T * LocalMemory<T>::allocateInsteadAndReset(int32_t
 	}
 }
 
-template <typename T>
-inline T * LocalMemory<T>::allocateInsteadAndCopy(int32_t newCapacity, int32_t length) {
+template <typename T> inline T * LocalMemory<T>::allocateInsteadAndCopy(int32_t newCapacity, int32_t length) 
+{
 	if(newCapacity>0) {
 		T * p = (T*)uprv_malloc(newCapacity*sizeof(T));
 		if(p) {
@@ -305,7 +281,6 @@ inline T * LocalMemory<T>::allocateInsteadAndCopy(int32_t newCapacity, int32_t l
 		return NULL;
 	}
 }
-
 /**
  * Simple array/buffer management class using uprv_malloc() and uprv_free().
  * Provides an internal array with fixed capacity. Can alias another array
@@ -324,8 +299,7 @@ inline T * LocalMemory<T>::allocateInsteadAndCopy(int32_t newCapacity, int32_t l
  * - LocalArray in localpointer.h if you know the length ahead of time
  * - MaybeStackVector if you know the length at runtime
  */
-template <typename T, int32_t stackCapacity>
-class MaybeStackArray {
+template <typename T, int32_t stackCapacity> class MaybeStackArray {
 public:
 	// No heap allocation. Use only on the stack.
 	static void * U_EXPORT2 operator new(size_t) U_NOEXCEPT = delete;
@@ -333,19 +307,19 @@ public:
 #if U_HAVE_PLACEMENT_NEW
 	static void * U_EXPORT2 operator new(size_t, void *) U_NOEXCEPT = delete;
 #endif
-
 	/**
 	 * Default constructor initializes with internal T[stackCapacity] buffer.
 	 */
-	MaybeStackArray() : ptr(stackArray), capacity(stackCapacity), needToRelease(false) {
+	MaybeStackArray() : ptr(stackArray), capacity(stackCapacity), needToRelease(false) 
+	{
 	}
-
 	/**
 	 * Automatically allocates the heap array if the argument is larger than the stack capacity.
 	 * Intended for use when an approximate capacity is known at compile time but the true
 	 * capacity is not known until runtime.
 	 */
-	MaybeStackArray(int32_t newCapacity, UErrorCode status) : MaybeStackArray() {
+	MaybeStackArray(int32_t newCapacity, UErrorCode status) : MaybeStackArray() 
+	{
 		if(U_FAILURE(status)) {
 			return;
 		}
@@ -355,14 +329,13 @@ public:
 			}
 		}
 	}
-
 	/**
 	 * Destructor deletes the array (if owned).
 	 */
-	~MaybeStackArray() {
+	~MaybeStackArray() 
+	{
 		releaseArray();
 	}
-
 	/**
 	 * Move constructor: transfers ownership or copies the stack array.
 	 */
@@ -375,26 +348,17 @@ public:
 	 * Returns the array capacity (number of T items).
 	 * @return array capacity
 	 */
-	int32_t getCapacity() const {
-		return capacity;
-	}
-
+	int32_t getCapacity() const { return capacity; }
 	/**
 	 * Access without ownership change.
 	 * @return the array pointer
 	 */
-	T * getAlias() const {
-		return ptr;
-	}
-
+	T * getAlias() const { return ptr; }
 	/**
 	 * Returns the array limit. Simple convenience method.
 	 * @return getAlias()+getCapacity()
 	 */
-	T * getArrayLimit() const {
-		return getAlias()+capacity;
-	}
-
+	T * getArrayLimit() const { return getAlias()+capacity; }
 	// No "operator T *() const" because that can make
 	// expressions like mbs[index] ambiguous for some compilers.
 	/**
@@ -403,28 +367,23 @@ public:
 	 * @param i array index
 	 * @return reference to the array item
 	 */
-	const T & operator[](ptrdiff_t i) const {
-		return ptr[i];
-	}
-
+	const T & operator[](ptrdiff_t i) const { return ptr[i]; }
 	/**
 	 * Array item access (writable).
 	 * No index bounds check.
 	 * @param i array index
 	 * @return reference to the array item
 	 */
-	T & operator[](ptrdiff_t i) {
-		return ptr[i];
-	}
-
+	T & operator[](ptrdiff_t i) { return ptr[i]; }
 	/**
 	 * Deletes the array (if owned) and aliases another one, no transfer of ownership.
 	 * If the arguments are illegal, then the current array is unchanged.
 	 * @param otherArray must not be NULL
 	 * @param otherCapacity must be >0
 	 */
-	void aliasInstead(T * otherArray, int32_t otherCapacity) {
-		if(otherArray!=NULL && otherCapacity>0) {
+	void aliasInstead(T * otherArray, int32_t otherCapacity) 
+	{
+		if(otherArray && otherCapacity>0) {
 			releaseArray();
 			ptr = otherArray;
 			capacity = otherCapacity;

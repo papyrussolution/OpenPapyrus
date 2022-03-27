@@ -73,19 +73,19 @@ int PPDeclStrucProcessor::RestorePos(const P * p)
 static uint __IsEol(const char * pIn)
 {
 	const char c = pIn[0];
-	return (oneof2(c, '\xA', '\xD')) ? ((c == '\xD' && (pIn[1] == '\xA')) ? 2 : 1) : 0;
+	return (oneof2(c, '\x0A', '\x0D')) ? ((c == '\x0D' && (pIn[1] == '\x0A')) ? 2 : 1) : 0;
 }
 
 int PPDeclStrucProcessor::CheckEol(int * pC)
 {
 	int    is_eol = 0;
-	if(*pC == '\xA') {
+	if(*pC == '\x0A') {
 		is_eol = 1;
 	}
-	else if(*pC == '\xD') {
+	else if(*pC == '\x0D') {
 		is_eol = 1;
 		int c2 = fgetc(InStream);
-		if(c2 != '\xA')
+		if(c2 != '\x0A')
 			ungetc(c2, InStream);
 	}
 	if(is_eol) {

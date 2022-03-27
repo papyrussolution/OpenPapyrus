@@ -27,7 +27,7 @@
 //
 //   // Splits the given string on commas. Returns the results in a
 //   // vector of strings.
-//   std::vector<std::string> v = absl::StrSplit("a,b,c", ',');
+//   std::vector <std::string> v = absl::StrSplit("a,b,c", ',');
 //   // Can also use ","
 //   // v[0] == "a", v[1] == "b", v[2] == "c"
 //
@@ -115,10 +115,10 @@ ABSL_NAMESPACE_BEGIN
 //   // Because a string literal is converted to an `absl::ByString`,
 //   // the following two splits are equivalent.
 //
-//   std::vector<std::string> v1 = absl::StrSplit("a, b, c", ", ");
+//   std::vector <std::string> v1 = absl::StrSplit("a, b, c", ", ");
 //
 //   using absl::ByString;
-//   std::vector<std::string> v2 = absl::StrSplit("a, b, c",
+//   std::vector <std::string> v2 = absl::StrSplit("a, b, c",
 //                                                ByString(", "));
 //   // v[0] == "a", v[1] == "b", v[2] == "c"
 class ByString {
@@ -139,19 +139,19 @@ class ByString {
 //
 //   // Because a char literal is converted to a absl::ByChar,
 //   // the following two splits are equivalent.
-//   std::vector<std::string> v1 = absl::StrSplit("a,b,c", ',');
+//   std::vector <std::string> v1 = absl::StrSplit("a,b,c", ',');
 //   using absl::ByChar;
-//   std::vector<std::string> v2 = absl::StrSplit("a,b,c", ByChar(','));
+//   std::vector <std::string> v2 = absl::StrSplit("a,b,c", ByChar(','));
 //   // v[0] == "a", v[1] == "b", v[2] == "c"
 //
 // `ByChar` is also the default delimiter if a single character is given
 // as the delimiter to `StrSplit()`. For example, the following calls are
 // equivalent:
 //
-//   std::vector<std::string> v = absl::StrSplit("a-b", '-');
+//   std::vector <std::string> v = absl::StrSplit("a-b", '-');
 //
 //   using absl::ByChar;
-//   std::vector<std::string> v = absl::StrSplit("a-b", ByChar('-'));
+//   std::vector <std::string> v = absl::StrSplit("a-b", ByChar('-'));
 //
 class ByChar {
  public:
@@ -173,7 +173,7 @@ class ByChar {
 // Example:
 //
 //   using absl::ByAnyChar;
-//   std::vector<std::string> v = absl::StrSplit("a,b=c", ByAnyChar(",="));
+//   std::vector <std::string> v = absl::StrSplit("a,b=c", ByAnyChar(",="));
 //   // v[0] == "a", v[1] == "b", v[2] == "c"
 //
 // If `ByAnyChar` is given the empty string, it behaves exactly like
@@ -199,7 +199,7 @@ class ByAnyChar {
 // Example:
 //
 //   using absl::ByLength;
-//   std::vector<std::string> v = absl::StrSplit("123456789", ByLength(3));
+//   std::vector <std::string> v = absl::StrSplit("123456789", ByLength(3));
 
 //   // v[0] == "123", v[1] == "456", v[2] == "789"
 //
@@ -207,7 +207,7 @@ class ByAnyChar {
 // length. In such a case, the last substring will be shorter.
 //
 //   using absl::ByLength;
-//   std::vector<std::string> v = absl::StrSplit("12345", ByLength(2));
+//   std::vector <std::string> v = absl::StrSplit("12345", ByLength(2));
 //
 //   // v[0] == "12", v[1] == "34", v[2] == "5"
 class ByLength {
@@ -285,7 +285,7 @@ class MaxSplitsImpl {
 // Example:
 //
 //   using absl::MaxSplits;
-//   std::vector<std::string> v = absl::StrSplit("a,b,c", MaxSplits(',', 1));
+//   std::vector <std::string> v = absl::StrSplit("a,b,c", MaxSplits(',', 1));
 //
 //   // v[0] == "a", v[1] == "b,c"
 template <typename Delimiter>
@@ -323,7 +323,7 @@ MaxSplits(Delimiter delimiter, int limit) {
 //
 // Example:
 //
-//  std::vector<std::string> v = absl::StrSplit(" a , ,,b,", ',', AllowEmpty());
+//  std::vector <std::string> v = absl::StrSplit(" a , ,,b,", ',', AllowEmpty());
 //
 //  // v[0] == " a ", v[1] == " ", v[2] == "", v[3] = "b", v[4] == ""
 struct AllowEmpty {
@@ -337,7 +337,7 @@ struct AllowEmpty {
 //
 // Example:
 //
-//   std::vector<std::string> v = absl::StrSplit(",a,,b,", ',', SkipEmpty());
+//   std::vector <std::string> v = absl::StrSplit(",a,,b,", ',', SkipEmpty());
 //
 //   // v[0] == "a", v[1] == "b"
 //
@@ -355,12 +355,12 @@ struct SkipEmpty {
 //
 // Example:
 //
-//   std::vector<std::string> v = absl::StrSplit(" a , ,,b,",
+//   std::vector <std::string> v = absl::StrSplit(" a , ,,b,",
 //                                               ',', SkipWhitespace());
 //   // v[0] == " a ", v[1] == "b"
 //
 //   // SkipEmpty() would return whitespace elements
-//   std::vector<std::string> v = absl::StrSplit(" a , ,,b,", ',', SkipEmpty());
+//   std::vector <std::string> v = absl::StrSplit(" a , ,,b,", ',', SkipEmpty());
 //   // v[0] == " a ", v[1] == " ", v[2] == "b"
 struct SkipWhitespace {
   bool operator()(absl::string_view sp) const {
@@ -389,7 +389,7 @@ using EnableSplitIfString =
 //
 // Example:
 //
-//   std::vector<std::string> v = absl::StrSplit("a,b,c,d", ',');
+//   std::vector <std::string> v = absl::StrSplit("a,b,c,d", ',');
 //   // v[0] == "a", v[1] == "b", v[2] == "c", v[3] == "d"
 //
 // You can also provide an explicit `Delimiter` object:
@@ -397,7 +397,7 @@ using EnableSplitIfString =
 // Example:
 //
 //   using absl::ByAnyChar;
-//   std::vector<std::string> v = absl::StrSplit("a,b=c", ByAnyChar(",="));
+//   std::vector <std::string> v = absl::StrSplit("a,b=c", ByAnyChar(",="));
 //   // v[0] == "a", v[1] == "b", v[2] == "c"
 //
 // See above for more information on delimiters.
@@ -408,7 +408,7 @@ using EnableSplitIfString =
 //
 // Example:
 //
-//   std::vector<std::string> v = absl::StrSplit(" a , ,,b,",
+//   std::vector <std::string> v = absl::StrSplit(" a , ,,b,",
 //                                               ',', SkipWhitespace());
 //   // v[0] == " a ", v[1] == "b"
 //
@@ -433,7 +433,7 @@ using EnableSplitIfString =
 //
 //   // The results are returned as `absl::string_view` objects. Note that we
 //   // have to ensure that the input string outlives any results.
-//   std::vector<absl::string_view> v = absl::StrSplit("a,b,c", ',');
+//   std::vector <absl::string_view> v = absl::StrSplit("a,b,c", ',');
 //
 //   // Stores results in a std::set<std::string>, which also performs
 //   // de-duplication and orders the elements in ascending order.
@@ -442,7 +442,7 @@ using EnableSplitIfString =
 //
 //   // `StrSplit()` can be used within a range-based for loop, in which case
 //   // each element will be of type `absl::string_view`.
-//   std::vector<std::string> v;
+//   std::vector <std::string> v;
 //   for (const auto sv : absl::StrSplit("a,b,c", ',')) {
 //     if (sv != "b") v.emplace_back(sv);
 //   }

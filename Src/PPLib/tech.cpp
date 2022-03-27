@@ -393,6 +393,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 
 int PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, 0, pList, prcID, 0); }
 int PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
+int PPObjTech::GetListByGoods(PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, 0, goodsID); }
 int PPObjTech::DeleteObj(PPID id) { return RemoveByID(P_Tbl, id, 0); }
 
 int PPObjTech::GetChildList(PPID techID, PPIDArray & rList)
@@ -1258,7 +1259,7 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 			if(pGoodsIdList && P_Tbl->data.GoodsID) {
 				const PPID goods_id = P_Tbl->data.GoodsID;
 				Goods2Tbl::Rec goods_rec;
-				if(goods_obj.Fetch(goods_id, &goods_rec) > 0)
+				if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 					if(goods_rec.Flags & GF_GENERIC) {
 						/*
 						PPIDArray gen_list;
@@ -1266,8 +1267,10 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 						THROW(pGoodsIdList->addUnique(&gen_list));
 						*/
 					}
-					else
+					else {
 						THROW(pGoodsIdList->addUnique(goods_id));
+					}
+				}
 			}
 		}
 	}

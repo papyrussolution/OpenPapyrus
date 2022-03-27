@@ -14,7 +14,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 
 public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.OnQueryTextListener {
 	private String SearchPattern;
@@ -29,20 +31,27 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 	}
 	@Override public boolean onQueryTextSubmit(String query)
 	{
+		boolean result = false;
 		SearchPattern = query;
 		if(SLib.GetLen(SearchPattern) > 0) {
 			StyloQApp app_ctx = (StyloQApp)getApplication();
-			byte [] svc_ident = Base64.getDecoder().decode("/TV5LgPLqvrjL7kAaMnt8a1Kjt8=");
-			StyloQInterchange.DoInterchangeParam param = new StyloQInterchange.DoInterchangeParam(svc_ident);
-			JSONObject js_query = new JSONObject();
-			try {
-				js_query.put("cmd", "search");
-				js_query.put("plainquery", SearchPattern);
-				js_query.put("maxresultcount", 128);
-				param.CommandJson = js_query.toString();
-				StyloQInterchange.RunClientInterchange(app_ctx, param);
-			} catch(JSONException exn) {
-				;
+			ArrayList <StyloQApp.IgnitionServerEntry> isl = app_ctx.GetIgnitionServerList();
+			if(isl != null && isl.size() > 0) {
+				Collections.shuffle(isl);
+				StyloQApp.IgnitionServerEntry ise = isl.get(0);
+				StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(ise.SvcIdent);
+				inner_param.AccsPoint = ise.Url;
+				JSONObject js_query = new JSONObject();
+				try {
+					js_query.put("cmd", "search");
+					js_query.put("plainquery", SearchPattern);
+					js_query.put("maxresultcount", 128);
+					inner_param.CommandJson = js_query.toString();
+					StyloQInterchange.RunClientInterchange(app_ctx, inner_param);
+					result = true;
+				} catch(JSONException exn) {
+					;
+				}
 			}
 		}
 		return false;
@@ -140,44 +149,80 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 				}
 				break;
 			case SLib.EV_GETLISTITEMVIEW:
-			{
-				SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
-				if(ev_subj != null) {
-					if(ev_subj.RvHolder != null) {
-						try {
-							// RecyclerView
-							if(JsResultList != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
-								StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-								View iv = ev_subj.RvHolder.itemView;
-								JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);
-								String rtext = js_entry.optString("text", "");
-								SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_TEXT, rtext);
-								String scope_name = "";
-								String key_s = js_entry.optString("scope", "");
-								if(SLib.GetLen(key_s) > 0) {
-									if(key_s.equalsIgnoreCase("styloqsvc")) {
-										scope_name = app_ctx.GetString("styloq_binderykind_foreignservice");
+				{
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+					if(ev_subj != null) {
+						if(ev_subj.RvHolder != null) {
+							try {
+								// RecyclerView
+								if(JsResultList != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
+									StyloQApp app_ctx = (StyloQApp)getApplicationContext();
+									View iv = ev_subj.RvHolder.itemView;
+									JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);
+									String rtext = js_entry.optString("text", "");
+									SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_TEXT, rtext);
+									String scope_name = "";
+									String key_s = js_entry.optString("scope", "");
+									if(SLib.GetLen(key_s) > 0) {
+										//String obj_type = js_entry.optString("objtype", "");
+										/*if(key_s.equalsIgnoreCase("styloqsvc")) {
+											scope_name = app_ctx.GetString("styloq_binderykind_foreignservice");
+										}*/
+										if(SLib.GetLen(scope_name) <= 0) {
+											String key_si = js_entry.optString("scopeident", "");
+											if(SLib.GetLen(key_si) > 0) {
+												JSONObject js_scope = SearchScope(key_s, key_si);
+												if(js_scope != null)
+													scope_name = js_scope.optString("nm", "");
+											}
+										}
 									}
-									if(SLib.GetLen(scope_name) <= 0) {
-										String key_si = js_entry.optString("scopeident", "");
-										if(SLib.GetLen(key_si) > 0) {
-											JSONObject js_scope = SearchScope(key_s, key_si);
-											if(js_scope != null)
-												scope_name = js_scope.optString("nm", "");
+									SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_SCOPE, scope_name);
+								}
+							} catch(JSONException exn) {
+								;
+							}
+						}
+						else {
+							// Если имеем дело с обычным ListView
+						}
+					}
+				}
+				break;
+			case SLib.EV_LISTVIEWITEMCLK:
+				{
+					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
+					if(ev_subj != null) {
+						StyloQApp app_ctx = (StyloQApp)getApplication();
+						if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < JsResultList.length()) {
+							try {
+								JSONObject js_entry = JsResultList.getJSONObject(ev_subj.ItemIdx);
+								if(js_entry != null) {
+									String scope = js_entry.optString("scope", null);
+									String scope_ident = js_entry.optString("scopeident", null);
+									String obj_type = js_entry.optString("objtype", null);
+									long obj_id = js_entry.optLong("objid", 0);
+									if(SLib.GetLen(scope) > 0 && scope.equalsIgnoreCase("styloqsvc") && SLib.GetLen(scope_ident) > 0) {
+										byte [] svc_ident = Base64.getDecoder().decode(scope_ident);
+										if(SLib.GetLen(svc_ident) > 0) {
+											StyloQInterchange.DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(svc_ident);
+											JSONObject js_query = new JSONObject();
+											js_query.put("cmd", "register");
+											js_query.put("time", System.currentTimeMillis());
+											inner_param.CommandJson = js_query.toString();
+											StyloQInterchange.RunClientInterchange(app_ctx, inner_param);
 										}
 									}
 								}
-								SLib.SetCtrlString(iv, R.id.LVITEM_SEARCH_SCOPE, scope_name);
+							} catch(JSONException e) {
+								;
 							}
-						} catch(JSONException exn) {
+							//boolean force_query = (ev == SLib.EV_LISTVIEWITEMLONGCLK) ? true : false;
+							//app_ctx.RunSvcCommand(SvcIdent, ListData.Items.get(ev_subj.ItemIdx), force_query);
 						}
 					}
-					else {
-						// Если имеем дело с обычным ListView
-					}
 				}
-			}
-			break;
+				break;
 		}
 		return result;
 	}

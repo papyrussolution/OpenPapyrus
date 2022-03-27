@@ -4879,6 +4879,10 @@ int PPLocAddrStruc::Recognize(const char * pText)
 										temp_buf2 = "Äוגÿעמדמ ‗םגאנÿ";
 										do_merge = 2;
 									}
+									else if(temp_buf2 == "כüגא עמכסעמדמ") { // @v11.3.1
+										temp_buf2 = "Ëüגא Òמכסעמדמ";
+										do_merge = 2;
+									}
 									fao_list.clear();
 									if(P_Fr && P_Fr->SearchObjByText(temp_buf, PPFiasReference::stfAnsiInput, 0, fao_list) > 0)
 										do_merge = 1;

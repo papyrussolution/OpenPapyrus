@@ -5,19 +5,17 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // Cost tables for level and modes
 //
 // Author: Skal (pascal.massimino@gmail.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "src/enc/cost_enc.h"
-
-//------------------------------------------------------------------------------
+//
 // Level cost tables
-
+//
 // For each given level, the following table gives the pattern of contexts to
 // use for coding it (in [][0]) as well as the bit value to use for each
 // context (in [][1]).
@@ -55,15 +53,14 @@ static int VariableLevelCost(int level, const uint8 probas[NUM_PROBAS]) {
 	}
 	return cost;
 }
-
-//------------------------------------------------------------------------------
+//
 // Pre-calc level costs once for all
-
-void VP8CalculateLevelCosts(VP8EncProba* const proba) {
+//
+void VP8CalculateLevelCosts(VP8EncProba* const proba) 
+{
 	int ctype, band, ctx;
-
-	if(!proba->dirty_) return; // nothing to do.
-
+	if(!proba->dirty_) 
+		return; // nothing to do.
 	for(ctype = 0; ctype < NUM_TYPES; ++ctype) {
 		int n;
 		for(band = 0; band < NUM_BANDS; ++band) {
@@ -90,10 +87,9 @@ void VP8CalculateLevelCosts(VP8EncProba* const proba) {
 	}
 	proba->dirty_ = 0;
 }
-
-//------------------------------------------------------------------------------
+//
 // Mode cost tables.
-
+//
 // These are the fixed probabilities (in the coding trees) turned into bit-cost
 // by calling VP8BitCost().
 const uint16_t VP8FixedCostsUV[4] = { 302, 984, 439, 642 };
@@ -201,10 +197,9 @@ const uint16_t VP8FixedCostsI4[NUM_BMODES][NUM_BMODES][NUM_BMODES] = {
 	  {  768,  724, 1058,  636,  991, 1075, 1319, 1324,  616,  825 },
 	  {  305, 1167, 1358,  899, 1587, 1587,  987, 1988, 1332,  501 } }
 };
-
-//------------------------------------------------------------------------------
+//
 // helper functions for residuals struct VP8Residual.
-
+//
 void VP8InitResidual(int first, int coeff_type,
     VP8Encoder* const enc, VP8Residual* const res) {
 	res->coeff_type = coeff_type;
@@ -213,10 +208,9 @@ void VP8InitResidual(int first, int coeff_type,
 	res->costs = enc->proba_.remapped_costs_[coeff_type];
 	res->first = first;
 }
-
-//------------------------------------------------------------------------------
+//
 // Mode costs
-
+//
 int VP8GetCostLuma4(VP8EncIterator* const it, const int16_t levels[16]) {
 	const int x = (it->i4_ & 3), y = (it->i4_ >> 2);
 	VP8Residual res;
@@ -257,14 +251,13 @@ int VP8GetCostLuma16(VP8EncIterator* const it, const VP8ModeScore* const rd) {
 	return R;
 }
 
-int VP8GetCostUV(VP8EncIterator* const it, const VP8ModeScore* const rd) {
+int VP8GetCostUV(VP8EncIterator* const it, const VP8ModeScore* const rd) 
+{
 	VP8Residual res;
 	VP8Encoder* const enc = it->enc_;
 	int ch, x, y;
 	int R = 0;
-
 	VP8IteratorNzToBytes(it); // re-import the non-zero context
-
 	VP8InitResidual(0, 2, enc, &res);
 	for(ch = 0; ch <= 2; ch += 2) {
 		for(y = 0; y < 2; ++y) {
@@ -278,10 +271,9 @@ int VP8GetCostUV(VP8EncIterator* const it, const VP8ModeScore* const rd) {
 	}
 	return R;
 }
-
-//------------------------------------------------------------------------------
+//
 // Recording of token probabilities.
-
+//
 // We keep the table-free variant around for reference, in case.
 #define USE_LEVEL_CODE_TABLE
 
@@ -343,5 +335,3 @@ int VP8RecordCoeffs(int ctx, const VP8Residual* const res) {
 	if(n < 16) VP8RecordStats(0, s + 0);
 	return 1;
 }
-
-//------------------------------------------------------------------------------

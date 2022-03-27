@@ -1673,5 +1673,5 @@ int FASTCALL TGroup::valid(ushort command)
 }
 
 uint TGroup::GetCurrId() const { return P_Current ? P_Current->GetId() : 0; }
-int FASTCALL TGroup::IsCurrentView(const TView * pV) const { return BIN(pV && P_Current == pV); }
-int FASTCALL TGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }
+bool FASTCALL TGroup::IsCurrentView(const TView * pV) const { return (pV && P_Current == pV); }
+bool FASTCALL TGroup::isCurrCtlID(uint ctlID) const { return (P_Current && P_Current->TestId(ctlID)); }

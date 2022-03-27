@@ -1,15 +1,12 @@
+// ustrenum.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (c) 2002-2014, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
- * Author: Alan Liu
- * Created: November 11 2002
- * Since: ICU 2.4
- **********************************************************************
- */
+// Copyright (c) 2002-2014, International Business Machines Corporation and others.  All Rights Reserved.
+// 
+// Author: Alan Liu
+// Created: November 11 2002
+// Since: ICU 2.4
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "uenumimp.h"
@@ -18,58 +15,55 @@
 U_NAMESPACE_BEGIN
 // StringEnumeration implementation ---------------------------------------- ***
 
-StringEnumeration::StringEnumeration()
-	: chars(charsBuffer), charsCapacity(sizeof(charsBuffer)) {
+StringEnumeration::StringEnumeration() : chars(charsBuffer), charsCapacity(sizeof(charsBuffer)) 
+{
 }
 
-StringEnumeration::~StringEnumeration() {
+StringEnumeration::~StringEnumeration() 
+{
 	if(chars != NULL && chars != charsBuffer) {
 		uprv_free(chars);
 	}
 }
 
 // StringEnumeration base class clone() default implementation, does not clone
-StringEnumeration * StringEnumeration::clone() const {
-	return NULL;
-}
+StringEnumeration * StringEnumeration::clone() const { return NULL; }
 
-const char * StringEnumeration::next(int32_t * resultLength, UErrorCode & status) {
+const char * StringEnumeration::next(int32_t * resultLength, UErrorCode & status) 
+{
 	const UnicodeString * s = snext(status);
-	if(U_SUCCESS(status) && s!=NULL) {
+	if(U_SUCCESS(status) && s) {
 		unistr = *s;
 		ensureCharsCapacity(unistr.length()+1, status);
 		if(U_SUCCESS(status)) {
-			if(resultLength!=NULL) {
-				*resultLength = unistr.length();
-			}
+			ASSIGN_PTR(resultLength, unistr.length());
 			unistr.extract(0, INT32_MAX, chars, charsCapacity, US_INV);
 			return chars;
 		}
 	}
-
 	return NULL;
 }
 
-const UChar * StringEnumeration::unext(int32_t * resultLength, UErrorCode & status) {
+const UChar * StringEnumeration::unext(int32_t * resultLength, UErrorCode & status) 
+{
 	const UnicodeString * s = snext(status);
-	if(U_SUCCESS(status) && s!=NULL) {
+	if(U_SUCCESS(status) && s) {
 		unistr = *s;
-		if(resultLength!=NULL) {
-			*resultLength = unistr.length();
-		}
+		ASSIGN_PTR(resultLength, unistr.length());
 		return unistr.getTerminatedBuffer();
 	}
-
 	return NULL;
 }
 
-const UnicodeString * StringEnumeration::snext(UErrorCode & status) {
+const UnicodeString * StringEnumeration::snext(UErrorCode & status) 
+{
 	int32_t length;
 	const char * s = next(&length, status);
 	return setChars(s, length, status);
 }
 
-void StringEnumeration::ensureCharsCapacity(int32_t capacity, UErrorCode & status) {
+void StringEnumeration::ensureCharsCapacity(int32_t capacity, UErrorCode & status) 
+{
 	if(U_SUCCESS(status) && capacity>charsCapacity) {
 		if(capacity<(charsCapacity+charsCapacity/2)) {
 			// avoid allocation thrashing
@@ -90,14 +84,14 @@ void StringEnumeration::ensureCharsCapacity(int32_t capacity, UErrorCode & statu
 	}
 }
 
-UnicodeString * StringEnumeration::setChars(const char * s, int32_t length, UErrorCode & status) {
-	if(U_SUCCESS(status) && s!=NULL) {
+UnicodeString * StringEnumeration::setChars(const char * s, int32_t length, UErrorCode & status) 
+{
+	if(U_SUCCESS(status) && s) {
 		if(length<0) {
 			length = (int32_t)uprv_strlen(s);
 		}
-
 		UChar * buffer = unistr.getBuffer(length+1);
-		if(buffer!=NULL) {
+		if(buffer) {
 			u_charsToUChars(s, buffer, length);
 			buffer[length] = 0;
 			unistr.releaseBuffer(length);
@@ -107,23 +101,23 @@ UnicodeString * StringEnumeration::setChars(const char * s, int32_t length, UErr
 			status = U_MEMORY_ALLOCATION_ERROR;
 		}
 	}
-
 	return NULL;
 }
 
-bool
-StringEnumeration::operator == (const StringEnumeration &that) const {
+bool StringEnumeration::operator == (const StringEnumeration &that) const 
+{
 	return typeid(*this) == typeid(that);
 }
 
-bool
-StringEnumeration::operator != (const StringEnumeration &that) const {
+bool StringEnumeration::operator != (const StringEnumeration &that) const 
+{
 	return !operator == (that);
 }
 
 // UStringEnumeration implementation --------------------------------------- ***
 
-UStringEnumeration * U_EXPORT2 UStringEnumeration::fromUEnumeration(UEnumeration * uenumToAdopt, UErrorCode & status) {
+UStringEnumeration * U_EXPORT2 UStringEnumeration::fromUEnumeration(UEnumeration * uenumToAdopt, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		uenum_close(uenumToAdopt);
 		return NULL;
@@ -137,24 +131,28 @@ UStringEnumeration * U_EXPORT2 UStringEnumeration::fromUEnumeration(UEnumeration
 	return result;
 }
 
-UStringEnumeration::UStringEnumeration(UEnumeration* _uenum) :
-	uenum(_uenum) {
+UStringEnumeration::UStringEnumeration(UEnumeration* _uenum) : uenum(_uenum) 
+{
 	U_ASSERT(_uenum != 0);
 }
 
-UStringEnumeration::~UStringEnumeration() {
+UStringEnumeration::~UStringEnumeration() 
+{
 	uenum_close(uenum);
 }
 
-int32_t UStringEnumeration::count(UErrorCode & status) const {
+int32_t UStringEnumeration::count(UErrorCode & status) const 
+{
 	return uenum_count(uenum, &status);
 }
 
-const char * UStringEnumeration::next(int32_t * resultLength, UErrorCode & status) {
+const char * UStringEnumeration::next(int32_t * resultLength, UErrorCode & status) 
+{
 	return uenum_next(uenum, resultLength, &status);
 }
 
-const UnicodeString * UStringEnumeration::snext(UErrorCode & status) {
+const UnicodeString * UStringEnumeration::snext(UErrorCode & status) 
+{
 	int32_t length;
 	const UChar * str = uenum_unext(uenum, &length, &status);
 	if(str == 0 || U_FAILURE(status)) {
@@ -163,7 +161,8 @@ const UnicodeString * UStringEnumeration::snext(UErrorCode & status) {
 	return &unistr.setTo(str, length);
 }
 
-void UStringEnumeration::reset(UErrorCode & status) {
+void UStringEnumeration::reset(UErrorCode & status) 
+{
 	uenum_reset(uenum, &status);
 }
 
@@ -325,8 +324,8 @@ static const UEnumeration UCHARSTRENUM_U_VT = {
 
 U_CDECL_END
 
-U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * const strings[], int32_t count,
-    UErrorCode * ec) {
+U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * const strings[], int32_t count, UErrorCode * ec) 
+{
 	UCharStringEnumeration* result = NULL;
 	if(U_SUCCESS(*ec) && count >= 0 && (count == 0 || strings != 0)) {
 		result = (UCharStringEnumeration*)uprv_malloc(sizeof(UCharStringEnumeration));
@@ -344,8 +343,8 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openCharStringsEnumeration(const char * con
 	return (UEnumeration*)result;
 }
 
-U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const UChar * const strings[], int32_t count,
-    UErrorCode * ec) {
+U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const UChar * const strings[], int32_t count, UErrorCode * ec) 
+{
 	UCharStringEnumeration* result = NULL;
 	if(U_SUCCESS(*ec) && count >= 0 && (count == 0 || strings != 0)) {
 		result = (UCharStringEnumeration*)uprv_malloc(sizeof(UCharStringEnumeration));
@@ -362,5 +361,3 @@ U_CAPI UEnumeration* U_EXPORT2 uenum_openUCharStringsEnumeration(const UChar * c
 	}
 	return (UEnumeration*)result;
 }
-
-// end C Wrapper

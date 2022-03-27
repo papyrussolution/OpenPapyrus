@@ -191,8 +191,8 @@ void Notepad_plus_Window::init(HINSTANCE hInst, HWND parent, const TCHAR * cmdLi
 			TEXT(""));
 		_notepad_plus_plus_core._pTrayIco->doTrayIcon(ADD);
 	}
-	std::vector<generic_string> fileNames;
-	std::vector<generic_string> patterns;
+	std::vector <generic_string> fileNames;
+	std::vector <generic_string> patterns;
 	patterns.push_back(TEXT("*.xml"));
 
 	generic_string nppDir = nppParams.getNppPath();
@@ -254,7 +254,7 @@ void Notepad_plus_Window::init(HINSTANCE hInst, HWND parent, const TCHAR * cmdLi
 	for(size_t i = 0, len = _notepad_plus_plus_core._internalFuncIDs.size(); i < len; ++i)
 		::SendMessage(_hSelf, WM_COMMAND, _notepad_plus_plus_core._internalFuncIDs[i], 0);
 
-	std::vector<generic_string> fns;
+	std::vector <generic_string> fns;
 	if(cmdLine)
 		fns = _notepad_plus_plus_core.loadCommandlineParams(cmdLine, cmdLineParams);
 

@@ -4626,13 +4626,28 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 //
 //
 //
-class PPTokenSymbHash : public SymbHashTable {
-public:
-	PPTokenSymbHash() : SymbHashTable(1024)
-	{
-	}
-	int   Get(int tokenId, SString & rToken)
-	{
+PPTokenRecognizer::PPTokenRecognizer() : STokenRecognizer()
+{
+}
 
+/*virtual*/int PPTokenRecognizer::PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
+{
+	int    ok = 1;
+#if(_MSC_VER >= 1900)
+	if(rIb.DecCount >= 5 && rIb.DecCount <= 15) { // i don't sure in correctness of [5..15] limit
+		if(PhnL.Parse(reinterpret_cast<const char *>(pToken), "RU")) {
+			rResultList.Add(SNTOK_PHONE, 0.9f);
+		}
+		else {
+			//
+			// Рекогнайзер STokenRecognizer умеет распознавать номера телефонов. Однако, я предполагаю, что
+			// libphonenumber делает это лучше. Но слово "предполагаю" здесь ключевое - то есть, я не уверен. В связи с этим не понятно
+			// как трактовать ситуацию, когда STokenRecognizer увидел номер телефона, а libphonenumber - нет.
+			// Пока оставлю без изменений, но, возможно, надо будет удалять значение SNTOK_PHONE из списка rResultList.
+			//
+			rResultList.Add(SNTOK_PHONE, 0.0f);
+		}
 	}
-};
+#endif
+	return ok;
+}

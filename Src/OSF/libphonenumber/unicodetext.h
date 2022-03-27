@@ -147,7 +147,7 @@ namespace i18n {
 			// iterator_traits<ForwardIterator>::value_type must be implicitly
 			// convertible to char32. Typical uses of this method might include:
 			//     char32 chars[] = {0x1, 0x2, ...};
-			//     vector<char32> more_chars = ...;
+			//     vector <char32> more_chars = ...;
 			//     utext.append(chars, chars+arraysize(chars));
 			//     utext.append(more_chars.begin(), more_chars.end());
 			template <typename ForwardIterator>

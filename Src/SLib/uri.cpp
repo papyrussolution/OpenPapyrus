@@ -223,7 +223,7 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 						write++;
 						prevWasCr = FALSE;
 						break;
-					case _UT('\x0a'):
+					case _UT('\x0A'):
 						if(normalizeBreaks) {
 							if(!prevWasCr) {
 								write[0] = _UT('%');
@@ -243,7 +243,7 @@ static char * FASTCALL UriEscapeEx(const char * inFirst, const char * inAfterLas
 						}
 						prevWasCr = FALSE;
 						break;
-					case _UT('\x0d'):
+					case _UT('\x0D'):
 						if(normalizeBreaks) {
 							write[0] = _UT('%');
 							write[1] = _UT('0');

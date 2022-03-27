@@ -333,8 +333,8 @@ BufferID Notepad_plus::doOpen(const generic_string& fileName,
 	}
 	else {
 		if(globbing || ::PathIsDirectory(targetFileName.c_str())) {
-			vector<generic_string> fileNames;
-			vector<generic_string> patterns;
+			vector <generic_string> fileNames;
+			vector <generic_string> patterns;
 			if(globbing) {
 				const TCHAR * substring = wcsrchr(targetFileName.c_str(), TCHAR('\\'));
 				if(substring) {
@@ -1025,13 +1025,13 @@ bool Notepad_plus::fileCloseAll(bool doDeleteBackup, bool isSnapshotMode)
 	return true;
 }
 
-bool Notepad_plus::fileCloseAllGiven(const std::vector<int>& krvecBufferIndexes)
+bool Notepad_plus::fileCloseAllGiven(const std::vector <int>& krvecBufferIndexes)
 {
 	// First check if we need to save any file.
 
 	bool noSaveToAll = false;
 	bool saveToAll = false;
-	std::vector<int> bufferIndexesToClose;
+	std::vector <int> bufferIndexesToClose;
 
 	// Count the number of dirty file
 	size_t nbDirtyFiles = 0;
@@ -1106,7 +1106,7 @@ bool Notepad_plus::fileCloseAllToLeft()
 {
 	// Indexes must go from high to low to deal with the fact that when one index is closed, any remaining
 	// indexes (smaller than the one just closed) will point to the wrong tab.
-	std::vector<int> vecIndexesToClose;
+	std::vector <int> vecIndexesToClose;
 	for(int i = _pDocTab->getCurrentTabIndex() - 1; i >= 0; i--) {
 		vecIndexesToClose.push_back(i);
 	}
@@ -1118,7 +1118,7 @@ bool Notepad_plus::fileCloseAllToRight()
 	// Indexes must go from high to low to deal with the fact that when one index is closed, any remaining
 	// indexes (smaller than the one just closed) will point to the wrong tab.
 	const int kiActive = _pDocTab->getCurrentTabIndex();
-	std::vector<int> vecIndexesToClose;
+	std::vector <int> vecIndexesToClose;
 	for(int i = int(_pDocTab->nbItem()) - 1; i > kiActive; i--) {
 		vecIndexesToClose.push_back(i);
 	}
@@ -1129,7 +1129,7 @@ bool Notepad_plus::fileCloseAllUnchanged()
 {
 	// Indexes must go from high to low to deal with the fact that when one index is closed, any remaining
 	// indexes (smaller than the one just closed) will point to the wrong tab.
-	std::vector<int> vecIndexesToClose;
+	std::vector <int> vecIndexesToClose;
 
 	for(int i = int(_pDocTab->nbItem()) - 1; i >= 0; i--) {
 		BufferID id = _pDocTab->getBufferByIndex(i);
@@ -1149,7 +1149,7 @@ bool Notepad_plus::fileCloseAllButCurrent()
 	int active = _pDocTab->getCurrentTabIndex();
 	bool noSaveToAll = false;
 	bool saveToAll = false;
-	std::vector<uint> mainSaveOpIndex, subSaveOpIndex;
+	std::vector <uint> mainSaveOpIndex, subSaveOpIndex;
 
 	bool isSnapshotMode = NppParameters::getInstance().getNppGUI().isSnapshotMode();
 
@@ -1803,7 +1803,7 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		const TCHAR * pFn = session._mainViewFiles[i]._fileName.c_str();
 
 		if(isFileSession(pFn) || isFileWorkspace(pFn)) {
-			vector<sessionFileInfo>::iterator posIt = session._mainViewFiles.begin() + i;
+			vector <sessionFileInfo>::iterator posIt = session._mainViewFiles.begin() + i;
 			session._mainViewFiles.erase(posIt);
 			continue;       //skip session files, not supporting recursive sessions or embedded workspace
 			                // files
@@ -1885,7 +1885,7 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 			++i;
 		}
 		else {
-			vector<sessionFileInfo>::iterator posIt = session._mainViewFiles.begin() + i;
+			vector <sessionFileInfo>::iterator posIt = session._mainViewFiles.begin() + i;
 			session._mainViewFiles.erase(posIt);
 			allSessionFilesLoaded = false;
 		}
@@ -1904,7 +1904,7 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 		const TCHAR * pFn = session._subViewFiles[k]._fileName.c_str();
 
 		if(isFileSession(pFn) || isFileWorkspace(pFn)) {
-			vector<sessionFileInfo>::iterator posIt = session._subViewFiles.begin() + k;
+			vector <sessionFileInfo>::iterator posIt = session._subViewFiles.begin() + k;
 			session._subViewFiles.erase(posIt);
 			continue;       //skip session files, not supporting recursive sessions or embedded workspace
 			                // files
@@ -1999,7 +1999,7 @@ bool Notepad_plus::loadSession(Session & session, bool isSnapshotMode, bool shou
 			++k;
 		}
 		else {
-			vector<sessionFileInfo>::iterator posIt = session._subViewFiles.begin() + k;
+			vector <sessionFileInfo>::iterator posIt = session._subViewFiles.begin() + k;
 			session._subViewFiles.erase(posIt);
 			allSessionFilesLoaded = false;
 		}

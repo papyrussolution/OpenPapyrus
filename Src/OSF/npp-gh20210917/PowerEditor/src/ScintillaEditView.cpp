@@ -1431,7 +1431,7 @@ void ScintillaEditView::activateBuffer(BufferID buffer)
 		// from the Scintilla view then save it to the current document
 		saveCurrentPos();
 		// get foldStateInfo of current doc
-		std::vector<size_t> lineStateVector;
+		std::vector <size_t> lineStateVector;
 		getCurrentFoldStates(lineStateVector);
 		// put the state into the future ex buffer
 		_currentBuffer->setHeaderLineState(lineStateVector, this);
@@ -1451,7 +1451,7 @@ void ScintillaEditView::activateBuffer(BufferID buffer)
 		// Everything should be updated, but the language
 		bufferUpdated(_currentBuffer, (BufferChangeMask & ~BufferChangeLanguage));
 		// restore the collapsed info
-		const std::vector<size_t> & lineStateVectorNew = newBuf->getHeaderLineState(this);
+		const std::vector <size_t> & lineStateVectorNew = newBuf->getHeaderLineState(this);
 		syncFoldStateWith(lineStateVectorNew);
 		restoreCurrentPosPreStep();
 		//setup line number margin
@@ -1462,7 +1462,7 @@ void ScintillaEditView::activateBuffer(BufferID buffer)
 	}
 }
 
-void ScintillaEditView::getCurrentFoldStates(std::vector<size_t> & lineStateVector)
+void ScintillaEditView::getCurrentFoldStates(std::vector <size_t> & lineStateVector)
 {
 	// xCodeOptimization1304: For active document get folding state from Scintilla.
 	// The code using SCI_CONTRACTEDFOLDNEXT is usually 10%-50% faster than checking each line of the document!!
@@ -1478,7 +1478,7 @@ void ScintillaEditView::getCurrentFoldStates(std::vector<size_t> & lineStateVect
 	} while(contractedFoldHeaderLine != -1);
 }
 
-void ScintillaEditView::syncFoldStateWith(const std::vector<size_t> & lineStateVectorNew)
+void ScintillaEditView::syncFoldStateWith(const std::vector <size_t> & lineStateVectorNew)
 {
 	size_t nbLineState = lineStateVectorNew.size();
 	for(size_t i = 0; i < nbLineState; ++i) {
@@ -2571,7 +2571,7 @@ void ScintillaEditView::columnReplace(ColumnModeInfos & cmi, int initial, int in
 		const int stringSize = 512;
 		TCHAR str[stringSize];
 		// Compute the numbers to be placed at each column.
-		std::vector<int> numbers;
+		std::vector <int> numbers;
 		{
 			int curNumber = initial;
 			const size_t kiMaxSize = cmi.size();
@@ -2948,7 +2948,7 @@ void ScintillaEditView::sortLines(size_t fromLine, size_t toLine, ISorter* pSort
 		const auto startPos = execute(SCI_POSITIONFROMLINE, fromLine);
 		const auto endPos = execute(SCI_POSITIONFROMLINE, toLine) + execute(SCI_LINELENGTH, toLine);
 		const generic_string text = getGenericTextAsString(startPos, endPos);
-		std::vector<generic_string> splitText = stringSplit(text, getEOLString());
+		std::vector <generic_string> splitText = stringSplit(text, getEOLString());
 		const size_t lineCount = execute(SCI_GETLINECOUNT);
 		const bool sortEntireDocument = toLine == lineCount - 1;
 		if(!sortEntireDocument) {
@@ -2957,7 +2957,7 @@ void ScintillaEditView::sortLines(size_t fromLine, size_t toLine, ISorter* pSort
 			}
 		}
 		assert(toLine - fromLine + 1 == splitText.size());
-		const std::vector<generic_string> sortedText = pSort->sort(splitText);
+		const std::vector <generic_string> sortedText = pSort->sort(splitText);
 		generic_string joined = stringJoin(sortedText, getEOLString());
 		if(sortEntireDocument) {
 			assert(joined.length() == text.length());
@@ -3058,7 +3058,7 @@ pair<int, int> ScintillaEditView::getSelectedCharsAndLinesCount(int maxSelection
 		// we have to reorder the lines touched
 		// by selection into low-to-high line number order before processing them further
 
-		vector< pair <int, int> > v;
+		vector < pair <int, int> > v;
 		for(int s = 0; s < numSelections; ++s) {
 			v.push_back(getSelectionLinesRange(s));
 		}
@@ -3102,7 +3102,7 @@ void ScintillaEditView::markedTextToClipboard(int indiStyle, bool doAll /*= fals
 		styleIndicators[1] = -1;
 	}
 	// vector of pairs: starting position of styled text, and styled text
-	std::vector<std::pair<int, generic_string> > styledVect;
+	std::vector <std::pair<int, generic_string> > styledVect;
 	const generic_string cr = TEXT("\r");
 	const generic_string lf = TEXT("\n");
 	bool textContainsLineEndingChar = false;
@@ -3175,7 +3175,7 @@ void ScintillaEditView::removeAnyDuplicateLines()
 	const auto startPos = execute(SCI_POSITIONFROMLINE, fromLine);
 	const auto endPos = execute(SCI_POSITIONFROMLINE, toLine) + execute(SCI_LINELENGTH, toLine);
 	const generic_string text = getGenericTextAsString(startPos, endPos);
-	std::vector<generic_string> linesVect = stringSplit(text, getEOLString());
+	std::vector <generic_string> linesVect = stringSplit(text, getEOLString());
 	const size_t lineCount = execute(SCI_GETLINECOUNT);
 	const bool doingEntireDocument = toLine == lineCount - 1;
 	if(!doingEntireDocument) {

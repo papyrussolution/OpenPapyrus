@@ -13,7 +13,7 @@ using FixedMapping = std::initializer_list<std::pair<absl::string_view, absl::st
 // Applies the ViableSubstitutions in subs_ptr to the absl::string_view s, and
 // stores the result in *result_ptr. Returns the number of substitutions that
 // occurred.
-int ApplySubstitutions(absl::string_view s, std::vector<strings_internal::ViableSubstitution>* subs_ptr, std::string* result_ptr) 
+int ApplySubstitutions(absl::string_view s, std::vector <strings_internal::ViableSubstitution>* subs_ptr, std::string* result_ptr) 
 {
 	auto& subs = *subs_ptr;
 	int substitutions = 0;

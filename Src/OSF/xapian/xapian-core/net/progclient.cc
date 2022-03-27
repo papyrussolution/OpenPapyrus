@@ -22,7 +22,7 @@ using namespace std;
 /** Split a string into a vector of strings, using a given separator
  *  character (default space)
  */
-static void split_words(const string &text, vector<string> &words, char ws = ' ')
+static void split_words(const string &text, vector <string> &words, char ws = ' ')
 {
 	size_t i = 0;
 	if(i < text.length() && text[0] == ws) {
@@ -125,7 +125,7 @@ int ProgClient::run_program(const string &progname, const string &args,
 		::close(stderrfd);
 	}
 
-	vector<string> argvec;
+	vector <string> argvec;
 	split_words(args, argvec);
 
 	// We never explicitly free this memory, but that's OK as we're about
@@ -133,7 +133,7 @@ int ProgClient::run_program(const string &progname, const string &args,
 	const char ** new_argv = new const char *[argvec.size() + 2];
 
 	new_argv[0] = progname.c_str();
-	for(vector<string>::size_type i = 0; i < argvec.size(); ++i) {
+	for(vector <string>::size_type i = 0; i < argvec.size(); ++i) {
 		new_argv[i + 1] = argvec[i].c_str();
 	}
 	new_argv[argvec.size() + 1] = 0;

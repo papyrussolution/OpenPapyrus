@@ -17,7 +17,7 @@ generic_string ISorter::getSortKey(const generic_string & input)
 		return input;
 }
 
-std::vector<generic_string> LexicographicSorter::sort(std::vector<generic_string> lines)
+std::vector <generic_string> LexicographicSorter::sort(std::vector <generic_string> lines)
 {
 	// Note that both branches here are equivalent in the sense that they always give the same answer.
 	// However, if we are *not* sorting specific columns, then we get a 40% speed improvement by not calling
@@ -37,7 +37,7 @@ std::vector<generic_string> LexicographicSorter::sort(std::vector<generic_string
 	return lines;
 }
 
-std::vector<generic_string> LexicographicCaseInsensitiveSorter::sort(std::vector<generic_string> lines)
+std::vector <generic_string> LexicographicCaseInsensitiveSorter::sort(std::vector <generic_string> lines)
 {
 	// Note that both branches here are equivalent in the sense that they always give the same answer.
 	// However, if we are *not* sorting specific columns, then we get a 40% speed improvement by not calling
@@ -58,7 +58,7 @@ std::vector<generic_string> LexicographicCaseInsensitiveSorter::sort(std::vector
 	return lines;
 }
 
-std::vector<generic_string> NaturalSorter::sort(std::vector<generic_string> lines)
+std::vector <generic_string> NaturalSorter::sort(std::vector <generic_string> lines)
 {
 	// Note that both branches here are equivalent in the sense that they always give the same answer.
 	// However, if we are *not* sorting specific columns, then we get a 40% speed improvement by not calling

@@ -133,7 +133,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 					buf.Divide('=', tbl_name, tbl_path);
 					tbl_name.Strip();
 					if(ps.Nam.CmpNC(tbl_name) == 0) {
-						tbl_path.TrimRightChr('\xA').TrimRightChr('\xD').Strip().SetLastSlash();
+						tbl_path.TrimRightChr('\x0A').TrimRightChr('\x0D').Strip().SetLastSlash();
 						SPathStruc rps(tbl_path);
 						rps.Merge(&ps, SPathStruc::fNam|SPathStruc::fExt, rFileName);
 						path_from_redirect = 1;

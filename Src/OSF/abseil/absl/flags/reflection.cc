@@ -50,7 +50,7 @@ private:
 	using FlagIterator = FlagMap::iterator;
 	using FlagConstIterator = FlagMap::const_iterator;
 	FlagMap flags_;
-	std::vector<CommandLineFlag*> flat_flags_;
+	std::vector <CommandLineFlag*> flat_flags_;
 	std::atomic<bool> finalized_flags_{false};
 	absl::Mutex lock_;
 	// Disallow
@@ -283,7 +283,7 @@ public:
 	}
 
 private:
-	std::vector<std::unique_ptr<flags_internal::FlagStateInterface> >
+	std::vector <std::unique_ptr<flags_internal::FlagStateInterface> >
 	backup_registry_;
 };
 }  // namespace flags_internal

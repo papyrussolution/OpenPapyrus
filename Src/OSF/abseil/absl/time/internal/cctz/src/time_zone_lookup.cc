@@ -118,7 +118,7 @@ time_zone local_time_zone() {
 	}
 #endif
 #if defined(__APPLE__)
-	std::vector<char> buffer;
+	std::vector <char> buffer;
 	CFTimeZoneRef tz_default = CFTimeZoneCopyDefault();
 	if(CFStringRef tz_name = CFTimeZoneGetName(tz_default)) {
 		CFStringEncoding encoding = kCFStringEncodingUTF8;

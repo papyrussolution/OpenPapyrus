@@ -376,7 +376,7 @@ public:
 }
 
 static void reconstruct_open_poslists(TermList* termlist, Xapian::termpos start_pos, Xapian::termpos end_pos,
-    const string & end, vector<unique_ptr<Pos> >& heap, size_t prefix_size = 0)
+    const string & end, vector <unique_ptr<Pos> >& heap, size_t prefix_size = 0)
 {
 	constexpr Xapian::termpos LAST_POS = Xapian::termpos(-1);
 	while(!termlist->at_end()) {
@@ -415,7 +415,7 @@ string Database::Internal::reconstruct_text(Xapian::docid did, size_t length, co
 		}
 	};
 
-	vector<unique_ptr<Pos> > heap;
+	vector <unique_ptr<Pos> > heap;
 	unique_ptr<TermList> termlist(open_term_list_direct(did));
 	if(LIKELY(termlist.get())) {
 		if(prefix.empty()) {

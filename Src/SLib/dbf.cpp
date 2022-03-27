@@ -73,7 +73,7 @@ void DBFCreateFld::Init(const char * pName, int typ, uint sz, uint prec)
 DbfRecord::DbfRecord(const DbfTable * pTbl) : P_Tbl(pTbl)
 {
 	P_Buffer = new char[BufSize = P_Tbl->getRecSize()];
-	empty();
+	Z();
 }
 
 DbfRecord::~DbfRecord()
@@ -86,10 +86,11 @@ SCodepage DbfRecord::getCodePage() const
 	return P_Tbl ? P_Tbl->getCodePage() : cpUndef;
 }
 
-void DbfRecord::empty()
+DbfRecord & DbfRecord::Z()
 {
 	memzero(P_Buffer, BufSize);
 	P_Buffer[0] = ' ';
+	return *this;
 }
 
 #ifndef _WIN32_WCE // {

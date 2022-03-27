@@ -1,5 +1,5 @@
 // BITARRAY.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2000, 2001, 2004, 2006, 2007, 2008, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -66,30 +66,25 @@ void BitArray::Clear()
 	Count = 0;
 }
 
-size_t BitArray::getCount() const
-	{ return Count; }
-int FASTCALL BitArray::get(size_t pos) const
-	{ return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
-uint32 FASTCALL BitArray::getN(size_t pos, uint count) const
-	{ return getbits(P_Buf, Size, pos, count); }
-int FASTCALL BitArray::operator [] (size_t pos) const
-	{ return get(pos); }
-int FASTCALL BitArray::insert(int val)
-	{ return atInsert(Count, val); }
-size_t BitArray::getBufSize() const
-	{ return ((Count + 31) / 32) * 4; }
+size_t BitArray::getCount() const { return Count; }
+int    FASTCALL BitArray::get(size_t pos) const { return (pos < Count) ? getbit32(P_Buf, Size, pos) : -1; }
+uint32 FASTCALL BitArray::getN(size_t pos, uint count) const { return getbits(P_Buf, Size, pos, count); }
+int    FASTCALL BitArray::operator [] (size_t pos) const { return get(pos); }
+int    FASTCALL BitArray::insert(int val) { return atInsert(Count, val); }
+size_t BitArray::getBufSize() const { return ((Count + 31) / 32) * 4; }
 
-int FASTCALL BitArray::IsEq(const BitArray & rS) const
+bool FASTCALL BitArray::IsEq(const BitArray & rS) const
 {
-	int    eq = 0;
+	bool   eq = true;
 	const  size_t c = getCount();
 	if(c == rS.getCount()) {
-		eq = 1;
 		for(uint i = 0; eq && i < c; i++) {
 			if(getbit32(P_Buf, Size, i) != getbit32(rS.P_Buf, rS.Size, i))
-				eq = 0;
+				eq = false;
 		}
 	}
+	else
+		eq = false;
 	return eq;
 }
 

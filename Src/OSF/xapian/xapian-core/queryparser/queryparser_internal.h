@@ -45,7 +45,7 @@ struct FieldInfo {
     std::string grouping;
 
     /// Field prefix strings.
-    std::vector<std::string> prefixes;
+    std::vector <std::string> prefixes;
 
     /// Field processor.  Currently only one is supported.
     Xapian::Internal::opt_intrusive_ptr<Xapian::FieldProcessor> proc;

@@ -57,7 +57,7 @@ namespace strings_internal {
 // The default formatter. Converts alpha-numeric types to strings.
 struct AlphaNumFormatterImpl {
   // This template is needed in order to support passing in a dereferenced
-  // vector<bool>::iterator
+  // vector <bool>::iterator
   template <typename T>
   void operator()(std::string* out, const T& t) const {
     StrAppend(out, AlphaNum(t));
@@ -126,7 +126,7 @@ class PairFormatterImpl {
 
 // Wraps another formatter and dereferences the argument to operator() then
 // passes the dereferenced argument to the wrapped formatter. This can be
-// useful, for example, to join a std::vector<int*>.
+// useful, for example, to join a std::vector <int*>.
 template <typename Formatter>
 class DereferenceFormatterImpl {
  public:
@@ -207,8 +207,8 @@ std::string JoinAlgorithm(Iterator start, Iterator end, absl::string_view s,
 
 // A joining algorithm that's optimized for a forward iterator range of
 // string-like objects that do not need any additional formatting. This is to
-// optimize the common case of joining, say, a std::vector<string> or a
-// std::vector<absl::string_view>.
+// optimize the common case of joining, say, a std::vector <string> or a
+// std::vector <absl::string_view>.
 //
 // This is an overload of the previous JoinAlgorithm() function. Here the
 // Formatter argument is of type NoFormatter. Since NoFormatter is an internal

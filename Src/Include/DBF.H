@@ -1,14 +1,12 @@
 // DBF.H
-// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019, 2021
+// Copyright (c) A.Sobolev 1993, 1997-2001, 2003, 2006, 2008, 2009, 2011, 2018, 2019, 2021, 2022
 // @codepage UTF-8
 // Номера записей и полей идут от 1 и далее
 //
 #ifndef __DBF_H
 #define __DBF_H
 
-#ifndef _WIN32_WCE
-	#include <db.h>
-#endif
+#include <db.h>
 
 #define DEFSWAPBUFSIZE 8
 
@@ -92,8 +90,6 @@ struct DBFCreateFld {
 };
 
 struct DBFDate {
-	int    valid();
-	int    empty();
 	int16  year;
 	int8   month;
 	int8   day;
@@ -105,7 +101,7 @@ public:
 	~DbfRecord();
 	SCodepage getCodePage() const;
 	int    copy(DbfRecord * toRec);
-	void   empty();
+	DbfRecord & Z();
 	//
 	// Для параметра fldN во всех следующих функциях диапазон [1..]
 	//

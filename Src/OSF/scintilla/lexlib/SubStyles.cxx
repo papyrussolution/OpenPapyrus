@@ -84,7 +84,7 @@ int SubStyles::BlockFromBaseStyle(int baseStyle) const
 int SubStyles::BlockFromStyle(int style) const 
 {
 	int b = 0;
-	for(std::vector<WordClassifier>::const_iterator it = classifiers.begin(); it != classifiers.end(); ++it) {
+	for(std::vector <WordClassifier>::const_iterator it = classifiers.begin(); it != classifiers.end(); ++it) {
 		if(it->IncludesStyle(style))
 			return b;
 		b++;
@@ -154,7 +154,7 @@ void SubStyles::SetIdentifiers(int style, const char * identifiers)
 void SubStyles::Free() 
 {
 	allocated = 0;
-	for(std::vector<WordClassifier>::iterator it = classifiers.begin(); it != classifiers.end(); ++it)
+	for(std::vector <WordClassifier>::iterator it = classifiers.begin(); it != classifiers.end(); ++it)
 		it->Clear();
 }
 

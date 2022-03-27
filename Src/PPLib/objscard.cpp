@@ -211,46 +211,31 @@ PPSCardSeries2::PPSCardSeries2()
 	VerifTag = 2;
 }
 
-int FASTCALL PPSCardSeries2::IsEq(const PPSCardSeries2 & rS) const
+bool FASTCALL PPSCardSeries2::IsEq(const PPSCardSeries2 & rS) const
 {
-	int    eq = 1;
-	if(BonusChrgGrpID != rS.BonusChrgGrpID)
-		eq = 0;
-	else if(VerifTag != rS.VerifTag)
-		eq = 0;
-	else if(BonusGrpID != rS.BonusGrpID)
-		eq = 0;
-	else if(CrdGoodsGrpID != rS.CrdGoodsGrpID)
-		eq = 0;
-	else if(ChargeGoodsID != rS.ChargeGoodsID)
-		eq = 0;
-	else if(Issue != rS.Issue)
-		eq = 0;
-	else if(Expiry != rS.Expiry)
-		eq = 0;
-	else if(PDis != rS.PDis)
-		eq = 0;
-	else if(MaxCredit != rS.MaxCredit)
-		eq = 0;
-	else if(Flags != rS.Flags)
-		eq = 0;
-	else if(QuotKindID_s != rS.QuotKindID_s)
-		eq = 0;
-	else if(PersonKindID != rS.PersonKindID)
-		eq = 0;
-	else if(ParentID != rS.ParentID)
-		eq = 0;
-	else if(SpecialTreatment != rS.SpecialTreatment) // @v10.1.3
-		eq = 0;
-	else if(RsrvPoolDestSerID != rS.RsrvPoolDestSerID) // @v10.2.8
-		eq = 0;
-	else if(FixedBonus != rS.FixedBonus) // @v10.5.5
-		eq = 0;
-	else if(!sstreq(Name, rS.Name))
-		eq = 0;
+#define I(f) if(f != rS.f) return false;
+	I(BonusChrgGrpID);
+	I(VerifTag);
+	I(BonusGrpID);
+	I(CrdGoodsGrpID);
+	I(ChargeGoodsID);
+	I(Issue);
+	I(Expiry);
+	I(PDis);
+	I(MaxCredit);
+	I(Flags);
+	I(QuotKindID_s);
+	I(PersonKindID);
+	I(ParentID);
+	I(SpecialTreatment);
+	I(RsrvPoolDestSerID);
+	I(FixedBonus);
+	if(!sstreq(Name, rS.Name))
+		return false;
 	else if(!sstreq(Symb, rS.Symb))
-		eq = 0;
-	return eq;
+		return false;
+	return true;
+#undef I
 }
 
 int PPSCardSeries2::GetType() const

@@ -1159,8 +1159,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 			disk_unlink(a->name);
 			if(_wrename(a->tmpname, a->name) != 0) {
 				la_dosmaperr(GetLastError());
-				archive_set_error(&a->archive, errno,
-				    "Failed to rename temporary file");
+				archive_set_error(&a->archive, errno, "Failed to rename temporary file");
 				ret = ARCHIVE_FAILED;
 				disk_unlink(a->tmpname);
 			}
@@ -1307,17 +1306,13 @@ static int restore_entry(struct archive_write_disk * a)
 		}
 		else {
 			/* We tried, but couldn't get rid of it. */
-			archive_set_error(&a->archive, errno,
-			    "Could not unlink");
+			archive_set_error(&a->archive, errno, "Could not unlink");
 			return(ARCHIVE_FAILED);
 		}
 	}
-
 	/* Try creating it first; if this fails, we'll try to recover. */
 	en = create_filesystem_object(a);
-
-	if((en == ENOTDIR || en == ENOENT)
-	    && !(a->flags & ARCHIVE_EXTRACT_NO_AUTODIR)) {
+	if((en == ENOTDIR || en == ENOENT) && !(a->flags & ARCHIVE_EXTRACT_NO_AUTODIR)) {
 		wchar_t * full;
 		/* If the parent dir doesn't exist, try creating it. */
 		create_parent_dir(a, a->name);
@@ -1334,16 +1329,11 @@ static int restore_entry(struct archive_write_disk * a)
 			en = create_filesystem_object(a);
 		}
 	}
-
 	if((en == ENOENT) && (archive_entry_hardlink(a->entry) != NULL)) {
-		archive_set_error(&a->archive, en,
-		    "Hard-link target '%s' does not exist.",
-		    archive_entry_hardlink(a->entry));
+		archive_set_error(&a->archive, en, "Hard-link target '%s' does not exist.", archive_entry_hardlink(a->entry));
 		return ARCHIVE_FAILED;
 	}
-
-	if((en == EISDIR || en == EEXIST)
-	    && (a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE)) {
+	if((en == EISDIR || en == EEXIST) && (a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE)) {
 		/* If we're not overwriting, we're done. */
 		if(S_ISDIR(a->mode)) {
 			/* Don't overwrite any settings on existing directories. */
@@ -1363,8 +1353,7 @@ static int restore_entry(struct archive_write_disk * a)
 	if(en == EISDIR) {
 		/* A dir is in the way of a non-dir, rmdir it. */
 		if(disk_rmdir(a->name) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't remove already-existing dir");
+			archive_set_error(&a->archive, errno, "Can't remove already-existing dir");
 			return ARCHIVE_FAILED;
 		}
 		a->pst = NULL;
@@ -1397,8 +1386,7 @@ static int restore_entry(struct archive_write_disk * a)
 		 */
 		r = file_information(a, a->name, &lst, &lst_mode, 1);
 		if(r != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't stat existing object");
+			archive_set_error(&a->archive, errno, "Can't stat existing object");
 			return ARCHIVE_FAILED;
 		}
 		else if(S_ISLNK(lst_mode)) {
@@ -1419,20 +1407,15 @@ static int restore_entry(struct archive_write_disk * a)
 		/*
 		 * NO_OVERWRITE_NEWER doesn't apply to directories.
 		 */
-		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE_NEWER)
-		   && !S_ISDIR(st_mode)) {
+		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE_NEWER) && !S_ISDIR(st_mode)) {
 			if(!older(&(a->st), a->entry)) {
 				archive_entry_unset_size(a->entry);
 				return ARCHIVE_OK;
 			}
 		}
-
 		/* If it's our archive, we're done. */
-		if(a->skip_file_set &&
-		    bhfi_dev(&a->st) == a->skip_file_dev &&
-		    bhfi_ino(&a->st) == a->skip_file_ino) {
-			archive_set_error(&a->archive, 0,
-			    "Refusing to overwrite archive");
+		if(a->skip_file_set && bhfi_dev(&a->st) == a->skip_file_dev && bhfi_ino(&a->st) == a->skip_file_ino) {
+			archive_set_error(&a->archive, 0, "Refusing to overwrite archive");
 			return ARCHIVE_FAILED;
 		}
 
@@ -1441,14 +1424,11 @@ static int restore_entry(struct archive_write_disk * a)
 			    ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS) {
 				(void)clear_nochange_fflags(a);
 			}
-			if((a->flags & ARCHIVE_EXTRACT_SAFE_WRITES) &&
-			    S_ISREG(st_mode)) {
+			if((a->flags & ARCHIVE_EXTRACT_SAFE_WRITES) && S_ISREG(st_mode)) {
 				int fd = la_mktemp(a);
-
 				if(fd == -1) {
 					la_dosmaperr(GetLastError());
-					archive_set_error(&a->archive, errno,
-					    "Can't create temporary file");
+					archive_set_error(&a->archive, errno, "Can't create temporary file");
 					return ARCHIVE_FAILED;
 				}
 				a->fh = (HANDLE)_get_osfhandle(fd);
@@ -1461,22 +1441,16 @@ static int restore_entry(struct archive_write_disk * a)
 			}
 			else {
 				if(dirlnk) {
-					/* Edge case: dir symlink pointing
-					 * to a file */
+					// Edge case: dir symlink pointing to a file
 					if(disk_rmdir(a->name) != 0) {
-						archive_set_error(&a->archive,
-						    errno, "Can't unlink "
-						    "directory symlink");
+						archive_set_error(&a->archive, errno, "Can't unlink directory symlink");
 						return ARCHIVE_FAILED;
 					}
 				}
 				else {
 					if(disk_unlink(a->name) != 0) {
-						/* A non-dir is in the way,
-						 * unlink it. */
-						archive_set_error(&a->archive,
-						    errno, "Can't unlink "
-						    "already-existing object");
+						// A non-dir is in the way, unlink it. 
+						archive_set_error(&a->archive, errno, "Can't unlink already-existing object");
 						return ARCHIVE_FAILED;
 					}
 				}
@@ -1490,8 +1464,7 @@ static int restore_entry(struct archive_write_disk * a)
 			if(a->flags & ARCHIVE_EXTRACT_CLEAR_NOCHANGE_FFLAGS)
 				(void)clear_nochange_fflags(a);
 			if(disk_rmdir(a->name) != 0) {
-				archive_set_error(&a->archive, errno,
-				    "Can't remove already-existing dir");
+				archive_set_error(&a->archive, errno, "Can't remove already-existing dir");
 				return ARCHIVE_FAILED;
 			}
 			/* Try again. */
@@ -1505,21 +1478,17 @@ static int restore_entry(struct archive_write_disk * a)
 			 * Note that we don't change perms on existing
 			 * dirs unless _EXTRACT_PERM is specified.
 			 */
-			if((a->mode != st_mode)
-			    && (a->todo & TODO_MODE_FORCE))
+			if((a->mode != st_mode) && (a->todo & TODO_MODE_FORCE))
 				a->deferred |= (a->todo & TODO_MODE);
 			/* Ownership doesn't need deferred fixup. */
 			en = 0; /* Forget the EEXIST. */
 		}
 	}
-
 	if(en) {
 		/* Everything failed; give up here. */
-		archive_set_error(&a->archive, en, "Can't create '%ls'",
-		    a->name);
+		archive_set_error(&a->archive, en, "Can't create '%ls'", a->name);
 		return ARCHIVE_FAILED;
 	}
-
 	a->pst = NULL; /* Cached stat data no longer valid. */
 	return ret;
 }
@@ -1966,9 +1935,7 @@ static int check_symlinks(struct archive_write_disk * a)
 					r = disk_unlink(a->name);
 				}
 				if(r) {
-					archive_set_error(&a->archive, errno,
-					    "Could not remove symlink %ls",
-					    a->name);
+					archive_set_error(&a->archive, errno, "Could not remove symlink %ls", a->name);
 					pn[0] = c;
 					return ARCHIVE_FAILED;
 				}
@@ -1980,9 +1947,7 @@ static int check_symlinks(struct archive_write_disk * a)
 				 * symlink with another symlink.
 				 */
 				if(!S_ISLNK(a->mode)) {
-					archive_set_error(&a->archive, 0,
-					    "Removing symlink %ls",
-					    a->name);
+					archive_set_error(&a->archive, 0, "Removing symlink %ls", a->name);
 				}
 				/* Symlink gone.  No more problem! */
 				pn[0] = c;
@@ -2002,18 +1967,14 @@ static int check_symlinks(struct archive_write_disk * a)
 					r = disk_unlink(a->name);
 				}
 				if(r != 0) {
-					archive_set_error(&a->archive, 0,
-					    "Cannot remove intervening "
-					    "symlink %ls", a->name);
+					archive_set_error(&a->archive, 0, "Cannot remove intervening symlink %ls", a->name);
 					pn[0] = c;
 					return ARCHIVE_FAILED;
 				}
 				a->pst = NULL;
 			}
 			else {
-				archive_set_error(&a->archive, 0,
-				    "Cannot extract through symlink %ls",
-				    a->name);
+				archive_set_error(&a->archive, 0, "Cannot extract through symlink %ls", a->name);
 				pn[0] = c;
 				return ARCHIVE_FAILED;
 			}
@@ -2029,19 +1990,14 @@ static int check_symlinks(struct archive_write_disk * a)
 
 static int guidword(wchar_t * p, int n)
 {
-	int i;
-
-	for(i = 0; i < n; i++) {
-		if((*p >= L'0' && *p <= L'9') ||
-		    (*p >= L'a' && *p <= L'f') ||
-		    (*p >= L'A' && *p <= L'F'))
+	for(int i = 0; i < n; i++) {
+		if((*p >= L'0' && *p <= L'9') || (*p >= L'a' && *p <= L'f') || (*p >= L'A' && *p <= L'F'))
 			p++;
 		else
 			return -1;
 	}
 	return 0;
 }
-
 /*
  * Canonicalize the pathname.  In particular, this strips duplicate
  * '\' characters, '.' elements, and trailing '\'.  It also raises an
@@ -2050,16 +2006,13 @@ static int guidword(wchar_t * p, int n)
  */
 static int cleanup_pathname(struct archive_write_disk * a)
 {
-	wchar_t * dest, * src, * p, * top;
+	wchar_t * dest, * src, * top;
 	wchar_t separator = L'\0';
-
-	p = a->name;
+	wchar_t * p = a->name;
 	if(*p == L'\0') {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Invalid empty pathname");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid empty pathname");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Replace '/' by '\' */
 	for(; *p != L'\0'; p++) {
 		if(*p == L'/')
@@ -2070,14 +2023,9 @@ static int cleanup_pathname(struct archive_write_disk * a)
 	/* Skip leading "\\.\" or "\\?\" or "\\?\UNC\" or
 	* "\\?\Volume{GUID}\"
 	* (absolute path prefixes used by Windows API) */
-	if(p[0] == L'\\' && p[1] == L'\\' &&
-	    (p[2] == L'.' || p[2] == L'?') && p[3] ==  L'\\') {
+	if(p[0] == L'\\' && p[1] == L'\\' && (p[2] == L'.' || p[2] == L'?') && p[3] ==  L'\\') {
 		/* A path begin with "\\?\UNC\" */
-		if(p[2] == L'?' &&
-		    (p[4] == L'U' || p[4] == L'u') &&
-		    (p[5] == L'N' || p[5] == L'n') &&
-		    (p[6] == L'C' || p[6] == L'c') &&
-		    p[7] == L'\\')
+		if(p[2] == L'?' && (p[4] == L'U' || p[4] == L'u') && (p[5] == L'N' || p[5] == L'n') && (p[6] == L'C' || p[6] == L'c') && p[7] == L'\\')
 			p += 8;
 		/* A path begin with "\\?\Volume{GUID}\" */
 		else if(p[2] == L'?' &&
@@ -2115,22 +2063,16 @@ static int cleanup_pathname(struct archive_write_disk * a)
 		    (p[9] == L'E' || p[9] == L'e') &&
 		    (p[10] >= L'0' && p[10] <= L'9') &&
 		    p[11] == L'\0') {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Path is a physical drive name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Path is a physical drive name");
 			return ARCHIVE_FAILED;
 		}
 		else
 			p += 4;
 	}
-
-	/* Skip leading drive letter from archives created
-	 * on Windows. */
-	if(((p[0] >= L'a' && p[0] <= L'z') ||
-	    (p[0] >= L'A' && p[0] <= L'Z')) &&
-	    p[1] == L':') {
+	// Skip leading drive letter from archives created on Windows. 
+	if(((p[0] >= L'a' && p[0] <= L'z') || (p[0] >= L'A' && p[0] <= L'Z')) && p[1] == L':') {
 		if(p[2] == L'\0') {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Path is a drive name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Path is a drive name");
 			return ARCHIVE_FAILED;
 		}
 		if(p[2] == L'\\')
@@ -2172,11 +2114,8 @@ static int cleanup_pathname(struct archive_write_disk * a)
 			else if(src[1] == L'.') {
 				if(src[2] == L'\\' || src[2] == L'\0') {
 					/* Conditionally warn about '..' */
-					if(a->flags &
-					    ARCHIVE_EXTRACT_SECURE_NODOTDOT) {
-						archive_set_error(&a->archive,
-						    ARCHIVE_ERRNO_MISC,
-						    "Path contains '..'");
+					if(a->flags & ARCHIVE_EXTRACT_SECURE_NODOTDOT) {
+						archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Path contains '..'");
 						return ARCHIVE_FAILED;
 					}
 				}
@@ -2285,22 +2224,17 @@ static int create_dir(struct archive_write_disk * a, wchar_t * path)
 		if(S_ISDIR(st_mode))
 			return ARCHIVE_OK;
 		if((a->flags & ARCHIVE_EXTRACT_NO_OVERWRITE)) {
-			archive_set_error(&a->archive, EEXIST,
-			    "Can't create directory '%ls'", path);
+			archive_set_error(&a->archive, EEXIST, "Can't create directory '%ls'", path);
 			return ARCHIVE_FAILED;
 		}
 		if(disk_unlink(path) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't create directory '%ls': "
-			    "Conflicting file cannot be removed",
-			    path);
+			archive_set_error(&a->archive, errno, "Can't create directory '%ls': Conflicting file cannot be removed", path);
 			return ARCHIVE_FAILED;
 		}
 	}
 	else if(errno != ENOENT && errno != ENOTDIR) {
 		/* Stat failed? */
-		archive_set_error(&a->archive, errno,
-		    "Can't test directory '%ls'", path);
+		archive_set_error(&a->archive, errno, "Can't test directory '%ls'", path);
 		return ARCHIVE_FAILED;
 	}
 	else if(slash != NULL) {
@@ -2351,12 +2285,9 @@ static int create_dir(struct archive_write_disk * a, wchar_t * path)
 	 * don't add it to the fixup list here, as it's already been
 	 * added.
 	 */
-	if(file_information(a, path, &st, &st_mode, 0) == 0 &&
-	    S_ISDIR(st_mode))
+	if(file_information(a, path, &st, &st_mode, 0) == 0 && S_ISDIR(st_mode))
 		return ARCHIVE_OK;
-
-	archive_set_error(&a->archive, errno, "Failed to create dir '%ls'",
-	    path);
+	archive_set_error(&a->archive, errno, "Failed to create dir '%ls'", path);
 	return ARCHIVE_FAILED;
 }
 
@@ -2377,23 +2308,15 @@ static int set_ownership(struct archive_write_disk * a)
 
 	/* If we know we can't change it, don't bother trying. */
 	if(a->user_uid != 0 && a->user_uid != a->uid) {
-		archive_set_error(&a->archive, errno,
-		    "Can't set UID=%jd", (intmax_t)a->uid);
+		archive_set_error(&a->archive, errno, "Can't set UID=%jd", (intmax_t)a->uid);
 		return ARCHIVE_WARN;
 	}
-
-	archive_set_error(&a->archive, errno,
-	    "Can't set user=%jd/group=%jd for %ls",
-	    (intmax_t)a->uid, (intmax_t)a->gid, a->name);
+	archive_set_error(&a->archive, errno, "Can't set user=%jd/group=%jd for %ls", (intmax_t)a->uid, (intmax_t)a->gid, a->name);
 	return ARCHIVE_WARN;
 }
 
-static int set_times(struct archive_write_disk * a,
-    HANDLE h, int mode, const wchar_t * name,
-    time_t atime, long atime_nanos,
-    time_t birthtime, long birthtime_nanos,
-    time_t mtime, long mtime_nanos,
-    time_t ctime_sec, long ctime_nanos)
+static int set_times(struct archive_write_disk * a, HANDLE h, int mode, const wchar_t * name, time_t atime, long atime_nanos,
+    time_t birthtime, long birthtime_nanos, time_t mtime, long mtime_nanos, time_t ctime_sec, long ctime_nanos)
 {
 #define EPOC_TIME ARCHIVE_LITERAL_ULL(116444736000000000)
 #define WINTIME(sec, nsec) ((Int32x32To64(sec, 10000000) + EPOC_TIME) \
@@ -2447,7 +2370,6 @@ static int set_times(struct archive_write_disk * a,
 		goto settimes_failed;
 	CloseHandle(hw);
 	return ARCHIVE_OK;
-
 settimes_failed:
 	CloseHandle(hw);
 	archive_set_error(&a->archive, EINVAL, "Can't restore time");
@@ -2458,7 +2380,6 @@ static int set_times_from_entry(struct archive_write_disk * a)
 {
 	time_t atime, birthtime, mtime, ctime_sec;
 	long atime_nsec, birthtime_nsec, mtime_nsec, ctime_nsec;
-
 	/* Suitable defaults. */
 	atime = birthtime = mtime = ctime_sec = a->start_time;
 	atime_nsec = birthtime_nsec = mtime_nsec = ctime_nsec = 0;

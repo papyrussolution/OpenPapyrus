@@ -5,12 +5,11 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // SSE2 version of cost functions
 //
 // Author: Skal (pascal.massimino@gmail.com)
-
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
 //#include "src/dsp/dsp.h"
@@ -20,8 +19,6 @@
 #include "src/enc/cost_enc.h"
 #include "src/enc/vp8i_enc.h"
 //#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
 
 static void SetResidualCoeffs_SSE2(const int16_t* const coeffs,
     VP8Residual* const res) {
@@ -103,12 +100,10 @@ static int GetResidualCost_SSE2(int ctx0, const VP8Residual* const res) {
 	return cost;
 }
 
-//------------------------------------------------------------------------------
-// Entry point
+extern void VP8EncDspCostInitSSE2(void); // Entry point
 
-extern void VP8EncDspCostInitSSE2(void);
-
-WEBP_TSAN_IGNORE_FUNCTION void VP8EncDspCostInitSSE2(void) {
+WEBP_TSAN_IGNORE_FUNCTION void VP8EncDspCostInitSSE2(void) 
+{
 	VP8SetResidualCoeffs = SetResidualCoeffs_SSE2;
 	VP8GetResidualCost = GetResidualCost_SSE2;
 }

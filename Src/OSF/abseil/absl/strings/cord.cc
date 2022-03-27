@@ -1031,7 +1031,7 @@ public:
 	}
 
 	void Build(CordRep* cord_root) {
-		std::vector<CordRep*> pending = {cord_root};
+		std::vector <CordRep*> pending = {cord_root};
 		assert(cord_root->IsConcat());
 
 		while(!pending.empty()) {

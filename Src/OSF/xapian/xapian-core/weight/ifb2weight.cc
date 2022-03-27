@@ -8,11 +8,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
@@ -26,8 +21,7 @@
 using namespace std;
 
 namespace Xapian {
-IfB2Weight::IfB2Weight(double c)
-	: param_c(c)
+IfB2Weight::IfB2Weight(double c) : param_c(c)
 {
 	if(param_c <= 0)
 		throw Xapian::InvalidArgumentError("Parameter c is invalid");
@@ -54,19 +48,14 @@ void IfB2Weight::init(double factor)
 		// always zero for this scheme.
 		return;
 	}
-
 	double wdfn_upper = get_wdf_upper_bound();
 	if(wdfn_upper == 0) {
 		upper_bound = 0.0;
 		return;
 	}
-
 	double F = get_collection_freq();
 	double N = get_collection_size();
-
-	wdfn_upper *= log2(1 + (param_c * get_average_length()) /
-		get_doclength_lower_bound());
-
+	wdfn_upper *= log2(1 + (param_c * get_average_length()) / get_doclength_lower_bound());
 	// This term is constant for all documents.
 	double idf_max = log2((N + 1.0) / (F + 0.5));
 
@@ -79,24 +68,12 @@ void IfB2Weight::init(double factor)
 	// By cancelling out wdfn, we get (F + 1.0) / (get_termfreq() * (1.0 + 1.0 / wdfn)).
 	// In order to maximize the product, we need to minimize the denominator, and so we use wdfn_upper.
 	double max_wdfn_product_B = wdfn_upper * B_constant / (wdfn_upper + 1.0);
-
 	upper_bound = wqf_product_idf * max_wdfn_product_B * factor;
 }
 
-string IfB2Weight::name() const
-{
-	return "Xapian::IfB2Weight";
-}
-
-string IfB2Weight::short_name() const
-{
-	return "ifb2";
-}
-
-string IfB2Weight::serialise() const
-{
-	return serialise_double(param_c);
-}
+string IfB2Weight::name() const { return "Xapian::IfB2Weight"; }
+string IfB2Weight::short_name() const { return "ifb2"; }
+string IfB2Weight::serialise() const { return serialise_double(param_c); }
 
 IfB2Weight * IfB2Weight::unserialise(const string & s) const
 {
@@ -117,20 +94,9 @@ double IfB2Weight::get_sumpart(Xapian::termcount wdf, Xapian::termcount len, Xap
 	return (wqf_product_idf * wdfn_product_B);
 }
 
-double IfB2Weight::get_maxpart() const
-{
-	return upper_bound;
-}
-
-double IfB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const
-{
-	return 0;
-}
-
-double IfB2Weight::get_maxextra() const
-{
-	return 0;
-}
+double IfB2Weight::get_maxpart() const { return upper_bound; }
+double IfB2Weight::get_sumextra(Xapian::termcount, Xapian::termcount, Xapian::termcount) const { return 0; }
+double IfB2Weight::get_maxextra() const { return 0; }
 
 static inline void parameter_error(const char* message)
 {

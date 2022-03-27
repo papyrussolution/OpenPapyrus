@@ -178,10 +178,10 @@ public:
 /// A termlist iterator over a vector of StringAndFrequency objects.
 class StringAndFreqTermList final : public TermList {
 private:
-	vector<StringAndFrequency>::const_iterator it;
+	vector <StringAndFrequency>::const_iterator it;
 	bool started;
 public:
-	vector<StringAndFrequency> values;
+	vector <StringAndFrequency> values;
 
 	/** init should be called after the values have been set, but before
 	 *  iteration begins.
@@ -260,7 +260,7 @@ public:
  *
  *  @param maxitems The maximum number of items to return (non-zero).
  */
-static void get_most_frequent_items(vector<StringAndFrequency> & result,
+static void get_most_frequent_items(vector <StringAndFrequency> & result,
     const map<string, doccount> & items,
     size_t maxitems)
 {

@@ -201,7 +201,7 @@ class StatusOr : private internal_statusor::StatusOrData<T>,
   // Constructs a new `absl::StatusOr` with an `absl::StatusCode::kUnknown`
   // status. This constructor is marked 'explicit' to prevent usages in return
   // values such as 'return {};', under the misconception that
-  // `absl::StatusOr<std::vector<int>>` will be initialized with an empty
+  // `absl::StatusOr<std::vector <int>>` will be initialized with an empty
   // vector, instead of an `absl::StatusCode::kUnknown` error code.
   explicit StatusOr();
 

@@ -32,7 +32,7 @@ namespace Xapian {
 namespace Internal {
 /// Collates statistics while calculating term weight in an ESet.
 class ExpandStats {
-	std::vector<bool> dbs_seen; /// Which databases in a multidb are included in termfreq.
+	std::vector <bool> dbs_seen; /// Which databases in a multidb are included in termfreq.
 	Xapian::doclength avlen; /// Average document length in the whole database.
 	double expand_k; /// The parameter k to be used for TradWeight query expansion.
 public:

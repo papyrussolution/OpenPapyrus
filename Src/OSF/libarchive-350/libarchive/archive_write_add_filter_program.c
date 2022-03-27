@@ -97,37 +97,31 @@ int archive_write_add_filter_program(struct archive * _a, const char * cmd)
 	return ARCHIVE_OK;
 memerr:
 	archive_compressor_program_free(f);
-	archive_set_error(_a, ENOMEM,
-	    "Can't allocate memory for filter program");
+	archive_set_error(_a, ENOMEM, "Can't allocate memory for filter program");
 	return ARCHIVE_FATAL;
 }
 
 static int archive_compressor_program_open(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	return __archive_write_program_open(f, data->pdata, data->cmd);
 }
 
-static int archive_compressor_program_write(struct archive_write_filter * f,
-    const void * buff, size_t length)
+static int archive_compressor_program_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 
 static int archive_compressor_program_close(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	return __archive_write_program_close(f, data->pdata);
 }
 
 static int archive_compressor_program_free(struct archive_write_filter * f)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	if(data) {
 		SAlloc::F(data->cmd);
 		archive_string_free(&data->description);
@@ -144,14 +138,13 @@ static int archive_compressor_program_free(struct archive_write_filter * f)
 struct archive_write_program_data * __archive_write_program_allocate(const char * program)                                     
 {
 	struct archive_write_program_data * data = static_cast<struct archive_write_program_data *>(SAlloc::C(1, sizeof(struct archive_write_program_data)));
-	if(data == NULL)
-		return (data);
-	data->child_stdin = -1;
-	data->child_stdout = -1;
-	data->program_name = sstrdup(program);
+	if(data) {
+		data->child_stdin = -1;
+		data->child_stdout = -1;
+		data->program_name = sstrdup(program);
+	}
 	return (data);
 }
-
 /*
  * Release the resources.
  */
@@ -189,18 +182,14 @@ static ssize_t child_write(struct archive_write_filter * f,
     struct archive_write_program_data * data, const char * buf, size_t buf_len)
 {
 	ssize_t ret;
-
 	if(data->child_stdin == -1)
 		return -1;
-
 	if(buf_len == 0)
 		return -1;
-
 	for(;;) {
 		do {
 			ret = write(data->child_stdin, buf, buf_len);
 		} while(ret == -1 && errno == EINTR);
-
 		if(ret > 0)
 			return ret;
 		if(ret == 0) {
@@ -211,18 +200,13 @@ static ssize_t child_write(struct archive_write_filter * f,
 		}
 		if(ret == -1 && errno != EAGAIN)
 			return -1;
-
 		if(data->child_stdout == -1) {
 			fcntl(data->child_stdin, F_SETFL, 0);
-			__archive_check_child(data->child_stdin,
-			    data->child_stdout);
+			__archive_check_child(data->child_stdin, data->child_stdout);
 			continue;
 		}
-
 		do {
-			ret = read(data->child_stdout,
-				data->child_buf + data->child_buf_avail,
-				data->child_buf_len - data->child_buf_avail);
+			ret = read(data->child_stdout, data->child_buf + data->child_buf_avail, data->child_buf_len - data->child_buf_avail);
 		} while(ret == -1 && errno == EINTR);
 
 		if(ret == 0 || (ret == -1 && errno == EPIPE)) {
@@ -232,23 +216,18 @@ static ssize_t child_write(struct archive_write_filter * f,
 			continue;
 		}
 		if(ret == -1 && errno == EAGAIN) {
-			__archive_check_child(data->child_stdin,
-			    data->child_stdout);
+			__archive_check_child(data->child_stdin, data->child_stdout);
 			continue;
 		}
 		if(ret == -1)
 			return -1;
-
 		data->child_buf_avail += ret;
-
-		ret = __archive_write_filter(f->next_filter,
-			data->child_buf, data->child_buf_avail);
+		ret = __archive_write_filter(f->next_filter, data->child_buf, data->child_buf_avail);
 		if(ret != ARCHIVE_OK)
 			return -1;
 		data->child_buf_avail = 0;
 	}
 }
-
 /*
  * Write data to the filter stream.
  */
@@ -273,47 +252,35 @@ int __archive_write_program_write(struct archive_write_filter * f, struct archiv
 /*
  * Finish the filtering...
  */
-int __archive_write_program_close(struct archive_write_filter * f,
-    struct archive_write_program_data * data)
+int __archive_write_program_close(struct archive_write_filter * f, struct archive_write_program_data * data)
 {
 	int ret, status;
 	ssize_t bytes_read;
-
 	if(data->child == 0)
 		return ARCHIVE_OK;
-
 	ret = 0;
 	close(data->child_stdin);
 	data->child_stdin = -1;
 	fcntl(data->child_stdout, F_SETFL, 0);
-
 	for(;;) {
 		do {
-			bytes_read = read(data->child_stdout,
-				data->child_buf + data->child_buf_avail,
-				data->child_buf_len - data->child_buf_avail);
+			bytes_read = read(data->child_stdout, data->child_buf + data->child_buf_avail, data->child_buf_len - data->child_buf_avail);
 		} while(bytes_read == -1 && errno == EINTR);
-
 		if(bytes_read == 0 || (bytes_read == -1 && errno == EPIPE))
 			break;
-
 		if(bytes_read == -1) {
-			archive_set_error(f->archive, errno,
-			    "Error reading from program: %s", data->program_name);
+			archive_set_error(f->archive, errno, "Error reading from program: %s", data->program_name);
 			ret = ARCHIVE_FATAL;
 			goto cleanup;
 		}
 		data->child_buf_avail += bytes_read;
-
-		ret = __archive_write_filter(f->next_filter,
-			data->child_buf, data->child_buf_avail);
+		ret = __archive_write_filter(f->next_filter, data->child_buf, data->child_buf_avail);
 		if(ret != ARCHIVE_OK) {
 			ret = ARCHIVE_FATAL;
 			goto cleanup;
 		}
 		data->child_buf_avail = 0;
 	}
-
 cleanup:
 	/* Shut down the child. */
 	if(data->child_stdin != -1)
@@ -326,10 +293,8 @@ cleanup:
 	CloseHandle(data->child);
 #endif
 	data->child = 0;
-
 	if(status != 0) {
-		archive_set_error(f->archive, EIO,
-		    "Error closing program: %s", data->program_name);
+		archive_set_error(f->archive, EIO, "Error closing program: %s", data->program_name);
 		ret = ARCHIVE_FATAL;
 	}
 	return ret;

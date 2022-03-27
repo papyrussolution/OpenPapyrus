@@ -48,7 +48,7 @@ struct VStats : public ValueStats {
 };
 
 size_t check_glass_table(const char * tablename, const string &db_dir, int fd, off_t offset_,
-    const GlassVersion & version_file, int opts, vector<Xapian::termcount> & doclens, ostream * out)
+    const GlassVersion & version_file, int opts, vector <Xapian::termcount> & doclens, ostream * out)
 {
 	Xapian::docid db_last_docid = version_file.get_last_docid();
 	if(out)

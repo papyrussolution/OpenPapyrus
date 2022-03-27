@@ -835,12 +835,12 @@ xmlSchemaType * xmlSchemaGetPredefinedType(const xmlChar * name, const xmlChar *
  * Returns the item type of @type as defined by the built-in datatype
  * hierarchy of XML Schema Part 2: Datatypes, or NULL in case of an error.
  */
-xmlSchemaType * xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaType * type)
+xmlSchemaType * xmlSchemaGetBuiltInListSimpleTypeItemType(const xmlSchemaType * type)
 {
-	if((type == NULL) || (type->type != XML_SCHEMA_TYPE_BASIC))
+	if(!type || type->type != XML_SCHEMA_TYPE_BASIC)
 		return 0;
 	switch(type->builtInType) {
-		case XML_SCHEMAS_NMTOKENS: return (xmlSchemaTypeNmtokenDef );
+		case XML_SCHEMAS_NMTOKENS: return (xmlSchemaTypeNmtokenDef);
 		case XML_SCHEMAS_IDREFS: return (xmlSchemaTypeIdrefDef);
 		case XML_SCHEMAS_ENTITIES: return (xmlSchemaTypeEntityDef);
 		default: return 0;
@@ -850,7 +850,6 @@ xmlSchemaType * xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaType * type)
 // Convenience macros and functions
 //
 #define IS_TZO_CHAR(c)          ((c == 0) || (c == 'Z') || (c == '+') || (c == '-'))
-
 #define VALID_YEAR(yr)          (yr != 0)
 #define VALID_MONTH(mon)        ((mon >= 1) && (mon <= 12))
 /* VALID_DAY should only be used when month is unknown */

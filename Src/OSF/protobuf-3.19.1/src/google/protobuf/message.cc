@@ -111,12 +111,12 @@ bool Message::IsInitialized() const {
 	return ReflectionOps::IsInitialized(*this);
 }
 
-void Message::FindInitializationErrors(std::vector<std::string>* errors) const {
+void Message::FindInitializationErrors(std::vector <std::string>* errors) const {
 	return ReflectionOps::FindInitializationErrors(*this, "", errors);
 }
 
 std::string Message::InitializationErrorString() const {
-	std::vector<std::string> errors;
+	std::vector <std::string> errors;
 	FindInitializationErrors(&errors);
 	return Join(errors, ", ");
 }

@@ -159,7 +159,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 		{
 		}
 	};
-	std::vector<KeySpec> slots;
+	std::vector <KeySpec> slots;
 public:
 	MultiValueKeyMaker() 
 	{

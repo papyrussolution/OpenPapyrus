@@ -27,12 +27,12 @@
 #include <vector>
 
 class OrPositionList : public PositionList {
-	std::vector<PositionList*> pls; /// The PositionList sub-objects.
+	std::vector <PositionList*> pls; /// The PositionList sub-objects.
 	/** Current positions of the subobjects.
 	 *
 	 *  This will be empty when this position list hasn't yet started.
 	 */
-	std::vector<Xapian::termpos> current;
+	std::vector <Xapian::termpos> current;
 	Xapian::termpos current_pos; /// Current position of this object.
 public:
 	OrPositionList() 

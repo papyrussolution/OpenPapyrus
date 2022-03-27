@@ -100,7 +100,7 @@ public:
 class InMemoryTerm {
 public:
 	// Sorted list of documents indexing this term.
-	std::vector<InMemoryPosting> docs;
+	std::vector <InMemoryPosting> docs;
 
 	Xapian::termcount term_freq;
 	Xapian::termcount collection_freq;
@@ -116,7 +116,7 @@ class InMemoryDoc {
 public:
 	bool is_valid;
 	// Sorted list of terms indexing this document.
-	std::vector<InMemoryTermEntry> terms;
+	std::vector <InMemoryTermEntry> terms;
 
 	/* Initialise invalid by default, so that resizing the termlist array
 	 * doesn't create valid documents. */
@@ -138,8 +138,8 @@ class InMemoryPostList : public LeafPostList {
 	friend class InMemoryDatabase;
 
 private:
-	std::vector<InMemoryPosting>::const_iterator pos;
-	std::vector<InMemoryPosting>::const_iterator end;
+	std::vector <InMemoryPosting>::const_iterator pos;
+	std::vector <InMemoryPosting>::const_iterator end;
 	Xapian::doccount termfreq;
 	bool started;
 
@@ -218,8 +218,8 @@ class InMemoryTermList : public TermList {
 	friend class InMemoryDatabase;
 
 private:
-	std::vector<InMemoryTermEntry>::const_iterator pos;
-	std::vector<InMemoryTermEntry>::const_iterator end;
+	std::vector <InMemoryTermEntry>::const_iterator pos;
+	std::vector <InMemoryTermEntry>::const_iterator end;
 	Xapian::termcount terms;
 	bool started;
 
@@ -260,12 +260,12 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	friend class InMemoryDocument;
 
 	std::map<std::string, InMemoryTerm> postlists;
-	std::vector<InMemoryDoc> termlists;
-	std::vector<std::string> doclists;
-	std::vector<std::map<Xapian::valueno, std::string> > valuelists;
+	std::vector <InMemoryDoc> termlists;
+	std::vector <std::string> doclists;
+	std::vector <std::map<Xapian::valueno, std::string> > valuelists;
 	std::map<Xapian::valueno, ValueStats> valuestats;
 
-	std::vector<Xapian::termcount> doclengths;
+	std::vector <Xapian::termcount> doclengths;
 
 	std::map<std::string, std::string> metadata;
 

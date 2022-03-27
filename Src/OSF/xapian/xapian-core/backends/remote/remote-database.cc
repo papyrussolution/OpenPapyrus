@@ -597,7 +597,7 @@ void RemoteDatabase::set_query(const Xapian::Query& query, Xapian::termcount qle
     Xapian::doccount collapse_max, Xapian::Enquire::docid_order order, Xapian::valueno sort_key,
     Xapian::Enquire::Internal::sort_setting sort_by, bool sort_value_forward, double time_limit,
     int percent_threshold, double weight_threshold, const Xapian::Weight& wtscheme, const Xapian::RSet &omrset, 
-	const vector<opt_ptr_spy>& matchspies) const
+	const vector <opt_ptr_spy>& matchspies) const
 {
 	string message;
 	pack_string(message, query.serialise());
@@ -663,7 +663,7 @@ void RemoteDatabase::send_global_stats(Xapian::doccount first,
 	send_message(MSG_GETMSET, message);
 }
 
-Xapian::MSet RemoteDatabase::get_mset(const vector<opt_ptr_spy>& matchspies) const
+Xapian::MSet RemoteDatabase::get_mset(const vector <opt_ptr_spy>& matchspies) const
 {
 	string message;
 	get_message(message, REPLY_RESULTS);

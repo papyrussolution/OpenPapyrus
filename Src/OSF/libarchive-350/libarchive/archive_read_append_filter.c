@@ -47,8 +47,7 @@ int archive_read_append_filter(struct archive * _a, int code)
 		    r1 = archive_read_support_filter_compress(_a);
 		    break;
 		case ARCHIVE_FILTER_PROGRAM:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			"Cannot append program filter using archive_read_append_filter");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Cannot append program filter using archive_read_append_filter");
 		    return ARCHIVE_FATAL;
 		case ARCHIVE_FILTER_LZMA:
 		    strcpy(str, "lzma");
@@ -83,27 +82,21 @@ int archive_read_append_filter(struct archive * _a, int code)
 		    r1 = archive_read_support_filter_lrzip(_a);
 		    break;
 		default:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			"Invalid filter code specified");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Invalid filter code specified");
 		    return ARCHIVE_FATAL;
 	}
-
 	if(code != ARCHIVE_FILTER_NONE) {
 		number_bidders = sizeof(a->bidders) / sizeof(a->bidders[0]);
-
 		bidder = a->bidders;
 		for(i = 0; i < number_bidders; i++, bidder++) {
 			if(!bidder->name || sstreq(bidder->name, str))
 				break;
 		}
 		if(!bidder->name || strcmp(bidder->name, str)) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-			    "Internal error: Unable to append filter");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: Unable to append filter");
 			return ARCHIVE_FATAL;
 		}
-
-		filter
-			= (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
+		filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
 		if(filter == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
@@ -118,7 +111,6 @@ int archive_read_append_filter(struct archive * _a, int code)
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	a->bypass_filter_bidding = 1;
 	return (r1 < r2) ? r1 : r2;
 }
@@ -128,20 +120,15 @@ int archive_read_append_filter_program(struct archive * _a, const char * cmd)
 	return (archive_read_append_filter_program_signature(_a, cmd, NULL, 0));
 }
 
-int archive_read_append_filter_program_signature(struct archive * _a,
-    const char * cmd, const void * signature, size_t signature_len)
+int archive_read_append_filter_program_signature(struct archive * _a, const char * cmd, const void * signature, size_t signature_len)
 {
 	int r, number_bidders, i;
 	struct archive_read_filter_bidder * bidder;
 	struct archive_read_filter * filter;
 	struct archive_read * a = (struct archive_read *)_a;
-
-	if(archive_read_support_filter_program_signature(_a, cmd, signature,
-	    signature_len) != (ARCHIVE_OK))
+	if(archive_read_support_filter_program_signature(_a, cmd, signature, signature_len) != (ARCHIVE_OK))
 		return ARCHIVE_FATAL;
-
 	number_bidders = sizeof(a->bidders) / sizeof(a->bidders[0]);
-
 	bidder = a->bidders;
 	for(i = 0; i < number_bidders; i++, bidder++) {
 		/* Program bidder name set to filter name after initialization */
@@ -149,13 +136,10 @@ int archive_read_append_filter_program_signature(struct archive * _a,
 			break;
 	}
 	if(!bidder->data) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER,
-		    "Internal error: Unable to append program filter");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: Unable to append program filter");
 		return ARCHIVE_FATAL;
 	}
-
-	filter
-		= (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
+	filter = (struct archive_read_filter *)SAlloc::C(1, sizeof(*filter));
 	if(filter == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
@@ -170,7 +154,6 @@ int archive_read_append_filter_program_signature(struct archive * _a,
 		return ARCHIVE_FATAL;
 	}
 	bidder->name = a->filter->name;
-
 	a->bypass_filter_bidding = 1;
 	return r;
 }

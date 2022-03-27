@@ -652,8 +652,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
 		SString ofd_ver; // @v11.1.9
-
-		const  int is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
+		const  bool  is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
 		double running_total = 0.0;
@@ -667,12 +666,27 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal); // @v10.4.1
+		SString buyers_email;
+		SString buyers_phone;
+		bool  paperless = false; 
 		// @v10.8.12 {
 		SString chzn_sid;
 		if(SCn.LocID)
 			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
 		// } @v10.8.12
 		p_ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, ofd_ver);
+		// @v11.3.6 {
+		{
+			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
+			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
+			if(buyers_email.NotEmpty())
+				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+			else if(buyers_phone.NotEmpty())
+				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+			else
+				paperless = false;
+		}
+		// } @v11.3.6 
 		THROW(Connect());
 		THROW(AnnulateCheck());
 		// @v11.1.11 {
@@ -765,6 +779,11 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
 					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
+					// @v11.3.6 {
+					if(paperless) {
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
+					}
+					// } @v11.3.6 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
 				}
@@ -783,13 +802,20 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
 					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
+					// @v11.3.6 {
+					if(paperless) {
+						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
+					}
+					// } @v11.3.6 
 					THROW(ExecPrintOper(DVCCMD_OPENCHECK, Arr_In, Arr_Out));
 					PROFILE_END
-					PROFILE_START_S("DVCCMD_PRINTTEXT")
-					Arr_In.Z();
-					THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sdc_param.Title));
-					THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-					PROFILE_END
+					if(!paperless) { // @v11.3.6
+						PROFILE_START_S("DVCCMD_PRINTTEXT")
+						Arr_In.Z();
+						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, sdc_param.Title));
+						THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
+						PROFILE_END
+					}
 				}
 				Flags |= sfOpenCheck;
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
@@ -890,34 +916,38 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 						;
 					}
 					else if(sl_param.Kind == sl_param.lkSignBarcode) {
-						if(line_buf.NotEmptyS()) {
-							PROFILE(CheckForRibbonUsing(SlipLineParam::fRegRegular, Arr_In));
-							// type: EAN8 EAN13 UPCA UPCE CODE39 IL2OF5 CODABAR PDF417 QRCODE
-							// width (points)
-							// height (points)
-							// label : none below above
-							// text: code
-							PPBarcode::GetStdName(sl_param.BarcodeStd, temp_buf);
-							temp_buf.SetIfEmpty("qr"); // "pdf417";
-							PROFILE_START_S("DVCCMD_PRINTBARCODE")
-							ArrAdd(Arr_In, DVCPARAM_TYPE, temp_buf);
-							ArrAdd(Arr_In, DVCPARAM_WIDTH,  sl_param.BarcodeWd);
-							ArrAdd(Arr_In, DVCPARAM_HEIGHT, sl_param.BarcodeHt);
-							const char * p_label_place = (sl_param.Flags & sl_param.fBcTextBelow) ? "below" : ((sl_param.Flags & sl_param.fBcTextAbove) ? "above" : 0);
-							if(p_label_place)
-								ArrAdd(Arr_In, DVCPARAM_LABEL, p_label_place);
-							THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf));
-							THROW(ExecPrintOper(DVCCMD_PRINTBARCODE, Arr_In, Arr_Out));
-							PROFILE_END
+						if(!paperless) { // @v11.3.6
+							if(line_buf.NotEmptyS()) {
+								PROFILE(CheckForRibbonUsing(SlipLineParam::fRegRegular, Arr_In));
+								// type: EAN8 EAN13 UPCA UPCE CODE39 IL2OF5 CODABAR PDF417 QRCODE
+								// width (points)
+								// height (points)
+								// label : none below above
+								// text: code
+								PPBarcode::GetStdName(sl_param.BarcodeStd, temp_buf);
+								temp_buf.SetIfEmpty("qr"); // "pdf417";
+								PROFILE_START_S("DVCCMD_PRINTBARCODE")
+								ArrAdd(Arr_In, DVCPARAM_TYPE, temp_buf);
+								ArrAdd(Arr_In, DVCPARAM_WIDTH,  sl_param.BarcodeWd);
+								ArrAdd(Arr_In, DVCPARAM_HEIGHT, sl_param.BarcodeHt);
+								const char * p_label_place = (sl_param.Flags & sl_param.fBcTextBelow) ? "below" : ((sl_param.Flags & sl_param.fBcTextAbove) ? "above" : 0);
+								if(p_label_place)
+									ArrAdd(Arr_In, DVCPARAM_LABEL, p_label_place);
+								THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf));
+								THROW(ExecPrintOper(DVCCMD_PRINTBARCODE, Arr_In, Arr_Out));
+								PROFILE_END
+							}
 						}
 					}
 					else {
-						PROFILE(CheckForRibbonUsing(sl_param.Flags, Arr_In));
-						PROFILE_START_S("DVCCMD_PRINTTEXT")
-						THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf.Trim((sl_param.Font > 1) ? (CheckStrLen / 2) : CheckStrLen)));
-						THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, (sl_param.Font == 1) ? DEF_FONTSIZE : sl_param.Font));
-						THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
-						PROFILE_END
+						if(!paperless) { // @v11.3.6
+							PROFILE(CheckForRibbonUsing(sl_param.Flags, Arr_In));
+							PROFILE_START_S("DVCCMD_PRINTTEXT")
+							THROW(ArrAdd(Arr_In, DVCPARAM_TEXT, line_buf.Trim((sl_param.Font > 1) ? (CheckStrLen / 2) : CheckStrLen)));
+							THROW(ArrAdd(Arr_In, DVCPARAM_FONTSIZE, (sl_param.Font == 1) ? DEF_FONTSIZE : sl_param.Font));
+							THROW(ExecPrintOper(DVCCMD_PRINTTEXT, Arr_In, Arr_Out));
+							PROFILE_END
+						}
 					}
 				}
 				Arr_In.Z();
@@ -998,6 +1028,14 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, chzn_sid));
 			// } @v10.8.12
 		}
+		// @v11.3.6 {
+		if(buyers_email.NotEmptyS()) {
+			THROW(ArrAdd(Arr_In, DVCPARAM_BUYERSEMAIL, buyers_email));
+		}
+		if(buyers_phone.NotEmptyS()) {
+			THROW(ArrAdd(Arr_In, DVCPARAM_BUYERSPHONE, buyers_phone));
+		}
+		// } @v11.3.6 
 		THROW(ExecPrintOper(DVCCMD_CLOSECHECK, Arr_In, Arr_Out)); // Всегда закрываем чек
 		Flags &= ~sfOpenCheck;
 		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;

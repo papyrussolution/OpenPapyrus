@@ -81,12 +81,10 @@ bool _mi_bitmap_claim(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi
 
 bool _mi_bitmap_is_claimed(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi_bitmap_index_t bitmap_idx);
 bool _mi_bitmap_is_any_claimed(mi_bitmap_t bitmap, size_t bitmap_fields, size_t count, mi_bitmap_index_t bitmap_idx);
-
-//--------------------------------------------------------------------------
+//
 // the `_across` functions work on bitmaps where sequences can cross over
 // between the fields. This is used in arena allocation
-//--------------------------------------------------------------------------
-
+//
 // Find `count` bits of zeros and set them to 1 atomically; returns `true` on success.
 // Starts at idx, and wraps around to search in all `bitmap_fields` fields.
 bool _mi_bitmap_try_find_from_claim_across(mi_bitmap_t bitmap,

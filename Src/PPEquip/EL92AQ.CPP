@@ -1,5 +1,5 @@
 // EL92AQ.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2010, 2011, 2015, 2016, 2019
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2006, 2010, 2011, 2015, 2016, 2019, 2022
 // @codepage windows-1251
 // Интерфейс (асинхронный) с ККМ Електроника-92-Аквариус
 //
@@ -225,7 +225,6 @@ int ACS_EL92AQ::ExportData(int)
 		//if(Amounts100 == 0)
 			price *= 100L;
 		DbfRecord dbfr(p_out_tbl);
-		dbfr.empty();
 		dbfr.put(1, info.Name);
 		dbfr.put(2, price);
 		dbfr.put(3, 1000.0);

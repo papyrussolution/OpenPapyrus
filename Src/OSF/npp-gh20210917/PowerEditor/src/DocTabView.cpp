@@ -24,7 +24,7 @@ DocTabView::DocTabView() : TabBarPlus(), _pView(NULL)
 	TabBarPlus::destroy();
 }
 
-void DocTabView::init(HINSTANCE hInst, HWND parent, ScintillaEditView * pView, std::vector<IconList *> pIconListVector, uchar indexChoice) 
+void DocTabView::init(HINSTANCE hInst, HWND parent, ScintillaEditView * pView, std::vector <IconList *> pIconListVector, uchar indexChoice) 
 {
 	TabBarPlus::init(hInst, parent);
 	_pView = pView;

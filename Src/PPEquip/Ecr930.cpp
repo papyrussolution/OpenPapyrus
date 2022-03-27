@@ -1,5 +1,5 @@
 // ECR930.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2015, 2016, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2007, 2008, 2010, 2011, 2015, 2016, 2019, 2020, 2022
 // @codepage windows-1251
 // Интерфейс (асинхронный) с ККМ ЭКР-4110
 //
@@ -186,8 +186,7 @@ int ACS_ECR930::ExportData(int)
 	THROW_MEM(p_iter = new AsyncCashGoodsIterator(NodeID, 0, SinceDlsID, 0));
 	while(p_iter->Next(&info) > 0) {
 		int intg = 0;
-		DbfRecord    dbfr(p_out_tbl);
-		dbfr.empty();
+		DbfRecord dbfr(p_out_tbl);
 		dbfr.put( 1, satof(info.BarCode)); // @v10.7.9 atof-->satof
 		dbfr.put( 2, info.Name);
 		dbfr.put( 3, (info.Price * info.UnitPerPack));

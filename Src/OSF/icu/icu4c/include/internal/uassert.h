@@ -29,14 +29,13 @@
  * without affecting other non - ICU uses of the C library assert().
 */
 #if U_DEBUG
-#   include <assert.h>
-#define U_ASSERT(exp) assert(exp)
+	#include <assert.h>
+	#define U_ASSERT(exp) assert(exp)
 #elif U_CPLUSPLUS_VERSION
-#define U_ASSERT(exp) (void)0
+	#define U_ASSERT(exp) (void)0
 #else
-#define U_ASSERT(exp)
+	#define U_ASSERT(exp)
 #endif
-
 /**
  * \def UPRV_UNREACHABLE_ASSERT
  * This macro is used in places that we had believed were unreachable, but

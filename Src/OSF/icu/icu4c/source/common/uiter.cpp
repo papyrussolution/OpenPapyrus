@@ -1,20 +1,11 @@
+// uiter.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2002-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uiter.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002jan18
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 2002-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jan18
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -284,18 +275,16 @@ static int32_t utf16BE_strlen(const char * s) {
 
 U_CAPI void U_EXPORT2 uiter_setUTF16BE(UCharIterator * iter, const char * s, int32_t length) 
 {
-	if(iter!=NULL) {
-		/* allow only even-length strings (the input length counts bytes) */
-		if(s!=NULL && (length==-1 || (length>=0 && IS_EVEN_(length)))) {
+	if(iter) {
+		// allow only even-length strings (the input length counts bytes)
+		if(s && (length==-1 || (length>=0 && IS_EVEN_(length)))) {
 			/* length/=2, except that >>=1 also works for -1 (-1/2==0, -1>>1==-1) */
 			length >>= 1;
-
 			if(U_IS_BIG_ENDIAN && IS_POINTER_EVEN(s)) {
 				/* big-endian machine and 2-aligned UTF-16BE string: use normal UChar iterator */
 				uiter_setString(iter, (const UChar *)s, length);
 				return;
 			}
-
 			*iter = utf16BEIterator;
 			iter->context = s;
 			if(length>=0) {

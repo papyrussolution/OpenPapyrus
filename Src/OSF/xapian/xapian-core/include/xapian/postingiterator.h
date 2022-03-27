@@ -8,11 +8,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -36,21 +31,14 @@ namespace Xapian {
 /// Class for iterating over a list of terms.
 class XAPIAN_VISIBILITY_DEFAULT PostingIterator {
 public:
-	/// Class representing the PostingIterator internals.
-	class Internal;
-	/// @private @internal Reference counted internals.
-	Internal * internal;
-
+	class Internal; /// Class representing the PostingIterator internals.
+	Internal * internal; /// @private @internal Reference counted internals.
 	/// @private @internal Wrap an existing Internal.
-	XAPIAN_VISIBILITY_INTERNAL
-	explicit PostingIterator(Internal * internal_);
-
+	XAPIAN_VISIBILITY_INTERNAL explicit PostingIterator(Internal * internal_);
 	/// Copy constructor.
 	PostingIterator(const PostingIterator & o);
-
 	/// Assignment.
 	PostingIterator & operator=(const PostingIterator & o);
-
 	/// Move constructor.
 	PostingIterator(PostingIterator && o) : internal(o.internal) 
 	{

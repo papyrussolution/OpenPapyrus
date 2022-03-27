@@ -71,7 +71,7 @@ void XPM::Init(const char * textForm)
 	// if memcmp implemented strangely. Must be 4 bytes at least at destination.
 	if((0 == memcmp(textForm, "/* X", 4)) && (0 == memcmp(textForm, "/* XPM */", 9))) {
 		// Build the lines form out of the text form
-		std::vector<const char *> linesForm = LinesFormFromTextForm(textForm);
+		std::vector <const char *> linesForm = LinesFormFromTextForm(textForm);
 		if(!linesForm.empty()) {
 			Init(&linesForm[0]);
 		}
@@ -156,10 +156,10 @@ void XPM::PixelAt(int x, int y, ColourDesired &colour, bool &transparent) const
 	}
 }
 
-std::vector<const char *> XPM::LinesFormFromTextForm(const char * textForm)
+std::vector <const char *> XPM::LinesFormFromTextForm(const char * textForm)
 {
 	// Build the lines form out of the text form
-	std::vector<const char *> linesForm;
+	std::vector <const char *> linesForm;
 	int countQuotes = 0;
 	int strings = 1;
 	int j = 0;

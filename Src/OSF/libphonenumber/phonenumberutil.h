@@ -685,7 +685,7 @@ private:
 	// country calling code 7. Under this map, 1 is mapped to region code "US" and
 	// 7 is mapped to region code "RU". This is implemented as a sorted vector to
 	// achieve better performance.
-	scoped_ptr<std::vector<IntRegionsPair> > country_calling_code_to_region_code_map_;
+	scoped_ptr<std::vector <IntRegionsPair> > country_calling_code_to_region_code_map_;
 	// The set of regions that share country calling code 1.
 	scoped_ptr<std::set<string> > nanpa_regions_;
 	static const int kNanpaCountryCode = 1;

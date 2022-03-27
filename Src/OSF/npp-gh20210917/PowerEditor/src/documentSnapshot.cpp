@@ -48,7 +48,7 @@ void DocumentPeeker::syncDisplay(Buffer * buf, ScintillaEditView & scintSource)
 		//
 		// folding
 		//
-		const std::vector<size_t> & lineStateVector = buf->getHeaderLineState(&scintSource);
+		const std::vector <size_t> & lineStateVector = buf->getHeaderLineState(&scintSource);
 		_pPeekerView->syncFoldStateWith(lineStateVector);
 
 		//

@@ -9,11 +9,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
@@ -26,7 +21,8 @@
 
 using namespace std;
 
-string TermFreqs::get_description() const {
+string TermFreqs::get_description() const 
+{
 	string desc("TermFreqs(termfreq=");
 	desc += str(termfreq);
 	desc += ", reltermfreq=";
@@ -49,7 +45,6 @@ Weight::Internal &Weight::Internal::operator+=(const Weight::Internal & inc)
 	total_length += inc.total_length;
 	collection_size += inc.collection_size;
 	rset_size += inc.rset_size;
-
 	// Add termfreqs and reltermfreqs
 	map<string, TermFreqs>::const_iterator i;
 	for(i = inc.termfreqs.begin(); i != inc.termfreqs.end(); ++i) {
@@ -58,9 +53,7 @@ Weight::Internal &Weight::Internal::operator+=(const Weight::Internal & inc)
 	return *this;
 }
 
-void
-Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
-    const Xapian::RSet &rset)
+void Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb, const Xapian::RSet &rset)
 {
 #ifdef XAPIAN_ASSERTIONS
 	Assert(!finalised);
@@ -69,11 +62,9 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	total_length += subdb.get_total_length();
 	collection_size += subdb.get_doccount();
 	rset_size += rset.size();
-
 	Xapian::TermIterator t;
 	for(t = query.get_unique_terms_begin(); t != Xapian::TermIterator(); ++t) {
 		const string & term = *t;
-
 		Xapian::doccount sub_tf;
 		Xapian::termcount sub_cf;
 		subdb.get_freqs(term, &sub_tf, &sub_cf);
@@ -81,10 +72,8 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 		tf.termfreq += sub_tf;
 		tf.collfreq += sub_cf;
 	}
-
 	if(!rset.internal.get())
 		return;
-
 	for(Xapian::docid did : rset.internal->docs) {
 		Assert(did);
 		// The query is likely to contain far fewer terms than the documents,
@@ -105,18 +94,17 @@ Weight::Internal::accumulate_stats(const Xapian::Database::Internal &subdb,
 	}
 }
 
-void
-Weight::Internal::merge(const Weight::Internal& o)
+void Weight::Internal::merge(const Weight::Internal& o)
 {
-	if(!o.have_max_part) return;
+	if(!o.have_max_part) 
+		return;
 	for(auto i : o.termfreqs) {
 		double& max_part = termfreqs[i.first].max_part;
 		max_part = max(max_part, i.second.max_part);
 	}
 }
 
-string
-Weight::Internal::get_description() const
+string Weight::Internal::get_description() const
 {
 	string desc = "Weight::Internal(totlen=";
 	desc += str(total_length);

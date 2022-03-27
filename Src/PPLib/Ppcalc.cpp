@@ -849,6 +849,10 @@ IMPL_INVARIANT_C(PosPaymentBlock)
 	S_ASSERT_P(BonusAmt >= 0.0, pInvP);
 	S_ASSERT_P(BonusAmt <= BonusRest, pInvP);
 	S_ASSERT_P(DeliveryAmt == (NoteAmt - CashAmt), pInvP);
+	S_ASSERT_P(oneof3(BuyersEAddrType, 0, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
+	S_ASSERT_P(BuyersEAddr.IsEmpty() || oneof2(BuyersEAddrType, SNTOK_EMAIL, SNTOK_PHONE), pInvP); // @v11.3.6
+	S_ASSERT_P(BuyersEAddrType == 0 || BuyersEAddr.NotEmpty(), pInvP); // @v11.3.6
+	S_ASSERT_P(!(Flags & fPaperless) || BuyersEAddr.NotEmpty(), pInvP); // @v11.3.6
 	S_INVARIANT_EPILOG(pInvP);
 }
 
@@ -865,7 +869,10 @@ PosPaymentBlock & PosPaymentBlock::Z()
 	Kind = cpmCash;
 	DeliveryAmt = NoteAmt - CashAmt;
 	DisabledKinds = 0;
-	AltCashReg = -1;
+	// @v11.3.6 AltCashReg = -1;
+	Flags = 0; // @v11.3.6
+	BuyersEAddrType = 0; // @v11.3.6
+	BuyersEAddr.Z(); // @v11.3.6
 	CcPl.freeAll();
 	BonusMaxPart = 0.0;
 	UsableBonus = 0.0;
@@ -897,13 +904,22 @@ int PosPaymentBlock::EditDialog2()
 {
 	class PosPaymentDialog2 : public PPListDialog {
 		DECL_DIALOG_DATA(PosPaymentBlock);
+		enum {
+			dummyFirst = 1,
+			brushInvalid,
+			brushEAddrPhone,
+			brushEAddrEmail,
+		};
 	public:
-		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0), State(stEnableBonus)
+		PosPaymentDialog2() : PPListDialog(DLG_CPPAYM2, CTL_CPPAYM_CCRDLIST), Data(0, 0.0), State(stEnableBonus), EAddrInputState(0)
 		{
 			SString font_face;
 			PPGetSubStr(PPTXT_FONTFACE, PPFONT_IMPACT, font_face);
 			SetCtrlFont(CTL_CPPAYM_CSHAMT, font_face, 26);
 			SetCtrlFont(CTL_CPPAYM_BNKAMT, font_face, 26);
+			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
+			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -936,9 +952,20 @@ int PosPaymentBlock::EditDialog2()
 			}
 			else
 				showCtrl(CTL_CPPAYM_USEBONUS, 0);
+			/* @v11.3.6 
 			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg >= 0));
 			if(Data.AltCashReg >= 0)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.AltCashReg == 1));
+			*/
+			// @v11.3.6 {
+			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)); 
+			if(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)
+				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegUse));
+			{
+				setCtrlString(CTL_CPPAYM_EADDR, Data.BuyersEAddr);
+				setCtrlUInt16(CTL_CPPAYM_PAPERLESS, BIN(Data.Flags & PosPaymentBlock::fPaperless));
+			}
+			// } @v11.3.6
 			updateList(-1);
 			return 1;
 		}
@@ -950,10 +977,31 @@ int PosPaymentBlock::EditDialog2()
 			val = R2(getCtrlReal(CTL_CPPAYM_BNKAMT));
 			Data.CcPl.Set(CCAMTTYP_BANK, val);
 			Data.CcPl.Normalize();
+			/* @v11.3.6 
 			if(Data.AltCashReg >= 0) {
 				uint16 v = getCtrlUInt16(CTL_CPPAYM_ALTCASHREG);
 				Data.AltCashReg = BIN(v == 1);
+			}*/
+			// @v11.3.6 {
+			uint16 v = (Data.Flags & PosPaymentBlock::fAltCashRegEnabled) ? getCtrlUInt16(CTL_CPPAYM_ALTCASHREG) : 0;
+			SETFLAG(Data.Flags, PosPaymentBlock::fAltCashRegUse, v == 1);
+			{
+				SString eaddr_buf;
+				getCtrlString(CTL_CPPAYM_EADDR, eaddr_buf);
+				const int eaddr_status = GetEAddrStatus(eaddr_buf);
+				Data.BuyersEAddr.Z();
+				Data.BuyersEAddrType = 0;
+				if(oneof2(eaddr_status, SNTOK_EMAIL, SNTOK_PHONE)) {
+					Data.BuyersEAddr = eaddr_buf;
+					Data.BuyersEAddrType = eaddr_status;
+					v = getCtrlUInt16(CTL_CPPAYM_PAPERLESS);
+					SETFLAG(Data.Flags, PosPaymentBlock::fPaperless, v);
+				}
+				else {
+					Data.Flags &= ~PosPaymentBlock::fPaperless;
+				}
 			}
+			// } @v11.3.6 
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
@@ -994,6 +1042,24 @@ int PosPaymentBlock::EditDialog2()
 					}
 					else if(event.isClusterClk(CTL_CPPAYM_USEBONUS)) {
 						ToggleBonusAvailability(LOGIC(getCtrlUInt16(CTL_CPPAYM_USEBONUS)), false/*force*/);
+					}
+					else if(TVCMD == cmCtlColor) {
+						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+						if(p_dc && getCtrlHandle(CTL_CPPAYM_EADDR) == p_dc->H_Ctl) {
+							int brush_ident = 0;
+							if(EAddrInputState == SNTOK_PHONE)
+								brush_ident = brushEAddrPhone;
+							else if(EAddrInputState == SNTOK_EMAIL)
+								brush_ident = brushEAddrEmail;
+							else if(EAddrInputState < 0)
+								brush_ident = brushInvalid;
+							if(brush_ident) {
+								::SetBkMode(p_dc->H_DC, TRANSPARENT);
+								p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+							}
+						}
+						else
+							return;
 					}
 					else if(event.isCmd(cmInputUpdated)) {
 						if(!(State & stLock)) {
@@ -1043,6 +1109,12 @@ int PosPaymentBlock::EditDialog2()
 								State |= stLock;
 								SetupCrdCard(1);
 								State &= ~stLock;
+							}
+							else if(event.isCtlEvent(CTL_CPPAYM_EADDR)) { // @v11.3.6
+								SString eaddr_buf;
+								getCtrlString(CTL_CPPAYM_EADDR, eaddr_buf);
+								EAddrInputState = GetEAddrStatus(eaddr_buf);
+								drawCtrl(CTL_CPPAYM_EADDR);
 							}
 						}
 					}
@@ -1349,6 +1421,23 @@ int PosPaymentBlock::EditDialog2()
 				State &= ~stLock;
 			}
 		}
+		int    GetEAddrStatus(SString & rBuf)
+		{
+			int    status = 0;
+			if(rBuf.NotEmptyS()) {
+				SNaturalTokenArray nta;
+				Trgn.Run(rBuf.ucptr(), rBuf.Len(), nta, 0);
+				if(nta.Has(SNTOK_PHONE))
+					status = SNTOK_PHONE;
+				else if(nta.Has(SNTOK_EMAIL))
+					status = SNTOK_EMAIL;
+				else
+					status = -1;
+			}
+			else
+				status = 0;
+			return status;
+		}
 		PPObjSCard ScObj;
 		PPObjSCardSeries ScsObj;
 		RAssocArray ScRestList;
@@ -1359,7 +1448,10 @@ int PosPaymentBlock::EditDialog2()
 			stEnableBonus = 0x0002
 		};
 		uint   State;
+		int    EAddrInputState; // 0 - empty, -1 - invalid, SNTOK_PHONE, SNTOK_EMAIL
 		double TotalConst;
+		PPTokenRecognizer Trgn;
+		SPaintToolBox Ptb;
 	};
 
 	DIALOG_PROC_BODY(PosPaymentDialog2, this);

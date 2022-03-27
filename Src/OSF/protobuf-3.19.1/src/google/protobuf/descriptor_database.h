@@ -92,7 +92,7 @@ public:
 	// This method has a default implementation that always returns
 	// false.
 	virtual bool FindAllExtensionNumbers(const std::string & /* extendee_type */,
-	    std::vector<int>* /* output */) {
+	    std::vector <int>* /* output */) {
 		return false;
 	}
 
@@ -104,7 +104,7 @@ public:
 	//
 	// This method has a default implementation that always returns
 	// false.
-	virtual bool FindAllFileNames(std::vector<std::string>* /*output*/) {
+	virtual bool FindAllFileNames(std::vector <std::string>* /*output*/) {
 		return false;
 	}
 
@@ -113,14 +113,14 @@ public:
 	// database will find all packages. Returns true if the database supports
 	// searching all package names, otherwise returns false and leaves output
 	// unchanged.
-	bool FindAllPackageNames(std::vector<std::string>* output);
+	bool FindAllPackageNames(std::vector <std::string>* output);
 
 	// Finds the message names and appends them to the output in an
 	// undefined order. This method is best-effort: it's not guaranteed that the
 	// database will find all messages. Returns true if the database supports
 	// searching all message names, otherwise returns false and leaves output
 	// unchanged.
-	bool FindAllMessageNames(std::vector<std::string>* output);
+	bool FindAllMessageNames(std::vector <std::string>* output);
 
 private:
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(DescriptorDatabase);
@@ -170,9 +170,9 @@ public:
 	    int field_number,
 	    FileDescriptorProto* output) override;
 	bool FindAllExtensionNumbers(const std::string & extendee_type,
-	    std::vector<int>* output) override;
+	    std::vector <int>* output) override;
 
-	bool FindAllFileNames(std::vector<std::string>* output) override;
+	bool FindAllFileNames(std::vector <std::string>* output) override;
 
 private:
 	// An index mapping file names, symbol names, and extension numbers to
@@ -193,8 +193,8 @@ public:
 		Value FindSymbol(const std::string & name);
 		Value FindExtension(const std::string & containing_type, int field_number);
 		bool FindAllExtensionNumbers(const std::string & containing_type,
-		    std::vector<int>* output);
-		void FindAllFileNames(std::vector<std::string>* output);
+		    std::vector <int>* output);
+		void FindAllFileNames(std::vector <std::string>* output);
 
 private:
 		std::map<std::string, Value> by_name_;
@@ -254,7 +254,7 @@ private:
 	};
 
 	DescriptorIndex<const FileDescriptorProto*> index_;
-	std::vector<std::unique_ptr<const FileDescriptorProto> > files_to_delete_;
+	std::vector <std::unique_ptr<const FileDescriptorProto> > files_to_delete_;
 
 	// If file is non-nullptr, copy it into *output and return true, otherwise
 	// return false.
@@ -298,15 +298,15 @@ public:
 	    int field_number,
 	    FileDescriptorProto* output) override;
 	bool FindAllExtensionNumbers(const std::string & extendee_type,
-	    std::vector<int>* output) override;
-	bool FindAllFileNames(std::vector<std::string>* output) override;
+	    std::vector <int>* output) override;
+	bool FindAllFileNames(std::vector <std::string>* output) override;
 
 private:
 	class DescriptorIndex;
 	// Keep DescriptorIndex by pointer to hide the implementation to keep a
 	// cleaner header.
 	std::unique_ptr<DescriptorIndex> index_;
-	std::vector<void*> files_to_delete_;
+	std::vector <void*> files_to_delete_;
 
 	// If encoded_file.first is non-nullptr, parse the data into *output and
 	// return true, otherwise return false.
@@ -331,7 +331,7 @@ public:
 	    int field_number,
 	    FileDescriptorProto* output) override;
 	bool FindAllExtensionNumbers(const std::string & extendee_type,
-	    std::vector<int>* output) override;
+	    std::vector <int>* output) override;
 
 private:
 	const DescriptorPool& pool_;
@@ -348,7 +348,7 @@ public:
 	// Merge more than two databases.  The sources remain property of the caller.
 	// The vector may be deleted after the constructor returns but the
 	// DescriptorDatabases need to stick around.
-	explicit MergedDescriptorDatabase(const std::vector<DescriptorDatabase*>& sources);
+	explicit MergedDescriptorDatabase(const std::vector <DescriptorDatabase*>& sources);
 	~MergedDescriptorDatabase() override;
 
 	// implements DescriptorDatabase -----------------------------------
@@ -362,10 +362,10 @@ public:
 	// Merges the results of calling all databases. Returns true iff any
 	// of the databases returned true.
 	bool FindAllExtensionNumbers(const std::string & extendee_type,
-	    std::vector<int>* output) override;
+	    std::vector <int>* output) override;
 
 private:
-	std::vector<DescriptorDatabase*> sources_;
+	std::vector <DescriptorDatabase*> sources_;
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(MergedDescriptorDatabase);
 };
 }  // namespace protobuf

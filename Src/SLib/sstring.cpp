@@ -145,14 +145,14 @@ int FASTCALL SStrScan::Pop(uint prevPos)
 	return ok;
 }
 
-int FASTCALL SStrScan::IsRe(long reHandler)
+bool FASTCALL SStrScan::IsRe(long reHandler)
 {
 	if(reHandler > 0 && reHandler <= static_cast<long>(ReList.getCount())) {
 		SRegExp2 * p_re = ReList.at(reHandler-1);
 		if(p_re)
-			return BIN(p_re->Find(P_Buf+Offs));
+			return LOGIC(p_re->Find(P_Buf+Offs));
 	}
-	return 0;
+	return false;
 }
 
 int SStrScan::GetRe(long reHandler, SString & rBuf)
@@ -168,10 +168,10 @@ int SStrScan::GetRe(long reHandler, SString & rBuf)
 	return 0;
 }
 
-int FASTCALL SStrScan::Is(const char * pS) const
+bool FASTCALL SStrScan::Is(const char * pS) const
 {
 	const size_t len = sstrlen(pS);
-	return BIN(len && strnicmp((P_Buf+Offs), pS, len) == 0);
+	return (len && strnicmp((P_Buf+Offs), pS, len) == 0);
 }
 
 int FASTCALL SStrScan::Is(char c) const
@@ -214,9 +214,9 @@ int FASTCALL SStrScan::GetUtf8(SString & rBuf)
 	return n;
 }
 
-int FASTCALL SStrScan::IsTagBrace() const
+bool FASTCALL SStrScan::IsTagBrace() const
 {
-	return BIN(P_Buf[Offs] == '<');
+	return (P_Buf[Offs] == '<');
 }
 
 SStrScan & SStrScan::Z()
@@ -254,9 +254,9 @@ int FASTCALL SStrScan::GetQuotedString(SString & rBuf)
 		return 0;
 }
 
-static int FASTCALL _is_eqq_ident_chr(char c)
+static bool FASTCALL _is_eqq_ident_chr(char c)
 {
-	return BIN((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_');
+	return ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '-' || c == '_');
 }
 
 int SStrScan::GetEqQ(SString & rKey, SString & rVal)
@@ -450,34 +450,14 @@ bool SStrScan::IsHex()
 	return (InitReHex() && P_ReHex->Find(P_Buf+Offs));
 }
 
-static FORCEINLINE uint Implement_IsEol(const char * pIn, SEOLFormat eolf)
-{
-	const char c = pIn[0];
-	if(oneof2(c, '\xA', '\xD')) {
-		if(eolf == eolUnix)
-			return BIN(c == '\xA');
-		else if(eolf == eolMac)
-			return BIN(c == '\xD');
-		else if(eolf == eolWindows)
-			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 0;
-		else if(eolf == eolUndef) {
-			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 1;
-		}
-		else if(eolf == eolSpcICalendar) { // @v11.0.3 (если после \xD\xA идет пробем, то это - продолжение текущей строки, но обслуживает ситуацию caller
-			return (c == '\xD' && (pIn[1] == '\xA')) ? 2 : 0;
-		}
-	}
-	return 0;
-}
-
 uint FASTCALL SStrScan::IsEol(SEOLFormat eolf) const
 {
-	return Implement_IsEol(P_Buf+Offs, eolf);
+	return implement_iseol(P_Buf+Offs, eolf);
 }
 
 int FASTCALL SStrScan::GetEol(SEOLFormat eolf)
 {
-	uint n = Implement_IsEol(P_Buf+Offs, eolf);
+	uint n = implement_iseol(P_Buf+Offs, eolf);
 	if(n) {
 		Incr(n);
 		return 1;
@@ -494,7 +474,7 @@ int FASTCALL SStrScan::GetLine(SEOLFormat eolf, SString & rBuf)
 		uint   eoll = 0;
 		const  char * p_buf = P_Buf;
 		size_t offs = Offs;
-		while(p_buf[offs] && (eoll = Implement_IsEol(p_buf+offs, eolf)) == 0) {
+		while(p_buf[offs] && (eoll = implement_iseol(p_buf+offs, eolf)) == 0) {
 			rBuf.CatChar(p_buf[offs++]);
 		}
 		Offs = offs + eoll;
@@ -709,8 +689,8 @@ SStrScan & FASTCALL SStrScan::Skip(int ws)
 		if(ws & wsTab)
 			buf[i++] = '\t';
 		if(ws & wsNewLine) {
-			buf[i++] = '\xD'; //'\n';
-			buf[i++] = '\xA';
+			buf[i++] = '\x0D'; //'\n';
+			buf[i++] = '\x0A';
 		}
 		if(ws & wsComma)
 			buf[i++] = ',';
@@ -718,7 +698,7 @@ SStrScan & FASTCALL SStrScan::Skip(int ws)
 			buf[i++] = ';';
 		const char * p = (P_Buf+Offs);
 		while(memchr(buf, *p, i)) {
-			if(ws & wsNewLine && *p == '\xD' && p[1] == '\xA')
+			if(ws & wsNewLine && *p == '\x0D' && p[1] == '\x0A')
 				p++;
 			p++;
 		}
@@ -735,8 +715,8 @@ static size_t FASTCALL _MakeWhitespaceCharSet(int ws, char * pBuf)
 	if(ws & SStrScan::wsTab)
 		pBuf[i++] = '\t';
 	if(ws & SStrScan::wsNewLine) {
-		pBuf[i++] = '\xD'; //'\n';
-		pBuf[i++] = '\xA';
+		pBuf[i++] = '\x0D'; //'\n';
+		pBuf[i++] = '\x0A';
 	}
 	if(ws & SStrScan::wsComma)
 		pBuf[i++] = ',';
@@ -769,11 +749,11 @@ SStrScan & SStrScan::Skip(int ws, uint * pLineCount)
 		size_t i = _MakeWhitespaceCharSet(ws, buf);
 		const char * p = (P_Buf+Offs);
 		while(memchr(buf, *p, i)) {
-			if(*p == '\xD' && p[1] == '\xA') {
+			if(*p == '\x0D' && p[1] == '\x0A') {
 				p++;
 				line_count++;
 			}
-			else if(oneof2(*p, '\xD', '\xA'))
+			else if(oneof2(*p, '\x0D', '\x0A'))
 				line_count++;
 			p++;
 		}
@@ -885,7 +865,7 @@ SString & SString::Semicol() { return CatChar(';');  }
 SString & SString::Colon()   { return CatChar(':');  } 
 SString & SString::Eq()      { return CatChar('=');  }
 SString & SString::CR()      { return CatChar('\n'); }
-SString & SString::CRB()     { return CatChar('\xD').CatChar('\xA'); }
+SString & SString::CRB()     { return CatChar('\x0D').CatChar('\x0A'); }
 SString & FASTCALL SString::CatQStr(const char * pStr) { return CatChar('\"').Cat(pStr).CatChar('\"'); }
 SString & FASTCALL SString::CatParStr(const char * pStr) { return CatChar('(').Cat(pStr).CatChar(')'); }
 SString & FASTCALL SString::CatParStr(long val) { return CatChar('(').Cat(val).CatChar(')'); }
@@ -1616,7 +1596,7 @@ SString & SString::ReplaceCR()
 					len--;
 				}
 			}
-			else if(P_Buf[i] == '\xA') {
+			else if(P_Buf[i] == '\x0A') {
 				P_Buf[i] = ' ';
 			}
 		}
@@ -2351,12 +2331,12 @@ SString & SString::Excise(size_t start, size_t size)
 SString & SString::Chomp()
 {
 	const char _last = Last();
-	if(_last == '\xA') {
+	if(_last == '\x0A') {
 		TrimRight();
-		if(Last() == '\xD')
+		if(Last() == '\x0D')
 			TrimRight();
 	}
-	else if(_last == '\xD')
+	else if(_last == '\x0D')
 		TrimRight();
 	return *this;
 }
@@ -3440,11 +3420,11 @@ SString & SString::Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen)
 	for(size_t spos = 0; spos < slen; spos++) {
 		char c = pBuf[spos];
 		// If the character is a linebreak, add a CRLF and reset the line position.
-		if(c == '\xA') {
+		if(c == '\x0A') {
 			CRB();
 			linepos = 0;
 		}
-		else if(c == '\xD') {
+		else if(c == '\x0D') {
 			CRB();
 			linepos = 0;
 			if(pBuf[spos+1])
@@ -3476,7 +3456,7 @@ int SString::Decode_QuotedPrintable(SString & rBuf) const
 			if(p < (src_len-2)) {
 				const char c1 = p_src_buf[p+1];
 				const char c2 = p_src_buf[p+2];
-				if(c1 == '\xD' && c2 == '\xA') {
+				if(c1 == '\x0D' && c2 == '\x0A') {
 					enc_c = 2; // soft wrap
 				}
 				else if(((c1 >= '0' && c1 <= '9') || (c1 >= 'A' && c1 <= 'Z')) && ((c2 >= '0' && c2 <= '9') || (c2 >= 'A' && c2 <= 'Z'))) {
@@ -6857,10 +6837,24 @@ float FASTCALL SNaturalTokenArray::Has(uint32 tok) const
 
 int SNaturalTokenArray::Add(uint32 tok, float prob)
 {
-	SNaturalToken item;
-	item.ID = tok;
-	item.Prob = prob;
-	return insert(&item);
+	int    ok = 1;
+    uint   pos = 0;
+    if(lsearch(&tok, &pos, CMPF_LONG)) {
+		SNaturalToken & r_item = at(pos);
+		if(r_item.Prob != prob) {
+			if(prob <= 0.0f)
+				atFree(pos);
+			else
+				r_item.Prob = prob;
+		}
+	}
+	else if(prob >= 0.0f) {
+		SNaturalToken item;
+		item.ID = tok;
+		item.Prob = prob;
+		ok = insert(&item);
+	}
+	return ok;
 }
 
 /*static*/int STokenRecognizer::EncodeChZn1162(uint16 productTypeBytes, const char * pGTIN, const char * pSerial, void * pResultBuf, size_t resultBufSize)
@@ -6972,6 +6966,10 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		uchar  num_potential_tri_delim = 0;
 		h = 0xffffffffU & ~(SNTOKSEQ_LEADSHARP|SNTOKSEQ_LEADMINUS|SNTOKSEQ_LEADDOLLAR|SNTOKSEQ_BACKPCT);
 		const char the_first_chr = pToken[0];
+		// @v11.3.6 {
+		if(toklen >= 5)
+			rIb.F |= ImplementBlock::fPhoneSet;
+		// } @v11.3.6 
 		for(i = 0; i < toklen; i++) {
             const uchar c = pToken[i];
 			const size_t ul = IsUtf8(pToken+i, toklen-i);

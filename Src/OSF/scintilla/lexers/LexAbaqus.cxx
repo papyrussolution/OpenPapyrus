@@ -17,29 +17,27 @@
 using namespace Scintilla;
 #endif
 
-static bool FASTCALL IsAKeywordChar(const int ch)
-{
-	return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == ' ')));
-}
+static bool FASTCALL IsAKeywordChar(const int ch) { return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == ' '))); }
+static bool FASTCALL IsASetChar(const int ch) { return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == '.') || (ch == '-'))); }
 
-static bool FASTCALL IsASetChar(const int ch)
+static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList*[] /* *keywordlists[] */, Accessor & styler)
 {
-	return (ch < 0x80 && (isalnum(ch) || (ch == '_') || (ch == '.') || (ch == '-')));
-}
-
-static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int initStyle, WordList*[] /* *keywordlists[] */,
-    Accessor & styler)
-{
-	enum localState { KW_LINE_KW, KW_LINE_COMMA, KW_LINE_PAR, KW_LINE_EQ, KW_LINE_VAL, \
-			  DAT_LINE_VAL, DAT_LINE_COMMA,	\
-			  COMMENT_LINE,	\
-			  ST_ERROR, LINE_END } state;
-
+	enum localState { 
+		KW_LINE_KW, 
+		KW_LINE_COMMA, 
+		KW_LINE_PAR, 
+		KW_LINE_EQ, 
+		KW_LINE_VAL, 
+		DAT_LINE_VAL, 
+		DAT_LINE_COMMA, 
+		COMMENT_LINE, 
+		ST_ERROR, 
+		LINE_END 
+	} state;
 	// Do not leak onto next line
 	state = LINE_END;
 	initStyle = SCE_ABAQUS_DEFAULT;
 	StyleContext sc(startPos, length, initStyle, styler);
-
 	// Things are actually quite simple
 	// we have commentlines
 	// keywordlines and datalines
@@ -47,7 +45,6 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 	// a keyword line is constructed as
 	// *word,[ paramname[=paramvalue]]*
 	// if the line ends with a , the keyword line continues onto the new line
-
 	for(; sc.More(); sc.Forward()) {
 		switch(state) {
 			case KW_LINE_KW:
@@ -288,11 +285,9 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
 	}
 	sc.Complete();
 }
-
-//------------------------------------------------------------------------------
+//
 // This copyied and modified from LexBasic.cxx
-//------------------------------------------------------------------------------
-
+//
 /* Bits:
  * 1  - whitespace
  * 2  - operator
@@ -301,8 +296,7 @@ static void ColouriseABAQUSDoc(Sci_PositionU startPos, Sci_Position length, int 
  * 16 - hex digit
  * 32 - bin digit
  */
-static int character_classification[128] =
-{
+static int character_classification[128] = {
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  1,  1,  0,  0,  1,  0,  0,
 	0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
 	1,  2,  0,  2,  2,  2,  2,  2,  2,  2,  6,  2,  2,  2,  10, 6,
@@ -313,20 +307,9 @@ static int character_classification[128] =
 	4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  4,  2,  2,  2,  2,  0
 };
 
-static bool IsSpace(int c)
-{
-	return c < 128 && (character_classification[c] & 1);
-}
-
-static bool IsIdentifier(int c)
-{
-	return c < 128 && (character_classification[c] & 4);
-}
-
-static int LowerCase(int c)
-{
-	return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c;
-}
+static bool IsSpace(int c) { return c < 128 && (character_classification[c] & 1); }
+static bool IsIdentifier(int c) { return c < 128 && (character_classification[c] & 4); }
+static int LowerCase(int c) { return (c >= 'A' && c <= 'Z') ? ('a' + c - 'A') : c; }
 
 static Sci_Position LineEnd(Sci_Position line, const Accessor & styler)
 {

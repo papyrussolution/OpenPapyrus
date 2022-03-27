@@ -38,7 +38,7 @@
 	XMLPUBFUN int XMLCALL xmlSchemaCheckFacet(xmlSchemaFacet * facet, xmlSchemaType * typeDecl, xmlSchemaParserCtxtPtr ctxt, const xmlChar * name);
 	XMLPUBFUN void /*XMLCALL*/FASTCALL xmlSchemaFreeFacet(xmlSchemaFacet * facet);
 	XMLPUBFUN int /*XMLCALL*/FASTCALL xmlSchemaCompareValues(xmlSchemaVal * x, xmlSchemaVal * y);
-	XMLPUBFUN xmlSchemaType * XMLCALL xmlSchemaGetBuiltInListSimpleTypeItemType(xmlSchemaType * type);
+	XMLPUBFUN xmlSchemaType * XMLCALL xmlSchemaGetBuiltInListSimpleTypeItemType(const xmlSchemaType * type);
 	XMLPUBFUN int XMLCALL xmlSchemaValidateListSimpleTypeFacet(xmlSchemaFacet * facet, const xmlChar * value, ulong actualLen, ulong * expectedLen);
 	XMLPUBFUN xmlSchemaType * /*XMLCALL*/FASTCALL xmlSchemaGetBuiltInType(xmlSchemaValType type);
 	XMLPUBFUN int XMLCALL xmlSchemaIsBuiltInTypeFacet(xmlSchemaType * type, int facetType);

@@ -706,8 +706,8 @@ static UEnumeration * selectForMask(const UConverterSelector* sel,
 }
 
 /* check a string against the selector - UTF16 version */
-U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector* sel,
-    const UChar * s, int32_t length, UErrorCode * status) {
+U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector* sel, const UChar * s, int32_t length, UErrorCode * status) 
+{
 	// check if already failed
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -717,7 +717,6 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 	int32_t columns = (sel->encodingsCount+31)/32;
 	uint32_t* mask = (uint32_t*)uprv_malloc(columns * 4);
 	if(mask == NULL) {
@@ -725,7 +724,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 		return NULL;
 	}
 	memset(mask, ~0, columns *4);
-	if(s!=NULL) {
+	if(s) {
 		const UChar * limit;
 		if(length >= 0) {
 			limit = s + length;
@@ -733,7 +732,6 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 		else {
 			limit = NULL;
 		}
-
 		while(limit == NULL ? *s != 0 : s != limit) {
 			UChar32 c;
 			uint16_t pvIndex;
@@ -747,8 +745,8 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 }
 
 /* check a string against the selector - UTF8 version */
-U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* sel,
-    const char * s, int32_t length, UErrorCode * status) {
+U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* sel, const char * s, int32_t length, UErrorCode * status) 
+{
 	// check if already failed
 	if(U_FAILURE(*status)) {
 		return NULL;
@@ -758,7 +756,6 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* 
 		*status = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 	int32_t columns = (sel->encodingsCount+31)/32;
 	uint32_t* mask = (uint32_t*)uprv_malloc(columns * 4);
 	if(mask == NULL) {
@@ -766,14 +763,11 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* 
 		return NULL;
 	}
 	memset(mask, ~0, columns *4);
-
 	if(length < 0) {
 		length = (int32_t)uprv_strlen(s);
 	}
-
-	if(s!=NULL) {
+	if(s) {
 		const char * limit = s + length;
-
 		while(s != limit) {
 			uint16_t pvIndex;
 			UTRIE2_U8_NEXT16(sel->trie, s, limit, pvIndex);

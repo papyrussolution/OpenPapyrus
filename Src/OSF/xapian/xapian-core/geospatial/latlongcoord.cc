@@ -9,11 +9,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
@@ -94,7 +89,7 @@ void LatLongCoords::unserialise(const string & serialised)
 string LatLongCoords::serialise() const
 {
 	string result;
-	vector<LatLongCoord>::const_iterator coord;
+	vector <LatLongCoord>::const_iterator coord;
 	for(coord = coords.begin(); coord != coords.end(); ++coord) {
 		GeoEncode::encode(coord->latitude, coord->longitude, result);
 	}
@@ -104,7 +99,7 @@ string LatLongCoords::serialise() const
 string LatLongCoords::get_description() const
 {
 	string res("Xapian::LatLongCoords(");
-	vector<LatLongCoord>::const_iterator coord;
+	vector <LatLongCoord>::const_iterator coord;
 	for(coord = coords.begin(); coord != coords.end(); ++coord) {
 		if(coord != coords.begin()) {
 			res += ", ";

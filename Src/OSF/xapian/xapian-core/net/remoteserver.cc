@@ -35,7 +35,7 @@ using namespace std;
 /// Class to throw when we receive the connection closing message.
 struct ConnectionClosed { };
 
-RemoteServer::RemoteServer(const vector<string>& dbpaths, int fdin_, int fdout_, double active_timeout_, double idle_timeout_, bool writable_) : 
+RemoteServer::RemoteServer(const vector <string>& dbpaths, int fdin_, int fdout_, double active_timeout_, double idle_timeout_, bool writable_) : 
 	RemoteConnection(fdin_, fdout_, string()), db(NULL), wdb(NULL), writable(writable_), active_timeout(active_timeout_), idle_timeout(idle_timeout_)
 {
 	// Catch errors opening the database and propagate them to the client.
@@ -51,7 +51,7 @@ RemoteServer::RemoteServer(const vector<string>& dbpaths, int fdin_, int fdout_,
 		context = dbpaths[0];
 
 		if(!writable) {
-			vector<string>::const_iterator i(dbpaths.begin());
+			vector <string>::const_iterator i(dbpaths.begin());
 			for(++i; i != dbpaths.end(); ++i) {
 				db->add_database(Xapian::Database(*i));
 				context += ' ';
@@ -547,7 +547,7 @@ void RemoteServer::msg_query(const string &message_in)
 	}
 	Xapian::RSet rset = unserialise_rset(serialisation);
 	// Unserialise any MatchSpy objects.
-	vector<Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> > matchspies;
+	vector <Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> > matchspies;
 	while(p != p_end) {
 		string spytype;
 		if(!unpack_string(&p, p_end, spytype)) {

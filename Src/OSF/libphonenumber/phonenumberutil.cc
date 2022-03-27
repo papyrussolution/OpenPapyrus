@@ -710,7 +710,7 @@ private:
 
 // Private constructor. Also takes care of initialisation.
 PhoneNumberUtil::PhoneNumberUtil() : logger_(Logger::set_logger_impl(new NullLogger())), matcher_api_(new RegexBasedMatcher()),
-	reg_exps_(new PhoneNumberRegExpsAndMappings), country_calling_code_to_region_code_map_(new std::vector<IntRegionsPair>()),
+	reg_exps_(new PhoneNumberRegExpsAndMappings), country_calling_code_to_region_code_map_(new std::vector <IntRegionsPair>()),
 	nanpa_regions_(new std::set<string>()), region_to_metadata_map_(new std::map<string, PhoneMetadata>()),
 	country_code_to_non_geographical_metadata_map_(new std::map<int, PhoneMetadata>) 
 {
@@ -789,7 +789,7 @@ void PhoneNumberUtil::GetSupportedGlobalNetworkCallingCodes(std::set<int>* calli
 
 void PhoneNumberUtil::GetSupportedCallingCodes(std::set<int>* calling_codes) const {
 	DCHECK(calling_codes);
-	for(std::vector<IntRegionsPair>::const_iterator it =
+	for(std::vector <IntRegionsPair>::const_iterator it =
 	    country_calling_code_to_region_code_map_->begin();
 	    it != country_calling_code_to_region_code_map_->end(); ++it) {
 		calling_codes->insert(it->first);
@@ -1679,7 +1679,7 @@ void PhoneNumberUtil::GetRegionCodesForCountryCallingCode(int country_calling_co
 	// locate the pair with the same country_code in the sorted vector.
 	IntRegionsPair target_pair;
 	target_pair.first = country_calling_code;
-	typedef std::vector<IntRegionsPair>::const_iterator ConstIterator;
+	typedef std::vector <IntRegionsPair>::const_iterator ConstIterator;
 	std::pair<ConstIterator, ConstIterator> range =
 	    std::equal_range(country_calling_code_to_region_code_map_->begin(),
 		country_calling_code_to_region_code_map_->end(),

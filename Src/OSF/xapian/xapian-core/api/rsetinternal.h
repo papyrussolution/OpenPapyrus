@@ -31,7 +31,7 @@ public:
 	// expect people to mark vast numbers of documents as relevant, so use
 	// std::set rather than std::unordered_set.
 	std::set<Xapian::docid> docs;
-	void shard(Xapian::doccount n_shards, std::vector<Xapian::RSet>& rsets) 
+	void shard(Xapian::doccount n_shards, std::vector <Xapian::RSet>& rsets) 
 	{
 		if(n_shards == 1 || docs.empty()) {
 			// Either there's a single database (in which case we just need

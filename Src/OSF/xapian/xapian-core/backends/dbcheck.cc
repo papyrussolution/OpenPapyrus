@@ -71,7 +71,7 @@ static const struct { char name[9]; } honey_tables[] = {
 // "only" requires (4 * last_docid()) bytes.
 
 #if defined XAPIAN_HAS_GLASS_BACKEND
-static void reserve_doclens(vector<Xapian::termcount>& doclens, Xapian::docid last_docid,
+static void reserve_doclens(vector <Xapian::termcount>& doclens, Xapian::docid last_docid,
     ostream * out)
 {
 	if(last_docid >= 0x40000000ul / sizeof(Xapian::termcount)) {
@@ -111,7 +111,7 @@ static size_t check_db_dir(const string & path, int opts, std::ostream * out)
 		throw Xapian::FeatureUnavailableError("Glass database support isn't enabled");
 #else
 		// Check a whole glass database directory.
-		vector<Xapian::termcount> doclens;
+		vector <Xapian::termcount> doclens;
 		size_t errors = 0;
 
 		try {
@@ -163,7 +163,7 @@ static size_t check_db_dir(const string & path, int opts, std::ostream * out)
 		throw Xapian::FeatureUnavailableError(msg);
 #else
 		// Check a whole honey database directory.
-		vector<Xapian::termcount> doclens;
+		vector <Xapian::termcount> doclens;
 		size_t errors = 0;
 
 		try {
@@ -258,7 +258,7 @@ static size_t check_db_table(const string & filename, int opts, std::ostream* ou
 	}
 
 #if defined XAPIAN_HAS_GLASS_BACKEND
-	vector<Xapian::termcount> doclens;
+	vector <Xapian::termcount> doclens;
 #else
 	(void)opts;
 	(void)out;
@@ -344,7 +344,7 @@ static size_t check_db_fd(int fd, int opts, std::ostream* out, int backend)
 					 << doccount << endl;
 			    ++errors;
 		    }
-		    vector<Xapian::termcount> doclens;
+		    vector <Xapian::termcount> doclens;
 		    reserve_doclens(doclens, db_last_docid, out);
 
 		    // Check all the tables.

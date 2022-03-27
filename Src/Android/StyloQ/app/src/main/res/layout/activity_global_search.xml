@@ -36,12 +36,18 @@ tools:context=".GlobalSearchActivity">
             android:hint="@{dosearch}">
         </SearchView>
     </androidx.appcompat.widget.Toolbar>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/CTL_GLOBALSEARCH_RESULTLIST"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="4dp"
-        app:layoutManager="LinearLayoutManager">
-    </androidx.recyclerview.widget.RecyclerView>
+    <HorizontalScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:scrollbars="horizontal">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/CTL_GLOBALSEARCH_RESULTLIST"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginTop="4dp"
+            app:layoutManager="LinearLayoutManager"
+            android:scrollbars="vertical">
+        </androidx.recyclerview.widget.RecyclerView>
+    </HorizontalScrollView>
 </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

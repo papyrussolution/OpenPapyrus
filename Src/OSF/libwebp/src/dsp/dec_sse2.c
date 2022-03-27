@@ -5,13 +5,11 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 // SSE2 version of some decoding functions (idct, loop filtering).
 //
-// Author: somnath@google.com (Somnath Banerjee)
-//         cduvivier@google.com (Christian Duvivier)
-
+// Author: somnath@google.com (Somnath Banerjee) cduvivier@google.com (Christian Duvivier)
+//
 #include <libwebp-internal.h>
 #pragma hdrstop
 //#include "src/dsp/dsp.h"
@@ -28,10 +26,9 @@
 #include "src/dsp/common_sse2.h"
 #include "src/dec/vp8i_dec.h"
 //#include "src/utils/utils.h"
-
-//------------------------------------------------------------------------------
+//
 // Transforms (Paragraph 14.4)
-
+//
 static void Transform_SSE2(const int16_t* in, uint8* dst, int do_two) {
 	// This implementation makes use of 16-bit fixed point versions of two
 	// multiply constants:
@@ -245,14 +242,11 @@ static void TransformAC3(const int16_t* in, uint8* dst) {
 
 #undef MUL
 #endif   // USE_TRANSFORM_AC3
-
-//------------------------------------------------------------------------------
+//
 // Loop Filter (Paragraph 15)
-
+//
 // Compute abs(p - q) = subs(p - q) OR subs(q - p)
-#define MM_ABS(p, q)  _mm_or_si128(                                            \
-		_mm_subs_epu8((q), (p)),                                                   \
-		_mm_subs_epu8((p), (q)))
+#define MM_ABS(p, q)  _mm_or_si128(_mm_subs_epu8((q), (p)), _mm_subs_epu8((p), (q)))
 
 // Shift each byte of "x" by 3 bits while preserving by the sign bit.
 static FORCEINLINE void SignedShift8b_SSE2(__m128i* const x) {
@@ -264,26 +258,16 @@ static FORCEINLINE void SignedShift8b_SSE2(__m128i* const x) {
 	*x = _mm_packs_epi16(lo_1, hi_1);
 }
 
-#define FLIP_SIGN_BIT2(a, b) {                                                 \
-		(a) = _mm_xor_si128(a, sign_bit);                                            \
-		(b) = _mm_xor_si128(b, sign_bit);                                            \
-}
-
-#define FLIP_SIGN_BIT4(a, b, c, d) {                                           \
-		FLIP_SIGN_BIT2(a, b);                                                        \
-		FLIP_SIGN_BIT2(c, d);                                                        \
-}
+#define FLIP_SIGN_BIT2(a, b) { (a) = _mm_xor_si128(a, sign_bit); (b) = _mm_xor_si128(b, sign_bit); }
+#define FLIP_SIGN_BIT4(a, b, c, d) { FLIP_SIGN_BIT2(a, b); FLIP_SIGN_BIT2(c, d); }
 
 // input/output is uint8
-static FORCEINLINE void GetNotHEV_SSE2(const __m128i* const p1,
-    const __m128i* const p0,
-    const __m128i* const q0,
-    const __m128i* const q1,
-    int hev_thresh, __m128i* const not_hev) {
+static FORCEINLINE void GetNotHEV_SSE2(const __m128i* const p1, const __m128i* const p0, const __m128i* const q0, const __m128i* const q1,
+    int hev_thresh, __m128i* const not_hev) 
+{
 	const __m128i zero = _mm_setzero_si128();
 	const __m128i t_1 = MM_ABS(*p1, *p0);
 	const __m128i t_2 = MM_ABS(*q1, *q0);
-
 	const __m128i h = _mm_set1_epi8(hev_thresh);
 	const __m128i t_max = _mm_max_epu8(t_1, t_2);
 
@@ -356,14 +340,12 @@ static FORCEINLINE void NeedsFilter_SSE2(const __m128i* const p1,
 	const __m128i t7 = _mm_subs_epu8(t6, m_thresh); // mask <= m_thresh
 	*mask = _mm_cmpeq_epi8(t7, _mm_setzero_si128());
 }
-
-//------------------------------------------------------------------------------
+//
 // Edge filtering functions
-
+//
 // Applies filter on 2 pixels (p0 and q0)
-static FORCEINLINE void DoFilter2_SSE2(__m128i* const p1, __m128i* const p0,
-    __m128i* const q0, __m128i* const q1,
-    int thresh) {
+static FORCEINLINE void DoFilter2_SSE2(__m128i* const p1, __m128i* const p0, __m128i* const q0, __m128i* const q1, int thresh) 
+{
 	__m128i a, mask;
 	const __m128i sign_bit = _mm_set1_epi8((char)0x80);
 	// convert p1/q1 to int8_t (for GetBaseDelta_SSE2)
@@ -591,11 +573,11 @@ static FORCEINLINE void Store16x4_SSE2(const __m128i* const p1,
 	r8 += 4 * stride;
 	Store4x4_SSE2(&q1_s, r8, stride);
 }
-
-//------------------------------------------------------------------------------
+//
 // Simple In-loop filtering (Paragraph 15.2)
-
-static void SimpleVFilter16_SSE2(uint8* p, int stride, int thresh) {
+//
+static void SimpleVFilter16_SSE2(uint8* p, int stride, int thresh) 
+{
 	// Load
 	__m128i p1 = _mm_loadu_si128((__m128i*)&p[-2 * stride]);
 	__m128i p0 = _mm_loadu_si128((__m128i*)&p[-stride]);
@@ -634,10 +616,9 @@ static void SimpleHFilter16i_SSE2(uint8* p, int stride, int thresh) {
 		SimpleHFilter16_SSE2(p, stride, thresh);
 	}
 }
-
-//------------------------------------------------------------------------------
+//
 // Complex In-loop filtering (Paragraph 15.3)
-
+//
 #define MAX_DIFF1(p3, p2, p1, p0, m) do {                                      \
 		(m) = MM_ABS(p1, p0);                                                        \
 		(m) = _mm_max_epu8(m, MM_ABS(p3, p2));                                       \
@@ -889,10 +870,9 @@ static void HFilter8i_SSE2(uint8* u, uint8* v, int stride,
 	v -= 2;
 	Store16x4_SSE2(&p1, &p0, &q0, &q1, u, v, stride);
 }
-
-//------------------------------------------------------------------------------
+//
 // 4x4 predictions
-
+//
 #define DST(x, y) dst[(x) + (y) * BPS]
 #define AVG3(a, b, c) (((a) + 2 * (b) + (c) + 2) >> 2)
 
@@ -1011,11 +991,11 @@ static void RD4_SSE2(uint8* dst) {   // Down-right
 
 #undef DST
 #undef AVG3
-
-//------------------------------------------------------------------------------
+//
 // Luma 16x16
-
-static FORCEINLINE void TrueMotion_SSE2(uint8* dst, int size) {
+//
+static FORCEINLINE void TrueMotion_SSE2(uint8* dst, int size) 
+{
 	const uint8* top = dst - BPS;
 	const __m128i zero = _mm_setzero_si128();
 	int y;
@@ -1130,10 +1110,9 @@ static void DC16NoLeft_SSE2(uint8* dst) {  // DC with left samples unavailable
 static void DC16NoTopLeft_SSE2(uint8* dst) {  // DC with no top & left samples
 	Put16_SSE2(0x80, dst);
 }
-
-//------------------------------------------------------------------------------
+//
 // Chroma
-
+//
 static void VE8uv_SSE2(uint8* dst) {    // vertical
 	int j;
 	const __m128i top = _mm_loadl_epi64((const __m128i*)(dst - BPS));
@@ -1187,12 +1166,10 @@ static void DC8uvNoTopLeft_SSE2(uint8* dst) {    // DC with nothing
 	Put8x8uv_SSE2(0x80, dst);
 }
 
-//------------------------------------------------------------------------------
-// Entry point
+extern void VP8DspInitSSE2(void); // Entry point
 
-extern void VP8DspInitSSE2(void);
-
-WEBP_TSAN_IGNORE_FUNCTION void VP8DspInitSSE2(void) {
+WEBP_TSAN_IGNORE_FUNCTION void VP8DspInitSSE2(void) 
+{
 	VP8Transform = Transform_SSE2;
 #if (USE_TRANSFORM_AC3 == 1)
 	VP8TransformAC3 = TransformAC3_SSE2;
@@ -1236,7 +1213,5 @@ WEBP_TSAN_IGNORE_FUNCTION void VP8DspInitSSE2(void) {
 }
 
 #else  // !WEBP_USE_SSE2
-
-WEBP_DSP_INIT_STUB(VP8DspInitSSE2)
-
+	WEBP_DSP_INIT_STUB(VP8DspInitSSE2)
 #endif  // WEBP_USE_SSE2

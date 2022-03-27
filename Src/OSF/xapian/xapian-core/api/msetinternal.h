@@ -52,7 +52,7 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	mutable std::unordered_map<std::string, double> snippet_bg_relevance;
 
 	/// The items in the MSet.
-	std::vector<Result> items;
+	std::vector <Result> items;
 
 	/// For looking up query term frequencies and weights.
 	std::unique_ptr<Xapian::Weight::Internal> stats;
@@ -82,7 +82,7 @@ public:
 	    Xapian::doccount uncollapsed_estimated_,
 	    double max_possible_,
 	    double max_attained_,
-	    std::vector<Result>&& items_,
+	    std::vector <Result>&& items_,
 	    double percent_scale_factor_)
 		: items(std::move(items_)),
 		matches_lower_bound(matches_lower_bound_),

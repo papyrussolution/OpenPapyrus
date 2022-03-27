@@ -406,7 +406,7 @@ int PPMqbClient::Connect(const char * pHost, int port)
 	THROW(P_Conn = amqp_new_connection());
 	THROW(P_Sock = amqp_tcp_socket_new(GetNativeConnHandle(P_Conn)));
 	amqp_status = amqp_socket_open(static_cast<amqp_socket_t *>(P_Sock), pHost, port);
-	THROW(amqp_status == 0);
+	THROW_SL(SlCheckAmqpError(amqp_status));
 	CATCH
 		Disconnect();
 		ok = 0;
@@ -444,15 +444,38 @@ int PPMqbClient::Disconnect()
 {
 	int    ok = 1;
 	switch(rR.reply_type) {
-		case AMQP_RESPONSE_NORMAL: break;
-		case AMQP_RESPONSE_NONE: ok = 0; break;
-		case AMQP_RESPONSE_LIBRARY_EXCEPTION: ok = 0; break;
+		case AMQP_RESPONSE_NORMAL: 
+			break;
+		case AMQP_RESPONSE_NONE: 
+			ok = PPSetError(PPERR_MQBC_NORESPONSE);
+			break;
+		case AMQP_RESPONSE_LIBRARY_EXCEPTION: 
+			ok = PPSetError(PPERR_MQBC_LIBRARYEXCEPTION);
+			break;
 		case AMQP_RESPONSE_SERVER_EXCEPTION: 
 			{
 				switch(rR.reply.id) {
-					case AMQP_CONNECTION_CLOSE_METHOD: ok = 0; break;
-					case AMQP_CHANNEL_CLOSE_METHOD: ok = 0; break;
-					default: ok = 0; break;
+					case AMQP_CONNECTION_CLOSE_METHOD:
+						{
+							SString msg_buf;
+							const amqp_connection_close_t * p_detail = (const amqp_connection_close_t *)rR.reply.decoded;
+							if(p_detail && p_detail->reply_text.len > 0 && p_detail->reply_text.bytes)
+								msg_buf.CatN(static_cast<const char *>(p_detail->reply_text.bytes), p_detail->reply_text.len);
+							ok = PPSetError(PPERR_MQBC_SERVER, msg_buf);
+						}
+						break;
+					case AMQP_CHANNEL_CLOSE_METHOD: 
+						{
+							SString msg_buf;
+							const amqp_channel_close_t * p_detail = (const amqp_channel_close_t *)rR.reply.decoded;
+							if(p_detail && p_detail->reply_text.len > 0 && p_detail->reply_text.bytes)
+								msg_buf.CatN(static_cast<const char *>(p_detail->reply_text.bytes), p_detail->reply_text.len);
+							ok = PPSetError(PPERR_MQBC_SERVER, msg_buf);
+						}
+						break;
+					default: 
+						ok = PPSetError(PPERR_MQBC_SERVER);
+						break;
 				}
 			}
 			break;
@@ -819,7 +842,7 @@ int PPMqbClient::ApplyRoutingParamEntry(const RoutingParamEntry & rP)
 		//if(rP.RtRsrv != rtrsrvRpcReply && !(rP.PreprocessFlags & RoutingParamEntry::ppfSkipQueueDeclaration)) { // ќчередь была задекларирована получателем
 			THROW(QueueDeclare(rP.QueueName, rP.QueueFlags));
 			if(rP.ExchangeName.NotEmpty()) {
-				//THROW(ExchangeDeclare(rP.ExchangeName, rP.ExchangeType, rP.ExchangeFlags));
+				THROW(ExchangeDeclare(rP.ExchangeName, rP.ExchangeType, rP.ExchangeFlags));
 				THROW(QueueBind(rP.QueueName, rP.ExchangeName, rP.RoutingKey));
 			}
 		//}

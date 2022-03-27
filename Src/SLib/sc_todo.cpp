@@ -190,7 +190,7 @@ int SCDBObjToDo::Import(PROGRESSFN pFn, CSyncProperties * pProps)
 					//
 					if(host_rec.Completed) {
 						DbfRecord out_rec(P_ImpTbl);
-						out_rec.empty();
+						out_rec.Z();
 						out_rec.put(1, r_assc.Key);
 						out_rec.put(2, host_rec.Priority);
 						out_rec.put(3, host_rec.Completed);

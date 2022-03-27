@@ -3786,9 +3786,8 @@ int PPViewTrfrAnlz::Export()
 	PPGetFilePath(PPPATH_OUT, PPFILNAM_TRFRANLZ_DBF, path);
 	THROW(p_out_tbl = CreateDbfTable(DBFS_TRFRANLZLIC, path, 1));
 	for(InitIteration(CurViewOrd); NextIteration(&item) > 0;) {
-		double amount = (IsSellingOp(item.OpID) > 0) ? item.Price : item.Cost;
+		const double amount = (IsSellingOp(item.OpID) > 0) ? item.Price : item.Cost;
 		DbfRecord dbfr(p_out_tbl);
-		dbfr.empty();
 		dbfr.put( 1, item.Dt);
 		dbfr.put( 2, item.OprNo);
 		dbfr.put( 3, item.BillID);

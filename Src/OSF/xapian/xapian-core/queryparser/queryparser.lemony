@@ -11,11 +11,6 @@
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
@@ -368,7 +363,7 @@ Query * Term::as_fuzzy_query(State* state_) const
     const auto& prefixes = field_info->prefixes;
     Xapian::termcount max = state_->get_max_fuzzy_expansion();
     int query_flags = state_->get_max_fuzzy_type();
-    vector<Query> subqs;
+    vector <Query> subqs;
     subqs.reserve(prefixes.size());
     for(auto&& prefix : prefixes) {
 	// Combine with OP_OR, and apply OP_SYNONYM afterwards.
@@ -388,7 +383,7 @@ Query * Term::as_wildcarded_query(State * state_) const
 	query_flags |= Query::WILDCARD_PATTERN_SINGLE;
     if(state_->flags & QueryParser::FLAG_WILDCARD_MULTI)
 	query_flags |= Query::WILDCARD_PATTERN_MULTI;
-    vector<Query> subqs;
+    vector <Query> subqs;
     subqs.reserve(prefixes.size());
     for(string root : prefixes) {
 	root += name;
@@ -405,8 +400,8 @@ Query * Term::as_partial_query(State * state_) const
 {
     Xapian::termcount max = state_->get_max_partial_expansion();
     int max_type = state_->get_max_partial_type();
-    vector<Query> subqs_partial; // A synonym of all the partial terms.
-    vector<Query> subqs_full; // A synonym of all the full terms.
+    vector <Query> subqs_partial; // A synonym of all the partial terms.
+    vector <Query> subqs_full; // A synonym of all the full terms.
 
     for(const string & prefix : field_info->prefixes) {
 	string root = prefix;
@@ -428,7 +423,7 @@ Query * Term::as_cjk_query() const
     Query *q;
 #ifdef USE_ICU
     if(state->flags & QueryParser::FLAG_CJK_WORDS) {
-	vector<Query> prefix_cjk;
+	vector <Query> prefix_cjk;
 	for(CJKWordIterator tk(name); tk != CJKWordIterator(); ++tk) {
 	    const string & token = *tk;
 	    for(const string & prefix : prefixes) {
@@ -443,8 +438,8 @@ Query * Term::as_cjk_query() const
     }
 #endif
 
-    vector<Query> prefix_subqs;
-    vector<Query> cjk_subqs;
+    vector <Query> prefix_subqs;
+    vector <Query> cjk_subqs;
 
     for(const string & prefix : prefixes) {
 	for(CJKNgramIterator tk(name); tk != CJKNgramIterator(); ++tk) {
@@ -1495,7 +1490,7 @@ struct ProbQuery {
 
 /// A group of terms separated only by whitespace.
 class TermGroup {
-    vector<Term *> terms;
+    vector <Term *> terms;
     /** Controls how to handle a group where all terms are stopwords.
      *
      *  If true, then as_group() returns NULL.  If false, then the
@@ -1531,20 +1526,20 @@ Query * TermGroup::as_group(State *state) const
     bool default_op_is_positional = is_positional(state->default_op());
 reprocess:
     Query::op default_op = state->default_op();
-    vector<Query> subqs;
+    vector <Query> subqs;
     subqs.reserve(terms.size());
     if(state->flags & QueryParser::FLAG_AUTO_MULTIWORD_SYNONYMS) {
 	// Check for multi-word synonyms.
 	Database db = state->get_database();
 
 	string key;
-	vector<Term*>::size_type begin = 0;
-	vector<Term*>::size_type i = begin;
+	vector <Term*>::size_type begin = 0;
+	vector <Term*>::size_type i = begin;
 	while(terms.size() - i > 0) {
 	    size_t longest_match = 0;
 	    // This value is never used, but GCC 4.8 warns with
 	    // -Wmaybe-uninitialized (GCC 5.4 doesn't).
-	    vector<Term*>::size_type longest_match_end = 0;
+	    vector <Term*>::size_type longest_match_end = 0;
 	    if(terms.size() - i >= 2) {
 		// Greedily try to match as many consecutive words as possible.
 		key = terms[i]->name;
@@ -1586,7 +1581,7 @@ reprocess:
 	    i = longest_match_end;
 	    key.resize(longest_match);
 
-	    vector<Query> subqs2;
+	    vector <Query> subqs2;
 	    for(auto j = begin; j != i; ++j) {
 		if(stopper && (*stopper)(terms[j]->name)) {
 		    state->add_to_stoplist(terms[j]);
@@ -1617,7 +1612,7 @@ reprocess:
 	    begin = i;
 	}
     } else {
-	vector<Term*>::const_iterator i;
+	vector <Term*>::const_iterator i;
 	for(i = terms.begin(); i != terms.end(); ++i) {
 	    if(stopper && (*stopper)((*i)->name)) {
 		state->add_to_stoplist(*i);
@@ -1652,7 +1647,7 @@ reprocess:
 
 /// Some terms which form a positional sub-query.
 class Terms {
-    vector<Term *> terms;
+    vector <Term *> terms;
 
     /** Window size.
      *
@@ -1674,9 +1669,9 @@ class Terms {
     /** The list of prefixes of the terms added.
      *  This will be NULL if the terms have different prefixes.
      */
-    const vector<string>* prefixes;
+    const vector <string>* prefixes;
 
-    Query opwindow_subq(Query::op op, const vector<Query>& v, Xapian::termcount w) const {
+    Query opwindow_subq(Query::op op, const vector <Query>& v, Xapian::termcount w) const {
 	if(op == Query::OP_AND) {
 	    return Query(op, v.begin(), v.end());
 	}
@@ -1692,7 +1687,7 @@ class Terms {
 	if(uniform_prefixes) {
 	    if(prefixes) {
 			for(auto&& prefix : *prefixes) {
-				vector<Query> subqs;
+				vector <Query> subqs;
 				subqs.reserve(n_terms);
 				for(Term* t : terms) {
 					subqs.push_back(Query(t->make_term(prefix), 1, t->pos));
@@ -1702,7 +1697,7 @@ class Terms {
 	    }
 	} 
 	else {
-	    vector<Query> subqs;
+	    vector <Query> subqs;
 	    subqs.reserve(n_terms);
 	    for(Term* t : terms) {
 			subqs.push_back(t->get_query());

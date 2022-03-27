@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -72,7 +67,7 @@ bool SecurityGard::checkSha256(const std::wstring& filePath, NppModule module2ch
 	for(size_t i = 0; i < 32; i++) {
 		wsprintf(sha2hashStr + i * 2, TEXT("%02x"), /*sha2hash[i]*/PTR8C(&__h)[i]);
 	}
-	std::vector<std::wstring>* moduleSha256 = nullptr;
+	std::vector <std::wstring>* moduleSha256 = nullptr;
 	if(module2check == nm_scilexer)
 		moduleSha256 = &_scilexerSha256;
 	else if(module2check == nm_gup)

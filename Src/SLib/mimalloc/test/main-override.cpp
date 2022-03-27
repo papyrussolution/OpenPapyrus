@@ -116,7 +116,7 @@ static Static s = Static();
 
 bool test_stl_allocator1() 
 {
-	std::vector<int, mi_stl_allocator<int> > vec;
+	std::vector <int, mi_stl_allocator<int> > vec;
 	vec.push_back(1);
 	vec.pop_back();
 	return vec.size() == 0;
@@ -126,7 +126,7 @@ struct some_struct { int i; int j; double z; };
 
 bool test_stl_allocator2() 
 {
-	std::vector<some_struct, mi_stl_allocator<some_struct> > vec;
+	std::vector <some_struct, mi_stl_allocator<some_struct> > vec;
 	vec.push_back(some_struct());
 	vec.pop_back();
 	return vec.size() == 0;
@@ -197,10 +197,10 @@ void heap_thread_free_large()
 void test_mt_shutdown()
 {
 	const int threads = 5;
-	std::vector< std::future< std::vector< char * > > > ts;
+	std::vector <std::future <std::vector <char *>>> ts;
 	auto fn = [&]()
 	    {
-		    std::vector< char * > ps;
+		    std::vector <char *> ps;
 		    ps.reserve(1000);
 		    for(int i = 0; i < 1000; i++)
 			    ps.emplace_back(new char[1]);

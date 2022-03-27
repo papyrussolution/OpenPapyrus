@@ -79,7 +79,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 	 */
 	Xapian::termcount ebound;
 	/// The ExpandTerm objects which represent the items in the ESet.
-	std::vector<Xapian::Internal::ExpandTerm> items;
+	std::vector <Xapian::Internal::ExpandTerm> items;
 	/// Don't allow assignment.
 	void operator=(const Internal &);
 	/// Don't allow copying.

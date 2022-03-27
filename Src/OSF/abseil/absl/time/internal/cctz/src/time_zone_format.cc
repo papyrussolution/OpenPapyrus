@@ -192,7 +192,7 @@ void FormatTM(std::string* out, const std::string & fmt, const std::tm& tm) {
 	// length up to 32x.
 	for(std::size_t i = 2; i != 32; i *= 2) {
 		std::size_t buf_size = fmt.size() * i;
-		std::vector<char> buf(buf_size);
+		std::vector <char> buf(buf_size);
 		if(std::size_t len = strftime(&buf[0], buf_size, fmt.c_str(), &tm)) {
 			out->append(&buf[0], len);
 			return;

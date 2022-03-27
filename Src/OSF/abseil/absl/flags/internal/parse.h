@@ -23,10 +23,10 @@
 #include "absl/flags/declare.h"
 #include "absl/strings/string_view.h"
 
-ABSL_DECLARE_FLAG(std::vector<std::string>, flagfile);
-ABSL_DECLARE_FLAG(std::vector<std::string>, fromenv);
-ABSL_DECLARE_FLAG(std::vector<std::string>, tryfromenv);
-ABSL_DECLARE_FLAG(std::vector<std::string>, undefok);
+ABSL_DECLARE_FLAG(std::vector <std::string>, flagfile);
+ABSL_DECLARE_FLAG(std::vector <std::string>, fromenv);
+ABSL_DECLARE_FLAG(std::vector <std::string>, tryfromenv);
+ABSL_DECLARE_FLAG(std::vector <std::string>, undefok);
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -40,7 +40,7 @@ enum class OnUndefinedFlag {
   kAbortIfUndefined
 };
 
-std::vector<char*> ParseCommandLineImpl(int argc, char* argv[],
+std::vector <char*> ParseCommandLineImpl(int argc, char* argv[],
                                         ArgvListAction arg_list_act,
                                         UsageFlagsAction usage_flag_act,
                                         OnUndefinedFlag on_undef_flag);

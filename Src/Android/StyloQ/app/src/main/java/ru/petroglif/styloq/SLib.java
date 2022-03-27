@@ -3340,11 +3340,40 @@ public class SLib {
 		}
 		return new LTIME(h, m, s, ms);
 	}
+	public static LDATETIME strtodatetime(String buf, int dtfmt, int tmfmt)
+	{
+		LDATETIME result = null;
+		if(GetLen(buf) > 0) {
+			String ds = null;
+			String ts = null;
+			for(int i = 0; ds == null && i < buf.length(); i++) {
+				char c = buf.charAt(i);
+				if(c == ' ' || c == 'T') {
+					ds = buf.substring(0, i);
+					if((i+1) < buf.length())
+						ts = buf.substring(i+1, buf.length());
+					break;
+				}
+			}
+			if(GetLen(ds) > 0) {
+				result = new LDATETIME();
+				result.d = strtodate(ds, dtfmt);
+				if(GetLen(ts) > 0)
+					result.t = strtotime(ts, tmfmt);
+			}
+		}
+		return result;
+	}
 	public static class LDATETIME {
 		LDATETIME()
 		{
 			d = new LDATE();
 			t = new LTIME();
+		}
+		LDATETIME(LDATE _d, LTIME _t)
+		{
+			d = _d;
+			t = _t;
 		}
 		LDATETIME(long epochMilliseconds)
 		{
@@ -3353,8 +3382,120 @@ public class SLib {
 			d = new LDATE(c.get(Calendar.DAY_OF_MONTH), c.get(Calendar.MONTH)+1, c.get(Calendar.YEAR));
 			t = new LTIME(c.get(Calendar.HOUR_OF_DAY), c.get(Calendar.MINUTE), c.get(Calendar.SECOND), c.get(Calendar.MILLISECOND));
 		}
+		void addsec(long sec)
+		{
+
+		}
 		LDATE d;
 		LTIME t;
+	}
+	public static LDATETIME plusdatetimesec(LDATETIME dtm1, long plus)
+	{
+		// dim == 3
+		LDATETIME result = null;
+		if(dtm1 != null) {
+			int days = 0;
+			int h = dtm1.t.hour();
+			int m = dtm1.t.minut();
+			int s = dtm1.t.sec();
+			int hs = dtm1.t.hs();
+			s += plus;
+			//
+			// Нормализуем величины в случае, если они выходят за допустимые пределы
+			//
+			s += (hs / 100);
+			if(hs < 0) {
+				s--;
+				hs = 100 + hs % 100;
+			}
+			else
+				hs %= 100;
+			m += (s / 60);
+			if(s < 0) {
+				m--;
+				s = 60 + s % 60;
+			}
+			else
+				s %= 60;
+			h += (m / 60);
+			if(m < 0) {
+				h--;
+				m = 60 + m % 60;
+			}
+			else
+				m %= 60;
+			days += (h / 24);
+			if(h < 0) {
+				days--;
+				h = 24 + h % 24;
+			}
+			else
+				h %= 24;
+			result = new LDATETIME(LDATE.Plus(dtm1.d, days), new LTIME(h, m, s, hs*10));
+		}
+		return result;
+	}
+	public static class STimeChunk {
+		STimeChunk()
+		{
+			Start = new LDATETIME();
+			Finish = new LDATETIME();
+		}
+		STimeChunk(LDATETIME start, LDATETIME finish)
+		{
+			Start = start;
+			Finish = finish;
+		}
+		STimeChunk Intersect(STimeChunk test)
+		{
+			if(Cmp(Start, test.Finish) > 0 || Cmp(Finish, test.Start) < 0) {
+				return null;
+			}
+			else {
+				LDATETIME st = (Cmp(Start, test.Start) > 0) ? Start : test.Start;
+				LDATETIME fn = (Cmp(Finish, test.Finish) < 0) ? Finish : test.Finish;
+				return new STimeChunk(st, fn);
+			}
+		}
+		LDATETIME Start;
+		LDATETIME Finish;
+	}
+	public static int Cmp(LDATE t1, LDATE t2)
+	{
+		if(t1 == null)
+			return (t2 == null) ? 0 : -1;
+		else if(t2 == null)
+			return 1;
+		else if(t1.v < t2.v)
+			return -1;
+		else if(t1.v > t2.v)
+			return 1;
+		else
+			return 0;
+	}
+	public static int Cmp(LTIME t1, LTIME t2)
+	{
+		if(t1 == null)
+			return (t2 == null) ? 0 : -1;
+		else if(t2 == null)
+			return 1;
+		else if(t1.v < t2.v)
+			return -1;
+		else if(t1.v > t2.v)
+			return 1;
+		else
+			return 0;
+	}
+	public static int Cmp(LDATETIME t1, LDATETIME t2)
+	{
+		if(t1 == null)
+			return (t2 == null) ? 0 : -1;
+		else if(t2 == null)
+			return 1;
+		else {
+			int r = Cmp(t1.d, t2.d);
+			return (r == 0) ? Cmp(t1.t, t2.t) : r;
+		}
 	}
 	public static boolean IsNumeric(String text)
 	{

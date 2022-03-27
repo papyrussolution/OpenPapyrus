@@ -551,7 +551,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char
 			if(!set->extended) break; /* hopeless  */
       #endif
 			/* Infinities and NaNs are possible, here  */
-			if(dotchar!=NULL) break; /* .. unless had a dot  */
+			if(dotchar) break; /* .. unless had a dot  */
 			uprv_decNumberZero(dn); /* be optimistic  */
 			if(decBiStr(c, "infinity", "INFINITY")
 			 || decBiStr(c, "inf", "INF")) {
@@ -723,7 +723,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFromString(decNumber * dn, const char
 		}
 		/* decNumberShow(dn);  */
 	} while(0); /* [for break]  */
-	if(allocres!=NULL) uprv_free(allocres); /* drop any storage used  */
+	if(allocres) uprv_free(allocres); /* drop any storage used  */
 	if(status!=0) decStatus(dn, status, set);
 	return dn;
 }   /* decNumberFromString */
@@ -984,8 +984,8 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberCompareTotalMag(decNumber * res, cons
 		decCompareOp(res, lhs, rhs, set, COMPTOTAL, &status);
 	} while(0); /* end protected  */
 
-	if(allocbufa!=NULL) uprv_free(allocbufa); /* drop any storage used  */
-	if(allocbufb!=NULL) uprv_free(allocbufb); /* ..  */
+	if(allocbufa) uprv_free(allocbufa); /* drop any storage used  */
+	if(allocbufb) uprv_free(allocbufb); /* ..  */
 	if(status!=0) decStatus(res, status, set);
 	return res;
 }   /* decNumberCompareTotalMag  */
@@ -1088,7 +1088,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberExp(decNumber * res, const decNumber 
 		} while(0); /* end protected  */
 
   #if DECSUBSET
-	if(allocrhs !=NULL) uprv_free(allocrhs); /* drop any storage used  */
+	if(allocrhs) uprv_free(allocrhs); /* drop any storage used  */
   #endif
 	/* apply significant status  */
 	if(status!=0) decStatus(res, status, set);
@@ -1184,8 +1184,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberFMA(decNumber * res, const decNumber 
 		/* add the third operand and result -> res, and all is done  */
 		decAddOp(res, acc, fhs, set, 0, &status);
 	} while(0); /* end protected  */
-
-	if(allocbufa!=NULL) uprv_free(allocbufa); /* drop any storage used  */
+	if(allocbufa) uprv_free(allocbufa); /* drop any storage used  */
 	if(status!=0) decStatus(res, status, set);
   #if DECCHECK
 	decCheckInexact(res, set);
@@ -1313,7 +1312,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberLn(decNumber * res, const decNumber *
 		} while(0); /* end protected  */
 
   #if DECSUBSET
-	if(allocrhs !=NULL) uprv_free(allocrhs); /* drop any storage used  */
+	if(allocrhs) uprv_free(allocrhs); /* drop any storage used  */
   #endif
 	/* apply significant status  */
 	if(status!=0) decStatus(res, status, set);
@@ -1534,10 +1533,10 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberLog10(decNumber * res, const decNumbe
 			decDivideOp(res, a, b, &aset, DIVIDE, &status); /* into result  */
 		} while(0); /* [for break]  */
 
-	if(allocbufa!=NULL) uprv_free(allocbufa); /* drop any storage used  */
-	if(allocbufb!=NULL) uprv_free(allocbufb); /* ..  */
+	if(allocbufa) uprv_free(allocbufa); /* drop any storage used  */
+	if(allocbufb) uprv_free(allocbufb); /* ..  */
   #if DECSUBSET
-	if(allocrhs !=NULL) uprv_free(allocrhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
   #endif
 	/* apply significant status  */
 	if(status!=0) decStatus(res, status, set);
@@ -2294,12 +2293,11 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberPower(decNumber * res, const decNumbe
 		if(!set->extended) decTrim(res, set, 0, 1, &dropped); /* trailing zeros  */
     #endif
 	} while(0); /* end protected  */
-
-	if(allocdac!=NULL) uprv_free(allocdac); /* drop any storage used  */
-	if(allocinv!=NULL) uprv_free(allocinv); /* ..  */
+	if(allocdac) uprv_free(allocdac); /* drop any storage used  */
+	if(allocinv) uprv_free(allocinv); /* ..  */
   #if DECSUBSET
-	if(alloclhs!=NULL) uprv_free(alloclhs); /* ..  */
-	if(allocrhs!=NULL) uprv_free(allocrhs); /* ..  */
+	if(alloclhs) uprv_free(alloclhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
   #endif
 	if(status!=0) decStatus(res, status, set);
   #if DECCHECK
@@ -2390,7 +2388,7 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberReduce(decNumber * res, const decNumb
 		                                   /* [may clamp]  */
 	} while(0);                          /* end protected  */
   #if DECSUBSET
-	if(allocrhs !=NULL) uprv_free(allocrhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
   #endif
 	if(status!=0) decStatus(res, status, set); /* then report status  */
 	return res;
@@ -3157,11 +3155,11 @@ U_CAPI decNumber * U_EXPORT2 uprv_decNumberSquareRoot(decNumber * res, const dec
 		}
 		uprv_decNumberCopy(res, a); /* a is now the result  */
 	} while(0);                          /* end protected  */
-	if(allocbuff!=NULL) uprv_free(allocbuff); /* drop any storage used  */
-	if(allocbufa!=NULL) uprv_free(allocbufa); /* ..  */
-	if(allocbufb!=NULL) uprv_free(allocbufb); /* ..  */
+	if(allocbuff) uprv_free(allocbuff); /* drop any storage used  */
+	if(allocbufa) uprv_free(allocbufa); /* ..  */
+	if(allocbufb) uprv_free(allocbufb); /* ..  */
   #if DECSUBSET
-	if(allocrhs !=NULL) uprv_free(allocrhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
   #endif
 	if(status!=0) decStatus(res, status, set); /* then report status  */
   #if DECCHECK
@@ -4183,10 +4181,10 @@ static decNumber * decAddOp(decNumber * res, const decNumber * lhs,
 			else res->bits &= ~DECNEG; /* sign +  */
 		}
 	} while(0);                          /* end protected  */
-	if(allocacc!=NULL) uprv_free(allocacc); /* drop any storage used  */
+	if(allocacc) uprv_free(allocacc); /* drop any storage used  */
   #if DECSUBSET
-	if(allocrhs!=NULL) uprv_free(allocrhs); /* ..  */
-	if(alloclhs!=NULL) uprv_free(alloclhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
+	if(alloclhs) uprv_free(alloclhs); /* ..  */
   #endif
 	return res;
 }   /* decAddOp  */
@@ -4840,12 +4838,11 @@ static decNumber * decDivideOp(decNumber * res,
 		if(!set->extended && (op==DIVIDE)) decTrim(res, set, 0, 1, &dropped);
     #endif
 	} while(0);                          /* end protected  */
-
-	if(varalloc!=NULL) uprv_free(varalloc); /* drop any storage used  */
-	if(allocacc!=NULL) uprv_free(allocacc); /* ..  */
+	if(varalloc) uprv_free(varalloc); /* drop any storage used  */
+	if(allocacc) uprv_free(allocacc); /* ..  */
   #if DECSUBSET
-	if(allocrhs!=NULL) uprv_free(allocrhs); /* ..  */
-	if(alloclhs!=NULL) uprv_free(alloclhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
+	if(alloclhs) uprv_free(alloclhs); /* ..  */
   #endif
 	return res;
 }   /* decDivideOp  */
@@ -5197,15 +5194,14 @@ static decNumber * decMultiplyOp(decNumber * res, const decNumber * lhs,
 		decSetCoeff(res, set, acc, res->digits, &residue, status);
 		decFinish(res, set, &residue, status); /* final cleanup  */
 	} while(0); /* end protected  */
-
-	if(allocacc!=NULL) uprv_free(allocacc); /* drop any storage used  */
+	if(allocacc) uprv_free(allocacc); /* drop any storage used  */
   #if DECSUBSET
-	if(allocrhs!=NULL) uprv_free(allocrhs); /* ..  */
-	if(alloclhs!=NULL) uprv_free(alloclhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* ..  */
+	if(alloclhs) uprv_free(alloclhs); /* ..  */
   #endif
   #if FASTMUL
-	if(allocrhi!=NULL) uprv_free(allocrhi); /* ..  */
-	if(alloclhi!=NULL) uprv_free(alloclhi); /* ..  */
+	if(allocrhi) uprv_free(allocrhi); /* ..  */
+	if(alloclhi) uprv_free(alloclhi); /* ..  */
   #endif
 	return res;
 }   /* decMultiplyOp  */
@@ -5561,10 +5557,9 @@ decNumber * decExpOp(decNumber * res, const decNumber * rhs,
 		decCopyFit(res, a, &aset, &residue, status); /* copy & shorten  */
 		decFinish(res, set, &residue, status); /* cleanup/set flags  */
 	} while(0); /* end protected  */
-
-	if(allocrhs !=NULL) uprv_free(allocrhs); /* drop any storage used  */
-	if(allocbufa!=NULL) uprv_free(allocbufa); /* ..  */
-	if(allocbuft!=NULL) uprv_free(allocbuft); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* drop any storage used  */
+	if(allocbufa) uprv_free(allocbufa); /* ..  */
+	if(allocbuft) uprv_free(allocbuft); /* ..  */
 	/* [status is handled by caller]  */
 	return res;
 }   /* decExpOp  */
@@ -5883,9 +5878,8 @@ decNumber * decLnOp(decNumber * res, const decNumber * rhs,
 		decCopyFit(res, a, &aset, &residue, status); /* copy & shorten  */
 		decFinish(res, set, &residue, status); /* cleanup/set flags  */
 	} while(0); /* end protected  */
-
-	if(allocbufa!=NULL) uprv_free(allocbufa); /* drop any storage used  */
-	if(allocbufb!=NULL) uprv_free(allocbufb); /* ..  */
+	if(allocbufa) uprv_free(allocbufa); /* drop any storage used  */
+	if(allocbufb) uprv_free(allocbufb); /* ..  */
 	/* [status is handled by caller]  */
 	return res;
 }   /* decLnOp  */
@@ -6053,8 +6047,8 @@ static decNumber * decQuantizeOp(decNumber * res, const decNumber * lhs,
 		}
 	} while(0); /* end protected  */
   #if DECSUBSET
-	if(allocrhs!=NULL) uprv_free(allocrhs); /* drop any storage used  */
-	if(alloclhs!=NULL) uprv_free(alloclhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* drop any storage used  */
+	if(alloclhs) uprv_free(alloclhs); /* ..  */
   #endif
 	return res;
 }   /* decQuantizeOp  */
@@ -6240,8 +6234,8 @@ static decNumber * decCompareOp(decNumber * res, const decNumber * lhs,
 		}
 	}
   #if DECSUBSET
-	if(allocrhs!=NULL) uprv_free(allocrhs); /* free any storage used  */
-	if(alloclhs!=NULL) uprv_free(alloclhs); /* ..  */
+	if(allocrhs) uprv_free(allocrhs); /* free any storage used  */
+	if(alloclhs) uprv_free(alloclhs); /* ..  */
   #endif
 	return res;
 }   /* decCompareOp  */
@@ -6375,7 +6369,7 @@ static Int decUnitCompare(const Unit * a, Int alength,
 		result = (*u==0 ? 0 : +1);
 	}
 	/* clean up and return the result  */
-	if(allocacc!=NULL) uprv_free(allocacc); /* drop any storage used  */
+	if(allocacc) uprv_free(allocacc); /* drop any storage used  */
 	return result;
 }   /* decUnitCompare  */
 
@@ -8051,7 +8045,7 @@ static Flag decCheckOperands(decNumber * res, const decNumber * lhs,
 	}
 	if(bad) {
 		if(set!=DECUNCONT) uprv_decContextSetStatus(set, DEC_Invalid_operation);
-		if(res!=DECUNRESU && res!=NULL) {
+		if(res!=DECUNRESU && res) {
 			uprv_decNumberZero(res);
 			res->bits = DECNAN; /* qNaN  */
 		}

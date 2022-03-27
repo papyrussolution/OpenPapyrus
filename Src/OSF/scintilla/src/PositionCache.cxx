@@ -401,7 +401,7 @@ int BreakFinder::TextSegment::end() const
 void BreakFinder::Insert(int val)
 {
 	if(val > nextBreak) {
-		const std::vector<int>::iterator it = std::lower_bound(selAndEdge.begin(), selAndEdge.end(), val);
+		const std::vector <int>::iterator it = std::lower_bound(selAndEdge.begin(), selAndEdge.end(), val);
 		if(it == selAndEdge.end()) {
 			selAndEdge.push_back(val);
 		}

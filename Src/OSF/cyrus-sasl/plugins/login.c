@@ -171,28 +171,20 @@ static int login_server_mech_step(void * conn_context, sasl_server_params_t * pa
 		    oparams->decode_context = NULL;
 		    oparams->decode = NULL;
 		    oparams->param_version = 0;
-
 		    return SASL_OK;
 	    }
-
 		default:
-		    params->utils->log(NULL, SASL_LOG_ERR,
-			"Invalid LOGIN server step %d\n", text->state);
+		    params->utils->log(NULL, SASL_LOG_ERR, "Invalid LOGIN server step %d\n", text->state);
 		    return SASL_FAIL;
 	}
-
 	return SASL_FAIL; /* should never get here */
 }
 
-static void login_server_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils)
+static void login_server_mech_dispose(void * conn_context, const sasl_utils_t * utils)
 {
 	server_context_t * text = (server_context_t*)conn_context;
-
 	if(!text) return;
-
 	if(text->username) utils->free(text->username);
-
 	utils->free(text);
 }
 
@@ -383,28 +375,20 @@ static int login_client_mech_step(void * conn_context,
 		    return SASL_OK;
 
 		default:
-		    params->utils->log(NULL, SASL_LOG_ERR,
-			"Invalid LOGIN client step %d\n", text->state);
-
+		    params->utils->log(NULL, SASL_LOG_ERR, "Invalid LOGIN client step %d\n", text->state);
 		    if(clientoutlen) *clientoutlen = 0;
 		    *clientout = NULL;
-
 		    return SASL_FAIL;
 	}
-
 	return SASL_FAIL; /* should never get here */
 }
 
-static void login_client_mech_dispose(void * conn_context,
-    const sasl_utils_t * utils)
+static void login_client_mech_dispose(void * conn_context, const sasl_utils_t * utils)
 {
 	client_context_t * text = (client_context_t*)conn_context;
-
 	if(!text) return;
-
 	/* free sensitive info */
 	if(text->free_password) _plug_free_secret(utils, &(text->password));
-
 	utils->free(text);
 }
 

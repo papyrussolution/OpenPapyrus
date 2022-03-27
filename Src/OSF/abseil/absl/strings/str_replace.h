@@ -85,7 +85,7 @@ ABSL_MUST_USE_RESULT std::string StrReplaceAll(absl::string_view s,
 //   EXPECT_EQ("Bob bought 5 Apples. Thanks Bob!", s);
 //
 //   // A std::vector of std::pair elements can be more efficient.
-//   std::vector<std::pair<const absl::string_view, std::string>> replacements;
+//   std::vector <std::pair<const absl::string_view, std::string>> replacements;
 //   replacements.push_back({"&", "&amp;"});
 //   replacements.push_back({"<", "&lt;"});
 //   replacements.push_back({">", "&gt;"});
@@ -147,9 +147,9 @@ struct ViableSubstitution {
 // replacements. subs can be implemented as a priority_queue. However, it turns
 // out that most callers have small enough a list of substitutions that the
 // overhead of such a queue isn't worth it.
-template <typename StrToStrMapping> std::vector<ViableSubstitution> FindSubstitutions(absl::string_view s, const StrToStrMapping& replacements) 
+template <typename StrToStrMapping> std::vector <ViableSubstitution> FindSubstitutions(absl::string_view s, const StrToStrMapping& replacements) 
 {
-	std::vector<ViableSubstitution> subs;
+	std::vector <ViableSubstitution> subs;
 	subs.reserve(replacements.size());
 	for(const auto& rep : replacements) {
 		using std::get;
@@ -174,7 +174,7 @@ template <typename StrToStrMapping> std::vector<ViableSubstitution> FindSubstitu
 	return subs;
 }
 
-int ApplySubstitutions(absl::string_view s, std::vector<ViableSubstitution>* subs_ptr, std::string* result_ptr);
+int ApplySubstitutions(absl::string_view s, std::vector <ViableSubstitution>* subs_ptr, std::string* result_ptr);
 }  // namespace strings_internal
 
 template <typename StrToStrMapping> std::string StrReplaceAll(absl::string_view s, const StrToStrMapping& replacements) 

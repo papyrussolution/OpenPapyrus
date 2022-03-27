@@ -30,7 +30,7 @@ ViewStyle::FontNames::~FontNames()
 
 void ViewStyle::FontNames::Clear()
 {
-	for(std::vector<char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
+	for(std::vector <char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
 		delete []*it;
 	}
 	names.clear();
@@ -40,7 +40,7 @@ const char * ViewStyle::FontNames::Save(const char * name)
 {
 	char * p_name_save = 0;
 	if(name) {
-		for(std::vector<char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
+		for(std::vector <char *>::const_iterator it = names.begin(); it != names.end(); ++it) {
 			if(strcmp(*it, name) == 0)
 				return *it;
 		}

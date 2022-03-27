@@ -38,7 +38,7 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 	std::unordered_map<Xapian::docid, Xapian::Point> points; /// Store each document from given mset as a point
 	std::unordered_map<Xapian::docid, double> scores; /// Store the relevance score of each document
 	std::map<std::pair<Xapian::docid, Xapian::docid>, double> pairwise_sim; /// Store pairwise cosine similarities of documents of given mset
-	std::vector<Xapian::docid> main_dmset; /// Store docids of top k diversified documents
+	std::vector <Xapian::docid> main_dmset; /// Store docids of top k diversified documents
 public:
 	/// Constructor for initialising diversification parameters
 	explicit Internal(Xapian::doccount k_, Xapian::doccount r_, double lambda_, double b_, double sigma_sqr_) : 
@@ -82,7 +82,7 @@ public:
 	 *
 	 *  @param dmset	Document set representing a diversified document set
 	 */
-	std::vector<Xapian::docid>compute_diff_dmset(const std::vector<Xapian::docid>& dmset);
+	std::vector <Xapian::docid>compute_diff_dmset(const std::vector <Xapian::docid>& dmset);
 
 	/** Evaluate a diversified mset
 	 *
@@ -92,7 +92,7 @@ public:
 	 *			set of documents
 	 *  @param cset	Set of clusters of given mset
 	 */
-	double evaluate_dmset(const std::vector<Xapian::docid>& dmset, const Xapian::ClusterSet& cset);
+	double evaluate_dmset(const std::vector <Xapian::docid>& dmset, const Xapian::ClusterSet& cset);
 	/// Return diversified document set from given mset
 	Xapian::DocumentSet get_dmset(const MSet& mset);
 };

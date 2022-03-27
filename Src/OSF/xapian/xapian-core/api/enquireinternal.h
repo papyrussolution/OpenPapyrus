@@ -58,7 +58,7 @@ private:
 	Xapian::doccount collapse_max = 0;
 	int percent_threshold = 0;
 	double weight_threshold = 0.0;
-	std::vector<Xapian::Internal::opt_intrusive_ptr<MatchSpy> > matchspies;
+	std::vector <Xapian::Internal::opt_intrusive_ptr<MatchSpy> > matchspies;
 	double time_limit = 0.0;
 	enum { EXPAND_TRAD, EXPAND_BO1 } eweight = EXPAND_TRAD;
 	double expand_k = 1.0;

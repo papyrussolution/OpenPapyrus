@@ -123,7 +123,7 @@ private:
 	void ConvertOptionsInternal(const Message& options,
 	    RepeatedPtrField<Option>* output) {
 		const Reflection* reflection = options.GetReflection();
-		std::vector<const FieldDescriptor*> fields;
+		std::vector <const FieldDescriptor*> fields;
 		reflection->ListFields(options, &fields);
 		for(const FieldDescriptor* field : fields) {
 			if(field->is_repeated()) {

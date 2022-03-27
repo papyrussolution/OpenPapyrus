@@ -1,19 +1,14 @@
 // This file is part of Notepad++ project
 // Copyright (C)2021 Don HO <don.h@free.fr>
-
+//
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+//
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -35,9 +30,9 @@ ClipboardData ClipboardHistoryPanel::getClipboadData()
 			UINT cf_nppTextLen = RegisterClipboardFormat(CF_NPPTEXTLEN);
 			if(IsClipboardFormatAvailable(cf_nppTextLen)) {
 				HGLOBAL hglbLen = GetClipboardData(cf_nppTextLen);
-				if(hglbLen != NULL) {
+				if(hglbLen) {
 					ulong * lpLen = (ulong *)GlobalLock(hglbLen);
-					if(lpLen != NULL) {
+					if(lpLen) {
 						for(size_t i = 0; i < (*lpLen); ++i) {
 							clipboardData.push_back(static_cast<uchar>(lpchar[i]));
 						}
@@ -64,11 +59,12 @@ ByteArray::ByteArray(ClipboardData cd)
 	_length = cd.size();
 	if(!_length) {
 		_pBytes = NULL;
-		return;
 	}
-	_pBytes = new uchar[_length];
-	for(size_t i = 0; i < _length; ++i) {
-		_pBytes[i] = cd[i];
+	else {
+		_pBytes = new uchar[_length];
+		for(size_t i = 0; i < _length; ++i) {
+			_pBytes[i] = cd[i];
+		}
 	}
 }
 
@@ -78,10 +74,8 @@ StringArray::StringArray(ClipboardData cd, size_t maxLen)
 		_pBytes = NULL;
 		return;
 	}
-
 	bool isCompleted = (cd.size() <= maxLen);
 	_length = isCompleted ? cd.size() : maxLen;
-
 	_pBytes = new uchar[_length+(isCompleted ? 0 : 2)];
 	size_t i = 0;
 	for(; i < _length; ++i) {
@@ -92,7 +86,6 @@ StringArray::StringArray(ClipboardData cd, size_t maxLen)
 		else
 			_pBytes[i] = cd[i];
 	}
-
 	if(!isCompleted) {
 		_pBytes[i++] = 0;
 		_pBytes[i] = 0;
@@ -159,23 +152,18 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 {
 	switch(message) {
 		case WM_INITDIALOG:
-	    {
 		    _hwndNextCbViewer = ::SetClipboardViewer(_hSelf);
 		    NppDarkMode::setDarkScrollBar(::GetDlgItem(_hSelf, IDC_LIST_CLIPBOARD));
 		    return TRUE;
-	    }
 		case NPPM_INTERNAL_REFRESHDARKMODE:
-	    {
 		    NppDarkMode::setDarkScrollBar(GetDlgItem(_hSelf, IDC_LIST_CLIPBOARD));
 		    return TRUE;
-	    }
 		case WM_CHANGECBCHAIN:
 		    if(_hwndNextCbViewer == reinterpret_cast<HWND>(wParam))
 			    _hwndNextCbViewer = reinterpret_cast<HWND>(lParam);
 		    else if(_hwndNextCbViewer)
 			    ::SendMessage(_hwndNextCbViewer, message, wParam, lParam);
 		    return TRUE;
-
 		case WM_DRAWCLIPBOARD:
 	    {
 		    ClipboardData clipboardData = getClipboadData();
@@ -203,35 +191,19 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 						}
 						else
 							codepage = SC_CP_UTF8;
-
 						ByteArray ba(_clipboardDataVector[i]);
 						char * c = nullptr;
 						try {
-							int nbChar = WideCharToMultiByte(codepage,
-								0,
-								(wchar_t *)ba.getPointer(),
-								static_cast<int32_t>(ba.getLength()),
-								NULL,
-								0,
-								NULL,
-								NULL);
-
+							int nbChar = WideCharToMultiByte(codepage, 0, (wchar_t *)ba.getPointer(), static_cast<int32_t>(ba.getLength()), NULL, 0, NULL, NULL);
 							c = new char[nbChar + 1];
-							WideCharToMultiByte(codepage, 0, (wchar_t *)ba.getPointer(),
-							    static_cast<int32_t>(ba.getLength()), c, nbChar + 1, NULL, NULL);
-
+							WideCharToMultiByte(codepage, 0, (wchar_t *)ba.getPointer(), static_cast<int32_t>(ba.getLength()), c, nbChar + 1, NULL, NULL);
 							(*_ppEditView)->execute(SCI_REPLACESEL, 0, reinterpret_cast<LPARAM>(""));
 							(*_ppEditView)->execute(SCI_ADDTEXT, strlen(c), reinterpret_cast<LPARAM>(c));
 							(*_ppEditView)->getFocus();
 							delete[] c;
 						}
-						catch(...)
-						{
-							MessageBox(_hSelf,
-							    TEXT(
-								    "Cannot process this clipboard data in the history:\nThe data is too large to be treated."),
-							    TEXT("Clipboard problem"),
-							    MB_OK | MB_APPLMODAL);
+						catch(...) {
+							MessageBox(_hSelf, TEXT("Cannot process this clipboard data in the history:\nThe data is too large to be treated."), TEXT("Clipboard problem"), MB_OK | MB_APPLMODAL);
 							delete[] c;
 						}
 					}
@@ -241,14 +213,10 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 		    }
 	    }
 	    break;
-
 		case WM_NOTIFY:
-	    {
 		    if(((LPNMHDR)lParam)->code == DMN_CLOSE)
 			    ::SendMessage(_hParent, WM_COMMAND, IDM_EDIT_CLIPBOARDHISTORY_PANEL, 0);
 		    break;
-	    }
-
 		case WM_SIZE:
 	    {
 		    int width = LOWORD(lParam);
@@ -256,19 +224,13 @@ INT_PTR CALLBACK ClipboardHistoryPanel::run_dlgProc(UINT message, WPARAM wParam,
 		    ::MoveWindow(::GetDlgItem(_hSelf, IDC_LIST_CLIPBOARD), 0, 0, width, height, TRUE);
 		    break;
 	    }
-
 		case WM_CTLCOLORLISTBOX:
-	    {
 		    if(_lbBgColor != -1)
 			    return reinterpret_cast<LRESULT>(::CreateSolidBrush(_lbBgColor));
 		    break;
-	    }
-
 		case WM_DRAWITEM:
-	    {
 		    drawItem(reinterpret_cast<DRAWITEMSTRUCT *>(lParam));
 		    break;
-	    }
 		default:
 		    return DockingDlgInterface::run_dlgProc(message, wParam, lParam);
 	}

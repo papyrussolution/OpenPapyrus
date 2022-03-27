@@ -336,11 +336,11 @@ void FindReplaceDlg::fillFindHistory()
 	}
 }
 
-void FindReplaceDlg::fillComboHistory(int id, const vector<generic_string> & strings)
+void FindReplaceDlg::fillComboHistory(int id, const vector <generic_string> & strings)
 {
 	HWND hCombo = ::GetDlgItem(_hSelf, id);
 
-	for(vector<generic_string>::const_reverse_iterator i = strings.rbegin(); i != strings.rend(); ++i) {
+	for(vector <generic_string>::const_reverse_iterator i = strings.rbegin(); i != strings.rend(); ++i) {
 		addText2Combo(i->c_str(), hCombo);
 	}
 
@@ -364,7 +364,7 @@ void FindReplaceDlg::saveFindHistory()
 	saveComboHistory(IDREPLACEWITH,                 findHistory._nbMaxFindHistoryReplace, findHistory._findHistoryReplaces, true);
 }
 
-int FindReplaceDlg::saveComboHistory(int id, int maxcount, vector<generic_string> & strings, bool saveEmpty)
+int FindReplaceDlg::saveComboHistory(int id, int maxcount, vector <generic_string> & strings, bool saveEmpty)
 {
 	TCHAR text[FINDREPLACE_MAXLENGTH] = { '\0' };
 	HWND hCombo = ::GetDlgItem(_hSelf, id);
@@ -496,9 +496,9 @@ void Finder::deleteResult()
 	assert(size_t(_scintView.execute(SCI_GETLINECOUNT)) == _pMainFoundInfos->size() + 1);
 }
 
-vector<generic_string> Finder::getResultFilePaths() const
+vector <generic_string> Finder::getResultFilePaths() const
 {
-	vector<generic_string> paths;
+	vector <generic_string> paths;
 	size_t len = _pMainFoundInfos->size();
 	for(size_t i = 0; i < len; ++i) {
 		// make sure that path is not already in
@@ -2507,7 +2507,7 @@ Finder * FindReplaceDlg::createFinder()
 
 bool FindReplaceDlg::removeFinder(Finder * finder2remove)
 {
-	for(vector<Finder *>::iterator i = _findersOfFinder.begin(); i != _findersOfFinder.end(); ++i) {
+	for(vector <Finder *>::iterator i = _findersOfFinder.begin(); i != _findersOfFinder.end(); ++i) {
 		if(*i == finder2remove) {
 			delete finder2remove;
 			_findersOfFinder.erase(i);
@@ -2690,12 +2690,12 @@ void FindReplaceDlg::enableFindInFilesControls(bool isEnable, bool projectPanels
 	showFindDlgItem(IDD_FINDINFILES_FOLDERFOLLOWSDOC_CHECK, isEnable && (!projectPanels));
 }
 
-void FindReplaceDlg::getPatterns(vector<generic_string> & patternVect)
+void FindReplaceDlg::getPatterns(vector <generic_string> & patternVect)
 {
 	cutString(_env->_filters.c_str(), patternVect);
 }
 
-void FindReplaceDlg::getAndValidatePatterns(vector<generic_string> & patternVect)
+void FindReplaceDlg::getAndValidatePatterns(vector <generic_string> & patternVect)
 {
 	getPatterns(patternVect);
 	if(patternVect.size() == 0) {
@@ -3755,7 +3755,7 @@ void Finder::copy()
 		const int selectedLineFoldLevel = _scintView.execute(SCI_GETFOLDLEVEL, fromLine) & SC_FOLDLEVELNUMBERMASK;
 		toLine = _scintView.execute(SCI_GETLASTCHILD, toLine, selectedLineFoldLevel);
 	}
-	std::vector<generic_string> lines;
+	std::vector <generic_string> lines;
 	generic_string previousResultLineStr(TEXT(""));
 	for(size_t line = fromLine; line <= toLine; ++line) {
 		generic_string lineStr = _scintView.getLine(line);
@@ -3797,8 +3797,8 @@ void Finder::beginNewFilesSearch()
 
 void Finder::finishFilesSearch(int count, int searchedCount, bool isMatchLines, bool searchedEntireNotSelection)
 {
-	std::vector<FoundInfo>* _pOldFoundInfos;
-	std::vector<SearchResultMarking>* _pOldMarkings;
+	std::vector <FoundInfo>* _pOldFoundInfos;
+	std::vector <SearchResultMarking>* _pOldMarkings;
 	_pOldFoundInfos = _pMainFoundInfos == &_foundInfos1 ? &_foundInfos2 : &_foundInfos1;
 	_pOldMarkings = _pMainMarkings == &_markings1 ? &_markings2 : &_markings1;
 
@@ -3915,7 +3915,7 @@ INT_PTR CALLBACK Finder::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 			    POINT p;
 			    ::GetCursorPos(&p);
 			    ContextMenu scintillaContextmenu;
-			    vector<MenuItemUnit> tmp;
+			    vector <MenuItemUnit> tmp;
 			    NativeLangSpeaker * pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 			    generic_string findInFinder = pNativeSpeaker->getLocalizedStrFromID("finder-find-in-finder", TEXT("Find in these search results..."));
 			    generic_string closeThis = pNativeSpeaker->getLocalizedStrFromID("finder-close-this", TEXT("Close these search results"));

@@ -2888,7 +2888,6 @@ int PPObjBill::SetStatus(PPID id, PPID statusID, int use_ta)
 	return ok;
 }
 
-//int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const ClbNumberList * pExclList, const char * pTempl, SString & rBuf)
 int PPObjBill::GetSnByTemplate(const char * pBillCode, PPID goodsID, const PPLotTagContainer * pExclList, const char * pTempl, SString & rBuf)
 {
 	const  long sGR  = 0x00524740L; // "@GR" Код группы товаров

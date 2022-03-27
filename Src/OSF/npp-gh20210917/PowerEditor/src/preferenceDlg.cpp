@@ -2272,7 +2272,7 @@ INT_PTR CALLBACK LanguageSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 			    case IDC_BUTTON_REMOVE:
 			{
 				int list2Remove, list2Add, idButton2Enable, idButton2Disable;
-				vector<LangMenuItem> * pSrcLst, * pDestLst;
+				vector <LangMenuItem> * pSrcLst, * pDestLst;
 
 				if(LOWORD(wParam)==IDC_BUTTON_REMOVE) {
 					list2Remove = IDC_LIST_ENABLEDLANG;
@@ -2303,7 +2303,7 @@ INT_PTR CALLBACK LanguageSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 				::SendDlgItemMessage(_hSelf, list2Remove, LB_GETTEXT, iRemove, reinterpret_cast<LPARAM>(s));
 
 				LangMenuItem lmi = pSrcLst->at(iRemove);
-				vector<LangMenuItem>::iterator lang2Remove = pSrcLst->begin() + iRemove;
+				vector <LangMenuItem>::iterator lang2Remove = pSrcLst->begin() + iRemove;
 				pSrcLst->erase(lang2Remove);
 
 				auto iAdd = ::SendDlgItemMessage(_hSelf, list2Add, LB_ADDSTRING, 0, reinterpret_cast<LPARAM>(s));
@@ -2624,7 +2624,7 @@ INT_PTR CALLBACK PrintSubDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM)
 			    ::SendDlgItemMessage(_hSelf, IDC_COMBO_HFONTSIZE, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(intStr));
 			    ::SendDlgItemMessage(_hSelf, IDC_COMBO_FFONTSIZE, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(intStr));
 		    }
-		    const std::vector<generic_string> & fontlist = nppParam.getFontList();
+		    const std::vector <generic_string> & fontlist = nppParam.getFontList();
 		    for(size_t i = 0, len = fontlist.size(); i < len; ++i) {
 			    auto j = ::SendDlgItemMessage(_hSelf, IDC_COMBO_HFONTNAME, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(fontlist[i].c_str()));
 			    ::SendDlgItemMessage(_hSelf, IDC_COMBO_FFONTNAME, CB_ADDSTRING, 0, reinterpret_cast<LPARAM>(fontlist[i].c_str()));

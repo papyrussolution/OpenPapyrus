@@ -189,7 +189,7 @@ public:
 	//    * grault. */
 	//   optional int32 grault = 6;
 	bool NextWithComments(std::string* prev_trailing_comments,
-	    std::vector<std::string>* detached_comments,
+	    std::vector <std::string>* detached_comments,
 	    std::string* next_leading_comments);
 
 	// Parse helpers ---------------------------------------------------

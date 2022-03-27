@@ -253,7 +253,7 @@ TermList * GlassSpellingTable::open_termlist(const string & word)
 	// won't be switched live.
 	if(!wordfreq_changes.empty()) merge_changes();
 
-	vector<TermList*> termlists;
+	vector <TermList*> termlists;
 	try {
 		string data;
 		fragment buf;

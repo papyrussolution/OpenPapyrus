@@ -6,14 +6,9 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
-
+//
 #include <npp-internal.h>
 #pragma hdrstop
 
@@ -427,9 +422,9 @@ void VerticalFileSwitcherListView::resizeColumns(int totalWidth)
 	ListView_SetColumnWidth(_hSelf, 0, totalWidth - totalColWidthDynExceptName);
 }
 
-std::vector<SwitcherFileInfo> VerticalFileSwitcherListView::getSelectedFiles(bool reverse) const
+std::vector <SwitcherFileInfo> VerticalFileSwitcherListView::getSelectedFiles(bool reverse) const
 {
-	std::vector<SwitcherFileInfo> files;
+	std::vector <SwitcherFileInfo> files;
 	LVITEM item;
 	int nbItem = ListView_GetItemCount(_hSelf);
 	int i = 0;

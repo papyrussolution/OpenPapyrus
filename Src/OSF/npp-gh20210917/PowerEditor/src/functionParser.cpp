@@ -40,8 +40,8 @@ bool FunctionParsersManager::init(const generic_string& xmlDirPath, const generi
 }
 
 bool FunctionParsersManager::getZonePaserParameters(TiXmlNode * classRangeParser, generic_string &mainExprStr,
-    generic_string &openSymboleStr, generic_string &closeSymboleStr, std::vector<generic_string> &classNameExprArray,
-    generic_string &functionExprStr, std::vector<generic_string> &functionNameExprArray)
+    generic_string &openSymboleStr, generic_string &closeSymboleStr, std::vector <generic_string> &classNameExprArray,
+    generic_string &functionExprStr, std::vector <generic_string> &functionNameExprArray)
 {
 	const TCHAR * mainExpr = NULL;
 	const TCHAR * openSymbole = NULL;
@@ -85,8 +85,8 @@ bool FunctionParsersManager::getZonePaserParameters(TiXmlNode * classRangeParser
 
 bool FunctionParsersManager::getUnitPaserParameters(TiXmlNode * functionParser,
     generic_string &mainExprStr,
-    std::vector<generic_string> &functionNameExprArray,
-    std::vector<generic_string> &classNameExprArray)
+    std::vector <generic_string> &functionNameExprArray,
+    std::vector <generic_string> &classNameExprArray)
 {
 	const TCHAR * mainExpr = (functionParser->ToElement())->Attribute(TEXT("mainExpr"));
 	if(!mainExpr || !mainExpr[0])
@@ -159,8 +159,8 @@ bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath
 	const TCHAR * pCommentExpr = (parserRoot->ToElement())->Attribute(TEXT("commentExpr"));
 	if(pCommentExpr && pCommentExpr[0])
 		commentExpr = pCommentExpr;
-	std::vector<generic_string> classNameExprArray;
-	std::vector<generic_string> functionNameExprArray;
+	std::vector <generic_string> classNameExprArray;
+	std::vector <generic_string> functionNameExprArray;
 	const TCHAR * displayName = (parserRoot->ToElement())->Attribute(TEXT("displayName"));
 	if(!displayName || !displayName[0])
 		displayName = id;
@@ -171,8 +171,8 @@ bool FunctionParsersManager::loadFuncListFromXmlTree(generic_string & xmlDirPath
 		generic_string mainExpr, openSymbole, closeSymbole, functionExpr;
 		getZonePaserParameters(classRangeParser, mainExpr, openSymbole, closeSymbole, classNameExprArray, functionExpr, functionNameExprArray);
 		generic_string mainExpr2;
-		std::vector<generic_string> classNameExprArray2;
-		std::vector<generic_string> functionNameExprArray2;
+		std::vector <generic_string> classNameExprArray2;
+		std::vector <generic_string> functionNameExprArray2;
 		getUnitPaserParameters(functionParser, mainExpr2, functionNameExprArray2, classNameExprArray2);
 		FunctionUnitParser * funcUnitPaser = new FunctionUnitParser(id, displayName, commentExpr.c_str(), mainExpr2.c_str(), functionNameExprArray2, classNameExprArray2);
 		_parsers[index]->_parser = new FunctionMixParser(id, displayName, commentExpr.c_str(), mainExpr.c_str(), openSymbole.c_str(),
@@ -317,8 +317,8 @@ FunctionParser * FunctionParsersManager::getParser(const AssociationInfo & assoI
 	return nullptr;
 }
 
-void FunctionParser::funcParse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end,
-    ScintillaEditView ** ppEditView, generic_string classStructName, const std::vector< std::pair<int, int> > * commentZones)
+void FunctionParser::funcParse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end,
+    ScintillaEditView ** ppEditView, generic_string classStructName, const std::vector < std::pair<int, int> > * commentZones)
 {
 	if(begin >= end)
 		return;
@@ -378,7 +378,7 @@ void FunctionParser::funcParse(std::vector<foundInfo> & foundInfos, size_t begin
 
 generic_string FunctionParser::parseSubLevel(size_t begin,
     size_t end,
-    std::vector< generic_string > dataToSearch,
+    std::vector < generic_string > dataToSearch,
     int & foundPos,
     ScintillaEditView ** ppEditView)
 {
@@ -412,7 +412,7 @@ generic_string FunctionParser::parseSubLevel(size_t begin,
 	return foundStr;
 }
 
-bool FunctionParsersManager::parse(std::vector<foundInfo> & foundInfos, const AssociationInfo & assoInfo)
+bool FunctionParsersManager::parse(std::vector <foundInfo> & foundInfos, const AssociationInfo & assoInfo)
 {
 	// Serch the right parser from the given ext in the map
 	FunctionParser * fp = getParser(assoInfo);
@@ -425,7 +425,7 @@ bool FunctionParsersManager::parse(std::vector<foundInfo> & foundInfos, const As
 }
 
 size_t FunctionZoneParser::getBodyClosePos(size_t begin, const TCHAR * bodyOpenSymbol, const TCHAR * bodyCloseSymbol,
-    const std::vector< std::pair<int, int> > & commentZones, ScintillaEditView ** ppEditView)
+    const std::vector < std::pair<int, int> > & commentZones, ScintillaEditView ** ppEditView)
 {
 	size_t cntOpen = 1;
 	int docLen = (*ppEditView)->getCurrentDocLen();
@@ -464,7 +464,7 @@ size_t FunctionZoneParser::getBodyClosePos(size_t begin, const TCHAR * bodyOpenS
 	return targetEnd;
 }
 
-void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos, vector< pair<int, int> > &scannedZones, const std::vector< std::pair<int, int> > & commentZones,
+void FunctionZoneParser::classParse(vector <foundInfo> & foundInfos, vector < pair<int, int> > &scannedZones, const std::vector < std::pair<int, int> > & commentZones,
     size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
 {
 	if(begin >= end)
@@ -489,7 +489,7 @@ void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos, vector< pair
 		if(targetStart + foundTextLen == int(end))
 			break;
 		// Begin to search all method inside
-		//vector< generic_string > emptyArray;
+		//vector < generic_string > emptyArray;
 		if(!isInZones(targetStart, commentZones)) {
 			funcParse(foundInfos, targetStart, targetEnd, ppEditView, classStructName, &commentZones);
 		}
@@ -498,7 +498,7 @@ void FunctionZoneParser::classParse(vector<foundInfo> & foundInfos, vector< pair
 	}
 }
 
-void FunctionParser::getCommentZones(vector< pair<int, int> > & commentZone, size_t begin, size_t end, ScintillaEditView ** ppEditView)
+void FunctionParser::getCommentZones(vector < pair<int, int> > & commentZone, size_t begin, size_t end, ScintillaEditView ** ppEditView)
 {
 	if((begin >= end) || (_commentExpr.empty()))
 		return;
@@ -520,7 +520,7 @@ void FunctionParser::getCommentZones(vector< pair<int, int> > & commentZone, siz
 	}
 }
 
-bool FunctionParser::isInZones(int pos2Test, const std::vector< std::pair<int, int> > & zones)
+bool FunctionParser::isInZones(int pos2Test, const std::vector < std::pair<int, int> > & zones)
 {
 	for(size_t i = 0, len = zones.size(); i < len; ++i) {
 		if(pos2Test >= zones[i].first && pos2Test < zones[i].second)
@@ -529,7 +529,7 @@ bool FunctionParser::isInZones(int pos2Test, const std::vector< std::pair<int, i
 	return false;
 }
 
-void FunctionParser::getInvertZones(vector< pair<int, int> > &  destZones, vector< pair<int, int> > &  sourceZones, size_t begin, size_t end)
+void FunctionParser::getInvertZones(vector < pair<int, int> > &  destZones, vector < pair<int, int> > &  sourceZones, size_t begin, size_t end)
 {
 	if(sourceZones.size() == 0) {
 		destZones.push_back(pair<int, int>(static_cast<int>(begin), static_cast<int>(end)));
@@ -552,9 +552,9 @@ void FunctionParser::getInvertZones(vector< pair<int, int> > &  destZones, vecto
 	}
 }
 
-void FunctionZoneParser::parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
+void FunctionZoneParser::parse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
 {
-	vector< pair<int, int> > classZones, commentZones, nonCommentZones;
+	vector < pair<int, int> > classZones, commentZones, nonCommentZones;
 	getCommentZones(commentZones, begin, end, ppEditView);
 	getInvertZones(nonCommentZones, commentZones, begin, end);
 	for(size_t i = 0, len = nonCommentZones.size(); i < len; ++i) {
@@ -562,10 +562,10 @@ void FunctionZoneParser::parse(std::vector<foundInfo> & foundInfos, size_t begin
 	}
 }
 
-void FunctionUnitParser::parse(std::vector<foundInfo> & foundInfos, size_t begin, size_t end,
+void FunctionUnitParser::parse(std::vector <foundInfo> & foundInfos, size_t begin, size_t end,
     ScintillaEditView ** ppEditView, generic_string classStructName)
 {
-	vector< pair<int, int> > commentZones, nonCommentZones;
+	vector < pair<int, int> > commentZones, nonCommentZones;
 	getCommentZones(commentZones, begin, end, ppEditView);
 	getInvertZones(nonCommentZones, commentZones, begin, end);
 	for(size_t i = 0, len = nonCommentZones.size(); i < len; ++i) {
@@ -574,7 +574,7 @@ void FunctionUnitParser::parse(std::vector<foundInfo> & foundInfos, size_t begin
 }
 
 //
-// SortClass for vector<pair<int, int>>
+// SortClass for vector <pair<int, int>>
 // sort in _selLpos : increased order
 struct SortZones final {
 	bool operator()(pair<int, int> & l, pair<int, int> & r) const
@@ -583,15 +583,15 @@ struct SortZones final {
 	}
 };
 
-void FunctionMixParser::parse(std::vector<foundInfo> & foundInfos,
+void FunctionMixParser::parse(std::vector <foundInfo> & foundInfos,
     size_t begin, size_t end, ScintillaEditView ** ppEditView, generic_string classStructName)
 {
-	vector< pair<int, int> > commentZones, scannedZones, nonScannedZones;
+	vector < pair<int, int> > commentZones, scannedZones, nonScannedZones;
 	getCommentZones(commentZones, begin, end, ppEditView);
 	classParse(foundInfos, scannedZones, commentZones, begin, end, ppEditView, classStructName);
 	// the second level
 	for(size_t i = 0, len = scannedZones.size(); i < len; ++i) {
-		vector< pair<int, int> > temp;
+		vector < pair<int, int> > temp;
 		classParse(foundInfos, temp, commentZones, scannedZones[i].first, scannedZones[i].second, ppEditView, classStructName);
 	}
 	// invert scannedZones

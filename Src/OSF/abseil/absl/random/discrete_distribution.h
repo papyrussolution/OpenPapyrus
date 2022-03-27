@@ -84,7 +84,7 @@ class discrete_distribution {
       init();
     }
 
-    const std::vector<double>& probabilities() const { return p_; }
+    const std::vector <double>& probabilities() const { return p_; }
     size_t n() const { return p_.size() - 1; }
 
     friend bool operator==(const param_type& a, const param_type& b) {
@@ -100,8 +100,8 @@ class discrete_distribution {
 
     void init();
 
-    std::vector<double> p_;                     // normalized probabilities
-    std::vector<std::pair<double, size_t>> q_;  // (acceptance, alternate) pairs
+    std::vector <double> p_;                     // normalized probabilities
+    std::vector <std::pair<double, size_t>> q_;  // (acceptance, alternate) pairs
 
     static_assert(std::is_integral<result_type>::value,
                   "Class-template absl::discrete_distribution<> must be "
@@ -144,9 +144,9 @@ class discrete_distribution {
     return static_cast<result_type>(param_.n());
   }  // inclusive
 
-  // NOTE [rand.dist.sample.discrete] returns a std::vector<double> not a
-  // const std::vector<double>&.
-  const std::vector<double>& probabilities() const {
+  // NOTE [rand.dist.sample.discrete] returns a std::vector <double> not a
+  // const std::vector <double>&.
+  const std::vector <double>& probabilities() const {
     return param_.probabilities();
   }
 
@@ -174,8 +174,8 @@ namespace random_internal {
 // probabilities used by the discrete distribution.  `*probabilities` will be
 // scaled, if necessary, so that its entries sum to a value sufficiently close
 // to 1.0.
-std::vector<std::pair<double, size_t>> InitDiscreteDistribution(
-    std::vector<double>* probabilities);
+std::vector <std::pair<double, size_t>> InitDiscreteDistribution(
+    std::vector <double>* probabilities);
 
 }  // namespace random_internal
 
@@ -225,7 +225,7 @@ std::basic_istream<CharT, Traits>& operator>>(
   auto saver = random_internal::make_istream_state_saver(is);
 
   size_t n;
-  std::vector<double> p;
+  std::vector <double> p;
 
   is >> n;
   if (is.fail()) return is;

@@ -152,7 +152,7 @@ public:
 	 *			the client (specified in seconds).
 	 *  @param writable Should the database be opened for writing?
 	 */
-	RemoteServer(const std::vector<std::string> &dbpaths, int fdin, int fdout, double active_timeout_, double idle_timeout_, bool writable = false);
+	RemoteServer(const std::vector <std::string> &dbpaths, int fdin, int fdout, double active_timeout_, double idle_timeout_, bool writable = false);
 	~RemoteServer();
 	/** Repeatedly accept messages from the client and process them.
 	 *

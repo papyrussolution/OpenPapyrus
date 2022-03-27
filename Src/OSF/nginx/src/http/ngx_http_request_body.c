@@ -313,9 +313,7 @@ static ngx_int_t ngx_http_write_request_body(ngx_http_request_t * r)
 		if(tf == NULL) {
 			return NGX_ERROR;
 		}
-
 		clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
 		tf->file.fd = NGX_INVALID_FILE;
 		tf->file.log = r->connection->log;
 		tf->path = clcf->client_body_temp_path;
@@ -324,52 +322,35 @@ static ngx_int_t ngx_http_write_request_body(ngx_http_request_t * r)
 		tf->log_level = r->request_body_file_log_level;
 		tf->persistent = r->request_body_in_persistent_file;
 		tf->clean = r->request_body_in_clean_file;
-
 		if(r->request_body_file_group_access) {
 			tf->access = 0660;
 		}
-
 		rb->temp_file = tf;
-
 		if(rb->bufs == NULL) {
 			/* empty body with r->request_body_in_file_only */
-
-			if(ngx_create_temp_file(&tf->file, tf->path, tf->pool,
-				    tf->persistent, tf->clean, tf->access)
-			    != NGX_OK) {
+			if(ngx_create_temp_file(&tf->file, tf->path, tf->pool, tf->persistent, tf->clean, tf->access) != NGX_OK) {
 				return NGX_ERROR;
 			}
-
 			return NGX_OK;
 		}
 	}
-
 	if(rb->bufs == NULL) {
 		return NGX_OK;
 	}
-
 	n = ngx_write_chain_to_temp_file(rb->temp_file, rb->bufs);
-
 	/* @todo n == 0 or not complete and level event */
-
 	if(n == NGX_ERROR) {
 		return NGX_ERROR;
 	}
-
 	rb->temp_file->offset += n;
-
 	/* mark all buffers as written */
-
 	for(cl = rb->bufs; cl; /* void */) {
 		cl->buf->pos = cl->buf->last;
-
 		ln = cl;
 		cl = cl->next;
 		ngx_free_chain(r->pool, ln);
 	}
-
 	rb->bufs = NULL;
-
 	return NGX_OK;
 }
 
@@ -378,70 +359,51 @@ ngx_int_t ngx_http_discard_request_body(ngx_http_request_t * r)
 	ssize_t size;
 	ngx_int_t rc;
 	ngx_event_t  * rev;
-
 	if(r != r->main || r->discard_body || r->request_body) {
 		return NGX_OK;
 	}
-
 #if (NGX_HTTP_V2)
 	if(r->stream) {
 		r->stream->skip_data = 1;
 		return NGX_OK;
 	}
 #endif
-
 	if(ngx_http_test_expect(r) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	rev = r->connection->P_EvRd;
-
 	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, rev->log, 0, "http set discard body");
-
 	if(rev->timer_set) {
 		ngx_del_timer(rev);
 	}
-
 	if(r->headers_in.content_length_n <= 0 && !r->headers_in.chunked) {
 		return NGX_OK;
 	}
-
 	size = r->header_in->last - r->header_in->pos;
-
 	if(size || r->headers_in.chunked) {
 		rc = ngx_http_discard_request_body_filter(r, r->header_in);
-
 		if(rc != NGX_OK) {
 			return rc;
 		}
-
 		if(r->headers_in.content_length_n == 0) {
 			return NGX_OK;
 		}
 	}
-
 	rc = ngx_http_read_discarded_request_body(r);
-
 	if(rc == NGX_OK) {
 		r->lingering_close = 0;
 		return NGX_OK;
 	}
-
 	if(rc >= NGX_HTTP_SPECIAL_RESPONSE) {
 		return rc;
 	}
-
 	/* rc == NGX_AGAIN */
-
 	r->read_event_handler = ngx_http_discarded_request_body_handler;
-
 	if(ngx_handle_read_event(rev, 0) != NGX_OK) {
 		return NGX_HTTP_INTERNAL_SERVER_ERROR;
 	}
-
 	r->count++;
 	r->discard_body = 1;
-
 	return NGX_OK;
 }
 
@@ -449,23 +411,17 @@ void ngx_http_discarded_request_body_handler(ngx_http_request_t * r)
 {
 	ngx_int_t rc;
 	ngx_msec_t timer;
-	ngx_event_t * rev;
-	ngx_connection_t   * c;
 	ngx_http_core_loc_conf_t  * clcf;
-
-	c = r->connection;
-	rev = c->P_EvRd;
-
+	ngx_connection_t * c = r->connection;
+	ngx_event_t * rev = c->P_EvRd;
 	if(rev->timedout) {
 		c->timedout = 1;
 		c->error = 1;
 		ngx_http_finalize_request(r, NGX_ERROR);
 		return;
 	}
-
 	if(r->lingering_time) {
 		timer = (ngx_msec_t)r->lingering_time - (ngx_msec_t)ngx_time();
-
 		if((ngx_msec_int_t)timer <= 0) {
 			r->discard_body = 0;
 			r->lingering_close = 0;
@@ -476,39 +432,30 @@ void ngx_http_discarded_request_body_handler(ngx_http_request_t * r)
 	else {
 		timer = 0;
 	}
-
 	rc = ngx_http_read_discarded_request_body(r);
-
 	if(rc == NGX_OK) {
 		r->discard_body = 0;
 		r->lingering_close = 0;
 		ngx_http_finalize_request(r, NGX_DONE);
 		return;
 	}
-
 	if(rc >= NGX_HTTP_SPECIAL_RESPONSE) {
 		c->error = 1;
 		ngx_http_finalize_request(r, NGX_ERROR);
 		return;
 	}
-
 	/* rc == NGX_AGAIN */
-
 	if(ngx_handle_read_event(rev, 0) != NGX_OK) {
 		c->error = 1;
 		ngx_http_finalize_request(r, NGX_ERROR);
 		return;
 	}
-
 	if(timer) {
 		clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-
 		timer *= 1000;
-
 		if(timer > clcf->lingering_timeout) {
 			timer = clcf->lingering_timeout;
 		}
-
 		ngx_add_timer(rev, timer);
 	}
 }
@@ -520,47 +467,32 @@ static ngx_int_t ngx_http_read_discarded_request_body(ngx_http_request_t * r)
 	ngx_int_t rc;
 	ngx_buf_t b;
 	u_char buffer[NGX_HTTP_DISCARD_BUFFER_SIZE];
-
-	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-	    "http read discarded body");
-
+	ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "http read discarded body");
 	memzero(&b, sizeof(ngx_buf_t));
-
 	b.temporary = 1;
-
 	for(;; ) {
 		if(r->headers_in.content_length_n == 0) {
 			r->read_event_handler = ngx_http_block_reading;
 			return NGX_OK;
 		}
-
 		if(!r->connection->P_EvRd->ready) {
 			return NGX_AGAIN;
 		}
-
-		size = (size_t)MIN(r->headers_in.content_length_n,
-		    NGX_HTTP_DISCARD_BUFFER_SIZE);
-
+		size = (size_t)MIN(r->headers_in.content_length_n, NGX_HTTP_DISCARD_BUFFER_SIZE);
 		n = r->connection->recv(r->connection, buffer, size);
-
 		if(n == NGX_ERROR) {
 			r->connection->error = 1;
 			return NGX_OK;
 		}
-
 		if(n == NGX_AGAIN) {
 			return NGX_AGAIN;
 		}
-
 		if(n == 0) {
 			return NGX_OK;
 		}
-
 		b.pos = buffer;
 		b.last = buffer + n;
-
 		rc = ngx_http_discard_request_body_filter(r, &b);
-
 		if(rc != NGX_OK) {
 			return rc;
 		}
@@ -587,12 +519,9 @@ static ngx_int_t ngx_http_discard_request_body_filter(ngx_http_request_t * r, ng
 		}
 		for(;; ) {
 			rc = ngx_http_parse_chunked(r, b, rb->chunked);
-
 			if(rc == NGX_OK) {
-				/* a chunk has been parsed successfully */
-
+				// a chunk has been parsed successfully 
 				size = b->last - b->pos;
-
 				if((nginx_off_t)size > rb->chunked->size) {
 					b->pos += (size_t)rb->chunked->size;
 					rb->chunked->size = 0;
@@ -601,23 +530,19 @@ static ngx_int_t ngx_http_discard_request_body_filter(ngx_http_request_t * r, ng
 					rb->chunked->size -= size;
 					b->pos = b->last;
 				}
-
 				continue;
 			}
-
 			if(rc == NGX_DONE) {
-				/* a whole response has been parsed successfully */
-
+				// a whole response has been parsed successfully 
 				r->headers_in.content_length_n = 0;
 				break;
 			}
-
 			if(rc == NGX_AGAIN) {
-				/* set amount of data we want to see next time */
+				// set amount of data we want to see next time 
 				r->headers_in.content_length_n = rb->chunked->length;
 				break;
 			}
-			/* invalid */
+			// invalid 
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent invalid chunked body");
 			return NGX_HTTP_BAD_REQUEST;
 		}
@@ -657,19 +582,14 @@ static ngx_int_t ngx_http_test_expect(ngx_http_request_t * r)
 	if(n == sizeof("HTTP/1.1 100 Continue" CRLF CRLF) - 1) {
 		return NGX_OK;
 	}
-	/* we assume that such small packet should be send successfully */
+	// we assume that such small packet should be send successfully 
 	r->connection->error = 1;
 	return NGX_ERROR;
 }
 
 static ngx_int_t ngx_http_request_body_filter(ngx_http_request_t * r, ngx_chain_t * in)
 {
-	if(r->headers_in.chunked) {
-		return ngx_http_request_body_chunked_filter(r, in);
-	}
-	else {
-		return ngx_http_request_body_length_filter(r, in);
-	}
+	return r->headers_in.chunked ? ngx_http_request_body_chunked_filter(r, in) : ngx_http_request_body_length_filter(r, in);
 }
 
 static ngx_int_t ngx_http_request_body_length_filter(ngx_http_request_t * r, ngx_chain_t * in)
@@ -747,11 +667,10 @@ static ngx_int_t ngx_http_request_body_chunked_filter(ngx_http_request_t * r, ng
 			    cl->buf->file_last - cl->buf->file_pos);
 			rc = ngx_http_parse_chunked(r, cl->buf, rb->chunked);
 			if(rc == NGX_OK) {
-				/* a chunk has been parsed successfully */
+				// a chunk has been parsed successfully 
 				clcf = (ngx_http_core_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_core_module);
-				if(clcf->client_max_body_size && clcf->client_max_body_size - r->headers_in.content_length_n < rb->chunked->size) {
-					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client intended to send too large chunked body: %O+%O bytes",
-					    r->headers_in.content_length_n, rb->chunked->size);
+				if(clcf->client_max_body_size && (clcf->client_max_body_size - r->headers_in.content_length_n) < rb->chunked->size) {
+					ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client intended to send too large chunked body: %O+%O bytes", r->headers_in.content_length_n, rb->chunked->size);
 					r->lingering_close = 1;
 					return NGX_HTTP_REQUEST_ENTITY_TOO_LARGE;
 				}
@@ -785,7 +704,7 @@ static ngx_int_t ngx_http_request_body_chunked_filter(ngx_http_request_t * r, ng
 				continue;
 			}
 			if(rc == NGX_DONE) {
-				/* a whole response has been parsed successfully */
+				// a whole response has been parsed successfully 
 				rb->rest = 0;
 				tl = ngx_chain_get_free_buf(r->pool, &rb->free);
 				if(tl == NULL) {
@@ -799,11 +718,11 @@ static ngx_int_t ngx_http_request_body_chunked_filter(ngx_http_request_t * r, ng
 				break;
 			}
 			if(rc == NGX_AGAIN) {
-				/* set rb->rest, amount of data we want to see next time */
+				// set rb->rest, amount of data we want to see next time 
 				rb->rest = rb->chunked->length;
 				break;
 			}
-			/* invalid */
+			// invalid 
 			ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent invalid chunked body");
 			return NGX_HTTP_BAD_REQUEST;
 		}

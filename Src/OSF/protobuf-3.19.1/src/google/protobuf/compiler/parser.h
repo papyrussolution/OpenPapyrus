@@ -264,7 +264,7 @@ public:
 		// TODO(kenton):  See comment on TryConsumeEndOfDeclaration(), above, for
 		//   why this is const.
 		void AttachComments(std::string* leading, std::string* trailing,
-		    std::vector<std::string>* detached_comments) const;
+		    std::vector <std::string>* detached_comments) const;
 
 private:
 		// Indexes of parent and current location in the parent
@@ -532,7 +532,7 @@ private:
 	// detached comments will be put into the leading_detached_comments field for
 	// the next element (See SourceCodeInfo.Location in descriptor.proto), when
 	// ConsumeEndOfDeclaration() is called.
-	std::vector<std::string> upcoming_detached_comments_;
+	std::vector <std::string> upcoming_detached_comments_;
 
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(Parser);
 };

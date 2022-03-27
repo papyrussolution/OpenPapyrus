@@ -52,7 +52,7 @@ ABSL_NAMESPACE_BEGIN
 // After all flags and flag arguments are parsed, this function looks for any
 // built-in usage flags (e.g. `--help`), and if any were specified, it reports
 // help messages and then exits the program.
-std::vector<char*> ParseCommandLine(int argc, char* argv[]);
+std::vector <char*> ParseCommandLine(int argc, char* argv[]);
 
 ABSL_NAMESPACE_END
 }  // namespace absl

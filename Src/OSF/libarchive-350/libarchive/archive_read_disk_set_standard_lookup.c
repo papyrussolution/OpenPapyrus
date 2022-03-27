@@ -16,19 +16,18 @@
 __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_disk_set_standard_lookup.c 201109 2009-12-28 03:30:31Z kientzle $");
 
 #ifdef HAVE_GRP_H
-#include <grp.h>
+	#include <grp.h>
 #endif
 #ifdef HAVE_PWD_H
-#include <pwd.h>
+	#include <pwd.h>
 #endif
 
 #if defined(_WIN32) && !defined(__CYGWIN__)
-int archive_read_disk_set_standard_lookup(struct archive * a)
-{
-	archive_set_error(a, -1, "Standard lookups not available on Windows");
-	return ARCHIVE_FATAL;
-}
-
+	int archive_read_disk_set_standard_lookup(struct archive * a)
+	{
+		archive_set_error(a, -1, "Standard lookups not available on Windows");
+		return ARCHIVE_FATAL;
+	}
 #else /* ! (_WIN32 && !__CYGWIN__) */
 #define name_cache_size 127
 
@@ -52,7 +51,6 @@ static const char * lookup_uname(void *, int64);
 static void     cleanup(void *);
 static const char * lookup_gname_helper(struct name_cache *, id_t gid);
 static const char * lookup_uname_helper(struct name_cache *, id_t uid);
-
 /*
  * Installs functions that use getpwuid()/getgrgid()---along with
  * a simple cache to accelerate such lookups---into the archive_read_disk
@@ -181,37 +179,29 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 		cache->buff_size = nbuff_size;
 	}
 	if(r != 0) {
-		archive_set_error(cache->archive, errno,
-		    "Can't lookup user for id %d", (int)id);
+		archive_set_error(cache->archive, errno, "Can't lookup user for id %d", (int)id);
 		return NULL;
 	}
 	if(result == NULL)
 		return NULL;
-
 	return sstrdup(result->pw_name);
 }
-
 #else
 static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 {
 	struct passwd * result;
 	(void)cache; /* UNUSED */
-
 	result = getpwuid((uid_t)id);
-
 	if(result == NULL)
 		return NULL;
-
 	return sstrdup(result->pw_name);
 }
-
 #endif
 
 static const char * lookup_gname(void * data, int64 gid)
 {
 	struct name_cache * gname_cache = (struct name_cache *)data;
-	return (lookup_name(gname_cache,
-	       &lookup_gname_helper, (id_t)gid));
+	return (lookup_name(gname_cache, &lookup_gname_helper, (id_t)gid));
 }
 
 #if HAVE_GETGRGID_R
@@ -221,7 +211,6 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 	char * nbuff;
 	size_t nbuff_size;
 	int r;
-
 	if(cache->buff_size == 0) {
 		cache->buff_size = 256;
 		cache->buff = SAlloc::M(cache->buff_size);
@@ -230,8 +219,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 		return NULL;
 	for(;;) {
 		result = &grent; /* Old getgrgid_r ignores last arg. */
-		r = getgrgid_r((gid_t)id, &grent,
-			cache->buff, cache->buff_size, &result);
+		r = getgrgid_r((gid_t)id, &grent, cache->buff, cache->buff_size, &result);
 		if(r == 0)
 			break;
 		if(r != ERANGE)
@@ -247,13 +235,11 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 		cache->buff_size = nbuff_size;
 	}
 	if(r != 0) {
-		archive_set_error(cache->archive, errno,
-		    "Can't lookup group for id %d", (int)id);
+		archive_set_error(cache->archive, errno, "Can't lookup group for id %d", (int)id);
 		return NULL;
 	}
 	if(result == NULL)
 		return NULL;
-
 	return sstrdup(result->gr_name);
 }
 

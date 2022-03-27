@@ -102,21 +102,12 @@ static int anonymous_server_mech_step(void * conn_context __attribute__((unused)
 	}
 	strncpy(clientdata, clientin, clientinlen);
 	clientdata[clientinlen] = '\0';
-
-	sparams->utils->log(sparams->utils->conn,
-	    SASL_LOG_NOTE,
-	    "ANONYMOUS login: \"%s\"",
-	    clientdata);
-
+	sparams->utils->log(sparams->utils->conn, SASL_LOG_NOTE, "ANONYMOUS login: \"%s\"", clientdata);
 	if(clientdata != clientin)
 		sparams->utils->free(clientdata);
-
-	result = sparams->canon_user(sparams->utils->conn,
-		anonymous_id, 0,
-		SASL_CU_AUTHID | SASL_CU_AUTHZID, oparams);
-
-	if(result != SASL_OK) return result;
-
+	result = sparams->canon_user(sparams->utils->conn, anonymous_id, 0, SASL_CU_AUTHID | SASL_CU_AUTHZID, oparams);
+	if(result != SASL_OK) 
+		return result;
 	/* set oparams */
 	oparams->doneflag = 1;
 	oparams->mech_ssf = 0;
@@ -259,21 +250,15 @@ static int anonymous_client_mech_step(void * conn_context,
 	memzero(hostname, sizeof(hostname));
 	gethostname(hostname, sizeof(hostname));
 	hostname[sizeof(hostname)-1] = '\0';
-
 	*clientoutlen = (unsigned)(userlen + strlen(hostname) + 1);
-
-	result = _plug_buf_alloc(cparams->utils, &text->out_buf,
-		&text->out_buf_len, *clientoutlen);
-
-	if(result != SASL_OK) return result;
-
+	result = _plug_buf_alloc(cparams->utils, &text->out_buf, &text->out_buf_len, *clientoutlen);
+	if(result != SASL_OK) 
+		return result;
 	strcpy(text->out_buf, user);
 	text->out_buf[userlen] = '@';
 	/* use memcpy() instead of strcpy() so we don't add the NUL */
 	memcpy(text->out_buf + userlen + 1, hostname, strlen(hostname));
-
 	*clientout = text->out_buf;
-
 	/* set oparams */
 	oparams->doneflag = 1;
 	oparams->mech_ssf = 0;
@@ -283,7 +268,6 @@ static int anonymous_client_mech_step(void * conn_context,
 	oparams->decode_context = NULL;
 	oparams->decode = NULL;
 	oparams->param_version = 0;
-
 	return SASL_OK;
 }
 

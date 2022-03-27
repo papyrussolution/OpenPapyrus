@@ -64,7 +64,7 @@ public:
 	 *
 	 *  @param matchspies   The matchspies to use.
 	 */
-	Xapian::MSet get_mset(const std::vector<opt_ptr_spy>& matchspies) { return db->get_mset(matchspies); }
+	Xapian::MSet get_mset(const std::vector <opt_ptr_spy>& matchspies) { return db->get_mset(matchspies); }
 	/// Return the index of the corresponding Database shard.
 	Xapian::doccount get_shard() const { return shard; }
 };

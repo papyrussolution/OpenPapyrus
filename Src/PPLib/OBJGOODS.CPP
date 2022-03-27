@@ -4844,8 +4844,8 @@ int PPObjGoods::ProcessName(const ProcessNameBlock & rBlk, SString & rResult)
 	SString temp_buf;
 	temp_buf = rBlk.OrgName;
 	temp_buf.ReplaceChar('\t', ' ');
-	temp_buf.ReplaceChar('\xD', ' ');
-	temp_buf.ReplaceChar('\xA', ' ');
+	temp_buf.ReplaceChar('\x0D', ' ');
+	temp_buf.ReplaceChar('\x0A', ' ');
 	while(temp_buf.ReplaceStrR("  ", " ", 0))
 		;
 	temp_buf.Strip();

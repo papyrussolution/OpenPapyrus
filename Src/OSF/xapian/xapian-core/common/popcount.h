@@ -34,45 +34,47 @@
 #endif
 
 /// Add the number of set bits in value to accumulator.
-template<typename A, typename V>
-static inline void
-add_popcount(A& accumulator, V value)
+template <typename A, typename V> static inline void add_popcount(A& accumulator, V value)
 {
-    if (false) {
+	if(false) {
 #if HAVE_DECL___BUILTIN_POPCOUNT
-    } else if (sizeof(V) == sizeof(unsigned)) {
-	accumulator += __builtin_popcount(value);
+	}
+	else if(sizeof(V) == sizeof(unsigned)) {
+		accumulator += __builtin_popcount(value);
 #elif HAVE_DECL___POPCNT
-    } else if (sizeof(V) == sizeof(unsigned)) {
-	accumulator += static_cast<A>(__popcnt(value));
+	}
+	else if(sizeof(V) == sizeof(unsigned)) {
+		accumulator += static_cast<A>(__popcnt(value));
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTL
-    } else if (sizeof(V) == sizeof(ulong)) {
-	accumulator += __builtin_popcountl(value);
+	}
+	else if(sizeof(V) == sizeof(ulong)) {
+		accumulator += __builtin_popcountl(value);
 #endif
 #if HAVE_DECL___BUILTIN_POPCOUNTLL
-    } else if (sizeof(V) == sizeof(ulong long)) {
-	accumulator += __builtin_popcountll(value);
-#elif HAVE_DECL___POPCNT64
-    } else if (sizeof(V) == sizeof(ulong long)) {
-	accumulator += static_cast<A>(__popcnt64(value));
-#endif
-    } else {
-	while (value) {
-	    ++accumulator;
-	    value &= value - 1;
 	}
-    }
+	else if(sizeof(V) == sizeof(ulong long)) {
+		accumulator += __builtin_popcountll(value);
+#elif HAVE_DECL___POPCNT64
+	}
+	else if(sizeof(V) == sizeof(ulong long)) {
+		accumulator += static_cast<A>(__popcnt64(value));
+#endif
+	}
+	else {
+		while(value) {
+			++accumulator;
+			value &= value - 1;
+		}
+	}
 }
 
 /// Count the number of set bits in value.
-template<typename V>
-static unsigned
-popcount(V value)
+template <typename V> static unsigned popcount(V value)
 {
-    unsigned accumulator = 0;
-    add_popcount(accumulator, value);
-    return accumulator;
+	unsigned accumulator = 0;
+	add_popcount(accumulator, value);
+	return accumulator;
 }
 
 #endif // XAPIAN_INCLUDED_POPCOUNT_H

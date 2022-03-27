@@ -3269,14 +3269,11 @@ public:
 		sgoOptimistic = 0x0001, // Предварительно предполагается, что rGuid в таблице отсутствует
 		sgoHash       = 0x0002  // Использовать хэш для поиска GUID
 	};
-
 	int    GetUuid(const S_GUID & rUuid, long * pID, int options, int use_ta);
 	int    RemoveUuid(const S_GUID & rUuid, int use_ta);
 	int    Remove(long id, int use_ta);
 	int    PutChunk(const TSVector <S_GUID> & rChunk, uint maxCount, int use_ta);
 private:
-	//static int FASTCALL TextToUuid(const char * pText, S_GUID & rUuid);
-	//static int FASTCALL UuidToText(const S_GUID & rUuid, SString & rText);
 	int    InitCache();
 
 	GuidHashTable * P_Hash;
@@ -7809,7 +7806,7 @@ private:
 	DlContext * P_DbCtx;   // Контекст структуры базы данных. Контекст глобальный (не привязан к потокам)
 	PPAlbatrossConfig * P_AlbatrosCfg; // Кэшированная конфигурация глобального обмена
 		// Единственная точка прямого доступа к этому указателю - FetchAlbatrosConfig()
-	SrSyntaxRuleSet * P_SrStxSet; // @v9.8.10 Глобально доступный скомпилированный набор синтаксических правил
+	SrSyntaxRuleSet * P_SrStxSet;      // Глобально доступный скомпилированный набор синтаксических правил
 		// Единственная точка прямого доступа к этому указателю - PPSession::GetSrSyntaxRuleSet()
 	Profile GPrf; // Глобальный профайлер для всей сессии. Кроме него в каждом потоке есть собственный профайлер PPThreadLocalArea::Prf
 	PPConfigDatabase * P_ExtCfgDb; // @v10.7.6 Экспериментальный вариант экземпляра дополнительной конфигурационной базы данных
@@ -8163,7 +8160,22 @@ double PPRound(double v, double prec, int dir);
 //     по весу что бы делать эту функцию инлайновой (fastcall'а достаточно).
 //
 int    FASTCALL CheckFiltID(PPID flt, PPID id);
-
+//
+// Descr: Класс, унаследованный от STokenRecognizer с целью реализации дополнительного функционала. В частности,
+//  проверки на номер телефона с помощью SLibPhoneNumber (libphonenumber).
+//
+class PPTokenRecognizer : public STokenRecognizer {
+public:
+	PPTokenRecognizer();
+private:
+	virtual int PostImplement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat);
+#if(_MSC_VER >= 1900)
+	SLibPhoneNumber PhnL;
+#endif
+};
+//
+//
+//
 class PPExtStringStorage {
 public:
 	PPExtStringStorage();
@@ -9766,27 +9778,27 @@ public:
 		PPID   PriceQuotID;    // Котировка по которой будем назначать цену в документах
 		uint32 ProtVer;        // Версия протокола обмена
 		struct FlatBlock {
-			PPID   DefUnitID;      // @v9.2.4
-			PPID   SequenceID;     // @v9.4.2 Внутренний счетчик для автоматической нумерации запросов
-			PPID   CliCodeTagID;   // @v9.4.4 Тег персоналии для кода в терминах поставщика
-			PPID   LocCodeTagID;   // @v9.4.4 Тег локации для кода в терминах поставщика
-			PPID   StyloPalmID;    // @v9.5.5 Ссылка на запись группы устройств для получения некоторых атрибутов
+			PPID   DefUnitID;      // 
+			PPID   SequenceID;     // Внутренний счетчик для автоматической нумерации запросов
+			PPID   CliCodeTagID;   // Тег персоналии для кода в терминах поставщика
+			PPID   LocCodeTagID;   // Тег локации для кода в терминах поставщика
+			PPID   StyloPalmID;    // Ссылка на запись группы устройств для получения некоторых атрибутов
 				// Не смотря на то, что обмен с поставщиком не задействует непосредственно устройства StyloAgent,
 				// функцинонально он может обеспечивать аналогичных набор сервисов. Соответственно, логично будет
 				// не дублировать здесь атрибуты аналогичные StyloAgent, но сделать специальную запись StyloAgent
 				// и администрировать такие атрибуты там.
-			PPID   BillAckTagID;   // @v9.5.7 Тег документа, свидетельствующий о том, что он был передан поставщику.
+			PPID   BillAckTagID;   // Тег документа, свидетельствующий о том, что он был передан поставщику.
 				// Имеется в виду, как правило, документ продажи покупателю (возврата от покупателя) подукции
 				// этого поставщика. Тип этого тега - строка или GUID. В качестве значения - какой-либо идентификатор,
 				// присвоенный системой поставщика документу.
-			PPID   GoodsTagID;     // @v9.9.5 Тег идентификации товара у контрагента
-			uint8  NativeGIdType;  // @v9.9.5 wareidentXXX Наша идентификации товара
-			uint8  ForeignGIdType; // @v9.9.5 wareidentXXX Идентификации товара для контрагента
+			PPID   GoodsTagID;     // Тег идентификации товара у контрагента
+			uint8  NativeGIdType;  // wareidentXXX Наша идентификации товара
+			uint8  ForeignGIdType; // wareidentXXX Идентификации товара для контрагента
 			uint8  FbReserve[2];   // @reserve @v9.2.4 [32]-->[28] // @v9.4.4 [24]-->[16]
 		} Fb;                      // @anchor
         InetAddr ConnAddr;         // Адрес для соединения с сервером
-        ObjIdListFilt DebtDimList; // @v9.1.3 Список долговых размерностей, по которым необходимо отчитываться о долгах контрагентов
-		ObjIdListFilt WhList;      // @v9.9.5 Список складов, по которым строятся отчеты
+        ObjIdListFilt DebtDimList; // Список долговых размерностей, по которым необходимо отчитываться о долгах контрагентов
+		ObjIdListFilt WhList;      // Список складов, по которым строятся отчеты
 	private:
 		int    Helper_SerializeCommon(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 		int    Serialize_(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -10002,7 +10014,6 @@ class LPackageList : public SCollection {
 public:
 	LPackageList();
 	~LPackageList();
-
 	int    Add(const LPackage *);
 	int    ShiftIdx(int16);
 	int    RemoveByIdx(int16);
@@ -11036,12 +11047,6 @@ public:
 	//
 	TSVector <PPAccTurn> Turns;
 	PPAdvBillItemList AdvList; // Элементы расширения бух документа
-	//
-	// @todo Следующие четыре контейнера необходимо объединить в общий контейнер поскольку
-	//  они представляют однотипные объекты (теги).
-	//
-	// @v9.8.11 ClbNumberList ClbL;        // Список номеров ГТД
-	// @v9.8.11 ClbNumberList SnL;         // Список серийных номеров лотов
 	PPLotTagContainer LTagL;   // Список тегов лотов
 	ObjTagList BTagL;          // Список тегов документа
 	PPLotExtCodeContainer XcL; // Контейнер, содержащий спецкоды (в частности, марки ЕГАИС) ассоциированные со строками.
@@ -11108,28 +11113,6 @@ public:
 #define PCUG_ASGOODAS          2 // Включить в комплект столько комплектующих, сколько есть в наличии
 #define PCUG_EXCLUDE           3 // Полностью исключить недостающий комплектующий товар
 #define PCUG_CANCEL            4 // Отменить операцию комплектации
-
-#if 0 // @v9.8.11 {
-//
-// Descr: Список символьных номеров, ассоциированных с лотами
-//   (грузовые таможенные декларации [Custom Lading Bill], серийные номера лотов)
-// @todo @dbd_exchange Перевести объект на StrAssocArray
-//
-class ClbNumberList : private StrAssocArray { // @persistent(DBX)
-public:
-	ClbNumberList();
-	int    AddNumber(int rowIdx, const char * pClbNumber);
-	int    AddNumber(const LongArray * pRows, const char * pClbNumber);
-	int    GetNumber(int rowIdx, SString * pBuf) const;
-	int    SearchNumber(const char *, uint * pPos) const;
-	int    ReplacePosition(int rowIdx, int newRowIdx);
-	void   RemovePosition(int rowIdx);
-	void   Release();
-	uint   GetCount() const;
-	int    FASTCALL Write(SBuffer & rBuf) const;
-	int    FASTCALL Read(SBuffer & rBuf);
-};
-#endif // } 0 @v9.8.11
 //
 // Descr: Шаблон транзитной валютной операции
 //
@@ -14827,7 +14810,7 @@ typedef TSVector <CCheckItem> CCheckItemArray;
 //
 struct CcAmountEntry {
 	CcAmountEntry();
-	int    FASTCALL IsEq(const CcAmountEntry & rS) const;
+	bool   FASTCALL IsEq(const CcAmountEntry & rS) const;
 	int    GetTypeText(SString & rBuf) const;
 
 	PPID   CheckID;    // Идентификатор чека. Важен, если собираются однотипные суммы по выборке чеков
@@ -14882,7 +14865,7 @@ class CCheckPacket : public PPExtStrContainer {
 public:
 	struct LineExt { // @transient
 		enum {
-			fGroup = 0x01,
+			fGroup         = 0x01,
 			fModifier      = 0x02,
 			fPartOfComplex = 0x04,
 			fQuotedByGift  = 0x08,
@@ -14903,24 +14886,24 @@ public:
 	// и для драйвера торгового оборудования АТОЛ на 12 апреля 2019 года.
 	//
 	enum PaymentTermTag {
-		pttUndef  = 0, // PTT_UNDEF
+		pttUndef          = 0, // PTT_UNDEF
 		pttFullPrepay     = 1, // PTT_FULL_PREPAY    Предоплата 100% (Полная предварительная оплата до момента передачи предмета расчета)
-		pttPrepay = 2, // PTT_PREPAY         Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
+		pttPrepay         = 2, // PTT_PREPAY         Предоплата (Частичная предварительная оплата до момента передачи предмета расчета)
 		pttAdvance        = 3, // PTT_ADVANCE        Аванс
 		pttFullPayment    = 4, // PTT_FULLPAYMENT    Полный расчет (Полная оплата, в том числе с учетом аванса (предварительной оплаты) в момент передачи предмета расчета)
 		pttPartial        = 5, // PTT_PARTIAL        Частичный расчет и кредит (Частичная оплата предмета расчета в момент его передачи с последующей оплатой в кредит)
 		pttCreditHandOver = 6, // PTT_CREDITHANDOVER Передача в кредит (Передача предмета расчета без его оплаты в момент его передачи с последующей оплатой в кредит)
-		pttCredit = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
+		pttCredit         = 7  // PTT_CREDIT         Оплата кредита (Оплата предмета расчета после его передачи с оплатой в кредит (оплата кредита))
 	};
 
 	//@erik v10.4.12{
 	enum SubjTermTag {
-		sttUndef   = 0,  // STT_UNDEF
-		sttGood    = 1,  // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
+		sttUndef           = 0,  // STT_UNDEF
+		sttGood            = 1,  // STT_GOOD    о реализуемом товаре, за исключением подакцизного товара(наименование и иные сведения, описывающие товар)
 		sttExcisableGood   = 2,  // STT_EXCISABLEGOOD    о реализуемом подакцизном товаре(наименование и иные сведения, описывающие товар)
 		sttExecutableWork  = 3,  // STT_EXECUTABLEWORK   о выполняемой работе(наименование и иные сведения, описывающие работу)
-		sttService = 4,	 // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
-		sttBetting = 5,	 // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
+		sttService         = 4,  // STT_SERVICE   об оказываемой услуге(наименование и иные сведения, описывающие услугу)
+		sttBetting         = 5,  // STT_BETTING   о приеме ставок при осуществлении деятельности по проведению азартных игр
 		sttPaymentGambling = 6,	 // STT_PAYMENTGAMBLING   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению азартных игр
 		sttBettingLottery  = 7,	 // STT_BETTINGLOTTERY   о приеме денежных средств при реализации лотерейных билетов, электронных лотерейных билетов, приеме лотерейных ставок при осуществлении деятельности по проведению лотерей
 		sttPaymentLottery  = 8,	 // STT_PAYMENTLOTTERY   о выплате денежных средств в виде выигрыша при осуществлении деятельности по проведению лотерей
@@ -14941,14 +14924,17 @@ public:
 	//
 	//
 	enum {
-		extssMemo       = 1, // @reserved Примечание
-		extssSign       = 2, // Строка подписи чека (ЕГАИС)
-		extssEgaisUrl   = 3, // Текст URL информации о чеке ЕГАИС
+		extssMemo               = 1, // @reserved Примечание
+		extssSign               = 2, // Строка подписи чека (ЕГАИС)
+		extssEgaisUrl           = 3, // Текст URL информации о чеке ЕГАИС
 		extssRemoteProcessingTa = 4, // @v10.9.0 Символ транзакции удаленной обработки чека
 		extssChZnProcessingTag  = 5, // @v11.0.1 Символ признака передачи чека на сервер честный знак
-		extssBuyerINN   = 6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
-		extssBuyerName  = 7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
-		extssBuyerPhone = 8, // @v11.0.4 Телефон покупателя //
+		extssBuyerINN           = 6, // @v11.0.4 ИНН покупателя (при формировании чека по документу)
+		extssBuyerName          = 7, // @v11.0.4 Наименование покупателя (при формировании чека по документу)
+		extssBuyerPhone         = 8, // @v11.0.4 Телефон покупателя //
+		extssBuyerEMail         = 9, // @v11.3.6 Адрес электронной почты покупателя //
+		// @attention: После вставки очередного элемента в этот enum добавьте этот элемент в ccpack_textext_ident_list (ccheck.cpp). 
+		//   Иначе этот атрибут не будет сохраняться в чеке.
 	};
 	//
 	// Descr: Идентификаторы текстовых расширений строк чека
@@ -15165,8 +15151,9 @@ private:
 #define CCHKF_SPFINISHED   0x00001000L // Специальный признак окончательного финиширования чека. Применяется, например,
 	// для пометки факта доставки и(или) окончательной оплаты по чеку со стороны покупателя.
 	// @v9.7.8 @fix 0x00000800L-->0x00001000L
-#define CCHKF_TOREPRINT    0x00002000L // @v10.6.11 Флаг, устанавливаемый на чек, который не был правильно отпечатан и выбрна для перепечатки.
+#define CCHKF_TOREPRINT    0x00002000L // @v10.6.11 Флаг, устанавливаемый на чек, который не был правильно отпечатан и выбран для перепечатки.
 	// При таком выборе чек получает флаги (CCHKF_SUSPENDED|CCHKF_TOREPRINT) после завершения перепечатки остается только флаг CCHKF_TOREPRINT.
+#define CCHKF_PAPERLESS    0x00004000L // @v11.3.6 Кассовый регистратор не должен печатать бумажный чек по этой записи
 #define CCHKF_SYNC         0x00010000L // Чек сформирован синхронной сессией
 #define CCHKF_NOTUSED      0x00020000L // Чек не просуммирован в таблице CGoodsLine
 #define CCHKF_PRINTED      0x00040000L // Чек был отпечатан (пробит на ККМ)
@@ -35457,7 +35444,7 @@ enum {
 
 struct PPSCardSeries2 {    // @persistent @store(Reference2Tbl+)
 	PPSCardSeries2();
-	int    FASTCALL IsEq(const PPSCardSeries2 & rS) const;
+	bool   FASTCALL IsEq(const PPSCardSeries2 & rS) const;
 	int    GetType() const;
 	int    SetType(int type);
 	int    Verify();
@@ -36717,6 +36704,7 @@ public:
 	int    GetGoodsListByPrc(PPID prcID, PPIDArray * pList);
 		// @>>PPObjTech::AddItemsToList
 	int    GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList);
+	int    GetListByGoods(PPID goodsID, PPIDArray * pList);
 	int    GetToolingCondition(PPID id, SString & rFormula);
 	int    SelectTooling(PPID prcID, PPID goodsID, PPID prevGoodsID, TSVector <TechTbl::Rec> * pList); // @v9.8.4 TSArray-->TSVect
 	int    CreateAutoTech(PPID prcID, PPID goodsID, PPID * pTechID, int use_ta);
@@ -46803,23 +46791,33 @@ public:
 			int    BoxRefN;
 			char   Code[256];
 		};
+		//
+		// Так как одна строка может иметь более одного набора значений {qtty, cost, price},
+		// то выделяем такой набор в отдельную структуру.
+		//
+		struct ValuSet {
+			ValuSet();
+			double Qtty;
+			double Cost;
+			double Price;
+		};
 		struct TransferItem {
-			// Так как одна строка может иметь более одного набора значений {qtty, cost, price},
-			// то выделяем такой набор в отдельную структуру.
-			struct ValuSet {
-				ValuSet() : Qtty(0.0), Cost(0.0), Price(0.0)
-				{
-				}
-				double Qtty;
-				double Cost;
-				double Price;
-			};
 			TransferItem();
 			int    GoodsID; // service-domain-id
 			int    UnitID;  // service-domain-id
 			int    Flags;
 			ValuSet Set;
 			TSVector <LotExtCode> XcL;
+		};
+		struct BookingItem {
+			BookingItem();
+			int    PrcID;
+			int    GoodsID;
+			int    Flags;
+			LDATETIME ReqTime;
+			int    EstimatedDurationSec;
+			ValuSet Set;
+			SString Memo;
 		};
 		int64  ID;
 		LDATETIME CreationTime;
@@ -46833,6 +46831,7 @@ public:
 		S_GUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
 		SString Memo;
 		TSCollection <TransferItem> TiList;
+		TSCollection <BookingItem> BkList; // @v11.3.6
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	};
 
@@ -47004,10 +47003,11 @@ private:
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
-	//   >0 - идентификатор созданного или уже существующего документа (PPOBJ_BILL)
+	//    PPOBJ_BILL - функция успешно завершена. идентификатор созданного или уже существующего документа присвоен по указателю pResultID.
+	//    PPOBJ_TSESSION - функция успешно завершена. идентификатор созданной или уже существующей техсессии присвоен по указателю pResultID.
 	//    0 - ошибка
 	//
-	PPID   ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument);
+	int   ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
 	//
 	// Returns:
 	//   >0 - идентификатор созданного документа (PPOBJ_STYLOQBINDERY)
@@ -47113,6 +47113,7 @@ public:
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @really-private
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -47167,6 +47168,7 @@ public:
 	virtual int Init_(const PPBaseFilt * pBaseFilt);
 	virtual int EditBaseFilt(PPBaseFilt * pBaseFilt);
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle, PPViewBrowser * pBrw);
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr); // @really-private
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
 	virtual SArray * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
@@ -54119,12 +54121,20 @@ struct PosPaymentBlock {
 		// Причина - эта карта уже присвоена чеку. То есть, по ней уже основная часть
 		// платежа сделана (либо на нее начисляются средства).
 	long   DisabledKinds;  // Биты установлены в позициях со смещением, равным запрещенному виду оплаты.
-	int    AltCashReg;     // Признак использования альтернативного кассового регистратора: -1 - disabled, 0 - не использовать, 1 - использовать
+	// @v11.3.6 int    AltCashReg;     // Признак использования альтернативного кассового регистратора: -1 - disabled, 0 - не использовать, 1 - использовать
 	//
 	// Следующие поля используются новой реализацией
 	//
 	double BonusMaxPart;
 	double AmtToPaym;      // Сумма к уплате (наличными или через банк). То есть, сумма чека за минусом доступных бонусов и остатка на кредитной карте.
+	enum {
+		fPaperless         = 0x0001, // Не печатать бумажный чек
+		fAltCashRegEnabled = 0x0002, // Разрешается использование альтернативного регистратора
+		fAltCashRegUse     = 0x0004  // Если (Flags & fAltCashRegEnabled) и (Flags & fAltCashRegUse) то печатать чека на альтернативном регистраторе
+	};
+	long   Flags;        // @v11.3.6
+	int    BuyersEAddrType; // @v11.3.6 (0|SNTOK_EMAIL|SNTOK_PHONE)
+	SString BuyersEAddr; // @v11.3.6
 	CcAmountList CcPl;
 private:
 	double Total;          // Итоговая сумма чека     @*CPosProcessor::GetTotal())
@@ -54553,7 +54563,9 @@ protected:
 	public:
 		long   TableCode;        // Номер столика
 		uint16 GuestCount;       // Количество гостей за столом
-		uint16 Reserve;          // @alignment
+		uint8  Reserve;          // @alignment
+		bool   Paperless;        // @v11.3.6 Признак того, что регистрация должна осуществляться без печати бумажного чека
+		int    BuyersEAddrType;  // @v11.3.6 Тип электронного адреса покупателя BuyersEAddr (0 || SNTOK_PHONE || SNTOK_EMAIL)
 		PPID   OrderCheckID;     // Чек заказа, к которому привязан данный чек
 		PPID   OrgUserID;        // Пользователь, создавший оригинальный чек (до первого отложения/восстановления)
 		LAssocArray GiftAssoc;   // Список ассоциаций {gift_pos; used_by_gift_pos}
@@ -54562,6 +54574,7 @@ protected:
 		ExtCcData Eccd;          //
 		SaModif CurModifList;    // Список выбранных модификаторов для текущей позиции
 		CcAmountList AmL;        // Список оплат по чеку
+		SString BuyersEAddr;     // @v11.3.6 Электронный адрес покупателя (email or phone)
 	};
 	struct RetBlock {
 		RetBlock();

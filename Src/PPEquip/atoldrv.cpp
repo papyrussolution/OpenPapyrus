@@ -1605,7 +1605,11 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
+#ifdef  NDEBUG
+	bool   use_json_cmd = false; // @v11.3.5 @debug
+#else
 	bool   use_json_cmd = true; // @v11.3.5 @debug
+#endif // ! NDEBUG
 	bool   is_format = false;
 	bool   enabled = true;
 	int    jsproc_result = 0;

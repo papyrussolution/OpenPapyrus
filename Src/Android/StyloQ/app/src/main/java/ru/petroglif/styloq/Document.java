@@ -33,6 +33,23 @@ public class Document {
 		int    BoxRefN;
 		String Code;
 	}
+	// Так как одна строка может иметь более одного набора значений {qtty, cost, price},
+	// то выделяем такой набор в отдельную структуру.
+	public static class ValuSet {
+		public ValuSet()
+		{
+			Qtty = 0.0;
+			Cost = 0.0;
+			Price = 0.0;
+		}
+		public final boolean IsEmpty()
+		{
+			return !(Qtty > 0.0 || Cost > 0.0 || Price > 0.0);
+		}
+		double Qtty;
+		double Cost;
+		double Price;
+	}
 	public static class TransferItem {
 		public boolean CanMerge(final TransferItem testItem)
 		{
@@ -68,19 +85,6 @@ public class Document {
 			}
 			return result;
 		}
-		// Так как одна строка может иметь более одного набора значений {qtty, cost, price},
-		// то выделяем такой набор в отдельную структуру.
-		public static class ValuSet {
-			ValuSet()
-			{
-				Qtty = 0.0;
-				Cost = 0.0;
-				Price = 0.0;
-			}
-			double Qtty;
-			double Cost;
-			double Price;
-		}
 		TransferItem()
 		{
 			RowIdx = 0;
@@ -97,15 +101,38 @@ public class Document {
 		ValuSet Set;
 		ArrayList <LotExtCode> XcL;
 	}
+	public static class BookingItem {
+		BookingItem()
+		{
+			RowIdx = 0;
+			PrcID = 0;
+			GoodsID = 0;
+			Flags = 0;
+			ReqTime = null;
+			EstimatedDurationSec = 0;
+			Set = new ValuSet();
+			Memo = null;
+		}
+		int    RowIdx; // [1..]
+		int    PrcID;
+		int    GoodsID;
+		int    Flags;
+		SLib.LDATETIME ReqTime;
+		int    EstimatedDurationSec;
+		ValuSet Set;
+		String Memo;
+	}
 	Document()
 	{
 		H = null;
 		TiList = null;
+		BkList = null;
 		VXcL = null;
 	}
 	Document(int opID, final byte [] svcIdent, StyloQApp appCtx) throws StyloQException
 	{
 		TiList = null;
+		BkList = null;
 		VXcL = null;
 		if(opID > 0) {
 			H = new Document.Head();
@@ -123,6 +150,7 @@ public class Document {
 	{
 		H = null;
 		TiList = null;
+		BkList = null;
 		VXcL = null;
 		return this;
 	}
@@ -164,27 +192,60 @@ public class Document {
 				if(SLib.GetLen(H.Memo) > 0)
 					result.put("memo", H.Memo);
 				if(TiList != null && TiList.size() > 0) {
-					JSONArray js_ti_list = new JSONArray();
+					JSONArray js_list = new JSONArray();
 					for(int i = 0; i < TiList.size(); i++) {
 						TransferItem ti = TiList.get(i);
 						if(ti != null) {
-							JSONObject js_ti = new JSONObject();
-							js_ti.put("rowidx", ti.RowIdx);
-							js_ti.put("goodsid", ti.GoodsID);
+							JSONObject js_item = new JSONObject();
+							js_item.put("rowidx", ti.RowIdx);
+							js_item.put("goodsid", ti.GoodsID);
 							if(ti.UnitID > 0)
-								js_ti.put("unitid", ti.UnitID);
-							js_ti.put("flags", ti.Flags);
+								js_item.put("unitid", ti.UnitID);
+							js_item.put("flags", ti.Flags);
 							if(ti.Set != null) {
 								JSONObject js_ti_set = new JSONObject();
 								js_ti_set.put("qtty", ti.Set.Qtty);
 								js_ti_set.put("cost", ti.Set.Cost);
 								js_ti_set.put("price", ti.Set.Price);
-								js_ti.put("set", js_ti_set);
+								js_item.put("set", js_ti_set);
 							}
-							js_ti_list.put(js_ti);
+							js_list.put(js_item);
 						}
 					}
-					result.put("ti_list", js_ti_list);
+					result.put("ti_list", js_list);
+				}
+				if(BkList != null && BkList.size() > 0) {
+					JSONArray js_list = new JSONArray();
+					for(int i = 0; i < BkList.size(); i++) {
+						BookingItem bi = BkList.get(i);
+						if(bi != null) {
+							JSONObject js_item = new JSONObject();
+							js_item.put("rowidx", bi.RowIdx);
+							js_item.put("prcid", bi.PrcID);
+							js_item.put("goodsid", bi.GoodsID);
+							js_item.put("flags", bi.Flags);
+							if(bi.ReqTime != null) {
+								js_item.put("reqtime", SLib.datetimefmt(bi.ReqTime, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0));
+							}
+							if(bi.EstimatedDurationSec > 0) {
+								js_item.put("estimateddurationsec", bi.EstimatedDurationSec);
+							}
+							if(bi.Set != null && !bi.Set.IsEmpty()) {
+								JSONObject js_set = new JSONObject();
+								if(bi.Set.Qtty > 0.0)
+									js_set.put("qtty", bi.Set.Qtty);
+								if(bi.Set.Cost > 0.0)
+									js_set.put("cost", bi.Set.Cost);
+								if(bi.Set.Price > 0.0)
+									js_set.put("price", bi.Set.Price);
+								js_item.put("set", js_set);
+							}
+							if(SLib.GetLen(bi.Memo) > 0)
+								js_item.put("set", bi.Memo);
+							js_list.put(js_item);
+						}
+					}
+					result.put("bk_list", js_list);
 				}
 			}
 		} catch(JSONException exn) {
@@ -247,16 +308,16 @@ public class Document {
 				JSONArray js_ti_list = jsobj.optJSONArray("ti_list");
 				if(js_ti_list != null && js_ti_list.length() > 0) {
 					for(int i = 0; i < js_ti_list.length(); i++) {
-						JSONObject js_ti = js_ti_list.getJSONObject(i);
-						if(js_ti != null) {
+						JSONObject js_item = js_ti_list.getJSONObject(i);
+						if(js_item != null) {
 							TransferItem ti = new TransferItem();
-							ti.RowIdx = js_ti.optInt("rowidx", 0);
-							ti.GoodsID = js_ti.optInt("goodsid", 0);
-							ti.UnitID = js_ti.optInt("unitid", 0);
-							ti.Flags = js_ti.optInt("flags", 0);
-							JSONObject js_set = js_ti.optJSONObject("set");
+							ti.RowIdx = js_item.optInt("rowidx", 0);
+							ti.GoodsID = js_item.optInt("goodsid", 0);
+							ti.UnitID = js_item.optInt("unitid", 0);
+							ti.Flags = js_item.optInt("flags", 0);
+							JSONObject js_set = js_item.optJSONObject("set");
 							if(js_set != null) {
-								ti.Set = new TransferItem.ValuSet();
+								ti.Set = new ValuSet();
 								ti.Set.Qtty = js_set.optDouble("qtty", 0.0);
 								ti.Set.Cost = js_set.optDouble("cost", 0.0);
 								ti.Set.Price = js_set.optDouble("price", 0.0);
@@ -264,6 +325,23 @@ public class Document {
 							if(TiList == null)
 								TiList = new ArrayList<TransferItem>();
 							TiList.add(ti);
+						}
+					}
+				}
+				JSONArray js_bk_list = jsobj.optJSONArray("bk_list");
+				if(js_bk_list != null && js_bk_list.length() > 0) {
+					for(int i = 0; i < js_bk_list.length(); i++) {
+						JSONObject js_item = js_ti_list.getJSONObject(i);
+						if(js_item != null) {
+							BookingItem bi = new BookingItem();
+							bi.RowIdx = js_item.optInt("rowid", 0);
+							bi.PrcID = js_item.optInt("prcid", 0);
+							bi.GoodsID = js_item.optInt("goodsid", 0);
+							bi.Flags = js_item.optInt("flags", 0);
+							// @todo Не все поля считаны!
+							if(BkList == null)
+								BkList = new ArrayList<BookingItem>();
+							BkList.add(bi);
 						}
 					}
 				}
@@ -277,5 +355,6 @@ public class Document {
 	}
 	Head H;
 	ArrayList <TransferItem> TiList;
+	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
 	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 }

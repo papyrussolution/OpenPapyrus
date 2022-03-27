@@ -6,11 +6,6 @@
 // the Free Software Foundation, either version 3 of the License, or
 // at your option any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
@@ -28,15 +23,11 @@ int CALLBACK ListViewCompareProc(LPARAM lParam1, LPARAM lParam2, LPARAM lParamSo
 	sortCompareData* sortData = (sortCompareData*)lParamSort;
 	TCHAR str1[MAX_PATH] = { '\0' };
 	TCHAR str2[MAX_PATH] = { '\0' };
-
 	ListView_GetItemText(sortData->hListView, lParam1, sortData->columnIndex, str1, sizeof(str1));
 	ListView_GetItemText(sortData->hListView, lParam2, sortData->columnIndex, str2, sizeof(str2));
-
 	int result = lstrcmp(str1, str2);
-
 	if(sortData->sortDirection == SORT_DIRECTION_UP)
 		return result;
-
 	return (0 - result);
 };
 
@@ -49,47 +40,36 @@ void VerticalFileSwitcher::startColumnSort()
 		_lastSortingColumn = 0;
 		_lastSortingDirection = SORT_DIRECTION_NONE;
 	}
-
 	if(_lastSortingDirection != SORT_DIRECTION_NONE) {
 		sortCompareData sortData = {_fileListView.getHSelf(), _lastSortingColumn, _lastSortingDirection};
 		ListView_SortItemsEx(_fileListView.getHSelf(), ListViewCompareProc, reinterpret_cast<LPARAM>(&sortData));
 	}
-
 	updateHeaderArrow();
 }
 
 INT_PTR CALLBACK VerticalFileSwitcher::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
-	{
+	switch(message) {
 		case WM_INITDIALOG:
 	    {
 		    VerticalFileSwitcher::initPopupMenus();
-
 		    _fileListView.init(_hInst, _hSelf, _hImaLst);
 		    _fileListView.initList();
 		    _fileListView.display();
-
 		    return TRUE;
 	    }
-
 		case NPPM_INTERNAL_REFRESHDARKMODE:
 	    {
 		    NppDarkMode::setDarkListView(_fileListView.getHSelf());
 		    NppDarkMode::setDarkTooltips(_fileListView.getHSelf(), NppDarkMode::ToolTipsType::listview);
 		    return TRUE;
 	    }
-
 		case WM_NOTIFY:
 	    {
-		    switch(reinterpret_cast<LPNMHDR>(lParam)->code)
-		    {
+		    switch(reinterpret_cast<LPNMHDR>(lParam)->code) {
 			    case DMN_CLOSE:
-			{
-				::SendMessage(_hParent, WM_COMMAND, IDM_VIEW_DOCLIST, 0);
-				return TRUE;
-			}
-
+					::SendMessage(_hParent, WM_COMMAND, IDM_VIEW_DOCLIST, 0);
+					return TRUE;
 			    case NM_DBLCLK:
 			{
 				LPNMITEMACTIVATE lpnmitem = (LPNMITEMACTIVATE)lParam;

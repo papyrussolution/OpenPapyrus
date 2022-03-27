@@ -1,5 +1,5 @@
 // SDATE.CPP
-// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (C) Sobolev A. 1994, 1995, 1996-2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8 // @v10.4.5
 //
 #include <slib-internal.h>
@@ -23,7 +23,7 @@ const char daysPerMonth[NUM_MONTHES] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31,
 
 int FASTCALL _decode_date_fmt(int style, int * pDiv)
 {
-	static const struct { char div, ord; } fmtParams[] = {
+	static const struct { char div, ord; } p_fmt_params[] = {
 		{47,0}, // DATF_AMERICAN
 		{46,2}, // DATF_ANSI
 		{47,1}, // DATF_BRITISH
@@ -41,9 +41,9 @@ int FASTCALL _decode_date_fmt(int style, int * pDiv)
 	};
 	int    ord = 1;
 	style &= 0x000f;
-	if(style > 0 && style <= SIZEOFARRAY(fmtParams)) {
-		*pDiv = fmtParams[style-1].div;
-		ord = fmtParams[style-1].ord;
+	if(style > 0 && style <= SIZEOFARRAY(p_fmt_params)) {
+		*pDiv = p_fmt_params[style-1].div;
+		ord = p_fmt_params[style-1].ord;
 	}
 	else {
 		*pDiv = 47;
@@ -1139,9 +1139,9 @@ int WorkDate::SetDayOfYear(int day, int mon)
 LDATE  WorkDate::IsDate() const { return (V > 0) ? ExpandDate(V) : ZERODATE; }
 int    WorkDate::IsDayOfWeek() const { return (V >= -7 && V <= -1) ? -V : 0; }
 LDATE  WorkDate::IsDayOfYear() const { return (V <= -100) ? ExpandDate(-V) : ZERODATE; }
-int    FASTCALL WorkDate::IsEq(WorkDate wd) const { return (wd.V == V); }
+bool   FASTCALL WorkDate::IsEq(WorkDate wd) const { return (wd.V == V); }
 
-int FASTCALL WorkDate::IsEq(LDATE dt) const
+bool   FASTCALL WorkDate::IsEq(LDATE dt) const
 {
 	int    dow = IsDayOfWeek();
 	if(dow)
@@ -1156,7 +1156,7 @@ int FASTCALL WorkDate::IsEq(LDATE dt) const
 				return (d.day() == dt.day() && d.month() == dt.month());
 		}
 	}
-	return 0;
+	return false;
 }
 //
 // LDATETIME
@@ -1167,9 +1167,9 @@ static LDATETIME FarMoment;
 //
 static const struct InitFarMoment { InitFarMoment() { FarMoment.d.v = MAXLONG; FarMoment.t.v = 0; } } IFM;
 
-int  LDATETIME::IsFar() const
+bool LDATETIME::IsFar() const
 {
-	return cmp(*this, FarMoment) ? 0 : 1;
+	return (cmp(*this, FarMoment) == 0);
 }
 
 LDATETIME & LDATETIME::SetFar()
@@ -1221,9 +1221,9 @@ LDATETIME & LDATETIME::Set(LDATE _d, LTIME _t)
 }
 
 int LDATETIME::Set(const char * pText, long datf, long timf) { return strtodatetime(pText, this, datf, timf); }
-int LDATETIME::operator !() const { return (d == ZERODATE && t == ZEROTIME); }
-int FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == s.d && t == s.t); }
-int FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
+bool LDATETIME::operator !() const { return (d == ZERODATE && t == ZEROTIME); }
+bool FASTCALL LDATETIME::operator == (const LDATETIME & s) const { return (d == s.d && t == s.t); }
+bool FASTCALL LDATETIME::operator != (const LDATETIME & s) const { return (d != s.d || t != s.t); }
 
 #ifndef _WIN32_WCE // {
 
@@ -1786,10 +1786,10 @@ void STimeChunk::Init(const LDATETIME & start, long cont)
 		Finish.d = ZERODATE;
 }
 
-int FASTCALL STimeChunk::operator == (const STimeChunk & rTest) const
-	{ return BIN(::cmp(this->Start, rTest.Start) == 0 && ::cmp(this->Finish, rTest.Finish) == 0); }
-int FASTCALL STimeChunk::operator != (const STimeChunk & rTest) const
-	{ return BIN(::cmp(this->Start, rTest.Start) != 0 || ::cmp(this->Finish, rTest.Finish) != 0); }
+bool FASTCALL STimeChunk::operator == (const STimeChunk & rTest) const
+	{ return (::cmp(this->Start, rTest.Start) == 0 && ::cmp(this->Finish, rTest.Finish) == 0); }
+bool FASTCALL STimeChunk::operator != (const STimeChunk & rTest) const
+	{ return (::cmp(this->Start, rTest.Start) != 0 || ::cmp(this->Finish, rTest.Finish) != 0); }
 
 int FASTCALL STimeChunk::cmp(const STimeChunk & rTest) const
 {
@@ -1797,17 +1797,17 @@ int FASTCALL STimeChunk::cmp(const STimeChunk & rTest) const
 	return NZOR(r, ::cmp(this->Finish, rTest.Finish));
 }
 
-int FASTCALL STimeChunk::ContainsIn(const STimeChunk & rDur) const
+bool FASTCALL STimeChunk::ContainsIn(const STimeChunk & rDur) const
 {
 	STimeChunk result;
-	return BIN(Intersect(rDur, &result) && *this == result);
+	return (Intersect(rDur, &result) && *this == result);
 }
 
-int FASTCALL STimeChunk::Has(const LDATETIME & rTm) const { return BIN(::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0); }
+bool FASTCALL STimeChunk::Has(const LDATETIME & rTm) const { return (::cmp(rTm, Start) >= 0 && ::cmp(rTm, Finish) <= 0); }
 
-int FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult) const
+bool FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult) const
 {
-	int    is = 0;
+	bool   is = false;
 	LDATETIME st, fn;
 	if(::cmp(Start, test.Finish) > 0 || ::cmp(Finish, test.Start) < 0) {
 		st.Z();
@@ -1816,7 +1816,7 @@ int FASTCALL STimeChunk::Intersect(const STimeChunk & test, STimeChunk * pResult
 	else {
 		st = (::cmp(Start, test.Start) > 0) ? Start : test.Start;
 		fn = (::cmp(Finish, test.Finish) < 0) ? Finish : test.Finish;
-		is = 1;
+		is = true;
 	}
 	CALLPTRMEMB(pResult, Init(st, fn));
 	return is;

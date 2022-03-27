@@ -2907,7 +2907,7 @@ int PPPosProtocol::EndElement(const char * pName)
 						case obSCard:       static_cast<SCardBlock *>(p_item)->ID = _val_id; break;
 						case obParent:      static_cast<ParentBlock *>(p_item)->ID = _val_id; break;
 						case obQuotKind:    static_cast<QuotKindBlock *>(p_item)->ID = _val_id; break;
-						case obUnit:        static_cast<UnitBlock *>(p_item)->ID = _val_id; break; // @v9.8.6
+						case obUnit:        static_cast<UnitBlock *>(p_item)->ID = _val_id; break;
 						case obCSession:    static_cast<CSessionBlock *>(p_item)->ID = _val_id; break;
 						case obCCheck:      static_cast<CCheckBlock *>(p_item)->ID = _val_id; break;
 						case obCcLine:      static_cast<CcLineBlock *>(p_item)->RByCheck = _val_id; break;
@@ -3353,7 +3353,7 @@ int PPPosProtocol::EndElement(const char * pName)
 			case PPHS_QUERYREFS:
 			case PPHS_TIMERANGE:
 			case PPHS_AMOUNTRANGE:
-			case PPHS_FILE: // @v9.9.12
+			case PPHS_FILE:
 				break;
 			default:
 				is_processed = 0;
@@ -3415,31 +3415,18 @@ void PPPosProtocol::ReadBlock::Destroy()
 	TempBuf.Z();
 	TagValue.Z();
 	SrcFileName.Z();
-	SrcFileUUID.Z(); // @v9.9.12
-	SrcFileDtm.Z(); // @v9.9.12
+	SrcFileUUID.Z();
+	SrcFileDtm.Z();
 	TokPath.freeAll();
 	RefPosStack.clear();
-	SrcBlkList.freeAll();
-	DestBlkList.freeAll();
-	GoodsBlkList.freeAll();
-	GoodsGroupBlkList.freeAll();
-	GoodsCodeList.freeAll();
-	LotBlkList.freeAll();
-	QkBlkList.freeAll();
-	UnitBlkList.freeAll(); // @v9.8.6
-	QuotBlkList.freeAll();
-	PersonBlkList.freeAll();
-	ScsBlkList.freeAll(); // @v9.8.7
-	SCardBlkList.freeAll();
-	ParentBlkList.freeAll();
-	PosBlkList.freeAll();
-	CSessBlkList.freeAll();
-	CcBlkList.freeAll();
-	CclBlkList.freeAll();
-	CcPaymBlkList.freeAll();
-	QueryList.freeAll();
-	RefList.freeAll();
-	AddressList.freeAll(); // @v10.7.5
+	SVector * vector_to_clear_list[] = {
+		&SrcBlkList, &DestBlkList, &GoodsBlkList, &GoodsGroupBlkList, &GoodsCodeList, &LotBlkList, &QkBlkList, 
+		&UnitBlkList, &QuotBlkList, &PersonBlkList, &ScsBlkList, &SCardBlkList, &ParentBlkList, &PosBlkList, 
+		&CSessBlkList, &CcBlkList, &CclBlkList, &CcPaymBlkList, &QueryList, &RefList, &AddressList
+	};
+	for(uint i = 0; i < SIZEOFARRAY(vector_to_clear_list); i++) {
+		vector_to_clear_list[i]->freeAll();
+	}
 }
 
 int PPPosProtocol::CreateGoodsGroup(const GoodsGroupBlock & rBlk, uint refPos, int isFolder, PPID * pID)
@@ -3551,17 +3538,15 @@ int PPPosProtocol::CreateParentGoodsGroup(const ParentBlock & rBlk, int isFolder
 	if(rBlk.ID || code_buf.NotEmptyS()) {
 		for(uint i = 0; i < RdB.GoodsGroupBlkList.getCount(); i++) {
 			GoodsGroupBlock & r_grp_blk = RdB.GoodsGroupBlkList.at(i);
-			int   this_block = 0;
+			bool   this_block = false;
 			if(rBlk.ID) {
-				if(r_grp_blk.ID == rBlk.ID) {
-					this_block = 1;
-				}
+				if(r_grp_blk.ID == rBlk.ID)
+					this_block = true;
 			}
 			else if(r_grp_blk.CodeP) {
 				RdB.GetS(r_grp_blk.CodeP, temp_buf);
-				if(code_buf == temp_buf) {
-					this_block = 1;
-				}
+				if(code_buf == temp_buf)
+					this_block = true;
 			}
 			if(this_block) {
 				uint   ref_pos = 0;
@@ -3645,23 +3630,20 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 		if(pretend_obj_list.getCount()) {
 			pretend_obj_list.sortAndUndup();
 			if(pretend_id) {
-				if(pretend_obj_list.lsearch(pretend_id)) {
+				if(pretend_obj_list.lsearch(pretend_id))
 					native_id = pretend_id; // Это - без сомнения наш идентификатор (соответствует и по id и по коду)
-				}
 				else {
 					// @todo Есть сомнения. Идентификатор найден, но не соответствует кодам, переданным нам вместе с ним
 					if(pretend_obj_list.getCount() == 1) {
 						native_id = pretend_obj_list.get(0); // Предпочтем значение, найденное по коду. Не уверен, но
 							// так, по-моему, надежнее, чем по идентификатору.
 					}
-					else {
+					else
 						native_id = pretend_id; // Если соответствий по кодам несколько, то идентификатор выглядит надежнее
-					}
 				}
 			}
-			else if(pretend_obj_list.getCount() == 1) {
+			else if(pretend_obj_list.getCount() == 1)
 				native_id = pretend_obj_list.get(0); // Единственный код без идентификатора - вполне надежный критерий
-			}
 			else {
 				// @todo Есть сомнения: переданы несколько кодов с разными соответствиями идентификаторам
 				native_id = pretend_obj_list.getLast(); // Пока используем последний - он скорее всего самый новый
@@ -3674,16 +3656,14 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 			if(temp_buf.NotEmpty()) {
 				temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
 				PPID   temp_id = 0;
-				if(GObj.SearchByName(temp_buf, &temp_id, 0) > 0) {
+				if(GObj.SearchByName(temp_buf, &temp_id, 0) > 0)
 					native_id = temp_id;
-				}
 				else {
 					uint   undup_pos = 0;
 					if(PPObjGoods::HasUndupNameSuffix(temp_buf, &undup_pos)) {
 						temp_buf.Trim(undup_pos).Strip();
-						if(GObj.SearchByName(temp_buf, &temp_id, 0) > 0) {
+						if(GObj.SearchByName(temp_buf, &temp_id, 0) > 0)
 							native_id = temp_id;
-						}
 					}
 				}
 				if(!native_id) {
@@ -3741,7 +3721,6 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 			}
 			if(!goods_by_ar_id) {
 				ArGoodsCodeTbl::Rec new_ar_code;
-				// @v10.6.4 MEMSZERO(new_ar_code);
 				new_ar_code.ArID = rP.SrcArID;
 				new_ar_code.Pack = 1000; // =1
 				STRNSCPY(new_ar_code.Code, temp_buf);
@@ -3756,13 +3735,11 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 		if(GObj.SearchByName(temp_buf, 0, &ex_goods_rec) > 0) {
 			if(use_ar_code && (/*goods_by_ar_id && */ex_goods_rec.ID != goods_by_ar_id)) {
 				THROW(GObj.ForceUndupName(goods_by_ar_id, temp_buf));
-				if(!GObj.UpdateName(ex_goods_rec.ID, temp_buf, 1)) { // @v10.0.09 THROW-->if(!)
-					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO); // @v10.0.09
-				}
+				if(!GObj.UpdateName(ex_goods_rec.ID, temp_buf, 1))
+					PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DBINFO);
 			}
-			else if(!use_ar_code) { // Для товара с внешним идентификатором аналог по наименованию не принимаем в расчет
+			else if(!use_ar_code) // Для товара с внешним идентификатором аналог по наименованию не принимаем в расчет
 				pretend_obj_list.add(ex_goods_rec.ID);
-			}
 		}
 		{
 			PPID   parent_id = 0;
@@ -3777,12 +3754,10 @@ int PPPosProtocol::ResolveGoodsBlock(const GoodsBlock & rBlk, uint refPos, int a
 					}
 				}
 			}
-			{
-				if(GgObj.Fetch(parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_FOLDER|GF_EXCLALTFOLD)))
-					goods_pack.Rec.ParentID = parent_id;
-				else
-					goods_pack.Rec.ParentID = rP.DefParentID;
-			}
+			if(GgObj.Fetch(parent_id, &parent_rec) > 0 && parent_rec.Kind == PPGDSK_GROUP && !(parent_rec.Flags & (GF_FOLDER|GF_EXCLALTFOLD)))
+				goods_pack.Rec.ParentID = parent_id;
+			else
+				goods_pack.Rec.ParentID = rP.DefParentID;
 		}
 		if(rBlk.UnitBlkP) {
 			int   inner_type = 0;
@@ -4126,9 +4101,8 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					PPID   native_id = 0;
 					PPQuotKind qk_rec;
 					const QuotKindBlock * p_analog = RdB.SearchAnalog_QuotKind(r_blk);
-					if(p_analog) {
+					if(p_analog)
 						r_blk.NativeID = p_analog->NativeID;
-					}
 					else {
 						PPQuotKindPacket pack;
 						RdB.GetS(r_blk.CodeP, code_buf);
@@ -4179,9 +4153,8 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 			rgp.DefUnitID = 0;
 			def_unit_name = "default";
 			while(!rgp.DefUnitID && u_obj.SearchByName(def_unit_name, 0, &u_rec) > 0) {
-				if(u_rec.Flags & PPUnit::Trade) {
+				if(u_rec.Flags & PPUnit::Trade)
 					rgp.DefUnitID = u_rec.ID;
-				}
 				else
 					(def_unit_name = "default").CatChar('-').CatLongZ(++def_counter, 3);
 			}
@@ -4240,9 +4213,8 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 						r_blk.NativeID = native_id;
 						if(is_default)
 							rgp.DefUnitID = native_id;
-						if(r_blk.NativeID && r_blk.ID) {
+						if(r_blk.NativeID && r_blk.ID)
 							unit_foreign_to_native_assoc.Add(r_blk.ID, r_blk.NativeID);
-						}
 					}
 				}
 			}
@@ -4594,9 +4566,8 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 					}
 					THROW(scs_obj.PutPacket(&native_id, &scs_pack, 0));
 					r_blk.NativeID = native_id;
-					if(r_blk.NativeID && r_blk.ID) {
+					if(r_blk.NativeID && r_blk.ID)
 						scs_foreign_to_native_assoc.Add(r_blk.ID, r_blk.NativeID);
-					}
 				}
 			}
 			THROW(tra.Commit());
@@ -4610,22 +4581,19 @@ int PPPosProtocol::AcceptData(PPID posNodeID, int silent)
 				SCardSeriesBlock & r_blk = RdB.ScsBlkList.at(i);
 				if(r_blk.Flags_ & r_blk.fRefItem) {
 					long   native_id = 0;
-					if(r_blk.ID && scs_foreign_to_native_assoc.Search(r_blk.ID, &native_id, 0) && native_id) {
+					if(r_blk.ID && scs_foreign_to_native_assoc.Search(r_blk.ID, &native_id, 0) && native_id)
 						r_blk.NativeID = native_id;
-					}
 					else {
 						PPID   temp_id = 0;
 						RdB.GetS(r_blk.NameP, name_buf);
 						name_buf.Transf(CTRANSF_UTF8_TO_INNER);
-						if(name_buf.NotEmptyS() && u_obj.SearchByName(name_buf, &temp_id, 0) > 0) {
+						if(name_buf.NotEmptyS() && u_obj.SearchByName(name_buf, &temp_id, 0) > 0)
 							r_blk.NativeID = temp_id;
-						}
 						else {
 							RdB.GetS(r_blk.CodeP, symb_buf);
 							symb_buf.Transf(CTRANSF_UTF8_TO_INNER);
-							if(symb_buf.NotEmptyS() && u_obj.SearchBySymb(symb_buf, &(temp_id = 0), 0) > 0) {
+							if(symb_buf.NotEmptyS() && u_obj.SearchBySymb(symb_buf, &(temp_id = 0), 0) > 0)
 								r_blk.NativeID = temp_id;
-							}
 						}
 					}
 				}

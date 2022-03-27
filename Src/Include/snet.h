@@ -56,9 +56,9 @@ public:
 	void   FASTCALL Copy(const InetAddr & rS);
 	operator ulong() const { return V4; }
 	InetAddr & Z();
-	int    FASTCALL IsEq(const InetAddr & rS) const;
-	int    FASTCALL operator == (const InetAddr & rS) const;
-	int    FASTCALL operator != (const InetAddr & rS) const;
+	bool   FASTCALL IsEq(const InetAddr & rS) const;
+	bool   FASTCALL operator == (const InetAddr & rS) const;
+	bool   FASTCALL operator != (const InetAddr & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
 	bool   IsEmpty() const;
 	int    GetPort() const { return Port; }

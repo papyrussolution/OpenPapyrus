@@ -106,7 +106,7 @@ class BitReader {
 		// values are there for the value midway between?
 		Xapian::termpos outof() const { return pos_k - pos_j - Xapian::termpos(k - j) + 1; }
 	};
-	std::vector<DIStack> di_stack;
+	std::vector <DIStack> di_stack;
 	DIState di_current;
 public:
 	// Construct.

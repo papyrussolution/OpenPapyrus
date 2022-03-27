@@ -1,5 +1,5 @@
 // LAYOUT-FLEX.CPP
-// Copyright (c) A.Sobolev 2020, 2021
+// Copyright (c) A.Sobolev 2020, 2021, 2022
 //
 // The code of Microsoft Flex is partialy used (https://github.com/xamarin/flex.git)
 // Copyright (c) Microsoft Corporation. All rights reserved.
@@ -57,9 +57,9 @@ SUiLayoutParam & SUiLayoutParam::SetDefault()
 int FASTCALL SUiLayoutParam::operator == (const SUiLayoutParam & rS) const { return IsEq(rS); }
 int FASTCALL SUiLayoutParam::operator != (const SUiLayoutParam & rS) const { return !IsEq(rS); }
 
-int FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
+bool FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 {
-	#define I(f) if(f != rS.f) return 0;
+	#define I(f) if(f != rS.f) return false;
 	I(Flags);
 	I(SzX);            
 	I(SzY);            
@@ -79,7 +79,7 @@ int FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 	I(Basis);          
 	I(AspectRatio);    
 	#undef I
-	return 1;
+	return true;
 }
 
 int SUiLayoutParam::Validate() const

@@ -203,26 +203,21 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 		close(state->child_stdout);
 		state->child_stdout = -1;
 	}
-
 	if(state->child != 0) {
 		/* Reap the child. */
 		do {
-			state->waitpid_return
-				= waitpid(state->child, &state->exit_status, 0);
+			state->waitpid_return = waitpid(state->child, &state->exit_status, 0);
 		} while(state->waitpid_return == -1 && errno == EINTR);
 #if defined(_WIN32) && !defined(__CYGWIN__)
 		CloseHandle(state->child);
 #endif
 		state->child = 0;
 	}
-
 	if(state->waitpid_return < 0) {
 		/* waitpid() failed?  This is ugly. */
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Child process exited badly");
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Child process exited badly");
 		return ARCHIVE_WARN;
 	}
-
 #if !defined(_WIN32) || defined(__CYGWIN__)
 	if(WIFSIGNALED(state->exit_status)) {
 #ifdef SIGPIPE
@@ -235,27 +230,18 @@ static int child_stop(struct archive_read_filter * self, struct program_filter *
 		if(WTERMSIG(state->exit_status) == SIGPIPE)
 			return ARCHIVE_OK;
 #endif
-		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC,
-		    "Child process exited with signal %d",
-		    WTERMSIG(state->exit_status));
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Child process exited with signal %d", WTERMSIG(state->exit_status));
 		return ARCHIVE_WARN;
 	}
 #endif /* !_WIN32 || __CYGWIN__ */
-
 	if(WIFEXITED(state->exit_status)) {
 		if(WEXITSTATUS(state->exit_status) == 0)
 			return ARCHIVE_OK;
-
-		archive_set_error(&self->archive->archive,
-		    ARCHIVE_ERRNO_MISC,
-		    "Child process exited with status %d",
-		    WEXITSTATUS(state->exit_status));
+		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Child process exited with status %d", WEXITSTATUS(state->exit_status));
 		return ARCHIVE_WARN;
 	}
-
 	return ARCHIVE_WARN;
 }
-
 /*
  * Use select() to decide whether the child is ready for read or write.
  */
@@ -267,9 +253,7 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 #if defined(_WIN32) && !defined(__CYGWIN__)
 	HANDLE handle = (HANDLE)_get_osfhandle(state->child_stdout);
 #endif
-
 	requested = buf_len > SSIZE_MAX ? SSIZE_MAX : buf_len;
-
 	for(;;) {
 		do {
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -282,10 +266,7 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 			 * this.  */
 			DWORD pipe_avail = -1;
 			int cnt = 2;
-
-			while(PeekNamedPipe(handle, NULL, 0, NULL,
-			    &pipe_avail, NULL) != 0 && pipe_avail == 0 &&
-			    cnt--)
+			while(PeekNamedPipe(handle, NULL, 0, NULL, &pipe_avail, NULL) != 0 && pipe_avail == 0 && cnt--)
 				Sleep(5);
 			if(pipe_avail == 0) {
 				ret = -1;
@@ -295,23 +276,17 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 #endif
 			ret = read(state->child_stdout, buf, requested);
 		} while(ret == -1 && errno == EINTR);
-
 		if(ret > 0)
 			return ret;
 		if(ret == 0 || (ret == -1 && errno == EPIPE))
-			/* Child has closed its output; reap the child
-			 * and return the status. */
-			return (child_stop(self, state));
+			return (child_stop(self, state)); // Child has closed its output; reap the child and return the status.
 		if(ret == -1 && errno != EAGAIN)
 			return -1;
-
 		if(state->child_stdin == -1) {
-			/* Block until child has some I/O ready. */
-			__archive_check_child(state->child_stdin,
-			    state->child_stdout);
+			// Block until child has some I/O ready.
+			__archive_check_child(state->child_stdin, state->child_stdout);
 			continue;
 		}
-
 		/* Get some more data from upstream. */
 		p = static_cast<const char *>(__archive_read_filter_ahead(self->upstream, 1, &avail));
 		if(!p) {
@@ -322,28 +297,23 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 				return (avail);
 			continue;
 		}
-
 		do {
 			ret = write(state->child_stdin, p, avail);
 		} while(ret == -1 && errno == EINTR);
-
 		if(ret > 0) {
-			/* Consume whatever we managed to write. */
-			__archive_read_filter_consume(self->upstream, ret);
+			__archive_read_filter_consume(self->upstream, ret); // Consume whatever we managed to write
 		}
 		else if(ret == -1 && errno == EAGAIN) {
-			/* Block until child has some I/O ready. */
-			__archive_check_child(state->child_stdin,
-			    state->child_stdout);
+			// Block until child has some I/O ready.
+			__archive_check_child(state->child_stdin, state->child_stdout);
 		}
 		else {
 			/* Write failed. */
 			close(state->child_stdin);
 			state->child_stdin = -1;
 			fcntl(state->child_stdout, F_SETFL, 0);
-			/* If it was a bad error, we're done; otherwise
-			 * it was EPIPE or EOF, and we can still read
-			 * from the child. */
+			// If it was a bad error, we're done; otherwise
+			// it was EPIPE or EOF, and we can still read from the child. 
 			if(ret == -1 && errno != EPIPE)
 				return -1;
 		}
@@ -352,20 +322,14 @@ static ssize_t child_read(struct archive_read_filter * self, char * buf, size_t 
 
 int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 {
-	struct program_filter   * state;
 	static const size_t out_buf_len = 65536;
-	char * out_buf;
 	const char * prefix = "Program: ";
 	int ret;
-	size_t l;
-
-	l = strlen(prefix) + strlen(cmd) + 1;
-	state = (struct program_filter *)SAlloc::C(1, sizeof(*state));
-	out_buf = (char *)SAlloc::M(out_buf_len);
-	if(state == NULL || out_buf == NULL ||
-	    archive_string_ensure(&state->description, l) == NULL) {
-		archive_set_error(&self->archive->archive, ENOMEM,
-		    "Can't allocate input data");
+	size_t l = strlen(prefix) + strlen(cmd) + 1;
+	struct program_filter * state = (struct program_filter *)SAlloc::C(1, sizeof(*state));
+	char * out_buf = (char *)SAlloc::M(out_buf_len);
+	if(state == NULL || out_buf == NULL || archive_string_ensure(&state->description, l) == NULL) {
+		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate input data");
 		if(state != NULL) {
 			archive_string_free(&state->description);
 			SAlloc::F(state);
@@ -375,82 +339,58 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 	}
 	archive_strcpy(&state->description, prefix);
 	archive_strcat(&state->description, cmd);
-
 	self->code = ARCHIVE_FILTER_PROGRAM;
 	self->name = state->description.s;
-
 	state->out_buf = out_buf;
 	state->out_buf_len = out_buf_len;
-
-	ret = __archive_create_child(cmd, &state->child_stdin,
-		&state->child_stdout, &state->child);
+	ret = __archive_create_child(cmd, &state->child_stdin, &state->child_stdout, &state->child);
 	if(ret != ARCHIVE_OK) {
 		SAlloc::F(state->out_buf);
 		archive_string_free(&state->description);
 		SAlloc::F(state);
-		archive_set_error(&self->archive->archive, EINVAL,
-		    "Can't initialize filter; unable to run program \"%s\"",
-		    cmd);
+		archive_set_error(&self->archive->archive, EINVAL, "Can't initialize filter; unable to run program \"%s\"", cmd);
 		return ARCHIVE_FATAL;
 	}
-
 	self->data = state;
 	self->read = program_filter_read;
 	self->skip = NULL;
 	self->close = program_filter_close;
-
 	/* XXX Check that we can read at least one byte? */
 	return ARCHIVE_OK;
 }
 
 static int program_bidder_init(struct archive_read_filter * self)
 {
-	struct program_bidder   * bidder_state;
-
-	bidder_state = (struct program_bidder *)self->bidder->data;
+	struct program_bidder * bidder_state = (struct program_bidder *)self->bidder->data;
 	return (__archive_read_program(self, bidder_state->cmd));
 }
 
 static ssize_t program_filter_read(struct archive_read_filter * self, const void ** buff)
 {
-	struct program_filter * state;
 	ssize_t bytes;
-	size_t total;
-	char * p;
-
-	state = (struct program_filter *)self->data;
-
-	total = 0;
-	p = state->out_buf;
+	struct program_filter * state = (struct program_filter *)self->data;
+	size_t total = 0;
+	char * p = state->out_buf;
 	while(state->child_stdout != -1 && total < state->out_buf_len) {
 		bytes = child_read(self, p, state->out_buf_len - total);
 		if(bytes < 0)
-			/* No recovery is possible if we can no longer
-			 * read from the child. */
-			return ARCHIVE_FATAL;
+			return ARCHIVE_FATAL; // No recovery is possible if we can no longer read from the child.
 		if(bytes == 0)
-			/* We got EOF from the child. */
-			break;
+			break; // We got EOF from the child
 		total += bytes;
 		p += bytes;
 	}
-
 	*buff = state->out_buf;
 	return (total);
 }
 
 static int program_filter_close(struct archive_read_filter * self)
 {
-	struct program_filter   * state;
-	int e;
-
-	state = (struct program_filter *)self->data;
-	e = child_stop(self, state);
-
-	/* Release our private data. */
+	struct program_filter * state = (struct program_filter *)self->data;
+	int e = child_stop(self, state);
+	// Release our private data
 	SAlloc::F(state->out_buf);
 	archive_string_free(&state->description);
 	SAlloc::F(state);
-
 	return (e);
 }

@@ -1611,8 +1611,8 @@ struct SCodepageIdent {
 	operator int() const;
 	operator SCodepage() const;
 	SCodepageIdent & FASTCALL operator = (SCodepage cp);
-	int    FASTCALL operator == (SCodepage cp) const;
-	int    FASTCALL operator != (SCodepage cp) const;
+	bool   FASTCALL operator == (SCodepage cp) const;
+	bool   FASTCALL operator != (SCodepage cp) const;
 	int    FASTCALL FromStr(const char * pStr);
 	int    ToStr(int format, SString & rBuf) const;
 
@@ -1674,10 +1674,11 @@ public:
 };
 
 enum SEOLFormat {
-	eolUndef = 0,
-	eolWindows,   // xDxA
-	eolUnix,      // xA
-	eolMac,       // xD
+	eolAny   = -1, // @v11.3.6 Любая комбинация ('\x0D'; '\x0A'; '\x0D\x0A'; '\x0A\x0D') трактуется как конец строки
+	eolUndef = 0,  // Неопределен
+	eolWindows,    // \x0D\x0A
+	eolUnix,       // \x0A
+	eolMac,        // \x0D
 	eolSpcICalendar // @v11.0.3 Специальный тип строки: если после \xD\xA встречается пробел, то это трактуется как продолжение текущей строки
 };
 //
@@ -1997,8 +1998,8 @@ public:
 	LDATE  IsDate() const;
 	int    IsDayOfWeek() const;
 	LDATE  IsDayOfYear() const;
-	int    FASTCALL IsEq(LDATE) const;
-	int    FASTCALL IsEq(WorkDate) const;
+	bool   FASTCALL IsEq(LDATE) const;
+	bool   FASTCALL IsEq(WorkDate) const;
 	int    GetVal() const;
 private:
 	static LDATE InitDate; // @global
@@ -2017,9 +2018,9 @@ struct LDATETIME {
 	//
 	// Descr: Возвращает !0 если d == ZERODATE && t == ZEROTIME
 	//
-	int    operator !() const;
-	int    FASTCALL operator == (const LDATETIME & s) const;
-	int    FASTCALL operator != (const LDATETIME & s) const;
+	bool   operator !() const;
+	bool   FASTCALL operator == (const LDATETIME & s) const;
+	bool   FASTCALL operator != (const LDATETIME & s) const;
 	operator LDATE () const { return d; }
 	operator OleDate() const;
 	LDATETIME FASTCALL operator = (OleDate);
@@ -2029,7 +2030,7 @@ struct LDATETIME {
 	LDATETIME & SetFar(); // far-moment: (LDATE)d = MAXLONG, (LTIME)t = 0
 	LDATETIME & FASTCALL SetTimeT(time_t t);
 	time_t GetTimeT() const;
-	int    IsFar() const;
+	bool   IsFar() const;
 	//
 	// Decr: Устанавливает дату-время, разбирая строку pText в соответствии с форматами datf и timf.
 	//
@@ -2086,8 +2087,8 @@ struct STimeChunk {
 	//   !0 - точки начала и окончания this и rTest совпадают
 	//   0  - точки начала и окончания this и rTest не совпадают
 	//
-	int    FASTCALL operator == (const STimeChunk & rTest) const;
-	int    FASTCALL operator != (const STimeChunk & rTest) const;
+	bool   FASTCALL operator == (const STimeChunk & rTest) const;
+	bool   FASTCALL operator != (const STimeChunk & rTest) const;
 	//
 	// Descr: Сравнивает *this с элементом rTest.
 	//   Сравнение осуществляется каскадно: сначала Start, затем Finish.
@@ -2097,7 +2098,7 @@ struct STimeChunk {
 	//   ==0 - *this == rTest
 	//
 	int    FASTCALL cmp(const STimeChunk & rTest) const;
-	int    FASTCALL Has(const LDATETIME & rTm) const;
+	bool   FASTCALL Has(const LDATETIME & rTm) const;
 	//
 	// Descr: Находит пересечение отрезков *this и rTest.
 	// ARG(rTest    IN): Отрезок, на пересечение с которым проверяется *this.
@@ -2107,12 +2108,12 @@ struct STimeChunk {
 	//   !0 - отрезки *this и rTest пересекаются //
 	//   0  - отрезки *this и rTest не пересекаются //
 	//
-	int    FASTCALL Intersect(const STimeChunk & rTest, STimeChunk * pResult) const;
+	bool   FASTCALL Intersect(const STimeChunk & rTest, STimeChunk * pResult) const;
 	//
 	// Descr: Определяет, содержится ли период this в периоде rDur.
 	//   Если this полностью содержится в rDur, то функция возвращает !0.
 	//
-	int    FASTCALL ContainsIn(const STimeChunk & rDur) const;
+	bool   FASTCALL ContainsIn(const STimeChunk & rDur) const;
 	//
 	// Descr: Возвращает продолжительность элемента в секундах.
 	//   Если продолжительность не определена (бесконечна), то возвращает -1.
@@ -4802,6 +4803,16 @@ FORCEINLINE size_t sstrlen(const wchar_t * pStr) { return pStr  ? wcslen(pStr) :
 FORCEINLINE int    sstrleni(const char * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const uchar * pStr) { return static_cast<int>(sstrlen(pStr)); }
 FORCEINLINE int    sstrleni(const wchar_t * pStr) { return static_cast<int>(sstrlen(pStr)); }
+//
+// Descr: Если по указателю pStr находится символ (символы) перевода строки, то возвращает
+//   длину комбинации (1 или 2), в противном случае возвращает 0.
+//   Формат перевода строки определяется параметром eolf. 
+//   Если указатель pStr нулевой, то возвращает 0.
+// Attention! Функция может "заглядывать" на один символ вперед указателя pStr. Это значит, что
+//   для полной безопасности (защиты от неавторизованного доступа к памяти) настоятельно рекомендуется //
+//   передавать указатель на буфер, заканчивающийся каким либо валидным символом, отличным от \xD и \xA. Например, нулем.
+//
+uint   FASTCALL iseol(const char * pStr, SEOLFormat eolf);
 size_t FASTCALL sstrnlen(const char * pStr, size_t maxLen);
 const char * FASTCALL sstrchr(const char * pStr, char c);
 char  * FASTCALL sstrchr(char * pStr, char c);
@@ -5356,7 +5367,7 @@ int   STDCALL strtodatetime(const char * pBuf, LDATETIME * pDtm, long datFmt, lo
 //
 struct BNField {
 	uint   size() const { return stsize(T); }
-	int    IsEq(const BNField & rS, int nameAndTypeOnly = 0) const;
+	bool   IsEq(const BNField & rS, int nameAndTypeOnly = 0) const;
 	int    getValue(const void * pDataBuf, void * pValBuf, size_t * pSize) const;
 	int    setValue(void * pDataBuf, const void * pValBuf) const;
 	int    putValueToString(const void * pDataBuf, char * pBuf) const;
@@ -5378,7 +5389,7 @@ public:
 	~BNFieldList();
 	BNFieldList & FASTCALL operator = (const BNFieldList &);
 	int    FASTCALL copy(const BNFieldList *);
-	int    IsEq(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
+	bool   IsEq(const BNFieldList & rS, int nameAndTypeOnly = 0) const;
 	void   reset();
 	int    addField(const char * pName, TYPEID type, int id = UNDEF);
 	int    FASTCALL addField(const BNField &);
@@ -6267,8 +6278,8 @@ public:
 	//   <0 - попытка удалить отрезок с идентификатором id провалилась поскольку такой идентификатор в пуле не найден
 	//    0 - ошибка (например, недостаточно памяти).
 	//
-	int    Put(uint32 id, const void * pData, uint32 size, DeflateStrategy * pDs = 0);
-	int    Put(uint32 id, const SBinaryChunk & rData, DeflateStrategy * pDs = 0);
+	int    Put(uint32 id, const void * pData, uint32 size, const DeflateStrategy * pDs = 0);
+	int    Put(uint32 id, const SBinaryChunk & rData, const DeflateStrategy * pDs = 0);
 	//
 	// Descr: Ищет отрезок с идентификатором id в пуле и, если таковой найден, то
 	//   копирует содержимое отрезка в буфер по указателю pResult (если pResult != 0).
@@ -7779,9 +7790,9 @@ public:
 class FloatArray : public TSVector <float> {
 public:
 	FloatArray();
-	int    FASTCALL operator == (const FloatArray & rS) const;
-	int    FASTCALL operator != (const FloatArray & rS) const;
-	int    FASTCALL IsEq(const FloatArray *) const;
+	bool   FASTCALL operator == (const FloatArray & rS) const;
+	bool   FASTCALL operator != (const FloatArray & rS) const;
+	bool   FASTCALL IsEq(const FloatArray *) const;
 	int    FASTCALL add(float);
 	int    FASTCALL add(SPoint2F);
 	float  FASTCALL get(uint) const;
@@ -7805,14 +7816,17 @@ public:
 	LongArray();
 	LongArray(const LongArray & s);
 	LongArray & FASTCALL operator = (const LongArray & s);
-	int    FASTCALL operator == (const LongArray & rS) const;
-	int    FASTCALL operator != (const LongArray & rS) const;
+	bool   FASTCALL operator == (const LongArray & rS) const;
+	bool   FASTCALL operator != (const LongArray & rS) const;
 	int    ordInsert(long, uint * pPos);
 	int    FASTCALL bsearch(long, uint * pPos) const;
 	int    FASTCALL lsearch(long, uint * pPos) const;
 	int    FASTCALL bsearch(long) const;
 	int    FASTCALL lsearch(long) const;
-	int    isList() const;
+	//
+	// Descr: Возвращает true если количество элементом массива более 1.
+	//
+	bool   isList() const;
 	bool   FASTCALL IsEq(const LongArray *) const;
 	long   FASTCALL get(uint) const;
 	long   getSingle() const;
@@ -7828,7 +7842,10 @@ public:
 	int    FASTCALL removeByID(long);                  // @warning dup function (see above)
 	void   sort();
 	void   sortAndUndup();
-	int    isSorted() const;
+	//
+	// Descr: Возвращает true если элементы массива расположены в сортированном порядке (low to high)
+	//
+	bool   isSorted() const;
 	//
 	// Descr: оставляет в массиве только те элементы, которые одновременно содержатся в
 	//   массиве pList. Если pList == 0, то массив this очищается (freeAll).
@@ -8461,7 +8478,7 @@ public:
 	StrStrAssocArray & FASTCALL operator = (const StrStrAssocArray &);
 	int    FASTCALL Copy(const StrStrAssocArray &);
 	StrStrAssocArray & Z();
-	int    FASTCALL IsEq(const StrStrAssocArray & src) const;
+	bool   FASTCALL IsEq(const StrStrAssocArray & src) const;
 	uint   getCount() const;
 	Item   FASTCALL at(uint pos) const;
 	int    Search(const char * pKey, SString * pVal, uint * pPos) const;
@@ -9218,7 +9235,7 @@ public:
 	//
 	void   Clear();
 	size_t getCount() const;
-	int    FASTCALL IsEq(const BitArray &) const;
+	bool   FASTCALL IsEq(const BitArray &) const;
 	//
 	// Descr: Возвращает количество бит, соответствующих величине val.
 	//   Т.е. если val == 0, то возвращает количество нулевых бит,
@@ -9348,7 +9365,7 @@ public:
 	int    FASTCALL Copy(const SV_Uint32 &);
 	int    FASTCALL Add(uint32);
 	int    Add(uint count, const uint32 * pSrc);
-	int    FASTCALL IsEq(const SV_Uint32 & rPat) const;
+	bool   FASTCALL IsEq(const SV_Uint32 & rPat) const;
 	bool   Search(uint val, uint * pPos) const;
 	uint   GetCount() const;
 	uint32 FASTCALL Get(uint idx) const;
@@ -9995,6 +10012,16 @@ public:
 	int    WriteBlancLine();
 	int    FASTCALL ReadLine(SString &);
 	//
+	// Descr: Считывает все доступное содержание файла, начиная с текущей позиции, в буфер rBuf.
+	//   Если maxSize != 0, то считывает не более maxSize. В случае успеха по указателю pActualSize
+	//   возвращает количество считанных байт.
+	// Returns:
+	//   >0 - функция завершилась успешно
+	//    0 - ошибка
+	//   <0 - функция ничего не считала (*pActualSize == 0). Например из-за того, что файл пустой или текущая позиция файла уже в самом конце его.
+	//
+	int    ReadAll(STempBuffer & rBuf, size_t maxSize, size_t * pActualSize);
+	//
 	// Descr: Высокоуровневая функция записи буфера rBuf в поток.
 	//   Сначала записывает размер буфера, затем - данные.
 	// Returns:
@@ -10499,6 +10526,7 @@ private:
 };
 
 SUnicodeMode FASTCALL SDetermineUtfEncoding(const void * pBuf, size_t bufLen);
+size_t FASTCALL SGetUnicodeModeBomSize(SUnicodeMode m);
 SEOLFormat FASTCALL SDetermineEOLFormat(const void * pBuf, size_t bufLen);
 
 class STextEncodingStat {
@@ -11071,10 +11099,10 @@ public:
 	// ARG(flags   IN): Флаги поиска. Ноль или |-комбинация одного или нескольких флагов: fNotBOL, fNotEOL, fNotBeginString,
 	//   fNotEndString, fNotBeginPosition.
 	//
-	int    Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char * arg
-	int    Find(const char * pText);
-	int    Find(SStrScan * pScan, uint flags);
-	int    Find(SStrScan * pScan);
+	bool   Find(const char * pText, size_t textLen, uint flags, FindResult * pResult); // TRUE if regexp in char * arg
+	bool   Find(const char * pText);
+	bool   Find(SStrScan * pScan, uint flags);
+	bool   Find(SStrScan * pScan);
 	Error  GetLastErr() const;
 	bool   IsValid() const;
 private:
@@ -11360,7 +11388,7 @@ struct SStrScan : public SRegExpSet {
 	//   !0 - текущий символ является началом ML-тега '<'
 	//   0  - текущий символ не равен '<'
 	//
-	int    FASTCALL IsTagBrace() const;
+	bool   FASTCALL IsTagBrace() const;
 	//
 	// Descr: Извлекает из потока обрамление ML-тега <xxx>.
 	//   Если это обрамление присутствует в потоке, то в буфер rText заносит текст
@@ -11376,9 +11404,9 @@ struct SStrScan : public SRegExpSet {
 	//   0  - по текущей позиции нет тега, либо тег ошибочный
 	//
 	int    FASTCALL GetTagBrace(SString & rText, int * pKind);
-	int    FASTCALL IsRe(long reHandler);
+	bool   FASTCALL IsRe(long reHandler);
 	int    GetRe(long reHandler, SString & rBuf);
-	int    FASTCALL Is(const char * pS) const;
+	bool   FASTCALL Is(const char * pS) const;
 	//
 	// Descr: Проверяет, является ли следующим символом c.
 	//
@@ -13036,8 +13064,8 @@ public:
 	friend SPoint2S operator - (SPoint2S one, SPoint2S two);
 	friend SPoint2S operator + (SPoint2S one, SPoint2S two);
 	friend SPoint2S operator + (SPoint2S pnt, int _x);
-	friend int operator == (SPoint2S one, SPoint2S two);
-	friend int operator != (SPoint2S one, SPoint2S two);
+	friend bool operator == (SPoint2S one, SPoint2S two);
+	friend bool operator != (SPoint2S one, SPoint2S two);
 
 	int16  x;
 	int16  y;
@@ -13110,8 +13138,8 @@ public:
 	//   Если точка содержится в прямоугольнике, но не на границе, то функция возвращает 1000.
 	//
 	int    FASTCALL contains(SPoint2S p) const;
-	int    FASTCALL operator == (const TRect& r) const;
-	int    FASTCALL operator != (const TRect& r) const;
+	bool   FASTCALL operator == (const TRect& r) const;
+	bool   FASTCALL operator != (const TRect& r) const;
 
 	SPoint2S a;
 	SPoint2S b;
@@ -13127,9 +13155,9 @@ public:
 	SRegion(const TRect & rRc);
 	~SRegion();
 	void   Destroy();
-	int operator !() const;
+	bool   operator !() const;
 	SRegion & FASTCALL operator = (const SRegion & rS);
-	int    FASTCALL operator == (const SRegion & rS) const;
+	bool   FASTCALL operator == (const SRegion & rS) const;
 	int    Add(const TRect & rR, int combine);
 	int    Add(const SRegion & rS, int combine);
 	//

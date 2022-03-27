@@ -5,7 +5,6 @@
 // tree. An additional intellectual property rights grant can be found
 // in the file PATENTS. All contributing project authors may
 // be found in the AUTHORS file in the root of the source tree.
-// -----------------------------------------------------------------------------
 //
 //  WebP container demux.
 //
@@ -96,19 +95,14 @@ static const ChunkParser kMasterChunks[] = {
 	{ { '0', '0', '0', '0' }, NULL,             NULL },
 };
 
-//------------------------------------------------------------------------------
-
-int WebPGetDemuxVersion(void) {
-	return (DMUX_MAJ_VERSION << 16) | (DMUX_MIN_VERSION << 8) | DMUX_REV_VERSION;
-}
+int WebPGetDemuxVersion(void) { return (DMUX_MAJ_VERSION << 16) | (DMUX_MIN_VERSION << 8) | DMUX_REV_VERSION; }
 
 // -----------------------------------------------------------------------------
 // MemBuffer
 
-static int RemapMemBuffer(MemBuffer* const mem,
-    const uint8* data, size_t size) {
+static int RemapMemBuffer(MemBuffer* const mem, const uint8* data, size_t size) 
+{
 	if(size < mem->buf_size_) return 0; // can't remap to a shorter buffer!
-
 	mem->buf_ = data;
 	mem->end_ = mem->buf_size_ = size;
 	return 1;

@@ -189,8 +189,8 @@ static inline void SplitStringToIteratorUsing(StringPiece full,
 }
 
 void SplitStringUsing(StringPiece full, const char * delim,
-    std::vector<std::string> * result) {
-	std::back_insert_iterator<std::vector<std::string> > it(*result);
+    std::vector <std::string> * result) {
+	std::back_insert_iterator<std::vector <std::string> > it(*result);
 	SplitStringToIteratorUsing(full, delim, it);
 }
 
@@ -226,8 +226,8 @@ static inline void SplitStringToIteratorAllowEmpty(StringPiece full,
 }
 
 void SplitStringAllowEmpty(StringPiece full, const char * delim,
-    std::vector<std::string> * result) {
-	std::back_insert_iterator<std::vector<std::string> > it(*result);
+    std::vector <std::string> * result) {
+	std::back_insert_iterator<std::vector <std::string> > it(*result);
 	SplitStringToIteratorAllowEmpty(full, delim, 0, it);
 }
 
@@ -262,7 +262,7 @@ static void JoinStringsIterator(const ITERATOR &start, const ITERATOR &end,
 	}
 }
 
-void JoinStrings(const std::vector<std::string> &components, const char * delim, std::string * result) 
+void JoinStrings(const std::vector <std::string> &components, const char * delim, std::string * result) 
 {
 	JoinStringsIterator(components.begin(), components.end(), delim, result);
 }
@@ -289,7 +289,7 @@ int UnescapeCEscapeSequences(const char* source, char* dest) {
 	return UnescapeCEscapeSequences(source, dest, nullptr);
 }
 
-int UnescapeCEscapeSequences(const char * source, char * dest, std::vector<std::string> * errors) 
+int UnescapeCEscapeSequences(const char * source, char * dest, std::vector <std::string> * errors) 
 {
 	GOOGLE_DCHECK(errors == nullptr) << "Error reporting not implemented.";
 	char* d = dest;
@@ -419,7 +419,7 @@ int UnescapeCEscapeString(const std::string &src, std::string * dest)
 	return UnescapeCEscapeString(src, dest, nullptr);
 }
 
-int UnescapeCEscapeString(const std::string &src, std::string * dest, std::vector<std::string> * errors) 
+int UnescapeCEscapeString(const std::string &src, std::string * dest, std::vector <std::string> * errors) 
 {
 	std::unique_ptr<char[]> unescaped(new char[src.size() + 1]);
 	int len = UnescapeCEscapeSequences(src.c_str(), unescaped.get(), errors);

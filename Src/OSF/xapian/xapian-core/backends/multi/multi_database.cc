@@ -357,7 +357,7 @@ void MultiDatabase::keep_alive()
 
 TermList* MultiDatabase::open_spelling_termlist(const string & word) const
 {
-	vector<TermList*> termlists;
+	vector <TermList*> termlists;
 	termlists.reserve(shards.size());
 
 	try {
@@ -378,7 +378,7 @@ TermList* MultiDatabase::open_spelling_termlist(const string & word) const
 
 TermList* MultiDatabase::open_spelling_wordlist() const
 {
-	vector<TermList*> termlists;
+	vector <TermList*> termlists;
 	termlists.reserve(shards.size());
 	try {
 		for(auto&& shard : shards) {
@@ -409,7 +409,7 @@ Xapian::doccount MultiDatabase::get_spelling_frequency(const string & word) cons
 
 TermList* MultiDatabase::open_synonym_termlist(const string & term) const
 {
-	vector<TermList*> termlists;
+	vector <TermList*> termlists;
 	termlists.reserve(shards.size());
 	try {
 		for(auto&& shard : shards) {
@@ -428,7 +428,7 @@ TermList* MultiDatabase::open_synonym_termlist(const string & term) const
 
 TermList* MultiDatabase::open_synonym_keylist(const string & prefix) const
 {
-	vector<TermList*> termlists;
+	vector <TermList*> termlists;
 	termlists.reserve(shards.size());
 	try {
 		for(auto&& shard : shards) {

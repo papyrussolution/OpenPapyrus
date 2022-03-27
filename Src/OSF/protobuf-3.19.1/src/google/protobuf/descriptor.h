@@ -142,7 +142,7 @@ struct SourceLocation {
 	// See the comments in SourceCodeInfo.Location (descriptor.proto) for details.
 	std::string leading_comments;
 	std::string trailing_comments;
-	std::vector<std::string> leading_detached_comments;
+	std::vector <std::string> leading_detached_comments;
 };
 
 // Options when generating machine-parsable output from a descriptor with
@@ -517,7 +517,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	// True if this is a placeholder for an unknown type.
 	bool is_placeholder_ : 1;
@@ -883,7 +883,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	// Returns true if this is a map message type.
 	bool is_map_message_type() const;
@@ -1030,7 +1030,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	int field_count_;
 
@@ -1173,7 +1173,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	// True if this is a placeholder for an unknown type.
 	bool is_placeholder_ : 1;
@@ -1284,7 +1284,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	int number_;
 	// all_names_ = [name, full_name]
@@ -1367,7 +1367,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	// all_names_ = [name, full_name]
 	const std::string* all_names_;
@@ -1455,7 +1455,7 @@ private:
 
 	// Walks up the descriptor tree to generate the source location path
 	// to this descriptor from the file root.
-	void GetLocationPath(std::vector<int>* output) const;
+	void GetLocationPath(std::vector <int>* output) const;
 
 	bool client_streaming_;
 	bool server_streaming_;
@@ -1613,7 +1613,7 @@ public:
 	// Returns false and leaves |*out_location| unchanged iff location
 	// information was not available.  (See SourceCodeInfo for
 	// description of path encoding.)
-	bool GetSourceLocation(const std::vector<int>& path,
+	bool GetSourceLocation(const std::vector <int>& path,
 	    SourceLocation* out_location) const;
 
 private:
@@ -1792,7 +1792,7 @@ public:
 	// found: extensions defined in the fallback database might not be found
 	// depending on the database implementation.
 	void FindAllExtensions(const Descriptor* extendee,
-	    std::vector<const FieldDescriptor*>* out) const;
+	    std::vector <const FieldDescriptor*>* out) const;
 
 	// Building descriptors --------------------------------------------
 

@@ -774,13 +774,13 @@ size_t TInputLine::getCaret()
 {
 	POINT p;
 	GetCaretPos(&p);
-	DWORD c = ::SendMessage(getHandle(), EM_CHARFROMPOS, 0, MAKELPARAM(p.x, p.y));
+	const DWORD c = ::SendMessage(getHandle(), EM_CHARFROMPOS, 0, MAKELPARAM(p.x, p.y));
 	return LoWord(c);
 }
 
 void TInputLine::setCaret(size_t pos)
 {
-	DWORD c = ::SendMessage(getHandle(), EM_POSFROMCHAR, pos, pos /**/);
+	const DWORD c = ::SendMessage(getHandle(), EM_POSFROMCHAR, pos, pos /**/);
 	SetCaretPos(LoWord(c), HiWord(c));
 }
 

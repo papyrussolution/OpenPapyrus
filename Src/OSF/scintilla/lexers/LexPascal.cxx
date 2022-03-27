@@ -118,11 +118,7 @@
 using namespace Scintilla;
 #endif
 
-static void GetRangeLowered(Sci_PositionU start,
-    Sci_PositionU end,
-    Accessor & styler,
-    char * s,
-    Sci_PositionU len)
+static void GetRangeLowered(Sci_PositionU start, Sci_PositionU end, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < end - start + 1) && (i < len-1)) {
@@ -132,11 +128,7 @@ static void GetRangeLowered(Sci_PositionU start,
 	s[i] = '\0';
 }
 
-static void GetForwardRangeLowered(Sci_PositionU start,
-    CharacterSet &charSet,
-    Accessor & styler,
-    char * s,
-    Sci_PositionU len)
+static void GetForwardRangeLowered(Sci_PositionU start, CharacterSet &charSet, Accessor & styler, char * s, Sci_PositionU len)
 {
 	Sci_PositionU i = 0;
 	while((i < len-1) && charSet.Contains(styler.SafeGetCharAt(start + i))) {
@@ -383,11 +375,10 @@ static void SetFoldInPreprocessorLevelFlag(int &lineFoldStateCurrent, uint nestL
 	lineFoldStateCurrent |= nestLevel & stateFoldInPreprocessorLevelMask;
 }
 
-static void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFoldStateCurrent,
-    Sci_PositionU startPos, Accessor & styler)
+static void ClassifyPascalPreprocessorFoldPoint(int &levelCurrent, int &lineFoldStateCurrent, Sci_PositionU startPos, Accessor & styler)
 {
 	CharacterSet setWord(CharacterSet::setAlpha);
-	char s[11];     // Size of the longest possible keyword + one additional character + null
+	char   s[11]; // Size of the longest possible keyword + one additional character + null
 	GetForwardRangeLowered(startPos, setWord, styler, s, sizeof(s));
 	uint nestLevel = GetFoldInPreprocessorLevelFlag(lineFoldStateCurrent);
 	if(sstreq(s, "if") || sstreq(s, "ifdef") || sstreq(s, "ifndef") || sstreq(s, "ifopt") || sstreq(s, "region")) {
@@ -421,11 +412,10 @@ static Sci_PositionU SkipWhiteSpace(Sci_PositionU currentPos, Sci_PositionU endP
 	return j;
 }
 
-static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCurrent,
-    Sci_Position startPos, Sci_PositionU endPos,
+static void ClassifyPascalWordFoldPoint(int &levelCurrent, int &lineFoldStateCurrent, Sci_Position startPos, Sci_PositionU endPos,
     Sci_PositionU lastStart, Sci_PositionU currentPos, Accessor & styler)
 {
-	char s[100];
+	char   s[128];
 	GetRangeLowered(lastStart, currentPos, styler, s, sizeof(s));
 	if(sstreq(s, "record")) {
 		lineFoldStateCurrent |= stateFoldInRecord;

@@ -88,7 +88,7 @@ private:
 };
 
 void ExtensionSet::AppendToList(const Descriptor* containing_type, const DescriptorPool* pool,
-    std::vector<const FieldDescriptor*>* output) const {
+    std::vector <const FieldDescriptor*>* output) const {
 	ForEach([containing_type, pool, &output](int number, const Extension& ext) {
 					bool has = false;
 					if(ext.is_repeated) {

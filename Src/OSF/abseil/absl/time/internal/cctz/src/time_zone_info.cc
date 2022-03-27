@@ -399,7 +399,7 @@ bool TimeZoneInfo::Load(ZoneInfoSource* zip)
 
 	// Read the data into a local buffer.
 	std::size_t len = hdr.DataLength(time_len);
-	std::vector<char> tbuf(len);
+	std::vector <char> tbuf(len);
 	if(zip->Read(tbuf.data(), len) != len) return false;
 	const char* bp = tbuf.data();
 

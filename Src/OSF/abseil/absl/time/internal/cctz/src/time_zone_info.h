@@ -111,8 +111,8 @@ class TimeZoneInfo : public TimeZoneIf {
   time_zone::civil_lookup TimeLocal(const civil_second& cs,
                                     year_t c4_shift) const;
 
-  std::vector<Transition> transitions_;  // ordered by unix_time and civil_sec
-  std::vector<TransitionType> transition_types_;  // distinct transition types
+  std::vector <Transition> transitions_;  // ordered by unix_time and civil_sec
+  std::vector <TransitionType> transition_types_;  // distinct transition types
   std::uint_fast8_t default_transition_type_;     // for before first transition
   std::string abbreviations_;  // all the NUL-terminated abbreviations
 

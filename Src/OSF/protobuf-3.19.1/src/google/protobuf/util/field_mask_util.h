@@ -41,7 +41,7 @@ namespace google {
 
 				// Populates the FieldMask with the paths corresponding to the fields with the
 				// given numbers, after checking that all field numbers are valid.
-				template <typename T> static void FromFieldNumbers(const std::vector<int64_t>& field_numbers, FieldMask* out) 
+				template <typename T> static void FromFieldNumbers(const std::vector <int64_t>& field_numbers, FieldMask* out) 
 				{
 					for(const auto field_number : field_numbers) {
 						const FieldDescriptor* field_desc = T::descriptor()->FindFieldByNumber(field_number);
@@ -61,7 +61,7 @@ namespace google {
 				// descriptor traverses, if field_descriptors is not null.
 				// Return false if the path is not valid, and the content of field_descriptors
 				// is unspecified.
-				static bool GetFieldDescriptors(const Descriptor* descriptor, StringPiece path, std::vector<const FieldDescriptor*>* field_descriptors);
+				static bool GetFieldDescriptors(const Descriptor* descriptor, StringPiece path, std::vector <const FieldDescriptor*>* field_descriptors);
 
 				// Checks whether the given path is valid for type T.
 				template <typename T>

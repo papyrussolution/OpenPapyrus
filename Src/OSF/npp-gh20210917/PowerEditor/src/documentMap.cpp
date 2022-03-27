@@ -16,7 +16,7 @@ void DocumentMap::reloadMap()
 		Buffer * editBuf = (*_ppEditView)->getCurrentBuffer();
 		_pMapView->setCurrentBuffer(editBuf);
 		// folding
-		std::vector<size_t> lineStateVector;
+		std::vector <size_t> lineStateVector;
 		(*_ppEditView)->getCurrentFoldStates(lineStateVector);
 		_pMapView->syncFoldStateWith(lineStateVector);
 		// Wrapping
@@ -34,7 +34,7 @@ void DocumentMap::showInMapTemporarily(Buffer * buf2show, ScintillaEditView * fr
 		_pMapView->setCurrentBuffer(buf2show);
 
 		// folding
-		const std::vector<size_t> & lineStateVector = buf2show->getHeaderLineState(fromEditView);
+		const std::vector <size_t> & lineStateVector = buf2show->getHeaderLineState(fromEditView);
 		_pMapView->syncFoldStateWith(lineStateVector);
 
 		// Wrapping
