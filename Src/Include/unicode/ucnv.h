@@ -592,7 +592,7 @@ U_NAMESPACE_END
  * @see ucnv_setSubstChars
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_getSubstChars(const UConverter * converter, char * subChars, int8_t * len, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_getSubstChars(const UConverter * converter, char * subChars, int8 * len, UErrorCode * err);
 /**
  * Sets the substitution chars when converting from unicode to a codepage. The
  * substitution is specified as a string of 1-4 bytes, and may contain
@@ -612,7 +612,7 @@ U_CAPI void U_EXPORT2 ucnv_getSubstChars(const UConverter * converter, char * su
  * @see ucnv_getSubstChars
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_setSubstChars(UConverter * converter, const char * subChars, int8_t len, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_setSubstChars(UConverter * converter, const char * subChars, int8 len, UErrorCode * err);
 /**
  * Set a substitution string for converting from Unicode to a charset.
  * The caller need not know the charset byte sequence for each charset.
@@ -654,7 +654,7 @@ U_CAPI void U_EXPORT2 ucnv_setSubstString(UConverter * cnv, const UChar * s, int
  * <TT>U_INDEX_OUTOFBOUNDS_ERROR</TT> will be returned.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_getInvalidChars(const UConverter * converter, char * errBytes, int8_t * len, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_getInvalidChars(const UConverter * converter, char * errBytes, int8 * len, UErrorCode * err);
 /**
  * Fills in the output parameter, errChars, with the error characters from the
  * last failing conversion.
@@ -668,7 +668,7 @@ U_CAPI void U_EXPORT2 ucnv_getInvalidChars(const UConverter * converter, char * 
  * <TT>U_INDEX_OUTOFBOUNDS_ERROR</TT> will be returned.
  * @stable ICU 2.0
  */
-U_CAPI void U_EXPORT2 ucnv_getInvalidUChars(const UConverter * converter, UChar * errUChars, int8_t * len, UErrorCode * err);
+U_CAPI void U_EXPORT2 ucnv_getInvalidUChars(const UConverter * converter, UChar * errUChars, int8 * len, UErrorCode * err);
 /**
  * Resets the state of a converter to the default state. This is used
  * in the case of an error, to restart a conversion from a known default state.
@@ -745,7 +745,7 @@ U_CAPI void U_EXPORT2 ucnv_resetFromUnicode(UConverter * converter);
  * @see ucnv_getMinCharSize
  * @stable ICU 2.0
  */
-U_CAPI int8_t U_EXPORT2 ucnv_getMaxCharSize(const UConverter * converter);
+U_CAPI int8 U_EXPORT2 ucnv_getMaxCharSize(const UConverter * converter);
 
 /**
  * Calculates the size of a buffer for conversion from Unicode to a charset.
@@ -775,7 +775,7 @@ U_CAPI int8_t U_EXPORT2 ucnv_getMaxCharSize(const UConverter * converter);
  * @see ucnv_getMaxCharSize
  * @stable ICU 2.0
  */
-U_CAPI int8_t U_EXPORT2 ucnv_getMinCharSize(const UConverter * converter);
+U_CAPI int8 U_EXPORT2 ucnv_getMinCharSize(const UConverter * converter);
 /**
  * Returns the display name of the converter passed in based on the Locale
  * passed in. If the locale contains no display name, the internal ASCII
@@ -1630,7 +1630,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnv_openAllNames(UErrorCode * pErrorCode);
  * @return number of names on alias list for given alias
  * @stable ICU 2.0
  */
-U_CAPI uint16_t U_EXPORT2 ucnv_countAliases(const char * alias, UErrorCode * pErrorCode);
+U_CAPI uint16 U_EXPORT2 ucnv_countAliases(const char * alias, UErrorCode * pErrorCode);
 
 /**
  * Gives the name of the alias at given index of alias list.
@@ -1644,7 +1644,7 @@ U_CAPI uint16_t U_EXPORT2 ucnv_countAliases(const char * alias, UErrorCode * pEr
  * @see ucnv_countAliases
  * @stable ICU 2.0
  */
-U_CAPI const char * U_EXPORT2 ucnv_getAlias(const char * alias, uint16_t n, UErrorCode * pErrorCode);
+U_CAPI const char * U_EXPORT2 ucnv_getAlias(const char * alias, uint16 n, UErrorCode * pErrorCode);
 
 /**
  * Fill-up the list of alias names for the given alias.
@@ -1693,7 +1693,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnv_openStandardNames(const char * convName,
  * @return number of standards
  * @stable ICU 2.0
  */
-U_CAPI uint16_t U_EXPORT2 ucnv_countStandards();
+U_CAPI uint16 U_EXPORT2 ucnv_countStandards();
 
 /**
  * Gives the name of the standard at given index of standard list.
@@ -1702,7 +1702,7 @@ U_CAPI uint16_t U_EXPORT2 ucnv_countStandards();
  * @return returns the name of the standard at given index. Owned by the library.
  * @stable ICU 2.0
  */
-U_CAPI const char * U_EXPORT2 ucnv_getStandard(uint16_t n, UErrorCode * pErrorCode);
+U_CAPI const char * U_EXPORT2 ucnv_getStandard(uint16 n, UErrorCode * pErrorCode);
 
 /**
  * Returns a standard name for a given converter name.

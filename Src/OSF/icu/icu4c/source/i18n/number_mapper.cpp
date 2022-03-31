@@ -216,7 +216,7 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		int engineering = maxInt < 0 ? -1 : maxInt;
 		macros.notation = ScientificNotation(
 			// Engineering interval:
-			static_cast<int8_t>(engineering),
+			static_cast<int8>(engineering),
 			// Enforce minimum integer digits (for patterns like "000.00E0"):
 			(engineering == minInt),
 			// Minimum exponent digits:

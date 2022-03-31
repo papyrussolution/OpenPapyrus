@@ -129,7 +129,7 @@ public:
     UnicodeSet *expansions;
     CESink *sink;
     bool addPrefixes;
-    int8_t checkTailored;  // -1: collected tailored  +1: exclude tailored
+    int8 checkTailored;  // -1: collected tailored  +1: exclude tailored
     UnicodeSet tailored;
     UnicodeSet ranges;
     UnicodeString unreversedPrefix;

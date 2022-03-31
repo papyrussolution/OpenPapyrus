@@ -1,25 +1,16 @@
+// ucnvscsu.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *
- *   Copyright (C) 2000-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- ******************************************************************************
- *   file name:  ucnvscsu.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2000nov18
- *   created by: Markus W. Scherer
- *
- *   This is an implementation of the Standard Compression Scheme for Unicode
- *   as defined in https://www.unicode.org/reports/tr6/ .
- *   Reserved commands and window settings are treated as illegal sequences and
- *   will result in callback calls.
- */
+// Copyright (C) 2000-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2000nov18
+// created by: Markus W. Scherer
+// 
+// This is an implementation of the Standard Compression Scheme for Unicode
+// as defined in https://www.unicode.org/reports/tr6/ .
+// Reserved commands and window settings are treated as illegal sequences and
+// will result in callback calls.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -62,10 +53,8 @@ enum {
 	 */
 	gapThreshold = 0x68,
 	gapOffset = 0xAC00,
-
 	/* values between reservedStart and fixedThreshold are reserved */
 	reservedStart = 0xA8,
-
 	/* use table of predefined fixed offsets for values from fixedThreshold */
 	fixedThreshold = 0xF9
 };
@@ -120,18 +109,15 @@ typedef struct SCSUData {
 	/* dynamic window offsets, initialize to default values from initialDynamicOffsets */
 	uint32_t toUDynamicOffsets[8];
 	uint32_t fromUDynamicOffsets[8];
-
 	/* state machine state - toUnicode */
 	bool toUIsSingleByteMode;
 	uint8 toUState;
-	int8_t toUQuoteWindow, toUDynamicWindow;
+	int8 toUQuoteWindow, toUDynamicWindow;
 	uint8 toUByteOne;
 	uint8 toUPadding[3];
-
 	/* state machine state - fromUnicode */
 	bool fromUIsSingleByteMode;
-	int8_t fromUDynamicWindow;
-
+	int8 fromUDynamicWindow;
 	/*
 	 * windowUse[] keeps track of the use of the dynamic windows:
 	 * At nextWindowUseIndex there is the least recently used window,
@@ -140,12 +126,12 @@ typedef struct SCSUData {
 	 * At nextWindowUseIndex-1 there is the most recently used window.
 	 */
 	uint8 locale;
-	int8_t nextWindowUseIndex;
-	int8_t windowUse[8];
+	int8 nextWindowUseIndex;
+	int8 windowUse[8];
 } SCSUData;
 
-static const int8_t initialWindowUse[8] = { 7, 0, 3, 2, 4, 5, 6, 1 };
-static const int8_t initialWindowUse_ja[8] = { 3, 2, 4, 1, 0, 7, 5, 6 };
+static const int8 initialWindowUse[8] = { 7, 0, 3, 2, 4, 5, 6, 1 };
+static const int8 initialWindowUse_ja[8] = { 3, 2, 4, 1, 0, 7, 5, 6 };
 
 enum {
 	lGeneric, l_ja
@@ -235,7 +221,7 @@ static void U_CALLCONV _SCSUToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	int32_t * offsets;
 	bool isSingleByteMode;
 	uint8 state, byteOne;
-	int8_t quoteWindow, dynamicWindow;
+	int8 quoteWindow, dynamicWindow;
 
 	int32_t sourceIndex, nextSourceIndex;
 
@@ -356,17 +342,17 @@ singleByteMode:
 				    }
 				    else if(SC0<=b) {
 					    if(b<=SC7) {
-						    dynamicWindow = (int8_t)(b-SC0);
+						    dynamicWindow = (int8)(b-SC0);
 						    sourceIndex = nextSourceIndex;
 						    goto fastSingle;
 					    }
 					    else { /* if(SD0<=b && b<=SD7) */
-						    dynamicWindow = (int8_t)(b-SD0);
+						    dynamicWindow = (int8)(b-SD0);
 						    state = defineOne;
 					    }
 				    }
 				    else if(/* SQ0<=b && */ b<=SQ7) {
-					    quoteWindow = (int8_t)(b-SQ0);
+					    quoteWindow = (int8)(b-SQ0);
 					    state = quoteOne;
 				    }
 				    else if(b==SDX) {
@@ -449,7 +435,7 @@ singleByteMode:
 				    state = readCommand;
 				    goto fastSingle;
 				case definePairOne:
-				    dynamicWindow = (int8_t)((b>>5)&7);
+				    dynamicWindow = (int8)((b>>5)&7);
 				    byteOne = (uint8)(b&0x1f);
 				    cnv->toUBytes[1] = b;
 				    cnv->toULength = 2;
@@ -522,13 +508,13 @@ fastUnicode:
 					    state = quotePairTwo;
 				    }
 				    else if(/* UC0<=b && */ b<=UC7) {
-					    dynamicWindow = (int8_t)(b-UC0);
+					    dynamicWindow = (int8)(b-UC0);
 					    sourceIndex = nextSourceIndex;
 					    isSingleByteMode = TRUE;
 					    goto fastSingle;
 				    }
 				    else if(/* UD0<=b && */ b<=UD7) {
-					    dynamicWindow = (int8_t)(b-UD0);
+					    dynamicWindow = (int8)(b-UD0);
 					    isSingleByteMode = TRUE;
 					    cnv->toUBytes[0] = b;
 					    cnv->toULength = 1;
@@ -612,7 +598,7 @@ static void U_CALLCONV _SCSUToUnicode(UConverterToUnicodeArgs * pArgs,
 	const UChar * targetLimit;
 	bool isSingleByteMode;
 	uint8 state, byteOne;
-	int8_t quoteWindow, dynamicWindow;
+	int8 quoteWindow, dynamicWindow;
 
 	uint8 b;
 
@@ -706,16 +692,16 @@ singleByteMode:
 				    }
 				    else if(SC0<=b) {
 					    if(b<=SC7) {
-						    dynamicWindow = (int8_t)(b-SC0);
+						    dynamicWindow = (int8)(b-SC0);
 						    goto fastSingle;
 					    }
 					    else { /* if(SD0<=b && b<=SD7) */
-						    dynamicWindow = (int8_t)(b-SD0);
+						    dynamicWindow = (int8)(b-SD0);
 						    state = defineOne;
 					    }
 				    }
 				    else if(/* SQ0<=b && */ b<=SQ7) {
-					    quoteWindow = (int8_t)(b-SQ0);
+					    quoteWindow = (int8)(b-SQ0);
 					    state = quoteOne;
 				    }
 				    else if(b==SDX) {
@@ -779,7 +765,7 @@ singleByteMode:
 				    state = readCommand;
 				    goto fastSingle;
 				case definePairOne:
-				    dynamicWindow = (int8_t)((b>>5)&7);
+				    dynamicWindow = (int8)((b>>5)&7);
 				    byteOne = (uint8)(b&0x1f);
 				    cnv->toUBytes[1] = b;
 				    cnv->toULength = 2;
@@ -844,12 +830,12 @@ fastUnicode:
 					    state = quotePairTwo;
 				    }
 				    else if(/* UC0<=b && */ b<=UC7) {
-					    dynamicWindow = (int8_t)(b-UC0);
+					    dynamicWindow = (int8)(b-UC0);
 					    isSingleByteMode = TRUE;
 					    goto fastSingle;
 				    }
 				    else if(/* UD0<=b && */ b<=UD7) {
-					    dynamicWindow = (int8_t)(b-UD0);
+					    dynamicWindow = (int8)(b-UD0);
 					    isSingleByteMode = TRUE;
 					    cnv->toUBytes[0] = b;
 					    cnv->toULength = 1;
@@ -927,11 +913,11 @@ U_CDECL_END
  */
 
 /* get the number of the window that this character is in, or -1 */
-static int8_t getWindow(const uint32_t offsets[8], uint32_t c) {
+static int8 getWindow(const uint32_t offsets[8], uint32_t c) {
 	int i;
 	for(i = 0; i<8; ++i) {
 		if((uint32_t)(c-offsets[i])<=0x7f) {
-			return (int8_t)(i);
+			return (int8)(i);
 		}
 	}
 	return -1;
@@ -949,8 +935,8 @@ static bool isInOffsetWindowOrDirect(uint32_t offset, uint32_t c) {
 /*
  * getNextDynamicWindow returns the next dynamic window to be redefined
  */
-static int8_t getNextDynamicWindow(SCSUData * scsu) {
-	int8_t window = scsu->windowUse[scsu->nextWindowUseIndex];
+static int8 getNextDynamicWindow(SCSUData * scsu) {
+	int8 window = scsu->windowUse[scsu->nextWindowUseIndex];
 	if(++scsu->nextWindowUseIndex==8) {
 		scsu->nextWindowUseIndex = 0;
 	}
@@ -963,7 +949,7 @@ static int8_t getNextDynamicWindow(SCSUData * scsu) {
  * the next dynamic window to be defined;
  * a subclass may override it and provide its own algorithm.
  */
-static void useDynamicWindow(SCSUData * scsu, int8_t window) {
+static void useDynamicWindow(SCSUData * scsu, int8 window) {
 	/*
 	 * move the existing window, which just became the most recently used one,
 	 * up in windowUse[] to nextWindowUseIndex-1
@@ -1077,7 +1063,7 @@ static void U_CALLCONV _SCSUFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	uint32_t offset;
 	UChar lead, trail;
 	int code;
-	int8_t window;
+	int8 window;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
@@ -1555,7 +1541,7 @@ outputBytes:
 			    /* will never occur */
 			    break;
 		}
-		cnv->charErrorBufferLength = (int8_t)length;
+		cnv->charErrorBufferLength = (int8)length;
 
 		/* now output what fits into the regular target */
 		c >>= 8*length; /* length was reduced by targetCapacity */
@@ -1618,7 +1604,7 @@ static void U_CALLCONV _SCSUFromUnicode(UConverterFromUnicodeArgs * pArgs,
 	uint32_t offset;
 	UChar lead, trail;
 	int code;
-	int8_t window;
+	int8 window;
 
 	/* set up the local pointers */
 	cnv = pArgs->converter;
@@ -2038,7 +2024,7 @@ outputBytes:
 			    /* will never occur */
 			    break;
 		}
-		cnv->charErrorBufferLength = (int8_t)length;
+		cnv->charErrorBufferLength = (int8)length;
 
 		/* now output what fits into the regular target */
 		c >>= 8*length; /* length was reduced by targetCapacity */

@@ -1035,7 +1035,7 @@ static const char * getPosixID(const ILcidPosixMap * this_0, uint32_t hostID)
 
 U_CAPI int32_t uprv_convertToPosix(uint32_t hostid, char * posixID, int32_t posixIDCapacity, UErrorCode * status)
 {
-	uint16_t langID;
+	uint16 langID;
 	uint32_t localeIndex;
 	bool bLookup = TRUE;
 	const char * pPosixID = NULL;

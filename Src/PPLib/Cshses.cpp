@@ -1234,7 +1234,7 @@ int PPAsyncCashSession::DistributeFile_(const char * pFileName, const char * pEn
 				dfactCheckExistence = 2, // проверить наличие файла с именем, заданным параметром pFileName
 				dfactCheckDestPaths = 3  // проверить доступность каталогов назначения на запись
 			*/
-			if(path.CmpPrefix(p_ftp_flag, 1) == 0) {
+			if(path.HasPrefixIAscii(p_ftp_flag)) {
 				SString ftp_path, file_name;
 				SPathStruc sp;
 				path.ShiftLeft(sstrlen(p_ftp_flag));

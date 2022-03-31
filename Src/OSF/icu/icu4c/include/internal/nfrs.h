@@ -90,7 +90,7 @@ int64_t util64_fromDouble(double d);
 // raise radix to the power exponent, only non-negative exponents
 // Arithmetic is performed in unsigned space since overflow in
 // signed space is undefined behavior.
-uint64_t util64_pow(uint32_t radix, uint16_t exponent);
+uint64_t util64_pow(uint32_t radix, uint16 exponent);
 
 // convert n to digit string in buffer, return length of string
 uint32_t util64_tou(int64_t n, UChar * buffer, uint32_t buflen, uint32_t radix = 10, bool raw = false);

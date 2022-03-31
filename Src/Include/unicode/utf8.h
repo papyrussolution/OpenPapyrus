@@ -55,7 +55,7 @@
  */
 #define U8_COUNT_TRAIL_BYTES(leadByte) \
 	(U8_IS_LEAD(leadByte) ? \
-	((uint8_t)(leadByte)>=0xe0)+((uint8_t)(leadByte)>=0xf0)+1 : 0)
+	((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0)+1 : 0)
 
 /**
  * Counts the trail bytes for a UTF-8 lead byte of a valid UTF-8 sequence.
@@ -69,7 +69,7 @@
  * @internal
  */
 #define U8_COUNT_TRAIL_BYTES_UNSAFE(leadByte) \
-	(((uint8_t)(leadByte)>=0xc2)+((uint8_t)(leadByte)>=0xe0)+((uint8_t)(leadByte)>=0xf0))
+	(((uint8)(leadByte)>=0xc2)+((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0))
 
 /**
  * Mask a UTF-8 lead byte, leave only the lower bits that form part of the code point value.
@@ -95,7 +95,7 @@
  * Non-zero if lead byte E0..EF and first trail byte 00..FF start a valid sequence.
  * @internal
  */
-#define U8_IS_VALID_LEAD3_AND_T1(lead, t1) (U8_LEAD3_T1_BITS[(lead)&0xf]&(1<<((uint8_t)(t1)>>5)))
+#define U8_IS_VALID_LEAD3_AND_T1(lead, t1) (U8_LEAD3_T1_BITS[(lead)&0xf]&(1<<((uint8)(t1)>>5)))
 
 /**
  * Internal bit vector for 4-byte UTF-8 validity check, for use in U8_IS_VALID_LEAD4_AND_T1.
@@ -112,7 +112,7 @@
  * Non-zero if lead byte F0..F4 and first trail byte 00..FF start a valid sequence.
  * @internal
  */
-#define U8_IS_VALID_LEAD4_AND_T1(lead, t1) (U8_LEAD4_T1_BITS[(uint8_t)(t1)>>4]&(1<<((lead)&7)))
+#define U8_IS_VALID_LEAD4_AND_T1(lead, t1) (U8_LEAD4_T1_BITS[(uint8)(t1)>>4]&(1<<((lead)&7)))
 
 /**
  * Function for handling "next code point" with error-checking.
@@ -123,7 +123,7 @@
  * functions are hidden (otherwise public macros would fail to compile).
  * @internal
  */
-U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, int32_t length, UChar32 c, /*bool*/int strict); // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
+U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8 * s, int32_t * pi, int32_t length, UChar32 c, /*bool*/int strict); // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
 /**
  * Function for handling "append code point" with error-checking.
  *
@@ -133,7 +133,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8_t * s, int32_t * pi, 
  * functions are hidden (otherwise public macros would fail to compile).
  * @internal
  */
-U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8_t * s, int32_t i, int32_t length, UChar32 c, bool * pIsError);
+U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8 * s, int32_t i, int32_t length, UChar32 c, bool * pIsError);
 
 /**
  * Function for handling "previous code point" with error-checking.
@@ -144,7 +144,7 @@ U_CAPI int32_t U_EXPORT2 utf8_appendCharSafeBody(uint8_t * s, int32_t i, int32_t
  * functions are hidden (otherwise public macros would fail to compile).
  * @internal
  */
-U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8_t * s, int32_t start, int32_t * pi, UChar32 c, /*bool*/int strict); // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
+U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8 * s, int32_t start, int32_t * pi, UChar32 c, /*bool*/int strict); // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
 /**
  * Function for handling "skip backward one code point" with error-checking.
  *
@@ -154,7 +154,7 @@ U_CAPI UChar32 U_EXPORT2 utf8_prevCharSafeBody(const uint8_t * s, int32_t start,
  * functions are hidden (otherwise public macros would fail to compile).
  * @internal
  */
-U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, int32_t i);
+U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8 * s, int32_t start, int32_t i);
 
 /* single-code point definitions -------------------------------------------- */
 
@@ -172,7 +172,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * @return true or false
  * @stable ICU 2.4
  */
-#define U8_IS_LEAD(c) ((uint8_t)((c)-0xc2)<=0x32)
+#define U8_IS_LEAD(c) ((uint8)((c)-0xc2)<=0x32)
 // 0x32=0xf4-0xc2
 
 /**
@@ -181,7 +181,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * @return true or false
  * @stable ICU 2.4
  */
-#define U8_IS_TRAIL(c) ((int8_t)(c)<-0x40)
+#define U8_IS_TRAIL(c) ((int8)(c)<-0x40)
 
 /**
  * How many code units (bytes) are used for the UTF-8 encoding
@@ -218,7 +218,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * byte sequence.
  * Iteration through a string is more efficient with U8_NEXT_UNSAFE or U8_NEXT.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @param c output UChar32 variable
  * @see U8_GET
@@ -243,7 +243,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * c is set to a negative value.
  * Iteration through a string is more efficient with U8_NEXT_UNSAFE or U8_NEXT.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset
  * @param i int32_t string offset, must be start<=i<length
  * @param length int32_t string length
@@ -274,7 +274,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * and U+FFFD returned for an ill-formed sequence.
  * Use U8_GET() if that distinction is important.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset
  * @param i int32_t string offset, must be start<=i<length
  * @param length int32_t string length
@@ -301,14 +301,14 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * The result is undefined if the offset points to a trail byte
  * or an illegal UTF-8 sequence.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @param c output UChar32 variable
  * @see U8_NEXT
  * @stable ICU 2.4
  */
 #define U8_NEXT_UNSAFE(s, i, c) UPRV_BLOCK_MACRO_BEGIN { \
-		(c) = (uint8_t)(s)[(i)++]; \
+		(c) = (uint8)(s)[(i)++]; \
 		if(!U8_IS_SINGLE(c)) { \
 			if((c)<0xe0) { \
 				(c) = (((c)&0x1f)<<6)|((s)[(i)++]&0x3f); \
@@ -337,7 +337,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * If the offset points to a trail byte or an illegal UTF-8 sequence, then
  * c is set to a negative value.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i int32_t string offset, must be i<length
  * @param length int32_t string length
  * @param c output UChar32 variable, set to <0 in case of an error
@@ -363,7 +363,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * and U+FFFD returned for an ill-formed sequence.
  * Use U8_NEXT() if that distinction is important.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i int32_t string offset, must be i<length
  * @param length int32_t string length
  * @param c output UChar32 variable, set to U+FFFD in case of an error
@@ -374,9 +374,9 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
 
 /** @internal */
 #define U8_INTERNAL_NEXT_OR_SUB(s, i, length, c, sub) UPRV_BLOCK_MACRO_BEGIN { \
-		(c) = (uint8_t)(s)[(i)++]; \
+		(c) = (uint8)(s)[(i)++]; \
 		if(!U8_IS_SINGLE(c)) { \
-			uint8_t __t = 0; \
+			uint8 __t = 0; \
 			if((i)!=(length) && \
 			    /* fetch/validate/assemble all but last trail byte */ \
 			    ((c)>=0xe0 ? \
@@ -408,7 +408,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * "Unsafe" macro, assumes a valid code point and sufficient space in the string.
  * Otherwise, the result is undefined.
  *
- * @param s const uint8_t * string buffer
+ * @param s const uint8 * string buffer
  * @param i string offset
  * @param c code point to append
  * @see U8_APPEND
@@ -417,20 +417,20 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
 #define U8_APPEND_UNSAFE(s, i, c) UPRV_BLOCK_MACRO_BEGIN { \
 		uint32_t __uc = (c); \
 		if(__uc<=0x7f) { \
-			(s)[(i)++] = (uint8_t)__uc; \
+			(s)[(i)++] = (uint8)__uc; \
 		} else { \
 			if(__uc<=0x7ff) { \
-				(s)[(i)++] = (uint8_t)((__uc>>6)|0xc0); \
+				(s)[(i)++] = (uint8)((__uc>>6)|0xc0); \
 			} else { \
 				if(__uc<=0xffff) { \
-					(s)[(i)++] = (uint8_t)((__uc>>12)|0xe0); \
+					(s)[(i)++] = (uint8)((__uc>>12)|0xe0); \
 				} else { \
-					(s)[(i)++] = (uint8_t)((__uc>>18)|0xf0); \
-					(s)[(i)++] = (uint8_t)(((__uc>>12)&0x3f)|0x80); \
+					(s)[(i)++] = (uint8)((__uc>>18)|0xf0); \
+					(s)[(i)++] = (uint8)(((__uc>>12)&0x3f)|0x80); \
 				} \
-				(s)[(i)++] = (uint8_t)(((__uc>>6)&0x3f)|0x80); \
+				(s)[(i)++] = (uint8)(((__uc>>6)&0x3f)|0x80); \
 			} \
-			(s)[(i)++] = (uint8_t)((__uc&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)((__uc&0x3f)|0x80); \
 		} \
 } UPRV_BLOCK_MACRO_END
 
@@ -443,7 +443,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * If the code point is not valid or trail bytes do not fit,
  * then isError is set to true.
  *
- * @param s const uint8_t * string buffer
+ * @param s const uint8 * string buffer
  * @param i int32_t string offset, must be i<capacity
  * @param capacity int32_t size of the string buffer
  * @param c UChar32 code point to append
@@ -454,19 +454,19 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
 #define U8_APPEND(s, i, capacity, c, isError) UPRV_BLOCK_MACRO_BEGIN { \
 		uint32_t __uc = (c); \
 		if(__uc<=0x7f) { \
-			(s)[(i)++] = (uint8_t)__uc; \
+			(s)[(i)++] = (uint8)__uc; \
 		} else if(__uc<=0x7ff && (i)+1<(capacity)) { \
-			(s)[(i)++] = (uint8_t)((__uc>>6)|0xc0); \
-			(s)[(i)++] = (uint8_t)((__uc&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)((__uc>>6)|0xc0); \
+			(s)[(i)++] = (uint8)((__uc&0x3f)|0x80); \
 		} else if((__uc<=0xd7ff || (0xe000<=__uc && __uc<=0xffff)) && (i)+2<(capacity)) { \
-			(s)[(i)++] = (uint8_t)((__uc>>12)|0xe0); \
-			(s)[(i)++] = (uint8_t)(((__uc>>6)&0x3f)|0x80); \
-			(s)[(i)++] = (uint8_t)((__uc&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)((__uc>>12)|0xe0); \
+			(s)[(i)++] = (uint8)(((__uc>>6)&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)((__uc&0x3f)|0x80); \
 		} else if(0xffff<__uc && __uc<=0x10ffff && (i)+3<(capacity)) { \
-			(s)[(i)++] = (uint8_t)((__uc>>18)|0xf0); \
-			(s)[(i)++] = (uint8_t)(((__uc>>12)&0x3f)|0x80); \
-			(s)[(i)++] = (uint8_t)(((__uc>>6)&0x3f)|0x80); \
-			(s)[(i)++] = (uint8_t)((__uc&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)((__uc>>18)|0xf0); \
+			(s)[(i)++] = (uint8)(((__uc>>12)&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)(((__uc>>6)&0x3f)|0x80); \
+			(s)[(i)++] = (uint8)((__uc&0x3f)|0x80); \
 		} else { \
 			(isError) = true; \
 		} \
@@ -477,7 +477,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * (Post-incrementing iteration.)
  * "Unsafe" macro, assumes well-formed UTF-8.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @see U8_FWD_1
  * @stable ICU 2.4
@@ -493,16 +493,16 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  *
  * The length can be negative for a NUL-terminated string.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i int32_t string offset, must be i<length
  * @param length int32_t string length
  * @see U8_FWD_1_UNSAFE
  * @stable ICU 2.4
  */
 #define U8_FWD_1(s, i, length) UPRV_BLOCK_MACRO_BEGIN { \
-		uint8_t __b = (s)[(i)++]; \
+		uint8 __b = (s)[(i)++]; \
 		if(U8_IS_LEAD(__b) && (i)!=(length)) { \
-			uint8_t __t1 = (s)[i]; \
+			uint8 __t1 = (s)[i]; \
 			if((0xe0<=__b && __b<0xf0)) { \
 				if(U8_IS_VALID_LEAD3_AND_T1(__b, __t1) && \
 				    ++(i)!=(length) && U8_IS_TRAIL((s)[i])) { \
@@ -528,7 +528,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * (Post-incrementing iteration.)
  * "Unsafe" macro, assumes well-formed UTF-8.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @param n number of code points to skip
  * @see U8_FWD_N
@@ -550,7 +550,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  *
  * The length can be negative for a NUL-terminated string.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i int32_t string offset, must be i<length
  * @param length int32_t string length
  * @param n number of code points to skip
@@ -573,7 +573,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * Otherwise, it is not modified.
  * "Unsafe" macro, assumes well-formed UTF-8.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @see U8_SET_CP_START
  * @stable ICU 2.4
@@ -592,7 +592,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * "Safe" macro, checks for illegal sequences and for string boundaries.
  * Unlike U8_TRUNCATE_IF_INCOMPLETE(), this macro always reads s[i].
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset (usually 0)
  * @param i int32_t string offset, must be start<=i
  * @see U8_SET_CP_START_UNSAFE
@@ -625,7 +625,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  *
  * (In UTF-16, simply check for U16_IS_LEAD(last code unit).)
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset (usually 0)
  * @param length int32_t string length (usually start<=length)
  * @see U8_SET_CP_START
@@ -633,20 +633,20 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  */
 #define U8_TRUNCATE_IF_INCOMPLETE(s, start, length) UPRV_BLOCK_MACRO_BEGIN { \
 		if((length)>(start)) { \
-			uint8_t __b1 = s[(length)-1]; \
+			uint8 __b1 = s[(length)-1]; \
 			if(U8_IS_SINGLE(__b1)) { \
 				/* common ASCII character */ \
 			} else if(U8_IS_LEAD(__b1)) { \
 				--(length); \
 			} else if(U8_IS_TRAIL(__b1) && ((length)-2)>=(start)) { \
-				uint8_t __b2 = s[(length)-2]; \
+				uint8 __b2 = s[(length)-2]; \
 				if(0xe0<=__b2 && __b2<=0xf4) { \
 					if(__b2<0xf0 ? U8_IS_VALID_LEAD3_AND_T1(__b2, __b1) : \
 					    U8_IS_VALID_LEAD4_AND_T1(__b2, __b1)) { \
 						(length) -= 2; \
 					} \
 				} else if(U8_IS_TRAIL(__b2) && ((length)-3)>=(start)) { \
-					uint8_t __b3 = s[(length)-3]; \
+					uint8 __b3 = s[(length)-3]; \
 					if(0xf0<=__b3 && __b3<=0xf4 && U8_IS_VALID_LEAD4_AND_T1(__b3, __b2)) { \
 						(length) -= 3; \
 					} \
@@ -670,16 +670,16 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * will be returned as the code point.
  * The result is undefined if the offset is behind an illegal UTF-8 sequence.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @param c output UChar32 variable
  * @see U8_PREV
  * @stable ICU 2.4
  */
 #define U8_PREV_UNSAFE(s, i, c) UPRV_BLOCK_MACRO_BEGIN { \
-		(c) = (uint8_t)(s)[--(i)]; \
+		(c) = (uint8)(s)[--(i)]; \
 		if(U8_IS_TRAIL(c)) { \
-			uint8_t __b, __count = 1, __shift = 6; \
+			uint8 __b, __count = 1, __shift = 6; \
 \
 			/* c is a trail byte */ \
 			(c) &= 0x3f; \
@@ -711,7 +711,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * will be returned as the code point.
  * If the offset is behind an illegal UTF-8 sequence, then c is set to a negative value.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset (usually 0)
  * @param i int32_t string offset, must be start<i
  * @param c output UChar32 variable, set to <0 in case of an error
@@ -719,9 +719,9 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * @stable ICU 2.4
  */
 #define U8_PREV(s, start, i, c) UPRV_BLOCK_MACRO_BEGIN { \
-		(c) = (uint8_t)(s)[--(i)]; \
+		(c) = (uint8)(s)[--(i)]; \
 		if(!U8_IS_SINGLE(c)) { \
-			(c) = utf8_prevCharSafeBody((const uint8_t*)s, start, &(i), c, -1); \
+			(c) = utf8_prevCharSafeBody((const uint8*)s, start, &(i), c, -1); \
 		} \
 } UPRV_BLOCK_MACRO_END
 
@@ -742,7 +742,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * and U+FFFD returned for an ill-formed sequence.
  * Use U8_PREV() if that distinction is important.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset (usually 0)
  * @param i int32_t string offset, must be start<i
  * @param c output UChar32 variable, set to U+FFFD in case of an error
@@ -750,9 +750,9 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * @stable ICU 51
  */
 #define U8_PREV_OR_FFFD(s, start, i, c) UPRV_BLOCK_MACRO_BEGIN { \
-		(c) = (uint8_t)(s)[--(i)]; \
+		(c) = (uint8)(s)[--(i)]; \
 		if(!U8_IS_SINGLE(c)) { \
-			(c) = utf8_prevCharSafeBody((const uint8_t*)s, start, &(i), c, -3); \
+			(c) = utf8_prevCharSafeBody((const uint8*)s, start, &(i), c, -3); \
 		} \
 } UPRV_BLOCK_MACRO_END
 
@@ -762,7 +762,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * The input offset may be the same as the string length.
  * "Unsafe" macro, assumes well-formed UTF-8.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @see U8_BACK_1
  * @stable ICU 2.4
@@ -777,7 +777,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * The input offset may be the same as the string length.
  * "Safe" macro, checks for illegal sequences and for string boundaries.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset (usually 0)
  * @param i int32_t string offset, must be start<i
  * @see U8_BACK_1_UNSAFE
@@ -796,7 +796,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * The input offset may be the same as the string length.
  * "Unsafe" macro, assumes well-formed UTF-8.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @param n number of code points to skip
  * @see U8_BACK_N
@@ -817,7 +817,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * The input offset may be the same as the string length.
  * "Safe" macro, checks for illegal sequences and for string boundaries.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t index of the start of the string
  * @param i int32_t string offset, must be start<i
  * @param n number of code points to skip
@@ -840,7 +840,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  * The input offset may be the same as the string length.
  * "Unsafe" macro, assumes well-formed UTF-8.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param i string offset
  * @see U8_SET_CP_LIMIT
  * @stable ICU 2.4
@@ -857,7 +857,7 @@ U_CAPI int32_t U_EXPORT2 utf8_back1SafeBody(const uint8_t * s, int32_t start, in
  *
  * The length can be negative for a NUL-terminated string.
  *
- * @param s const uint8_t * string
+ * @param s const uint8 * string
  * @param start int32_t starting string offset (usually 0)
  * @param i int32_t string offset, must be start<=i<=length
  * @param length int32_t string length

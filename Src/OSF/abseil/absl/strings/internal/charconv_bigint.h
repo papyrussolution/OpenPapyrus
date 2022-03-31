@@ -6,12 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_STRINGS_INTERNAL_CHARCONV_BIGINT_H_
 #define ABSL_STRINGS_INTERNAL_CHARCONV_BIGINT_H_
 
@@ -368,7 +362,7 @@ template <int N, int M> int Compare(const BigUnsigned<N>& lhs, const BigUnsigned
 	return 0;
 }
 
-template <int N, int M> bool operator==(const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
+template <int N, int M> bool operator == (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
 {
 	int limit = (std::max)(lhs.size(), rhs.size());
 	for(int i = 0; i < limit; ++i) {
@@ -379,33 +373,33 @@ template <int N, int M> bool operator==(const BigUnsigned<N>& lhs, const BigUnsi
 	return true;
 }
 
-template <int N, int M> bool operator!=(const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
+template <int N, int M> bool operator != (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
 {
 	return !(lhs == rhs);
 }
 
-template <int N, int M> bool operator<(const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
+template <int N, int M> bool operator < (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
 {
 	return Compare(lhs, rhs) == -1;
 }
 
-template <int N, int M> bool operator>(const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
+template <int N, int M> bool operator > (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
 {
 	return rhs < lhs;
 }
 
-template <int N, int M> bool operator<=(const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
+template <int N, int M> bool operator <= (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
 {
 	return !(rhs < lhs);
 }
 
-template <int N, int M> bool operator>=(const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
+template <int N, int M> bool operator >= (const BigUnsigned<N>& lhs, const BigUnsigned<M>& rhs) 
 {
 	return !(lhs < rhs);
 }
 
 // Output operator for BigUnsigned, for testing purposes only.
-template <int N> std::ostream& operator<<(std::ostream& os, const BigUnsigned<N>& num) 
+template <int N> std::ostream & operator<<(std::ostream & os, const BigUnsigned<N>& num) 
 {
 	return os << num.ToString();
 }

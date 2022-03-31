@@ -37,8 +37,8 @@ public:
 	operator LPCITEMIDLIST() const { return m_Object; }
 	LPITEMIDLIST* operator&() { return &m_Object; }
 	LPITEMIDLIST operator->() { return m_Object; }
-	// CItemIDList& operator=(LPCITEMIDLIST object);
-	// CItemIDList& operator=(const CItemIDList &object);
+	// CItemIDList& operator = (LPCITEMIDLIST object);
+	// CItemIDList& operator = (const CItemIDList &object);
 };
 
 /////////////////////////////

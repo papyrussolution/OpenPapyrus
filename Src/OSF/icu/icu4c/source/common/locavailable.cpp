@@ -1,23 +1,14 @@
+// locavailable.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 1997-2013, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  locavailable.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2010feb25
- *   created by: Markus W. Scherer
- *
- *   Code for available locales, separated out from other .cpp files
- *   that then do not depend on resource bundle code and res_index bundles.
- */
+// Copyright (C) 1997-2013, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010feb25
+// created by: Markus W. Scherer
+// 
+// Code for available locales, separated out from other .cpp files
+// that then do not depend on resource bundle code and res_index bundles.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "ucln_cmn.h"
@@ -34,29 +25,22 @@ static icu::UInitOnce gInitOnceLocale = U_INITONCE_INITIALIZER;
 U_NAMESPACE_END
 
 U_CDECL_BEGIN
-
-static bool U_CALLCONV locale_available_cleanup(void)
-{
-	U_NAMESPACE_USE
-
-	if(availableLocaleList) {
-		delete []availableLocaleList;
-		availableLocaleList = NULL;
+	static bool U_CALLCONV locale_available_cleanup(void)
+	{
+		U_NAMESPACE_USE
+		ZDELETEARRAY(availableLocaleList);
+		availableLocaleListCount = 0;
+		gInitOnceLocale.reset();
+		return TRUE;
 	}
-	availableLocaleListCount = 0;
-	gInitOnceLocale.reset();
-
-	return TRUE;
-}
-
 U_CDECL_END
 
 U_NAMESPACE_BEGIN
 
-void U_CALLCONV locale_available_init() {
+void U_CALLCONV locale_available_init() 
+{
 	// This function is a friend of class Locale.
 	// This function is only invoked via umtx_initOnce().
-
 	// for now, there is a hardcoded list, so just walk through that list and set it up.
 	//  Note: this function is a friend of class Locale.
 	availableLocaleListCount = uloc_countAvailable();
@@ -156,27 +140,24 @@ public:
 		const char * result;
 		if(actualIndex < count) {
 			result = gAvailableLocaleNames[actualType][actualIndex];
-			if(resultLength != nullptr) {
-				*resultLength = static_cast<int32_t>(uprv_strlen(result));
-			}
+			ASSIGN_PTR(resultLength, sstrleni(result));
 		}
 		else {
 			result = nullptr;
-			if(resultLength != nullptr) {
-				*resultLength = 0;
-			}
+			ASSIGN_PTR(resultLength, 0);
 		}
 		return result;
 	}
 
-	void reset(UErrorCode&) override {
+	void reset(UErrorCode&) override 
+	{
 		fIndex = 0;
 	}
 
-	int32_t count(UErrorCode&) const override {
+	int32_t count(UErrorCode&) const override 
+	{
 		if(fType == ULOC_AVAILABLE_WITH_LEGACY_ALIASES) {
-			return gAvailableLocaleCounts[ULOC_AVAILABLE_DEFAULT]
-			       + gAvailableLocaleCounts[ULOC_AVAILABLE_ONLY_LEGACY_ALIASES];
+			return gAvailableLocaleCounts[ULOC_AVAILABLE_DEFAULT] + gAvailableLocaleCounts[ULOC_AVAILABLE_ONLY_LEGACY_ALIASES];
 		}
 		else {
 			return gAvailableLocaleCounts[fType];

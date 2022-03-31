@@ -785,6 +785,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								//SetTabVisibility(Tab.tabSearch, View.GONE);
 							}
 						}
+						SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 					} catch(JSONException exn) {
 						//exn.printStackTrace();
 					} catch(StyloQException exn) {
@@ -1255,15 +1256,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							else if(a.GetListRcId() == R.id.orderPrereqBrandListView) {
 								if(app_ctx != null && BrandListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < BrandListData.size()) {
 									final int brand_id = BrandListData.get(ev_subj.ItemIdx).optInt("id", 0);
-									if(CPM.SetGoodsFilterByBrand(brand_id))
+									if(CPM.SetGoodsFilterByBrand(brand_id)) {
+										SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 										do_update_goods_list_and_toggle_to_it = true;
+									}
 								}
 							}
 							else if(a.GetListRcId() == R.id.orderPrereqGoodsGroupListView) {
 								if(app_ctx != null && CPM.GoodsGroupListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GoodsGroupListData.size()) {
 									final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
-									if(CPM.SetGoodsFilterByGroup(group_id))
+									if(CPM.SetGoodsFilterByGroup(group_id)) {
+										SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 										do_update_goods_list_and_toggle_to_it = true;
+									}
 									//app_ctx.RunSvcCommand(SvcIdent, ListData.Items.get(ev_subj.ItemIdx));
 								}
 							}
@@ -1287,6 +1292,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 				int view_id = View.class.isInstance(srcObj) ? ((View)srcObj).getId() : 0;
 				if(view_id == R.id.tbButtonSearch) {
 					GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+				}
+				else if(view_id == R.id.tbButtonClearFiter) {
+					CPM.ResetGoodsFiter();
+					SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
 				}
 				else if(view_id == R.id.STDCTL_COMMITBUTTON) {
 					CommitCurrentDocument();

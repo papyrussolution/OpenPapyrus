@@ -116,7 +116,7 @@ class GlassSynonymTermList : public AllTermsList {
 	GlassSynonymTermList(const GlassSynonymTermList &);
 
 	/// Assignment is not allowed.
-	void operator=(const GlassSynonymTermList &);
+	void operator = (const GlassSynonymTermList &);
 
 	/// Keep a reference to our database to stop it being deleted.
 	Xapian::Internal::intrusive_ptr<const GlassDatabase> database;

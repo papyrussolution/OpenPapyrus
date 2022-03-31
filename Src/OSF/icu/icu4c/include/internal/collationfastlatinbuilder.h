@@ -36,8 +36,8 @@ public:
 
     bool forData(const CollationData & data, UErrorCode & errorCode);
 
-    const uint16_t *getTable() const {
-        return reinterpret_cast<const uint16_t *>(result.getBuffer());
+    const uint16 *getTable() const {
+        return reinterpret_cast<const uint16 *>(result.getBuffer());
     }
     int32_t lengthOfTable() const { return result.length(); }
 
@@ -77,7 +77,7 @@ private:
     UVector64 uniqueCEs;
 
     /** One 16-bit mini CE per unique CE. */
-    uint16_t *miniCEs;
+    uint16 *miniCEs;
 
     // These are constant for a given root collator.
     uint32_t lastSpecialPrimaries[NUM_SPECIAL_GROUPS];

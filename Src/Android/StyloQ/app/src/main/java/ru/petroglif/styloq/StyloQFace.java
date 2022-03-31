@@ -48,12 +48,17 @@ public class StyloQFace {
 	public static final int tagExpiryEpochSec  = 25; // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 	public static final int tagEMail           = 26; // @v11.3.0
 	public static final int tagVerifiability   = 27; // @v11.3.2 arbitrary || anonymous || verifiable
+	public static final int tagStatus          = 28; // @v11.3.6 statusXXX : string
 	// } @persistent
-	enum Verifiability {
-		vArbitrary,
-		vAnonymous,
-		vVerifiable
-	};
+	public static final int vArbitrary = 0;
+	public static final int vAnonymous = 1;
+	public static final int vVerifiable = 2;
+
+	public static final int statusUndef = 0;
+	public static final int statusPrvMale = SLib.GENDER_MALE; // 1
+	public static final int statusPrvFemale = SLib.GENDER_FEMALE; // 2
+	public static final int statusPrvGenderQuestioning = SLib.GENDER_QUESTIONING; // 3
+	public static final int statusEnterprise = 1000; // Обобщенный статус юридического лица
 
 	StyloQFace()
 	{
@@ -167,22 +172,21 @@ public class StyloQFace {
 		int eff_tag = (tag | (lang << 16));
 		return L.get(eff_tag);
 	}
-	//LDATE GetDob() const {}
-	Verifiability GetVerifiability()
+	int GetVerifiability()
 	{
-		Verifiability result = Verifiability.vArbitrary;
+		int result = vArbitrary;
 		String val = L.get(tagVerifiability);
 		if(SLib.GetLen(val) > 0) {
 			if(val.equalsIgnoreCase("arbitrary"))
-				result = Verifiability.vArbitrary;
+				result = vArbitrary;
 			else if(val.equalsIgnoreCase("verifiable"))
-				result = Verifiability.vVerifiable;
+				result = vVerifiable;
 			else if(val.equalsIgnoreCase("anonymous"))
-				result = Verifiability.vAnonymous;
+				result = vAnonymous;
 		}
 		return result;
 	}
-	void SetVerifiability(Verifiability v)
+	void SetVerifiability(int v)
 	{
 		String val = null;
 		switch(v) {
@@ -191,6 +195,47 @@ public class StyloQFace {
 			case vAnonymous: val = "anonymous"; break;
 		}
 		Set(tagVerifiability, 0, val);
+	}
+	int GetStatus()
+	{
+		int    result = statusUndef;
+		String val = L.get(tagStatus);
+		if(SLib.GetLen(val) > 0) {
+			if(val.equalsIgnoreCase("male"))
+				result = statusPrvMale;
+			else if(val.equalsIgnoreCase("female"))
+				result = statusPrvFemale;
+			else if(val.equalsIgnoreCase("private"))
+				result = statusPrvGenderQuestioning;
+			else if(val.equalsIgnoreCase("enterprise"))
+				result = statusEnterprise;
+			else if(val.equalsIgnoreCase("undef"))
+				result = statusUndef;
+			else
+				result = -1;
+		}
+		return result;
+	}
+	boolean SetStatus(int status)
+	{
+		boolean ok = true;
+		String tag_val = null;
+		switch(status) {
+			case statusPrvMale: tag_val = "male"; break;
+			case statusPrvFemale: tag_val = "female"; break;
+			case statusPrvGenderQuestioning: tag_val = "private"; break;
+			case statusEnterprise: tag_val = "enterprise"; break;
+			case statusUndef: tag_val = "undef"; break;
+			default:
+				assert(false);
+				ok = false;
+				break;
+		}
+		if(SLib.GetLen(tag_val) > 0) {
+			assert(ok);
+			Set(tagStatus, 0, tag_val);
+		}
+		return ok;
 	}
 	//void SetVerifiable(boolean v) { Set(tagVerifiable, 0, v ? "true" : "false"); }
 	//boolean IsVerifiable()
@@ -230,6 +275,7 @@ public class StyloQFace {
 			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagExpiryEpochSec,  "expiryepochsec"));
 			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagEMail,  "email")); // @v11.3.2
 			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagVerifiability,  "verifiability")); // @v11.3.2
+			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagStatus,  "status")); // @v11.3.6
 		}
 		return TagList;
 	}

@@ -43,7 +43,7 @@ class Registry;
  */
 class XAPIAN_VISIBILITY_DEFAULT PostingSource : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const PostingSource &) = delete;
+	void operator = (const PostingSource &) = delete;
 	/// Don't allow copying.
 	PostingSource(const PostingSource &) = delete;
 	double max_weight_ = 0.0; /// The current upper bound on what get_weight() can return.

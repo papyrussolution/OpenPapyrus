@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2003 - 2013, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2003 - 2013, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -19,18 +15,14 @@ U_NAMESPACE_BEGIN
     UOBJECT_DEFINE_RTTI_IMPLEMENTATION(CopticCalendar)
 
 static const int32_t COPTIC_JD_EPOCH_OFFSET  = 1824665;
-
-//-------------------------------------------------------------------------
+//
 // Constructors...
-//-------------------------------------------------------------------------
-
-CopticCalendar::CopticCalendar(const Locale & aLocale, UErrorCode & success)
-	: CECalendar(aLocale, success)
+//
+CopticCalendar::CopticCalendar(const Locale & aLocale, UErrorCode & success) : CECalendar(aLocale, success)
 {
 }
 
-CopticCalendar::CopticCalendar (const CopticCalendar& other)
-	: CECalendar(other)
+CopticCalendar::CopticCalendar (const CopticCalendar& other) : CECalendar(other)
 {
 }
 
@@ -47,11 +39,9 @@ const char * CopticCalendar::getType() const
 {
 	return "coptic";
 }
-
-//-------------------------------------------------------------------------
+//
 // Calendar framework
-//-------------------------------------------------------------------------
-
+//
 int32_t CopticCalendar::handleGetExtendedYear()
 {
 	int32_t eyear;
@@ -75,7 +65,6 @@ void CopticCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /*statu
 {
 	int32_t eyear, month, day, era, year;
 	jdToCE(julianDay, getJDEpochOffset(), eyear, month, day);
-
 	if(eyear <= 0) {
 		era = BCE;
 		year = 1 - eyear;
@@ -84,7 +73,6 @@ void CopticCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /*statu
 		era = CE;
 		year = eyear;
 	}
-
 	internalSet(UCAL_EXTENDED_YEAR, eyear);
 	internalSet(UCAL_ERA, era);
 	internalSet(UCAL_YEAR, year);
@@ -92,7 +80,6 @@ void CopticCalendar::handleComputeFields(int32_t julianDay, UErrorCode & /*statu
 	internalSet(UCAL_DATE, day);
 	internalSet(UCAL_DAY_OF_YEAR, (30 * month) + day);
 }
-
 /**
  * The system maintains a static default century start date and Year.  They are
  * initialized the first time they are used.  Once the system default century date
@@ -102,7 +89,8 @@ static UDate gSystemDefaultCenturyStart       = DBL_MIN;
 static int32_t gSystemDefaultCenturyStartYear   = -1;
 static icu::UInitOnce gSystemDefaultCenturyInit        = U_INITONCE_INITIALIZER;
 
-static void U_CALLCONV initializeSystemDefaultCentury() {
+static void U_CALLCONV initializeSystemDefaultCentury() 
+{
 	UErrorCode status = U_ZERO_ERROR;
 	CopticCalendar calendar(Locale("@calendar=coptic"), status);
 	if(U_SUCCESS(status)) {
@@ -135,21 +123,16 @@ int32_t CopticCalendar::getJDEpochOffset() const
 }
 
 #if 0
-// We do not want to introduce this API in ICU4C.
-// It was accidentally introduced in ICU4J as a public API.
-
-//-------------------------------------------------------------------------
-// Calendar system Conversion methods...
-//-------------------------------------------------------------------------
-
-int32_t CopticCalendar::copticToJD(int32_t year, int32_t month, int32_t day)
-{
-	return CECalendar::ceToJD(year, month, day, COPTIC_JD_EPOCH_OFFSET);
-}
-
+	// We do not want to introduce this API in ICU4C.
+	// It was accidentally introduced in ICU4J as a public API.
+	//
+	// Calendar system Conversion methods...
+	//
+	int32_t CopticCalendar::copticToJD(int32_t year, int32_t month, int32_t day)
+	{
+		return CECalendar::ceToJD(year, month, day, COPTIC_JD_EPOCH_OFFSET);
+	}
 #endif
 
 U_NAMESPACE_END
-
 #endif /* #if !UCONFIG_NO_FORMATTING */
-//eof

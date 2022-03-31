@@ -50,7 +50,7 @@
  * It looks strange to do mirroring in LTR output, but it is only because
  * we are writing RTL output in reverse.
  */
-static int32_t doWriteForward(const UChar * src, int32_t srcLength, UChar * dest, int32_t destSize, uint16_t options, UErrorCode * pErrorCode) 
+static int32_t doWriteForward(const UChar * src, int32_t srcLength, UChar * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode) 
 {
 	/* optimize for several combinations of options */
 	switch(options&(UBIDI_REMOVE_BIDI_CONTROLS|UBIDI_DO_MIRRORING)) {
@@ -142,7 +142,7 @@ static int32_t doWriteForward(const UChar * src, int32_t srcLength, UChar * dest
 
 static int32_t doWriteReverse(const UChar * src, int32_t srcLength,
     UChar * dest, int32_t destSize,
-    uint16_t options,
+    uint16 options,
     UErrorCode * pErrorCode) {
 	/*
 	 * RTL run -
@@ -299,7 +299,7 @@ static int32_t doWriteReverse(const UChar * src, int32_t srcLength,
 
 U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength,
     UChar * dest, int32_t destSize,
-    uint16_t options,
+    uint16 options,
     UErrorCode * pErrorCode) {
 	int32_t destLength;
 
@@ -345,7 +345,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength
 #endif
 U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
     UChar * dest, int32_t destSize,
-    uint16_t options,
+    uint16 options,
     UErrorCode * pErrorCode) {
 	const UChar * text;
 	UChar * saveDest;
@@ -430,7 +430,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
 			/* do not insert BiDi controls */
 			for(run = 0; run<runCount; ++run) {
 				if(UBIDI_LTR==ubidi_getVisualRun(pBiDi, run, &logicalStart, &runLength)) {
-					runLength = doWriteForward(text+logicalStart, runLength, dest, destSize, (uint16_t)(options&~UBIDI_DO_MIRRORING), pErrorCode);
+					runLength = doWriteForward(text+logicalStart, runLength, dest, destSize, (uint16)(options&~UBIDI_DO_MIRRORING), pErrorCode);
 				}
 				else {
 					runLength = doWriteReverse(text+logicalStart, runLength, dest, destSize, options, pErrorCode);
@@ -473,7 +473,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
 						}
 						--destSize;
 					}
-					runLength = doWriteForward(src, runLength, dest, destSize, (uint16_t)(options&~UBIDI_DO_MIRRORING), pErrorCode);
+					runLength = doWriteForward(src, runLength, dest, destSize, (uint16)(options&~UBIDI_DO_MIRRORING), pErrorCode);
 					if(dest) {
 						dest += runLength;
 					}
@@ -547,7 +547,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
 				if(UBIDI_LTR==ubidi_getVisualRun(pBiDi, run, &logicalStart, &runLength)) {
 					runLength = doWriteReverse(text+logicalStart, runLength,
 						dest, destSize,
-						(uint16_t)(options&~UBIDI_DO_MIRRORING), pErrorCode);
+						(uint16)(options&~UBIDI_DO_MIRRORING), pErrorCode);
 				}
 				else {
 					runLength = doWriteForward(text+logicalStart, runLength,
@@ -576,7 +576,7 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
 						}
 						--destSize;
 					}
-					runLength = doWriteReverse(src, runLength, dest, destSize, (uint16_t)(options&~UBIDI_DO_MIRRORING), pErrorCode);
+					runLength = doWriteReverse(src, runLength, dest, destSize, (uint16)(options&~UBIDI_DO_MIRRORING), pErrorCode);
 					if(dest) {
 						dest += runLength;
 					}

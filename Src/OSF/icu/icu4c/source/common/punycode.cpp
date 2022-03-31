@@ -1,21 +1,11 @@
+// punycode.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2002-2011, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  punycode.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002jan31
- *   created by: Markus W. Scherer
- */
-
+// Copyright (C) 2002-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jan31
+// created by: Markus W. Scherer
+// 
 /* This ICU code derived from: */
 /*
    punycode.c 0.4.0 (2001-Nov-17-Sat)
@@ -103,7 +93,8 @@ static inline char digitToBasic(int32_t digit, bool uppercase) {
  * @return the numeric value of a basic code point (for use in representing integers)
  *         in the range 0 to BASE-1, or a negative value if cp is invalid.
  */
-static int32_t decodeDigit(int32_t cp) {
+static int32_t decodeDigit(int32_t cp) 
+{
 	if(cp<=u'Z') {
 		if(cp<=u'9') {
 			if(cp<u'0') {
@@ -556,13 +547,9 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 
 			/* use the UChar index codeUnitIndex instead of the code point index i */
 			if(codeUnitIndex<destLength) {
-				uprv_memmove(dest+codeUnitIndex+cpLength,
-				    dest+codeUnitIndex,
-				    (destLength-codeUnitIndex)*U_SIZEOF_UCHAR);
+				uprv_memmove(dest+codeUnitIndex+cpLength, dest+codeUnitIndex, (destLength-codeUnitIndex)*U_SIZEOF_UCHAR);
 				if(caseFlags!=NULL) {
-					uprv_memmove(caseFlags+codeUnitIndex+cpLength,
-					    caseFlags+codeUnitIndex,
-					    destLength-codeUnitIndex);
+					uprv_memmove(caseFlags+codeUnitIndex+cpLength, caseFlags+codeUnitIndex, destLength-codeUnitIndex);
 				}
 			}
 			if(cpLength==1) {
@@ -586,10 +573,8 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 		U_ASSERT(destLength>=0);
 		++i;
 	}
-
 	return u_terminateUChars(dest, destCapacity, destLength, pErrorCode);
 }
 
 /* ### check notes on overflow handling - only necessary if not IDNA? are these Punycode functions to be public? */
-
 #endif /* #if !UCONFIG_NO_IDNA */

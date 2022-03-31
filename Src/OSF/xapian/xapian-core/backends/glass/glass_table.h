@@ -551,7 +551,7 @@ private:
 	/// Copying not allowed
 	GlassTable(const GlassTable &);
 	/// Assignment not allowed
-	GlassTable & operator=(const GlassTable &);
+	GlassTable & operator = (const GlassTable &);
 	void basic_open(const RootInfo * root_info, glass_revision_number_t rev);
 	/** Perform the opening operation to read. */
 	void do_open_to_read(const RootInfo * root_info, glass_revision_number_t rev);

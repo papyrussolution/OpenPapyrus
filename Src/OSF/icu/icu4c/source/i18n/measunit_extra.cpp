@@ -516,9 +516,9 @@ public:
 		return fMatch;
 	}
 
-	int8_t getPower() const {
+	int8 getPower() const {
 		U_ASSERT(getType() == TYPE_POWER_PART);
-		return static_cast<int8_t>(fMatch - kPowerPartOffset);
+		return static_cast<int8>(fMatch - kPowerPartOffset);
 	}
 
 	int32_t getSimpleUnitIndex() const {

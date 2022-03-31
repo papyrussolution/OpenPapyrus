@@ -115,16 +115,16 @@ U_CFUNC int32_t ubidi_getMaxValue(UProperty which) {
 }
 
 U_CAPI UCharDirection ubidi_getClass(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return (UCharDirection)UBIDI_GET_CLASS(props);
 }
 
 U_CFUNC bool ubidi_isMirrored(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return (bool)UBIDI_GET_FLAG(props, UBIDI_IS_MIRRORED_SHIFT);
 }
 
-static UChar32 getMirror(UChar32 c, uint16_t props) {
+static UChar32 getMirror(UChar32 c, uint16 props) {
 	int32_t delta = UBIDI_GET_MIRROR_DELTA(props);
 	if(delta!=UBIDI_ESC_MIRROR_DELTA) {
 		return c+delta;
@@ -158,22 +158,22 @@ static UChar32 getMirror(UChar32 c, uint16_t props) {
 }
 
 U_CFUNC UChar32 ubidi_getMirror(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return getMirror(c, props);
 }
 
 U_CFUNC bool ubidi_isBidiControl(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return (bool)UBIDI_GET_FLAG(props, UBIDI_BIDI_CONTROL_SHIFT);
 }
 
 U_CFUNC bool ubidi_isJoinControl(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return (bool)UBIDI_GET_FLAG(props, UBIDI_JOIN_CONTROL_SHIFT);
 }
 
 U_CFUNC UJoiningType ubidi_getJoiningType(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return (UJoiningType)((props&UBIDI_JT_MASK)>>UBIDI_JT_SHIFT);
 }
 
@@ -194,12 +194,12 @@ U_CFUNC UJoiningGroup ubidi_getJoiningGroup(UChar32 c) {
 }
 
 U_CFUNC UBidiPairedBracketType ubidi_getPairedBracketType(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	return (UBidiPairedBracketType)((props&UBIDI_BPT_MASK)>>UBIDI_BPT_SHIFT);
 }
 
 U_CFUNC UChar32 ubidi_getPairedBracket(UChar32 c) {
-	uint16_t props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
+	uint16 props = UTRIE2_GET16(&ubidi_props_singleton.trie, c);
 	if((props&UBIDI_BPT_MASK)==0) {
 		return c;
 	}

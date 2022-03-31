@@ -1,5 +1,5 @@
 // PPEXP.DL6
-// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // Этот файл создается и модифицируется только разработчиками системы и распространяется с дистрибутивом.
 // ! Ни в коем случае не модифицируйте этот файл самостоятельно !
 //
@@ -251,7 +251,7 @@ data Global {
 data User {
 	key    ID;
 	string Name[32];
-	string Symb[20]; // 
+	string Symb[20]; //
 	link   Person PersonID; // Персоналия, на которую ссылается пользователь
 }
 //
@@ -708,10 +708,10 @@ data Person {
 	// Descr: Возвращает один email адрес персоналии. Если персоналия имеет более одного адреса,
 	//   то возвращается только первый.
 	//
-	string GetSingleEmail[64](); // 
-	string FormatRegister[256](string regCode[20]); // 
-	string FormatRegisterD[256](string regCode[20], date dt); // 
-	string GetExtName[256](); // 
+	string GetSingleEmail[64](); //
+	string FormatRegister[256](string regCode[20]); //
+	string FormatRegisterD[256](string regCode[20], date dt); //
+	string GetExtName[256](); //
 }
 //
 // Реквизиты персоналии, необходимые для печати некоторых форм
@@ -3146,6 +3146,7 @@ data BillList {
 //
 // Реестр товарных документов с содержанием
 // @v8.4.9 Verification needed
+// @v11.3.6 Verification needed
 //
 data ContentBList {
 	declare "Destroy"
@@ -3181,7 +3182,6 @@ data ContentBList {
 	Period     = formatperiod(FltBeg, FltEnd);
 	iteration {
 		link   Bill  BillID;
-
 		link   Goods GoodsID;
 		link   Lot   LotID;
 		long   recNo;
@@ -3189,6 +3189,7 @@ data ContentBList {
 		double Quantity;
 		double Cost;
 		double Price;
+		double NominalPrice; // @v11.3.6 Номинальная цена (зависит от вида операции)
 		double CurPrice;
 		double VaTax;
 		double ExTax;
@@ -3208,6 +3209,7 @@ data ContentBList {
 		ContrAgentName = BillID.ArticleID.Name;
 		SCost     = Quantity*Cost;
 		Summa     = Quantity*Price;
+		SNominal  = Quantity*NominalPrice; // @v11.3.6 Сумма в номинальных ценах (зависит от вида операции)
 		OpName    = BillID.OprKindID.Name;
 		CostRevalSum  = (Cost  - OldCost)  * Quantity;
 		PriceRevalSum = (Price - OldPrice) * Quantity;
@@ -4452,11 +4454,11 @@ data GoodsStrucList {
 	OrgName = Glb.MainOrgName;
 	LocName = LocID.Name;
 	iteration {
-		link   GoodsStruc GsID;      // 
+		link   GoodsStruc GsID;      //
 		link   GoodsStruc ParentID;  // Родительская структура
 		link   Goods     GoodsID;    // Идентификатор товара, к которому относится структура
 		link   Goods     ItemID;
-		link   QuotKind  GiftQuotKindID; // 
+		link   QuotKind  GiftQuotKindID; //
         double CommDenom;  //
         double GiftLimit;  //
         double GiftAmtRestrict; //

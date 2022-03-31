@@ -150,7 +150,7 @@ public:
      * indexing.
      * @stable ICU 2.4
      */
-    virtual bool matchesIndexValue(uint8_t v) const = 0;
+    virtual bool matchesIndexValue(uint8 v) const = 0;
 
     /**
      * Union the set of all characters that may be matched by this object

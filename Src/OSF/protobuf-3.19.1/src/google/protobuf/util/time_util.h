@@ -183,30 +183,30 @@ Duration& operator/=(Duration& d, T r) {  // NOLINT
 PROTOBUF_EXPORT Duration& operator%=(Duration& d1,
     const Duration& d2);                                   // NOLINT
 // Relational operators.
-inline bool operator<(const Duration& d1, const Duration& d2) {
+inline bool operator < (const Duration& d1, const Duration& d2) {
 	if(d1.seconds() == d2.seconds()) {
 		return d1.nanos() < d2.nanos();
 	}
 	return d1.seconds() < d2.seconds();
 }
 
-inline bool operator>(const Duration& d1, const Duration& d2) {
+inline bool operator > (const Duration& d1, const Duration& d2) {
 	return d2 < d1;
 }
 
-inline bool operator>=(const Duration& d1, const Duration& d2) {
+inline bool operator >= (const Duration& d1, const Duration& d2) {
 	return !(d1 < d2);
 }
 
-inline bool operator<=(const Duration& d1, const Duration& d2) {
+inline bool operator <= (const Duration& d1, const Duration& d2) {
 	return !(d2 < d1);
 }
 
-inline bool operator==(const Duration& d1, const Duration& d2) {
+inline bool operator == (const Duration& d1, const Duration& d2) {
 	return d1.seconds() == d2.seconds() && d1.nanos() == d2.nanos();
 }
 
-inline bool operator!=(const Duration& d1, const Duration& d2) {
+inline bool operator != (const Duration& d1, const Duration& d2) {
 	return !(d1 == d2);
 }
 
@@ -251,7 +251,7 @@ inline Duration operator%(const Duration& d1, const Duration& d2) {
 	return result %= d2;
 }
 
-inline std::ostream& operator<<(std::ostream& out, const Duration& d) {
+inline std::ostream & operator<<(std::ostream & out, const Duration& d) {
 	out << ::PROTOBUF_NAMESPACE_ID::util::TimeUtil::ToString(d);
 	return out;
 }
@@ -264,30 +264,30 @@ PROTOBUF_EXPORT Timestamp& operator+=(Timestamp& t,
 PROTOBUF_EXPORT Timestamp& operator-=(Timestamp& t,
     const Duration& d);                                    // NOLINT
 // Relational operators.
-inline bool operator<(const Timestamp& t1, const Timestamp& t2) {
+inline bool operator < (const Timestamp& t1, const Timestamp& t2) {
 	if(t1.seconds() == t2.seconds()) {
 		return t1.nanos() < t2.nanos();
 	}
 	return t1.seconds() < t2.seconds();
 }
 
-inline bool operator>(const Timestamp& t1, const Timestamp& t2) {
+inline bool operator > (const Timestamp& t1, const Timestamp& t2) {
 	return t2 < t1;
 }
 
-inline bool operator>=(const Timestamp& t1, const Timestamp& t2) {
+inline bool operator >= (const Timestamp& t1, const Timestamp& t2) {
 	return !(t1 < t2);
 }
 
-inline bool operator<=(const Timestamp& t1, const Timestamp& t2) {
+inline bool operator <= (const Timestamp& t1, const Timestamp& t2) {
 	return !(t2 < t1);
 }
 
-inline bool operator==(const Timestamp& t1, const Timestamp& t2) {
+inline bool operator == (const Timestamp& t1, const Timestamp& t2) {
 	return t1.seconds() == t2.seconds() && t1.nanos() == t2.nanos();
 }
 
-inline bool operator!=(const Timestamp& t1, const Timestamp& t2) {
+inline bool operator != (const Timestamp& t1, const Timestamp& t2) {
 	return !(t1 == t2);
 }
 
@@ -309,7 +309,7 @@ inline Timestamp operator-(const Timestamp& t, const Duration& d) {
 
 PROTOBUF_EXPORT Duration operator-(const Timestamp& t1, const Timestamp& t2);
 
-inline std::ostream& operator<<(std::ostream& out, const Timestamp& t) {
+inline std::ostream & operator<<(std::ostream & out, const Timestamp& t) {
 	out << ::PROTOBUF_NAMESPACE_ID::util::TimeUtil::ToString(t);
 	return out;
 }

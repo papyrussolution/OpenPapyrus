@@ -31,7 +31,7 @@ class Xapian::Diversify::Internal : public Xapian::Internal::intrusive_base {
 	/// Copies are not allowed
 	Internal(const Internal&) = delete;
 	/// Assignment is not allowed
-	void operator=(const Internal&) = delete;
+	void operator = (const Internal&) = delete;
 	Xapian::doccount k; /// Top-k documents of given mset are diversified
 	Xapian::doccount r; /// Number of relevant documents from each cluster used for building topC
 	double lambda, b, sigma_sqr; /// MPT parameters

@@ -1761,7 +1761,7 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultLocaleID()
 		uprv_strcpy(correctedLocale, "en_US_POSIX");
 	}
 	else {
-		int16_t LocaleLen;
+		int16 LocaleLen;
 
 		/* Lower case the lang portion. */
 		for(p = correctedLocale; *p != 0 && *p != '_'; p++) {
@@ -2089,7 +2089,7 @@ U_CAPI const char * U_EXPORT2 uprv_getDefaultCodepage()
 U_CAPI void U_EXPORT2 u_versionFromString(UVersionInfo versionArray, const char * versionString) 
 {
 	char * end;
-	uint16_t part = 0;
+	uint16 part = 0;
 	if(versionArray==NULL) {
 		return;
 	}
@@ -2123,7 +2123,7 @@ U_CAPI void U_EXPORT2 u_versionFromUString(UVersionInfo versionArray, const UCha
 
 U_CAPI void U_EXPORT2 u_versionToString(const UVersionInfo versionArray, char * versionString) 
 {
-	uint16_t count, part;
+	uint16 count, part;
 	uint8 field;
 	if(versionString==NULL) {
 		return;

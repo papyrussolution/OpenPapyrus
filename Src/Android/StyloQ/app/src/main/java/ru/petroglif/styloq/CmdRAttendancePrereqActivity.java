@@ -78,7 +78,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						if(innerViewId != 0 && fv != null && fv instanceof ViewGroup) {
 							View lv = fv.findViewById(innerViewId);
 							if(lv != null && lv instanceof RecyclerView) {
-								RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
+								RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
 								if(gva != null)
 									gva.notifyDataSetChanged();
 							}
@@ -452,6 +452,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							SLib.SetupTabLayoutListener(lo_tab, view_pager);
 						}
 					}
+					SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
 				} catch(StyloQException | JSONException exn) {
 					;//
 				}
@@ -705,7 +706,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										if(AttdcBlk.Prc != null && ((AttdcBlk.BusyList != null && AttdcBlk.BusyList.size() > 0) ||
 											AttdcBlk.CurrentBookingBusyList != null && AttdcBlk.CurrentBookingBusyList.size() > 0)) {
 											SLib.LDATETIME end_dtm = new SLib.LDATETIME(dt, new SLib.LTIME(hour, 59, 59, 990));
-											SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, 0, 0, 0)), end_dtm);
+											SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, 0, 0, 100)), end_dtm);
 											if(AttdcBlk.BusyList != null) {
 												for(int j = 0; !busy_hour && j < AttdcBlk.BusyList.size(); j++) {
 													SLib.STimeChunk is = cell.Intersect(AttdcBlk.BusyList.get(j));
@@ -726,7 +727,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											boolean busy_cur = false;
 											if(busy_hour || busy_hour_cur) {
 												SLib.LDATETIME end_dtm = new SLib.LDATETIME(dt, new SLib.LTIME(hour, (i+1) * 5 - 1, 59, 990));
-												SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, i * 5, 0, 0)), end_dtm);
+												SLib.STimeChunk cell = new SLib.STimeChunk(new SLib.LDATETIME(dt, new SLib.LTIME(hour, i * 5, 0, 100)), end_dtm);
 												if(busy_hour) {
 													for(int j = 0; !busy && j < AttdcBlk.BusyList.size(); j++) {
 														SLib.STimeChunk is = cell.Intersect(AttdcBlk.BusyList.get(j));
@@ -1123,8 +1124,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							else if(a.GetListRcId() == R.id.attendancePrereqGoodsGroupListView) {
 								if(app_ctx != null && CPM.GoodsGroupListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GoodsGroupListData.size()) {
 									final int group_id = CPM.GoodsGroupListData.get(ev_subj.ItemIdx).optInt("id", 0);
-									if(CPM.SetGoodsFilterByGroup(group_id))
+									if(CPM.SetGoodsFilterByGroup(group_id)) {
+										SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.VISIBLE);
 										do_update_goods_list_and_toggle_to_it = true;
+									}
 									//app_ctx.RunSvcCommand(SvcIdent, ListData.Items.get(ev_subj.ItemIdx));
 								}
 							}
@@ -1139,6 +1142,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				int view_id = (srcObj != null && srcObj instanceof View) ? ((View)srcObj).getId() : 0;
 				if(view_id == R.id.tbButtonSearch) {
 					GotoTab(CommonPrereqModule.Tab.tabSearch, 0, -1, -1);
+				}
+				else if(view_id == R.id.tbButtonClearFiter) {
+					CPM.ResetGoodsFiter();
+					SLib.SetCtrlVisibility(this, R.id.tbButtonClearFiter, View.GONE);
+					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.attendancePrereqGoodsListView, -1, -1);
 				}
 				else if(view_id == R.id.CTL_PREV) {
 					if(AttdcBlk != null && SLib.CheckDate(AttdcBlk.SelectionDate)) {
@@ -1169,7 +1177,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				else {
 					if(view_id == R.id.LVITEM_MIN00 || view_id == R.id.LVITEM_MIN05 || view_id == R.id.LVITEM_MIN10 ||
 						view_id == R.id.LVITEM_MIN15 || view_id == R.id.LVITEM_MIN20 || view_id == R.id.LVITEM_MIN25 ||
-						view_id == R.id.LVITEM_MIN30 || view_id == R.id.LVITEM_MIN35 || view_id == R.id.LVITEM_MIN30 ||
+						view_id == R.id.LVITEM_MIN30 || view_id == R.id.LVITEM_MIN35 || view_id == R.id.LVITEM_MIN40 ||
 						view_id == R.id.LVITEM_MIN45 || view_id == R.id.LVITEM_MIN50 || view_id == R.id.LVITEM_MIN55) {
 						if(subj != null && subj instanceof Integer) {
 							int goods_id = (AttdcBlk.Ware != null) ? AttdcBlk.Ware.JsItem.optInt("id", 0) : 0;

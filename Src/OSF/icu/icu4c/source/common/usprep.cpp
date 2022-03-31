@@ -41,7 +41,7 @@ static icu::UInitOnce gSharedDataInitOnce = U_INITONCE_INITIALIZER;
 
 static UMutex usprepMutex;
 /* format version of spp file */
-//static uint8 formatVersion[4]={ 0, 0, 0, 0 };
+//static uint8 formatVersion[4] = { 0, 0, 0, 0 };
 
 /* the Unicode version of the sprep data */
 static UVersionInfo dataVersion = { 0, 0, 0, 0 };
@@ -249,7 +249,7 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 	}
 	umtx_unlock(&usprepMutex);
 	/* initialize some variables */
-	profile->mappingData = (uint16_t*)((uint8 *)(p+_SPREP_INDEX_TOP)+profile->indexes[_SPREP_INDEX_TRIE_SIZE]);
+	profile->mappingData = (uint16*)((uint8 *)(p+_SPREP_INDEX_TOP)+profile->indexes[_SPREP_INDEX_TRIE_SIZE]);
 
 	u_getUnicodeVersion(normUnicodeVersion);
 	normUniVer = (normUnicodeVersion[0] << 24) + (normUnicodeVersion[1] << 16) +
@@ -370,7 +370,7 @@ static UStringPrepProfile* usprep_getProfile(const char * path,
 U_CAPI UStringPrepProfile* U_EXPORT2 usprep_open(const char * path,
     const char * name,
     UErrorCode * status) {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 
@@ -380,7 +380,7 @@ U_CAPI UStringPrepProfile* U_EXPORT2 usprep_open(const char * path,
 
 U_CAPI UStringPrepProfile* U_EXPORT2 usprep_openByType(UStringPrepProfileType type,
     UErrorCode * status) {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	int32_t index = (int32_t)type;
@@ -435,7 +435,7 @@ U_CFUNC void uprv_syntaxError(const UChar * rules,
 	parseError->postContext[limit-start] = 0;
 }
 
-static inline UStringPrepType getValues(uint16_t trieWord, int16_t& value, bool& isIndex) {
+static inline UStringPrepType getValues(uint16 trieWord, int16& value, bool& isIndex) {
 	UStringPrepType type;
 	if(trieWord == 0) {
 		/*
@@ -462,7 +462,7 @@ static inline UStringPrepType getValues(uint16_t trieWord, int16_t& value, bool&
 		}
 		else {
 			isIndex = FALSE;
-			value = (int16_t)trieWord;
+			value = (int16)trieWord;
 			value =  (value >> 2);
 		}
 
@@ -482,12 +482,12 @@ static int32_t usprep_map(const UStringPrepProfile* profile,
     int32_t options,
     UParseError* parseError,
     UErrorCode * status) {
-	uint16_t result;
+	uint16 result;
 	int32_t destIndex = 0;
 	int32_t srcIndex;
 	bool allowUnassigned = (bool)((options & USPREP_ALLOW_UNASSIGNED)>0);
 	UStringPrepType type;
-	int16_t value;
+	int16 value;
 	bool isIndex;
 	const int32_t* indexes = profile->indexes;
 
@@ -687,10 +687,10 @@ U_CAPI int32_t U_EXPORT2 usprep_prepare(const UStringPrepProfile* profile,
 		UChar32 ch = 0;
 		U16_NEXT(b2, b2Index, b2Len, ch);
 
-		uint16_t result;
+		uint16 result;
 		UTRIE_GET16(&profile->sprepTrie, ch, result);
 
-		int16_t value;
+		int16 value;
 		bool isIndex;
 		UStringPrepType type = getValues(result, value, isIndex);
 
@@ -832,7 +832,7 @@ U_CAPI int32_t U_EXPORT2 usprep_swap(const UDataSwapper * ds,
 		utrie_swap(ds, inBytes+offset, count, outBytes+offset, pErrorCode);
 		offset += count;
 
-		/* swap the uint16_t mappingTable[] */
+		/* swap the uint16 mappingTable[] */
 		count = indexes[_SPREP_INDEX_MAPPING_DATA_SIZE];
 		ds->swapArray16(ds, inBytes+offset, count, outBytes+offset, pErrorCode);
 		//offset+=count;

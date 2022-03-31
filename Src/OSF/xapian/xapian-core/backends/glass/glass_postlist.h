@@ -182,7 +182,7 @@ class GlassPostList : public LeafPostList {
 	GlassPostList(const GlassPostList &);
 
 	/// Assignment is not allowed.
-	void operator=(const GlassPostList &);
+	void operator = (const GlassPostList &);
 
 	/** Move to the next item in the chunk, if possible.
 	 *  If already at the end of the chunk, returns false.

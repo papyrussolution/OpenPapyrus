@@ -1174,7 +1174,6 @@ int ClsdGoodsDialog::getDTS(PPGoodsPacket * pPack)
 //
 //
 //
-//#define GRP_IBG 1L
 GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID), St(0), gpk(gpkndUndef)
 {
 	const  long ccflags = CConfig.Flags;
@@ -1186,8 +1185,7 @@ GoodsDialog::GoodsDialog(uint rezID) : TDialog(rezID), St(0), gpk(gpkndUndef)
 	disableCtrl(CTLSEL_GOODS_CLS, !use_gdscls);
 	if(GObj.GetConfig().Flags & GCF_DISABLEWOTAXFLAG)
 		St |= stWoTaxFlagDisabled;
-	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE,
-		cmAddImage, cmDelImage, GObj.CheckRights(GOODSRT_UPDIMAGE)));
+	addGroup(ctlgroupIBG, new ImageBrowseCtrlGroup(/*PPTXT_PICFILESEXTS,*/CTL_GOODS_IMAGE, cmAddImage, cmDelImage, GObj.CheckRights(GOODSRT_UPDIMAGE)));
 }
 
 void GoodsDialog::setupInhTaxGrpName()

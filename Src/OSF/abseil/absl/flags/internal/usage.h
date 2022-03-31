@@ -7,18 +7,11 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_FLAGS_INTERNAL_USAGE_H_
 #define ABSL_FLAGS_INTERNAL_USAGE_H_
 
 #include <iosfwd>
 #include <string>
-
 #include "absl/base/config.h"
 #include "absl/flags/commandlineflag.h"
 #include "absl/flags/declare.h"
@@ -38,7 +31,7 @@ enum class HelpFormat {
 
 // Streams the help message describing `flag` to `out`.
 // The default value for `flag` is included in the output.
-void FlagHelp(std::ostream& out, const CommandLineFlag& flag,
+void FlagHelp(std::ostream & out, const CommandLineFlag& flag,
               HelpFormat format = HelpFormat::kHumanReadable);
 
 // Produces the help messages for all flags matching the filter. A flag matches
@@ -50,7 +43,7 @@ void FlagHelp(std::ostream& out, const CommandLineFlag& flag,
 //  .../path/to/file.<ext>
 // for any extension 'ext'. If the filter is empty this function produces help
 // messages for all flags.
-void FlagsHelp(std::ostream& out, absl::string_view filter,
+void FlagsHelp(std::ostream & out, absl::string_view filter,
                HelpFormat format, absl::string_view program_usage_message);
 
 // --------------------------------------------------------------------
@@ -63,7 +56,7 @@ void FlagsHelp(std::ostream& out, absl::string_view filter,
 // -1 - if no usage flags were set on a commmand line.
 // Non negative return values are expected to be used as an exit code for a
 // binary.
-int HandleUsageFlags(std::ostream& out,
+int HandleUsageFlags(std::ostream & out,
                      absl::string_view program_usage_message);
 
 // --------------------------------------------------------------------

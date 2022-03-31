@@ -64,7 +64,7 @@ private:
 
 U_NAMESPACE_END
 
-U_CAPI /*bool*/int8_t U_EXPORT2 uhash_compareScriptSet(const UElement key1, const UElement key2);
+U_CAPI /*bool*/int8 U_EXPORT2 uhash_compareScriptSet(const UElement key1, const UElement key2);
 U_CAPI int32_t U_EXPORT2 uhash_hashScriptSet(const UElement key);
 U_CAPI void U_EXPORT2 uhash_deleteScriptSet(void * obj);
 

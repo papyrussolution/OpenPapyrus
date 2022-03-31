@@ -7,13 +7,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 // Allow dynamic symbol lookup in the kernel VDSO page.
 //
 // VDSO stands for "Virtual Dynamic Shared Object" -- a page of
@@ -40,7 +33,6 @@
 #define ABSL_DEBUGGING_INTERNAL_VDSO_SUPPORT_H_
 
 #include <atomic>
-
 #include "absl/base/attributes.h"
 #include "absl/debugging/internal/elf_mem_image.h"
 
@@ -139,7 +131,7 @@ class VDSOSupport {
   friend int GetCPU(void);  // Needs access to getcpu_fn_.
 
   VDSOSupport(const VDSOSupport&) = delete;
-  VDSOSupport& operator=(const VDSOSupport&) = delete;
+  VDSOSupport& operator = (const VDSOSupport&) = delete;
 };
 
 // Same as sched_getcpu() on later glibc versions.

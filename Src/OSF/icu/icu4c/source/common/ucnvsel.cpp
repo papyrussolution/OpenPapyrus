@@ -280,7 +280,7 @@ U_CAPI int32_t U_EXPORT2 ucnvsel_serialize(const UConverterSelector* sel,
 
 	DataHeader header;
 	memzero(&header, sizeof(header));
-	header.dataHeader.headerSize = (uint16_t)((sizeof(header) + 15) & ~15);
+	header.dataHeader.headerSize = (uint16)((sizeof(header) + 15) & ~15);
 	header.dataHeader.magic1 = 0xda;
 	header.dataHeader.magic2 = 0x27;
 	uprv_memcpy(&header.info, &dataInfo, sizeof(dataInfo));
@@ -566,9 +566,9 @@ U_CAPI UConverterSelector* U_EXPORT2 ucnvsel_openFromSerialized(const void * buf
 // a bunch of functions for the enumeration thingie! Nothing fancy here. Just
 // iterate over the selected encodings
 struct Enumerator {
-	int16_t* index;
-	int16_t length;
-	int16_t cur;
+	int16* index;
+	int16 length;
+	int16 cur;
 	const UConverterSelector* sel;
 };
 
@@ -596,7 +596,7 @@ static const char * U_CALLCONV ucnvsel_next_encoding(UEnumeration* enumerator,
 		return NULL;
 	}
 
-	int16_t cur = ((Enumerator*)(enumerator->context))->cur;
+	int16 cur = ((Enumerator*)(enumerator->context))->cur;
 	const UConverterSelector* sel;
 	const char * result;
 	if(cur >= ((Enumerator*)(enumerator->context))->length) {
@@ -645,7 +645,7 @@ static bool intersectMasks(uint32_t* dest, const uint32_t* source1, int32_t len)
 
 // internal fn to count how many 1's are there in a mask
 // algorithm taken from  http://graphics.stanford.edu/~seander/bithacks.html
-static int16_t countOnes(uint32_t* mask, int32_t len) {
+static int16 countOnes(uint32_t* mask, int32_t len) {
 	int32_t i, totalOnes = 0;
 	for(i = 0; i < len; ++i) {
 		uint32_t ent = mask[i];
@@ -653,7 +653,7 @@ static int16_t countOnes(uint32_t* mask, int32_t len) {
 			ent &= ent - 1; // clear the least significant bit set
 		}
 	}
-	return static_cast<int16_t>(totalOnes);
+	return static_cast<int16>(totalOnes);
 }
 
 /* internal function! */
@@ -680,16 +680,16 @@ static UEnumeration * selectForMask(const UConverterSelector* sel,
 	memcpy(en.getAlias(), &defaultEncodings, sizeof(UEnumeration));
 
 	int32_t columns = (sel->encodingsCount+31)/32;
-	int16_t numOnes = countOnes(mask.getAlias(), columns);
+	int16 numOnes = countOnes(mask.getAlias(), columns);
 	// now, we know the exact space we need for index
 	if(numOnes > 0) {
-		result->index = static_cast<int16_t*>(uprv_malloc(numOnes * sizeof(int16_t)));
+		result->index = static_cast<int16*>(uprv_malloc(numOnes * sizeof(int16)));
 		if(result->index == nullptr) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			return nullptr;
 		}
 		int32_t i, j;
-		int16_t k = 0;
+		int16 k = 0;
 		for(j = 0; j < columns; j++) {
 			uint32_t v = mask[j];
 			for(i = 0; i < 32 && k < sel->encodingsCount; i++, k++) {
@@ -734,7 +734,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForString(const UConverterSelector
 		}
 		while(limit == NULL ? *s != 0 : s != limit) {
 			UChar32 c;
-			uint16_t pvIndex;
+			uint16 pvIndex;
 			UTRIE2_U16_NEXT16(sel->trie, s, limit, c, pvIndex);
 			if(intersectMasks(mask, sel->pv+pvIndex, columns)) {
 				break;
@@ -769,7 +769,7 @@ U_CAPI UEnumeration * U_EXPORT2 ucnvsel_selectForUTF8(const UConverterSelector* 
 	if(s) {
 		const char * limit = s + length;
 		while(s != limit) {
-			uint16_t pvIndex;
+			uint16 pvIndex;
 			UTRIE2_U8_NEXT16(sel->trie, s, limit, pvIndex);
 			if(intersectMasks(mask, sel->pv+pvIndex, columns)) {
 				break;

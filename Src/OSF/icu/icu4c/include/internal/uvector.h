@@ -238,7 +238,7 @@ public:
 	 */
 	virtual UClassID getDynamicClassID() const override;
 private:
-	int32_t indexOf(UElement key, int32_t startIndex = 0, int8_t hint = 0) const;
+	int32_t indexOf(UElement key, int32_t startIndex = 0, int8 hint = 0) const;
 	void sortedInsert(UElement e, UElementComparator * compare, UErrorCode & ec);
 public:
 	// Disallow

@@ -36,7 +36,7 @@ enum CldrPatternStyle {
 // Namespace for naked functions
 namespace utils {
 
-inline int32_t insertDigitFromSymbols(FormattedStringBuilder& output, int32_t index, int8_t digit,
+inline int32_t insertDigitFromSymbols(FormattedStringBuilder& output, int32_t index, int8 digit,
                                       const DecimalFormatSymbols& symbols, Field field,
                                       UErrorCode & status) {
     if(symbols.getCodePointZero() != -1) {

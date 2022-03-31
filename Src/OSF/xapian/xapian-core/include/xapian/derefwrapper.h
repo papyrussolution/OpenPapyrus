@@ -33,7 +33,7 @@ namespace Xapian {
 	 */
 	template <typename T> class DerefWrapper_ {
 		/// Don't allow assignment.
-		void operator=(const DerefWrapper_&) = delete;
+		void operator = (const DerefWrapper_&) = delete;
 		/// The value.
 		T res;
 	public:

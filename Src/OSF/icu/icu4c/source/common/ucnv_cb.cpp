@@ -105,7 +105,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteUChars(UConverterFromUnicodeArgs * args,
 		const char * newTargetLimit;
 		UErrorCode err2 = U_ZERO_ERROR;
 
-		int8_t errBuffLen;
+		int8 errBuffLen;
 
 		errBuffLen  = args->converter->charErrorBufferLength;
 
@@ -139,7 +139,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteUChars(UConverterFromUnicodeArgs * args,
 		/* We can go ahead and overwrite the  length here. We know just how
 		   to recalculate it. */
 
-		args->converter->charErrorBufferLength = (int8_t)(
+		args->converter->charErrorBufferLength = (int8)(
 			newTarget - (char *)args->converter->charErrorBuffer);
 
 		if((newTarget >= newTargetLimit) || (err2 == U_BUFFER_OVERFLOW_ERROR)) {
@@ -198,7 +198,7 @@ U_CAPI void U_EXPORT2 ucnv_cbFromUWriteSub(UConverterFromUnicodeArgs * args,
 	if(converter->sharedData->impl->writeSub!=NULL) {
 		converter->sharedData->impl->writeSub(args, offsetIndex, err);
 	}
-	else if(converter->subChar1!=0 && (uint16_t)converter->invalidUCharBuffer[0]<=(uint16_t)0xffu) {
+	else if(converter->subChar1!=0 && (uint16)converter->invalidUCharBuffer[0]<=(uint16)0xffu) {
 		/*
 		   TODO: Is this untestable because the MBCS converter has a writeSub function to call
 		   and the other converters don't use subChar1?

@@ -41,7 +41,7 @@ class Stem;
  *  Xapian::SimpleStopper.
  */
 class XAPIAN_VISIBILITY_DEFAULT Stopper : public Xapian::Internal::opt_intrusive_base {
-	void operator=(const Stopper &) = delete; /// Don't allow assignment.
+	void operator = (const Stopper &) = delete; /// Don't allow assignment.
 	Stopper(const Stopper &) = delete; /// Don't allow copying.
 public:
 	Stopper() 
@@ -132,7 +132,7 @@ enum {
 /// Base class for range processors.
 class XAPIAN_VISIBILITY_DEFAULT RangeProcessor : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const RangeProcessor &);
+	void operator = (const RangeProcessor &);
 	/// Don't allow copying.
 	RangeProcessor(const RangeProcessor &);
 protected:
@@ -422,7 +422,7 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT FieldProcessor : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const FieldProcessor &);
+	void operator = (const FieldProcessor &);
 	/// Don't allow copying.
 	FieldProcessor(const FieldProcessor &);
 public:
@@ -684,11 +684,11 @@ public:
 	/// Copy constructor.
 	QueryParser(const QueryParser & o);
 	/// Assignment.
-	QueryParser & operator=(const QueryParser & o);
+	QueryParser & operator = (const QueryParser & o);
 	/// Move constructor.
 	QueryParser(QueryParser && o);
 	/// Move assignment operator.
-	QueryParser & operator=(QueryParser && o);
+	QueryParser & operator = (QueryParser && o);
 	/// Default constructor.
 	QueryParser();
 	~QueryParser();

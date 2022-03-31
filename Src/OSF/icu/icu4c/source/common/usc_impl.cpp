@@ -50,7 +50,7 @@ struct UScriptRun {
 	int32_t fixupCount;
 };
 
-static int8_t highBit(int32_t value);
+static int8 highBit(int32_t value);
 
 static const UChar32 pairedChars[] = {
 	0x0028, 0x0029, /* ascii paired punctuation */
@@ -113,9 +113,9 @@ static void fixup(UScriptRun * scriptRun, UScriptCode scriptCode)
 	}
 }
 
-static int8_t highBit(int32_t value)
+static int8 highBit(int32_t value)
 {
-	int8_t bit = 0;
+	int8 bit = 0;
 
 	if(value <= 0) {
 		return -32;

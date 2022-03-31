@@ -294,7 +294,7 @@ void UVector32::sortedInsert(int32_t tok, UErrorCode & ec) {
 	int32_t min = 0, max = count;
 	while(min != max) {
 		int32_t probe = (min + max) / 2;
-		//int8_t c = (*compare)(elements[probe], tok);
+		//int8 c = (*compare)(elements[probe], tok);
 		//if(c > 0) {
 		if(elements[probe] > tok) {
 			max = probe;

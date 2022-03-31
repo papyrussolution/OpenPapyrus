@@ -38,14 +38,14 @@ public:
 	/// Copy constructor.
 	PostingIterator(const PostingIterator & o);
 	/// Assignment.
-	PostingIterator & operator=(const PostingIterator & o);
+	PostingIterator & operator = (const PostingIterator & o);
 	/// Move constructor.
 	PostingIterator(PostingIterator && o) : internal(o.internal) 
 	{
 		o.internal = nullptr;
 	}
 	/// Move assignment operator.
-	PostingIterator & operator=(PostingIterator && o) 
+	PostingIterator & operator = (PostingIterator && o) 
 	{
 		if(this != &o) {
 			if(internal) decref();
@@ -141,7 +141,7 @@ private:
 };
 
 /// Equality test for PostingIterator objects.
-inline bool operator==(const PostingIterator& a, const PostingIterator& b) noexcept
+inline bool operator == (const PostingIterator& a, const PostingIterator& b) noexcept
 {
 	// Use a pointer comparison - this ensures both that (a == a) and correct
 	// handling of end iterators (which we ensure have NULL internals).
@@ -149,7 +149,7 @@ inline bool operator==(const PostingIterator& a, const PostingIterator& b) noexc
 }
 
 /// Inequality test for PostingIterator objects.
-inline bool operator!=(const PostingIterator& a, const PostingIterator& b) noexcept
+inline bool operator != (const PostingIterator& a, const PostingIterator& b) noexcept
 {
 	return !(a == b);
 }

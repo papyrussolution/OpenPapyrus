@@ -122,11 +122,11 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							ctl.setText(item.GetSimpleText(0));
 							ImageView imgv = (ImageView)ev_subj.ItemView.findViewById(R.id.LVITEM_FACEVRF);
 							if(imgv != null) {
-								StyloQFace.Verifiability _v = item.GetVerifiability();
+								int _v = item.GetVerifiability();
 								int rcimg = 0;
-								if(_v == StyloQFace.Verifiability.vAnonymous)
+								if(_v == StyloQFace.vAnonymous)
 									rcimg = R.drawable.ic_faceanonymous01;
-								else if(_v == StyloQFace.Verifiability.vVerifiable)
+								else if(_v == StyloQFace.vVerifiable)
 									rcimg = R.drawable.ic_faceverifiable01;
 								else /*if(_v == StyloQFace.Verifiability.vArbitrary)*/
 									rcimg = R.drawable.ic_facearbitrary01;

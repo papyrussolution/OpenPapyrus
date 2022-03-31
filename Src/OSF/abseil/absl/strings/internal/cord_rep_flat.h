@@ -6,12 +6,6 @@
 //
 //     https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_FLAT_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_FLAT_H_
 
@@ -19,7 +13,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <memory>
-
 #include "absl/base/config.h"
 #include "absl/base/macros.h"
 #include "absl/strings/internal/cord_internal.h"
@@ -27,7 +20,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace cord_internal {
-
 // Note: all constants below are never ODR used and internal to cord, we define
 // these as static constexpr to avoid 'in struct' definition and usage clutter.
 
@@ -53,34 +45,39 @@ static constexpr uint8_t kTagBase = FLAT - 4;
 
 // Converts the provided rounded size to the corresponding tag
 constexpr uint8_t AllocatedSizeToTagUnchecked(size_t size) {
-  return static_cast<uint8_t>(size <= 512 ? kTagBase + size / 8
-                              : size <= 8192
-                                  ? kTagBase + 512 / 8 + size / 64 - 512 / 64
-                                  : kTagBase + 512 / 8 + ((8192 - 512) / 64) +
-                                        size / 4096 - 8192 / 4096);
+	return static_cast<uint8_t>(size <= 512 ? kTagBase + size / 8
+	       : size <= 8192
+	       ? kTagBase + 512 / 8 + size / 64 - 512 / 64
+	       : kTagBase + 512 / 8 + ((8192 - 512) / 64) +
+	       size / 4096 - 8192 / 4096);
 }
 
 // Converts the provided tag to the corresponding allocated size
 constexpr size_t TagToAllocatedSize(uint8_t tag) {
-  return (tag <= kTagBase + 512 / 8) ? tag * 8 - kTagBase * 8
-         : (tag <= kTagBase + (512 / 8) + ((8192 - 512) / 64))
-             ? 512 + tag * 64 - kTagBase * 64 - 512 / 8 * 64
-             : 8192 + tag * 4096 - kTagBase * 4096 -
-                   ((512 / 8) + ((8192 - 512) / 64)) * 4096;
+	return (tag <= kTagBase + 512 / 8) ? tag * 8 - kTagBase * 8
+	       : (tag <= kTagBase + (512 / 8) + ((8192 - 512) / 64))
+	       ? 512 + tag * 64 - kTagBase * 64 - 512 / 8 * 64
+	       : 8192 + tag * 4096 - kTagBase * 4096 -
+	       ((512 / 8) + ((8192 - 512) / 64)) * 4096;
 }
 
 static_assert(AllocatedSizeToTagUnchecked(kMinFlatSize) == FLAT, "");
 static_assert(AllocatedSizeToTagUnchecked(kMaxLargeFlatSize) == MAX_FLAT_TAG,
-              "");
+    "");
 
 // Helper functions for rounded div, and rounding to exact sizes.
-constexpr size_t DivUp(size_t n, size_t m) { return (n + m - 1) / m; }
-constexpr size_t RoundUp(size_t n, size_t m) { return DivUp(n, m) * m; }
+constexpr size_t DivUp(size_t n, size_t m) {
+	return (n + m - 1) / m;
+}
+
+constexpr size_t RoundUp(size_t n, size_t m) {
+	return DivUp(n, m) * m;
+}
 
 // Returns the size to the nearest equal or larger value that can be
 // expressed exactly as a tag value.
 inline size_t RoundUpForTag(size_t size) {
-  return RoundUp(size, (size <= 512) ? 8 : (size <= 8192 ? 64 : 4096));
+	return RoundUp(size, (size <= 512) ? 8 : (size <= 8192 ? 64 : 4096));
 }
 
 // Converts the allocated size to a tag, rounding down if the size
@@ -88,96 +85,107 @@ inline size_t RoundUpForTag(size_t size) {
 // undefined if the size exceeds the maximum size that can be encoded in
 // a tag, i.e., if size is larger than TagToAllocatedSize(<max tag>).
 inline uint8_t AllocatedSizeToTag(size_t size) {
-  const uint8_t tag = AllocatedSizeToTagUnchecked(size);
-  assert(tag <= MAX_FLAT_TAG);
-  return tag;
+	const uint8_t tag = AllocatedSizeToTagUnchecked(size);
+	assert(tag <= MAX_FLAT_TAG);
+	return tag;
 }
 
 // Converts the provided tag to the corresponding available data length
 constexpr size_t TagToLength(uint8_t tag) {
-  return TagToAllocatedSize(tag) - kFlatOverhead;
+	return TagToAllocatedSize(tag) - kFlatOverhead;
 }
 
 // Enforce that kMaxFlatSize maps to a well-known exact tag value.
 static_assert(TagToAllocatedSize(MAX_FLAT_TAG) == kMaxLargeFlatSize,
-              "Bad tag logic");
+    "Bad tag logic");
 
 struct CordRepFlat : public CordRep {
-  // Tag for explicit 'large flat' allocation
-  struct Large {};
+	// Tag for explicit 'large flat' allocation
+	struct Large {};
 
-  // Creates a new flat node.
-  template <size_t max_flat_size, typename... Args>
-  static CordRepFlat* NewImpl(size_t len, Args... args ABSL_ATTRIBUTE_UNUSED) {
-    if (len <= kMinFlatLength) {
-      len = kMinFlatLength;
-    } else if (len > max_flat_size - kFlatOverhead) {
-      len = max_flat_size - kFlatOverhead;
-    }
+	// Creates a new flat node.
+	template <size_t max_flat_size, typename ... Args>
+	static CordRepFlat* NewImpl(size_t len, Args ... args ABSL_ATTRIBUTE_UNUSED) {
+		if(len <= kMinFlatLength) {
+			len = kMinFlatLength;
+		}
+		else if(len > max_flat_size - kFlatOverhead) {
+			len = max_flat_size - kFlatOverhead;
+		}
 
-    // Round size up so it matches a size we can exactly express in a tag.
-    const size_t size = RoundUpForTag(len + kFlatOverhead);
-    void* const raw_rep = ::operator new(size);
-    CordRepFlat* rep = new (raw_rep) CordRepFlat();
-    rep->tag = AllocatedSizeToTag(size);
-    return rep;
-  }
+		// Round size up so it matches a size we can exactly express in a tag.
+		const size_t size = RoundUpForTag(len + kFlatOverhead);
+		void* const raw_rep = ::operator new(size);
+		CordRepFlat* rep = new (raw_rep) CordRepFlat();
+		rep->tag = AllocatedSizeToTag(size);
+		return rep;
+	}
 
-  static CordRepFlat* New(size_t len) { return NewImpl<kMaxFlatSize>(len); }
+	static CordRepFlat* New(size_t len) {
+		return NewImpl<kMaxFlatSize>(len);
+	}
 
-  static CordRepFlat* New(Large, size_t len) {
-    return NewImpl<kMaxLargeFlatSize>(len);
-  }
+	static CordRepFlat* New(Large, size_t len) {
+		return NewImpl<kMaxLargeFlatSize>(len);
+	}
 
-  // Deletes a CordRepFlat instance created previously through a call to New().
-  // Flat CordReps are allocated and constructed with raw ::operator new and
-  // placement new, and must be destructed and deallocated accordingly.
-  static void Delete(CordRep*rep) {
-    assert(rep->tag >= FLAT && rep->tag <= MAX_FLAT_TAG);
+	// Deletes a CordRepFlat instance created previously through a call to New().
+	// Flat CordReps are allocated and constructed with raw ::operator new and
+	// placement new, and must be destructed and deallocated accordingly.
+	static void Delete(CordRep* rep) {
+		assert(rep->tag >= FLAT && rep->tag <= MAX_FLAT_TAG);
 
 #if defined(__cpp_sized_deallocation)
-    size_t size = TagToAllocatedSize(rep->tag);
-    rep->~CordRep();
-    ::operator delete(rep, size);
+		size_t size = TagToAllocatedSize(rep->tag);
+		rep->~CordRep();
+		::operator delete(rep, size);
 #else
-    rep->~CordRep();
-    ::operator delete(rep);
+		rep->~CordRep();
+		::operator delete(rep);
 #endif
-  }
+	}
 
-  // Create a CordRepFlat containing `data`, with an optional additional
-  // extra capacity of up to `extra` bytes. Requires that `data.size()`
-  // is less than kMaxFlatLength.
-  static CordRepFlat* Create(absl::string_view data, size_t extra = 0) {
-    assert(data.size() <= kMaxFlatLength);
-    CordRepFlat* flat = New(data.size() + (std::min)(extra, kMaxFlatLength));
-    memcpy(flat->Data(), data.data(), data.size());
-    flat->length = data.size();
-    return flat;
-  }
+	// Create a CordRepFlat containing `data`, with an optional additional
+	// extra capacity of up to `extra` bytes. Requires that `data.size()`
+	// is less than kMaxFlatLength.
+	static CordRepFlat* Create(absl::string_view data, size_t extra = 0) {
+		assert(data.size() <= kMaxFlatLength);
+		CordRepFlat* flat = New(data.size() + (std::min)(extra, kMaxFlatLength));
+		memcpy(flat->Data(), data.data(), data.size());
+		flat->length = data.size();
+		return flat;
+	}
 
-  // Returns a pointer to the data inside this flat rep.
-  char* Data() { return reinterpret_cast<char*>(storage); }
-  const char* Data() const { return reinterpret_cast<const char*>(storage); }
+	// Returns a pointer to the data inside this flat rep.
+	char* Data() {
+		return reinterpret_cast<char*>(storage);
+	}
 
-  // Returns the maximum capacity (payload size) of this instance.
-  size_t Capacity() const { return TagToLength(tag); }
+	const char* Data() const {
+		return reinterpret_cast<const char*>(storage);
+	}
 
-  // Returns the allocated size (payload + overhead) of this instance.
-  size_t AllocatedSize() const { return TagToAllocatedSize(tag); }
+	// Returns the maximum capacity (payload size) of this instance.
+	size_t Capacity() const {
+		return TagToLength(tag);
+	}
+
+	// Returns the allocated size (payload + overhead) of this instance.
+	size_t AllocatedSize() const {
+		return TagToAllocatedSize(tag);
+	}
 };
 
 // Now that CordRepFlat is defined, we can define CordRep's helper casts:
 inline CordRepFlat* CordRep::flat() {
-  assert(tag >= FLAT && tag <= MAX_FLAT_TAG);
-  return reinterpret_cast<CordRepFlat*>(this);
+	assert(tag >= FLAT && tag <= MAX_FLAT_TAG);
+	return reinterpret_cast<CordRepFlat*>(this);
 }
 
 inline const CordRepFlat* CordRep::flat() const {
-  assert(tag >= FLAT && tag <= MAX_FLAT_TAG);
-  return reinterpret_cast<const CordRepFlat*>(this);
+	assert(tag >= FLAT && tag <= MAX_FLAT_TAG);
+	return reinterpret_cast<const CordRepFlat*>(this);
 }
-
 }  // namespace cord_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

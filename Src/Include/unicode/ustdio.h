@@ -156,8 +156,8 @@
    Format modifiers
    <table>
    <tr><td>modifier</td><td>formats</td><td>type</td><td>comments</td></tr>
-   <tr><td>%h</td><td>%d, %i, %o, %x</td><td>int16_t</td><td>short format</td></tr>
-   <tr><td>%h</td><td>%u</td><td>uint16_t</td><td>short format</td></tr>
+   <tr><td>%h</td><td>%d, %i, %o, %x</td><td>int16</td><td>short format</td></tr>
+   <tr><td>%h</td><td>%u</td><td>uint16</td><td>short format</td></tr>
    <tr><td>%h</td><td>c</td><td>char</td><td><b>(Unimplemented)</b> Use invariant converter</td></tr>
    <tr><td>%h</td><td>s</td><td>char *</td><td><b>(Unimplemented)</b> Use invariant converter</td></tr>
    <tr><td>%h</td><td>C</td><td>char</td><td><b>(Unimplemented)</b> 8-bit Unicode code unit</td></tr>

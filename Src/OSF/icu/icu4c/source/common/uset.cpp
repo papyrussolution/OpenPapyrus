@@ -15,7 +15,7 @@
  *   created on: 2002mar07
  *   created by: Markus W. Scherer
  *
- *   There are functions to efficiently serialize a USet into an array of uint16_t
+ *   There are functions to efficiently serialize a USet into an array of uint16
  *   and functions to use such a serialized form efficiently without
  *   instantiating a new USet.
  */
@@ -320,7 +320,7 @@ U_CAPI int32_t U_EXPORT2 uset_getItem(const USet* uset, int32_t itemIndex,
  * - all BMP:            (length=bmpLength) BMP, .., BMP
  * - some supplementary: (length|0x8000) (bmpLength<length) BMP, .., BMP, supp-high, supp-low, ..
  */
-U_CAPI int32_t U_EXPORT2 uset_serialize(const USet* set, uint16_t* dest, int32_t destCapacity, UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 uset_serialize(const USet* set, uint16* dest, int32_t destCapacity, UErrorCode * ec) {
 	if(ec==NULL || U_FAILURE(*ec)) {
 		return 0;
 	}
@@ -328,7 +328,7 @@ U_CAPI int32_t U_EXPORT2 uset_serialize(const USet* set, uint16_t* dest, int32_t
 	return ((const UnicodeSet*)set)->UnicodeSet::serialize(dest, destCapacity, *ec);
 }
 
-U_CAPI bool U_EXPORT2 uset_getSerializedSet(USerializedSet* fillSet, const uint16_t* src, int32_t srcLength) {
+U_CAPI bool U_EXPORT2 uset_getSerializedSet(USerializedSet* fillSet, const uint16* src, int32_t srcLength) {
 	int32_t length;
 
 	if(fillSet==NULL) {
@@ -370,8 +370,8 @@ U_CAPI void U_EXPORT2 uset_setSerializedToOne(USerializedSet* fillSet, UChar32 c
 	fillSet->array = fillSet->staticArray;
 	if(c<0xffff) {
 		fillSet->bmpLength = fillSet->length = 2;
-		fillSet->staticArray[0] = (uint16_t)c;
-		fillSet->staticArray[1] = (uint16_t)c+1;
+		fillSet->staticArray[0] = (uint16)c;
+		fillSet->staticArray[1] = (uint16)c+1;
 	}
 	else if(c==0xffff) {
 		fillSet->bmpLength = 1;
@@ -383,11 +383,11 @@ U_CAPI void U_EXPORT2 uset_setSerializedToOne(USerializedSet* fillSet, UChar32 c
 	else if(c<0x10ffff) {
 		fillSet->bmpLength = 0;
 		fillSet->length = 4;
-		fillSet->staticArray[0] = (uint16_t)(c>>16);
-		fillSet->staticArray[1] = (uint16_t)c;
+		fillSet->staticArray[0] = (uint16)(c>>16);
+		fillSet->staticArray[1] = (uint16)c;
 		++c;
-		fillSet->staticArray[2] = (uint16_t)(c>>16);
-		fillSet->staticArray[3] = (uint16_t)c;
+		fillSet->staticArray[2] = (uint16)(c>>16);
+		fillSet->staticArray[3] = (uint16)c;
 	}
 	else { /* c==0x10ffff */
 		fillSet->bmpLength = 0;
@@ -398,7 +398,7 @@ U_CAPI void U_EXPORT2 uset_setSerializedToOne(USerializedSet* fillSet, UChar32 c
 }
 
 U_CAPI bool U_EXPORT2 uset_serializedContains(const USerializedSet* set, UChar32 c) {
-	const uint16_t* array;
+	const uint16* array;
 
 	if(set==NULL || (uint32_t)c>0x10ffff) {
 		return FALSE;
@@ -433,7 +433,7 @@ U_CAPI bool U_EXPORT2 uset_serializedContains(const USerializedSet* set, UChar32
 	}
 	else {
 		/* find c in the supplementary part */
-		uint16_t high = (uint16_t)(c>>16), low = (uint16_t)c;
+		uint16 high = (uint16)(c>>16), low = (uint16)c;
 		int32_t base = set->bmpLength;
 		int32_t lo = 0;
 		int32_t hi = set->length - 2 - base;
@@ -473,7 +473,7 @@ U_CAPI int32_t U_EXPORT2 uset_getSerializedRangeCount(const USerializedSet* set)
 
 U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t rangeIndex,
     UChar32* pStart, UChar32* pEnd) {
-	const uint16_t* array;
+	const uint16* array;
 	int32_t bmpLength, length;
 
 	if(set==NULL || rangeIndex<0 || pStart==NULL || pEnd==NULL) {

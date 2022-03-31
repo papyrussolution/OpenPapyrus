@@ -36,7 +36,7 @@ class Weight;
  */
 class LeafPostList : public PostList {
 	/// Don't allow assignment.
-	void operator=(const LeafPostList &) = delete;
+	void operator = (const LeafPostList &) = delete;
 
 	/// Don't allow copying.
 	LeafPostList(const LeafPostList &) = delete;

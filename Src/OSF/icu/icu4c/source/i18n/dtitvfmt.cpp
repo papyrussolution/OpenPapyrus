@@ -147,7 +147,7 @@ DateIntervalFormat & DateIntervalFormat::operator = (const DateIntervalFormat &i
 			fInfo = nullptr;
 		}
 		fSkeleton = itvfmt.fSkeleton;
-		int8_t i;
+		int8 i;
 		for(i = 0; i< DateIntervalInfo::kIPI_MAX_INDEX; ++i) {
 			fIntervalPatterns[i] = itvfmt.fIntervalPatterns[i];
 		}
@@ -279,7 +279,7 @@ UnicodeString &DateIntervalFormat::format(const DateInterval* dtInterval,
 
 	FieldPositionOnlyHandler handler(fieldPosition);
 	handler.setAcceptFirstOnly(TRUE);
-	int8_t ignore;
+	int8 ignore;
 
 	Mutex lock(&gFormatterMutex);
 	return formatIntervalImpl(*dtInterval, appendTo, ignore, handler, status);
@@ -296,7 +296,7 @@ FormattedDateInterval DateIntervalFormat::formatToValue(const DateInterval& dtIn
 		return FormattedDateInterval(status);
 	}
 	UnicodeString string;
-	int8_t firstIndex;
+	int8 firstIndex;
 	auto handler = result->getHandler(status);
 	handler.setCategory(UFIELD_CATEGORY_DATE);
 	{
@@ -328,7 +328,7 @@ UnicodeString &DateIntervalFormat::format(Calendar& fromCalendar,
     UErrorCode & status) const {
 	FieldPositionOnlyHandler handler(pos);
 	handler.setAcceptFirstOnly(TRUE);
-	int8_t ignore;
+	int8 ignore;
 
 	Mutex lock(&gFormatterMutex);
 	return formatImpl(fromCalendar, toCalendar, appendTo, ignore, handler, status);
@@ -346,7 +346,7 @@ FormattedDateInterval DateIntervalFormat::formatToValue(Calendar& fromCalendar,
 		return FormattedDateInterval(status);
 	}
 	UnicodeString string;
-	int8_t firstIndex;
+	int8 firstIndex;
 	auto handler = result->getHandler(status);
 	handler.setCategory(UFIELD_CATEGORY_DATE);
 	{
@@ -370,7 +370,7 @@ FormattedDateInterval DateIntervalFormat::formatToValue(Calendar& fromCalendar,
 
 UnicodeString & DateIntervalFormat::formatIntervalImpl(const DateInterval& dtInterval,
     UnicodeString & appendTo,
-    int8_t& firstIndex,
+    int8& firstIndex,
     FieldPositionHandler& fphandler,
     UErrorCode & status) const {
 	if(U_FAILURE(status)) {
@@ -389,7 +389,7 @@ UnicodeString & DateIntervalFormat::formatIntervalImpl(const DateInterval& dtInt
 UnicodeString &DateIntervalFormat::formatImpl(Calendar& fromCalendar,
     Calendar& toCalendar,
     UnicodeString & appendTo,
-    int8_t& firstIndex,
+    int8& firstIndex,
     FieldPositionHandler& fphandler,
     UErrorCode & status) const {
 	if(U_FAILURE(status)) {
@@ -681,7 +681,7 @@ void DateIntervalFormat::initializePattern(UErrorCode & status)
 		}
 	}
 	// initialize the fIntervalPattern ordering
-	int8_t i;
+	int8 i;
 	for(i = 0; i < DateIntervalInfo::kIPI_MAX_INDEX; ++i) {
 		fIntervalPatterns[i].laterDateFirst = fInfo->getDefaultOrder();
 	}
@@ -1128,7 +1128,7 @@ bool DateIntervalFormat::setSeparateDateTimePtn(const UnicodeString & dateSkelet
 	 * getBestSkeleton() is step 1.
 	 */
 	// best skeleton, and the difference information
-	int8_t differenceInfo = 0;
+	int8 differenceInfo = 0;
 	const UnicodeString * bestSkeleton = fInfo->getBestSkeleton(*skeleton,
 		differenceInfo);
 	/* best skeleton could be nullptr.
@@ -1251,8 +1251,8 @@ void DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 	const UnicodeString * pattern = &intervalPattern;
 	bool order = laterDateFirst;
 	// check for "latestFirst:" or "earliestFirst:" prefix
-	int8_t prefixLength = UPRV_LENGTHOF(gLaterFirstPrefix);
-	int8_t earliestFirstLength = UPRV_LENGTHOF(gEarlierFirstPrefix);
+	int8 prefixLength = UPRV_LENGTHOF(gLaterFirstPrefix);
+	int8 earliestFirstLength = UPRV_LENGTHOF(gEarlierFirstPrefix);
 	UnicodeString realPattern;
 	if(intervalPattern.startsWith(gLaterFirstPrefix, prefixLength)) {
 		order = true;
@@ -1308,7 +1308,7 @@ void DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
 bool DateIntervalFormat::setIntervalPattern(UCalendarDateFields field,
     const UnicodeString * skeleton,
     const UnicodeString * bestSkeleton,
-    int8_t differenceInfo,
+    int8 differenceInfo,
     UnicodeString * extendedSkeleton,
     UnicodeString * extendedBestSkeleton) {
 	UErrorCode status = U_ZERO_ERROR;
@@ -1403,7 +1403,7 @@ int32_t U_EXPORT2 DateIntervalFormat::splitPatternInto2Part(const UnicodeString 
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 	};
 
-	int8_t PATTERN_CHAR_BASE = 0x41;
+	int8 PATTERN_CHAR_BASE = 0x41;
 
 	/* loop through the pattern string character by character looking for
 	 * the first repeated pattern letter, which breaks the interval pattern
@@ -1460,7 +1460,7 @@ int32_t U_EXPORT2 DateIntervalFormat::splitPatternInto2Part(const UnicodeString 
 void DateIntervalFormat::fallbackFormatRange(Calendar& fromCalendar,
     Calendar& toCalendar,
     UnicodeString & appendTo,
-    int8_t& firstIndex,
+    int8& firstIndex,
     FieldPositionHandler& fphandler,
     UErrorCode & status) const {
 	UnicodeString fallbackPattern;
@@ -1501,7 +1501,7 @@ UnicodeString &DateIntervalFormat::fallbackFormat(Calendar& fromCalendar,
     Calendar& toCalendar,
     bool fromToOnSameDay,                                // new
     UnicodeString & appendTo,
-    int8_t& firstIndex,
+    int8& firstIndex,
     FieldPositionHandler& fphandler,
     UErrorCode & status) const {
 	if(U_FAILURE(status)) {
@@ -1566,7 +1566,7 @@ bool U_EXPORT2 DateIntervalFormat::fieldExistsInSkeleton(UCalendarDateFields fie
 void U_EXPORT2 DateIntervalFormat::adjustFieldWidth(const UnicodeString & inputSkeleton,
     const UnicodeString & bestMatchSkeleton,
     const UnicodeString & bestIntervalPattern,
-    int8_t differenceInfo,
+    int8 differenceInfo,
     bool suppressDayPeriodField,
     UnicodeString & adjustedPtn) {
 	adjustedPtn = bestIntervalPattern;
@@ -1594,7 +1594,7 @@ void U_EXPORT2 DateIntervalFormat::adjustFieldWidth(const UnicodeString & inputS
 		0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0
 	};
 
-	const int8_t PATTERN_CHAR_BASE = 0x41;
+	const int8 PATTERN_CHAR_BASE = 0x41;
 
 	DateIntervalInfo::parseSkeleton(inputSkeleton, inputSkeletonFieldWidth);
 	DateIntervalInfo::parseSkeleton(bestMatchSkeleton, bestMatchSkeletonFieldWidth);

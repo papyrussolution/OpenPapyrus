@@ -17,7 +17,7 @@
 #include "cpputils.h"
 
 /* case context iterator using a Replaceable */
-U_CFUNC UChar32 U_CALLCONV utrans_rep_caseContextIterator(void * context, int8_t dir)
+U_CFUNC UChar32 U_CALLCONV utrans_rep_caseContextIterator(void * context, int8 dir)
 {
 	U_NAMESPACE_USE
 	UCaseContext * csc = (UCaseContext*)context;

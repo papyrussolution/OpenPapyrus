@@ -1977,7 +1977,7 @@ static void _appendPrivateuseToLanguageTag(const char * localeID, icu::ByteSink&
 
 static ULanguageTag* ultag_parse(const char * tag, int32_t tagLen, int32_t* parsedLen, UErrorCode * status) {
 	char * tagBuf;
-	int16_t next;
+	int16 next;
 	char * pSubtag, * pNext, * pLastGoodPosition;
 	int32_t subtagLen;
 	int32_t extlangIdx;

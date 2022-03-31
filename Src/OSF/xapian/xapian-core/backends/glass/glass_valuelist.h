@@ -30,7 +30,7 @@ class GlassDatabase;
 /// Glass class for value streams.
 class GlassValueList : public Xapian::ValueIterator::Internal {
 	/// Don't allow assignment.
-	void operator=(const GlassValueList &);
+	void operator = (const GlassValueList &);
 	/// Don't allow copying.
 	GlassValueList(const GlassValueList &);
 	GlassCursor * cursor;

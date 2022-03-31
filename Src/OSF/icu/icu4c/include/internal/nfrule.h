@@ -91,7 +91,7 @@ private:
     void extractSubstitutions(const NFRuleSet* ruleSet, const UnicodeString & ruleText, const NFRule* predecessor, UErrorCode & status);
     NFSubstitution* extractSubstitution(const NFRuleSet* ruleSet, const NFRule* predecessor, UErrorCode & status);
     
-    int16_t expectedExponent() const;
+    int16 expectedExponent() const;
     int32_t indexOfAnyRulePrefix() const;
     double matchToDelimiter(const UnicodeString & text, int32_t startPos, double baseValue,
                             const UnicodeString & delimiter, ParsePosition& pp, const NFSubstitution* sub, 
@@ -107,7 +107,7 @@ private:
 private:
     int64_t baseValue;
     int32_t radix;
-    int16_t exponent;
+    int16 exponent;
     UChar decimalPoint;
     UnicodeString fRuleText;
     NFSubstitution* sub1;

@@ -267,6 +267,15 @@ static void InitTest()
 		STATIC_ASSERT(FALSE == 0);
 		STATIC_ASSERT(true == 1);
 		STATIC_ASSERT(false == 0);
+		STATIC_ASSERT(GENDER_MALE == 1);
+		STATIC_ASSERT(GENDER_FEMALE == 2);
+		STATIC_ASSERT(GENDER_QUESTIONING == 3);
+		STATIC_ASSERT(AGGRFUNC_COUNT == 1);
+		STATIC_ASSERT(AGGRFUNC_SUM == 2);
+		STATIC_ASSERT(AGGRFUNC_AVG == 3);
+		STATIC_ASSERT(AGGRFUNC_MIN == 4);
+		STATIC_ASSERT(AGGRFUNC_MAX == 5);
+		STATIC_ASSERT(AGGRFUNC_STDDEV == 6);
 	}
 	{
 		//
@@ -374,7 +383,6 @@ static void InitTest()
 		}
 	}
 	// } @v11.2.0 
-	//
 	STATIC_ASSERT(MAX(3.1, 8.5) == 8.5);
 	assert(smax(3.1, 8.5) == 8.5);
 	assert(smax(3.1f, 8.5f) == 8.5f);

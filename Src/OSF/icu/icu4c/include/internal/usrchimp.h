@@ -134,7 +134,7 @@ struct USearch {
           int32_t textLength; // exact length
           bool               isOverlap;
           bool               isCanonicalMatch;
-          int16_t             elementComparisonType;
+          int16             elementComparisonType;
           UBreakIterator     *internalBreakIter;  // internal character breakiterator, lazily created.
           UBreakIterator     *breakIter;          // caller provided character breakiterator
     // value USEARCH_DONE is the default value

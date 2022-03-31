@@ -195,7 +195,7 @@ bool FormatUntyped(FormatRawSinkImpl raw_sink,
 	return ConvertAll(format, args, Converter(&sink));
 }
 
-std::ostream& Streamable::Print(std::ostream& os) const {
+std::ostream & Streamable::Print(std::ostream & os) const {
 	if(!FormatUntyped(&os, format_, args_)) os.setstate(std::ios::failbit);
 	return os;
 }

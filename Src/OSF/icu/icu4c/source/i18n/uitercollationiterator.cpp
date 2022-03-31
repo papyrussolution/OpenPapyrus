@@ -315,7 +315,7 @@ bool FCDUIterCollationIterator::nextSegment(UErrorCode & errorCode) {
 		if(c < 0) {
 			break;
 		}
-		uint16_t fcd16 = nfcImpl.getFCD16(c);
+		uint16 fcd16 = nfcImpl.getFCD16(c);
 		uint8 leadCC = (uint8)(fcd16 >> 8);
 		if(leadCC == 0 && !s.isEmpty()) {
 			// FCD boundary before this character.
@@ -405,7 +405,7 @@ bool FCDUIterCollationIterator::previousSegment(UErrorCode & errorCode) {
 		if(c < 0) {
 			break;
 		}
-		uint16_t fcd16 = nfcImpl.getFCD16(c);
+		uint16 fcd16 = nfcImpl.getFCD16(c);
 		uint8 trailCC = (uint8)fcd16;
 		if(trailCC == 0 && !s.isEmpty()) {
 			// FCD boundary after this character.

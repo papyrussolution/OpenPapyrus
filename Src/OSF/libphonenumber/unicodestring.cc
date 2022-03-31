@@ -11,7 +11,7 @@ using std::equal;
 
 namespace i18n {
 	namespace phonenumbers {
-		UnicodeString& UnicodeString::operator=(const UnicodeString& src) 
+		UnicodeString& UnicodeString::operator = (const UnicodeString& src) 
 		{
 			if(&src != this) {
 				invalidateCachedIndex();
@@ -19,7 +19,7 @@ namespace i18n {
 			}
 			return *this;
 		}
-		bool UnicodeString::operator==(const UnicodeString& rhs) const 
+		bool UnicodeString::operator == (const UnicodeString& rhs) const 
 		{
 			return equal(text_.begin(), text_.end(), rhs.text_.begin());
 		}

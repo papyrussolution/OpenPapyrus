@@ -48,7 +48,7 @@ struct ReplicationInfo;
 class Database::Internal : public Xapian::Internal::intrusive_base {
 	friend class Database;
 	/// Don't allow assignment.
-	Internal& operator=(const Internal&) = delete;
+	Internal& operator = (const Internal&) = delete;
 	/// Don't allow copying.
 	Internal(const Internal&) = delete;
 	/// The "action required" helper for the dtor_called() helper.

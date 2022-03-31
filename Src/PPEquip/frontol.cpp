@@ -877,7 +877,7 @@ int ACS_FRONTOL::ImportFiles()
 			THROW_PP(obj_acct.Get(alb_cfg.Hdr.MailAccID, &mac_rec) > 0, PPERR_UNDEFMAILACC);
 	}
 	for(uint i = 0, set_no = 0; ImpPaths.get(&i, imp_path); set_no++) {
-		if(imp_path.CmpPrefix(p_ftp_flag, 1) == 0) {
+		if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
 			SPathStruc sp;
 			imp_path.ShiftLeft(sstrlen(p_ftp_flag));
@@ -911,7 +911,7 @@ int ACS_FRONTOL::ImportFiles()
 					SDelay(delay_quant);
 			}
 		}
-		else if(imp_path.CmpPrefix(p_email_flag, 1) == 0) {
+		else if(imp_path.HasPrefixIAscii(p_email_flag)) {
 			if(mac_rec.ID) {
 				uint   i;
 				PPIDArray msg_list;

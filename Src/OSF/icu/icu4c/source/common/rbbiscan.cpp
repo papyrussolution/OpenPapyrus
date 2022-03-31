@@ -955,7 +955,7 @@ void RBBIRuleScanner::nextChar(RBBIRuleChar &c) {
 //
 //------------------------------------------------------------------------------
 void RBBIRuleScanner::parse() {
-	uint16_t state;
+	uint16 state;
 	const RBBIRuleTableEl  * tableEl;
 
 	if(U_FAILURE(*fRB->fStatus)) {

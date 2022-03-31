@@ -26,7 +26,7 @@
 /// Iterate keys in a remote database.
 class RemoteKeyList : public AllTermsList {
     /// Don't allow assignment.
-    void operator=(const RemoteKeyList&) = delete;
+    void operator = (const RemoteKeyList&) = delete;
 
     /// Don't allow copying.
     RemoteKeyList(const RemoteKeyList&) = delete;

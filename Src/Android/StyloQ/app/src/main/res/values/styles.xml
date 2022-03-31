@@ -43,6 +43,7 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">160dp</item>
+        <item name="android:minHeight">24dp</item>
         <item name="android:dropDownWidth">match_parent</item>
         <item name="android:paddingLeft">0dp</item>
         <item name="android:paddingRight">0dp</item>

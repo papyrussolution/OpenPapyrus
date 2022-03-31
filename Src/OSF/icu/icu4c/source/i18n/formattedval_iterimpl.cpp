@@ -74,7 +74,7 @@ void FormattedValueFieldPositionIteratorImpl::appendString(UnicodeString string,
 }
 
 void FormattedValueFieldPositionIteratorImpl::addOverlapSpans(UFieldCategory spanCategory,
-    int8_t firstIndex,
+    int8 firstIndex,
     UErrorCode & status) {
 	// In order to avoid fancy data structures, this is an O(N^2) algorithm,
 	// which should be fine for all real-life applications of this function.

@@ -41,7 +41,7 @@ using Xapian::Internal::PostList;
 
 class LocalSubMatch {
 	/// Don't allow assignment.
-	LocalSubMatch& operator=(const LocalSubMatch &) = delete;
+	LocalSubMatch& operator = (const LocalSubMatch &) = delete;
 	/// Don't allow copying.
 	LocalSubMatch(const LocalSubMatch &) = delete;
 	

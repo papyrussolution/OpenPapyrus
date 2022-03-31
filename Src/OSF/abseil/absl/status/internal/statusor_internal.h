@@ -6,17 +6,11 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 #ifndef ABSL_STATUS_INTERNAL_STATUSOR_INTERNAL_H_
 #define ABSL_STATUS_INTERNAL_STATUSOR_INTERNAL_H_
 
 #include <type_traits>
 #include <utility>
-
 #include "absl/base/attributes.h"
 #include "absl/meta/type_traits.h"
 #include "absl/status/status.h"
@@ -93,7 +87,7 @@ using IsDirectInitializationValid = absl::disjunction<
 		absl::remove_cv_t<absl::remove_reference_t<U> > >,
 		IsDirectInitializationAmbiguous<T, U> > > >;
 
-// This trait detects whether `StatusOr<T>::operator=(U&&)` is ambiguous, which
+// This trait detects whether `StatusOr<T>::operator = (U&&)` is ambiguous, which
 // is equivalent to whether all the following conditions are met:
 // 1. `U` is `StatusOr<V>`.
 // 2. `T` is constructible and assignable from `V`.
@@ -220,7 +214,7 @@ public:
 		EnsureNotOk();
 	}
 
-	StatusOrData& operator=(const StatusOrData& other) {
+	StatusOrData& operator = (const StatusOrData& other) {
 		if(this == &other) return *this;
 		if(other.ok())
 			Assign(other.data_);
@@ -229,7 +223,7 @@ public:
 		return *this;
 	}
 
-	StatusOrData& operator=(StatusOrData&& other) {
+	StatusOrData& operator = (StatusOrData&& other) {
 		if(this == &other) return *this;
 		if(other.ok())
 			Assign(std::move(other.data_));
@@ -327,8 +321,8 @@ struct CopyCtorBase {
 	CopyCtorBase() = default;
 	CopyCtorBase(const CopyCtorBase&) = default;
 	CopyCtorBase(CopyCtorBase&&) = default;
-	CopyCtorBase& operator=(const CopyCtorBase&) = default;
-	CopyCtorBase& operator=(CopyCtorBase&&) = default;
+	CopyCtorBase& operator = (const CopyCtorBase&) = default;
+	CopyCtorBase& operator = (CopyCtorBase&&) = default;
 };
 
 template <typename T>
@@ -336,8 +330,8 @@ struct CopyCtorBase<T, false> {
 	CopyCtorBase() = default;
 	CopyCtorBase(const CopyCtorBase&) = delete;
 	CopyCtorBase(CopyCtorBase&&) = default;
-	CopyCtorBase& operator=(const CopyCtorBase&) = default;
-	CopyCtorBase& operator=(CopyCtorBase&&) = default;
+	CopyCtorBase& operator = (const CopyCtorBase&) = default;
+	CopyCtorBase& operator = (CopyCtorBase&&) = default;
 };
 
 template <typename T, bool = std::is_move_constructible<T>::value>
@@ -345,8 +339,8 @@ struct MoveCtorBase {
 	MoveCtorBase() = default;
 	MoveCtorBase(const MoveCtorBase&) = default;
 	MoveCtorBase(MoveCtorBase&&) = default;
-	MoveCtorBase& operator=(const MoveCtorBase&) = default;
-	MoveCtorBase& operator=(MoveCtorBase&&) = default;
+	MoveCtorBase& operator = (const MoveCtorBase&) = default;
+	MoveCtorBase& operator = (MoveCtorBase&&) = default;
 };
 
 template <typename T>
@@ -354,8 +348,8 @@ struct MoveCtorBase<T, false> {
 	MoveCtorBase() = default;
 	MoveCtorBase(const MoveCtorBase&) = default;
 	MoveCtorBase(MoveCtorBase&&) = delete;
-	MoveCtorBase& operator=(const MoveCtorBase&) = default;
-	MoveCtorBase& operator=(MoveCtorBase&&) = default;
+	MoveCtorBase& operator = (const MoveCtorBase&) = default;
+	MoveCtorBase& operator = (MoveCtorBase&&) = default;
 };
 
 template <typename T, bool = std::is_copy_constructible<T>::value&&
@@ -364,8 +358,8 @@ struct CopyAssignBase {
 	CopyAssignBase() = default;
 	CopyAssignBase(const CopyAssignBase&) = default;
 	CopyAssignBase(CopyAssignBase&&) = default;
-	CopyAssignBase& operator=(const CopyAssignBase&) = default;
-	CopyAssignBase& operator=(CopyAssignBase&&) = default;
+	CopyAssignBase& operator = (const CopyAssignBase&) = default;
+	CopyAssignBase& operator = (CopyAssignBase&&) = default;
 };
 
 template <typename T>
@@ -373,8 +367,8 @@ struct CopyAssignBase<T, false> {
 	CopyAssignBase() = default;
 	CopyAssignBase(const CopyAssignBase&) = default;
 	CopyAssignBase(CopyAssignBase&&) = default;
-	CopyAssignBase& operator=(const CopyAssignBase&) = delete;
-	CopyAssignBase& operator=(CopyAssignBase&&) = default;
+	CopyAssignBase& operator = (const CopyAssignBase&) = delete;
+	CopyAssignBase& operator = (CopyAssignBase&&) = default;
 };
 
 template <typename T, bool = std::is_move_constructible<T>::value&&
@@ -383,8 +377,8 @@ struct MoveAssignBase {
 	MoveAssignBase() = default;
 	MoveAssignBase(const MoveAssignBase&) = default;
 	MoveAssignBase(MoveAssignBase&&) = default;
-	MoveAssignBase& operator=(const MoveAssignBase&) = default;
-	MoveAssignBase& operator=(MoveAssignBase&&) = default;
+	MoveAssignBase& operator = (const MoveAssignBase&) = default;
+	MoveAssignBase& operator = (MoveAssignBase&&) = default;
 };
 
 template <typename T>
@@ -392,8 +386,8 @@ struct MoveAssignBase<T, false> {
 	MoveAssignBase() = default;
 	MoveAssignBase(const MoveAssignBase&) = default;
 	MoveAssignBase(MoveAssignBase&&) = default;
-	MoveAssignBase& operator=(const MoveAssignBase&) = default;
-	MoveAssignBase& operator=(MoveAssignBase&&) = delete;
+	MoveAssignBase& operator = (const MoveAssignBase&) = default;
+	MoveAssignBase& operator = (MoveAssignBase&&) = delete;
 };
 
 ABSL_ATTRIBUTE_NORETURN void ThrowBadStatusOrAccess(absl::Status status);

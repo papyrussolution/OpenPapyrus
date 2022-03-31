@@ -360,21 +360,18 @@ double MessagePattern::getPluralOffset(int32_t pluralStart) const {
 
 // MessagePattern::Part ---------------------------------------------------- ***
 
-bool MessagePattern::Part::operator ==(const Part &other) const {
+bool MessagePattern::Part::operator ==(const Part &other) const 
+{
 	if(this==&other) {
 		return true;
 	}
-	return
-		type==other.type &&
-		index==other.index &&
-		length==other.length &&
-		value==other.value &&
-		limitPartIndex==other.limitPartIndex;
+	return type==other.type && index==other.index && length==other.length && value==other.value && limitPartIndex==other.limitPartIndex;
 }
 
 // MessagePattern parser --------------------------------------------------- ***
 
-void MessagePattern::preParse(const UnicodeString & pattern, UParseError * parseError, UErrorCode & errorCode) {
+void MessagePattern::preParse(const UnicodeString & pattern, UParseError * parseError, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -391,7 +388,8 @@ void MessagePattern::preParse(const UnicodeString & pattern, UParseError * parse
 	numericValuesLength = 0;
 }
 
-void MessagePattern::postParse() {
+void MessagePattern::postParse() 
+{
 	if(partsList!=NULL) {
 		parts = partsList->a.getAlias();
 	}
@@ -400,9 +398,8 @@ void MessagePattern::postParse() {
 	}
 }
 
-int32_t MessagePattern::parseMessage(int32_t index, int32_t msgStartLength,
-    int32_t nestingLevel, UMessagePatternArgType parentType,
-    UParseError * parseError, UErrorCode & errorCode) {
+int32_t MessagePattern::parseMessage(int32_t index, int32_t msgStartLength, int32_t nestingLevel, UMessagePatternArgType parentType, UParseError * parseError, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
@@ -425,8 +422,7 @@ int32_t MessagePattern::parseMessage(int32_t index, int32_t msgStartLength,
 			if(index==msg.length()) {
 				// The apostrophe is the last character in the pattern.
 				// Add a Part for auto-quoting.
-				addPart(UMSGPAT_PART_TYPE_INSERT_CHAR, index, 0,
-				    u_apos, errorCode); // value=char to be inserted
+				addPart(UMSGPAT_PART_TYPE_INSERT_CHAR, index, 0, u_apos, errorCode); // value=char to be inserted
 				needsAutoQuoting = TRUE;
 			}
 			else {
@@ -435,12 +431,8 @@ int32_t MessagePattern::parseMessage(int32_t index, int32_t msgStartLength,
 					// double apostrophe, skip the second one
 					addPart(UMSGPAT_PART_TYPE_SKIP_SYNTAX, index++, 1, 0, errorCode);
 				}
-				else if(
-					aposMode==UMSGPAT_APOS_DOUBLE_REQUIRED ||
-					c==u_leftCurlyBrace || c==u_rightCurlyBrace ||
-					(parentType==UMSGPAT_ARG_TYPE_CHOICE && c==u_pipe) ||
-					(UMSGPAT_ARG_TYPE_HAS_PLURAL_STYLE(parentType) && c==u_pound)
-					) {
+				else if(aposMode==UMSGPAT_APOS_DOUBLE_REQUIRED || c==u_leftCurlyBrace || c==u_rightCurlyBrace ||
+					(parentType==UMSGPAT_ARG_TYPE_CHOICE && c==u_pipe) || (UMSGPAT_ARG_TYPE_HAS_PLURAL_STYLE(parentType) && c==u_pound)) {
 					// skip the quote-starting apostrophe
 					addPart(UMSGPAT_PART_TYPE_SKIP_SYNTAX, index-1, 1, 0, errorCode);
 					// find the end of the quoted literal text
@@ -613,7 +605,7 @@ int32_t MessagePattern::parseArg(int32_t index, int32_t argStartLength, int32_t 
 			}
 		}
 		// change the ARG_START type from NONE to argType
-		partsList->a[argStart].value = (int16_t)argType;
+		partsList->a[argStart].value = (int16)argType;
 		if(argType==UMSGPAT_ARG_TYPE_SIMPLE) {
 			addPart(UMSGPAT_PART_TYPE_ARG_TYPE, typeIndex, length, 0, errorCode);
 		}
@@ -1060,50 +1052,44 @@ bool MessagePattern::isSelect(int32_t index) {
 		((c = msg.charAt(index))==u_t || c==u_T);
 }
 
-bool MessagePattern::isOrdinal(int32_t index) {
+bool MessagePattern::isOrdinal(int32_t index) 
+{
 	UChar c;
-	return
-		((c = msg.charAt(index++))==u_o || c==u_O) &&
-		((c = msg.charAt(index++))==u_r || c==u_R) &&
-		((c = msg.charAt(index++))==u_d || c==u_D) &&
-		((c = msg.charAt(index++))==u_i || c==u_I) &&
-		((c = msg.charAt(index++))==u_n || c==u_N) &&
-		((c = msg.charAt(index++))==u_a || c==u_A) &&
-		((c = msg.charAt(index))==u_l || c==u_L);
+	return ((c = msg.charAt(index++))==u_o || c==u_O) && ((c = msg.charAt(index++))==u_r || c==u_R) &&
+		((c = msg.charAt(index++))==u_d || c==u_D) && ((c = msg.charAt(index++))==u_i || c==u_I) &&
+		((c = msg.charAt(index++))==u_n || c==u_N) && ((c = msg.charAt(index++))==u_a || c==u_A) && ((c = msg.charAt(index))==u_l || c==u_L);
 }
 
-bool MessagePattern::inMessageFormatPattern(int32_t nestingLevel) {
+bool MessagePattern::inMessageFormatPattern(int32_t nestingLevel) 
+{
 	return nestingLevel>0 || partsList->a[0].type==UMSGPAT_PART_TYPE_MSG_START;
 }
 
-bool MessagePattern::inTopLevelChoiceMessage(int32_t nestingLevel, UMessagePatternArgType parentType) {
-	return
-		nestingLevel==1 &&
-		parentType==UMSGPAT_ARG_TYPE_CHOICE &&
-		partsList->a[0].type!=UMSGPAT_PART_TYPE_MSG_START;
+bool MessagePattern::inTopLevelChoiceMessage(int32_t nestingLevel, UMessagePatternArgType parentType) 
+{
+	return nestingLevel==1 && parentType==UMSGPAT_ARG_TYPE_CHOICE && partsList->a[0].type!=UMSGPAT_PART_TYPE_MSG_START;
 }
 
-void MessagePattern::addPart(UMessagePatternPartType type, int32_t index, int32_t length,
-    int32_t value, UErrorCode & errorCode) {
+void MessagePattern::addPart(UMessagePatternPartType type, int32_t index, int32_t length, int32_t value, UErrorCode & errorCode) 
+{
 	if(partsList->ensureCapacityForOneMore(partsLength, errorCode)) {
 		Part &part = partsList->a[partsLength++];
 		part.type = type;
 		part.index = index;
-		part.length = (uint16_t)length;
-		part.value = (int16_t)value;
+		part.length = (uint16)length;
+		part.value = (int16)value;
 		part.limitPartIndex = 0;
 	}
 }
 
-void MessagePattern::addLimitPart(int32_t start,
-    UMessagePatternPartType type, int32_t index, int32_t length,
-    int32_t value, UErrorCode & errorCode) {
+void MessagePattern::addLimitPart(int32_t start, UMessagePatternPartType type, int32_t index, int32_t length, int32_t value, UErrorCode & errorCode) 
+{
 	partsList->a[start].limitPartIndex = partsLength;
 	addPart(type, index, length, value, errorCode);
 }
 
-void MessagePattern::addArgDoublePart(double numericValue, int32_t start, int32_t length,
-    UErrorCode & errorCode) {
+void MessagePattern::addArgDoublePart(double numericValue, int32_t start, int32_t length, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -1128,40 +1114,37 @@ void MessagePattern::addArgDoublePart(double numericValue, int32_t start, int32_
 	addPart(UMSGPAT_PART_TYPE_ARG_DOUBLE, start, length, numericIndex, errorCode);
 }
 
-void MessagePattern::setParseError(UParseError * parseError, int32_t index) {
-	if(parseError==NULL) {
-		return;
-	}
-	parseError->offset = index;
-
-	// Set preContext to some of msg before index.
-	// Avoid splitting a surrogate pair.
-	int32_t length = index;
-	if(length>=U_PARSE_CONTEXT_LEN) {
-		length = U_PARSE_CONTEXT_LEN-1;
-		if(length>0 && U16_IS_TRAIL(msg[index-length])) {
-			--length;
+void MessagePattern::setParseError(UParseError * parseError, int32_t index) 
+{
+	if(parseError) {
+		parseError->offset = index;
+		// Set preContext to some of msg before index.
+		// Avoid splitting a surrogate pair.
+		int32_t length = index;
+		if(length>=U_PARSE_CONTEXT_LEN) {
+			length = U_PARSE_CONTEXT_LEN-1;
+			if(length>0 && U16_IS_TRAIL(msg[index-length]))
+				--length;
 		}
-	}
-	msg.extract(index-length, length, parseError->preContext);
-	parseError->preContext[length] = 0;
-
-	// Set postContext to some of msg starting at index.
-	length = msg.length()-index;
-	if(length>=U_PARSE_CONTEXT_LEN) {
-		length = U_PARSE_CONTEXT_LEN-1;
-		if(length>0 && U16_IS_LEAD(msg[index+length-1])) {
-			--length;
+		msg.extract(index-length, length, parseError->preContext);
+		parseError->preContext[length] = 0;
+		// Set postContext to some of msg starting at index.
+		length = msg.length()-index;
+		if(length>=U_PARSE_CONTEXT_LEN) {
+			length = U_PARSE_CONTEXT_LEN-1;
+			if(length>0 && U16_IS_LEAD(msg[index+length-1])) {
+				--length;
+			}
 		}
+		msg.extract(index, length, parseError->postContext);
+		parseError->postContext[length] = 0;
 	}
-	msg.extract(index, length, parseError->postContext);
-	parseError->postContext[length] = 0;
 }
 
 // MessageImpl ------------------------------------------------------------- ***
 
-void MessageImpl::appendReducedApostrophes(const UnicodeString & s, int32_t start, int32_t limit,
-    UnicodeString & sb) {
+void MessageImpl::appendReducedApostrophes(const UnicodeString & s, int32_t start, int32_t limit, UnicodeString & sb) 
+{
 	int32_t doubleApos = -1;
 	for(;;) {
 		int32_t i = s.indexOf(u_apos, start);
@@ -1184,9 +1167,8 @@ void MessageImpl::appendReducedApostrophes(const UnicodeString & s, int32_t star
 }
 
 // Ported from second half of ICU4J SelectFormat.format(String).
-UnicodeString &MessageImpl::appendSubMessageWithoutSkipSyntax(const MessagePattern &msgPattern,
-    int32_t msgStart,
-    UnicodeString & result) {
+UnicodeString &MessageImpl::appendSubMessageWithoutSkipSyntax(const MessagePattern &msgPattern, int32_t msgStart, UnicodeString & result) 
+{
 	const UnicodeString & msgString = msgPattern.getPatternString();
 	int32_t prevIndex = msgPattern.getPart(msgStart).getLimit();
 	for(int32_t i = msgStart;;) {
@@ -1212,5 +1194,4 @@ UnicodeString &MessageImpl::appendSubMessageWithoutSkipSyntax(const MessagePatte
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_FORMATTING

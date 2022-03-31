@@ -299,18 +299,18 @@ private:
         int32_t NonExistingTimeOpt, int32_t DuplicatedTimeOpt,
         int32_t& rawoff, int32_t& dstoff) const;
 
-    int16_t transitionCount() const;
+    int16 transitionCount() const;
 
-    int64_t transitionTimeInSeconds(int16_t transIdx) const;
-    double transitionTime(int16_t transIdx) const;
+    int64_t transitionTimeInSeconds(int16 transIdx) const;
+    double transitionTime(int16 transIdx) const;
 
     /*
   * Following 3 methods return an offset at the given transition time index.
   * When the index is negative, return the initial offset.
      */
-    int32_t zoneOffsetAt(int16_t transIdx) const;
-    int32_t rawOffsetAt(int16_t transIdx) const;
-    int32_t dstOffsetAt(int16_t transIdx) const;
+    int32_t zoneOffsetAt(int16 transIdx) const;
+    int32_t rawOffsetAt(int16 transIdx) const;
+    int32_t dstOffsetAt(int16 transIdx) const;
 
     /*
   * Following methods return the initial offset.
@@ -321,9 +321,9 @@ private:
     /**
   * Number of transitions in each time range
      */
-    int16_t transitionCountPre32;
-    int16_t transitionCount32;
-    int16_t transitionCountPost32;
+    int16 transitionCountPre32;
+    int16 transitionCount32;
+    int16 transitionCountPost32;
 
     /**
   * Time of each transition in seconds from 1970 epoch before 32bit second range (<= 1900).
@@ -348,7 +348,7 @@ private:
     /**
   * Number of types, 1..255
      */
-    int16_t typeCount;
+    int16 typeCount;
 
     /**
   * Offset from GMT in seconds for each type.
@@ -360,7 +360,7 @@ private:
     /**
   * Type description data, consisting of transitionCount uint8
   * type indices (from 0..typeCount-1).
-  * Length is transitionCount int16_t's.  NULL if no transitions.
+  * Length is transitionCount int16's.  NULL if no transitions.
      */
     const uint8 *typeMapData; // alias into res; do not delete
 
@@ -395,39 +395,39 @@ private:
 
     InitialTimeZoneRule *initialRule;
     TimeZoneTransition  *firstTZTransition;
-    int16_t             firstTZTransitionIdx;
+    int16             firstTZTransitionIdx;
     TimeZoneTransition  *firstFinalTZTransition;
     TimeArrayTimeZoneRule   **historicRules;
-    int16_t             historicRuleCount;
+    int16             historicRuleCount;
     SimpleTimeZone      *finalZoneWithStartYear; // hack
     UInitOnce           transitionRulesInitOnce = U_INITONCE_INITIALIZER;
 };
 
-inline int16_t
+inline int16
 OlsonTimeZone::transitionCount() const {
     return transitionCountPre32 + transitionCount32 + transitionCountPost32;
 }
 
 inline double
-OlsonTimeZone::transitionTime(int16_t transIdx) const {
+OlsonTimeZone::transitionTime(int16 transIdx) const {
     return (double)transitionTimeInSeconds(transIdx) * U_MILLIS_PER_SECOND;
 }
 
 inline int32_t
-OlsonTimeZone::zoneOffsetAt(int16_t transIdx) const {
-    int16_t typeIdx = (transIdx >= 0 ? typeMapData[transIdx] : 0) << 1;
+OlsonTimeZone::zoneOffsetAt(int16 transIdx) const {
+    int16 typeIdx = (transIdx >= 0 ? typeMapData[transIdx] : 0) << 1;
     return typeOffsets[typeIdx] + typeOffsets[typeIdx + 1];
 }
 
 inline int32_t
-OlsonTimeZone::rawOffsetAt(int16_t transIdx) const {
-    int16_t typeIdx = (transIdx >= 0 ? typeMapData[transIdx] : 0) << 1;
+OlsonTimeZone::rawOffsetAt(int16 transIdx) const {
+    int16 typeIdx = (transIdx >= 0 ? typeMapData[transIdx] : 0) << 1;
     return typeOffsets[typeIdx];
 }
 
 inline int32_t
-OlsonTimeZone::dstOffsetAt(int16_t transIdx) const {
-    int16_t typeIdx = (transIdx >= 0 ? typeMapData[transIdx] : 0) << 1;
+OlsonTimeZone::dstOffsetAt(int16 transIdx) const {
+    int16 typeIdx = (transIdx >= 0 ? typeMapData[transIdx] : 0) << 1;
     return typeOffsets[typeIdx + 1];
 }
 

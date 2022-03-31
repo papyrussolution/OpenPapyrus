@@ -24,7 +24,7 @@
  */
 class SlowValueList : public ValueList {
 	/// Don't allow assignment.
-	void operator=(const SlowValueList &);
+	void operator = (const SlowValueList &);
 	/// Don't allow copying.
 	SlowValueList(const SlowValueList &);
 	Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> db; /// The subdatabase.

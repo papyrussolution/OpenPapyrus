@@ -1086,7 +1086,7 @@ static void PreprocessEncodedField(const char * pLine, SString & rResult)
 			temp_buf = p_org + 2;
 			temp_buf.Trim(p - p_org - 2);
 			const char * p_utf_prefix = "UTF-8?B?";
-			if(temp_buf.CmpPrefix(p_utf_prefix, 1) == 0) {
+			if(temp_buf.HasPrefixIAscii(p_utf_prefix)) {
 				temp_buf.ShiftLeft(sstrlen(p_utf_prefix));
 				char   mime_buf[1024];
 				size_t mime_len = 0;

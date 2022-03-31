@@ -115,7 +115,7 @@ private:
 	MaybeStackVector<ConversionRateInfo> * outVector;
 };
 
-bool operator<(const UnitPreferenceMetadata &a, const UnitPreferenceMetadata &b) {
+bool operator < (const UnitPreferenceMetadata &a, const UnitPreferenceMetadata &b) {
 	return a.compareTo(b) < 0;
 }
 

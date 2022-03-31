@@ -24,7 +24,7 @@
  */
 class XAPIAN_VISIBILITY_DEFAULT XapianTcpServer SOCKET_INITIALIZER_MIXIN {
 	/// Don't allow assignment.
-	void operator=(const XapianTcpServer &);
+	void operator = (const XapianTcpServer &);
 	/// Don't allow copying.
 	XapianTcpServer(const XapianTcpServer &);
 #if defined __CYGWIN__ || defined __WIN32__

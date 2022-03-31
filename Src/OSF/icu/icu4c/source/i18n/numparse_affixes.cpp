@@ -275,7 +275,7 @@ void AffixMatcherWarehouse::createAffixMatchers(const AffixPatternProvider& patt
 	AffixPatternMatcher* posSuffix = nullptr;
 
 	// Pre-process the affix strings to resolve LDML rules like sign display.
-	for(int8_t typeInt = 0; typeInt < PATTERN_SIGN_TYPE_COUNT; typeInt++) {
+	for(int8 typeInt = 0; typeInt < PATTERN_SIGN_TYPE_COUNT; typeInt++) {
 		auto type = static_cast<PatternSignType>(typeInt);
 
 		// Skip affixes in some cases
@@ -424,7 +424,7 @@ void AffixMatcher::postProcess(ParsedNumber& result) const {
 	}
 }
 
-int8_t AffixMatcher::compareTo(const AffixMatcher& rhs) const {
+int8 AffixMatcher::compareTo(const AffixMatcher& rhs) const {
 	const AffixMatcher& lhs = *this;
 	if(length(lhs.fPrefix) != length(rhs.fPrefix)) {
 		return length(lhs.fPrefix) > length(rhs.fPrefix) ? -1 : 1;

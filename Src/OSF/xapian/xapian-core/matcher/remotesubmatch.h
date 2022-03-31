@@ -31,7 +31,7 @@ class MatchSpy;
 
 /// Class for performing matching on a remote database.
 class RemoteSubMatch {
-	RemoteSubMatch& operator=(const RemoteSubMatch &) = delete; /// Don't allow assignment.
+	RemoteSubMatch& operator = (const RemoteSubMatch &) = delete; /// Don't allow assignment.
 	RemoteSubMatch(const RemoteSubMatch &) = delete; /// Don't allow copying.
 	const RemoteDatabase * db; /// The remote database.
 	Xapian::doccount shard; /// Index of this subdatabase.

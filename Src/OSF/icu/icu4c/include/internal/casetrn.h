@@ -77,7 +77,7 @@ private:
 U_NAMESPACE_END
 
 /** case context iterator using a Replaceable. This must be a C function because it is a callback. */
-U_CFUNC UChar32 U_CALLCONV utrans_rep_caseContextIterator(void * context, int8_t dir);
+U_CFUNC UChar32 U_CALLCONV utrans_rep_caseContextIterator(void * context, int8 dir);
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
 #endif

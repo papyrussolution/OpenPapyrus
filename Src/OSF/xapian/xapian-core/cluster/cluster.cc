@@ -85,12 +85,12 @@ doccount TermListGroup::get_termfreq(const string & tname) const
 DocumentSet::DocumentSet(const DocumentSet&) = default;
 
 DocumentSet&
-DocumentSet::operator=(const DocumentSet&) = default;
+DocumentSet::operator = (const DocumentSet&) = default;
 
 DocumentSet::DocumentSet(DocumentSet&&) = default;
 
 DocumentSet&
-DocumentSet::operator=(DocumentSet&&) = default;
+DocumentSet::operator = (DocumentSet&&) = default;
 
 DocumentSet::DocumentSet()
 	: internal(new Xapian::DocumentSet::Internal)
@@ -292,10 +292,10 @@ void Centroid::clear()
 	weights.clear();
 }
 
-Cluster & Cluster::operator=(const Cluster&) = default;
+Cluster & Cluster::operator = (const Cluster&) = default;
 Cluster::Cluster(const Cluster&) = default;
 Cluster::Cluster(Cluster&&) = default;
-Cluster & Cluster::operator=(Cluster&&) = default;
+Cluster & Cluster::operator = (Cluster&&) = default;
 
 Cluster::Cluster() : internal(new Xapian::Cluster::Internal)
 {
@@ -336,9 +336,9 @@ Point & Cluster::Internal::get_point(Xapian::doccount i) { return cluster_docs[i
 const Point & Cluster::operator[](Xapian::doccount i) const { return internal->get_point(i); }
 const Point & Cluster::Internal::get_point(Xapian::doccount i) const { return cluster_docs[i]; }
 
-ClusterSet & ClusterSet::operator=(const ClusterSet&) = default;
+ClusterSet & ClusterSet::operator = (const ClusterSet&) = default;
 ClusterSet::ClusterSet(const ClusterSet&) = default;
-ClusterSet & ClusterSet::operator=(ClusterSet&&) = default;
+ClusterSet & ClusterSet::operator = (ClusterSet&&) = default;
 
 ClusterSet::ClusterSet(ClusterSet&&) = default;
 

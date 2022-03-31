@@ -1209,7 +1209,7 @@ UResourceBundle * init_resb_result(UResourceDataEntry * dataEntry, Resource r, c
     int32_t recursionDepth,
     UResourceBundle * resB, UErrorCode * status) {
 	// TODO: When an error occurs: Should we return nullptr vs. resB?
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return resB;
 	}
 	if(validLocaleDataEntry == nullptr) {
@@ -1345,7 +1345,7 @@ UResourceBundle * ures_copyResb(UResourceBundle * r, const UResourceBundle * ori
 
 U_CAPI const UChar * U_EXPORT2 ures_getString(const UResourceBundle * resB, int32_t* len, UErrorCode * status) {
 	const UChar * s;
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(resB == NULL) {
@@ -1435,7 +1435,7 @@ U_CAPI const char * U_EXPORT2 ures_getUTF8String(const UResourceBundle * resB,
 U_CAPI const uint8 * U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int32_t* len,
     UErrorCode *   status) {
 	const uint8 * p;
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(resB == NULL) {
@@ -1452,7 +1452,7 @@ U_CAPI const uint8 * U_EXPORT2 ures_getBinary(const UResourceBundle * resB, int3
 U_CAPI const int32_t* U_EXPORT2 ures_getIntVector(const UResourceBundle * resB, int32_t* len,
     UErrorCode *   status) {
 	const int32_t * p;
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(resB == NULL) {
@@ -1469,7 +1469,7 @@ U_CAPI const int32_t* U_EXPORT2 ures_getIntVector(const UResourceBundle * resB, 
 /* this function returns a signed integer */
 /* it performs sign extension */
 U_CAPI int32_t U_EXPORT2 ures_getInt(const UResourceBundle * resB, UErrorCode * status) {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0xffffffff;
 	}
 	if(resB == NULL) {
@@ -1484,7 +1484,7 @@ U_CAPI int32_t U_EXPORT2 ures_getInt(const UResourceBundle * resB, UErrorCode * 
 }
 
 U_CAPI uint32_t U_EXPORT2 ures_getUInt(const UResourceBundle * resB, UErrorCode * status) {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0xffffffff;
 	}
 	if(resB == NULL) {
@@ -1559,7 +1559,7 @@ U_CAPI bool U_EXPORT2 ures_hasNext(const UResourceBundle * resB) {
 U_CAPI const UChar * U_EXPORT2 ures_getNextString(UResourceBundle * resB, int32_t* len, const char ** key, UErrorCode * status) {
 	Resource r = RES_BOGUS;
 
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(resB == NULL) {
@@ -1610,7 +1610,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getNextResource(UResourceBundle * resB, 
 	const char * key = NULL;
 	Resource r = RES_BOGUS;
 
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		/*return NULL;*/
 		return fillIn;
 	}
@@ -1664,7 +1664,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByIndex(const UResourceBundle * resB,
 	const char * key = NULL;
 	Resource r = RES_BOGUS;
 
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		/*return NULL;*/
 		return fillIn;
 	}
@@ -1713,7 +1713,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getStringByIndex(const UResourceBundle * res
 	const char * key = NULL;
 	Resource r = RES_BOGUS;
 
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(resB == NULL) {
@@ -1783,7 +1783,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_findResource(const char * path, UResourc
 	char * locale = NULL, * localeEnd = NULL;
 	int32_t length;
 
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return result;
 	}
 
@@ -1839,7 +1839,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_findSubResource(const UResourceBundle * 
 	UResourceBundle * result = fillIn;
 	const char * key;
 
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return result;
 	}
 
@@ -2003,7 +2003,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKeyWithFallback(const UResourceBund
 	Resource res = RES_BOGUS, rootRes = RES_BOGUS;
 	UResourceBundle * helper = NULL;
 
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return fillIn;
 	}
 	if(resB == NULL) {
@@ -2302,7 +2302,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_getByKey(const UResourceBundle * resB,
 	UResourceDataEntry * dataEntry = NULL;
 	const char * key = inKey;
 
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return fillIn;
 	}
 	if(resB == NULL) {
@@ -2359,7 +2359,7 @@ U_CAPI const UChar * U_EXPORT2 ures_getStringByKey(const UResourceBundle * resB,
 	Resource res = RES_BOGUS;
 	UResourceDataEntry * dataEntry = NULL;
 	const char * key = inKey;
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(resB == NULL) {
@@ -2454,7 +2454,7 @@ U_CAPI const char * U_EXPORT2 ures_getUTF8StringByKey(const UResourceBundle * re
  */
 U_CAPI const char * U_EXPORT2 ures_getLocaleInternal(const UResourceBundle * resourceBundle, UErrorCode * status)
 {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(!resourceBundle) {
@@ -2473,7 +2473,7 @@ U_CAPI const char * U_EXPORT2 ures_getLocale(const UResourceBundle * resourceBun
 
 U_CAPI const char * U_EXPORT2 ures_getLocaleByType(const UResourceBundle * resourceBundle, ULocDataLocaleType type, UErrorCode * status) 
 {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(!resourceBundle) {
@@ -2620,7 +2620,7 @@ U_CAPI int32_t U_EXPORT2 ures_countArrayItems(const UResourceBundle * resourceBu
 {
 	UResourceBundle resData;
 	ures_initStackObject(&resData);
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 	if(resourceBundle == NULL) {

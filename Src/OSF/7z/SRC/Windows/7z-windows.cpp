@@ -3284,17 +3284,17 @@ namespace NWindows {
 			vt = VT_EMPTY;
 			*this = lpszSrc;
 		}
-		CPropVariant& CPropVariant::operator=(const CPropVariant &varSrc)
+		CPropVariant& CPropVariant::operator = (const CPropVariant &varSrc)
 		{
 			InternalCopy(&varSrc);
 			return *this;
 		}
-		CPropVariant& CPropVariant::operator=(const PROPVARIANT &varSrc)
+		CPropVariant& CPropVariant::operator = (const PROPVARIANT &varSrc)
 		{
 			InternalCopy(&varSrc);
 			return *this;
 		}
-		CPropVariant& CPropVariant::operator=(BSTR bstrSrc)
+		CPropVariant& CPropVariant::operator = (BSTR bstrSrc)
 		{
 			*this = (LPCOLESTR)bstrSrc;
 			return *this;
@@ -3302,7 +3302,7 @@ namespace NWindows {
 
 		static const char * const kMemException = "out of memory";
 
-		CPropVariant& CPropVariant::operator=(LPCOLESTR lpszSrc)
+		CPropVariant& CPropVariant::operator = (LPCOLESTR lpszSrc)
 		{
 			InternalClear();
 			vt = VT_BSTR;
@@ -3316,7 +3316,7 @@ namespace NWindows {
 			return *this;
 		}
 
-		CPropVariant& CPropVariant::operator=(const UString &s)
+		CPropVariant& CPropVariant::operator = (const UString &s)
 		{
 			InternalClear();
 			vt = VT_BSTR;
@@ -3326,7 +3326,7 @@ namespace NWindows {
 				throw kMemException;
 			return *this;
 		}
-		CPropVariant& CPropVariant::operator=(const UString2 &s)
+		CPropVariant& CPropVariant::operator = (const UString2 &s)
 		{
 			/*
 			   if(s.IsEmpty())
@@ -3357,7 +3357,7 @@ namespace NWindows {
 			return *this;
 		}
 
-		CPropVariant& CPropVariant::operator=(const char * s)
+		CPropVariant& CPropVariant::operator = (const char * s)
 		{
 			InternalClear();
 			vt = VT_BSTR;
@@ -3370,7 +3370,7 @@ namespace NWindows {
 			}
 			return *this;
 		}
-		CPropVariant& CPropVariant::operator=(bool bSrc) throw()
+		CPropVariant& CPropVariant::operator = (bool bSrc) throw()
 		{
 			if(vt != VT_BOOL) {
 				InternalClear();
@@ -3394,7 +3394,7 @@ namespace NWindows {
 			return bstrVal;
 		}
 		#define SET_PROP_FUNC(type, id, dest) \
-			CPropVariant& CPropVariant::operator=(type value) throw() \
+			CPropVariant& CPropVariant::operator = (type value) throw() \
 			{ if(vt != id) { InternalClear(); vt = id; } \
 			  dest = value; return *this; \
 			}

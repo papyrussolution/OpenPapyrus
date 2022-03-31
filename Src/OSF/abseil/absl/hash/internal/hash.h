@@ -1,3 +1,4 @@
+// hash.h
 // Copyright 2018 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: hash.h
-// -----------------------------------------------------------------------------
 //
 #ifndef ABSL_HASH_INTERNAL_HASH_H_
 #define ABSL_HASH_INTERNAL_HASH_H_
@@ -38,7 +29,6 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
 #include "absl/base/config.h"
 #include "absl/base/internal/unaligned_access.h"
 #include "absl/base/port.h"
@@ -84,7 +74,7 @@ class PiecewiseCombiner {
  public:
   PiecewiseCombiner() : position_(0) {}
   PiecewiseCombiner(const PiecewiseCombiner&) = delete;
-  PiecewiseCombiner& operator=(const PiecewiseCombiner&) = delete;
+  PiecewiseCombiner& operator = (const PiecewiseCombiner&) = delete;
 
   // PiecewiseCombiner::add_buffer()
   //
@@ -792,7 +782,7 @@ class ABSL_DLL MixingHashState : public HashStateBase<MixingHashState> {
  public:
   // Move only
   MixingHashState(MixingHashState&&) = default;
-  MixingHashState& operator=(MixingHashState&&) = default;
+  MixingHashState& operator = (MixingHashState&&) = default;
 
   // MixingHashState::combine_contiguous()
   //
@@ -1035,7 +1025,7 @@ struct AggregateBarrier {};
 struct PoisonedHash : private AggregateBarrier {
   PoisonedHash() = delete;
   PoisonedHash(const PoisonedHash&) = delete;
-  PoisonedHash& operator=(const PoisonedHash&) = delete;
+  PoisonedHash& operator = (const PoisonedHash&) = delete;
 };
 
 template <typename T>

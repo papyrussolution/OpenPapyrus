@@ -354,7 +354,7 @@ private:
     CollationElementIterator(); // default constructor not implemented
 
     /** Normalizes dir_=1 (just after setOffset()) to dir_=0 (just after reset()). */
-    inline int8_t normalizeDir() const { return dir_ == 1 ? 0 : dir_; }
+    inline int8 normalizeDir() const { return dir_ == 1 ? 0 : dir_; }
 
     static UHashtable *computeMaxExpansions(const CollationData *data, UErrorCode & errorCode);
 
@@ -369,7 +369,7 @@ private:
      * <0: backwards; 0: just after reset() (previous() begins from end);
      * 1: just after setOffset(); >1: forward
      */
-    int8_t dir_;
+    int8 dir_;
     /**
      * Stores offsets from expansions and from unsafe-backwards iteration,
      * so that getOffset() returns intermediate offsets for the CEs

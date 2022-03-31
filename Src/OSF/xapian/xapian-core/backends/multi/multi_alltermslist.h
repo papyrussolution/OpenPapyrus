@@ -31,7 +31,7 @@ namespace Xapian {
 /// Class for merging AllTermsList objects from subdatabases.
 class MultiAllTermsList : public AllTermsList {
 	/// Don't allow assignment.
-	void operator=(const MultiAllTermsList &);
+	void operator = (const MultiAllTermsList &);
 	/// Don't allow copying.
 	MultiAllTermsList(const MultiAllTermsList &);
 

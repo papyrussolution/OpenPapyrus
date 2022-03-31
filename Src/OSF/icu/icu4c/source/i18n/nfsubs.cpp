@@ -69,7 +69,7 @@ public:
 		}
 	}
 	virtual ~MultiplierSubstitution();
-	virtual void setDivisor(int32_t radix, int16_t exponent, UErrorCode & status) override 
+	virtual void setDivisor(int32_t radix, int16 exponent, UErrorCode & status) override 
 	{
 		divisor = util64_pow(radix, exponent);
 		if(divisor == 0) {
@@ -112,7 +112,7 @@ public:
 	ModulusSubstitution(int32_t pos, const NFRule* rule, const NFRule* rulePredecessor,
 	    const NFRuleSet* ruleSet, const UnicodeString & description, UErrorCode & status);
 	virtual ~ModulusSubstitution();
-	virtual void setDivisor(int32_t radix, int16_t exponent, UErrorCode & status) override 
+	virtual void setDivisor(int32_t radix, int16 exponent, UErrorCode & status) override 
 	{
 		divisor = util64_pow(radix, exponent);
 		if(divisor == 0) {
@@ -490,7 +490,7 @@ NFSubstitution::~NFSubstitution()
  * @param radix The radix of the divisor
  * @param exponent The exponent of the divisor
  */
-void NFSubstitution::setDivisor(int32_t /*radix*/, int16_t /*exponent*/, UErrorCode & /*status*/) {
+void NFSubstitution::setDivisor(int32_t /*radix*/, int16 /*exponent*/, UErrorCode & /*status*/) {
 	// a no-op for all substitutions except multiplier and modulus substitutions
 }
 
@@ -1165,7 +1165,7 @@ bool FractionalPartSubstitution::doParse(const UnicodeString & text,
 			}
 
 			if(workPos.getIndex() != 0) {
-				dl.appendDigit(static_cast<int8_t>(digit), 0, true);
+				dl.appendDigit(static_cast<int8>(digit), 0, true);
 				totalDigits++;
 //                  result += digit * p10;
 //                  p10 /= 10;

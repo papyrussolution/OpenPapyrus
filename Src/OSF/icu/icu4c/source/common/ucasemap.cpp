@@ -138,7 +138,7 @@ inline bool appendResult(int32_t cpLength, int32_t result, const UChar * s,
 inline uint8 getTwoByteLead(UChar32 c) { return (uint8)((c >> 6) | 0xc0); }
 inline uint8 getTwoByteTrail(UChar32 c) { return (uint8)((c & 0x3f) | 0x80); }
 
-UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8_t dir) {
+UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8 dir) {
 	UCaseContext * csc = (UCaseContext*)context;
 	UChar32 c;
 
@@ -179,7 +179,7 @@ UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8_t dir) {
 void toLower(int32_t caseLocale, uint32_t options,
     const uint8 * src, UCaseContext * csc, int32_t srcStart, int32_t srcLimit,
     icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) {
-	const int8_t * latinToLower;
+	const int8 * latinToLower;
 	if(caseLocale == UCASE_LOC_ROOT ||
 	    (caseLocale >= 0 ?
 	    !(caseLocale == UCASE_LOC_TURKISH || caseLocale == UCASE_LOC_LITHUANIAN) :
@@ -203,7 +203,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 			}
 			uint8 lead = src[srcIndex++];
 			if(lead <= 0x7f) {
-				int8_t d = latinToLower[lead];
+				int8 d = latinToLower[lead];
 				if(d == LatinCase::EXC) {
 					cpStart = srcIndex - 1;
 					c = lead;
@@ -229,7 +229,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 					// U+0080..U+017F
 					++srcIndex;
 					c = ((lead - 0xc0) << 6) | t;
-					int8_t d = latinToLower[c];
+					int8 d = latinToLower[c];
 					if(d == LatinCase::EXC) {
 						cpStart = srcIndex - 2;
 						break;
@@ -260,7 +260,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 				// ill-formed UTF-8
 				continue;
 			}
-			uint16_t props = UTRIE2_GET16(trie, c);
+			uint16 props = UTRIE2_GET16(trie, c);
 			if(UCASE_HAS_EXCEPTION(props)) {
 				break;
 			}
@@ -300,7 +300,7 @@ void toLower(int32_t caseLocale, uint32_t options,
 void toUpper(int32_t caseLocale, uint32_t options,
     const uint8 * src, UCaseContext * csc, int32_t srcLength,
     icu::ByteSink &sink, icu::Edits * edits, UErrorCode & errorCode) {
-	const int8_t * latinToUpper;
+	const int8 * latinToUpper;
 	if(caseLocale == UCASE_LOC_TURKISH) {
 		latinToUpper = LatinCase::TO_UPPER_TR;
 	}
@@ -321,7 +321,7 @@ void toUpper(int32_t caseLocale, uint32_t options,
 			}
 			uint8 lead = src[srcIndex++];
 			if(lead <= 0x7f) {
-				int8_t d = latinToUpper[lead];
+				int8 d = latinToUpper[lead];
 				if(d == LatinCase::EXC) {
 					cpStart = srcIndex - 1;
 					c = lead;
@@ -347,7 +347,7 @@ void toUpper(int32_t caseLocale, uint32_t options,
 					// U+0080..U+017F
 					++srcIndex;
 					c = ((lead - 0xc0) << 6) | t;
-					int8_t d = latinToUpper[c];
+					int8 d = latinToUpper[c];
 					if(d == LatinCase::EXC) {
 						cpStart = srcIndex - 2;
 						break;
@@ -378,7 +378,7 @@ void toUpper(int32_t caseLocale, uint32_t options,
 				// ill-formed UTF-8
 				continue;
 			}
-			uint16_t props = UTRIE2_GET16(trie, c);
+			uint16 props = UTRIE2_GET16(trie, c);
 			if(UCASE_HAS_EXCEPTION(props)) {
 				break;
 			}

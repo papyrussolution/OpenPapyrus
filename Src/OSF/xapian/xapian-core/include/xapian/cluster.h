@@ -83,7 +83,7 @@ public:
 	 *
 	 *  @param other	The object to copy.
 	 */
-	DocumentSet & operator=(const DocumentSet &other);
+	DocumentSet & operator = (const DocumentSet &other);
 
 	/** Move constructor.
 	 *
@@ -95,7 +95,7 @@ public:
 	 *
 	 * @param other	The object to move.
 	 */
-	DocumentSet & operator=(DocumentSet && other);
+	DocumentSet & operator = (DocumentSet && other);
 	/// Default constructor
 	DocumentSet();
 	~DocumentSet();
@@ -120,7 +120,7 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT FreqSource : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const FreqSource &) = delete;
+	void operator = (const FreqSource &) = delete;
 	/// Don't allow copying.
 	FreqSource(const FreqSource &) = delete;
 public:
@@ -353,7 +353,7 @@ public:
 	 *
 	 *  @param other	The object to copy.
 	 */
-	Cluster& operator=(const Cluster &other);
+	Cluster& operator = (const Cluster &other);
 
 	/** Move constructor.
 	 *
@@ -365,7 +365,7 @@ public:
 	 *
 	 * @param other	The object to move.
 	 */
-	Cluster & operator=(Cluster && other);
+	Cluster & operator = (Cluster && other);
 
 	/** Constructor
 	 *
@@ -425,7 +425,7 @@ public:
 	 *
 	 *  @param other	The object to copy.
 	 */
-	ClusterSet& operator=(const ClusterSet &other);
+	ClusterSet& operator = (const ClusterSet &other);
 	/** Move constructor.
 	 *
 	 * @param other	The object to move.
@@ -436,7 +436,7 @@ public:
 	 *
 	 * @param other	The object to move.
 	 */
-	ClusterSet & operator=(ClusterSet && other);
+	ClusterSet & operator = (ClusterSet && other);
 	ClusterSet();
 	~ClusterSet();
 	/** Add a cluster to the ClusterSet

@@ -1,27 +1,21 @@
 // locid.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
- * Created by: Richard Gillam
- * Modification History:
- *   Date        Name        Description
- *   02/11/97    aliu        Changed gLocPath to fgDataDirectory and added
- *        methods to get and set it.
- *   04/02/97    aliu        Made operator!= inline; fixed return value
- *        of getName().
- *   04/15/97    aliu        Cleanup for AIX/Win32.
- *   04/24/97    aliu        Numerous changes per code review.
- *   08/18/98    stephen     Changed getDisplayName()
- *        Added SIMPLIFIED_CHINESE, TRADITIONAL_CHINESE
- *        Added getISOCountries(), getISOLanguages(),
- *        getLanguagesForCountry()
- *   03/16/99    bertrand    rehaul.
- *   07/21/99    stephen     Added U_CFUNC setDefault
- *   11/09/99    weiv        Added const char * getName() const;
- *   04/12/00    srl         removing unicodestring api's and cached hash code
- *   08/10/01    grhoten     Change the static Locales to accessor functions
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Created by: Richard Gillam
+// Modification History:
+// Date        Name        Description
+// 02/11/97    aliu        Changed gLocPath to fgDataDirectory and added methods to get and set it.
+// 04/02/97    aliu        Made operator!= inline; fixed return value of getName().
+// 04/15/97    aliu        Cleanup for AIX/Win32.
+// 04/24/97    aliu        Numerous changes per code review.
+// 08/18/98    stephen     Changed getDisplayName() Added SIMPLIFIED_CHINESE, TRADITIONAL_CHINESE Added getISOCountries(), getISOLanguages(), getLanguagesForCountry()
+// 03/16/99    bertrand    rehaul.
+// 07/21/99    stephen     Added U_CFUNC setDefault
+// 11/09/99    weiv        Added const char * getName() const;
+// 04/12/00    srl         removing unicodestring api's and cached hash code
+// 08/10/01    grhoten     Change the static Locales to accessor functions
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "bytesinkutil.h"
@@ -61,7 +55,6 @@ typedef enum ELocalePos {
 	eJAPANESE,
 	eKOREAN,
 	eCHINESE,
-
 	eFRANCE,
 	eGERMANY,
 	eITALY,
@@ -74,7 +67,6 @@ typedef enum ELocalePos {
 	eCANADA,
 	eCANADA_FRENCH,
 	eROOT,
-
 	//eDEFAULT,
 	eMAX_LOCALES
 } ELocalePos;
@@ -254,8 +246,8 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 		int32_t ksize = 0;
 		// Check the sizes of the input strings.
 		// Language
-		if(newLanguage != NULL) {
-			lsize = (int32_t)uprv_strlen(newLanguage);
+		if(newLanguage) {
+			lsize = sstrleni(newLanguage);
 			if(lsize < 0 || lsize > ULOC_STRING_LIMIT) { // int32 wrap
 				setToBogus();
 				return;
@@ -263,21 +255,21 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 		}
 		CharString togo(newLanguage, lsize, status); // start with newLanguage
 		// _Country
-		if(newCountry != NULL) {
-			csize = (int32_t)uprv_strlen(newCountry);
+		if(newCountry) {
+			csize = sstrleni(newCountry);
 			if(csize < 0 || csize > ULOC_STRING_LIMIT) { // int32 wrap
 				setToBogus();
 				return;
 			}
 		}
 		// _Variant
-		if(newVariant != NULL) {
+		if(newVariant) {
 			// remove leading _'s
 			while(newVariant[0] == SEP_CHAR) {
 				newVariant++;
 			}
 			// remove trailing _'s
-			vsize = (int32_t)uprv_strlen(newVariant);
+			vsize = sstrleni(newVariant);
 			if(vsize < 0 || vsize > ULOC_STRING_LIMIT) { // int32 wrap
 				setToBogus();
 				return;
@@ -286,33 +278,24 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 				vsize--;
 			}
 		}
-
-		if(newKeywords != NULL) {
-			ksize = (int32_t)uprv_strlen(newKeywords);
+		if(newKeywords) {
+			ksize = sstrleni(newKeywords);
 			if(ksize < 0 || ksize > ULOC_STRING_LIMIT) {
 				setToBogus();
 				return;
 			}
 		}
-
 		// We've checked the input sizes, now build up the full locale string..
-
 		// newLanguage is already copied
-
-		if(( vsize != 0) || (csize != 0)) { // at least:  __v
-			                               //            ^
+		if(( vsize != 0) || (csize != 0)) { // at least:  __v ^
 			togo.append(SEP_CHAR, status);
 		}
-
 		if(csize != 0) {
 			togo.append(newCountry, status);
 		}
-
 		if(vsize != 0) {
-			togo.append(SEP_CHAR, status)
-			.append(newVariant, vsize, status);
+			togo.append(SEP_CHAR, status).append(newVariant, vsize, status);
 		}
-
 		if(ksize != 0) {
 			if(uprv_strchr(newKeywords, '=')) {
 				togo.append('@', status); /* keyword parsing */
@@ -337,24 +320,22 @@ Locale::Locale(const char * newLanguage, const char * newCountry, const char * n
 	}
 }
 
-Locale::Locale(const Locale &other)
-	: UObject(other), fullName(fullNameBuffer), baseName(NULL)
+Locale::Locale(const Locale &other) : UObject(other), fullName(fullNameBuffer), baseName(NULL)
 {
 	*this = other;
 }
 
-Locale::Locale(Locale&& other) U_NOEXCEPT
-	: UObject(other), fullName(fullNameBuffer), baseName(fullName) {
+Locale::Locale(Locale&& other) U_NOEXCEPT : UObject(other), fullName(fullNameBuffer), baseName(fullName) 
+{
 	*this = std::move(other);
 }
 
-Locale & Locale::operator = (const Locale & other) {
+Locale & Locale::operator = (const Locale & other) 
+{
 	if(this == &other) {
 		return *this;
 	}
-
 	setToBogus();
-
 	if(other.fullName == other.fullNameBuffer) {
 		uprv_strcpy(fullNameBuffer, other.fullNameBuffer);
 	}
@@ -365,7 +346,6 @@ Locale & Locale::operator = (const Locale & other) {
 		fullName = uprv_strdup(other.fullName);
 		if(fullName == nullptr) return *this;
 	}
-
 	if(other.baseName == other.fullName) {
 		baseName = fullName;
 	}
@@ -373,21 +353,20 @@ Locale & Locale::operator = (const Locale & other) {
 		baseName = uprv_strdup(other.baseName);
 		if(baseName == nullptr) return *this;
 	}
-
 	uprv_strcpy(language, other.language);
 	uprv_strcpy(script, other.script);
 	uprv_strcpy(country, other.country);
-
 	variantBegin = other.variantBegin;
 	fIsBogus = other.fIsBogus;
-
 	return *this;
 }
 
-Locale & Locale::operator = (Locale&& other) U_NOEXCEPT {
-	if((baseName != fullName) && (baseName != fullNameBuffer)) uprv_free(baseName);
-	if(fullName != fullNameBuffer) uprv_free(fullName);
-
+Locale & Locale::operator = (Locale&& other) U_NOEXCEPT 
+{
+	if((baseName != fullName) && (baseName != fullNameBuffer)) 
+		uprv_free(baseName);
+	if(fullName != fullNameBuffer) 
+		uprv_free(fullName);
 	if(other.fullName == other.fullNameBuffer || other.baseName == other.fullNameBuffer) {
 		uprv_strcpy(fullNameBuffer, other.fullNameBuffer);
 	}
@@ -397,7 +376,6 @@ Locale & Locale::operator = (Locale&& other) U_NOEXCEPT {
 	else {
 		fullName = other.fullName;
 	}
-
 	if(other.baseName == other.fullNameBuffer) {
 		baseName = fullNameBuffer;
 	}
@@ -407,7 +385,6 @@ Locale & Locale::operator = (Locale&& other) U_NOEXCEPT {
 	else {
 		baseName = other.baseName;
 	}
-
 	uprv_strcpy(language, other.language);
 	uprv_strcpy(script, other.script);
 	uprv_strcpy(country, other.country);
@@ -673,12 +650,9 @@ void AliasDataBuilder::readAlias(UResourceBundle * alias,
 		LocalUResourceBundlePointer res(
 			ures_getNextResource(alias, nullptr, &status));
 		const char * aliasFrom = ures_getKey(res.getAlias());
-		UnicodeString aliasTo =
-		    ures_getUnicodeStringByKey(res.getAlias(), "replacement", &status);
-
+		UnicodeString aliasTo = ures_getUnicodeStringByKey(res.getAlias(), "replacement", &status);
 		checkType(aliasFrom);
 		checkReplacement(aliasTo);
-
 		rawTypes[i] = aliasFrom;
 		rawIndexes[i] = strings->add(aliasTo, status);
 		i++;
@@ -728,56 +702,35 @@ void AliasDataBuilder::readLanguageAlias(UResourceBundle * alias,
  * items for replacementIndexes, to store the index in the strings for the
  * replacement script.
  */
-void AliasDataBuilder::readScriptAlias(UResourceBundle * alias,
-    UniqueCharStrings* strings,
-    LocalMemory<const char *>& types,
-    LocalMemory<int32_t>& replacementIndexes,
-    int32_t &length,
-    UErrorCode & status)
+void AliasDataBuilder::readScriptAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status)
 {
-	return readAlias(
-		alias, strings, types, replacementIndexes, length,
+	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) {
-			U_ASSERT(uprv_strlen(type) == 4);
-		},
-		[](const UnicodeString & replacement) {
-			U_ASSERT(replacement.length() == 4);
-		},
+		[] (const char * type) { U_ASSERT(uprv_strlen(type) == 4); },
+		[](const UnicodeString & replacement) { U_ASSERT(replacement.length() == 4); },
 #else
-		[](const char *) {
-		},
-		[](const UnicodeString &) {
-		},
+		[](const char *) {},
+		[](const UnicodeString &) {},
 #endif
 		status);
 }
-
 /**
  * Read the territoryAlias data from alias to strings+types+replacementIndexes.
  * Allocate length items for types, to store the type field. Allocate length
  * items for replacementIndexes, to store the index in the strings for the
  * replacement regions.
  */
-void AliasDataBuilder::readTerritoryAlias(UResourceBundle * alias,
-    UniqueCharStrings* strings,
-    LocalMemory<const char *>& types,
-    LocalMemory<int32_t>& replacementIndexes,
-    int32_t &length,
-    UErrorCode & status)
+void AliasDataBuilder::readTerritoryAlias(UResourceBundle * alias, UniqueCharStrings* strings,
+    LocalMemory<const char *>& types, LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status)
 {
-	return readAlias(
-		alias, strings, types, replacementIndexes, length,
+	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) {
-			U_ASSERT(uprv_strlen(type) == 2 || uprv_strlen(type) == 3);
-		},
+		[] (const char * type) { U_ASSERT(uprv_strlen(type) == 2 || uprv_strlen(type) == 3); },
 #else
-		[](const char *) {
-		},
+		[](const char *) {},
 #endif
-		[](const UnicodeString &) {
-		},
+		[](const UnicodeString &) {},
 		status);
 }
 
@@ -787,15 +740,10 @@ void AliasDataBuilder::readTerritoryAlias(UResourceBundle * alias,
  * items for replacementIndexes, to store the index in the strings for the
  * replacement variant.
  */
-void AliasDataBuilder::readVariantAlias(UResourceBundle * alias,
-    UniqueCharStrings* strings,
-    LocalMemory<const char *>& types,
-    LocalMemory<int32_t>& replacementIndexes,
-    int32_t &length,
-    UErrorCode & status)
+void AliasDataBuilder::readVariantAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status)
 {
-	return readAlias(
-		alias, strings, types, replacementIndexes, length,
+	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
 		[] (const char * type) {
 			U_ASSERT(uprv_strlen(type) >= 4 && uprv_strlen(type) <= 8);
@@ -823,28 +771,18 @@ void AliasDataBuilder::readVariantAlias(UResourceBundle * alias,
  * items for replacementIndexes, to store the index in the strings for the
  * replacement regions.
  */
-void AliasDataBuilder::readSubdivisionAlias(UResourceBundle * alias,
-    UniqueCharStrings* strings,
-    LocalMemory<const char *>& types,
-    LocalMemory<int32_t>& replacementIndexes,
-    int32_t &length,
-    UErrorCode & status)
+void AliasDataBuilder::readSubdivisionAlias(UResourceBundle * alias, UniqueCharStrings* strings, LocalMemory<const char *>& types,
+    LocalMemory<int32_t>& replacementIndexes, int32_t &length, UErrorCode & status)
 {
-	return readAlias(
-		alias, strings, types, replacementIndexes, length,
+	return readAlias(alias, strings, types, replacementIndexes, length,
 #if U_DEBUG
-		[] (const char * type) {
-			U_ASSERT(uprv_strlen(type) >= 3 && uprv_strlen(type) <= 8);
-		},
+		[] (const char * type) { U_ASSERT(uprv_strlen(type) >= 3 && uprv_strlen(type) <= 8); },
 #else
-		[](const char *) {
-		},
+		[](const char *) {},
 #endif
-		[](const UnicodeString &) {
-		},
+		[](const UnicodeString &) {},
 		status);
 }
-
 /**
  * Initializes the alias data from the ICU resource bundles. The alias data
  * contains alias of language, country, script and variants.
@@ -1138,16 +1076,14 @@ void AliasReplacer::parseLanguageReplacement(const char * replacement,
 	if(U_FAILURE(status)) {
 		return;
 	}
-	replacedScript = replacedRegion = replacedVariant
-			= replacedExtensions = nullptr;
+	replacedScript = replacedRegion = replacedVariant = replacedExtensions = nullptr;
 	if(uprv_strchr(replacement, '_') == nullptr) {
 		replacedLanguage = replacement;
 		// reach the end, just return it.
 		return;
 	}
 	// We have multiple field so we have to allocate and parse
-	CharString* str = new CharString(
-		replacement, (int32_t)uprv_strlen(replacement), status);
+	CharString* str = new CharString(replacement, (int32_t)uprv_strlen(replacement), status);
 	if(U_FAILURE(status)) {
 		return;
 	}
@@ -1413,18 +1349,13 @@ bool AliasReplacer::replaceVariant(UErrorCode & status)
 			// Found no replacement data for this variant.
 			continue;
 		}
-		U_ASSERT((uprv_strlen(replacement) >= 5 &&
-		    uprv_strlen(replacement) <= 8) ||
-		    (uprv_strlen(replacement) == 4 &&
-		    replacement[0] >= '0' &&
-		    replacement[0] <= '9'));
+		U_ASSERT((uprv_strlen(replacement) >= 5 && uprv_strlen(replacement) <= 8) || (uprv_strlen(replacement) == 4 && replacement[0] >= '0' && replacement[0] <= '9'));
 		if(!same(variant, replacement)) {
 			variants.setElementAt((void *)replacement, i);
 			// Special hack to handle hepburn-heploc => alalc97
 			if(uprv_strcmp(variant, "heploc") == 0) {
 				for(int32_t j = 0; j < variants.size(); j++) {
-					if(uprv_strcmp((const char *)(variants.elementAt(j)),
-					    "hepburn") == 0) {
+					if(uprv_strcmp((const char *)(variants.elementAt(j)), "hepburn") == 0) {
 						variants.removeElementAt(j);
 					}
 				}

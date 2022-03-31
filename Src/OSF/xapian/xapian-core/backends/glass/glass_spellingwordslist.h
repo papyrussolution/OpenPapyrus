@@ -33,7 +33,7 @@ class GlassSpellingWordsList : public AllTermsList {
 	GlassSpellingWordsList(const GlassSpellingWordsList &);
 
 	/// Assignment is not allowed.
-	void operator=(const GlassSpellingWordsList &);
+	void operator = (const GlassSpellingWordsList &);
 
 	/// Keep a reference to our database to stop it being deleted.
 	Xapian::Internal::intrusive_ptr<const GlassDatabase> database;

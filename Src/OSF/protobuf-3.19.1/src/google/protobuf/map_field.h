@@ -63,7 +63,7 @@ public:
 		CopyFrom(other);
 	}
 
-	MapKey& operator=(const MapKey& other) {
+	MapKey& operator = (const MapKey& other) {
 		CopyFrom(other);
 		return *this;
 	}
@@ -140,7 +140,7 @@ public:
 		return val_.string_value_.get();
 	}
 
-	bool operator<(const MapKey& other) const {
+	bool operator < (const MapKey& other) const {
 		if(type_ != other.type_) {
 			// We could define a total order that handles this case, but
 			// there currently no need.  So, for now, fail.
@@ -169,7 +169,7 @@ public:
 		return false;
 	}
 
-	bool operator==(const MapKey& other) const {
+	bool operator == (const MapKey& other) const {
 		if(type_ != other.type_) {
 			// To be consistent with operator<, we don't allow this either.
 			GOOGLE_LOG(FATAL) << "Unsupported: type mismatch";
@@ -920,17 +920,17 @@ public:
 		map_->DeleteIterator(this);
 	}
 
-	MapIterator& operator=(const MapIterator& other) {
+	MapIterator& operator = (const MapIterator& other) {
 		map_ = other.map_;
 		map_->CopyIterator(this, other);
 		return *this;
 	}
 
-	friend bool operator==(const MapIterator& a, const MapIterator& b) {
+	friend bool operator == (const MapIterator& a, const MapIterator& b) {
 		return a.map_->EqualIterator(a, b);
 	}
 
-	friend bool operator!=(const MapIterator& a, const MapIterator& b) {
+	friend bool operator != (const MapIterator& a, const MapIterator& b) {
 		return !a.map_->EqualIterator(a, b);
 	}
 

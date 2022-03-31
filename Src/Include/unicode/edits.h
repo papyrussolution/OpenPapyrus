@@ -403,7 +403,7 @@ public:
     private:
         friend class Edits;
 
-        Iterator(const uint16_t *a, int32_t len, bool oc, bool crs);
+        Iterator(const uint16 *a, int32_t len, bool oc, bool crs);
 
         int32_t readLength(int32_t head);
         void updateNextIndexes();
@@ -414,14 +414,14 @@ public:
         /** @return -1: error or i<0; 0: found; 1: i>=string length */
         int32_t findIndex(int32_t i, bool findSource, UErrorCode & errorCode);
 
-        const uint16_t *array;
+        const uint16 *array;
         int32_t index, length;
         // 0 if we are not within compressed equal-length changes.
         // Otherwise the number of remaining changes, including the current one.
         int32_t remaining;
         bool onlyChanges_, coarse;
 
-        int8_t dir;  // iteration direction: back(<0), initial(0), forward(>0)
+        int8 dir;  // iteration direction: back(<0), initial(0), forward(>0)
         bool changed;
         int32_t oldLength_, newLength_;
         int32_t srcIndex, replIndex, destIndex;
@@ -508,20 +508,20 @@ private:
     Edits &copyArray(const Edits &other);
     Edits &moveArray(Edits &src) U_NOEXCEPT;
 
-    void setLastUnit(int32_t last) { array[length - 1] = (uint16_t)last; }
+    void setLastUnit(int32_t last) { array[length - 1] = (uint16)last; }
     int32_t lastUnit() const { return length > 0 ? array[length - 1] : 0xffff; }
 
     void append(int32_t r);
     bool growArray();
 
     static const int32_t STACK_CAPACITY = 100;
-    uint16_t *array;
+    uint16 *array;
     int32_t capacity;
     int32_t length;
     int32_t delta;
     int32_t numChanges;
     UErrorCode errorCode_;
-    uint16_t stackArray[STACK_CAPACITY];
+    uint16 stackArray[STACK_CAPACITY];
 };
 
 U_NAMESPACE_END

@@ -12,7 +12,7 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 
 namespace {
-void WritePadding(std::ostream& o, size_t pad) {
+void WritePadding(std::ostream & o, size_t pad) {
 	char fill_buf[32];
 	memset(fill_buf, o.fill(), sizeof(fill_buf));
 	while(pad) {
@@ -47,7 +47,7 @@ private:
 };
 }  // namespace
 
-std::ostream& operator<<(std::ostream& o, string_view piece) {
+std::ostream & operator<<(std::ostream & o, string_view piece) {
 	std::ostream::sentry sentry(o);
 	if(sentry) {
 		size_t lpad = 0;

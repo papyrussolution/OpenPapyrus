@@ -688,7 +688,7 @@ U_CAPI int32_t U_EXPORT2 unum_toPattern(const UNumberFormat * fmt, bool isPatter
 U_CAPI int32_t U_EXPORT2 unum_getSymbol(const UNumberFormat * fmt, UNumberFormatSymbol symbol, UChar * buffer,
     int32_t size, UErrorCode * status)
 {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 	if(fmt==NULL || symbol< 0 || symbol>=UNUM_FORMAT_SYMBOL_COUNT) {
@@ -707,7 +707,7 @@ U_CAPI int32_t U_EXPORT2 unum_getSymbol(const UNumberFormat * fmt, UNumberFormat
 U_CAPI void U_EXPORT2 unum_setSymbol(UNumberFormat * fmt, UNumberFormatSymbol symbol, const UChar * value,
     int32_t length, UErrorCode * status)
 {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return;
 	}
 	if(fmt==NULL || symbol< 0 || symbol>=UNUM_FORMAT_SYMBOL_COUNT || value==NULL || length<-1) {

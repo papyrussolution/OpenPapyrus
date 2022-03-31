@@ -24,7 +24,7 @@
 #include "ucmndata.h"
 #include "udatamem.h"
 
-U_CFUNC uint16_t udata_getHeaderSize(const DataHeader * udh) 
+U_CFUNC uint16 udata_getHeaderSize(const DataHeader * udh) 
 {
 	if(udh==NULL) {
 		return 0;
@@ -35,12 +35,12 @@ U_CFUNC uint16_t udata_getHeaderSize(const DataHeader * udh)
 	}
 	else {
 		/* opposite endianness */
-		uint16_t x = udh->dataHeader.headerSize;
-		return (uint16_t)((x<<8)|(x>>8));
+		uint16 x = udh->dataHeader.headerSize;
+		return (uint16)((x<<8)|(x>>8));
 	}
 }
 
-U_CFUNC uint16_t udata_getInfoSize(const UDataInfo * info) 
+U_CFUNC uint16 udata_getInfoSize(const UDataInfo * info) 
 {
 	if(!info)
 		return 0;
@@ -50,8 +50,8 @@ U_CFUNC uint16_t udata_getInfoSize(const UDataInfo * info)
 	}
 	else {
 		/* opposite endianness */
-		uint16_t x = info->size;
-		return (uint16_t)((x<<8)|(x>>8));
+		uint16 x = info->size;
+		return (uint16)((x<<8)|(x>>8));
 	}
 }
 // 

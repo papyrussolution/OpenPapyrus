@@ -283,7 +283,7 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
 	 */
 	int32_t n = ruleVector->size();
 	int32_t j;
-	int16_t x;
+	int16 x;
 	UVector v(2*n, status); // heuristic; adjust as needed
 
 	if(U_FAILURE(status)) {
@@ -293,7 +293,7 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
 	/* Precompute the index values.  This saves a LOT of time.
 	 * Be careful not to call malloc(0).
 	 */
-	int16_t* indexValue = (int16_t*)uprv_malloc(sizeof(int16_t) * (n > 0 ? n : 1));
+	int16* indexValue = (int16*)uprv_malloc(sizeof(int16) * (n > 0 ? n : 1));
 	/* test for NULL */
 	if(indexValue == 0) {
 		status = U_MEMORY_ALLOCATION_ERROR;
@@ -397,7 +397,7 @@ void TransliterationRuleSet::freeze(UParseError& parseError, UErrorCode & status
 bool TransliterationRuleSet::transliterate(Replaceable& text,
     UTransPosition& pos,
     bool incremental) {
-	int16_t indexByte = (int16_t)(text.char32At(pos.start) & 0xFF);
+	int16 indexByte = (int16)(text.char32At(pos.start) & 0xFF);
 	for(int32_t i = index[indexByte]; i<index[indexByte+1]; ++i) {
 		UMatchDegree m = rules[i]->matchAndReplace(text, pos, incremental);
 		switch(m) {

@@ -110,7 +110,7 @@ public:
 		results.reserve(max_size);
 	}
 	ProtoMSet(const ProtoMSet&) = delete;
-	ProtoMSet& operator=(const ProtoMSet&) = delete;
+	ProtoMSet& operator = (const ProtoMSet&) = delete;
 	Collapser& get_collapser() { return collapser; }
 	bool full() const { return results.size() == max_size; }
 	double get_min_weight() const { return min_weight; }

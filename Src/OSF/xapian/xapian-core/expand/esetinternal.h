@@ -54,7 +54,7 @@ public:
 		std::swap(term, o.term);
 	}
 	/// Ordering relation for ESet contents.
-	bool operator<(const ExpandTerm & o) const 
+	bool operator < (const ExpandTerm & o) const 
 	{
 		if(wt > o.wt) return true;
 		if(wt < o.wt) return false;
@@ -81,7 +81,7 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 	/// The ExpandTerm objects which represent the items in the ESet.
 	std::vector <Xapian::Internal::ExpandTerm> items;
 	/// Don't allow assignment.
-	void operator=(const Internal &);
+	void operator = (const Internal &);
 	/// Don't allow copying.
 	Internal(const Internal &);
 public:

@@ -4,49 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <!--
-    <CheckBox
-        android:id="@+id/CTL_STQFACE_VERIFIABLE"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@{styloqface_fverifiable}"/>
-    -->
-    <RadioGroup
-        android:id="@+id/CTL_STQFACE_VRF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="2dp"
-        android:paddingLeft="2dp"
-        android:paddingRight="2dp"
-        android:background="@drawable/shape_viewframe">
-        <RadioButton android:id="@+id/CTL_STQFACE_VRF_ARB"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingLeft="2dp"
-            android:paddingRight="2dp"
-            android:layout_margin="0dp"
-            android:textSize="12sp"
-            android:text="@{styloqface_varbitrary}"
-            />
-        <RadioButton android:id="@+id/CTL_STQFACE_VRF_ANON"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="2dp"
-            android:layout_margin="1dp"
-            android:textSize="12sp"
-            android:text="@{styloqface_vanonymous}"
-            />
-        <RadioButton android:id="@+id/CTL_STQFACE_VRF_VRF"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="2dp"
-            android:layout_margin="1dp"
-            android:textSize="12sp"
-            android:text="@{styloqface_vverifiable}"
-            />
-    </RadioGroup>
-
+        android:padding="4dp"
+        android:layout_marginTop="4dp">
+        <Spinner style="@style/ComboBox" android:layout_marginBottom="4dp" android:id="@+id/CTLSEL_STQFACE_VRF"/>
+        <Spinner style="@style/ComboBox" android:layout_marginTop="2dp" android:id="@+id/CTLSEL_STQFACE_STATUS"/>
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

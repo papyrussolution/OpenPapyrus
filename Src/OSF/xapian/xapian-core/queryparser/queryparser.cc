@@ -49,9 +49,9 @@ FieldProcessor::~FieldProcessor()
 
 QueryParser::QueryParser(const QueryParser &) = default;
 
-QueryParser & QueryParser::operator=(const QueryParser &) = default;
+QueryParser & QueryParser::operator = (const QueryParser &) = default;
 QueryParser::QueryParser(QueryParser &&) = default;
-QueryParser & QueryParser::operator=(QueryParser &&) = default;
+QueryParser & QueryParser::operator = (QueryParser &&) = default;
 
 QueryParser::QueryParser() : internal(new QueryParser::Internal) 
 {

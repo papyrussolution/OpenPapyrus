@@ -35,17 +35,17 @@ static const char DATA_TYPE[] = "icu";
 
 /*
  * This struct was replaced by explicitly accessing equivalent
- * fields from triples of uint16_t.
+ * fields from triples of uint16.
  * The Group struct was padded to 8 bytes on compilers for early ARM CPUs,
  * which broke the assumption that sizeof(Group)==6 and that the ++ operator
- * would advance by 6 bytes (3 uint16_t).
+ * would advance by 6 bytes (3 uint16).
  *
  * We can't just change the data structure because it's loaded from a data file,
  * and we don't want to make it less compact, so we changed the access code.
  *
  * For details see ICU tickets 6331 and 6008.
    typedef struct {
-    uint16_t groupMSB,
+    uint16 groupMSB,
              offsetHigh, offsetLow; / * avoid padding * /
    } Group;
  */
@@ -58,7 +58,7 @@ enum {
 
 /*
  * Get the 32-bit group offset.
- * @param group (const uint16_t *) pointer to a Group triple of uint16_t
+ * @param group (const uint16 *) pointer to a Group triple of uint16
  * @return group offset (int32_t)
  */
 #define GET_GROUP_OFFSET(group) ((int32_t)(group)[GROUP_OFFSET_HIGH]<<16|(group)[GROUP_OFFSET_LOW])
@@ -69,7 +69,7 @@ enum {
 typedef struct {
 	uint32_t start, end;
 	uint8 type, variant;
-	uint16_t size;
+	uint16 size;
 } AlgorithmicRange;
 
 typedef struct {
@@ -78,14 +78,14 @@ typedef struct {
 
 /*
  * Get the groups table from a UCharNames struct.
- * The groups table consists of one uint16_t groupCount followed by
- * groupCount groups. Each group is a triple of uint16_t, see GROUP_LENGTH
+ * The groups table consists of one uint16 groupCount followed by
+ * groupCount groups. Each group is a triple of uint16, see GROUP_LENGTH
  * and the comment for the old struct Group above.
  *
  * @param names (const UCharNames *) pointer to the UCharNames indexes
- * @return (const uint16_t *) pointer to the groups table
+ * @return (const uint16 *) pointer to the groups table
  */
-#define GET_GROUPS(names) (const uint16_t*)((const char *)names+names->groupsOffset)
+#define GET_GROUPS(names) (const uint16*)((const char *)names+names->groupsOffset)
 
 typedef struct {
 	const char * otherName;
@@ -222,11 +222,11 @@ static bool isDataLoaded(UErrorCode * pErrorCode) {
  * So, it will be token[';']==-1 if we store U1.0 names/ISO comments/aliases
  * although we know that it will never be part of a name.
  */
-static uint16_t expandName(UCharNames * names,
-    const uint8 * name, uint16_t nameLength, UCharNameChoice nameChoice,
-    char * buffer, uint16_t bufferLength) {
-	uint16_t * tokens = (uint16_t*)names+8;
-	uint16_t token, tokenCount = *tokens++, bufferPos = 0;
+static uint16 expandName(UCharNames * names,
+    const uint8 * name, uint16 nameLength, UCharNameChoice nameChoice,
+    char * buffer, uint16 bufferLength) {
+	uint16 * tokens = (uint16*)names+8;
+	uint16 token, tokenCount = *tokens++, bufferPos = 0;
 	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
 	uint8 c;
 
@@ -235,7 +235,7 @@ static uint16_t expandName(UCharNames * names,
 		 * skip the modern name if it is not requested _and_
 		 * if the semicolon byte value is a character, not a token number
 		 */
-		if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
+		if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16)(-1)) {
 			int fieldIndex = nameChoice==U_ISO_COMMENT ? 2 : nameChoice;
 			do {
 				while(nameLength>0) {
@@ -273,12 +273,12 @@ static uint16_t expandName(UCharNames * names,
 		}
 		else {
 			token = tokens[c];
-			if(token==(uint16_t)(-2)) {
+			if(token==(uint16)(-2)) {
 				/* this is a lead byte for a double-byte token */
 				token = tokens[c<<8|*name++];
 				--nameLength;
 			}
-			if(token==(uint16_t)(-1)) {
+			if(token==(uint16)(-1)) {
 				if(c!=';') {
 					/* explicit letter */
 					WRITE_CHAR(buffer, bufferLength, bufferPos, c);
@@ -288,7 +288,7 @@ static uint16_t expandName(UCharNames * names,
 					   extended names and there was no 2.0 name but there
 					   is a 1.0 name. */
 					if(!bufferPos && nameChoice == U_EXTENDED_CHAR_NAME) {
-						if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
+						if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16)(-1)) {
 							continue;
 						}
 					}
@@ -320,10 +320,10 @@ static uint16_t expandName(UCharNames * names,
  * It returns the match/no match result as soon as possible.
  */
 static bool compareName(UCharNames * names,
-    const uint8 * name, uint16_t nameLength, UCharNameChoice nameChoice,
+    const uint8 * name, uint16 nameLength, UCharNameChoice nameChoice,
     const char * otherName) {
-	uint16_t * tokens = (uint16_t*)names+8;
-	uint16_t token, tokenCount = *tokens++;
+	uint16 * tokens = (uint16*)names+8;
+	uint16 token, tokenCount = *tokens++;
 	uint8 * tokenStrings = (uint8 *)names+names->tokenStringOffset;
 	uint8 c;
 	const char * origOtherName = otherName;
@@ -333,7 +333,7 @@ static bool compareName(UCharNames * names,
 		 * skip the modern name if it is not requested _and_
 		 * if the semicolon byte value is a character, not a token number
 		 */
-		if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
+		if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16)(-1)) {
 			int fieldIndex = nameChoice==U_ISO_COMMENT ? 2 : nameChoice;
 			do {
 				while(nameLength>0) {
@@ -373,12 +373,12 @@ static bool compareName(UCharNames * names,
 		}
 		else {
 			token = tokens[c];
-			if(token==(uint16_t)(-2)) {
+			if(token==(uint16)(-2)) {
 				/* this is a lead byte for a double-byte token */
 				token = tokens[c<<8|*name++];
 				--nameLength;
 			}
-			if(token==(uint16_t)(-1)) {
+			if(token==(uint16)(-1)) {
 				if(c!=';') {
 					/* explicit letter */
 					if((char)c!=*otherName++) {
@@ -390,7 +390,7 @@ static bool compareName(UCharNames * names,
 					   extended names and there was no 2.0 name but there
 					   is a 1.0 name. */
 					if(otherName == origOtherName && nameChoice == U_EXTENDED_CHAR_NAME) {
-						if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16_t)(-1)) {
+						if((uint8)';'>=tokenCount || tokens[(uint8)';']==(uint16)(-1)) {
 							continue;
 						}
 					}
@@ -442,9 +442,9 @@ static const char * getCharCatName(UChar32 cp) {
 	}
 }
 
-static uint16_t getExtName(uint32_t code, char * buffer, uint16_t bufferLength) {
+static uint16 getExtName(uint32_t code, char * buffer, uint16 bufferLength) {
 	const char * catname = getCharCatName(code);
-	uint16_t length = 0;
+	uint16 length = 0;
 
 	UChar32 cp;
 	int ndigits, i;
@@ -463,7 +463,7 @@ static uint16_t getExtName(uint32_t code, char * buffer, uint16_t bufferLength) 
 		buffer[--i] = (v < 10 ? '0' + v : 'A' + v - 10);
 	}
 	buffer += ndigits;
-	length += static_cast<uint16_t>(ndigits);
+	length += static_cast<uint16>(ndigits);
 	WRITE_CHAR(buffer, bufferLength, length, '>');
 
 	return length;
@@ -476,16 +476,16 @@ static uint16_t getExtName(uint32_t code, char * buffer, uint16_t bufferLength) 
  * or else is the highest group before "code".
  * If the lowest group is after "code", then that one is returned.
  */
-static const uint16_t * getGroup(UCharNames * names, uint32_t code) {
-	const uint16_t * groups = GET_GROUPS(names);
-	uint16_t groupMSB = (uint16_t)(code>>GROUP_SHIFT),
+static const uint16 * getGroup(UCharNames * names, uint32_t code) {
+	const uint16 * groups = GET_GROUPS(names);
+	uint16 groupMSB = (uint16)(code>>GROUP_SHIFT),
 	    start = 0,
 	    limit = *groups++,
 	    number;
 
 	/* binary search for the group of names that contains the one for code */
 	while(start<limit-1) {
-		number = (uint16_t)((start+limit)/2);
+		number = (uint16)((start+limit)/2);
 		if(groupMSB<groups[number*GROUP_LENGTH+GROUP_MSB]) {
 			limit = number;
 		}
@@ -509,9 +509,9 @@ static const uint16_t * getGroup(UCharNames * names, uint32_t code) {
  * there is no check here at the end if the last nibble is still used.
  */
 static const uint8 * expandGroupLengths(const uint8 * s,
-    uint16_t offsets[LINES_PER_GROUP+1], uint16_t lengths[LINES_PER_GROUP+1]) {
+    uint16 offsets[LINES_PER_GROUP+1], uint16 lengths[LINES_PER_GROUP+1]) {
 	/* read the lengths of the 32 strings in this group and get each string's offset */
-	uint16_t i = 0, offset = 0, length = 0;
+	uint16 i = 0, offset = 0, length = 0;
 	uint8 lengthByte;
 
 	/* all 32 lengths must be read to get the offset of the first group string */
@@ -521,16 +521,16 @@ static const uint8 * expandGroupLengths(const uint8 * s,
 		/* read even nibble - MSBs of lengthByte */
 		if(length>=12) {
 			/* double-nibble length spread across two bytes */
-			length = (uint16_t)(((length&0x3)<<4|lengthByte>>4)+12);
+			length = (uint16)(((length&0x3)<<4|lengthByte>>4)+12);
 			lengthByte &= 0xf;
 		}
 		else if((lengthByte /* &0xf0 */)>=0xc0) {
 			/* double-nibble length spread across this one byte */
-			length = (uint16_t)((lengthByte&0x3f)+12);
+			length = (uint16)((lengthByte&0x3f)+12);
 		}
 		else {
 			/* single-nibble length in MSBs */
-			length = (uint16_t)(lengthByte>>4);
+			length = (uint16)(lengthByte>>4);
 			lengthByte &= 0xf;
 		}
 
@@ -562,21 +562,21 @@ static const uint8 * expandGroupLengths(const uint8 * s,
 	return s;
 }
 
-static uint16_t expandGroupName(UCharNames * names, const uint16_t * group,
-    uint16_t lineNumber, UCharNameChoice nameChoice,
-    char * buffer, uint16_t bufferLength) {
-	uint16_t offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
+static uint16 expandGroupName(UCharNames * names, const uint16 * group,
+    uint16 lineNumber, UCharNameChoice nameChoice,
+    char * buffer, uint16 bufferLength) {
+	uint16 offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
 	const uint8 * s = (uint8 *)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
 	s = expandGroupLengths(s, offsets, lengths);
 	return expandName(names, s+offsets[lineNumber], lengths[lineNumber], nameChoice,
 		   buffer, bufferLength);
 }
 
-static uint16_t getName(UCharNames * names, uint32_t code, UCharNameChoice nameChoice,
-    char * buffer, uint16_t bufferLength) {
-	const uint16_t * group = getGroup(names, code);
-	if((uint16_t)(code>>GROUP_SHIFT)==group[GROUP_MSB]) {
-		return expandGroupName(names, group, (uint16_t)(code&GROUP_MASK), nameChoice,
+static uint16 getName(UCharNames * names, uint32_t code, UCharNameChoice nameChoice,
+    char * buffer, uint16 bufferLength) {
+	const uint16 * group = getGroup(names, code);
+	if((uint16)(code>>GROUP_SHIFT)==group[GROUP_MSB]) {
+		return expandGroupName(names, group, (uint16)(code&GROUP_MASK), nameChoice,
 			   buffer, bufferLength);
 	}
 	else {
@@ -593,17 +593,17 @@ static uint16_t getName(UCharNames * names, uint32_t code, UCharNameChoice nameC
  * enumGroupNames() enumerates all the names in a 32-group
  * and either calls the enumerator function or finds a given input name.
  */
-static bool enumGroupNames(UCharNames * names, const uint16_t * group,
+static bool enumGroupNames(UCharNames * names, const uint16 * group,
     UChar32 start, UChar32 end,
     UEnumCharNamesFn * fn, void * context,
     UCharNameChoice nameChoice) {
-	uint16_t offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
+	uint16 offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
 	const uint8 * s = (uint8 *)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
 
 	s = expandGroupLengths(s, offsets, lengths);
 	if(fn!=DO_FIND_NAME) {
 		char buffer[200];
-		uint16_t length;
+		uint16 length;
 
 		while(start<=end) {
 			length = expandName(names,
@@ -648,7 +648,7 @@ static bool enumExtNames(UChar32 start, UChar32 end,
 {
 	if(fn!=DO_FIND_NAME) {
 		char buffer[200];
-		uint16_t length;
+		uint16 length;
 
 		while(start<=end) {
 			buffer[length = getExtName(start, buffer, sizeof(buffer))] = 0;
@@ -669,11 +669,11 @@ static bool enumNames(UCharNames * names,
     UChar32 start, UChar32 limit,
     UEnumCharNamesFn * fn, void * context,
     UCharNameChoice nameChoice) {
-	uint16_t startGroupMSB, endGroupMSB, groupCount;
-	const uint16_t * group, * groupLimit;
+	uint16 startGroupMSB, endGroupMSB, groupCount;
+	const uint16 * group, * groupLimit;
 
-	startGroupMSB = (uint16_t)(start>>GROUP_SHIFT);
-	endGroupMSB = (uint16_t)((limit-1)>>GROUP_SHIFT);
+	startGroupMSB = (uint16)(start>>GROUP_SHIFT);
+	endGroupMSB = (uint16)((limit-1)>>GROUP_SHIFT);
 
 	/* find the group that contains start, or the highest before it */
 	group = getGroup(names, start);
@@ -697,7 +697,7 @@ static bool enumNames(UCharNames * names,
 		}
 	}
 	else {
-		const uint16_t * groups = GET_GROUPS(names);
+		const uint16 * groups = GET_GROUPS(names);
 		groupCount = *groups++;
 		groupLimit = groups+groupCount*GROUP_LENGTH;
 
@@ -714,7 +714,7 @@ static bool enumNames(UCharNames * names,
 		}
 		else if(startGroupMSB>group[GROUP_MSB]) {
 			/* make sure that we start enumerating with the first group after start */
-			const uint16_t * nextGroup = NEXT_GROUP(group);
+			const uint16 * nextGroup = NEXT_GROUP(group);
 			if(nextGroup < groupLimit && nextGroup[GROUP_MSB] > startGroupMSB && nameChoice == U_EXTENDED_CHAR_NAME) {
 				UChar32 end = nextGroup[GROUP_MSB] << GROUP_SHIFT;
 				if(end > limit) {
@@ -729,7 +729,7 @@ static bool enumNames(UCharNames * names,
 
 		/* enumerate entire groups between the start- and end-groups */
 		while(group<groupLimit && group[GROUP_MSB]<endGroupMSB) {
-			const uint16_t * nextGroup;
+			const uint16 * nextGroup;
 			start = (UChar32)group[GROUP_MSB]<<GROUP_SHIFT;
 			if(!enumGroupNames(names, group, start, start+LINES_PER_GROUP-1, fn, context, nameChoice)) {
 				return FALSE;
@@ -774,13 +774,13 @@ static bool enumNames(UCharNames * names,
 	return TRUE;
 }
 
-static uint16_t writeFactorSuffix(const uint16_t * factors, uint16_t count,
+static uint16 writeFactorSuffix(const uint16 * factors, uint16 count,
     const char * s,              /* suffix elements */
     uint32_t code,
-    uint16_t indexes[8], /* output fields from here */
+    uint16 indexes[8], /* output fields from here */
     const char * elementBases[8], const char * elements[8],
-    char * buffer, uint16_t bufferLength) {
-	uint16_t i, factor, bufferPos = 0;
+    char * buffer, uint16 bufferLength) {
+	uint16 i, factor, bufferPos = 0;
 	char c;
 
 	/* write elements according to the factors */
@@ -794,14 +794,14 @@ static uint16_t writeFactorSuffix(const uint16_t * factors, uint16_t count,
 	--count;
 	for(i = count; i>0; --i) {
 		factor = factors[i];
-		indexes[i] = (uint16_t)(code%factor);
+		indexes[i] = (uint16)(code%factor);
 		code /= factor;
 	}
 	/*
 	 * we don't need to calculate the last modulus because start<=code<=end
 	 * guarantees here that code<=factors[0]
 	 */
-	indexes[0] = (uint16_t)code;
+	indexes[0] = (uint16)code;
 
 	/* write each element */
 	for(;;) {
@@ -831,7 +831,7 @@ static uint16_t writeFactorSuffix(const uint16_t * factors, uint16_t count,
 		}
 
 		/* skip the rest of the strings for this factors[i] */
-		factor = (uint16_t)(factors[i]-indexes[i]-1);
+		factor = (uint16)(factors[i]-indexes[i]-1);
 		while(factor>0) {
 			while(*s++!=0) {
 			}
@@ -854,9 +854,9 @@ static uint16_t writeFactorSuffix(const uint16_t * factors, uint16_t count,
  * Parts of findAlgName() are almost the same as some of getAlgName().
  * Fixes must be applied to both.
  */
-static uint16_t getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoice nameChoice,
-    char * buffer, uint16_t bufferLength) {
-	uint16_t bufferPos = 0;
+static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoice nameChoice,
+    char * buffer, uint16 bufferLength) {
+	uint16 bufferPos = 0;
 
 	/* Only the normative character name can be algorithmic. */
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
@@ -873,7 +873,7 @@ static uint16_t getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameCho
 		    const char * s = (const char *)(range+1);
 		    char c;
 
-		    uint16_t i, count;
+		    uint16 i, count;
 
 		    /* copy prefix */
 		    while((c = *s++)!=0) {
@@ -907,9 +907,9 @@ static uint16_t getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameCho
 	    }
 		case 1: {
 		    /* name = prefix factorized-elements */
-		    uint16_t indexes[8];
-		    const uint16_t * factors = (const uint16_t*)(range+1);
-		    uint16_t count = range->variant;
+		    uint16 indexes[8];
+		    const uint16 * factors = (const uint16*)(range+1);
+		    uint16 count = range->variant;
 		    const char * s = (const char *)(factors+count);
 		    char c;
 
@@ -943,7 +943,7 @@ static bool enumAlgNames(AlgorithmicRange * range,
     UEnumCharNamesFn * fn, void * context,
     UCharNameChoice nameChoice) {
 	char buffer[200];
-	uint16_t length;
+	uint16 length;
 
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
 		return TRUE;
@@ -997,13 +997,13 @@ static bool enumAlgNames(AlgorithmicRange * range,
 		    break;
 	    }
 		case 1: {
-		    uint16_t indexes[8];
+		    uint16 indexes[8];
 		    const char * elementBases[8], * elements[8];
-		    const uint16_t * factors = (const uint16_t*)(range+1);
-		    uint16_t count = range->variant;
+		    const uint16 * factors = (const uint16*)(range+1);
+		    uint16 count = range->variant;
 		    const char * s = (const char *)(factors+count);
 		    char * suffix, * t;
-		    uint16_t prefixLength, i, idx;
+		    uint16 prefixLength, i, idx;
 
 		    char c;
 
@@ -1018,10 +1018,10 @@ static bool enumAlgNames(AlgorithmicRange * range,
 		    }
 
 		    /* append the suffix of the start character */
-		    length = (uint16_t)(prefixLength+writeFactorSuffix(factors, count,
+		    length = (uint16)(prefixLength+writeFactorSuffix(factors, count,
 			s, (uint32_t)start-range->start,
 			indexes, elementBases, elements,
-			suffix, (uint16_t)(sizeof(buffer)-prefixLength)));
+			suffix, (uint16)(sizeof(buffer)-prefixLength)));
 
 		    /* call the enumerator function with this first character */
 		    if(!fn(context, start, nameChoice, buffer, length)) {
@@ -1033,7 +1033,7 @@ static bool enumAlgNames(AlgorithmicRange * range,
 			    /* increment the indexes in lexical order bound by the factors */
 			    i = count;
 			    for(;;) {
-				    idx = (uint16_t)(indexes[--i]+1);
+				    idx = (uint16)(indexes[--i]+1);
 				    if(idx<factors[i]) {
 					    /* skip one index and its element string */
 					    indexes[i] = idx;
@@ -1095,7 +1095,7 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 		    const char * s = (const char *)(range+1);
 		    char c;
 
-		    uint16_t i, count;
+		    uint16 i, count;
 
 		    /* compare prefix */
 		    while((c = *s++)!=0) {
@@ -1128,13 +1128,13 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 	    }
 		case 1: {
 		    char buffer[64];
-		    uint16_t indexes[8];
+		    uint16 indexes[8];
 		    const char * elementBases[8], * elements[8];
-		    const uint16_t * factors = (const uint16_t*)(range+1);
-		    uint16_t count = range->variant;
+		    const uint16 * factors = (const uint16*)(range+1);
+		    uint16 count = range->variant;
 		    const char * s = (const char *)(factors+count), * t;
 		    UChar32 start, limit;
-		    uint16_t i, idx;
+		    uint16 i, idx;
 
 		    char c;
 
@@ -1164,7 +1164,7 @@ static UChar32 findAlgName(AlgorithmicRange * range, UCharNameChoice nameChoice,
 			    /* increment the indexes in lexical order bound by the factors */
 			    i = count;
 			    for(;;) {
-				    idx = (uint16_t)(indexes[--i]+1);
+				    idx = (uint16)(indexes[--i]+1);
 				    if(idx<factors[i]) {
 					    /* skip one index and its element string */
 					    indexes[i] = idx;
@@ -1244,7 +1244,7 @@ static int32_t calcAlgNameSetsLengths(int32_t maxNameLength) {
 			    break;
 			case 1: {
 			    /* name = prefix factorized-elements */
-			    const uint16_t * factors = (const uint16_t*)(range+1);
+			    const uint16 * factors = (const uint16*)(range+1);
 			    const char * s;
 			    int32_t i, count = range->variant, factor, factorLength, maxFactorLength;
 
@@ -1301,12 +1301,12 @@ static int32_t calcExtNameSetsLengths(int32_t maxNameLength) {
 	return maxNameLength;
 }
 
-static int32_t calcNameSetLength(const uint16_t * tokens, uint16_t tokenCount, const uint8 * tokenStrings, int8_t * tokenLengths,
+static int32_t calcNameSetLength(const uint16 * tokens, uint16 tokenCount, const uint8 * tokenStrings, int8 * tokenLengths,
     uint32_t set[8],
     const uint8 ** pLine, const uint8 * lineLimit) {
 	const uint8 * line = *pLine;
 	int32_t length = 0, tokenLength;
-	uint16_t c, token;
+	uint16 c, token;
 
 	while(line!=lineLimit && (c = *line++)!=(uint8)';') {
 		if(c>=tokenCount) {
@@ -1316,12 +1316,12 @@ static int32_t calcNameSetLength(const uint16_t * tokens, uint16_t tokenCount, c
 		}
 		else {
 			token = tokens[c];
-			if(token==(uint16_t)(-2)) {
+			if(token==(uint16)(-2)) {
 				/* this is a lead byte for a double-byte token */
 				c = c<<8|*line++;
 				token = tokens[c];
 			}
-			if(token==(uint16_t)(-1)) {
+			if(token==(uint16)(-1)) {
 				/* explicit letter */
 				SET_ADD(set, c);
 				++length;
@@ -1333,7 +1333,7 @@ static int32_t calcNameSetLength(const uint16_t * tokens, uint16_t tokenCount, c
 					tokenLength = tokenLengths[c];
 					if(tokenLength==0) {
 						tokenLength = calcStringSetLength(set, (const char *)tokenStrings+token);
-						tokenLengths[c] = (int8_t)tokenLength;
+						tokenLengths[c] = (int8)tokenLength;
 					}
 				}
 				else {
@@ -1350,15 +1350,15 @@ static int32_t calcNameSetLength(const uint16_t * tokens, uint16_t tokenCount, c
 
 static void calcGroupNameSetsLengths(int32_t maxNameLength) 
 {
-	uint16_t offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
-	uint16_t * tokens = (uint16_t*)uCharNames+8;
-	uint16_t tokenCount = *tokens++;
+	uint16 offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
+	uint16 * tokens = (uint16*)uCharNames+8;
+	uint16 tokenCount = *tokens++;
 	uint8 * tokenStrings = (uint8 *)uCharNames+uCharNames->tokenStringOffset;
-	int8_t * tokenLengths;
-	const uint16_t * group;
+	int8 * tokenLengths;
+	const uint16 * group;
 	const uint8 * s, * line, * lineLimit;
 	int32_t groupCount, lineNumber, length;
-	tokenLengths = (int8_t*)uprv_malloc(tokenCount);
+	tokenLengths = (int8*)uprv_malloc(tokenCount);
 	if(tokenLengths!=NULL) {
 		memzero(tokenLengths, tokenCount);
 	}
@@ -1481,7 +1481,7 @@ U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice,
 	algRange = (AlgorithmicRange*)(p+1);
 	while(i>0) {
 		if(algRange->start<=(uint32_t)code && (uint32_t)code<=algRange->end) {
-			length = getAlgName(algRange, (uint32_t)code, nameChoice, buffer, (uint16_t)bufferLength);
+			length = getAlgName(algRange, (uint32_t)code, nameChoice, buffer, (uint16)bufferLength);
 			break;
 		}
 		algRange = (AlgorithmicRange*)((uint8 *)algRange+algRange->size);
@@ -1490,15 +1490,15 @@ U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice,
 
 	if(i==0) {
 		if(nameChoice == U_EXTENDED_CHAR_NAME) {
-			length = getName(uCharNames, (uint32_t)code, U_EXTENDED_CHAR_NAME, buffer, (uint16_t)bufferLength);
+			length = getName(uCharNames, (uint32_t)code, U_EXTENDED_CHAR_NAME, buffer, (uint16)bufferLength);
 			if(!length) {
 				/* extended character name */
-				length = getExtName((uint32_t)code, buffer, (uint16_t)bufferLength);
+				length = getExtName((uint32_t)code, buffer, (uint16)bufferLength);
 			}
 		}
 		else {
 			/* normal character name */
-			length = getName(uCharNames, (uint32_t)code, nameChoice, buffer, (uint16_t)bufferLength);
+			length = getName(uCharNames, (uint32_t)code, nameChoice, buffer, (uint16)bufferLength);
 		}
 	}
 
@@ -1774,11 +1774,11 @@ U_CAPI void U_EXPORT2 uprv_getCharNameCharacters(const USetAdder * sa) {
  * tokens. (';' is an unused trail byte marked with -1.)
  */
 static void makeTokenMap(const UDataSwapper * ds,
-    int16_t tokens[], uint16_t tokenCount,
+    int16 tokens[], uint16 tokenCount,
     uint8 map[256],
     UErrorCode * pErrorCode) {
 	bool usedOutChar[256];
-	uint16_t i, j;
+	uint16 i, j;
 	uint8 c1, c2;
 
 	if(U_FAILURE(*pErrorCode)) {
@@ -1907,11 +1907,11 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 	}
 	else {
 		/* swap data */
-		const uint16_t * p;
-		uint16_t * q, * temp;
+		const uint16 * p;
+		uint16 * q, * temp;
 
-		int16_t tokens[512];
-		uint16_t tokenCount;
+		int16 tokens[512];
+		uint16 tokenCount;
 
 		uint8 map[256], trailMap[256];
 
@@ -1930,8 +1930,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		 * now the tokens table
 		 * it needs to be permutated along with the compressed name strings
 		 */
-		p = (const uint16_t*)(inBytes+16);
-		q = (uint16_t*)(outBytes+16);
+		p = (const uint16*)(inBytes+16);
+		q = (uint16*)(outBytes+16);
 
 		/* read and swap the tokenCount */
 		tokenCount = ds->readUInt16(*p);
@@ -1953,7 +1953,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 			tokens[i] = 0; /* fill the rest of the tokens array if tokenCount<512 */
 		}
 		makeTokenMap(ds, tokens, tokenCount, map, pErrorCode);
-		makeTokenMap(ds, tokens+256, (uint16_t)(tokenCount>256 ? tokenCount-256 : 0), trailMap, pErrorCode);
+		makeTokenMap(ds, tokens+256, (uint16)(tokenCount>256 ? tokenCount-256 : 0), trailMap, pErrorCode);
 		if(U_FAILURE(*pErrorCode)) {
 			return 0;
 		}
@@ -1962,7 +1962,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		 * swap and permutate the tokens
 		 * go through a temporary array to support in-place swapping
 		 */
-		temp = (uint16_t*)uprv_malloc(tokenCount*2);
+		temp = (uint16*)uprv_malloc(tokenCount*2);
 		if(temp==NULL) {
 			udata_printError(ds, "out of memory swapping %u unames.icu tokens\n",
 			    tokenCount);
@@ -1996,7 +1996,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		}
 
 		/* swap the group table */
-		count = ds->readUInt16(*((const uint16_t*)(inBytes+groupsOffset)));
+		count = ds->readUInt16(*((const uint16*)(inBytes+groupsOffset)));
 		ds->swapArray16(ds, inBytes+groupsOffset, (int32_t)((1+count*3)*2),
 		    outBytes+groupsOffset, pErrorCode);
 
@@ -2005,7 +2005,7 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 		 * swap the string bytes but not the nibble-encoded string lengths
 		 */
 		if(ds->inCharset!=ds->outCharset) {
-			uint16_t offsets[LINES_PER_GROUP+1], lengths[LINES_PER_GROUP+1];
+			uint16 offsets[LINES_PER_GROUP+1], lengths[LINES_PER_GROUP+1];
 			const uint8 * inStrings, * nextInStrings;
 			uint8 * outStrings;
 
@@ -2083,8 +2083,8 @@ U_CAPI int32_t U_EXPORT2 uchar_swapNames(const UDataSwapper * ds,
 				    uint32_t factorsCount;
 
 				    factorsCount = inRange->variant;
-				    p = (const uint16_t*)(inRange+1);
-				    q = (uint16_t*)(outRange+1);
+				    p = (const uint16*)(inRange+1);
+				    q = (uint16*)(outRange+1);
 				    ds->swapArray16(ds, p, (int32_t)(factorsCount*2), q, pErrorCode);
 
 				    /* swap the strings, up to the last terminating NUL */

@@ -6,17 +6,10 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_STRINGS_CORDZ_FUNCTIONS_H_
 #define ABSL_STRINGS_CORDZ_FUNCTIONS_H_
 
 #include <stdint.h>
-
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/optimization.h"
@@ -24,7 +17,6 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace cord_internal {
-
 // Returns the current sample rate. This represents the average interval
 // between samples.
 int32_t get_cordz_mean_interval();
@@ -42,8 +34,8 @@ void set_cordz_mean_interval(int32_t mean_interval);
 // MSVC's static atomics are dynamically initialized in debug mode, which breaks
 // sampling.
 #if defined(ABSL_HAVE_THREAD_LOCAL) && !defined(_MSC_VER)  && \
-    !defined(ABSL_BUILD_DLL) && !defined(ABSL_CONSUME_DLL) && \
-    !defined(__ANDROID__) && !defined(__APPLE__)
+	!defined(ABSL_BUILD_DLL) && !defined(ABSL_CONSUME_DLL) && \
+	!defined(__ANDROID__) && !defined(__APPLE__)
 #define ABSL_INTERNAL_CORDZ_ENABLED 1
 #endif
 
@@ -61,11 +53,11 @@ bool cordz_should_profile_slow();
 
 // Returns true if the next cord should be sampled.
 inline bool cordz_should_profile() {
-  if (ABSL_PREDICT_TRUE(cordz_next_sample > 1)) {
-    cordz_next_sample--;
-    return false;
-  }
-  return cordz_should_profile_slow();
+	if(ABSL_PREDICT_TRUE(cordz_next_sample > 1)) {
+		cordz_next_sample--;
+		return false;
+	}
+	return cordz_should_profile_slow();
 }
 
 // Sets the interval until the next sample (for testing only)
@@ -73,11 +65,14 @@ void cordz_set_next_sample_for_testing(int64_t next_sample);
 
 #else  // ABSL_INTERNAL_CORDZ_ENABLED
 
-inline bool cordz_should_profile() { return false; }
-inline void cordz_set_next_sample_for_testing(int64_t) {}
+inline bool cordz_should_profile() {
+	return false;
+}
+
+inline void cordz_set_next_sample_for_testing(int64_t) {
+}
 
 #endif  // ABSL_INTERNAL_CORDZ_ENABLED
-
 }  // namespace cord_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

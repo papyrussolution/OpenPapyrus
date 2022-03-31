@@ -16,7 +16,7 @@ StringPiece::StringPiece(const char * str)
 	: ptr_(str), length_((str == NULL) ? 0 : static_cast<int32_t>(uprv_strlen(str))) {
 }
 
-StringPiece::StringPiece(const StringPiece& x, int32_t pos) {
+StringPiece::StringPiece(const StringPiece & x, int32_t pos) {
 	if(pos < 0) {
 		pos = 0;
 	}
@@ -27,7 +27,7 @@ StringPiece::StringPiece(const StringPiece& x, int32_t pos) {
 	length_ = x.length_ - pos;
 }
 
-StringPiece::StringPiece(const StringPiece& x, int32_t pos, int32_t len) {
+StringPiece::StringPiece(const StringPiece & x, int32_t pos, int32_t len) {
 	if(pos < 0) {
 		pos = 0;
 	}
@@ -94,7 +94,7 @@ int32_t StringPiece::compare(StringPiece other) {
 	return 0;
 }
 
-U_EXPORT bool U_EXPORT2 operator == (const StringPiece& x, const StringPiece& y) {
+U_EXPORT bool U_EXPORT2 operator == (const StringPiece & x, const StringPiece & y) {
 	int32_t len = x.size();
 	if(len != y.size()) {
 		return false;

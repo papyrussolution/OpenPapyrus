@@ -1544,7 +1544,7 @@ class U_I18N_API DecimalFormat : public NumberFormat {
      * @see #setExponentSignAlwaysShown
      * @stable ICU 2.0
      */
-    virtual int8_t getMinimumExponentDigits(void) const;
+    virtual int8 getMinimumExponentDigits(void) const;
 
     /**
      * Set the minimum exponent digits that will be shown.  This has no
@@ -1558,7 +1558,7 @@ class U_I18N_API DecimalFormat : public NumberFormat {
      * @see #setExponentSignAlwaysShown
      * @stable ICU 2.0
      */
-    virtual void setMinimumExponentDigits(int8_t minExpDig);
+    virtual void setMinimumExponentDigits(int8 minExpDig);
 
     /**
      * Return whether the exponent sign is always shown.

@@ -29,9 +29,9 @@ Document::Document(Document::Internal* internal_) : internal(internal_)
 {
 }
 Document::Document(const Document&) = default;
-Document& Document::operator=(const Document&) = default;
+Document& Document::operator = (const Document&) = default;
 Document::Document(Document&&) = default;
-Document& Document::operator=(Document&&) = default;
+Document& Document::operator = (Document&&) = default;
 
 Document::Document() : internal(new Xapian::Document::Internal)
 {

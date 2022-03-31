@@ -4803,7 +4803,7 @@ int PPLocAddrStruc::Recognize(const char * pText)
 		SString text(pText);
 		SString temp_buf, temp_buf2, temp_buf3;
 		text.Strip();
-		if(text.CmpPrefix(p_enforcefias_prefix, 1) == 0) {
+		if(text.HasPrefixIAscii(p_enforcefias_prefix)) {
             text.ShiftLeft(sstrlen(p_enforcefias_prefix)).Strip();
             do_enforce_fias = 1;
 		}

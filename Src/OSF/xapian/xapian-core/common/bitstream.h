@@ -95,7 +95,7 @@ class BitReader {
 			set_j(j_, pos_j_);
 			set_k(k_, pos_k_);
 		}
-		void operator=(const DIStack& o) 
+		void operator = (const DIStack& o) 
 		{
 			j = o.j;
 			set_k(o.k, o.pos_k);

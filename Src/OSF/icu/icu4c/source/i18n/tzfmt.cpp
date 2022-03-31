@@ -27,7 +27,7 @@ U_NAMESPACE_BEGIN
 // The order must match UTimeZoneFormatStyle enum.
 #define ISO_Z_STYLE_FLAG 0x0080
 #define ISO_LOCAL_STYLE_FLAG 0x0100
-static const int16_t STYLE_PARSE_FLAGS[] = {
+static const int16 STYLE_PARSE_FLAGS[] = {
 	0x0001, // UTZFMT_STYLE_GENERIC_LOCATION,
 	0x0002, // UTZFMT_STYLE_GENERIC_LONG,
 	0x0004, // UTZFMT_STYLE_GENERIC_SHORT,
@@ -2063,8 +2063,8 @@ int32_t TimeZoneFormat::parseOffsetFieldWithLocalizedDigits(const UnicodeString 
     int32_t start,
     uint8 minDigits,
     uint8 maxDigits,
-    uint16_t minVal,
-    uint16_t maxVal,
+    uint16 minVal,
+    uint16 maxVal,
     int32_t& parsedLen) const {
 	parsedLen = 0;
 

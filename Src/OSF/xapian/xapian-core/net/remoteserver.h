@@ -32,7 +32,7 @@
 /** Remote backend server base class. */
 class XAPIAN_VISIBILITY_DEFAULT RemoteServer : private RemoteConnection {
 	/// Don't allow assignment.
-	void operator=(const RemoteServer &);
+	void operator = (const RemoteServer &);
 	/// Don't allow copying.
 	RemoteServer(const RemoteServer &);
 	/** The database we're using.

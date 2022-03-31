@@ -530,8 +530,8 @@ public:
 	/// Get the previous sibling attribute in the DOM. Returns null at beginning.
 	TiXmlAttribute* Previous() const;
 	bool operator == (const TiXmlAttribute& rhs) const { return rhs.name == name; }
-	bool operator<(const TiXmlAttribute& rhs) const { return name < rhs.name; }
-	bool operator>(const TiXmlAttribute& rhs) const { return name > rhs.name; }
+	bool operator < (const TiXmlAttribute& rhs) const { return name < rhs.name; }
+	bool operator > (const TiXmlAttribute& rhs) const { return name > rhs.name; }
 	/*	[internal use]
 	        Attribtue parsing starts: first letter of the name
 	                                         returns: the next TCHAR after the value end quote

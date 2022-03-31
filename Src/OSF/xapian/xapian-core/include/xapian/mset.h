@@ -69,12 +69,12 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	MSet & operator=(const MSet & o);
+	MSet & operator = (const MSet & o);
 
 	/// Move constructor.
 	MSet(MSet && o);
 	/// Move assignment operator.
-	MSet & operator=(MSet && o);
+	MSet & operator = (MSet && o);
 
 	/** Default constructor.
 	 *
@@ -583,22 +583,22 @@ public:
 };
 
 /// Equality test for MSetIterator objects.
-inline bool operator==(const MSetIterator& a, const MSetIterator& b) noexcept { return a.off_from_end == b.off_from_end; }
+inline bool operator == (const MSetIterator& a, const MSetIterator& b) noexcept { return a.off_from_end == b.off_from_end; }
 
 /// Inequality test for MSetIterator objects.
-inline bool operator!=(const MSetIterator& a, const MSetIterator& b) noexcept { return !(a == b); }
+inline bool operator != (const MSetIterator& a, const MSetIterator& b) noexcept { return !(a == b); }
 
 /// Inequality test for MSetIterator objects.
-inline bool operator<(const MSetIterator& a, const MSetIterator& b) noexcept { return a.off_from_end > b.off_from_end; }
+inline bool operator < (const MSetIterator& a, const MSetIterator& b) noexcept { return a.off_from_end > b.off_from_end; }
 
 /// Inequality test for MSetIterator objects.
-inline bool operator>(const MSetIterator& a, const MSetIterator& b) noexcept { return b < a; }
+inline bool operator > (const MSetIterator& a, const MSetIterator& b) noexcept { return b < a; }
 
 /// Inequality test for MSetIterator objects.
-inline bool operator>=(const MSetIterator& a, const MSetIterator& b) noexcept { return !(a < b); }
+inline bool operator >= (const MSetIterator& a, const MSetIterator& b) noexcept { return !(a < b); }
 
 /// Inequality test for MSetIterator objects.
-inline bool operator<=(const MSetIterator& a, const MSetIterator& b) noexcept { return !(b < a); }
+inline bool operator <= (const MSetIterator& a, const MSetIterator& b) noexcept { return !(b < a); }
 
 /** Return MSetIterator @a it incremented by @a n positions.
  *

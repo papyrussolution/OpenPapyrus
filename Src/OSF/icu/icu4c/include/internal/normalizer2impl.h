@@ -255,7 +255,7 @@ public:
 	virtual ~Normalizer2Impl();
 
 	void init(const int32_t * inIndexes, const UCPTrie * inTrie,
-	    const uint16_t * inExtraData, const uint8 * inSmallFCD);
+	    const uint16 * inExtraData, const uint8 * inSmallFCD);
 
 	void addLcccChars(UnicodeSet & set) const;
 	void addPropertyStarts(const USetAdder * sa, UErrorCode & errorCode) const;
@@ -267,17 +267,17 @@ public:
 
 	// The trie stores values for lead surrogate code *units*.
 	// Surrogate code *points* are inert.
-	uint16_t getNorm16(UChar32 c) const {
+	uint16 getNorm16(UChar32 c) const {
 		return U_IS_LEAD(c) ?
-		       static_cast<uint16_t>(INERT) :
+		       static_cast<uint16>(INERT) :
 		       UCPTRIE_FAST_GET(normTrie, UCPTRIE_16, c);
 	}
 
-	uint16_t getRawNorm16(UChar32 c) const {
+	uint16 getRawNorm16(UChar32 c) const {
 		return UCPTRIE_FAST_GET(normTrie, UCPTRIE_16, c);
 	}
 
-	UNormalizationCheckResult getCompQuickCheck(uint16_t norm16) const {
+	UNormalizationCheckResult getCompQuickCheck(uint16 norm16) const {
 		if(norm16<minNoNo || MIN_YES_YES_WITH_CC<=norm16) {
 			return UNORM_YES;
 		}
@@ -289,19 +289,19 @@ public:
 		}
 	}
 
-	bool isAlgorithmicNoNo(uint16_t norm16) const {
+	bool isAlgorithmicNoNo(uint16 norm16) const {
 		return limitNoNo<=norm16 && norm16<minMaybeYes;
 	}
 
-	bool isCompNo(uint16_t norm16) const {
+	bool isCompNo(uint16 norm16) const {
 		return minNoNo<=norm16 && norm16<minMaybeYes;
 	}
 
-	bool isDecompYes(uint16_t norm16) const {
+	bool isDecompYes(uint16 norm16) const {
 		return norm16<minYesNo || minMaybeYes<=norm16;
 	}
 
-	uint8 getCC(uint16_t norm16) const {
+	uint8 getCC(uint16 norm16) const {
 		if(norm16>=MIN_NORMAL_MAYBE_YES) {
 			return getCCFromNormalYesOrMaybe(norm16);
 		}
@@ -311,11 +311,11 @@ public:
 		return getCCFromNoNo(norm16);
 	}
 
-	static uint8 getCCFromNormalYesOrMaybe(uint16_t norm16) {
+	static uint8 getCCFromNormalYesOrMaybe(uint16 norm16) {
 		return (uint8)(norm16 >> OFFSET_SHIFT);
 	}
 
-	static uint8 getCCFromYesOrMaybe(uint16_t norm16) {
+	static uint8 getCCFromYesOrMaybe(uint16 norm16) {
 		return norm16>=MIN_NORMAL_MAYBE_YES ? getCCFromNormalYesOrMaybe(norm16) : 0;
 	}
 
@@ -331,7 +331,7 @@ public:
 	 * @param c A Unicode code point.
 	 * @return The lccc(c) in bits 15..8 and tccc(c) in bits 7..0.
 	 */
-	uint16_t getFCD16(UChar32 c) const {
+	uint16 getFCD16(UChar32 c) const {
 		if(c<minDecompNoCP) {
 			return 0;
 		}
@@ -351,7 +351,7 @@ public:
 	 * @param limit The end of the string, or NULL.
 	 * @return The lccc(c) in bits 15..8 and tccc(c) in bits 7..0.
 	 */
-	uint16_t nextFCD16(const UChar *&s, const UChar * limit) const {
+	uint16 nextFCD16(const UChar *&s, const UChar * limit) const {
 		UChar32 c = *s++;
 		if(c<minDecompNoCP || !singleLeadMightHaveNonZeroFCD16(c)) {
 			return 0;
@@ -370,7 +370,7 @@ public:
 	 * @param s A valid pointer into a string. Requires start<s.
 	 * @return The lccc(c) in bits 15..8 and tccc(c) in bits 7..0.
 	 */
-	uint16_t previousFCD16(const UChar * start, const UChar *&s) const {
+	uint16 previousFCD16(const UChar * start, const UChar *&s) const {
 		UChar32 c = *--s;
 		if(c<minDecompNoCP) {
 			return 0;
@@ -401,7 +401,7 @@ public:
 	}
 
 	/** Returns the FCD value from the regular normalization data. */
-	uint16_t getFCD16FromNormData(UChar32 c) const;
+	uint16 getFCD16FromNormData(UChar32 c) const;
 
 	/**
 	 * Gets the decomposition for one code point.
@@ -541,15 +541,15 @@ public:
 	const UChar * makeFCD(const UChar * src, const UChar * limit, ReorderingBuffer * buffer, UErrorCode & errorCode) const;
 	void makeFCDAndAppend(const UChar * src, const UChar * limit, bool doMakeFCD, UnicodeString & safeMiddle, ReorderingBuffer &buffer, UErrorCode & errorCode) const;
 	bool hasDecompBoundaryBefore(UChar32 c) const;
-	bool norm16HasDecompBoundaryBefore(uint16_t norm16) const;
+	bool norm16HasDecompBoundaryBefore(uint16 norm16) const;
 	bool hasDecompBoundaryAfter(UChar32 c) const;
-	bool norm16HasDecompBoundaryAfter(uint16_t norm16) const;
+	bool norm16HasDecompBoundaryAfter(uint16 norm16) const;
 	bool isDecompInert(UChar32 c) const { return isDecompYesAndZeroCC(getNorm16(c)); }
 	bool hasCompBoundaryBefore(UChar32 c) const { return c<minCompNoMaybeCP || norm16HasCompBoundaryBefore(getNorm16(c)); }
 	bool hasCompBoundaryAfter(UChar32 c, bool onlyContiguous) const { return norm16HasCompBoundaryAfter(getNorm16(c), onlyContiguous); }
 	bool isCompInert(UChar32 c, bool onlyContiguous) const 
 	{
-		uint16_t norm16 = getNorm16(c);
+		uint16 norm16 = getNorm16(c);
 		return isCompYesAndZeroCC(norm16) && (norm16 & HAS_COMP_BOUNDARY_AFTER) != 0 &&
 		       (!onlyContiguous || isInert(norm16) || *getMapping(norm16) <= 0x1ff);
 	}
@@ -559,26 +559,26 @@ public:
 private:
 	friend class InitCanonIterData;
 	friend class LcccContext;
-	bool isMaybe(uint16_t norm16) const { return minMaybeYes<=norm16 && norm16<=JAMO_VT; }
-	bool isMaybeOrNonZeroCC(uint16_t norm16) const { return norm16>=minMaybeYes; }
-	static bool isInert(uint16_t norm16) { return norm16==INERT; }
-	static bool isJamoL(uint16_t norm16) { return norm16==JAMO_L; }
-	static bool isJamoVT(uint16_t norm16) { return norm16==JAMO_VT; }
-	uint16_t hangulLVT() const { return minYesNoMappingsOnly|HAS_COMP_BOUNDARY_AFTER; }
-	bool isHangulLV(uint16_t norm16) const { return norm16==minYesNo; }
-	bool isHangulLVT(uint16_t norm16) const { return norm16==hangulLVT(); }
-	bool isCompYesAndZeroCC(uint16_t norm16) const { return norm16<minNoNo; }
+	bool isMaybe(uint16 norm16) const { return minMaybeYes<=norm16 && norm16<=JAMO_VT; }
+	bool isMaybeOrNonZeroCC(uint16 norm16) const { return norm16>=minMaybeYes; }
+	static bool isInert(uint16 norm16) { return norm16==INERT; }
+	static bool isJamoL(uint16 norm16) { return norm16==JAMO_L; }
+	static bool isJamoVT(uint16 norm16) { return norm16==JAMO_VT; }
+	uint16 hangulLVT() const { return minYesNoMappingsOnly|HAS_COMP_BOUNDARY_AFTER; }
+	bool isHangulLV(uint16 norm16) const { return norm16==minYesNo; }
+	bool isHangulLVT(uint16 norm16) const { return norm16==hangulLVT(); }
+	bool isCompYesAndZeroCC(uint16 norm16) const { return norm16<minNoNo; }
 
-	// bool isCompYes(uint16_t norm16) const {
+	// bool isCompYes(uint16 norm16) const {
 	//     return norm16>=MIN_YES_YES_WITH_CC || norm16<minNoNo;
 	// }
-	// bool isCompYesOrMaybe(uint16_t norm16) const {
+	// bool isCompYesOrMaybe(uint16 norm16) const {
 	//     return norm16<minNoNo || minMaybeYes<=norm16;
 	// }
-	// bool hasZeroCCFromDecompYes(uint16_t norm16) const {
+	// bool hasZeroCCFromDecompYes(uint16 norm16) const {
 	//     return norm16<=MIN_NORMAL_MAYBE_YES || norm16==JAMO_VT;
 	// }
-	bool isDecompYesAndZeroCC(uint16_t norm16) const 
+	bool isDecompYesAndZeroCC(uint16 norm16) const 
 	{
 		return norm16<minYesNo || norm16==JAMO_VT || (minMaybeYes<=norm16 && norm16<=MIN_NORMAL_MAYBE_YES);
 	}
@@ -587,15 +587,15 @@ private:
 	 * the MaybeYes which combine-forward and have ccc=0.
 	 * (Standard Unicode 10 normalization does not have such characters.)
 	 */
-	bool isMostDecompYesAndZeroCC(uint16_t norm16) const { return norm16<minYesNo || norm16==MIN_NORMAL_MAYBE_YES || norm16==JAMO_VT; }
-	bool isDecompNoAlgorithmic(uint16_t norm16) const { return norm16>=limitNoNo; }
+	bool isMostDecompYesAndZeroCC(uint16 norm16) const { return norm16<minYesNo || norm16==MIN_NORMAL_MAYBE_YES || norm16==JAMO_VT; }
+	bool isDecompNoAlgorithmic(uint16 norm16) const { return norm16>=limitNoNo; }
 	// For use with isCompYes().
 	// Perhaps the compiler can combine the two tests for MIN_YES_YES_WITH_CC.
-	// static uint8 getCCFromYes(uint16_t norm16) {
+	// static uint8 getCCFromYes(uint16 norm16) {
 	//     return norm16>=MIN_YES_YES_WITH_CC ? getCCFromNormalYesOrMaybe(norm16) : 0;
 	// }
-	uint8 getCCFromNoNo(uint16_t norm16) const {
-		const uint16_t * mapping = getMapping(norm16);
+	uint8 getCCFromNoNo(uint16 norm16) const {
+		const uint16 * mapping = getMapping(norm16);
 		if(*mapping&MAPPING_HAS_CCC_LCCC_WORD) {
 			return (uint8)*(mapping-1);
 		}
@@ -604,7 +604,7 @@ private:
 		}
 	}
 	// requires that the [cpStart..cpLimit[ character passes isCompYesAndZeroCC()
-	uint8 getTrailCCFromCompYesAndZeroCC(uint16_t norm16) const 
+	uint8 getTrailCCFromCompYesAndZeroCC(uint16 norm16) const 
 	{
 		if(norm16<=minYesNo) {
 			return 0; // yesYes and Hangul LV have ccc=tccc=0
@@ -619,11 +619,11 @@ private:
 	uint8 getPreviousTrailCC(const uint8 * start, const uint8 * p) const;
 
 	// Requires algorithmic-NoNo.
-	UChar32 mapAlgorithmic(UChar32 c, uint16_t norm16) const { return c+(norm16>>DELTA_SHIFT)-centerNoNoDelta; }
-	UChar32 getAlgorithmicDelta(uint16_t norm16) const { return (norm16>>DELTA_SHIFT)-centerNoNoDelta; }
+	UChar32 mapAlgorithmic(UChar32 c, uint16 norm16) const { return c+(norm16>>DELTA_SHIFT)-centerNoNoDelta; }
+	UChar32 getAlgorithmicDelta(uint16 norm16) const { return (norm16>>DELTA_SHIFT)-centerNoNoDelta; }
 	// Requires minYesNo<norm16<limitNoNo.
-	const uint16_t * getMapping(uint16_t norm16) const { return extraData+(norm16>>OFFSET_SHIFT); }
-	const uint16_t * getCompositionsListForDecompYes(uint16_t norm16) const 
+	const uint16 * getMapping(uint16 norm16) const { return extraData+(norm16>>OFFSET_SHIFT); }
+	const uint16 * getCompositionsListForDecompYes(uint16 norm16) const 
 	{
 		if(norm16<JAMO_L || MIN_NORMAL_MAYBE_YES<=norm16) {
 			return NULL;
@@ -635,15 +635,15 @@ private:
 			return maybeYesCompositions+norm16-minMaybeYes;
 		}
 	}
-	const uint16_t * getCompositionsListForComposite(uint16_t norm16) const 
+	const uint16 * getCompositionsListForComposite(uint16 norm16) const 
 	{
 		// A composite has both mapping & compositions list.
-		const uint16_t * list = getMapping(norm16);
+		const uint16 * list = getMapping(norm16);
 		return list+ // mapping pointer
 		       1+ // +1 to skip the first unit with the mapping length
 		       (*list&MAPPING_LENGTH_MASK); // + mapping length
 	}
-	const uint16_t * getCompositionsListForMaybe(uint16_t norm16) const 
+	const uint16 * getCompositionsListForMaybe(uint16 norm16) const 
 	{
 		// minMaybeYes<=norm16<MIN_NORMAL_MAYBE_YES
 		return maybeYesCompositions+((norm16-minMaybeYes)>>OFFSET_SHIFT);
@@ -652,7 +652,7 @@ private:
 	 * @param c code point must have compositions
 	 * @return compositions list pointer
 	 */
-	const uint16_t * getCompositionsList(uint16_t norm16) const 
+	const uint16 * getCompositionsList(uint16 norm16) const 
 	{
 		return isDecompYes(norm16) ? getCompositionsListForDecompYes(norm16) : getCompositionsListForComposite(norm16);
 	}
@@ -662,23 +662,23 @@ private:
 
 	const UChar * decomposeShort(const UChar * src, const UChar * limit,
 	    bool stopAtCompBoundary, bool onlyContiguous, ReorderingBuffer &buffer, UErrorCode & errorCode) const;
-	bool decompose(UChar32 c, uint16_t norm16, ReorderingBuffer &buffer, UErrorCode & errorCode) const;
+	bool decompose(UChar32 c, uint16 norm16, ReorderingBuffer &buffer, UErrorCode & errorCode) const;
 	const uint8 * decomposeShort(const uint8 * src, const uint8 * limit, StopAt stopAt, bool onlyContiguous, ReorderingBuffer &buffer, UErrorCode & errorCode) const;
-	static int32_t combine(const uint16_t * list, UChar32 trail);
-	void addComposites(const uint16_t * list, UnicodeSet & set) const;
+	static int32_t combine(const uint16 * list, UChar32 trail);
+	void addComposites(const uint16 * list, UnicodeSet & set) const;
 	void recompose(ReorderingBuffer &buffer, int32_t recomposeStartIndex, bool onlyContiguous) const;
-	bool hasCompBoundaryBefore(UChar32 c, uint16_t norm16) const { return c<minCompNoMaybeCP || norm16HasCompBoundaryBefore(norm16); }
-	bool norm16HasCompBoundaryBefore(uint16_t norm16) const { return norm16 < minNoNoCompNoMaybeCC || isAlgorithmicNoNo(norm16); }
+	bool hasCompBoundaryBefore(UChar32 c, uint16 norm16) const { return c<minCompNoMaybeCP || norm16HasCompBoundaryBefore(norm16); }
+	bool norm16HasCompBoundaryBefore(uint16 norm16) const { return norm16 < minNoNoCompNoMaybeCC || isAlgorithmicNoNo(norm16); }
 	bool hasCompBoundaryBefore(const UChar * src, const UChar * limit) const;
 	bool hasCompBoundaryBefore(const uint8 * src, const uint8 * limit) const;
 	bool hasCompBoundaryAfter(const UChar * start, const UChar * p, bool onlyContiguous) const;
 	bool hasCompBoundaryAfter(const uint8 * start, const uint8 * p, bool onlyContiguous) const;
-	bool norm16HasCompBoundaryAfter(uint16_t norm16, bool onlyContiguous) const 
+	bool norm16HasCompBoundaryAfter(uint16 norm16, bool onlyContiguous) const 
 	{
 		return (norm16 & HAS_COMP_BOUNDARY_AFTER) != 0 && (!onlyContiguous || isTrailCC01ForCompBoundaryAfter(norm16));
 	}
 	/** For FCC: Given norm16 HAS_COMP_BOUNDARY_AFTER, does it have tccc<=1? */
-	bool isTrailCC01ForCompBoundaryAfter(uint16_t norm16) const 
+	bool isTrailCC01ForCompBoundaryAfter(uint16 norm16) const 
 	{
 		return isInert(norm16) || (isDecompNoAlgorithmic(norm16) ? (norm16 & DELTA_TCCC_MASK) <= DELTA_TCCC_1 : *getMapping(norm16) <= 0x1ff);
 	}
@@ -686,7 +686,7 @@ private:
 	const UChar * findNextCompBoundary(const UChar * p, const UChar * limit, bool onlyContiguous) const;
 	const UChar * findPreviousFCDBoundary(const UChar * start, const UChar * p) const;
 	const UChar * findNextFCDBoundary(const UChar * p, const UChar * limit) const;
-	void makeCanonIterDataFromNorm16(UChar32 start, UChar32 end, const uint16_t norm16, CanonIterData &newData, UErrorCode & errorCode) const;
+	void makeCanonIterDataFromNorm16(UChar32 start, UChar32 end, const uint16 norm16, CanonIterData &newData, UErrorCode & errorCode) const;
 	int32_t getCanonValue(UChar32 c) const;
 	const UnicodeSet &getCanonStartSet(int32_t n) const;
 
@@ -698,19 +698,19 @@ private:
 	UChar minLcccCP;
 
 	// Norm16 value thresholds for quick check combinations and types of extra data.
-	uint16_t minYesNo;
-	uint16_t minYesNoMappingsOnly;
-	uint16_t minNoNo;
-	uint16_t minNoNoCompBoundaryBefore;
-	uint16_t minNoNoCompNoMaybeCC;
-	uint16_t minNoNoEmpty;
-	uint16_t limitNoNo;
-	uint16_t centerNoNoDelta;
-	uint16_t minMaybeYes;
+	uint16 minYesNo;
+	uint16 minYesNoMappingsOnly;
+	uint16 minNoNo;
+	uint16 minNoNoCompBoundaryBefore;
+	uint16 minNoNoCompNoMaybeCC;
+	uint16 minNoNoEmpty;
+	uint16 limitNoNo;
+	uint16 centerNoNoDelta;
+	uint16 minMaybeYes;
 
 	const UCPTrie * normTrie;
-	const uint16_t * maybeYesCompositions;
-	const uint16_t * extraData; // mappings and/or compositions for yesYes, yesNo & noNo characters
+	const uint16 * maybeYesCompositions;
+	const uint16 * extraData; // mappings and/or compositions for yesYes, yesNo & noNo characters
 	const uint8 * smallFCD; // [0x100] one bit per 32 BMP code points, set if any FCD!=0
 
 	UInitOnce fCanonIterDataInitOnce = U_INITONCE_INITIALIZER;
@@ -756,7 +756,7 @@ U_CFUNC UNormalizationCheckResult unorm_getQuickCheck(UChar32 c, UNormalizationM
  * Gets the 16-bit FCD value (lead & trail CCs) for a code point, for u_getIntPropertyValue().
  * @internal
  */
-U_CFUNC uint16_t unorm_getFCD16(UChar32 c);
+U_CFUNC uint16 unorm_getFCD16(UChar32 c);
 
 /**
  * Format of Normalizer2 .nrm data files.
@@ -844,8 +844,8 @@ U_CFUNC uint16_t unorm_getFCD16(UChar32 c);
  *      When the lead surrogate unit's value exceeds the quick check minimum during processing,
  *      the properties for the full supplementary code point need to be looked up.
  *
- * uint16_t maybeYesCompositions[MIN_NORMAL_MAYBE_YES-minMaybeYes];
- * uint16_t extraData[];
+ * uint16 maybeYesCompositions[MIN_NORMAL_MAYBE_YES-minMaybeYes];
+ * uint16 extraData[];
  *
  *      There is only one byte offset for the end of these two arrays.
  *      The split between them is given by the constant and variable mentioned above.

@@ -591,7 +591,7 @@ void CollationDataBuilder::addCE32(const UnicodeString & prefix, const UnicodeSt
 				break;
 			}
 			ConditionalCE32 * nextCond = getConditionalCE32(next);
-			int8_t cmp = context.compare(nextCond->context);
+			int8 cmp = context.compare(nextCond->context);
 			if(cmp < 0) {
 				// Insert a new ConditionalCE32 between cond and nextCond.
 				int32_t index = addConditionalCE32(context, ce32, errorCode);
@@ -1464,7 +1464,7 @@ uint32_t CollationDataBuilder::buildContext(ConditionalCE32 * head, UErrorCode &
 			// Add all of the non-empty suffixes into the contraction trie.
 			for(;;) {
 				UnicodeString suffix(cond->context, suffixStart);
-				uint16_t fcd16 = nfcImpl.getFCD16(suffix.char32At(0));
+				uint16 fcd16 = nfcImpl.getFCD16(suffix.char32At(0));
 				if(fcd16 <= 0xff) {
 					flags &= ~Collation::CONTRACT_NEXT_CCC;
 				}
@@ -1548,7 +1548,7 @@ void CollationDataBuilder::buildFastLatinTable(CollationData & data, UErrorCode 
 		return;
 	}
 	if(fastLatinBuilder->forData(data, errorCode)) {
-		const uint16_t * table = fastLatinBuilder->getTable();
+		const uint16 * table = fastLatinBuilder->getTable();
 		int32_t length = fastLatinBuilder->lengthOfTable();
 		if(base && length == base->fastLatinTableLength && uprv_memcmp(table, base->fastLatinTable, length * 2) == 0) {
 			// Same fast Latin table as in the base, use that one instead.

@@ -33,7 +33,7 @@ using Xapian::Internal::intrusive_ptr_nonnull;
  */
 class MultiTermList : public TermList {
 	/// Don't allow assignment.
-	void operator=(const MultiTermList &) = delete;
+	void operator = (const MultiTermList &) = delete;
 	/// Don't allow copying.
 	MultiTermList(const MultiTermList &) = delete;
 	/// The TermList in the subdatabase.

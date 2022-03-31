@@ -1011,7 +1011,7 @@ public:
 	 * @stable ICU 2.2
 	 */
 	virtual int32_t getSortKey(const UnicodeString & source,
-	    uint8_t* result,
+	    uint8* result,
 	    int32_t resultLength) const = 0;
 
 	/**
@@ -1034,7 +1034,7 @@ public:
 	 * @stable ICU 2.2
 	 */
 	virtual int32_t getSortKey(const char16_t* source, int32_t sourceLength,
-	    uint8_t* result, int32_t resultLength) const = 0;
+	    uint8* result, int32_t resultLength) const = 0;
 
 	/**
 	 * Produce a bound for a given sortkey and a number of levels.
@@ -1073,11 +1073,11 @@ public:
 	 * @see ucol_keyHashCode
 	 * @stable ICU 2.1
 	 */
-	static int32_t U_EXPORT2 getBound(const uint8_t       * source,
+	static int32_t U_EXPORT2 getBound(const uint8       * source,
 	    int32_t sourceLength,
 	    UColBoundMode boundType,
 	    uint32_t noOfLevels,
-	    uint8_t             * result,
+	    uint8             * result,
 	    int32_t resultLength,
 	    UErrorCode          &status);
 
@@ -1168,7 +1168,7 @@ public:
 	 * @internal
 	 */
 	virtual int32_t internalNextSortKeyPart(UCharIterator * iter, uint32_t state[2],
-	    uint8_t * dest, int32_t count, UErrorCode & errorCode) const;
+	    uint8 * dest, int32_t count, UErrorCode & errorCode) const;
 
 #ifndef U_HIDE_INTERNAL_API
 	/** @internal */

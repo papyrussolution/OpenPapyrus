@@ -53,7 +53,7 @@ namespace Xapian {
 			++internal->_refs;
 	}
 
-	ValueIterator &ValueIterator::operator=(const ValueIterator & o)
+	ValueIterator &ValueIterator::operator = (const ValueIterator & o)
 	{
 		LOGCALL(API, ValueIterator &, "ValueIterator::operator=", o);
 		if(o.internal)

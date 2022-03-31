@@ -227,7 +227,7 @@ void UTS46::nameToUnicodeUTF8(StringPiece name, ByteSink &dest, IDNAInfo &info, 
 // using this data.
 // The ASCII fastpath also uses this data.
 // Values: -1=disallowed  0==valid  1==mapped (lowercase)
-static const int8_t asciiData[128] = {
+static const int8 asciiData[128] = {
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
 	// 002D..002E; valid  #  HYPHEN-MINUS..FULL STOP
@@ -395,7 +395,7 @@ void UTS46::processUTF8(StringPiece src,
 				return;
 			}
 			char c = srcArray[i];
-			if((int8_t)c<0) { // (uint8)c>0x7f
+			if((int8)c<0) { // (uint8)c>0x7f
 				break;
 			}
 			int cData = asciiData[(int)c]; // Cast: gcc warns about indexing with a char.

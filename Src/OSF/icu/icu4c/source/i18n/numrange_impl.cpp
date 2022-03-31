@@ -23,8 +23,8 @@ using namespace icu::number::impl;
 
 namespace {
 // Helper function for 2-dimensional switch statement
-constexpr int8_t identity2d(UNumberRangeIdentityFallback a, UNumberRangeIdentityResult b) {
-	return static_cast<int8_t>(a) | (static_cast<int8_t>(b) << 4);
+constexpr int8 identity2d(UNumberRangeIdentityFallback a, UNumberRangeIdentityResult b) {
+	return static_cast<int8>(a) | (static_cast<int8>(b) << 4);
 }
 
 struct NumberRangeData {

@@ -210,14 +210,14 @@ int32_t TransliterationRule::getContextLength() const {
  * unless the first character of the key is a set.  If it's a
  * set, or otherwise can match multiple keys, the index value is -1.
  */
-int16_t TransliterationRule::getIndexValue() const {
+int16 TransliterationRule::getIndexValue() const {
 	if(anteContextLength == pattern.length()) {
 		// A pattern with just ante context {such as foo)>bar} can
 		// match any key.
 		return -1;
 	}
 	UChar32 c = pattern.char32At(anteContextLength);
-	return (int16_t)(data->lookupMatcher(c) == NULL ? (c & 0xFF) : -1);
+	return (int16)(data->lookupMatcher(c) == NULL ? (c & 0xFF) : -1);
 }
 
 /**

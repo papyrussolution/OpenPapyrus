@@ -23,13 +23,13 @@ CordzSampleToken::Iterator CordzSampleToken::Iterator::operator++(int) {
 	return it;
 }
 
-bool operator==(const CordzSampleToken::Iterator& lhs,
+bool operator == (const CordzSampleToken::Iterator& lhs,
     const CordzSampleToken::Iterator& rhs) {
 	return lhs.current_ == rhs.current_ &&
 	       (lhs.current_ == nullptr || lhs.token_ == rhs.token_);
 }
 
-bool operator!=(const CordzSampleToken::Iterator& lhs,
+bool operator != (const CordzSampleToken::Iterator& lhs,
     const CordzSampleToken::Iterator& rhs) {
 	return !(lhs == rhs);
 }

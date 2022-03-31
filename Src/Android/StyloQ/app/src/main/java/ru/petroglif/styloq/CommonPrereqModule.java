@@ -473,6 +473,10 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	public void ResetGoodsFiter()
+	{
+		Gf = null;
+	}
 	public boolean SetGoodsFilterByBrand(int brandID)
 	{
 		boolean ok = true;

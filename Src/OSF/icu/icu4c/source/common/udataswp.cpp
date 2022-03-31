@@ -29,10 +29,10 @@
 static int32_t U_CALLCONV uprv_swapArray16(const UDataSwapper * ds,
     const void * inData, int32_t length, void * outData,
     UErrorCode * pErrorCode) {
-	const uint16_t * p;
-	uint16_t * q;
+	const uint16 * p;
+	uint16 * q;
 	int32_t count;
-	uint16_t x;
+	uint16 x;
 
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
@@ -43,12 +43,12 @@ static int32_t U_CALLCONV uprv_swapArray16(const UDataSwapper * ds,
 	}
 
 	/* setup and swapping */
-	p = (const uint16_t*)inData;
-	q = (uint16_t*)outData;
+	p = (const uint16*)inData;
+	q = (uint16*)outData;
 	count = length/2;
 	while(count>0) {
 		x = *p++;
-		*q++ = (uint16_t)((x<<8)|(x>>8));
+		*q++ = (uint16)((x<<8)|(x>>8));
 		--count;
 	}
 
@@ -165,11 +165,11 @@ static int32_t U_CALLCONV uprv_copyArray64(const UDataSwapper * ds,
 	return length;
 }
 
-static uint16_t U_CALLCONV uprv_readSwapUInt16(uint16_t x) {
-	return (uint16_t)((x<<8)|(x>>8));
+static uint16 U_CALLCONV uprv_readSwapUInt16(uint16 x) {
+	return (uint16)((x<<8)|(x>>8));
 }
 
-static uint16_t U_CALLCONV uprv_readDirectUInt16(uint16_t x) {
+static uint16 U_CALLCONV uprv_readDirectUInt16(uint16 x) {
 	return x;
 }
 
@@ -181,11 +181,11 @@ static uint32_t U_CALLCONV uprv_readDirectUInt32(uint32_t x) {
 	return x;
 }
 
-static void U_CALLCONV uprv_writeSwapUInt16(uint16_t * p, uint16_t x) {
-	*p = (uint16_t)((x<<8)|(x>>8));
+static void U_CALLCONV uprv_writeSwapUInt16(uint16 * p, uint16 x) {
+	*p = (uint16)((x<<8)|(x>>8));
 }
 
-static void U_CALLCONV uprv_writeDirectUInt16(uint16_t * p, uint16_t x) {
+static void U_CALLCONV uprv_writeDirectUInt16(uint16 * p, uint16 x) {
 	*p = x;
 }
 
@@ -197,8 +197,8 @@ static void U_CALLCONV uprv_writeDirectUInt32(uint32_t * p, uint32_t x) {
 	*p = x;
 }
 
-U_CAPI int16_t U_EXPORT2 udata_readInt16(const UDataSwapper * ds, int16_t x) {
-	return (int16_t)ds->readUInt16((uint16_t)x);
+U_CAPI int16 U_EXPORT2 udata_readInt16(const UDataSwapper * ds, int16 x) {
+	return (int16)ds->readUInt16((uint16)x);
 }
 
 U_CAPI int32_t U_EXPORT2 udata_readInt32(const UDataSwapper * ds, int32_t x) {
@@ -266,7 +266,7 @@ U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds,
     const void * inData, int32_t length, void * outData,
     UErrorCode * pErrorCode) {
 	const DataHeader * pHeader;
-	uint16_t headerSize, infoSize;
+	uint16 headerSize, infoSize;
 
 	/* argument checking */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
@@ -398,9 +398,9 @@ U_CAPI UDataSwapper * U_EXPORT2 udata_openSwapperForInputData(const void * data,
     bool outIsBigEndian, uint8 outCharset,
     UErrorCode * pErrorCode) {
 	const DataHeader * pHeader;
-	uint16_t headerSize, infoSize;
+	uint16 headerSize, infoSize;
 	bool inIsBigEndian;
-	int8_t inCharset;
+	int8 inCharset;
 
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;

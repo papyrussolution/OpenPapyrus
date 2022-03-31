@@ -689,7 +689,7 @@ static void bracketProcessBoundary(BracketData * bd, int32_t lastCcPos,
 /* LRI or RLI */
 static void bracketProcessLRI_RLI(BracketData * bd, UBiDiLevel level) {
 	IsoRun * pLastIsoRun = &bd->isoRuns[bd->isoRunLast];
-	int16_t lastLimit;
+	int16 lastLimit;
 	pLastIsoRun->lastBase = ON;
 	lastLimit = pLastIsoRun->limit;
 	bd->isoRunLast++;
@@ -805,7 +805,7 @@ bracketProcessClosing(BracketData * bd, int32_t openIdx, int32_t position) {
 	}
 	else {
 		/* forget this and any brackets nested within this pair */
-		pLastIsoRun->limit = static_cast<uint16_t>(openIdx);
+		pLastIsoRun->limit = static_cast<uint16>(openIdx);
 		return ON;                                                  /* N0d */
 	}
 	bd->pBiDi->dirProps[pOpening->position] = newProp;
@@ -813,7 +813,7 @@ bracketProcessClosing(BracketData * bd, int32_t openIdx, int32_t position) {
 	/* Update nested N0c pairs that may be affected */
 	fixN0c(bd, openIdx, pOpening->position, newProp);
 	if(stable) {
-		pLastIsoRun->limit = static_cast<uint16_t>(openIdx); /* forget any brackets nested within this pair */
+		pLastIsoRun->limit = static_cast<uint16>(openIdx); /* forget any brackets nested within this pair */
 		/* remove lower located synonyms if any */
 		while(pLastIsoRun->limit>pLastIsoRun->start &&
 		    bd->openings[pLastIsoRun->limit-1].position==pOpening->position)
@@ -868,7 +868,7 @@ bracketProcessChar(BracketData * bd, int32_t position) {
 			pLastIsoRun->contextPos = position;
 			level = bd->pBiDi->levels[position];
 			if(level&UBIDI_LEVEL_OVERRIDE) { /* X4, X5 */
-				uint16_t flag;
+				uint16 flag;
 				int32_t i;
 				newProp = level&1;
 				pLastIsoRun->lastStrong = newProp;
@@ -958,7 +958,7 @@ bracketProcessChar(BracketData * bd, int32_t position) {
 		pLastIsoRun->lastBase = dirProp;
 	}
 	if(newProp<=R || newProp==AL) {
-		const uint16_t flag = DIRPROP_FLAG(DIR_FROM_STRONG(newProp));
+		const uint16 flag = DIRPROP_FLAG(DIR_FROM_STRONG(newProp));
 		for(int32_t i = pLastIsoRun->start; i<pLastIsoRun->limit; i++)
 			if(position>bd->openings[i].position)
 				bd->openings[i].flags |= flag;
@@ -1117,7 +1117,7 @@ static UBiDiDirection resolveExplicitLevels(UBiDi * pBiDi, UErrorCode * pErrorCo
 
 		/* The following stack remembers the embedding level and the ISOLATE flag of level runs.
 		   stackLast points to its current entry. */
-		uint16_t stack[UBIDI_MAX_EXPLICIT_LEVEL+2]; /* we never push anything >=UBIDI_MAX_EXPLICIT_LEVEL
+		uint16 stack[UBIDI_MAX_EXPLICIT_LEVEL+2]; /* we never push anything >=UBIDI_MAX_EXPLICIT_LEVEL
 		                                               but we need one more entry as base */
 		uint32_t stackLast = 0;
 		int32_t overflowIsolateCount = 0;
@@ -2115,7 +2115,7 @@ static void resolveImplicitLevels(UBiDi * pBiDi,
 	DirProp dirProp;
 	LevState levState;
 	int32_t i, start1, start2;
-	uint16_t oldStateImp, stateImp, actionImp;
+	uint16 oldStateImp, stateImp, actionImp;
 	uint8 gprop, resProp, cell;
 	bool inverseRTL;
 	DirProp nextStrongProp = R;

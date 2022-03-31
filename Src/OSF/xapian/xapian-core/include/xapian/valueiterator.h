@@ -44,7 +44,7 @@ public:
 	ValueIterator(const ValueIterator & o);
 
 	/// Assignment.
-	ValueIterator & operator=(const ValueIterator & o);
+	ValueIterator & operator = (const ValueIterator & o);
 
 	/// Move constructor.
 	ValueIterator(ValueIterator && o)
@@ -53,7 +53,7 @@ public:
 	}
 
 	/// Move assignment operator.
-	ValueIterator & operator=(ValueIterator && o) {
+	ValueIterator & operator = (ValueIterator && o) {
 		if(this != &o) {
 			if(internal) decref();
 			internal = o.internal;
@@ -189,7 +189,7 @@ public:
 };
 
 /// Equality test for ValueIterator objects.
-inline bool operator==(const ValueIterator& a, const ValueIterator& b) noexcept
+inline bool operator == (const ValueIterator& a, const ValueIterator& b) noexcept
 {
 	// Use a pointer comparison - this ensures both that (a == a) and correct
 	// handling of end iterators (which we ensure have NULL internals).
@@ -197,7 +197,7 @@ inline bool operator==(const ValueIterator& a, const ValueIterator& b) noexcept
 }
 
 /// Inequality test for ValueIterator objects.
-inline bool operator!=(const ValueIterator& a, const ValueIterator& b) noexcept
+inline bool operator != (const ValueIterator& a, const ValueIterator& b) noexcept
 {
 	return !(a == b);
 }

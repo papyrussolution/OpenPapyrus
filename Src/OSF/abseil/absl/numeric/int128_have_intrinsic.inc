@@ -7,12 +7,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // This file contains :int128 implementation details that depend on internal
 // representation when ABSL_HAVE_INTRINSIC_INT128 is defined. This file is
 // included by int128.h and relies on ABSL_INTERNAL_WCHAR_T being defined.
@@ -34,7 +28,7 @@ constexpr __int128 BitCastToSigned(unsigned __int128 v) {
 
 }  // namespace int128_internal
 
-inline int128& int128::operator=(__int128 v) {
+inline int128 & int128::operator = (__int128 v) {
   v_ = v;
   return *this;
 }
@@ -164,7 +158,7 @@ inline int128::operator long double() const {
 #else  // Clang on PowerPC
 // Forward declaration for conversion operators to floating point types.
 constexpr int128 operator-(int128 v);
-constexpr bool operator!=(int128 lhs, int128 rhs);
+constexpr bool operator != (int128 lhs, int128 rhs);
 
 inline int128::operator float() const {
   // We must convert the absolute value and then negate as needed, because
@@ -199,27 +193,27 @@ inline int128::operator long double() const {
 
 // Comparison operators.
 
-constexpr bool operator==(int128 lhs, int128 rhs) {
+constexpr bool operator == (int128 lhs, int128 rhs) {
   return static_cast<__int128>(lhs) == static_cast<__int128>(rhs);
 }
 
-constexpr bool operator!=(int128 lhs, int128 rhs) {
+constexpr bool operator != (int128 lhs, int128 rhs) {
   return static_cast<__int128>(lhs) != static_cast<__int128>(rhs);
 }
 
-constexpr bool operator<(int128 lhs, int128 rhs) {
+constexpr bool operator < (int128 lhs, int128 rhs) {
   return static_cast<__int128>(lhs) < static_cast<__int128>(rhs);
 }
 
-constexpr bool operator>(int128 lhs, int128 rhs) {
+constexpr bool operator > (int128 lhs, int128 rhs) {
   return static_cast<__int128>(lhs) > static_cast<__int128>(rhs);
 }
 
-constexpr bool operator<=(int128 lhs, int128 rhs) {
+constexpr bool operator <= (int128 lhs, int128 rhs) {
   return static_cast<__int128>(lhs) <= static_cast<__int128>(rhs);
 }
 
-constexpr bool operator>=(int128 lhs, int128 rhs) {
+constexpr bool operator >= (int128 lhs, int128 rhs) {
   return static_cast<__int128>(lhs) >= static_cast<__int128>(rhs);
 }
 
@@ -265,12 +259,12 @@ inline int128 int128::operator--(int) {
   return tmp;
 }
 
-inline int128& int128::operator++() {
+inline int128 & int128::operator++() {
   ++v_;
   return *this;
 }
 
-inline int128& int128::operator--() {
+inline int128 & int128::operator--() {
   --v_;
   return *this;
 }

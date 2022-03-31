@@ -42,7 +42,7 @@ struct fragment {
 	char & operator[](unsigned i) { return data[i]; }
 	const char & operator[](unsigned i) const { return data[i]; }
 	operator std::string() const { return std::string(data, data[0] == 'M' ? 4 : 3); }
-	bool operator<(const fragment &b) const { return memcmp(data, b.data, 4) < 0; }
+	bool operator < (const fragment &b) const { return memcmp(data, b.data, 4) < 0; }
 };
 }
 
@@ -136,7 +136,7 @@ class GlassSpellingTermList : public TermList {
 	/// Copying is not allowed.
 	GlassSpellingTermList(const GlassSpellingTermList &);
 	/// Assignment is not allowed.
-	void operator=(const GlassSpellingTermList &);
+	void operator = (const GlassSpellingTermList &);
 public:
 	/// Constructor.
 	explicit GlassSpellingTermList(const std::string & data_) : data(data_), p(0) 

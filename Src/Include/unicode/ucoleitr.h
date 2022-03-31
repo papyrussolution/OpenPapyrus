@@ -121,7 +121,7 @@ U_CAPI UCollationElements* U_EXPORT2 ucol_openElements(const UCollator * coll, c
  * @return       the hash code.
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 ucol_keyHashCode(const uint8_t* key, int32_t length);
+U_CAPI int32_t U_EXPORT2 ucol_keyHashCode(const uint8* key, int32_t length);
 /**
  * Close a UCollationElements.
  * Once closed, a UCollationElements may no longer be used.

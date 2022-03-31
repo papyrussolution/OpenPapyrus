@@ -6,13 +6,13 @@
 
 namespace absl {
 	ABSL_NAMESPACE_BEGIN
-		std::ostream& operator<<(std::ostream& os, absl::LogSeverity s) 
+		std::ostream & operator<<(std::ostream & os, absl::LogSeverity s) 
 		{
 			if(s == absl::NormalizeLogSeverity(s)) return os << absl::LogSeverityName(s);
 			return os << "absl::LogSeverity(" << static_cast<int>(s) << ")";
 		}
 
-		std::ostream& operator<<(std::ostream& os, absl::LogSeverityAtLeast s) 
+		std::ostream & operator<<(std::ostream & os, absl::LogSeverityAtLeast s) 
 		{
 			switch(s) {
 				case absl::LogSeverityAtLeast::kInfo:
@@ -24,7 +24,7 @@ namespace absl {
 			return os;
 		}
 
-		std::ostream& operator<<(std::ostream& os, absl::LogSeverityAtMost s) 
+		std::ostream & operator<<(std::ostream & os, absl::LogSeverityAtMost s) 
 		{
 			switch(s) {
 				case absl::LogSeverityAtMost::kInfo:

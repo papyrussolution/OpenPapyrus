@@ -27,7 +27,7 @@
 /// A document read from a InMemoryDatabase.
 class InMemoryDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const InMemoryDocument &);
+    void operator = (const InMemoryDocument &);
 
     /// Don't allow copying.
     InMemoryDocument(const InMemoryDocument &);

@@ -26,7 +26,7 @@
 /// Iterate all terms in a remote database.
 class RemoteAllTermsList : public AllTermsList {
     /// Don't allow assignment.
-    void operator=(const RemoteAllTermsList &) = delete;
+    void operator = (const RemoteAllTermsList &) = delete;
 
     /// Don't allow copying.
     RemoteAllTermsList(const RemoteAllTermsList &) = delete;

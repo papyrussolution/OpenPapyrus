@@ -231,7 +231,7 @@ public:
 	 * @return a pointer to a chunk of unsigned bytes which live in a memory mapped/DLL file.
 	 * @stable ICU 2.0
 	 */
-	const uint8_t* getBinary(int32_t& len, UErrorCode & status) const;
+	const uint8* getBinary(int32_t& len, UErrorCode & status) const;
 
 	/**
 	 * returns an integer vector from a resource.

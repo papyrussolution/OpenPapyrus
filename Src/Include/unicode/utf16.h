@@ -201,7 +201,7 @@
 #define U16_GET(s, start, i, length, c) UPRV_BLOCK_MACRO_BEGIN { \
     (c)=(s)[i]; \
     if(U16_IS_SURROGATE(c)) { \
-        uint16_t __c2; \
+        uint16 __c2; \
         if(U16_IS_SURROGATE_LEAD(c)) { \
             if((i)+1!=(length) && U16_IS_TRAIL(__c2=(s)[(i)+1])) { \
                 (c)=U16_GET_SUPPLEMENTARY((c), __c2); \
@@ -240,7 +240,7 @@
 #define U16_GET_OR_FFFD(s, start, i, length, c) UPRV_BLOCK_MACRO_BEGIN { \
     (c)=(s)[i]; \
     if(U16_IS_SURROGATE(c)) { \
-        uint16_t __c2; \
+        uint16 __c2; \
         if(U16_IS_SURROGATE_LEAD(c)) { \
             if((i)+1!=(length) && U16_IS_TRAIL(__c2=(s)[(i)+1])) { \
                 (c)=U16_GET_SUPPLEMENTARY((c), __c2); \
@@ -309,7 +309,7 @@
 #define U16_NEXT(s, i, length, c) UPRV_BLOCK_MACRO_BEGIN { \
     (c)=(s)[(i)++]; \
     if(U16_IS_LEAD(c)) { \
-        uint16_t __c2; \
+        uint16 __c2; \
         if((i)!=(length) && U16_IS_TRAIL(__c2=(s)[(i)])) { \
             ++(i); \
             (c)=U16_GET_SUPPLEMENTARY((c), __c2); \
@@ -341,7 +341,7 @@
 #define U16_NEXT_OR_FFFD(s, i, length, c) UPRV_BLOCK_MACRO_BEGIN { \
     (c)=(s)[(i)++]; \
     if(U16_IS_SURROGATE(c)) { \
-        uint16_t __c2; \
+        uint16 __c2; \
         if(U16_IS_SURROGATE_LEAD(c) && (i)!=(length) && U16_IS_TRAIL(__c2=(s)[(i)])) { \
             ++(i); \
             (c)=U16_GET_SUPPLEMENTARY((c), __c2); \
@@ -366,10 +366,10 @@
  */
 #define U16_APPEND_UNSAFE(s, i, c) UPRV_BLOCK_MACRO_BEGIN { \
     if((uint32_t)(c)<=0xffff) { \
-        (s)[(i)++]=(uint16_t)(c); \
+        (s)[(i)++]=(uint16)(c); \
     } else { \
-        (s)[(i)++]=(uint16_t)(((c)>>10)+0xd7c0); \
-        (s)[(i)++]=(uint16_t)(((c)&0x3ff)|0xdc00); \
+        (s)[(i)++]=(uint16)(((c)>>10)+0xd7c0); \
+        (s)[(i)++]=(uint16)(((c)&0x3ff)|0xdc00); \
     } \
 } UPRV_BLOCK_MACRO_END
 
@@ -392,10 +392,10 @@
  */
 #define U16_APPEND(s, i, capacity, c, isError) UPRV_BLOCK_MACRO_BEGIN { \
     if((uint32_t)(c)<=0xffff) { \
-        (s)[(i)++]=(uint16_t)(c); \
+        (s)[(i)++]=(uint16)(c); \
     } else if((uint32_t)(c)<=0x10ffff && (i)+1<(capacity)) { \
-        (s)[(i)++]=(uint16_t)(((c)>>10)+0xd7c0); \
-        (s)[(i)++]=(uint16_t)(((c)&0x3ff)|0xdc00); \
+        (s)[(i)++]=(uint16)(((c)>>10)+0xd7c0); \
+        (s)[(i)++]=(uint16)(((c)&0x3ff)|0xdc00); \
     } else /* c>0x10ffff or not enough space */ { \
         (isError)=true; \
     } \
@@ -570,7 +570,7 @@
 #define U16_PREV(s, start, i, c) UPRV_BLOCK_MACRO_BEGIN { \
     (c)=(s)[--(i)]; \
     if(U16_IS_TRAIL(c)) { \
-        uint16_t __c2; \
+        uint16 __c2; \
         if((i)>(start) && U16_IS_LEAD(__c2=(s)[(i)-1])) { \
             --(i); \
             (c)=U16_GET_SUPPLEMENTARY(__c2, (c)); \
@@ -601,7 +601,7 @@
 #define U16_PREV_OR_FFFD(s, start, i, c) UPRV_BLOCK_MACRO_BEGIN { \
     (c)=(s)[--(i)]; \
     if(U16_IS_SURROGATE(c)) { \
-        uint16_t __c2; \
+        uint16 __c2; \
         if(U16_IS_SURROGATE_TRAIL(c) && (i)>(start) && U16_IS_LEAD(__c2=(s)[(i)-1])) { \
             --(i); \
             (c)=U16_GET_SUPPLEMENTARY(__c2, (c)); \

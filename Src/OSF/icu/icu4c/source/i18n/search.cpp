@@ -59,7 +59,7 @@ void SearchIterator::setAttribute(USearchAttribute attribute,
 			    break;
 			case USEARCH_ELEMENT_COMPARISON:
 			    if(value == USEARCH_PATTERN_BASE_WEIGHT_IS_WILDCARD || value == USEARCH_ANY_BASE_WEIGHT_IS_WILDCARD) {
-				    m_search_->elementComparisonType = (int16_t)value;
+				    m_search_->elementComparisonType = (int16)value;
 			    }
 			    else {
 				    m_search_->elementComparisonType = 0;
@@ -84,7 +84,7 @@ USearchAttributeValue SearchIterator::getAttribute(USearchAttribute attribute) c
 			   USEARCH_OFF);
 		case USEARCH_ELEMENT_COMPARISON:
 	    {
-		    int16_t value = m_search_->elementComparisonType;
+		    int16 value = m_search_->elementComparisonType;
 		    if(value == USEARCH_PATTERN_BASE_WEIGHT_IS_WILDCARD || value == USEARCH_ANY_BASE_WEIGHT_IS_WILDCARD) {
 			    return (USearchAttributeValue)value;
 		    }

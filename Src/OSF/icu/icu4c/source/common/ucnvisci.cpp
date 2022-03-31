@@ -117,9 +117,9 @@ typedef enum {
 typedef struct {
 	UChar contextCharToUnicode; /* previous Unicode codepoint for contextual analysis */
 	UChar contextCharFromUnicode; /* previous Unicode codepoint for contextual analysis */
-	uint16_t defDeltaToUnicode; /* delta for switching to default state when DEF is encountered  */
-	uint16_t currentDeltaFromUnicode; /* current delta in Indic block */
-	uint16_t currentDeltaToUnicode; /* current delta in Indic block */
+	uint16 defDeltaToUnicode; /* delta for switching to default state when DEF is encountered  */
+	uint16 currentDeltaFromUnicode; /* current delta in Indic block */
+	uint16 currentDeltaToUnicode; /* current delta in Indic block */
 	MaskEnum currentMaskFromUnicode; /* mask for current state in toUnicode */
 	MaskEnum currentMaskToUnicode; /* mask for current state in toUnicode */
 	MaskEnum defMaskToUnicode; /* mask for default state in toUnicode */
@@ -207,7 +207,7 @@ static void U_CALLCONV _ISCIIOpen(UConverter * cnv, UConverterLoadArgs * pArgs, 
 			converterData->currentDeltaFromUnicode
 				= converterData->currentDeltaToUnicode
 				    = converterData->defDeltaToUnicode =
-				    (uint16_t)(lookupInitialData[pArgs->options & UCNV_OPTIONS_VERSION_MASK].uniLang * DELTA);
+				    (uint16)(lookupInitialData[pArgs->options & UCNV_OPTIONS_VERSION_MASK].uniLang * DELTA);
 
 			converterData->currentMaskFromUnicode
 				= converterData->currentMaskToUnicode
@@ -287,7 +287,7 @@ static void U_CALLCONV _ISCIIReset(UConverter * cnv, UConverterResetChoice choic
  * and combine and use 1 bit to represent these languages.
  *
  * TODO: It is probably easier to understand and maintain to change this
- * to use uint16_t and give each of the 9 Unicode/script blocks its own bit.
+ * to use uint16 and give each of the 9 Unicode/script blocks its own bit.
  */
 
 static const uint8 validityTable[128] = {
@@ -415,7 +415,7 @@ static const uint8 validityTable[128] = {
 /*0x00 : 0x00: 0x9yz  */ ZERO     + ZERO     + ZERO     + ZERO     + ZERO     + ZERO     + ZERO     + ZERO
 };
 
-static const uint16_t fromUnicodeTable[128] = {
+static const uint16 fromUnicodeTable[128] = {
 	0x00a0,/* 0x0900 */
 	0x00a1,/* 0x0901 */
 	0x00a2,/* 0x0902 */
@@ -545,7 +545,7 @@ static const uint16_t fromUnicodeTable[128] = {
 	0xFFFF,/* 0x097e */
 	0xFFFF,/* 0x097f */
 };
-static const uint16_t toUnicodeTable[256] = {
+static const uint16 toUnicodeTable[256] = {
 	0x0000,/* 0x00 */
 	0x0001,/* 0x01 */
 	0x0002,/* 0x02 */
@@ -804,12 +804,12 @@ static const uint16_t toUnicodeTable[256] = {
 	0xFFFF /* 0xff */
 };
 
-static const uint16_t vowelSignESpecialCases[][2] = {
+static const uint16 vowelSignESpecialCases[][2] = {
 	{ 2 /*length of array*/, 0      },
 	{ 0xA4, 0x0904 },
 };
 
-static const uint16_t nuktaSpecialCases[][2] = {
+static const uint16 nuktaSpecialCases[][2] = {
 	{ 16 /*length of array*/, 0      },
 	{ 0xA6, 0x090c },
 	{ 0xEA, 0x093D },
@@ -899,8 +899,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 	UChar32 sourceChar = 0x0000;
 	UChar32 tempContextFromUnicode = 0x0000; /* For special handling of the Gurmukhi script. */
 	UConverterDataISCII * converterData;
-	uint16_t newDelta = 0;
-	uint16_t range = 0;
+	uint16 newDelta = 0;
+	uint16 range = 0;
 	bool deltaChanged = FALSE;
 
 	if((args->converter == NULL) || (args->targetLimit < args->target) || (args->sourceLimit < args->source)) {
@@ -910,7 +910,7 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 	/* initialize data */
 	converterData = (UConverterDataISCII*)args->converter->extraInfo;
 	newDelta = converterData->currentDeltaFromUnicode;
-	range = (uint16_t)(newDelta/DELTA);
+	range = (uint16)(newDelta/DELTA);
 
 	if((sourceChar = args->converter->fromUChar32)!=0) {
 		goto getTrail;
@@ -969,15 +969,15 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 			    break;
 			default:
 			    /* is the sourceChar in the INDIC_RANGE? */
-			    if((uint16_t)(INDIC_BLOCK_END-sourceChar) <= INDIC_RANGE) {
+			    if((uint16)(INDIC_BLOCK_END-sourceChar) <= INDIC_RANGE) {
 				    /* Danda and Double Danda are valid in Northern scripts.. since Unicode
 				     * does not include these codepoints in all Northern scrips we need to
 				     * filter them out
 				     */
 				    if(sourceChar!= DANDA && sourceChar != DOUBLE_DANDA) {
 					    /* find out to which block the souceChar belongs*/
-					    range = (uint16_t)((sourceChar-INDIC_BLOCK_BEGIN)/DELTA);
-					    newDelta = (uint16_t)(range*DELTA);
+					    range = (uint16)((sourceChar-INDIC_BLOCK_BEGIN)/DELTA);
+					    newDelta = (uint16)(range*DELTA);
 
 					    /* Now are we in the same block as the previous? */
 					    if(newDelta!= converterData->currentDeltaFromUnicode || converterData->isFirstBuffer) {
@@ -1018,8 +1018,8 @@ static void U_CALLCONV UConverter_fromUnicode_ISCII_OFFSETS_LOGIC(UConverterFrom
 					     * previous sourceChar's script block write ATR and language codes
 					     */
 					    uint32_t temp = 0;
-					    temp = (uint16_t)(ATR<<8);
-					    temp += (uint16_t)((uint8)lookupInitialData[range].isciiLang);
+					    temp = (uint16)(ATR<<8);
+					    temp += (uint16)((uint8)lookupInitialData[range].isciiLang);
 					    /* reset */
 					    deltaChanged = FALSE;
 					    /* now append ATR and language code */
@@ -1109,7 +1109,7 @@ getTrail:
 	args->target = (char *)target;
 }
 
-static const uint16_t lookupTable[][2] = {
+static const uint16 lookupTable[][2] = {
 	{ ZERO,       ZERO     }, /*DEFAULT*/
 	{ ZERO,       ZERO     }, /*ROMAN*/
 	{ DEVANAGARI, DEV_MASK },
@@ -1132,7 +1132,7 @@ static const uint16_t lookupTable[][2] = {
 		    targetUniChar != DANDA && \
 		    targetUniChar != DOUBLE_DANDA) {                                               \
                                                                                          \
-			targetUniChar += (uint16_t)(delta);                                             \
+			targetUniChar += (uint16)(delta);                                             \
 		}                                                                                    \
 		/* now write the targetUniChar */                                                    \
 		if(target<args->targetLimit) {                                                        \
@@ -1217,7 +1217,7 @@ static void U_CALLCONV UConverter_toUnicode_ISCII_OFFSETS_LOGIC(UConverterToUnic
 
 				/* check if the sourceChar is supported script range*/
 				if((uint8)(PNJ-sourceChar)<=PNJ-DEV) {
-					data->currentDeltaToUnicode = (uint16_t)(lookupTable[sourceChar & 0x0F][0] * DELTA);
+					data->currentDeltaToUnicode = (uint16)(lookupTable[sourceChar & 0x0F][0] * DELTA);
 					data->currentMaskToUnicode = (MaskEnum)lookupTable[sourceChar & 0x0F][1];
 				}
 				else if(sourceChar==DEF) {

@@ -1,4 +1,4 @@
-//
+// cycleclock.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -6,17 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
-// -----------------------------------------------------------------------------
-// File: cycleclock.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines a `CycleClock`, which yields the value and frequency
 // of a cycle counter that increments at a rate that is approximately constant.
@@ -43,50 +32,47 @@
 #define ABSL_BASE_INTERNAL_CYCLECLOCK_H_
 
 #include <cstdint>
-
 #include "absl/base/config.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace base_internal {
-
 // -----------------------------------------------------------------------------
 // CycleClock
 // -----------------------------------------------------------------------------
 class CycleClock {
- public:
-  // CycleClock::Now()
-  //
-  // Returns the value of a cycle counter that counts at a rate that is
-  // approximately constant.
-  static int64_t Now();
+public:
+	// CycleClock::Now()
+	//
+	// Returns the value of a cycle counter that counts at a rate that is
+	// approximately constant.
+	static int64_t Now();
 
-  // CycleClock::Frequency()
-  //
-  // Returns the amount by which `CycleClock::Now()` increases per second. Note
-  // that this value may not necessarily match the core CPU clock frequency.
-  static double Frequency();
+	// CycleClock::Frequency()
+	//
+	// Returns the amount by which `CycleClock::Now()` increases per second. Note
+	// that this value may not necessarily match the core CPU clock frequency.
+	static double Frequency();
 
- private:
-  CycleClock() = delete;  // no instances
-  CycleClock(const CycleClock&) = delete;
-  CycleClock& operator=(const CycleClock&) = delete;
+private:
+	CycleClock() = delete; // no instances
+	CycleClock(const CycleClock&) = delete;
+	CycleClock& operator =(const CycleClock&) = delete;
 };
 
 using CycleClockSourceFunc = int64_t (*)();
 
 class CycleClockSource {
- private:
-  // CycleClockSource::Register()
-  //
-  // Register a function that provides an alternate source for the unscaled CPU
-  // cycle count value. The source function must be async signal safe, must not
-  // call CycleClock::Now(), and must have a frequency that matches that of the
-  // unscaled clock used by CycleClock. A nullptr value resets CycleClock to use
-  // the default source.
-  static void Register(CycleClockSourceFunc source);
+private:
+	// CycleClockSource::Register()
+	//
+	// Register a function that provides an alternate source for the unscaled CPU
+	// cycle count value. The source function must be async signal safe, must not
+	// call CycleClock::Now(), and must have a frequency that matches that of the
+	// unscaled clock used by CycleClock. A nullptr value resets CycleClock to use
+	// the default source.
+	static void Register(CycleClockSourceFunc source);
 };
-
 }  // namespace base_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

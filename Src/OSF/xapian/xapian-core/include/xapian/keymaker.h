@@ -39,7 +39,7 @@ class Registry;
 /** Virtual base class for key making functors. */
 class XAPIAN_VISIBILITY_DEFAULT KeyMaker : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const KeyMaker &) = delete;
+	void operator = (const KeyMaker &) = delete;
 	/// Don't allow copying.
 	KeyMaker(const KeyMaker &) = delete;
 public:

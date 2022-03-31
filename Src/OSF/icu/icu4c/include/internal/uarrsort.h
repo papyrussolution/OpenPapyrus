@@ -48,7 +48,7 @@ U_CDECL_END
  */
 U_CAPI void U_EXPORT2 uprv_sortArray(void * array, int32_t length, int32_t itemSize, UComparator * cmp, const void * context, bool sortStable, UErrorCode * pErrorCode);
 /**
- * Convenience UComparator implementation for uint16_t arrays.
+ * Convenience UComparator implementation for uint16 arrays.
  * @internal
  */
 U_CAPI int32_t U_EXPORT2 uprv_uint16Comparator(const void * context, const void * left, const void * right);

@@ -129,7 +129,7 @@ ufmt_ptou(UChar    *buffer,
 int64_t
 ufmt_uto64(const UChar *buffer, 
       int32_t *len,
-      int8_t     radix);
+      int8     radix);
 
 /**
  * Convert a UChar * in a specified radix to a pointer,

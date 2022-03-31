@@ -48,8 +48,8 @@ public:
 			operator++();
 			return const_iterator(old_p);
 		}
-		bool operator==(const const_iterator& o) { return p == o.p; }
-		bool operator!=(const const_iterator& o) { return !(*this == o); }
+		bool operator == (const const_iterator& o) { return p == o.p; }
+		bool operator != (const const_iterator& o) { return !(*this == o); }
 	};
 
 	Resolver(const std::string & host, int port, int flags = 0) {

@@ -117,7 +117,7 @@ static inline uint32_t ucnv_extFindToU(const uint32_t * toUSection, int32_t leng
  * - no trie is used
  * - the returned matchLength is not offset by 2
  */
-static int32_t ucnv_extMatchToU(const int32_t * cx, int8_t sisoState,
+static int32_t ucnv_extMatchToU(const int32_t * cx, int8 sisoState,
     const char * pre, int32_t preLength,
     const char * src, int32_t srcLength,
     uint32_t * pMatchValue,
@@ -273,7 +273,7 @@ static inline void ucnv_extWriteToU(UConverter * cnv, const int32_t * cx,
  * cnv->mode==0 is equivalent to firstLength==1.
  */
 #define UCNV_SISO_STATE(cnv) \
-	((cnv)->sharedData->mbcs.outputType==MBCS_OUTPUT_2_SISO ? (int8_t)(cnv)->mode : \
+	((cnv)->sharedData->mbcs.outputType==MBCS_OUTPUT_2_SISO ? (int8)(cnv)->mode : \
 	(cnv)->sharedData->mbcs.outputType==MBCS_OUTPUT_DBCS_ONLY ? 1 : -1)
 
 /*
@@ -290,7 +290,7 @@ U_CFUNC bool ucnv_extInitialMatchToU(UConverter * cnv, const int32_t * cx,
 	int32_t match;
 
 	/* try to match */
-	match = ucnv_extMatchToU(cx, (int8_t)UCNV_SISO_STATE(cnv),
+	match = ucnv_extMatchToU(cx, (int8)UCNV_SISO_STATE(cnv),
 		(const char *)cnv->toUBytes, firstLength,
 		*src, (int32_t)(srcLimit-*src),
 		&value,
@@ -314,7 +314,7 @@ U_CFUNC bool ucnv_extInitialMatchToU(UConverter * cnv, const int32_t * cx,
 
 		/* copy the first code point */
 		s = (const char *)cnv->toUBytes;
-		cnv->preToUFirstLength = (int8_t)firstLength;
+		cnv->preToUFirstLength = (int8)firstLength;
 		for(j = 0; j<firstLength; ++j) {
 			cnv->preToU[j] = *s++;
 		}
@@ -326,7 +326,7 @@ U_CFUNC bool ucnv_extInitialMatchToU(UConverter * cnv, const int32_t * cx,
 			cnv->preToU[j] = *s++;
 		}
 		*src = s; /* same as *src=srcLimit; because we reached the end of input */
-		cnv->preToULength = (int8_t)match;
+		cnv->preToULength = (int8)match;
 		return TRUE;
 	}
 	else { /* match==0 no match */
@@ -377,7 +377,7 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 	uint32_t value = 0; /* initialize output-only param to 0 to silence gcc */
 	int32_t match, length;
 
-	match = ucnv_extMatchToU(cnv->sharedData->mbcs.extIndexes, (int8_t)UCNV_SISO_STATE(cnv),
+	match = ucnv_extMatchToU(cnv->sharedData->mbcs.extIndexes, (int8)UCNV_SISO_STATE(cnv),
 		cnv->preToU, cnv->preToULength,
 		pArgs->source, (int32_t)(pArgs->sourceLimit-pArgs->source),
 		&value,
@@ -392,7 +392,7 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 			/* the match did not use all of preToU[] - keep the rest for replay */
 			length = cnv->preToULength-match;
 			uprv_memmove(cnv->preToU, cnv->preToU+match, length);
-			cnv->preToULength = (int8_t)-length;
+			cnv->preToULength = (int8)-length;
 		}
 
 		/* write result */
@@ -414,7 +414,7 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 			cnv->preToU[j] = *s++;
 		}
 		pArgs->source = s; /* same as *src=srcLimit; because we reached the end of input */
-		cnv->preToULength = (int8_t)match;
+		cnv->preToULength = (int8)match;
 	}
 	else { /* match==0 */
 		/*
@@ -446,7 +446,7 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 		}
 
 		/* mark preToU for replay */
-		cnv->preToULength = (int8_t)-length;
+		cnv->preToULength = (int8)-length;
 
 		/* set the error code for unassigned */
 		*pErrorCode = U_INVALID_CHAR_FOUND;
@@ -539,7 +539,7 @@ static int32_t ucnv_extMatchFromU(const int32_t * cx,
     const UChar * src, int32_t srcLength,
     uint32_t * pMatchValue,
     bool useFallback, bool flush) {
-	const uint16_t * stage12, * stage3;
+	const uint16 * stage12, * stage3;
 	const uint32_t * stage3b;
 
 	const UChar * fromUTableUChars, * fromUSectionUChars;
@@ -559,8 +559,8 @@ static int32_t ucnv_extMatchFromU(const int32_t * cx,
 		return 0; /* the first code point is outside the trie */
 	}
 
-	stage12 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_12_INDEX, uint16_t);
-	stage3 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_3_INDEX, uint16_t);
+	stage12 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_12_INDEX, uint16);
+	stage3 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_3_INDEX, uint16);
 	idx = UCNV_EXT_FROM_U(stage12, stage3, idx, firstCP);
 
 	stage3b = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_3B_INDEX, uint32_t);
@@ -810,7 +810,7 @@ U_CFUNC bool ucnv_extInitialMatchFromU(UConverter * cnv, const int32_t * cx,
 			cnv->preFromU[j] = *s++;
 		}
 		*src = s; /* same as *src=srcLimit; because we reached the end of input */
-		cnv->preFromULength = (int8_t)match;
+		cnv->preFromULength = (int8)match;
 		return TRUE;
 	}
 	else if(match==1) {
@@ -905,7 +905,7 @@ U_CFUNC void ucnv_extContinueMatchFromU(UConverter * cnv,
 			/* the match did not use all of preFromU[] - keep the rest for replay */
 			int32_t length = cnv->preFromULength-match;
 			u_memmove(cnv->preFromU, cnv->preFromU+match, length);
-			cnv->preFromULength = (int8_t)-length;
+			cnv->preFromULength = (int8)-length;
 		}
 
 		/* finish the partial match */
@@ -931,7 +931,7 @@ U_CFUNC void ucnv_extContinueMatchFromU(UConverter * cnv,
 			cnv->preFromU[j] = *s++;
 		}
 		pArgs->source = s; /* same as *src=srcLimit; because we reached the end of input */
-		cnv->preFromULength = (int8_t)match;
+		cnv->preFromULength = (int8)match;
 	}
 	else { /* match==0 or 1 */
 		/*
@@ -1054,7 +1054,7 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
     UConverterSetFilter filter,
     UErrorCode * pErrorCode) {
 	const int32_t * cx;
-	const uint16_t * stage12, * stage3, * ps2, * ps3;
+	const uint16 * stage12, * stage3, * ps2, * ps3;
 	const uint32_t * stage3b;
 
 	uint32_t value;
@@ -1069,8 +1069,8 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
 		return;
 	}
 
-	stage12 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_12_INDEX, uint16_t);
-	stage3 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_3_INDEX, uint16_t);
+	stage12 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_12_INDEX, uint16);
+	stage3 = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_3_INDEX, uint16);
 	stage3b = UCNV_EXT_ARRAY(cx, UCNV_EXT_FROM_U_STAGE_3B_INDEX, uint32_t);
 
 	stage1Length = cx[UCNV_EXT_FROM_U_STAGE_1_LENGTH];
@@ -1136,7 +1136,7 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
 								    break;
 								case UCNV_SET_FILTER_GR94DBCS:
 								    if(!(UCNV_EXT_FROM_U_GET_LENGTH(value)==2 &&
-									(uint16_t)((value = UCNV_EXT_FROM_U_GET_DATA(value))-0xa1a1)<=
+									(uint16)((value = UCNV_EXT_FROM_U_GET_DATA(value))-0xa1a1)<=
 									(0xfefe - 0xa1a1) &&
 									(uint8)(value-0xa1)<=(0xfe - 0xa1))) {
 									    continue;
@@ -1144,7 +1144,7 @@ U_CFUNC void ucnv_extGetUnicodeSet(const UConverterSharedData * sharedData,
 								    break;
 								case UCNV_SET_FILTER_HZ:
 								    if(!(UCNV_EXT_FROM_U_GET_LENGTH(value)==2 &&
-									(uint16_t)((value = UCNV_EXT_FROM_U_GET_DATA(value))-0xa1a1)<=
+									(uint16)((value = UCNV_EXT_FROM_U_GET_DATA(value))-0xa1a1)<=
 									(0xfdfe - 0xa1a1) &&
 									(uint8)(value-0xa1)<=(0xfe - 0xa1))) {
 									    continue;

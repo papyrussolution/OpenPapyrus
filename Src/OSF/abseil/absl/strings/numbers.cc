@@ -736,7 +736,7 @@ struct LookupTables {
 //  }
 // See https://godbolt.org/z/aneYsb
 //
-// uint128& operator/=(uint128) is not constexpr, so hardcode the resulting
+// uint128 & operator/=(uint128) is not constexpr, so hardcode the resulting
 // array to avoid a static initializer.
 template <>
 const uint128 LookupTables<uint128>::kVmaxOverBase[] = {
@@ -788,7 +788,7 @@ const uint128 LookupTables<uint128>::kVmaxOverBase[] = {
 //  }
 // See https://godbolt.org/z/7djYWz
 //
-// int128& operator/=(int128) is not constexpr, so hardcode the resulting array
+// int128 & operator/=(int128) is not constexpr, so hardcode the resulting array
 // to avoid a static initializer.
 template <>
 const int128 LookupTables<int128>::kVmaxOverBase[] = {
@@ -841,7 +841,7 @@ const int128 LookupTables<int128>::kVmaxOverBase[] = {
 //
 // See https://godbolt.org/z/7djYWz
 //
-// int128& operator/=(int128) is not constexpr, so hardcode the resulting array
+// int128 & operator/=(int128) is not constexpr, so hardcode the resulting array
 // to avoid a static initializer.
 template <>
 const int128 LookupTables<int128>::kVminOverBase[] = {

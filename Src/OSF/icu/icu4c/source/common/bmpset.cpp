@@ -528,7 +528,7 @@ const uint8 * BMPSet::spanUTF8(const uint8 * s, int32_t length, USetSpanConditio
 	 * the truncated sequence.
 	 */
 	b = *(limit-1);
-	if((int8_t)b<0) {
+	if((int8)b<0) {
 		// b>=0x80: lead or trail byte
 		if(b<0xc0) {
 			// single trail byte, check for preceding 3- or 4-byte lead byte

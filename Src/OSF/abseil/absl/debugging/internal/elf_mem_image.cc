@@ -310,11 +310,11 @@ const ElfMemImage::SymbolInfo& ElfMemImage::SymbolIterator::operator*() const {
 	return info_;
 }
 
-bool ElfMemImage::SymbolIterator::operator==(const SymbolIterator &rhs) const {
+bool ElfMemImage::SymbolIterator::operator == (const SymbolIterator &rhs) const {
 	return this->image_ == rhs.image_ && this->index_ == rhs.index_;
 }
 
-bool ElfMemImage::SymbolIterator::operator!=(const SymbolIterator &rhs) const {
+bool ElfMemImage::SymbolIterator::operator != (const SymbolIterator &rhs) const {
 	return !(*this == rhs);
 }
 

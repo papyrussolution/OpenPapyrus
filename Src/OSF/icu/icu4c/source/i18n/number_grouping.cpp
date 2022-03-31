@@ -14,7 +14,7 @@ using namespace icu::number;
 using namespace icu::number::impl;
 
 namespace {
-int16_t getMinGroupingForLocale(const Locale & locale) {
+int16 getMinGroupingForLocale(const Locale & locale) {
 	// TODO: Cache this?
 	UErrorCode localStatus = U_ZERO_ERROR;
 	LocalUResourceBundlePointer bundle(ures_open(NULL, locale.getName(), &localStatus));
@@ -49,9 +49,9 @@ Grouper Grouper::forProperties(const DecimalFormatProperties& properties)
 	if(!properties.groupingUsed) {
 		return forStrategy(UNUM_GROUPING_OFF);
 	}
-	auto grouping1 = static_cast<int16_t>(properties.groupingSize);
-	auto grouping2 = static_cast<int16_t>(properties.secondaryGroupingSize);
-	auto minGrouping = static_cast<int16_t>(properties.minimumGroupingDigits);
+	auto grouping1 = static_cast<int16>(properties.groupingSize);
+	auto grouping2 = static_cast<int16>(properties.secondaryGroupingSize);
+	auto minGrouping = static_cast<int16>(properties.minimumGroupingDigits);
 	grouping1 = grouping1 > 0 ? grouping1 : grouping2 > 0 ? grouping2 : grouping1;
 	grouping2 = grouping2 > 0 ? grouping2 : grouping1;
 	return {grouping1, grouping2, minGrouping, UNUM_GROUPING_COUNT};
@@ -63,7 +63,7 @@ void Grouper::setLocaleData(const impl::ParsedPatternInfo &patternInfo, const Lo
 		fMinGrouping = getMinGroupingForLocale(locale);
 	}
 	else if(fMinGrouping == -3) {
-		fMinGrouping = static_cast<int16_t>(smax(2, static_cast<int>(getMinGroupingForLocale(locale))));
+		fMinGrouping = static_cast<int16>(smax(2, static_cast<int>(getMinGroupingForLocale(locale))));
 	}
 	else {
 		// leave fMinGrouping alone
@@ -71,9 +71,9 @@ void Grouper::setLocaleData(const impl::ParsedPatternInfo &patternInfo, const Lo
 	if(fGrouping1 != -2 && fGrouping2 != -4) {
 		return;
 	}
-	auto grouping1 = static_cast<int16_t> (patternInfo.positive.groupingSizes & 0xffff);
-	auto grouping2 = static_cast<int16_t> ((patternInfo.positive.groupingSizes >> 16) & 0xffff);
-	auto grouping3 = static_cast<int16_t> ((patternInfo.positive.groupingSizes >> 32) & 0xffff);
+	auto grouping1 = static_cast<int16> (patternInfo.positive.groupingSizes & 0xffff);
+	auto grouping2 = static_cast<int16> ((patternInfo.positive.groupingSizes >> 16) & 0xffff);
+	auto grouping3 = static_cast<int16> ((patternInfo.positive.groupingSizes >> 32) & 0xffff);
 	if(grouping2 == -1) {
 		grouping1 = fGrouping1 == -4 ? (short)3 : (short)-1;
 	}
@@ -96,7 +96,7 @@ bool Grouper::groupAtPosition(int32_t position, const impl::DecimalQuantity &val
 	 && value.getUpperDisplayMagnitude() - fGrouping1 + 1 >= fMinGrouping;
 }
 
-int16_t Grouper::getPrimary() const { return fGrouping1; }
-int16_t Grouper::getSecondary() const { return fGrouping2; }
+int16 Grouper::getPrimary() const { return fGrouping1; }
+int16 Grouper::getSecondary() const { return fGrouping2; }
 
 #endif /* #if !UCONFIG_NO_FORMATTING */

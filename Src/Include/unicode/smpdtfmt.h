@@ -1518,7 +1518,7 @@ private:
 	/**
 	 * Parse the given override string and set up structures for number formats
 	 */
-	void processOverrideString(const Locale &locale, const UnicodeString &str, int8_t type, UErrorCode &status);
+	void processOverrideString(const Locale &locale, const UnicodeString &str, int8 type, UErrorCode &status);
 
 	/**
 	 * Used to map pattern characters to Calendar field identifiers.

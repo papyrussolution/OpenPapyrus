@@ -6,15 +6,8 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+// Core interfaces and definitions used by by low-level interfaces such as SpinLock.
 //
-// Core interfaces and definitions used by by low-level interfaces such as
-// SpinLock.
-
 #ifndef ABSL_BASE_INTERNAL_LOW_LEVEL_SCHEDULING_H_
 #define ABSL_BASE_INTERNAL_LOW_LEVEL_SCHEDULING_H_
 
@@ -62,7 +55,7 @@ class SchedulingGuard {
   // Returns true iff the calling thread may be cooperatively rescheduled.
   static bool ReschedulingIsAllowed();
   SchedulingGuard(const SchedulingGuard&) = delete;
-  SchedulingGuard& operator=(const SchedulingGuard&) = delete;
+  SchedulingGuard& operator = (const SchedulingGuard&) = delete;
 
  private:
   // Disable cooperative rescheduling of the calling thread.  It may still

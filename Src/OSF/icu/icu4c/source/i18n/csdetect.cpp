@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -28,14 +24,13 @@
 U_NAMESPACE_BEGIN
 
 struct CSRecognizerInfo : public UMemory {
-	CSRecognizerInfo(CharsetRecognizer * recognizer, bool isDefaultEnabled)
-		: recognizer(recognizer), isDefaultEnabled(isDefaultEnabled) {
+	CSRecognizerInfo(CharsetRecognizer * recognizer, bool isDefaultEnabled) : recognizer(recognizer), isDefaultEnabled(isDefaultEnabled) 
+	{
 	}
-
-	~CSRecognizerInfo() {
+	~CSRecognizerInfo() 
+	{
 		delete recognizer;
 	}
-
 	CharsetRecognizer * recognizer;
 	bool isDefaultEnabled;
 };
@@ -55,38 +50,33 @@ static bool U_CALLCONV csdet_cleanup(void)
 			delete fCSRecognizers[r];
 			fCSRecognizers[r] = NULL;
 		}
-
 		DELETE_ARRAY(fCSRecognizers);
 		fCSRecognizers = NULL;
 		fCSRecognizers_size = 0;
 	}
 	gCSRecognizersInitOnce.reset();
-
 	return TRUE;
 }
 
 static int32_t U_CALLCONV charsetMatchComparator(const void * /*context*/, const void * left, const void * right)
 {
 	U_NAMESPACE_USE
-
 	const CharsetMatch ** csm_l = (const CharsetMatch**)left;
 	const CharsetMatch ** csm_r = (const CharsetMatch**)right;
-
 	// NOTE: compare is backwards to sort from highest to lowest.
 	return (*csm_r)->getConfidence() - (*csm_l)->getConfidence();
 }
 
-static void U_CALLCONV initRecognizers(UErrorCode & status) {
+static void U_CALLCONV initRecognizers(UErrorCode & status) 
+{
 	U_NAMESPACE_USE
-	    ucln_i18n_registerCleanup(UCLN_I18N_CSDET, csdet_cleanup);
+    ucln_i18n_registerCleanup(UCLN_I18N_CSDET, csdet_cleanup);
 	CSRecognizerInfo * tempArray[] = {
 		new CSRecognizerInfo(new CharsetRecog_UTF8(), TRUE),
-
 		new CSRecognizerInfo(new CharsetRecog_UTF_16_BE(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_UTF_16_LE(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_UTF_32_BE(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_UTF_32_LE(), TRUE),
-
 		new CSRecognizerInfo(new CharsetRecog_8859_1(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_8859_2(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_8859_5_ru(), TRUE),
@@ -103,12 +93,10 @@ static void U_CALLCONV initRecognizers(UErrorCode & status) {
 		new CSRecognizerInfo(new CharsetRecog_euc_jp(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_euc_kr(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_big5(), TRUE),
-
 		new CSRecognizerInfo(new CharsetRecog_2022JP(), TRUE),
 #if !UCONFIG_ONLY_HTML_CONVERSION
 		new CSRecognizerInfo(new CharsetRecog_2022KR(), TRUE),
 		new CSRecognizerInfo(new CharsetRecog_2022CN(), TRUE),
-
 		new CSRecognizerInfo(new CharsetRecog_IBM424_he_rtl(), FALSE),
 		new CSRecognizerInfo(new CharsetRecog_IBM424_he_ltr(), FALSE),
 		new CSRecognizerInfo(new CharsetRecog_IBM420_ar_rtl(), FALSE),
@@ -116,9 +104,7 @@ static void U_CALLCONV initRecognizers(UErrorCode & status) {
 #endif
 	};
 	int32_t rCount = UPRV_LENGTHOF(tempArray);
-
 	fCSRecognizers = NEW_ARRAY(CSRecognizerInfo *, rCount);
-
 	if(fCSRecognizers == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
@@ -142,31 +128,23 @@ void CharsetDetector::setRecognizers(UErrorCode & status)
 	umtx_initOnce(gCSRecognizersInitOnce, &initRecognizers, status);
 }
 
-CharsetDetector::CharsetDetector(UErrorCode & status)
-	: textIn(new InputText(status)), resultArray(NULL),
-	resultCount(0), fStripTags(FALSE), fFreshTextSet(FALSE),
-	fEnabledRecognizers(NULL)
+CharsetDetector::CharsetDetector(UErrorCode & status) : textIn(new InputText(status)), resultArray(NULL),
+	resultCount(0), fStripTags(FALSE), fFreshTextSet(FALSE), fEnabledRecognizers(NULL)
 {
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	setRecognizers(status);
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	resultArray = (CharsetMatch**)uprv_malloc(sizeof(CharsetMatch *)*fCSRecognizers_size);
-
 	if(resultArray == NULL) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return;
 	}
-
 	for(int32_t i = 0; i < fCSRecognizers_size; i += 1) {
 		resultArray[i] = new CharsetMatch();
-
 		if(resultArray[i] == NULL) {
 			status = U_MEMORY_ALLOCATION_ERROR;
 			break;
@@ -213,18 +191,14 @@ void CharsetDetector::setDeclaredEncoding(const char * encoding, int32_t len) co
 int32_t CharsetDetector::getDetectableCount()
 {
 	UErrorCode status = U_ZERO_ERROR;
-
 	setRecognizers(status);
-
 	return fCSRecognizers_size;
 }
 
 const CharsetMatch * CharsetDetector::detect(UErrorCode & status)
 {
 	int32_t maxMatchesFound = 0;
-
 	detectAll(maxMatchesFound, status);
-
 	if(maxMatchesFound > 0) {
 		return resultArray[0];
 	}
@@ -237,15 +211,12 @@ const CharsetMatch * const * CharsetDetector::detectAll(int32_t &maxMatchesFound
 {
 	if(!textIn->isSet()) {
 		status = U_MISSING_RESOURCE_ERROR;// TODO:  Need to set proper status code for input text not set
-
 		return NULL;
 	}
 	else if(fFreshTextSet) {
 		CharsetRecognizer * csr;
 		int32_t i;
-
 		textIn->MungeInput(fStripTags);
-
 		// Iterate over all possible charsets, remember all that
 		// give a match quality > 0.
 		resultCount = 0;
@@ -255,15 +226,12 @@ const CharsetMatch * const * CharsetDetector::detectAll(int32_t &maxMatchesFound
 				resultCount++;
 			}
 		}
-
 		if(resultCount > 1) {
 			uprv_sortArray(resultArray, resultCount, sizeof resultArray[0], charsetMatchComparator, NULL, TRUE, &status);
 		}
 		fFreshTextSet = FALSE;
 	}
-
 	maxMatchesFound = resultCount;
-
 	return resultArray;
 }
 
@@ -272,7 +240,6 @@ void CharsetDetector::setDetectableCharset(const char * encoding, bool enabled, 
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	int32_t modIdx = -1;
 	bool isDefaultVal = FALSE;
 	for(int32_t i = 0; i < fCSRecognizers_size; i++) {
@@ -288,7 +255,6 @@ void CharsetDetector::setDetectableCharset(const char * encoding, bool enabled, 
 		status = U_ILLEGAL_ARGUMENT_ERROR;
 		return;
 	}
-
 	if(fEnabledRecognizers == NULL && !isDefaultVal) {
 		// Create an array storing the non default setting
 		fEnabledRecognizers = NEW_ARRAY(bool, fCSRecognizers_size);
@@ -301,8 +267,7 @@ void CharsetDetector::setDetectableCharset(const char * encoding, bool enabled, 
 			fEnabledRecognizers[i] = fCSRecognizers[i]->isDefaultEnabled;
 		}
 	}
-
-	if(fEnabledRecognizers != NULL) {
+	if(fEnabledRecognizers) {
 		fEnabledRecognizers[modIdx] = enabled;
 	}
 }
@@ -327,20 +292,20 @@ typedef struct {
 	bool * enabledRecognizers;
 } Context;
 
-static void U_CALLCONV enumClose(UEnumeration * en) {
-	if(en->context != NULL) {
+static void U_CALLCONV enumClose(UEnumeration * en) 
+{
+	if(en->context) {
 		DELETE_ARRAY(en->context);
 	}
-
 	DELETE_ARRAY(en);
 }
 
-static int32_t U_CALLCONV enumCount(UEnumeration * en, UErrorCode *) {
+static int32_t U_CALLCONV enumCount(UEnumeration * en, UErrorCode *) 
+{
 	if(((Context*)en->context)->all) {
 		// ucsdet_getAllDetectableCharsets, all charset detector names
 		return fCSRecognizers_size;
 	}
-
 	// Otherwise, ucsdet_getDetectableCharsets - only enabled ones
 	int32_t count = 0;
 	bool * enabledArray = ((Context*)en->context)->enabledRecognizers;
@@ -363,9 +328,9 @@ static int32_t U_CALLCONV enumCount(UEnumeration * en, UErrorCode *) {
 	return count;
 }
 
-static const char * U_CALLCONV enumNext(UEnumeration * en, int32_t * resultLength, UErrorCode * /*status*/) {
+static const char * U_CALLCONV enumNext(UEnumeration * en, int32_t * resultLength, UErrorCode * /*status*/) 
+{
 	const char * currName = NULL;
-
 	if(((Context*)en->context)->currIndex < fCSRecognizers_size) {
 		if(((Context*)en->context)->all) {
 			// ucsdet_getAllDetectableCharsets, all charset detector names
@@ -395,15 +360,12 @@ static const char * U_CALLCONV enumNext(UEnumeration * en, int32_t * resultLengt
 			}
 		}
 	}
-
-	if(resultLength != NULL) {
-		*resultLength = currName == NULL ? 0 : (int32_t)uprv_strlen(currName);
-	}
-
+	ASSIGN_PTR(resultLength, sstrleni(currName));
 	return currName;
 }
 
-static void U_CALLCONV enumReset(UEnumeration * en, UErrorCode *) {
+static void U_CALLCONV enumReset(UEnumeration * en, UErrorCode *) 
+{
 	((Context*)en->context)->currIndex = 0;
 }
 

@@ -104,7 +104,7 @@ public:
   * Assumes that the currently known fields are sorted
   * and all in the same category.
      */
-    void addOverlapSpans(UFieldCategory spanCategory, int8_t firstIndex, UErrorCode & status);
+    void addOverlapSpans(UFieldCategory spanCategory, int8 firstIndex, UErrorCode & status);
 
     /**
   * Sorts the fields: start index first, length second.

@@ -28,7 +28,7 @@
 
 #include "unicode/utypes.h"
 
-#define LANGUAGE_LCID(hostID) (uint16_t)(0x03FF & hostID)
+#define LANGUAGE_LCID(hostID) (uint16)(0x03FF & hostID)
 
 U_CAPI int32_t uprv_convertToPosix(uint32_t hostid, char * posixID, int32_t posixIDCapacity, UErrorCode * status);
 

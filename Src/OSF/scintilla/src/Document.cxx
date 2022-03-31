@@ -2639,7 +2639,7 @@ public:
 	{
 		return doc == other.doc && position == other.position;
 	}
-	bool operator!=(const ByteIterator &other) const
+	bool operator != (const ByteIterator &other) const
 	{
 		return doc != other.doc || position != other.position;
 	}
@@ -2758,7 +2758,7 @@ public:
 		// Only test the determining fields, not the character widths and values derived from this
 		return doc == other.doc && position == other.position && characterIndex == other.characterIndex;
 	}
-	bool operator!=(const UTF8Iterator &other) const
+	bool operator != (const UTF8Iterator &other) const
 	{
 		// Only test the determining fields, not the character widths and values derived from this
 		return doc != other.doc || position != other.position || characterIndex != other.characterIndex;
@@ -2835,7 +2835,7 @@ public:
 	{
 		return doc == other.doc && position == other.position;
 	}
-	bool operator!=(const UTF8Iterator &other) const
+	bool operator != (const UTF8Iterator &other) const
 	{
 		return doc != other.doc || position != other.position;
 	}

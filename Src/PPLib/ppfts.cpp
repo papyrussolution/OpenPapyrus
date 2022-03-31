@@ -8,6 +8,8 @@
 #include <pp.h>
 #pragma hdrstop
 
+static const long FtsDatabaseLockTimeout = 500;
+
 bool PPFtsIterface::TransactionHandle::operator !() const { return !H; }
 
 PPFtsIterface::Entity::Entity() : Scope(scopeUndef), ObjType(0), ObjId(0)
@@ -56,7 +58,7 @@ PPFtsIterface::SearchResultEntry::SearchResultEntry() : Entity(), DocId(0), Rank
 {
 }
 
-PPFtsIterface::PPFtsIterface(bool writer) : H(writer)
+PPFtsIterface::PPFtsIterface(bool writer, long lockTimeout) : H(writer, lockTimeout)
 {
 }
 
@@ -195,17 +197,15 @@ private:
 
 /*static*/ReadWriteLock PPFtsDatabase::RwL;
 
-static const long FtsDatabaseLockTimeout = 500;
-
-PPFtsIterface::Ptr::Ptr(bool writer) : P(0), Writer(writer)
+PPFtsIterface::Ptr::Ptr(bool writer, long lockTimeout) : P(0), Writer(writer), LockTimeout((lockTimeout > 0) ? lockTimeout : FtsDatabaseLockTimeout)
 {
 	if(Writer) {
-		if(PPFtsDatabase::RwL.WriteLockT_(FtsDatabaseLockTimeout) > 0) {
+		if(PPFtsDatabase::RwL.WriteLockT_(LockTimeout) > 0) {
 			P = new PPFtsDatabase(true);
 		}
 	}
 	else {
-		if(PPFtsDatabase::RwL.ReadLockT_(FtsDatabaseLockTimeout) > 0) {
+		if(PPFtsDatabase::RwL.ReadLockT_(LockTimeout) > 0) {
 			P = new PPFtsDatabase(false);
 		}
 	}
@@ -538,7 +538,7 @@ int PPFtsDatabase::SearchEntityKey(uint64 key, PPFtsIterface::Entity & rEnt, uin
 			{
 				SBinaryChunk ssi_buf;
 				int r = p_domain_rev_t->Get(&ssi_db_id, sizeof(ssi_db_id), ssi_buf);
-				THROW(r > 0); // Если доменный идентификатор не найден, то это - сбойная ситуация.
+				THROW_SL(r > 0); // Если доменный идентификатор не найден, то это - сбойная ситуация.
 				THROW(rEnt.SetSurrogateScopeIdent(ssi_buf));
 			}
 		}
@@ -573,7 +573,7 @@ int PPFtsDatabase::GetEntityKey(PPFtsIterface::Entity & rEnt, uint64 * pSurrogat
 		{
 			SBaseBuffer _id_buf;
 			int gr = p_domain_t->Get(ssi.PtrC(), ssi.Len(), _id_buf);
-			THROW(gr);
+			THROW_SL(gr);
 			if(gr > 0) {
 				assert(_id_buf.P_Buf);
 				assert(_id_buf.Size > 0);
@@ -583,7 +583,7 @@ int PPFtsDatabase::GetEntityKey(PPFtsIterface::Entity & rEnt, uint64 * pSurrogat
 			else {
 				SBaseBuffer _try_id_buf;
 				LmdbDatabase::Stat tstat;
-				THROW(p_domain_t->GetStat(tstat));
+				THROW_SL(p_domain_t->GetStat(tstat));
 				ssi_db_id = tstat.EntryCount;
 				int gr2 = 0;
 				do {
@@ -591,8 +591,8 @@ int PPFtsDatabase::GetEntityKey(PPFtsIterface::Entity & rEnt, uint64 * pSurrogat
 					gr2 = p_domain_rev_t->Get(&ssi_db_id, sizeof(ssi_db_id), _try_id_buf);
 					THROW(gr2);
 				} while(gr2 > 0);
-				THROW(p_domain_t->Put(ssi.PtrC(), ssi.Len(), &ssi_db_id, sizeof(ssi_db_id), 0));
-				THROW(p_domain_rev_t->Put(&ssi_db_id, sizeof(ssi_db_id), ssi.PtrC(), ssi.Len(), 0));
+				THROW_SL(p_domain_t->Put(ssi.PtrC(), ssi.Len(), &ssi_db_id, sizeof(ssi_db_id), 0));
+				THROW_SL(p_domain_rev_t->Put(&ssi_db_id, sizeof(ssi_db_id), ssi.PtrC(), ssi.Len(), 0));
 			}
 			THROW(ssi_db_id);
 		}
@@ -642,8 +642,8 @@ int PPFtsDatabase::StoreEntityKey(uint64 surrogateScopeIdent, const SBuffer & rE
 		LmdbDatabase::Table * p_key_rev_t = P_CurrentTra->GetKeyRevT();
 		THROW(p_key_t);
 		THROW(p_key_rev_t);
-		THROW(p_key_t->Put(rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), &key, sizeof(key), 0));
-		THROW(p_key_rev_t->Put(&key, sizeof(key), rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), 0));
+		THROW_SL(p_key_t->Put(rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), &key, sizeof(key), 0));
+		THROW_SL(p_key_rev_t->Put(&key, sizeof(key), rEntityBuf.constptr(), rEntityBuf.GetAvailableSize(), 0));
 	}
 	CATCHZOK
 	return ok;
@@ -780,26 +780,26 @@ static int Test_Fts2()
 	THROW(p_dict);
 	{
 		{
-			PPFtsIterface db1(true/*forUpdate*/);
+			PPFtsIterface db1(true/*forUpdate*/, 0/*default*/);
 			assert(!!db1);
-			PPFtsIterface db2(true/*forUpdate*/);
+			PPFtsIterface db2(true/*forUpdate*/, 0/*default*/);
 			assert(!db2);
-			PPFtsIterface db3(false/*forUpdate*/);
+			PPFtsIterface db3(false/*forUpdate*/, 0/*default*/);
 			assert(!db3);
 		}
 		{
-			PPFtsIterface db4(false/*forUpdate*/);
+			PPFtsIterface db4(false/*forUpdate*/, 0/*default*/);
 			assert(!!db4);
-			PPFtsIterface db5(false/*forUpdate*/);
+			PPFtsIterface db5(false/*forUpdate*/, 0/*default*/);
 			assert(!!db5);
-			PPFtsIterface db6(false/*forUpdate*/);
+			PPFtsIterface db6(false/*forUpdate*/, 0/*default*/);
 			assert(!!db6);
-			PPFtsIterface db7(true/*forUpdate*/);
+			PPFtsIterface db7(true/*forUpdate*/, 0/*default*/);
 			assert(!db7);
 		}
 	}
 	{
-		PPFtsIterface db(true/*forUpdate*/);
+		PPFtsIterface db(true/*forUpdate*/, 0/*default*/);
 		if(!!db) {
 			//SHandle tra;
 			PPObjGoods goods_obj;
@@ -924,7 +924,7 @@ static int Test_Fts2()
 		//
 		// Теперь проверяем поиск
 		//
-		PPFtsIterface db(false);
+		PPFtsIterface db(false, 0/*default*/);
 		if(!!db) {
 			word_to_doc_assoc.SortByKeyVal();
 			SymbHashTable::Iter iter;
@@ -1152,7 +1152,7 @@ int  Test_Fts()
 //
 // @stub for VC 7.1
 //
-PPFtsIterface::Ptr::Ptr(bool writer) : P(0), Writer(writer) {} // @stub
+PPFtsIterface::Ptr::Ptr(bool writer, long lockTimeout) : P(0), Writer(writer), LockTimeout((lockTimeout > 0) ? lockTimeout : FtsDatabaseLockTimeout) {} // @stub
 PPFtsIterface::Ptr::~Ptr() {} // @stub
 PPFtsIterface::TransactionHandle::TransactionHandle(PPFtsIterface & rS) : R_Ifc(rS) {} // @stub
 PPFtsIterface::TransactionHandle::~TransactionHandle() {} // @stub
@@ -1161,3 +1161,205 @@ int PPFtsIterface::Search(const char * pQueryUtf8, uint maxItems, TSCollection <
 int PPFtsIterface::TransactionHandle::Commit() { return -1; } // @stub
 
 #endif // (_MSC_VER >= 1900)
+
+#if SLTEST_RUNNING // {
+
+class TestFtsThread_Reader : public PPThread {
+public:
+	TestFtsThread_Reader(const StrAssocArray & rTestList, long lockTimeout) : PPThread(PPThread::kUnknown, "test-fts-reader", 0), TestList(rTestList), LockTimeout(lockTimeout)
+	{
+		InitStartupSignal();
+	}
+private:
+	virtual void Startup()
+	{
+		PPThread::Startup();
+		SignalStartup();
+	}
+	virtual void Run()
+	{
+		SString temp_buf;
+		{
+			SString line_buf;
+			SString name_en;
+			SString name_ru;
+			PPFtsIterface r(false, LockTimeout);
+			assert(r);
+			THROW(r);
+			for(uint j = 0; j < 20; j++) {
+				const uint id = SLS.GetTLA().Rg.GetUniformInt(TestList.getCount())+1;
+				assert(id > 0 && id <= TestList.getCount());
+				const StrAssocArray::Item item = TestList.Get(id-1);
+				bool  found = false;
+				line_buf = item.Txt;
+				assert(line_buf.NotEmpty());
+				assert(line_buf.Divide(';', name_en, name_ru) > 0);
+				name_ru.Strip();
+				name_en.Strip();
+				TSCollection <PPFtsIterface::SearchResultEntry> search_result_list;
+				int sr = r.Search(name_ru, 10, search_result_list);
+				//assert(sr > 0);
+				for(uint idx = 0; !found && idx < search_result_list.getCount(); idx++) {
+					const PPFtsIterface::SearchResultEntry * p_se = search_result_list.at(idx);
+					assert(p_se);
+					if(p_se->ObjId == id)
+						found = true;
+				}
+				//assert(found);
+			}
+		}
+		CATCH
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
+		ENDCATCH
+	}
+	const long LockTimeout;
+	const StrAssocArray TestList;
+};
+
+class TestFtsThread_Writer : public PPThread {
+public:
+	TestFtsThread_Writer(const char * pFileName, long lockTimeout) : PPThread(PPThread::kUnknown, "test-fts-writer", 0), SrcFileName(pFileName), LockTimeout(lockTimeout)
+	{
+		InitStartupSignal();
+	}
+private:
+	virtual void Startup()
+	{
+		PPThread::Startup();
+		SignalStartup();
+	}
+	virtual void Run()
+	{
+		SString temp_buf;
+		uint   line_no = 0;
+		SFile f_in(SrcFileName, SFile::mRead);
+		assert(f_in.IsValid());
+		{
+			SString line_buf;
+			SString name_en;
+			SString name_ru;
+			PPFtsIterface w(true, LockTimeout);
+			assert(w.IsWriter());
+			THROW(w.IsWriter());
+			assert(w);
+			THROW(w);
+			{
+				PPFtsIterface::TransactionHandle tra(w);
+				StringSet ss;
+				line_no = 0;
+				THROW(tra);
+				while(f_in.ReadLine(line_buf)) {
+					line_no++;
+					line_buf.Chomp().Strip();
+					if(line_buf.NotEmpty()) {
+						if(line_buf.Divide(';', name_en, name_ru) > 0) {
+							name_ru.Strip().Transf(CTRANSF_OUTER_TO_UTF8);
+							name_en.Strip().Transf(CTRANSF_OUTER_TO_UTF8);
+							PPFtsIterface::Entity ent;
+							ent.Scope = PPFtsIterface::scopeTest;
+							ent.ScopeIdent = SrcFileName;
+							ent.ObjType = PPOBJ_CITY;
+							ent.ObjId = line_no;
+							ss.Z();
+							ss.add(name_en);
+							ss.add(name_ru);
+							THROW(tra.PutEntity(ent, ss, 0));
+						}
+					}
+				}
+				THROW(tra.Commit());
+			}
+		}
+		CATCH
+			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
+		ENDCATCH
+	}
+	const long LockTimeout;
+	const SString SrcFileName;
+};
+
+SLTEST_R(PPFtsIterface)
+{
+	// D:\Papyrus\Src\PPTEST\DATA\city-enru-pair.csv 
+	int    ok = 1;
+	uint   line_no = 0;
+	SString path_in = GetSuiteEntry()->InPath;
+	SString src_file_name;
+	StrAssocArray test_list;
+	{
+		const char * p_file_name = "city-enru-pair.csv";
+		(src_file_name = path_in).SetLastSlash().Cat(p_file_name); // ANSI-codepage (windows-1251)
+		SFile f_in(src_file_name, SFile::mRead);
+		if(f_in.IsValid()) {
+			SString line_buf;
+			SString name_en;
+			SString name_ru;
+			{
+				PPFtsIterface w(true, 0/*default*/);
+				THROW(SLTEST_CHECK_NZ(w.IsWriter()));
+				THROW(SLTEST_CHECK_NZ(w));
+				{
+					PPFtsIterface::TransactionHandle tra(w);
+					StringSet ss;
+					line_no = 0;
+					THROW(SLTEST_CHECK_NZ(tra));
+					while(f_in.ReadLine(line_buf)) {
+						line_no++;
+						line_buf.Chomp().Strip();
+						if(line_buf.NotEmpty()) {
+							line_buf.Transf(CTRANSF_OUTER_TO_UTF8);
+							if(line_buf.Divide(';', name_en, name_ru) > 0) {
+								test_list.AddFast(line_no, line_buf);
+								name_ru.Strip();
+								name_en.Strip();
+								PPFtsIterface::Entity ent;
+								ent.Scope = PPFtsIterface::scopeTest;
+								ent.ScopeIdent = p_file_name;
+								ent.ObjType = PPOBJ_CITY;
+								ent.ObjId = line_no;
+								ss.Z();
+								ss.add(name_en);
+								ss.add(name_ru);
+								THROW(SLTEST_CHECK_NZ(tra.PutEntity(ent, ss, 0)));
+								if((line_no % 5000) == 0) {
+									PPFtsIterface r(false, 0/*default*/);
+									THROW(SLTEST_CHECK_Z(r));
+								}
+							}
+						}
+					}
+					THROW(SLTEST_CHECK_NZ(tra.Commit()));
+				}
+			}
+			// Нужно тестирование ReadWrite-блокировки с таймаутом
+			{
+				const uint max_thread_count = 40;
+				uint   tc = 0;
+				HANDLE thread_list[128];
+				MEMSZERO(thread_list);
+				for(uint i = 0; i < max_thread_count; i++) {
+					if((i % 8) == 0) {
+						TestFtsThread_Writer * p_writer = new TestFtsThread_Writer(src_file_name, 60000);
+						assert(p_writer);
+						p_writer->Start(1);
+						thread_list[tc++] = *p_writer;
+					}
+					else {
+						TestFtsThread_Reader * p_reader = new TestFtsThread_Reader(test_list, 60000);
+						assert(p_reader);
+						p_reader->Start(1);
+						thread_list[tc++] = *p_reader;
+					}
+				}
+				WaitForMultipleObjects(tc, thread_list, TRUE, INFINITE);
+			}
+		}
+	}
+	CATCH
+		PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME);
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+#endif 

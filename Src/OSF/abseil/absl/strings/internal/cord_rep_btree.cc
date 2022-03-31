@@ -6,12 +6,6 @@
 //
 //     https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/cord_rep_btree.h"
@@ -41,7 +35,7 @@ inline bool exhaustive_validation() {
 // Prints the entire tree structure or 'rep'. External callers should
 // not specify 'depth' and leave it to its default (0) value.
 // Rep may be a CordRepBtree tree, or a SUBSTRING / EXTERNAL / FLAT node.
-void DumpAll(const CordRep* rep, bool include_contents, std::ostream& stream, int depth = 0) 
+void DumpAll(const CordRep* rep, bool include_contents, std::ostream & stream, int depth = 0) 
 {
 	// Allow for full height trees + substring -> flat / external nodes.
 	assert(depth <= CordRepBtree::kMaxDepth + 2);
@@ -349,7 +343,7 @@ struct StackOperations {
 }  // namespace
 
 void CordRepBtree::Dump(const CordRep* rep, absl::string_view label,
-    bool include_contents, std::ostream& stream) {
+    bool include_contents, std::ostream & stream) {
 	stream << "===================================\n";
 	if(!label.empty()) {
 		stream << label << '\n';
@@ -364,11 +358,11 @@ void CordRepBtree::Dump(const CordRep* rep, absl::string_view label,
 }
 
 void CordRepBtree::Dump(const CordRep* rep, absl::string_view label,
-    std::ostream& stream) {
+    std::ostream & stream) {
 	Dump(rep, label, false, stream);
 }
 
-void CordRepBtree::Dump(const CordRep* rep, std::ostream& stream) {
+void CordRepBtree::Dump(const CordRep* rep, std::ostream & stream) {
 	Dump(rep, absl::string_view(), false, stream);
 }
 

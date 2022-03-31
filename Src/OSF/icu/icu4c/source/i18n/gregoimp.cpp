@@ -76,11 +76,11 @@ double ClockMath::floorDivide(double dividend, double divisor,
 const int32_t JULIAN_1_CE    = 1721426; // January 1, 1 CE Gregorian
 const int32_t JULIAN_1970_CE = 2440588; // January 1, 1970 CE Gregorian
 
-const int16_t Grego::DAYS_BEFORE[24] =
+const int16 Grego::DAYS_BEFORE[24] =
 {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334,
  0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335};
 
-const int8_t Grego::MONTH_LENGTH[24] =
+const int8 Grego::MONTH_LENGTH[24] =
 {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31,
  31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 

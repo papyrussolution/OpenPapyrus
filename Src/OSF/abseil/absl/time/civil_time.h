@@ -1,3 +1,4 @@
+// civil_time.h
 // Copyright 2018 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: civil_time.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines abstractions for computing with "civil time".
 // The term "civil time" refers to the legally recognized human-scale time
@@ -507,12 +498,12 @@ namespace time_internal {  // For functions found via ADL on civil-time tags.
 //   absl::CivilDay d = absl::CivilDay(1969, 7, 20);
 //   std::cout << "Date is: " << d << "\n";
 //
-std::ostream& operator<<(std::ostream& os, CivilYear y);
-std::ostream& operator<<(std::ostream& os, CivilMonth m);
-std::ostream& operator<<(std::ostream& os, CivilDay d);
-std::ostream& operator<<(std::ostream& os, CivilHour h);
-std::ostream& operator<<(std::ostream& os, CivilMinute m);
-std::ostream& operator<<(std::ostream& os, CivilSecond s);
+std::ostream & operator<<(std::ostream & os, CivilYear y);
+std::ostream & operator<<(std::ostream & os, CivilMonth m);
+std::ostream & operator<<(std::ostream & os, CivilDay d);
+std::ostream & operator<<(std::ostream & os, CivilHour h);
+std::ostream & operator<<(std::ostream & os, CivilMinute m);
+std::ostream & operator<<(std::ostream & os, CivilSecond s);
 }  // namespace time_internal
 
 ABSL_NAMESPACE_END

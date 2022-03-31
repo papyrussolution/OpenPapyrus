@@ -85,8 +85,8 @@ struct CharacterNode {
 
 	void   * fValues; // Union of one single value vs. UVector of values.
 	UChar fCharacter;   // UTF-16 code unit.
-	uint16_t fFirstChild; // 0 if no children.
-	uint16_t fNextSibling; // 0 terminates the list.
+	uint16 fFirstChild; // 0 if no children.
+	uint16 fNextSibling; // 0 terminates the list.
 	bool fHasValuesVector;
 	bool fPadding;
 

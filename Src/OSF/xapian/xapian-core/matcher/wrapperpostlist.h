@@ -25,7 +25,7 @@
  */
 class WrapperPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const WrapperPostList&) = delete;
+    void operator = (const WrapperPostList&) = delete;
 
     /// Don't allow copying.
     WrapperPostList(const WrapperPostList&) = delete;

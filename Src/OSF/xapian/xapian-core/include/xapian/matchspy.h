@@ -47,7 +47,7 @@ class Registry;
 class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public Xapian::Internal::opt_intrusive_base {
 private:
 	/// Don't allow assignment.
-	void operator=(const MatchSpy &) = delete;
+	void operator = (const MatchSpy &) = delete;
 	/// Don't allow copying.
 	MatchSpy(const MatchSpy &) = delete;
 public:

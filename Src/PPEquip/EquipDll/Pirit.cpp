@@ -2626,6 +2626,7 @@ int PiritEquip::RunCheck(int opertype)
 						6	Не используется
 						7	Не используется
 					*/
+					text_attr = 0x01; // @v11.3.6 
 					if(oneof2(Check.FontSize, 1, 2))
 						text_attr = 0x01; // Шрифт 13х24, 44 символа в строке
 					else if(Check.FontSize == 3)
@@ -2657,7 +2658,7 @@ int PiritEquip::RunCheck(int opertype)
 				}
 				else if(oneof2(hb1, 2, 3) || (gcf_result < 3)) { // Текстовая строка для чека
 					in_data.Z();
-					text_attr = 0;
+					text_attr = 0x01; // @v11.3.6 0-->0x01
 					CreateStr(0, in_data);
 					if(oneof2(Check.FontSize, 1, 2))
 						text_attr = 0x01;

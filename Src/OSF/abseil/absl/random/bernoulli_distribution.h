@@ -28,8 +28,8 @@ public:
 		using distribution_type = bernoulli_distribution;
 		explicit param_type(double p = 0.5) : prob_(p) { assert(p >= 0.0 && p <= 1.0); }
 		double p() const { return prob_; }
-		friend bool operator==(const param_type& p1, const param_type& p2) { return p1.p() == p2.p(); }
-		friend bool operator!=(const param_type& p1, const param_type& p2) { return p1.p() != p2.p(); }
+		friend bool operator == (const param_type& p1, const param_type& p2) { return p1.p() == p2.p(); }
+		friend bool operator != (const param_type& p1, const param_type& p2) { return p1.p() != p2.p(); }
 private:
 		double prob_;
 	};
@@ -55,8 +55,8 @@ private:
 	double p() const { return param_.p(); }
 	result_type(min)() const { return false; }
 	result_type(max)() const { return true; }
-	friend bool operator==(const bernoulli_distribution& d1, const bernoulli_distribution& d2) { return d1.param_ == d2.param_; }
-	friend bool operator!=(const bernoulli_distribution& d1, const bernoulli_distribution& d2) { return d1.param_ != d2.param_; }
+	friend bool operator == (const bernoulli_distribution& d1, const bernoulli_distribution& d2) { return d1.param_ == d2.param_; }
+	friend bool operator != (const bernoulli_distribution& d1, const bernoulli_distribution& d2) { return d1.param_ != d2.param_; }
 private:
 	static constexpr uint64_t kP32 = static_cast<uint64_t>(1) << 32;
 	template <typename URBG> static bool Generate(double p, URBG& g); // NOLINT(runtime/references)

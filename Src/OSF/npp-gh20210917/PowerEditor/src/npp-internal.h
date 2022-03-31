@@ -669,7 +669,7 @@ public:
 		return (sstreq(a.getMenuName(), b.getMenuName()) && (a._keyCombo._isCtrl == b._keyCombo._isCtrl) &&
 		       (a._keyCombo._isAlt == b._keyCombo._isAlt) && (a._keyCombo._isShift == b._keyCombo._isShift) && (a._keyCombo._key == b._keyCombo._key));
 	}
-	friend inline const bool operator!=(const Shortcut & a, const Shortcut & b) { return !(a == b); }
+	friend inline const bool operator != (const Shortcut & a, const Shortcut & b) { return !(a == b); }
 	virtual INT_PTR doDialog();
 	// valid should only be used in cases where the shortcut isEnabled().
 	virtual bool isValid() const;
@@ -755,7 +755,7 @@ public:
 		}
 		return equal;
 	}
-	friend inline const bool operator!=(const ScintillaKeyMap & a, const ScintillaKeyMap & b) { return !(a == b); }
+	friend inline const bool operator != (const ScintillaKeyMap & a, const ScintillaKeyMap & b) { return !(a == b); }
 private:
 	ulong _scintillaKeyID;
 	int _menuCmdID;

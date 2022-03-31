@@ -389,7 +389,7 @@ bool FCDUTF16CollationIterator::nextSegment(UErrorCode & errorCode) {
 	for(;;) {
 		// Fetch the next character's fcd16 value.
 		const UChar * q = p;
-		uint16_t fcd16 = nfcImpl.nextFCD16(p, rawLimit);
+		uint16 fcd16 = nfcImpl.nextFCD16(p, rawLimit);
 		uint8 leadCC = (uint8)(fcd16 >> 8);
 		if(leadCC == 0 && q != pos) {
 			// FCD boundary before the [q, p[ character.
@@ -458,7 +458,7 @@ bool FCDUTF16CollationIterator::previousSegment(UErrorCode & errorCode) {
 	for(;;) {
 		// Fetch the previous character's fcd16 value.
 		const UChar * q = p;
-		uint16_t fcd16 = nfcImpl.previousFCD16(rawStart, p);
+		uint16 fcd16 = nfcImpl.previousFCD16(rawStart, p);
 		uint8 trailCC = (uint8)fcd16;
 		if(trailCC == 0 && q != pos) {
 			// FCD boundary after the [p, q[ character.

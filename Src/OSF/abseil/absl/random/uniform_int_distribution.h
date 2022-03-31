@@ -1,3 +1,4 @@
+// uniform_int_distribution.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: uniform_int_distribution.h
-// -----------------------------------------------------------------------------
 //
 // This header defines a class for representing a uniform integer distribution
 // over the closed (inclusive) interval [a,b]. You use this distribution in
@@ -32,7 +23,6 @@
 #include <istream>
 #include <limits>
 #include <type_traits>
-
 #include "absl/base/optimization.h"
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/iostream_state_saver.h"
@@ -84,11 +74,11 @@ public:
 			return static_cast<result_type>(static_cast<unsigned_type>(lo_) + range_);
 		}
 
-		friend bool operator==(const param_type& a, const param_type& b) {
+		friend bool operator == (const param_type& a, const param_type& b) {
 			return a.lo_ == b.lo_ && a.range_ == b.range_;
 		}
 
-		friend bool operator!=(const param_type& a, const param_type& b) {
+		friend bool operator != (const param_type& a, const param_type& b) {
 			return !(a == b);
 		}
 
@@ -155,12 +145,12 @@ private:
 	result_type(min)() const { return a(); }
 	result_type(max)() const { return b(); }
 
-	friend bool operator==(const uniform_int_distribution& a,
+	friend bool operator == (const uniform_int_distribution& a,
 	    const uniform_int_distribution& b) {
 		return a.param_ == b.param_;
 	}
 
-	friend bool operator!=(const uniform_int_distribution& a,
+	friend bool operator != (const uniform_int_distribution& a,
 	    const uniform_int_distribution& b) {
 		return !(a == b);
 	}

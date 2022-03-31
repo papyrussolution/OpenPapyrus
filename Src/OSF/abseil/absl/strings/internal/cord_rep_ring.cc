@@ -56,7 +56,7 @@ void UnrefEntries(const CordRepRing* rep, index_type head, index_type tail) {
 }
 }  // namespace
 
-std::ostream& operator<<(std::ostream& s, const CordRepRing& rep) {
+std::ostream & operator<<(std::ostream & s, const CordRepRing& rep) {
 	// Note: 'pos' values are defined as size_t (for overflow reasons), but that
 	// prints really awkward for small prepended values such as -5. ssize_t is not
 	// portable (POSIX), so we use ptrdiff_t instead to cast to signed values.
@@ -115,7 +115,7 @@ private:
 
 constexpr size_t CordRepRing::kMaxCapacity; // NOLINT: needed for c++11
 
-bool CordRepRing::IsValid(std::ostream& output) const {
+bool CordRepRing::IsValid(std::ostream & output) const {
 	if(capacity_ == 0) {
 		output << "capacity == 0";
 		return false;

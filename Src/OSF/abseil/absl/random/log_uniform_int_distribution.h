@@ -6,12 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_RANDOM_LOG_UNIFORM_INT_DISTRIBUTION_H_
 #define ABSL_RANDOM_LOG_UNIFORM_INT_DISTRIBUTION_H_
 
@@ -22,7 +16,6 @@
 #include <limits>
 #include <ostream>
 #include <type_traits>
-
 #include "absl/numeric/bits.h"
 #include "absl/random/internal/fastmath.h"
 #include "absl/random/internal/generate_real.h"
@@ -91,11 +84,11 @@ class log_uniform_int_distribution {
     result_type(max)() const { return max_; }
     result_type base() const { return base_; }
 
-    friend bool operator==(const param_type& a, const param_type& b) {
+    friend bool operator == (const param_type& a, const param_type& b) {
       return a.min_ == b.min_ && a.max_ == b.max_ && a.base_ == b.base_;
     }
 
-    friend bool operator!=(const param_type& a, const param_type& b) {
+    friend bool operator != (const param_type& a, const param_type& b) {
       return !(a == b);
     }
 
@@ -147,11 +140,11 @@ class log_uniform_int_distribution {
   param_type param() const { return param_; }
   void param(const param_type& p) { param_ = p; }
 
-  friend bool operator==(const log_uniform_int_distribution& a,
+  friend bool operator == (const log_uniform_int_distribution& a,
                          const log_uniform_int_distribution& b) {
     return a.param_ == b.param_;
   }
-  friend bool operator!=(const log_uniform_int_distribution& a,
+  friend bool operator != (const log_uniform_int_distribution& a,
                          const log_uniform_int_distribution& b) {
     return a.param_ != b.param_;
   }

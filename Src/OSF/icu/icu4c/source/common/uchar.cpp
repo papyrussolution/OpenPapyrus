@@ -32,10 +32,10 @@
 /* API functions ------------------------------------------------------------ */
 
 /* Gets the Unicode character's general category.*/
-U_CAPI int8_t U_EXPORT2 u_charType(UChar32 c) {
+U_CAPI int8 U_EXPORT2 u_charType(UChar32 c) {
 	uint32_t props;
 	GET_PROPS(c, props);
-	return (int8_t)GET_CATEGORY(props);
+	return (int8)GET_CATEGORY(props);
 }
 
 /* Enumerate all code points with their general categories. */
@@ -436,33 +436,33 @@ U_CAPI double U_EXPORT2 u_getNumericValue(UChar32 c) {
 	}
 }
 
-U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8_t radix) {
-	int8_t value;
+U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8 radix) {
+	int8 value;
 	if((uint8)(radix-2)<=(36-2)) {
-		value = (int8_t)u_charDigitValue(ch);
+		value = (int8)u_charDigitValue(ch);
 		if(value<0) {
 			/* ch is not a decimal digit, try latin letters */
 			if(ch>=0x61 && ch<=0x7A) {
-				value = (int8_t)(ch-0x57); /* ch - 'a' + 10 */
+				value = (int8)(ch-0x57); /* ch - 'a' + 10 */
 			}
 			else if(ch>=0x41 && ch<=0x5A) {
-				value = (int8_t)(ch-0x37); /* ch - 'A' + 10 */
+				value = (int8)(ch-0x37); /* ch - 'A' + 10 */
 			}
 			else if(ch>=0xFF41 && ch<=0xFF5A) {
-				value = (int8_t)(ch-0xFF37); /* fullwidth ASCII a-z */
+				value = (int8)(ch-0xFF37); /* fullwidth ASCII a-z */
 			}
 			else if(ch>=0xFF21 && ch<=0xFF3A) {
-				value = (int8_t)(ch-0xFF17); /* fullwidth ASCII A-Z */
+				value = (int8)(ch-0xFF17); /* fullwidth ASCII A-Z */
 			}
 		}
 	}
 	else {
 		value = -1; /* invalid radix */
 	}
-	return (int8_t)((value<radix) ? value : -1);
+	return (int8)((value<radix) ? value : -1);
 }
 
-U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8_t radix) {
+U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8 radix) {
 	if((uint8)(radix-2)>(36-2) || (uint32_t)digit>=(uint32_t)radix) {
 		return 0;
 	}
@@ -494,7 +494,7 @@ U_CFUNC uint32_t u_getUnicodeProperties(UChar32 c, int32_t column) {
 		return 0;
 	}
 	else {
-		uint16_t vecIndex = UTRIE2_GET16(&propsVectorsTrie, c);
+		uint16 vecIndex = UTRIE2_GET16(&propsVectorsTrie, c);
 		return propsVectors[vecIndex+column];
 	}
 }
@@ -550,7 +550,7 @@ U_CAPI bool U_EXPORT2 uscript_hasScript(UChar32 c, UScriptCode sc) {
 		return sc==(UScriptCode)codeOrIndex;
 	}
 
-	const uint16_t * scx = scriptExtensions+codeOrIndex;
+	const uint16 * scx = scriptExtensions+codeOrIndex;
 	if(scriptX>=UPROPS_SCRIPT_X_WITH_OTHER) {
 		scx = scriptExtensions+scx[1];
 	}
@@ -587,12 +587,12 @@ U_CAPI int32_t U_EXPORT2 uscript_getScriptExtensions(UChar32 c,
 		return 1;
 	}
 
-	const uint16_t * scx = scriptExtensions+codeOrIndex;
+	const uint16 * scx = scriptExtensions+codeOrIndex;
 	if(scriptX>=UPROPS_SCRIPT_X_WITH_OTHER) {
 		scx = scriptExtensions+scx[1];
 	}
 	int32_t length = 0;
-	uint16_t sx;
+	uint16 sx;
 	do {
 		sx = *scx++;
 		if(length<capacity) {

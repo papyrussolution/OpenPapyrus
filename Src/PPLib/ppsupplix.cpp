@@ -2470,7 +2470,7 @@ int PPSupplExchange_Baltika::Import(const char * pPath)
 					StringSet ss3("</f>");
 					ss3.setBuf(buf, buf.Len() + 1);
 					ss3.get(&p, buf);
-					if(buf.Len() && buf.CmpPrefix("</r>", 1) != 0) {
+					if(buf.Len() && !buf.HasPrefixIAscii("</r>")) {
 						buf.Transf(CTRANSF_UTF8_TO_INNER);
 						if(m == 1)
 							buf.CopyTo(gitem.Barcode, sizeof(gitem.Barcode));
@@ -2530,6 +2530,7 @@ public:
 	int    SendInvoices();
 	int    SendDebts();
 	int    SendStatus(const TSCollection <iSalesTransferStatus> & rList);
+	int    GetOrderFilesFromMailServer(PPID mailAccID, const char * pDestPath, int deleMsg);
 private:
 	int    PreprocessResult(const void * pResult, const PPSoapClientSession & rSess);
 	void   FASTCALL DestroyResult(void ** ppResult);
@@ -3249,6 +3250,61 @@ int iSalesPepsi::ReceiveVDocs()
 	}
 	DestroyResult(reinterpret_cast<void **>(&p_result));
     CATCHZOK
+	return ok;
+}
+
+int iSalesPepsi::GetOrderFilesFromMailServer(PPID mailAccID, const char * pDestPath, int deleMsg)
+{
+	int    ok = 1;
+	SString temp_buf;
+	SString eq_buf;
+	SString enc_buf;
+	PPID   mail_acc_id = mailAccID;
+	PPObjInternetAccount mac_obj;
+	PPInternetAccount mac_rec;
+	if(mail_acc_id == 0) {
+		PPAlbatrossConfig cfg;
+		THROW(PPAlbatrosCfgMngr::Get(&cfg) > 0);
+		mail_acc_id = cfg.Hdr.MailAccID;
+	}
+	THROW_PP(mail_acc_id, PPERR_UNDEFMAILACC);
+	THROW_PP(mac_obj.Get(mail_acc_id, &mac_rec) > 0, PPERR_UNDEFMAILACC);
+	PPWaitStart();
+	{
+		InetUrl url;
+		SUniformFileTransmParam uftp;
+		uftp.DestPath = pDestPath;
+		{
+			mac_rec.GetExtField(MAEXSTR_RCVSERVER, temp_buf);
+			url.SetComponent(url.cHost, temp_buf);
+			url.SetProtocol((mac_rec.Flags & mac_rec.fUseSSL) ? InetUrl::protPOP3S : InetUrl::protPOP3);
+			int    port = mac_rec.GetRcvPort();
+			if(port)
+				url.SetPort_(port);
+			mac_rec.GetExtField(MAEXSTR_RCVNAME, temp_buf);
+			enc_buf.EncodeUrl(temp_buf, 0);
+			url.SetComponent(url.cUserName, enc_buf);
+			{
+				char pw[128];
+				mac_rec.GetPassword(pw, sizeof(pw), MAEXSTR_RCVPASSWORD);
+				enc_buf.EncodeUrl(temp_buf = pw, 0);
+				url.SetComponent(url.cPassword, enc_buf);
+				memzero(pw, sizeof(pw));
+				enc_buf.Obfuscate();
+				temp_buf.Obfuscate();
+			}
+		}
+		url.SetQueryParam("wildcard", "*.csv");
+		url.Composite(0, temp_buf);
+		uftp.SrcPath = temp_buf;
+		if(deleMsg)
+			uftp.Flags |= uftp.fDeleteAfter;
+		uftp.Pop3TopMaxLines = 200;
+		THROW_SL(uftp.Run(/*GetFilesFromMailServerProgressProc*/0, 0));
+		temp_buf = uftp.Reply;
+	}
+	CATCHZOK
+	PPWaitStop();
 	return ok;
 }
 
@@ -7412,6 +7468,51 @@ int PrcssrSupplInterchange::Run()
 				// } @v10.8.12 
 				if(!cli.ReceiveOrders())
 					logger.LogLastError();
+				// @v11.3.6 {
+				{
+					//
+					// Аварийный канал передачи заказов: почтовые сообщения //
+					//
+					PPObjTag tag_obj;
+					PPObjectTag tag_rec;
+					const PPID suppl_psn_id = ObjectToPerson(r_eb.P.SupplID, 0);
+					if(suppl_psn_id && tag_obj.SearchBySymb("WBD-ORD-EMAILACC", 0, &tag_rec) > 0 && tag_rec.TagDataType == OTTYP_OBJLINK && tag_rec.TagEnumID == PPOBJ_INTERNETACCOUNT) {
+						ObjTagItem tag_item;
+						if(PPRef->Ot.GetTag(PPOBJ_PERSON, suppl_psn_id, tag_rec.ID, &tag_item) > 0) {
+							const PPID email_acc_id = tag_item.Val.IntVal;
+							if(email_acc_id) {
+								PPObjInternetAccount inetacc_obj;
+								PPInternetAccount2 inetacc_pack;
+								if(inetacc_obj.Get(email_acc_id, &inetacc_pack) > 0 && !(inetacc_pack.Flags & PPInternetAccount2::fFtpAccount)) {
+									PPGetPath(PPPATH_IN, temp_buf);
+									if(temp_buf.NotEmpty()) {
+										temp_buf.SetLastSlash().Cat("wbd-ord-email");
+										const SString src_path(temp_buf);
+										if(createDir(src_path)) {
+											cli.GetOrderFilesFromMailServer(inetacc_pack.ID, src_path, 0/*deleMsg*/);
+											(temp_buf = src_path).SetLastSlash().Cat("*.csv");
+											SDirEntry sde;
+											for(SDirec sd(temp_buf); sd.Next(&sde) > 0;) {
+												(temp_buf = src_path).SetLastSlash().Cat(sde.FileName);
+												SFile f_in(temp_buf, SFile::mRead|SFile::mBinary);
+												STempBuffer in_buf(SMEGABYTE(1));
+												if(f_in.IsValid()) {
+													size_t actual_size = 0;
+													if(f_in.ReadAll(in_buf, 0, &actual_size)) {
+														const SUnicodeMode um = SDetermineUtfEncoding(in_buf, actual_size);
+														const size_t bom_size = SGetUnicodeModeBomSize(um);
+														cli.ReceiveOrder_Csv(in_buf+bom_size, actual_size);
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				// } @v11.3.6 
 			}
 			if(actions & SupplInterchangeFilt::opImportDesadv) {
 				if(!cli.ReceiveReceipts())

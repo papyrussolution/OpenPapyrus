@@ -1021,7 +1021,7 @@ U_CAPI int32_t U_EXPORT2
 ucol_getSortKey(const    UCollator    *coll,
         const    UChar        *source,
         int32_t        sourceLength,
-        uint8_t        *result,
+        uint8        *result,
         int32_t        resultLength);
 
 
@@ -1049,7 +1049,7 @@ U_CAPI int32_t U_EXPORT2
 ucol_nextSortKeyPart(const UCollator *coll,
                      UCharIterator *iter,
                      uint32_t state[2],
-                     uint8_t *dest, int32_t count,
+                     uint8 *dest, int32_t count,
                      UErrorCode *status);
 
 /** enum that is taken by ucol_getBound API 
@@ -1113,11 +1113,11 @@ typedef enum {
  * @stable ICU 2.1
  */
 U_CAPI int32_t U_EXPORT2 
-ucol_getBound(const uint8_t       *source,
+ucol_getBound(const uint8       *source,
         int32_t             sourceLength,
         UColBoundMode       boundType,
         uint32_t            noOfLevels,
-        uint8_t             *result,
+        uint8             *result,
         int32_t             resultLength,
         UErrorCode          *status);
         
@@ -1190,9 +1190,9 @@ ucol_getUCAVersion(const UCollator* coll, UVersionInfo info);
  * @stable ICU 2.0
  */
 U_CAPI int32_t U_EXPORT2 
-ucol_mergeSortkeys(const uint8_t *src1, int32_t src1Length,
-                   const uint8_t *src2, int32_t src2Length,
-                   uint8_t *dest, int32_t destCapacity);
+ucol_mergeSortkeys(const uint8 *src1, int32_t src1Length,
+                   const uint8 *src2, int32_t src2Length,
+                   uint8 *dest, int32_t destCapacity);
 
 /**
  * Universal attribute setter
@@ -1472,7 +1472,7 @@ ucol_prepareShortStringOpen( const char *definition,
  */
 U_CAPI int32_t U_EXPORT2
 ucol_cloneBinary(const UCollator *coll,
-                 uint8_t *buffer, int32_t capacity,
+                 uint8 *buffer, int32_t capacity,
                  UErrorCode *status);
 
 /** Opens a collator from a collator binary image created using
@@ -1493,7 +1493,7 @@ ucol_cloneBinary(const UCollator *coll,
  *  @stable ICU 3.2
  */
 U_CAPI UCollator* U_EXPORT2
-ucol_openBinary(const uint8_t *bin, int32_t length, 
+ucol_openBinary(const uint8 *bin, int32_t length, 
                 const UCollator *base, 
                 UErrorCode *status);
 

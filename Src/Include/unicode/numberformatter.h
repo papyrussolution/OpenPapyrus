@@ -121,7 +121,7 @@ namespace impl {
  *
  * @internal
  */
-typedef int16_t digits_t;
+typedef int16 digits_t;
 
 // can't be #ifndef U_HIDE_INTERNAL_API; needed for struct initialization
 /**
@@ -358,7 +358,7 @@ private:
 		/** @internal (private) */
 		struct ScientificSettings {
 			/** @internal (private) */
-			int8_t fEngineeringInterval;
+			int8 fEngineeringInterval;
 			/** @internal (private) */
 			bool fRequireMinInt;
 			/** @internal (private) */
@@ -453,7 +453,7 @@ private:
 	using Notation::Notation;
 
 	// Raw constructor for NumberPropertyMapper
-	ScientificNotation(int8_t fEngineeringInterval, bool fRequireMinInt, impl::digits_t fMinExponentDigits,
+	ScientificNotation(int8 fEngineeringInterval, bool fRequireMinInt, impl::digits_t fMinExponentDigits,
 	    UNumberSignDisplay fExponentSignDisplay);
 
 	friend class Notation;
@@ -1225,7 +1225,7 @@ public:
 	~StringProp();
 
 	/** @internal */
-	int16_t length() const {
+	int16 length() const {
 		return fLength;
 	}
 
@@ -1243,7 +1243,7 @@ public:
 
 private:
 	char * fValue;
-	int16_t fLength;
+	int16 fLength;
 	UErrorCode fError;
 
 	StringProp() : fValue(nullptr), fLength(0), fError(U_ZERO_ERROR) {
@@ -1379,7 +1379,7 @@ public:
 	// Future: static Grouper forProperties(DecimalFormatProperties& properties);
 
 	/** @internal */
-	Grouper(int16_t grouping1, int16_t grouping2, int16_t minGrouping, UNumberGroupingStrategy strategy)
+	Grouper(int16 grouping1, int16 grouping2, int16 minGrouping, UNumberGroupingStrategy strategy)
 		: fGrouping1(grouping1),
 		fGrouping2(grouping2),
 		fMinGrouping(minGrouping),
@@ -1387,10 +1387,10 @@ public:
 	}
 
 	/** @internal */
-	int16_t getPrimary() const;
+	int16 getPrimary() const;
 
 	/** @internal */
-	int16_t getSecondary() const;
+	int16 getSecondary() const;
 #endif  // U_HIDE_INTERNAL_API
 
 private:
@@ -1402,8 +1402,8 @@ private:
 	 * <li>-4 = fall back to Western grouping if not in locale
 	 * </ul>
 	 */
-	int16_t fGrouping1;
-	int16_t fGrouping2;
+	int16 fGrouping1;
+	int16 fGrouping2;
 
 	/**
 	 * The minimum grouping size, with the following special values:
@@ -1412,7 +1412,7 @@ private:
 	 * <li>-3 = no less than 2
 	 * </ul>
 	 */
-	int16_t fMinGrouping;
+	int16 fMinGrouping;
 
 	/**
 	 * The UNumberGroupingStrategy that was used to create this Grouper, or UNUM_GROUPING_COUNT if this

@@ -793,7 +793,7 @@ private:
 	void fallbackFormatRange(Calendar& fromCalendar,
 	    Calendar& toCalendar,
 	    UnicodeString & appendTo,
-	    int8_t& firstIndex,
+	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
 	    UErrorCode& status) const;
 
@@ -823,7 +823,7 @@ private:
 	    Calendar& toCalendar,
 	    bool fromToOnSameDay,
 	    UnicodeString & appendTo,
-	    int8_t& firstIndex,
+	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
 	    UErrorCode& status) const;
 
@@ -968,7 +968,7 @@ private:
 	bool setIntervalPattern(UCalendarDateFields field,
 	    const UnicodeString * skeleton,
 	    const UnicodeString * bestSkeleton,
-	    int8_t differenceInfo,
+	    int8 differenceInfo,
 	    UnicodeString * extendedSkeleton = NULL,
 	    UnicodeString * extendedBestSkeleton = NULL);
 
@@ -1004,7 +1004,7 @@ private:
 	static void U_EXPORT2 adjustFieldWidth(const UnicodeString & inputSkeleton,
 	    const UnicodeString & bestMatchSkeleton,
 	    const UnicodeString & bestMatchIntervalPattern,
-	    int8_t differenceInfo,
+	    int8 differenceInfo,
 	    bool suppressDayPeriodField,
 	    UnicodeString & adjustedIntervalPattern);
 
@@ -1111,14 +1111,14 @@ private:
 	UnicodeString & formatImpl(Calendar& fromCalendar,
 	    Calendar& toCalendar,
 	    UnicodeString & appendTo,
-	    int8_t& firstIndex,
+	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
 	    UErrorCode& status) const;
 
 	/** Version of formatImpl for DateInterval. */
 	UnicodeString & formatIntervalImpl(const DateInterval& dtInterval,
 	    UnicodeString & appendTo,
-	    int8_t& firstIndex,
+	    int8& firstIndex,
 	    FieldPositionHandler& fphandler,
 	    UErrorCode& status) const;
 

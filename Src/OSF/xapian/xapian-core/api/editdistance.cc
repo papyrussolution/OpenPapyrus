@@ -42,7 +42,7 @@ template <class Char> struct edist_seq {
 };
 
 template <class Char> class edist_state {
-	edist_state& operator=(const edist_state&) = delete; /// Don't allow assignment.
+	edist_state& operator = (const edist_state&) = delete; /// Don't allow assignment.
 	edist_state(const edist_state&) = delete; /// Don't allow copying.
 
 	edist_seq<Char> seq1;

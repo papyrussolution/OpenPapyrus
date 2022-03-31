@@ -1,3 +1,4 @@
+// cord.h
 // Copyright 2020 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: cord.h
-// -----------------------------------------------------------------------------
 //
 // This file defines the `absl::Cord` data structure and operations on that data
 // structure. A Cord is a string-like sequence of characters optimized for
@@ -69,7 +60,6 @@
 #include <iterator>
 #include <string>
 #include <type_traits>
-
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/endian.h"
@@ -158,20 +148,20 @@ public:
 	// movable. The moved-from state is valid but unspecified.
 	Cord(const Cord& src);
 	Cord(Cord&& src) noexcept;
-	Cord& operator=(const Cord& x);
-	Cord& operator=(Cord&& x) noexcept;
+	Cord& operator = (const Cord& x);
+	Cord& operator = (Cord&& x) noexcept;
 
 	// Creates a Cord from a `src` string. This constructor is marked explicit to
 	// prevent implicit Cord constructions from arguments convertible to an
 	// `absl::string_view`.
 	explicit Cord(absl::string_view src);
-	Cord& operator=(absl::string_view src);
+	Cord& operator = (absl::string_view src);
 
 	// Creates a Cord from a `std::string &&` rvalue. These constructors are
 	// templated to avoid ambiguities for types that are convertible to both
 	// `absl::string_view` and `std::string`, such as `const char*`.
 	template <typename T, EnableIfString<T> = 0> explicit Cord(T&& src);
-	template <typename T, EnableIfString<T> = 0> Cord& operator=(T&& src);
+	template <typename T, EnableIfString<T> = 0> Cord& operator = (T&& src);
 
 	// Cord::~Cord()
 	//
@@ -372,8 +362,8 @@ public:
 
 		ChunkIterator& operator++();
 		ChunkIterator operator++(int);
-		bool operator==(const ChunkIterator& other) const;
-		bool operator!=(const ChunkIterator& other) const;
+		bool operator == (const ChunkIterator& other) const;
+		bool operator != (const ChunkIterator& other) const;
 		reference operator*() const;
 		pointer operator->() const;
 
@@ -550,8 +540,8 @@ public:
 
 		CharIterator& operator++();
 		CharIterator operator++(int);
-		bool operator==(const CharIterator& other) const;
-		bool operator!=(const CharIterator& other) const;
+		bool operator == (const CharIterator& other) const;
+		bool operator != (const CharIterator& other) const;
 		reference operator*() const;
 		pointer operator->() const;
 
@@ -741,8 +731,8 @@ private:
 	explicit Cord(absl::string_view src, MethodIdentifier method);
 
 	friend class CordTestPeer;
-	friend bool operator==(const Cord& lhs, const Cord& rhs);
-	friend bool operator==(const Cord& lhs, absl::string_view rhs);
+	friend bool operator == (const Cord& lhs, const Cord& rhs);
+	friend bool operator == (const Cord& lhs, absl::string_view rhs);
 
 	friend const CordzInfo* GetCordzInfoForTesting(const Cord& cord);
 
@@ -772,8 +762,8 @@ public:
 
 		InlineRep(const InlineRep& src);
 		InlineRep(InlineRep&& src);
-		InlineRep& operator=(const InlineRep& src);
-		InlineRep& operator=(InlineRep&& src) noexcept;
+		InlineRep& operator = (const InlineRep& src);
+		InlineRep& operator = (InlineRep&& src) noexcept;
 
 		explicit constexpr InlineRep(cord_internal::InlineData data);
 
@@ -987,7 +977,7 @@ namespace absl {
 ABSL_NAMESPACE_BEGIN
 
 // allow a Cord to be logged
-extern std::ostream& operator<<(std::ostream& out, const Cord& cord);
+extern std::ostream & operator<<(std::ostream & out, const Cord& cord);
 
 // ------------------------------------------------------------------
 // Internal details follow.  Clients should ignore.
@@ -1097,7 +1087,7 @@ inline Cord::InlineRep::InlineRep(Cord::InlineRep&& src) : data_(src.data_) {
 	src.ResetToEmpty();
 }
 
-inline Cord::InlineRep& Cord::InlineRep::operator=(const Cord::InlineRep& src) {
+inline Cord::InlineRep& Cord::InlineRep::operator = (const Cord::InlineRep& src) {
 	if(this == &src) {
 		return *this;
 	}
@@ -1109,7 +1099,7 @@ inline Cord::InlineRep& Cord::InlineRep::operator=(const Cord::InlineRep& src) {
 	return *this;
 }
 
-inline Cord::InlineRep& Cord::InlineRep::operator=(Cord::InlineRep&& src) noexcept {
+inline Cord::InlineRep& Cord::InlineRep::operator = (Cord::InlineRep&& src) noexcept {
 	if(is_tree()) {
 		UnrefTree();
 	}
@@ -1238,15 +1228,15 @@ constexpr Cord::Cord(strings_internal::StringConstant<T>)
 			    strings_internal::StringConstant<T> >::value)) {
 }
 
-inline Cord& Cord::operator=(const Cord& x) {
+inline Cord& Cord::operator = (const Cord& x) {
 	contents_ = x.contents_;
 	return *this;
 }
 
 template <typename T, Cord::EnableIfString<T> >
-Cord& Cord::operator=(T&& src) {
+Cord& Cord::operator = (T&& src) {
 	if(src.size() <= cord_internal::kMaxBytesToCopy) {
-		return operator=(absl::string_view(src));
+		return operator = (absl::string_view(src));
 	}
 	else {
 		return AssignLargeString(std::forward<T>(src));
@@ -1263,7 +1253,7 @@ inline void Cord::swap(Cord& other) noexcept {
 	contents_.Swap(&other.contents_);
 }
 
-inline Cord& Cord::operator=(Cord&& x) noexcept {
+inline Cord& Cord::operator = (Cord&& x) noexcept {
 	contents_ = std::move(x.contents_);
 	return *this;
 }
@@ -1420,11 +1410,11 @@ inline Cord::ChunkIterator Cord::ChunkIterator::operator++(int) {
 	return tmp;
 }
 
-inline bool Cord::ChunkIterator::operator==(const ChunkIterator& other) const {
+inline bool Cord::ChunkIterator::operator == (const ChunkIterator& other) const {
 	return bytes_remaining_ == other.bytes_remaining_;
 }
 
-inline bool Cord::ChunkIterator::operator!=(const ChunkIterator& other) const {
+inline bool Cord::ChunkIterator::operator != (const ChunkIterator& other) const {
 	return !(*this == other);
 }
 
@@ -1481,8 +1471,8 @@ inline Cord::CharIterator Cord::CharIterator::operator++(int)
 	return tmp;
 }
 
-inline bool Cord::CharIterator::operator==(const CharIterator& other) const { return chunk_iterator_ == other.chunk_iterator_; }
-inline bool Cord::CharIterator::operator!=(const CharIterator& other) const { return !(*this == other); }
+inline bool Cord::CharIterator::operator == (const CharIterator& other) const { return chunk_iterator_ == other.chunk_iterator_; }
+inline bool Cord::CharIterator::operator != (const CharIterator& other) const { return !(*this == other); }
 inline Cord::CharIterator::reference Cord::CharIterator::operator*() const { return *chunk_iterator_->data(); }
 inline Cord::CharIterator::pointer Cord::CharIterator::operator->() const { return chunk_iterator_->data(); }
 
@@ -1516,24 +1506,24 @@ inline void Cord::ForEachChunk(absl::FunctionRef<void(absl::string_view)> callba
 }
 
 // Nonmember Cord-to-Cord relational operarators.
-inline bool operator==(const Cord& lhs, const Cord& rhs) {
+inline bool operator == (const Cord& lhs, const Cord& rhs) {
 	if(lhs.contents_.IsSame(rhs.contents_)) return true;
 	size_t rhs_size = rhs.size();
 	if(lhs.size() != rhs_size) return false;
 	return lhs.EqualsImpl(rhs, rhs_size);
 }
 
-inline bool operator!=(const Cord& x, const Cord& y) { return !(x == y); }
-inline bool operator<(const Cord& x, const Cord& y) { return x.Compare(y) < 0; }
-inline bool operator>(const Cord& x, const Cord& y) { return x.Compare(y) > 0; }
-inline bool operator<=(const Cord& x, const Cord& y) { return x.Compare(y) <= 0; }
-inline bool operator>=(const Cord& x, const Cord& y) { return x.Compare(y) >= 0; }
+inline bool operator != (const Cord& x, const Cord& y) { return !(x == y); }
+inline bool operator < (const Cord& x, const Cord& y) { return x.Compare(y) < 0; }
+inline bool operator > (const Cord& x, const Cord& y) { return x.Compare(y) > 0; }
+inline bool operator <= (const Cord& x, const Cord& y) { return x.Compare(y) <= 0; }
+inline bool operator >= (const Cord& x, const Cord& y) { return x.Compare(y) >= 0; }
 
 // Nonmember Cord-to-absl::string_view relational operators.
 //
 // Due to implicit conversions, these also enable comparisons of Cord with
 // with std::string, ::string, and const char*.
-inline bool operator==(const Cord& lhs, absl::string_view rhs) 
+inline bool operator == (const Cord& lhs, absl::string_view rhs) 
 {
 	size_t lhs_size = lhs.size();
 	size_t rhs_size = rhs.size();
@@ -1542,17 +1532,17 @@ inline bool operator==(const Cord& lhs, absl::string_view rhs)
 	return lhs.EqualsImpl(rhs, rhs_size);
 }
 
-inline bool operator==(absl::string_view x, const Cord& y) { return y == x; }
-inline bool operator!=(const Cord& x, absl::string_view y) { return !(x == y); }
-inline bool operator!=(absl::string_view x, const Cord& y) { return !(x == y); }
-inline bool operator<(const Cord& x, absl::string_view y) { return x.Compare(y) < 0; }
-inline bool operator<(absl::string_view x, const Cord& y) { return y.Compare(x) > 0; }
-inline bool operator>(const Cord& x, absl::string_view y) { return y < x; }
-inline bool operator>(absl::string_view x, const Cord& y) { return y < x; }
-inline bool operator<=(const Cord& x, absl::string_view y) { return !(y < x); }
-inline bool operator<=(absl::string_view x, const Cord& y) { return !(y < x); }
-inline bool operator>=(const Cord& x, absl::string_view y) { return !(x < y); }
-inline bool operator>=(absl::string_view x, const Cord& y) { return !(x < y); }
+inline bool operator == (absl::string_view x, const Cord& y) { return y == x; }
+inline bool operator != (const Cord& x, absl::string_view y) { return !(x == y); }
+inline bool operator != (absl::string_view x, const Cord& y) { return !(x == y); }
+inline bool operator < (const Cord& x, absl::string_view y) { return x.Compare(y) < 0; }
+inline bool operator < (absl::string_view x, const Cord& y) { return y.Compare(x) > 0; }
+inline bool operator > (const Cord& x, absl::string_view y) { return y < x; }
+inline bool operator > (absl::string_view x, const Cord& y) { return y < x; }
+inline bool operator <= (const Cord& x, absl::string_view y) { return !(y < x); }
+inline bool operator <= (absl::string_view x, const Cord& y) { return !(y < x); }
+inline bool operator >= (const Cord& x, absl::string_view y) { return !(x < y); }
+inline bool operator >= (absl::string_view x, const Cord& y) { return !(x < y); }
 
 // Some internals exposed to test code.
 namespace strings_internal {

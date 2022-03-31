@@ -58,7 +58,7 @@ PostingIterator::PostingIterator(const PostingIterator & o)
 		++internal->_refs;
 }
 
-PostingIterator &PostingIterator::operator=(const PostingIterator & o)
+PostingIterator &PostingIterator::operator = (const PostingIterator & o)
 {
 	LOGCALL(API, PostingIterator &, "PostingIterator::operator=", o);
 	if(o.internal)

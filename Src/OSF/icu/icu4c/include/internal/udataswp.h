@@ -82,11 +82,11 @@ UDataSwapFn(const UDataSwapper *ds,
             UErrorCode *pErrorCode);
 
 /**
- * Convert one uint16_t from input to platform endianness.
+ * Convert one uint16 from input to platform endianness.
  * @internal ICU 2.8
  */
-typedef uint16_t U_CALLCONV
-UDataReadUInt16(uint16_t x);
+typedef uint16 U_CALLCONV
+UDataReadUInt16(uint16 x);
 
 /**
  * Convert one uint32_t from input to platform endianness.
@@ -96,11 +96,11 @@ typedef uint32_t U_CALLCONV
 UDataReadUInt32(uint32_t x);
 
 /**
- * Convert one uint16_t from platform to input endianness.
+ * Convert one uint16 from platform to input endianness.
  * @internal ICU 2.8
  */
 typedef void U_CALLCONV
-UDataWriteUInt16(uint16_t *p, uint16_t x);
+UDataWriteUInt16(uint16 *p, uint16 x);
 
 /**
  * Convert one uint32_t from platform to input endianness.
@@ -150,7 +150,7 @@ struct UDataSwapper {
 
     /* basic functions for reading data values */
 
-    /** Convert one uint16_t from input to platform endianness. @internal ICU 2.8 */
+    /** Convert one uint16 from input to platform endianness. @internal ICU 2.8 */
     UDataReadUInt16 *readUInt16;
     /** Convert one uint32_t from input to platform endianness. @internal ICU 2.8 */
     UDataReadUInt32 *readUInt32;
@@ -159,7 +159,7 @@ struct UDataSwapper {
 
     /* basic functions for writing data values */
 
-    /** Convert one uint16_t from platform to input endianness. @internal ICU 2.8 */
+    /** Convert one uint16 from platform to input endianness. @internal ICU 2.8 */
     UDataWriteUInt16 *writeUInt16;
     /** Convert one uint32_t from platform to input endianness. @internal ICU 2.8 */
     UDataWriteUInt32 *writeUInt32;
@@ -224,11 +224,11 @@ udata_swapDataHeader(const UDataSwapper *ds,
                      UErrorCode *pErrorCode);
 
 /**
- * Convert one int16_t from input to platform endianness.
+ * Convert one int16 from input to platform endianness.
  * @internal ICU 2.8
  */
-U_CAPI int16_t U_EXPORT2
-udata_readInt16(const UDataSwapper *ds, int16_t x);
+U_CAPI int16 U_EXPORT2
+udata_readInt16(const UDataSwapper *ds, int16 x);
 
 /**
  * Convert one int32_t from input to platform endianness.

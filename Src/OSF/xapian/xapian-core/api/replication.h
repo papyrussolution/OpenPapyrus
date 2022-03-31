@@ -101,7 +101,7 @@ class XAPIAN_VISIBILITY_DEFAULT DatabaseReplica {
 	class Internal; /// Class holding details of the replica.
 	Internal * internal; /// Internals.
 	DatabaseReplica(const DatabaseReplica & other); /// No copying.
-	void operator=(const DatabaseReplica & other); /// No assignment.
+	void operator = (const DatabaseReplica & other); /// No assignment.
 public:
 	~DatabaseReplica();
 	/** Open a DatabaseReplica for the database at the specified path.

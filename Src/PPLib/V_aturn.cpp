@@ -84,7 +84,7 @@ IMPLEMENT_PPFILT_FACTORY(Accturn); AccturnFilt::AccturnFilt() : PPBaseFilt(PPFIL
 	Init(1, 0);
 }
 
-AccturnFilt & FASTCALL AccturnFilt::operator=(const AccturnFilt & s)
+AccturnFilt & FASTCALL AccturnFilt::operator = (const AccturnFilt & s)
 {
 	Copy(&s, 0);
 	return *this;

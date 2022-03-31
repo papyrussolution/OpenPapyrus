@@ -828,7 +828,7 @@ int64_t util64_fromDouble(double d) {
 	return result;
 }
 
-uint64_t util64_pow(uint32_t base, uint16_t exponent) {
+uint64_t util64_pow(uint32_t base, uint16 exponent) {
 	if(base == 0) {
 		return 0;
 	}

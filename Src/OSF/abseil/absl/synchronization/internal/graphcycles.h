@@ -6,13 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 #ifndef ABSL_SYNCHRONIZATION_INTERNAL_GRAPHCYCLES_H_
 #define ABSL_SYNCHRONIZATION_INTERNAL_GRAPHCYCLES_H_
 
@@ -39,7 +32,6 @@
 // The current implementation uses O(|V|+|E|) space.
 
 #include <cstdint>
-
 #include "absl/base/config.h"
 
 namespace absl {
@@ -50,8 +42,8 @@ namespace synchronization_internal {
 struct GraphId {
   uint64_t handle;
 
-  bool operator==(const GraphId& x) const { return handle == x.handle; }
-  bool operator!=(const GraphId& x) const { return handle != x.handle; }
+  bool operator == (const GraphId& x) const { return handle == x.handle; }
+  bool operator != (const GraphId& x) const { return handle != x.handle; }
 };
 
 // Return an invalid graph id that will never be assigned by GraphCycles.
@@ -131,7 +123,7 @@ class GraphCycles {
  private:
   Rep *rep_;      // opaque representation
   GraphCycles(const GraphCycles&) = delete;
-  GraphCycles& operator=(const GraphCycles&) = delete;
+  GraphCycles& operator = (const GraphCycles&) = delete;
 };
 
 }  // namespace synchronization_internal

@@ -1094,12 +1094,12 @@ bool RBBITableBuilder::findDuplCharClassFrom(IntPair * categories) {
 		for(categories->second = categories->first+1; categories->second < limitSecond; categories->second++) {
 			// Initialized to different values to prevent returning true if numStates = 0 (implies no
 			// duplicates).
-			uint16_t table_base = 0;
-			uint16_t table_dupl = 1;
+			uint16 table_base = 0;
+			uint16 table_dupl = 1;
 			for(int32_t state = 0; state<numStates; state++) {
 				RBBIStateDescriptor * sd = (RBBIStateDescriptor*)fDStates->elementAt(state);
-				table_base = (uint16_t)sd->fDtran->elementAti(categories->first);
-				table_dupl = (uint16_t)sd->fDtran->elementAti(categories->second);
+				table_base = (uint16)sd->fDtran->elementAti(categories->first);
+				table_dupl = (uint16)sd->fDtran->elementAti(categories->second);
 				if(table_base != table_dupl) {
 					break;
 				}
@@ -1277,10 +1277,10 @@ int32_t RBBITableBuilder::getTableSize() const {
 	numCols = fRB->fSetBuilder->getNumCharCategories();
 
 	if(use8BitsForTable()) {
-		rowSize = offsetof(RBBIStateTableRow8, fNextState) + sizeof(int8_t)*numCols;
+		rowSize = offsetof(RBBIStateTableRow8, fNextState) + sizeof(int8)*numCols;
 	}
 	else {
-		rowSize = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16_t)*numCols;
+		rowSize = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16)*numCols;
 	}
 	size   += numRows * rowSize;
 	return size;
@@ -1317,7 +1317,7 @@ void RBBITableBuilder::exportTable(void * where)
 		table->fFlags  |= RBBI_8BITS_ROWS;
 	}
 	else {
-		table->fRowLen    = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16_t) * catCount;
+		table->fRowLen    = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16) * catCount;
 	}
 	if(fRB->fLookAheadHardBreak) {
 		table->fFlags  |= RBBI_LOOKAHEAD_HARD_BREAK;
@@ -1490,10 +1490,10 @@ int32_t RBBITableBuilder::getSafeTableSize() const
 	numRows = fSafeTable->size();
 	numCols = fRB->fSetBuilder->getNumCharCategories();
 	if(use8BitsForSafeTable()) {
-		rowSize = offsetof(RBBIStateTableRow8, fNextState) + sizeof(int8_t)*numCols;
+		rowSize = offsetof(RBBIStateTableRow8, fNextState) + sizeof(int8)*numCols;
 	}
 	else {
-		rowSize = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16_t)*numCols;
+		rowSize = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16)*numCols;
 	}
 	size   += numRows * rowSize;
 	return size;
@@ -1527,7 +1527,7 @@ void RBBITableBuilder::exportSafeTable(void * where)
 		table->fFlags  |= RBBI_8BITS_ROWS;
 	}
 	else {
-		table->fRowLen    = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16_t) * catCount;
+		table->fRowLen    = offsetof(RBBIStateTableRow16, fNextState) + sizeof(int16) * catCount;
 	}
 
 	for(state = 0; state<table->fNumStates; state++) {

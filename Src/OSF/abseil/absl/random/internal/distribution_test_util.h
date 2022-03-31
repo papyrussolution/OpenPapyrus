@@ -6,19 +6,12 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_RANDOM_INTERNAL_DISTRIBUTION_TEST_UTIL_H_
 #define ABSL_RANDOM_INTERNAL_DISTRIBUTION_TEST_UTIL_H_
 
 #include <cstddef>
 #include <iostream>
 #include <vector>
-
 #include "absl/strings/string_view.h"
 #include "absl/types/span.h"
 
@@ -28,23 +21,22 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace random_internal {
-
 // http://webspace.ship.edu/pgmarr/Geo441/Lectures/Lec%205%20-%20Normality%20Testing.pdf
 
 // Compute the 1st to 4th standard moments:
 // mean, variance, skewness, and kurtosis.
 // http://www.itl.nist.gov/div898/handbook/eda/section3/eda35b.htm
 struct DistributionMoments {
-  size_t n = 0;
-  double mean = 0.0;
-  double variance = 0.0;
-  double skewness = 0.0;
-  double kurtosis = 0.0;
+	size_t n = 0;
+	double mean = 0.0;
+	double variance = 0.0;
+	double skewness = 0.0;
+	double kurtosis = 0.0;
 };
-DistributionMoments ComputeDistributionMoments(
-    absl::Span<const double> data_points);
 
-std::ostream& operator<<(std::ostream& os, const DistributionMoments& moments);
+DistributionMoments ComputeDistributionMoments(absl::Span<const double> data_points);
+
+std::ostream & operator<<(std::ostream & os, const DistributionMoments& moments);
 
 // Computes the Z-score for a set of data with the given distribution moments
 // compared against `expected_mean`.
@@ -105,7 +97,6 @@ double BetaIncomplete(double x, double p, double q);
 // the actual value by much more than that.  The function uses Newton's method,
 // and thus the runtime is highly variable.
 double BetaIncompleteInv(double p, double q, double alpha);
-
 }  // namespace random_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

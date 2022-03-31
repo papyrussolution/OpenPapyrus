@@ -31,7 +31,7 @@
 // provide this template for classes with a "get_description() const" method,
 // while providing the expected return type for the function.
 template<class T>
-auto operator<<(std::ostream& os, const T& t)
+auto operator<<(std::ostream & os, const T& t)
     -> decltype(t.get_description(), os)
 {
     return os << t.get_description();

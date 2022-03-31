@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-**********************************************************************
-*   Copyright (C) 2001-2007, International Business Machines
-*   Corporation and others.  All Rights Reserved.
-**********************************************************************
-*   Date        Name        Description
-*   05/24/01    aliu        Creation.
-**********************************************************************
-*/
+// Copyright (C) 2001-2007, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 05/24/01    aliu        Creation.
+//
 #ifndef TOLOWTRN_H
 #define TOLOWTRN_H
 
@@ -27,50 +22,41 @@ U_NAMESPACE_BEGIN
  * @author Alan Liu
  */
 class LowercaseTransliterator : public CaseMapTransliterator {
-
- public:
-
-    /**
-  * Constructs a transliterator.
-  * @param loc the given locale.
-     */
-    LowercaseTransliterator();
-
-    /**
-  * Destructor.
-     */
-    virtual ~LowercaseTransliterator();
-
-    /**
-  * Copy constructor.
-     */
-    LowercaseTransliterator(const LowercaseTransliterator&);
-
-    /**
-  * Transliterator API.
-  * @return a copy of the object.
-     */
-    virtual LowercaseTransliterator* clone() const override;
-
-    /**
-  * ICU "poor man's RTTI", returns a UClassID for the actual class.
-     */
-    virtual UClassID getDynamicClassID() const override;
-
-    /**
-  * ICU "poor man's RTTI", returns a UClassID for this class.
-     */
-    U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
+public:
+	/**
+	 * Constructs a transliterator.
+	 * @param loc the given locale.
+	 */
+	LowercaseTransliterator();
+	/**
+	 * Destructor.
+	 */
+	virtual ~LowercaseTransliterator();
+	/**
+	 * Copy constructor.
+	 */
+	LowercaseTransliterator(const LowercaseTransliterator&);
+	/**
+	 * Transliterator API.
+	 * @return a copy of the object.
+	 */
+	virtual LowercaseTransliterator* clone() const override;
+	/**
+	 * ICU "poor man's RTTI", returns a UClassID for the actual class.
+	 */
+	virtual UClassID getDynamicClassID() const override;
+	/**
+	 * ICU "poor man's RTTI", returns a UClassID for this class.
+	 */
+	U_I18N_API static UClassID U_EXPORT2 getStaticClassID();
 private:
-
-    /**
-  * Assignment operator.
-     */
-    LowercaseTransliterator& operator = (const LowercaseTransliterator&);
+	/**
+	 * Assignment operator.
+	 */
+	LowercaseTransliterator& operator =(const LowercaseTransliterator&);
 };
 
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
-
 #endif

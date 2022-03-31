@@ -44,7 +44,7 @@ public:
 		: tag_(tag), txt_(txt) {
 	}
 
-	friend std ::ostream& operator<<(std::ostream& out,
+	friend std ::ostream& operator<<(std::ostream & out,
 	    const XMLElement& xml_elem) {
 		out << "<" << xml_elem.tag_ << ">";
 
@@ -84,10 +84,10 @@ private:
 
 class FlagHelpPrettyPrinter {
 public:
-	// Pretty printer holds on to the std::ostream& reference to direct an output
+	// Pretty printer holds on to the std::ostream & reference to direct an output
 	// to that stream.
 	FlagHelpPrettyPrinter(size_t max_line_len, size_t min_line_len,
-	    size_t wrapped_line_indent, std::ostream& out)
+	    size_t wrapped_line_indent, std::ostream & out)
 		: out_(out),
 		max_line_len_(max_line_len),
 		min_line_len_(min_line_len),
@@ -163,7 +163,7 @@ public:
 	}
 
 private:
-	std::ostream& out_;
+	std::ostream & out_;
 	const size_t max_line_len_;
 	const size_t min_line_len_;
 	const size_t wrapped_line_indent_;
@@ -171,7 +171,7 @@ private:
 	bool first_line_;
 };
 
-void FlagHelpHumanReadable(const CommandLineFlag& flag, std::ostream& out) {
+void FlagHelpHumanReadable(const CommandLineFlag& flag, std::ostream & out) {
 	FlagHelpPrettyPrinter printer(kHrfMaxLineLength, 4, 2, out);
 
 	// Flag name.
@@ -208,7 +208,7 @@ void FlagHelpHumanReadable(const CommandLineFlag& flag, std::ostream& out) {
 // If a flag's help message has been stripped (e.g. by adding '#define
 // STRIP_FLAG_HELP 1' then this flag will not be displayed by '--help'
 // and its variants.
-void FlagsHelpImpl(std::ostream& out, PerFlagFilter filter_cb,
+void FlagsHelpImpl(std::ostream & out, PerFlagFilter filter_cb,
     HelpFormat format, absl::string_view program_usage_message) {
 	if(format == HelpFormat::kHumanReadable) {
 		out << flags_internal::ShortProgramInvocationName() << ": "
@@ -301,7 +301,7 @@ void FlagsHelpImpl(std::ostream& out, PerFlagFilter filter_cb,
 	}
 }
 
-void FlagsHelpImpl(std::ostream& out,
+void FlagsHelpImpl(std::ostream & out,
     flags_internal::FlagKindFilter filename_filter_cb,
     HelpFormat format, absl::string_view program_usage_message) {
 	FlagsHelpImpl(
@@ -315,7 +315,7 @@ void FlagsHelpImpl(std::ostream& out,
 
 // --------------------------------------------------------------------
 // Produces the help message describing specific flag.
-void FlagHelp(std::ostream& out, const CommandLineFlag& flag,
+void FlagHelp(std::ostream & out, const CommandLineFlag& flag,
     HelpFormat format) {
 	if(format == HelpFormat::kHumanReadable)
 		flags_internal::FlagHelpHumanReadable(flag, out);
@@ -324,7 +324,7 @@ void FlagHelp(std::ostream& out, const CommandLineFlag& flag,
 // --------------------------------------------------------------------
 // Produces the help messages for all flags matching the filename filter.
 // If filter is empty produces help messages for all flags.
-void FlagsHelp(std::ostream& out, absl::string_view filter, HelpFormat format,
+void FlagsHelp(std::ostream & out, absl::string_view filter, HelpFormat format,
     absl::string_view program_usage_message) {
 	flags_internal::FlagKindFilter filter_cb = [&](absl::string_view filename) {
 		    return filter.empty() || filename.find(filter) != absl::string_view::npos;
@@ -335,7 +335,7 @@ void FlagsHelp(std::ostream& out, absl::string_view filter, HelpFormat format,
 // --------------------------------------------------------------------
 // Checks all the 'usage' command line flags to see if any have been set.
 // If so, handles them appropriately.
-int HandleUsageFlags(std::ostream& out,
+int HandleUsageFlags(std::ostream & out,
     absl::string_view program_usage_message) {
 	switch(GetFlagsHelpMode()) {
 		case HelpMode::kNone:

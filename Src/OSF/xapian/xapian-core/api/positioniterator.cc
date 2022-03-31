@@ -58,7 +58,7 @@ PositionIterator::PositionIterator(const PositionIterator & o)
 		++internal->_refs;
 }
 
-PositionIterator &PositionIterator::operator=(const PositionIterator & o)
+PositionIterator &PositionIterator::operator = (const PositionIterator & o)
 {
 	LOGCALL(API, PositionIterator &, "PositionIterator::operator=", o);
 	if(o.internal)

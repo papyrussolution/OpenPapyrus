@@ -77,7 +77,7 @@ U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv,
 	if(length>0) {
 		if(cnv!=NULL) {
 			t = (char *)cnv->charErrorBuffer;
-			cnv->charErrorBufferLength = (int8_t)length;
+			cnv->charErrorBufferLength = (int8)length;
 			do {
 				*t++ = (uint8)*bytes++;
 			} while(--length>0);
@@ -117,7 +117,7 @@ U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv,
 	if(length>0) {
 		if(cnv!=NULL) {
 			t = cnv->UCharErrorBuffer;
-			cnv->UCharErrorBufferLength = (int8_t)length;
+			cnv->UCharErrorBufferLength = (int8)length;
 			do {
 				*t++ = *uchars++;
 			} while(--length>0);
@@ -166,7 +166,7 @@ U_CFUNC void ucnv_toUWriteCodePoint(UConverter * cnv,
 	/* write overflow from c */
 	if(c>=0) {
 		if(cnv!=NULL) {
-			int8_t i = 0;
+			int8 i = 0;
 			U16_APPEND_UNSAFE(cnv->UCharErrorBuffer, i, c);
 			cnv->UCharErrorBufferLength = i;
 		}

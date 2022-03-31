@@ -138,10 +138,10 @@ inline void abort_noreturn() {
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 
-typedef signed char int8_t;
+typedef signed char int8;
 typedef unsigned char uint8;
-typedef short int16_t;  // NOLINT
-typedef unsigned short uint16_t;  // NOLINT
+typedef short int16;  // NOLINT
+typedef unsigned short uint16;  // NOLINT
 typedef int int32_t;
 typedef unsigned int uint32_t;
 typedef __int64 int64_t;
@@ -154,7 +154,7 @@ typedef unsigned __int64 uint64_t;
 
 #endif
 
-typedef uint16_t uc16;
+typedef uint16 uc16;
 
 // The following macro works on both 32 and 64-bit platforms.
 // Usage: instead of writing 0x1234567890123456

@@ -417,7 +417,7 @@ U_CAPI void U_EXPORT2 utrace_getFunctions(const void ** context,
  *
  * UTraceDataFunc(context, fnNumber, level,
  *              "Vector of bytes %vb vector of chars %vc",
- *              (const uint8_t *)bytes, (int32_t)bytesLength,
+ *              (const uint8 *)bytes, (int32_t)bytesLength,
  *              (const char *)chars, (int32_t)charsLength);
  * ->  Vector of bytes
  *      42 63 64 3f [4]

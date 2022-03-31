@@ -201,7 +201,7 @@ public:
 	 *  @see cloneBinary
 	 *  @stable ICU 3.4
 	 */
-	RuleBasedCollator(const uint8_t *bin, int32_t length,
+	RuleBasedCollator(const uint8 *bin, int32_t length,
 	    const RuleBasedCollator *base,
 	    UErrorCode &status);
 
@@ -474,7 +474,7 @@ public:
 	 * @return memory, owned by the caller, of size 'length' bytes.
 	 * @deprecated ICU 52. Use cloneBinary() instead.
 	 */
-	uint8_t * cloneRuleData(int32_t &length, UErrorCode &status) const;
+	uint8 * cloneRuleData(int32_t &length, UErrorCode &status) const;
 #endif  /* U_HIDE_DEPRECATED_API */
 
 	/** Creates a binary image of a collator. This binary image can be stored and
@@ -487,7 +487,7 @@ public:
 	 *  @see ucol_openBinary
 	 *  @stable ICU 3.4
 	 */
-	int32_t cloneBinary(uint8_t * buffer, int32_t capacity, UErrorCode &status) const;
+	int32_t cloneBinary(uint8 * buffer, int32_t capacity, UErrorCode &status) const;
 
 	/**
 	 * Returns current rules. Delta defines whether full rules are returned or
@@ -635,7 +635,7 @@ public:
 	 * @return Number of bytes needed for storing the sort key
 	 * @stable ICU 2.0
 	 */
-	virtual int32_t getSortKey(const UnicodeString & source, uint8_t * result,
+	virtual int32_t getSortKey(const UnicodeString & source, uint8 * result,
 	    int32_t resultLength) const override;
 
 	/**
@@ -655,7 +655,7 @@ public:
 	 * @stable ICU 2.2
 	 */
 	virtual int32_t getSortKey(const char16_t * source, int32_t sourceLength,
-	    uint8_t * result, int32_t resultLength) const override;
+	    uint8 * result, int32_t resultLength) const override;
 
 	/**
 	 * Retrieves the reordering codes for this collator.
@@ -730,7 +730,7 @@ public:
 	 * @internal
 	 */
 	virtual int32_t internalNextSortKeyPart(UCharIterator * iter, uint32_t state[2],
-	    uint8_t * dest, int32_t count, UErrorCode & errorCode) const override;
+	    uint8 * dest, int32_t count, UErrorCode & errorCode) const override;
 
 	// Do not enclose the default constructor with #ifndef U_HIDE_INTERNAL_API
 	/**
@@ -826,7 +826,7 @@ private:
 	void adoptTailoring(CollationTailoring * t, UErrorCode & errorCode);
 	// Both lengths must be <0 or else both must be >=0.
 	UCollationResult doCompare(const char16_t * left, int32_t leftLength, const char16_t * right, int32_t rightLength, UErrorCode & errorCode) const;
-	UCollationResult doCompare(const uint8_t * left, int32_t leftLength, const uint8_t * right, int32_t rightLength, UErrorCode & errorCode) const;
+	UCollationResult doCompare(const uint8 * left, int32_t leftLength, const uint8 * right, int32_t rightLength, UErrorCode & errorCode) const;
 	void writeSortKey(const char16_t * s, int32_t length, SortKeyByteSink &sink, UErrorCode & errorCode) const;
 	void writeIdenticalLevel(const char16_t * s, const char16_t * limit, SortKeyByteSink &sink, UErrorCode & errorCode) const;
 	const CollationSettings &getDefaultSettings() const;

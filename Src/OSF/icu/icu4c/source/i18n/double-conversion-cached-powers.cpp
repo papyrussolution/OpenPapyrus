@@ -35,8 +35,8 @@ namespace double_conversion {
 	namespace PowersOfTenCache {
 		struct CachedPower {
 			uint64_t significand;
-			int16_t binary_exponent;
-			int16_t decimal_exponent;
+			int16 binary_exponent;
+			int16 decimal_exponent;
 		};
 
 		static const CachedPower kCachedPowers[] = {

@@ -24,9 +24,9 @@ using namespace std;
 namespace Xapian {
 RSet::RSet(const RSet&) = default;
 
-RSet& RSet::operator=(const RSet&) = default;
+RSet& RSet::operator = (const RSet&) = default;
 RSet::RSet(RSet &&) = default;
-RSet& RSet::operator=(RSet &&) = default;
+RSet& RSet::operator = (RSet &&) = default;
 
 RSet::RSet() 
 {

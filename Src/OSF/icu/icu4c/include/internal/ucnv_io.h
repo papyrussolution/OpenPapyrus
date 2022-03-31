@@ -34,20 +34,20 @@ enum {
 };
 
 typedef struct {
-    uint16_t stringNormalizationType;
-    uint16_t containsCnvOptionInfo;
+    uint16 stringNormalizationType;
+    uint16 containsCnvOptionInfo;
 } UConverterAliasOptions;
 
 typedef struct UConverterAlias {
-    const uint16_t *converterList;
-    const uint16_t *tagList;
-    const uint16_t *aliasList;
-    const uint16_t *untaggedConvArray;
-    const uint16_t *taggedAliasArray;
-    const uint16_t *taggedAliasLists;
+    const uint16 *converterList;
+    const uint16 *tagList;
+    const uint16 *aliasList;
+    const uint16 *untaggedConvArray;
+    const uint16 *taggedAliasArray;
+    const uint16 *taggedAliasLists;
     const UConverterAliasOptions *optionTable;
-    const uint16_t *stringTable;
-    const uint16_t *normalizedStringTable;
+    const uint16 *stringTable;
+    const uint16 *normalizedStringTable;
 
     uint32_t converterListSize;
     uint32_t tagListSize;
@@ -101,7 +101,7 @@ ucnv_io_getConverterName(const char *alias, bool *containsOption, UErrorCode *pE
  * @param pErrorCode The error code
  * @return the number of all aliases
  */
-U_CAPI uint16_t
+U_CAPI uint16
 ucnv_io_countKnownConverters(UErrorCode *pErrorCode);
 
 /**

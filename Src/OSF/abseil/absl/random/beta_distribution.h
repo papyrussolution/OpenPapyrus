@@ -114,11 +114,11 @@ public:
 			return beta_;
 		}
 
-		friend bool operator==(const param_type& a, const param_type& b) {
+		friend bool operator == (const param_type& a, const param_type& b) {
 			return a.alpha_ == b.alpha_ && a.beta_ == b.beta_;
 		}
 
-		friend bool operator!=(const param_type& a, const param_type& b) {
+		friend bool operator != (const param_type& a, const param_type& b) {
 			return !(a == b);
 		}
 
@@ -235,12 +235,12 @@ private:
 		return param_.beta();
 	}
 
-	friend bool operator==(const beta_distribution& a,
+	friend bool operator == (const beta_distribution& a,
 	    const beta_distribution& b) {
 		return a.param_ == b.param_;
 	}
 
-	friend bool operator!=(const beta_distribution& a,
+	friend bool operator != (const beta_distribution& a,
 	    const beta_distribution& b) {
 		return a.param_ != b.param_;
 	}

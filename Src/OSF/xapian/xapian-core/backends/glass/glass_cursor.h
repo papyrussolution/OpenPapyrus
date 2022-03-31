@@ -39,7 +39,7 @@ namespace Glass {
 class Cursor {
 	// Prevent copying
 	Cursor(const Cursor &);
-	Cursor & operator=(const Cursor &);
+	Cursor & operator = (const Cursor &);
 	char * data; /// Pointer to reference counted data.
 public:
 	Cursor() : data(0), c(-1), rewrite(false) 
@@ -143,7 +143,7 @@ class GlassCursor {
 	/// Copying not allowed
 	GlassCursor(const GlassCursor &);
 	/// Assignment not allowed
-	GlassCursor & operator=(const GlassCursor &);
+	GlassCursor & operator = (const GlassCursor &);
 	/** Rebuild the cursor.
 	 *
 	 *  Called when the table has changed.

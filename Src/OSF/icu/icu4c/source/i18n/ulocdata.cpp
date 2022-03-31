@@ -212,7 +212,7 @@ U_CAPI UMeasurementSystem U_EXPORT2 ulocdata_getMeasurementSystem(const char * l
 	UResourceBundle * measurement = NULL;
 	UMeasurementSystem system = UMS_LIMIT;
 
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return system;
 	}
 
@@ -229,7 +229,7 @@ U_CAPI void U_EXPORT2 ulocdata_getPaperSize(const char * localeID, int32_t * hei
 	const int32_t* paperSize = NULL;
 	int32_t len = 0;
 
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return;
 	}
 

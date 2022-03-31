@@ -17,6 +17,8 @@
         android:paddingLeft="4dp"
         android:paddingRight="4dp"
         android:background="@drawable/shape_global_search_scope"
+        android:textSize="12sp"
+        android:textFontWeight="700"
         android:textColor="@color/PrimaryText"
         />
     <TextView

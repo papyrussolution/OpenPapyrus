@@ -65,7 +65,7 @@ public:
 	 *
 	 *  @param other	The object to copy.
 	 */
-	Registry & operator=(const Registry & other);
+	Registry & operator = (const Registry & other);
 
 	/** Move constructor.
 	 *
@@ -77,7 +77,7 @@ public:
 	 *
 	 * @param other	The object to move.
 	 */
-	Registry & operator=(Registry && other);
+	Registry & operator = (Registry && other);
 
 	/** Default constructor.
 	 *

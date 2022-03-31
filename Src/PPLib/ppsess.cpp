@@ -6033,7 +6033,6 @@ SLTEST_R(ObjTypeSymb)
 		obj_type = 0;
 		{
 			temp_buf = r_entry.P_Symb;
-
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
 			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ
@@ -6043,7 +6042,6 @@ SLTEST_R(ObjTypeSymb)
 		}
 		{
 			(temp_buf = r_entry.P_Symb).ToLower();
-
 			obj_type = DS.GetObjectTypeBySymb(temp_buf, &ext_param);
 			SLTEST_CHECK_EQ(r_entry.Id, MakeLong(obj_type, ext_param));
 			if(r_entry.HsId != PPHS_STYLODEVICE) { // Дублированный (запасной) символ

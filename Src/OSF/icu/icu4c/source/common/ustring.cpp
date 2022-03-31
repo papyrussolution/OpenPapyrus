@@ -1141,7 +1141,7 @@ U_CAPI int32_t U_EXPORT2 u_memcmp(const UChar * buf1, const UChar * buf2, int32_
 		const UChar * limit = buf1 + count;
 		int32_t result;
 		while(buf1 < limit) {
-			result = (int32_t)(uint16_t)*buf1 - (int32_t)(uint16_t)*buf2;
+			result = (int32_t)(uint16)*buf1 - (int32_t)(uint16)*buf2;
 			if(result != 0) {
 				return result;
 			}
@@ -1210,10 +1210,10 @@ U_CAPI UChar32 U_EXPORT2 u_unescapeAt(UNESCAPE_CHAR_AT charAt,
 	int32_t start = *offset;
 	UChar32 c;
 	UChar32 result = 0;
-	int8_t n = 0;
-	int8_t minDig = 0;
-	int8_t maxDig = 0;
-	int8_t bitsPerDigit = 4;
+	int8 n = 0;
+	int8 minDig = 0;
+	int8 maxDig = 0;
+	int8 bitsPerDigit = 4;
 	int32_t dig;
 	bool braces = FALSE;
 

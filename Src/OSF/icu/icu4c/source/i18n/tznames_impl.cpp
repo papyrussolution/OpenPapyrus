@@ -281,8 +281,8 @@ CharacterNode* TextTrieMap::addChildNode(CharacterNode * parent, UChar c, UError
 		return NULL;
 	}
 	// Linear search of the sorted list of children.
-	uint16_t prevIndex = 0;
-	uint16_t nodeIndex = parent->fFirstChild;
+	uint16 prevIndex = 0;
+	uint16 nodeIndex = parent->fFirstChild;
 	while(nodeIndex > 0) {
 		CharacterNode * current = fNodes + nodeIndex;
 		UChar childCharacter = current->fCharacter;
@@ -312,10 +312,10 @@ CharacterNode* TextTrieMap::addChildNode(CharacterNode * parent, UChar c, UError
 	node->fCharacter = c;
 	node->fNextSibling = nodeIndex;
 	if(prevIndex == 0) {
-		parent->fFirstChild = (uint16_t)fNodesCount;
+		parent->fFirstChild = (uint16)fNodesCount;
 	}
 	else {
-		fNodes[prevIndex].fNextSibling = (uint16_t)fNodesCount;
+		fNodes[prevIndex].fNextSibling = (uint16)fNodesCount;
 	}
 	++fNodesCount;
 	return node;
@@ -323,7 +323,7 @@ CharacterNode* TextTrieMap::addChildNode(CharacterNode * parent, UChar c, UError
 
 CharacterNode* TextTrieMap::getChildNode(CharacterNode * parent, UChar c) const {
 	// Linear search of the sorted list of children.
-	uint16_t nodeIndex = parent->fFirstChild;
+	uint16 nodeIndex = parent->fFirstChild;
 	while(nodeIndex > 0) {
 		CharacterNode * current = fNodes + nodeIndex;
 		UChar childCharacter = current->fCharacter;

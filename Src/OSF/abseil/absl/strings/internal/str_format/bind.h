@@ -155,9 +155,9 @@ public:
 		}
 	}
 
-	std::ostream& Print(std::ostream& os) const;
+	std::ostream & Print(std::ostream & os) const;
 
-	friend std ::ostream& operator<<(std::ostream& os, const Streamable& l) {
+	friend std ::ostream& operator<<(std::ostream & os, const Streamable& l) {
 		return l.Print(os);
 	}
 

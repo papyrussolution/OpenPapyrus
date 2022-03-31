@@ -40,7 +40,7 @@ namespace Xapian {
 /// A TermList in a glass database.
 class GlassTermList : public TermList {
     /// Don't allow assignment.
-    void operator=(const GlassTermList &);
+    void operator = (const GlassTermList &);
 
     /// Don't allow copying.
     GlassTermList(const GlassTermList &);

@@ -122,7 +122,7 @@ bool EmojiProps::hasBinaryPropertyImpl(UChar32 c, UProperty which) const
 		return false;
 	}
 	// Note: UCHAR_REGIONAL_INDICATOR is a single, hardcoded range implemented elsewhere.
-	static constexpr int8_t bitFlags[] = {
+	static constexpr int8 bitFlags[] = {
 		BIT_EMOJI,          // UCHAR_EMOJI=57
 		BIT_EMOJI_PRESENTATION, // UCHAR_EMOJI_PRESENTATION=58
 		BIT_EMOJI_MODIFIER, // UCHAR_EMOJI_MODIFIER=59

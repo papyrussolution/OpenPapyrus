@@ -32,9 +32,9 @@ using namespace std;
 namespace Xapian {
 Enquire::Enquire(const Enquire&) = default;
 
-Enquire & Enquire::operator=(const Enquire&) = default;
+Enquire & Enquire::operator = (const Enquire&) = default;
 Enquire::Enquire(Enquire&&) = default;
-Enquire & Enquire::operator=(Enquire&&) = default;
+Enquire & Enquire::operator = (Enquire&&) = default;
 
 Enquire::Enquire(const Database& db) : internal(new Enquire::Internal(db)) 
 {
@@ -319,7 +319,7 @@ TermIterator Enquire::Internal::get_matching_terms_begin(docid did) const
 			++it;
 			return retval;
 		}
-		bool operator!=(const Itor& o) { return it != o.it; }
+		bool operator != (const Itor& o) { return it != o.it; }
 	};
 	return TermIterator(new VectorTermList(Itor(query_terms.cbegin()), Itor(query_terms.cend())));
 }

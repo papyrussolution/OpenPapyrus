@@ -136,14 +136,14 @@ public:
 	 * @param month 0-based month, with 0==Jan
 	 * @return the number of days in the given month
 	 */
-	static inline int8_t monthLength(int32_t year, int32_t month);
+	static inline int8 monthLength(int32_t year, int32_t month);
 	/**
 	 * Return the length of a previous month of the Gregorian calendar.
 	 * @param y the extended year
 	 * @param m the 0-based month number
 	 * @return the number of days in the month previous to the given month
 	 */
-	static inline int8_t previousMonthLength(int y, int m);
+	static inline int8 previousMonthLength(int y, int m);
 	/**
 	 * Convert a year, month, and day-of-month, given in the proleptic
 	 * Gregorian calendar, to 1970 epoch days.
@@ -222,8 +222,8 @@ public:
 	 */
 	static inline int32_t gregorianShift(int32_t eyear);
 private:
-	static const int16_t DAYS_BEFORE[24];
-	static const int8_t MONTH_LENGTH[24];
+	static const int16 DAYS_BEFORE[24];
+	static const int8 MONTH_LENGTH[24];
 };
 
 inline double ClockMath::floorDivide(double numerator, double denominator) {
@@ -235,11 +235,11 @@ inline bool Grego::isLeapYear(int32_t year) {
 	return ((year&0x3) == 0) && ((year%100 != 0) || (year%400 == 0));
 }
 
-inline int8_t Grego::monthLength(int32_t year, int32_t month) {
+inline int8 Grego::monthLength(int32_t year, int32_t month) {
 	return MONTH_LENGTH[month + (isLeapYear(year) ? 12 : 0)];
 }
 
-inline int8_t Grego::previousMonthLength(int y, int m) {
+inline int8 Grego::previousMonthLength(int y, int m) {
 	return (m > 0) ? monthLength(y, m-1) : 31;
 }
 

@@ -3708,10 +3708,10 @@ private:
 
     // An index into a static string list in measunit.cpp. If set to -1, fImpl
     // is in use instead of fTypeId and fSubTypeId.
-    int16_t fSubTypeId;
+    int16 fSubTypeId;
     // An index into a static string list in measunit.cpp. If set to -1, fImpl
     // is in use instead of fTypeId and fSubTypeId.
-    int8_t fTypeId;
+    int8 fTypeId;
 
     MeasureUnit(int32_t typeId, int32_t subTypeId);
     MeasureUnit(MeasureUnitImpl&& impl);

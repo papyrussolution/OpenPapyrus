@@ -31,7 +31,7 @@ class PostListTree;
 /// PostList which adds on a term-independent weight contribution
 class ExtraWeightPostList : public WrapperPostList {
 	/// Don't allow assignment.
-	void operator=(const ExtraWeightPostList&) = delete;
+	void operator = (const ExtraWeightPostList&) = delete;
 	/// Don't allow copying.
 	ExtraWeightPostList(const ExtraWeightPostList&) = delete;
 	Xapian::Weight* weight;

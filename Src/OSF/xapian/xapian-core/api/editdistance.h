@@ -34,7 +34,7 @@
  *     in the string.
  */
 class EditDistanceCalculator {
-	EditDistanceCalculator& operator=(const EditDistanceCalculator&) = delete; /// Don't allow assignment.
+	EditDistanceCalculator& operator = (const EditDistanceCalculator&) = delete; /// Don't allow assignment.
 	EditDistanceCalculator(const EditDistanceCalculator&) = delete; /// Don't allow copying.
 	std::vector <uint> target; /// Target in UTF-32.
 	size_t target_bytes;

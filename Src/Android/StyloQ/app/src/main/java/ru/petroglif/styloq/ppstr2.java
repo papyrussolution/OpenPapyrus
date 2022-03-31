@@ -2136,6 +2136,17 @@ class ppstr2 {
 	public static final int PPERR_SQ_MALFORMEDINDEXINGJS = 12117;
 	public static final int PPERR_SQ_INDEXINGJSHASNTSVCIDENT = 12118;
 	public static final int PPERR_SQ_MALFORMEDSVCIDENTTEXT = 12119;
+	public static final int PPERR_SQ_CMDITEM_ZEROPTR = 12120;
+	public static final int PPERR_SQ_CMDITEM_ZEROUUID = 12121;
+	public static final int PPERR_SQ_CMDITEM_UNDEFBASE = 12122;
+	public static final int PPERR_SQ_CMDITEM_NAME_EMPTY = 12123;
+	public static final int PPERR_SQ_CMDITEM_NAME_INVUTF8 = 12124;
+	public static final int PPERR_SQ_CMDITEM_DESCR_INVUTF8 = 12125;
+	public static final int PPERR_SQ_CMDLIST_DUPIDXNGCMD = 12126;
+	public static final int PPERR_SQ_CMDLIST_SELISNTINLIST = 12127;
+	public static final int PPERR_MQBC_SERVER = 12128;
+	public static final int PPERR_MQBC_NORESPONSE = 12129;
+	public static final int PPERR_MQBC_LIBRARYEXCEPTION = 12130;
 	//
 	// .N.
 	//
@@ -4412,6 +4423,8 @@ class ppstr2 {
 	public static final int PPTXT_STQCLITESTCMD_INDEXING = 12021;
 	public static final int PPTXT_VETIS_OUTCERTREJALREADYINQ = 12022;
 	public static final int PPTXT_STQCLITESTCMD_SEARCH = 12023;
+	public static final int PPTXT_EGAIS_SALE = 12024;
+	public static final int PPTXT_STYLOQMQBSVR_NOTHINGTODO = 12025;
 	//
 	// .N.
 	//
@@ -4560,6 +4573,9 @@ class ppstr2 {
 	public static final int DVCPARAM_CHECKTIMESTAMP = 10137;
 	public static final int DVCPARAM_CHZNSID = 10138;
 	public static final int DVCPARAM_UOMFRAGM = 10139;
+	public static final int DVCPARAM_BUYERSPHONE = 10140;
+	public static final int DVCPARAM_BUYERSEMAIL = 10141;
+	public static final int DVCPARAM_PAPERLESS = 10142;
 	//
 	// .N.
 	//
@@ -4882,6 +4898,7 @@ class ppstr2 {
 	public static final int PPHS_CHZNPRODTYPE_PERFUMERY = 10309;
 	public static final int PPHS_CHZNPRODTYPE_MILK = 10310;
 	public static final int PPHS_STYLOQBINDERY = 10311;
+	public static final int PPHS_TIMEZONES = 10312;
 	//
 	// .N.
 	//

@@ -186,9 +186,9 @@ static void GenerateShortestDigits(Bignum* numerator, Bignum* denominator,
 	}
 	*length = 0;
 	for(;;) {
-		uint16_t digit;
+		uint16 digit;
 		digit = numerator->DivideModuloIntBignum(*denominator);
-		DOUBLE_CONVERSION_ASSERT(digit <= 9); // digit is a uint16_t and therefore always positive.
+		DOUBLE_CONVERSION_ASSERT(digit <= 9); // digit is a uint16 and therefore always positive.
 		// digit = numerator / denominator (integer division).
 		// numerator = numerator % denominator.
 		buffer[(*length)++] = static_cast<char>(digit + '0');
@@ -285,9 +285,9 @@ static void GenerateCountedDigits(int count, int* decimal_point,
     Vector<char> buffer, int* length) {
 	DOUBLE_CONVERSION_ASSERT(count >= 0);
 	for(int i = 0; i < count - 1; ++i) {
-		uint16_t digit;
+		uint16 digit;
 		digit = numerator->DivideModuloIntBignum(*denominator);
-		DOUBLE_CONVERSION_ASSERT(digit <= 9); // digit is a uint16_t and therefore always positive.
+		DOUBLE_CONVERSION_ASSERT(digit <= 9); // digit is a uint16 and therefore always positive.
 		// digit = numerator / denominator (integer division).
 		// numerator = numerator % denominator.
 		buffer[i] = static_cast<char>(digit + '0');
@@ -295,7 +295,7 @@ static void GenerateCountedDigits(int count, int* decimal_point,
 		numerator->Times10();
 	}
 	// Generate the last digit.
-	uint16_t digit;
+	uint16 digit;
 	digit = numerator->DivideModuloIntBignum(*denominator);
 	if(Bignum::PlusCompare(*numerator, *numerator, *denominator) >= 0) {
 		digit++;

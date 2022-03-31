@@ -12,7 +12,7 @@ IMPLEMENT_PPFILT_FACTORY(DBDiv); DBDivFilt::DBDivFilt() : PPBaseFilt(PPFILT_DBDI
 	Init(1, 0);
 }
 
-DBDivFilt & FASTCALL DBDivFilt::operator=(const DBDivFilt & s)
+DBDivFilt & FASTCALL DBDivFilt::operator = (const DBDivFilt & s)
 {
 	Copy(&s, 0);
 	return *this;

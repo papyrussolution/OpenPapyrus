@@ -407,7 +407,7 @@ U_CAPI UChar32 U_EXPORT2 unorm2_composePair(const UNormalizer2 * norm2, UChar32 
  * @return c's combining class
  * @stable ICU 49
  */
-U_CAPI uint8_t U_EXPORT2 unorm2_getCombiningClass(const UNormalizer2 * norm2, UChar32 c);
+U_CAPI uint8 U_EXPORT2 unorm2_getCombiningClass(const UNormalizer2 * norm2, UChar32 c);
 
 /**
  * Tests if the string is normalized.

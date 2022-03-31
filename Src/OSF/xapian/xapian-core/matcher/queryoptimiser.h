@@ -34,7 +34,7 @@ namespace Xapian {
 namespace Internal {
 class QueryOptimiser {
 	/// Prevent assignment.
-	void operator=(const QueryOptimiser &);
+	void operator = (const QueryOptimiser &);
 	/// Prevent copying.
 	QueryOptimiser(const QueryOptimiser &);
 	LocalSubMatch & localsubmatch;

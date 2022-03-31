@@ -55,7 +55,7 @@ private:
 	absl::Mutex lock_;
 	// Disallow
 	FlagRegistry(const FlagRegistry&);
-	FlagRegistry& operator=(const FlagRegistry&);
+	FlagRegistry& operator = (const FlagRegistry&);
 };
 
 namespace {
@@ -261,7 +261,7 @@ class FlagSaverImpl {
 public:
 	FlagSaverImpl() = default;
 	FlagSaverImpl(const FlagSaverImpl&) = delete;
-	void operator=(const FlagSaverImpl&) = delete;
+	void operator = (const FlagSaverImpl&) = delete;
 
 	// Saves the flag states from the flag registry into this object.
 	// It's an error to call this more than once.

@@ -30,7 +30,7 @@
 /// N-way XOR postlist.
 class MultiXorPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const MultiXorPostList &);
+    void operator = (const MultiXorPostList &);
 
     /// Don't allow copying.
     MultiXorPostList(const MultiXorPostList &);

@@ -2772,7 +2772,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 			break;
 		case PPSCMD_GETFILE:
 			pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-			THROW_PP_S(name.CmpPrefix(_PPConst.P_MagicFileTransmit, 0) == 0, PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
+			THROW_PP_S(name.HasPrefix(_PPConst.P_MagicFileTransmit), PPERR_JOBSRV_FILETRANSM_INVMAGIC, name);
 			name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
 			ok = TransmitFile(tfvStart, name, rReply);
 			break;
@@ -3849,7 +3849,7 @@ PPServerSession::CmdRet PPServerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				break;
 			case PPSCMD_PUTFILE:
 				pEv->GetParam(1, name); // PPGetExtStrData(1, pEv->Params, name);
-				if(name.CmpPrefix(_PPConst.P_MagicFileTransmit, 0) == 0)
+				if(name.HasPrefix(_PPConst.P_MagicFileTransmit))
 					name.ShiftLeft(sstrlen(_PPConst.P_MagicFileTransmit));
 				else
 					name.Z();

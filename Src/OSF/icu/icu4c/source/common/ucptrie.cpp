@@ -97,7 +97,7 @@ U_CAPI UCPTrie * U_EXPORT2 ucptrie_openFromBinary(UCPTrieType type, UCPTrieValue
 #endif
 
 	// Set the pointers to its index and data arrays.
-	const uint16_t * p16 = (const uint16_t*)(header + 1);
+	const uint16 * p16 = (const uint16*)(header + 1);
 	trie->index = p16;
 	p16 += trie->indexLength;
 
@@ -263,7 +263,7 @@ UChar32 getRange(const void * t, UChar32 start,
 	if(filter != nullptr) {
 		nullValue = filter(context, nullValue);
 	}
-	const uint16_t * index = trie->index;
+	const uint16 * index = trie->index;
 
 	int32_t prevI3Block = -1;
 	int32_t prevBlock = -1;
@@ -507,15 +507,15 @@ U_CAPI int32_t U_EXPORT2 ucptrie_toBinary(const UCPTrie * trie,
 	char * bytes = (char *)data;
 	UCPTrieHeader * header = (UCPTrieHeader*)bytes;
 	header->signature = UCPTRIE_SIG; // "Tri3"
-	header->options = (uint16_t)(
+	header->options = (uint16)(
 		((trie->dataLength & 0xf0000) >> 4) |
 		((trie->dataNullOffset & 0xf0000) >> 8) |
 		(trie->type << 6) |
 		valueWidth);
-	header->indexLength = (uint16_t)trie->indexLength;
-	header->dataLength = (uint16_t)trie->dataLength;
+	header->indexLength = (uint16)trie->indexLength;
+	header->dataLength = (uint16)trie->dataLength;
 	header->index3NullOffset = trie->index3NullOffset;
-	header->dataNullOffset = (uint16_t)trie->dataNullOffset;
+	header->dataNullOffset = (uint16)trie->dataNullOffset;
 	header->shiftedHighStart = trie->highStart >> UCPTRIE_SHIFT_2;
 	bytes += sizeof(UCPTrieHeader);
 

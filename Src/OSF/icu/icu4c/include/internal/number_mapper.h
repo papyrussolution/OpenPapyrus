@@ -215,8 +215,8 @@ struct DecimalFormatFields : public UMemory {
         char16_t cpZero;
         char16_t cpGroupingSeparator;
         char16_t cpMinusSign;
-        int8_t minInt;
-        int8_t maxInt;
+        int8 minInt;
+        int8 maxInt;
     } fastData;
 };
 

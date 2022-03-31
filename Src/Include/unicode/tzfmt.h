@@ -865,7 +865,7 @@ private:
      * @param n the integer number
      * @param minDigits the minimum digits width
      */
-    void appendOffsetDigits(UnicodeString & buf, int32_t n, uint8_t minDigits) const;
+    void appendOffsetDigits(UnicodeString & buf, int32_t n, uint8 minDigits) const;
 
     /**
      * Returns offset from GMT(UTC) in milliseconds for the given localized GMT
@@ -962,7 +962,7 @@ private:
      * @return the integer value parsed
      */
     int32_t parseOffsetFieldWithLocalizedDigits(const UnicodeString & text, int32_t start,
-        uint8_t minDigits, uint8_t maxDigits, uint16_t minVal, uint16_t maxVal, int32_t& parsedLen) const;
+        uint8 minDigits, uint8 maxDigits, uint16 minVal, uint16 maxVal, int32_t& parsedLen) const;
 
     /**
      * Reads a single decimal digit, either localized digits used by this object

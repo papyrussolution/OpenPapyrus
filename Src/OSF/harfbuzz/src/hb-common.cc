@@ -78,20 +78,16 @@ hb_tag_t hb_tag_from_string(const char * str, int len)
 {
 	char tag[4];
 	uint i;
-
 	if(!str || !len || !*str)
 		return HB_TAG_NONE;
-
 	if(len < 0 || len > 4)
 		len = 4;
 	for(i = 0; i < (uint)len && str[i]; i++)
 		tag[i] = str[i];
 	for(; i < 4; i++)
 		tag[i] = ' ';
-
 	return HB_TAG(tag[0], tag[1], tag[2], tag[3]);
 }
-
 /**
  * hb_tag_to_string:
  * @tag:
@@ -111,12 +107,7 @@ void hb_tag_to_string(hb_tag_t tag, char * buf)
 
 /* hb_direction_t */
 
-const char direction_strings[][4] = {
-	"ltr",
-	"rtl",
-	"ttb",
-	"btt"
-};
+const char direction_strings[][4] = { "ltr", "rtl", "ttb", "btt" };
 
 /**
  * hb_direction_from_string:
@@ -199,21 +190,17 @@ static uint lang_hash(const void * key)
 		h = (h << 5) - h + canon_map[*p];
 		p++;
 	}
-
 	return h;
 }
-
 #endif
 
 struct hb_language_item_t {
 	struct hb_language_item_t * next;
 	hb_language_t lang;
-
 	bool operator ==(const char * s) const
 	{
 		return lang_equal(lang, s);
 	}
-
 	hb_language_item_t & operator =(const char * s) {
 		/* If a custom allocated is used calling strdup() pairs
 		   badly with a call to the custom SAlloc::F() in fini() below.
@@ -845,11 +832,9 @@ hb_bool_t hb_feature_from_string(const char * str, int len, hb_feature_t * featu
  *
  * Since: 0.9.5
  **/
-void hb_feature_to_string(hb_feature_t * feature,
-    char * buf, uint size)
+void hb_feature_to_string(hb_feature_t * feature, char * buf, uint size)
 {
 	if(UNLIKELY(!size)) return;
-
 	char s[128];
 	uint len = 0;
 	if(feature->value == 0)
@@ -885,18 +870,15 @@ static bool parse_variation_value(const char ** pp, const char * end, hb_variati
 {
 	parse_char(pp, end, '='); /* Optional. */
 	double v;
-	if(UNLIKELY(!hb_parse_double(pp, end, &v))) return false;
-
+	if(UNLIKELY(!hb_parse_double(pp, end, &v))) 
+		return false;
 	variation->value = v;
 	return true;
 }
 
 static bool parse_one_variation(const char ** pp, const char * end, hb_variation_t * variation)
 {
-	return parse_tag(pp, end, &variation->tag) &&
-	       parse_variation_value(pp, end, variation) &&
-	       parse_space(pp, end) &&
-	       *pp == end;
+	return parse_tag(pp, end, &variation->tag) && parse_variation_value(pp, end, variation) && parse_space(pp, end) && *pp == end;
 }
 
 /**
@@ -923,7 +905,8 @@ hb_bool_t hb_variation_from_string(const char * str, int len, hb_variation_t * v
  */
 void hb_variation_to_string(hb_variation_t * variation, char * buf, uint size)
 {
-	if(UNLIKELY(!size)) return;
+	if(UNLIKELY(!size)) 
+		return;
 	char s[128];
 	uint len = 0;
 	hb_tag_to_string(variation->tag, s + len);
@@ -932,7 +915,6 @@ void hb_variation_to_string(hb_variation_t * variation, char * buf, uint size)
 		len--;
 	s[len++] = '=';
 	len += hb_max(0, snprintf(s + len, ARRAY_LENGTH(s) - len, "%g", (double)variation->value));
-
 	assert(len < ARRAY_LENGTH(s));
 	len = hb_min(len, size - 1);
 	memcpy(buf, s, len);
@@ -947,12 +929,10 @@ void hb_variation_to_string(hb_variation_t * variation, char * buf, uint size)
  *
  * Since: 2.1.0
  */
-uint8_t
-	(hb_color_get_alpha) (hb_color_t color)
+uint8_t (hb_color_get_alpha) (hb_color_t color)
 {
 	return hb_color_get_alpha(color);
 }
-
 /**
  * hb_color_get_red:
  * color: a #hb_color_t we are interested in its channels.
@@ -961,8 +941,7 @@ uint8_t
  *
  * Since: 2.1.0
  */
-uint8_t
-	(hb_color_get_red) (hb_color_t color)
+uint8_t (hb_color_get_red) (hb_color_t color)
 {
 	return hb_color_get_red(color);
 }
@@ -975,8 +954,7 @@ uint8_t
  *
  * Since: 2.1.0
  */
-uint8_t
-	(hb_color_get_green) (hb_color_t color)
+uint8_t (hb_color_get_green) (hb_color_t color)
 {
 	return hb_color_get_green(color);
 }
@@ -989,8 +967,7 @@ uint8_t
  *
  * Since: 2.1.0
  */
-uint8_t
-	(hb_color_get_blue) (hb_color_t color)
+uint8_t (hb_color_get_blue)(hb_color_t color)
 {
 	return hb_color_get_blue(color);
 }

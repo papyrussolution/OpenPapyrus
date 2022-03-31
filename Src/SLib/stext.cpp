@@ -1443,15 +1443,13 @@ uint8 FASTCALL hextobyte(const char * pBuf)
 	return r;
 }
 
-static int experimental_isasciialpha(int c) 
+/*static int experimental_isasciialpha(int c) 
 {
     return ((uint)(c | 32) - 97) < 26U;
 	//unsigned((ch&(~(1<<5))) - 'A') <= ('Z' - 'A')
-}
-
-int FASTCALL isasciialpha(char ch) { return (((uchar)(ch | 32) - 97) < 26U); }
-int FASTCALL isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
-
+}*/
+// @v11.3.6 (inlined) int FASTCALL isasciialpha(char ch) { return (((uchar)(ch | 32) - 97) < 26U); }
+// @v11.3.6 (inlined) int FASTCALL isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int FASTCALL IsLetterASCII(int ch) { return ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z')); }
 
 int FASTCALL IsLetter866(int alpha)

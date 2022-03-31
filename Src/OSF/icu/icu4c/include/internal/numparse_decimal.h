@@ -25,7 +25,7 @@ class DecimalMatcher : public NumberParseMatcher, public UMemory {
     bool match(StringSegment& segment, ParsedNumber& result, UErrorCode & status) const override;
 
     bool
-    match(StringSegment& segment, ParsedNumber& result, int8_t exponentSign, UErrorCode & status) const;
+    match(StringSegment& segment, ParsedNumber& result, int8 exponentSign, UErrorCode & status) const;
 
     bool smokeTest(const StringSegment& segment) const override;
 
@@ -45,8 +45,8 @@ class DecimalMatcher : public NumberParseMatcher, public UMemory {
     /** If true, do not accept numbers in the fraction */
     bool integerOnly;
 
-    int16_t grouping1;
-    int16_t grouping2;
+    int16 grouping1;
+    int16 grouping2;
 
     UnicodeString groupingSeparator;
     UnicodeString decimalSeparator;

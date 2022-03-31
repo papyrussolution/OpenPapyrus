@@ -548,7 +548,7 @@ int ACS_SHTRIHMFRK::ImportFiles()
 	if(r_eq_cfg.FtpAcctID)
 		THROW(obj_acct.Get(r_eq_cfg.FtpAcctID, &acct));
 	for(uint i = 0; ImpPaths.get(&i, imp_path);) {
-		if(imp_path.CmpPrefix(p_ftp_flag, 1) == 0) {
+		if(imp_path.HasPrefixIAscii(p_ftp_flag)) {
 			SString ftp_path, ftp_path_flag, ftp_dir, file_name;
 			SPathStruc sp;
 			imp_path.ShiftLeft(sstrlen(p_ftp_flag));

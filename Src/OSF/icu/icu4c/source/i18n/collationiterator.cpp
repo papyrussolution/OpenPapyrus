@@ -615,7 +615,7 @@ uint32_t CollationIterator::nextCE32FromDiscontiguousContraction(const Collation
 	// S2.1.3 If there is a match, replace S by S + C, and remove C.
 
 	// First: Is a discontiguous contraction even possible?
-	uint16_t fcd16 = d->getFCD16(c);
+	uint16 fcd16 = d->getFCD16(c);
 	U_ASSERT(fcd16 > 0xff); // The caller checked this already, as a shortcut.
 	UChar32 nextCp = nextSkippedCodePoint(errorCode);
 	if(nextCp < 0) {

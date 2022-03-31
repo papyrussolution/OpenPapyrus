@@ -144,7 +144,7 @@ typedef int32_t U_CALLCONV
  * Or the data table is 32 bits wide and accessed via the data32 pointer.
  */
 struct UTrie {
-	const uint16_t * index;
+	const uint16 * index;
 	const uint32_t * data32; /* NULL if 16b data is used via index */
 
 	/**
@@ -263,7 +263,7 @@ typedef struct UTrie UTrie;
  * (trie->isLatin1Linear).
  *
  * @param trie (const UTrie *, in) a pointer to the runtime trie structure
- * @return (const uint16_t *) pointer to values for Latin-1 code points
+ * @return (const uint16 *) pointer to values for Latin-1 code points
  */
 #define UTRIE_GET16_LATIN1(trie) ((trie)->index+(trie)->indexLength+UTRIE_DATA_BLOCK_LENGTH)
 
@@ -284,7 +284,7 @@ typedef struct UTrie UTrie;
  *
  * @param trie (const UTrie *, in) a pointer to the runtime trie structure
  * @param c16 (UChar, in) the input BMP code point
- * @return (uint16_t) trie lookup result
+ * @return (uint16) trie lookup result
  */
 #define UTRIE_GET16_FROM_LEAD(trie, c16) _UTRIE_GET_RAW(trie, index, 0, c16)
 
@@ -305,7 +305,7 @@ typedef struct UTrie UTrie;
  *
  * @param trie (const UTrie *, in) a pointer to the runtime trie structure
  * @param c16 (UChar, in) the input BMP code point
- * @return (uint16_t) trie lookup result
+ * @return (uint16) trie lookup result
  */
 #define UTRIE_GET16_FROM_BMP(trie, c16) _UTRIE_GET_FROM_BMP(trie, index, c16)
 
@@ -327,9 +327,9 @@ typedef struct UTrie UTrie;
  *
  * @param trie (const UTrie *, in) a pointer to the runtime trie structure
  * @param c32 (UChar32, in) the input code point
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
-#define UTRIE_GET16(trie, c32, result) _UTRIE_GET(trie, index, c32, result, uint16_t)
+#define UTRIE_GET16(trie, c32, result) _UTRIE_GET(trie, index, c32, result, uint16)
 
 /**
  * Get a 32-bit trie value from a code point.
@@ -351,9 +351,9 @@ typedef struct UTrie UTrie;
  * @param limit (const UChar *, in) the limit pointer for the text, or NULL
  * @param c (UChar, out) variable for the BMP or lead code unit
  * @param c2 (UChar, out) variable for 0 or the trail code unit
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
-#define UTRIE_NEXT16(trie, src, limit, c, c2, result) _UTRIE_NEXT(trie, index, src, limit, c, c2, result, uint16_t)
+#define UTRIE_NEXT16(trie, src, limit, c, c2, result) _UTRIE_NEXT(trie, index, src, limit, c, c2, result, uint16)
 
 /**
  * Get the next code point (c, c2), post-increment src,
@@ -377,9 +377,9 @@ typedef struct UTrie UTrie;
  * @param src (const UChar *, in/out) the source text pointer
  * @param c (UChar, out) variable for the BMP or lead code unit
  * @param c2 (UChar, out) variable for 0 or the trail code unit
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
-#define UTRIE_PREVIOUS16(trie, start, src, c, c2, result) _UTRIE_PREVIOUS(trie, index, start, src, c, c2, result, uint16_t)
+#define UTRIE_PREVIOUS16(trie, start, src, c, c2, result) _UTRIE_PREVIOUS(trie, index, start, src, c, c2, result, uint16)
 
 /**
  * Get the previous code point (c, c2), pre-decrement src,
@@ -400,9 +400,9 @@ typedef struct UTrie UTrie;
  * @param trie (const UTrie *, in) a pointer to the runtime trie structure
  * @param c (UChar, in) a lead surrogate
  * @param c2 (UChar, in) a trail surrogate
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
-#define UTRIE_GET16_FROM_PAIR(trie, c, c2, result) _UTRIE_GET_FROM_PAIR(trie, index, c, c2, result, uint16_t)
+#define UTRIE_GET16_FROM_PAIR(trie, c, c2, result) _UTRIE_GET_FROM_PAIR(trie, index, c, c2, result, uint16)
 
 /**
  * Get a 32-bit trie value from a pair of surrogates.
@@ -421,7 +421,7 @@ typedef struct UTrie UTrie;
  * @param trie (const UTrie *, in) a pointer to the runtime trie structure
  * @param offset (int32_t, in) the folding offset from the value of a lead surrogate
  * @param c2 (UChar, in) a trail surrogate (only the 10 low bits are significant)
- * @return (uint16_t) trie lookup result
+ * @return (uint16) trie lookup result
  */
 #define UTRIE_GET16_FROM_OFFSET_TRAIL(trie, offset, c2) _UTRIE_GET_RAW(trie, index, offset, (c2)&0x3ff)
 
@@ -725,8 +725,8 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * data, int32_t c
  * Trie data structure in serialized form:
  *
  * UTrieHeader header;
- * uint16_t index[header.indexLength];
- * uint16_t data[header.dataLength];
+ * uint16 index[header.indexLength];
+ * uint16 data[header.dataLength];
  * @internal
  */
 typedef struct UTrieHeader {

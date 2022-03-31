@@ -40,7 +40,7 @@ public:
 	{
 	}
 	Barrier(const Barrier&) = delete;
-	Barrier& operator=(const Barrier&) = delete;
+	Barrier& operator = (const Barrier&) = delete;
 	// Barrier::Block()
 	//
 	// Blocks the current thread, and returns only when the `num_threads`

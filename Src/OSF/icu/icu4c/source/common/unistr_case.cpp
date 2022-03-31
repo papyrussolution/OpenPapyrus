@@ -29,7 +29,7 @@ U_NAMESPACE_BEGIN
 // Read-only implementation
 //========================================
 
-int8_t UnicodeString::doCaseCompare(int32_t start,
+int8 UnicodeString::doCaseCompare(int32_t start,
     int32_t length,
     const UChar * srcChars,
     int32_t srcStart,
@@ -62,7 +62,7 @@ int8_t UnicodeString::doCaseCompare(int32_t start,
 		int32_t result = u_strcmpFold(chars, length, srcChars, srcLength,
 			options|U_COMPARE_IGNORE_CASE, &errorCode);
 		if(result!=0) {
-			return (int8_t)(result >> 24 | 1);
+			return (int8)(result >> 24 | 1);
 		}
 	}
 	else {
@@ -71,7 +71,7 @@ int8_t UnicodeString::doCaseCompare(int32_t start,
 			srcLength = u_strlen(srcChars + srcStart);
 		}
 		if(length != srcLength) {
-			return (int8_t)((length - srcLength) >> 24 | 1);
+			return (int8)((length - srcLength) >> 24 | 1);
 		}
 	}
 	return 0;

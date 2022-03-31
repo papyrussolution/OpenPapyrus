@@ -135,7 +135,7 @@ static const float RESIZE_POLICY_RATIO_TABLE[6] = {
 
 static UHashTok _uhash_setElement(UHashtable * hash, UHashElement* e,
     int32_t hashcode,
-    UHashTok key, UHashTok value, int8_t hint) {
+    UHashTok key, UHashTok value, int8 hint) {
 	UHashTok oldValue = e->value;
 	if(hash->keyDeleter != NULL && e->key.pointer != NULL &&
 	    e->key.pointer != key.pointer) { /* Avoid double deletion */
@@ -208,7 +208,7 @@ static void _uhash_allocate(UHashtable * hash,
 
 	U_ASSERT(primeIndex >= 0 && primeIndex < PRIMES_LENGTH);
 
-	hash->primeIndex = static_cast<int8_t>(primeIndex);
+	hash->primeIndex = static_cast<int8>(primeIndex);
 	hash->length = PRIMES[primeIndex];
 
 	p = hash->elements = (UHashElement*)
@@ -442,7 +442,7 @@ static UHashTok _uhash_remove(UHashtable * hash,
 static UHashTok _uhash_put(UHashtable * hash,
     UHashTok key,
     UHashTok value,
-    int8_t hint,
+    int8 hint,
     UErrorCode * status) {
 	/* Put finds the position in the table for the new value.  If the
 	 * key is already in the table, it is deleted, if there is a

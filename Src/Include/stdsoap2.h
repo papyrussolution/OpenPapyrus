@@ -1530,7 +1530,7 @@ public:
 			const char * nstr;
 			const char * name;
 			bool operator == (const soap_dom_attribute_iterator &) const;
-			bool operator!=(const soap_dom_attribute_iterator &) const;
+			bool operator != (const soap_dom_attribute_iterator &) const;
 			struct soap_dom_attribute & operator *() const;
 			soap_dom_attribute_iterator & operator++();
 			soap_dom_attribute_iterator();
@@ -1570,7 +1570,7 @@ public:
 			const char * name;
 			int type;
 			bool operator == (const soap_dom_element_iterator &) const;
-			bool operator!=(const soap_dom_element_iterator &) const;
+			bool operator != (const soap_dom_element_iterator &) const;
 			struct soap_dom_element & operator *() const;
 			soap_dom_element_iterator & operator++();
 			soap_dom_element_iterator();

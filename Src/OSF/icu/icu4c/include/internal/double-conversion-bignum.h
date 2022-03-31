@@ -43,12 +43,12 @@ public:
 	Bignum() : used_bigits_(0), exponent_(0) 
 	{
 	}
-	void AssignUInt16(const uint16_t value);
+	void AssignUInt16(const uint16 value);
 	void AssignUInt64(uint64_t value);
 	void AssignBignum(const Bignum & other);
 	void AssignDecimalString(const Vector<const char> value);
 	void AssignHexString(const Vector<const char> value);
-	void AssignPowerUInt16(uint16_t base, const int exponent);
+	void AssignPowerUInt16(uint16 base, const int exponent);
 	void AddUInt64(const uint64_t operand);
 	void AddBignum(const Bignum & other);
 	// Precondition: this >= other.
@@ -66,7 +66,7 @@ public:
 	//  int result = this / other;
 	//  this = this % other;
 	// In the worst case this function is in O(this/other).
-	uint16_t DivideModuloIntBignum(const Bignum & other);
+	uint16 DivideModuloIntBignum(const Bignum & other);
 	bool ToHexString(char * buffer, const int buffer_size) const;
 
 	// Returns
@@ -134,8 +134,8 @@ private:
 	// where the value of the buffer consists of the lower kBigitSize bits of
 	// the first used_bigits_ Chunks in bigits_buffer_, first chunk has lowest
 	// significant bits.
-	int16_t used_bigits_;
-	int16_t exponent_;
+	int16 used_bigits_;
+	int16 exponent_;
 	Chunk bigits_buffer_[kBigitCapacity];
 
 	DOUBLE_CONVERSION_DISALLOW_COPY_AND_ASSIGN(Bignum);

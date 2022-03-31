@@ -101,7 +101,7 @@ struct U_I18N_API CollationData : public UMemory {
 	/**
 	 * Returns the FCD16 value for code point c. c must be >= 0.
 	 */
-	uint16_t getFCD16(UChar32 c) const { return nfcImpl.getFCD16(c); }
+	uint16 getFCD16(UChar32 c) const { return nfcImpl.getFCD16(c); }
 	/**
 	 * Returns the first primary for the script's reordering group.
 	 * @return the primary with only the first primary lead byte of the group
@@ -182,7 +182,7 @@ struct U_I18N_API CollationData : public UMemory {
 	 * Fast Latin table for common-Latin-text string comparisons.
 	 * Data structure see class CollationFastLatin.
 	 */
-	const uint16_t * fastLatinTable;
+	const uint16 * fastLatinTable;
 	int32_t fastLatinTableLength;
 
 	/**
@@ -200,14 +200,14 @@ struct U_I18N_API CollationData : public UMemory {
 	 *
 	 * Multiple scripts may share a range and index, for example Hira & Kana.
 	 */
-	const uint16_t * scriptsIndex;
+	const uint16 * scriptsIndex;
 	/**
 	 * Start primary weight (top 16 bits only) for a group/script/reserved range
 	 * indexed by scriptsIndex.
 	 * The first range (separators & terminators) and the last range (trailing weights)
 	 * are not reorderable, and no scriptsIndex entry points to them.
 	 */
-	const uint16_t * scriptStarts;
+	const uint16 * scriptStarts;
 	int32_t scriptStartsLength;
 	/**
 	 * Collation elements in the root collator.

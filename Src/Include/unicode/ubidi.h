@@ -329,7 +329,7 @@
  *
  * Note: The numeric values of the related constants will not change:
  * They are tied to the use of 7-bit byte values (plus the override bit)
- * and of the UBiDiLevel=uint8_t data type in this API.
+ * and of the UBiDiLevel=uint8 data type in this API.
  *
  * @see UBIDI_DEFAULT_LTR
  * @see UBIDI_DEFAULT_RTL
@@ -337,7 +337,7 @@
  * @see UBIDI_MAX_EXPLICIT_LEVEL
  * @stable ICU 2.0
  */
-typedef uint8_t UBiDiLevel;
+typedef uint8 UBiDiLevel;
 
 /** Paragraph level setting.<p>
  *
@@ -2150,7 +2150,7 @@ ubidi_getClassCallback(UBiDi *pBiDi, UBiDiClassCallback **fn, const void **conte
 U_CAPI int32_t U_EXPORT2
 ubidi_writeReordered(UBiDi *pBiDi,
                      UChar *dest, int32_t destSize,
-                     uint16_t options,
+                     uint16 options,
                      UErrorCode *pErrorCode);
 
 /**
@@ -2202,7 +2202,7 @@ ubidi_writeReordered(UBiDi *pBiDi,
 U_CAPI int32_t U_EXPORT2
 ubidi_writeReverse(const UChar *src, int32_t srcLength,
                    UChar *dest, int32_t destSize,
-                   uint16_t options,
+                   uint16 options,
                    UErrorCode *pErrorCode);
 
 /*#define BIDI_SAMPLE_CODE*/

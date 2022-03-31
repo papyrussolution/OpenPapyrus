@@ -34,7 +34,7 @@
 #define COMMON_DATA_NAME U_ICUDATA_NAME
 
 typedef struct  {
-    uint16_t    headerSize;
+    uint16    headerSize;
     uint8     magic1;
     uint8     magic2;
 } MappedData;
@@ -65,7 +65,7 @@ typedef struct {
  *
  * @internal
  */
-U_CFUNC uint16_t
+U_CFUNC uint16
 udata_getHeaderSize(const DataHeader *udh);
 
 /**
@@ -74,7 +74,7 @@ udata_getHeaderSize(const DataHeader *udh);
  *
  * @internal
  */
-U_CFUNC uint16_t
+U_CFUNC uint16
 udata_getInfoSize(const UDataInfo *info);
 
 U_CDECL_BEGIN

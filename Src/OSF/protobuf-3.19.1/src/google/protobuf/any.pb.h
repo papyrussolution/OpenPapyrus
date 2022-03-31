@@ -74,11 +74,11 @@ class Any final :
     *this = ::std::move(from);
   }
 
-  inline Any& operator=(const Any& from) {
+  inline Any& operator = (const Any& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Any& operator=(Any&& from) noexcept {
+  inline Any& operator = (Any&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

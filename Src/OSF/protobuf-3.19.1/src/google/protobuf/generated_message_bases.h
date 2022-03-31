@@ -61,7 +61,7 @@ protected:
 	}
 
 	ZeroFieldsBase(const ZeroFieldsBase&) = delete;
-	ZeroFieldsBase& operator=(const ZeroFieldsBase&) = delete;
+	ZeroFieldsBase& operator = (const ZeroFieldsBase&) = delete;
 	~ZeroFieldsBase() override;
 
 	void SetCachedSize(int size) const final {

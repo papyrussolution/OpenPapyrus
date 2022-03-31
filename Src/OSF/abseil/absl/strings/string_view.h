@@ -1,4 +1,4 @@
-//
+// string_view.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -6,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: string_view.h
-// -----------------------------------------------------------------------------
 //
 // This file contains the definition of the `absl::string_view` class. A
 // `string_view` points to a contiguous span of characters, often part or all of
@@ -35,7 +25,6 @@
 #include <iterator>
 #include <limits>
 #include <string>
-
 #include "absl/base/attributes.h"
 #include "absl/base/config.h"
 #include "absl/base/internal/throw_delegate.h"
@@ -212,7 +201,7 @@ public:
 
 	// NOTE: Harmlessly omitted to work around gdb bug.
 	//   constexpr string_view(const string_view&) noexcept = default;
-	//   string_view& operator=(const string_view&) noexcept = default;
+	//   string_view& operator = (const string_view&) noexcept = default;
 
 	// Iterators
 
@@ -675,34 +664,34 @@ private:
 // This large function is defined inline so that in a fairly common case where
 // one of the arguments is a literal, the compiler can elide a lot of the
 // following comparisons.
-constexpr bool operator==(string_view x, string_view y) noexcept {
+constexpr bool operator == (string_view x, string_view y) noexcept {
 	return x.size() == y.size() &&
 	       (x.empty() ||
 	       ABSL_INTERNAL_STRING_VIEW_MEMCMP(x.data(), y.data(), x.size()) == 0);
 }
 
-constexpr bool operator!=(string_view x, string_view y) noexcept {
+constexpr bool operator != (string_view x, string_view y) noexcept {
 	return !(x == y);
 }
 
-constexpr bool operator<(string_view x, string_view y) noexcept {
+constexpr bool operator < (string_view x, string_view y) noexcept {
 	return x.compare(y) < 0;
 }
 
-constexpr bool operator>(string_view x, string_view y) noexcept {
+constexpr bool operator > (string_view x, string_view y) noexcept {
 	return y < x;
 }
 
-constexpr bool operator<=(string_view x, string_view y) noexcept {
+constexpr bool operator <= (string_view x, string_view y) noexcept {
 	return !(y < x);
 }
 
-constexpr bool operator>=(string_view x, string_view y) noexcept {
+constexpr bool operator >= (string_view x, string_view y) noexcept {
 	return !(x < y);
 }
 
 // IO Insertion Operator
-std::ostream& operator<<(std::ostream& o, string_view piece);
+std::ostream & operator<<(std::ostream & o, string_view piece);
 
 ABSL_NAMESPACE_END
 }  // namespace absl

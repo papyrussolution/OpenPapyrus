@@ -1,3 +1,4 @@
+// hashtablez_sampler.h
 // Copyright 2018 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: hashtablez_sampler.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines the API for a low level library to sample hashtables
 // and collect runtime statistics about them.
@@ -43,7 +34,6 @@
 #include <functional>
 #include <memory>
 #include <vector>
-
 #include "absl/base/internal/per_thread_tls.h"
 #include "absl/base/optimization.h"
 #include "absl/container/internal/have_sse.h"
@@ -63,7 +53,7 @@ struct HashtablezInfo : public profiling_internal::Sample<HashtablezInfo> {
   HashtablezInfo();
   ~HashtablezInfo();
   HashtablezInfo(const HashtablezInfo&) = delete;
-  HashtablezInfo& operator=(const HashtablezInfo&) = delete;
+  HashtablezInfo& operator = (const HashtablezInfo&) = delete;
 
   // Puts the object into a clean state, fills in the logically `const` members,
   // blocking for any readers that are currently sampling the object.
@@ -163,11 +153,11 @@ class HashtablezInfoHandle {
   }
 
   HashtablezInfoHandle(const HashtablezInfoHandle&) = delete;
-  HashtablezInfoHandle& operator=(const HashtablezInfoHandle&) = delete;
+  HashtablezInfoHandle& operator = (const HashtablezInfoHandle&) = delete;
 
   HashtablezInfoHandle(HashtablezInfoHandle&& o) noexcept
       : info_(absl::exchange(o.info_, nullptr)) {}
-  HashtablezInfoHandle& operator=(HashtablezInfoHandle&& o) noexcept {
+  HashtablezInfoHandle& operator = (HashtablezInfoHandle&& o) noexcept {
     if (ABSL_PREDICT_FALSE(info_ != nullptr)) {
       UnsampleSlow(info_);
     }

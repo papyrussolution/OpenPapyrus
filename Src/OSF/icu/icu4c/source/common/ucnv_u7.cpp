@@ -141,7 +141,7 @@ static const uint8
 	43, 47
 };
 
-static const int8_t
+static const int8
     fromBase64[128] = {
 	/* C0 controls, -1 for legal ones (CR LF TAB), -3 for illegal ones */
 	-3, -3, -3, -3, -3, -3, -3, -3, -3, -1, -1, -3, -3, -1, -3, -3,
@@ -219,11 +219,11 @@ static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	int32_t length, targetCapacity;
 
 	/* UTF-7 state */
-	uint16_t bits;
-	int8_t base64Counter;
+	uint16 bits;
+	int8 base64Counter;
 	bool inDirectMode;
 
-	int8_t base64Value;
+	int8 base64Value;
 
 	int32_t sourceIndex, nextSourceIndex;
 
@@ -240,8 +240,8 @@ static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	{
 		uint32_t status = cnv->toUnicodeStatus;
 		inDirectMode = (bool)((status>>24)&1);
-		base64Counter = (int8_t)(status>>16);
-		bits = (uint16_t)status;
+		base64Counter = (int8)(status>>16);
+		bits = (uint16)status;
 	}
 	bytes = cnv->toUBytes;
 	byteIndex = cnv->toULength;
@@ -378,7 +378,7 @@ unicodeMode:
 						case 3:
 						case 4:
 						case 6:
-						    bits = (uint16_t)((bits<<6)|base64Value);
+						    bits = (uint16)((bits<<6)|base64Value);
 						    ++base64Counter;
 						    break;
 						case 2:
@@ -389,7 +389,7 @@ unicodeMode:
 						    }
 						    bytes[0] = b; /* keep this byte in case an error occurs */
 						    byteIndex = 1;
-						    bits = (uint16_t)(base64Value&3);
+						    bits = (uint16)(base64Value&3);
 						    base64Counter = 3;
 						    break;
 						case 5:
@@ -400,7 +400,7 @@ unicodeMode:
 						    }
 						    bytes[0] = b; /* keep this byte in case an error occurs */
 						    byteIndex = 1;
-						    bits = (uint16_t)(base64Value&15);
+						    bits = (uint16)(base64Value&15);
 						    base64Counter = 6;
 						    break;
 						case 7:
@@ -482,7 +482,7 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	/* UTF-7 state */
 	const bool * encodeDirectly;
 	uint8 bits;
-	int8_t base64Counter;
+	int8 base64Counter;
 	bool inDirectMode;
 
 	/* set up the local pointers */
@@ -500,7 +500,7 @@ static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 		uint32_t status = cnv->fromUnicodeStatus;
 		encodeDirectly = status<0x10000000 ? encodeDirectlyMaximum : encodeDirectlyRestricted;
 		inDirectMode = (bool)((status>>24)&1);
-		base64Counter = (int8_t)(status>>16);
+		base64Counter = (int8)(status>>16);
 		bits = (uint8)status;
 		U_ASSERT(bits<=UPRV_LENGTHOF(toBase64));
 	}
@@ -932,11 +932,11 @@ static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	int32_t length, targetCapacity;
 
 	/* UTF-7 state */
-	uint16_t bits;
-	int8_t base64Counter;
+	uint16 bits;
+	int8 base64Counter;
 	bool inDirectMode;
 
-	int8_t base64Value;
+	int8 base64Value;
 
 	int32_t sourceIndex, nextSourceIndex;
 
@@ -955,8 +955,8 @@ static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	{
 		uint32_t status = cnv->toUnicodeStatus;
 		inDirectMode = (bool)((status>>24)&1);
-		base64Counter = (int8_t)(status>>16);
-		bits = (uint16_t)status;
+		base64Counter = (int8)(status>>16);
+		bits = (uint16)status;
 	}
 	bytes = cnv->toUBytes;
 	byteIndex = cnv->toULength;
@@ -1047,7 +1047,7 @@ unicodeMode:
 						case 3:
 						case 4:
 						case 6:
-						    bits = (uint16_t)((bits<<6)|base64Value);
+						    bits = (uint16)((bits<<6)|base64Value);
 						    ++base64Counter;
 						    break;
 						case 2:
@@ -1065,7 +1065,7 @@ unicodeMode:
 						    }
 						    bytes[0] = b; /* keep this byte in case an error occurs */
 						    byteIndex = 1;
-						    bits = (uint16_t)(base64Value&3);
+						    bits = (uint16)(base64Value&3);
 						    base64Counter = 3;
 						    break;
 						case 5:
@@ -1083,7 +1083,7 @@ unicodeMode:
 						    }
 						    bytes[0] = b; /* keep this byte in case an error occurs */
 						    byteIndex = 1;
-						    bits = (uint16_t)(base64Value&15);
+						    bits = (uint16)(base64Value&15);
 						    base64Counter = 6;
 						    break;
 						case 7:
@@ -1208,7 +1208,7 @@ static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 
 	/* UTF-7 state */
 	uint8 bits;
-	int8_t base64Counter;
+	int8 base64Counter;
 	bool inDirectMode;
 
 	/* set up the local pointers */
@@ -1225,7 +1225,7 @@ static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * p
 	{
 		uint32_t status = cnv->fromUnicodeStatus;
 		inDirectMode = (bool)((status>>24)&1);
-		base64Counter = (int8_t)(status>>16);
+		base64Counter = (int8)(status>>16);
 		bits = (uint8)status;
 	}
 

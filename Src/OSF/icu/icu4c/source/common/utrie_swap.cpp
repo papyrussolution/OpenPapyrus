@@ -80,8 +80,8 @@ U_CAPI int32_t U_EXPORT2 utrie_swap(const UDataSwapper * ds,
 		/* swap the index and the data */
 		if(dataIs32) {
 			ds->swapArray16(ds, inTrie+1, trie.indexLength*2, outTrie+1, pErrorCode);
-			ds->swapArray32(ds, (const uint16_t*)(inTrie+1)+trie.indexLength, trie.dataLength*4,
-			    (uint16_t*)(outTrie+1)+trie.indexLength, pErrorCode);
+			ds->swapArray32(ds, (const uint16*)(inTrie+1)+trie.indexLength, trie.dataLength*4,
+			    (uint16*)(outTrie+1)+trie.indexLength, pErrorCode);
 		}
 		else {
 			ds->swapArray16(ds, inTrie+1, (trie.indexLength+trie.dataLength)*2, outTrie+1, pErrorCode);
@@ -165,8 +165,8 @@ U_CAPI int32_t U_EXPORT2 utrie2_swap(const UDataSwapper * ds,
 			    break;
 			case UTRIE2_32_VALUE_BITS:
 			    ds->swapArray16(ds, inTrie+1, trie.indexLength*2, outTrie+1, pErrorCode);
-			    ds->swapArray32(ds, (const uint16_t*)(inTrie+1)+trie.indexLength, dataLength*4,
-				(uint16_t*)(outTrie+1)+trie.indexLength, pErrorCode);
+			    ds->swapArray32(ds, (const uint16*)(inTrie+1)+trie.indexLength, dataLength*4,
+				(uint16*)(outTrie+1)+trie.indexLength, pErrorCode);
 			    break;
 			default:
 			    *pErrorCode = U_INVALID_FORMAT_ERROR;
@@ -253,13 +253,13 @@ U_CAPI int32_t U_EXPORT2 ucptrie_swap(const UDataSwapper * ds,
 		ds->swapArray16(ds, &inTrie->options, 12, &outTrie->options, pErrorCode);
 
 		/* swap the index */
-		const uint16_t * inIndex = reinterpret_cast<const uint16_t *>(inTrie+1);
-		uint16_t * outIndex = reinterpret_cast<uint16_t *>(outTrie+1);
+		const uint16 * inIndex = reinterpret_cast<const uint16 *>(inTrie+1);
+		uint16 * outIndex = reinterpret_cast<uint16 *>(outTrie+1);
 		ds->swapArray16(ds, inIndex, trie.indexLength*2, outIndex, pErrorCode);
 
 		/* swap the data */
-		const uint16_t * inData = inIndex+trie.indexLength;
-		uint16_t * outData = outIndex+trie.indexLength;
+		const uint16 * inData = inIndex+trie.indexLength;
+		uint16 * outData = outIndex+trie.indexLength;
 		switch(valueWidth) {
 			case UCPTRIE_VALUE_BITS_16:
 			    ds->swapArray16(ds, inData, dataLength*2, outData, pErrorCode);

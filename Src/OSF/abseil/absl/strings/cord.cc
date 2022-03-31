@@ -6,12 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/cord.h"
@@ -552,7 +546,7 @@ Cord& Cord::AssignLargeString(std::string && src) {
 	return *this;
 }
 
-Cord& Cord::operator=(absl::string_view src) {
+Cord& Cord::operator = (absl::string_view src) {
 	auto constexpr method = CordzUpdateTracker::kAssignString;
 	const char* data = src.data();
 	size_t length = src.size();
@@ -1974,7 +1968,7 @@ static bool VerifyNode(CordRep* root, CordRep* start_node,
 	return true;
 }
 
-std::ostream& operator<<(std::ostream& out, const Cord& cord) {
+std::ostream & operator<<(std::ostream & out, const Cord& cord) {
 	for(absl::string_view chunk : cord.Chunks()) {
 		out.write(chunk.data(), chunk.size());
 	}

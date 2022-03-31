@@ -31,7 +31,7 @@ namespace Xapian {
 class PositionIterator::Internal : public Xapian::Internal::intrusive_base
 {
     /// Don't allow assignment.
-    void operator=(const Internal &) = delete;
+    void operator = (const Internal &) = delete;
 
     /// Don't allow copying.
     Internal(const Internal &) = delete;

@@ -8,10 +8,10 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace strings_internal {
-const char kBase64Chars[] =
-    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+const char kBase64Chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-size_t CalculateBase64EscapedLenInternal(size_t input_len, bool do_padding) {
+size_t CalculateBase64EscapedLenInternal(size_t input_len, bool do_padding) 
+{
 	// Base64 encodes three bytes of input at a time. If the input is not
 	// divisible by three, we pad as appropriate.
 	//
@@ -27,7 +27,6 @@ size_t CalculateBase64EscapedLenInternal(size_t input_len, bool do_padding) {
 
 	// Base64 encodes each three bytes of input into four bytes of output.
 	size_t len = (input_len / 3) * 4;
-
 	if(input_len % 3 == 0) {
 		// (from https://tools.ietf.org/html/rfc3548)
 		// (1) the final quantum of encoding input is an integral multiple of 24
@@ -54,30 +53,23 @@ size_t CalculateBase64EscapedLenInternal(size_t input_len, bool do_padding) {
 			len += 1;
 		}
 	}
-
 	assert(len >= input_len); // make sure we didn't overflow
 	return len;
 }
 
-size_t Base64EscapeInternal(const unsigned char* src, size_t szsrc, char* dest,
-    size_t szdest, const char* base64,
-    bool do_padding) {
+size_t Base64EscapeInternal(const unsigned char* src, size_t szsrc, char* dest, size_t szdest, const char* base64, bool do_padding) 
+{
 	static const char kPad64 = '=';
-
 	if(szsrc * 4 > szdest * 3) return 0;
-
 	char* cur_dest = dest;
 	const unsigned char* cur_src = src;
-
 	char* const limit_dest = dest + szdest;
 	const unsigned char* const limit_src = src + szsrc;
-
 	// Three bytes of data encodes to four characters of cyphertext.
 	// So we can pump through three-byte chunks atomically.
 	if(szsrc >= 3) {               // "limit_src - 3" is UB if szsrc < 3.
 		while(cur_src < limit_src - 3) { // While we have >= 32 bits.
 			uint32_t in = absl::big_endian::Load32(cur_src) >> 8;
-
 			cur_dest[0] = base64[in >> 18];
 			in &= 0x3FFFF;
 			cur_dest[1] = base64[in >> 12];
@@ -85,7 +77,6 @@ size_t Base64EscapeInternal(const unsigned char* src, size_t szsrc, char* dest,
 			cur_dest[2] = base64[in >> 6];
 			in &= 0x3F;
 			cur_dest[3] = base64[in];
-
 			cur_dest += 4;
 			cur_src += 3;
 		}
@@ -93,7 +84,6 @@ size_t Base64EscapeInternal(const unsigned char* src, size_t szsrc, char* dest,
 	// To save time, we didn't update szdest or szsrc in the loop.  So do it now.
 	szdest = limit_dest - cur_dest;
 	szsrc = limit_src - cur_src;
-
 	/* now deal with the tail (<=3 bytes) */
 	switch(szsrc) {
 		case 0:

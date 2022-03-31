@@ -543,7 +543,7 @@ static void U_CALLCONV UConverter_toUnicode_CompoundText_OFFSETS(UConverterToUni
 	}
 
 	uprv_memcpy(&subArgs, args, minArgsSize);
-	subArgs.size = (uint16_t)minArgsSize;
+	subArgs.size = (uint16)minArgsSize;
 
 	currentState = tmpState =  myConverterData->state;
 

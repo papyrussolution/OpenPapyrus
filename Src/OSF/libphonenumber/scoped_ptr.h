@@ -247,7 +247,7 @@ public:
 	// separate move assignment operator allowing us to avoid one use of SFINAE.
 	// You only need to care about this if you modify the implementation of
 	// scoped_ptr.
-	template <typename U, typename V> scoped_ptr& operator=(scoped_ptr<U, V> rhs) 
+	template <typename U, typename V> scoped_ptr& operator = (scoped_ptr<U, V> rhs) 
 	{
 		COMPILE_ASSERT(!is_array<U>::value, U_cannot_be_an_array);
 		impl_.TakeState(&rhs.impl_);
@@ -285,11 +285,11 @@ public:
 	// Comparison operators.
 	// These return whether two scoped_ptr refer to the same object, not just to
 	// two different but equal objects.
-	bool operator==(const element_type* p) const {
+	bool operator == (const element_type* p) const {
 		return impl_.get() == p;
 	}
 
-	bool operator!=(const element_type* p) const {
+	bool operator != (const element_type* p) const {
 		return impl_.get() != p;
 	}
 
@@ -316,8 +316,8 @@ private:
 	// doesn't make sense, and if U == T, it still doesn't make sense
 	// because you should never have the same object owned by two different
 	// scoped_ptrs.
-	template <class U> bool operator==(scoped_ptr<U> const& p2) const;
-	template <class U> bool operator!=(scoped_ptr<U> const& p2) const;
+	template <class U> bool operator == (scoped_ptr<U> const& p2) const;
+	template <class U> bool operator != (scoped_ptr<U> const& p2) const;
 };
 
 template <class T, class D> class scoped_ptr<T[], D> {
@@ -374,11 +374,11 @@ public:
 	// Comparison operators.
 	// These return whether two scoped_ptr refer to the same object, not just to
 	// two different but equal objects.
-	bool operator==(element_type* array) const {
+	bool operator == (element_type* array) const {
 		return impl_.get() == array;
 	}
 
-	bool operator!=(element_type* array) const {
+	bool operator != (element_type* array) const {
 		return impl_.get() != array;
 	}
 	// Swap two scoped pointers.
@@ -419,14 +419,14 @@ private:
 	// doesn't make sense, and if U == T, it still doesn't make sense
 	// because you should never have the same object owned by two different
 	// scoped_ptrs.
-	template <class U> bool operator==(scoped_ptr<U> const& p2) const;
-	template <class U> bool operator!=(scoped_ptr<U> const& p2) const;
+	template <class U> bool operator == (scoped_ptr<U> const& p2) const;
+	template <class U> bool operator != (scoped_ptr<U> const& p2) const;
 };
 
 // Free functions
 template <class T, class D> void swap(scoped_ptr<T, D>& p1, scoped_ptr<T, D>& p2) { p1.swap(p2); }
-template <class T, class D> bool operator==(T* p1, const scoped_ptr<T, D>& p2) { return p1 == p2.get(); }
-template <class T, class D> bool operator!=(T* p1, const scoped_ptr<T, D>& p2) { return p1 != p2.get(); }
+template <class T, class D> bool operator == (T* p1, const scoped_ptr<T, D>& p2) { return p1 == p2.get(); }
+template <class T, class D> bool operator != (T* p1, const scoped_ptr<T, D>& p2) { return p1 != p2.get(); }
 
 // A function to convert T* into scoped_ptr<T>
 // Doing e.g. make_scoped_ptr(new FooBarBaz<type>(arg)) is a shorter notation

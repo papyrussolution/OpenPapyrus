@@ -43,8 +43,8 @@
  * Trie data structure in serialized form:
  *
  * UTrie2Header header;
- * uint16_t index[header.index2Length];
- * uint16_t data[header.shiftedDataLength<<2];  -- or uint32_t data[...]
+ * uint16 index[header.index2Length];
+ * uint16 data[header.shiftedDataLength<<2];  -- or uint32_t data[...]
  * @internal
  */
 typedef struct UTrie2Header {
@@ -56,22 +56,22 @@ typedef struct UTrie2Header {
   * 15.. 4   reserved (0)
   *  3.. 0   UTrie2ValueBits valueBits
      */
-    uint16_t options;
+    uint16 options;
 
     /** UTRIE2_INDEX_1_OFFSET..UTRIE2_MAX_INDEX_LENGTH */
-    uint16_t indexLength;
+    uint16 indexLength;
 
     /** (UTRIE2_DATA_START_OFFSET..UTRIE2_MAX_DATA_LENGTH)>>UTRIE2_INDEX_SHIFT */
-    uint16_t shiftedDataLength;
+    uint16 shiftedDataLength;
 
     /** Null index and data blocks, not shifted. */
-    uint16_t index2NullOffset, dataNullOffset;
+    uint16 index2NullOffset, dataNullOffset;
 
     /**
   * First code point of the single-value range ending with U+10ffff,
   * rounded up and then shifted right by UTRIE2_SHIFT_1.
      */
-    uint16_t shiftedHighStart;
+    uint16 shiftedHighStart;
 } UTrie2Header;
 
 /**

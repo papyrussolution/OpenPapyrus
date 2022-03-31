@@ -224,7 +224,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 			valueString[valueStringLength++] = (UChar)UNICODE_U_CODEPOINT; /* adding U */
 			valueStringLength += uprv_itou(valueString + valueStringLength,
 				VALUE_STRING_LENGTH - valueStringLength,
-				(uint16_t)codeUnits[i++],
+				(uint16)codeUnits[i++],
 				16,
 				4);
 		}
@@ -238,7 +238,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 				    valueString[valueStringLength++] = (UChar)UNICODE_U_LOW_CODEPOINT; /* adding u */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint16_t)codeUnits[i++],
+					    (uint16)codeUnits[i++],
 					    16,
 					    4);
 			    }
@@ -259,7 +259,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 				    valueString[valueStringLength++] = (UChar)UNICODE_U_LOW_CODEPOINT; /* adding u */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint16_t)codeUnits[0],
+					    (uint16)codeUnits[0],
 					    16,
 					    4);
 			    }
@@ -279,7 +279,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 			    else {
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint16_t)codeUnits[0],
+					    (uint16)codeUnits[0],
 					    10,
 					    0);
 			    }
@@ -301,7 +301,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 			    else {
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint16_t)codeUnits[0],
+					    (uint16)codeUnits[0],
 					    16,
 					    0);
 			    }
@@ -322,7 +322,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 			    else {
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint16_t)codeUnits[0],
+					    (uint16)codeUnits[0],
 					    16,
 					    4);
 			    }
@@ -348,7 +348,7 @@ U_CAPI void U_EXPORT2 UCNV_FROM_U_CALLBACK_ESCAPE(const void * context,
 				    valueString[valueStringLength++] = (UChar)UNICODE_U_CODEPOINT; /* adding U */
 				    valueStringLength += uprv_itou(valueString + valueStringLength,
 					    VALUE_STRING_LENGTH - valueStringLength,
-					    (uint16_t)codeUnits[i++],
+					    (uint16)codeUnits[i++],
 					    16,
 					    4);
 			    }

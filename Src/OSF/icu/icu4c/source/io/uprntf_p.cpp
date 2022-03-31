@@ -318,7 +318,7 @@ static int32_t u_printf_integer_handler(const u_printf_stream_handler * handler,
 
 	/* mask off any necessary bits */
 	if(info->fIsShort)
-		num = (int16_t)num;
+		num = (int16)num;
 	else if(!info->fIsLongLong)
 		num = (int32_t)num;
 
@@ -968,7 +968,7 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 	int32_t size = 0;
 	int32_t pos = 0;
 	UChar type;
-	uint16_t handlerNum;
+	uint16 handlerNum;
 	const UChar * aliasStart = alias;
 
 	/* get maximum number of arguments */
@@ -1070,7 +1070,7 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 		type = *alias;
 
 		/* store the argument type in the correct position of the parsed argument list */
-		handlerNum = (uint16_t)(type - UPRINTF_BASE_FMT_HANDLERS);
+		handlerNum = (uint16)(type - UPRINTF_BASE_FMT_HANDLERS);
 		if(handlerNum < UPRINTF_NUM_FMT_HANDLERS) {
 			typelist[pos] = g_u_printf_infos[ handlerNum ].info;
 		}
@@ -1125,7 +1125,7 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
     int32_t * written,
     va_list ap)
 {
-	uint16_t handlerNum;
+	uint16 handlerNum;
 	ufmt_args args;
 	ufmt_type_info argType;
 	u_printf_handler * handler;
@@ -1368,7 +1368,7 @@ U_CFUNC int32_t u_printf_parse(const u_printf_stream_handler * streamHandler,
 			if(info->fPrecision < 0)
 				info->fPrecision = 0;
 		}
-		handlerNum = (uint16_t)(info->fSpec - UPRINTF_BASE_FMT_HANDLERS);
+		handlerNum = (uint16)(info->fSpec - UPRINTF_BASE_FMT_HANDLERS);
 		if(handlerNum < UPRINTF_NUM_FMT_HANDLERS) {
 			/* query the info function for argument information */
 			argType = g_u_printf_infos[ handlerNum ].info;

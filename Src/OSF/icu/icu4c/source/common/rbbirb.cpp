@@ -1,7 +1,6 @@
+// rbbirb.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-//
-//  file:  rbbirb.cpp
 //
 //  Copyright (C) 2002-2011, International Business Machines Corporation and others.
 //  All Rights Reserved.
@@ -23,16 +22,11 @@
 #include "rbbidata.h"
 
 U_NAMESPACE_BEGIN
-
-//----------------------------------------------------------------------------------------
 //
 //  Constructor.
 //
-//----------------------------------------------------------------------------------------
-RBBIRuleBuilder::RBBIRuleBuilder(const UnicodeString   &rules,
-    UParseError     * parseErr,
-    UErrorCode      &status)
-	: fRules(rules), fStrippedRules(rules)
+RBBIRuleBuilder::RBBIRuleBuilder(const UnicodeString   &rules, UParseError     * parseErr, UErrorCode      &status) : 
+	fRules(rules), fStrippedRules(rules)
 {
 	fStatus = &status; // status is checked below
 	fParseError = parseErr;
@@ -72,12 +66,9 @@ RBBIRuleBuilder::RBBIRuleBuilder(const UnicodeString   &rules,
 		status = U_MEMORY_ALLOCATION_ERROR;
 	}
 }
-
-//----------------------------------------------------------------------------------------
 //
 //  Destructor
 //
-//----------------------------------------------------------------------------------------
 RBBIRuleBuilder::~RBBIRuleBuilder() 
 {
 	for(int i = 0;; i++) {
@@ -97,25 +88,19 @@ RBBIRuleBuilder::~RBBIRuleBuilder()
 	delete fScanner;
 	delete fRuleStatusVals;
 }
-
-//----------------------------------------------------------------------------------------
 //
 //   flattenData() -  Collect up the compiled RBBI rule data and put it into
 //                    the format for saving in ICU data files,
 //                    which is also the format needed by the RBBI runtime engine.
 //
-//----------------------------------------------------------------------------------------
-static int32_t align8(int32_t i) {
-	return (i+7) & 0xfffffff8;
-}
+static int32_t align8(int32_t i) { return (i+7) & 0xfffffff8; }
 
-RBBIDataHeader * RBBIRuleBuilder::flattenData() {
+RBBIDataHeader * RBBIRuleBuilder::flattenData() 
+{
 	int32_t i;
-
 	if(U_FAILURE(*fStatus)) {
 		return NULL;
 	}
-
 	// Remove whitespace from the rules to make it smaller.
 	// The rule parser has already removed comments.
 	fStrippedRules = fScanner->stripRules(fStrippedRules);
@@ -197,16 +182,11 @@ RBBIDataHeader * RBBIRuleBuilder::flattenData() {
 	}
 	return data;
 }
-
-//----------------------------------------------------------------------------------------
 //
 //  createRuleBasedBreakIterator    construct from source rules that are passed in
 //                                  in a UnicodeString
 //
-//----------------------------------------------------------------------------------------
-BreakIterator * RBBIRuleBuilder::createRuleBasedBreakIterator(const UnicodeString &rules,
-    UParseError * parseError,
-    UErrorCode &status)
+BreakIterator * RBBIRuleBuilder::createRuleBasedBreakIterator(const UnicodeString &rules, UParseError * parseError, UErrorCode &status)
 {
 	//
 	// Read the input rules, generate a parse tree, symbol table,

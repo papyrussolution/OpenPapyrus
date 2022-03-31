@@ -464,7 +464,7 @@ private:
 public:
 		ParseInfoTree() = default;
 		ParseInfoTree(const ParseInfoTree&) = delete;
-		ParseInfoTree& operator=(const ParseInfoTree&) = delete;
+		ParseInfoTree& operator = (const ParseInfoTree&) = delete;
 
 		// Returns the parse location range for index-th value of the field in
 		// the parsed text. If none exists, returns a location with start and end

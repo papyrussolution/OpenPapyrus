@@ -77,12 +77,12 @@ struct U_I18N_API CollationDataReader /* all static */ {
 		IX_ROOT_ELEMENTS_OFFSET, // 12
 		/** Byte offset to UChar *contexts[]. */
 		IX_CONTEXTS_OFFSET,
-		/** Byte offset to uint16_t [] with serialized unsafeBackwardSet. */
+		/** Byte offset to uint16 [] with serialized unsafeBackwardSet. */
 		IX_UNSAFE_BWD_OFFSET,
-		/** Byte offset to uint16_t fastLatinTable[]. */
+		/** Byte offset to uint16 fastLatinTable[]. */
 		IX_FAST_LATIN_TABLE_OFFSET,
 
-		/** Byte offset to uint16_t scripts[]. */
+		/** Byte offset to uint16 scripts[]. */
 		IX_SCRIPTS_OFFSET, // 16
 		/**
 		 * Byte offset to bool compressibleBytes[].
@@ -195,7 +195,7 @@ private:
  * UChar *contexts[];
  *      Serialized UCharsTrie structures with prefix (pre-context) and contraction mappings.
  *
- * uint16_t unsafeBackwardSet[]; -- see UnicodeSet::serialize()
+ * uint16 unsafeBackwardSet[]; -- see UnicodeSet::serialize()
  *      Serialized form of characters that are unsafe when iterating backwards,
  *      and at the end of an identical string prefix.
  *      Back up to a safe character.
@@ -205,15 +205,15 @@ private:
  *      For each tailoring, the root unsafeBackwardSet is subtracted.
  *      (As a result, in many tailorings no set needs to be stored.)
  *
- * uint16_t fastLatinTable[];
+ * uint16 fastLatinTable[];
  *      Optional optimization for Latin text.
  *      See the CollationFastLatin class.
  *
- * uint16_t scripts[]; -- empty in all tailorings
+ * uint16 scripts[]; -- empty in all tailorings
  *      Format version 5:
- *      uint16_t numScripts;
- *      uint16_t scriptsIndex[numScripts+16];
- *      uint16_t scriptStarts[];
+ *      uint16 numScripts;
+ *      uint16 scriptsIndex[numScripts+16];
+ *      uint16 scriptStarts[];
  *      See CollationData::numScripts etc.
  *
  *      Format version 4:

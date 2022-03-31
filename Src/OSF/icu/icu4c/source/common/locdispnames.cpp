@@ -1,14 +1,13 @@
 // locdispnames.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 2010feb25
- *   created by: Markus W. Scherer
- *   Code for locale display names, separated out from other .cpp files
- *   that then do not depend on resource bundle code and display name data.
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2010feb25
+// created by: Markus W. Scherer
+// Code for locale display names, separated out from other .cpp files
+// that then do not depend on resource bundle code and display name data.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "bytesinkutil.h"
@@ -320,27 +319,21 @@ static int32_t _getStringOrCopyKey(const char * path, const char * locale,
 
 typedef  int32_t U_CALLCONV UDisplayNameGetter (const char *, char *, int32_t, UErrorCode *);
 
-static int32_t _getDisplayNameForComponent(const char * locale,
-    const char * displayLocale,
-    UChar * dest, int32_t destCapacity,
-    UDisplayNameGetter * getter,
-    const char * tag,
-    UErrorCode * pErrorCode) {
+static int32_t _getDisplayNameForComponent(const char * locale, const char * displayLocale,
+    UChar * dest, int32_t destCapacity, UDisplayNameGetter * getter, const char * tag, UErrorCode * pErrorCode) 
+{
 	char localeBuffer[ULOC_FULLNAME_CAPACITY*4];
 	int32_t length;
 	UErrorCode localStatus;
 	const char * root = NULL;
-
 	/* argument checking */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	if(destCapacity<0 || (destCapacity>0 && dest==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	localStatus = U_ZERO_ERROR;
 	length = (*getter)(locale, localeBuffer, sizeof(localeBuffer), &localStatus);
 	if(U_FAILURE(localStatus) || localStatus==U_STRING_NOT_TERMINATED_WARNING) {
@@ -763,7 +756,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeyword(const char * keyword,
     int32_t destCapacity,
     UErrorCode * status) {
 	/* argument checking */
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 
@@ -790,7 +783,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayKeywordValue(const char * locale,
     int32_t destCapacity,
     UErrorCode * status) {
 	/* argument checking */
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 

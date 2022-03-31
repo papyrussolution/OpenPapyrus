@@ -4143,9 +4143,7 @@ int ACS_CRCSHSRV::QueryFile(int filTyp, const char * pQueryBuf, LDATE queryDate)
 		if(Options & oSeparateReports) {
 			query_buf.Semicol();
 			for(uint i = 0; i < LogNumList.getCount(); i++) {
-				if(i)
-					query_buf.Comma();
-				query_buf.Cat(LogNumList.at(i));
+				query_buf.CatDivConditionally(',', 0, i > 0).Cat(LogNumList.at(i));
 			}
 		}
 	}

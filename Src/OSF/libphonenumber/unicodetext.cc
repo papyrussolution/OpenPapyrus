@@ -196,7 +196,7 @@ string UnicodeText::UTF8Substring(const const_iterator& first,
 
 // ----- Copy -----
 
-UnicodeText& UnicodeText::operator=(const UnicodeText& src) {
+UnicodeText& UnicodeText::operator = (const UnicodeText& src) {
 	if(this != &src) {
 		Copy(src);
 	}
@@ -362,7 +362,7 @@ int UnicodeText::size() const {
 	return CodepointCount(repr_.data_, repr_.size_);
 }
 
-bool operator==(const UnicodeText& lhs, const UnicodeText& rhs) {
+bool operator == (const UnicodeText& lhs, const UnicodeText& rhs) {
 	if(&lhs == &rhs) return true;
 	if(lhs.repr_.size_ != rhs.repr_.size_) return false;
 	return memcmp(lhs.repr_.data_, rhs.repr_.data_, lhs.repr_.size_) == 0;
@@ -398,7 +398,7 @@ UnicodeText::const_iterator::const_iterator(const const_iterator& other)
 	: it_(other.it_) {
 }
 
-UnicodeText::const_iterator&UnicodeText::const_iterator::operator=(const const_iterator& other) {
+UnicodeText::const_iterator&UnicodeText::const_iterator::operator = (const const_iterator& other) {
 	if(&other != this)
 		it_ = other.it_;
 	return *this;
@@ -412,7 +412,7 @@ UnicodeText::const_iterator UnicodeText::end() const {
 	return const_iterator(repr_.data_ + repr_.size_);
 }
 
-bool operator<(const UnicodeText::const_iterator& lhs,
+bool operator < (const UnicodeText::const_iterator& lhs,
     const UnicodeText::const_iterator& rhs) {
 	return lhs.it_ < rhs.it_;
 }

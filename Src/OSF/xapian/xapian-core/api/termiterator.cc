@@ -69,7 +69,7 @@ TermIterator::TermIterator(const TermIterator & o)
 		++internal->_refs;
 }
 
-TermIterator &TermIterator::operator=(const TermIterator & o)
+TermIterator &TermIterator::operator = (const TermIterator & o)
 {
 	LOGCALL(API, TermIterator &, "TermIterator::operator=", o);
 	if(o.internal)

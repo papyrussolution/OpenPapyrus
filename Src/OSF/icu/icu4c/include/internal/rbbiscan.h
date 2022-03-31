@@ -113,7 +113,7 @@ private:
 	RBBIRuleTableEl         ** fStateTable;// State Transition Table for RBBI Rule
 	                                             //   parsing.  index by p[state][char-class]
 
-	uint16_t fStack[kStackSize];                   // State stack, holds state pushes
+	uint16 fStack[kStackSize];                   // State stack, holds state pushes
 	int32_t fStackPtr;       //  and pops as specified in the state
 	//  transition rules.
 

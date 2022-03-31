@@ -44,7 +44,7 @@ static int BitSize(const S value) {
 }
 
 // Guaranteed to lie in one Bigit.
-void Bignum::AssignUInt16(const uint16_t value) {
+void Bignum::AssignUInt16(const uint16 value) {
 	DOUBLE_CONVERSION_ASSERT(kBigitSize >= BitSize(value));
 	Zero();
 	if(value > 0) {
@@ -291,12 +291,12 @@ void Bignum::MultiplyByUInt64(const uint64_t factor) {
 
 void Bignum::MultiplyByPowerOfTen(const int exponent) {
 	static const uint64_t kFive27 = DOUBLE_CONVERSION_UINT64_2PART_C(0x6765c793, fa10079d);
-	static const uint16_t kFive1 = 5;
-	static const uint16_t kFive2 = kFive1 * 5;
-	static const uint16_t kFive3 = kFive2 * 5;
-	static const uint16_t kFive4 = kFive3 * 5;
-	static const uint16_t kFive5 = kFive4 * 5;
-	static const uint16_t kFive6 = kFive5 * 5;
+	static const uint16 kFive1 = 5;
+	static const uint16 kFive2 = kFive1 * 5;
+	static const uint16 kFive3 = kFive2 * 5;
+	static const uint16 kFive4 = kFive3 * 5;
+	static const uint16 kFive5 = kFive4 * 5;
+	static const uint16 kFive6 = kFive5 * 5;
 	static const uint32_t kFive7 = kFive6 * 5;
 	static const uint32_t kFive8 = kFive7 * 5;
 	static const uint32_t kFive9 = kFive8 * 5;
@@ -403,7 +403,7 @@ void Bignum::Square() {
 	Clamp();
 }
 
-void Bignum::AssignPowerUInt16(uint16_t base, const int power_exponent) {
+void Bignum::AssignPowerUInt16(uint16 base, const int power_exponent) {
 	DOUBLE_CONVERSION_ASSERT(base != 0);
 	DOUBLE_CONVERSION_ASSERT(power_exponent >= 0);
 	if(power_exponent == 0) {
@@ -478,7 +478,7 @@ void Bignum::AssignPowerUInt16(uint16_t base, const int power_exponent) {
 }
 
 // Precondition: this/other < 16bit.
-uint16_t Bignum::DivideModuloIntBignum(const Bignum & other) {
+uint16 Bignum::DivideModuloIntBignum(const Bignum & other) {
 	DOUBLE_CONVERSION_ASSERT(IsClamped());
 	DOUBLE_CONVERSION_ASSERT(other.IsClamped());
 	DOUBLE_CONVERSION_ASSERT(other.used_bigits_ > 0);
@@ -491,7 +491,7 @@ uint16_t Bignum::DivideModuloIntBignum(const Bignum & other) {
 
 	Align(other);
 
-	uint16_t result = 0;
+	uint16 result = 0;
 
 	// Start by removing multiples of 'other' until both numbers have the same
 	// number of digits.
@@ -503,7 +503,7 @@ uint16_t Bignum::DivideModuloIntBignum(const Bignum & other) {
 		DOUBLE_CONVERSION_ASSERT(RawBigit(used_bigits_ - 1) < 0x10000);
 		// Remove the multiples of the first digit.
 		// Example this = 23 and other equals 9. -> Remove 2 multiples.
-		result += static_cast<uint16_t>(RawBigit(used_bigits_ - 1));
+		result += static_cast<uint16>(RawBigit(used_bigits_ - 1));
 		SubtractTimes(other, RawBigit(used_bigits_ - 1));
 	}
 
@@ -520,14 +520,14 @@ uint16_t Bignum::DivideModuloIntBignum(const Bignum & other) {
 		int quotient = this_bigit / other_bigit;
 		RawBigit(used_bigits_ - 1) = this_bigit - other_bigit * quotient;
 		DOUBLE_CONVERSION_ASSERT(quotient < 0x10000);
-		result += static_cast<uint16_t>(quotient);
+		result += static_cast<uint16>(quotient);
 		Clamp();
 		return result;
 	}
 
 	const int division_estimate = this_bigit / (other_bigit + 1);
 	DOUBLE_CONVERSION_ASSERT(division_estimate < 0x10000);
-	result += static_cast<uint16_t>(division_estimate);
+	result += static_cast<uint16>(division_estimate);
 	SubtractTimes(other, division_estimate);
 
 	if(other_bigit * (division_estimate + 1) > this_bigit) {

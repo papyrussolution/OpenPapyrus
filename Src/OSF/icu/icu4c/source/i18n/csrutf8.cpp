@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2005-2014, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- */
+// Copyright (C) 2005-2014, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -34,20 +30,15 @@ bool CharsetRecog_UTF8::match(InputText* input, CharsetMatch * results) const
 	int32_t i;
 	int32_t trailBytes = 0;
 	int32_t confidence;
-
-	if(input->fRawLength >= 3 &&
-	    inputBytes[0] == 0xEF && inputBytes[1] == 0xBB && inputBytes[2] == 0xBF) {
+	if(input->fRawLength >= 3 && inputBytes[0] == 0xEF && inputBytes[1] == 0xBB && inputBytes[2] == 0xBF) {
 		hasBOM = TRUE;
 	}
-
 	// Scan for multi-byte sequences
 	for(i = 0; i < input->fRawLength; i += 1) {
 		int32_t b = inputBytes[i];
-
 		if((b & 0x80) == 0) {
 			continue; // ASCII
 		}
-
 		// Hi bit on char found.  Figure out how long the sequence should be
 		if((b & 0x0E0) == 0x0C0) {
 			trailBytes = 1;
@@ -62,29 +53,23 @@ bool CharsetRecog_UTF8::match(InputText* input, CharsetMatch * results) const
 			numInvalid += 1;
 			continue;
 		}
-
 		// Verify that we've got the right number of trail bytes in the sequence
 		for(;;) {
 			i += 1;
-
 			if(i >= input->fRawLength) {
 				break;
 			}
-
 			b = inputBytes[i];
-
 			if((b & 0xC0) != 0x080) {
 				numInvalid += 1;
 				break;
 			}
-
 			if(--trailBytes == 0) {
 				numValid += 1;
 				break;
 			}
 		}
 	}
-
 	// Cook up some sort of confidence score, based on presence of a BOM
 	//    and the existence of valid and/or invalid multi-byte sequences.
 	confidence = 0;
@@ -101,15 +86,11 @@ bool CharsetRecog_UTF8::match(InputText* input, CharsetMatch * results) const
 		confidence = 80;
 	}
 	else if(numValid == 0 && numInvalid == 0) {
-		// Plain ASCII. Confidence must be > 10, it's more likely than UTF-16, which
-		//              accepts ASCII with confidence = 10.
-		confidence = 15;
+		confidence = 15; // Plain ASCII. Confidence must be > 10, it's more likely than UTF-16, which accepts ASCII with confidence = 10.
 	}
 	else if(numValid > numInvalid*10) {
-		// Probably corrupt utf-8 data.  Valid sequences aren't likely by chance.
-		confidence = 25;
+		confidence = 25; // Probably corrupt utf-8 data.  Valid sequences aren't likely by chance.
 	}
-
 	results->set(input, this, confidence);
 	return (confidence > 0);
 }

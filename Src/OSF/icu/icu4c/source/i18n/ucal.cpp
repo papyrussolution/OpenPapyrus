@@ -1,12 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *   Copyright (C) 1996-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *******************************************************************************
- */
-
+// Copyright (C) 1996-2016, International Business Machines Corporation and others.  All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #if !UCONFIG_NO_FORMATTING
@@ -17,7 +12,8 @@
 
 U_NAMESPACE_USE
 
-static TimeZone* _createTimeZone(const UChar * zoneID, int32_t len, UErrorCode * ec) {
+static TimeZone* _createTimeZone(const UChar * zoneID, int32_t len, UErrorCode * ec) 
+{
 	TimeZone* zone = nullptr;
 	if(ec != nullptr && U_SUCCESS(*ec)) {
 		// Note that if zoneID is invalid, we get back GMT. This odd
@@ -35,20 +31,23 @@ static TimeZone* _createTimeZone(const UChar * zoneID, int32_t len, UErrorCode *
 }
 
 U_CAPI UEnumeration* U_EXPORT2 ucal_openTimeZoneIDEnumeration(USystemTimeZoneType zoneType, const char * region,
-    const int32_t* rawOffset, UErrorCode * ec) {
-	return uenum_openFromStringEnumeration(TimeZone::createTimeZoneIDEnumeration(
-			   zoneType, region, rawOffset, *ec), ec);
+    const int32_t* rawOffset, UErrorCode * ec) 
+{
+	return uenum_openFromStringEnumeration(TimeZone::createTimeZoneIDEnumeration(zoneType, region, rawOffset, *ec), ec);
 }
 
-U_CAPI UEnumeration* U_EXPORT2 ucal_openTimeZones(UErrorCode * ec) {
+U_CAPI UEnumeration* U_EXPORT2 ucal_openTimeZones(UErrorCode * ec) 
+{
 	return ucal_openTimeZoneIDEnumeration(UCAL_ZONE_TYPE_ANY, nullptr, nullptr, ec);
 }
 
-U_CAPI UEnumeration* U_EXPORT2 ucal_openCountryTimeZones(const char * country, UErrorCode * ec) {
+U_CAPI UEnumeration* U_EXPORT2 ucal_openCountryTimeZones(const char * country, UErrorCode * ec) 
+{
 	return ucal_openTimeZoneIDEnumeration(UCAL_ZONE_TYPE_ANY, country, nullptr, ec);
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(UChar * result, int32_t resultCapacity, UErrorCode * ec) {
+U_CAPI int32_t U_EXPORT2 ucal_getDefaultTimeZone(UChar * result, int32_t resultCapacity, UErrorCode * ec) 
+{
 	int32_t len = 0;
 	if(ec != nullptr && U_SUCCESS(*ec)) {
 		TimeZone* zone = TimeZone::createDefault();
@@ -469,38 +468,19 @@ U_CAPI void U_EXPORT2 ucal_clear(UCalendar* calendar)
 	((Calendar*)calendar)->clear();
 }
 
-U_CAPI int32_t U_EXPORT2 ucal_getLimit(const UCalendar*              cal,
-    UCalendarDateFields field,
-    UCalendarLimitType type,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ucal_getLimit(const UCalendar * cal, UCalendarDateFields field, UCalendarLimitType type, UErrorCode * status)
 {
-	if(status==0 || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return -1;
 	}
-
 	switch(type) {
-		case UCAL_MINIMUM:
-		    return ((Calendar*)cal)->getMinimum(field);
-
-		case UCAL_MAXIMUM:
-		    return ((Calendar*)cal)->getMaximum(field);
-
-		case UCAL_GREATEST_MINIMUM:
-		    return ((Calendar*)cal)->getGreatestMinimum(field);
-
-		case UCAL_LEAST_MAXIMUM:
-		    return ((Calendar*)cal)->getLeastMaximum(field);
-
-		case UCAL_ACTUAL_MINIMUM:
-		    return ((Calendar*)cal)->getActualMinimum(field,
-			       *status);
-
-		case UCAL_ACTUAL_MAXIMUM:
-		    return ((Calendar*)cal)->getActualMaximum(field,
-			       *status);
-
-		default:
-		    break;
+		case UCAL_MINIMUM: return ((Calendar*)cal)->getMinimum(field);
+		case UCAL_MAXIMUM: return ((Calendar*)cal)->getMaximum(field);
+		case UCAL_GREATEST_MINIMUM: return ((Calendar*)cal)->getGreatestMinimum(field);
+		case UCAL_LEAST_MAXIMUM: return ((Calendar*)cal)->getLeastMaximum(field);
+		case UCAL_ACTUAL_MINIMUM: return ((Calendar*)cal)->getActualMinimum(field, *status);
+		case UCAL_ACTUAL_MAXIMUM: return ((Calendar*)cal)->getActualMaximum(field, *status);
+		default: break;
 	}
 	return -1;
 }
@@ -522,8 +502,9 @@ U_CAPI const char * U_EXPORT2 ucal_getTZDataVersion(UErrorCode * status)
 }
 
 U_CAPI int32_t U_EXPORT2 ucal_getCanonicalTimeZoneID(const UChar * id, int32_t len,
-    UChar * result, int32_t resultCapacity, bool * isSystemID, UErrorCode * status) {
-	if(status == 0 || U_FAILURE(*status)) {
+    UChar * result, int32_t resultCapacity, bool * isSystemID, UErrorCode * status) 
+{
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 	if(isSystemID) {

@@ -72,7 +72,7 @@ class TimeOut {
 
     TimeOut(const TimeOut&) = delete;
 
-    TimeOut& operator=(const TimeOut&) = delete;
+    TimeOut& operator = (const TimeOut&) = delete;
 
   public:
     explicit TimeOut(double limit) : expired(false) {

@@ -87,7 +87,7 @@ class GlassBasePositionList : public PositionList {
     GlassBasePositionList(const GlassBasePositionList&) = delete;
 
     /// Assignment is not allowed.
-    GlassBasePositionList& operator=(const GlassBasePositionList&) = delete;
+    GlassBasePositionList& operator = (const GlassBasePositionList&) = delete;
 
   protected:
     /// Interpolative decoder.
@@ -144,7 +144,7 @@ class GlassPositionList : public GlassBasePositionList {
     GlassPositionList(const GlassPositionList&) = delete;
 
     /// Assignment is not allowed.
-    GlassPositionList& operator=(const GlassPositionList&) = delete;
+    GlassPositionList& operator = (const GlassPositionList&) = delete;
 
   public:
     /// Construct and initialise with data.
@@ -166,7 +166,7 @@ class GlassRePositionList : public GlassBasePositionList {
     GlassRePositionList(const GlassRePositionList&) = delete;
 
     /// Assignment is not allowed.
-    GlassRePositionList& operator=(const GlassRePositionList&) = delete;
+    GlassRePositionList& operator = (const GlassRePositionList&) = delete;
 
   public:
     /// Constructor.

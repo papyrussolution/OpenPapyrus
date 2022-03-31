@@ -21,8 +21,8 @@
 U_NAMESPACE_BEGIN
 
 int32_t CollationFastLatin::getOptions(const CollationData * data, const CollationSettings &settings,
-    uint16_t * primaries, int32_t capacity) {
-	const uint16_t * table = data->fastLatinTable;
+    uint16 * primaries, int32_t capacity) {
+	const uint16 * table = data->fastLatinTable;
 	if(table == NULL) {
 		return -1;
 	}
@@ -98,7 +98,7 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 		else {
 			p = 0;
 		}
-		primaries[c] = (uint16_t)p;
+		primaries[c] = (uint16)p;
 	}
 	if(digitsAreReordered || (settings.options & CollationSettings::NUMERIC) != 0) {
 		// Bail out for digits.
@@ -111,7 +111,7 @@ int32_t CollationFastLatin::getOptions(const CollationData * data, const Collati
 	return ((int32_t)miniVarTop << 16) | settings.options;
 }
 
-int32_t CollationFastLatin::compareUTF16(const uint16_t * table, const uint16_t * primaries, int32_t options,
+int32_t CollationFastLatin::compareUTF16(const uint16 * table, const uint16 * primaries, int32_t options,
     const UChar * left, int32_t leftLength,
     const UChar * right, int32_t rightLength) {
 	// This is a modified copy of CollationCompare::compareUpToQuaternary(),
@@ -498,7 +498,7 @@ int32_t CollationFastLatin::compareUTF16(const uint16_t * table, const uint16_t 
 	return UCOL_EQUAL;
 }
 
-int32_t CollationFastLatin::compareUTF8(const uint16_t * table, const uint16_t * primaries, int32_t options,
+int32_t CollationFastLatin::compareUTF8(const uint16 * table, const uint16 * primaries, int32_t options,
     const uint8 * left, int32_t leftLength,
     const uint8 * right, int32_t rightLength) {
 	// Keep compareUTF16() and compareUTF8() in sync very closely!
@@ -901,7 +901,7 @@ int32_t CollationFastLatin::compareUTF8(const uint16_t * table, const uint16_t *
 	return UCOL_EQUAL;
 }
 
-uint32_t CollationFastLatin::lookup(const uint16_t * table, UChar32 c) {
+uint32_t CollationFastLatin::lookup(const uint16 * table, UChar32 c) {
 	U_ASSERT(c > LATIN_MAX);
 	if(PUNCT_START <= c && c < PUNCT_LIMIT) {
 		return table[c - PUNCT_START + LATIN_LIMIT];
@@ -917,7 +917,7 @@ uint32_t CollationFastLatin::lookup(const uint16_t * table, UChar32 c) {
 	}
 }
 
-uint32_t CollationFastLatin::lookupUTF8(const uint16_t * table, UChar32 c,
+uint32_t CollationFastLatin::lookupUTF8(const uint16 * table, UChar32 c,
     const uint8 * s8, int32_t &sIndex, int32_t sLength) {
 	// The caller handled ASCII and valid/supported Latin.
 	U_ASSERT(c > 0x7f);
@@ -941,7 +941,7 @@ uint32_t CollationFastLatin::lookupUTF8(const uint16_t * table, UChar32 c,
 	return BAIL_OUT;
 }
 
-uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16_t * table, UChar32 c,
+uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16 * table, UChar32 c,
     const uint8 * s8, int32_t &sIndex) {
 	// The caller handled ASCII.
 	// The string is well-formed and contains only supported characters.
@@ -962,7 +962,7 @@ uint32_t CollationFastLatin::lookupUTF8Unsafe(const uint16_t * table, UChar32 c,
 	}
 }
 
-uint32_t CollationFastLatin::nextPair(const uint16_t * table, UChar32 c, uint32_t ce,
+uint32_t CollationFastLatin::nextPair(const uint16 * table, UChar32 c, uint32_t ce,
     const UChar * s16, const uint8 * s8, int32_t &sIndex, int32_t &sLength) {
 	if(ce >= MIN_LONG || ce < CONTRACTION) {
 		return ce; // simple or special mini CE

@@ -34,7 +34,7 @@ class InMemoryAllTermsList : public AllTermsList
     InMemoryAllTermsList(const InMemoryAllTermsList &);
 
     /// Assignment is not allowed.
-    void operator=(const InMemoryAllTermsList &);
+    void operator = (const InMemoryAllTermsList &);
 
     const std::map<std::string, InMemoryTerm>* tmap;
 

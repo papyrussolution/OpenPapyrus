@@ -36,7 +36,7 @@ class InMemoryPositionList : public PositionList {
     size_t index = size_t(-1);
 
     /// Don't allow assignment.
-    void operator=(const InMemoryPositionList&) = delete;
+    void operator = (const InMemoryPositionList&) = delete;
 
     /// Don't allow copying.
     InMemoryPositionList(const InMemoryPositionList&) = delete;

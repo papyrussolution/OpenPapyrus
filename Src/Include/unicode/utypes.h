@@ -11,7 +11,7 @@
 // 06/20/97    helena      Java class name change.
 // 08/11/98    stephen     UErrorCode changed from typedef to enum
 // 08/12/98    erm         Changed T_ANALYTIC_PACKAGE_VERSION to 3
-// 08/14/98    stephen     Added uprv_arrayCopy() for int8_t, int16_t, int32_t
+// 08/14/98    stephen     Added uprv_arrayCopy() for int8, int16, int32_t
 // 12/09/98    jfitz       Added BUFFER_OVERFLOW_ERROR (bug 1100066)
 // 04/20/99    stephen     Cleaned up & reworked for autoconf. Renamed to utypes.h.
 // 05/05/99    stephen     Changed to use <inttypes.h>

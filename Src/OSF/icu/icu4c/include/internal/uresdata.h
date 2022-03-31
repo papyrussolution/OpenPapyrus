@@ -1,20 +1,12 @@
+// uresdata.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- * Copyright (C) 1999-2016, International Business Machines
- *                Corporation and others. All Rights Reserved.
- ******************************************************************************
- *   file name:  uresdata.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 1999dec08
- *   created by: Markus W. Scherer
- *   06/24/02    weiv        Added support for resource sharing
- */
-
+// Copyright (C) 1999-2016, International Business Machines Corporation and others. All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999dec08
+// created by: Markus W. Scherer
+// 06/24/02    weiv        Added support for resource sharing
+// 
 #ifndef __RESDATA_H__
 #define __RESDATA_H__
 
@@ -33,19 +25,15 @@
 typedef enum {
 	/** Include a negative value so that the compiler uses the same int type as for UResType. */
 	URES_INTERNAL_NONE = -1,
-
 	/** Resource type constant for tables with 32-bit count, key offsets and values. */
 	URES_TABLE32 = 4,
-
 	/**
 	 * Resource type constant for tables with 16-bit count, key offsets and values.
 	 * All values are URES_STRING_V2 strings.
 	 */
 	URES_TABLE16 = 5,
-
 	/** Resource type constant for 16-bit Unicode strings in formatVersion 2. */
 	URES_STRING_V2 = 6,
-
 	/**
 	 * Resource type constant for arrays with 16-bit count and values.
 	 * All values are URES_STRING_V2 strings.
@@ -243,7 +231,7 @@ enum {
  *                   (minus the space for root and indexes[]),
  *                   which consist of invariant characters (ASCII/EBCDIC) and are NUL-terminated;
  *                   padded to multiple of 4 bytes for 4-alignment of the following data
- *   uint16_t 16BitUnits[]; -- resources that are stored entirely as sequences of 16-bit units
+ *   uint16 16BitUnits[]; -- resources that are stored entirely as sequences of 16-bit units
  *          (new in formatVersion 2/ICU 4.4)
  *          data is indexed by the offset values in 16-bit resource types,
  *          with offset 0 pointing to the beginning of this array;
@@ -347,11 +335,11 @@ enum {
  *                  or  (empty string ("") if offset==0)
  * 1  Binary:           int32_t length, uint8[length], (padding)
  *                      - the start of the bytes is 16-aligned -
- * 2  Table:            uint16_t count, uint16_t keyStringOffsets[count], (uint16_t padding), Resource[count]
+ * 2  Table:            uint16 count, uint16 keyStringOffsets[count], (uint16 padding), Resource[count]
  * 3  Alias:            (physically same value layout as string, new in ICU 2.4)
  * 4  Table32:          int32_t count, int32_t keyStringOffsets[count], Resource[count]
  *                      (new in formatVersion 1.1/ICU 2.8)
- * 5  Table16:          uint16_t count, uint16_t keyStringOffsets[count], Resource16[count]
+ * 5  Table16:          uint16 count, uint16 keyStringOffsets[count], Resource16[count]
  *                      (stored in the 16-bit-units array; new in formatVersion 2/ICU 4.4)
  * 6  Unicode String-v2:UChar[length], (UChar)0; length determined by the first UChar:
  *                      - if first is not a trail surrogate, then the length is implicit
@@ -368,7 +356,7 @@ enum {
  *
  * 7  Integer:          (28-bit offset is integer value)
  * 8  Array:            int32_t count, Resource[count]
- * 9  Array16:          uint16_t count, Resource16[count]
+ * 9  Array16:          uint16 count, Resource16[count]
  *                      (stored in the 16-bit-units array; new in formatVersion 2/ICU 4.4)
  * 14 Integer Vector:   int32_t length, int32_t[length]
  * 15 Reserved:         This value denotes special purpose resources and is for internal use.
@@ -386,11 +374,11 @@ enum {
 typedef struct ResourceData {
 	UDataMemory * data;
 	const int32_t * pRoot;
-	const uint16_t * p16BitUnits;
+	const uint16 * p16BitUnits;
 	const char * poolBundleKeys;
 	Resource rootRes;
 	int32_t localKeyLimit;
-	const uint16_t * poolBundleStrings;
+	const uint16 * poolBundleStrings;
 	int32_t poolStringIndexLimit;
 	int32_t poolStringIndex16Limit;
 	bool noFallback; /* see URES_ATT_NO_FALLBACK */

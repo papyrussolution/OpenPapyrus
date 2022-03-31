@@ -88,7 +88,7 @@ enum debuglog_categories {
 /// Class to actually do the logging.
 class DebugLogger {
 	/// Don't allow assignment.
-	void operator=(const DebugLogger&);
+	void operator = (const DebugLogger&);
 
 	/// Don't allow copying.
 	DebugLogger(const DebugLogger&);

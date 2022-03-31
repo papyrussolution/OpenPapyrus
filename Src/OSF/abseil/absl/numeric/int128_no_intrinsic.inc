@@ -7,12 +7,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // This file contains :int128 implementation details that depend on internal
 // representation when ABSL_HAVE_INTRINSIC_INT128 is *not* defined. This file
 // is included by int128.h and relies on ABSL_INTERNAL_WCHAR_T being defined.
@@ -165,28 +159,28 @@ inline int128::operator long double() const {
 
 // Comparison operators.
 
-constexpr bool operator==(int128 lhs, int128 rhs) {
+constexpr bool operator == (int128 lhs, int128 rhs) {
   return (Int128Low64(lhs) == Int128Low64(rhs) &&
           Int128High64(lhs) == Int128High64(rhs));
 }
 
-constexpr bool operator!=(int128 lhs, int128 rhs) { return !(lhs == rhs); }
+constexpr bool operator != (int128 lhs, int128 rhs) { return !(lhs == rhs); }
 
-constexpr bool operator<(int128 lhs, int128 rhs) {
+constexpr bool operator < (int128 lhs, int128 rhs) {
   return (Int128High64(lhs) == Int128High64(rhs))
              ? (Int128Low64(lhs) < Int128Low64(rhs))
              : (Int128High64(lhs) < Int128High64(rhs));
 }
 
-constexpr bool operator>(int128 lhs, int128 rhs) {
+constexpr bool operator > (int128 lhs, int128 rhs) {
   return (Int128High64(lhs) == Int128High64(rhs))
              ? (Int128Low64(lhs) > Int128Low64(rhs))
              : (Int128High64(lhs) > Int128High64(rhs));
 }
 
-constexpr bool operator<=(int128 lhs, int128 rhs) { return !(lhs > rhs); }
+constexpr bool operator <= (int128 lhs, int128 rhs) { return !(lhs > rhs); }
 
-constexpr bool operator>=(int128 lhs, int128 rhs) { return !(lhs < rhs); }
+constexpr bool operator >= (int128 lhs, int128 rhs) { return !(lhs < rhs); }
 
 // Unary operators.
 
@@ -253,12 +247,12 @@ inline int128 int128::operator--(int) {
   return tmp;
 }
 
-inline int128& int128::operator++() {
+inline int128 & int128::operator++() {
   *this += 1;
   return *this;
 }
 
-inline int128& int128::operator--() {
+inline int128 & int128::operator--() {
   *this -= 1;
   return *this;
 }

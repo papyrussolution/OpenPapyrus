@@ -113,9 +113,9 @@ typedef enum dtStrEnum {
 typedef struct dtTypeElem {
     UChar                  patternChar;
     UDateTimePatternField  field;
-    int16_t                type;
-    int16_t                minLen;
-    int16_t                weight;
+    int16                type;
+    int16                minLen;
+    int16                weight;
 } dtTypeElem;
 
 // A compact storage mechanism for skeleton field strings.  Several dozen of these will be created
@@ -138,8 +138,8 @@ public:
     inline bool operator != (const SkeletonFields& other) const;
 
 private:
-    int8_t chars[UDATPG_FIELD_COUNT];
-    int8_t lengths[UDATPG_FIELD_COUNT];
+    int8 chars[UDATPG_FIELD_COUNT];
+    int8 lengths[UDATPG_FIELD_COUNT];
 };
 
 inline bool SkeletonFields::operator == (const SkeletonFields& other) const {

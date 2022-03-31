@@ -34,7 +34,7 @@ namespace Xapian {
 /** Virtual base class for expand decider functor. */
 class XAPIAN_VISIBILITY_DEFAULT ExpandDecider : public Xapian::Internal::opt_intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const ExpandDecider &) = delete;
+	void operator = (const ExpandDecider &) = delete;
 	/// Don't allow copying.
 	ExpandDecider(const ExpandDecider &) = delete;
 public:

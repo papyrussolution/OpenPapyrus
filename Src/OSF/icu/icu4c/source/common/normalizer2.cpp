@@ -538,7 +538,7 @@ U_CAPI uint8 U_EXPORT2 u_getCombiningClass(UChar32 c) {
 	}
 }
 
-U_CFUNC uint16_t unorm_getFCD16(UChar32 c) {
+U_CFUNC uint16 unorm_getFCD16(UChar32 c) {
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const Normalizer2Impl * impl = Normalizer2Factory::getNFCImpl(errorCode);
 	if(U_SUCCESS(errorCode)) {

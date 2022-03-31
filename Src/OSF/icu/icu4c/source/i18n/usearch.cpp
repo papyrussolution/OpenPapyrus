@@ -94,11 +94,11 @@ static inline void initializeFCD(UErrorCode * status)
  * @return fcd value
  */
 static
-uint16_t getFCD(const UChar * str, int32_t * offset,
+uint16 getFCD(const UChar * str, int32_t * offset,
     int32_t strlength)
 {
 	const UChar * temp = str + *offset;
-	uint16_t result = g_nfcImpl->nextFCD16(temp, str + strlength);
+	uint16 result = g_nfcImpl->nextFCD16(temp, str + strlength);
 	*offset = (int32_t)(temp - str);
 	return result;
 }
@@ -747,7 +747,7 @@ U_CAPI void U_EXPORT2 usearch_setAttribute(UStringSearch        * strsrch,
 			    break;
 			case USEARCH_ELEMENT_COMPARISON:
 			    if(value == USEARCH_PATTERN_BASE_WEIGHT_IS_WILDCARD || value == USEARCH_ANY_BASE_WEIGHT_IS_WILDCARD) {
-				    strsrch->search->elementComparisonType = (int16_t)value;
+				    strsrch->search->elementComparisonType = (int16)value;
 			    }
 			    else {
 				    strsrch->search->elementComparisonType = 0;
@@ -776,7 +776,7 @@ U_CAPI USearchAttributeValue U_EXPORT2 usearch_getAttribute(const UStringSearch 
 				   USEARCH_OFF);
 			case USEARCH_ELEMENT_COMPARISON:
 		    {
-			    int16_t value = strsrch->search->elementComparisonType;
+			    int16 value = strsrch->search->elementComparisonType;
 			    if(value == USEARCH_PATTERN_BASE_WEIGHT_IS_WILDCARD || value == USEARCH_ANY_BASE_WEIGHT_IS_WILDCARD) {
 				    return (USearchAttributeValue)value;
 			    }
@@ -1627,7 +1627,7 @@ typedef enum {
 #define U_CE_LEVEL2_BASE 0x00000005
 #define U_CE_LEVEL3_BASE 0x00050000
 
-static UCompareCEsResult compareCE64s(int64_t targCE, int64_t patCE, int16_t compareType) {
+static UCompareCEsResult compareCE64s(int64_t targCE, int64_t patCE, int16 compareType) {
 	if(targCE == patCE) {
 		return U_CE_MATCH;
 	}

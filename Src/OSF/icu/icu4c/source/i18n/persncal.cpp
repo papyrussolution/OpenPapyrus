@@ -24,11 +24,11 @@
 
 #include "gregoimp.h" // Math
 
-static const int16_t kPersianNumDays[]
+static const int16 kPersianNumDays[]
 	= {0, 31, 62, 93, 124, 155, 186, 216, 246, 276, 306, 336}; // 0-based, for day-in-year
-static const int8_t kPersianMonthLength[]
+static const int8 kPersianMonthLength[]
 	= {31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29}; // 0-based
-static const int8_t kPersianLeapMonthLength[]
+static const int8 kPersianLeapMonthLength[]
 	= {31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 30}; // 0-based
 
 static const int32_t kPersianCalendarLimits[UCAL_FIELD_COUNT][4] = {

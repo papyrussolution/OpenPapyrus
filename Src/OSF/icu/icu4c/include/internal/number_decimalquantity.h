@@ -251,7 +251,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
   * @internal
   * @deprecated This API is ICU internal only.
      */
-    void appendDigit(int8_t value, int32_t leadingZeros, bool appendAsInteger);
+    void appendDigit(int8 value, int32_t leadingZeros, bool appendAsInteger);
 
     double getPluralOperand(PluralOperand operand) const U_OVERRIDE;
 
@@ -264,7 +264,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
   * @param magnitude The magnitude of the digit.
   * @return The digit at the specified magnitude.
      */
-    int8_t getDigit(int32_t magnitude) const;
+    int8 getDigit(int32_t magnitude) const;
 
     /**
   * Gets the largest power of ten that needs to be displayed. The value returned by this function
@@ -358,7 +358,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
   * @see #INFINITY_FLAG
   * @see #NAN_FLAG
      */
-    int8_t flags;
+    int8 flags;
 
     // The following three fields relate to the double-to-ascii fast path algorithm.
     // When a double is given to DecimalQuantityBCD, it is converted to using a fast algorithm. The
@@ -405,7 +405,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
      */
     union {
         struct {
-            int8_t *ptr;
+            int8 *ptr;
             int32_t len;
         } bcdBytes;
         uint64_t bcdLong;
@@ -429,7 +429,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
   *     significant digit. If outside the range supported by the implementation, zero is returned.
   * @return The digit at the specified location.
      */
-    int8_t getDigitPos(int32_t position) const;
+    int8 getDigitPos(int32_t position) const;
 
     /**
   * Sets the digit in the BCD list. This method only sets the digit; it is the caller's
@@ -442,7 +442,7 @@ class U_I18N_API DecimalQuantity : public IFixedDecimal, public UMemory {
   *     is thrown.
   * @param value The digit to set at the specified location.
      */
-    void setDigitPos(int32_t position, int8_t value);
+    void setDigitPos(int32_t position, int8 value);
 
     /**
   * Adds zeros to the end of the BCD list. This will result in an invalid BCD representation; it is

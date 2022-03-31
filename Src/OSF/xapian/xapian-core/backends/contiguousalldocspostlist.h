@@ -28,7 +28,7 @@
 /// A PostList iterating all docids when they form a contiguous range.
 class ContiguousAllDocsPostList : public LeafPostList {
 	/// Don't allow assignment.
-	void operator=(const ContiguousAllDocsPostList &);
+	void operator = (const ContiguousAllDocsPostList &);
 	/// Don't allow copying.
 	ContiguousAllDocsPostList(const ContiguousAllDocsPostList &);
 	/** The current document id.

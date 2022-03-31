@@ -58,7 +58,7 @@ U_CAPI int32_t U_EXPORT2 ucol_cloneBinary(const UCollator * coll,
 
 U_CAPI UCollator* U_EXPORT2 ucol_safeClone(const UCollator * coll, void * /*stackBuffer*/, int32_t * pBufferSize, UErrorCode * status)
 {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(coll == NULL) {
@@ -185,7 +185,7 @@ U_CAPI int32_t U_EXPORT2 ucol_nextSortKeyPart(const UCollator * coll, UCharItera
     UErrorCode * status)
 {
 	/* error checking */
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 	UTRACE_ENTRY(UTRACE_UCOL_NEXTSORTKEYPART);
@@ -214,7 +214,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getBound(const uint8 * source,
     UErrorCode * status)
 {
 	// consistency checks
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 	if(source == NULL) {

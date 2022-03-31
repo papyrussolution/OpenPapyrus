@@ -1,5 +1,5 @@
 // PRCPAN.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2010, 2011, 2013, 2015, 2016, 2017, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -594,11 +594,11 @@ void PrcPaneDialog::ProcessEnter()
 						showMessage(mfError, 0, 0);
 				}
 			}
-			else if(tb.CmpPrefix("BILL", 0) == 0) {
+			else if(tb.HasPrefix("BILL")) {
 				if(!processBill(tb))
 					showMessage(mfError, 0, 0);
 			}
-			else if(tb.CmpPrefix("EXPY", 0) == 0) {
+			else if(tb.HasPrefix("EXPY")) {
 				if(oneof3(State, sGOODS_QTTY, sGOODS_NOQTTY, sEXPIRY)) {
 					showMessage(mfInfo, PPINF_INPUTEXPIRY, 0);
 					State = sEXPIRY;
@@ -606,7 +606,7 @@ void PrcPaneDialog::ProcessEnter()
 				else
 					showMessage(mfError, PPERR_PRCPAN_UNABLEXPIRY, 0);
   			}
-			else if(tb.CmpPrefix("COST", 0) == 0) {
+			else if(tb.HasPrefix("COST")) {
 				if(oneof3(State, sGOODS_QTTY, sGOODS_NOQTTY, sCOST)) {
 					if(TSesObj.GetConfig().Flags & PPTSessConfig::fUsePricing) {
 						showMessage(mfInfo, PPINF_INPUTCOST, 0);

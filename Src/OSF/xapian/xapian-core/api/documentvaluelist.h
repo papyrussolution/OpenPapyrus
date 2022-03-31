@@ -27,7 +27,7 @@
 
 /// Iteration over values in a document.
 class DocumentValueList final : public ValueList {
-	void operator=(const DocumentValueList &) = delete; /// Don't allow assignment.
+	void operator = (const DocumentValueList &) = delete; /// Don't allow assignment.
 	DocumentValueList(const DocumentValueList &) = delete; /// Don't allow copying.
 	/// Document internals we're iterating over.
 	Xapian::Internal::intrusive_ptr<const Xapian::Document::Internal> doc;

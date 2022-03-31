@@ -161,15 +161,15 @@ typedef struct Opening {
     int32_t position;                   /* position of opening bracket */
     int32_t match; /* matching char or -position of closing bracket */
     int32_t contextPos; /* position of last strong char found before opening */
-    uint16_t flags; /* bits for L or R/AL found within the pair */
+    uint16 flags; /* bits for L or R/AL found within the pair */
     UBiDiDirection contextDir; /* L or R according to last strong char before opening */
     uint8 filler; /* to complete a nice multiple of 4 chars */
 } Opening;
 
 typedef struct IsoRun {
     int32_t contextPos; /* position of char determining context */
-    uint16_t start; /* index of first opening entry for this run */
-    uint16_t limit; /* index after last opening entry for this run */
+    uint16 start; /* index of first opening entry for this run */
+    uint16 limit; /* index after last opening entry for this run */
     UBiDiLevel level;                   /* level of this run */
     DirProp lastStrong; /* bidi class of last strong char found in this run */
     DirProp lastBase;                   /* bidi class of last base char found in this run */
@@ -193,7 +193,7 @@ typedef struct Isolate {
     int32_t startON;
     int32_t start1;
     int32_t state;
-    int16_t stateImp;
+    int16 stateImp;
 } Isolate;
 
 typedef struct Run {

@@ -283,7 +283,7 @@ private:
 
 	// Confusable data
 	int32_t * fCFUKeys;
-	uint16_t                    * fCFUValues;
+	uint16                    * fCFUValues;
 	UChar                       * fCFUStrings;
 
 	friend class ConfusabledataBuilder;

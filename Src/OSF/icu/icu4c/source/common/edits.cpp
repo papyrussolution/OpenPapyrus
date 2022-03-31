@@ -40,7 +40,7 @@ Edits &Edits::copyArray(const Edits &other) {
 		return *this;
 	}
 	if(length > capacity) {
-		uint16_t * newArray = (uint16_t*)uprv_malloc((size_t)length * 2);
+		uint16 * newArray = (uint16*)uprv_malloc((size_t)length * 2);
 		if(newArray == nullptr) {
 			length = delta = numChanges = 0;
 			errorCode_ = U_MEMORY_ALLOCATION_ERROR;
@@ -187,33 +187,33 @@ void Edits::addReplace(int32_t oldLength, int32_t newLength) {
 		}
 		else if(oldLength <= 0x7fff) {
 			head |= LENGTH_IN_1TRAIL << 6;
-			array[limit++] = (uint16_t)(0x8000 | oldLength);
+			array[limit++] = (uint16)(0x8000 | oldLength);
 		}
 		else {
 			head |= (LENGTH_IN_2TRAIL + (oldLength >> 30)) << 6;
-			array[limit++] = (uint16_t)(0x8000 | (oldLength >> 15));
-			array[limit++] = (uint16_t)(0x8000 | oldLength);
+			array[limit++] = (uint16)(0x8000 | (oldLength >> 15));
+			array[limit++] = (uint16)(0x8000 | oldLength);
 		}
 		if(newLength < LENGTH_IN_1TRAIL) {
 			head |= newLength;
 		}
 		else if(newLength <= 0x7fff) {
 			head |= LENGTH_IN_1TRAIL;
-			array[limit++] = (uint16_t)(0x8000 | newLength);
+			array[limit++] = (uint16)(0x8000 | newLength);
 		}
 		else {
 			head |= LENGTH_IN_2TRAIL + (newLength >> 30);
-			array[limit++] = (uint16_t)(0x8000 | (newLength >> 15));
-			array[limit++] = (uint16_t)(0x8000 | newLength);
+			array[limit++] = (uint16)(0x8000 | (newLength >> 15));
+			array[limit++] = (uint16)(0x8000 | newLength);
 		}
-		array[length] = (uint16_t)head;
+		array[length] = (uint16)head;
 		length = limit;
 	}
 }
 
 void Edits::append(int32_t r) {
 	if(length < capacity || growArray()) {
-		array[length++] = (uint16_t)r;
+		array[length++] = (uint16)r;
 	}
 }
 
@@ -239,7 +239,7 @@ bool Edits::growArray() {
 		errorCode_ = U_INDEX_OUTOFBOUNDS_ERROR;
 		return FALSE;
 	}
-	uint16_t * newArray = (uint16_t*)uprv_malloc((size_t)newCapacity * 2);
+	uint16 * newArray = (uint16*)uprv_malloc((size_t)newCapacity * 2);
 	if(newArray == NULL) {
 		errorCode_ = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
@@ -417,7 +417,7 @@ Edits &Edits::mergeAndAppend(const Edits &ab, const Edits &bc, UErrorCode & erro
 	return *this;
 }
 
-Edits::Iterator::Iterator(const uint16_t * a, int32_t len, bool oc, bool crs) :
+Edits::Iterator::Iterator(const uint16 * a, int32_t len, bool oc, bool crs) :
 	array(a), index(0), length(len), remaining(0),
 	onlyChanges_(oc), coarse(crs),
 	dir(0), changed(FALSE), oldLength_(0), newLength_(0),

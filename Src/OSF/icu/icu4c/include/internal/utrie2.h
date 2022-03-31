@@ -346,7 +346,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  *
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param c (UChar32, in) the input code point
- * @return (uint16_t) The code point's trie value.
+ * @return (uint16) The code point's trie value.
  */
 #define UTRIE2_GET16(trie, c) _UTRIE2_GET((trie), index, (trie)->indexLength, (c))
 
@@ -368,7 +368,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  * @param src (const UChar *, in/out) the source text pointer
  * @param limit (const UChar *, in) the limit pointer for the text, or NULL if NUL-terminated
  * @param c (UChar32, out) variable for the code point
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
 #define UTRIE2_U16_NEXT16(trie, src, limit, c, result) _UTRIE2_U16_NEXT(trie, index, src, limit, c, result)
 
@@ -392,7 +392,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  * @param start (const UChar *, in) the start pointer for the text
  * @param src (const UChar *, in/out) the source text pointer
  * @param c (UChar32, out) variable for the code point
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
 #define UTRIE2_U16_PREV16(trie, start, src, c, result) _UTRIE2_U16_PREV(trie, index, start, src, c, result)
 
@@ -414,7 +414,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param src (const char *, in/out) the source text pointer
  * @param limit (const char *, in) the limit pointer for the text (must not be NULL)
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
 #define UTRIE2_U8_NEXT16(trie, src, limit, result)\
     _UTRIE2_U8_NEXT(trie, data16, index, src, limit, result)
@@ -425,7 +425,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param src (const char *, in/out) the source text pointer
  * @param limit (const char *, in) the limit pointer for the text (must not be NULL)
- * @param result (uint16_t, out) uint32_t variable for the trie lookup result
+ * @param result (uint16, out) uint32_t variable for the trie lookup result
  */
 #define UTRIE2_U8_NEXT32(trie, src, limit, result) \
     _UTRIE2_U8_NEXT(trie, data32, data32, src, limit, result)
@@ -436,7 +436,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param start (const char *, in) the start pointer for the text
  * @param src (const char *, in/out) the source text pointer
- * @param result (uint16_t, out) uint16_t variable for the trie lookup result
+ * @param result (uint16, out) uint16 variable for the trie lookup result
  */
 #define UTRIE2_U8_PREV16(trie, start, src, result) \
     _UTRIE2_U8_PREV(trie, data16, index, start, src, result)
@@ -447,7 +447,7 @@ utrie2_fromUTrie(const UTrie *trie1, uint32_t errorValue, UErrorCode *pErrorCode
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param start (const char *, in) the start pointer for the text
  * @param src (const char *, in/out) the source text pointer
- * @param result (uint16_t, out) uint32_t variable for the trie lookup result
+ * @param result (uint16, out) uint32_t variable for the trie lookup result
  */
 #define UTRIE2_U8_PREV32(trie, start, src, result) \
     _UTRIE2_U8_PREV(trie, data32, data32, start, src, result)
@@ -543,7 +543,7 @@ utrie2_set32ForLeadSurrogateCodeUnit(UTrie2 *trie,
  *
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param c (UChar32, in) the input code unit, must be 0<=c<=U+ffff
- * @return (uint16_t) The code unit's trie value.
+ * @return (uint16) The code unit's trie value.
  */
 #define UTRIE2_GET16_FROM_U16_SINGLE_LEAD(trie, c) _UTRIE2_GET_FROM_U16_SINGLE_LEAD((trie), index, c)
 
@@ -563,7 +563,7 @@ utrie2_set32ForLeadSurrogateCodeUnit(UTrie2 *trie,
  *
  * @param trie (const UTrie2 *, in) a frozen trie
  * @param c (UChar32, in) the input code point, must be U+10000<=c<=U+10ffff
- * @return (uint16_t) The code point's trie value.
+ * @return (uint16) The code point's trie value.
  */
 #define UTRIE2_GET16_FROM_SUPP(trie, c) _UTRIE2_GET_FROM_SUPP((trie), index, c)
 
@@ -603,7 +603,7 @@ public:
     BackwardUTrie2StringIterator(const UTrie2 *t, const UChar *s, const UChar *p) :
         UTrie2StringIterator(t, p), start(s) {}
 
-    uint16_t previous16();
+    uint16 previous16();
 
     const UChar *start;
 };
@@ -615,7 +615,7 @@ public:
     ForwardUTrie2StringIterator(const UTrie2 *t, const UChar *p, const UChar *l) :
         UTrie2StringIterator(t, p), limit(l) {}
 
-    uint16_t next16();
+    uint16 next16();
 
     const UChar *limit;
 };
@@ -643,13 +643,13 @@ typedef struct UNewTrie2 UNewTrie2;
  */
 struct UTrie2 {
     /* protected: used by macros and functions for reading values */
-    const uint16_t *index;
-    const uint16_t *data16; /* for fast UTF-8 ASCII access, if 16b data */
+    const uint16 *index;
+    const uint16 *data16; /* for fast UTF-8 ASCII access, if 16b data */
     const uint32_t *data32; /* NULL if 16b data is used via index */
 
     int32_t indexLength, dataLength;
-    uint16_t index2NullOffset; /* 0xffff if there is no dedicated index-2 null block */
-    uint16_t dataNullOffset;
+    uint16 index2NullOffset; /* 0xffff if there is no dedicated index-2 null block */
+    uint16 dataNullOffset;
     uint32_t initialValue;
     /** Value returned for out-of-range code points and illegal UTF-8. */
     uint32_t errorValue;
@@ -663,7 +663,7 @@ struct UTrie2 {
     int32_t length; /* number of serialized bytes at memory; 0 if not frozen yet */
     bool isMemoryOwned; /* true if the trie owns the memory */
     bool padding1;
-    int16_t padding2;
+    int16 padding2;
     UNewTrie2 *newTrie; /* builder object; NULL when frozen */
 
 #ifdef UTRIE2_DEBUG
@@ -864,7 +864,7 @@ utrie2_internalU8PrevIndex(const UTrie2 *trie, UChar32 c,
 /** Internal next-post-increment: get the next code point (c) and its data. */
 #define _UTRIE2_U16_NEXT(trie, data, src, limit, c, result) UPRV_BLOCK_MACRO_BEGIN { \
     { \
-        uint16_t __c2; \
+        uint16 __c2; \
         (c)=*(src)++; \
         if(!U16_IS_LEAD(c)) { \
             (result)=_UTRIE2_GET_FROM_U16_SINGLE_LEAD(trie, data, c); \
@@ -881,7 +881,7 @@ utrie2_internalU8PrevIndex(const UTrie2 *trie, UChar32 c,
 /** Internal pre-decrement-previous: get the previous code point (c) and its data */
 #define _UTRIE2_U16_PREV(trie, data, start, src, c, result) UPRV_BLOCK_MACRO_BEGIN { \
     { \
-        uint16_t __c2; \
+        uint16 __c2; \
         (c)=*--(src); \
         if(!U16_IS_TRAIL(c) || (src)==(start) || !U16_IS_LEAD(__c2=*((src)-1))) { \
             (result)=(trie)->data[_UTRIE2_INDEX_FROM_BMP((trie)->index, c)]; \

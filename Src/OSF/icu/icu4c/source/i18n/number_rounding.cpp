@@ -87,7 +87,7 @@ int32_t getDisplayMagnitudeSignificant(const DecimalQuantity &value, int minSig)
 
 MultiplierProducer::~MultiplierProducer() = default;
 
-digits_t roundingutils::doubleFractionLength(double input, int8_t* singleDigit) {
+digits_t roundingutils::doubleFractionLength(double input, int8* singleDigit) {
 	char buffer[DoubleToStringConverter::kBase10MaximalLength + 1];
 	bool sign; // unused; always positive
 	int32_t length;
@@ -351,7 +351,7 @@ IncrementPrecision Precision::constructIncrement(double increment, int32_t minFr
 	settings.fMinFrac = static_cast<digits_t>(minFrac);
 	// One of the few pre-computed quantities:
 	// Note: it is possible for minFrac to be more than maxFrac... (misleading)
-	int8_t singleDigit;
+	int8 singleDigit;
 	settings.fMaxFrac = roundingutils::doubleFractionLength(increment, &singleDigit);
 	PrecisionUnion union_;
 	union_.increment = settings;

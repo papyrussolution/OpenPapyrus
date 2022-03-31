@@ -32,7 +32,7 @@ class GlassAllTermsList : public AllTermsList {
 	/// Copying is not allowed.
 	GlassAllTermsList(const GlassAllTermsList &);
 	/// Assignment is not allowed.
-	void operator=(const GlassAllTermsList &);
+	void operator = (const GlassAllTermsList &);
 	/// Keep a reference to our database to stop it being deleted.
 	Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
 	/** A cursor which runs through the postlist table reading termnames from

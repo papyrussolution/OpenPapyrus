@@ -292,7 +292,7 @@ ubrk_openRules(const UChar *rules,
  * @stable ICU 59
  */
 U_CAPI UBreakIterator* U_EXPORT2
-ubrk_openBinaryRules(const uint8_t *binaryRules, int32_t rulesLength,
+ubrk_openBinaryRules(const uint8 *binaryRules, int32_t rulesLength,
                      const UChar * text, int32_t textLength,
                      UErrorCode *   status);
 
@@ -642,7 +642,7 @@ ubrk_refreshUText(UBreakIterator *bi,
  */
 U_CAPI int32_t U_EXPORT2
 ubrk_getBinaryRules(UBreakIterator *bi,
-                    uint8_t *       binaryRules, int32_t rulesCapacity,
+                    uint8 *       binaryRules, int32_t rulesCapacity,
                     UErrorCode * status);
 
 #endif /* #if !UCONFIG_NO_BREAK_ITERATION */

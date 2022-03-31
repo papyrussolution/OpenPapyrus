@@ -179,7 +179,7 @@ class AffixMatcher : public NumberParseMatcher, public UMemory {
 
     bool smokeTest(const StringSegment& segment) const override;
 
-    int8_t compareTo(const AffixMatcher& rhs) const;
+    int8 compareTo(const AffixMatcher& rhs) const;
 
     UnicodeString toString() const override;
 

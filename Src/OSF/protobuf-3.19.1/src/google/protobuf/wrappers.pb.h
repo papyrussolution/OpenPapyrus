@@ -106,11 +106,11 @@ class DoubleValue final :
     *this = ::std::move(from);
   }
 
-  inline DoubleValue& operator=(const DoubleValue& from) {
+  inline DoubleValue& operator = (const DoubleValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline DoubleValue& operator=(DoubleValue&& from) noexcept {
+  inline DoubleValue& operator = (DoubleValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -233,11 +233,11 @@ class FloatValue final :
     *this = ::std::move(from);
   }
 
-  inline FloatValue& operator=(const FloatValue& from) {
+  inline FloatValue& operator = (const FloatValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline FloatValue& operator=(FloatValue&& from) noexcept {
+  inline FloatValue& operator = (FloatValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -360,11 +360,11 @@ class Int64Value final :
     *this = ::std::move(from);
   }
 
-  inline Int64Value& operator=(const Int64Value& from) {
+  inline Int64Value& operator = (const Int64Value& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Int64Value& operator=(Int64Value&& from) noexcept {
+  inline Int64Value& operator = (Int64Value&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -487,11 +487,11 @@ class UInt64Value final :
     *this = ::std::move(from);
   }
 
-  inline UInt64Value& operator=(const UInt64Value& from) {
+  inline UInt64Value& operator = (const UInt64Value& from) {
     CopyFrom(from);
     return *this;
   }
-  inline UInt64Value& operator=(UInt64Value&& from) noexcept {
+  inline UInt64Value& operator = (UInt64Value&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -614,11 +614,11 @@ class Int32Value final :
     *this = ::std::move(from);
   }
 
-  inline Int32Value& operator=(const Int32Value& from) {
+  inline Int32Value& operator = (const Int32Value& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Int32Value& operator=(Int32Value&& from) noexcept {
+  inline Int32Value& operator = (Int32Value&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -741,11 +741,11 @@ class UInt32Value final :
     *this = ::std::move(from);
   }
 
-  inline UInt32Value& operator=(const UInt32Value& from) {
+  inline UInt32Value& operator = (const UInt32Value& from) {
     CopyFrom(from);
     return *this;
   }
-  inline UInt32Value& operator=(UInt32Value&& from) noexcept {
+  inline UInt32Value& operator = (UInt32Value&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -868,11 +868,11 @@ class BoolValue final :
     *this = ::std::move(from);
   }
 
-  inline BoolValue& operator=(const BoolValue& from) {
+  inline BoolValue& operator = (const BoolValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline BoolValue& operator=(BoolValue&& from) noexcept {
+  inline BoolValue& operator = (BoolValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -995,11 +995,11 @@ class StringValue final :
     *this = ::std::move(from);
   }
 
-  inline StringValue& operator=(const StringValue& from) {
+  inline StringValue& operator = (const StringValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline StringValue& operator=(StringValue&& from) noexcept {
+  inline StringValue& operator = (StringValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1127,11 +1127,11 @@ class BytesValue final :
     *this = ::std::move(from);
   }
 
-  inline BytesValue& operator=(const BytesValue& from) {
+  inline BytesValue& operator = (const BytesValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline BytesValue& operator=(BytesValue&& from) noexcept {
+  inline BytesValue& operator = (BytesValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

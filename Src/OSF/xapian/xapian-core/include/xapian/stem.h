@@ -29,7 +29,7 @@ namespace Xapian {
 /// Class representing a stemming algorithm implementation.
 class XAPIAN_VISIBILITY_DEFAULT StemImplementation : public Xapian::Internal::intrusive_base {
 	/// Don't allow assignment.
-	void operator=(const StemImplementation &) = delete;
+	void operator = (const StemImplementation &) = delete;
 	/// Don't allow copying.
 	StemImplementation(const StemImplementation &) = delete;
 public:
@@ -55,7 +55,7 @@ public:
 	{
 	}
 	/// Assignment.
-	Stem& operator=(const Stem& o) 
+	Stem& operator = (const Stem& o) 
 	{
 		internal = o.internal;
 		return *this;
@@ -63,7 +63,7 @@ public:
 	/// Move constructor.
 	Stem(Stem&&) = default;
 	/// Move assignment operator.
-	Stem& operator=(Stem&&) = default;
+	Stem& operator = (Stem&&) = default;
 	/** Construct a Xapian::Stem object which doesn't change terms.
 	 *
 	 *  Equivalent to Stem("none").

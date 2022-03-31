@@ -88,7 +88,7 @@ static const UChar32
 	0x10ffff
 };
 
-static UChar32 errorValue(int32_t count, int8_t strict) {
+static UChar32 errorValue(int32_t count, int8 strict) {
 	if(strict>=0) {
 		return utf8_errorValue[count];
 	}
@@ -122,7 +122,7 @@ static UChar32 errorValue(int32_t count, int8_t strict) {
  *     Same as the obsolete "safe" behavior, but non-characters are also treated
  *     like illegal sequences.
  *
- * Note that a bool is the same as an int8_t.
+ * Note that a bool is the same as an int8.
  */
 U_CAPI UChar32 U_EXPORT2 utf8_nextCharSafeBody(const uint8 * s, int32_t * pi, int32_t length, UChar32 c, /*bool*/int strict) // @sobolev bool->int (реальные значения могут быть и -1 и -2 etc)
 {

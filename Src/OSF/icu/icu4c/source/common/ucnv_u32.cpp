@@ -74,7 +74,7 @@ morebytes:
 				/* stores a partially calculated target*/
 				/* + 1 to make 0 a valid character */
 				args->converter->toUnicodeStatus = ch + 1;
-				args->converter->toULength = (int8_t)i;
+				args->converter->toULength = (int8)i;
 				goto donefornow;
 			}
 		}
@@ -102,7 +102,7 @@ morebytes:
 			}
 		}
 		else {
-			args->converter->toULength = (int8_t)i;
+			args->converter->toULength = (int8)i;
 			*err = U_ILLEGAL_CHAR_FOUND;
 			break;
 		}
@@ -153,7 +153,7 @@ morebytes:
 				/* stores a partially calculated target*/
 				/* + 1 to make 0 a valid character */
 				args->converter->toUnicodeStatus = ch + 1;
-				args->converter->toULength = (int8_t)i;
+				args->converter->toULength = (int8)i;
 				goto donefornow;
 			}
 		}
@@ -184,7 +184,7 @@ morebytes:
 			}
 		}
 		else {
-			args->converter->toULength = (int8_t)i;
+			args->converter->toULength = (int8)i;
 			*err = U_ILLEGAL_CHAR_FOUND;
 			break;
 		}
@@ -426,7 +426,7 @@ static UChar32 U_CALLCONV T_UConverter_getNextUChar_UTF32_BE(UConverterToUnicode
 	if(length < 4) {
 		/* got a partial character */
 		uprv_memcpy(args->converter->toUBytes, mySource, length);
-		args->converter->toULength = (int8_t)length;
+		args->converter->toULength = (int8)length;
 		args->source = (const char *)(mySource + length);
 		*err = U_TRUNCATED_CHAR_FOUND;
 		return 0xffff;
@@ -528,7 +528,7 @@ morebytes:
 				/* stores a partially calculated target*/
 				/* + 1 to make 0 a valid character */
 				args->converter->toUnicodeStatus = ch + 1;
-				args->converter->toULength = (int8_t)i;
+				args->converter->toULength = (int8)i;
 				goto donefornow;
 			}
 		}
@@ -556,7 +556,7 @@ morebytes:
 			}
 		}
 		else {
-			args->converter->toULength = (int8_t)i;
+			args->converter->toULength = (int8)i;
 			*err = U_ILLEGAL_CHAR_FOUND;
 			break;
 		}
@@ -608,7 +608,7 @@ morebytes:
 				/* stores a partially calculated target*/
 				/* + 1 to make 0 a valid character */
 				args->converter->toUnicodeStatus = ch + 1;
-				args->converter->toULength = (int8_t)i;
+				args->converter->toULength = (int8)i;
 				goto donefornow;
 			}
 		}
@@ -639,7 +639,7 @@ morebytes:
 			}
 		}
 		else {
-			args->converter->toULength = (int8_t)i;
+			args->converter->toULength = (int8)i;
 			*err = U_ILLEGAL_CHAR_FOUND;
 			break;
 		}
@@ -881,7 +881,7 @@ static UChar32 U_CALLCONV T_UConverter_getNextUChar_UTF32_LE(UConverterToUnicode
 	if(length < 4) {
 		/* got a partial character */
 		uprv_memcpy(args->converter->toUBytes, mySource, length);
-		args->converter->toULength = (int8_t)length;
+		args->converter->toULength = (int8)length;
 		args->source = (const char *)(mySource + length);
 		*err = U_TRUNCATED_CHAR_FOUND;
 		return 0xffff;

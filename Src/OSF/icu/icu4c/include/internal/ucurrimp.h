@@ -57,7 +57,7 @@ U_CAPI void
 uprv_parseCurrency(const char * locale,
                    const icu::UnicodeString & text,
                    icu::ParsePosition& pos,
-                   int8_t type,
+                   int8 type,
                    int32_t* partialMatchLen,
                    UChar * result,
                    UErrorCode & ec);

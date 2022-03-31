@@ -67,13 +67,13 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	Enquire& operator=(const Enquire& o);
+	Enquire& operator = (const Enquire& o);
 
 	/// Move constructor.
 	Enquire(Enquire&& o);
 
 	/// Move assignment operator.
-	Enquire& operator=(Enquire&& o);
+	Enquire& operator = (Enquire&& o);
 
 	/** Constructor.
 	 *

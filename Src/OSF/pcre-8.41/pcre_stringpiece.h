@@ -114,20 +114,11 @@ public:
 		ptr_ += n;
 		length_ -= n;
 	}
-	void remove_suffix(int n) 
-	{
-		length_ -= n;
-	}
-	bool operator == (const StringPiece& x) const 
-	{
-		return ((length_ == x.length_) && (memcmp(ptr_, x.ptr_, length_) == 0));
-	}
-	bool operator!=(const StringPiece& x) const 
-	{
-		return !(*this == x);
-	}
-#define STRINGPIECE_BINARY_PREDICATE(cmp, auxcmp)			      \
-	bool operator cmp(const StringPiece& x) const {				  \
+	void remove_suffix(int n) { length_ -= n; }
+	bool operator == (const StringPiece & x) const { return ((length_ == x.length_) && (memcmp(ptr_, x.ptr_, length_) == 0)); }
+	bool operator != (const StringPiece & x) const { return !(*this == x); }
+#define STRINGPIECE_BINARY_PREDICATE(cmp, auxcmp) \
+	bool operator cmp(const StringPiece & x) const { \
 		int r = memcmp(ptr_, x.ptr_, length_ < x.length_ ? length_ : x.length_); \
 		return ((r auxcmp 0) || ((r == 0) && (length_ cmp x.length_)));		 \
 	}
@@ -136,8 +127,7 @@ public:
 	STRINGPIECE_BINARY_PREDICATE(>=, >);
 	STRINGPIECE_BINARY_PREDICATE(>,  >);
 #undef STRINGPIECE_BINARY_PREDICATE
-
-	int compare(const StringPiece& x) const 
+	int compare(const StringPiece & x) const 
 	{
 		int r = memcmp(ptr_, x.ptr_, length_ < x.length_ ? length_ : x.length_);
 		if(r == 0) {
@@ -155,7 +145,7 @@ public:
 		target->assign(ptr_, length_);
 	}
 	// Does "this" start with "x"
-	bool starts_with(const StringPiece& x) const 
+	bool starts_with(const StringPiece & x) const 
 	{
 		return ((length_ >= x.length_) && (memcmp(ptr_, x.ptr_, x.length_) == 0));
 	}
@@ -182,7 +172,6 @@ template <> struct __type_traits<pcrecpp::StringPiece> {
 #endif
 
 // allow StringPiece to be logged
-PCRECPP_EXP_DECL std::ostream& operator<<(std::ostream& o,
-    const pcrecpp::StringPiece& piece);
+PCRECPP_EXP_DECL std::ostream & operator<<(std::ostream & o, const pcrecpp::StringPiece & piece);
 
 #endif /* _PCRE_STRINGPIECE_H */

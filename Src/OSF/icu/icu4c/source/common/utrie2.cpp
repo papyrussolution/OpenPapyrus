@@ -111,7 +111,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
     const void * data, int32_t length, int32_t * pActualLength,
     UErrorCode * pErrorCode) {
 	const UTrie2Header * header;
-	const uint16_t * p16;
+	const uint16 * p16;
 	int32_t actualLength;
 
 	UTrie2 tempTrie;
@@ -187,7 +187,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 #endif
 
 	/* set the pointers to its index and data arrays */
-	p16 = (const uint16_t*)(header+1);
+	p16 = (const uint16*)(header+1);
 	trie->index = p16;
 	p16 += trie->indexLength;
 
@@ -222,7 +222,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	UTrie2 * trie;
 	UTrie2Header * header;
 	uint32_t * p;
-	uint16_t * dest16;
+	uint16 * dest16;
 	int32_t indexLength, dataLength, length, i;
 	int32_t dataMove; /* >0 if the data is moved to the end of the index array */
 
@@ -273,7 +273,7 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	trie->indexLength = indexLength;
 	trie->dataLength = dataLength;
 	trie->index2NullOffset = UTRIE2_INDEX_2_OFFSET;
-	trie->dataNullOffset = (uint16_t)dataMove;
+	trie->dataNullOffset = (uint16)dataMove;
 	trie->initialValue = initialValue;
 	trie->errorValue = errorValue;
 	trie->highStart = 0;
@@ -286,29 +286,29 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	header = (UTrie2Header*)trie->memory;
 
 	header->signature = UTRIE2_SIG; /* "Tri2" */
-	header->options = (uint16_t)valueBits;
+	header->options = (uint16)valueBits;
 
-	header->indexLength = (uint16_t)indexLength;
-	header->shiftedDataLength = (uint16_t)(dataLength>>UTRIE2_INDEX_SHIFT);
-	header->index2NullOffset = (uint16_t)UTRIE2_INDEX_2_OFFSET;
-	header->dataNullOffset = (uint16_t)dataMove;
+	header->indexLength = (uint16)indexLength;
+	header->shiftedDataLength = (uint16)(dataLength>>UTRIE2_INDEX_SHIFT);
+	header->index2NullOffset = (uint16)UTRIE2_INDEX_2_OFFSET;
+	header->dataNullOffset = (uint16)dataMove;
 	header->shiftedHighStart = 0;
 
 	/* fill the index and data arrays */
-	dest16 = (uint16_t*)(header+1);
+	dest16 = (uint16*)(header+1);
 	trie->index = dest16;
 
 	/* write the index-2 array values shifted right by UTRIE2_INDEX_SHIFT */
 	for(i = 0; i<UTRIE2_INDEX_2_BMP_LENGTH; ++i) {
-		*dest16++ = (uint16_t)(dataMove>>UTRIE2_INDEX_SHIFT); /* null data block */
+		*dest16++ = (uint16)(dataMove>>UTRIE2_INDEX_SHIFT); /* null data block */
 	}
 
 	/* write UTF-8 2-byte index-2 values, not right-shifted */
 	for(i = 0; i<(0xc2-0xc0); ++i) {                            /* C0..C1 */
-		*dest16++ = (uint16_t)(dataMove+UTRIE2_BAD_UTF8_DATA_OFFSET);
+		*dest16++ = (uint16)(dataMove+UTRIE2_BAD_UTF8_DATA_OFFSET);
 	}
 	for(; i<(0xe0-0xc0); ++i) {                                 /* C2..DF */
-		*dest16++ = (uint16_t)dataMove;
+		*dest16++ = (uint16)dataMove;
 	}
 
 	/* write the 16/32-bit data array */
@@ -318,14 +318,14 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 		    trie->data16 = dest16;
 		    trie->data32 = NULL;
 		    for(i = 0; i<0x80; ++i) {
-			    *dest16++ = (uint16_t)initialValue;
+			    *dest16++ = (uint16)initialValue;
 		    }
 		    for(; i<0xc0; ++i) {
-			    *dest16++ = (uint16_t)errorValue;
+			    *dest16++ = (uint16)errorValue;
 		    }
 		    /* highValue and reserved values */
 		    for(i = 0; i<UTRIE2_DATA_GRANULARITY; ++i) {
-			    *dest16++ = (uint16_t)initialValue;
+			    *dest16++ = (uint16)initialValue;
 		    }
 		    break;
 		case UTRIE2_32_VALUE_BITS:
@@ -422,7 +422,7 @@ static void enumEitherTrie(const UTrie2 * trie,
     UChar32 start, UChar32 limit,
     UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange, const void * context) {
 	const uint32_t * data32;
-	const uint16_t * idx;
+	const uint16 * idx;
 
 	uint32_t value, prevValue, initialValue;
 	UChar32 c, prev, highStart;
@@ -625,24 +625,24 @@ U_CAPI void U_EXPORT2 utrie2_enumForLeadSurrogate(const UTrie2 * trie, UChar32 l
 
 U_NAMESPACE_BEGIN
 
-uint16_t BackwardUTrie2StringIterator::previous16() {
+uint16 BackwardUTrie2StringIterator::previous16() {
 	codePointLimit = codePointStart;
 	if(start>=codePointStart) {
 		codePoint = U_SENTINEL;
-		return static_cast<uint16_t>(trie->errorValue);
+		return static_cast<uint16>(trie->errorValue);
 	}
-	uint16_t result;
+	uint16 result;
 	UTRIE2_U16_PREV16(trie, start, codePointStart, codePoint, result);
 	return result;
 }
 
-uint16_t ForwardUTrie2StringIterator::next16() {
+uint16 ForwardUTrie2StringIterator::next16() {
 	codePointStart = codePointLimit;
 	if(codePointLimit==limit) {
 		codePoint = U_SENTINEL;
-		return static_cast<uint16_t>(trie->errorValue);
+		return static_cast<uint16>(trie->errorValue);
 	}
-	uint16_t result;
+	uint16 result;
 	UTRIE2_U16_NEXT16(trie, codePointLimit, limit, codePoint, result);
 	return result;
 }

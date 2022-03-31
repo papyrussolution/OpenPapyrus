@@ -167,7 +167,7 @@ inline int eai_to_xapian(int e) {
  */
 class RemoteConnection {
 	/// Don't allow assignment.
-	void operator=(const RemoteConnection &);
+	void operator = (const RemoteConnection &);
 
 	/// Don't allow copying.
 	RemoteConnection(const RemoteConnection &);

@@ -141,7 +141,7 @@ private:
 	const Normalizer2Impl &nfcImpl;
 	UnicodeString normalized;
 	// Direction of incremental FCD check. See comments before rawStart.
-	int8_t checkDir;
+	int8 checkDir;
 };
 
 U_NAMESPACE_END

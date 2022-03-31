@@ -287,7 +287,7 @@ private:
 #endif
 	LowLevelAlloc::Arena * arena_;
 	ArenaLock(const ArenaLock &) = delete;
-	ArenaLock &operator=(const ArenaLock &) = delete;
+	ArenaLock &operator = (const ArenaLock &) = delete;
 };
 }  // namespace
 

@@ -554,7 +554,7 @@ inline void DecimalFormatSymbols::setSymbol(ENumberFormatSymbol symbol, const Un
 		UChar32 sym = value.char32At(0);
 		if(propagateDigits && u_charDigitValue(sym) == 0 && value.countChar32() == 1) {
 			fCodePointZero = sym;
-			for(int8_t i = 1; i<= 9; i++) {
+			for(int8 i = 1; i<= 9; i++) {
 				sym++;
 				fSymbols[(int)kOneDigitSymbol+i-1] = UnicodeString(sym);
 			}

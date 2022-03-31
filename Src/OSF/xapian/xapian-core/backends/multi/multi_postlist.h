@@ -29,7 +29,7 @@
 /// Class for merging PostList objects from subdatabases.
 class MultiPostList : public PostList {
 	/// Don't allow assignment.
-	void operator=(const MultiPostList &) = delete;
+	void operator = (const MultiPostList &) = delete;
 	/// Don't allow copying.
 	MultiPostList(const MultiPostList &) = delete;
 	/// Number of PostList* entries in @a postlists.

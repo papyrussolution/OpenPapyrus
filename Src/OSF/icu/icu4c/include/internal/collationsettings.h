@@ -259,7 +259,7 @@ struct U_I18N_API CollationSettings : public SharedObject {
 
     /** Options for CollationFastLatin. Negative if disabled. */
     int32_t fastLatinOptions;
-    uint16_t fastLatinPrimaries[0x180];
+    uint16 fastLatinPrimaries[0x180];
 
 private:
     void setReorderArrays(const int32_t *codes, int32_t codesLength,

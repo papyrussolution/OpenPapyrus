@@ -57,7 +57,7 @@ int32_t ScientificModifier::apply(FormattedStringBuilder &output, int32_t /*left
 	// Append the exponent digits (using a simple inline algorithm)
 	int32_t disp = std::abs(fExponent);
 	for(int j = 0; j < fHandler->fSettings.fMinExponentDigits || disp > 0; j++, disp /= 10) {
-		auto d = static_cast<int8_t>(disp % 10);
+		auto d = static_cast<int8>(disp % 10);
 		i += utils::insertDigitFromSymbols(output, i - j, d, *fHandler->fSymbols,
 			{UFIELD_CATEGORY_NUMBER, UNUM_EXPONENT_FIELD}, status);
 	}

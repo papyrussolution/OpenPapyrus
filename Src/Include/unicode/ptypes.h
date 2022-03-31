@@ -70,10 +70,10 @@
 #if U_PLATFORM == U_PF_OS390
 /* The features header is needed to get (u)int64_t sometimes. */
 #include <features.h>
-/* z/OS has <stdint.h>, but some versions are missing uint8_t (APAR PK62248). */
+/* z/OS has <stdint.h>, but some versions are missing uint8 (APAR PK62248). */
 #if !defined(__uint8_t)
 #define __uint8_t 1
-typedef unsigned char uint8_t;
+typedef unsigned char uint8;
 #endif
 #endif /* U_PLATFORM == U_PF_OS390 */
 
@@ -85,19 +85,19 @@ typedef unsigned char uint8_t;
 
 /// \cond
 #if ! U_HAVE_INT8_T
-typedef signed char int8_t;
+typedef signed char int8;
 #endif
 
 #if ! U_HAVE_UINT8_T
-typedef unsigned char uint8_t;
+typedef unsigned char uint8;
 #endif
 
 #if ! U_HAVE_INT16_T
-typedef signed short int16_t;
+typedef signed short int16;
 #endif
 
 #if ! U_HAVE_UINT16_T
-typedef unsigned short uint16_t;
+typedef unsigned short uint16;
 #endif
 
 #if ! U_HAVE_INT32_T

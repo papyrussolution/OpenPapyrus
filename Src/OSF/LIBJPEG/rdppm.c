@@ -125,8 +125,8 @@ LOCAL(uint) read_pbm_integer(j_compress_ptr cinfo, FILE * infile)
 {
 	ppm_source_ptr source = (ppm_source_ptr)sinfo;
 	FILE * infile = source->pub.input_file;
-	register JSAMPROW ptr;
-	register JSAMPLE * rescale = source->rescale;
+	JSAMPROW ptr;
+	JSAMPLE * rescale = source->rescale;
 	JDIMENSION col;
 	ptr = source->pub.buffer[0];
 	for(col = cinfo->image_width; col > 0; col--) {
@@ -315,7 +315,7 @@ METHODDEF(JDIMENSION) get_raw_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 	ptr = source->pub.buffer[0];
 	bufferptr = source->iobuffer;
 	for(col = cinfo->image_width; col > 0; col--) {
-		register int temp;
+		int temp;
 		temp  = UCH(*bufferptr++) << 8;
 		temp |= UCH(*bufferptr++);
 		*ptr++ = rescale[temp];
@@ -360,7 +360,7 @@ METHODDEF(JDIMENSION) get_word_gray_row (j_compress_ptr cinfo, cjpeg_source_ptr 
 	ptr = source->pub.buffer[0];
 	bufferptr = source->iobuffer;
 	for(col = cinfo->image_width; col > 0; col--) {
-		register int temp;
+		int temp;
 		temp  = UCH(*bufferptr++) << 8;
 		temp |= UCH(*bufferptr++);
 		*ptr++ = rescale[temp];

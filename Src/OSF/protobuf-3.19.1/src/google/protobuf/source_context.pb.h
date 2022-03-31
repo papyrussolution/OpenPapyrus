@@ -74,11 +74,11 @@ class SourceContext final :
     *this = ::std::move(from);
   }
 
-  inline SourceContext& operator=(const SourceContext& from) {
+  inline SourceContext& operator = (const SourceContext& from) {
     CopyFrom(from);
     return *this;
   }
-  inline SourceContext& operator=(SourceContext&& from) noexcept {
+  inline SourceContext& operator = (SourceContext&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

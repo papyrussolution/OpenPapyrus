@@ -60,7 +60,7 @@ protected:
   *             <br/>
   *             bits 8-15: The match reason, an enum-like value.
      */
-    int32_t match_mbcs(InputText* det, const uint16_t commonChars[], int32_t commonCharsLen) const;
+    int32_t match_mbcs(InputText* det, const uint16 commonChars[], int32_t commonCharsLen) const;
 
 public:
 

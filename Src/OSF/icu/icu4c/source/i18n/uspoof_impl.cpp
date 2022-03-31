@@ -676,7 +676,7 @@ void SpoofData::initPtrs(UErrorCode & status) {
 		fCFUKeys = (int32_t*)((char *)fRawData + fRawData->fCFUKeys);
 	}
 	if(fRawData->fCFUStringIndex != 0) {
-		fCFUValues = (uint16_t*)((char *)fRawData + fRawData->fCFUStringIndex);
+		fCFUValues = (uint16*)((char *)fRawData + fRawData->fCFUStringIndex);
 	}
 	if(fRawData->fCFUStringTable != 0) {
 		fCFUStrings = (UChar *)((char *)fRawData + fRawData->fCFUStringTable);
@@ -787,7 +787,7 @@ int32_t SpoofData::appendValueTo(int32_t index, UnicodeString & dest) const {
 
 	// Value is either a char (for strings of length 1) or
 	// an index into the string table (for longer strings)
-	uint16_t value = fCFUValues[index];
+	uint16 value = fCFUValues[index];
 	if(stringLength == 1) {
 		dest.append((UChar)value);
 	}
@@ -809,7 +809,7 @@ U_NAMESPACE_USE
 //-----------------------------------------------------------------------------
 U_CAPI int32_t U_EXPORT2 uspoof_swap(const UDataSwapper * ds, const void * inData, int32_t length, void * outData,
     UErrorCode * status) {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 	if(ds==NULL || inData==NULL || length<-1 || (length>0 && outData==NULL)) {

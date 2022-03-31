@@ -3361,7 +3361,7 @@ U_CAPI UChar32 U_EXPORT2 u_getBidiPairedBracket(UChar32 c);
  * @see UCharCategory
  * @stable ICU 2.0
  */
-U_CAPI int8_t U_EXPORT2 u_charType(UChar32 c);
+U_CAPI int8 U_EXPORT2 u_charType(UChar32 c);
 
 /**
  * Get a single-bit bit set for the general category of a character.
@@ -3428,7 +3428,7 @@ U_CAPI void U_EXPORT2 u_enumCharTypes(UCharEnumTypeRange * enumRange, const void
  * @return the combining class of the character
  * @stable ICU 2.0
  */
-U_CAPI uint8_t U_EXPORT2 u_getCombiningClass(UChar32 c);
+U_CAPI uint8 U_EXPORT2 u_getCombiningClass(UChar32 c);
 
 #endif
 
@@ -3978,7 +3978,7 @@ U_CAPI UChar32 U_EXPORT2 u_foldCase(UChar32 c, uint32_t options);
  * @see     u_isdigit
  * @stable ICU 2.0
  */
-U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8_t radix);
+U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8 radix);
 
 /**
  * Determines the character representation for a specific digit in
@@ -4008,7 +4008,7 @@ U_CAPI int32_t U_EXPORT2 u_digit(UChar32 ch, int8_t radix);
  * @see     u_isdigit
  * @stable ICU 2.0
  */
-U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8_t radix);
+U_CAPI UChar32 U_EXPORT2 u_forDigit(int32_t digit, int8 radix);
 
 /**
  * Get the "age" of the code point.

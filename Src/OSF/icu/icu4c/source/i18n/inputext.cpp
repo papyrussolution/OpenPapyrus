@@ -21,7 +21,7 @@ U_NAMESPACE_BEGIN
 #define DELETE_ARRAY(array) uprv_free((void *)(array))
 
 InputText::InputText(UErrorCode & status) : fInputBytes(NEW_ARRAY(uint8, BUFFER_SIZE)), // The text to be checked.  Markup will have been removed if appropriate.
-	fByteStats(NEW_ARRAY(int16_t, 256)),     // byte frequency statistics for the input text.
+	fByteStats(NEW_ARRAY(int16, 256)),     // byte frequency statistics for the input text.
 	                                         //   Value is percent, not absolute.
 	fDeclaredEncoding(0),
 	fRawInput(0),

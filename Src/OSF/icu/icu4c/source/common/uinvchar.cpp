@@ -1,14 +1,13 @@
 // uinvchar.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1999-2010, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 2004sep14
- *   created by: Markus W. Scherer
- *   Functions for handling invariant characters, moved here from putil.c
- *   for better modularization.
- */
+// Copyright (C) 1999-2010, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2004sep14
+// created by: Markus W. Scherer
+// Functions for handling invariant characters, moved here from putil.c
+// for better modularization.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "udataswp.h"
@@ -425,35 +424,29 @@ U_CFUNC int32_t uprv_copyEbcdic(const UDataSwapper * ds,
 	return length;
 }
 
-U_CFUNC bool uprv_isEbcdicAtSign(char c) {
-	static const uint8 ebcdicAtSigns[] = {
-		0x7C, 0x44, 0x66, 0x80, 0xAC, 0xAE, 0xAF, 0xB5, 0xEC, 0xEF, 0x00
-	};
+U_CFUNC bool uprv_isEbcdicAtSign(char c) 
+{
+	static const uint8 ebcdicAtSigns[] = { 0x7C, 0x44, 0x66, 0x80, 0xAC, 0xAE, 0xAF, 0xB5, 0xEC, 0xEF, 0x00 };
 	return c != 0 && uprv_strchr((const char *)ebcdicAtSigns, c) != nullptr;
 }
 
 /* compare invariant strings; variant characters compare less than others and unlike each other */
-U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds,
-    const char * outString, int32_t outLength,
-    const UChar * localString, int32_t localLength) {
+U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds, const char * outString, int32_t outLength, const UChar * localString, int32_t localLength) 
+{
 	(void)ds;
 	int32_t minLength;
 	UChar32 c1, c2;
 	uint8 c;
-
 	if(outString==NULL || outLength<-1 || localString==NULL || localLength<-1) {
 		return 0;
 	}
-
 	if(outLength<0) {
 		outLength = (int32_t)uprv_strlen(outString);
 	}
 	if(localLength<0) {
 		localLength = u_strlen(localString);
 	}
-
 	minLength = outLength<localLength ? outLength : localLength;
-
 	while(minLength>0) {
 		c = (uint8)*outString++;
 		if(UCHAR_IS_INVARIANT(c)) {
@@ -462,26 +455,20 @@ U_CFUNC int32_t uprv_compareInvAscii(const UDataSwapper * ds,
 		else {
 			c1 = -1;
 		}
-
 		c2 = *localString++;
 		if(!UCHAR_IS_INVARIANT(c2)) {
 			c2 = -2;
 		}
-
 		if((c1 -= c2)!=0) {
 			return c1;
 		}
-
 		--minLength;
 	}
-
-	/* strings start with same prefix, compare lengths */
-	return outLength-localLength;
+	return outLength-localLength; // strings start with same prefix, compare lengths 
 }
 
-U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds,
-    const char * outString, int32_t outLength,
-    const UChar * localString, int32_t localLength) {
+U_CFUNC int32_t uprv_compareInvEbcdic(const UDataSwapper * ds, const char * outString, int32_t outLength, const UChar * localString, int32_t localLength) 
+{
 	(void)ds;
 	int32_t minLength;
 	UChar32 c1, c2;

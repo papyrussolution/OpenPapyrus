@@ -139,7 +139,7 @@ struct XAPIAN_VISIBILITY_DEFAULT LatLongCoord {
 	 *  This is mostly provided so that things like std::map<LatLongCoord> work
 	 *  - the ordering isn't particularly meaningful.
 	 */
-	bool operator<(const LatLongCoord& other) const noexcept 
+	bool operator < (const LatLongCoord& other) const noexcept 
 	{
 		if(latitude < other.latitude) return true;
 		if(latitude > other.latitude) return false;
@@ -188,7 +188,7 @@ public:
 	}
 
 	/// Equality test for LatLongCoordsIterator objects.
-	bool operator==(const LatLongCoordsIterator &other) const { return iter == other.iter; }
+	bool operator == (const LatLongCoordsIterator &other) const { return iter == other.iter; }
 
 	/** @private @internal LatLongCoordsIterator is what the C++ STL calls an
 	 *  input_iterator.
@@ -265,7 +265,7 @@ public:
 };
 
 /// Inequality test for LatLongCoordsIterator objects.
-inline bool operator!=(const LatLongCoordsIterator &a, const LatLongCoordsIterator &b)
+inline bool operator != (const LatLongCoordsIterator &a, const LatLongCoordsIterator &b)
 {
 	return !(a == b);
 }

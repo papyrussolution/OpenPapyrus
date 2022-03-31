@@ -460,6 +460,9 @@ public:
 		P_ObjMemo_UtmRejPfx("UTM Rej"),
 		P_ObjMemo_EgaisRejPfx("EGAIS Rej"),
 		P_ObjMemo_ChznRejPfx("ChZn Rej"),
+		P_TagValRestrict_Empty("#EMPTY"), // @v11.3.6
+		P_TagValRestrict_Exist("#EXIST"), // @v11.3.6
+		P_TagValRestrict_List("#LIST"), // @v11.3.6
 		WrParam_ViewQuotsAsListBox("ViewQuotsAsListBox"),
 		WrParam_BillAddFilesFolder("BillAddFilesFolder"),
 		WrParam_CalcPriceParam("CalcPriceParam"),
@@ -506,6 +509,9 @@ public:
 	const char * P_ObjMemo_UtmRejPfx;        // "UTM Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС УТМ
 	const char * P_ObjMemo_EgaisRejPfx;      // "EGAIS Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от ЕГАИС
 	const char * P_ObjMemo_ChznRejPfx;       // "ChZn Rej" Префикс примечания документа для индикации сообщения об ошибке поступившего от честного знака
+	const char * P_TagValRestrict_Empty;     // @v11.3.6 "#EMPTY"
+	const char * P_TagValRestrict_Exist;     // @v11.3.6 "#EXIST"
+	const char * P_TagValRestrict_List;      // @v11.3.6 "#LIST"
 	const char * WrParam_ViewQuotsAsListBox; // "ViewQuotsAsListBox" [1|0]
 	const char * WrParam_BillAddFilesFolder; // "BillAddFilesFolder" string
 	const char * WrParam_CalcPriceParam;     // "CalcPriceParam" string
@@ -24387,7 +24393,7 @@ private:
 #define GTAXVF_BEFORETAXES 0x80000000L // With all operational taxes
 #define GTAXVF_NOMINAL     0x08000000L // Специальный флаг, применяемый для того,
 	// чтобы рассчитать суммы налогов исходя из номинальных налоговых групп по товарам
-	// (опиская признаки освобождения от НДС и входящие налоговые группы по лотам).
+	// (опуская признаки освобождения от НДС и входящие налоговые группы по лотам).
 	// Может быть использован только в аргументе exclFlags функции GTaxVect::CalcTI().
 
 class GTaxVect {
@@ -29244,22 +29250,18 @@ public:
 		ExtUniteBlock();
 
 		enum {
-			// @v9.8.6 fReverseOnStart  = 0x0001, // Идентификатор srcID переданный в функцию ReplaceGoods следует трактовать
-				// как DestID (то есть, товар, который должен исчезнуть, будучи замененным на выбранный).
 			fUseSpcFormEgais = 0x0002, // В качестве диалога объединения применять специальную форму,
 				// позволяющую фильтровать товары по критериям ЕГАИС.
 			fOnce    = 0x0004, // После завершения объединения одной пары товаров возвращать
 				// управление вызывающей функции (в противном случае будет предложено повторить процедуру
 				// для иной пары товаров).
-			fAllToOne        = 0x0008  // @v9.8.6 Все товары списка DestList объединяются на ResultID
+			fAllToOne        = 0x0008  // Все товары списка DestList объединяются на ResultID
 		};
 		long   Flags;
-		// @v9.8.6 PPID   DestID;   // Товар, все ссылки на который перенесены на ResultID (и, возможно, удаленный)
 		PPID   ResultID; // Товар, который заместил собой все ссылки на DestID
-		PPIDArray DestList; // @v9.8.6 Список товаров, все ссылки на которые перенесены на ResultID (и, возможно, удаленные)
+		PPIDArray DestList; // Список товаров, все ссылки на которые перенесены на ResultID (и, возможно, удаленные)
 	};
 
-	//static int ReplaceGoods(PPID srcID, ExtUniteBlock * pEub);
 	static int ReplaceGoods(ExtUniteBlock & rEub);
 	static int GenerateOwnArCode(SString & rCode, int use_ta);
 	static int DiagBarcode(const char * pBarcode, int * pDiag, int * pStd, SString * pNormalizedCode);
@@ -29570,7 +29572,7 @@ public:
 	int    GetAltGoodsStrucID(PPID goodsID, PPID * pDynGenID, PPID * pStrucID);
 	int    LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, PPGoodsStruc * pGs);
 	int    LoadGoodsStruc(const PPGoodsStruc::Ident & rIdent, TSCollection <PPGoodsStruc> & rGsList);
-	int    EditGoodsStruc(PPID);
+	int    EditGoodsStruc(PPID goodsID);
 	int    GetValueAddedData(PPID, PPGoodsPacket *);
 	int    InitPacket(PPGoodsPacket *, GoodsPacketKind, PPID parentID, PPID clsID, const char * pBarCode);
 	int    ValidatePacket(const PPGoodsPacket * pPack);
@@ -46179,6 +46181,7 @@ public:
 		scopeUndef     = 0, // Не определен
 		scopePPDb      = 1, // База данных Papyrus 
 		scopeStyloQSvc = 2, // Сервис Stylo-Q
+		scopeTest      = 3  // Don't use: for testing only
 	};
 	struct Entity {
 		Entity();
@@ -46229,7 +46232,7 @@ public:
 		PPFtsIterface & R_Ifc;
 	};
 
-	explicit PPFtsIterface(bool writer);
+	explicit PPFtsIterface(bool writer, long lockTimeout);
 	~PPFtsIterface();
 	bool   operator !() const;
 	bool   IsWriter() const;
@@ -46237,7 +46240,7 @@ public:
 private:
 	class Ptr {
 	public:
-		explicit Ptr(bool writer);
+		explicit Ptr(bool writer, long lockTimeout);
 		~Ptr();
 		bool operator !() const { return (P == 0); }
 		bool IsWriter() const { return Writer; }
@@ -46245,8 +46248,11 @@ private:
 		PPFtsDatabase * operator ->() { return P; }
 	private:
 		PPFtsDatabase * P;
-		bool   Writer;
+		const  bool Writer;
 		uint8  Reserve[3]; // @alignment
+		const  long LockTimeout; // Таймаут ожидания завершения блокирующего процесса (если я - "читатель", то жду завершения работы "писателя",
+			// если я - "писатель", то жду завершения работы всех "читателей" и "писателей")
+			// default: 500ms
 	};
 	PPFtsIterface::Ptr H;
 };
@@ -46327,6 +46333,13 @@ private:
 class StyloQFace {
 public:
 	enum { // @persistent
+		statusUndef = 0,
+		statusPrvMale = GENDER_MALE, // 1
+		statusPrvFemale = GENDER_FEMALE, // 2
+		statusPrvGenderQuestioning = GENDER_QUESTIONING, // 3
+		statusEnterprise = 1000 // Обобщенный статус юридического лица
+	};
+	enum { // @persistent
 		tagUnkn    =  0, //
 		tagVerifiable_Depricated =  1, // verifiable : bool ("true" || "false")
 		tagCommonName      =  2, // cn : string with optional language shifted on 16 bits left
@@ -46360,6 +46373,7 @@ public:
 		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
 		tagEMail           = 26, // @v11.3.0 
 		tagVerifiability   = 27, // @v11.3.2 arbitrary || anonymous || verifiable
+		tagStatus          = 28, // @v11.3.6 statusXXX : string
 	};
 	/*enum {
 		// @#(fVerifiable^fAnonym)
@@ -46390,6 +46404,7 @@ public:
 	int   Set(int tag, int lang, const char * pText);
 	int   SetVerifiability(int v);
 	int   SetDob(LDATE dt);
+	int   SetStatus(int status);
 	int   SetImage(int imgFormat/*SFileFormat::XXX*/, const SImageBuffer * pImg);
 	int   Get(int tag, int lang, SString & rResult) const;
 	int   GetExactly(int tag, int lang, SString & rResult) const;
@@ -46397,6 +46412,13 @@ public:
 	int   SetGeoLoc(const SGeoPosLL & rPos);
 	int   GetGeoLoc(SGeoPosLL & rPos) const;
 	int   GetVerifiability() const;
+	//
+	// Descr: Возвращает целочисленное значение тега tagStatus.
+	// Returns:
+	//   >= 0 - статус лика (statusXXX)
+	//    < 0 - error
+	//
+	int   GetStatus() const;
 	int   GetImage(SImageBuffer * pImg, int * pImgFormat) const;
 	int   FromJson(const char * pJsonText);
 	int   FromJsonObject(const SJson * pJsObj);
@@ -47513,7 +47535,7 @@ private:
 class BizScTemplFilt : public PPBaseFilt {
 public:
 	BizScTemplFilt();
-	BizScTemplFilt & operator=(const BizScTemplFilt &);
+	BizScTemplFilt & operator = (const BizScTemplFilt &);
 
 	long ReserveStart;
 	long Flags;
@@ -54058,6 +54080,7 @@ public:
 		ProjectAbstract,   // "project"
 		ResourcesAbstract, // "resources"
 		ValuesAbstract,    // "values"
+		TimezonesAbstract, // @v11.3.6 "timezones"
 	};
 	PPXmlFileDetector();
 	~PPXmlFileDetector();
@@ -54100,6 +54123,7 @@ struct PosPaymentBlock {
 	PosPaymentBlock(const CcAmountList * pCcPl, double bonusMaxPart);
 	PosPaymentBlock & Z();
 	PosPaymentBlock & Init(const CPosProcessor * pCpp);
+	bool   SetBuyersEAddr(int addrType, const char * pAddr);
 	double GetTotal() const;
 	double GetDiscount() const;
 	double GetPctDiscount() const;

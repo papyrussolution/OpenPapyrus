@@ -66,7 +66,7 @@ U_CAPI int32_t U_EXPORT2 uset_applyPattern(USet * set,
     UErrorCode * status) {
 	// status code needs to be checked since we
 	// dereference it
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 

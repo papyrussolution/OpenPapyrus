@@ -38,14 +38,14 @@ public:
 	/// Copy constructor.
 	TermIterator(const TermIterator & o);
 	/// Assignment.
-	TermIterator & operator=(const TermIterator & o);
+	TermIterator & operator = (const TermIterator & o);
 	/// Move constructor.
 	TermIterator(TermIterator && o) : internal(o.internal) 
 	{
 		o.internal = nullptr;
 	}
 	/// Move assignment operator.
-	TermIterator & operator=(TermIterator && o) 
+	TermIterator & operator = (TermIterator && o) 
 	{
 		if(this != &o) {
 			if(internal) decref();
@@ -132,7 +132,7 @@ private:
 };
 
 /// Equality test for TermIterator objects.
-inline bool operator==(const TermIterator& a, const TermIterator& b) noexcept
+inline bool operator == (const TermIterator& a, const TermIterator& b) noexcept
 {
 	// Use a pointer comparison - this ensures both that (a == a) and correct
 	// handling of end iterators (which we ensure have NULL internals).
@@ -140,7 +140,7 @@ inline bool operator==(const TermIterator& a, const TermIterator& b) noexcept
 }
 
 /// Inequality test for TermIterator objects.
-inline bool operator!=(const TermIterator& a, const TermIterator& b) noexcept
+inline bool operator != (const TermIterator& a, const TermIterator& b) noexcept
 {
 	return !(a == b);
 }

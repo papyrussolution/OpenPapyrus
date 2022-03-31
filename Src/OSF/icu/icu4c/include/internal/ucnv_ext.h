@@ -124,10 +124,10 @@
  *   [9]  length of fromUBytes[]
  *
  *   // from Unicode trie for initial-code point lookup
- *   [10] index of fromUStage12[] (combined array of uint16_t for stages 1 & 2)
+ *   [10] index of fromUStage12[] (combined array of uint16 for stages 1 & 2)
  *   [11] length of stage 1 portion of fromUStage12[]
  *   [12] length of fromUStage12[]
- *   [13] index of fromUStage3[] (array of uint16_t indexes into fromUStage3b[])
+ *   [13] index of fromUStage3[] (array of uint16 indexes into fromUStage3b[])
  *   [14] length of fromUStage3[]
  *   [15] index of fromUStage3b[] (array of uint32_t like fromUTableValues[])
  *   [16] length of fromUStage3b[]
@@ -265,7 +265,7 @@
  *   to indicate no mapping.
  *
  *
- * uint16_t fromUStage12[];
+ * uint16 fromUStage12[];
  *
  *   Stages 1 & 2 of a trie that maps an initial code point.
  *   Indexes in stage 1 are all offset by the length of stage 1 so that the
@@ -274,7 +274,7 @@
  *   Same bit distribution as for regular conversion tries.
  *
  *
- * uint16_t fromUStage3[];
+ * uint16 fromUStage3[];
  * uint32_t fromUStage3b[];
  *
  *   Stage 3 of the trie. The first array simply contains indexes to the second,

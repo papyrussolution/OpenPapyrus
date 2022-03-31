@@ -89,16 +89,16 @@ enum {
 
 /* canonStartSets[0..31] contains indexes for what is in the array */
 enum {
-    _NORM_SET_INDEX_CANON_SETS_LENGTH,      /* number of uint16_t in canonical starter sets */
-    _NORM_SET_INDEX_CANON_BMP_TABLE_LENGTH, /* number of uint16_t in the BMP search table (contains pairs) */
-    _NORM_SET_INDEX_CANON_SUPP_TABLE_LENGTH,/* number of uint16_t in the supplementary search table (contains triplets) */
+    _NORM_SET_INDEX_CANON_SETS_LENGTH,      /* number of uint16 in canonical starter sets */
+    _NORM_SET_INDEX_CANON_BMP_TABLE_LENGTH, /* number of uint16 in the BMP search table (contains pairs) */
+    _NORM_SET_INDEX_CANON_SUPP_TABLE_LENGTH,/* number of uint16 in the supplementary search table (contains triplets) */
 
     /* from formatVersion 2.3: */
-    _NORM_SET_INDEX_NX_CJK_COMPAT_OFFSET,   /* uint16_t offset from canonStartSets[0] to the
+    _NORM_SET_INDEX_NX_CJK_COMPAT_OFFSET,   /* uint16 offset from canonStartSets[0] to the
                                                exclusion set for CJK compatibility characters */
-    _NORM_SET_INDEX_NX_UNICODE32_OFFSET,    /* uint16_t offset from canonStartSets[0] to the
+    _NORM_SET_INDEX_NX_UNICODE32_OFFSET,    /* uint16 offset from canonStartSets[0] to the
                                                exclusion set for Unicode 3.2 characters */
-    _NORM_SET_INDEX_NX_RESERVED_OFFSET,     /* uint16_t offset from canonStartSets[0] to the
+    _NORM_SET_INDEX_NX_RESERVED_OFFSET,     /* uint16 offset from canonStartSets[0] to the
                                                end of the previous exclusion set */
 
     _NORM_SET_INDEX_TOP=32                  /* changing this requires a new formatVersion */
@@ -118,7 +118,7 @@ enum {
     _NORM_INDEX_TRIE_SIZE,              /* number of bytes in normalization trie */
     _NORM_INDEX_UCHAR_COUNT,            /* number of UChars in extra data */
 
-    _NORM_INDEX_COMBINE_DATA_COUNT,     /* number of uint16_t words for combining data */
+    _NORM_INDEX_COMBINE_DATA_COUNT,     /* number of uint16 words for combining data */
     _NORM_INDEX_COMBINE_FWD_COUNT,      /* number of code points that combine forward */
     _NORM_INDEX_COMBINE_BOTH_COUNT,     /* number of code points that combine forward and backward */
     _NORM_INDEX_COMBINE_BACK_COUNT,     /* number of code points that combine backward */
@@ -131,7 +131,7 @@ enum {
     _NORM_INDEX_FCD_TRIE_SIZE,          /* number of bytes in FCD trie */
 
     _NORM_INDEX_AUX_TRIE_SIZE,          /* number of bytes in the auxiliary trie */
-    _NORM_INDEX_CANON_SET_COUNT,        /* number of uint16_t in the array of serialized USet */
+    _NORM_INDEX_CANON_SET_COUNT,        /* number of uint16 in the array of serialized USet */
 
     _NORM_INDEX_TOP=32                  /* changing this requires a new formatVersion */
 };
@@ -189,11 +189,11 @@ enum {
  *
  * UTrie normTrie;                              -- size in bytes=indexes[_NORM_INDEX_TRIE_SIZE]
  * 
- * uint16_t extraData[extraDataTop];            -- extraDataTop=indexes[_NORM_INDEX_UCHAR_COUNT]
+ * uint16 extraData[extraDataTop];            -- extraDataTop=indexes[_NORM_INDEX_UCHAR_COUNT]
  *                              extraData[0] contains the number of units for
  *                              FC_NFKC_Closure (formatVersion>=2.1)
  *
- * uint16_t combiningTable[combiningTableTop];  -- combiningTableTop=indexes[_NORM_INDEX_COMBINE_DATA_COUNT]
+ * uint16 combiningTable[combiningTableTop];  -- combiningTableTop=indexes[_NORM_INDEX_COMBINE_DATA_COUNT]
  *                              combiningTableTop may include one 16-bit padding unit
  *                              to make sure that fcdTrie is 32-bit-aligned
  *
@@ -201,7 +201,7 @@ enum {
  *
  * UTrie auxTrie;                               -- size in bytes=indexes[_NORM_INDEX_AUX_TRIE_SIZE]
  *
- * uint16_t canonStartSets[canonStartSetsTop]   -- canonStartSetsTop=indexes[_NORM_INDEX_CANON_SET_COUNT]
+ * uint16 canonStartSets[canonStartSetsTop]   -- canonStartSetsTop=indexes[_NORM_INDEX_CANON_SET_COUNT]
  *                              serialized USets and binary search tables, see below
  *
  *

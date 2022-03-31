@@ -384,7 +384,7 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 				}
 			}
 		} while(length>0);
-		cnv->toULength = (int8_t)count;
+		cnv->toULength = (int8)count;
 	}
 
 	/* copy an even number of bytes for complete UChars */
@@ -563,7 +563,7 @@ static UChar32 U_CALLCONV _UTF16BEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 				/* too few (2 or 3) bytes for a surrogate pair: truncated code point */
 				uint8 * bytes = pArgs->converter->toUBytes;
 				s -= 2;
-				pArgs->converter->toULength = (int8_t)(sourceLimit-s);
+				pArgs->converter->toULength = (int8)(sourceLimit-s);
 				do {
 					*bytes++ = *s++;
 				} while(s<sourceLimit);
@@ -1012,7 +1012,7 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 				}
 			}
 		} while(length>0);
-		cnv->toULength = (int8_t)count;
+		cnv->toULength = (int8)count;
 	}
 
 	/* copy an even number of bytes for complete UChars */
@@ -1191,7 +1191,7 @@ static UChar32 U_CALLCONV _UTF16LEGetNextUChar(UConverterToUnicodeArgs * pArgs, 
 				/* too few (2 or 3) bytes for a surrogate pair: truncated code point */
 				uint8 * bytes = pArgs->converter->toUBytes;
 				s -= 2;
-				pArgs->converter->toULength = (int8_t)(sourceLimit-s);
+				pArgs->converter->toULength = (int8)(sourceLimit-s);
 				do {
 					*bytes++ = *s++;
 				} while(s<sourceLimit);

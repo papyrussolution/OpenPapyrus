@@ -257,7 +257,7 @@ void UnicodeSet::applyPattern(RuleCharacterIterator& chars,
 
 	// mode: 0=before [, 1=between [...], 2=after ]
 	// lastItem: 0=none, 1=char, 2=set
-	int8_t lastItem = 0, mode = 0;
+	int8 lastItem = 0, mode = 0;
 	UChar32 lastChar = 0;
 	UChar op = 0;
 
@@ -277,7 +277,7 @@ void UnicodeSet::applyPattern(RuleCharacterIterator& chars,
 		// -------- Check for property pattern
 
 		// setMode: 0=none, 1=unicodeset, 2=propertypat, 3=preparsed
-		int8_t setMode = 0;
+		int8 setMode = 0;
 		if(resemblesPropertyPattern(chars, opts)) {
 			setMode = 2;
 		}

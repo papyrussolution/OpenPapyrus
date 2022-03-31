@@ -82,8 +82,8 @@ void ufmt_ptou(UChar * buffer, int32_t * len, void * value, bool uselower)
 #endif
 	{
 		uint8 byteVal = ptrIdx[i];
-		uint16_t firstNibble = (uint16_t)(byteVal>>4);
-		uint16_t secondNibble = (uint16_t)(byteVal&0xF);
+		uint16 firstNibble = (uint16)(byteVal>>4);
+		uint16 secondNibble = (uint16)(byteVal&0xF);
 		if(uselower) {
 			buffer[length++] = TO_LC_DIGIT(firstNibble);
 			buffer[length++] = TO_LC_DIGIT(secondNibble);
@@ -97,7 +97,7 @@ void ufmt_ptou(UChar * buffer, int32_t * len, void * value, bool uselower)
 	*len = length;
 }
 
-int64_t ufmt_uto64(const UChar * buffer, int32_t * len, int8_t radix)
+int64_t ufmt_uto64(const UChar * buffer, int32_t * len, int8 radix)
 {
 	/* initialize parameters */
 	const UChar * limit     = buffer + *len;

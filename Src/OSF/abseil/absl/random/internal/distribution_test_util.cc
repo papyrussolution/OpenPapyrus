@@ -53,7 +53,7 @@ DistributionMoments ComputeDistributionMoments(absl::Span<const double> data_poi
 	// 1.65 * stddev  = 90% CI
 }
 
-std::ostream& operator<<(std::ostream& os, const DistributionMoments& moments) {
+std::ostream & operator<<(std::ostream & os, const DistributionMoments& moments) {
 	return os << absl::StrFormat("mean=%f, stddev=%f, skewness=%f, kurtosis=%f",
 		   moments.mean, std::sqrt(moments.variance),
 		   moments.skewness, moments.kurtosis);

@@ -21,9 +21,9 @@ using icu::double_conversion::DoubleToStringConverter;
 using icu::double_conversion::StringToDoubleConverter;
 
 namespace {
-int8_t NEGATIVE_FLAG = 1;
-int8_t INFINITY_FLAG = 2;
-int8_t NAN_FLAG = 4;
+int8 NEGATIVE_FLAG = 1;
+int8 INFINITY_FLAG = 2;
+int8 NAN_FLAG = 4;
 
 /** Helper function for safe subtraction (no overflow). */
 inline int32_t safeSubtract(int32_t a, int32_t b) {
@@ -328,7 +328,7 @@ int32_t DecimalQuantity::getLowerDisplayMagnitude() const {
 	return result;
 }
 
-int8_t DecimalQuantity::getDigit(int32_t magnitude) const {
+int8 DecimalQuantity::getDigit(int32_t magnitude) const {
 	// If this assertion fails, you need to call roundToInfinity() or some other rounding method.
 	// See the comment at the top of this file explaining the "isApproximate" field.
 	U_ASSERT(!isApproximate);
@@ -632,8 +632,8 @@ bool DecimalQuantity::fitsInLong(bool ignoreFraction) const {
 	// Hard case: the magnitude is 10^18.
 	// The largest int64 is: 9,223,372,036,854,775,807
 	for(int p = 0; p < precision; p++) {
-		int8_t digit = getDigit(18 - p);
-		static int8_t INT64_BCD[] = { 9, 2, 2, 3, 3, 7, 2, 0, 3, 6, 8, 5, 4, 7, 7, 5, 8, 0, 8 };
+		int8 digit = getDigit(18 - p);
+		static int8 INT64_BCD[] = { 9, 2, 2, 3, 3, 7, 2, 0, 3, 6, 8, 5, 4, 7, 7, 5, 8, 0, 8 };
 		if(digit < INT64_BCD[p]) {
 			return true;
 		}
@@ -662,7 +662,7 @@ double DecimalQuantity::toDouble() const {
 	UnicodeString numberString = this->toScientificString();
 	int32_t count;
 	return converter.StringToDouble(
-		reinterpret_cast<const uint16_t*>(numberString.getBuffer()),
+		reinterpret_cast<const uint16*>(numberString.getBuffer()),
 		numberString.length(),
 		&count);
 }
@@ -709,7 +709,7 @@ void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingM
 	int position = safeSubtract(magnitude, scale);
 
 	// "trailing" = least significant digit to the left of rounding
-	int8_t trailingDigit = getDigitPos(position);
+	int8 trailingDigit = getDigitPos(position);
 
 	if(position <= 0 && !isApproximate && (!nickel || trailingDigit == 0 || trailingDigit == 5)) {
 		// All digits are to the left of the rounding magnitude.
@@ -720,7 +720,7 @@ void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingM
 	else {
 		// Perform rounding logic.
 		// "leading" = most significant digit to the right of rounding
-		int8_t leadingDigit = getDigitPos(safeSubtract(position, 1));
+		int8 leadingDigit = getDigitPos(safeSubtract(position, 1));
 
 		// Compute which section of the number we are in.
 		// EDGE means we are at the bottom or top edge, like 1.000 or 1.999 (used by doubles)
@@ -922,9 +922,9 @@ void DecimalQuantity::roundToMagnitude(int32_t magnitude, RoundingMode roundingM
 				}
 				shiftRight(bubblePos); // shift off the trailing 9s
 			}
-			int8_t digit0 = getDigitPos(0);
+			int8 digit0 = getDigitPos(0);
 			U_ASSERT(digit0 != 9);
-			setDigitPos(0, static_cast<int8_t>(digit0 + 1));
+			setDigitPos(0, static_cast<int8>(digit0 + 1));
 			precision += 1; // in case an extra digit got added
 		}
 
@@ -938,7 +938,7 @@ void DecimalQuantity::roundToInfinity() {
 	}
 }
 
-void DecimalQuantity::appendDigit(int8_t value, int32_t leadingZeros, bool appendAsInteger) {
+void DecimalQuantity::appendDigit(int8 value, int32_t leadingZeros, bool appendAsInteger) {
 	U_ASSERT(leadingZeros >= 0);
 
 	// Zero requires special handling to maintain the invariant that the least-significant digit
@@ -1052,7 +1052,7 @@ UnicodeString DecimalQuantity::toScientificString() const {
 /// Start of DecimalQuantity_DualStorageBCD.java ///
 ////////////////////////////////////////////////////
 
-int8_t DecimalQuantity::getDigitPos(int32_t position) const {
+int8 DecimalQuantity::getDigitPos(int32_t position) const {
 	if(usingBytes) {
 		if(position < 0 || position >= precision) {
 			return 0;
@@ -1063,11 +1063,11 @@ int8_t DecimalQuantity::getDigitPos(int32_t position) const {
 		if(position < 0 || position >= 16) {
 			return 0;
 		}
-		return (int8_t)((fBCD.bcdLong >> (position * 4)) & 0xf);
+		return (int8)((fBCD.bcdLong >> (position * 4)) & 0xf);
 	}
 }
 
-void DecimalQuantity::setDigitPos(int32_t position, int8_t value) {
+void DecimalQuantity::setDigitPos(int32_t position, int8 value) {
 	U_ASSERT(position >= 0);
 	if(usingBytes) {
 		ensureCapacity(position + 1);
@@ -1167,7 +1167,7 @@ void DecimalQuantity::readLongToBcd(int64_t n) {
 		ensureCapacity();
 		int i = 0;
 		for(; n != 0L; n /= 10L, i++) {
-			fBCD.bcdBytes.ptr[i] = static_cast<int8_t>(n % 10);
+			fBCD.bcdBytes.ptr[i] = static_cast<int8>(n % 10);
 		}
 		U_ASSERT(usingBytes);
 		scale = 0;
@@ -1285,16 +1285,16 @@ void DecimalQuantity::ensureCapacity(int32_t capacity)
 		// TODO: There is nothing being done to check for memory allocation failures.
 		// TODO: Consider indexing by nybbles instead of bytes in C++, so that we can
 		// make these arrays half the size.
-		fBCD.bcdBytes.ptr = static_cast<int8_t*>(uprv_malloc(capacity * sizeof(int8_t)));
+		fBCD.bcdBytes.ptr = static_cast<int8*>(uprv_malloc(capacity * sizeof(int8)));
 		fBCD.bcdBytes.len = capacity;
 		// Initialize the byte array to zeros (this is done automatically in Java)
-		memzero(fBCD.bcdBytes.ptr, capacity * sizeof(int8_t));
+		memzero(fBCD.bcdBytes.ptr, capacity * sizeof(int8));
 	}
 	else if(oldCapacity < capacity) {
-		auto bcd1 = static_cast<int8_t*>(uprv_malloc(capacity * 2 * sizeof(int8_t)));
-		uprv_memcpy(bcd1, fBCD.bcdBytes.ptr, oldCapacity * sizeof(int8_t));
+		auto bcd1 = static_cast<int8*>(uprv_malloc(capacity * 2 * sizeof(int8)));
+		uprv_memcpy(bcd1, fBCD.bcdBytes.ptr, oldCapacity * sizeof(int8));
 		// Initialize the rest of the byte array to zeros (this is done automatically in Java)
-		memzero(bcd1 + oldCapacity, (capacity - oldCapacity) * sizeof(int8_t));
+		memzero(bcd1 + oldCapacity, (capacity - oldCapacity) * sizeof(int8));
 		uprv_free(fBCD.bcdBytes.ptr);
 		fBCD.bcdBytes.ptr = bcd1;
 		fBCD.bcdBytes.len = capacity * 2;
@@ -1321,7 +1321,7 @@ void DecimalQuantity::switchStorage() {
 		uint64_t bcdLong = fBCD.bcdLong;
 		ensureCapacity();
 		for(int i = 0; i < precision; i++) {
-			fBCD.bcdBytes.ptr[i] = static_cast<int8_t>(bcdLong & 0xf);
+			fBCD.bcdBytes.ptr[i] = static_cast<int8>(bcdLong & 0xf);
 			bcdLong >>= 4;
 		}
 		U_ASSERT(usingBytes);
@@ -1332,7 +1332,7 @@ void DecimalQuantity::copyBcdFrom(const DecimalQuantity &other) {
 	setBcdToZero();
 	if(other.usingBytes) {
 		ensureCapacity(other.precision);
-		uprv_memcpy(fBCD.bcdBytes.ptr, other.fBCD.bcdBytes.ptr, other.precision * sizeof(int8_t));
+		uprv_memcpy(fBCD.bcdBytes.ptr, other.fBCD.bcdBytes.ptr, other.precision * sizeof(int8));
 	}
 	else {
 		fBCD.bcdLong = other.fBCD.bcdLong;

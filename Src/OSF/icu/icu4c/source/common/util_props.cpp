@@ -28,7 +28,7 @@ int32_t ICU_Utility::parseInteger(const UnicodeString & rule, int32_t& pos, int3
 	int32_t count = 0;
 	int32_t value = 0;
 	int32_t p = pos;
-	int8_t radix = 10;
+	int8 radix = 10;
 
 	if(p < limit && rule.charAt(p) == 48 /*0*/) {
 		if(p+1 < limit && (rule.charAt(p+1) == 0x78 /*x*/ || rule.charAt(p+1) == 0x58 /*X*/)) {
@@ -188,7 +188,7 @@ UnicodeString ICU_Utility::parseUnicodeIdentifier(const UnicodeString & str, int
  * does not fit into a 31-bit unsigned integer.
  */
 int32_t ICU_Utility::parseNumber(const UnicodeString & text,
-    int32_t& pos, int8_t radix) {
+    int32_t& pos, int8 radix) {
 	// assert(pos[0] >= 0);
 	// assert(radix >= 2);
 	// assert(radix <= 36);

@@ -46,8 +46,12 @@ bool LmdbDatabase::ProcessError(int r)
 {
 	if(r == 0)
 		return true;
-	else
+	else {
+		LastErr = r;
+		const char * p_lmdb_err_msg = mdb_strerror(r);
+		SLS.SetError(SLERR_LMDB, p_lmdb_err_msg);
 		return false;
+	}
 }
 
 LmdbDatabase::Transaction::Transaction(LmdbDatabase & rDb, bool readOnly) : State(stUndef), R_Db(rDb)
@@ -237,10 +241,7 @@ bool LmdbDatabase::Open(const char * pPath, uint flags, int mode)
 {
 	bool   ok = true;
 	THROW(H);
-	if(mdb_env_open(H, pPath, flags, mode) == 0) {
-		;
-	}
-	else {
+	if(!ProcessError(mdb_env_open(H, pPath, flags, mode))) {
 		mdb_env_close(H);
 		H = 0;
 		ok = false;

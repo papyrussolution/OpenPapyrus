@@ -33,25 +33,25 @@ struct UCPTrieHeader {
      * Bits 5..3: Reserved (0).
      * Bits 2..0: UCPTrieValueWidth
      */
-    uint16_t options;
+    uint16 options;
 
     /** Total length of the index tables. */
-    uint16_t indexLength;
+    uint16 indexLength;
 
     /** Data length bits 15..0. */
-    uint16_t dataLength;
+    uint16 dataLength;
 
     /** Index-3 null block offset, 0x7fff or 0xffff if none. */
-    uint16_t index3NullOffset;
+    uint16 index3NullOffset;
 
     /** Data null block offset bits 15..0, 0xfffff if none. */
-    uint16_t dataNullOffset;
+    uint16 dataNullOffset;
 
     /**
      * First code point of the single-value range ending with U+10ffff,
      * rounded up and then shifted right by UCPTRIE_SHIFT_2.
      */
-    uint16_t shiftedHighStart;
+    uint16 shiftedHighStart;
 };
 
 /**
@@ -154,10 +154,10 @@ U_CFUNC void umutablecptrie_setName(UMutableCPTrie *builder, const char *name);
  * The overall layout is:
  *
  * UCPTrieHeader header; -- 16 bytes, see struct definition above
- * uint16_t index[header.indexLength];
+ * uint16 index[header.indexLength];
  * uintXY_t data[header.dataLength];
  *
- * The trie data array is an array of uint16_t, uint32_t, or uint8,
+ * The trie data array is an array of uint16, uint32_t, or uint8,
  * specified via the UCPTrieValueWidth when building the trie.
  * The data array is 32-bit-aligned for uint32_t, otherwise 16-bit-aligned.
  * The overall length of the trie data is a multiple of 4 bytes.
@@ -246,11 +246,11 @@ U_CFUNC void umutablecptrie_setName(UMutableCPTrie *builder, const char *name);
  * to read consecutive values from the index-1, index-2, index-3 and data tables.
  *
  * If all of the data block offsets in an index-3 block fit within 16 bits (up to 0xffff),
- * then the data block offsets are stored directly as uint16_t.
+ * then the data block offsets are stored directly as uint16.
  *
  * Otherwise (this is very unusual but possible), the index-2 entry for the index-3 block
  * has bit 15 (0x8000) set, and each set of 8 index-3 entries is preceded by
- * an additional uint16_t word. Data block offsets are 18 bits wide, with the top 2 bits stored
+ * an additional uint16 word. Data block offsets are 18 bits wide, with the top 2 bits stored
  * in the additional word.
  *
  * See ucptrie_internalSmallIndex() for details.

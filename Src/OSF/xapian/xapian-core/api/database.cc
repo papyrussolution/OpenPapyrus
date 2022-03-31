@@ -44,9 +44,9 @@ Database::Database(Database::Internal* internal_) : internal(internal_)
 }
 
 Database::Database(const Database&) = default;
-Database& Database::operator=(const Database&) = default;
+Database& Database::operator = (const Database&) = default;
 Database::Database(Database&&) = default;
-Database& Database::operator=(Database&&) = default;
+Database& Database::operator = (Database&&) = default;
 
 Database::Database() : internal(new EmptyDatabase)
 {

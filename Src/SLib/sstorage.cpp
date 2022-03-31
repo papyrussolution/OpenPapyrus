@@ -327,5 +327,3 @@ SStorage::SStorage() : Flags(0), PgSize(0), RcSize(0)
 SStorage::~SStorage()
 {
 }
-
-

@@ -6,18 +6,11 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_RANDOM_INTERNAL_POOL_URBG_H_
 #define ABSL_RANDOM_INTERNAL_POOL_URBG_H_
 
 #include <cinttypes>
 #include <limits>
-
 #include "absl/random/internal/traits.h"
 #include "absl/types/span.h"
 
@@ -100,14 +93,14 @@ class PoolURBG {
 
   // copy-constructor does not copy cache.
   PoolURBG(const PoolURBG&) : next_(kInitialBuffer) {}
-  const PoolURBG& operator=(const PoolURBG&) {
+  const PoolURBG& operator = (const PoolURBG&) {
     next_ = kInitialBuffer;
     return *this;
   }
 
   // move-constructor does move cache.
   PoolURBG(PoolURBG&&) = default;
-  PoolURBG& operator=(PoolURBG&&) = default;
+  PoolURBG& operator = (PoolURBG&&) = default;
 
   inline result_type operator()() {
     if (next_ >= kBufferSize) {

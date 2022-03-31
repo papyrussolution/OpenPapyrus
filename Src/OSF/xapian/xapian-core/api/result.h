@@ -27,12 +27,12 @@ class Result {
 	std::string collapse_key;
 	std::string sort_key;
 public:
-	Result& operator=(const Result&) = delete;
+	Result& operator = (const Result&) = delete;
 	Result(const Result&) = delete;
 	/// Move constructor.
 	Result(Result&&) = default;
 	/// Move assignment.
-	Result& operator=(Result&&) = default;
+	Result& operator = (Result&&) = default;
 	/// Constructor.
 	Result(double weight_, Xapian::docid did_) : weight(weight_), did(did_) 
 	{

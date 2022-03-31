@@ -178,13 +178,13 @@ public:
 	 *  @param other	The Utf8Iterator to compare this one with.
 	 *  @return true iff the iterators point to the same position.
 	 */
-	bool operator==(const Utf8Iterator& other) const noexcept { return p == other.p; }
+	bool operator == (const Utf8Iterator& other) const noexcept { return p == other.p; }
 	/** Test two Utf8Iterators for inequality.
 	 *
 	 *  @param other	The Utf8Iterator to compare this one with.
 	 *  @return true iff the iterators do not point to the same position.
 	 */
-	bool operator!=(const Utf8Iterator& other) const noexcept { return p != other.p; }
+	bool operator != (const Utf8Iterator& other) const noexcept { return p != other.p; }
 
 	/// We implement the semantics of an STL input_iterator.
 	//@{

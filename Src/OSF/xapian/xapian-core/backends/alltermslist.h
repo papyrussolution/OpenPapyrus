@@ -26,7 +26,7 @@
 /// Abstract base class for iterating all terms in a database.
 class AllTermsList : public TermList {
 	/// Don't allow assignment.
-	void operator=(const AllTermsList &);
+	void operator = (const AllTermsList &);
 
 	/// Don't allow copying.
 	AllTermsList(const AllTermsList &);

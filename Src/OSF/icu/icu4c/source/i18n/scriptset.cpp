@@ -281,7 +281,7 @@ U_CAPI bool U_EXPORT2 uhash_equalsScriptSet(const UElement key1, const UElement 
 	return (*s1 == *s2);
 }
 
-U_CAPI int8_t U_EXPORT2 uhash_compareScriptSet(UElement key0, UElement key1) 
+U_CAPI int8 U_EXPORT2 uhash_compareScriptSet(UElement key0, UElement key1) 
 {
 	icu::ScriptSet * s0 = static_cast<icu::ScriptSet *>(key0.pointer);
 	icu::ScriptSet * s1 = static_cast<icu::ScriptSet *>(key1.pointer);
@@ -295,7 +295,7 @@ U_CAPI int8_t U_EXPORT2 uhash_compareScriptSet(UElement key0, UElement key1)
 			i0 = s0->nextSetBit(i0+1);
 			i1 = s1->nextSetBit(i1+1);
 		}
-		return (int8_t)diff;
+		return (int8)diff;
 	}
 }
 

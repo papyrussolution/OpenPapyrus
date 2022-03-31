@@ -3098,7 +3098,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status) {
 			    UTEXT_SETNATIVEINDEX(fInputText, fp->fInputIdx);
 
 			    UChar32 c = UTEXT_NEXT32(fInputText);
-			    int8_t ctype = u_charType(c); // TODO:  make a unicode set for this.  Will be faster.
+			    int8 ctype = u_charType(c); // TODO:  make a unicode set for this.  Will be faster.
 			    bool success = (ctype == U_DECIMAL_DIGIT_NUMBER);
 			    success ^= (bool)(opValue != 0); // flip sense for \D
 			    if(success) {
@@ -3125,7 +3125,7 @@ void RegexMatcher::MatchAt(int64_t startIdx, bool toEnd, UErrorCode & status) {
 			    }
 			    UTEXT_SETNATIVEINDEX(fInputText, fp->fInputIdx);
 			    UChar32 c = UTEXT_NEXT32(fInputText);
-			    int8_t ctype = u_charType(c);
+			    int8 ctype = u_charType(c);
 			    bool success = (ctype == U_SPACE_SEPARATOR || c == 9); // SPACE_SEPARATOR || TAB
 			    success ^= (bool)(opValue != 0); // flip sense for \H
 			    if(success) {
@@ -4592,7 +4592,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 
 			    UChar32 c;
 			    U16_NEXT(inputBuf, fp->fInputIdx, fActiveLimit, c);
-			    int8_t ctype = u_charType(c); // TODO:  make a unicode set for this.  Will be faster.
+			    int8 ctype = u_charType(c); // TODO:  make a unicode set for this.  Will be faster.
 			    bool success = (ctype == U_DECIMAL_DIGIT_NUMBER);
 			    success ^= (bool)(opValue != 0); // flip sense for \D
 			    if(!success) {
@@ -4616,7 +4616,7 @@ void RegexMatcher::MatchChunkAt(int32_t startIdx, bool toEnd, UErrorCode & statu
 			    }
 			    UChar32 c;
 			    U16_NEXT(inputBuf, fp->fInputIdx, fActiveLimit, c);
-			    int8_t ctype = u_charType(c);
+			    int8 ctype = u_charType(c);
 			    bool success = (ctype == U_SPACE_SEPARATOR || c == 9); // SPACE_SEPARATOR || TAB
 			    success ^= (bool)(opValue != 0); // flip sense for \H
 			    if(!success) {

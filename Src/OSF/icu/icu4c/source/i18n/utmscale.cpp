@@ -61,7 +61,7 @@ static const int64_t timeScaleTable[UDTS_MAX_SCALE][UTSV_MAX_SCALE_VALUE] = {
 
 U_CAPI int64_t U_EXPORT2 utmscale_getTimeScaleValue(UDateTimeScale timeScale, UTimeScaleValue value, UErrorCode * status)
 {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 
@@ -78,7 +78,7 @@ U_CAPI int64_t U_EXPORT2 utmscale_fromInt64(int64_t otherTime, UDateTimeScale ti
 {
 	const int64_t * data;
 
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 
@@ -101,7 +101,7 @@ U_CAPI int64_t U_EXPORT2 utmscale_toInt64(int64_t universalTime, UDateTimeScale 
 {
 	const int64_t * data;
 
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 

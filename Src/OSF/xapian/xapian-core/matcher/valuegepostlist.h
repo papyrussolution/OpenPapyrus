@@ -22,7 +22,7 @@ class ValueGePostList : public ValueRangePostList {
 	/// Disallow copying.
 	ValueGePostList(const ValueGePostList &);
 	/// Disallow assignment.
-	void operator=(const ValueGePostList &);
+	void operator = (const ValueGePostList &);
 public:
 	ValueGePostList(const Xapian::Database::Internal * db_, Xapian::valueno slot_, const std::string &begin_) : ValueRangePostList(db_, slot_, begin_, std::string()) 
 	{

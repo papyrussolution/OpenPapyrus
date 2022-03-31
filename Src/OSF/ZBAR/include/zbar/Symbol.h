@@ -57,9 +57,8 @@ public:
 	{
 		ref(-1);
 	}
-
 	/// assignment.
-	SymbolSet& operator=(const SymbolSet& syms)
+	SymbolSet& operator = (const SymbolSet& syms)
 	{
 		syms.ref();
 		ref(-1);
@@ -119,7 +118,7 @@ public:
 		{
 		}
 		/// assignment.
-		Point& operator=(const Point& pt)
+		Point& operator = (const Point& pt)
 		{
 			x = pt.x;
 			y = pt.y;
@@ -152,7 +151,7 @@ public:
 				_sym->ref(-1);
 		}
 		/// assignment.
-		PointIterator& operator=(const PointIterator& iter)
+		PointIterator& operator = (const PointIterator& iter)
 		{
 			if(iter._sym)
 				iter._sym->ref();
@@ -197,7 +196,7 @@ public:
 
 		/// test if two iterators refer to the same Point in the same
 		/// Symbol.
-		bool operator!=(const PointIterator& iter) const
+		bool operator != (const PointIterator& iter) const
 		{
 			return (!(*this == iter));
 		}
@@ -226,7 +225,7 @@ private:
 		ref(-1);
 	}
 	/// assignment.
-	Symbol& operator=(const Symbol& sym)
+	Symbol& operator = (const Symbol& sym)
 	{
 		sym.ref(1);
 		ref(-1);
@@ -235,7 +234,7 @@ private:
 		_data = sym._data;
 		return *this;
 	}
-	Symbol& operator=(const zbar_symbol_t * sym)
+	Symbol& operator = (const zbar_symbol_t * sym)
 	{
 		if(sym)
 			zbar_symbol_ref(sym, 1);
@@ -267,7 +266,7 @@ private:
 	}
 
 	/// test if two Symbol objects refer to the same C symbol.
-	bool operator!=(const Symbol& sym) const
+	bool operator != (const Symbol& sym) const
 	{
 		return (!(*this == sym));
 	}
@@ -411,7 +410,7 @@ public:
 	{
 	}
 	/// assignment.
-	ZBarSymbolIterator& operator=(const ZBarSymbolIterator& iter)
+	ZBarSymbolIterator& operator = (const ZBarSymbolIterator& iter)
 	{
 		_syms = iter._syms;
 		_sym = iter._sym;
@@ -453,7 +452,7 @@ public:
 	}
 
 	/// test if two iterators refer to the same Symbol
-	bool operator!=(const ZBarSymbolIterator& iter) const
+	bool operator != (const ZBarSymbolIterator& iter) const
 	{
 		return (!(*this == iter));
 	}
@@ -480,7 +479,7 @@ inline const ZBarSymbolIterator SymbolSet::symbol_end() const
 
 /// @relates Symbol
 /// stream the string representation of a Symbol.
-static inline std::ostream & operator<<(std::ostream& out, const Symbol& sym)
+static inline std::ostream & operator<<(std::ostream & out, const Symbol& sym)
 {
 	out << sym.get_type_name() << ":" << sym.get_data();
 	return (out);

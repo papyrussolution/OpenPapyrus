@@ -1590,7 +1590,7 @@ static int RemoveCompName(SString & rPrintDevice)
 	SString sbuf;
 	DWORD  buf_size = SIZEOFARRAY(buf);
 	PTR32(buf)[0] = 0;
-	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size); // @unicodeproblem
+	GetComputerNameEx(ComputerNameNetBIOS, buf, &buf_size);
 	(sbuf = "\\\\").Cat(SUcSwitch(buf)).CatChar('\\');
 	if(rPrintDevice.CmpPrefix(sbuf, 1) == 0)
 		rPrintDevice.ShiftLeft(sbuf.Len());

@@ -50,13 +50,13 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	RSet & operator=(const RSet & o);
+	RSet & operator = (const RSet & o);
 
 	/// Move constructor.
 	RSet(RSet && o);
 
 	/// Move assignment operator.
-	RSet & operator=(RSet && o);
+	RSet & operator = (RSet && o);
 
 	/** Default constructor.
 	 *

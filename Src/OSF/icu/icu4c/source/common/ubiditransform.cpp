@@ -128,7 +128,7 @@ static bool action_resolve(UBiDiTransform * pTransform, UErrorCode * pErrorCode)
  */
 static bool action_reorder(UBiDiTransform * pTransform, UErrorCode * pErrorCode)
 {
-	ubidi_writeReordered(pTransform->pBidi, pTransform->dest, pTransform->destSize, static_cast<uint16_t>(pTransform->reorderingOptions), pErrorCode);
+	ubidi_writeReordered(pTransform->pBidi, pTransform->dest, pTransform->destSize, static_cast<uint16>(pTransform->reorderingOptions), pErrorCode);
 	*pTransform->pDestLength = pTransform->srcLength;
 	pTransform->reorderingOptions = UBIDI_REORDER_DEFAULT;
 	return TRUE;

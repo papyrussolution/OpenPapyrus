@@ -6,12 +6,6 @@
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 // Author: Jim Meehan
 
 #ifndef UTIL_UTF8_UNICODETEXT_H__
@@ -124,7 +118,7 @@ namespace i18n {
 
 			// Assignment operator. This copies the data and produces an owner
 			// unless this == &src, e.g., "x = x;", which is a no-op.
-			UnicodeText& operator=(const UnicodeText& src);
+			UnicodeText& operator = (const UnicodeText& src);
 
 			// x.Copy(y) copies the data from y into x.
 			UnicodeText& Copy(const UnicodeText& src);
@@ -163,8 +157,8 @@ namespace i18n {
 			// An optimization of append(source.begin(), source.end()).
 			UnicodeText& append(const UnicodeText& source);
 			int size() const; // the number of Unicode characters (codepoints)
-			friend bool operator==(const UnicodeText& lhs, const UnicodeText& rhs);
-			friend bool operator!=(const UnicodeText& lhs, const UnicodeText& rhs);
+			friend bool operator == (const UnicodeText& lhs, const UnicodeText& rhs);
+			friend bool operator != (const UnicodeText& lhs, const UnicodeText& rhs);
 			class const_iterator {
 				typedef const_iterator CI;
 			public:
@@ -179,7 +173,7 @@ namespace i18n {
 
 				// It's safe to make multiple passes over a UnicodeText.
 				const_iterator(const const_iterator& other);
-				const_iterator& operator=(const const_iterator& other);
+				const_iterator& operator = (const const_iterator& other);
 
 				char32 operator*() const; // Dereference
 
@@ -196,12 +190,12 @@ namespace i18n {
 					return result;
 				}
 				// We love relational operators.
-				friend bool operator==(const CI& lhs, const CI& rhs) { return lhs.it_ == rhs.it_; }
-				friend bool operator!=(const CI& lhs, const CI& rhs) { return !(lhs == rhs); }
-				friend bool operator<(const CI& lhs, const CI& rhs);
-				friend bool operator>(const CI& lhs, const CI& rhs) { return rhs < lhs; }
-				friend bool operator<=(const CI& lhs, const CI& rhs) { return !(rhs < lhs); }
-				friend bool operator>=(const CI& lhs, const CI& rhs) { return !(lhs < rhs); }
+				friend bool operator == (const CI& lhs, const CI& rhs) { return lhs.it_ == rhs.it_; }
+				friend bool operator != (const CI& lhs, const CI& rhs) { return !(lhs == rhs); }
+				friend bool operator < (const CI& lhs, const CI& rhs);
+				friend bool operator > (const CI& lhs, const CI& rhs) { return rhs < lhs; }
+				friend bool operator <= (const CI& lhs, const CI& rhs) { return !(rhs < lhs); }
+				friend bool operator >= (const CI& lhs, const CI& rhs) { return !(lhs < rhs); }
 				friend difference_type distance(const CI& first, const CI& last);
 
 				// UTF-8-specific methods
@@ -316,7 +310,7 @@ namespace i18n {
 				void PointTo(const char* data, int size);
 				string DebugString() const;
 		private:
-				Repr& operator=(const Repr&);
+				Repr& operator = (const Repr&);
 				Repr(const Repr& other);
 			};
 
@@ -335,8 +329,8 @@ namespace i18n {
 			const_iterator UnsafeFind(const UnicodeText& look, const_iterator start_pos) const;
 		};
 
-		bool operator==(const UnicodeText& lhs, const UnicodeText& rhs);
-		inline bool operator!=(const UnicodeText& lhs, const UnicodeText& rhs) { return !(lhs == rhs); }
+		bool operator == (const UnicodeText& lhs, const UnicodeText& rhs);
+		inline bool operator != (const UnicodeText& lhs, const UnicodeText& rhs) { return !(lhs == rhs); }
 
 		// UnicodeTextRange is a pair of iterators, useful for specifying text
 		// segments. If the iterators are ==, the segment is empty.

@@ -458,7 +458,7 @@ LocaleMatcher::LocaleMatcher(const Builder &builder, UErrorCode & errorCode) : l
 		int32_t suppLength = 0;
 		// Determine insertion order.
 		// Add locales immediately that are equivalent to the default.
-		MaybeStackArray<int8_t, 100> order(supportedLocalesLength, errorCode);
+		MaybeStackArray<int8, 100> order(supportedLocalesLength, errorCode);
 		if(U_FAILURE(errorCode)) {
 			return;
 		}

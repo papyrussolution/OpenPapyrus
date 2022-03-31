@@ -39,7 +39,7 @@ class GlassMetadataTermList : public AllTermsList {
     GlassMetadataTermList(const GlassMetadataTermList &);
 
     /// Assignment is not allowed.
-    void operator=(const GlassMetadataTermList &);
+    void operator = (const GlassMetadataTermList &);
 
     /// Keep a reference to our database to stop it being deleted.
     Xapian::Internal::intrusive_ptr<const Xapian::Database::Internal> database;

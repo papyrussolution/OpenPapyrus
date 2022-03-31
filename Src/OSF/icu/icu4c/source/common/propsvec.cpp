@@ -1,13 +1,12 @@
 // propsvec.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2002-2011, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 2002feb22
- *   created by: Markus W. Scherer
- *   Store bits (Unicode character properties) in bit set vectors.
- */
+// Copyright (C) 2002-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002feb22
+// created by: Markus W. Scherer
+// Store bits (Unicode character properties) in bit set vectors.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "utrie.h"
@@ -216,24 +215,18 @@ U_CAPI void U_EXPORT2 upvec_setValue(UPropsVectors * pv,
 			pv->v = newVectors;
 			pv->maxRows = newMaxRows;
 		}
-
 		/* count the number of row cells to move after the last row, and move them */
 		count = (int32_t)((pv->v+rows*columns)-(lastRow+columns));
 		if(count>0) {
-			uprv_memmove(
-				lastRow+(1+splitFirstRow+splitLastRow)*columns,
-				lastRow+columns,
-				count*4);
+			uprv_memmove(lastRow+(1+splitFirstRow+splitLastRow)*columns, lastRow+columns, count*4);
 		}
 		pv->rows = rows+splitFirstRow+splitLastRow;
-
 		/* split the first row, and move the firstRow pointer to the second part */
 		if(splitFirstRow) {
 			/* copy all affected rows up one and move the lastRow pointer */
 			count = (int32_t)((lastRow-firstRow)+columns);
 			uprv_memmove(firstRow+columns, firstRow, (size_t)count*4);
 			lastRow += columns;
-
 			/* split the range and move the firstRow pointer */
 			firstRow[1] = firstRow[columns] = (uint32_t)start;
 			firstRow += columns;

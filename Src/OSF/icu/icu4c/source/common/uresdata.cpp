@@ -38,7 +38,7 @@
 #define URESDATA_ITEM_NOT_FOUND -1
 
 /* empty resources, returned when the resource offset is 0 */
-static const uint16_t gEmpty16 = 0;
+static const uint16 gEmpty16 = 0;
 
 static const struct {
 	int32_t length;
@@ -56,7 +56,7 @@ static const struct {
  * the resource is of the expected type.
  */
 
-static int32_t _res_findTableItem(const ResourceData * pResData, const uint16_t * keyOffsets, int32_t length,
+static int32_t _res_findTableItem(const ResourceData * pResData, const uint16 * keyOffsets, int32_t length,
     const char * key, const char ** realKey) {
 	const char * tableKey;
 	int32_t mid, start, limit;
@@ -213,7 +213,7 @@ static void res_init(ResourceData * pResData,
 		if(indexLength>URES_INDEX_16BIT_TOP &&
 		    indexes[URES_INDEX_16BIT_TOP]>indexes[URES_INDEX_KEYS_TOP]
 		    ) {
-			pResData->p16BitUnits = (const uint16_t*)(pResData->pRoot+indexes[URES_INDEX_KEYS_TOP]);
+			pResData->p16BitUnits = (const uint16*)(pResData->pRoot+indexes[URES_INDEX_KEYS_TOP]);
 		}
 	}
 
@@ -263,7 +263,7 @@ U_CFUNC void res_unload(ResourceData * pResData)
 	}
 }
 
-static const int8_t gPublicTypes[URES_LIMIT] = {
+static const int8 gPublicTypes[URES_LIMIT] = {
 	URES_STRING,
 	URES_BINARY,
 	URES_TABLE,
@@ -476,7 +476,7 @@ U_CAPI int32_t U_EXPORT2 res_countArrayItems(const ResourceData * pResData, Reso
 		case URES_TABLE32:
 		    return offset==0 ? 0 : *(pResData->pRoot+offset);
 		case URES_TABLE:
-		    return offset==0 ? 0 : *((const uint16_t*)(pResData->pRoot+offset));
+		    return offset==0 ? 0 : *((const uint16*)(pResData->pRoot+offset));
 		case URES_ARRAY16:
 		case URES_TABLE16:
 		    return pResData->p16BitUnits[offset];
@@ -562,7 +562,7 @@ ResourceArray ResourceDataValue::getArray(UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return ResourceArray();
 	}
-	const uint16_t * items16 = NULL;
+	const uint16 * items16 = NULL;
 	const Resource * items32 = NULL;
 	uint32_t offset = RES_GET_OFFSET(res);
 	int32_t length = 0;
@@ -588,16 +588,16 @@ ResourceTable ResourceDataValue::getTable(UErrorCode & errorCode) const {
 	if(U_FAILURE(errorCode)) {
 		return ResourceTable();
 	}
-	const uint16_t * keys16 = NULL;
+	const uint16 * keys16 = NULL;
 	const int32_t * keys32 = NULL;
-	const uint16_t * items16 = NULL;
+	const uint16 * items16 = NULL;
 	const Resource * items32 = NULL;
 	uint32_t offset = RES_GET_OFFSET(res);
 	int32_t length = 0;
 	switch(RES_GET_TYPE(res)) {
 		case URES_TABLE:
 		    if(offset != 0) { // empty if offset==0
-			    keys16 = (const uint16_t*)(getData().pRoot+offset);
+			    keys16 = (const uint16*)(getData().pRoot+offset);
 			    length = *keys16++;
 			    items32 = (const Resource*)(keys16+length+(~length&1));
 		    }
@@ -708,7 +708,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByKey(const ResourceData * pResData, R
 	switch(RES_GET_TYPE(table)) {
 		case URES_TABLE: {
 		    if(offset!=0) { /* empty if offset==0 */
-			    const uint16_t * p = (const uint16_t*)(pResData->pRoot+offset);
+			    const uint16 * p = (const uint16*)(pResData->pRoot+offset);
 			    length = *p++;
 			    *indexR = idx = _res_findTableItem(pResData, p, length, *key, key);
 			    if(idx>=0) {
@@ -719,7 +719,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByKey(const ResourceData * pResData, R
 		    break;
 	    }
 		case URES_TABLE16: {
-		    const uint16_t * p = pResData->p16BitUnits+offset;
+		    const uint16 * p = pResData->p16BitUnits+offset;
 		    length = *p++;
 		    *indexR = idx = _res_findTableItem(pResData, p, length, *key, key);
 		    if(idx>=0) {
@@ -754,7 +754,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByIndex(const ResourceData * pResData,
 	switch(RES_GET_TYPE(table)) {
 		case URES_TABLE: {
 		    if(offset != 0) { /* empty if offset==0 */
-			    const uint16_t * p = (const uint16_t*)(pResData->pRoot+offset);
+			    const uint16 * p = (const uint16*)(pResData->pRoot+offset);
 			    length = *p++;
 			    if(indexR<length) {
 				    const Resource * p32 = (const Resource*)(p+length+(~length&1));
@@ -767,7 +767,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByIndex(const ResourceData * pResData,
 		    break;
 	    }
 		case URES_TABLE16: {
-		    const uint16_t * p = pResData->p16BitUnits+offset;
+		    const uint16 * p = pResData->p16BitUnits+offset;
 		    length = *p++;
 		    if(indexR<length) {
 			    if(key!=NULL) {
@@ -871,7 +871,7 @@ U_CAPI Resource U_EXPORT2 res_getArrayItem(const ResourceData * pResData, Resour
 		    break;
 	    }
 		case URES_ARRAY16: {
-		    const uint16_t * p = pResData->p16BitUnits+offset;
+		    const uint16 * p = pResData->p16BitUnits+offset;
 		    if(indexR<*p) {
 			    return makeResourceFrom16(pResData, p[1+indexR]);
 		    }
@@ -1116,8 +1116,8 @@ static void ures_swapResource(const UDataSwapper * ds,
 		case URES_TABLE:
 		case URES_TABLE32:
 	    {
-		    const uint16_t * pKey16;
-		    uint16_t * qKey16;
+		    const uint16 * pKey16;
+		    uint16 * qKey16;
 
 		    const int32_t * pKey32;
 		    int32_t * qKey32;
@@ -1127,8 +1127,8 @@ static void ures_swapResource(const UDataSwapper * ds,
 
 		    if(RES_GET_TYPE(res)==URES_TABLE) {
 			    /* get table item count */
-			    pKey16 = (const uint16_t*)p;
-			    qKey16 = (uint16_t*)q;
+			    pKey16 = (const uint16*)p;
+			    qKey16 = (uint16*)q;
 			    count = ds->readUInt16(*pKey16);
 
 			    pKey32 = qKey32 = NULL;
@@ -1234,13 +1234,13 @@ static void ures_swapResource(const UDataSwapper * ds,
 		     */
 		    /* keys */
 		    if(pKey16!=NULL) {
-			    uint16_t * rKey16;
+			    uint16 * rKey16;
 
 			    if(pKey16!=qKey16) {
 				    rKey16 = qKey16;
 			    }
 			    else {
-				    rKey16 = (uint16_t*)pTempTable->resort;
+				    rKey16 = (uint16*)pTempTable->resort;
 			    }
 			    for(i = 0; i<count; ++i) {
 				    oldIndex = pTempTable->rows[i].sortIndex;

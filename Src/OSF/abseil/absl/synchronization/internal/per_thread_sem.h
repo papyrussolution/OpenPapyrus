@@ -6,13 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 // PerThreadSem is a low-level synchronization primitive controlling the
 // runnability of a single thread, used internally by Mutex and CondVar.
 //
@@ -40,7 +33,7 @@ class PerThreadSem {
 public:
 	PerThreadSem() = delete;
 	PerThreadSem(const PerThreadSem&) = delete;
-	PerThreadSem& operator=(const PerThreadSem&) = delete;
+	PerThreadSem& operator = (const PerThreadSem&) = delete;
 
 	// Routine invoked periodically (once a second) by a background thread.
 	// Has no effect on user-visible state.

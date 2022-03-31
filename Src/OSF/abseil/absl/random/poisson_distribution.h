@@ -6,12 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_RANDOM_POISSON_DISTRIBUTION_H_
 #define ABSL_RANDOM_POISSON_DISTRIBUTION_H_
 
@@ -21,7 +15,6 @@
 #include <limits>
 #include <ostream>
 #include <type_traits>
-
 #include "absl/random/internal/fast_uniform_bits.h"
 #include "absl/random/internal/fastmath.h"
 #include "absl/random/internal/generate_real.h"
@@ -63,11 +56,11 @@ class poisson_distribution {
 
     double mean() const { return mean_; }
 
-    friend bool operator==(const param_type& a, const param_type& b) {
+    friend bool operator == (const param_type& a, const param_type& b) {
       return a.mean_ == b.mean_;
     }
 
-    friend bool operator!=(const param_type& a, const param_type& b) {
+    friend bool operator != (const param_type& a, const param_type& b) {
       return !(a == b);
     }
 
@@ -112,11 +105,11 @@ class poisson_distribution {
 
   double mean() const { return param_.mean(); }
 
-  friend bool operator==(const poisson_distribution& a,
+  friend bool operator == (const poisson_distribution& a,
                          const poisson_distribution& b) {
     return a.param_ == b.param_;
   }
-  friend bool operator!=(const poisson_distribution& a,
+  friend bool operator != (const poisson_distribution& a,
                          const poisson_distribution& b) {
     return a.param_ != b.param_;
   }

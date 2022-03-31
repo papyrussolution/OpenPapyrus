@@ -37,8 +37,8 @@ class CompactData : public MultiplierProducer {
 
   private:
     const UChar *patterns[(COMPACT_MAX_DIGITS + 1) * StandardPlural::COUNT];
-    int8_t multipliers[COMPACT_MAX_DIGITS + 1];
-    int8_t largestMagnitude;
+    int8 multipliers[COMPACT_MAX_DIGITS + 1];
+    int8 largestMagnitude;
     bool isEmpty;
 
     class CompactDataSink : public ResourceSink {

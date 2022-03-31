@@ -17,7 +17,7 @@ BadStatusOrAccess::BadStatusOrAccess(const BadStatusOrAccess& other)
 	: status_(other.status_) {
 }
 
-BadStatusOrAccess& BadStatusOrAccess::operator=(const BadStatusOrAccess& other) {
+BadStatusOrAccess& BadStatusOrAccess::operator = (const BadStatusOrAccess& other) {
 	// Ensure assignment is correct regardless of whether this->InitWhat() has
 	// already been called.
 	other.InitWhat();
@@ -26,7 +26,7 @@ BadStatusOrAccess& BadStatusOrAccess::operator=(const BadStatusOrAccess& other) 
 	return *this;
 }
 
-BadStatusOrAccess& BadStatusOrAccess::operator=(BadStatusOrAccess&& other) {
+BadStatusOrAccess& BadStatusOrAccess::operator = (BadStatusOrAccess&& other) {
 	// Ensure assignment is correct regardless of whether this->InitWhat() has
 	// already been called.
 	other.InitWhat();

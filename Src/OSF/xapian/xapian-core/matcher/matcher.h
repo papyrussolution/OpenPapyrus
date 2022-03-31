@@ -75,7 +75,7 @@ class Matcher {
 #endif
 #endif
 	Matcher(const Matcher&) = delete;
-	Matcher& operator=(const Matcher&) = delete;
+	Matcher& operator = (const Matcher&) = delete;
 	Xapian::MSet get_local_mset(Xapian::doccount first, Xapian::doccount maxitems, Xapian::doccount check_at_least,
 	    const Xapian::Weight& wtscheme, const Xapian::MatchDecider* mdecider, const Xapian::KeyMaker* sorter, Xapian::valueno collapse_key,
 	    Xapian::doccount collapse_max, int percent_threshold, double percent_threshold_factor, double weight_threshold,

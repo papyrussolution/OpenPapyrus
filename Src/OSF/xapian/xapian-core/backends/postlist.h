@@ -39,7 +39,7 @@ namespace Internal {
 /// Abstract base class for postlists.
 class PostList {
     /// Don't allow assignment.
-    void operator=(const PostList &) = delete;
+    void operator = (const PostList &) = delete;
 
     /// Don't allow copying.
     PostList(const PostList &) = delete;

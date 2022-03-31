@@ -1,15 +1,13 @@
 // PPUTIL.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 //
 #include <pp.h>
 #pragma hdrstop
 #include <ppsoapclient.h>
-// @v9.6.3 #include <idea.h>
 
-// Prototype
-DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds);
+DBFCreateFld * LoadDBFStruct(uint rezID, uint * pNumFlds); // @prototype
 
 int FASTCALL dbl_cmp(double v1, double v2)
 {
@@ -4615,6 +4613,7 @@ int PPXmlFileDetector::Run(const char * pFileName, int * pResult)
 				case PPHS_RESOURCES: Result = ResourcesAbstract; break;
 				case PPHS_VALUES: Result = ValuesAbstract; break;
 				case PPHS_CHEQUE: Result = EgaisCheque; break;
+				case PPHS_TIMEZONES: Result = TimezonesAbstract; break;
 			}
 		}
     }

@@ -154,9 +154,9 @@ ESet::ESet() : internal(new ESet::Internal)
 }
 
 ESet::ESet(const ESet &) = default;
-ESet & ESet::operator=(const ESet &) = default;
+ESet & ESet::operator = (const ESet &) = default;
 ESet::ESet(ESet &&) = default;
-ESet & ESet::operator=(ESet &&) = default;
+ESet & ESet::operator = (ESet &&) = default;
 
 ESet::~ESet() 
 {

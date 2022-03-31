@@ -260,7 +260,7 @@ U_CAPI int32_t U_EXPORT2 utrace_vformat(char * outBuf, int32_t capacity, int32_t
 			    char vectorType;
 			    int32_t vectorLen;
 			    const char * i8Ptr;
-			    int16_t  * i16Ptr;
+			    int16  * i16Ptr;
 			    int32_t * i32Ptr;
 			    int64_t  * i64Ptr;
 			    void   ** ptrPtr;
@@ -272,7 +272,7 @@ U_CAPI int32_t U_EXPORT2 utrace_vformat(char * outBuf, int32_t capacity, int32_t
 				    fmtIx++;
 			    }
 			    i8Ptr = (const char *)va_arg(args, void *);
-			    i16Ptr = (int16_t*)i8Ptr;
+			    i16Ptr = (int16*)i8Ptr;
 			    i32Ptr = (int32_t*)i8Ptr;
 			    i64Ptr = (int64_t*)i8Ptr;
 			    ptrPtr = (void **)i8Ptr;

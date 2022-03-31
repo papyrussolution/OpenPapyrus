@@ -29,7 +29,7 @@
 /// A document read from a GlassDatabase.
 class GlassDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const GlassDocument &);
+    void operator = (const GlassDocument &);
 
     /// Don't allow copying.
     GlassDocument(const GlassDocument &);

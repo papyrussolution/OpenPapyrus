@@ -605,7 +605,7 @@ template <class T> class CMyAutoPtr {
 public:
 	CMyAutoPtr(T * p = 0) : _p(p) {}
 	CMyAutoPtr(CMyAutoPtr<T>& p) : _p(p.release()) {}
-	CMyAutoPtr<T>& operator=(CMyAutoPtr<T>& p)
+	CMyAutoPtr<T>& operator = (CMyAutoPtr<T>& p)
 	{
 		reset(p.release());
 		return (*this);
@@ -898,14 +898,14 @@ public:
 	// T& operator*() const {  return *_p; }
 	T** operator &() { return &_p; }
 	T* operator->() const { return _p; }
-	T* operator=(T* p)
+	T* operator = (T* p)
 	{
 		CALLPTRMEMB(p, AddRef());
 		CALLPTRMEMB(_p, Release());
 		_p = p;
 		return p;
 	}
-	T * operator=(const CMyComPtr<T>& lp) { return (*this = lp._p); }
+	T * operator = (const CMyComPtr<T>& lp) { return (*this = lp._p); }
 	bool operator!() const { return (_p == NULL); }
 	// bool operator == (T* pT) const {  return _p == pT; }
 	void Attach(T* p2)
@@ -985,7 +985,7 @@ private:
 	   CoTaskMemFree(szGuid);
 	   }
 	 */
-	CMyComBSTR& operator=(const CMyComBSTR& src)
+	CMyComBSTR& operator = (const CMyComBSTR& src)
 	{
 		if(m_str != src.m_str) {
 			if(m_str)
@@ -994,7 +994,7 @@ private:
 		}
 		return *this;
 	}
-	CMyComBSTR& operator=(LPCOLESTR src)
+	CMyComBSTR& operator = (LPCOLESTR src)
 	{
 		::SysFreeString(m_str);
 		m_str = ::SysAllocString(src);
@@ -1099,7 +1099,7 @@ struct CBoolPair {
 	uint8  Reserve[2]; // @alignment
 };
 
-#define CLASS_NO_COPY(cls) private: cls(const cls &); cls & operator=(const cls &);
+#define CLASS_NO_COPY(cls) private: cls(const cls &); cls & operator = (const cls &);
 //
 //#include <MyVector.h>
 template <class T> class CRecordVector {
@@ -1476,7 +1476,7 @@ public:
 		for(uint i = 0; i < size; i++)
 			_v.AddInReserved(new T(v[i]));
 	}
-	CObjectVector& operator=(const CObjectVector &v)
+	CObjectVector& operator = (const CObjectVector &v)
 	{
 		if(&v == this)
 			return *this;
@@ -1832,10 +1832,10 @@ bool StringsAreEqual_Ascii(const wchar_t * u, const char * a) throw();
 #define FORBID_STRING_OPS(cls, t) \
 	explicit cls(t); \
 	explicit cls(const t *); \
-	cls &operator=(t); \
-	cls &operator=(const t *); \
-	cls &operator+=(t); \
-	cls &operator+=(const t *); \
+	cls & operator = (t); \
+	cls & operator = (const t *); \
+	cls & operator+=(t); \
+	cls & operator+=(const t *); \
 	FORBID_STRING_OPS_2(cls, t); \
 
 /*
@@ -1979,16 +1979,16 @@ public:
    bool operator == (const AString &s1, const char    *s2);
    bool operator == (const char    *s1, const AString &s2);
 
-   bool operator!=(const AString &s1, const AString &s2);
-   bool operator!=(const AString &s1, const char    *s2);
-   bool operator!=(const char    *s1, const AString &s2);
+   bool operator != (const AString &s1, const AString &s2);
+   bool operator != (const AString &s1, const char    *s2);
+   bool operator != (const char    *s1, const AString &s2);
  */
 inline bool operator == (const AString &s1, const AString &s2) { return s1.Len() == s2.Len() && strcmp(s1, s2) == 0; }
 inline bool operator == (const AString &s1, const char    * s2) { return strcmp(s1, s2) == 0; }
 inline bool operator == (const char    * s1, const AString &s2) { return strcmp(s1, s2) == 0; }
-inline bool operator!=(const AString &s1, const AString &s2) { return s1.Len() != s2.Len() || strcmp(s1, s2) != 0; }
-inline bool operator!=(const AString &s1, const char    * s2) { return strcmp(s1, s2) != 0; }
-inline bool operator!=(const char    * s1, const AString &s2) { return strcmp(s1, s2) != 0; }
+inline bool operator != (const AString &s1, const AString &s2) { return s1.Len() != s2.Len() || strcmp(s1, s2) != 0; }
+inline bool operator != (const AString &s1, const char    * s2) { return strcmp(s1, s2) != 0; }
+inline bool operator != (const char    * s1, const AString &s2) { return strcmp(s1, s2) != 0; }
 
 // ---------- forbidden functions ----------
 
@@ -2081,7 +2081,7 @@ public:
 	void SetFrom(const wchar_t * s, unsigned len); // no check
 	void SetFromBstr(BSTR s);
 	UString & operator = (const char * s);
-	UString & FASTCALL operator = (const AString &s) { return operator=(s.Ptr()); }
+	UString & FASTCALL operator = (const AString &s) { return operator = (s.Ptr()); }
 	UString & FASTCALL operator += (wchar_t c);
 	UString & FASTCALL operator += (char c) { return (*this) += ((wchar_t)(uchar)c); }
 	void Add_Space();
@@ -2154,9 +2154,9 @@ bool operator > (const UString &s1, const UString &s2);
 inline bool operator == (const UString &s1, const UString &s2) { return s1.Len() == s2.Len() && wcscmp(s1, s2) == 0; }
 inline bool operator == (const UString &s1, const wchar_t * s2) { return wcscmp(s1, s2) == 0; }
 inline bool operator == (const wchar_t * s1, const UString &s2) { return wcscmp(s1, s2) == 0; }
-inline bool operator!=(const UString &s1, const UString &s2) { return s1.Len() != s2.Len() || wcscmp(s1, s2) != 0; }
-inline bool operator!=(const UString &s1, const wchar_t * s2) { return wcscmp(s1, s2) != 0; }
-inline bool operator!=(const wchar_t * s1, const UString &s2) { return wcscmp(s1, s2) != 0; }
+inline bool operator != (const UString &s1, const UString &s2) { return s1.Len() != s2.Len() || wcscmp(s1, s2) != 0; }
+inline bool operator != (const UString &s1, const wchar_t * s2) { return wcscmp(s1, s2) != 0; }
+inline bool operator != (const wchar_t * s1, const UString &s2) { return wcscmp(s1, s2) != 0; }
 
 // ---------- forbidden functions ----------
 
@@ -2196,7 +2196,7 @@ class UString2 {
 	FORBID_STRING_OPS_UString2(uchar)
 	FORBID_STRING_OPS_UString2(short)
 
-	UString2 &operator=(wchar_t c);
+	UString2 &operator = (wchar_t c);
 	UString2(wchar_t c);
 public:
 	UString2() : _chars(NULL), _len(0) 
@@ -2223,8 +2223,8 @@ public:
 	}
 	void ReleaseBuf_SetLen(unsigned newLen) { _len = newLen; }
 
-	UString2 &operator=(const wchar_t * s);
-	UString2 &operator=(const UString2 &s);
+	UString2 &operator = (const wchar_t * s);
+	UString2 &operator = (const UString2 &s);
 	void SetFromAscii(const char * s);
 };
 
@@ -2232,16 +2232,16 @@ bool operator == (const UString2 &s1, const UString2 &s2);
 bool operator == (const UString2 &s1, const wchar_t * s2);
 bool operator == (const wchar_t * s1, const UString2 &s2);
 
-inline bool operator!=(const UString2 &s1, const UString2 &s2) { return !(s1 == s2); }
-inline bool operator!=(const UString2 &s1, const wchar_t * s2) { return !(s1 == s2); }
-inline bool operator!=(const wchar_t * s1, const UString2 &s2) { return !(s1 == s2); }
+inline bool operator != (const UString2 &s1, const UString2 &s2) { return !(s1 == s2); }
+inline bool operator != (const UString2 &s1, const wchar_t * s2) { return !(s1 == s2); }
+inline bool operator != (const wchar_t * s1, const UString2 &s2) { return !(s1 == s2); }
 
 // ---------- forbidden functions ----------
 
 void operator == (wchar_t c1, const UString2 &s2);
 void operator == (const UString2 &s1, wchar_t c2);
-bool operator<(const UString2 &s1, const UString2 &s2);
-bool operator>(const UString2 &s1, const UString2 &s2);
+bool operator < (const UString2 &s1, const UString2 &s2);
+bool operator > (const UString2 &s1, const UString2 &s2);
 
 void operator+(const UString2 &s1, const UString2 &s2);
 void operator+(const UString2 &s1, const wchar_t * s2);
@@ -2380,7 +2380,7 @@ public:
 			_size = newSize;
 		}
 	}
-	CBuffer & operator=(const CBuffer &buffer)
+	CBuffer & operator = (const CBuffer &buffer)
 	{
 		if(&buffer != this)
 			CopyFrom(buffer, buffer._size);
@@ -2460,7 +2460,7 @@ template <class T> class CObjArray2 {
 	unsigned _size;
 	// we disable copy
 	CObjArray2(const CObjArray2 &buffer);
-	void operator=(const CObjArray2 &buffer);
+	void operator = (const CObjArray2 &buffer);
 public:
 	void Free()
 	{
@@ -2517,7 +2517,7 @@ public:
 		}
 	}
 	/*
-	   CObjArray2& operator=(const CObjArray2 &buffer)
+	   CObjArray2& operator = (const CObjArray2 &buffer)
 	   {
 	   Free();
 	   size_t newSize = buffer._size;
@@ -2581,7 +2581,7 @@ template <class T> class CDynamicBuffer {
 	size_t _pos;
 
 	CDynamicBuffer(const CDynamicBuffer &buffer);
-	void operator=(const CDynamicBuffer &buffer);
+	void operator = (const CDynamicBuffer &buffer);
 	void Grow(size_t size)
 	{
 		size_t delta = _size >= 64 ? _size : 64;
@@ -3580,24 +3580,24 @@ namespace NWindows {
 			CPropVariant(uint64 value);
 			CPropVariant(int64 value);
 			CPropVariant(const FILETIME &value);
-			CPropVariant & operator=(const CPropVariant &varSrc);
-			CPropVariant & operator=(const PROPVARIANT &varSrc);
-			CPropVariant & operator=(BSTR bstrSrc);
-			CPropVariant & operator=(LPCOLESTR lpszSrc);
-			CPropVariant & operator=(const UString &s);
-			CPropVariant & operator=(const UString2 &s);
-			CPropVariant & operator=(const char * s);
-			CPropVariant & operator=(const AString &s) { return (*this) = (const char *)s; }
-			CPropVariant & operator=(bool bSrc) throw();
-			CPropVariant & operator=(Byte value) throw();
+			CPropVariant & operator = (const CPropVariant &varSrc);
+			CPropVariant & operator = (const PROPVARIANT &varSrc);
+			CPropVariant & operator = (BSTR bstrSrc);
+			CPropVariant & operator = (LPCOLESTR lpszSrc);
+			CPropVariant & operator = (const UString &s);
+			CPropVariant & operator = (const UString2 &s);
+			CPropVariant & operator = (const char * s);
+			CPropVariant & operator = (const AString &s) { return (*this) = (const char *)s; }
+			CPropVariant & operator = (bool bSrc) throw();
+			CPropVariant & operator = (Byte value) throw();
 		private:
-			CPropVariant & operator=(int16 value) throw();
+			CPropVariant & operator = (int16 value) throw();
 		public:
-			CPropVariant & operator=(int32 value) throw();
-			CPropVariant & operator=(uint32 value) throw();
-			CPropVariant & operator=(uint64 value) throw();
-			CPropVariant & operator=(int64 value) throw();
-			CPropVariant & operator=(const FILETIME &value) throw();
+			CPropVariant & operator = (int32 value) throw();
+			CPropVariant & operator = (uint32 value) throw();
+			CPropVariant & operator = (uint64 value) throw();
+			CPropVariant & operator = (int64 value) throw();
+			CPropVariant & operator = (const FILETIME &value) throw();
 			BSTR AllocBstr(unsigned numChars);
 			HRESULT Clear() throw();
 			HRESULT Copy(const PROPVARIANT * pSrc) throw();

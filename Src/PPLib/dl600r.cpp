@@ -1,5 +1,5 @@
 // DL600R.CPP
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Run-time DL600 modules
 //
@@ -860,12 +860,8 @@ static int FASTCALL __FillRecBuf(const DlScope * pScope, char * pRecBuf)
 			const size_t sz = fld.T.GetBinSize();
 			memcpy(pRecBuf+offset, p_scope->GetDataC(i-1), sz);
 			if(fld.T.IsZStr(0)) {
-				// @v9.5.5 pRecBuf[offset+sz] = 0;
-				// @v9.5.5 SOemToChar(pRecBuf+offset);
-				// @v9.5.5 {
 				(temp_buf = pRecBuf+offset).Transf(CTRANSF_INNER_TO_OUTER);
 				strnzcpy(pRecBuf+offset, temp_buf, sz);
-				// } @v9.5.5 
 			}
 			offset += sz;
 		}

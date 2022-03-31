@@ -181,7 +181,7 @@ inline bool roundsAtMidpoint(int roundingMode) {
  * @param singleDigit An output parameter; set to a number if that is the
  *        only digit in the double, or -1 if there is more than one digit.
  */
-digits_t doubleFractionLength(double input, int8_t* singleDigit);
+digits_t doubleFractionLength(double input, int8* singleDigit);
 
 } // namespace roundingutils
 

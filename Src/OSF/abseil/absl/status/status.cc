@@ -55,7 +55,7 @@ std::string StatusCodeToString(StatusCode code) {
 	}
 }
 
-std::ostream& operator<<(std::ostream& os, StatusCode code) {
+std::ostream & operator<<(std::ostream & os, StatusCode code) {
 	return os << StatusCodeToString(code);
 }
 
@@ -294,7 +294,7 @@ std::string Status::ToStringSlow(StatusToStringMode mode) const {
 	return text;
 }
 
-std::ostream& operator<<(std::ostream& os, const Status& x) {
+std::ostream & operator<<(std::ostream & os, const Status& x) {
 	os << x.ToString(StatusToStringMode::kWithEverything);
 	return os;
 }

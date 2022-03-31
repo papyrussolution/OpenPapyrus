@@ -4890,6 +4890,7 @@ PPTXT_MALFORMEDCMDFILEMOVED         "Сбойный командный файл 
 PPTXT_STQCLITESTCMD_ECHO        /!/ "Echo"
 PPTXT_STQCLITESTCMD_INDEXING        "Отправка медиатору данных для индексации"
 PPTXT_STQCLITESTCMD_SEARCH          "Поиск"
+PPTXT_STQCLITESTCMD_STOREBLOB       "Передача BLOB'а медиатору"
 //
 // LastText
 
@@ -5203,6 +5204,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 458  "Недопустимый размер изображения"
 459  "Дублирование символа layout '%s'"
 460  "Кодировка строки отличается от UTF-8"
+461  "Ошибка базы данных LMDB: %s"
 500  "Unable to open configuration file for reading"
 501  "Unable to open configuration file for writing"
 502  "Wrong version of configuration file"
@@ -17247,11 +17249,18 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @styloqface_varbitrary                        "Произвольный"
 @styloqface_vanonymous                        "Анонимный"
 @styloqface_vverifiable                       "Верифицируемый"
+
+@styloqface_statusundef                       "@{undefined}"
+@styloqface_statusprvmale                     "Частное лицо. Мужчина"
+@styloqface_statusprvfemale                   "Частное лицо. Женщина"
+@styloqface_statusprvgenderquestioning        "Частное лицо"
+@styloqface_statusenterprise                  "Предприятие"
+
 @styloqface_commonname                        "Общее имя"
 @styloqface_name                              "Имя"
-@styloqface_patronymic                        "Отчество"
-@styloqface_surname                           "Фамилия"
-@styloqface_country                           "Страна"
+@styloqface_patronymic                        "@{patronymic}"
+@styloqface_surname                           "@{surname}"
+@styloqface_country                           "@{country}"
 @styloqface_city                              "@{city}"
 @styloqface_street                            "Улица, дом, квартира"
 @styloqface_address                           "Текст адреса"
@@ -17748,7 +17757,7 @@ PPHS_SETTIMESERIESPROP           "settimeseriesprop" // @v10.2.5
 PPHS_SETTIMESERIESSTKENV         "settimeseriesstkenv" // @v10.2.10
 PPHS_STYLOQBINDERY               "styloqbindery" // @v11.3.4
 PPHS_TIMSER_PROP_PRECISION       "time-series-precision"       // точность представления значений
-PPHS_TIMSER_PROP_MARGIN_BUY      "time-series-margin-buy"      //  маржина при покупке инструмента, представленного символом
+PPHS_TIMSER_PROP_MARGIN_BUY      "time-series-margin-buy"      // маржина при покупке инструмента, представленного символом
 PPHS_TIMSER_PROP_MARGIN_SELL     "time-series-margin-sell"     // маржина при продаже инструмента, представленного символом
 PPHS_TIMSER_PROP_CURRENCY_BASE   "time-series-currency-base"   // основная валюта
 PPHS_TIMSER_PROP_CURRENCY_PROFIT "time-series-currency-profit" // валюта прибыли
@@ -17759,6 +17768,7 @@ PPHS_TIMSER_PROP_VOLUME_STEP     "time-series-volume-step"     // Минимал
 PPHS_GETCOMMONMQSCONFIG          "getcommonmqsconfig"          // @v10.5.9
 PPHS_ZIP                         "zip" // @v10.7.5
 PPHS_PREFERRED                   "preferred" // @v11.0.0
+PPHS_TIMEZONES                   "timezones" // @v11.3.6
 
 #!}
 

@@ -26,7 +26,7 @@ U_NAMESPACE_BEGIN
  * bit 2 if Pattern_White_Space is true.
  * That is, Pattern_Syntax is encoded as 3 and Pattern_White_Space as 5.
  */
-static const uint8 latin1[256]={
+static const uint8 latin1[256] = {
     // WS: 9..D
     0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 5, 5, 5, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -61,7 +61,7 @@ static const uint8 latin1[256]={
  * a small table of 32-bit data words.
  * The first two data words are all-zeros and all-ones.
  */
-static const uint8 index2000[130]={
+static const uint8 index2000[130] = {
     2, 3, 4, 0, 0, 0, 0, 0,  // 20xx
     0, 0, 0, 0, 5, 1, 1, 1,  // 21xx
     1, 1, 1, 1, 1, 1, 1, 1,  // 22xx
@@ -85,7 +85,7 @@ static const uint8 index2000[130]={
  * One 32-bit integer per 32 characters. Ranges of all-false and all-true
  * are mapped to the first two values, other ranges map to appropriate bit patterns.
  */
-static const uint32_t syntax2000[]={
+static const uint32_t syntax2000[] = {
     0,
     0xffffffff,
     0xffff0000,  // 2: 2010..201F
@@ -102,7 +102,7 @@ static const uint32_t syntax2000[]={
  * Same as syntax2000, but with additional bits set for the
  * Pattern_White_Space characters 200E 200F 2028 2029.
  */
-static const uint32_t syntaxOrWhiteSpace2000[]={
+static const uint32_t syntaxOrWhiteSpace2000[] = {
     0,
     0xffffffff,
     0xffffc000,  // 2: 200E..201F

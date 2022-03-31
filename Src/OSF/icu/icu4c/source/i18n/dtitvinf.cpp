@@ -456,10 +456,10 @@ void DateIntervalInfo::setIntervalPatternInternally(const UnicodeString & skelet
 
 void DateIntervalInfo::parseSkeleton(const UnicodeString & skeleton, int32_t* skeletonFieldWidth) 
 {
-	const int8_t PATTERN_CHAR_BASE = 0x41;
+	const int8 PATTERN_CHAR_BASE = 0x41;
 	for(int32_t i = 0; i < skeleton.length(); ++i) {
 		// it is an ASCII char in skeleton
-		int8_t ch = (int8_t)skeleton.charAt(i);
+		int8 ch = (int8)skeleton.charAt(i);
 		++skeletonFieldWidth[ch - PATTERN_CHAR_BASE];
 	}
 }
@@ -473,7 +473,7 @@ bool DateIntervalInfo::stringNumeric(int32_t fieldWidth, int32_t anotherFieldWid
 	return false;
 }
 
-const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & skeleton, int8_t& bestMatchDistanceInfo) const 
+const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & skeleton, int8& bestMatchDistanceInfo) const 
 {
 #ifdef DTITVINF_DEBUG
 	char result[1000];
@@ -536,7 +536,7 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 	// 2 means only z/v, h/K, or H/k differs
 	// -1 means having different field.
 	bestMatchDistanceInfo = 0;
-	int8_t fieldLength = UPRV_LENGTHOF(skeletonFieldWidth);
+	int8 fieldLength = UPRV_LENGTHOF(skeletonFieldWidth);
 
 	int32_t pos = UHASH_FIRST;
 	const UHashElement* elem = nullptr;
@@ -549,14 +549,14 @@ const UnicodeString * DateIntervalInfo::getBestSkeleton(const UnicodeString & sk
 		PRINTMESG(mesg)
 #endif
 		// clear skeleton field width
-		int8_t i;
+		int8 i;
 		for(i = 0; i < fieldLength; ++i) {
 			skeletonFieldWidth[i] = 0;
 		}
 		parseSkeleton(*newSkeleton, skeletonFieldWidth);
 		// calculate distance
 		int32_t distance = 0;
-		int8_t fieldDifference = 1;
+		int8 fieldDifference = 1;
 		for(i = 0; i < fieldLength; ++i) {
 			int32_t inputFieldWidth = inputSkeletonFieldWidth[i];
 			int32_t fieldWidth = skeletonFieldWidth[i];
@@ -667,7 +667,7 @@ static bool U_CALLCONV dtitvinfHashTableValueComparator(UHashTok val1, UHashTok 
 	const UnicodeString * pattern1 = (UnicodeString *)val1.pointer;
 	const UnicodeString * pattern2 = (UnicodeString *)val2.pointer;
 	bool ret = TRUE;
-	for(int8_t i = 0; i < DateIntervalInfo::kMaxIntervalPatternIndex && ret == TRUE; ++i) {
+	for(int8 i = 0; i < DateIntervalInfo::kMaxIntervalPatternIndex && ret == TRUE; ++i) {
 		ret = (pattern1[i] == pattern2[i]);
 	}
 	return ret;
@@ -709,7 +709,7 @@ void DateIntervalInfo::copyHash(const Hashtable* source, Hashtable* target, UErr
 					status = U_MEMORY_ALLOCATION_ERROR;
 					return;
 				}
-				for(int8_t i = 0; i < kIPI_MAX_INDEX; ++i) {
+				for(int8 i = 0; i < kIPI_MAX_INDEX; ++i) {
 					copy[i] = value[i];
 				}
 				target->put(UnicodeString(*key), copy, status);

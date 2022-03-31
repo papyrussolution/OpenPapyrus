@@ -461,14 +461,11 @@ static void utrie_fold(UNewTrie * trie, UNewTrieGetFoldedValue * getFoldedValue,
 					*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 					return;
 				}
-
 				/* if we did not find an identical index block... */
 				if(block==indexLength) {
 					/* move the actual index (stage 1) entries from the supplementary position to
 					   the new one */
-					uprv_memmove(idx+indexLength,
-					    idx+(c>>UTRIE_SHIFT),
-					    4*UTRIE_SURROGATE_BLOCK_COUNT);
+					uprv_memmove(idx+indexLength, idx+(c>>UTRIE_SHIFT), 4*UTRIE_SURROGATE_BLOCK_COUNT);
 					indexLength += UTRIE_SURROGATE_BLOCK_COUNT;
 				}
 			}
@@ -483,7 +480,6 @@ static void utrie_fold(UNewTrie * trie, UNewTrieGetFoldedValue * getFoldedValue,
 		printf("supplementary data for %d lead surrogates\n", countLeadCUWithData);
 	}
 #endif
-
 	/*
 	 * index array overflow?
 	 * This is to guarantee that a folding offset is of the form
@@ -497,24 +493,16 @@ static void utrie_fold(UNewTrie * trie, UNewTrieGetFoldedValue * getFoldedValue,
 		*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 		return;
 	}
-
 	/*
 	 * make space for the lead surrogate index block and
 	 * insert it between the BMP indexes and the folded ones
 	 */
-	uprv_memmove(idx+UTRIE_BMP_INDEX_LENGTH+UTRIE_SURROGATE_BLOCK_COUNT,
-	    idx+UTRIE_BMP_INDEX_LENGTH,
-	    4*(indexLength-UTRIE_BMP_INDEX_LENGTH));
-	uprv_memcpy(idx+UTRIE_BMP_INDEX_LENGTH,
-	    leadIndexes,
-	    4*UTRIE_SURROGATE_BLOCK_COUNT);
+	uprv_memmove(idx+UTRIE_BMP_INDEX_LENGTH+UTRIE_SURROGATE_BLOCK_COUNT, idx+UTRIE_BMP_INDEX_LENGTH, 4*(indexLength-UTRIE_BMP_INDEX_LENGTH));
+	uprv_memcpy(idx+UTRIE_BMP_INDEX_LENGTH, leadIndexes, 4*UTRIE_SURROGATE_BLOCK_COUNT);
 	indexLength += UTRIE_SURROGATE_BLOCK_COUNT;
-
 #ifdef UTRIE_DEBUG
-	printf("trie index count: BMP %ld  all Unicode %ld  folded %ld\n",
-	    UTRIE_BMP_INDEX_LENGTH, (long)UTRIE_MAX_INDEX_LENGTH, indexLength);
+	printf("trie index count: BMP %ld  all Unicode %ld  folded %ld\n", UTRIE_BMP_INDEX_LENGTH, (long)UTRIE_MAX_INDEX_LENGTH, indexLength);
 #endif
-
 	trie->indexLength = indexLength;
 }
 
@@ -727,7 +715,7 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
     UErrorCode * pErrorCode) {
 	UTrieHeader * header;
 	uint32_t * p;
-	uint16_t * dest16;
+	uint16 * dest16;
 	int32_t i, length;
 	uint8 * data = NULL;
 
@@ -805,23 +793,23 @@ U_CAPI int32_t U_EXPORT2 utrie_serialize(UNewTrie * trie, void * dt, int32_t cap
 	if(reduceTo16Bits) {
 		/* write 16-bit index values shifted right by UTRIE_INDEX_SHIFT, after adding indexLength */
 		p = (uint32_t*)trie->index;
-		dest16 = (uint16_t*)data;
+		dest16 = (uint16*)data;
 		for(i = trie->indexLength; i>0; --i) {
-			*dest16++ = (uint16_t)((*p++ + trie->indexLength)>>UTRIE_INDEX_SHIFT);
+			*dest16++ = (uint16)((*p++ + trie->indexLength)>>UTRIE_INDEX_SHIFT);
 		}
 
 		/* write 16-bit data values */
 		p = trie->data;
 		for(i = trie->dataLength; i>0; --i) {
-			*dest16++ = (uint16_t)*p++;
+			*dest16++ = (uint16)*p++;
 		}
 	}
 	else {
 		/* write 16-bit index values shifted right by UTRIE_INDEX_SHIFT */
 		p = (uint32_t*)trie->index;
-		dest16 = (uint16_t*)data;
+		dest16 = (uint16*)data;
 		for(i = trie->indexLength; i>0; --i) {
-			*dest16++ = (uint16_t)(*p++ >> UTRIE_INDEX_SHIFT);
+			*dest16++ = (uint16)(*p++ >> UTRIE_INDEX_SHIFT);
 		}
 
 		/* write 32-bit data values */
@@ -839,7 +827,7 @@ U_CAPI int32_t U_EXPORT2 utrie_defaultGetFoldingOffset(uint32_t data) {
 U_CAPI int32_t U_EXPORT2 utrie_unserialize(UTrie * trie, const void * data, int32_t length, UErrorCode * pErrorCode) 
 {
 	const UTrieHeader * header;
-	const uint16_t * p16;
+	const uint16 * p16;
 	uint32_t options;
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return -1;
@@ -871,7 +859,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserialize(UTrie * trie, const void * data, int3
 		*pErrorCode = U_INVALID_FORMAT_ERROR;
 		return -1;
 	}
-	p16 = (const uint16_t*)(header+1);
+	p16 = (const uint16*)(header+1);
 	trie->index = p16;
 	p16 += trie->indexLength;
 	length -= 2*trie->indexLength;
@@ -903,9 +891,9 @@ U_CAPI int32_t U_EXPORT2 utrie_unserialize(UTrie * trie, const void * data, int3
 U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32_t length, uint32_t initialValue, uint32_t leadUnitValue,
     bool make16BitTrie, UErrorCode * pErrorCode) 
 {
-	uint16_t * p16;
+	uint16 * p16;
 	int32_t actualLength, latin1Length, i, limit;
-	uint16_t block;
+	uint16 block;
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return -1;
 	}
@@ -938,12 +926,12 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 	trie->initialValue = initialValue;
 
 	/* fill the index and data arrays */
-	p16 = (uint16_t*)data;
+	p16 = (uint16*)data;
 	trie->index = p16;
 
 	if(make16BitTrie) {
 		/* indexes to block 0 */
-		block = (uint16_t)(trie->indexLength>>UTRIE_INDEX_SHIFT);
+		block = (uint16)(trie->indexLength>>UTRIE_INDEX_SHIFT);
 		limit = trie->indexLength;
 		for(i = 0; i<limit; ++i) {
 			p16[i] = block;
@@ -951,7 +939,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 
 		if(leadUnitValue!=initialValue) {
 			/* indexes for lead surrogate code units to the block after Latin-1 */
-			block += (uint16_t)(latin1Length>>UTRIE_INDEX_SHIFT);
+			block += (uint16)(latin1Length>>UTRIE_INDEX_SHIFT);
 			i = 0xd800>>UTRIE_SHIFT;
 			limit = 0xdc00>>UTRIE_SHIFT;
 			for(; i<limit; ++i) {
@@ -964,14 +952,14 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 		/* Latin-1 data */
 		p16 += trie->indexLength;
 		for(i = 0; i<latin1Length; ++i) {
-			p16[i] = (uint16_t)initialValue;
+			p16[i] = (uint16)initialValue;
 		}
 
 		/* data for lead surrogate code units */
 		if(leadUnitValue!=initialValue) {
 			limit = latin1Length+UTRIE_DATA_BLOCK_LENGTH;
 			for(/* i=latin1Length */; i<limit; ++i) {
-				p16[i] = (uint16_t)leadUnitValue;
+				p16[i] = (uint16)leadUnitValue;
 			}
 		}
 	}
@@ -981,7 +969,7 @@ U_CAPI int32_t U_EXPORT2 utrie_unserializeDummy(UTrie * trie, void * data, int32
 		memzero(p16, trie->indexLength*2);
 		if(leadUnitValue!=initialValue) {
 			/* indexes for lead surrogate code units to the block after Latin-1 */
-			block = (uint16_t)(latin1Length>>UTRIE_INDEX_SHIFT);
+			block = (uint16)(latin1Length>>UTRIE_INDEX_SHIFT);
 			i = 0xd800>>UTRIE_SHIFT;
 			limit = 0xdc00>>UTRIE_SHIFT;
 			for(; i<limit; ++i) {
@@ -1024,7 +1012,7 @@ static uint32_t U_CALLCONV enumSameValue(const void * /*context*/, uint32_t valu
 U_CAPI void U_EXPORT2 utrie_enum(const UTrie * trie,
     UTrieEnumValue * enumValue, UTrieEnumRange * enumRange, const void * context) {
 	const uint32_t * data32;
-	const uint16_t * idx;
+	const uint16 * idx;
 
 	uint32_t value, prevValue, initialValue;
 	UChar32 c, prev;

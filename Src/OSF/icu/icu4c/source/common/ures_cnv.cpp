@@ -18,7 +18,7 @@ U_CAPI UResourceBundle * U_EXPORT2 ures_openU(const UChar * myPath, const char *
 {
 	char pathBuffer[1024];
 	char * path = pathBuffer;
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(myPath==NULL) {

@@ -871,7 +871,7 @@ int PPObjGoods::GetPacket(PPID id, PPGoodsPacket * pPack, long options)
 					pPack->GS.GoodsID = 0;
 				}
 			}
-			if(oneof2(pPack->Rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP) && !(options & gpoSkipQuot)) { // @v8.3.7 && !(options & gpoSkipQuot)
+			if(oneof2(pPack->Rec.Kind, PPGDSK_GOODS, PPGDSK_GROUP) && !(options & gpoSkipQuot)) {
 				PPQuotArray quots;
 				if(GetQuotList(pPack->Rec.ID, 0, quots) > 0 && quots.getCount())
 					THROW_MEM(pPack->P_Quots = new PPQuotArray(quots));
@@ -3588,7 +3588,9 @@ int PPObjGoods::AddDefaultBarcode(PPGoodsPacket * pPack)
 
 int PPObjGoods::Edit(PPID * pID, GoodsPacketKind gpk, long group, PPID clsID, const char * pBarcode)
 {
-	int    r = cmCancel, is_locked = 0, is_new = 0;
+	int    r = cmCancel;
+	int    is_locked = 0;
+	int    is_new = 0;
 	TDialog * kind_dlg = 0;
 	PPGoodsPacket pack;
 	THROW(EditPrereq(pID, 0, &is_new));

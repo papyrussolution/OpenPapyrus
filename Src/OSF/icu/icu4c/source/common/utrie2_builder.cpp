@@ -302,9 +302,9 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_clone(const UTrie2 * other, UErrorCode * pError
 			uprv_memcpy(trie->memory, other->memory, other->length);
 
 			/* make the clone's pointers point to its own memory */
-			trie->index = (uint16_t*)trie->memory+(other->index-(uint16_t*)other->memory);
+			trie->index = (uint16*)trie->memory+(other->index-(uint16*)other->memory);
 			if(other->data16!=NULL) {
-				trie->data16 = (uint16_t*)trie->memory+(other->data16-(uint16_t*)other->memory);
+				trie->data16 = (uint16*)trie->memory+(other->data16-(uint16*)other->memory);
 			}
 			if(other->data32!=NULL) {
 				trie->data32 = (uint32_t*)trie->memory+(other->data32-(uint32_t*)other->memory);
@@ -1271,7 +1271,7 @@ static void compactTrie(UTrie2 * trie, UErrorCode * pErrorCode) {
 
 /**
  * Maximum length of the runtime index array.
- * Limited by its own 16-bit index values, and by uint16_t UTrie2Header.indexLength.
+ * Limited by its own 16-bit index values, and by uint16 UTrie2Header.indexLength.
  * (The actual maximum length is lower,
  * (0x110000>>UTRIE2_SHIFT_2)+UTRIE2_UTF8_2B_INDEX_2_LENGTH+UTRIE2_MAX_INDEX_1_LENGTH.)
  */
@@ -1280,7 +1280,7 @@ static void compactTrie(UTrie2 * trie, UErrorCode * pErrorCode) {
 /**
  * Maximum length of the runtime data array.
  * Limited by 16-bit index values that are left-shifted by UTRIE2_INDEX_SHIFT,
- * and by uint16_t UTrie2Header.shiftedDataLength.
+ * and by uint16 UTrie2Header.shiftedDataLength.
  */
 #define UTRIE2_MAX_DATA_LENGTH (0xffff<<UTRIE2_INDEX_SHIFT)
 
@@ -1289,7 +1289,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 	UNewTrie2 * newTrie;
 	UTrie2Header * header;
 	uint32_t * p;
-	uint16_t * dest16;
+	uint16 * dest16;
 	int32_t i, length;
 	int32_t allIndexesLength;
 	int32_t dataMove; /* >0 if the data is moved to the end of the index array */
@@ -1375,39 +1375,39 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		trie->index2NullOffset = 0xffff;
 	}
 	else {
-		trie->index2NullOffset = static_cast<uint16_t>(UTRIE2_INDEX_2_OFFSET+newTrie->index2NullOffset);
+		trie->index2NullOffset = static_cast<uint16>(UTRIE2_INDEX_2_OFFSET+newTrie->index2NullOffset);
 	}
-	trie->dataNullOffset = (uint16_t)(dataMove+newTrie->dataNullOffset);
+	trie->dataNullOffset = (uint16)(dataMove+newTrie->dataNullOffset);
 	trie->highValueIndex = dataMove+trie->dataLength-UTRIE2_DATA_GRANULARITY;
 
 	/* set the header fields */
 	header = (UTrie2Header*)trie->memory;
 
 	header->signature = UTRIE2_SIG; /* "Tri2" */
-	header->options = (uint16_t)valueBits;
+	header->options = (uint16)valueBits;
 
-	header->indexLength = (uint16_t)trie->indexLength;
-	header->shiftedDataLength = (uint16_t)(trie->dataLength>>UTRIE2_INDEX_SHIFT);
+	header->indexLength = (uint16)trie->indexLength;
+	header->shiftedDataLength = (uint16)(trie->dataLength>>UTRIE2_INDEX_SHIFT);
 	header->index2NullOffset = trie->index2NullOffset;
 	header->dataNullOffset = trie->dataNullOffset;
-	header->shiftedHighStart = (uint16_t)(highStart>>UTRIE2_SHIFT_1);
+	header->shiftedHighStart = (uint16)(highStart>>UTRIE2_SHIFT_1);
 
 	/* fill the index and data arrays */
-	dest16 = (uint16_t*)(header+1);
+	dest16 = (uint16*)(header+1);
 	trie->index = dest16;
 
 	/* write the index-2 array values shifted right by UTRIE2_INDEX_SHIFT, after adding dataMove */
 	p = (uint32_t*)newTrie->index2;
 	for(i = UTRIE2_INDEX_2_BMP_LENGTH; i>0; --i) {
-		*dest16++ = (uint16_t)((dataMove + *p++)>>UTRIE2_INDEX_SHIFT);
+		*dest16++ = (uint16)((dataMove + *p++)>>UTRIE2_INDEX_SHIFT);
 	}
 
 	/* write UTF-8 2-byte index-2 values, not right-shifted */
 	for(i = 0; i<(0xc2-0xc0); ++i) {                            /* C0..C1 */
-		*dest16++ = (uint16_t)(dataMove+UTRIE2_BAD_UTF8_DATA_OFFSET);
+		*dest16++ = (uint16)(dataMove+UTRIE2_BAD_UTF8_DATA_OFFSET);
 	}
 	for(; i<(0xe0-0xc0); ++i) {                                 /* C2..DF */
-		*dest16++ = (uint16_t)(dataMove+newTrie->index2[i<<(6-UTRIE2_SHIFT_2)]);
+		*dest16++ = (uint16)(dataMove+newTrie->index2[i<<(6-UTRIE2_SHIFT_2)]);
 	}
 
 	if(highStart>0x10000) {
@@ -1417,7 +1417,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		/* write 16-bit index-1 values for supplementary code points */
 		p = (uint32_t*)newTrie->index1+UTRIE2_OMITTED_BMP_INDEX_1_LENGTH;
 		for(i = index1Length; i>0; --i) {
-			*dest16++ = (uint16_t)(UTRIE2_INDEX_2_OFFSET + *p++);
+			*dest16++ = (uint16)(UTRIE2_INDEX_2_OFFSET + *p++);
 		}
 
 		/*
@@ -1426,7 +1426,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		 */
 		p = (uint32_t*)newTrie->index2+index2Offset;
 		for(i = newTrie->index2Length-index2Offset; i>0; --i) {
-			*dest16++ = (uint16_t)((dataMove + *p++)>>UTRIE2_INDEX_SHIFT);
+			*dest16++ = (uint16)((dataMove + *p++)>>UTRIE2_INDEX_SHIFT);
 		}
 	}
 
@@ -1438,7 +1438,7 @@ U_CAPI void U_EXPORT2 utrie2_freeze(UTrie2 * trie, UTrie2ValueBits valueBits, UE
 		    trie->data32 = NULL;
 		    p = newTrie->data;
 		    for(i = newTrie->dataLength; i>0; --i) {
-			    *dest16++ = (uint16_t)*p++;
+			    *dest16++ = (uint16)*p++;
 		    }
 		    break;
 		case UTRIE2_32_VALUE_BITS:

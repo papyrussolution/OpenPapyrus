@@ -52,11 +52,11 @@
  */
 #define U_MAX_VERSION_STRING_LENGTH 20
 
-/** The binary form of a version on ICU APIs is an array of 4 uint8_t.
+/** The binary form of a version on ICU APIs is an array of 4 uint8.
  *  To compare two versions, use memcmp(v1,v2,sizeof(UVersionInfo)).
  *  @stable ICU 2.4
  */
-typedef uint8_t UVersionInfo[U_MAX_VERSION_LENGTH];
+typedef uint8 UVersionInfo[U_MAX_VERSION_LENGTH];
 
 /*===========================================================================*/
 /* C++ namespace if supported. Versioned unless versioning is disabled.      */

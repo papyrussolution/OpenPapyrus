@@ -290,12 +290,12 @@ private:
 	 */
 	static constexpr int32_t INITIAL_CAPACITY = 25;
 	// fFlags constant
-	static constexpr uint8_t kIsBogus = 1; // This set is bogus (i.e. not valid)
+	static constexpr uint8 kIsBogus = 1; // This set is bogus (i.e. not valid)
 
 	UChar32* list = stackList; // MUST be terminated with HIGH
 	int32_t capacity = INITIAL_CAPACITY; // capacity of list
 	int32_t len = 1; // length of list used; 1 <= len <= capacity
-	uint8_t fFlags = 0;     // Bit flag (see constants above)
+	uint8 fFlags = 0;     // Bit flag (see constants above)
 
 	BMPSet * bmpSet = nullptr; // The set is frozen iff either bmpSet or stringSpan is not NULL.
 	UChar32* buffer = nullptr; // internal buffer, may be NULL
@@ -409,7 +409,7 @@ public:
 	 *
 	 * @internal
 	 */
-	UnicodeSet(const uint16_t buffer[], int32_t bufferLen,
+	UnicodeSet(const uint16 buffer[], int32_t bufferLen,
 	    ESerialization serialization, UErrorCode & status);
 #endif  /* U_HIDE_INTERNAL_API */
 
@@ -1467,7 +1467,7 @@ public:
 	 * than U_BUFFER_OVERFLOW_ERROR.
 	 * @stable ICU 2.4
 	 */
-	int32_t serialize(uint16_t * dest, int32_t destCapacity, UErrorCode & ec) const;
+	int32_t serialize(uint16 * dest, int32_t destCapacity, UErrorCode & ec) const;
 
 	/**
 	 * Reallocate this objects internal structures to take up the least
@@ -1519,7 +1519,7 @@ private:
 	 * is the given value.  This is used by <tt>RuleBasedTransliterator</tt> for
 	 * indexing.
 	 */
-	virtual bool matchesIndexValue(uint8_t v) const override;
+	virtual bool matchesIndexValue(uint8 v) const override;
 
 private:
 	friend class RBBIRuleScanner;
@@ -1581,11 +1581,11 @@ private:
 	// Implementation: Fundamental operators
 	//----------------------------------------------------------------
 
-	void exclusiveOr(const UChar32* other, int32_t otherLen, int8_t polarity);
+	void exclusiveOr(const UChar32* other, int32_t otherLen, int8 polarity);
 
-	void add(const UChar32* other, int32_t otherLen, int8_t polarity);
+	void add(const UChar32* other, int32_t otherLen, int8 polarity);
 
-	void retain(const UChar32* other, int32_t otherLen, int8_t polarity);
+	void retain(const UChar32* other, int32_t otherLen, int8 polarity);
 
 	/**
 	 * Return true if the given position, in the given pattern, appears

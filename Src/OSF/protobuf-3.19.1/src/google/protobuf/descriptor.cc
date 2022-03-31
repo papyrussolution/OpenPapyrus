@@ -687,7 +687,7 @@ public:
 	}
 
 	TableArena(const TableArena&) = delete;
-	TableArena& operator=(const TableArena&) = delete;
+	TableArena& operator = (const TableArena&) = delete;
 
 	~TableArena() {
 		// Uncomment this to debug usage statistics of the arena blocks.

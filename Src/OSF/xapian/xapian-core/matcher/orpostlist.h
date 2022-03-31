@@ -28,7 +28,7 @@ class PostListTree;
 /// PostList class implementing Query::OP_OR
 class OrPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const OrPostList&) = delete;
+    void operator = (const OrPostList&) = delete;
 
     /// Don't allow copying.
     OrPostList(const OrPostList&) = delete;

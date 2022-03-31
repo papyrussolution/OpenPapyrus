@@ -104,7 +104,7 @@ public:
 	}
 
 	PthreadMutexHolder(const PthreadMutexHolder &rhs) = delete;
-	PthreadMutexHolder &operator=(const PthreadMutexHolder &rhs) = delete;
+	PthreadMutexHolder &operator = (const PthreadMutexHolder &rhs) = delete;
 
 	~PthreadMutexHolder() {
 		const int err = pthread_mutex_unlock(mu_);
@@ -304,7 +304,7 @@ public:
 		AcquireSRWLockExclusive(mu_);
 	}
 	LockHolder(const LockHolder&) = delete;
-	LockHolder& operator=(const LockHolder&) = delete;
+	LockHolder& operator = (const LockHolder&) = delete;
 	~LockHolder() 
 	{
 		ReleaseSRWLockExclusive(mu_);

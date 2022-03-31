@@ -5,7 +5,7 @@
 //
 // A string-like object that points to a sized piece of memory.
 //
-// Functions or methods may use const StringPiece& parameters to accept either
+// Functions or methods may use const StringPiece & parameters to accept either
 // a "const char*" or a "string" value that will be implicitly converted to
 // a StringPiece.  The implicit conversion means that it is often appropriate
 // to include this .h file in other files rather than forward-declaring
@@ -89,13 +89,14 @@ namespace i18n {
 			{
 				length_ -= n;
 			}
-			int compare(const StringPiece& x) const 
+			int compare(const StringPiece & x) const 
 			{
-				int r = wordmemcmp(
-					ptr_, x.ptr_, (length_ < x.length_ ? length_ : x.length_));
+				int r = wordmemcmp(ptr_, x.ptr_, (length_ < x.length_ ? length_ : x.length_));
 				if(r == 0) {
-					if(length_ < x.length_) r = -1;
-					else if(length_ > x.length_) r = +1;
+					if(length_ < x.length_) 
+						r = -1;
+					else if(length_ > x.length_) 
+						r = +1;
 				}
 				return r;
 			}
@@ -107,12 +108,12 @@ namespace i18n {
 			void CopyToString(std::string* target) const;
 			void AppendToString(std::string* target) const;
 			// Does "this" start with "x"
-			bool starts_with(const StringPiece& x) const 
+			bool starts_with(const StringPiece & x) const 
 			{
 				return ((length_ >= x.length_) && (wordmemcmp(ptr_, x.ptr_, x.length_) == 0));
 			}
 			// Does "this" end with "x"
-			bool ends_with(const StringPiece& x) const 
+			bool ends_with(const StringPiece & x) const 
 			{
 				return ((length_ >= x.length_) && (wordmemcmp(ptr_ + (length_-x.length_), x.ptr_, x.length_) == 0));
 			}
@@ -123,17 +124,17 @@ namespace i18n {
 			size_type max_size() const { return length_; }
 			size_type capacity() const { return length_; }
 			size_type copy(char* buf, size_type n, size_type pos = 0) const;
-			size_type find(const StringPiece& s, size_type pos = 0) const;
+			size_type find(const StringPiece & s, size_type pos = 0) const;
 			size_type find(char c, size_type pos = 0) const;
-			size_type rfind(const StringPiece& s, size_type pos = npos) const;
+			size_type rfind(const StringPiece & s, size_type pos = npos) const;
 			size_type rfind(char c, size_type pos = npos) const;
-			size_type find_first_of(const StringPiece& s, size_type pos = 0) const;
+			size_type find_first_of(const StringPiece & s, size_type pos = 0) const;
 			size_type find_first_of(char c, size_type pos = 0) const { return find(c, pos); }
-			size_type find_first_not_of(const StringPiece& s, size_type pos = 0) const;
+			size_type find_first_not_of(const StringPiece & s, size_type pos = 0) const;
 			size_type find_first_not_of(char c, size_type pos = 0) const;
-			size_type find_last_of(const StringPiece& s, size_type pos = npos) const;
+			size_type find_last_of(const StringPiece & s, size_type pos = npos) const;
 			size_type find_last_of(char c, size_type pos = npos) const { return rfind(c, pos); }
-			size_type find_last_not_of(const StringPiece& s, size_type pos = npos) const;
+			size_type find_last_not_of(const StringPiece & s, size_type pos = npos) const;
 			size_type find_last_not_of(char c, size_type pos = npos) const;
 			StringPiece substr(size_type pos, size_type n = npos) const;
 			static int wordmemcmp(const char* p, const char* p2, size_type N) { return memcmp(p, p2, N); }
@@ -141,20 +142,16 @@ namespace i18n {
 			const char*   ptr_;
 			size_type length_;
 		};
-
-		bool operator==(const StringPiece& x, const StringPiece& y);
-		inline bool operator!=(const StringPiece& x, const StringPiece& y) { return !(x == y); }
-
-		inline bool operator<(const StringPiece& x, const StringPiece& y) 
+		bool operator == (const StringPiece & x, const StringPiece & y);
+		inline bool operator != (const StringPiece & x, const StringPiece & y) { return !(x == y); }
+		inline bool operator < (const StringPiece & x, const StringPiece & y) 
 		{
-			const int r = StringPiece::wordmemcmp(
-				x.data(), y.data(), (x.size() < y.size() ? x.size() : y.size()));
+			const int r = StringPiece::wordmemcmp(x.data(), y.data(), (x.size() < y.size() ? x.size() : y.size()));
 			return ((r < 0) || ((r == 0) && (x.size() < y.size())));
 		}
-
-		inline bool operator>(const StringPiece& x, const StringPiece& y) { return y < x; }
-		inline bool operator<=(const StringPiece& x, const StringPiece& y) { return !(x > y); }
-		inline bool operator>=(const StringPiece& x, const StringPiece& y) { return !(x < y); }
+		inline bool operator > (const StringPiece & x, const StringPiece & y) { return y < x; }
+		inline bool operator <= (const StringPiece & x, const StringPiece & y) { return !(x > y); }
+		inline bool operator >= (const StringPiece & x, const StringPiece & y) { return !(x < y); }
 	}
 }
 

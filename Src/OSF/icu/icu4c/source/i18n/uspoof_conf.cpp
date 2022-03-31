@@ -421,15 +421,15 @@ void ConfusabledataBuilder::outputData(UErrorCode & status) {
 	// The Value Table, parallels the key table
 	int32_t numValues = fValueVec->size();
 	U_ASSERT(numKeys == numValues);
-	uint16_t * values =
-	    static_cast<uint16_t *>(fSpoofImpl->fSpoofData->reserveSpace(numKeys*sizeof(uint16_t), status));
+	uint16 * values =
+	    static_cast<uint16 *>(fSpoofImpl->fSpoofData->reserveSpace(numKeys*sizeof(uint16), status));
 	if(U_FAILURE(status)) {
 		return;
 	}
 	for(i = 0; i<numValues; i++) {
 		uint32_t value = static_cast<uint32_t>(fValueVec->elementAti(i));
 		U_ASSERT(value < 0xffff);
-		values[i] = static_cast<uint16_t>(value);
+		values[i] = static_cast<uint16>(value);
 	}
 	rawData = fSpoofImpl->fSpoofData->fRawData;
 	rawData->fCFUStringIndex = (int32_t)((char *)values - (char *)rawData);

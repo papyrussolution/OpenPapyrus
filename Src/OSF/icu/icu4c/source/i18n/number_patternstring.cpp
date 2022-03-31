@@ -434,7 +434,7 @@ void ParsedPatternInfo::consumeIntegerFormat(UErrorCode & status) {
 			    result.integerNumerals += 1;
 			    result.integerTotal += 1;
 			    if(!result.rounding.isZeroish() || state.peek() != u'0') {
-				    result.rounding.appendDigit(static_cast<int8_t>(state.peek() - u'0'), 0, true);
+				    result.rounding.appendDigit(static_cast<int8>(state.peek() - u'0'), 0, true);
 			    }
 			    break;
 
@@ -446,9 +446,9 @@ void ParsedPatternInfo::consumeIntegerFormat(UErrorCode & status) {
 
 after_outer:
 	// Disallow patterns with a trailing ',' or with two ',' next to each other
-	auto grouping1 = static_cast<int16_t> (result.groupingSizes & 0xffff);
-	auto grouping2 = static_cast<int16_t> ((result.groupingSizes >> 16) & 0xffff);
-	auto grouping3 = static_cast<int16_t> ((result.groupingSizes >> 32) & 0xffff);
+	auto grouping1 = static_cast<int16> (result.groupingSizes & 0xffff);
+	auto grouping2 = static_cast<int16> ((result.groupingSizes >> 16) & 0xffff);
+	auto grouping3 = static_cast<int16> ((result.groupingSizes >> 32) & 0xffff);
 	if(grouping1 == 0 && grouping2 != -1) {
 		state.toParseException(u"Trailing grouping separator is invalid");
 		status = U_UNEXPECTED_TOKEN;
@@ -498,7 +498,7 @@ void ParsedPatternInfo::consumeFractionFormat(UErrorCode & status) {
 			    }
 			    else {
 				    result.rounding
-				    .appendDigit(static_cast<int8_t>(state.peek() - u'0'), zeroCounter, false);
+				    .appendDigit(static_cast<int8>(state.peek() - u'0'), zeroCounter, false);
 				    zeroCounter = 0;
 			    }
 			    break;
@@ -578,9 +578,9 @@ void PatternParser::patternInfoToProperties(DecimalFormatProperties& properties,
 	}
 
 	// Grouping settings
-	auto grouping1 = static_cast<int16_t> (positive.groupingSizes & 0xffff);
-	auto grouping2 = static_cast<int16_t> ((positive.groupingSizes >> 16) & 0xffff);
-	auto grouping3 = static_cast<int16_t> ((positive.groupingSizes >> 32) & 0xffff);
+	auto grouping1 = static_cast<int16> (positive.groupingSizes & 0xffff);
+	auto grouping2 = static_cast<int16> ((positive.groupingSizes >> 16) & 0xffff);
+	auto grouping3 = static_cast<int16> ((positive.groupingSizes >> 32) & 0xffff);
 	if(grouping2 != -1) {
 		properties.groupingSize = grouping1;
 		properties.groupingUsed = true;

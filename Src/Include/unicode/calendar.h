@@ -999,7 +999,7 @@ public:
 	 * @param value  The given minimal days required in the first week of the year.
 	 * @stable ICU 2.0
 	 */
-	void setMinimalDaysInFirstWeek(uint8_t value);
+	void setMinimalDaysInFirstWeek(uint8 value);
 
 	/**
 	 * Gets what the minimal days required in the first week of the year are; e.g., if
@@ -1010,7 +1010,7 @@ public:
 	 * @return   The minimal days required in the first week of the year.
 	 * @stable ICU 2.0
 	 */
-	uint8_t getMinimalDaysInFirstWeek(void) const;
+	uint8 getMinimalDaysInFirstWeek(void) const;
 
 #ifndef U_FORCE_HIDE_DEPRECATED_API
 	/**
@@ -2192,7 +2192,7 @@ private:
 	 * a Calendar is constructed.
 	 */
 	UCalendarDaysOfWeek fFirstDayOfWeek;
-	uint8_t fMinimalDaysInFirstWeek;
+	uint8 fMinimalDaysInFirstWeek;
 	UCalendarDaysOfWeek fWeekendOnset;
 	int32_t fWeekendOnsetMillis;
 	UCalendarDaysOfWeek fWeekendCease;
@@ -2323,7 +2323,7 @@ protected:
 	 * @return   Day number from 1..7 (SUN..SAT).
 	 * @internal
 	 */
-	static uint8_t julianDayToDayOfWeek(double julian);
+	static uint8 julianDayToDayOfWeek(double julian);
 #endif  /* U_HIDE_INTERNAL_API */
 
 private:

@@ -1,3 +1,4 @@
+// mutex.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// mutex.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines a `Mutex` -- a mutually exclusive lock -- and the
 // most common type of synchronization primitive for facilitating locks on
@@ -489,7 +480,7 @@ class ABSL_LOCKABLE Mutex {
   Mutex(const volatile Mutex * /*ignored*/) {}  // NOLINT(runtime/explicit)
 
   Mutex(const Mutex&) = delete;
-  Mutex& operator=(const Mutex&) = delete;
+  Mutex& operator = (const Mutex&) = delete;
 };
 
 // -----------------------------------------------------------------------------
@@ -536,8 +527,8 @@ class ABSL_SCOPED_LOCKABLE MutexLock {
 
   MutexLock(const MutexLock &) = delete;  // NOLINT(runtime/mutex)
   MutexLock(MutexLock&&) = delete;  // NOLINT(runtime/mutex)
-  MutexLock& operator=(const MutexLock&) = delete;
-  MutexLock& operator=(MutexLock&&) = delete;
+  MutexLock& operator = (const MutexLock&) = delete;
+  MutexLock& operator = (MutexLock&&) = delete;
 
   ~MutexLock() ABSL_UNLOCK_FUNCTION() { this->mu_->Unlock(); }
 
@@ -563,8 +554,8 @@ class ABSL_SCOPED_LOCKABLE ReaderMutexLock {
 
   ReaderMutexLock(const ReaderMutexLock&) = delete;
   ReaderMutexLock(ReaderMutexLock&&) = delete;
-  ReaderMutexLock& operator=(const ReaderMutexLock&) = delete;
-  ReaderMutexLock& operator=(ReaderMutexLock&&) = delete;
+  ReaderMutexLock& operator = (const ReaderMutexLock&) = delete;
+  ReaderMutexLock& operator = (ReaderMutexLock&&) = delete;
 
   ~ReaderMutexLock() ABSL_UNLOCK_FUNCTION() { this->mu_->ReaderUnlock(); }
 
@@ -591,8 +582,8 @@ class ABSL_SCOPED_LOCKABLE WriterMutexLock {
 
   WriterMutexLock(const WriterMutexLock&) = delete;
   WriterMutexLock(WriterMutexLock&&) = delete;
-  WriterMutexLock& operator=(const WriterMutexLock&) = delete;
-  WriterMutexLock& operator=(WriterMutexLock&&) = delete;
+  WriterMutexLock& operator = (const WriterMutexLock&) = delete;
+  WriterMutexLock& operator = (WriterMutexLock&&) = delete;
 
   ~WriterMutexLock() ABSL_UNLOCK_FUNCTION() { this->mu_->WriterUnlock(); }
 
@@ -858,7 +849,7 @@ class CondVar {
   void Wakeup(base_internal::PerThreadSynch *w);
   std::atomic<intptr_t> cv_;  // Condition variable state.
   CondVar(const CondVar&) = delete;
-  CondVar& operator=(const CondVar&) = delete;
+  CondVar& operator = (const CondVar&) = delete;
 };
 
 
@@ -895,8 +886,8 @@ class ABSL_SCOPED_LOCKABLE MutexLockMaybe {
   Mutex *const mu_;
   MutexLockMaybe(const MutexLockMaybe&) = delete;
   MutexLockMaybe(MutexLockMaybe&&) = delete;
-  MutexLockMaybe& operator=(const MutexLockMaybe&) = delete;
-  MutexLockMaybe& operator=(MutexLockMaybe&&) = delete;
+  MutexLockMaybe& operator = (const MutexLockMaybe&) = delete;
+  MutexLockMaybe& operator = (MutexLockMaybe&&) = delete;
 };
 
 // ReleasableMutexLock
@@ -926,8 +917,8 @@ class ABSL_SCOPED_LOCKABLE ReleasableMutexLock {
   Mutex *mu_;
   ReleasableMutexLock(const ReleasableMutexLock&) = delete;
   ReleasableMutexLock(ReleasableMutexLock&&) = delete;
-  ReleasableMutexLock& operator=(const ReleasableMutexLock&) = delete;
-  ReleasableMutexLock& operator=(ReleasableMutexLock&&) = delete;
+  ReleasableMutexLock& operator = (const ReleasableMutexLock&) = delete;
+  ReleasableMutexLock& operator = (ReleasableMutexLock&&) = delete;
 };
 
 inline Mutex::Mutex() : mu_(0) {

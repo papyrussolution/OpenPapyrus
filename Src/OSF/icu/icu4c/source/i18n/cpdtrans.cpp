@@ -1,10 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
- *   Date        Name        Description
- *   11/17/99    aliu        Creation.
- */
+// Copyright (C) 1999-2011, International Business Machines Corporation and others.  All Rights Reserved.
+// Date        Name        Description
+// 11/17/99    aliu        Creation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -16,7 +15,6 @@
 //static const UChar ID_SEP   = 0x002D; /*-*/
 static const UChar ID_DELIM = 0x003B; /*;*/
 static const UChar NEWLINE  = 10;
-
 static const UChar COLON_COLON[] = {0x3A, 0x3A, 0}; //"::"
 
 U_NAMESPACE_BEGIN
@@ -39,14 +37,11 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(CompoundTransliterator)
  * altered by this transliterator.  If <tt>filter</tt> is
  * <tt>null</tt> then no filtering is applied.
  */
-CompoundTransliterator::CompoundTransliterator(Transliterator* const transliterators[],
-    int32_t transliteratorCount,
-    UnicodeFilter* adoptedFilter) :
-	Transliterator(joinIDs(transliterators, transliteratorCount), adoptedFilter),
-	trans(0), count(0), numAnonymousRBTs(0) {
+CompoundTransliterator::CompoundTransliterator(Transliterator* const transliterators[], int32_t transliteratorCount, UnicodeFilter* adoptedFilter) :
+	Transliterator(joinIDs(transliterators, transliteratorCount), adoptedFilter), trans(0), count(0), numAnonymousRBTs(0) 
+{ 
 	setTransliterators(transliterators, transliteratorCount);
 }
-
 /**
  * Splits an ID of the form "ID;ID;..." into a compound using each
  * of the IDs.
@@ -54,53 +49,37 @@ CompoundTransliterator::CompoundTransliterator(Transliterator* const translitera
  * @param forward if false, does the list in reverse order, and
  * takes the inverse of each ID.
  */
-CompoundTransliterator::CompoundTransliterator(const UnicodeString & id,
-    UTransDirection direction,
-    UnicodeFilter* adoptedFilter,
-    UParseError& /*parseError*/,
-    UErrorCode & status) :
-	Transliterator(id, adoptedFilter),
-	trans(0), numAnonymousRBTs(0) {
+CompoundTransliterator::CompoundTransliterator(const UnicodeString & id, UTransDirection direction, UnicodeFilter* adoptedFilter,
+    UParseError& /*parseError*/, UErrorCode & status) : Transliterator(id, adoptedFilter), trans(0), numAnonymousRBTs(0) 
+{
 	// TODO add code for parseError...currently unused, but
 	// later may be used by parsing code...
 	init(id, direction, TRUE, status);
 }
 
-CompoundTransliterator::CompoundTransliterator(const UnicodeString & id,
-    UParseError& /*parseError*/,
-    UErrorCode & status) :
+CompoundTransliterator::CompoundTransliterator(const UnicodeString & id, UParseError& /*parseError*/, UErrorCode & status) :
 	Transliterator(id, 0), // set filter to 0 here!
-	trans(0), numAnonymousRBTs(0) {
+	trans(0), numAnonymousRBTs(0) 
+{
 	// TODO add code for parseError...currently unused, but
 	// later may be used by parsing code...
 	init(id, UTRANS_FORWARD, TRUE, status);
 }
-
 /**
  * Private constructor for use of TransliteratorAlias
  */
-CompoundTransliterator::CompoundTransliterator(const UnicodeString & newID,
-    UVector& list,
-    UnicodeFilter* adoptedFilter,
-    int32_t anonymousRBTs,
-    UParseError& /*parseError*/,
-    UErrorCode & status) :
-	Transliterator(newID, adoptedFilter),
-	trans(0), numAnonymousRBTs(anonymousRBTs)
+CompoundTransliterator::CompoundTransliterator(const UnicodeString & newID, UVector& list, UnicodeFilter* adoptedFilter,
+    int32_t anonymousRBTs, UParseError& /*parseError*/, UErrorCode & status) : Transliterator(newID, adoptedFilter), trans(0), numAnonymousRBTs(anonymousRBTs)
 {
 	init(list, UTRANS_FORWARD, FALSE, status);
 }
-
 /**
  * Private constructor for Transliterator from a vector of
  * transliterators.  The caller is responsible for fixing up the
  * ID.
  */
-CompoundTransliterator::CompoundTransliterator(UVector& list,
-    UParseError& /*parseError*/,
-    UErrorCode & status) :
-	Transliterator(UnicodeString(), NULL),
-	trans(0), numAnonymousRBTs(0)
+CompoundTransliterator::CompoundTransliterator(UVector& list, UParseError& /*parseError*/, UErrorCode & status) :
+	Transliterator(UnicodeString(), NULL), trans(0), numAnonymousRBTs(0)
 {
 	// TODO add code for parseError...currently unused, but
 	// later may be used by parsing code...
@@ -108,16 +87,11 @@ CompoundTransliterator::CompoundTransliterator(UVector& list,
 	// assume caller will fixup ID
 }
 
-CompoundTransliterator::CompoundTransliterator(UVector& list,
-    int32_t anonymousRBTs,
-    UParseError& /*parseError*/,
-    UErrorCode & status) :
-	Transliterator(UnicodeString(), NULL),
-	trans(0), numAnonymousRBTs(anonymousRBTs)
+CompoundTransliterator::CompoundTransliterator(UVector& list, int32_t anonymousRBTs, UParseError& /*parseError*/, UErrorCode & status) :
+	Transliterator(UnicodeString(), NULL), trans(0), numAnonymousRBTs(anonymousRBTs)
 {
 	init(list, UTRANS_FORWARD, FALSE, status);
 }
-
 /**
  * Finish constructing a transliterator: only to be called by
  * constructors.  Before calling init(), set trans and filter to NULL.
@@ -134,16 +108,12 @@ CompoundTransliterator::CompoundTransliterator(UVector& list,
  * do not require this because they apply a facade ID anyway.
  * @param status the error code indicating success or failure
  */
-void CompoundTransliterator::init(const UnicodeString & id,
-    UTransDirection direction,
-    bool fixReverseID,
-    UErrorCode & status) {
+void CompoundTransliterator::init(const UnicodeString & id, UTransDirection direction, bool fixReverseID, UErrorCode & status) 
+{
 	// assert(trans == 0);
-
 	if(U_FAILURE(status)) {
 		return;
 	}
-
 	UVector list(status);
 	UnicodeSet* compoundFilter = NULL;
 	UnicodeString regenID;
@@ -153,16 +123,12 @@ void CompoundTransliterator::init(const UnicodeString & id,
 		delete compoundFilter;
 		return;
 	}
-
 	TransliteratorIDParser::instantiateList(list, status);
-
 	init(list, direction, fixReverseID, status);
-
 	if(compoundFilter != NULL) {
 		adoptFilter(compoundFilter);
 	}
 }
-
 /**
  * Finish constructing a transliterator: only to be called by
  * constructors.  Before calling init(), set trans and filter to NULL.
@@ -176,12 +142,9 @@ void CompoundTransliterator::init(const UnicodeString & id,
  * do not require this because they apply a facade ID anyway.
  * @param status the error code indicating success or failure
  */
-void CompoundTransliterator::init(UVector& list,
-    UTransDirection direction,
-    bool fixReverseID,
-    UErrorCode & status) {
+void CompoundTransliterator::init(UVector& list, UTransDirection direction, bool fixReverseID, UErrorCode & status) 
+{
 	// assert(trans == 0);
-
 	// Allocate array
 	if(U_SUCCESS(status)) {
 		count = list.size();
@@ -192,12 +155,10 @@ void CompoundTransliterator::init(UVector& list,
 			return;
 		}
 	}
-
 	if(U_FAILURE(status) || trans == 0) {
 		// assert(trans == 0);
 		return;
 	}
-
 	// Move the transliterators from the vector into an array.
 	// Reverse the order if necessary.
 	int32_t i;
@@ -205,7 +166,6 @@ void CompoundTransliterator::init(UVector& list,
 		int32_t j = (direction == UTRANS_FORWARD) ? i : count - 1 - i;
 		trans[i] = (Transliterator*)list.elementAt(j);
 	}
-
 	// If the direction is UTRANS_REVERSE then we may need to fix the
 	// ID.
 	if(direction == UTRANS_REVERSE && fixReverseID) {
@@ -218,17 +178,15 @@ void CompoundTransliterator::init(UVector& list,
 		}
 		setID(newID);
 	}
-
 	computeMaximumContextLength();
 }
-
 /**
  * Return the IDs of the given list of transliterators, concatenated
  * with ID_DELIM delimiting them.  Equivalent to the perlish expression
  * join(ID_DELIM, map($_.getID(), transliterators).
  */
-UnicodeString CompoundTransliterator::joinIDs(Transliterator* const transliterators[],
-    int32_t transCount) {
+UnicodeString CompoundTransliterator::joinIDs(Transliterator* const transliterators[], int32_t transCount) 
+{
 	UnicodeString id;
 	for(int32_t i = 0; i<transCount; ++i) {
 		if(i > 0) {
@@ -238,23 +196,23 @@ UnicodeString CompoundTransliterator::joinIDs(Transliterator* const transliterat
 	}
 	return id; // Return temporary
 }
-
 /**
  * Copy constructor.
  */
-CompoundTransliterator::CompoundTransliterator(const CompoundTransliterator& t) :
-	Transliterator(t), trans(0), count(0), numAnonymousRBTs(-1) {
+CompoundTransliterator::CompoundTransliterator(const CompoundTransliterator& t) : Transliterator(t), trans(0), count(0), numAnonymousRBTs(-1) 
+{
 	*this = t;
 }
-
 /**
  * Destructor
  */
-CompoundTransliterator::~CompoundTransliterator() {
+CompoundTransliterator::~CompoundTransliterator() 
+{
 	freeTransliterators();
 }
 
-void CompoundTransliterator::freeTransliterators() {
+void CompoundTransliterator::freeTransliterators() 
+{
 	if(trans != 0) {
 		for(int32_t i = 0; i<count; ++i) {
 			delete trans[i];
@@ -264,7 +222,6 @@ void CompoundTransliterator::freeTransliterators() {
 	trans = 0;
 	count = 0;
 }
-
 /**
  * Assignment operator.
  */
@@ -298,11 +255,9 @@ CompoundTransliterator& CompoundTransliterator::operator = (const CompoundTransl
 			}
 		}
 	}
-
 	// if memory allocation failed delete backwards trans array
 	if(failed && i > 0) {
-		int32_t n;
-		for(n = i-1; n >= 0; n--) {
+		for(int32_t n = i-1; n >= 0; n--) {
 			uprv_free(trans[n]);
 			trans[n] = NULL;
 		}
@@ -310,59 +265,48 @@ CompoundTransliterator& CompoundTransliterator::operator = (const CompoundTransl
 	numAnonymousRBTs = t.numAnonymousRBTs;
 	return *this;
 }
-
 /**
  * Transliterator API.
  */
-CompoundTransliterator* CompoundTransliterator::clone() const {
-	return new CompoundTransliterator(*this);
-}
-
+CompoundTransliterator* CompoundTransliterator::clone() const { return new CompoundTransliterator(*this); }
 /**
  * Returns the number of transliterators in this chain.
  * @return number of transliterators in this chain.
  */
-int32_t CompoundTransliterator::getCount() const {
-	return count;
-}
-
+int32_t CompoundTransliterator::getCount() const { return count; }
 /**
  * Returns the transliterator at the given index in this chain.
  * @param index index into chain, from 0 to <code>getCount() - 1</code>
  * @return transliterator at the given index
  */
-const Transliterator& CompoundTransliterator::getTransliterator(int32_t index) const {
-	return *trans[index];
+const Transliterator& CompoundTransliterator::getTransliterator(int32_t index) const { return *trans[index]; }
+
+void CompoundTransliterator::setTransliterators(Transliterator* const transliterators[], int32_t transCount) 
+{
+	Transliterator ** a = (Transliterator**)uprv_malloc(transCount * sizeof(Transliterator *));
+	if(a) {
+		int32_t i = 0;
+		bool failed = FALSE;
+		for(i = 0; i<transCount; ++i) {
+			a[i] = transliterators[i]->clone();
+			if(a[i] == NULL) {
+				failed = TRUE;
+				break;
+			}
+		}
+		if(failed && i > 0) {
+			for(int32_t n = i-1; n >= 0; n--) {
+				uprv_free(a[n]);
+				a[n] = NULL;
+			}
+			return;
+		}
+		adoptTransliterators(a, transCount);
+	}
 }
 
-void CompoundTransliterator::setTransliterators(Transliterator* const transliterators[],
-    int32_t transCount) {
-	Transliterator** a = (Transliterator**)uprv_malloc(transCount * sizeof(Transliterator *));
-	if(a == NULL) {
-		return;
-	}
-	int32_t i = 0;
-	bool failed = FALSE;
-	for(i = 0; i<transCount; ++i) {
-		a[i] = transliterators[i]->clone();
-		if(a[i] == NULL) {
-			failed = TRUE;
-			break;
-		}
-	}
-	if(failed && i > 0) {
-		int32_t n;
-		for(n = i-1; n >= 0; n--) {
-			uprv_free(a[n]);
-			a[n] = NULL;
-		}
-		return;
-	}
-	adoptTransliterators(a, transCount);
-}
-
-void CompoundTransliterator::adoptTransliterators(Transliterator* adoptedTransliterators[],
-    int32_t transCount) {
+void CompoundTransliterator::adoptTransliterators(Transliterator* adoptedTransliterators[], int32_t transCount) 
+{
 	// First free trans[] and set count to zero.  Once this is done,
 	// orphan the filter.  Set up the new trans[].
 	freeTransliterators();
@@ -371,19 +315,17 @@ void CompoundTransliterator::adoptTransliterators(Transliterator* adoptedTransli
 	computeMaximumContextLength();
 	setID(joinIDs(trans, count));
 }
-
 /**
  * Append c to buf, unless buf is empty or buf already ends in c.
  */
-static void _smartAppend(UnicodeString & buf, UChar c) {
-	if(buf.length() != 0 &&
-	    buf.charAt(buf.length() - 1) != c) {
+static void _smartAppend(UnicodeString & buf, UChar c) 
+{
+	if(buf.length() != 0 && buf.charAt(buf.length() - 1) != c)
 		buf.append(c);
-	}
 }
 
-UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource,
-    bool escapeUnprintable) const {
+UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource, bool escapeUnprintable) const 
+{
 	// We do NOT call toRules() on our component transliterators, in
 	// general.  If we have several rule-based transliterators, this
 	// yields a concatenation of the rules -- not what we want.  We do
@@ -399,7 +341,6 @@ UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource,
 	}
 	for(int32_t i = 0; i<count; ++i) {
 		UnicodeString rule;
-
 		// Anonymous RuleBasedTransliterators (inline rules and
 		// ::BEGIN/::END blocks) are given IDs that begin with
 		// "%Pass": use toRules() to write all the rules to the output
@@ -408,7 +349,6 @@ UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource,
 			trans[i]->toRules(rule, escapeUnprintable);
 			if(numAnonymousRBTs > 1 && i > 0 && trans[i - 1]->getID().startsWith(PASS_STRING, 5))
 				rule = UNICODE_STRING_SIMPLE("::Null;") + rule;
-
 			// we also use toRules() on CompoundTransliterators (which we
 			// check for by looking for a semicolon in the ID)-- this gets
 			// the list of their child transliterators output in the right
@@ -416,7 +356,6 @@ UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource,
 		}
 		else if(trans[i]->getID().indexOf(ID_DELIM) >= 0) {
 			trans[i]->toRules(rule, escapeUnprintable);
-
 			// for everything else, use Transliterator::toRules()
 		}
 		else {
@@ -428,11 +367,11 @@ UnicodeString & CompoundTransliterator::toRules(UnicodeString & rulesSource,
 	}
 	return rulesSource;
 }
-
 /**
  * Implement Transliterator framework
  */
-void CompoundTransliterator::handleGetSourceSet(UnicodeSet & result) const {
+void CompoundTransliterator::handleGetSourceSet(UnicodeSet & result) const 
+{
 	UnicodeSet set;
 	result.clear();
 	for(int32_t i = 0; i<count; ++i) {
@@ -450,11 +389,11 @@ void CompoundTransliterator::handleGetSourceSet(UnicodeSet & result) const {
 		}
 	}
 }
-
 /**
  * Override Transliterator framework
  */
-UnicodeSet & CompoundTransliterator::getTargetSet(UnicodeSet & result) const {
+UnicodeSet & CompoundTransliterator::getTargetSet(UnicodeSet & result) const 
+{
 	UnicodeSet set;
 	result.clear();
 	for(int32_t i = 0; i<count; ++i) {
@@ -463,12 +402,11 @@ UnicodeSet & CompoundTransliterator::getTargetSet(UnicodeSet & result) const {
 	}
 	return result;
 }
-
 /**
  * Implements {@link Transliterator#handleTransliterate}.
  */
-void CompoundTransliterator::handleTransliterate(Replaceable& text, UTransPosition& index,
-    bool incremental) const {
+void CompoundTransliterator::handleTransliterate(Replaceable& text, UTransPosition& index, bool incremental) const 
+{
 	/* Call each transliterator with the same contextStart and
 	 * start, but with the limit as modified
 	 * by preceding transliterators.  The start index must be
@@ -492,7 +430,6 @@ void CompoundTransliterator::handleTransliterate(Replaceable& text, UTransPositi
 	 * - start' is the value of start after calling handleKT
 	 * - limit' is the value of limit after calling handleKT
 	 */
-
 	/**
 	 * Example: 3 transliterators.  This example illustrates the
 	 * mechanics we need to implement.  C, S, and L are the contextStart,
@@ -523,37 +460,27 @@ void CompoundTransliterator::handleTransliterate(Replaceable& text, UTransPositi
 	 *    abc/u0041/u0041/u
 	 *    C S L
 	 */
-
 	if(count < 1) {
 		index.start = index.limit;
 		return; // Short circuit for empty compound transliterators
 	}
-
 	// compoundLimit is the limit value for the entire compound
 	// operation.  We overwrite index.limit with the previous
 	// index.start.  After each transliteration, we update
 	// compoundLimit for insertions or deletions that have happened.
 	int32_t compoundLimit = index.limit;
-
-	// compoundStart is the start for the entire compound
-	// operation.
+	// compoundStart is the start for the entire compound operation.
 	int32_t compoundStart = index.start;
-
 	int32_t delta = 0; // delta in length
-
 	// Give each transliterator a crack at the run of characters.
 	// See comments at the top of the method for more detail.
 	for(int32_t i = 0; i<count; ++i) {
 		index.start = compoundStart; // Reset start
 		int32_t limit = index.limit;
-
 		if(index.start == index.limit) {
-			// Short circuit for empty range
-			break;
+			break; // Short circuit for empty range
 		}
-
 		trans[i]->filteredTransliterate(text, index, incremental);
-
 		// In a properly written transliterator, start == limit after
 		// handleTransliterate() returns when incremental is false.
 		// Catch cases where the subclass doesn't do this, and throw
@@ -565,10 +492,8 @@ void CompoundTransliterator::handleTransliterate(Replaceable& text, UTransPositi
 			// We can't throw an exception, so just fudge things
 			index.start = index.limit;
 		}
-
 		// Cumulative delta for insertions/deletions
 		delta += index.limit - limit;
-
 		if(incremental) {
 			// In the incremental case, only allow subsequent
 			// transliterators to modify what has already been
@@ -578,20 +503,18 @@ void CompoundTransliterator::handleTransliterate(Replaceable& text, UTransPositi
 			index.limit = index.start;
 		}
 	}
-
 	compoundLimit += delta;
-
 	// Start is good where it is -- where the last transliterator left
 	// it.  Limit needs to be put back where it was, modulo
 	// adjustments for deletions/insertions.
 	index.limit = compoundLimit;
 }
-
 /**
  * Sets the length of the longest context required by this transliterator.
  * This is <em>preceding</em> context.
  */
-void CompoundTransliterator::computeMaximumContextLength() {
+void CompoundTransliterator::computeMaximumContextLength() 
+{
 	int32_t max = 0;
 	for(int32_t i = 0; i<count; ++i) {
 		int32_t len = trans[i]->getMaximumContextLength();
@@ -605,5 +528,3 @@ void CompoundTransliterator::computeMaximumContextLength() {
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_TRANSLITERATION */
-
-/* eof */

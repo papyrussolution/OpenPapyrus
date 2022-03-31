@@ -1,15 +1,13 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/**
-	Copyright (C) 2006-2014, International Business Machines Corporation and others. All Rights Reserved.
-*/
+// Copyright (C) 2006-2014, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef DICTBE_H
 #define DICTBE_H
 
 #include "unicode/utypes.h"
 #include "unicode/uniset.h"
 #include "unicode/utext.h"
-
 #include "brkeng.h"
 #include "uvectr32.h"
 
@@ -35,21 +33,16 @@ private:
 	 * The set of characters handled by this engine
 	 * @internal
 	 */
-
 	UnicodeSet fSet;
-
 public:
-
 	/**
 	 * <p>Constructor </p>
 	 */
 	DictionaryBreakEngine();
-
 	/**
 	 * <p>Virtual destructor.</p>
 	 */
 	virtual ~DictionaryBreakEngine();
-
 	/**
 	 * <p>Indicate whether this engine handles a particular character for
 	 * a particular kind of break.</p>
@@ -72,21 +65,14 @@ public:
 	 * @param status Information on any errors encountered.
 	 * @return The number of breaks found.
 	 */
-	virtual int32_t findBreaks(UText * text,
-	    int32_t startPos,
-	    int32_t endPos,
-	    UVector32 & foundBreaks,
-	    UErrorCode & status) const override;
-
+	virtual int32_t findBreaks(UText * text, int32_t startPos, int32_t endPos, UVector32 & foundBreaks, UErrorCode & status) const override;
 protected:
-
 	/**
 	 * <p>Set the character set handled by this engine.</p>
 	 *
 	 * @param set A UnicodeSet of the set of characters handled by the engine
 	 */
 	virtual void setCharacters(const UnicodeSet & set);
-
 	/**
 	 * <p>Divide up a range of known dictionary characters handled by this break engine.</p>
 	 *
@@ -361,5 +347,4 @@ protected:
 
 U_NAMESPACE_END
 
-/* DICTBE_H */
-#endif
+#endif /* DICTBE_H */

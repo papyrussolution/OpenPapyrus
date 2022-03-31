@@ -44,7 +44,7 @@ public:
 		mu_.Lock();
 	}
 	MutexRelock(const MutexRelock&) = delete;
-	MutexRelock& operator=(const MutexRelock&) = delete;
+	MutexRelock& operator = (const MutexRelock&) = delete;
 private:
 	absl::Mutex& mu_;
 };

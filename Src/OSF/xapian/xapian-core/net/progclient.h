@@ -33,7 +33,7 @@
  */
 class ProgClient : public RemoteDatabase {
     /// Don't allow assignment.
-    void operator=(const ProgClient &);
+    void operator = (const ProgClient &);
 
     /// Don't allow copying.
     ProgClient(const ProgClient &);

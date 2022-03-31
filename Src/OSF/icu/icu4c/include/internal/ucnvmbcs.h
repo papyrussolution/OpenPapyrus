@@ -80,7 +80,7 @@
  * a UTF-8 trail byte. ASCII is allocated linearly with 128 contiguous entries.
  *
  * In addition, a utf8Friendly MBCS file contains an additional
- *   uint16_t mbcsIndex[(maxFastUChar+1)>>6];
+ *   uint16 mbcsIndex[(maxFastUChar+1)>>6];
  * which replaces the stage 1 and 2 tables for indexing with bits from the
  * UTF-8 lead byte and middle trail byte. Unlike the older MBCS stage 2 table,
  * the mbcsIndex does not contain roundtrip flags. Therefore, all fallbacks
@@ -186,23 +186,23 @@
  *         UChar32 codePoint;
  *     } toUFallbacks[countToUFallbacks];
  *    
- *     uint16_t unicodeCodeUnits[(offsetFromUTable-offsetToUCodeUnits)/2];
+ *     uint16 unicodeCodeUnits[(offsetFromUTable-offsetToUCodeUnits)/2];
  *                  (padded to an even number of units)
  *    
  *     -- stage 1 tables
  *     if(staticData.unicodeMask&UCNV_HAS_SUPPLEMENTARY) {
  *         -- stage 1 table for all of Unicode
- *         uint16_t fromUTable[0x440]; (32-bit-aligned)
+ *         uint16 fromUTable[0x440]; (32-bit-aligned)
  *     } else {
  *         -- BMP-only tables have a smaller stage 1 table
- *         uint16_t fromUTable[0x40]; (32-bit-aligned)
+ *         uint16 fromUTable[0x40]; (32-bit-aligned)
  *     }
  *
  *     -- stage 2 tables
  *        length determined by top of stage 1 and bottom of stage 3 tables
  *     if(outputType==MBCS_OUTPUT_1) {
  *         -- SBCS: pure indexes
- *         uint16_t stage 2 indexes[?];
+ *         uint16 stage 2 indexes[?];
  *     } else {
  *         -- DBCS, MBCS, EBCDIC_STATEFUL, ...: roundtrip flags and indexes
  *         uint32_t stage 2 flags and indexes[?];
@@ -216,11 +216,11 @@
  *     -- stage 3 tables with byte results
  *     if(outputType==MBCS_OUTPUT_1) {
  *         -- SBCS: each 16-bit result contains flags and the result byte, see ucnvmbcs.c
- *         uint16_t fromUBytes[fromUBytesLength/2];
+ *         uint16 fromUBytes[fromUBytesLength/2];
  *     } else if(!(options&MBCS_OPT_NO_FROM_U)) {
  *         -- DBCS, MBCS, EBCDIC_STATEFUL, ... 2/3/4 bytes result, see ucnvmbcs.c
  *         uint8 fromUBytes[fromUBytesLength]; or
- *         uint16_t fromUBytes[fromUBytesLength/2]; or
+ *         uint16 fromUBytes[fromUBytesLength/2]; or
  *         uint32_t fromUBytes[fromUBytesLength/4];
  *     } else {
  *         fromUBytes[] must be reconstituted from the toUnicode data
@@ -232,7 +232,7 @@
  *        (maxFastUChar=_MBCSHeader.version[2])!=0
  *     ) {
  *         maxFastUChar=(maxFastUChar<<8)|0xff;
- *         uint16_t mbcsIndex[(maxFastUChar+1)>>6];
+ *         uint16 mbcsIndex[(maxFastUChar+1)>>6];
  *     }
  * }
  *
@@ -291,7 +291,7 @@ enum {
 #define MBCS_ENTRY_FINAL_IS_VALID_DIRECT_16(entry) ((entry)<(int32_t)0x80100000)
 #define MBCS_ENTRY_FINAL_ACTION(entry) ((((uint32_t)entry)>>20)&0xf)
 #define MBCS_ENTRY_FINAL_VALUE(entry) ((entry)&0xfffff)
-#define MBCS_ENTRY_FINAL_VALUE_16(entry) (uint16_t)(entry)
+#define MBCS_ENTRY_FINAL_VALUE_16(entry) (uint16)(entry)
 
 #define IS_ASCII_ROUNDTRIP(b, asciiRoundtrips) (((asciiRoundtrips) & (1<<((b)>>2)))!=0)
 
@@ -308,10 +308,10 @@ enum {
 #define MBCS_STAGE_2_FROM_U(table, c) ((const uint32_t *)(table))[ (table)[(c)>>10] +(((c)>>4)&0x3f) ]
 #define MBCS_FROM_U_IS_ROUNDTRIP(stage2Entry, c) ( ((stage2Entry) & ((uint32_t)1<< (16+((c)&0xf)) )) !=0)
 
-#define MBCS_VALUE_2_FROM_STAGE_2(bytes, stage2Entry, c) ((uint16_t *)(bytes))[16*(uint32_t)(uint16_t)(stage2Entry)+((c)&0xf)]
-#define MBCS_VALUE_4_FROM_STAGE_2(bytes, stage2Entry, c) ((uint32_t *)(bytes))[16*(uint32_t)(uint16_t)(stage2Entry)+((c)&0xf)]
+#define MBCS_VALUE_2_FROM_STAGE_2(bytes, stage2Entry, c) ((uint16 *)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
+#define MBCS_VALUE_4_FROM_STAGE_2(bytes, stage2Entry, c) ((uint32_t *)(bytes))[16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf)]
 
-#define MBCS_POINTER_3_FROM_STAGE_2(bytes, stage2Entry, c) ((bytes)+(16*(uint32_t)(uint16_t)(stage2Entry)+((c)&0xf))*3)
+#define MBCS_POINTER_3_FROM_STAGE_2(bytes, stage2Entry, c) ((bytes)+(16*(uint32_t)(uint16)(stage2Entry)+((c)&0xf))*3)
 
 /* double-byte fromUnicode using the mbcsIndex */
 #define DBCS_RESULT_FROM_MOST_BMP(table, results, c) (results)[ (table)[(c)>>6] +((c)&0x3f) ]
@@ -374,13 +374,13 @@ typedef struct UConverterMBCSTable {
 
     const int32_t (*stateTable)/*[countStates]*/[256];
     int32_t (*swapLFNLStateTable)/*[countStates]*/[256]; /* for swaplfnl */
-    const uint16_t *unicodeCodeUnits/*[countUnicodeResults]*/;
+    const uint16 *unicodeCodeUnits/*[countUnicodeResults]*/;
     const _MBCSToUFallback *toUFallbacks;
 
     /* fromUnicode */
-    const uint16_t *fromUnicodeTable;
-    const uint16_t *mbcsIndex; /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
-    uint16_t sbcsIndex[SBCS_FAST_LIMIT>>6]; /* for fast conversion from low BMP to SBCS (utf8Friendly data) */
+    const uint16 *fromUnicodeTable;
+    const uint16 *mbcsIndex; /* for fast conversion from most of BMP to MBCS (utf8Friendly data) */
+    uint16 sbcsIndex[SBCS_FAST_LIMIT>>6]; /* for fast conversion from low BMP to SBCS (utf8Friendly data) */
     const uint8 *fromUnicodeBytes;
     uint8 *swapLFNLFromUnicodeBytes; /* for swaplfnl */
     uint32_t fromUBytesLength;

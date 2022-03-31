@@ -1,15 +1,12 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- * Copyright (c) 2004-2016, International Business Machines
- * Corporation and others.  All Rights Reserved.
- **********************************************************************
- * Author: Alan Liu
- * Created: April 20, 2004
- * Since: ICU 3.0
- **********************************************************************
- */
+// Copyright (c) 2004-2016, International Business Machines
+// Corporation and others.  All Rights Reserved.
+// 
+// Author: Alan Liu
+// Created: April 20, 2004
+// Since: ICU 3.0
+// 
 #ifndef MEASUREFORMAT_H
 #define MEASUREFORMAT_H
 
@@ -98,7 +95,6 @@ class U_I18N_API MeasureFormat : public Format {
 public:
 	using Format::parseObject;
 	using Format::format;
-
 	/**
 	 * Constructor.
 	 * <p>
@@ -335,15 +331,12 @@ protected:
 	 * @internal.
 	 */
 	Locale getLocale(UErrorCode &status) const;
-
 	/**
 	 * ICU use only.
 	 * @internal.
 	 */
 	const char * getLocaleID(UErrorCode &status) const;
-
 #endif /* U_HIDE_INTERNAL_API */
-
 private:
 	const MeasureFormatCacheData * cache;
 	const SharedNumberFormat * numberFormat;
@@ -354,19 +347,8 @@ private:
 	// objects are relatively cheap to copy; therefore, they don't need to be
 	// shared across instances.
 	ListFormatter * listFormatter;
-
-	UnicodeString &formatMeasure(const Measure &measure,
-	    const NumberFormat &nf,
-	    UnicodeString &appendTo,
-	    FieldPosition &pos,
-	    UErrorCode &status) const;
-
-	UnicodeString &formatMeasuresSlowTrack(const Measure * measures,
-	    int32_t measureCount,
-	    UnicodeString & appendTo,
-	    FieldPosition& pos,
-	    UErrorCode& status) const;
-
+	UnicodeString &formatMeasure(const Measure &measure, const NumberFormat &nf, UnicodeString &appendTo, FieldPosition &pos, UErrorCode &status) const;
+	UnicodeString &formatMeasuresSlowTrack(const Measure * measures, int32_t measureCount, UnicodeString & appendTo, FieldPosition& pos, UErrorCode& status) const;
 	UnicodeString &formatNumeric(const Formattable * hms, // always length 3: [0] is hour; [1] is
 	                                                      // minute; [2] is second.
 	    int32_t bitMap, // 1=hour set, 2=minute set, 4=second set

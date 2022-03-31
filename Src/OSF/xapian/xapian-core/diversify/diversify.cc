@@ -12,9 +12,9 @@ using namespace Xapian;
 using namespace std;
 
 Diversify::Diversify(const Diversify&) = default;
-Diversify& Diversify::operator=(const Diversify&) = default;
+Diversify& Diversify::operator = (const Diversify&) = default;
 Diversify::Diversify(Diversify&&) = default;
-Diversify& Diversify::operator=(Diversify&&) = default;
+Diversify& Diversify::operator = (Diversify&&) = default;
 
 Diversify::Diversify(Xapian::doccount k_, Xapian::doccount r_, double lambda_, double b_, double sigma_sqr_) : 
 	internal(new Xapian::Diversify::Internal(k_, r_, lambda_, b_, sigma_sqr_))

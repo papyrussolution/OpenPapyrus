@@ -234,7 +234,7 @@ typedef struct USerializedSet {
      * The serialized Unicode Set.
      * @stable ICU 2.4
      */
-    const uint16_t *array;
+    const uint16 *array;
     /**
      * The length of the array that contains BMP characters.
      * @stable ICU 2.4
@@ -249,7 +249,7 @@ typedef struct USerializedSet {
      * A small buffer for the array to reduce memory allocations.
      * @stable ICU 2.4
      */
-    uint16_t staticArray[USET_SERIALIZED_STATIC_ARRAY_CAPACITY];
+    uint16 staticArray[USET_SERIALIZED_STATIC_ARRAY_CAPACITY];
 } USerializedSet;
 
 /*********************************************************************
@@ -1202,7 +1202,7 @@ uset_equals(const USet* set1, const USet* set2);
  * @stable ICU 2.4
  */
 U_CAPI int32_t U_EXPORT2
-uset_serialize(const USet* set, uint16_t* dest, int32_t destCapacity, UErrorCode * pErrorCode);
+uset_serialize(const USet* set, uint16* dest, int32_t destCapacity, UErrorCode * pErrorCode);
 
 /**
  * Given a serialized array, fill in the given serialized set object.
@@ -1213,7 +1213,7 @@ uset_serialize(const USet* set, uint16_t* dest, int32_t destCapacity, UErrorCode
  * @stable ICU 2.4
  */
 U_CAPI bool U_EXPORT2
-uset_getSerializedSet(USerializedSet* fillSet, const uint16_t* src, int32_t srcLength);
+uset_getSerializedSet(USerializedSet* fillSet, const uint16* src, int32_t srcLength);
 
 /**
  * Set the USerializedSet to contain the given character (and nothing

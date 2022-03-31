@@ -85,70 +85,48 @@ public:
 		do_copy_from(o.ref);
 	}
 	// Prevent inadvertent copying.
-	void operator=(const Vec&) = delete;
-
-	void operator=(const Vec_to_copy& o) {
+	void operator = (const Vec&) = delete;
+	void operator = (const Vec_to_copy& o) 
+	{
 		clear();
 		do_copy_from(o.ref);
 	}
-
-	Vec_to_copy copy() const {
+	Vec_to_copy copy() const 
+	{
 		return Vec_to_copy(*this);
 	}
-
-	Vec(Vec&& o) noexcept : Vec() {
+	Vec(Vec&& o) noexcept : Vec() 
+	{
 		memcpy(&u, &o.u, sizeof(u));
 		std::swap(c, o.c);
 	}
-
-	void operator=(Vec&& o) {
+	void operator = (Vec&& o) 
+	{
 		clear();
 		u = o.u;
 		std::swap(c, o.c);
 	}
-
-	explicit Vec(size_type n) : c(0) {
+	explicit Vec(size_type n) : c(0) 
+	{
 		reserve(n);
 	}
-
-	~Vec() {
+	~Vec() 
+	{
 		clear();
 	}
-
-	size_type size() const {
-		return is_external() ? u.p.e - u.p.b : c;
-	}
-
-	size_type capacity() const {
-		return is_external() ? c : INTERNAL_CAPACITY;
-	}
-
-	bool empty() const {
-		return is_external() ? u.p.b == u.p.e : c == 0;
-	}
-
-	void reserve(size_type n) {
+	size_type size() const { return is_external() ? u.p.e - u.p.b : c; }
+	size_type capacity() const { return is_external() ? c : INTERNAL_CAPACITY; }
+	bool empty() const { return is_external() ? u.p.b == u.p.e : c == 0; }
+	void reserve(size_type n) 
+	{
 		if(n > capacity()) {
 			do_reserve(n);
 		}
 	}
-
-	const_iterator cbegin() const {
-		return is_external() ? u.p.b : u.v;
-	}
-
-	const_iterator cend() const {
-		return is_external() ? u.p.e : u.v + c;
-	}
-
-	const_iterator begin() const {
-		return cbegin();
-	}
-
-	const_iterator end() const {
-		return cend();
-	}
-
+	const_iterator cbegin() const { return is_external() ? u.p.b : u.v; }
+	const_iterator cend() const { return is_external() ? u.p.e : u.v + c; }
+	const_iterator begin() const { return cbegin(); }
+	const_iterator end() const { return cend(); }
 	iterator begin() {
 		// FIXME: This is a bit eager - non-const begin() is often invoked when
 		// no modification is needed, but doing it lazily is a bit tricky as
@@ -324,7 +302,7 @@ public:
 	SmallVector_(const SmallVector_&) = delete;
 
 	// Prevent inadvertent copying.
-	void operator=(const SmallVector_&) = delete;
+	void operator = (const SmallVector_&) = delete;
 
 	SmallVector_(SmallVector_&& o) noexcept : SmallVector_() {
 		memcpy(p, o.p, sizeof(p));
@@ -408,63 +386,46 @@ protected:
  *  and Database objects with one or two subdatabases, we use less space than
  *  std::vector <Xapian::Foo::Internal*> would.
  */
-template <typename TI>
-class SmallVectorI : public SmallVector_ {
+template <typename TI> class SmallVectorI : public SmallVector_ {
 public:
 	typedef std::size_t size_type;
-
 	typedef TI* const* const_iterator;
-
 	// Create an empty SmallVectorI.
-	SmallVectorI() : SmallVector_() {
+	SmallVectorI() : SmallVector_() 
+	{
 	}
-
 	// Create an empty SmallVectorI with n elements reserved.
-	explicit SmallVectorI(size_type n) : SmallVector_(n) {
+	explicit SmallVectorI(size_type n) : SmallVector_(n) 
+	{
 	}
-
-	SmallVectorI(SmallVectorI&& o) noexcept : SmallVector_(o) {
+	SmallVectorI(SmallVectorI&& o) noexcept : SmallVector_(o) 
+	{
 	}
-
-	~SmallVectorI() {
+	~SmallVectorI() 
+	{
 		clear();
 	}
-
-	const_iterator begin() const {
-		return const_iterator(do_begin());
-	}
-
-	const_iterator end() const {
-		return const_iterator(do_end());
-	}
-
-	void clear() {
+	const_iterator begin() const { return const_iterator(do_begin()); }
+	const_iterator end() const { return const_iterator(do_end()); }
+	void clear() 
+	{
 		for(const_iterator i = begin(); i != end(); ++i)
 			if((*i) && --(*i)->_refs == 0)
 				delete *i;
 
 		do_clear();
 	}
-
-	void push_back(TI* elt) {
+	void push_back(TI* elt) 
+	{
 		// Cast away potential const-ness in TI.  We can only try to modify an
 		// element after casting to TI*, so this is const-safe overall.
 		do_push_back(const_cast<void*>(static_cast<const void*>(elt)));
 		if(elt)
 			++elt->_refs;
 	}
-
-	TI* operator[](size_type idx) const {
-		return begin()[idx];
-	}
-
-	TI* front() const {
-		return *(begin());
-	}
-
-	TI* back() const {
-		return end()[-1];
-	}
+	TI* operator[](size_type idx) const { return begin()[idx]; }
+	TI* front() const { return *(begin()); }
+	TI* back() const { return end()[-1]; }
 };
 
 /** Vector of Xapian PIMPL objects.
@@ -478,90 +439,45 @@ public:
  *  and Database objects with one or two subdatabases, we use less space than
  *  std::vector <Xapian::Foo> would.
  */
-template <typename T>
-class SmallVector : public SmallVectorI<typename T::Internal> {
+template <typename T> class SmallVector : public SmallVectorI<typename T::Internal> {
 	typedef SmallVectorI<typename T::Internal> super;
-
 public:
 	typedef std::size_t size_type;
 
 	class const_iterator {
 		typename super::const_iterator ptr;
-
-public:
-		const_iterator() : ptr(nullptr) {
+	public:
+		const_iterator() : ptr(nullptr) 
+		{
 		}
-
-		explicit const_iterator(typename super::const_iterator ptr_)
-			: ptr(ptr_) {
+		explicit const_iterator(typename super::const_iterator ptr_) : ptr(ptr_) 
+		{
 		}
-
-		const_iterator & operator++() {
-			++ptr; return *this;
-		}
-
-		const_iterator operator++(int) {
-			return const_iterator(ptr++);
-		}
-
-		T operator*() const {
-			return T(*ptr);
-		}
-
-		T operator[](size_type idx) const {
-			return T(ptr[idx]);
-		}
-
-		bool operator==(const const_iterator& o) const {
-			return ptr == o.ptr;
-		}
-
-		bool operator!=(const const_iterator& o) const {
-			return !(*this == o);
-		}
-
-		const_iterator operator+(int n) {
-			return const_iterator(ptr + n);
-		}
-
-		const_iterator operator-(int n) {
-			return const_iterator(ptr - n);
-		}
+		const_iterator & operator++() { ++ptr; return *this; }
+		const_iterator operator++(int) { return const_iterator(ptr++); }
+		T operator*() const { return T(*ptr); }
+		T operator[](size_type idx) const { return T(ptr[idx]); }
+		bool operator == (const const_iterator& o) const { return ptr == o.ptr; }
+		bool operator != (const const_iterator& o) const { return !(*this == o); }
+		const_iterator operator+(int n) { return const_iterator(ptr + n); }
+		const_iterator operator-(int n) { return const_iterator(ptr - n); }
 	};
 
 	// Create an empty SmallVector.
-	SmallVector() {
+	SmallVector() 
+	{
 	}
-
 	// Create an empty SmallVector with n elements reserved.
-	explicit SmallVector(size_type n) : super(n) {
+	explicit SmallVector(size_type n) : super(n) 
+	{
 	}
-
-	const_iterator begin() const {
-		return const_iterator(super::begin());
-	}
-
-	const_iterator end() const {
-		return const_iterator(super::end());
-	}
-
+	const_iterator begin() const { return const_iterator(super::begin()); }
+	const_iterator end() const { return const_iterator(super::end()); }
 	using super::push_back;
-
-	void push_back(const T & elt) {
-		push_back(elt.internal.get());
-	}
-
-	T operator[](size_type idx) const {
-		return begin()[idx];
-	}
-
-	T front() const {
-		return *(begin());
-	}
-
-	T back() const {
-		return end()[-1];
-	}
+	void push_back(const T & elt) { push_back(elt.internal.get()); }
+	T operator[](size_type idx) const { return begin()[idx]; }
+	T front() const { return *(begin()); }
+	T back() const { return end()[-1]; }
 };
 }
 

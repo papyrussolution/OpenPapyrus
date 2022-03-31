@@ -116,40 +116,40 @@ U_CDECL_BEGIN
 typedef struct {
 	/** sizeof(UDataInfo)
 	*  @stable ICU 2.0 */
-	uint16_t size;
+	uint16 size;
 
 	/** unused, set to 0
 	*  @stable ICU 2.0*/
-	uint16_t reservedWord;
+	uint16 reservedWord;
 
 	/* platform data properties */
 	/** 0 for little-endian machine, 1 for big-endian
 	 *  @stable ICU 2.0 */
-	uint8_t isBigEndian;
+	uint8 isBigEndian;
 
 	/** see U_CHARSET_FAMILY values in utypes.h
 	 *  @stable ICU 2.0*/
-	uint8_t charsetFamily;
+	uint8 charsetFamily;
 
 	/** sizeof(UChar), one of { 1, 2, 4 }
 	 *  @stable ICU 2.0*/
-	uint8_t sizeofUChar;
+	uint8 sizeofUChar;
 
 	/** unused, set to 0
 	*  @stable ICU 2.0*/
-	uint8_t reservedByte;
+	uint8 reservedByte;
 
 	/** data format identifier
 	 *  @stable ICU 2.0*/
-	uint8_t dataFormat[4];
+	uint8 dataFormat[4];
 
 	/** versions: [0] major [1] minor [2] milli [3] micro
 	 *  @stable ICU 2.0*/
-	uint8_t formatVersion[4];
+	uint8 formatVersion[4];
 
 	/** versions: [0] major [1] minor [2] milli [3] micro
 	 *  @stable ICU 2.0*/
-	uint8_t dataVersion[4];
+	uint8 dataVersion[4];
 } UDataInfo;
 
 /* API for reading data -----------------------------------------------------*/

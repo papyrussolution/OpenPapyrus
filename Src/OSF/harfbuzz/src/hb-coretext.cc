@@ -45,14 +45,12 @@ static hb_blob_t * _hb_cg_reference_table(hb_face_t * face CXX_UNUSED_PARAM, hb_
 	CFDataRef cf_data = CGFontCopyTableForTag(cg_font, tag);
 	if(UNLIKELY(!cf_data))
 		return nullptr;
-
 	const char * data = reinterpret_cast<const char*> (CFDataGetBytePtr(cf_data));
 	const size_t length = CFDataGetLength(cf_data);
 	if(!data || !length) {
 		CFRelease(cf_data);
 		return nullptr;
 	}
-
 	return hb_blob_create(data, length, HB_MEMORY_MODE_READONLY,
 		   reinterpret_cast<void *> (const_cast<__CFData *> (cf_data)),
 		   release_table_data);

@@ -65,7 +65,7 @@ class TimeZoneInfo : public TimeZoneIf {
  public:
   TimeZoneInfo() = default;
   TimeZoneInfo(const TimeZoneInfo&) = delete;
-  TimeZoneInfo& operator=(const TimeZoneInfo&) = delete;
+  TimeZoneInfo& operator = (const TimeZoneInfo&) = delete;
 
   // Loads the zoneinfo for the given name, returning true if successful.
   bool Load(const std::string & name);

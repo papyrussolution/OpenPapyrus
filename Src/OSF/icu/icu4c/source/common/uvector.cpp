@@ -22,8 +22,8 @@ constexpr int32_t DEFAULT_CAPACITY = 8;
  * or a pointer.  If a hint bit is zero, then the associated
  * token is assumed to be an integer. This is needed for iSeries
  */
-constexpr int8_t HINT_KEY_POINTER = 1;
-constexpr int8_t HINT_KEY_INTEGER = 0;
+constexpr int8 HINT_KEY_POINTER = 1;
+constexpr int8 HINT_KEY_INTEGER = 0;
 
 UOBJECT_DEFINE_RTTI_IMPLEMENTATION(UVector)
 
@@ -309,7 +309,7 @@ int32_t UVector::indexOf(int32_t obj, int32_t startIndex) const {
 	return indexOf(key, startIndex, HINT_KEY_INTEGER);
 }
 
-int32_t UVector::indexOf(UElement key, int32_t startIndex, int8_t hint) const {
+int32_t UVector::indexOf(UElement key, int32_t startIndex, int8 hint) const {
 	if(comparer != nullptr) {
 		for(int32_t i = startIndex; i<count; ++i) {
 			if((*comparer)(key, elements[i])) {

@@ -55,7 +55,7 @@ struct SubValueList {
 /// Class for merging ValueList objects from subdatabases.
 class MultiValueList : public ValueList {
 	/// Don't allow assignment.
-	void operator=(const MultiValueList &);
+	void operator = (const MultiValueList &);
 	/// Don't allow copying.
 	MultiValueList(const MultiValueList &);
 	/// Current docid (or 0 if we haven't started yet).

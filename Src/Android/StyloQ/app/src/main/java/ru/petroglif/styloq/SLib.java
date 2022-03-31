@@ -662,6 +662,13 @@ public class SLib {
 	//
 	//
 	//
+	public static final int GENDER_UNDEF       = 0; // Не определена (в принципе не известно из-за того, что не было попыток идентифицировать)
+	public static final int GENDER_MALE        = 1; // Мужской
+	public static final int GENDER_FEMALE      = 2; // Женский
+	public static final int GENDER_QUESTIONING = 3; // Под вопросом (попытка идентификации пола была, но окончилась неудачей)
+	//
+	//
+	//
 	public static final String dow_en_sh[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 	public static final String mon_en_sh[] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 	public static final String dow_en[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
@@ -1376,6 +1383,7 @@ public class SLib {
 	public static final int EV_IADATADELETECOMMIT   = 16; // После подтверждения пользователем факта интерактивного удаления данных
 	public static final int EV_DESTROY              = 17; // Посылается функцией onDestroy
 	public static final int EV_ACTIVITYSTART        = 18; // Посылается в SlActivity функцией onStart
+	public static final int EV_ACTIVITYRESUME       = 19; // Посылается в SlActivity функцией onResume
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -4259,6 +4267,11 @@ public class SLib {
 		{
 			super.onStart();
 			HandleEvent(EV_ACTIVITYSTART, this, null);
+		}
+		@Override public void onResume()
+		{
+			super.onResume();
+			HandleEvent(EV_ACTIVITYRESUME, this, null);
 		}
 		@Override protected void onDestroy()
 		{

@@ -40,7 +40,7 @@ class DatabaseReplicator {
     DatabaseReplicator(const DatabaseReplicator &);
 
     /// Assignment is not allowed.
-    void operator=(const DatabaseReplicator &);
+    void operator = (const DatabaseReplicator &);
 
   protected:
     /** Constructor to allow construction of subclasses from the open()

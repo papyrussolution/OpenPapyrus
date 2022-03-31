@@ -54,11 +54,11 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	ESet & operator=(const ESet & o);
+	ESet & operator = (const ESet & o);
 	/// Move constructor.
 	ESet(ESet && o);
 	/// Move assignment operator.
-	ESet & operator=(ESet && o);
+	ESet & operator = (ESet && o);
 	/** Default constructor.
 	 *
 	 *  Creates an empty ESet, mostly useful as a placeholder.
@@ -248,17 +248,17 @@ public:
 };
 
 /// Equality test for ESetIterator objects.
-inline bool operator==(const ESetIterator& a, const ESetIterator& b) noexcept { return a.off_from_end == b.off_from_end; }
+inline bool operator == (const ESetIterator& a, const ESetIterator& b) noexcept { return a.off_from_end == b.off_from_end; }
 /// Inequality test for ESetIterator objects.
-inline bool operator!=(const ESetIterator& a, const ESetIterator& b) noexcept { return !(a == b); }
+inline bool operator != (const ESetIterator& a, const ESetIterator& b) noexcept { return !(a == b); }
 /// Inequality test for ESetIterator objects.
-inline bool operator<(const ESetIterator& a, const ESetIterator& b) noexcept { return a.off_from_end > b.off_from_end; }
+inline bool operator < (const ESetIterator& a, const ESetIterator& b) noexcept { return a.off_from_end > b.off_from_end; }
 /// Inequality test for ESetIterator objects.
-inline bool operator>(const ESetIterator& a, const ESetIterator& b) noexcept { return b < a; }
+inline bool operator > (const ESetIterator& a, const ESetIterator& b) noexcept { return b < a; }
 /// Inequality test for ESetIterator objects.
-inline bool operator>=(const ESetIterator& a, const ESetIterator& b) noexcept { return !(a < b); }
+inline bool operator >= (const ESetIterator& a, const ESetIterator& b) noexcept { return !(a < b); }
 /// Inequality test for ESetIterator objects.
-inline bool operator<=(const ESetIterator& a, const ESetIterator& b) noexcept { return !(b < a); }
+inline bool operator <= (const ESetIterator& a, const ESetIterator& b) noexcept { return !(b < a); }
 
 /** Return ESetIterator @a it incremented by @a n positions.
  *

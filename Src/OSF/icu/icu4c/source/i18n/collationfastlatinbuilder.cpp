@@ -464,7 +464,7 @@ bool CollationFastLatinBuilder::encodeUniqueCEs(UErrorCode & errorCode) {
 		return FALSE;
 	}
 	uprv_free(miniCEs);
-	miniCEs = (uint16_t*)uprv_malloc(uniqueCEs.size() * 2);
+	miniCEs = (uint16*)uprv_malloc(uniqueCEs.size() * 2);
 	if(miniCEs == NULL) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
@@ -594,10 +594,10 @@ bool CollationFastLatinBuilder::encodeUniqueCEs(UErrorCode & errorCode) {
 		}
 		if(CollationFastLatin::MIN_LONG <= pri && pri <= CollationFastLatin::MAX_LONG) {
 			U_ASSERT(sec == CollationFastLatin::COMMON_SEC);
-			miniCEs[i] = (uint16_t)(pri | ter);
+			miniCEs[i] = (uint16)(pri | ter);
 		}
 		else {
-			miniCEs[i] = (uint16_t)(pri | sec | ter);
+			miniCEs[i] = (uint16)(pri | sec | ter);
 		}
 	}
 #if DEBUG_COLLATION_FAST_LATIN_BUILDER

@@ -50,7 +50,7 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	friend class ::ValueStreamDocument;
 
 	/// Don't allow assignment.
-	void operator=(const Internal &) = delete;
+	void operator = (const Internal &) = delete;
 
 	/// Don't allow copying.
 	Internal(const Internal &) = delete;

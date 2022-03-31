@@ -265,7 +265,7 @@ std::string StatusCodeToString(StatusCode code);
 // operator<<
 //
 // Streams StatusCodeToString(code) to `os`.
-std::ostream& operator<<(std::ostream& os, StatusCode code);
+std::ostream & operator<<(std::ostream & os, StatusCode code);
 
 // absl::StatusToStringMode
 //
@@ -430,13 +430,13 @@ public:
 	Status(absl::StatusCode code, absl::string_view msg);
 
 	Status(const Status&);
-	Status& operator=(const Status& x);
+	Status& operator = (const Status& x);
 
 	// Move operators
 
 	// The moved-from state is valid but unspecified.
 	Status(Status&&) noexcept;
-	Status& operator=(Status&&);
+	Status& operator = (Status&&);
 
 	~Status();
 
@@ -490,8 +490,8 @@ public:
 	// `operator<<` or `Status::ToString()` for debug logging.
 	absl::string_view message() const;
 
-	friend bool operator==(const Status&, const Status&);
-	friend bool operator!=(const Status&, const Status&);
+	friend bool operator == (const Status&, const Status&);
+	friend bool operator != (const Status&, const Status&);
 
 	// Status::ToString()
 	//
@@ -655,7 +655,7 @@ Status OkStatus();
 // operator<<()
 //
 // Prints a human-readable representation of `x` to `os`.
-std::ostream& operator<<(std::ostream& os, const Status& x);
+std::ostream & operator<<(std::ostream & os, const Status& x);
 
 // IsAborted()
 // IsAlreadyExists()
@@ -744,7 +744,7 @@ inline Status::Status(const Status& x) : rep_(x.rep_) {
 	Ref(rep_);
 }
 
-inline Status& Status::operator=(const Status& x) {
+inline Status& Status::operator = (const Status& x) {
 	uintptr_t old_rep = rep_;
 	if(x.rep_ != old_rep) {
 		Ref(x.rep_);
@@ -758,7 +758,7 @@ inline Status::Status(Status&& x) noexcept : rep_(x.rep_) {
 	x.rep_ = MovedFromRep();
 }
 
-inline Status& Status::operator=(Status&& x) {
+inline Status& Status::operator = (Status&& x) {
 	uintptr_t old_rep = rep_;
 	if(x.rep_ != old_rep) {
 		rep_ = x.rep_;
@@ -795,11 +795,11 @@ inline absl::string_view Status::message() const {
 	       : absl::string_view());
 }
 
-inline bool operator==(const Status& lhs, const Status& rhs) {
+inline bool operator == (const Status& lhs, const Status& rhs) {
 	return lhs.rep_ == rhs.rep_ || Status::EqualsSlow(lhs, rhs);
 }
 
-inline bool operator!=(const Status& lhs, const Status& rhs) {
+inline bool operator != (const Status& lhs, const Status& rhs) {
 	return !(lhs == rhs);
 }
 

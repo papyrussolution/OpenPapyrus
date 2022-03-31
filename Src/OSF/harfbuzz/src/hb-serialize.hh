@@ -451,7 +451,7 @@ struct hb_serialize_context_t {
 		return ret;
 	}
 
-	/* Like embed, but active: calls obj.operator=() or obj.copy() to transfer data
+	/* Like embed, but active: calls obj.operator = () or obj.copy() to transfer data
 	 * instead of memcpy(). */
 	template <typename Type, typename ... Ts>
 	Type * copy(const Type &src, Ts&&... ds)

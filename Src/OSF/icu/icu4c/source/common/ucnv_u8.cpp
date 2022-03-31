@@ -107,7 +107,7 @@ morebytes:
 					/* stores a partially calculated target*/
 					cnv->toUnicodeStatus = ch;
 					cnv->mode = inBytes;
-					cnv->toULength = (int8_t)i;
+					cnv->toULength = (int8)i;
 					goto donefornow;
 				}
 			}
@@ -139,7 +139,7 @@ morebytes:
 				}
 			}
 			else {
-				cnv->toULength = (int8_t)i;
+				cnv->toULength = (int8)i;
 				*err = U_ILLEGAL_CHAR_FOUND;
 				break;
 			}
@@ -208,7 +208,7 @@ morebytes:
 				else {
 					cnv->toUnicodeStatus = ch;
 					cnv->mode = inBytes;
-					cnv->toULength = (int8_t)i;
+					cnv->toULength = (int8)i;
 					goto donefornow;
 				}
 			}
@@ -242,7 +242,7 @@ morebytes:
 				offsetNum += i;
 			}
 			else {
-				cnv->toULength = (int8_t)i;
+				cnv->toULength = (int8)i;
 				*err = U_ILLEGAL_CHAR_FOUND;
 				break;
 			}
@@ -506,7 +506,7 @@ static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args,
 	const uint8 * source;
 	uint8 myByte;
 	UChar32 ch;
-	int8_t i;
+	int8 i;
 
 	/* UTF-8 only here, the framework handles CESU-8 to combine surrogate pairs */
 
@@ -524,7 +524,7 @@ static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args,
 		return (UChar32)myByte;
 	}
 
-	uint16_t countTrailBytes = U8_COUNT_TRAIL_BYTES(myByte);
+	uint16 countTrailBytes = U8_COUNT_TRAIL_BYTES(myByte);
 	if(countTrailBytes == 0) {
 		cnv->toUBytes[0] = myByte;
 		cnv->toULength = 1;
@@ -536,7 +536,7 @@ static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args,
 	/*The byte sequence is longer than the buffer area passed*/
 	if(((const char *)source + countTrailBytes) > args->sourceLimit) {
 		/* check if all of the remaining bytes are trail bytes */
-		uint16_t extraBytesToWrite = countTrailBytes + 1;
+		uint16 extraBytesToWrite = countTrailBytes + 1;
 		cnv->toUBytes[0] = myByte;
 		i = 1;
 		*err = U_TRUNCATED_CHAR_FOUND;
@@ -605,7 +605,7 @@ static void U_CALLCONV ucnv_UTF8FromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 	int32_t targetCapacity;
 	int32_t count;
 
-	int8_t oldToULength, toULength, toULimit;
+	int8 oldToULength, toULength, toULimit;
 
 	UChar32 c;
 	uint8 b, t1, t2;
@@ -620,7 +620,7 @@ static void U_CALLCONV ucnv_UTF8FromUTF8(UConverterFromUnicodeArgs * pFromUArgs,
 	/* get the converter state from the UTF-8 UConverter */
 	if(utf8->toULength > 0) {
 		toULength = oldToULength = utf8->toULength;
-		toULimit = (int8_t)utf8->mode;
+		toULimit = (int8)utf8->mode;
 		c = (UChar32)utf8->toUnicodeStatus;
 	}
 	else {
@@ -756,7 +756,7 @@ moreBytes:
 
 			/* copy the legal byte sequence to the target */
 			{
-				int8_t i;
+				int8 i;
 
 				for(i = 0; i<oldToULength; ++i) {
 					*target++ = utf8->toUBytes[i];

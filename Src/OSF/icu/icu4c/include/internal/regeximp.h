@@ -1,16 +1,15 @@
+// regeximp.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
 //
 //   Copyright (C) 2002-2015 International Business Machines Corporation
 //   and others. All rights reserved.
 //
-//   file:  regeximp.h
-//
 //           ICU Regular Expressions,
 //               Definitions of constant values used in the compiled form of
 //               a regular expression pattern.
 //
-
+//
 #ifndef _REGEXIMP_H
 #define _REGEXIMP_H
 
@@ -18,7 +17,6 @@
 #include "unicode/uobject.h"
 #include "unicode/uniset.h"
 #include "unicode/utext.h"
-
 #include "cmemory.h"
 #include "ucase.h"
 
@@ -322,7 +320,7 @@ struct Regex8BitSet : public UMemory {
 	inline void init(const UnicodeSet * src);
 	inline bool contains(UChar32 c);
 	inline void  add(UChar32 c);
-	int8_t d[32];
+	int8 d[32];
 };
 
 inline Regex8BitSet::Regex8BitSet() 

@@ -1449,7 +1449,7 @@ UnicodeSet & UnicodeSet::compact()
 /**
  * Deserialize constructor.
  */
-UnicodeSet::UnicodeSet(const uint16_t data[], int32_t dataLen, ESerialization serialization, UErrorCode & ec) 
+UnicodeSet::UnicodeSet(const uint16 data[], int32_t dataLen, ESerialization serialization, UErrorCode & ec) 
 {
 	if(U_FAILURE(ec)) {
 		setToBogus();
@@ -1494,7 +1494,7 @@ UnicodeSet::UnicodeSet(const uint16_t data[], int32_t dataLen, ESerialization se
 	len = i;
 }
 
-int32_t UnicodeSet::serialize(uint16_t * dest, int32_t destCapacity, UErrorCode & ec) const {
+int32_t UnicodeSet::serialize(uint16 * dest, int32_t destCapacity, UErrorCode & ec) const {
 	int32_t bmpLength, length, destLength;
 
 	if(U_FAILURE(ec)) {
@@ -1560,10 +1560,10 @@ int32_t UnicodeSet::serialize(uint16_t * dest, int32_t destCapacity, UErrorCode 
 #ifdef DEBUG_SERIALIZE
 		printf("writeHdr\n");
 #endif
-		*dest = (uint16_t)length;
+		*dest = (uint16)length;
 		if(length>bmpLength) {
 			*dest |= 0x8000;
-			*++dest = (uint16_t)bmpLength;
+			*++dest = (uint16)bmpLength;
 		}
 		++dest;
 
@@ -1573,7 +1573,7 @@ int32_t UnicodeSet::serialize(uint16_t * dest, int32_t destCapacity, UErrorCode 
 #ifdef DEBUG_SERIALIZE
 			printf("writebmp: %x\n", (int)*p);
 #endif
-			*dest++ = (uint16_t)*p++;
+			*dest++ = (uint16)*p++;
 		}
 
 		/* write the supplementary part of the array */
@@ -1581,8 +1581,8 @@ int32_t UnicodeSet::serialize(uint16_t * dest, int32_t destCapacity, UErrorCode 
 #ifdef DEBUG_SERIALIZE
 			printf("write32: %x\n", (int)*p);
 #endif
-			*dest++ = (uint16_t)(*p>>16);
-			*dest++ = (uint16_t)*p++;
+			*dest++ = (uint16)(*p>>16);
+			*dest++ = (uint16)*p++;
 		}
 	}
 	else {
@@ -1710,7 +1710,7 @@ static inline UChar32 max(UChar32 a, UChar32 b) {
 // polarity = 0, 3 is normal: x xor y
 // polarity = 1, 2: x xor ~y == x === y
 
-void UnicodeSet::exclusiveOr(const UChar32* other, int32_t otherLen, int8_t polarity) {
+void UnicodeSet::exclusiveOr(const UChar32* other, int32_t otherLen, int8 polarity) {
 	if(isFrozen() || isBogus()) {
 		return;
 	}
@@ -1762,7 +1762,7 @@ void UnicodeSet::exclusiveOr(const UChar32* other, int32_t otherLen, int8_t pola
 // polarity = 1: ~x union y
 // polarity = 3: ~x union ~y
 
-void UnicodeSet::add(const UChar32* other, int32_t otherLen, int8_t polarity) {
+void UnicodeSet::add(const UChar32* other, int32_t otherLen, int8 polarity) {
 	if(isFrozen() || isBogus() || other==NULL) {
 		return;
 	}
@@ -1883,7 +1883,7 @@ loop_end:
 // polarity = 1: ~x intersect y
 // polarity = 3: ~x intersect ~y
 
-void UnicodeSet::retain(const UChar32* other, int32_t otherLen, int8_t polarity) {
+void UnicodeSet::retain(const UChar32* other, int32_t otherLen, int8 polarity) {
 	if(isFrozen() || isBogus()) {
 		return;
 	}

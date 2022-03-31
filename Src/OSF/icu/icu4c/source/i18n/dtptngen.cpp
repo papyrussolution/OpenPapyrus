@@ -259,7 +259,7 @@ static constexpr int32_t UDATPG_FIELD_KEY_MAX = 24; // max length of CLDR field 
 static const UChar UDATPG_ItemFormat[] = {0x7B, 0x30, 0x7D, 0x20, 0x251C, 0x7B, 0x32, 0x7D, 0x3A,
 					  0x20, 0x7B, 0x31, 0x7D, 0x2524, 0}; // {0} \u251C{2}: {1}\u2524
 
-//static const UChar repeatedPatterns[6]={CAP_G, CAP_E, LOW_Z, LOW_V, CAP_Q, 0}; // "GEzvQ"
+//static const UChar repeatedPatterns[6] = {CAP_G, CAP_E, LOW_Z, LOW_V, CAP_Q, 0}; // "GEzvQ"
 
 static const char DT_DateTimePatternsTag[] = "DateTimePatterns";
 static const char DT_DateTimeCalendarTag[] = "calendar";
@@ -2300,10 +2300,10 @@ void DateTimeMatcher::set(const UnicodeString & pattern, FormatParser* fp, PtnSk
 		UChar repeatChar = row->patternChar;
 		int32_t repeatCount = row->minLen;
 		skeletonResult.baseOriginal.populate(field, repeatChar, repeatCount);
-		int16_t subField = row->type;
+		int16 subField = row->type;
 		if(row->type > 0) {
 			U_ASSERT(value.length() < INT16_MAX);
-			subField += static_cast<int16_t>(value.length());
+			subField += static_cast<int16>(value.length());
 		}
 		skeletonResult.type[field] = subField;
 	}
@@ -2327,7 +2327,7 @@ void DateTimeMatcher::set(const UnicodeString & pattern, FormatParser* fp, PtnSk
 				skeletonResult.baseOriginal.populate(UDATPG_SECOND_FIELD, dtTypes[i].patternChar, dtTypes[i].minLen);
 				// We add value.length, same as above, when type is first initialized.
 				// The value we want to "fake" here is "s", and 1 means "s".length()
-				int16_t subField = dtTypes[i].type;
+				int16 subField = dtTypes[i].type;
 				skeletonResult.type[UDATPG_SECOND_FIELD] = (subField > 0) ? subField + 1 : subField;
 				break;
 			}
@@ -2702,8 +2702,8 @@ void SkeletonFields::populate(int32_t field, const UnicodeString & value) {
 }
 
 void SkeletonFields::populate(int32_t field, UChar ch, int32_t length) {
-	chars[field] = (int8_t)ch;
-	lengths[field] = (int8_t)length;
+	chars[field] = (int8)ch;
+	lengths[field] = (int8)length;
 }
 
 bool SkeletonFields::isFieldEmpty(int32_t field) const {

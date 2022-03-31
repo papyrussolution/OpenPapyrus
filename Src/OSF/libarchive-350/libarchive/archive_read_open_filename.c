@@ -317,8 +317,6 @@ fail:
 static ssize_t file_read(struct archive * a, void * client_data, const void ** buff)
 {
 	struct read_file_data * mine = (struct read_file_data *)client_data;
-	ssize_t bytes_read;
-
 	/* TODO: If a recent lseek() operation has left us
 	 * mis-aligned, read and return a short block to try to get
 	 * us back in alignment. */
@@ -331,10 +329,9 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 	 * sockets by setting non-blocking I/O and just accepting
 	 * whatever we get here instead of waiting for a full block
 	 * worth of data. */
-
 	*buff = mine->buffer;
 	for(;;) {
-		bytes_read = read(mine->fd, mine->buffer, mine->block_size);
+		ssize_t bytes_read = read(mine->fd, mine->buffer, mine->block_size);
 		if(bytes_read < 0) {
 			if(errno == EINTR)
 				continue;
@@ -348,7 +345,6 @@ static ssize_t file_read(struct archive * a, void * client_data, const void ** b
 		return (bytes_read);
 	}
 }
-
 /*
  * Regular files and disk-like block devices can use simple lseek
  * without needing to round the request to the block size.
@@ -378,7 +374,6 @@ static int64 file_skip_lseek(struct archive * a, void * client_data, int64 reque
 #else
 	off_t old_offset, new_offset;
 #endif
-
 	/* We use off_t here because lseek() is declared that way. */
 
 	/* TODO: Deal with case where off_t isn't 64 bits.
@@ -415,7 +410,6 @@ static int64 file_skip(struct archive * a, void * client_data, int64 request)
 	/* If we can't skip, return 0; libarchive will read+discard instead. */
 	return 0;
 }
-
 /*
  * TODO: Store the offset and use it in the read callback.
  */

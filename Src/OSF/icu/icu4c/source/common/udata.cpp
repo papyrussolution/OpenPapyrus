@@ -868,7 +868,7 @@ U_CAPI void U_EXPORT2 udata_setAppData(const char * path, const void * data, UEr
 {
 	UDataMemory udm;
 
-	if(err==NULL || U_FAILURE(*err)) {
+	if(!err || U_FAILURE(*err)) {
 		return;
 	}
 	if(data==NULL) {
@@ -1335,15 +1335,15 @@ U_CAPI void U_EXPORT2 udata_getInfo(UDataMemory * pData, UDataInfo * pInfo) {
 	if(pInfo!=NULL) {
 		if(pData!=NULL && pData->pHeader!=NULL) {
 			const UDataInfo * info = &pData->pHeader->info;
-			uint16_t dataInfoSize = udata_getInfoSize(info);
+			uint16 dataInfoSize = udata_getInfoSize(info);
 			if(pInfo->size>dataInfoSize) {
 				pInfo->size = dataInfoSize;
 			}
-			uprv_memcpy((uint16_t*)pInfo+1, (const uint16_t*)info+1, pInfo->size-2);
+			uprv_memcpy((uint16*)pInfo+1, (const uint16*)info+1, pInfo->size-2);
 			if(info->isBigEndian!=U_IS_BIG_ENDIAN) {
 				/* opposite endianness */
-				uint16_t x = info->reservedWord;
-				pInfo->reservedWord = (uint16_t)((x<<8)|(x>>8));
+				uint16 x = info->reservedWord;
+				pInfo->reservedWord = (uint16)((x<<8)|(x>>8));
 			}
 		}
 		else {

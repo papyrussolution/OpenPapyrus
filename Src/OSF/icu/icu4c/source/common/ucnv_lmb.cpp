@@ -956,7 +956,7 @@ static void U_CALLCONV _LMBCSFromUnicode(UConverterFromUnicodeArgs * args, UErro
 			 */
 			uint8 * pErrorBuffer = args->converter->charErrorBuffer;
 			*err = U_BUFFER_OVERFLOW_ERROR;
-			args->converter->charErrorBufferLength = (int8_t)bytes_written;
+			args->converter->charErrorBufferLength = (int8)bytes_written;
 			while(bytes_written--) {
 				*pErrorBuffer++ = *pLMBCS++;
 			}
@@ -1129,7 +1129,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 	const char * saveSource; /* beginning of current code point */
 	const char * pStartLMBCS = args->source; /* beginning of whole string */
 	const char * errSource = NULL; /* pointer to actual input in case an error occurs */
-	int8_t savebytes = 0;
+	int8 savebytes = 0;
 
 	/* Process from source to limit, or until error */
 	while(U_SUCCESS(*err) && args->sourceLimit > args->source && args->targetLimit > args->target) {
@@ -1149,7 +1149,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 			saveSourceLimit = args->sourceLimit;
 			args->source = errSource = LMBCS;
 			args->sourceLimit = LMBCS+size_old+size_new;
-			savebytes = (int8_t)(size_old+size_new);
+			savebytes = (int8)(size_old+size_new);
 			uniChar = (UChar)_LMBCSGetNextUCharWorker(args, err);
 			args->source = saveSource + ((args->source - LMBCS) - size_old);
 			args->sourceLimit = saveSourceLimit;
@@ -1170,7 +1170,7 @@ static void U_CALLCONV _LMBCSToUnicodeWithOffsets(UConverterToUnicodeArgs*    ar
 		else {
 			errSource = saveSource;
 			uniChar = (UChar)_LMBCSGetNextUCharWorker(args, err);
-			savebytes = (int8_t)(args->source - saveSource);
+			savebytes = (int8)(args->source - saveSource);
 		}
 		if(U_SUCCESS(*err)) {
 			if(uniChar < 0xfffe) {

@@ -69,7 +69,7 @@ class time_zone {
  public:
   time_zone() : time_zone(nullptr) {}  // Equivalent to UTC
   time_zone(const time_zone&) = default;
-  time_zone& operator=(const time_zone&) = default;
+  time_zone& operator = (const time_zone&) = default;
 
   std::string name() const;
 
@@ -207,10 +207,10 @@ class time_zone {
   std::string description() const;
 
   // Relational operators.
-  friend bool operator==(time_zone lhs, time_zone rhs) {
+  friend bool operator == (time_zone lhs, time_zone rhs) {
     return &lhs.effective_impl() == &rhs.effective_impl();
   }
-  friend bool operator!=(time_zone lhs, time_zone rhs) { return !(lhs == rhs); }
+  friend bool operator != (time_zone lhs, time_zone rhs) { return !(lhs == rhs); }
 
   template <typename H>
   friend H AbslHashValue(H h, time_zone tz) {

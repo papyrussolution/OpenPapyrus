@@ -8389,6 +8389,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			double cost = 0.0;
 			double old_cost = 0.0;
 			double price = 0.0;
+			double nominal_price = 0.0;
 			double old_price = 0.0;
 			double qtty  = 0.0;
 			double old_qtty = 0.0;
@@ -8415,6 +8416,7 @@ int PPALDD_ContentBList::NextIteration(PPIterID iterId)
 			I.ExtSum   = vect.GetValue(GTAXVF_EXCISE);
 			I.StTax    = vect.GetTaxRate(GTAX_SALES, 0);
 			I.StSum    = vect.GetValue(GTAXVF_SALESTAX);
+			I.NominalPrice = fdivnz(vect.GetValue(GTAXVF_BEFORETAXES), qtty); // @v11.3.6
 			if(ti.Flags & PPTFR_COSTWOVAT) {
 				vect.CalcTI(ti, item.OpID, TIAMT_COST);
 				cost += vect.GetValue(GTAXVF_VAT) / qtty;

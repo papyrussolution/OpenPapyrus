@@ -871,8 +871,7 @@ PosPaymentBlock & PosPaymentBlock::Z()
 	DisabledKinds = 0;
 	// @v11.3.6 AltCashReg = -1;
 	Flags = 0; // @v11.3.6
-	BuyersEAddrType = 0; // @v11.3.6
-	BuyersEAddr.Z(); // @v11.3.6
+	SetBuyersEAddr(0, 0); // @v11.3.6
 	CcPl.freeAll();
 	BonusMaxPart = 0.0;
 	UsableBonus = 0.0;
@@ -893,6 +892,18 @@ PosPaymentBlock & PosPaymentBlock::Init(const CPosProcessor * pCpp)
 	UsableBonus = pCpp->GetUsableBonus();
 	BonusMaxPart = pCpp->GetBonusMaxPart();
 	return *this;
+}
+
+bool PosPaymentBlock::SetBuyersEAddr(int addrType, const char * pAddr)
+{
+	bool    ok = true;
+	THROW(oneof3(addrType, 0, SNTOK_EMAIL, SNTOK_PHONE));
+	THROW(isempty(pAddr) || oneof2(addrType, SNTOK_EMAIL, SNTOK_PHONE));
+	THROW(addrType == 0 || !isempty(pAddr));
+	BuyersEAddrType = addrType;
+	(BuyersEAddr = pAddr).Strip();
+	CATCHZOK
+	return ok;
 }
 
 double PosPaymentBlock::GetTotal() const { return Total; }
@@ -989,11 +1000,9 @@ int PosPaymentBlock::EditDialog2()
 				SString eaddr_buf;
 				getCtrlString(CTL_CPPAYM_EADDR, eaddr_buf);
 				const int eaddr_status = GetEAddrStatus(eaddr_buf);
-				Data.BuyersEAddr.Z();
-				Data.BuyersEAddrType = 0;
+				Data.SetBuyersEAddr(0, 0);
 				if(oneof2(eaddr_status, SNTOK_EMAIL, SNTOK_PHONE)) {
-					Data.BuyersEAddr = eaddr_buf;
-					Data.BuyersEAddrType = eaddr_status;
+					Data.SetBuyersEAddr(eaddr_status, eaddr_buf);
 					v = getCtrlUInt16(CTL_CPPAYM_PAPERLESS);
 					SETFLAG(Data.Flags, PosPaymentBlock::fPaperless, v);
 				}

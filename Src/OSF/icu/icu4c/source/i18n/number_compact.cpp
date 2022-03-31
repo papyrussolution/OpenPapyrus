@@ -173,8 +173,8 @@ void CompactData::CompactDataSink::put(const char * key, ResourceValue &value, b
 	for(int i3 = 0; powersOfTenTable.getKeyAndValue(i3, key, value); ++i3) {
 		// Assumes that the keys are always of the form "10000" where the magnitude is the
 		// length of the key minus one.  We expect magnitudes to be less than MAX_DIGITS.
-		auto magnitude = static_cast<int8_t> (strlen(key) - 1);
-		int8_t multiplier = data.multipliers[magnitude];
+		auto magnitude = static_cast<int8> (strlen(key) - 1);
+		int8 multiplier = data.multipliers[magnitude];
 		U_ASSERT(magnitude < COMPACT_MAX_DIGITS);
 
 		// Iterate over the plural variants ("one", "other", etc)
@@ -213,7 +213,7 @@ void CompactData::CompactDataSink::put(const char * key, ResourceValue &value, b
 			if(multiplier == 0) {
 				int32_t numZeros = countZeros(patternString, patternLength);
 				if(numZeros > 0) { // numZeros==0 in certain cases, like Somali "Kun"
-					multiplier = static_cast<int8_t> (numZeros - magnitude - 1);
+					multiplier = static_cast<int8> (numZeros - magnitude - 1);
 				}
 			}
 		}

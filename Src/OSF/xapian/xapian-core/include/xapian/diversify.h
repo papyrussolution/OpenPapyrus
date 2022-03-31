@@ -55,7 +55,7 @@ public:
 	 *
 	 *  @param other	The object to copy.
 	 */
-	Diversify& operator=(const Diversify& other);
+	Diversify& operator = (const Diversify& other);
 
 	/** Move constructor.
 	 *
@@ -67,7 +67,7 @@ public:
 	 *
 	 *  @param other	The object to move.
 	 */
-	Diversify& operator=(Diversify&& other);
+	Diversify& operator = (Diversify&& other);
 
 	/** Constructor specifying the number of diversified search results
 	 *

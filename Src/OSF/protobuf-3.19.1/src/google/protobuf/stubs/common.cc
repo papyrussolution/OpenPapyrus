@@ -159,7 +159,7 @@ LogMessage& LogMessage::operator<<(const char* value) {
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(const StringPiece& value) {
+LogMessage& LogMessage::operator<<(const StringPiece & value) {
 	message_ += value.ToString();
 	return *this;
 }
@@ -169,7 +169,7 @@ LogMessage& LogMessage::operator<<(const util::Status& status) {
 	return *this;
 }
 
-LogMessage& LogMessage::operator<<(const uint128& value) {
+LogMessage& LogMessage::operator<<(const uint128 & value) {
 	std::ostringstream str;
 	str << value;
 	message_ += str.str();
@@ -228,7 +228,7 @@ void LogMessage::Finish() {
 	}
 }
 
-void LogFinisher::operator=(LogMessage& other) {
+void LogFinisher::operator = (LogMessage& other) {
 	other.Finish();
 }
 }  // namespace internal

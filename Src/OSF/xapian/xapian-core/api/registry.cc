@@ -277,7 +277,7 @@ Registry::Registry(const Registry & other) : internal(other.internal)
 	LOGCALL_CTOR(API, "Registry", other);
 }
 
-Registry & Registry::operator=(const Registry &other)
+Registry & Registry::operator = (const Registry &other)
 {
 	LOGCALL(API, Xapian::Registry &, "Xapian::Registry::operator=", other);
 	internal = other.internal;
@@ -285,7 +285,7 @@ Registry & Registry::operator=(const Registry &other)
 }
 
 Registry::Registry(Registry &&) = default;
-Registry & Registry::operator=(Registry &&) = default;
+Registry & Registry::operator = (Registry &&) = default;
 
 Registry::Registry() : internal(new Registry::Internal())
 {

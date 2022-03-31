@@ -228,7 +228,7 @@ public:
 	 * does not fit into a 31-bit unsigned integer.
 	 */
 	static int32_t parseNumber(const UnicodeString & text,
-	    int32_t& pos, int8_t radix);
+	    int32_t& pos, int8 radix);
 
 	static void appendToRule(UnicodeString & rule,
 	    UChar32 c,

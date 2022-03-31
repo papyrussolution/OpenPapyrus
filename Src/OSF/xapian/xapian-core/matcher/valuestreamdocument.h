@@ -27,7 +27,7 @@
 
 /// A document which gets its values from a ValueStreamManager.
 class ValueStreamDocument : public Xapian::Document::Internal {
-	void operator=(const ValueStreamDocument &); /// Don't allow assignment.
+	void operator = (const ValueStreamDocument &); /// Don't allow assignment.
 	ValueStreamDocument(const ValueStreamDocument &); /// Don't allow copying.
 	mutable std::map<Xapian::valueno, ValueList *> valuelists;
 	Xapian::Database db;

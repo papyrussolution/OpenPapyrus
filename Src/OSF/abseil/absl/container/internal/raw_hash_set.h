@@ -6,12 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
 // An open-addressing
 // hashtable with quadratic probing.
 //
@@ -277,11 +271,11 @@ public:
 	}
 
 private:
-	friend bool operator==(const BitMask& a, const BitMask& b) {
+	friend bool operator == (const BitMask& a, const BitMask& b) {
 		return a.mask_ == b.mask_;
 	}
 
-	friend bool operator!=(const BitMask& a, const BitMask& b) {
+	friend bool operator != (const BitMask& a, const BitMask& b) {
 		return a.mask_ != b.mask_;
 	}
 
@@ -844,13 +838,13 @@ public:
 			return tmp;
 		}
 
-		friend bool operator==(const iterator& a, const iterator& b) {
+		friend bool operator == (const iterator& a, const iterator& b) {
 			AssertIsValid(a.ctrl_);
 			AssertIsValid(b.ctrl_);
 			return a.ctrl_ == b.ctrl_;
 		}
 
-		friend bool operator!=(const iterator& a, const iterator& b) {
+		friend bool operator != (const iterator& a, const iterator& b) {
 			return !(a == b);
 		}
 
@@ -912,11 +906,11 @@ public:
 			return inner_++;
 		}
 
-		friend bool operator==(const const_iterator& a, const const_iterator& b) {
+		friend bool operator == (const const_iterator& a, const const_iterator& b) {
 			return a.inner_ == b.inner_;
 		}
 
-		friend bool operator!=(const const_iterator& a, const const_iterator& b) {
+		friend bool operator != (const const_iterator& a, const const_iterator& b) {
 			return !(a == b);
 		}
 
@@ -1114,7 +1108,7 @@ private:
 		}
 	}
 
-	raw_hash_set& operator=(const raw_hash_set& that) {
+	raw_hash_set& operator = (const raw_hash_set& that) {
 		raw_hash_set tmp(that,
 		    AllocTraits::propagate_on_container_copy_assignment::value
 		    ? that.alloc_ref()
@@ -1123,7 +1117,7 @@ private:
 		return *this;
 	}
 
-	raw_hash_set& operator=(raw_hash_set&& that) noexcept (
+	raw_hash_set& operator = (raw_hash_set&& that) noexcept (
 		absl::allocator_traits<allocator_type>::is_always_equal::value&&
 		std::is_nothrow_move_assignable<hasher>::value&&
 		std::is_nothrow_move_assignable<key_equal>::value) {
@@ -1659,7 +1653,7 @@ private:
 		return alloc_ref();
 	}
 
-	friend bool operator==(const raw_hash_set& a, const raw_hash_set& b) {
+	friend bool operator == (const raw_hash_set& a, const raw_hash_set& b) {
 		if(a.size() != b.size()) return false;
 		const raw_hash_set* outer = &a;
 		const raw_hash_set* inner = &b;
@@ -1669,7 +1663,7 @@ private:
 		return true;
 	}
 
-	friend bool operator!=(const raw_hash_set& a, const raw_hash_set& b) {
+	friend bool operator != (const raw_hash_set& a, const raw_hash_set& b) {
 		return !(a == b);
 	}
 

@@ -84,7 +84,7 @@ bool ScientificMatcher::match(StringSegment& segment, ParsedNumber& result, UErr
 		}
 
 		// Allow a sign, and then try to match digits.
-		int8_t exponentSign = 1;
+		int8 exponentSign = 1;
 		if(segment.startsWith(minusSignSet())) {
 			exponentSign = -1;
 			segment.adjustOffsetByCodePoint();

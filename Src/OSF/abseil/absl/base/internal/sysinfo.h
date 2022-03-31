@@ -6,12 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
 // This file includes routines to find out characteristics
 // of the machine a program is running on.  It is undoubtedly
 // system-dependent.
@@ -25,11 +19,9 @@
 #define ABSL_BASE_INTERNAL_SYSINFO_H_
 
 #ifndef _WIN32
-#include <sys/types.h>
+	#include <sys/types.h>
 #endif
-
 #include <cstdint>
-
 #include "absl/base/config.h"
 #include "absl/base/port.h"
 

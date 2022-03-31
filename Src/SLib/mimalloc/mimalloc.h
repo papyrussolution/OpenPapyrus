@@ -405,7 +405,7 @@ template <class T1, class T2> bool operator == (const mi_stl_allocator<T1>&, con
 	return true;
 }
 
-template <class T1, class T2> bool operator!=(const mi_stl_allocator<T1>&, const mi_stl_allocator<T2>&) NOEXCEPT {
+template <class T1, class T2> bool operator != (const mi_stl_allocator<T1>&, const mi_stl_allocator<T2>&) NOEXCEPT {
 	return false;
 }
 

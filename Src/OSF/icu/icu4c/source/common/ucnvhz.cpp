@@ -384,7 +384,7 @@ static void U_CALLCONV UConverter_fromUnicode_HZ_OFFSETS_LOGIC(UConverterFromUni
 					mySourceChar, &targetUniChar, args->converter->useFallback);
 				/* we can only use lead bytes 21..7D and trail bytes 21..7E */
 				if(length == 2 &&
-				    (uint16_t)(targetUniChar - 0xa1a1) <= (0xfdfe - 0xa1a1) &&
+				    (uint16)(targetUniChar - 0xa1a1) <= (0xfdfe - 0xa1a1) &&
 				    (uint8)(targetUniChar - 0xa1) <= (0xfe - 0xa1)
 				    ) {
 					targetUniChar -= 0x8080;

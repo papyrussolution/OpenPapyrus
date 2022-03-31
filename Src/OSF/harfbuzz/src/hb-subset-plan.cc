@@ -66,15 +66,11 @@ static inline void _gpos_closure_lookups_features(hb_face_t * face, const hb_set
 #endif
 
 #ifndef HB_NO_VAR
-static inline void _collect_layout_variation_indices(hb_face_t * face,
-    const hb_set_t * glyphset,
-    const hb_map_t * gpos_lookups,
-    hb_set_t * layout_variation_indices,
-    hb_map_t * layout_variation_idx_map)
+static inline void _collect_layout_variation_indices(hb_face_t * face, const hb_set_t * glyphset, const hb_map_t * gpos_lookups,
+    hb_set_t * layout_variation_indices, hb_map_t * layout_variation_idx_map)
 {
 	hb_blob_ptr_t<OT::GDEF> gdef = hb_sanitize_context_t().reference_table<OT::GDEF> (face);
 	hb_blob_ptr_t<OT::GPOS> gpos = hb_sanitize_context_t().reference_table<OT::GPOS> (face);
-
 	if(!gdef->has_data()) {
 		gdef.destroy();
 		gpos.destroy();
@@ -82,21 +78,16 @@ static inline void _collect_layout_variation_indices(hb_face_t * face,
 	}
 	OT::hb_collect_variation_indices_context_t c(layout_variation_indices, glyphset, gpos_lookups);
 	gdef->collect_variation_indices(&c);
-
 	if(hb_ot_layout_has_positioning(face))
 		gpos->collect_variation_indices(&c);
-
 	gdef->remap_layout_variation_indices(layout_variation_indices, layout_variation_idx_map);
-
 	gdef.destroy();
 	gpos.destroy();
 }
 
 #endif
 
-static inline void _cmap_closure(hb_face_t * face,
-    const hb_set_t * unicodes,
-    hb_set_t  * glyphset)
+static inline void _cmap_closure(hb_face_t * face, const hb_set_t * unicodes, hb_set_t  * glyphset)
 {
 	OT::cmap::accelerator_t cmap;
 	cmap.init(face);
@@ -104,8 +95,7 @@ static inline void _cmap_closure(hb_face_t * face,
 	cmap.fini();
 }
 
-static inline void _remove_invalid_gids(hb_set_t * glyphs,
-    uint num_glyphs)
+static inline void _remove_invalid_gids(hb_set_t * glyphs, uint num_glyphs)
 {
 	hb_codepoint_t gid = HB_SET_VALUE_INVALID;
 	while(glyphs->next(&gid)) {
@@ -114,12 +104,8 @@ static inline void _remove_invalid_gids(hb_set_t * glyphs,
 	}
 }
 
-static void _populate_gids_to_retain(hb_subset_plan_t* plan,
-    const hb_set_t * unicodes,
-    const hb_set_t * input_glyphs_to_retain,
-    bool close_over_gsub,
-    bool close_over_gpos,
-    bool close_over_gdef)
+static void _populate_gids_to_retain(hb_subset_plan_t* plan, const hb_set_t * unicodes, const hb_set_t * input_glyphs_to_retain,
+    bool close_over_gsub, bool close_over_gpos, bool close_over_gdef)
 {
 	OT::cmap::accelerator_t cmap;
 	OT::glyf::accelerator_t glyf;
@@ -133,10 +119,8 @@ static void _populate_gids_to_retain(hb_subset_plan_t* plan,
 	cff.init(plan->source);
 #endif
 	colr.init(plan->source);
-
 	plan->_glyphset_gsub->add(0); // Not-def
 	hb_set_union(plan->_glyphset_gsub, input_glyphs_to_retain);
-
 	hb_codepoint_t cp = HB_SET_VALUE_INVALID;
 	while(unicodes->next(&cp)) {
 		hb_codepoint_t gid;
@@ -148,14 +132,11 @@ static void _populate_gids_to_retain(hb_subset_plan_t* plan,
 		plan->codepoint_to_glyph->set(cp, gid);
 		plan->_glyphset_gsub->add(gid);
 	}
-
 	_cmap_closure(plan->source, plan->unicodes, plan->_glyphset_gsub);
-
 #ifndef HB_NO_SUBSET_LAYOUT
 	if(close_over_gsub)
 		// closure all glyphs/lookups/features needed for GSUB substitutions.
 		_gsub_closure_glyphs_lookups_features(plan->source, plan->_glyphset_gsub, plan->gsub_lookups, plan->gsub_features);
-
 	if(close_over_gpos)
 		_gpos_closure_lookups_features(plan->source, plan->_glyphset_gsub, plan->gpos_lookups, plan->gpos_features);
 #endif
@@ -173,16 +154,10 @@ static void _populate_gids_to_retain(hb_subset_plan_t* plan,
 		if(colr.is_valid())
 			colr.closure_glyphs(gid, plan->_glyphset);
 	}
-
 	_remove_invalid_gids(plan->_glyphset, plan->source->get_num_glyphs());
-
 #ifndef HB_NO_VAR
 	if(close_over_gdef)
-		_collect_layout_variation_indices(plan->source,
-		    plan->_glyphset,
-		    plan->gpos_lookups,
-		    plan->layout_variation_indices,
-		    plan->layout_variation_idx_map);
+		_collect_layout_variation_indices(plan->source, plan->_glyphset, plan->gpos_lookups, plan->layout_variation_indices, plan->layout_variation_idx_map);
 #endif
 
 #ifndef HB_NO_SUBSET_CFF
@@ -226,8 +201,7 @@ static void _create_old_gid_to_new_gid_map(const hb_face_t * face,
 	;
 }
 
-static void _nameid_closure(hb_face_t * face,
-    hb_set_t * nameids)
+static void _nameid_closure(hb_face_t * face, hb_set_t * nameids)
 {
 #ifndef HB_NO_STYLE
 	face->table.STAT->collect_name_ids(nameids);
@@ -267,7 +241,6 @@ hb_subset_plan_t * hb_subset_plan_create(hb_face_t * face,
 	plan->drop_tables = hb_set_reference(input->drop_tables);
 	plan->source = hb_face_reference(face);
 	plan->dest = hb_face_builder_create();
-
 	plan->_glyphset = hb_set_create();
 	plan->_glyphset_gsub = hb_set_create();
 	plan->codepoint_to_glyph = hb_map_create();
@@ -279,21 +252,9 @@ hb_subset_plan_t * hb_subset_plan_create(hb_face_t * face,
 	plan->gpos_features = hb_map_create();
 	plan->layout_variation_indices = hb_set_create();
 	plan->layout_variation_idx_map = hb_map_create();
-
-	_populate_gids_to_retain(plan,
-	    input->unicodes,
-	    input->glyphs,
-	    !input->drop_tables->has(HB_OT_TAG_GSUB),
-	    !input->drop_tables->has(HB_OT_TAG_GPOS),
-	    !input->drop_tables->has(HB_OT_TAG_GDEF));
-
-	_create_old_gid_to_new_gid_map(face,
-	    input->retain_gids,
-	    plan->_glyphset,
-	    plan->glyph_map,
-	    plan->reverse_glyph_map,
-	    &plan->_num_output_glyphs);
-
+	_populate_gids_to_retain(plan, input->unicodes, input->glyphs,
+	    !input->drop_tables->has(HB_OT_TAG_GSUB), !input->drop_tables->has(HB_OT_TAG_GPOS), !input->drop_tables->has(HB_OT_TAG_GDEF));
+	_create_old_gid_to_new_gid_map(face, input->retain_gids, plan->_glyphset, plan->glyph_map, plan->reverse_glyph_map, &plan->_num_output_glyphs);
 	return plan;
 }
 
@@ -304,26 +265,25 @@ hb_subset_plan_t * hb_subset_plan_create(hb_face_t * face,
  **/
 void hb_subset_plan_destroy(hb_subset_plan_t * plan)
 {
-	if(!hb_object_destroy(plan)) return;
-
-	hb_set_destroy(plan->unicodes);
-	hb_set_destroy(plan->name_ids);
-	hb_set_destroy(plan->name_languages);
-	hb_set_destroy(plan->glyphs_requested);
-	hb_set_destroy(plan->drop_tables);
-	hb_face_destroy(plan->source);
-	hb_face_destroy(plan->dest);
-	hb_map_destroy(plan->codepoint_to_glyph);
-	hb_map_destroy(plan->glyph_map);
-	hb_map_destroy(plan->reverse_glyph_map);
-	hb_set_destroy(plan->_glyphset);
-	hb_set_destroy(plan->_glyphset_gsub);
-	hb_map_destroy(plan->gsub_lookups);
-	hb_map_destroy(plan->gpos_lookups);
-	hb_map_destroy(plan->gsub_features);
-	hb_map_destroy(plan->gpos_features);
-	hb_set_destroy(plan->layout_variation_indices);
-	hb_map_destroy(plan->layout_variation_idx_map);
-
-	SAlloc::F(plan);
+	if(hb_object_destroy(plan)) {
+		hb_set_destroy(plan->unicodes);
+		hb_set_destroy(plan->name_ids);
+		hb_set_destroy(plan->name_languages);
+		hb_set_destroy(plan->glyphs_requested);
+		hb_set_destroy(plan->drop_tables);
+		hb_face_destroy(plan->source);
+		hb_face_destroy(plan->dest);
+		hb_map_destroy(plan->codepoint_to_glyph);
+		hb_map_destroy(plan->glyph_map);
+		hb_map_destroy(plan->reverse_glyph_map);
+		hb_set_destroy(plan->_glyphset);
+		hb_set_destroy(plan->_glyphset_gsub);
+		hb_map_destroy(plan->gsub_lookups);
+		hb_map_destroy(plan->gpos_lookups);
+		hb_map_destroy(plan->gsub_features);
+		hb_map_destroy(plan->gpos_features);
+		hb_set_destroy(plan->layout_variation_indices);
+		hb_map_destroy(plan->layout_variation_idx_map);
+		SAlloc::F(plan);
+	}
 }

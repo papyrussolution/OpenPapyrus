@@ -1,19 +1,14 @@
+// regextxt.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
- * COPYRIGHT:
- * Copyright (c) 2008-2010, International Business Machines Corporation and
- * others. All Rights Reserved.
- ********************************************************************/
 //
-//  file:  regextxt.h
+// COPYRIGHT: Copyright (c) 2008-2010, International Business Machines Corporation and others. All Rights Reserved.
 //
 //  This file contains utility code for supporting UText in the regular expression engine.
 //
 //  This class is internal to the regular expression implementation.
 //  For the public Regular Expression API, see the file "unicode/regex.h"
 //
-
 #ifndef _REGEXTXT_H
 #define _REGEXTXT_H
 

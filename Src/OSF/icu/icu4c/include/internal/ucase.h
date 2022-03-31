@@ -163,17 +163,17 @@ constexpr UChar LIMIT = 0x180;
 /** U+017F case-folds and uppercases crossing the ASCII boundary. */
 constexpr UChar LONG_S = 0x17f;
 /** Exception: Complex mapping, or too-large delta. */
-constexpr int8_t EXC = -0x80;
+constexpr int8 EXC = -0x80;
 
 /** Deltas for lowercasing for most locales, and default case folding. */
-extern const int8_t TO_LOWER_NORMAL[LIMIT];
+extern const int8 TO_LOWER_NORMAL[LIMIT];
 /** Deltas for lowercasing for tr/az/lt, and Turkic case folding. */
-extern const int8_t TO_LOWER_TR_LT[LIMIT];
+extern const int8 TO_LOWER_TR_LT[LIMIT];
 
 /** Deltas for uppercasing for most locales. */
-extern const int8_t TO_UPPER_NORMAL[LIMIT];
+extern const int8 TO_UPPER_NORMAL[LIMIT];
 /** Deltas for uppercasing for tr/az. */
-extern const int8_t TO_UPPER_TR[LIMIT];
+extern const int8 TO_UPPER_TR[LIMIT];
 
 }  // namespace LatinCase
 
@@ -217,7 +217,7 @@ U_CDECL_BEGIN
  * @return Next code point, or <0 when the iteration is done.
  */
 typedef UChar32 U_CALLCONV
-UCaseContextIterator(void *context, int8_t dir);
+UCaseContextIterator(void *context, int8 dir);
 
 /**
  * Sample struct which may be used by some implementations of
@@ -230,10 +230,10 @@ struct UCaseContext {
 	int32_t limit;
     int32_t cpStart;
 	int32_t cpLimit;
-    int8_t dir;
-    int8_t b1;
-	int8_t b2;
-	int8_t b3;
+    int8 dir;
+    int8 b1;
+	int8 b2;
+	int8 b3;
 };
 typedef struct UCaseContext UCaseContext;
 
@@ -380,9 +380,9 @@ enum {
 #define UCASE_MIN_DELTA     (-UCASE_MAX_DELTA-1)
 
 #if U_SIGNED_RIGHT_SHIFT_IS_ARITHMETIC
-#define UCASE_GET_DELTA(props) ((int16_t)(props)>>UCASE_DELTA_SHIFT)
+#define UCASE_GET_DELTA(props) ((int16)(props)>>UCASE_DELTA_SHIFT)
 #else
-#define UCASE_GET_DELTA(props) (int16_t)(((props)&0x8000) ? (((props)>>UCASE_DELTA_SHIFT)|0xfe00) : ((uint16_t)(props)>>UCASE_DELTA_SHIFT))
+#define UCASE_GET_DELTA(props) (int16)(((props)&0x8000) ? (((props)>>UCASE_DELTA_SHIFT)|0xfe00) : ((uint16)(props)>>UCASE_DELTA_SHIFT))
 #endif
 
 /* exception: bits 15..4 are an unsigned 12-bit index into the exceptions array */
@@ -405,7 +405,7 @@ enum {
     UCASE_EXC_ALL_SLOTS     /* one past the last slot */
 };
 
-/* each slot is 2 uint16_t instead of 1 */
+/* each slot is 2 uint16 instead of 1 */
 #define UCASE_EXC_DOUBLE_SLOTS      0x100
 
 enum {

@@ -358,13 +358,13 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	Query & operator=(const Query & o) { internal = o.internal; return *this; }
+	Query & operator = (const Query & o) { internal = o.internal; return *this; }
 
 	/// Move constructor.
 	Query(Query &&) = default;
 
 	/// Move assignment operator.
-	Query & operator=(Query &&) = default;
+	Query & operator = (Query &&) = default;
 
 	/** Construct a Query object for a term.
 	 *
@@ -781,7 +781,7 @@ inline const Query operator/(const Query & q, double factor)
 /** @private @internal */
 class InvertedQuery_ {
 	const Query & query;
-	void operator=(const InvertedQuery_ &);
+	void operator = (const InvertedQuery_ &);
 	explicit InvertedQuery_(const Query & query_) : query(query_) 
 	{
 	}

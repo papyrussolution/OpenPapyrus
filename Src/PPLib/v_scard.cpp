@@ -3444,7 +3444,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 			while(cc_view.NextIteration(&cc_item) > 0) {
 				if(ScObj.Search(cc_item.SCardID, &sc_rec) > 0) {
 					temp_buf = sc_rec.Code;
-					if(temp_buf.CmpPrefix(ScPrefix, 0) == 0) {
+					if(temp_buf.HasPrefix(ScPrefix)) {
 						UhttSCardOpViewItem item;
 						MEMSZERO(item);
 						item.SCardID = cc_item.SCardID;
@@ -3476,7 +3476,7 @@ int PPViewUhttSCardOp::Init_(const PPBaseFilt * pFilt)
 				SCardTbl::Rec sc_rec;
 				if(ScObj.Fetch(rec.SCardID, &sc_rec) > 0) {
 					temp_buf = sc_rec.Code;
-					if(temp_buf.CmpPrefix(ScPrefix, 0) == 0) {
+					if(temp_buf.HasPrefix(ScPrefix)) {
 						UhttSCardOpViewItem item;
 						MEMSZERO(item);
 						item.Dtm.d = rec.Dt;
@@ -3547,7 +3547,7 @@ int PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
 						THROW(sc_view.InitIteration());
 						while(sc_view.NextIteration(&sc_item) > 0) {
 							temp_buf = sc_item.Code;
-							if(temp_buf.CmpPrefix(ScPrefix, 0) == 0) {
+							if(temp_buf.HasPrefix(ScPrefix)) {
 								double rest = 0;
 								THROW(ScObj.P_Tbl->GetRest(sc_item.ID, rItem.Dtm.d, &rest));
 								rItem.SCardRest += rest;
@@ -3561,7 +3561,7 @@ int PPViewUhttSCardOp::Helper_AddItem(UhttSCardOpViewItem & rItem)
 		case UhttSCardOpFilt::gSCard:
 			{
 				uint idx = 0;
-				uint offs = offsetof(UhttSCardOpViewItem, SCardID);
+				const uint offs = offsetof(UhttSCardOpViewItem, SCardID);
 				THROW(rItem.SCardID);
 				int r = List.lsearch(&rItem.SCardID, &idx, CMPF_LONG, offs, 0);
 				if(r == 1) {

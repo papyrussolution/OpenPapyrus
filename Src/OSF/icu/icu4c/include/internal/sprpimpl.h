@@ -88,7 +88,7 @@ struct UStringPrepKey{
 struct UStringPrepProfile{
     int32_t indexes[_SPREP_INDEX_TOP];
     UTrie sprepTrie;
-    const uint16_t* mappingData;
+    const uint16* mappingData;
     UDataMemory* sprepData;
     int32_t refCount;
     bool isDataLoaded;

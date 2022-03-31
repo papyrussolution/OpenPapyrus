@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2009-2016, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2009-2016, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef __ZRULE_H
 #define __ZRULE_H
 
@@ -260,5 +256,4 @@ U_CAPI UClassID U_EXPORT2 izrule_getStaticClassID(IZRule* rule);
 U_CAPI UClassID U_EXPORT2 izrule_getDynamicClassID(IZRule* rule);
 
 #endif
-
 #endif

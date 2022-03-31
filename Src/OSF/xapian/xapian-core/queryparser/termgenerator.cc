@@ -20,9 +20,9 @@ using namespace std;
 using namespace Xapian;
 
 TermGenerator::TermGenerator(const TermGenerator &) = default;
-TermGenerator & TermGenerator::operator=(const TermGenerator &) = default;
+TermGenerator & TermGenerator::operator = (const TermGenerator &) = default;
 TermGenerator::TermGenerator(TermGenerator &&) = default;
-TermGenerator & TermGenerator::operator=(TermGenerator &&) = default;
+TermGenerator & TermGenerator::operator = (TermGenerator &&) = default;
 
 TermGenerator::TermGenerator() : internal(new TermGenerator::Internal) 
 {

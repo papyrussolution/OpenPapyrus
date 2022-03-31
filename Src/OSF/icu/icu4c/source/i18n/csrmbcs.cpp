@@ -17,7 +17,7 @@ U_NAMESPACE_BEGIN
 
 #define min(x, y) (((x)<(y)) ? (x) : (y))
 
-static const uint16_t commonChars_sjis [] = {
+static const uint16 commonChars_sjis [] = {
 // TODO:  This set of data comes from the character frequency-
 //        of-occurrence analysis tool.  The data needs to be moved
 //        into a resource and loaded from there.
@@ -29,7 +29,7 @@ static const uint16_t commonChars_sjis [] = {
 	0x838a, 0x838b, 0x838d, 0x8393, 0x8e96, 0x93fa, 0x95aa
 };
 
-static const uint16_t commonChars_euc_jp[] = {
+static const uint16 commonChars_euc_jp[] = {
 // TODO:  This set of data comes from the character frequency-
 //        of-occurrence analysis tool.  The data needs to be moved
 //        into a resource and loaded from there.
@@ -45,7 +45,7 @@ static const uint16_t commonChars_euc_jp[] = {
 	0xbbc8, 0xbef0, 0xbfb7, 0xc4ea, 0xc6fc, 0xc7bd, 0xcab8, 0xcaf3, 0xcbdc, 0xcdd1
 };
 
-static const uint16_t commonChars_euc_kr[] = {
+static const uint16 commonChars_euc_kr[] = {
 // TODO:  This set of data comes from the character frequency-
 //        of-occurrence analysis tool.  The data needs to be moved
 //        into a resource and loaded from there.
@@ -61,7 +61,7 @@ static const uint16_t commonChars_euc_kr[] = {
 	0xc1f8, 0xc4a1, 0xc5cd, 0xc6ae, 0xc7cf, 0xc7d1, 0xc7d2, 0xc7d8, 0xc7e5, 0xc8ad
 };
 
-static const uint16_t commonChars_big5[] = {
+static const uint16 commonChars_big5[] = {
 // TODO:  This set of data comes from the character frequency-
 //        of-occurrence analysis tool.  The data needs to be moved
 //        into a resource and loaded from there.
@@ -77,7 +77,7 @@ static const uint16_t commonChars_big5[] = {
 	0xbba1, 0xbdd1, 0xc2c4, 0xc3b9, 0xc440, 0xc45f
 };
 
-static const uint16_t commonChars_gb_18030[] = {
+static const uint16 commonChars_gb_18030[] = {
 // TODO:  This set of data comes from the character frequency-
 //        of-occurrence analysis tool.  The data needs to be moved
 //        into a resource and loaded from there.
@@ -93,7 +93,7 @@ static const uint16_t commonChars_gb_18030[] = {
 	0xd2b5, 0xd2bb, 0xd2d4, 0xd3c3, 0xd3d0, 0xd3fd, 0xd4c2, 0xd4da, 0xd5e2, 0xd6d0
 };
 
-static int32_t binarySearch(const uint16_t * array, int32_t len, uint16_t value)
+static int32_t binarySearch(const uint16 * array, int32_t len, uint16 value)
 {
 	int32_t start = 0, end = len-1;
 	int32_t mid = (start+end)/2;
@@ -142,7 +142,7 @@ CharsetRecog_mbcs::~CharsetRecog_mbcs()
 	// nothing to do.
 }
 
-int32_t CharsetRecog_mbcs::match_mbcs(InputText * det, const uint16_t commonChars[], int32_t commonCharsLen) const {
+int32_t CharsetRecog_mbcs::match_mbcs(InputText * det, const uint16 commonChars[], int32_t commonCharsLen) const {
 	int32_t singleByteCharCount = 0;
 	int32_t doubleByteCharCount = 0;
 	int32_t commonCharCount     = 0;
@@ -165,7 +165,7 @@ int32_t CharsetRecog_mbcs::match_mbcs(InputText * det, const uint16_t commonChar
 				doubleByteCharCount++;
 
 				if(commonChars != 0) {
-					if(binarySearch(commonChars, commonCharsLen, static_cast<uint16_t>(iter.charValue)) >= 0) {
+					if(binarySearch(commonChars, commonCharsLen, static_cast<uint16>(iter.charValue)) >= 0) {
 						commonCharCount += 1;
 					}
 				}

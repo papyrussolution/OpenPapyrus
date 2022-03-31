@@ -93,7 +93,7 @@ protected:
 
 private:
 	/// Don't allow assignment.
-	void operator=(const Weight &);
+	void operator = (const Weight &);
 	/// A bitmask of the statistics this weighting scheme needs.
 	stat_flags stats_needed;
 	/// The number of documents in the collection.

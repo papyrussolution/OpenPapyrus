@@ -287,8 +287,8 @@ public:
 			return *first;
 		return Xapian::Query(*i, 1, pos);
     }
-    bool operator==(const SynonymIterator & o) const { return i == o.i && first == o.first; }
-    bool operator!=(const SynonymIterator & o) const { return !(*this == o); }
+    bool operator == (const SynonymIterator & o) const { return i == o.i && first == o.first; }
+    bool operator != (const SynonymIterator & o) const { return !(*this == o); }
     typedef std::input_iterator_tag iterator_category;
     typedef Xapian::Query value_type;
     typedef Xapian::termcount_diff difference_type;

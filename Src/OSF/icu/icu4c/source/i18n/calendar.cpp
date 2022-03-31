@@ -1420,7 +1420,7 @@ uint8 Calendar::julianDayToDayOfWeek(double julian)
 {
 	// If julian is negative, then julian%7 will be negative, so we adjust
 	// accordingly.  We add 1 because Julian day 0 is Monday.
-	int8_t dayOfWeek = (int8_t)uprv_fmod(julian + 1, 7);
+	int8 dayOfWeek = (int8)uprv_fmod(julian + 1, 7);
 
 	uint8 result = (uint8)(dayOfWeek + ((dayOfWeek < 0) ? (7+UCAL_SUNDAY ) : UCAL_SUNDAY));
 	return result;

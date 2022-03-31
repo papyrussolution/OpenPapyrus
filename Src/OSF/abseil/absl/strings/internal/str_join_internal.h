@@ -7,13 +7,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 // This file declares INTERNAL parts of the Join API that are inlined/templated
 // or otherwise need to be available at compile time. The main abstractions
 // defined in this file are:
@@ -37,7 +30,6 @@
 #include <string>
 #include <type_traits>
 #include <utility>
-
 #include "absl/strings/internal/ostringstream.h"
 #include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/str_cat.h"

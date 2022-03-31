@@ -826,8 +826,8 @@ public:
         // After pattern parsing, the parts are effectively immutable.
         UMessagePatternPartType type;
         int32_t index;
-        uint16_t length;
-        int16_t value;
+        uint16 length;
+        int16 value;
         int32_t limitPartIndex;
     };
 

@@ -129,7 +129,7 @@ private:
     /**
   * Miscellaneous attributes.
      */
-    int8_t flags;
+    int8 flags;
 
     /**
   * Flag attributes.
@@ -226,7 +226,7 @@ public:
   * set, or otherwise can match multiple keys, the index value is -1.
   * @return    8-bit index value for this rule.
      */
-    int16_t getIndexValue() const;
+    int16 getIndexValue() const;
 
     /**
   * Internal method.  Returns true if this rule matches the given

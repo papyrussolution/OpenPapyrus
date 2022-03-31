@@ -6996,9 +6996,9 @@ int ExportDialogs(const char * pFileName)
 										else
 											temp_buf = "cmNone";
 										size_t offs = 0;
-										if(temp_buf.CmpPrefix("cma", 0) == 0)
+										if(temp_buf.HasPrefix("cma"))
 											offs = 3;
-										else if(temp_buf.CmpPrefix("cm", 0) == 0)
+										else if(temp_buf.HasPrefix("cm"))
 											offs = 2;
 										if(symb.ToLong() != 0) {
 											symb.Z().Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(temp_buf+offs).ToUpper();
@@ -7438,9 +7438,9 @@ int ExportDialogs2(const char * pFileName)
 										else
 											cmd_buf = "cmNone";
 										size_t offs = 0;
-										if(cmd_buf.CmpPrefix("cma", 0) == 0)
+										if(cmd_buf.HasPrefix("cma"))
 											offs = 3;
-										else if(cmd_buf.CmpPrefix("cm", 0) == 0)
+										else if(cmd_buf.HasPrefix("cm"))
 											offs = 2;
 										if(symb.ToLong() != 0) {
 											symb.Z().Cat("CTL").CatChar('_').Cat("CMD").CatChar('_').Cat(cmd_buf+offs).ToUpper();

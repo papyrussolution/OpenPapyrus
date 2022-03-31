@@ -185,7 +185,7 @@ std::string Uint128ToFormattedString(uint128 v, std::ios_base::fmtflags flags) {
 }
 }  // namespace
 
-std::ostream& operator<<(std::ostream& os, uint128 v) 
+std::ostream & operator<<(std::ostream & os, uint128 v) 
 {
 	std::ios_base::fmtflags flags = os.flags();
 	std::string rep = Uint128ToFormattedString(v, flags);
@@ -264,7 +264,7 @@ int128 operator%(int128 lhs, int128 rhs)
 
 #endif  // ABSL_HAVE_INTRINSIC_INT128
 
-std::ostream& operator<<(std::ostream& os, int128 v) 
+std::ostream & operator<<(std::ostream & os, int128 v) 
 {
 	std::ios_base::fmtflags flags = os.flags();
 	std::string rep;

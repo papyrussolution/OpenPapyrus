@@ -9144,6 +9144,7 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_FACEANONYMOUS01
 	PPDV_FACEARBITRARY01
 	PPDV_FACEVERIFIABLE01
+	PPDV_FILTERRMV01
 }
 //
 // Следующие изображения используются без замещения цвета

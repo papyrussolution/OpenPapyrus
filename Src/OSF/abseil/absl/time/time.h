@@ -1,3 +1,4 @@
+// time.h
 // Copyright 2017 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: time.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines abstractions for computing with absolute points
 // in time, durations of time, and formatting and parsing time within a given
@@ -171,7 +162,7 @@ public:
 #else
 	constexpr Duration(const Duration& d) = default;
 #endif
-	Duration& operator=(const Duration& d) = default;
+	Duration& operator = (const Duration& d) = default;
 	// Compound assignment operators.
 	Duration& operator+=(Duration d);
 	Duration& operator-=(Duration d);
@@ -219,12 +210,12 @@ private:
 };
 
 // Relational Operators
-constexpr bool operator<(Duration lhs, Duration rhs);
-constexpr bool operator>(Duration lhs, Duration rhs) { return rhs < lhs; }
-constexpr bool operator>=(Duration lhs, Duration rhs) { return !(lhs < rhs); }
-constexpr bool operator<=(Duration lhs, Duration rhs) { return !(rhs < lhs); }
-constexpr bool operator==(Duration lhs, Duration rhs);
-constexpr bool operator!=(Duration lhs, Duration rhs) { return !(lhs == rhs); }
+constexpr bool operator < (Duration lhs, Duration rhs);
+constexpr bool operator > (Duration lhs, Duration rhs) { return rhs < lhs; }
+constexpr bool operator >= (Duration lhs, Duration rhs) { return !(lhs < rhs); }
+constexpr bool operator <= (Duration lhs, Duration rhs) { return !(rhs < lhs); }
+constexpr bool operator == (Duration lhs, Duration rhs);
+constexpr bool operator != (Duration lhs, Duration rhs) { return !(lhs == rhs); }
 // Additive Operators
 constexpr Duration operator-(Duration d);
 inline Duration operator+(Duration lhs, Duration rhs) { return lhs += rhs; }
@@ -553,7 +544,7 @@ std::chrono::hours ToChronoHours(Duration d);
 std::string FormatDuration(Duration d);
 
 // Output stream operator.
-inline std::ostream& operator<<(std::ostream& os, Duration d) {
+inline std::ostream & operator<<(std::ostream & os, Duration d) {
 	return os << FormatDuration(d);
 }
 
@@ -644,7 +635,7 @@ public:
 
 	// Copyable.
 	constexpr Time(const Time& t) = default;
-	Time& operator=(const Time& t) = default;
+	Time& operator = (const Time& t) = default;
 
 	// Assignment operators.
 	Time& operator+=(Duration d) {
@@ -703,8 +694,8 @@ public:
 private:
 	friend constexpr Time time_internal::FromUnixDuration(Duration d);
 	friend constexpr Duration time_internal::ToUnixDuration(Time t);
-	friend constexpr bool operator<(Time lhs, Time rhs);
-	friend constexpr bool operator==(Time lhs, Time rhs);
+	friend constexpr bool operator < (Time lhs, Time rhs);
+	friend constexpr bool operator == (Time lhs, Time rhs);
 	friend Duration operator-(Time lhs, Time rhs);
 	friend constexpr Time UniversalEpoch();
 	friend constexpr Time InfiniteFuture();
@@ -716,27 +707,27 @@ private:
 };
 
 // Relational Operators
-constexpr bool operator<(Time lhs, Time rhs) {
+constexpr bool operator < (Time lhs, Time rhs) {
 	return lhs.rep_ < rhs.rep_;
 }
 
-constexpr bool operator>(Time lhs, Time rhs) {
+constexpr bool operator > (Time lhs, Time rhs) {
 	return rhs < lhs;
 }
 
-constexpr bool operator>=(Time lhs, Time rhs) {
+constexpr bool operator >= (Time lhs, Time rhs) {
 	return !(lhs < rhs);
 }
 
-constexpr bool operator<=(Time lhs, Time rhs) {
+constexpr bool operator <= (Time lhs, Time rhs) {
 	return !(rhs < lhs);
 }
 
-constexpr bool operator==(Time lhs, Time rhs) {
+constexpr bool operator == (Time lhs, Time rhs) {
 	return lhs.rep_ == rhs.rep_;
 }
 
-constexpr bool operator!=(Time lhs, Time rhs) {
+constexpr bool operator != (Time lhs, Time rhs) {
 	return !(lhs == rhs);
 }
 
@@ -938,7 +929,7 @@ public:
 
 	// Copyable.
 	TimeZone(const TimeZone&) = default;
-	TimeZone& operator=(const TimeZone&) = default;
+	TimeZone& operator = (const TimeZone&) = default;
 
 	explicit operator time_internal::cctz::time_zone() const { return cz_; }
 
@@ -1084,15 +1075,15 @@ public:
 	}
 
 private:
-	friend bool operator==(TimeZone a, TimeZone b) {
+	friend bool operator == (TimeZone a, TimeZone b) {
 		return a.cz_ == b.cz_;
 	}
 
-	friend bool operator!=(TimeZone a, TimeZone b) {
+	friend bool operator != (TimeZone a, TimeZone b) {
 		return a.cz_ != b.cz_;
 	}
 
-	friend std ::ostream& operator<<(std::ostream& os, TimeZone tz) {
+	friend std ::ostream& operator<<(std::ostream & os, TimeZone tz) {
 		return os << tz.name();
 	}
 
@@ -1330,7 +1321,7 @@ std::string FormatTime(Time t, TimeZone tz);
 std::string FormatTime(Time t);
 
 // Output stream operator.
-inline std::ostream& operator<<(std::ostream& os, Time t) {
+inline std::ostream & operator<<(std::ostream & os, Time t) {
 	return os << FormatTime(t);
 }
 
@@ -1523,7 +1514,7 @@ template <typename T> T ToChronoDuration(Duration d)
 }
 }  // namespace time_internal
 
-constexpr bool operator<(Duration lhs, Duration rhs) 
+constexpr bool operator < (Duration lhs, Duration rhs) 
 {
 	return time_internal::GetRepHi(lhs) != time_internal::GetRepHi(rhs)
 	       ? time_internal::GetRepHi(lhs) < time_internal::GetRepHi(rhs)
@@ -1533,7 +1524,7 @@ constexpr bool operator<(Duration lhs, Duration rhs)
 	       : time_internal::GetRepLo(lhs) < time_internal::GetRepLo(rhs);
 }
 
-constexpr bool operator==(Duration lhs, Duration rhs) 
+constexpr bool operator == (Duration lhs, Duration rhs) 
 {
 	return time_internal::GetRepHi(lhs) == time_internal::GetRepHi(rhs) && time_internal::GetRepLo(lhs) == time_internal::GetRepLo(rhs);
 }

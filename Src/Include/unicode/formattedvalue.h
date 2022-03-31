@@ -208,7 +208,7 @@ private:
 	int32_t fStart = 0;
 	int32_t fLimit = 0;
 	int32_t fCategory = UFIELD_CATEGORY_UNDEFINED;
-	int8_t fConstraint = 0;
+	int8 fConstraint = 0;
 };
 
 /**

@@ -1617,7 +1617,7 @@ SString & SString::Escape()
 			switch(c) {
 				case '\\':
 				case '\"':
-				case '/':
+				// (похоже, android экранирует этом символ. Но нам, как мне кажется, этого делать не следует) case '/':
 				case '\b':
 				case '\f':
 				case '\n':
@@ -1643,7 +1643,7 @@ SString & SString::Escape()
 				switch(c) {
 					case '\\': CatCharN(c, 2); break;
 					case '\"': Cat("\\\""); break;
-					case '/':  Cat("\\/"); break;
+					// (see comment above) case '/':  Cat("\\/"); break;
 					case '\b': Cat("\\b"); break;
 					case '\f': Cat("\\f"); break;
 					case '\n': Cat("\\n"); break;
@@ -2174,19 +2174,19 @@ int FASTCALL SString::CmpPrefix(const char * pS, int ignoreCase) const
 		return -1;
 }
 
-int FASTCALL SString::HasPrefix(const char * pS) const
+bool FASTCALL SString::HasPrefix(const char * pS) const
 {
 	const size_t len = sstrlen(pS);
-	return (len && Len() >= len) ? BIN(strncmp(P_Buf, pS, len) == 0) : 0;
+	return (len && Len() >= len) ? (strncmp(P_Buf, pS, len) == 0) : false;
 }
 
-int FASTCALL SString::HasPrefixNC(const char * pS) const
+bool FASTCALL SString::HasPrefixNC(const char * pS) const
 {
 	const size_t len = sstrlen(pS);
-	return (len && Len() >= len) ? BIN(strnicmp866(P_Buf, pS, len) == 0) : 0;
+	return (len && Len() >= len) ? (strnicmp866(P_Buf, pS, len) == 0) : false;
 }
 
-int FASTCALL SString::HasPrefixIAscii(const char * pS) const
+bool FASTCALL SString::HasPrefixIAscii(const char * pS) const
 {
 	const size_t len = sstrlen(pS);
 	if(len && Len() >= len) {
@@ -2199,13 +2199,13 @@ int FASTCALL SString::HasPrefixIAscii(const char * pS) const
 				if(c2 >= 'A' && c2 <= 'Z')
 					c2 += ('a' - 'A');
 				if(c1 != c2)
-					return 0;
+					return false;
 			}
         }
-		return 1;
+		return true;
 	}
 	else
-		return 0;
+		return false;
 }
 
 int FASTCALL SString::GetLongestCommonPrefix(const char * pS) const
@@ -3731,7 +3731,7 @@ SString & SString::EncodeString(const char * pSrc, const char * pEncodeStr, int 
 		ss.setBuf(buf, buf.Len() + 1);
 		ss.get(&p1, (decode == 0) ? replacer : pattern);
 		ss.get(&p1, (decode == 0) ? pattern  : replacer);
-		if(src.CmpPrefix(pattern, 0) == 0) {
+		if(src.HasPrefix(pattern)) {
 			src.ShiftLeft(pattern.Len());
 			(buf = replacer).Cat(src);
 			src = buf;

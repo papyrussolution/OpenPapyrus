@@ -35,8 +35,8 @@ public:
 	GlassFLCursor() : n(0), c(0) 
 	{
 	}
-	bool operator==(const GlassFLCursor & o) const { return n == o.n && c == o.c; }
-	bool operator!=(const GlassFLCursor & o) const { return !(*this == o); }
+	bool operator == (const GlassFLCursor & o) const { return n == o.n && c == o.c; }
+	bool operator != (const GlassFLCursor & o) const { return !(*this == o); }
 	void swap(GlassFLCursor &o) 
 	{
 		std::swap(n, o.n);
@@ -58,7 +58,7 @@ public:
 
 class GlassFreeList {
 	GlassFreeList(const GlassFreeList &);
-	void operator=(const GlassFreeList &);
+	void operator = (const GlassFreeList &);
 	void read_block(const GlassTable * B, uint4 n, uint8 * p);
 	void write_block(const GlassTable * B, uint4 n, uint8 * p, uint4 rev);
 protected:
@@ -129,7 +129,7 @@ class GlassFreeListChecker {
 	elt_type * bitmap;
 	// Prevent copying
 	GlassFreeListChecker(const GlassFreeListChecker&);
-	GlassFreeListChecker& operator=(const GlassFreeListChecker&);
+	GlassFreeListChecker& operator = (const GlassFreeListChecker&);
 public:
 	explicit GlassFreeListChecker(const GlassFreeList & fl);
 	~GlassFreeListChecker() 

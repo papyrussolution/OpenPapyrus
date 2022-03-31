@@ -540,8 +540,8 @@ public:
 	 * @return           The offset in milliseconds to add to GMT to get local time.
 	 * @stable ICU 2.0
 	 */
-	virtual int32_t getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-	    uint8_t dayOfWeek, int32_t millis, UErrorCode& status) const = 0;
+	virtual int32_t getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+	    uint8 dayOfWeek, int32_t millis, UErrorCode& status) const = 0;
 
 	/**
 	 * Gets the time zone offset, for current date, modified in case of
@@ -563,8 +563,8 @@ public:
 	 * @return the offset to add *to* GMT to get local time.
 	 * @stable ICU 2.0
 	 */
-	virtual int32_t getOffset(uint8_t era, int32_t year, int32_t month, int32_t day,
-	    uint8_t dayOfWeek, int32_t milliseconds,
+	virtual int32_t getOffset(uint8 era, int32_t year, int32_t month, int32_t day,
+	    uint8 dayOfWeek, int32_t milliseconds,
 	    int32_t monthLength, UErrorCode& status) const = 0;
 
 	/**

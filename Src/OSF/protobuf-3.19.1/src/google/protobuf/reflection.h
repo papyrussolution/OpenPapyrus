@@ -489,14 +489,14 @@ public:
 			accessor_->GetIteratorValue(data_, iterator_, scratch_space_.get()));
 	}
 
-	bool operator!=(const RepeatedFieldRefIterator& other) const {
+	bool operator != (const RepeatedFieldRefIterator& other) const {
 		assert(data_ == other.data_);
 		assert(accessor_ == other.accessor_);
 		return !accessor_->EqualsIterator(data_, iterator_, other.iterator_);
 	}
 
-	bool operator==(const RepeatedFieldRefIterator& other) const {
-		return !this->operator!=(other);
+	bool operator == (const RepeatedFieldRefIterator& other) const {
+		return !this->operator != (other);
 	}
 
 	RepeatedFieldRefIterator(const RepeatedFieldRefIterator& other)
@@ -505,7 +505,7 @@ public:
 		iterator_(accessor_->CopyIterator(data_, other.iterator_)) {
 	}
 
-	RepeatedFieldRefIterator& operator=(const RepeatedFieldRefIterator& other) {
+	RepeatedFieldRefIterator& operator = (const RepeatedFieldRefIterator& other) {
 		if(this != &other) {
 			accessor_->DeleteIterator(data_, iterator_);
 			data_ = other.data_;

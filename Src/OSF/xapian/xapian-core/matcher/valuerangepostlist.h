@@ -31,7 +31,7 @@ protected:
 	/// Disallow copying.
 	ValueRangePostList(const ValueRangePostList &);
 	/// Disallow assignment.
-	void operator=(const ValueRangePostList &);
+	void operator = (const ValueRangePostList &);
 public:
 	ValueRangePostList(const Xapian::Database::Internal * db_, Xapian::valueno slot_, const std::string &begin_, const std::string &end_) : 
 		db(db_), slot(slot_), begin(begin_), end(end_), db_size(db->get_doccount()), valuelist(0) 

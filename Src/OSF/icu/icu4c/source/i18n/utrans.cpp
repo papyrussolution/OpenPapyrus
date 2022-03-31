@@ -130,7 +130,7 @@ U_CAPI UTransliterator* U_EXPORT2 utrans_openU(const UChar * id,
     int32_t rulesLength,
     UParseError * parseError,
     UErrorCode * status) {
-	if(status==NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(id == NULL) {

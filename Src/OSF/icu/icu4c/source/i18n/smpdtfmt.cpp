@@ -110,7 +110,7 @@ static const UDateFormatField kDateFields[] = {
 	UDAT_YEAR_NAME_FIELD,
 	UDAT_RELATED_YEAR_FIELD
 };
-static const int8_t kDateFieldsCount = 16;
+static const int8 kDateFieldsCount = 16;
 
 static const UDateFormatField kTimeFields[] = {
 	UDAT_HOUR_OF_DAY1_FIELD,
@@ -124,7 +124,7 @@ static const UDateFormatField kTimeFields[] = {
 	UDAT_TIMEZONE_RFC_FIELD,
 	UDAT_TIMEZONE_LOCALIZED_GMT_OFFSET_FIELD
 };
-static const int8_t kTimeFieldsCount = 10;
+static const int8 kTimeFieldsCount = 10;
 
 // This is a pattern-of-last-resort used when we can't load a usable pattern out
 // of a resource.
@@ -1266,7 +1266,7 @@ void SimpleDateFormat::initNumberFormatters(const Locale &locale, UErrorCode & s
 	processOverrideString(locale, fTimeOverride, kOvrStrTime, status);
 }
 
-void SimpleDateFormat::processOverrideString(const Locale &locale, const UnicodeString & str, int8_t type, UErrorCode & status) {
+void SimpleDateFormat::processOverrideString(const Locale &locale, const UnicodeString & str, int8 type, UErrorCode & status) {
 	if(str.isBogus() || U_FAILURE(status)) {
 		return;
 	}
@@ -1347,7 +1347,7 @@ void SimpleDateFormat::processOverrideString(const Locale &locale, const Unicode
 			switch(type) {
 				case kOvrStrDate:
 				case kOvrStrBoth: {
-				    for(int8_t i = 0; i<kDateFieldsCount; i++) {
+				    for(int8 i = 0; i<kDateFieldsCount; i++) {
 					    SharedObject::copyPtr(snf, fSharedNumberFormatters[kDateFields[i]]);
 				    }
 				    if(type==kOvrStrDate) {
@@ -1356,7 +1356,7 @@ void SimpleDateFormat::processOverrideString(const Locale &locale, const Unicode
 				    U_FALLTHROUGH;
 			    }
 				case kOvrStrTime: {
-				    for(int8_t i = 0; i<kTimeFieldsCount; i++) {
+				    for(int8 i = 0; i<kTimeFieldsCount; i++) {
 					    SharedObject::copyPtr(snf, fSharedNumberFormatters[kTimeFields[i]]);
 				    }
 				    break;

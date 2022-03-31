@@ -43,9 +43,9 @@ public:
 	class Internal;
 	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal; /// @private @internal Reference counted internals.
 	TermGenerator(const TermGenerator & o);
-	TermGenerator & operator=(const TermGenerator & o);
+	TermGenerator & operator = (const TermGenerator & o);
 	TermGenerator(TermGenerator && o); /// Move constructor.
-	TermGenerator & operator=(TermGenerator && o); /// Move assignment operator.
+	TermGenerator & operator = (TermGenerator && o); /// Move assignment operator.
 	TermGenerator();
 	~TermGenerator();
 	/// Set the Xapian::Stem object to be used for generating stemmed terms.

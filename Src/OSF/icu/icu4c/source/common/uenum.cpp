@@ -1,20 +1,11 @@
+// uenum.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2002-2012, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  uenum.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:2
- *
- *   created on: 2002jul08
- *   created by: Vladimir Weinstein
- */
+// Copyright (C) 2002-2012, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jul08
+// created by: Vladimir Weinstein
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "uenumimp.h"
@@ -30,7 +21,8 @@ static const int32_t PAD = 8;
 
 /* Return a pointer to the baseContext buffer, possibly allocating
    or reallocating it if at least 'capacity' bytes are not available. */
-static void * _getBuffer(UEnumeration* en, int32_t capacity) {
+static void * _getBuffer(UEnumeration* en, int32_t capacity) 
+{
 	if(en->baseContext != NULL) {
 		if(((_UEnumBuffer*)en->baseContext)->len < capacity) {
 			capacity += PAD;
@@ -84,9 +76,7 @@ U_CAPI int32_t U_EXPORT2 uenum_count(UEnumeration* en, UErrorCode * status)
 }
 
 /* Don't call this directly. Only uenum_unext should be calling this. */
-U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * status)
+U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
 	UChar * ustr = NULL;
 	int32_t len = 0;
@@ -105,16 +95,12 @@ U_CAPI const UChar * U_EXPORT2 uenum_unextDefault(UEnumeration* en,
 	else {
 		*status = U_UNSUPPORTED_ERROR;
 	}
-	if(resultLength) {
-		*resultLength = len;
-	}
+	ASSIGN_PTR(resultLength, len);
 	return ustr;
 }
 
 /* Don't call this directly. Only uenum_next should be calling this. */
-U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * status)
+U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
 	if(en->uNext != NULL) {
 		char * tempCharVal;
@@ -122,8 +108,7 @@ U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en,
 		if(tempUCharVal == NULL) {
 			return NULL;
 		}
-		tempCharVal = (char *)
-		    _getBuffer(en, (*resultLength+1) * sizeof(char));
+		tempCharVal = (char *)_getBuffer(en, (*resultLength+1) * sizeof(char));
 		if(!tempCharVal) {
 			*status = U_MEMORY_ALLOCATION_ERROR;
 			return NULL;
@@ -137,9 +122,7 @@ U_CAPI const char * U_EXPORT2 uenum_nextDefault(UEnumeration* en,
 	}
 }
 
-U_CAPI const UChar * U_EXPORT2 uenum_unext(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * status)
+U_CAPI const UChar * U_EXPORT2 uenum_unext(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
 	if(!en || U_FAILURE(*status)) {
 		return NULL;
@@ -153,9 +136,7 @@ U_CAPI const UChar * U_EXPORT2 uenum_unext(UEnumeration* en,
 	}
 }
 
-U_CAPI const char * U_EXPORT2 uenum_next(UEnumeration* en,
-    int32_t* resultLength,
-    UErrorCode * status)
+U_CAPI const char * U_EXPORT2 uenum_next(UEnumeration* en, int32_t* resultLength, UErrorCode * status)
 {
 	if(!en || U_FAILURE(*status)) {
 		return NULL;

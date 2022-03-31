@@ -450,7 +450,7 @@ ures_getUTF8String(const UResourceBundle *resB,
  * @see ures_getUInt
  * @stable ICU 2.0
  */
-U_CAPI const uint8_t* U_EXPORT2
+U_CAPI const uint8* U_EXPORT2
 ures_getBinary(const UResourceBundle * resourceBundle,
                int32_t* len,
                UErrorCode * status);

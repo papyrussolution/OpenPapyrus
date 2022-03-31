@@ -21,10 +21,7 @@ public class CommandListActivity extends SLib.SlActivity {
 	private StyloQDatabase Db = null;
 	private StyloQCommand.List ListData;
 	private class RefreshTimerTask extends TimerTask {
-		@Override public void run()
-		{
-			runOnUiThread(new Runnable() { @Override public void run() { RefreshStatus(); }});
-		}
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { RefreshStatus(); }}); }
 	}
 	private Timer RTmr;
 	//private RefreshTimerTask RTmrTask;

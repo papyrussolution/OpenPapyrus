@@ -1,8 +1,7 @@
+// rbbi_cache.cpp
 // Copyright (C) 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-
-// file: rbbi_cache.cpp
-
+//
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -122,7 +121,7 @@ void RuleBasedBreakIterator::DictionaryCache::populateDictionary(int32_t startPo
 	int32_t rangeStart = startPos;
 	int32_t rangeEnd = endPos;
 
-	uint16_t category;
+	uint16 category;
 	int32_t current;
 	UErrorCode status = U_ZERO_ERROR;
 	int32_t foundBreakCount = 0;
@@ -210,7 +209,7 @@ void RuleBasedBreakIterator::BreakCache::reset(int32_t pos, int32_t ruleStatus) 
 	fTextIdx = pos;
 	fBufIdx = 0;
 	fBoundaries[0] = pos;
-	fStatuses[0] = (uint16_t)ruleStatus;
+	fStatuses[0] = (uint16)ruleStatus;
 }
 
 int32_t RuleBasedBreakIterator::BreakCache::current() {
@@ -586,7 +585,7 @@ void RuleBasedBreakIterator::BreakCache::addFollowing(int32_t position, int32_t 
 		fStartBufIdx = modChunkSize(fStartBufIdx + 6); // TODO: experiment. Probably revert to 1.
 	}
 	fBoundaries[nextIdx] = position;
-	fStatuses[nextIdx] = static_cast<uint16_t>(ruleStatusIdx);
+	fStatuses[nextIdx] = static_cast<uint16>(ruleStatusIdx);
 	fEndBufIdx = nextIdx;
 	if(update == UpdateCachePosition) {
 		// Set current position to the newly added boundary.
@@ -615,7 +614,7 @@ bool RuleBasedBreakIterator::BreakCache::addPreceding(int32_t position, int32_t 
 		fEndBufIdx = modChunkSize(fEndBufIdx - 1);
 	}
 	fBoundaries[nextIdx] = position;
-	fStatuses[nextIdx] = static_cast<uint16_t>(ruleStatusIdx);
+	fStatuses[nextIdx] = static_cast<uint16>(ruleStatusIdx);
 	fStartBufIdx = nextIdx;
 	if(update == UpdateCachePosition) {
 		fBufIdx = nextIdx;

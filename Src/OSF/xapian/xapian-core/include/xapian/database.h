@@ -153,11 +153,11 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	Database& operator=(const Database& o);
+	Database& operator = (const Database& o);
 	/// Move constructor.
 	Database(Database&& o);
 	/// Move assignment operator.
-	Database& operator=(Database&& o);
+	Database& operator = (Database&& o);
 
 	/** Reopen the database at the latest available revision.
 	 *
@@ -938,9 +938,9 @@ public:
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
-	WritableDatabase& operator=(const WritableDatabase& o) 
+	WritableDatabase& operator = (const WritableDatabase& o) 
 	{
-		Database::operator=(o);
+		Database::operator = (o);
 		return *this;
 	}
 	/// Move constructor.
@@ -948,9 +948,9 @@ public:
 	{
 	}
 	/// Move assignment operator.
-	WritableDatabase& operator=(WritableDatabase&& o) 
+	WritableDatabase& operator = (WritableDatabase&& o) 
 	{
-		Database::operator=(std::move(o));
+		Database::operator = (std::move(o));
 		return *this;
 	}
 

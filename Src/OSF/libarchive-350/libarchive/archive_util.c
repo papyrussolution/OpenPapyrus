@@ -23,7 +23,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 	#include <..\osf\bzip2\bzlib.h>
 #endif
 #ifdef HAVE_LZ4_H
-#include <lz4.h>
+	#include <lz4.h>
 #endif
 #include "archive_random_private.h"
 
@@ -115,15 +115,15 @@ void archive_set_error(struct archive * a, int error_number, const char * fmt, .
 {
 	va_list ap;
 	a->archive_error_number = error_number;
-	if(fmt == NULL) {
+	if(fmt == NULL)
 		a->error = NULL;
-		return;
+	else {
+		archive_string_empty(&(a->error_string));
+		va_start(ap, fmt);
+		archive_string_vsprintf(&(a->error_string), fmt, ap);
+		va_end(ap);
+		a->error = a->error_string.s;
 	}
-	archive_string_empty(&(a->error_string));
-	va_start(ap, fmt);
-	archive_string_vsprintf(&(a->error_string), fmt, ap);
-	va_end(ap);
-	a->error = a->error_string.s;
 }
 
 void archive_copy_error(struct archive * dest, struct archive * src)
@@ -136,9 +136,7 @@ void archive_copy_error(struct archive * dest, struct archive * src)
 void __archive_errx(int retvalue, const char * msg)
 {
 	static const char msg1[] = "Fatal Internal Error in libarchive: ";
-	size_t s;
-
-	s = write(2, msg1, strlen(msg1));
+	size_t s = write(2, msg1, strlen(msg1));
 	(void)s; /* UNUSED */
 	s = write(2, msg, strlen(msg));
 	(void)s; /* UNUSED */
@@ -146,12 +144,10 @@ void __archive_errx(int retvalue, const char * msg)
 	(void)s; /* UNUSED */
 	exit(retvalue);
 }
-
 /*
  * Create a temporary file
  */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-
 /*
  * Do not use Windows tmpfile() function.
  * It will make a temporary file under the root directory

@@ -306,7 +306,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 		}
 		// Add the ranges from the data file to the unsafe-backward set.
 		USerializedSet sset;
-		const uint16_t * unsafeData = reinterpret_cast<const uint16_t *>(inBytes + offset);
+		const uint16 * unsafeData = reinterpret_cast<const uint16 *>(inBytes + offset);
 		if(!uset_getSerializedSet(&sset, unsafeData, length / 2)) {
 			errorCode = U_INVALID_FORMAT_ERROR;
 			return;
@@ -351,7 +351,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 			offset = getIndex(inIndexes, indexesLength, index);
 			length = getIndex(inIndexes, indexesLength, index + 1) - offset;
 			if(length >= 2) {
-				data->fastLatinTable = reinterpret_cast<const uint16_t *>(inBytes + offset);
+				data->fastLatinTable = reinterpret_cast<const uint16 *>(inBytes + offset);
 				data->fastLatinTableLength = length / 2;
 				if((*data->fastLatinTable >> 8) != CollationFastLatin::VERSION) {
 					errorCode = U_INVALID_FORMAT_ERROR; // header vs. table version mismatch
@@ -373,7 +373,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 			errorCode = U_INVALID_FORMAT_ERROR;
 			return;
 		}
-		const uint16_t * scripts = reinterpret_cast<const uint16_t *>(inBytes + offset);
+		const uint16 * scripts = reinterpret_cast<const uint16 *>(inBytes + offset);
 		int32_t scriptsLength = length / 2;
 		data->numScripts = scripts[0];
 		// There must be enough entries for both arrays, including more than two range starts.
@@ -426,7 +426,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 
 	const CollationSettings &ts = *tailoring.settings;
 	int32_t options = inIndexes[IX_OPTIONS] & 0xffff;
-	uint16_t fastLatinPrimaries[CollationFastLatin::LATIN_LIMIT];
+	uint16 fastLatinPrimaries[CollationFastLatin::LATIN_LIMIT];
 	int32_t fastLatinOptions = CollationFastLatin::getOptions(
 		tailoring.data, ts, fastLatinPrimaries, UPRV_LENGTHOF(fastLatinPrimaries));
 	if(options == ts.options && ts.variableTop != 0 &&

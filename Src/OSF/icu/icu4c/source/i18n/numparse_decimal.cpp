@@ -98,7 +98,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, UErrorC
 	return match(segment, result, 0, status);
 }
 
-bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t exponentSign,
+bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8 exponentSign,
     UErrorCode&) const {
 	if(result.seenNumber() && exponentSign == 0) {
 		// A number has already been consumed.
@@ -154,13 +154,13 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t 
 		maybeMore = false;
 
 		// Attempt to match a digit.
-		int8_t digit = -1;
+		int8 digit = -1;
 
 		// Try by code point digit value.
 		UChar32 cp = segment.getCodePoint();
 		if(u_isdigit(cp)) {
 			segment.adjustOffset(U16_LENGTH(cp));
-			digit = static_cast<int8_t>(u_digit(cp, 10));
+			digit = static_cast<int8>(u_digit(cp, 10));
 		}
 
 		// Try by digit string.
@@ -173,7 +173,7 @@ bool DecimalMatcher::match(StringSegment& segment, ParsedNumber& result, int8_t 
 				int32_t overlap = segment.getCommonPrefixLength(str);
 				if(overlap == str.length()) {
 					segment.adjustOffset(overlap);
-					digit = static_cast<int8_t>(i);
+					digit = static_cast<int8>(i);
 					break;
 				}
 				maybeMore = maybeMore || (overlap == segment.length());

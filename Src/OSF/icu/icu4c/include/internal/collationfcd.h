@@ -118,7 +118,7 @@ public:
   * @param fcd16 the FCD value (lccc/tccc combination) of a code point
   * @return true if fcd16 is from U+0F73, U+0F75 or U+0F81
      */
-    static inline bool isFCD16OfTibetanCompositeVowel(uint16_t fcd16) {
+    static inline bool isFCD16OfTibetanCompositeVowel(uint16 fcd16) {
         return fcd16 == 0x8182 || fcd16 == 0x8184;
     }
 

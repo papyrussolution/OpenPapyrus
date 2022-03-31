@@ -33,7 +33,7 @@ public:
   * When the major version number of the main data format changes,
   * we can reset this fast Latin version to 1.
      */
-    static const uint16_t VERSION = 2;
+    static const uint16 VERSION = 2;
 
     static const int32_t LATIN_MAX = 0x17f;
     static const int32_t LATIN_LIMIT = LATIN_MAX + 1;
@@ -208,24 +208,24 @@ public:
   * The capacity must be LATIN_LIMIT.
      */
     static int32_t getOptions(const CollationData *data, const CollationSettings &settings,
-                              uint16_t *primaries, int32_t capacity);
+                              uint16 *primaries, int32_t capacity);
 
-    static int32_t compareUTF16(const uint16_t *table, const uint16_t *primaries, int32_t options,
+    static int32_t compareUTF16(const uint16 *table, const uint16 *primaries, int32_t options,
                                 const UChar *left, int32_t leftLength,
                                 const UChar *right, int32_t rightLength);
 
-    static int32_t compareUTF8(const uint16_t *table, const uint16_t *primaries, int32_t options,
+    static int32_t compareUTF8(const uint16 *table, const uint16 *primaries, int32_t options,
                                const uint8 *left, int32_t leftLength,
                                const uint8 *right, int32_t rightLength);
 
 private:
-    static uint32_t lookup(const uint16_t *table, UChar32 c);
-    static uint32_t lookupUTF8(const uint16_t *table, UChar32 c,
+    static uint32_t lookup(const uint16 *table, UChar32 c);
+    static uint32_t lookupUTF8(const uint16 *table, UChar32 c,
                                const uint8 *s8, int32_t &sIndex, int32_t sLength);
-    static uint32_t lookupUTF8Unsafe(const uint16_t *table, UChar32 c,
+    static uint32_t lookupUTF8Unsafe(const uint16 *table, UChar32 c,
                                      const uint8 *s8, int32_t &sIndex);
 
-    static uint32_t nextPair(const uint16_t *table, UChar32 c, uint32_t ce,
+    static uint32_t nextPair(const uint16 *table, UChar32 c, uint32_t ce,
                              const UChar *s16, const uint8 *s8, int32_t &sIndex, int32_t &sLength);
 
     static inline uint32_t getPrimaries(uint32_t variableTop, uint32_t pair) {
@@ -257,13 +257,13 @@ private:
  * CollationFastLatin::VERSION = 2.
  *
  * This table contains data for a Latin-text collation fastpath.
- * The data is stored as an array of uint16_t which contains the following parts.
+ * The data is stored as an array of uint16 which contains the following parts.
  *
- * uint16_t  -- version & header length
+ * uint16  -- version & header length
  *   Bits 15..8: version, must match the VERSION
  *         7..0: length of the header
  *
- * uint16_t varTops[header length - 1]
+ * uint16 varTops[header length - 1]
  *   Version 2:
  *   varTops[m] is the highest CollationFastLatin long-primary weight
  *   of supported maxVariable group m
@@ -276,7 +276,7 @@ private:
  *   Bits 15..7: max fast-Latin long-primary weight (bits 11..3 shifted left by 4 bits)
  *         6..0: regular primary lead byte
  *
- * uint16_t miniCEs[0x1c0]
+ * uint16 miniCEs[0x1c0]
  *   A mini collation element for each character U+0000..U+017F and U+2000..U+203F.
  *   Each value encodes one or two mini CEs (two are possible if the first one
  *   has a short mini primary and the second one is a secondary CE, i.e., primary == 0),
@@ -287,17 +287,17 @@ private:
  *   then the BAIL_OUT value is stored.
  *   For details see the comments for the class constants.
  *
- * uint16_t expansions[variable length];
+ * uint16 expansions[variable length];
  *   Expansion mini CEs contain an offset relative to just after the miniCEs table.
  *   An expansions contains exactly 2 mini CEs.
  *
- * uint16_t contractions[variable length];
+ * uint16 contractions[variable length];
  *   Contraction mini CEs contain an offset relative to just after the miniCEs table.
  *   It points to a list of tuples which map from a contraction suffix character to a result.
- *   First uint16_t of each tuple:
+ *   First uint16 of each tuple:
  *     Bits 10..9: Length of the result (1..3), see comments on CONTR_LENGTH_SHIFT.
  *     Bits  8..0: Contraction character, see comments on CONTR_CHAR_MASK.
- *   This is followed by 0, 1, or 2 uint16_t according to the length.
+ *   This is followed by 0, 1, or 2 uint16 according to the length.
  *   Each list is terminated by an entry with CONTR_CHAR_MASK.
  *   Each list starts with such an entry which also contains the default result
  *   for when there is no contraction match.

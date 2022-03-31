@@ -417,6 +417,7 @@
 #define UNIT_MINUTE          27 // Минута
 //
 // Половая принадлежность
+// @persistent
 //
 #define GENDER_UNDEF          0 // Не определена (в принципе не известно из-за того, что не было попыток идентифицировать)
 #define GENDER_MALE           1 // Мужской
@@ -2724,6 +2725,7 @@ private:
 #define SLERR_INVIMAGESIZE                     458 // Недопустимый размер изображения ([1..30000], [1..30000])
 #define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
 #define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
+#define SLERR_LMDB                             461 // @v11.3.6 Ошибка базы данных LMDB
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -3934,9 +3936,9 @@ public:
 	//   Если pS == 0 или this->Len() < strlen(pS), то функция возвращает -1
 	//
 	int    FASTCALL CmpPrefix(const char * pS, int ignoreCase) const;
-	int    FASTCALL HasPrefix(const char * pS) const;
-	int    FASTCALL HasPrefixNC(const char * pS) const;
-	int    FASTCALL HasPrefixIAscii(const char * pS) const;
+	bool   FASTCALL HasPrefix(const char * pS) const;
+	bool   FASTCALL HasPrefixNC(const char * pS) const;
+	bool   FASTCALL HasPrefixIAscii(const char * pS) const;
 	//
 	// Descr: Находит общий префикс максимальной длины между строкой this и pS.
 	//   Результат возвращается в виде количества байт общего префикса.
@@ -4958,8 +4960,8 @@ uint   FASTCALL hexw(wchar_t c);
 //    проверить эти символы функцией ishex(char).
 //
 uint8  FASTCALL hextobyte(const char * pBuf);
-int    FASTCALL isasciialpha(char ch);
-int    FASTCALL isasciialnum(char ch);
+inline bool isasciialpha(char ch) { return LOGIC(((uchar)(ch | 32) - 97) < 26U); }
+inline bool isasciialnum(char ch) { return ((ch >= '0' && ch <= '9') || (((uchar)(ch | 32) - 97) < 26U)); }
 // @v10.9.3 (replaced with isasciialpha) int    FASTCALL IsLetterASCII(int ch); // synonym of isasciialpha
 int    FASTCALL IsLetter1251(int ch);
 int    FASTCALL ToLower1251(int ch);

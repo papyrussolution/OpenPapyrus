@@ -303,7 +303,7 @@ public:
 	        A TiXmlDocumentA will read nodes until it reads a root element, and
 	            all the children of that root element.
 	 */
-	friend std ::ostream& operator<<(std::ostream& out, const TiXmlNodeA& base);
+	friend std ::ostream& operator<<(std::ostream & out, const TiXmlNodeA& base);
 
 	/// Appends the XML node or attribute to a std::string.
 	friend std ::string & operator<<(std::string & out, const TiXmlNodeA& base);
@@ -634,8 +634,8 @@ public:
 	/// Get the previous sibling attribute in the DOM. Returns null at beginning.
 	TiXmlAttributeA* Previous() const;
 	bool operator == (const TiXmlAttributeA& rhs) const { return rhs.name == name; }
-	bool operator<(const TiXmlAttributeA& rhs) const { return name < rhs.name; }
-	bool operator>(const TiXmlAttributeA& rhs) const { return name > rhs.name; }
+	bool operator < (const TiXmlAttributeA& rhs) const { return name < rhs.name; }
+	bool operator > (const TiXmlAttributeA& rhs) const { return name > rhs.name; }
 
 	/*	[internal use]
 	        Attribtue parsing starts: first letter of the name

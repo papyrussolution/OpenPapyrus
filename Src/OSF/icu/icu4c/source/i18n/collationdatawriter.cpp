@@ -193,7 +193,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 				headerSize += 4;
 			}
 		}
-		header.dataHeader.headerSize = (uint16_t)headerSize;
+		header.dataHeader.headerSize = (uint16)headerSize;
 		if(headerSize <= capacity) {
 			uprv_memcpy(dest, &header, sizeof(header));
 			// Write 00 bytes so that the padding is not mistaken for a copyright string.
@@ -280,7 +280,7 @@ int32_t CollationDataWriter::write(bool isBase, const UVersionInfo dataVersion,
 		UErrorCode errorCode2 = U_ZERO_ERROR;
 		int32_t length;
 		if(totalSize < capacity) {
-			uint16_t * p = reinterpret_cast<uint16_t *>(dest + totalSize);
+			uint16 * p = reinterpret_cast<uint16 *>(dest + totalSize);
 			length = unsafeBackwardSet.serialize(
 				p, (capacity - totalSize) / 2, errorCode2);
 		}

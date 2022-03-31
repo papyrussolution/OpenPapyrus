@@ -44,7 +44,7 @@ class NetworkPostList;
  */
 class RemoteDatabase : public Xapian::Database::Internal {
     /// Don't allow assignment.
-    void operator=(const RemoteDatabase &);
+    void operator = (const RemoteDatabase &);
 
     /// Don't allow copying.
     RemoteDatabase(const RemoteDatabase &);

@@ -28,7 +28,7 @@ class RemoteDatabase;
 /// Iterate terms in a remote document.
 class RemoteTermList : public TermList {
     /// Don't allow assignment.
-    void operator=(const RemoteTermList &) = delete;
+    void operator = (const RemoteTermList &) = delete;
 
     /// Don't allow copying.
     RemoteTermList(const RemoteTermList &) = delete;

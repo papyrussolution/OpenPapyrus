@@ -1,15 +1,10 @@
+// rbbi.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ***************************************************************************
- *   Copyright (C) 1999-2016 International Business Machines Corporation
- *   and others. All rights reserved.
- ***************************************************************************
- */
+// Copyright (C) 1999-2016 International Business Machines Corporation and others. All rights reserved.
 //
-//  file:  rbbi.cpp  Contains the implementation of the rule based break iterator
-//                   runtime engine and the API implementation for
-//                   class RuleBasedBreakIterator
+//  Contains the implementation of the rule based break iterator
+//  runtime engine and the API implementation for class RuleBasedBreakIterator
 //
 #include <icu-internal.h>
 #pragma hdrstop
@@ -666,11 +661,11 @@ enum RBBIRunMode {
 // instantiation, based on whether an 8 or 16 bit table is required.
 //
 // These Trie access functions will be inlined within the handleNext()/Previous() instantions.
-static inline uint16_t TrieFunc8(const UCPTrie * trie, UChar32 c) {
+static inline uint16 TrieFunc8(const UCPTrie * trie, UChar32 c) {
 	return UCPTRIE_FAST_GET(trie, UCPTRIE_8, c);
 }
 
-static inline uint16_t TrieFunc16(const UCPTrie * trie, UChar32 c) {
+static inline uint16 TrieFunc16(const UCPTrie * trie, UChar32 c) {
 	return UCPTRIE_FAST_GET(trie, UCPTRIE_16, c);
 }
 
@@ -722,7 +717,7 @@ int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
 template <typename RowType, RuleBasedBreakIterator::PTrieFunc trieFunc>
 int32_t RuleBasedBreakIterator::handleNext() {
 	int32_t state;
-	uint16_t category        = 0;
+	uint16 category        = 0;
 	RBBIRunMode mode;
 
 	RowType             * row;
@@ -818,7 +813,7 @@ int32_t RuleBasedBreakIterator::handleNext() {
 		    // (statetable->fTableData + (statetable->fRowLen * state));
 		    (tableData + tableRowLen * state);
 
-		uint16_t accepting = row->fAccepting;
+		uint16 accepting = row->fAccepting;
 		if(accepting == ACCEPTING_UNCONDITIONAL) {
 			// Match found, common case.
 			if(mode != RBBI_START) {
@@ -843,7 +838,7 @@ int32_t RuleBasedBreakIterator::handleNext() {
 		//       This would enable hard-break rules with no following context.
 		//       But there are line break test failures when trying this. Investigate.
 		//       Issue ICU-20837
-		uint16_t rule = row->fLookAhead;
+		uint16 rule = row->fLookAhead;
 		U_ASSERT(rule == 0 || rule > ACCEPTING_UNCONDITIONAL);
 		U_ASSERT(rule == 0 || rule < fData->fForwardTable->fLookAheadResultsSize);
 		if(rule > ACCEPTING_UNCONDITIONAL) {
@@ -903,7 +898,7 @@ int32_t RuleBasedBreakIterator::handleNext() {
 template <typename RowType, RuleBasedBreakIterator::PTrieFunc trieFunc>
 int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
 	int32_t state;
-	uint16_t category        = 0;
+	uint16 category        = 0;
 	RowType            * row;
 	UChar32 c;
 	int32_t result  = 0;
@@ -979,21 +974,21 @@ int32_t RuleBasedBreakIterator::handleSafePrevious(int32_t fromPosition) {
 //                     position by iterating forwards, the value will have been
 //                     cached by the handleNext() function.
 //
-int32_t RuleBasedBreakIterator::getRuleStatus() const {
+int32_t RuleBasedBreakIterator::getRuleStatus() const 
+{
 	// fLastRuleStatusIndex indexes to the start of the appropriate status record
 	//                                                 (the number of status values.)
 	//   This function returns the last (largest) of the array of status values.
 	int32_t idx = fRuleStatusIndex + fData->fRuleStatusTable[fRuleStatusIndex];
 	int32_t tagVal = fData->fRuleStatusTable[idx];
-
 	return tagVal;
 }
 
-int32_t RuleBasedBreakIterator::getRuleStatusVec(int32_t * fillInVec, int32_t capacity, UErrorCode & status) {
+int32_t RuleBasedBreakIterator::getRuleStatusVec(int32_t * fillInVec, int32_t capacity, UErrorCode & status) 
+{
 	if(U_FAILURE(status)) {
 		return 0;
 	}
-
 	int32_t numVals = fData->fRuleStatusTable[fRuleStatusIndex];
 	int32_t numValsToCopy = numVals;
 	if(numVals > capacity) {
@@ -1052,27 +1047,22 @@ static icu::UInitOnce gRBBIInitOnce = U_INITONCE_INITIALIZER;
  * Release all static memory held by breakiterator.
  */
 U_CDECL_BEGIN
-bool U_CALLCONV rbbi_cleanup() 
-{
-	ZDELETE(gLanguageBreakFactories);
-	ZDELETE(gEmptyString);
-	gLanguageBreakFactoriesInitOnce.reset();
-	gRBBIInitOnce.reset();
-	return TRUE;
-}
-
+	bool U_CALLCONV rbbi_cleanup() 
+	{
+		ZDELETE(gLanguageBreakFactories);
+		ZDELETE(gEmptyString);
+		gLanguageBreakFactoriesInitOnce.reset();
+		gRBBIInitOnce.reset();
+		return TRUE;
+	}
 U_CDECL_END
-
 U_CDECL_BEGIN
-static void U_CALLCONV _deleteFactory(void * obj) 
-{
-	delete (icu::LanguageBreakFactory*)obj;
-}
-
+	static void U_CALLCONV _deleteFactory(void * obj)  { delete (icu::LanguageBreakFactory*)obj; }
 U_CDECL_END
 U_NAMESPACE_BEGIN
 
-static void U_CALLCONV rbbiInit() {
+static void U_CALLCONV rbbiInit() 
+{
 	gEmptyString = new UnicodeString();
 	ucln_common_registerCleanup(UCLN_COMMON_RBBI, rbbi_cleanup);
 }
@@ -1100,7 +1090,6 @@ static const LanguageBreakEngine* getLanguageBreakEngineFromFactory(UChar32 c)
 	if(gLanguageBreakFactories == NULL) {
 		return NULL;
 	}
-
 	int32_t i = gLanguageBreakFactories->size();
 	const LanguageBreakEngine * lbe = NULL;
 	while(--i >= 0) {
@@ -1123,12 +1112,10 @@ const LanguageBreakEngine * RuleBasedBreakIterator::getLanguageBreakEngine(UChar
 	if(fLanguageBreakEngines == NULL) {
 		fLanguageBreakEngines = new UStack(status);
 		if(fLanguageBreakEngines == NULL || U_FAILURE(status)) {
-			delete fLanguageBreakEngines;
-			fLanguageBreakEngines = 0;
+			ZDELETE(fLanguageBreakEngines);
 			return NULL;
 		}
 	}
-
 	int32_t i = fLanguageBreakEngines->size();
 	while(--i >= 0) {
 		lbe = (const LanguageBreakEngine*)(fLanguageBreakEngines->elementAt(i));
@@ -1163,32 +1150,25 @@ const LanguageBreakEngine * RuleBasedBreakIterator::getLanguageBreakEngine(UChar
 		// If we can't insert it, or creation failed, get rid of it
 		U_ASSERT(!fLanguageBreakEngines->hasDeleter());
 		if(U_FAILURE(status)) {
-			delete fUnhandledBreakEngine;
-			fUnhandledBreakEngine = 0;
+			ZDELETE(fUnhandledBreakEngine);
 			return NULL;
 		}
 	}
-
 	// Tell the reject engine about the character; at its discretion, it may
 	// add more than just the one character.
 	fUnhandledBreakEngine->handleCharacter(c);
-
 	return fUnhandledBreakEngine;
 }
 
-void RuleBasedBreakIterator::dumpCache() {
-	fBreakCache->dumpCache();
-}
-
-void RuleBasedBreakIterator::dumpTables() {
-	fData->printData();
-}
+void RuleBasedBreakIterator::dumpCache() { fBreakCache->dumpCache(); }
+void RuleBasedBreakIterator::dumpTables() { fData->printData(); }
 
 /**
  * Returns the description used to create this iterator
  */
 
-const UnicodeString &RuleBasedBreakIterator::getRules() const {
+const UnicodeString &RuleBasedBreakIterator::getRules() const 
+{
 	if(fData != NULL) {
 		return fData->getRuleSourceString();
 	}

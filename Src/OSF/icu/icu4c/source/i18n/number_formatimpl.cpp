@@ -622,7 +622,7 @@ int32_t NumberFormatterImpl::writeIntegerDigits(const MicroProps& micros, Decima
 		}
 
 		// Get and append the next digit value
-		int8_t nextDigit = quantity.getDigit(i);
+		int8 nextDigit = quantity.getDigit(i);
 		length += utils::insertDigitFromSymbols(
 			string,
 			index,
@@ -642,7 +642,7 @@ int32_t NumberFormatterImpl::writeFractionDigits(const MicroProps& micros, Decim
 	int fractionCount = -quantity.getLowerDisplayMagnitude();
 	for(int i = 0; i < fractionCount; i++) {
 		// Get and append the next digit value
-		int8_t nextDigit = quantity.getDigit(-i - 1);
+		int8 nextDigit = quantity.getDigit(-i - 1);
 		length += utils::insertDigitFromSymbols(
 			string,
 			length + index,

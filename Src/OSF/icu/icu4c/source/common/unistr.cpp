@@ -564,7 +564,7 @@ UnicodeString & UnicodeString::operator = (UnicodeString && src) U_NOEXCEPT {
 
 // Same as move assignment except without memory management.
 void UnicodeString::copyFieldsFrom(UnicodeString & src, bool setSrcToBogus) U_NOEXCEPT {
-	int16_t lengthAndFlags = fUnion.fFields.fLengthAndFlags = src.fUnion.fFields.fLengthAndFlags;
+	int16 lengthAndFlags = fUnion.fFields.fLengthAndFlags = src.fUnion.fFields.fLengthAndFlags;
 	if(lengthAndFlags & kUsingStackBuffer) {
 		// Short string using the stack buffer, copy the contents.
 		// Check for self assignment to prevent "overlap in memcpy" warnings,
@@ -644,7 +644,7 @@ bool UnicodeString::doEquals(const UnicodeString & text, int32_t len) const {
 	return uprv_memcmp(getArrayStart(), text.getArrayStart(), len * U_SIZEOF_UCHAR) == 0;
 }
 
-int8_t UnicodeString::doCompare(int32_t start,
+int8 UnicodeString::doCompare(int32_t start,
     int32_t length,
     const UChar * srcChars,
     int32_t srcStart,
@@ -670,7 +670,7 @@ int8_t UnicodeString::doCompare(int32_t start,
 	srcChars += srcStart;
 
 	int32_t minLength;
-	int8_t lengthResult;
+	int8 lengthResult;
 
 	// get the srcLength if necessary
 	if(srcLength < 0) {
@@ -694,7 +694,7 @@ int8_t UnicodeString::doCompare(int32_t start,
 	}
 
 	/*
-	 * note that uprv_memcmp() returns an int but we return an int8_t;
+	 * note that uprv_memcmp() returns an int but we return an int8;
 	 * we need to take care not to truncate the result -
 	 * one way to do this is to right-shift the value to
 	 * move the sign bit into the lower 8 bits and making sure that this
@@ -708,14 +708,14 @@ int8_t UnicodeString::doCompare(int32_t start,
 		// big-endian: byte comparison works
 		result = uprv_memcmp(chars, srcChars, minLength * sizeof(UChar));
 		if(result != 0) {
-			return (int8_t)(result >> 15 | 1);
+			return (int8)(result >> 15 | 1);
 		}
 #   else
 		// little-endian: compare UChar units
 		do {
 			result = ((int32_t)*(chars++) - (int32_t)*(srcChars++));
 			if(result != 0) {
-				return (int8_t)(result >> 15 | 1);
+				return (int8)(result >> 15 | 1);
 			}
 		} while(--minLength > 0);
 #endif
@@ -724,7 +724,7 @@ int8_t UnicodeString::doCompare(int32_t start,
 }
 
 /* String compare in code point order - doCompare() compares in code unit order. */
-int8_t UnicodeString::doCompareCodePointOrder(int32_t start,
+int8 UnicodeString::doCompareCodePointOrder(int32_t start,
     int32_t length,
     const UChar * srcChars,
     int32_t srcStart,
@@ -751,7 +751,7 @@ int8_t UnicodeString::doCompareCodePointOrder(int32_t start,
 		TRUE);
 	/* translate the 32-bit result into an 8-bit one */
 	if(diff!=0) {
-		return (int8_t)(diff >> 15 | 1);
+		return (int8)(diff >> 15 | 1);
 	}
 	else {
 		return 0;
@@ -1781,7 +1781,7 @@ bool UnicodeString::cloneArrayIfNeeded(int32_t newCapacity, int32_t growCapacity
 		UChar oldStackBuffer[US_STACKBUF_SIZE];
 		UChar * oldArray;
 		int32_t oldLength = length();
-		int16_t flags = fUnion.fFields.fLengthAndFlags;
+		int16 flags = fUnion.fFields.fLengthAndFlags;
 		if(flags&kUsingStackBuffer) {
 			U_ASSERT(!(flags&kRefCounted)); /* kRefCounted and kUsingStackBuffer are mutally exclusive */
 			if(doCopyArray && growCapacity > US_STACKBUF_SIZE) {

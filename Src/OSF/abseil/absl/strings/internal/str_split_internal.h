@@ -6,13 +6,6 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-
 // This file declares INTERNAL parts of the Split API that are inline/templated
 // or otherwise need to be available at compile time. The main abstractions
 // defined in here are
@@ -36,14 +29,12 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
 #include "absl/base/macros.h"
 #include "absl/base/port.h"
 #include "absl/meta/type_traits.h"
 #include "absl/strings/string_view.h"
-
 #ifdef _GLIBCXX_DEBUG
-#include "absl/strings/internal/stl_type_traits.h"
+	#include "absl/strings/internal/stl_type_traits.h"
 #endif  // _GLIBCXX_DEBUG
 
 namespace absl {
@@ -144,11 +135,11 @@ class SplitIterator {
     return old;
   }
 
-  friend bool operator==(const SplitIterator& a, const SplitIterator& b) {
+  friend bool operator == (const SplitIterator& a, const SplitIterator& b) {
     return a.state_ == b.state_ && a.pos_ == b.pos_;
   }
 
-  friend bool operator!=(const SplitIterator& a, const SplitIterator& b) {
+  friend bool operator != (const SplitIterator& a, const SplitIterator& b) {
     return !(a == b);
   }
 

@@ -68,13 +68,13 @@ Status::Status(const Status& other) : error_code_(other.error_code_), error_mess
 {
 }
 
-Status& Status::operator=(const Status& other) {
+Status& Status::operator = (const Status& other) {
 	error_code_ = other.error_code_;
 	error_message_ = other.error_message_;
 	return *this;
 }
 
-bool Status::operator==(const Status& x) const { return error_code_ == x.error_code_ && error_message_ == x.error_message_; }
+bool Status::operator == (const Status& x) const { return error_code_ == x.error_code_ && error_message_ == x.error_message_; }
 
 std::string Status::ToString() const 
 {
@@ -92,7 +92,7 @@ std::string Status::ToString() const
 }
 
 Status OkStatus() { return Status(); }
-std::ostream& operator<<(std::ostream& os, const Status& x) { os << x.ToString(); return os; }
+std::ostream & operator<<(std::ostream & os, const Status& x) { os << x.ToString(); return os; }
 bool IsAborted(const Status& status) { return status.code() == StatusCode::kAborted; }
 bool IsAlreadyExists(const Status& status) { return status.code() == StatusCode::kAlreadyExists; }
 bool IsCancelled(const Status& status) { return status.code() == StatusCode::kCancelled; }

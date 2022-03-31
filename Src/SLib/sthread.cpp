@@ -1035,11 +1035,8 @@ SLTEST_R(ReadWriteLock)
 			ReadWriteLock * P_Lock;
 			volatile int  * P_Result;
 		};
-		RwlThread(InitBlock * pBlk) : SlThread(pBlk)
+		RwlThread(InitBlock * pBlk) : SlThread(pBlk), Id(pBlk->Id), P_Lock(pBlk->P_Lock), P_Result(pBlk->P_Result)
 		{
-			Id = pBlk->Id;
-			P_Lock = pBlk->P_Lock;
-			P_Result = pBlk->P_Result;
 		}
 		virtual void Run()
 		{
@@ -1116,6 +1113,178 @@ SLTEST_R(ReadWriteLock)
 		volatile int * P_Result;
 	};
 	int    ok = 1;
+	{
+		int    r1 = 0;
+		int    r2 = 0;
+		int    r3 = 0;
+		int    ur = 0;
+		ReadWriteLock lck;
+		r1 = lck.WriteLockT_(1000);
+		assert(r1 > 0);
+		r2 = lck.ReadLockT_(1000);
+		assert(r2 < 0);
+		ur = lck.Unlock_();
+		assert(ur);
+		r2 = lck.ReadLockT_(1000);
+		assert(r2 > 0);
+		r3 = lck.ReadLockT_(1000);
+		assert(r3 > 0);
+		r1 = lck.WriteLockT_(1000);
+		assert(r1 < 0);
+		ur = lck.Unlock_();
+		assert(ur);
+		ur = lck.Unlock_();
+		assert(ur);
+		r1 = lck.WriteLockT_(1000);
+		assert(r1 > 0);
+		ur = lck.Unlock_();
+		assert(ur);
+		r2 = lck.ReadLockT_(1000);
+		assert(r2 > 0);
+		ur = lck.Unlock_();
+		assert(ur);
+	}
+	{
+		static ReadWriteLock _RwLck;
+		class AbstractWriter {
+			void * P;
+		public:
+			AbstractWriter(long timeout) : P(0)
+			{
+				P = (_RwLck.WriteLockT_(timeout) > 0) ? reinterpret_cast<void *>(1) : 0;
+			}
+			~AbstractWriter()
+			{
+				if(P) {
+					_RwLck.Unlock_();
+					P = 0;
+				}
+				assert(P == 0);
+			}
+			bool    IsValid() const { return (P != 0); }
+		};
+		class AbstractReader {
+			void * P;
+		public:
+			AbstractReader(long timeout) : P(0)
+			{
+				P = (_RwLck.ReadLockT_(timeout) > 0) ? reinterpret_cast<void *>(1) : 0;
+			}
+			~AbstractReader()
+			{
+				if(P) {
+					_RwLck.Unlock_();
+					P = 0;
+				}
+				assert(P == 0);
+			}
+			bool   IsValid() const { return (P != 0); }
+		};
+		class Thread_W : public SlThread_WithStartupSignal {
+			long    Timeout;
+		public:
+			Thread_W(long timeout) : SlThread_WithStartupSignal(0), Timeout(timeout)
+			{
+				assert(Timeout > 0);
+			}
+			void Run()
+			{
+				AbstractWriter o(Timeout*3);
+				assert(o.IsValid());
+				SDelay(Timeout / 2);
+			}
+		};
+		class Thread_R : public SlThread_WithStartupSignal {
+			long    Timeout;
+		public:
+			Thread_R(long timeout) : SlThread_WithStartupSignal(0), Timeout(timeout)
+			{
+				assert(Timeout > 0);
+			}
+			void Run()
+			{
+				AbstractReader o(Timeout*3);
+				assert(o.IsValid());
+				SDelay(Timeout / 2);
+			}
+		};
+		//
+		int    r1 = 0;
+		int    r2 = 0;
+		uint   tc = 0;
+		HANDLE tl[128];
+		MEMSZERO(tl);
+		{
+			Thread_W * p_w = new Thread_W(8000);
+			p_w->Start(1);
+			tl[tc++] = *p_w;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_W * p_w = new Thread_W(8000);
+			p_w->Start(1);
+			tl[tc++] = *p_w;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_W * p_w = new Thread_W(8000);
+			p_w->Start(1);
+			tl[tc++] = *p_w;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_W * p_w = new Thread_W(8000);
+			p_w->Start(1);
+			tl[tc++] = *p_w;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_R * p_r = new Thread_R(8000);
+			p_r->Start(1);
+			tl[tc++] = *p_r;
+		}
+		{
+			Thread_W * p_w = new Thread_W(8000);
+			p_w->Start(1);
+			tl[tc++] = *p_w;
+		}
+		//
+		::WaitForMultipleObjects(tc, tl, TRUE, INFINITE);
+		r1 = _RwLck.WriteLock_();
+		assert(r1 > 0);
+		r1 = _RwLck.Unlock_();
+		assert(r1 > 0);
+		r2 = _RwLck.ReadLock_();
+		assert(r2 > 0);
+		r2 = _RwLck.Unlock_();
+		assert(r2 > 0);
+	}
 	uint   i;
 	ReadWriteLock * p_lock = new ReadWriteLock();
 	memzero(RwlCommonDataList, sizeof(RwlCommonDataList));

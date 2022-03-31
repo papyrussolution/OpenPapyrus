@@ -46,14 +46,14 @@ public:
 	/// Copy constructor.
 	PositionIterator(const PositionIterator & o);
 	/// Assignment.
-	PositionIterator & operator=(const PositionIterator & o);
+	PositionIterator & operator = (const PositionIterator & o);
 	/// Move constructor.
 	PositionIterator(PositionIterator && o) : internal(o.internal) 
 	{
 		o.internal = nullptr;
 	}
 	/// Move assignment operator.
-	PositionIterator & operator=(PositionIterator && o) {
+	PositionIterator & operator = (PositionIterator && o) {
 		if(this != &o) {
 			if(internal) decref();
 			internal = o.internal;
@@ -119,7 +119,7 @@ public:
 };
 
 /// Equality test for PositionIterator objects.
-inline bool operator==(const PositionIterator& a, const PositionIterator& b) noexcept
+inline bool operator == (const PositionIterator& a, const PositionIterator& b) noexcept
 {
 	// Use a pointer comparison - this ensures both that (a == a) and correct
 	// handling of end iterators (which we ensure have NULL internals).
@@ -127,7 +127,7 @@ inline bool operator==(const PositionIterator& a, const PositionIterator& b) noe
 }
 
 /// Inequality test for PositionIterator objects.
-inline bool operator!=(const PositionIterator& a, const PositionIterator& b) noexcept
+inline bool operator != (const PositionIterator& a, const PositionIterator& b) noexcept
 {
 	return !(a == b);
 }

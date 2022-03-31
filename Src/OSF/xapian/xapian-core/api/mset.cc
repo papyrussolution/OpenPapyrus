@@ -30,9 +30,9 @@ using namespace std;
 
 namespace Xapian {
 MSet::MSet(const MSet&) = default;
-MSet & MSet::operator=(const MSet&) = default;
+MSet & MSet::operator = (const MSet&) = default;
 MSet::MSet(MSet&&) = default;
-MSet & MSet::operator=(MSet&&) = default;
+MSet & MSet::operator = (MSet&&) = default;
 
 MSet::MSet() : internal(new MSet::Internal) 
 {

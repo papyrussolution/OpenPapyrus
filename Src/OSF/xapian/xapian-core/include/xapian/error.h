@@ -71,7 +71,7 @@ class XAPIAN_VISIBILITY_DEFAULT Error {
 	 */
 	int my_errno;
 	/// Don't allow assignment of the base class.
-	void operator=(const Error &o);
+	void operator = (const Error &o);
 protected:
 	/** @private @internal
 	 *  @brief Constructor for use by constructors of derived classes.

@@ -419,7 +419,7 @@ private:
      * @return                        best match skeleton
      */
     const UnicodeString * getBestSkeleton(const UnicodeString & skeleton,
-                                         int8_t& bestMatchDistanceInfo) const;
+                                         int8& bestMatchDistanceInfo) const;
 
 
     /**

@@ -1314,7 +1314,7 @@ typedef struct {
 static CurrencyNameCacheEntry* currCache[CURRENCY_NAME_CACHE_NUM] = {NULL};
 // Using an index to indicate which entry to be replaced when cache is full.
 // It is a simple round-robin replacement strategy.
-static int8_t currentCacheEntryIndex = 0;
+static int8 currentCacheEntryIndex = 0;
 
 static UMutex gCurrencyCacheMutex;
 
@@ -1360,8 +1360,8 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 	umtx_lock(&gCurrencyCacheMutex);
 	// in order to handle racing correctly,
 	// not putting 'search' in a separate function.
-	int8_t found = -1;
-	for(int8_t i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
+	int8 found = -1;
+	for(int8 i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
 		if(currCache[i]!= NULL &&
 		    uprv_strcmp(locale, currCache[i]->locale) == 0) {
 			found = i;
@@ -1381,7 +1381,7 @@ static CurrencyNameCacheEntry* getCacheEntry(const char * locale, UErrorCode & e
 		}
 		umtx_lock(&gCurrencyCacheMutex);
 		// check again.
-		for(int8_t i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
+		for(int8 i = 0; i < CURRENCY_NAME_CACHE_NUM; ++i) {
 			if(currCache[i]!= NULL &&
 			    uprv_strcmp(locale, currCache[i]->locale) == 0) {
 				found = i;
@@ -1437,7 +1437,7 @@ static void releaseCacheEntry(CurrencyNameCacheEntry* cacheEntry) {
 U_CAPI void uprv_parseCurrency(const char * locale,
     const icu::UnicodeString & text,
     icu::ParsePosition& pos,
-    int8_t type,
+    int8 type,
     int32_t* partialMatchLen,
     UChar * result,
     UErrorCode & ec) {

@@ -72,7 +72,7 @@ public:
 	}
 
 	once_flag(const once_flag&) = delete;
-	once_flag& operator=(const once_flag&) = delete;
+	once_flag& operator = (const once_flag&) = delete;
 
 private:
 	friend std ::atomic<uint32_t>* base_internal::ControlWord(once_flag* flag);

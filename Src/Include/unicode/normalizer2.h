@@ -353,7 +353,7 @@ public:
      * @return c's combining class
      * @stable ICU 49
      */
-    virtual uint8_t
+    virtual uint8
     getCombiningClass(UChar32 c) const;
 
     /**
@@ -647,7 +647,7 @@ public:
      * @return c's combining class
      * @stable ICU 49
      */
-    virtual uint8_t
+    virtual uint8
     getCombiningClass(UChar32 c) const U_OVERRIDE;
 
     /**

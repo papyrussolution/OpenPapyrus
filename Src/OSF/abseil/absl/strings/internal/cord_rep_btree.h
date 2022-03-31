@@ -6,19 +6,12 @@
 //
 //     https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_H_
 #define ABSL_STRINGS_INTERNAL_CORD_REP_BTREE_H_
 
 #include <cassert>
 #include <cstdint>
 #include <iosfwd>
-
 #include "absl/base/config.h"
 #include "absl/base/internal/raw_logging.h"
 #include "absl/base/optimization.h"
@@ -356,11 +349,11 @@ public:
 
 	// Diagnostics: dump the contents of this tree to `stream`.
 	// This function is intended for debugging and testing purposes only.
-	static void Dump(const CordRep* rep, std::ostream& stream);
+	static void Dump(const CordRep* rep, std::ostream & stream);
 	static void Dump(const CordRep* rep, absl::string_view label,
-	    std::ostream& stream);
+	    std::ostream & stream);
 	static void Dump(const CordRep* rep, absl::string_view label,
-	    bool include_contents, std::ostream& stream);
+	    bool include_contents, std::ostream & stream);
 
 	// Adds the edge `edge` to this node if possible. `owned` indicates if the
 	// current node is potentially shared or not with other threads. Returns:

@@ -1,12 +1,11 @@
 // collationruleparser.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
- * (replaced the former ucol_tok.cpp)
- * created on: 2013apr10
- * created by: Markus W. Scherer
- */
+// Copyright (C) 2013-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// (replaced the former ucol_tok.cpp)
+// created on: 2013apr10
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -20,43 +19,44 @@
 U_NAMESPACE_BEGIN
 
 namespace {
-static const UChar BEFORE[] = { 0x5b, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0 };  // "[before"
-const int32_t BEFORE_LENGTH = 7;
+	static const UChar BEFORE[] = { 0x5b, 0x62, 0x65, 0x66, 0x6f, 0x72, 0x65, 0 };  // "[before"
+	const int32_t BEFORE_LENGTH = 7;
 }  // namespace
 
-CollationRuleParser::Sink::~Sink() {
+CollationRuleParser::Sink::~Sink() 
+{
 }
 
-void
-CollationRuleParser::Sink::suppressContractions(const UnicodeSet &, const char *&, UErrorCode &) {
+void CollationRuleParser::Sink::suppressContractions(const UnicodeSet &, const char *&, UErrorCode &) 
+{
 }
 
-void
-CollationRuleParser::Sink::optimize(const UnicodeSet &, const char *&, UErrorCode &) {
+void CollationRuleParser::Sink::optimize(const UnicodeSet &, const char *&, UErrorCode &) 
+{
 }
 
-CollationRuleParser::Importer::~Importer() {
+CollationRuleParser::Importer::~Importer() 
+{
 }
 
-CollationRuleParser::CollationRuleParser(const CollationData * base, UErrorCode & errorCode)
-	: nfd(*Normalizer2::getNFDInstance(errorCode)),
-	nfc(*Normalizer2::getNFCInstance(errorCode)),
-	rules(NULL), baseData(base), settings(NULL),
-	parseError(NULL), errorReason(NULL),
-	sink(NULL), importer(NULL),
-	ruleIndex(0) {
+CollationRuleParser::CollationRuleParser(const CollationData * base, UErrorCode & errorCode) : nfd(*Normalizer2::getNFDInstance(errorCode)),
+	nfc(*Normalizer2::getNFCInstance(errorCode)), rules(NULL), baseData(base), settings(NULL), parseError(NULL), errorReason(NULL),
+	sink(NULL), importer(NULL), ruleIndex(0) 
+{
 }
 
-CollationRuleParser::~CollationRuleParser() {
+CollationRuleParser::~CollationRuleParser() 
+{
 }
 
-void CollationRuleParser::parse(const UnicodeString & ruleString, CollationSettings &outSettings, UParseError * outParseError, UErrorCode & errorCode) {
+void CollationRuleParser::parse(const UnicodeString & ruleString, CollationSettings &outSettings, UParseError * outParseError, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
 	settings = &outSettings;
 	parseError = outParseError;
-	if(parseError != NULL) {
+	if(parseError) {
 		parseError->line = 0;
 		parseError->offset = -1;
 		parseError->preContext[0] = 0;
@@ -73,7 +73,6 @@ void CollationRuleParser::parse(const UnicodeString & ruleString, UErrorCode & e
 	}
 	rules = &ruleString;
 	ruleIndex = 0;
-
 	while(ruleIndex < rules->length()) {
 		UChar c = rules->charAt(ruleIndex);
 		if(PatternProps::isWhiteSpace(c)) {
@@ -677,12 +676,9 @@ void CollationRuleParser::parseSetting(UErrorCode & errorCode) {
 			}
 			else {
 				UnicodeString importedRules;
-				importer->getRules(baseID, length > 0 ? collationType : "standard",
-				    importedRules, errorReason, errorCode);
+				importer->getRules(baseID, length > 0 ? collationType : "standard", importedRules, errorReason, errorCode);
 				if(U_FAILURE(errorCode)) {
-					if(errorReason == NULL) {
-						errorReason = "[import langTag] failed";
-					}
+					SETIFZQ(errorReason, "[import langTag] failed");
 					setErrorContext();
 					return;
 				}
@@ -690,9 +686,8 @@ void CollationRuleParser::parseSetting(UErrorCode & errorCode) {
 				int32_t outerRuleIndex = ruleIndex;
 				parse(importedRules, errorCode);
 				if(U_FAILURE(errorCode)) {
-					if(parseError != NULL) {
+					if(parseError)
 						parseError->offset = outerRuleIndex;
-					}
 				}
 				rules = outerRules;
 				ruleIndex = j;
@@ -726,7 +721,8 @@ void CollationRuleParser::parseSetting(UErrorCode & errorCode) {
 	setParseError("not a valid setting/option", errorCode);
 }
 
-void CollationRuleParser::parseReordering(const UnicodeString & raw, UErrorCode & errorCode) {
+void CollationRuleParser::parseReordering(const UnicodeString & raw, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -875,7 +871,8 @@ int32_t CollationRuleParser::skipComment(int32_t i) const {
 	return i;
 }
 
-void CollationRuleParser::setParseError(const char * reason, UErrorCode & errorCode) {
+void CollationRuleParser::setParseError(const char * reason, UErrorCode & errorCode) 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -883,44 +880,39 @@ void CollationRuleParser::setParseError(const char * reason, UErrorCode & errorC
 	// rather than U_PARSE_ERROR;
 	errorCode = U_INVALID_FORMAT_ERROR;
 	errorReason = reason;
-	if(parseError != NULL) {
+	if(parseError)
 		setErrorContext();
-	}
 }
 
 void CollationRuleParser::setErrorContext() 
 {
-	if(parseError == NULL) {
-		return;
-	}
-	// Note: This relies on the calling code maintaining the ruleIndex
-	// at a position that is useful for debugging.
-	// For example, at the beginning of a reset or relation etc.
-	parseError->offset = ruleIndex;
-	parseError->line = 0; // We are not counting line numbers.
-
-	// before ruleIndex
-	int32_t start = ruleIndex - (U_PARSE_CONTEXT_LEN - 1);
-	if(start < 0) {
-		start = 0;
-	}
-	else if(start > 0 && U16_IS_TRAIL(rules->charAt(start))) {
-		++start;
-	}
-	int32_t length = ruleIndex - start;
-	rules->extract(start, length, parseError->preContext);
-	parseError->preContext[length] = 0;
-
-	// starting from ruleIndex
-	length = rules->length() - ruleIndex;
-	if(length >= U_PARSE_CONTEXT_LEN) {
-		length = U_PARSE_CONTEXT_LEN - 1;
-		if(U16_IS_LEAD(rules->charAt(ruleIndex + length - 1))) {
-			--length;
+	if(parseError) {
+		// Note: This relies on the calling code maintaining the ruleIndex
+		// at a position that is useful for debugging.
+		// For example, at the beginning of a reset or relation etc.
+		parseError->offset = ruleIndex;
+		parseError->line = 0; // We are not counting line numbers.
+		// before ruleIndex
+		int32_t start = ruleIndex - (U_PARSE_CONTEXT_LEN - 1);
+		if(start < 0) {
+			start = 0;
 		}
+		else if(start > 0 && U16_IS_TRAIL(rules->charAt(start))) {
+			++start;
+		}
+		int32_t length = ruleIndex - start;
+		rules->extract(start, length, parseError->preContext);
+		parseError->preContext[length] = 0;
+		// starting from ruleIndex
+		length = rules->length() - ruleIndex;
+		if(length >= U_PARSE_CONTEXT_LEN) {
+			length = U_PARSE_CONTEXT_LEN - 1;
+			if(U16_IS_LEAD(rules->charAt(ruleIndex + length - 1)))
+				--length;
+		}
+		rules->extract(ruleIndex, length, parseError->postContext);
+		parseError->postContext[length] = 0;
 	}
-	rules->extract(ruleIndex, length, parseError->postContext);
-	parseError->postContext[length] = 0;
 }
 
 bool CollationRuleParser::isSyntaxChar(UChar32 c) 
@@ -937,5 +929,4 @@ int32_t CollationRuleParser::skipWhiteSpace(int32_t i) const
 }
 
 U_NAMESPACE_END
-
 #endif  // !UCONFIG_NO_COLLATION

@@ -29,7 +29,7 @@ class Xapian::ClusterSet::Internal : public Xapian::Internal::intrusive_base {
 	Internal(const Internal&);
 
 	/// Assignment is not allowed
-	void operator=(const Internal&);
+	void operator = (const Internal&);
 
 	/** A vector storing the clusters that are created by the
 	 *  clusterers
@@ -72,7 +72,7 @@ class Xapian::Cluster::Internal : public Xapian::Internal::intrusive_base {
 	Internal(const Internal&);
 
 	/// Assignment is not allowed
-	void operator=(const Internal&);
+	void operator = (const Internal&);
 
 	/// Documents (or Points in the vector space) within the cluster
 	std::vector <Point> cluster_docs;
@@ -119,7 +119,7 @@ class Xapian::DocumentSet::Internal : public Xapian::Internal::intrusive_base {
 	/// Copies are not allowed.
 	Internal(const Internal&);
 	/// Assignment is not allowed.
-	void operator=(const Internal&);
+	void operator = (const Internal&);
 	/// Vector storing the documents for this DocumentSet
 	std::vector <Xapian::Document> documents;
 public:

@@ -314,6 +314,26 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					}
 				}
 				break;
+			case SLib.EV_ACTIVITYRESUME:
+				{
+					StyloQApp app_ctx = (StyloQApp)getApplication();
+					if(app_ctx != null) {
+						try {
+							StyloQDatabase db = app_ctx.GetDB();
+							if(db != null) {
+								SvcListData = db.GetForeignSvcIdList(true);
+								View v = findViewById(R.id.serviceListView);
+								RecyclerView view = (v != null && v instanceof RecyclerView) ? (RecyclerView)findViewById(R.id.serviceListView) : null;
+								RecyclerView.Adapter adapter = (view != null) ? view.getAdapter() : null;
+								if(adapter != null)
+									adapter.notifyDataSetChanged();
+							}
+						} catch(StyloQException e) {
+							;
+						}
+					}
+				}
+				break;
 			case SLib.EV_CREATEVIEWHOLDER:
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;

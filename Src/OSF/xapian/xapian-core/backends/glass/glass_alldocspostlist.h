@@ -28,7 +28,7 @@
 
 class GlassAllDocsPostList : public GlassPostList {
     /// Don't allow assignment.
-    void operator=(const GlassAllDocsPostList &);
+    void operator = (const GlassAllDocsPostList &);
 
     /// Don't allow copying.
     GlassAllDocsPostList(const GlassAllDocsPostList &);

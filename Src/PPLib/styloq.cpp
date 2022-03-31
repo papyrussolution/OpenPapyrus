@@ -18,17 +18,28 @@
 		client_body_buffer_size  4m;
 	}
 */
-
 const int ec_curve_name_id = NID_X9_62_prime256v1;
 const long __DefMqbConsumeTimeout = 5000;
 /*
 	RESERVED COMMANDS:
 	
-	register
 	test
+	//
+	register
+	quit
+	advert
+	getconfig
 	getface
-	getcmdlist
-	login
+	getcommandlist
+	pushindexingcontent
+	getforeignconfig
+	echo
+	search
+	requestblobinfolist
+	storeblob
+	getblob
+	dtlogin
+	postdocument
 */
 /*
 	Обмен данными осуществляется посредством брокера сообщений Rabbit-MQ или прямым соединением с сервером,
@@ -416,6 +427,7 @@ static const SIntToSymbTabEntry StyloQFaceTagNameList[] = {
 	{ StyloQFace::tagExpiryEpochSec,  "expiryepochsec" },
 	{ StyloQFace::tagEMail,           "email" }, // @v11.3.2
 	{ StyloQFace::tagVerifiability,   "verifiability" }, // @v11.3.2
+	{ StyloQFace::tagStatus,          "status" }, // @v11.3.6
 };
 
 int StyloQFace::FromJsonObject(const SJson * pJsObj)
@@ -549,6 +561,48 @@ int StyloQFace::Set(int tag, int lang, const char * pText)
 	if(!ok)
 		PPSetErrorSLib();
 	return ok;
+}
+
+int StyloQFace::SetStatus(int status)
+{
+	int    ok = 1;
+	const char * p_tag_val = 0;
+	switch(status) {
+		case statusPrvMale: p_tag_val = "male"; break;
+		case statusPrvFemale: p_tag_val = "female"; break;
+		case statusPrvGenderQuestioning: p_tag_val = "private"; break;
+		case statusEnterprise: p_tag_val = "enterprise"; break;
+		default:
+			assert(0);
+			ok = 0;
+			break;
+	}
+	if(p_tag_val) {
+		assert(ok);
+		ok = Set(tagStatus, 0, p_tag_val);
+	}
+	return ok;
+}
+
+int StyloQFace::GetStatus() const
+{
+	int    result = statusUndef;
+	SString & r_temp_buf = SLS.AcquireRvlStr();
+	if(Get(tagStatus, 0, r_temp_buf)) {
+		if(r_temp_buf.IsEqiAscii("male"))
+			result = statusPrvMale;
+		else if(r_temp_buf.IsEqiAscii("female"))
+			result = statusPrvFemale;
+		else if(r_temp_buf.IsEqiAscii("private"))
+			result = statusPrvGenderQuestioning;
+		else if(r_temp_buf.IsEqiAscii("enterprise"))
+			result = statusEnterprise;
+		else if(r_temp_buf.IsEqiAscii("undef"))
+			result = statusUndef;
+		else
+			result = -1;	
+	}
+	return result;
 }
 
 int StyloQFace::SetDob(LDATE dt)
@@ -6824,7 +6878,7 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 		}
 	}
 	if(plain_query.NotEmptyS()) {
-		PPFtsIterface fts_db(false/*forUpdate*/);
+		PPFtsIterface fts_db(false/*forUpdate*/, 30000);
 		TSCollection <PPFtsIterface::SearchResultEntry> result_list;
 		THROW(fts_db);
 		THROW(fts_db.Search(plain_query, max_result_count, result_list));
@@ -7225,9 +7279,37 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
 				cmd_reply_ok = true;
 			}
+			else if(command.IsEqiAscii("requestblobinfolist")) { // @v11.3.6 Запрос информации о списке blob'ов с целью выяснить какие из них следует передавать (получать), а какие-нет.
+				// Запрос содержит массив пар {blob-ident; block-hash} в ответ на который сервис-медиатор возвращает подмножество этого списка, содержащее набор
+				// blob'ов, которые у него отсутствуют либо отличаются по хэшу.
+			}
 			else if(command.IsEqiAscii("storeblob")) { // @v11.3.3
 				// Команда отправляется от сервиса к сервису-медиатору для того, чтобы медиатор сохранил произвольный бинарный объект для доступа к нему клиентов
-				
+				if(GetOwnPeerEntry(&own_pack) > 0) {
+					StyloQConfig own_cfg;
+					if(!own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config))
+						PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
+					else {
+						reply_config.ToRawStr(temp_buf);
+						if(own_cfg.FromJson(temp_buf)) {
+							uint   own_cfg_role = own_cfg.GetRole();
+							uint64 own_features = own_cfg.GetFeatures();
+							if(!(own_features & StyloQConfig::featrfMediator))
+								PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
+							else {
+								StyloQCore::StoragePacket cli_pack;
+								assert(reply_config.Len());
+								if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
+									/*
+									if(ProcessCommand_IndexingContent(cli_pack, p_js_cmd, reply_text_buf) > 0) {
+										cmd_reply_ok = true;
+									}
+									*/
+								}
+							}
+						}
+					}
+				}
 			}
 			else if(command.IsEqiAscii("getblob")) { // @v11.3.3
 				// Команда отправляется от клиента к сервису-медиатору для того, чтобы получить произвольный бинарный объект по идентификатору, предоставленному другим сервисом
@@ -7236,17 +7318,15 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				// Команда передачи сервису-медиатору данных для поисковой индексации
 				if(GetOwnPeerEntry(&own_pack) > 0) {
 					StyloQConfig own_cfg;
-					if(!own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config)) {
+					if(!own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config))
 						PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
-					}
 					else {
 						reply_config.ToRawStr(temp_buf);
 						if(own_cfg.FromJson(temp_buf)) {
 							uint   own_cfg_role = own_cfg.GetRole();
 							uint64 own_features = own_cfg.GetFeatures();
-							if(!(own_features & StyloQConfig::featrfMediator)) {
+							if(!(own_features & StyloQConfig::featrfMediator))
 								PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
-							}
 							else {
 								StyloQCore::StoragePacket cli_pack;
 								assert(reply_config.Len());
@@ -8304,7 +8384,7 @@ int StyloQCore::IndexingContent()
 			txa_param.Flags |= (STokenizer::fDivAlNum|STokenizer::fEachDelim);
 			txa.SetParam(&txa_param);
 
-			PPFtsIterface fts_db(true/*forUpdate*/);
+			PPFtsIterface fts_db(true/*forUpdate*/, 120000);
 			THROW(fts_db);
 			for(uint didx = 0; didx < doc_id_list.getCount(); didx++) {
 				const PPID doc_id = doc_id_list.get(didx);
@@ -9028,7 +9108,8 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 			cmdNone = 0,
 			cmdEcho,
 			cmdIndexing,
-			cmdSearch
+			cmdSearch,
+			cmdStoreBlob // storeblob
 		};
 		StqClientTestDialog(PPStyloQInterchange * pIc, const StyloQCore::StoragePacket & rPack) : TDialog(DLG_STQCLITEST), P_Ic(pIc), Pack(rPack)
 		{
@@ -9053,6 +9134,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				cmd_list.Add(cmdEcho, PPLoadTextS(PPTXT_STQCLITESTCMD_ECHO, temp_buf));
 				cmd_list.Add(cmdIndexing, PPLoadTextS(PPTXT_STQCLITESTCMD_INDEXING, temp_buf));
 				cmd_list.Add(cmdSearch, PPLoadTextS(PPTXT_STQCLITESTCMD_SEARCH, temp_buf));
+				cmd_list.Add(cmdStoreBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_STOREBLOB, temp_buf)); // @v11.3.6
 				SetupStrAssocCombo(this, CTLSEL_STQCLITEST_FUNC, cmd_list, 0, 0);
 			}
 		}
@@ -9080,6 +9162,97 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 							SJson * p_js = SJson::Parse(json_buf);
 							if(p_js) {
 								setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
+							}
+						}
+					}
+				}
+				else if(cmd == cmdStoreBlob) {
+					SString temp_buf;
+					{
+						//D:\Papyrus\Src\PPTEST\DATA\test_webp_js.webp
+						const char * p_test_file_name = "test_webp_js.webp";
+						PPGetPath(PPPATH_TESTROOT, temp_buf);
+						if(temp_buf.NotEmpty()) {
+							temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat(p_test_file_name);
+							if(fileExists(temp_buf)) {
+								SString content_type_buf;
+								SFileFormat ff;
+								int fir = ff.Identify(temp_buf, 0);
+								if(oneof2(fir, 2, 3)) {
+									SFileFormat::GetMime(ff, content_type_buf);
+								}
+								{
+									STempBuffer blob_buf(SKILOBYTE(1));
+									SFile f_in(temp_buf, SFile::mRead|SFile::mBinary);
+									if(f_in.IsValid()) {
+										size_t actual_size = 0;
+										if(f_in.ReadAll(blob_buf, 0, &actual_size)) {
+											StyloQCore::StoragePacket own_pack;
+											SBinaryChunk bc_own_ident;
+											if(P_Ic->GetOwnPeerEntry(&own_pack) > 0 && own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident)) {
+												SJson query(SJson::tOBJECT);
+												query.InsertString("cmd", "storeblob");
+												query.InsertString("time", temp_buf.Z().Cat(time(0)));
+												if(content_type_buf.NotEmpty()) {
+													query.InsertString("contenttype", content_type_buf);
+												}
+												query.InsertString("contentsize", temp_buf.Z().Cat(actual_size));
+												const binary256 hash = SlHash::Sha256(0, blob_buf, actual_size);
+												temp_buf.EncodeMime64(&hash, sizeof(hash));
+												query.InsertString("hashalg", "sha-256");
+												query.InsertString("hash", temp_buf);
+												{
+													SBinaryChunk bc_sign;
+													bc_sign.Cat(bc_own_ident);
+													bc_sign.Cat(p_test_file_name, sstrlen(p_test_file_name));
+													binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
+													Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), temp_buf);
+													query.InsertString("signature", temp_buf);
+												}
+												temp_buf.EncodeMime64(blob_buf, actual_size);
+												query.InsertString("content", temp_buf);
+												query.ToStr(dip.CommandJson);
+												if(P_Ic->DoInterchange(dip, svc_reply)) {
+													SBinaryChunk raw_data;
+													if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
+														raw_data.ToRawStr(json_buf);
+														SJson * p_js = SJson::Parse(json_buf);
+														if(p_js) {
+															setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
+														}
+													}
+												}
+												else {
+													;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					{
+						getCtrlString(CTL_STQCLITEST_INPUT, temp_buf);
+						if(temp_buf.NotEmptyS()) {
+							SString obj_type_symb;
+							for(uint pi = 0; pi < temp_buf.Len(); pi++) {
+								const char c = temp_buf.C(pi);
+								if(isasciialpha(c))
+									obj_type_symb.CatChar(c);
+								else
+									break;
+							}
+							temp_buf.ShiftLeft(obj_type_symb.Len()).Strip();
+							if(obj_type_symb.NotEmptyS()) {
+								PPID obj_type = GetObjectTypeBySymb(obj_type_symb, 0);
+								if(oneof3(obj_type, PPOBJ_GOODS, PPOBJ_PERSON, PPOBJ_BRAND)) {
+									temp_buf.ShiftLeftChr(':').Strip();
+									PPID   obj_id = temp_buf.ToLong();
+									if(obj_id > 0) {
+										
+									}
+								}
 							}
 						}
 					}

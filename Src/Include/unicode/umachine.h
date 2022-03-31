@@ -184,11 +184,11 @@
 
 #ifndef INT8_MIN
 /** The smallest value an 8 bit signed integer can hold @stable ICU 2.0 */
-#define INT8_MIN        ((int8_t)(-128))
+#define INT8_MIN        ((int8)(-128))
 #endif
 #ifndef INT16_MIN
 /** The smallest value a 16 bit signed integer can hold @stable ICU 2.0 */
-#define INT16_MIN       ((int16_t)(-32767-1))
+#define INT16_MIN       ((int16)(-32767-1))
 #endif
 #ifndef INT32_MIN
 /** The smallest value a 32 bit signed integer can hold @stable ICU 2.0 */
@@ -197,11 +197,11 @@
 
 #ifndef INT8_MAX
 /** The largest value an 8 bit signed integer can hold @stable ICU 2.0 */
-#define INT8_MAX        ((int8_t)(127))
+#define INT8_MAX        ((int8)(127))
 #endif
 #ifndef INT16_MAX
 /** The largest value a 16 bit signed integer can hold @stable ICU 2.0 */
-#define INT16_MAX       ((int16_t)(32767))
+#define INT16_MAX       ((int16)(32767))
 #endif
 #ifndef INT32_MAX
 /** The largest value a 32 bit signed integer can hold @stable ICU 2.0 */
@@ -210,11 +210,11 @@
 
 #ifndef UINT8_MAX
 /** The largest value an 8 bit unsigned integer can hold @stable ICU 2.0 */
-#define UINT8_MAX       ((uint8_t)(255U))
+#define UINT8_MAX       ((uint8)(255U))
 #endif
 #ifndef UINT16_MAX
 /** The largest value a 16 bit unsigned integer can hold @stable ICU 2.0 */
-#define UINT16_MAX      ((uint16_t)(65535U))
+#define UINT16_MAX      ((uint16)(65535U))
 #endif
 #ifndef UINT32_MAX
 /** The largest value a 32 bit unsigned integer can hold @stable ICU 2.0 */
@@ -266,7 +266,7 @@
  *
  * @stable ICU 2.0
  */
-typedef int8_t UBool_Removed; // @sobolev _Removed
+typedef int8 UBool_Removed; // @sobolev _Removed
 
 /**
  * \def U_DEFINE_FALSE_AND_TRUE
@@ -384,16 +384,16 @@ typedef int8_t UBool_Removed; // @sobolev _Removed
  *
  * UChar is configurable by defining the macro UCHAR_TYPE
  * on the preprocessor or compiler command line:
- * -DUCHAR_TYPE=uint16_t or -DUCHAR_TYPE=wchar_t (if U_SIZEOF_WCHAR_T==2) etc.
+ * -DUCHAR_TYPE=uint16 or -DUCHAR_TYPE=wchar_t (if U_SIZEOF_WCHAR_T==2) etc.
  * (The UCHAR_TYPE can also be \#defined earlier in this file, for outside the ICU library code.)
- * This is for transitional use from application code that uses uint16_t or wchar_t for UTF-16.
+ * This is for transitional use from application code that uses uint16 or wchar_t for UTF-16.
  *
  * The default is UChar=char16_t.
  *
- * C++11 defines char16_t as bit-compatible with uint16_t, but as a distinct type.
+ * C++11 defines char16_t as bit-compatible with uint16, but as a distinct type.
  *
  * In C, char16_t is a simple typedef of uint_least16_t.
- * ICU requires uint_least16_t=uint16_t for data memory mapping.
+ * ICU requires uint_least16_t=uint16 for data memory mapping.
  * On macOS, char16_t is not available because the uchar.h standard header is missing.
  *
  * @stable ICU 4.4
@@ -401,11 +401,11 @@ typedef int8_t UBool_Removed; // @sobolev _Removed
 
 #if 1
     // #if 1 is normal. UChar defaults to char16_t in C++.
-    // For configuration testing of UChar=uint16_t temporarily change this to #if 0.
+    // For configuration testing of UChar=uint16 temporarily change this to #if 0.
     // The intltest Makefile #defines UCHAR_TYPE=char16_t,
-    // so we only #define it to uint16_t if it is undefined so far.
+    // so we only #define it to uint16 if it is undefined so far.
 #elif !defined(UCHAR_TYPE)
-#define UCHAR_TYPE uint16_t
+#define UCHAR_TYPE uint16
 #endif
 
 #if defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || defined(U_I18N_IMPLEMENTATION) || defined(U_IO_IMPLEMENTATION)
@@ -416,7 +416,7 @@ typedef int8_t UBool_Removed; // @sobolev _Removed
 #elif (U_CPLUSPLUS_VERSION >= 11)
     typedef char16_t UChar;
 #else
-    typedef uint16_t UChar;
+    typedef uint16 UChar;
 #endif
 
 /**
@@ -426,7 +426,7 @@ typedef int8_t UBool_Removed; // @sobolev _Removed
  * Unsigned 16-bit integer.
  *
  * Define OldUChar to be wchar_t if that is 16 bits wide.
- * If wchar_t is not 16 bits wide, then define UChar to be uint16_t.
+ * If wchar_t is not 16 bits wide, then define UChar to be uint16.
  *
  * This makes the definition of OldUChar platform-dependent
  * but allows direct string type compatibility with platforms with
@@ -443,7 +443,7 @@ typedef int8_t UBool_Removed; // @sobolev _Removed
 #elif defined(__CHAR16_TYPE__)
     typedef __CHAR16_TYPE__ OldUChar;
 #else
-    typedef uint16_t OldUChar;
+    typedef uint16 OldUChar;
 #endif
 
 /**

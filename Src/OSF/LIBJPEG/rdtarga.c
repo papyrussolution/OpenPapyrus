@@ -137,13 +137,11 @@ METHODDEF(void) read_rle_pixel(tga_source_ptr sinfo)
 		sinfo->tga_pixel[i] = (U_CHAR)getc(infile);
 	}
 }
-
 /*
  * Read one row of pixels.
  *
  * We provide several different versions depending on input file format.
  */
-
 METHODDEF(JDIMENSION) get_8bit_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr sinfo)
 /* This version is for reading 8-bit grayscale pixels */
 {
@@ -160,7 +158,7 @@ METHODDEF(JDIMENSION) get_8bit_gray_row(j_compress_ptr cinfo, cjpeg_source_ptr s
 // This version is for reading 8-bit colormap indexes 
 {
 	tga_source_ptr source = (tga_source_ptr)sinfo;
-	register JSAMPARRAY colormap = source->colormap;
+	JSAMPARRAY colormap = source->colormap;
 	JSAMPROW ptr = source->pub.buffer[0];
 	for(JDIMENSION col = cinfo->image_width; col > 0; col--) {
 		(*source->read_pixel)(source); // Load next pixel into tga_pixel 

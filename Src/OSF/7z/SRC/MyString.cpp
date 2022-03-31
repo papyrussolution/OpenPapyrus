@@ -469,7 +469,7 @@ AString::AString(const AString &s)
 	sstrcpy(_chars, s._chars);
 }
 
-AString &AString::operator=(char c)
+AString &AString::operator = (char c)
 {
 	if(1 > _limit) {
 		char * newBuf = MY_STRING_NEW_char(1 + 1);
@@ -484,7 +484,7 @@ AString &AString::operator=(char c)
 	return *this;
 }
 
-AString & AString::operator=(const char * s)
+AString & AString::operator = (const char * s)
 {
 	uint len = sstrlen(s);
 	if(len > _limit) {
@@ -498,7 +498,7 @@ AString & AString::operator=(const char * s)
 	return *this;
 }
 
-AString &AString::operator=(const AString &s)
+AString &AString::operator = (const AString &s)
 {
 	if(!(&s == this)) {
 		uint len = s._len;
@@ -1144,7 +1144,7 @@ UString & UString::operator = (wchar_t c)
 	return *this;
 }
 
-UString &UString::operator=(const wchar_t * s)
+UString &UString::operator = (const wchar_t * s)
 {
 	uint len = sstrlen(s);
 	if(len > _limit) {
@@ -1158,7 +1158,7 @@ UString &UString::operator=(const wchar_t * s)
 	return *this;
 }
 
-UString &UString::operator=(const UString &s)
+UString &UString::operator = (const UString &s)
 {
 	if(&s == this)
 		return *this;
@@ -1202,7 +1202,7 @@ void UString::SetFromBstr(BSTR s)
 	wmemcpy(_chars, s, len + 1);
 }
 
-UString &UString::operator=(const char * s)
+UString &UString::operator = (const char * s)
 {
 	uint len = sstrlen(s);
 	if(len > _limit) {
@@ -1541,7 +1541,7 @@ UString2::UString2(const UString2 &s) : _chars(NULL), _len(0)
 	}
 }
 
-/*UString2 &UString2::operator=(wchar_t c)
+/*UString2 &UString2::operator = (wchar_t c)
 {
 	if(1 > _len) {
 		wchar_t *newBuf = MY_STRING_NEW_wchar_t(1 + 1);
@@ -1556,7 +1556,7 @@ UString2::UString2(const UString2 &s) : _chars(NULL), _len(0)
 	return *this;
 }*/
 
-UString2 & UString2::operator=(const wchar_t * s)
+UString2 & UString2::operator = (const wchar_t * s)
 {
 	uint len = sstrlen(s);
 	if(len > _len) {
@@ -1586,7 +1586,7 @@ void UString2::SetFromAscii(const char * s)
 	_len = len;
 }
 
-UString2 & UString2::operator=(const UString2 &s)
+UString2 & UString2::operator = (const UString2 &s)
 {
 	if(!(&s == this)) {
 		uint len = s._len;

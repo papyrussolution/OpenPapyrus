@@ -4221,6 +4221,33 @@ void CheckPaneDialog::ProcessEnter(int selectInput)
 								// @v11.3.6 paym_blk2.AltCashReg = AltRegisterID ? 0 : -1;
 								SETFLAG(paym_blk2.Flags, PosPaymentBlock::fAltCashRegEnabled, AltRegisterID); // @v11.3.6 
 								paym_blk2.Flags &= ~PosPaymentBlock::fAltCashRegUse; // @v11.3.6 
+								// @v11.3.6 {
+								if(CSt.GetID()) {
+									PPSCardPacket sc_pack;
+									if(ScObj.GetPacket(CSt.GetID(), &sc_pack) > 0) {
+										SString _phone;
+										SString _email;
+										if(sc_pack.GetExtStrData(PPSCardPacket::extssPhone, _phone) > 0) {
+											assert(_phone.NotEmpty());
+										}
+										if(sc_pack.Rec.PersonID) {
+											PPELinkArray ela;
+											StringSet ss;
+											PersonCore::GetELinks(sc_pack.Rec.PersonID, ela);
+											if(_phone.IsEmpty())
+												ela.GetSinglePhone(_phone, 0);
+											if(ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
+												assert(ss.getCount());
+												ss.get(0U, _email);
+											}
+										}
+										if(_email.NotEmpty())
+											paym_blk2.SetBuyersEAddr(SNTOK_EMAIL, _email);
+										else if(_phone.NotEmpty())
+											paym_blk2.SetBuyersEAddr(SNTOK_PHONE, _phone);
+									}
+								}
+								// } @v11.3.6
 								for(int _again = 1; _again && paym_blk2.EditDialog2() > 0;) {
 									assert(feqeps(paym_blk2.CcPl.GetTotal(), ccpl_total, 0.00001));
 									assert(oneof3(paym_blk2.Kind, cpmCash, cpmBank, cpmIncorpCrd));
@@ -7716,6 +7743,14 @@ void CheckPaneDialog::setupRetCheck(int ret)
 							chk_pack.GetLineTextExt(1, CCheckPacket::lnextSerial, temp_buf);
 							STRNSCPY(r_cur_item.Serial, temp_buf);
 							// } @v10.4.3
+							// @v11.3.6 {
+							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnSerial, temp_buf);
+							STRNSCPY(r_cur_item.ChZnSerial, temp_buf);
+							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnGtin, temp_buf);
+							STRNSCPY(r_cur_item.ChZnGtin, temp_buf);
+							chk_pack.GetLineTextExt(1, CCheckPacket::lnextChZnMark, temp_buf);
+							STRNSCPY(r_cur_item.ChZnMark, temp_buf);
+							// } @v11.3.6 
 							P.CurPos = P.getCount();
 							SetupRowData(1);
 							SetupState(sLISTSEL_BUF);
@@ -12496,7 +12531,8 @@ int InfoKioskDialog::ProcessGoodsSelection()
 	PPID   goods_id = 0;
 	SString  buf;
 	SmartListBox * p_list = static_cast<SmartListBox *>(getCtrlView(CTL_INFKIOSK_GDSLIST));
-	p_list->def->getCurID(&goods_id);
+	if(p_list && p_list->def)
+		p_list->def->getCurID(&goods_id);
 	ClearInput();
 	setCtrlReal(CTL_INFKIOSK_DSCNTPRICE, 0.0);
 	setStaticText(CTL_INFKIOSK_INFO, buf);

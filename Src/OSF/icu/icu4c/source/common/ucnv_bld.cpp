@@ -180,7 +180,7 @@ static icu::UMutex cnvCacheMutex;
 /* reference count updates. */
 
 static const char ** gAvailableConverters = NULL;
-static uint16_t gAvailableConverterCount = 0;
+static uint16 gAvailableConverterCount = 0;
 static icu::UInitOnce gAvailableConvertersInitOnce = U_INITONCE_INITIALIZER;
 
 #if !U_CHARSET_IS_UTF8
@@ -274,7 +274,7 @@ static UConverterSharedData* ucnv_data_unFlattenClone(UConverterLoadArgs * pArgs
 	if(U_FAILURE(*status))
 		return NULL;
 
-	if((uint16_t)type >= UCNV_NUMBER_OF_SUPPORTED_CONVERTER_TYPES ||
+	if((uint16)type >= UCNV_NUMBER_OF_SUPPORTED_CONVERTER_TYPES ||
 	    converterData[type] == NULL ||
 	    !converterData[type]->isReferenceCounted ||
 	    converterData[type]->referenceCounter != 1 ||
@@ -509,7 +509,7 @@ static bool ucnv_deleteSharedConverterData(UConverterSharedData * deadSharedData
 UConverterSharedData * ucnv_load(UConverterLoadArgs * pArgs, UErrorCode * err) {
 	UConverterSharedData * mySharedConverterData;
 
-	if(err == NULL || U_FAILURE(*err)) {
+	if(!err || U_FAILURE(*err)) {
 		return NULL;
 	}
 
@@ -1089,14 +1089,14 @@ static bool haveAvailableConverterList(UErrorCode * pErrorCode) {
 	return U_SUCCESS(*pErrorCode);
 }
 
-U_CFUNC uint16_t ucnv_bld_countAvailableConverters(UErrorCode * pErrorCode) {
+U_CFUNC uint16 ucnv_bld_countAvailableConverters(UErrorCode * pErrorCode) {
 	if(haveAvailableConverterList(pErrorCode)) {
 		return gAvailableConverterCount;
 	}
 	return 0;
 }
 
-U_CFUNC const char * ucnv_bld_getAvailableConverter(uint16_t n, UErrorCode * pErrorCode) {
+U_CFUNC const char * ucnv_bld_getAvailableConverter(uint16 n, UErrorCode * pErrorCode) {
 	if(haveAvailableConverterList(pErrorCode)) {
 		if(n < gAvailableConverterCount) {
 			return gAvailableConverters[n];
@@ -1442,7 +1442,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 		/*
 		 * utf8Friendly MBCS files (mbcsHeader.version 4.3)
 		 * contain an additional mbcsIndex table:
-		 *   uint16_t[(maxFastUChar+1)>>6];
+		 *   uint16[(maxFastUChar+1)>>6];
 		 * where maxFastUChar=((mbcsHeader.version[2]<<8)|0xff).
 		 */
 		maxFastUChar = 0;
@@ -1541,7 +1541,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 				else {
 					/* otherwise: swap the stage tables separately */
 
-					/* stage 1 table: uint16_t[0x440 or 0x40] */
+					/* stage 1 table: uint16[0x440 or 0x40] */
 					if(inStaticData->unicodeMask&UCNV_HAS_SUPPLEMENTARY) {
 						count = 0x440*2; /* for all of Unicode */
 					}
@@ -1557,7 +1557,7 @@ U_CAPI int32_t U_EXPORT2 ucnv_swap(const UDataSwapper * ds,
 					ds->swapArray32(ds, inBytes+offset, (int32_t)count,
 					    outBytes+offset, pErrorCode);
 
-					/* stage 3/result bytes: sometimes uint16_t[] or uint32_t[] */
+					/* stage 3/result bytes: sometimes uint16[] or uint32_t[] */
 					offset = mbcsHeader.offsetFromUBytes;
 					count = noFromU ? 0 : mbcsHeader.fromUBytesLength;
 					switch(outputType) {

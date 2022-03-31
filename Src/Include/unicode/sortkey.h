@@ -115,7 +115,7 @@ public:
 	 * @param count number of collation key values, including trailing nulls.
 	 * @stable ICU 2.0
 	 */
-	CollationKey(const uint8_t*    values,
+	CollationKey(const uint8*    values,
 	    int32_t count);
 
 	/**
@@ -170,7 +170,7 @@ public:
 	 * @return a pointer to the collation key values.
 	 * @stable ICU 2.0
 	 */
-	const uint8_t*       getByteArray(int32_t& count) const;
+	const uint8*       getByteArray(int32_t& count) const;
 
 #ifdef U_USE_COLLATION_KEY_DEPRECATES
 	/**
@@ -180,7 +180,7 @@ public:
 	 * including any trailing nulls.
 	 * @obsolete ICU 2.6. Use getByteArray instead since this API will be removed in that release.
 	 */
-	uint8_t*                toByteArray(int32_t& count) const;
+	uint8*                toByteArray(int32_t& count) const;
 #endif
 
 #ifndef U_HIDE_DEPRECATED_API
@@ -248,17 +248,17 @@ private:
 	 * and copies length bytes from the old buffer to the new one.
 	 * @return the new buffer, or NULL if the allocation failed
 	 */
-	uint8_t * reallocate(int32_t newCapacity, int32_t length);
+	uint8 * reallocate(int32_t newCapacity, int32_t length);
 	/**
 	 * Set a new length for a new sort key in the existing fBytes.
 	 */
 	void setLength(int32_t newLength);
 
-	uint8_t * getBytes() {
+	uint8 * getBytes() {
 		return (fFlagAndLength >= 0) ? fUnion.fStackBuffer : fUnion.fFields.fBytes;
 	}
 
-	const uint8_t * getBytes() const {
+	const uint8 * getBytes() const {
 		return (fFlagAndLength >= 0) ? fUnion.fStackBuffer : fUnion.fFields.fBytes;
 	}
 
@@ -310,9 +310,9 @@ private:
 	 */
 	union StackBufferOrFields {
 		/** fStackBuffer is used iff fFlagAndLength>=0, else fFields is used */
-		uint8_t fStackBuffer[32];
+		uint8 fStackBuffer[32];
 		struct {
-			uint8_t * fBytes;
+			uint8 * fBytes;
 			int32_t fCapacity;
 		} fFields;
 	} fUnion;
@@ -328,7 +328,7 @@ inline bool CollationKey::isBogus() const
 	return fHashCode == 2; // kBogusHashCode
 }
 
-inline const uint8_t* CollationKey::getByteArray(int32_t &count) const
+inline const uint8* CollationKey::getByteArray(int32_t &count) const
 {
 	count = getLength();
 	return getBytes();

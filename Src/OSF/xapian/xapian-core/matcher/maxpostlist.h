@@ -28,7 +28,7 @@
 /// N-way OR postlist with wt=max(wt_i).
 class MaxPostList : public PostList {
     /// Don't allow assignment.
-    void operator=(const MaxPostList &);
+    void operator = (const MaxPostList &);
 
     /// Don't allow copying.
     MaxPostList(const MaxPostList &);

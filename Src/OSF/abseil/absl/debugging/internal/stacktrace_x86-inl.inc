@@ -6,35 +6,25 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
 // Produce stack trace
-
+//
 #ifndef ABSL_DEBUGGING_INTERNAL_STACKTRACE_X86_INL_INC_
 #define ABSL_DEBUGGING_INTERNAL_STACKTRACE_X86_INL_INC_
 
 #if defined(__linux__) && (defined(__i386__) || defined(__x86_64__))
-#include <ucontext.h>  // for ucontext_t
+	#include <ucontext.h>  // for ucontext_t
 #endif
-
 #if !defined(_WIN32)
-#include <unistd.h>
+	#include <unistd.h>
 #endif
-
 #include <cassert>
 #include <cstdint>
 #include <limits>
-
 #include "absl/base/macros.h"
 #include "absl/base/port.h"
 #include "absl/debugging/internal/address_is_readable.h"
 #include "absl/debugging/internal/vdso_support.h"  // a no-op on non-elf or non-glibc systems
 #include "absl/debugging/stacktrace.h"
-
 #include "absl/base/internal/raw_logging.h"
 
 using absl::debugging_internal::AddressIsReadable;

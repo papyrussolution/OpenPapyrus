@@ -114,7 +114,7 @@ public:
 #endif
 private:
 	/** Temporary array while building the final data. */
-	uint16_t * index16 = nullptr;
+	uint16 * index16 = nullptr;
 	uint8 flags[UNICODE_LIMIT >> UCPTRIE_SHIFT_3];
 };
 
@@ -606,8 +606,8 @@ bool allValuesSameAs(const uint32_t * p, int32_t length, uint32_t value) {
 }
 
 /** Search for an identical block. */
-int32_t findSameBlock(const uint16_t * p, int32_t pStart, int32_t length,
-    const uint16_t * q, int32_t qStart, int32_t blockLength) {
+int32_t findSameBlock(const uint16 * p, int32_t pStart, int32_t length,
+    const uint16 * q, int32_t qStart, int32_t blockLength) {
 	// Ensure that we do not even partially get past length.
 	length -= blockLength;
 
@@ -1243,11 +1243,11 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 
 	// Condense the fast index table.
 	// Also, does it contain an index-3 block with all dataNullOffset?
-	uint16_t fastIndex[UCPTRIE_BMP_INDEX_LENGTH]; // fastIndexLength
+	uint16 fastIndex[UCPTRIE_BMP_INDEX_LENGTH]; // fastIndexLength
 	int32_t i3FirstNull = -1;
 	for(int32_t i = 0, j = 0; i < fastILimit; ++j) {
 		uint32_t i3 = index[i];
-		fastIndex[j] = (uint16_t)i3;
+		fastIndex[j] = (uint16)i3;
 		if(i3 == (uint32_t)dataNullOffset) {
 			if(i3FirstNull < 0) {
 				i3FirstNull = j;
@@ -1345,7 +1345,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 	// Index table: Fast index, index-1, index-3, index-2.
 	// +1 for possible index table padding.
 	int32_t index16Capacity = fastIndexLength + index1Length + index3Capacity + index2Capacity + 1;
-	index16 = (uint16_t*)uprv_malloc(index16Capacity * 2);
+	index16 = (uint16*)uprv_malloc(index16Capacity * 2);
 	if(index16 == nullptr) {
 		errorCode = U_MEMORY_ALLOCATION_ERROR;
 		return 0;
@@ -1365,7 +1365,7 @@ int32_t MutableCodePointTrie::compactIndex(int32_t fastILimit, MixedBlocks &mixe
 	}
 
 	// Compact the index-3 table and write an uncompacted version of the index-2 table.
-	uint16_t index2[UNICODE_LIMIT >> UCPTRIE_SHIFT_2]; // index2Capacity
+	uint16 index2[UNICODE_LIMIT >> UCPTRIE_SHIFT_2]; // index2Capacity
 	int32_t i2Length = 0;
 	i3FirstNull = index3NullOffset;
 	int32_t index3Start = fastIndexLength + index1Length;
@@ -1744,13 +1744,13 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 	bytes += sizeof(UCPTrie);
 
 	// Fill the index and data arrays.
-	uint16_t * dest16 = (uint16_t*)bytes;
+	uint16 * dest16 = (uint16*)bytes;
 	trie->index = dest16;
 
 	if(highStart <= fastLimit) {
 		// Condense only the fast index from the mutable-trie index.
 		for(int32_t i = 0, j = 0; j < indexLength; i += SMALL_DATA_BLOCKS_PER_BMP_BLOCK, ++j) {
-			*dest16++ = (uint16_t)index[i]; // dest16[j]
+			*dest16++ = (uint16)index[i]; // dest16[j]
 		}
 	}
 	else {
@@ -1766,7 +1766,7 @@ UCPTrie * MutableCodePointTrie::build(UCPTrieType type, UCPTrieValueWidth valueW
 		    // Write 16-bit data values.
 		    trie->data.ptr16 = dest16;
 		    for(int32_t i = dataLength; i > 0; --i) {
-			    *dest16++ = (uint16_t)*p++;
+			    *dest16++ = (uint16)*p++;
 		    }
 		    break;
 		case UCPTRIE_VALUE_BITS_32:

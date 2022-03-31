@@ -27,7 +27,7 @@
 /// A document read from a RemoteDatabase.
 class RemoteDocument : public Xapian::Document::Internal {
     /// Don't allow assignment.
-    void operator=(const RemoteDocument &);
+    void operator = (const RemoteDocument &);
 
     /// Don't allow copying.
     RemoteDocument(const RemoteDocument &);

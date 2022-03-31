@@ -48,7 +48,7 @@ class BlockingCounter {
 public:
 	explicit BlockingCounter(int initial_count);
 	BlockingCounter(const BlockingCounter&) = delete;
-	BlockingCounter& operator=(const BlockingCounter&) = delete;
+	BlockingCounter& operator = (const BlockingCounter&) = delete;
 
 	// BlockingCounter::DecrementCount()
 	//

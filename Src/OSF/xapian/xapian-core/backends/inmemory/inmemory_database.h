@@ -279,7 +279,7 @@ class InMemoryDatabase : public Xapian::Database::Internal {
 	bool closed;
 
 	// Stop copy / assignment being allowed
-	InMemoryDatabase& operator=(const InMemoryDatabase &);
+	InMemoryDatabase& operator = (const InMemoryDatabase &);
 	InMemoryDatabase(const InMemoryDatabase &);
 
 	void make_term(const std::string & tname);

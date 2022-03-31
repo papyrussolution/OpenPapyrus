@@ -35,7 +35,7 @@
 /// TCP/IP replication client class.
 class XAPIAN_VISIBILITY_DEFAULT ReplicateTcpClient SOCKET_INITIALIZER_MIXIN {
     /// Don't allow assignment.
-    void operator=(const ReplicateTcpClient &);
+    void operator = (const ReplicateTcpClient &);
 
     /// Don't allow copying.
     ReplicateTcpClient(const ReplicateTcpClient &);

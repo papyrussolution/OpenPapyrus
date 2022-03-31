@@ -219,7 +219,7 @@ public:
      *   binary rules.
      * @stable ICU 4.8
      */
-    RuleBasedBreakIterator(const uint8_t *compiledRules,
+    RuleBasedBreakIterator(const uint8 *compiledRules,
                            uint32_t       ruleLength,
                            UErrorCode & status);
 
@@ -594,7 +594,7 @@ public:
      *           caller, and must not be modified or deleted.
      * @stable ICU 4.8
      */
-    virtual const uint8_t *getBinaryRules(uint32_t &length);
+    virtual const uint8 *getBinaryRules(uint32_t &length);
 
     /**
      *  Set the subject text string upon which the break iterator is operating
@@ -680,7 +680,7 @@ private:
      * signature)
      */
 
-    typedef uint16_t (*PTrieFunc)(const UCPTrie *, UChar32);
+    typedef uint16 (*PTrieFunc)(const UCPTrie *, UChar32);
 
     template<typename RowType, PTrieFunc trieFunc>
     int32_t handleSafePrevious(int32_t fromPosition);

@@ -40,7 +40,7 @@ class MultiAndPostList : public PostList {
     };
 
     /// Don't allow assignment.
-    void operator=(const MultiAndPostList &);
+    void operator = (const MultiAndPostList &);
 
     /// Don't allow copying.
     MultiAndPostList(const MultiAndPostList &);

@@ -108,13 +108,13 @@ class CJKNgramIterator {
 
     const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
 
-    bool operator==(const CJKNgramIterator& other) const {
+    bool operator == (const CJKNgramIterator& other) const {
 	// We only really care about comparisons where one or other is an end
 	// iterator.
 	return current_token.empty() && other.current_token.empty();
     }
 
-    bool operator!=(const CJKNgramIterator& other) const {
+    bool operator != (const CJKNgramIterator& other) const {
 	return !(*this == other);
     }
 };
@@ -152,11 +152,11 @@ class CJKWordIterator {
 
     CJKWordIterator & operator++();
 
-    bool operator==(const CJKWordIterator & other) const {
+    bool operator == (const CJKWordIterator & other) const {
 	return p == other.p;
     }
 
-    bool operator!=(const CJKWordIterator & other) const {
+    bool operator != (const CJKWordIterator & other) const {
 	return !(*this == other);
     }
 };

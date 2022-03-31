@@ -84,7 +84,7 @@ U_CAPI UBreakIterator* U_EXPORT2 ubrk_openRules(const UChar * rules,
     int32_t textLength,
     UParseError  * parseErr,
     UErrorCode * status) {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return 0;
 	}
 
@@ -129,7 +129,7 @@ U_CAPI UBreakIterator * U_EXPORT2 ubrk_safeClone(const UBreakIterator * bi,
     int32_t * pBufferSize,
     UErrorCode * status)
 {
-	if(status == NULL || U_FAILURE(*status)) {
+	if(!status || U_FAILURE(*status)) {
 		return NULL;
 	}
 	if(bi == NULL) {

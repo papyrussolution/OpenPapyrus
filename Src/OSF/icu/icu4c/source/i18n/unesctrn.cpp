@@ -188,7 +188,7 @@ void UnescapeTransliterator::handleTransliterate(Replaceable& text, UTransPositi
 			// Read the header
 			int32_t prefixLen = spec[ipat++];
 			int32_t suffixLen = spec[ipat++];
-			int8_t radix     = (int8_t)spec[ipat++];
+			int8 radix     = (int8)spec[ipat++];
 			int32_t minDigits = spec[ipat++];
 			int32_t maxDigits = spec[ipat++];
 

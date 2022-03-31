@@ -33,7 +33,7 @@ class ExternalPostList : public PostList {
 	/// Disallow copying.
 	ExternalPostList(const ExternalPostList &);
 	/// Disallow assignment.
-	void operator=(const ExternalPostList &);
+	void operator = (const ExternalPostList &);
 	Xapian::Internal::opt_intrusive_ptr<Xapian::PostingSource> source;
 	Xapian::docid current;
 	double factor;

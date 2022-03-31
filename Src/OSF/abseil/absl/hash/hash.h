@@ -1,3 +1,4 @@
+// hash.h
 // Copyright 2018 The Abseil Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -5,16 +6,6 @@
 // You may obtain a copy of the License at
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
-// -----------------------------------------------------------------------------
-// File: hash.h
-// -----------------------------------------------------------------------------
 //
 // This header file defines the Abseil `hash` library and the Abseil hashing
 // framework. This framework consists of the following:
@@ -74,7 +65,6 @@
 #define ABSL_HASH_HASH_H_
 
 #include <tuple>
-
 #include "absl/hash/internal/hash.h"
 
 namespace absl {
@@ -294,9 +284,9 @@ class HashState : public hash_internal::HashStateBase<HashState> {
   }
 
   HashState(const HashState&) = delete;
-  HashState& operator=(const HashState&) = delete;
+  HashState& operator = (const HashState&) = delete;
   HashState(HashState&&) = default;
-  HashState& operator=(HashState&&) = default;
+  HashState& operator = (HashState&&) = default;
 
   // HashState::combine()
   //

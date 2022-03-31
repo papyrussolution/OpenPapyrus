@@ -160,7 +160,7 @@ struct UHashtable {
 	float highWaterRatio; /* 0..1; high water as a fraction of length */
 	float lowWaterRatio; /* 0..1; low water as a fraction of length */
 
-	int8_t primeIndex; /* Index into our prime table for length. length == PRIMES[primeIndex] */
+	int8 primeIndex; /* Index into our prime table for length. length == PRIMES[primeIndex] */
 	bool allocated; /* Was this UHashtable allocated? */
 };
 

@@ -163,7 +163,7 @@ private:
 	}
 
 	Vec(const Vec&) = delete;
-	Vec& operator=(const Vec&) = delete;
+	Vec& operator = (const Vec&) = delete;
 };
 
 // A hash set of non-negative int32_t that uses Vec for its underlying storage.
@@ -273,7 +273,7 @@ private:
 	}
 
 	NodeSet(const NodeSet&) = delete;
-	NodeSet& operator=(const NodeSet&) = delete;
+	NodeSet& operator = (const NodeSet&) = delete;
 };
 
 // We encode a node index and a node version in GraphId.  The version

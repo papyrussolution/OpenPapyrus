@@ -49,7 +49,7 @@ public:
 	CWindow(HWND newWindow = NULL) : _window(newWindow)
 	{
 	}
-	CWindow& operator=(HWND newWindow)
+	CWindow& operator = (HWND newWindow)
 	{
 		_window = newWindow;
 		return *this;

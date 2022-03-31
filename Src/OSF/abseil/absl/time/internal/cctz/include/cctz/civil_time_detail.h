@@ -397,7 +397,7 @@ public:
 	}
 
 	civil_time(const civil_time&) = default;
-	civil_time& operator=(const civil_time&) = default;
+	civil_time& operator = (const civil_time&) = default;
 
 	// Conversion between civil times of different alignment. Conversion to
 	// a more precise alignment is allowed implicitly (e.g., day -> hour),
@@ -535,7 +535,7 @@ using civil_second = civil_time<second_tag>;
 // Relational operators that work with differently aligned objects.
 // Always compares all six fields.
 template <typename T1, typename T2>
-CONSTEXPR_F bool operator<(const civil_time<T1>& lhs,
+CONSTEXPR_F bool operator < (const civil_time<T1>& lhs,
     const civil_time<T2>& rhs) noexcept {
 	return (
 		lhs.year() < rhs.year() ||
@@ -551,25 +551,25 @@ CONSTEXPR_F bool operator<(const civil_time<T1>& lhs,
 }
 
 template <typename T1, typename T2>
-CONSTEXPR_F bool operator<=(const civil_time<T1>& lhs,
+CONSTEXPR_F bool operator <= (const civil_time<T1>& lhs,
     const civil_time<T2>& rhs) noexcept {
 	return !(rhs < lhs);
 }
 
 template <typename T1, typename T2>
-CONSTEXPR_F bool operator>=(const civil_time<T1>& lhs,
+CONSTEXPR_F bool operator >= (const civil_time<T1>& lhs,
     const civil_time<T2>& rhs) noexcept {
 	return !(lhs < rhs);
 }
 
 template <typename T1, typename T2>
-CONSTEXPR_F bool operator>(const civil_time<T1>& lhs,
+CONSTEXPR_F bool operator > (const civil_time<T1>& lhs,
     const civil_time<T2>& rhs) noexcept {
 	return rhs < lhs;
 }
 
 template <typename T1, typename T2>
-CONSTEXPR_F bool operator==(const civil_time<T1>& lhs,
+CONSTEXPR_F bool operator == (const civil_time<T1>& lhs,
     const civil_time<T2>& rhs) noexcept {
 	return lhs.year() == rhs.year() && lhs.month() == rhs.month() &&
 	       lhs.day() == rhs.day() && lhs.hour() == rhs.hour() &&
@@ -577,7 +577,7 @@ CONSTEXPR_F bool operator==(const civil_time<T1>& lhs,
 }
 
 template <typename T1, typename T2>
-CONSTEXPR_F bool operator!=(const civil_time<T1>& lhs,
+CONSTEXPR_F bool operator != (const civil_time<T1>& lhs,
     const civil_time<T2>& rhs) noexcept {
 	return !(lhs == rhs);
 }
@@ -663,13 +663,13 @@ CONSTEXPR_F int get_yearday(const civil_second& cs) noexcept {
 
 ////////////////////////////////////////////////////////////////////////
 
-std::ostream& operator<<(std::ostream& os, const civil_year& y);
-std::ostream& operator<<(std::ostream& os, const civil_month& m);
-std::ostream& operator<<(std::ostream& os, const civil_day& d);
-std::ostream& operator<<(std::ostream& os, const civil_hour& h);
-std::ostream& operator<<(std::ostream& os, const civil_minute& m);
-std::ostream& operator<<(std::ostream& os, const civil_second& s);
-std::ostream& operator<<(std::ostream& os, weekday wd);
+std::ostream & operator<<(std::ostream & os, const civil_year& y);
+std::ostream & operator<<(std::ostream & os, const civil_month& m);
+std::ostream & operator<<(std::ostream & os, const civil_day& d);
+std::ostream & operator<<(std::ostream & os, const civil_hour& h);
+std::ostream & operator<<(std::ostream & os, const civil_minute& m);
+std::ostream & operator<<(std::ostream & os, const civil_second& s);
+std::ostream & operator<<(std::ostream & os, weekday wd);
 }  // namespace detail
 }  // namespace cctz
 }  // namespace time_internal

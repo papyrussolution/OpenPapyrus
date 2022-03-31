@@ -35,7 +35,7 @@
  */
 class RemoteTcpClient : SOCKET_INITIALIZER_MIXIN public RemoteDatabase {
     /// Don't allow assignment.
-    void operator=(const RemoteTcpClient &);
+    void operator = (const RemoteTcpClient &);
 
     /// Don't allow copying.
     RemoteTcpClient(const RemoteTcpClient &);

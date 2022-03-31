@@ -554,7 +554,7 @@ void NFRule::setBaseValue(int64_t newBaseValue, UErrorCode & status)
  * value.  This will be the highest power the radix can be raised to
  * and still produce a result less than or equal to the base value.
  */
-int16_t NFRule::expectedExponent() const
+int16 NFRule::expectedExponent() const
 {
 	// since the log of 0, or the log base 0 of something, causes an
 	// error, declare the exponent in these cases to be 0 (we also
@@ -566,7 +566,7 @@ int16_t NFRule::expectedExponent() const
 	// we get rounding error in some cases-- for example, log 1000 / log 10
 	// gives us 1.9999999996 instead of 2.  The extra logic here is to take
 	// that into account
-	int16_t tempResult = (int16_t)(uprv_log((double)baseValue) / uprv_log((double)radix));
+	int16 tempResult = (int16)(uprv_log((double)baseValue) / uprv_log((double)radix));
 	int64_t temp = util64_pow(radix, tempResult + 1);
 	if(temp <= baseValue) {
 		tempResult += 1;

@@ -6,19 +6,12 @@
 //
 //      https://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_PARSER_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_PARSER_H_
 
 #include <limits.h>
 #include <stddef.h>
 #include <stdlib.h>
-
 #include <cassert>
 #include <cstdint>
 #include <initializer_list>
@@ -27,7 +20,6 @@
 #include <memory>
 #include <string>
 #include <vector>
-
 #include "absl/strings/internal/str_format/checker.h"
 #include "absl/strings/internal/str_format/extension.h"
 
@@ -244,7 +236,7 @@ public:
 		*this = std::move(other);
 	}
 
-	ParsedFormatBase& operator=(const ParsedFormatBase& other) {
+	ParsedFormatBase& operator = (const ParsedFormatBase& other) {
 		if(this == &other) return *this;
 		has_error_ = other.has_error_;
 		items_ = other.items_;
@@ -254,7 +246,7 @@ public:
 		return *this;
 	}
 
-	ParsedFormatBase& operator=(ParsedFormatBase&& other) {
+	ParsedFormatBase& operator = (ParsedFormatBase&& other) {
 		if(this == &other) return *this;
 		has_error_ = other.has_error_;
 		data_ = std::move(other.data_);

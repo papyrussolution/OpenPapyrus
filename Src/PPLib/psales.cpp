@@ -1,5 +1,5 @@
 // PSALES.CPP
-// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -179,7 +179,7 @@ int PredictSalesCore::SaveHolidays()
 {
 	ZDELETE(P_SaveHldTab);
 	if(P_HldTab)
-		P_SaveHldTab = new SVector(*P_HldTab); // @v9.9.4 SArray-->SVector
+		P_SaveHldTab = new SVector(*P_HldTab);
 	return 1;
 }
 
@@ -187,7 +187,7 @@ int PredictSalesCore::RestoreHolidays()
 {
 	ZDELETE(P_HldTab);
 	if(P_SaveHldTab)
-		P_HldTab = new SVector(*P_SaveHldTab); // @v9.9.4 SArray-->SVector
+		P_HldTab = new SVector(*P_SaveHldTab);
 	return 1;
 }
 
@@ -207,7 +207,7 @@ int FASTCALL PredictSalesCore::SearchHoliday(HldTabEntry entry) const
 int PredictSalesCore::SetHldEntry(const HldTabEntry * pEntry, int rmv)
 {
 	int    ok = -1;
-	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry))); // @v9.9.4 SArray-->SVector
+	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry)));
 	if(P_HldTab) {
 		uint   pos = 0;
 		if(SearchHoliday(pEntry->LocIdx, pEntry->Day, &pos)) {
@@ -470,7 +470,7 @@ int PredictSalesCore::WriteHolidays(int use_ta)
 int PredictSalesCore::ReadHolidays()
 {
 	int    ok = 1;
-	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry))); // @v9.9.4 SArray-->SVector
+	SETIFZ(P_HldTab, new SVector(sizeof(HldTabEntry)));
 	PredictSalesTbl::Key0 k0;
 	BExtQuery q(this, 0, 128);
 	THROW_MEM(P_HldTab);
@@ -722,7 +722,6 @@ int PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRange * p
 				if(pPeriod->upp)
 					ShrinkDate(pPeriod->upp, &maxdt);
 			}
-			// @v8.0.11 {
 			{
 				// RType, Loc, GoodsID, Dt (unique mod);
 				PredictSalesTbl::Key0 k0;
@@ -734,11 +733,6 @@ int PredictSalesCore::RemovePeriod(PPID locID, PPID goodsID, const DateRange * p
 					THROW_DB(deleteRec());
 				} while(search(0, &k0, spNext) && data.RType == PSRECTYPE_DAY && data.Loc == loc_idx && data.GoodsID == goodsID && data.Dt <= maxdt);
 			}
-			// } @v8.0.11
-			/*
-			THROW_DB(deleteFrom(this, 0, this->RType == (long)PSRECTYPE_DAY && this->Loc == (long)loc_idx &&
-				this->GoodsID == (long)goodsID && this->Dt >= (long)lowdt && this->Dt <= (long)maxdt));
-			*/
 		}
 		THROW(tra.Commit());
 	}
@@ -846,12 +840,12 @@ int PredictSalesCore::Helper_Enumerate(PPID goodsID, PPID locID, const DateRange
 {
 	int16  loc_idx = 0;
 	int16  low = 0, upp = MAXSHORT;
-	int    dir = 0; // 0 - forward, 1 - backward
+	bool   dir = false; // false - forward, true - backward
 	if(maxItems)
 		if(maxItems > 0)
-			dir = 0; // forward
+			dir = false; // forward
 		else
-			dir = 1; // backward
+			dir = true; // backward
 	PredictSalesTbl::Key0 k;
 	ShrinkLoc(locID, &loc_idx);
 	BExtQuery q(this, 0, maxItems ? abs(maxItems) : 256);
@@ -945,7 +939,7 @@ PredictSalesItem::PredictSalesItem() : Dt(ZERODATE), Qtty(0.0), Amount(0.0)
 {
 }
 
-PsiArray::PsiArray() : TSVector <PredictSalesItem>() // @v9.8.4 TSArray-->TSVector
+PsiArray::PsiArray() : TSVector <PredictSalesItem>()
 {
 }
 

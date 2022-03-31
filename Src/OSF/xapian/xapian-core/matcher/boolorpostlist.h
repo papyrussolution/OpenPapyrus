@@ -12,7 +12,7 @@
 /// PostList class implementing unweighted Query::OP_OR
 class BoolOrPostList : public PostList {
 	/// Don't allow assignment.
-	void operator=(const BoolOrPostList&) = delete;
+	void operator = (const BoolOrPostList&) = delete;
 	/// Don't allow copying.
 	BoolOrPostList(const BoolOrPostList&) = delete;
 
@@ -28,7 +28,7 @@ class BoolOrPostList : public PostList {
 		PostListAndDocID(PostList* pl_) : pl(pl_) 
 		{
 		}
-		bool operator>(const PostListAndDocID& o) const { return did > o.did; }
+		bool operator > (const PostListAndDocID& o) const { return did > o.did; }
 	};
 	PostListAndDocID* plist; /// Array of pointers to sub-postlists.
 	Xapian::doccount db_size; /** Total number of documents in the database. */

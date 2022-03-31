@@ -1118,16 +1118,16 @@ void DecimalFormat::setScientificNotation(bool useScientific) {
 	touchNoError();
 }
 
-int8_t DecimalFormat::getMinimumExponentDigits() const {
+int8 DecimalFormat::getMinimumExponentDigits() const {
 	// Not much we can do to report an error.
 	if(fields == nullptr) {
 		// Fallback to using the default instance of DecimalFormatProperties.
-		return static_cast<int8_t>(DecimalFormatProperties::getDefault().minimumExponentDigits);
+		return static_cast<int8>(DecimalFormatProperties::getDefault().minimumExponentDigits);
 	}
-	return static_cast<int8_t>(fields->properties.minimumExponentDigits);
+	return static_cast<int8>(fields->properties.minimumExponentDigits);
 }
 
-void DecimalFormat::setMinimumExponentDigits(int8_t minExpDig) {
+void DecimalFormat::setMinimumExponentDigits(int8 minExpDig) {
 	if(fields == nullptr) {
 		return;
 	}
@@ -1916,8 +1916,8 @@ void DecimalFormat::setupFastFormat() {
 	fields->fastData.cpZero = static_cast<char16_t>(codePointZero);
 	fields->fastData.cpGroupingSeparator = groupingUsed && groupingSize == 3 ? groupingString.charAt(0) : 0;
 	fields->fastData.cpMinusSign = minusSignString.charAt(0);
-	fields->fastData.minInt = (minInt < 0 || minInt > 127) ? 0 : static_cast<int8_t>(minInt);
-	fields->fastData.maxInt = (maxInt < 0 || maxInt > 127) ? 127 : static_cast<int8_t>(maxInt);
+	fields->fastData.minInt = (minInt < 0 || minInt > 127) ? 0 : static_cast<int8>(minInt);
+	fields->fastData.maxInt = (maxInt < 0 || maxInt > 127) ? 127 : static_cast<int8>(maxInt);
 }
 
 bool DecimalFormat::fastFormatDouble(double input, UnicodeString & output) const 
@@ -1956,9 +1956,9 @@ void DecimalFormat::doFastFormatInt32(int32_t input, bool isNegative, UnicodeStr
 	static constexpr int32_t localCapacity = 13;
 	char16_t localBuffer[localCapacity];
 	char16_t* ptr = localBuffer + localCapacity;
-	int8_t group = 0;
-	int8_t minInt = (fields->fastData.minInt < 1) ? 1 : fields->fastData.minInt;
-	for(int8_t i = 0; i < fields->fastData.maxInt && (input != 0 || i < minInt); i++) {
+	int8 group = 0;
+	int8 minInt = (fields->fastData.minInt < 1) ? 1 : fields->fastData.minInt;
+	for(int8 i = 0; i < fields->fastData.maxInt && (input != 0 || i < minInt); i++) {
 		if(group++ == 3 && fields->fastData.cpGroupingSeparator != 0) {
 			*(--ptr) = fields->fastData.cpGroupingSeparator;
 			group = 1;

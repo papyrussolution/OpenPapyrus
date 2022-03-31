@@ -18,8 +18,9 @@ __FBSDID("$FreeBSD$");
 
 int archive_read_set_format(struct archive * _a, int code)
 {
-	int r1, r2, slots, i;
-	char str[10];
+	int r1, r2, i;
+	//char str[10];
+	const char * p_str = 0;
 	struct archive_read * a = (struct archive_read *)_a;
 	if((r1 = archive_read_support_format_by_code(_a, code)) < (ARCHIVE_OK))
 		return r1;
@@ -27,32 +28,32 @@ int archive_read_set_format(struct archive * _a, int code)
 	if(a->format)
 		r2 = (ARCHIVE_WARN);
 	switch(code & ARCHIVE_FORMAT_BASE_MASK) {
-		case ARCHIVE_FORMAT_7ZIP: strcpy(str, "7zip"); break;
-		case ARCHIVE_FORMAT_AR: strcpy(str, "ar"); break;
-		case ARCHIVE_FORMAT_CAB: strcpy(str, "cab"); break;
-		case ARCHIVE_FORMAT_CPIO: strcpy(str, "cpio"); break;
-		case ARCHIVE_FORMAT_EMPTY: strcpy(str, "empty"); break;
-		case ARCHIVE_FORMAT_ISO9660: strcpy(str, "iso9660"); break;
-		case ARCHIVE_FORMAT_LHA: strcpy(str, "lha"); break;
-		case ARCHIVE_FORMAT_MTREE: strcpy(str, "mtree"); break;
-		case ARCHIVE_FORMAT_RAR: strcpy(str, "rar"); break;
-		case ARCHIVE_FORMAT_RAR_V5: strcpy(str, "rar5"); break;
-		case ARCHIVE_FORMAT_RAW: strcpy(str, "raw"); break;
-		case ARCHIVE_FORMAT_TAR: strcpy(str, "tar"); break;
-		case ARCHIVE_FORMAT_WARC: strcpy(str, "warc"); break;
-		case ARCHIVE_FORMAT_XAR: strcpy(str, "xar"); break;
-		case ARCHIVE_FORMAT_ZIP: strcpy(str, "zip"); break;
+		case ARCHIVE_FORMAT_7ZIP: p_str = "7zip"; break;
+		case ARCHIVE_FORMAT_AR: p_str = "ar"; break;
+		case ARCHIVE_FORMAT_CAB: p_str = "cab"; break;
+		case ARCHIVE_FORMAT_CPIO: p_str = "cpio"; break;
+		case ARCHIVE_FORMAT_EMPTY: p_str = "empty"; break;
+		case ARCHIVE_FORMAT_ISO9660: p_str = "iso9660"; break;
+		case ARCHIVE_FORMAT_LHA: p_str = "lha"; break;
+		case ARCHIVE_FORMAT_MTREE: p_str = "mtree"; break;
+		case ARCHIVE_FORMAT_RAR: p_str = "rar"; break;
+		case ARCHIVE_FORMAT_RAR_V5: p_str = "rar5"; break;
+		case ARCHIVE_FORMAT_RAW: p_str = "raw"; break;
+		case ARCHIVE_FORMAT_TAR: p_str = "tar"; break;
+		case ARCHIVE_FORMAT_WARC: p_str = "warc"; break;
+		case ARCHIVE_FORMAT_XAR: p_str = "xar"; break;
+		case ARCHIVE_FORMAT_ZIP: p_str = "zip"; break;
 		default:
 		    archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Invalid format code specified");
 		    return ARCHIVE_FATAL;
 	}
-	slots = sizeof(a->formats) / sizeof(a->formats[0]);
+	assert(p_str);
 	a->format = &(a->formats[0]);
-	for(i = 0; i < slots; i++, a->format++) {
-		if(!a->format->name || sstreq(a->format->name, str))
+	for(i = 0; i < SIZEOFARRAY(a->formats); i++, a->format++) {
+		if(!a->format->name || sstreq(a->format->name, p_str))
 			break;
 	}
-	if(!a->format->name || strcmp(a->format->name, str)) {
+	if(!a->format->name || !sstreq(a->format->name, p_str)) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: Unable to set format");
 		r1 = (ARCHIVE_FATAL);
 	}

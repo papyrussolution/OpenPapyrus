@@ -333,7 +333,7 @@ int32_t IslamicCalendar::handleGetLimit(UCalendarDateFields field, ELimitType li
 //
 
 // we could compress this down more if we need to
-static const int8_t umAlQuraYrStartEstimateFix[] = {
+static const int8 umAlQuraYrStartEstimateFix[] = {
 	0,  0, -1,  0, -1,  0,  0,  0,  0,  0,// 1300..
 	-1,  0,  0,  0,  0,  0,  0,  0, -1,  0,// 1310..
 	1,  0,  1,  1,  0,  0,  0,  0,  1,  0,// 1320..
