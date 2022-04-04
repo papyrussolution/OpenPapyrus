@@ -14,20 +14,10 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "enquireinternal.h"
-#include "expand/esetinternal.h"
-#include "expand/expandweight.h"
-#include "matcher/matcher.h"
-#include "msetinternal.h"
-#include "vectortermlist.h"
-#include "weight/weightinternal.h"
 
 using namespace std;
 
-[[noreturn]] static void throw_invalid_arg(const char* msg) 
-{
-	throw Xapian::InvalidArgumentError(msg);
-}
+[[noreturn]] static void throw_invalid_arg(const char * msg) { throw Xapian::InvalidArgumentError(msg); }
 
 namespace Xapian {
 Enquire::Enquire(const Enquire&) = default;

@@ -15,9 +15,6 @@
 #ifndef XAPIAN_INCLUDED_SLOWVALUELIST_H
 #define XAPIAN_INCLUDED_SLOWVALUELIST_H
 
-#include "valuelist.h"
-#include "databaseinternal.h"
-
 /** Slow implementation for backends which don't streamed values.
  *
  *  Used by inmemory and remote backends.

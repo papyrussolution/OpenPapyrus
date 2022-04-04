@@ -7,18 +7,7 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
-
 #ifndef XAPIAN_INCLUDED_BITSTREAM_H
 #define XAPIAN_INCLUDED_BITSTREAM_H
 
@@ -60,8 +49,8 @@ public:
 
 /// Read a stream created by BitWriter.
 class BitReader {
-	const char* p;
-	const char* end;
+	const char * p;
+	const char * end;
 	int n_bits;
 	Xapian::termpos acc;
 	Xapian::termpos read_bits(int count);
@@ -114,11 +103,11 @@ public:
 	{
 	}
 	// Construct and set data.
-	BitReader(const char* p_, const char* end_) : p(p_), end(end_), n_bits(0), acc(0) 
+	BitReader(const char * p_, const char * end_) : p(p_), end(end_), n_bits(0), acc(0) 
 	{
 	}
 	// Initialise with fresh data.
-	void init(const char* p_, const char* end_) 
+	void init(const char * p_, const char * end_) 
 	{
 		p = p_;
 		end = end_;

@@ -19,7 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "vectortermlist.h"
 
 using namespace std;
 

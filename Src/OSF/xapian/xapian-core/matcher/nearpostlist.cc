@@ -15,13 +15,11 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "nearpostlist.h"
-#include "backends/positionlist.h"
 
 using namespace std;
 
-NearPostList::NearPostList(PostList * source_, Xapian::termpos window_, const vector <PostList*>::const_iterator &terms_begin,
-    const vector <PostList*>::const_iterator &terms_end, PostListTree* pltree_) : SelectPostList(source_, pltree_), window(window_), terms(terms_begin, terms_end)
+NearPostList::NearPostList(PostList * source_, Xapian::termpos window_, const vector <PostList *>::const_iterator &terms_begin,
+    const vector <PostList *>::const_iterator &terms_end, PostListTree* pltree_) : SelectPostList(source_, pltree_), window(window_), terms(terms_begin, terms_end)
 {
 	size_t n = terms.size();
 	Assert(n > 1);
@@ -34,21 +32,16 @@ NearPostList::~NearPostList()
 }
 
 struct TermCmp {
-	bool operator()(const PostList * a, const PostList * b) const {
-		return a->get_wdf() < b->get_wdf();
-	}
+	bool operator()(const PostList * a, const PostList * b) const { return a->get_wdf() < b->get_wdf(); }
 };
 
 struct Cmp {
-	bool operator()(const PositionList * a, const PositionList * b) const {
-		return a->get_position() > b->get_position();
-	}
+	bool operator()(const PositionList * a, const PositionList * b) const { return a->get_position() > b->get_position(); }
 };
 
 bool NearPostList::test_doc()
 {
 	LOGCALL(MATCH, bool, "NearPostList::test_doc", NO_ARGS);
-
 	// Sort to put least frequent terms first, to try to minimise the number of
 	// position lists we need to read if there are no matches.
 	//
@@ -56,19 +49,15 @@ bool NearPostList::test_doc()
 	// need to read each position list to find its length and we're trying to
 	// avoid having to read them all if we can.
 	sort(terms.begin(), terms.end(), TermCmp());
-
 	poslists[0] = terms[0]->read_position_list();
 	if(!poslists[0]->next())
 		RETURN(false);
-
 	Xapian::termpos last = poslists[0]->get_position();
 	PositionList ** end = poslists + 1;
-
 	while(true) {
 		if(last - poslists[0]->get_position() < window) {
 			if(size_t(end - poslists) != terms.size()) {
-				// We haven't started all the position lists yet, so start the
-				// next one.
+				// We haven't started all the position lists yet, so start the next one.
 				PositionList * posl = terms[end - poslists]->read_position_list();
 				if(last < window) {
 					if(!posl->next())
@@ -79,12 +68,12 @@ bool NearPostList::test_doc()
 						RETURN(false);
 				}
 				Xapian::termpos pos = posl->get_position();
-				if(pos > last) last = pos;
+				if(pos > last) 
+					last = pos;
 				*end++ = posl;
 				Heap::push(poslists, end, Cmp());
 				continue;
 			}
-
 			// We have all the terms within the specified window, but some may
 			// be at the same position (in particular if the same term is
 			// listed twice).  So we work through the terms in ascending
@@ -116,7 +105,6 @@ bool NearPostList::test_doc()
 					RETURN(true);
 				}
 			}
-
 			Heap::make(poslists, end, Cmp());
 			continue;
 		}
@@ -125,7 +113,6 @@ bool NearPostList::test_doc()
 		last = max(last, poslists[0]->get_position());
 		Heap::replace(poslists, end, Cmp());
 	}
-
 	RETURN(false);
 }
 

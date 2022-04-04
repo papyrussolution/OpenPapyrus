@@ -7,15 +7,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_DEREFWRAPPER_H
 #define XAPIAN_INCLUDED_DEREFWRAPPER_H
@@ -32,13 +23,10 @@ namespace Xapian {
 	 *  postfix operator++ methods of some of our iterator classes.
 	 */
 	template <typename T> class DerefWrapper_ {
-		/// Don't allow assignment.
-		void operator = (const DerefWrapper_&) = delete;
-		/// The value.
-		T res;
+		void operator = (const DerefWrapper_&) = delete; /// Don't allow assignment.
+		T res; /// The value.
 	public:
-		/// Default copy constructor.
-		DerefWrapper_(const DerefWrapper_&) = default;
+		DerefWrapper_(const DerefWrapper_&) = default; /// Default copy constructor.
 		explicit DerefWrapper_(const T &res_) : res(res_) 
 		{
 		}

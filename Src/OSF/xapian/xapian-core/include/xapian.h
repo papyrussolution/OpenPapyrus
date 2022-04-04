@@ -84,7 +84,7 @@ namespace Xapian {
 	 * This may be different to the version compiled against (given by
 	 * XAPIAN_VERSION) if shared libraries are being used.
 	 */
-	inline const char* version_string() { return Internal::get_constinfo_()->str; }
+	inline const char * version_string() { return Internal::get_constinfo_()->str; }
 
 	/** Report the major version of the library which the program is linked with.
 	 *

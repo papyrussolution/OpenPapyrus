@@ -6,19 +6,11 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "remoteconnection.h"
-#include "safefcntl.h"
-#include "safeunistd.h"
 #ifdef HAVE_POLL_H
 	#include <poll.h>
 #else
 	#include "safesysselect.h"
 #endif
-#include "fd.h"
-#include "filetests.h"
-#include "overflow.h"
-#include "posixy_wrapper.h"
-#include "realtime.h"
 #include "socket_utils.h"
 
 using namespace std;
@@ -35,7 +27,7 @@ using namespace std;
 	throw Xapian::NetworkError("Insane message length specified!");
 }
 
-[[noreturn]] static void throw_timeout(const char* msg, const string & context)
+[[noreturn]] static void throw_timeout(const char * msg, const string & context)
 {
 	throw Xapian::NetworkTimeoutError(msg, context);
 }
@@ -503,8 +495,8 @@ int RemoteConnection::get_message(string &result, double end_time)
 	// read that much we'll definitely have the whole of the length.
 	if(!read_at_least(128 + 2, end_time))
 		RETURN(-1);
-	const char* p = buffer.data();
-	const char* p_end = p + buffer.size();
+	const char * p = buffer.data();
+	const char * p_end = p + buffer.size();
 	++p;
 	if(!unpack_uint(&p, p_end, &len)) {
 		RETURN(-1);
@@ -541,8 +533,8 @@ int RemoteConnection::get_message_chunked(double end_time)
 	// read that much we'll definitely have the whole of the length.
 	if(!read_at_least(128 + 2, end_time))
 		RETURN(-1);
-	const char* p = buffer.data();
-	const char* p_end = p + buffer.size();
+	const char * p = buffer.data();
+	const char * p_end = p + buffer.size();
 	++p;
 	if(!unpack_uint(&p, p_end, &len)) {
 		RETURN(-1);

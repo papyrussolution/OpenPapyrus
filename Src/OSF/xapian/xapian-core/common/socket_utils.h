@@ -50,6 +50,6 @@ void set_socket_timeouts(int fd, double timeout);
 
 constexpr size_t PRETTY_IP6_LEN = (INET6_ADDRSTRLEN > INET_ADDRSTRLEN ? INET6_ADDRSTRLEN : INET_ADDRSTRLEN);
 
-int pretty_ip6(const void* p, char* buf);
+int pretty_ip6(const void* p, char * buf);
 
 #endif // XAPIAN_INCLUDED_SOCKET_UTILS_H

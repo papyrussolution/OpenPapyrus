@@ -6,9 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "boolorpostlist.h"
-#include "heap.h"
-#include "postlisttree.h"
 
 using namespace std;
 
@@ -50,10 +47,10 @@ double BoolOrPostList::recalc_maxweight()
 	return 0;
 }
 
-PostList* BoolOrPostList::next(double)
+PostList * BoolOrPostList::next(double)
 {
 	while(plist[0].did == did) {
-		PostList* res = plist[0].pl->next(0);
+		PostList * res = plist[0].pl->next(0);
 		if(res) {
 			delete plist[0].pl;
 			plist[0].pl = res;
@@ -78,15 +75,14 @@ PostList* BoolOrPostList::next(double)
 		n_kids = 0;
 		return plist[0].pl;
 	}
-
 	did = plist[0].did;
-
 	return NULL;
 }
 
-PostList* BoolOrPostList::skip_to(Xapian::docid did_min, double)
+PostList * BoolOrPostList::skip_to(Xapian::docid did_min, double)
 {
-	if(UNLIKELY(did_min <= did)) return NULL;
+	if(UNLIKELY(did_min <= did)) 
+		return NULL;
 	did = Xapian::docid(-1);
 	size_t j = 0;
 	for(size_t i = 0; i < n_kids; ++i) {
@@ -232,15 +228,15 @@ std::string BoolOrPostList::get_description() const
 
 Xapian::termcount BoolOrPostList::get_wdf() const
 {
-	return for_all_matches([](PostList* pl) { return pl->get_wdf(); });
+	return for_all_matches([](PostList * pl) { return pl->get_wdf(); });
 }
 
 Xapian::termcount BoolOrPostList::count_matching_subqs() const
 {
-	return for_all_matches([](PostList* pl) { return pl->count_matching_subqs(); });
+	return for_all_matches([](PostList * pl) { return pl->count_matching_subqs(); });
 }
 
 void BoolOrPostList::gather_position_lists(OrPositionList* orposlist)
 {
-	for_all_matches([&orposlist](PostList* pl) { pl->gather_position_lists(orposlist); return 0; });
+	for_all_matches([&orposlist](PostList * pl) { pl->gather_position_lists(orposlist); return 0; });
 }

@@ -7,16 +7,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -33,10 +23,6 @@
 #include "honey/honey_dbcheck.h"
 #include "honey/honey_version.h"
 #endif
-
-#include "backends.h"
-#include "databasehelpers.h"
-#include "filetests.h"
 
 using namespace std;
 
@@ -71,8 +57,7 @@ static const struct { char name[9]; } honey_tables[] = {
 // "only" requires (4 * last_docid()) bytes.
 
 #if defined XAPIAN_HAS_GLASS_BACKEND
-static void reserve_doclens(vector <Xapian::termcount>& doclens, Xapian::docid last_docid,
-    ostream * out)
+static void reserve_doclens(vector <Xapian::termcount>& doclens, Xapian::docid last_docid, ostream * out)
 {
 	if(last_docid >= 0x40000000ul / sizeof(Xapian::termcount)) {
 		// The memory block needed by the vector would be >= 1GB.
@@ -448,13 +433,10 @@ size_t Database::check_(const string * path_ptr, int fd, int opts, std::ostream 
 			else {
 				return check_stub(path, opts, out);
 			}
-
 			return check_db_table(path, opts, out, backend);
 		}
-
 		throw Xapian::DatabaseOpeningError("Not a regular file or directory");
 	}
-
 	// The filename passed doesn't exist - see if it's the basename of the
 	// table (perhaps with "." after it), so the user can do xapian-check on
 	// "foo/termlist" or "foo/termlist." (which you would get from filename
@@ -463,11 +445,9 @@ size_t Database::check_(const string * path_ptr, int fd, int opts, std::ostream 
 	if(endswith(filename, '.')) {
 		filename.resize(filename.size() - 1);
 	}
-
 	int backend = BACKEND_UNKNOWN;
 	if(stat((filename + ".DB").c_str(), &sb) == 0) {
-		// Could be chert, flint or brass - we check which below.
-		backend = BACKEND_OLD;
+		backend = BACKEND_OLD; // Could be chert, flint or brass - we check which below.
 	}
 	else if(stat((filename + "." GLASS_TABLE_EXTENSION).c_str(), &sb) == 0) {
 		backend = BACKEND_GLASS;

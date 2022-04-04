@@ -31,29 +31,19 @@ namespace Xapian {
 class XAPIAN_VISIBILITY_DEFAULT ValueIterator {
 	void decref();
 public:
-	/// Class representing the ValueIterator internals.
-	class Internal;
-	/// @private @internal Reference counted internals.
-	Internal * internal;
-
+	class Internal; /// Class representing the ValueIterator internals.
+	Internal * internal; /// @private @internal Reference counted internals.
 	/** @private @internal Wrap an existing Internal. */
 	XAPIAN_VISIBILITY_INTERNAL
 	explicit ValueIterator(Internal * internal_);
-
-	/// Copy constructor.
 	ValueIterator(const ValueIterator & o);
-
-	/// Assignment.
 	ValueIterator & operator = (const ValueIterator & o);
-
-	/// Move constructor.
-	ValueIterator(ValueIterator && o)
-		: internal(o.internal) {
+	ValueIterator(ValueIterator && o) : internal(o.internal)  /// Move constructor.
+	{
 		o.internal = nullptr;
 	}
-
-	/// Move assignment operator.
-	ValueIterator & operator = (ValueIterator && o) {
+	ValueIterator & operator = (ValueIterator && o) /// Move assignment operator.
+	{
 		if(this != &o) {
 			if(internal) decref();
 			internal = o.internal;
@@ -71,22 +61,20 @@ public:
 	}
 	~ValueIterator() 
 	{
-		if(internal) decref();
+		if(internal) 
+			decref();
 	}
-
 	/// Return the value at the current position.
 	std::string operator*() const;
-
 	/// Advance the iterator to the next position.
 	ValueIterator & operator++();
-
 	/// Advance the iterator to the next position (postfix version).
-	DerefWrapper_<std::string> operator++(int) {
+	DerefWrapper_<std::string> operator++(int) 
+	{
 		const std::string & value(**this);
 		operator++();
 		return DerefWrapper_<std::string>(value);
 	}
-
 	/** Return the docid at the current position.
 	 *
 	 *  If we're iterating over values of a document, this method will throw
@@ -175,16 +163,11 @@ public:
 	 *  that Xapian iterator classes are compatible with the STL.
 	 */
 	// @{
-	/// @private
-	typedef std::input_iterator_tag iterator_category;
-	/// @private
-	typedef std::string value_type;
-	/// @private
-	typedef Xapian::doccount_diff difference_type;
-	/// @private
-	typedef std::string * pointer;
-	/// @private
-	typedef std::string & reference;
+	typedef std::input_iterator_tag iterator_category; /// @private
+	typedef std::string value_type; /// @private
+	typedef Xapian::doccount_diff difference_type; /// @private
+	typedef std::string * pointer; /// @private
+	typedef std::string & reference; /// @private
 	// @}
 };
 

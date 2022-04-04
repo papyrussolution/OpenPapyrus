@@ -9,15 +9,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "weightinternal.h"
-#include "serialise-double.h"
 
 using namespace std;
 
@@ -29,21 +23,17 @@ LMWeight * LMWeight::clone() const {
 void LMWeight::init(double factor_)
 {
 	factor = factor_;
-
 	// Storing collection frequency of current term in collection_freq to be
 	// accessed while smoothing of weights for the term, for term not present
 	// in the document.
 	double collection_freq = get_collection_freq();
-
 	// Collection_freq of a term in collection should be always greater than or
 	// equal to zero (Non Negative).
 	AssertRel(collection_freq, >=, 0);
 	LOGVALUE(WTCALC, collection_freq);
-
 	// This is the total number of term occurrences in the collection, which we
 	// use for smoothing.
 	Xapian::totallength total_length = get_total_length();
-
 	/* In case the within document frequency of term is zero smoothing will
 	 * be required and should be return instead of returning zero, as returning
 	 * LM score are multiplication of contribution of all terms, due to absence
@@ -256,7 +246,7 @@ double LMWeight::get_maxextra() const
 
 static bool type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing * ptr_val)
 {
-	const char* q = *p;
+	const char * q = *p;
 	char ch = *q++;
 	if(ch < '1' || ch > '5' || C_isdigit(*q)) {
 		return false;
@@ -273,7 +263,7 @@ static bool type_smoothing_param(const char ** p, Xapian::Weight::type_smoothing
 	return true;
 }
 
-static inline void parameter_error(const char* message)
+static inline void parameter_error(const char * message)
 {
 	Xapian::Weight::Internal::parameter_error(message, "lm");
 }

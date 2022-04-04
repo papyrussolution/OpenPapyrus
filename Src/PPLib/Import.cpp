@@ -6675,6 +6675,220 @@ int DoProcessOsm(PrcssrOsmFilt * pFilt)
 	return ok;
 }
 //
+// Descr: Преобразование ситуативных транзакций, утекших от яндекс-еда
+//
+int ImportYYE(const char * pSrcPath) // яндекс еда
+{
+	class InnerBlock {
+	public:
+		static void ReadRecord(const SString & rInputTextBuf, SFile & rOutF, uint * pRecCount)
+		{
+			SStrScan scan(rInputTextBuf);
+			SString line_buf;
+			SString field_buf;
+			uint   rec_count = DEREFPTRORZ(pRecCount);
+			do {
+				line_buf.Z();
+				while(!scan.IsEnd() && scan[0] != '(')
+					scan.Incr();
+				scan.IncrChr('(');
+				do {
+					scan.Skip();
+					InnerBlock::ReadField(scan, field_buf);
+					if(line_buf.NotEmpty())
+						line_buf.Tab();
+					if(field_buf.NotEmptyS())
+						line_buf.Cat(field_buf);
+					else
+						line_buf.Cat("{empty}");
+				} while(!scan.Skip().IsEnd() && scan[0] != ')');
+				if(scan[0] == ')') {
+					scan.Incr();
+					scan.Skip();
+					scan.IncrChr(',') || scan.IncrChr(';');
+				}
+				rOutF.WriteLine(line_buf.CR());
+				rec_count++;
+			} while(!scan.IsEnd());
+			ASSIGN_PTR(pRecCount, rec_count);
+		}
+		static void ReadField(SStrScan & rScan, SString & rBuf)
+		{
+			rBuf.Z();
+			rScan.Skip();
+			if(rScan[0] == '\'') {
+				SString temp_buf;
+				rScan.Incr();
+				while(!rScan.IsEnd() && rScan[0] != '\'') {
+					const char c = rScan[0];
+					if(rScan.Get("\\r\\n", temp_buf))
+						rBuf.Space();
+					else if(c == '\\') {
+						rScan.Incr();
+						assert(!rScan.IsEnd());
+						if(!rScan.IsEnd()) {
+							const char c1 = rScan[0];
+							if(c1 == '\\')
+								rBuf.CatChar('\\');
+							else if(c1 == '\"')
+								rBuf.CatChar('\"');
+							else if(c1 == '\'')
+								rBuf.CatChar('\'');
+							else if(c1 == 'n')
+								rBuf.CatChar(' ');
+							else if(c1 == 'r')
+								rBuf.CatChar(' ');
+							else {
+								assert(0);
+							}
+							rScan.Incr();
+						}
+					}
+					else {
+						rBuf.CatChar(c);
+						rScan.Incr();
+					}
+				}
+				rScan.IncrChr('\'');
+			}
+			else {
+				while(!rScan.IsEnd() && rScan[0] != ',' && rScan[0] != ')') {
+					const char c = rScan[0];
+					if(c == '\\') {
+						rScan.Incr();
+						assert(!rScan.IsEnd());
+						if(!rScan.IsEnd()) {
+							const char c1 = rScan[0];
+							if(c1 == '\\')
+								rBuf.CatChar('\\');
+							else if(c1 == '\"')
+								rBuf.CatChar('\"');
+							else if(c1 == '\'')
+								rBuf.CatChar('\'');
+							else {
+								assert(0);
+							}
+							rScan.Incr();
+						}
+					}
+					else {
+						rBuf.CatChar(c);
+						rScan.Incr();
+					}									
+				}
+			}
+			rScan.IncrChr(',');
+		}
+	};
+	int    ok = -1;
+	uint   rec_count = 0;
+	SString temp_buf;
+	SString line_buf;
+	(temp_buf = pSrcPath).Strip().SetLastSlash().Cat("part2.sql"); // org "part1.sql"
+	if(fileExists(temp_buf)) {
+		const size_t nominal_rd_buf_size = SMEGABYTE(8);
+		STempBuffer rd_buf(nominal_rd_buf_size+128);
+		const char * p_part1_start_data_tag = "LOCK TABLES `orders` WRITE;"; // данные начинаются двумя строками ниже этого текста
+		SFile f_in(temp_buf, SFile::mRead);
+		bool  do_scan_data = false;
+		THROW_SL(f_in.IsValid());
+		THROW_SL(rd_buf.IsValid());
+		while(!do_scan_data && f_in.ReadLine(line_buf)) {
+			line_buf.Chomp().Strip();
+			if(line_buf.IsEqiAscii(p_part1_start_data_tag)) {
+				THROW(f_in.ReadLine(line_buf)); // skip next line
+				do_scan_data = true;
+			}
+		}
+		if(do_scan_data) {
+			SString out_file_name;
+			{
+				SPathStruc ps(f_in.GetName());
+				ps.Nam.CatChar('-').Cat("out");
+				ps.Ext = "csv";
+				ps.Merge(out_file_name);
+			}
+			SFile f_out(out_file_name, SFile::mWrite);
+			const size_t max_input_text_size = SMEGABYTE(4);
+			SString input_text_buf;
+			size_t actual_size = 0;
+			THROW_SL(f_out.IsValid());
+			THROW_SL(f_in.Read(rd_buf, nominal_rd_buf_size, &actual_size));
+			while(actual_size > 0) {
+				for(size_t p__ = 0; p__ < actual_size;) {
+					const uchar  c = rd_buf[p__];
+					const uint16 utf_extra = SUtfConst::TrailingBytesForUTF8[c];
+					if((p__ + utf_extra) < actual_size) {
+						if(SUnicode::IsLegalUtf8(rd_buf.ucptr()+p__, utf_extra+1)) {
+							switch(utf_extra) {
+								case 0:
+									input_text_buf.CatChar(c); 
+									break;
+								case 1:
+									input_text_buf.CatChar(c);
+									input_text_buf.CatChar(rd_buf[p__+1]);
+									break;
+								case 2:
+									input_text_buf.CatChar(c);
+									input_text_buf.CatChar(rd_buf[p__+1]);
+									input_text_buf.CatChar(rd_buf[p__+2]);
+									break;
+								case 3:
+									input_text_buf.CatChar(c);
+									input_text_buf.CatChar(rd_buf[p__+1]);
+									input_text_buf.CatChar(rd_buf[p__+2]);
+									input_text_buf.CatChar(rd_buf[p__+3]);
+									break;
+								case 4:
+									input_text_buf.CatChar(c);
+									input_text_buf.CatChar(rd_buf[p__+1]);
+									input_text_buf.CatChar(rd_buf[p__+2]);
+									input_text_buf.CatChar(rd_buf[p__+3]);
+									input_text_buf.CatChar(rd_buf[p__+4]);
+									break;
+								case 5:
+									input_text_buf.CatChar(c);
+									input_text_buf.CatChar(rd_buf[p__+1]);
+									input_text_buf.CatChar(rd_buf[p__+2]);
+									input_text_buf.CatChar(rd_buf[p__+3]);
+									input_text_buf.CatChar(rd_buf[p__+4]);
+									input_text_buf.CatChar(rd_buf[p__+5]);
+									break;
+								default:
+									assert(0);
+									break;
+							}
+						}
+						else
+							input_text_buf.CatChar('?');
+						p__ += (1 + utf_extra);
+						if(input_text_buf.Len() >= max_input_text_size && (input_text_buf.CmpSuffix(");", 0) == 0 || input_text_buf.CmpSuffix("),", 0) == 0)) {
+							InnerBlock::ReadRecord(input_text_buf, f_out, &rec_count);
+							input_text_buf.Z();
+						}
+					}
+					else {
+						char   bytes_to_shift[32];
+						size_t size_to_shift = (1 + MIN(utf_extra, (actual_size - p__ - 1)));
+						assert((size_to_shift+p__) == actual_size);
+						memcpy(bytes_to_shift, rd_buf+p__, size_to_shift);
+						THROW_SL(f_in.Read(rd_buf+size_to_shift, nominal_rd_buf_size-size_to_shift, &actual_size));
+						memcpy(rd_buf, bytes_to_shift, size_to_shift);
+						p__ = 0;
+					}
+				}
+				THROW_SL(f_in.Read(rd_buf, nominal_rd_buf_size, &actual_size));
+			}
+			if(input_text_buf.Len()) {
+				InnerBlock::ReadRecord(input_text_buf, f_out, &rec_count);
+				input_text_buf.Z();
+			}
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+//
 //
 //
 #if 0 // @experimental {

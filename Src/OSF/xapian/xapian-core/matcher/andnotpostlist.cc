@@ -14,7 +14,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "andnotpostlist.h"
 
 using namespace std;
 
@@ -77,10 +76,10 @@ TermFreqs AndNotPostList::get_termfreq_est_using_stats(const Xapian::Weight::Int
 	return TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5), static_cast<Xapian::doccount>(relfreqest + 0.5), static_cast<Xapian::termcount>(collfreqest + 0.5));
 }
 
-PostList* AndNotPostList::next(double w_min)
+PostList * AndNotPostList::next(double w_min)
 {
 	while(true) {
-		PostList* result = pl->next(w_min);
+		PostList * result = pl->next(w_min);
 		if(result) {
 			delete pl;
 			pl = result;
@@ -113,10 +112,10 @@ PostList* AndNotPostList::next(double w_min)
 	return NULL;
 }
 
-PostList* AndNotPostList::skip_to(Xapian::docid did, double w_min)
+PostList * AndNotPostList::skip_to(Xapian::docid did, double w_min)
 {
 	if(did > pl->get_docid()) {
-		PostList* result = pl->skip_to(did, w_min);
+		PostList * result = pl->skip_to(did, w_min);
 		if(result) {
 			delete pl;
 			pl = result;
@@ -151,9 +150,9 @@ PostList* AndNotPostList::skip_to(Xapian::docid did, double w_min)
 	return NULL;
 }
 
-PostList* AndNotPostList::check(Xapian::docid did, double w_min, bool& valid)
+PostList * AndNotPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
-	PostList* result = pl->check(did, w_min, valid);
+	PostList * result = pl->check(did, w_min, valid);
 	if(result) {
 		delete pl;
 		pl = result;

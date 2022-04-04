@@ -16,7 +16,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "serialise-double.h"
 
 using namespace Xapian;
 using namespace std;
@@ -57,7 +56,7 @@ double LatLongMetric::operator()(const LatLongCoords& a,
 }
 
 double LatLongMetric::operator()(const LatLongCoords& a,
-    const char* b_ptr, size_t b_len) const
+    const char * b_ptr, size_t b_len) const
 {
 	if(a.empty() || b_len == 0) {
 		throw InvalidArgumentError("Empty coordinate list supplied to LatLongMetric::operator()()");

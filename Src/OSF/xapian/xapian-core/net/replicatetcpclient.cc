@@ -6,33 +6,23 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "replicatetcpclient.h"
-#include "api/replication.h"
 #include "socket_utils.h"
-#include "tcpclient.h"
 
 using namespace std;
 
-ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port,
-    double timeout_connect,
-    double socket_timeout)
-	: socket(open_socket(hostname, port, timeout_connect)),
-	remconn(-1, socket)
+ReplicateTcpClient::ReplicateTcpClient(const string & hostname, int port, double timeout_connect, double socket_timeout) : 
+	socket(open_socket(hostname, port, timeout_connect)), remconn(-1, socket)
 {
 	set_socket_timeouts(socket, socket_timeout);
 }
 
-int ReplicateTcpClient::open_socket(const string & hostname, int port,
-    double timeout_connect)
+int ReplicateTcpClient::open_socket(const string & hostname, int port, double timeout_connect)
 {
 	return TcpClient::open_socket(hostname, port, timeout_connect, false);
 }
 
-void ReplicateTcpClient::update_from_master(const std::string & path,
-    const std::string & masterdb,
-    Xapian::ReplicationInfo & info,
-    double reader_close_time,
-    bool force_copy)
+void ReplicateTcpClient::update_from_master(const std::string & path, const std::string & masterdb,
+    Xapian::ReplicationInfo & info, double reader_close_time, bool force_copy)
 {
 	Xapian::DatabaseReplica replica(path);
 	remconn.send_message('R',

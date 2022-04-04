@@ -20,7 +20,6 @@
 #include "glass_postlist.h"
 #include "glass_cursor.h"
 #include "glass_database.h"
-#include "unicode/description_append.h"
 
 using Xapian::Internal::intrusive_ptr;
 using namespace std;

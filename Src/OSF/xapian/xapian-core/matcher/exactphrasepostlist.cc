@@ -6,27 +6,22 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "exactphrasepostlist.h"
-#include "backends/positionlist.h"
 
 using namespace std;
 
-ExactPhrasePostList::ExactPhrasePostList(PostList * source_,
-    const vector <PostList*>::const_iterator &terms_begin,
-    const vector <PostList*>::const_iterator &terms_end,
-    PostListTree* pltree_)
-	: SelectPostList(source_, pltree_), terms(terms_begin, terms_end)
+ExactPhrasePostList::ExactPhrasePostList(PostList * source_, const vector <PostList *>::const_iterator &terms_begin,
+	const vector <PostList *>::const_iterator &terms_end, PostListTree* pltree_) : SelectPostList(source_, pltree_), terms(terms_begin, terms_end)
 {
 	size_t n = terms.size();
 	Assert(n > 1);
 	poslists = new PositionList*[n];
 	try {
-		order = new unsigned[n];
+		order = new uint[n];
 	} catch(...) {
 		delete [] poslists;
 		throw;
 	}
-	for(size_t i = 0; i < n; ++i) order[i] = unsigned(i);
+	for(size_t i = 0; i < n; ++i) order[i] = uint(i);
 }
 
 ExactPhrasePostList::~ExactPhrasePostList()
@@ -42,26 +37,21 @@ void ExactPhrasePostList::start_position_list(uint i)
 
 class TermCompare {
 	vector <PostList *> & terms;
-
 public:
-	explicit TermCompare(vector <PostList *> & terms_) : terms(terms_) {
+	explicit TermCompare(vector <PostList *> & terms_) : terms(terms_) 
+	{
 	}
-
-	bool operator()(unsigned a, unsigned b) const {
-		return terms[a]->get_wdf() < terms[b]->get_wdf();
-	}
+	bool operator()(uint a, uint b) const { return terms[a]->get_wdf() < terms[b]->get_wdf(); }
 };
 
 bool ExactPhrasePostList::test_doc()
 {
 	LOGCALL(MATCH, bool, "ExactPhrasePostList::test_doc", NO_ARGS);
-
 	// We often don't need to read all the position lists, so rather than using
 	// the shortest position lists first, we approximate by using the terms
 	// with the lowest wdf first.  This will typically give the same or a very
 	// similar order.
 	sort(order, order + terms.size(), TermCompare(terms));
-
 	// If the first term we check only occurs too close to the start of the
 	// document, we only need to read one term's positions.  E.g. search for
 	// "ripe mango" when the only occurrence of 'mango' in the current document
@@ -69,7 +59,6 @@ bool ExactPhrasePostList::test_doc()
 	start_position_list(0);
 	if(!poslists[0]->skip_to(order[0]))
 		RETURN(false);
-
 	// If we get here, we'll need to read the positionlists for at least two
 	// terms, so check the true positionlist length for the two terms with the
 	// lowest wdf and if necessary swap them so the true shorter one is first.
@@ -80,8 +69,7 @@ bool ExactPhrasePostList::test_doc()
 		swap(poslists[0], poslists[1]);
 		swap(order[0], order[1]);
 	}
-
-	unsigned read_hwm = 1;
+	uint read_hwm = 1;
 	Xapian::termpos idx0 = order[0];
 	Xapian::termpos base = poslists[0]->get_position() - idx0;
 	uint i = 1;

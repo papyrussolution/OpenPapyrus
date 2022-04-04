@@ -8,27 +8,9 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_ESETINTERNAL_H
 #define XAPIAN_INCLUDED_ESETINTERNAL_H
-
-#include "xapian/intrusive_ptr.h"
-#include "xapian/enquire.h"
-#include "xapian/eset.h"
-#include "xapian/types.h"
-#include <algorithm>
-#include <string>
-#include <vector>
 
 namespace Xapian {
 class Database;
@@ -43,7 +25,6 @@ class ExpandTerm {
 	double wt; /// The expand weight calculated for this term.
 	std::string term; /// The term.
 public:
-	/// Constructor.
 	ExpandTerm(double wt_, const std::string & term_) : wt(wt_), term(term_) 
 	{
 	}
@@ -80,10 +61,8 @@ class ESet::Internal : public Xapian::Internal::intrusive_base {
 	Xapian::termcount ebound;
 	/// The ExpandTerm objects which represent the items in the ESet.
 	std::vector <Xapian::Internal::ExpandTerm> items;
-	/// Don't allow assignment.
-	void operator = (const Internal &);
-	/// Don't allow copying.
-	Internal(const Internal &);
+	void operator = (const Internal &); /// Don't allow assignment.
+	Internal(const Internal &); /// Don't allow copying.
 public:
 	/// Construct an empty ESet::Internal.
 	Internal() : ebound(0) 

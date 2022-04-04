@@ -14,8 +14,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "msetcmp.h"
-#include "api/result.h"
 
 /* We use templates to generate all the different comparison functions which we
  * need, which avoids having to write them all out by hand.
@@ -36,31 +34,40 @@ template <bool FORWARD_DID> static bool msetcmp_by_docid(const Result& a, const 
 // Order by relevance, then docid.
 template <bool FORWARD_DID> static bool msetcmp_by_relevance(const Result& a, const Result& b)
 {
-	if(a.get_weight() > b.get_weight()) return true;
-	if(a.get_weight() < b.get_weight()) return false;
-	return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
+	if(a.get_weight() > b.get_weight()) 
+		return true;
+	else if(a.get_weight() < b.get_weight()) 
+		return false;
+	else
+		return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by value, then docid.
-template <bool FORWARD_VALUE, bool FORWARD_DID>
-static bool msetcmp_by_value(const Result& a, const Result& b)
+template <bool FORWARD_VALUE, bool FORWARD_DID> static bool msetcmp_by_value(const Result& a, const Result& b)
 {
 	int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
-	if(sort_cmp > 0) return FORWARD_VALUE;
-	if(sort_cmp < 0) return !FORWARD_VALUE;
-	return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
+	if(sort_cmp > 0) 
+		return FORWARD_VALUE;
+	else if(sort_cmp < 0) 
+		return !FORWARD_VALUE;
+	else
+		return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by value, then relevance, then docid.
-template <bool FORWARD_VALUE, bool FORWARD_DID>
-static bool msetcmp_by_value_then_relevance(const Result& a, const Result& b)
+template <bool FORWARD_VALUE, bool FORWARD_DID> static bool msetcmp_by_value_then_relevance(const Result& a, const Result& b)
 {
 	int sort_cmp = a.get_sort_key().compare(b.get_sort_key());
-	if(sort_cmp > 0) return FORWARD_VALUE;
-	if(sort_cmp < 0) return !FORWARD_VALUE;
-	if(a.get_weight() > b.get_weight()) return true;
-	if(a.get_weight() < b.get_weight()) return false;
-	return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
+	if(sort_cmp > 0) 
+		return FORWARD_VALUE;
+	else if(sort_cmp < 0) 
+		return !FORWARD_VALUE;
+	else if(a.get_weight() > b.get_weight()) 
+		return true;
+	else if(a.get_weight() < b.get_weight()) 
+		return false;
+	else
+		return msetcmp_by_docid_inline<FORWARD_DID>(a, b);
 }
 
 // Order by relevance, then value, then docid.
@@ -78,68 +85,32 @@ MSetCmp get_msetcmp_function(Xapian::Enquire::Internal::sort_setting sort_by, bo
 {
 	switch(sort_by) {
 		case Xapian::Enquire::Internal::DOCID:
-		    if(sort_forward)
-			    return msetcmp_by_docid<true>;
-		    else
-			    return msetcmp_by_docid<false>;
+		    return sort_forward ? msetcmp_by_docid<true> : msetcmp_by_docid<false>;
 		case Xapian::Enquire::Internal::REL:
-		    if(sort_forward)
-			    return msetcmp_by_relevance<true>;
-		    else
-			    return msetcmp_by_relevance<false>;
+		    return sort_forward ? msetcmp_by_relevance<true> : msetcmp_by_relevance<false>;
 		case Xapian::Enquire::Internal::VAL:
 		    if(sort_forward) {
-			    if(sort_val_reverse) {
-				    return msetcmp_by_value<true, true>;
-			    }
-			    else {
-				    return msetcmp_by_value<false, true>;
-			    }
+			    return sort_val_reverse ? msetcmp_by_value<true, true> : msetcmp_by_value<false, true>;
 		    }
 		    else {
-			    if(sort_val_reverse) {
-				    return msetcmp_by_value<true, false>;
-			    }
-			    else {
-				    return msetcmp_by_value<false, false>;
-			    }
+			    return sort_val_reverse ? msetcmp_by_value<true, false> : msetcmp_by_value<false, false>;
 		    }
 		case Xapian::Enquire::Internal::VAL_REL:
 		    if(sort_forward) {
-			    if(sort_val_reverse) {
-				    return msetcmp_by_value_then_relevance<true, true>;
-			    }
-			    else {
-				    return msetcmp_by_value_then_relevance<false, true>;
-			    }
+			    return sort_val_reverse ? msetcmp_by_value_then_relevance<true, true> : msetcmp_by_value_then_relevance<false, true>;
 		    }
 		    else {
-			    if(sort_val_reverse) {
-				    return msetcmp_by_value_then_relevance<true, false>;
-			    }
-			    else {
-				    return msetcmp_by_value_then_relevance<false, false>;
-			    }
+			    return sort_val_reverse ? msetcmp_by_value_then_relevance<true, false> : msetcmp_by_value_then_relevance<false, false>;
 		    }
 		default:
 		    // Must be REL_VAL, but handle with "default" to avoid warnings
 		    // about falling off the end of the function.
 		    AssertEq(sort_by, Xapian::Enquire::Internal::REL_VAL);
 		    if(sort_forward) {
-			    if(sort_val_reverse) {
-				    return msetcmp_by_relevance_then_value<true, true>;
-			    }
-			    else {
-				    return msetcmp_by_relevance_then_value<false, true>;
-			    }
+			    return sort_val_reverse ? msetcmp_by_relevance_then_value<true, true> : msetcmp_by_relevance_then_value<false, true>;
 		    }
 		    else {
-			    if(sort_val_reverse) {
-				    return msetcmp_by_relevance_then_value<true, false>;
-			    }
-			    else {
-				    return msetcmp_by_relevance_then_value<false, false>;
-			    }
+			    return sort_val_reverse ? msetcmp_by_relevance_then_value<true, false> : msetcmp_by_relevance_then_value<false, false>;
 		    }
 	}
 }

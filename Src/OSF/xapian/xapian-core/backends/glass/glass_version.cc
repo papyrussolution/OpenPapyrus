@@ -8,27 +8,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_version.h"
-#include "fd.h"
 #include "glass_defs.h"
-#include "io_utils.h"
-#include "posixy_wrapper.h"
-#include "safesysstat.h"
-#include "safefcntl.h"
-#include "safeunistd.h"
-#include "backends/uuids.h"
 
 using namespace std;
 
@@ -39,11 +23,10 @@ using namespace std;
 // 2014,11,21 1.3.2 Brass renamed to Glass
 
 /// Convert date <-> version number.  Dates up to 2141-12-31 fit in 2 bytes.
-#define DATE_TO_VERSION(Y, M, D) \
-	((unsigned(Y) - 2014) << 9 | unsigned(M) << 5 | unsigned(D))
-#define VERSION_TO_YEAR(V) ((unsigned(V) >> 9) + 2014)
-#define VERSION_TO_MONTH(V) ((unsigned(V) >> 5) & 0x0f)
-#define VERSION_TO_DAY(V) (unsigned(V) & 0x1f)
+#define DATE_TO_VERSION(Y, M, D) ((uint(Y) - 2014) << 9 | uint(M) << 5 | uint(D))
+#define VERSION_TO_YEAR(V) ((uint(V) >> 9) + 2014)
+#define VERSION_TO_MONTH(V) ((uint(V) >> 5) & 0x0f)
+#define VERSION_TO_DAY(V) (uint(V) & 0x1f)
 
 #define GLASS_VERSION_MAGIC_LEN 14
 #define GLASS_VERSION_MAGIC_AND_VERSION_LEN 16
@@ -53,12 +36,8 @@ static const char GLASS_VERSION_MAGIC[GLASS_VERSION_MAGIC_AND_VERSION_LEN] = {
 	char((GLASS_FORMAT_VERSION >> 8) & 0xff), char(GLASS_FORMAT_VERSION & 0xff)
 };
 
-GlassVersion::GlassVersion(int fd_)
-	: rev(0), fd(fd_), offset(0), db_dir(), changes(NULL),
-	doccount(0), total_doclen(0), last_docid(0),
-	doclen_lbound(0), doclen_ubound(0),
-	wdf_ubound(0), spelling_wordfreq_ubound(0),
-	oldest_changeset(0)
+GlassVersion::GlassVersion(int fd_) : rev(0), fd(fd_), offset(0), db_dir(), changes(NULL), doccount(0), total_doclen(0), last_docid(0),
+	doclen_lbound(0), doclen_ubound(0), wdf_ubound(0), spelling_wordfreq_ubound(0), oldest_changeset(0)
 {
 	offset = lseek(fd, 0, SEEK_CUR);
 	if(UNLIKELY(offset < 0)) {
@@ -103,16 +82,12 @@ void GlassVersion::read()
 		}
 		close_fd = fd_in;
 	}
-
 	char buf[256];
-
 	const char * p = buf;
 	const char * end = p + io_read(fd_in, buf, sizeof(buf), 33);
-
 	if(memcmp(buf, GLASS_VERSION_MAGIC, GLASS_VERSION_MAGIC_LEN) != 0)
 		throw Xapian::DatabaseCorruptError("Rev file magic incorrect");
-
-	unsigned version;
+	uint version;
 	version = static_cast<uchar>(buf[GLASS_VERSION_MAGIC_LEN]);
 	version <<= 8;
 	version |= static_cast<uchar>(buf[GLASS_VERSION_MAGIC_LEN + 1]);
@@ -385,7 +360,7 @@ static const uint4 compress_min_tab[] = {
 	COMPRESS_MIN // SYNONYM
 };
 
-void GlassVersion::create(unsigned blocksize)
+void GlassVersion::create(uint blocksize)
 {
 	AssertRel(blocksize, >=, GLASS_MIN_BLOCKSIZE);
 	uuid.generate();
@@ -395,7 +370,7 @@ void GlassVersion::create(unsigned blocksize)
 }
 
 namespace Glass {
-void RootInfo::init(unsigned blocksize_, uint4 compress_min_)
+void RootInfo::init(uint blocksize_, uint4 compress_min_)
 {
 	AssertRel(blocksize_, >=, GLASS_MIN_BLOCKSIZE);
 	root = 0;
@@ -411,9 +386,11 @@ void RootInfo::init(unsigned blocksize_, uint4 compress_min_)
 void RootInfo::serialise(string &s) const
 {
 	pack_uint(s, root);
-	unsigned val = level << 2;
-	if(sequential) val |= 0x02;
-	if(root_is_fake) val |= 0x01;
+	uint val = level << 2;
+	if(sequential) 
+		val |= 0x02;
+	if(root_is_fake) 
+		val |= 0x01;
 	pack_uint(s, val);
 	pack_uint(s, num_entries);
 	pack_uint(s, blocksize >> 11);
@@ -423,13 +400,10 @@ void RootInfo::serialise(string &s) const
 
 bool RootInfo::unserialise(const char ** p, const char * end)
 {
-	unsigned val;
-	if(!unpack_uint(p, end, &root) ||
-	    !unpack_uint(p, end, &val) ||
-	    !unpack_uint(p, end, &num_entries) ||
-	    !unpack_uint(p, end, &blocksize) ||
-	    !unpack_uint(p, end, &compress_min) ||
-	    !unpack_string(p, end, fl_serialised)) return false;
+	uint val;
+	if(!unpack_uint(p, end, &root) || !unpack_uint(p, end, &val) || !unpack_uint(p, end, &num_entries) ||
+	    !unpack_uint(p, end, &blocksize) || !unpack_uint(p, end, &compress_min) || !unpack_string(p, end, fl_serialised)) 
+		return false;
 	level = val >> 2;
 	sequential = val & 0x02;
 	root_is_fake = val & 0x01;

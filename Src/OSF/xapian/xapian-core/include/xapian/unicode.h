@@ -7,16 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_UNICODE_H
 #define XAPIAN_INCLUDED_UNICODE_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-#error Never use <xapian/unicode.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/unicode.h> directly; include <xapian.h> instead.
 #endif
 
 #include <xapian/attributes.h>
@@ -37,8 +33,8 @@ class XAPIAN_VISIBILITY_DEFAULT Utf8Iterator {
 	{
 	}
 public:
-	/** Return the raw const char* pointer for the current position. */
-	const char* raw() const { return reinterpret_cast<const char*>(p ? p : end); }
+	/** Return the raw const char * pointer for the current position. */
+	const char * raw() const { return reinterpret_cast<const char *>(p ? p : end); }
 	/** Return the number of bytes left in the iterator's buffer. */
 	size_t left() const { return p ? end - p : 0; }
 	/** Assign a new string to the iterator.
@@ -52,16 +48,15 @@ public:
 	 *
 	 *  @param len The length of the string to read.
 	 */
-	void assign(const char* p_, size_t len) 
+	void assign(const char * p_, size_t len) 
 	{
 		if(len) {
 			p = reinterpret_cast<const uchar*>(p_);
 			end = p + len;
 			seqlen = 0;
 		}
-		else {
+		else
 			p = NULL;
-		}
 	}
 
 	/** Assign a new string to the iterator.
@@ -86,7 +81,7 @@ public:
 	 *
 	 *  @param p_ A pointer to the start of the null terminated string to read.
 	 */
-	explicit Utf8Iterator(const char* p_);
+	explicit Utf8Iterator(const char * p_);
 
 	/** Create an iterator given a pointer and a length.
 	 *
@@ -98,7 +93,7 @@ public:
 	 *
 	 *  @param len The length of the string to read.
 	 */
-	Utf8Iterator(const char* p_, size_t len) {
+	Utf8Iterator(const char * p_, size_t len) {
 		assign(p_, len);
 	}
 
@@ -306,7 +301,7 @@ XAPIAN_VISIBILITY_DEFAULT uint nonascii_to_utf8(uint ch, char * buf);
  *
  *  @return	The length of the resultant UTF-8 character in bytes.
  */
-inline uint to_utf8(uint ch, char* buf) 
+inline uint to_utf8(uint ch, char * buf) 
 {
 	if(ch < 128) {
 		*buf = static_cast<uchar>(ch);

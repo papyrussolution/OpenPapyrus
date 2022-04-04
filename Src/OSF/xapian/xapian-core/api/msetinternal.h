@@ -7,31 +7,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_MSETINTERNAL_H
 #define XAPIAN_INCLUDED_MSETINTERNAL_H
-
-#include "enquireinternal.h"
-#include "net/serialise.h"
-#include "result.h"
-#include "weight/weightinternal.h"
-#include "xapian/intrusive_ptr.h"
-#include "xapian/mset.h"
-#include "xapian/types.h"
-//#include <memory>
-//#include <string>
-//#include <unordered_map>
-//#include <vector>
 
 class Matcher;
 
@@ -41,21 +19,12 @@ class MSet::Internal : public Xapian::Internal::intrusive_base {
 	friend class MSet;
 	friend class MSetIterator;
 	friend class ::Matcher;
-
-	/// Don't allow assignment.
-	void operator = (const Internal &) = delete;
-
-	/// Don't allow copying.
-	Internal(const Internal &) = delete;
-
-	/// Relevance weights for non-query terms for generating snippets.
-	mutable std::unordered_map<std::string, double> snippet_bg_relevance;
-
-	/// The items in the MSet.
-	std::vector <Result> items;
-
-	/// For looking up query term frequencies and weights.
-	std::unique_ptr<Xapian::Weight::Internal> stats;
+	
+	void operator = (const Internal &) = delete; /// Don't allow assignment.
+	Internal(const Internal &) = delete; /// Don't allow copying.
+	mutable std::unordered_map<std::string, double> snippet_bg_relevance; /// Relevance weights for non-query terms for generating snippets.
+	std::vector <Result> items; /// The items in the MSet.
+	std::unique_ptr<Xapian::Weight::Internal> stats; /// For looking up query term frequencies and weights.
 
 	Xapian::Internal::intrusive_ptr<const Enquire::Internal> enquire;
 	Xapian::doccount matches_lower_bound = 0;

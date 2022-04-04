@@ -248,7 +248,7 @@ typedef CRITICAL_SECTION _cmsMutex;
 // the old version.
 #ifdef _MSC_VER
 #if _MSC_VER < 1400
-#          define CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
+#define CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
 #endif
 #    endif
 #endif

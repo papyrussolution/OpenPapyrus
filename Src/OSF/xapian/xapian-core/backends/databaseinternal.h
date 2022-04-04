@@ -8,24 +8,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_DATABASEINTERNAL_H
 #define XAPIAN_INCLUDED_DATABASEINTERNAL_H
-
-#include "internaltypes.h"
-#include <xapian/database.h>
-#include <xapian/document.h>
-#include <xapian/intrusive_ptr.h>
-#include <xapian/positioniterator.h>
-#include <xapian/postingiterator.h>
-#include <xapian/termiterator.h>
-#include <xapian/types.h>
-#include <xapian/valueiterator.h>
-//#include <string>
 
 typedef Xapian::TermIterator::Internal TermList;
 typedef Xapian::PositionIterator::Internal PositionList;
@@ -47,10 +32,8 @@ struct ReplicationInfo;
 /// Virtual base class for Database internals
 class Database::Internal : public Xapian::Internal::intrusive_base {
 	friend class Database;
-	/// Don't allow assignment.
-	Internal& operator = (const Internal&) = delete;
-	/// Don't allow copying.
-	Internal(const Internal&) = delete;
+	Internal& operator = (const Internal&) = delete; /// Don't allow assignment.
+	Internal(const Internal&) = delete; /// Don't allow copying.
 	/// The "action required" helper for the dtor_called() helper.
 	void dtor_called_();
 protected:
@@ -169,7 +152,7 @@ public:
 	/** Check whether this database contains any positional information. */
 	virtual bool has_positions() const = 0;
 	/** Return a PostList suitable for use in a PostingIterator. */
-	virtual PostList* open_post_list(const std::string & term) const = 0;
+	virtual PostList * open_post_list(const std::string & term) const = 0;
 	/** Create a LeafPostList for use during a match.
 	 *
 	 *  @param term		The term to open a postlist for, or the empty

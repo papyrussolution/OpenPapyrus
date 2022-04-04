@@ -53,7 +53,6 @@ public:
 	PostingSource() noexcept 
 	{
 	}
-
 	/** @private @internal Set pointer to flag to clear on maxweight changes.
 	 *
 	 *  This method is for internal use only - it would be private except that

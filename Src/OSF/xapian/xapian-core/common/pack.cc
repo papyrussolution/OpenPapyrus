@@ -20,9 +20,9 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 
-[[noreturn]] void unpack_throw_serialisation_error(const char* p)
+[[noreturn]] void unpack_throw_serialisation_error(const char * p)
 {
-	const char* m;
+	const char * m;
 	if(p == NULL) {
 		m = "Insufficient serialised data";
 	}

@@ -20,7 +20,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "socket_utils.h"
-#include "realtime.h"
 #include "safesyssocket.h"
 
 using namespace std;
@@ -72,11 +71,11 @@ void set_socket_timeouts(int fd, double timeout)
 #endif
 #ifdef SO_SNDTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO,
-		    reinterpret_cast<char*>(&t), sizeof(t));
+		    reinterpret_cast<char *>(&t), sizeof(t));
 #endif
 #ifdef SO_RCVTIMEO
 		(void)setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO,
-		    reinterpret_cast<char*>(&t), sizeof(t));
+		    reinterpret_cast<char *>(&t), sizeof(t));
 #endif
 	}
 #endif
@@ -91,12 +90,12 @@ void set_socket_timeouts(int fd, double timeout)
 		DWORD flag = 1;
 #endif
 		(void)setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
-		    reinterpret_cast<char*>(&flag), sizeof(flag));
+		    reinterpret_cast<char *>(&flag), sizeof(flag));
 	}
 #endif
 }
 
-int pretty_ip6(const void* p, char* buf)
+int pretty_ip6(const void* p, char * buf)
 {
 	const sockaddr* sa = reinterpret_cast<const sockaddr*>(p);
 	auto af = sa->sa_family;
@@ -118,7 +117,7 @@ int pretty_ip6(const void* p, char* buf)
 	// this is more widespread.
 	auto src = reinterpret_cast<struct sockaddr*>(const_cast<void*>(p));
 #ifndef __WIN32__
-	const char* r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
+	const char * r = inet_ntop(af, src, buf, PRETTY_IP6_LEN);
 	if(!r)
 		return -1;
 #else
@@ -129,7 +128,7 @@ int pretty_ip6(const void* p, char* buf)
 	if(WSAAddressToStringA(src, in_size, NULL, buf, &size) != 0) {
 		return -1;
 	}
-	const char* r = buf;
+	const char * r = buf;
 #endif
 	if(startswith(r, "::ffff:") || startswith(r, "::FFFF:")) {
 		if(strchr(r + 7, '.')) {

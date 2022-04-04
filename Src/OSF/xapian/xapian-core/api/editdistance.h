@@ -20,7 +20,7 @@
 //#include <climits>
 //#include <vector>
 //#include "omassert.h"
-#include <xapian/unicode.h>
+//#include <xapian/unicode.h>
 
 /** Calculate edit distances to a target string.
  *
@@ -66,9 +66,7 @@ class EditDistanceCalculator {
 	 *  calculate.
 	 */
 	freqs_bitmap target_freqs = 0;
-
 	static constexpr uint FREQS_MASK = sizeof(freqs_bitmap) * 8 - 1;
-
 	/** Calculate edit distance.
 	 *
 	 *  Internal helper - the cheap case is inlined from the header.
@@ -92,7 +90,6 @@ public:
 	{
 		delete [] array;
 	}
-
 	/** Calculate edit distance for a sequence.
 	 *
 	 *  @param candidate	String to calculate edit distance for.

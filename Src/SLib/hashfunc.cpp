@@ -1,5 +1,5 @@
 // HASHFUNC.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2019, 2020, 2021, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -9,6 +9,101 @@
 #ifdef _LOCAL_USE_SSL
 	#include <openssl/evp.h>
 #endif
+
+static const SIntToSymbTabEntry P_HashFuncDeclList[] = {
+	{ SHASHF_CRC8, "crc8" },
+	{ SHASHF_CRC16, "crc16" },
+	{ SHASHF_CRC24, "crc24" },
+	{ SHASHF_CRC32, "crc32" },
+	{ SHASHF_CRC64, "crc64" },
+	{ SHASHF_CRCCCITT, "crcccitt" },
+	{ SHASHF_CRCDNP, "crddnp" },
+	{ SHASHF_CRCKERMIT, "crckermit" },
+	{ SHASHF_CRCSICK, "crcsick" },
+	{ SHASHF_ADLER32, "adler32" },
+	{ SHASHF_XX32, "xxhash32" },
+	{ SHASHF_XX64, "xxhash64" },
+	{ SHASHF_MURMUR2_32, "murmur2-32" },
+	{ SHASHF_MURMUR2_64, "murmur2-64" },
+	{ SHASHF_MURMUR3_32, "murmur3-32" },
+	{ SHASHF_MURMUR3_128X32, "murmur3-128x32" },
+	{ SHASHF_MURMUR3_128X64, "murmur3-128x64" },
+	{ SHASHF_MD2, "md2" },
+	{ SHASHF_MD4, "md4" },
+	{ SHASHF_MD5, "md5" },
+	{ SHASHF_SHA1, "sha1" },
+	{ SHASHF_SHA256, "sha256" },
+	{ SHASHF_SHA512, "sha512" },
+	{ SHASHF_BLAKE_256, "blake256" },
+	{ SHASHF_BLAKE_512, "blake512" },
+	{ SHASHF_BLAKE2B, "blake2b" },
+	{ SHASHF_BLAKE2BP, "blake2bp" },
+	{ SHASHF_BLAKE2S, "blake2s" },
+	{ SHASHF_BLAKE2SP, "blake2sp" },
+	{ SHASHF_BLAKE3, "blake3" },
+};
+
+/*static*/int SlHash::GetAlgorithmSymb(int ident, SString & rBuf)
+{
+	return SIntToSymbTab_GetSymb(P_HashFuncDeclList, SIZEOFARRAY(P_HashFuncDeclList), ident, rBuf);
+}
+
+/*static*/int SlHash::IdentifyAlgorithmSymb(const char * pSymb)
+{
+	int id = SIntToSymbTab_GetId(P_HashFuncDeclList, SIZEOFARRAY(P_HashFuncDeclList), pSymb);
+	if(id == 0) {
+		//STATIC_ASSERT(__max_symb() == 16);
+	}
+	return id;
+}
+
+/*static*/int SlHash::VerifyBuffer(int hashFuncIdent, const void * pHash, size_t hashLen, const void * pBuf, size_t bufLen)
+{
+	int    ok = 1;
+	THROW(pHash && hashLen); // @err
+	THROW(pBuf && bufLen); // @err
+	switch(hashFuncIdent) {
+		case SHASHF_SHA1:
+			THROW(hashLen == 20); // @err
+			{
+				const binary160 h = SlHash::Sha1(0, pBuf, bufLen);
+				THROW(memcmp(&h, pHash, sizeof(h)) == 0);
+			}
+			break;
+		case SHASHF_SHA256:
+			THROW(hashLen == 32); // @err
+			{
+				const binary256 h = SlHash::Sha256(0, pBuf, bufLen);
+				THROW(memcmp(&h, pHash, sizeof(h)) == 0);
+			}
+			break;
+		case SHASHF_SHA512:
+			THROW(hashLen == 64); // @err
+			{
+				const binary512 h = SlHash::Sha512(0, pBuf, bufLen);
+				THROW(memcmp(&h, pHash, sizeof(h)) == 0);
+			}
+			break;
+		case SHASHF_MD5:
+			THROW(hashLen == 16); // @err
+			{
+				const binary128 h = SlHash::Md5(0, pBuf, bufLen);
+				THROW(memcmp(&h, pHash, sizeof(h)) == 0);
+			}
+			break;
+		case SHASHF_CRC32:
+			THROW(hashLen == 4); // @err
+			{
+				const uint32 h = SlHash::CRC32(0, pBuf, bufLen);
+				THROW(memcmp(&h, pHash, sizeof(h)) == 0);
+			}
+			break;
+		default:
+			CALLEXCEPT(); // @err
+	}
+	CATCHZOK
+	return ok;
+}
 
 uint8  * SlHash::State::P_Tab_Crc8 = 0;
 uint16 * SlHash::State::P_Tab_Crc16 = 0;

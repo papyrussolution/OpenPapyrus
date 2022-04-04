@@ -23,19 +23,13 @@
 #if !defined HAVE_CLOSEFROM && !defined __WIN32__
 
 #include "closefrom.h"
-#include "safefcntl.h"
-#include "safeunistd.h"
 #ifdef HAVE_SYS_RESOURCE_H
 	#include <sys/types.h>
 	#include <sys/resource.h>
 #endif
 #if defined __linux__
-	#include "alignment_cast.h"
-	//#include "safedirent.h"
-	#include "parseint.h"
 #elif defined __APPLE__
 	#include <sys/attr.h>
-	#include "parseint.h"
 #endif
 
 using namespace std;
@@ -86,7 +80,7 @@ Xapian::Internal::closefrom(int fd)
 	if(fcntl(fd, F_CLOSEM, 0) >= 0)
 		return;
 #elif defined HAVE_GETDIRENTRIES && defined __linux__
-	const char* path = "/proc/self/fd";
+	const char * path = "/proc/self/fd";
 	int dir = open(path, O_RDONLY|O_DIRECTORY);
 	if(dir >= 0) {
 		off_t base = 0;
@@ -108,7 +102,7 @@ Xapian::Internal::closefrom(int fd)
 			struct dirent* d;
 			for(ssize_t pos = 0; pos < c; pos += d->d_reclen) {
 				d = alignment_cast<struct dirent*>(buf + pos);
-				const char* leaf = d->d_name;
+				const char * leaf = d->d_name;
 				int n;
 				if(!parse_signed(leaf, n)) {
 					// Skip '.' and '..'.
@@ -148,7 +142,7 @@ Xapian::Internal::closefrom(int fd)
 		close(dir);
 	}
 #elif defined __APPLE__ // Mac OS X
-	const char* path = "/dev/fd";
+	const char * path = "/dev/fd";
 #ifdef __LP64__
 	typedef uint gdea_type;
 #else
@@ -178,9 +172,9 @@ Xapian::Internal::closefrom(int fd)
 				// Fallback if getdirentriesattr() fails.
 				break;
 			}
-			char* p = buf;
+			char * p = buf;
 			while(count-- > 0) {
-				const char* leaf = p + sizeof(u_int32_t);
+				const char * leaf = p + sizeof(u_int32_t);
 				p += *static_cast<u_int32_t*>(static_cast<void*>(p));
 
 				int n;

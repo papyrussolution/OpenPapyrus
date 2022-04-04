@@ -13,14 +13,13 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
  * USA
  */
-
 #ifndef XAPIAN_INCLUDED_FLINT_LOCK_H
 #define XAPIAN_INCLUDED_FLINT_LOCK_H
 #ifndef PACKAGE
 	#error config.h must be included first in each C++ source file
 #endif
 
-#include <string>
+//#include <string>
 #if defined __CYGWIN__ || defined __WIN32__
 	#include "safewindows.h"
 #else

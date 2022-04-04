@@ -14,19 +14,14 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "orpostlist.h"
-#include "andmaybepostlist.h"
-#include "min_non_zero.h"
-#include "multiandpostlist.h"
-#include "postlisttree.h"
 
 using namespace std;
 
-PostList* OrPostList::decay_to_and(Xapian::docid did, double w_min, bool* valid_ptr)
+PostList * OrPostList::decay_to_and(Xapian::docid did, double w_min, bool* valid_ptr)
 {
 	l = new MultiAndPostList(l, r, l_max, r_max, pltree, db_size);
 	r = NULL;
-	PostList* result;
+	PostList * result;
 	if(valid_ptr) {
 		result = l->check(did, w_min, *valid_ptr);
 	}
@@ -41,16 +36,13 @@ PostList* OrPostList::decay_to_and(Xapian::docid did, double w_min, bool* valid_
 	return result;
 }
 
-PostList* OrPostList::decay_to_andmaybe(PostList* left,
-    PostList* right,
-    Xapian::docid did,
-    double w_min,
-    bool* valid_ptr)
+PostList * OrPostList::decay_to_andmaybe(PostList * left, PostList * right, Xapian::docid did, double w_min, bool* valid_ptr)
 {
-	if(l != left) swap(l_max, r_max);
+	if(l != left) 
+		swap(l_max, r_max);
 	l = new AndMaybePostList(left, right, l_max, r_max, pltree, db_size);
 	r = NULL;
-	PostList* result;
+	PostList * result;
 	if(valid_ptr) {
 		result = l->check(did, w_min, *valid_ptr);
 	}
@@ -77,16 +69,13 @@ Xapian::docid OrPostList::get_docid() const
 	return min_non_zero(l_did, r_did);
 }
 
-double OrPostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double OrPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
 	if(r_did == 0 || l_did < r_did)
 		return l->get_weight(doclen, unique_terms, wdfdocmax);
 	if(l_did == 0 || l_did > r_did)
 		return r->get_weight(doclen, unique_terms, wdfdocmax);
-	return l->get_weight(doclen, unique_terms, wdfdocmax) +
-	       r->get_weight(doclen, unique_terms, wdfdocmax);
+	return l->get_weight(doclen, unique_terms, wdfdocmax) + r->get_weight(doclen, unique_terms, wdfdocmax);
 }
 
 double OrPostList::recalc_maxweight()
@@ -96,7 +85,7 @@ double OrPostList::recalc_maxweight()
 	return l_max + r_max;
 }
 
-PostList* OrPostList::next(double w_min)
+PostList * OrPostList::next(double w_min)
 {
 	if(w_min > l_max) {
 		if(w_min > r_max) {
@@ -150,7 +139,7 @@ PostList* OrPostList::next(double w_min)
 	bool advance_r = (l_did >= r_did);
 
 	if(advance_l) {
-		PostList* result = l->next(w_min - r_max);
+		PostList * result = l->next(w_min - r_max);
 		if(result) {
 			delete l;
 			l = result;
@@ -158,7 +147,7 @@ PostList* OrPostList::next(double w_min)
 	}
 
 	if(advance_r) {
-		PostList* result = r->next(w_min - l_max);
+		PostList * result = r->next(w_min - l_max);
 		if(result) {
 			delete r;
 			r = result;
@@ -167,7 +156,7 @@ PostList* OrPostList::next(double w_min)
 
 	if(advance_l) {
 		if(l->at_end()) {
-			PostList* result = r;
+			PostList * result = r;
 			r = NULL;
 			pltree->force_recalc();
 			return result;
@@ -176,7 +165,7 @@ PostList* OrPostList::next(double w_min)
 
 	if(advance_r) {
 		if(r->at_end()) {
-			PostList* result = l;
+			PostList * result = l;
 			l = NULL;
 			pltree->force_recalc();
 			return result;
@@ -194,7 +183,7 @@ PostList* OrPostList::next(double w_min)
 	return NULL;
 }
 
-PostList* OrPostList::skip_to(Xapian::docid did, double w_min)
+PostList * OrPostList::skip_to(Xapian::docid did, double w_min)
 {
 	// We always advance_l if l_did is 0, and similarly for advance_r.
 	bool advance_l = (did > l_did);
@@ -212,24 +201,22 @@ PostList* OrPostList::skip_to(Xapian::docid did, double w_min)
 	}
 
 	if(advance_l) {
-		PostList* result = l->skip_to(did, w_min - r_max);
+		PostList * result = l->skip_to(did, w_min - r_max);
 		if(result) {
 			delete l;
 			l = result;
 		}
 	}
-
 	if(advance_r) {
-		PostList* result = r->skip_to(did, w_min - l_max);
+		PostList * result = r->skip_to(did, w_min - l_max);
 		if(result) {
 			delete r;
 			r = result;
 		}
 	}
-
 	if(advance_l) {
 		if(l->at_end()) {
-			PostList* result = r;
+			PostList * result = r;
 			r = NULL;
 			pltree->force_recalc();
 			return result;
@@ -238,7 +225,7 @@ PostList* OrPostList::skip_to(Xapian::docid did, double w_min)
 
 	if(advance_r) {
 		if(r->at_end()) {
-			PostList* result = l;
+			PostList * result = l;
 			l = NULL;
 			pltree->force_recalc();
 			return result;
@@ -256,7 +243,7 @@ PostList* OrPostList::skip_to(Xapian::docid did, double w_min)
 	return NULL;
 }
 
-PostList* OrPostList::check(Xapian::docid did, double w_min, bool& valid)
+PostList * OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
 	bool advance_l = (did > l_did);
 	bool advance_r = (did > r_did);
@@ -281,7 +268,7 @@ PostList* OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 
 	if(advance_l) {
 		bool l_valid;
-		PostList* result = l->check(did, w_min - r_max, l_valid);
+		PostList * result = l->check(did, w_min - r_max, l_valid);
 		if(result) {
 			Assert(l_valid);
 			delete l;
@@ -295,7 +282,7 @@ PostList* OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 
 	if(advance_r) {
 		bool r_valid;
-		PostList* result = r->check(did, w_min - l_max, r_valid);
+		PostList * result = r->check(did, w_min - l_max, r_valid);
 		if(result) {
 			Assert(r_valid);
 			delete r;
@@ -309,7 +296,7 @@ PostList* OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 
 	if(advance_l) {
 		if(l->at_end()) {
-			PostList* result = r;
+			PostList * result = r;
 			r = NULL;
 			pltree->force_recalc();
 			valid = true;
@@ -319,7 +306,7 @@ PostList* OrPostList::check(Xapian::docid did, double w_min, bool& valid)
 
 	if(advance_r) {
 		if(r->at_end()) {
-			PostList* result = l;
+			PostList * result = l;
 			l = NULL;
 			pltree->force_recalc();
 			valid = true;

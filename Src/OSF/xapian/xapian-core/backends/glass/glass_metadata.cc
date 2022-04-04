@@ -8,29 +8,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_metadata.h"
 #include "glass_cursor.h"
-#include "backends/databaseinternal.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-GlassMetadataTermList::GlassMetadataTermList(intrusive_ptr<const Xapian::Database::Internal> database_,
-    GlassCursor * cursor_,
-    const string &prefix_)
-	: database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
+GlassMetadataTermList::GlassMetadataTermList(intrusive_ptr<const Xapian::Database::Internal> database_, GlassCursor * cursor_,
+    const string &prefix_) : database(database_), cursor(cursor_), prefix(string("\x00\xc0", 2) + prefix_)
 {
 	LOGCALL_CTOR(DB, "GlassMetadataTermList", database_ | cursor_ | prefix_);
 	Assert(cursor);
@@ -69,13 +57,11 @@ TermList * GlassMetadataTermList::next()
 {
 	LOGCALL(DB, TermList *, "GlassMetadataTermList::next", NO_ARGS);
 	Assert(!at_end());
-
 	cursor->next();
 	if(!cursor->after_end() && !startswith(cursor->current_key, prefix)) {
 		// We've reached the end of the prefixed terms.
 		cursor->to_end();
 	}
-
 	RETURN(NULL);
 }
 
@@ -83,7 +69,6 @@ TermList * GlassMetadataTermList::skip_to(const string &key)
 {
 	LOGCALL(DB, TermList *, "GlassMetadataTermList::skip_to", key);
 	Assert(!at_end());
-
 	if(!cursor->find_entry_ge(string("\x00\xc0", 2) + key)) {
 		// The exact term we asked for isn't there, so check if the next
 		// term after it also has the right prefix.

@@ -4561,31 +4561,28 @@ char * GnuPlot::DfGeneratePseudodata()
 	// This code copied from that in second pass through eval_plots() */
 	if(_Df.df_pseudodata == 1) {
 		static double t;
-		static double t_min;
-		static double t_max;
+		static RealRange t_range;
+		//static double t_min;
+		//static double t_max;
 		static double t_step;
 		if(_Df.df_pseudorecord == 0) {
 			t_step = 0;
 			if(AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED) {
-				t_min = AxS[SAMPLE_AXIS].min;
-				t_max = AxS[SAMPLE_AXIS].max;
+				t_range.Set(AxS[SAMPLE_AXIS].min, AxS[SAMPLE_AXIS].max);
 				t_step = AxS[SAMPLE_AXIS].SAMPLE_INTERVAL;
 			}
 			else if(Gg.Parametric || Gg.Polar) {
-				t_min = AxS[T_AXIS].min;
-				t_max = AxS[T_AXIS].max;
+				t_range.Set(AxS[T_AXIS].min, AxS[T_AXIS].max);
 			}
 			else if(AxS[T_AXIS].autoscale == AUTOSCALE_NONE) {
-				t_min = AxS[T_AXIS].min;
-				t_max = AxS[T_AXIS].max;
+				t_range.Set(AxS[T_AXIS].min, AxS[T_AXIS].max);
 			}
 			else {
 				if(AxS[FIRST_X_AXIS].max == -VERYLARGE)
 					AxS[FIRST_X_AXIS].max = 10;
 				if(AxS[FIRST_X_AXIS].min == VERYLARGE)
 					AxS[FIRST_X_AXIS].min = -10;
-				t_min = AxS.__X().min;
-				t_max = AxS.__X().max;
+				t_range.Set(AxS.__X().min, AxS.__X().max);
 			}
 			if(AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED) {
 				; // Nothing special 
@@ -4597,22 +4594,23 @@ char * GnuPlot::DfGeneratePseudodata()
 				// NB: This means "t" is in the hidden linear coordinate space. 
 				if(AxS.__X().linked_to_primary && AxS.__X().link_udf->at && AxS.__X().linked_to_primary != &AxS[FIRST_X_AXIS]) {
 					const GpAxis * primary = AxS.__X().linked_to_primary;
-					t_min = EvalLinkFunction(primary, t_min);
-					t_max = EvalLinkFunction(primary, t_max);
+					t_range.Set(EvalLinkFunction(primary, t_range.low), EvalLinkFunction(primary, t_range.upp));
 				}
 				else
-					CheckAxisLogLimits(&AxS.__X(), t_min, t_max);
+					CheckAxisLogLimits(&AxS.__X(), t_range.low, t_range.upp);
 			}
 			if(t_step == 0.0) // always true unless explicit sample interval was given 
-				t_step = (t_max - t_min) / (Gg.Samples1 - 1);
+				t_step = t_range.GetDistance() / (Gg.Samples1 - 1);
 			if(t_step == 0.0) // prevent infinite loop on zero range 
 				t_step = 1.0;
 		}
-		t = t_min + _Df.df_pseudorecord * t_step;
+		t = t_range.low + _Df.df_pseudorecord * t_step;
 		if((AxS[SAMPLE_AXIS].range_flags & RANGE_SAMPLED)) {
 			// This is the case of an explicit sampling range 
-			if(!inrange(t, t_min, t_max))
-				return NULL;
+			// @v11.3.7 if(!inrange(t, t_min, t_max)) {
+			if(!t_range.CheckX(t)) { // @v11.3.7 
+				return NULL; 
+			}
 		}
 		else {
 			// This is the usual case 
@@ -4634,8 +4632,16 @@ char * GnuPlot::DfGeneratePseudodata()
 	// Pseudofile '++' returns a (samples X isosamples) grid of x,y coordinates 
 	// This code copied from that in second pass through eval_3dplots 
 	if(_Df.df_pseudodata == 2) {
-		static double u_min, u_max, u_step, v_min, v_max, v_isostep;
-		static int nusteps, nvsteps;
+		static RealRange u_range;
+		static RealRange v_range;
+		//static double u_min;
+		//static double u_max;
+		static double u_step;
+		//static double v_min;
+		//static double v_max;
+		static double v_isostep;
+		static int    nusteps;
+		static int    nvsteps;
 		double u, v;
 		// (March 2017) THIS IS A CHANGE
 		// Sample on u and v rather than on x and y.
@@ -4648,49 +4654,43 @@ char * GnuPlot::DfGeneratePseudodata()
 			if(Gg.Samples1 < 2 || Gg.Samples2 < 2 || Gg.IsoSamples1 < 2 || Gg.IsoSamples2 < 2)
 				IntError(NO_CARET, "samples or iso_samples < 2. Must be at least 2.");
 			if(Gg.Parametric) {
-				u_min = AxS[U_AXIS].min;
-				u_max = AxS[U_AXIS].max;
-				v_min = AxS[V_AXIS].min;
-				v_max = AxS[V_AXIS].max;
+				u_range.Set(AxS[U_AXIS].min, AxS[U_AXIS].max);
+				v_range.Set(AxS[V_AXIS].min, AxS[V_AXIS].max);
 			}
 			else {
 				AxisCheckedExtendEmptyRange(u_axis, "u range is invalid");
 				AxisCheckedExtendEmptyRange(v_axis, "v range is invalid");
 				if(AxS[u_axis].IsNonLinear()) {
-					u_min = AxS[u_axis].linked_to_primary->min;
-					u_max = AxS[u_axis].linked_to_primary->max;
+					u_range.Set(AxS[u_axis].linked_to_primary->min, AxS[u_axis].linked_to_primary->max);
 				}
 				else {
-					u_min = AxS[u_axis].min;
-					u_max = AxS[u_axis].max;
+					u_range.Set(AxS[u_axis].min, AxS[u_axis].max);
 				}
 				if(AxS[v_axis].IsNonLinear()) {
-					v_min = AxS[v_axis].linked_to_primary->min;
-					v_max = AxS[v_axis].linked_to_primary->max;
+					v_range.Set(AxS[v_axis].linked_to_primary->min, AxS[v_axis].linked_to_primary->max);
 				}
 				else {
-					v_min = AxS[v_axis].min;
-					v_max = AxS[v_axis].max;
+					v_range.Set(AxS[v_axis].min, AxS[v_axis].max);
 				}
 			}
 			if((AxS[u_axis].range_flags & RANGE_SAMPLED) && (AxS[u_axis].SAMPLE_INTERVAL != 0)) {
 				u_step = AxS[u_axis].SAMPLE_INTERVAL;
-				nusteps = ffloori((u_max - u_min) / u_step) + 1;
+				nusteps = ffloori(u_range.GetDistance() / u_step) + 1;
 			}
 			else if(_3DBlk.hidden3d) {
-				u_step = (u_max - u_min) / (Gg.IsoSamples1 - 1);
+				u_step = u_range.GetDistance() / (Gg.IsoSamples1 - 1);
 				nusteps = Gg.IsoSamples1;
 			}
 			else {
-				u_step = (u_max - u_min) / (Gg.Samples1 - 1);
+				u_step = u_range.GetDistance() / (Gg.Samples1 - 1);
 				nusteps = Gg.Samples1;
 			}
 			if((AxS[v_axis].range_flags & RANGE_SAMPLED) && (AxS[v_axis].SAMPLE_INTERVAL != 0)) {
 				v_isostep = AxS[v_axis].SAMPLE_INTERVAL;
-				nvsteps = ffloori((v_max - v_min) / v_isostep) + 1;
+				nvsteps = ffloori(v_range.GetDistance() / v_isostep) + 1;
 			}
 			else {
-				v_isostep = (v_max - v_min) / (Gg.IsoSamples2 - 1);
+				v_isostep = v_range.GetDistance() / (Gg.IsoSamples2 - 1);
 				nvsteps = Gg.IsoSamples2;
 			}
 		}
@@ -4703,26 +4703,20 @@ char * GnuPlot::DfGeneratePseudodata()
 				return const_cast<char *>(""); // @badcast blank record for end of scan line 
 		}
 		// Duplicate algorithm from calculate_set_of_isolines() 
-		u = u_min + _Df.df_pseudorecord * u_step;
-		v = v_max - _Df.df_pseudospan * v_isostep;
+		u = u_range.low + _Df.df_pseudorecord * u_step;
+		v = v_range.upp - _Df.df_pseudospan * v_isostep;
 		// Round-off error is most visible at the border 
 		if(_Df.df_pseudorecord == nusteps-1)
-			u = u_max;
+			u = u_range.upp;
 		if(_Df.df_pseudospan == nvsteps-1)
-			v = v_min;
+			v = v_range.low;
 		if(Gg.Parametric) {
 			_Df.df_pseudovalue_0 = u;
 			_Df.df_pseudovalue_1 = v;
 		}
 		else {
-			if(AxS[u_axis].IsNonLinear())
-				_Df.df_pseudovalue_0 = EvalLinkFunction(&AxS[u_axis], u);
-			else
-				_Df.df_pseudovalue_0 = u;
-			if(AxS[v_axis].IsNonLinear())
-				_Df.df_pseudovalue_1 = EvalLinkFunction(&AxS[v_axis], v);
-			else
-				_Df.df_pseudovalue_1 = v;
+			_Df.df_pseudovalue_0 = AxS[u_axis].IsNonLinear() ? EvalLinkFunction(&AxS[u_axis], u) : u;
+			_Df.df_pseudovalue_1 = AxS[v_axis].IsNonLinear() ? EvalLinkFunction(&AxS[v_axis], v) : v;
 		}
 		sprintf(_Df.df_line, "%g %g", _Df.df_pseudovalue_0, _Df.df_pseudovalue_1);
 		++_Df.df_pseudorecord;

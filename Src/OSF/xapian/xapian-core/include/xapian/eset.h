@@ -7,15 +7,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_ESET_H
 #define XAPIAN_INCLUDED_ESET_H
@@ -37,13 +28,11 @@ class ESetIterator;
 /// Class representing a list of search results.
 class XAPIAN_VISIBILITY_DEFAULT ESet {
 	friend class ESetIterator;
-
 public:
 	/// Class representing the ESet internals.
 	class Internal;
 	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
-
 	/** Copying is allowed.
 	 *
 	 *  The internals are reference counted, so copying is cheap.
@@ -55,10 +44,8 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	ESet & operator = (const ESet & o);
-	/// Move constructor.
-	ESet(ESet && o);
-	/// Move assignment operator.
-	ESet & operator = (ESet && o);
+	ESet(ESet && o); /// Move constructor.
+	ESet & operator = (ESet && o); /// Move assignment operator.
 	/** Default constructor.
 	 *
 	 *  Creates an empty ESet, mostly useful as a placeholder.

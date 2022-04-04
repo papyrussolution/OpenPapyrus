@@ -97,7 +97,7 @@ public:
 	Error(const Error&) = default;
 
 	/// The type of this error (e.g. "DocNotFoundError".)
-	const char* get_type() const noexcept { return type + 1; }
+	const char * get_type() const noexcept { return type + 1; }
 	/// Message giving details of the error, intended for human consumption.
 	const std::string & get_msg() const noexcept { return msg; }
 	/** Optional context information.

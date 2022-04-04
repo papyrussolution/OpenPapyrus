@@ -15,10 +15,6 @@
 #ifndef XAPIAN_INCLUDED_SPYMASTER_H
 #define XAPIAN_INCLUDED_SPYMASTER_H
 
-#include <xapian/intrusive_ptr.h>
-#include <xapian/matchspy.h>
-//#include <vector>
-
 class SpyMaster {
 	typedef Xapian::Internal::opt_intrusive_ptr<Xapian::MatchSpy> opt_ptr_spy;
 	/// The MatchSpy objects to apply.

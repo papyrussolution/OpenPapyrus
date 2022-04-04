@@ -6,22 +6,8 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "matcher.h"
-#include "api/enquireinternal.h"
-#include "api/msetinternal.h"
-#include "api/rsetinternal.h"
-#include "backends/multi/multi_database.h"
-#include "deciderpostlist.h"
-#include "localsubmatch.h"
-#include "msetcmp.h"
-#include "postlisttree.h"
-#include "protomset.h"
-#include "spymaster.h"
-#include "valuestreamdocument.h"
-#include "weight/weightinternal.h"
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-#include "backends/remote/remote-database.h"
-#include "remotesubmatch.h"
+	#include "remotesubmatch.h"
 #endif
 #ifdef HAVE_POLL_H
 	#include <poll.h>
@@ -39,7 +25,7 @@ static constexpr auto VAL = Xapian::Enquire::Internal::VAL;
 static constexpr auto VAL_REL = Xapian::Enquire::Internal::VAL_REL;
 
 #ifdef XAPIAN_HAS_REMOTE_BACKEND
-[[noreturn]] static void unimplemented(const char* msg)
+[[noreturn]] static void unimplemented(const char * msg)
 {
 	throw Xapian::UnimplementedError(msg);
 }
@@ -313,7 +299,7 @@ Xapian::MSet Matcher::get_local_mset(Xapian::doccount first,
 	++vsdoc._refs;
 	Xapian::Document doc(&vsdoc);
 
-	vector <PostList*> postlists;
+	vector <PostList *> postlists;
 	postlists.reserve(locals.size());
 	PostListTree pltree(vsdoc, db, wtscheme);
 	Xapian::termcount total_subqs = 0;
@@ -329,7 +315,7 @@ Xapian::MSet Matcher::get_local_mset(Xapian::doccount first,
 			// recurse into positional queries for shards that don't have
 			// positional data when at least one other shard does.
 			Xapian::termcount total_subqs_i = 0;
-			PostList* pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
+			PostList * pl = locals[i]->get_postlist(&pltree, &total_subqs_i);
 			total_subqs = max(total_subqs, total_subqs_i);
 			if(pl != NULL) {
 				all_null = false;

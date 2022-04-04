@@ -7,15 +7,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -29,8 +20,8 @@ using namespace std;
 bool GlassValueList::update_reader()
 {
 	Xapian::docid first_did = docid_from_key(slot, cursor->current_key);
-	if(!first_did) return false;
-
+	if(!first_did) 
+		return false;
 	cursor->read_tag();
 	const string & tag = cursor->current_tag;
 	reader.assign(tag.data(), tag.size(), first_did);
@@ -82,10 +73,7 @@ void GlassValueList::next()
 			if(!reader.at_end()) return;
 		}
 	}
-
-	// We've reached the end.
-	delete cursor;
-	cursor = NULL;
+	ZDELETE(cursor); // We've reached the end.
 }
 
 void GlassValueList::skip_to(Xapian::docid did)
@@ -107,17 +95,13 @@ void GlassValueList::skip_to(Xapian::docid did)
 		// The requested docid is between two chunks.
 		cursor->next();
 	}
-
 	// Either an exact match, or in a gap before the start of a chunk.
 	if(!cursor->after_end()) {
 		if(update_reader()) {
 			if(!reader.at_end()) return;
 		}
 	}
-
-	// We've reached the end.
-	delete cursor;
-	cursor = NULL;
+	ZDELETE(cursor); // We've reached the end.
 }
 
 bool GlassValueList::check(Xapian::docid did)
@@ -131,7 +115,6 @@ bool GlassValueList::check(Xapian::docid did)
 		reader.skip_to(did);
 		if(!reader.at_end()) return true;
 	}
-
 	// Try moving to the appropriate chunk.
 	if(!cursor->find_entry(make_valuechunk_key(slot, did))) {
 		// We're in a chunk which might contain the docid.
@@ -141,7 +124,6 @@ bool GlassValueList::check(Xapian::docid did)
 		}
 		return false;
 	}
-
 	// We had an exact match for a chunk starting with specified docid.
 	Assert(!cursor->after_end());
 	if(!update_reader()) {
@@ -149,7 +131,6 @@ bool GlassValueList::check(Xapian::docid did)
 		// Therefore update_reader() "can't possibly fail".
 		Assert(false);
 	}
-
 	return true;
 }
 

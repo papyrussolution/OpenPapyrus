@@ -325,7 +325,7 @@
 #  if defined(_WIN32_WCE)
 /* Some things not defined on Windows CE. */
 #    define vsnprintf _vsnprintf
-#    ifndef HB_NO_GETENV
+#ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #    endif
 #    if _WIN32_WCE < 0x800
@@ -333,7 +333,7 @@
 #      define HB_NO_ERRNO
 #    endif
 #  elif WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
-#    ifndef HB_NO_GETENV
+#ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #    endif
 #  endif

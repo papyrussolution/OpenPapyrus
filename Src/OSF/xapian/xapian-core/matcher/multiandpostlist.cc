@@ -15,7 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "multiandpostlist.h"
 
 using namespace std;
 
@@ -72,7 +71,8 @@ Xapian::doccount MultiAndPostList::get_termfreq_max() const
 	Xapian::doccount result = plist[0]->get_termfreq_max();
 	for(size_t i = 1; i < n_kids; ++i) {
 		Xapian::doccount tf = plist[i]->get_termfreq_max();
-		if(tf < result) result = tf;
+		if(tf < result) 
+			result = tf;
 	}
 	return result;
 }
@@ -99,33 +99,25 @@ TermFreqs MultiAndPostList::get_termfreq_est_using_stats(const Xapian::Weight::I
 	// the estimate is the product of the estimates for the sub-postlists
 	// divided by db_size (n_kids - 1) times.
 	TermFreqs freqs(plist[0]->get_termfreq_est_using_stats(stats));
-
 	double freqest = double(freqs.termfreq);
 	double relfreqest = double(freqs.reltermfreq);
 	double collfreqest = double(freqs.collfreq);
-
 	// Our caller should have ensured this.
 	Assert(stats.collection_size);
-
 	for(size_t i = 1; i < n_kids; ++i) {
 		freqs = plist[i]->get_termfreq_est_using_stats(stats);
-
 		// If the collection is empty, freqest should be 0 already, so leave
 		// it alone.
 		freqest = (freqest * freqs.termfreq) / stats.collection_size;
 		if(LIKELY(stats.total_length != 0)) {
 			collfreqest = (collfreqest * freqs.collfreq) / stats.total_length;
 		}
-
 		// If the rset is empty, relfreqest should be 0 already, so leave
 		// it alone.
 		if(stats.rset_size != 0)
 			relfreqest = (relfreqest * freqs.reltermfreq) / stats.rset_size;
 	}
-
-	RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5),
-	    static_cast<Xapian::doccount>(relfreqest + 0.5),
-	    static_cast<Xapian::termcount>(collfreqest + 0.5)));
+	RETURN(TermFreqs(static_cast<Xapian::doccount>(freqest + 0.5), static_cast<Xapian::doccount>(relfreqest + 0.5), static_cast<Xapian::termcount>(collfreqest + 0.5)));
 }
 
 Xapian::docid MultiAndPostList::get_docid() const
@@ -133,9 +125,7 @@ Xapian::docid MultiAndPostList::get_docid() const
 	return did;
 }
 
-double MultiAndPostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double MultiAndPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
 	Assert(did);
 	double result = 0;

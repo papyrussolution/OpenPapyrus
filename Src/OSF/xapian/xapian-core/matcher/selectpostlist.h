@@ -15,9 +15,6 @@
 #ifndef XAPIAN_INCLUDED_SELECTPOSTLIST_H
 #define XAPIAN_INCLUDED_SELECTPOSTLIST_H
 
-#include "wrapperpostlist.h"
-#include <cmath>
-
 class PostListTree;
 
 /// Base class for classes which filter another PostList
@@ -30,14 +27,14 @@ protected:
 	/// Check if the current document should be selected.
 	virtual bool test_doc() = 0;
 public:
-	SelectPostList(PostList* pl_, PostListTree* pltree_) : WrapperPostList(pl_), pltree(pltree_) 
+	SelectPostList(PostList * pl_, PostListTree* pltree_) : WrapperPostList(pl_), pltree(pltree_) 
 	{
 	}
 	double get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const;
 	bool at_end() const;
-	PostList* next(double w_min);
-	PostList* skip_to(Xapian::docid did, double w_min);
-	PostList* check(Xapian::docid did, double w_min, bool& valid);
+	PostList * next(double w_min);
+	PostList * skip_to(Xapian::docid did, double w_min);
+	PostList * check(Xapian::docid did, double w_min, bool& valid);
 	Xapian::doccount get_termfreq_min() const;
 };
 

@@ -14,15 +14,11 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "common/log2.h"
-#include "weightinternal.h"
-#include "serialise-double.h"
 
 using namespace std;
 
 namespace Xapian {
-InL2Weight::InL2Weight(double c)
-	: param_c(c)
+InL2Weight::InL2Weight(double c) : param_c(c)
 {
 	if(param_c <= 0)
 		throw Xapian::InvalidArgumentError("Parameter c is invalid");
@@ -125,7 +121,7 @@ double InL2Weight::get_maxextra() const
 	return 0;
 }
 
-static inline void parameter_error(const char* message)
+static inline void parameter_error(const char * message)
 {
 	Xapian::Weight::Internal::parameter_error(message, "inl2");
 }

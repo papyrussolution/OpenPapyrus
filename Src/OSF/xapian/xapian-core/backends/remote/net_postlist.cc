@@ -22,7 +22,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "net_postlist.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 

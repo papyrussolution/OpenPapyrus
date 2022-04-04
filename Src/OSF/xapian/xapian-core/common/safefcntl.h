@@ -7,18 +7,7 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
-
 #ifndef XAPIAN_INCLUDED_SAFEFCNTL_H
 #define XAPIAN_INCLUDED_SAFEFCNTL_H
 
@@ -32,17 +21,17 @@
 // The solution is to call open64x() instead of open() when the flags don't fit
 // in an int, which this overload achieves.
 
-inline int open(const char *filename, int64_t flags, ...) {
-    va_list ap;
-    va_start(ap, flags);
-    mode_t mode = 0;
-    if (flags & O_CREAT) {
-	mode = va_arg(ap, mode_t);
-    }
-    va_end(ap);
-    // open64x() takes a non-const path but is not documented as modifying it.
-    char* f = const_cast<char*>(filename);
-    return open64x(f, flags, mode, 0);
+inline int open(const char * filename, int64_t flags, ...) {
+	va_list ap;
+	va_start(ap, flags);
+	mode_t mode = 0;
+	if(flags & O_CREAT) {
+		mode = va_arg(ap, mode_t);
+	}
+	va_end(ap);
+	// open64x() takes a non-const path but is not documented as modifying it.
+	char * f = const_cast<char *>(filename);
+	return open64x(f, flags, mode, 0);
 }
 
 #elif defined __cplusplus && defined open
@@ -53,22 +42,22 @@ inline int open(const char *filename, int64_t flags, ...) {
 // e.g. "creat" to "creat64", but only "open" is a problem for Xapian so
 // that's the only one we currently fix).
 
-inline int fcntl_open_(const char *filename, int flags, mode_t mode) {
-    return open(filename, flags, mode);
+inline int fcntl_open_(const char * filename, int flags, mode_t mode) {
+	return open(filename, flags, mode);
 }
 
-inline int fcntl_open_(const char *filename, int flags) {
-    return open(filename, flags);
+inline int fcntl_open_(const char * filename, int flags) {
+	return open(filename, flags);
 }
 
 #undef open
 
-inline int open(const char *filename, int flags, mode_t mode) {
-    return fcntl_open_(filename, flags, mode);
+inline int open(const char * filename, int flags, mode_t mode) {
+	return fcntl_open_(filename, flags, mode);
 }
 
-inline int open(const char *filename, int flags) {
-    return fcntl_open_(filename, flags);
+inline int open(const char * filename, int flags) {
+	return fcntl_open_(filename, flags);
 }
 
 #endif

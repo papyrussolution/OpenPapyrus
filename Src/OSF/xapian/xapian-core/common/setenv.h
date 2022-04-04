@@ -26,7 +26,7 @@
 #elif defined HAVE__PUTENV_S
 #if !HAVE_DECL__PUTENV_S
 // Mingw 3.20 doesn't declare this, but it's in the Microsoft C runtime DLL.
-extern "C" int _putenv_s(const char*, const char*);
+extern "C" int _putenv_s(const char *, const char *);
 #endif
 
 // Use a lambda function to give us a block scope to use static_assert in

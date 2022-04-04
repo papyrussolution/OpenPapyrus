@@ -1359,9 +1359,11 @@ int SFile::Close()
 	return ok;
 }
 
-int SFile::Seek(long offs, int origin)
+bool SFile::Seek(long offs, int origin)
 {
-	int    ok = 1;
+	bool   ok = true;
+	assert(oneof3(origin, SEEK_SET, SEEK_CUR, SEEK_END));
+	assert(offs >= 0);
 	assert(InvariantC(0));
 	if(T == tSBuffer) {
 		long o;
@@ -1373,30 +1375,72 @@ int SFile::Seek(long offs, int origin)
 			o = offs;
 		if(checkirange(o, 0L, static_cast<long>(P_Sb->GetWrOffs()))) {
 			P_Sb->SetRdOffs(o);
-			ok = 1;
+			ok = true;
 		}
 		else
-			ok = 0;
+			ok = false;
 	}
 	else {
-		if(F)
-			ok = BIN(fseek(F, offs, origin) == 0);
-		else if(IH >= 0)
-			ok = BIN(lseek(IH, offs, origin) >= 0);
+		if(F) {
+			ok = (fseek(F, offs, origin) == 0);
+		}
+		else if(IH >= 0) {
+			ok = (lseek(IH, offs, origin) >= 0);
+		}
 		else
-			ok = 0;
+			ok = false;
 	}
 	BufR.Z();
 	return ok;
 }
 
-int SFile::Seek64(int64 offs, int origin)
+bool SFile::Seek64(int64 offs, int origin)
+{
+	bool   ok = true;
+	assert(oneof3(origin, SEEK_SET, SEEK_CUR, SEEK_END));
+	assert(offs >= 0LL);
+	assert(InvariantC(0));
+	if(T == tSBuffer) {
+		int64  o;
+		if(origin == SEEK_CUR)
+			o = P_Sb->GetRdOffs() + offs;
+		else if(origin == SEEK_END)
+			o = P_Sb->GetWrOffs() + offs;
+		else
+			o = offs;
+		if(checkirange(o, 0LL, static_cast<int64>(P_Sb->GetWrOffs()))) {
+			P_Sb->SetRdOffs(static_cast<size_t>(o));
+			ok = true;
+		}
+		else
+			ok = false;
+	}
+	else {
+		if(F) {
+#if (_MSC_VER >= 1900)
+			ok = (_fseeki64(F, offs, origin) == 0);
+#else
+			assert(offs < MAXLONG);
+			ok = (fseek(F, static_cast<long>(offs), origin) == 0);
+#endif
+		}
+		else if(IH >= 0) {
+			ok = (_lseeki64(IH, offs, origin) >= 0);
+		}
+		else
+			ok = false;
+	}
+	BufR.Z();
+	return ok;
+}
+
+/*bool SFile::Seek64(int64 offs, int origin)
 {
 	assert(InvariantC(0));
 	int   ok = (T == tFile) ? BIN(IH >= 0 && _lseeki64(IH, offs, origin) >= 0) : Seek((long)offs, origin);
 	BufR.Z();
 	return ok;
-}
+}*/
 
 long SFile::Tell()
 {
@@ -1432,8 +1476,13 @@ int64 SFile::Tell64()
 		t = static_cast<int64>(P_Sb->GetRdOffs());
 	}
 	else {
-		if(F)
+		if(F) {
+#if (_MSC_VER >= 1900)
+			t = _ftelli64(F);
+#else
 			t = ftell(F);
+#endif
+		}
 		else if(IH >= 0) {
 			t = _telli64(IH);
 			if(t >= 0) {
@@ -1443,8 +1492,11 @@ int64 SFile::Tell64()
 					t -= bo;
 			}
 		}
-		else
-			t = (SLibError = SLERR_FILENOTOPENED, 0);
+		else {
+			SLS.SetError(SLERR_FILENOTOPENED); // @v11.3.7
+			t = -1LL; // @v11.3.7
+			// @v11.3.7 t = (SLibError = SLERR_FILENOTOPENED, 0);
+		}
 	}
 	return t;
 }
@@ -1495,6 +1547,7 @@ int SFile::ReadV(void * pBuf, size_t size)
 int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 {
 	assert(InvariantC(0));
+	assert(size < MAXINT32); // @v11.3.7
 	int    ok = 1;
 	int    act_size = 0;
 	THROW_S(T != tNullOutput, SLERR_SFILRDNULLOUTP);
@@ -1506,15 +1559,15 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 		if(F) {
 			const int64 offs = Tell64();
 			if(fread(pBuf, size, 1, F) == 1)
-				act_size = (int)size;
+				act_size = static_cast<int>(size);
 			else {
 				//
 				// Для того чтобы функция считала последний блок из файла, если он не равен size
 				//
 				Seek64(offs, SEEK_SET);
-				act_size = (int)fread(pBuf, 1, size, F);
+				act_size = static_cast<int>(fread(pBuf, 1, size, F));
 				if(!act_size) {
-					if(feof(F)) // @v9.7.10 @fix test for EOF added
+					if(feof(F))
 						ok = -1;
 					else
 						CALLEXCEPT_S_S(SLERR_READFAULT, Name);
@@ -1545,7 +1598,7 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 						const int local_act_size = read(IH, temp_buf, temp_buf.GetSize());
 						THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
 						THROW(BufR.Write(temp_buf, local_act_size));
-						if(local_act_size < (int)temp_buf.GetSize()) {
+						if(local_act_size < static_cast<int>(temp_buf.GetSize())) {
 							is_eof = 1;
 							if(local_act_size == 0)
 								ok = -1;
@@ -1555,7 +1608,7 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 						const int local_act_size = read(IH, pBuf, size_to_do);
 						THROW_S_S(local_act_size >= 0, SLERR_READFAULT, Name);
 						act_size += local_act_size;
-						if(local_act_size < (int)size_to_do) {
+						if(local_act_size < static_cast<int>(size_to_do)) {
 							is_eof = 1;
 							ok = -1;
 						}
@@ -1569,7 +1622,7 @@ int SFile::Read(void * pBuf, size_t size, size_t * pActualSize)
 		act_size = 0;
 		ok = 0;
 	ENDCATCH
-	ASSIGN_PTR(pActualSize, (size_t)act_size);
+	ASSIGN_PTR(pActualSize, static_cast<size_t>(act_size));
 	return ok;
 }
 

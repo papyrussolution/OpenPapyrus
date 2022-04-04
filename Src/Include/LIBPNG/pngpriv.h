@@ -270,7 +270,7 @@
  * (as above.)
  */
 #define PNG_BUILD_DLL
-#        else
+#else
 /* Add additional compiler cases here. */
 #endif
 #endif

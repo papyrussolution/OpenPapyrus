@@ -11,21 +11,18 @@
 
 /// PostList class implementing unweighted Query::OP_OR
 class BoolOrPostList : public PostList {
-	/// Don't allow assignment.
-	void operator = (const BoolOrPostList&) = delete;
-	/// Don't allow copying.
-	BoolOrPostList(const BoolOrPostList&) = delete;
-
+	void operator = (const BoolOrPostList&) = delete; /// Don't allow assignment.
+	BoolOrPostList(const BoolOrPostList&) = delete; /// Don't allow copying.
 	Xapian::docid did; /// The current docid, or zero if we haven't started or are at_end.
 	size_t n_kids; /// The number of sub-postlists.
 
 	struct PostListAndDocID {
-		PostList* pl;
+		PostList * pl;
 		Xapian::docid did = 0;
 		PostListAndDocID() : pl(nullptr) 
 		{
 		}
-		PostListAndDocID(PostList* pl_) : pl(pl_) 
+		PostListAndDocID(PostList * pl_) : pl(pl_) 
 		{
 		}
 		bool operator > (const PostListAndDocID& o) const { return did > o.did; }
@@ -77,7 +74,7 @@ try_right:
 	}
 
 public:
-	/** Construct from 2 random-access iterators to a container of PostList*,
+	/** Construct from 2 random-access iterators to a container of PostList *,
 	 *  a pointer to the matcher, and the document collection size.
 	 */
 	template <class RandomItor> BoolOrPostList(RandomItor pl_begin, RandomItor pl_end, Xapian::doccount db_size_) : 
@@ -97,8 +94,8 @@ public:
 	double get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const;
 	bool at_end() const;
 	double recalc_maxweight();
-	PostList* next(double w_min);
-	PostList* skip_to(Xapian::docid did, double w_min);
+	PostList * next(double w_min);
+	PostList * skip_to(Xapian::docid did, double w_min);
 	std::string get_description() const;
 	Xapian::termcount get_wdf() const;
 	Xapian::termcount count_matching_subqs() const;

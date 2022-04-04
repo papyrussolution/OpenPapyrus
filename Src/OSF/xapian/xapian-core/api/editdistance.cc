@@ -16,19 +16,9 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "editdistance.h"
 #include "popcount.h"
 
 using namespace std;
@@ -47,7 +37,6 @@ template <class Char> class edist_state {
 
 	edist_seq<Char> seq1;
 	edist_seq<Char> seq2;
-
 	/* Array of f(k,p) values, where f(k,p) = the largest index i such that
 	 * d(i,j) = p and d(i,j) is on diagonal k.
 	 * ie: f(k,p) = largest i s.t. d(i,k+i) = p
@@ -72,7 +61,7 @@ public:
 		// value, so fill with the msb of INT_MIN, which for 32-bit 2's
 		// complement int means -2139062144 instead of -2147483648, which is
 		// fine what we need here.
-		memset(fkp, unsigned(INT_MIN) >> (8 * (sizeof(int) - 1)), sizeof(int) * (calc_index(maxdist, maxdist - 2) + 1));
+		memset(fkp, uint(INT_MIN) >> (8 * (sizeof(int) - 1)), sizeof(int) * (calc_index(maxdist, maxdist - 2) + 1));
 		set_f_kp(0, -1, -1);
 		for(int k = 1; k <= maxdist; ++k) {
 			set_f_kp(k, k - 1, -1);
@@ -127,9 +116,7 @@ template <class Char> void edist_state<Char>::edist_calc_f_kp(int k, int p)
 	set_f_kp(k, p, maxlen);
 }
 
-template <class Char>
-static int seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len2,
-    int* fkp_, int max_distance)
+template <class Char> static int seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len2, int* fkp_, int max_distance)
 {
 	int lendiff = len2 - len1;
 	/* Make sure second sequence is longer (or same length). */
@@ -138,12 +125,10 @@ static int seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len
 		swap(ptr1, ptr2);
 		swap(len1, len2);
 	}
-
 	/* Special case for if one or both sequences are empty. */
-	if(len1 == 0) return len2;
-
+	if(len1 == 0) 
+		return len2;
 	edist_state<Char> state(ptr1, len1, ptr2, len2, fkp_);
-
 	int p = lendiff; /* This is the minimum possible edit distance. */
 	while(p <= max_distance) {
 		for(int temp_p = 0; temp_p != p; ++temp_p) {
@@ -156,11 +141,10 @@ static int seqcmp_editdist(const Char* ptr1, int len1, const Char* ptr2, int len
 			}
 		}
 		state.edist_calc_f_kp(lendiff, p);
-
-		if(state.get_f_kp(lendiff, p) == len1) break;
+		if(state.get_f_kp(lendiff, p) == len1) 
+			break;
 		++p;
 	}
-
 	return p;
 }
 
@@ -179,16 +163,13 @@ int EditDistanceCalculator::calc(const uint * ptr, int len, int max_distance) co
 	// be due to an actual edit.
 	int ed_lower_bound = (popcount(freqs ^ target_freqs) + 1) / 2;
 	if(ed_lower_bound > max_distance) {
-		// It's OK to return any distance > max_distance if the true answer is
-		// > max_distance.
+		// It's OK to return any distance > max_distance if the true answer is > max_distance.
 		return ed_lower_bound;
 	}
-
 	if(!array) {
 		// Allocate space for the largest case we need to consider, which is
 		// when the second sequence is len + max_distance long.  Any second
-		// sequence which is longer must be more than max_distance edits
-		// away.
+		// sequence which is longer must be more than max_distance edits away.
 		int maxdist = target.size() + max_distance;
 		int max_cols = maxdist * 2;
 		int max_rows = maxdist * 2 + 1;

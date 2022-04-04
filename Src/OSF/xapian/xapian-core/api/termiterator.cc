@@ -19,8 +19,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "xapian/termiterator.h"
-#include "termlist.h"
 
 using namespace std;
 

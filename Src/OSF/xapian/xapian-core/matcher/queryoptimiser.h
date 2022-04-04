@@ -8,24 +8,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_QUERYOPTIMISER_H
 #define XAPIAN_INCLUDED_QUERYOPTIMISER_H
-
-#include "backends/databaseinternal.h"
-#include "backends/leafpostlist.h"
-#include "backends/postlist.h"
-#include "localsubmatch.h"
 
 class LeafPostList;
 class PostListTree;
@@ -33,10 +18,8 @@ class PostListTree;
 namespace Xapian {
 namespace Internal {
 class QueryOptimiser {
-	/// Prevent assignment.
-	void operator = (const QueryOptimiser &);
-	/// Prevent copying.
-	QueryOptimiser(const QueryOptimiser &);
+	void operator = (const QueryOptimiser &); /// Prevent assignment.
+	QueryOptimiser(const QueryOptimiser &); /// Prevent copying.
 	LocalSubMatch & localsubmatch;
 	/** How many weighted leaf subqueries there are.
 	 *
@@ -90,8 +73,8 @@ public:
 		}
 		hint = new_hint;
 	}
-	void destroy_postlist(PostList* pl) {
-		if(pl == static_cast<PostList*>(hint)) {
+	void destroy_postlist(PostList * pl) {
+		if(pl == static_cast<PostList *>(hint)) {
 			hint_owned = true;
 		}
 		else {

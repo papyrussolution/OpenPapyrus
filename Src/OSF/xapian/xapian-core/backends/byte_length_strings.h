@@ -7,10 +7,6 @@
 #ifndef XAPIAN_INCLUDED_BYTE_LENGTH_STRINGS_H
 #define XAPIAN_INCLUDED_BYTE_LENGTH_STRINGS_H
 
-#include <xapian/error.h>
-
-#include <string>
-
 // We XOR the length values with this so that they are more likely to coincide
 // with lower case ASCII letters, which are likely to be common.  This means
 // that zlib should do a better job of compressing tag values - in tests, this

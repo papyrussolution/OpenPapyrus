@@ -9,15 +9,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_CLUSTER_H
 #define XAPIAN_INCLUDED_CLUSTER_H
@@ -119,12 +110,9 @@ public:
  *  their respective term frequencies
  */
 class XAPIAN_VISIBILITY_DEFAULT FreqSource : public Xapian::Internal::opt_intrusive_base {
-	/// Don't allow assignment.
-	void operator = (const FreqSource &) = delete;
-	/// Don't allow copying.
-	FreqSource(const FreqSource &) = delete;
+	void operator = (const FreqSource &) = delete; /// Don't allow assignment.
+	FreqSource(const FreqSource &) = delete; /// Don't allow copying.
 public:
-	/// Default constructor
 	FreqSource() 
 	{
 	}
@@ -171,10 +159,7 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 	 *  The term frequency of a term stands for the number of documents it indexes
 	 */
 	std::unordered_map <std::string, doccount> termfreq;
-
-	/// Number of documents added to the termlist
-	doccount num_of_documents;
-
+	doccount num_of_documents; /// Number of documents added to the termlist
 	/** Add a single document and calculates its corresponding term frequencies
 	 *
 	 *  @param document		Adds a document and updates the TermListGroup
@@ -182,7 +167,6 @@ class XAPIAN_VISIBILITY_DEFAULT TermListGroup : public FreqSource {
 	 *  @param stopper		Xapian::Stopper object to identify stopwords
 	 */
 	void add_document(const Document &document, const Stopper * stopper = NULL);
-
 public:
 	/** Constructor
 	 *
@@ -451,7 +435,7 @@ public:
 	 *  @param index	Index of the Cluster within the ClusterSet to
 	 *			which the Point is to be added
 	 */
-	void add_to_cluster(const Point &point, unsigned int index);
+	void add_to_cluster(const Point &point, uint index);
 	/// Return the number of clusters
 	Xapian::doccount size() const;
 	/// Return the cluster at index 'i'
@@ -536,8 +520,8 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT KMeans : public Clusterer {
 	std::vector <Point> points; /// Contains the initialised points that are to be clustered
-	unsigned int k; /// Specifies that the clusterer needs to form 'k' clusters
-	unsigned int max_iters; /// Specifies the maximum number of iterations that KMeans will have
+	uint k; /// Specifies that the clusterer needs to form 'k' clusters
+	uint max_iters; /// Specifies the maximum number of iterations that KMeans will have
 	Xapian::Internal::opt_intrusive_ptr<const Xapian::Stopper> stopper; /// Pointer to stopper object for identifying stopwords
 	/** Initialise 'k' clusters by selecting 'k' centroids and assigning
 	 *  them to different clusters
@@ -563,7 +547,7 @@ public:
 	 *  @param max_iters_	The maximum number of iterations for which KMeans
 	 *				will run if it doesn't converge
 	 */
-	explicit KMeans(unsigned int k_, unsigned int max_iters_ = 0);
+	explicit KMeans(uint k_, uint max_iters_ = 0);
 
 	/** Implements the KMeans clustering algorithm
 	 *
@@ -592,13 +576,13 @@ public:
  */
 class XAPIAN_VISIBILITY_DEFAULT LCDClusterer : public Clusterer {
 	/// Specifies that the clusterer needs to form 'k' clusters
-	unsigned int k;
+	uint k;
 public:
 	/** Constructor specifying number of clusters
 	 *
 	 *  @param k_		Number of required clusters
 	 */
-	explicit LCDClusterer(unsigned int k_);
+	explicit LCDClusterer(uint k_);
 
 	/** Implements the LCD clustering algorithm
 	 *

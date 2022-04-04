@@ -1453,6 +1453,7 @@
       </PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="..\SLib\sdrecord.cpp" />
+    <ClCompile Include="..\SLib\sfilestorage.cpp" />
     <ClCompile Include="..\SLib\soapdbt.cpp" />
     <ClCompile Include="..\SLib\txttable.cpp" />
     <ClCompile Include="..\SLib\xlstable.cpp" />

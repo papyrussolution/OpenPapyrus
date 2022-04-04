@@ -6,8 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "collapser.h"
-#include "heap.h"
 
 using namespace std;
 

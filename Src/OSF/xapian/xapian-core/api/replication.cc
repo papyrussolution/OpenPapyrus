@@ -15,19 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "replication.h"
-#include "xapian/dbfactory.h"
-#include "backends/databaseinternal.h"
-#include "backends/databasereplicator.h"
-#include "filetests.h"
-#include "fileutils.h"
-#include "io_utils.h"
-#include "realtime.h"
-#include "net/remoteconnection.h"
-#include "replicationprotocol.h"
-#include "safesysstat.h"
-#include "safeunistd.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 using namespace Xapian;
@@ -92,11 +79,8 @@ string DatabaseMaster::get_description() const
 
 /// Internal implementation of DatabaseReplica
 class DatabaseReplica::Internal : public Xapian::Internal::intrusive_base {
-	/// Don't allow assignment.
-	void operator = (const Internal &);
-	/// Don't allow copying.
-	Internal(const Internal &);
-	
+	void operator = (const Internal &); /// Don't allow assignment.
+	Internal(const Internal &); /// Don't allow copying.
 	string path; /// The path to the replica directory.
 	int live_id; /// The id of the currently live database in the replica (0 or 1).
 	/** The live database being replicated.

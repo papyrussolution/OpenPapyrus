@@ -2317,9 +2317,9 @@ ZEXTERN int ZEXPORT deflateResetKeep(z_streamp);
 	#if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
 	#      include <unix.h> /* for fdopen */
 	#else
-	#      ifndef fdopen
+	#ifndef fdopen
 	#define fdopen(fd, mode) NULL /* No fdopen() */
-	#      endif
+	#endif
 	#endif
 	#endif
 	#endif

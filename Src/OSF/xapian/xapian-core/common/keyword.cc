@@ -12,14 +12,6 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -54,7 +46,7 @@ int keyword2(const uchar * p, const char * s, size_t len)
 {
 	if(len == 0 || len > p[0])
 		return -1;
-	unsigned offset = (p[len * 2 - 1] | p[len * 2] << 8);
+	uint offset = (p[len * 2 - 1] | p[len * 2] << 8);
 	if(offset == 1)
 		return -1;
 	p = p + 2 * p[0] + offset + 3;

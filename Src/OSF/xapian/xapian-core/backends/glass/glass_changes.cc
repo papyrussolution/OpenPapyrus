@@ -7,27 +7,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_changes.h"
 #include "glass_defs.h"
 #include "glass_replicate_internal.h"
-#include "fd.h"
-#include "io_utils.h"
-#include "parseint.h"
-#include "posixy_wrapper.h"
-#include "wordaccess.h"
 
 using namespace std;
 
@@ -98,7 +83,7 @@ void GlassChanges::commit(glass_revision_number_t new_rev, int flags)
 	string changes_tmp = changes_stem;
 	changes_tmp += "tmp";
 	if(!(flags & Xapian::DB_NO_SYNC) && !io_sync(changes_fd)) {
-		int saved_errno = errno;
+		const int saved_errno = errno;
 		::_close(changes_fd);
 		changes_fd = -1;
 		_unlink(changes_tmp.c_str());
@@ -143,21 +128,17 @@ void GlassChanges::check(const string & changes_file)
 		message += changes_file;
 		throw Xapian::DatabaseError(message, errno);
 	}
-
 	char buf[10240];
-
 	size_t n = io_read(fd, buf, sizeof(buf), CONST_STRLEN(CHANGES_MAGIC_STRING) + 4);
 	if(memcmp(buf, CHANGES_MAGIC_STRING,
 	    CONST_STRLEN(CHANGES_MAGIC_STRING)) != 0) {
 		throw Xapian::DatabaseError("Changes file has wrong magic");
 	}
-
 	const char * p = buf + CONST_STRLEN(CHANGES_MAGIC_STRING);
 	if(*p++ != CHANGES_VERSION) {
 		throw Xapian::DatabaseError("Changes file has unknown version");
 	}
 	const char * end = buf + n;
-
 	glass_revision_number_t old_rev, rev;
 	if(!unpack_uint(&p, end, &old_rev))
 		throw Xapian::DatabaseError("Changes file has bad old_rev");
@@ -173,13 +154,10 @@ void GlassChanges::check(const string & changes_file)
 		n -= (p - buf);
 		memmove(buf, p, n);
 		n += io_read(fd, buf + n, sizeof(buf) - n);
-
 		if(n == 0)
 			throw Xapian::DatabaseError("Changes file truncated");
-
 		p = buf;
 		end = buf + n;
-
 		uchar v = *p++;
 		if(v == 0xff) {
 			if(p != end)
@@ -207,14 +185,14 @@ void GlassChanges::check(const string & changes_file)
 			}
 			continue;
 		}
-		unsigned table = (v & 0x7);
+		uint table = (v & 0x7);
 		v >>= 3;
 		if(table > 5)
 			throw Xapian::DatabaseError("Changes file - bad table code");
 		// Changed block.
 		if(v > 5)
 			throw Xapian::DatabaseError("Changes file - bad block size");
-		unsigned block_size = GLASS_MIN_BLOCKSIZE << v;
+		uint block_size = GLASS_MIN_BLOCKSIZE << v;
 		uint4 block_number;
 		if(!unpack_uint(&p, end, &block_number))
 			throw Xapian::DatabaseError("Changes file - bad block number");
@@ -225,11 +203,11 @@ void GlassChanges::check(const string & changes_file)
 		// data may not be aligned to a word boundary here.
 		uint4 block_rev = unaligned_read4(reinterpret_cast<const uint8*>(p));
 		(void)block_rev; // FIXME: Sanity check value.
-		unsigned level = static_cast<uchar>(p[4]);
+		uint level = static_cast<uchar>(p[4]);
 		(void)level; // FIXME: Sanity check value.
 
 		// Skip over the block content.
-		if(block_size <= unsigned(end - p)) {
+		if(block_size <= uint(end - p)) {
 			p += block_size;
 		}
 		else {

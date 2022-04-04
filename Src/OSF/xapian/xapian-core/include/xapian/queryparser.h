@@ -8,15 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_QUERYPARSER_H
 #define XAPIAN_INCLUDED_QUERYPARSER_H
@@ -175,7 +166,7 @@ public:
 	 *			   the start (e.g. date:1/1/1980..31/12/1989), and a
 	 *			   suffix only on the end (e.g. 2..12kg).
 	 */
-	explicit RangeProcessor(Xapian::valueno slot_, const std::string & str_ = std::string(), unsigned flags_ = 0) : slot(slot_), str(str_), flags(flags_) 
+	explicit RangeProcessor(Xapian::valueno slot_, const std::string & str_ = std::string(), uint flags_ = 0) : slot(slot_), str(str_), flags(flags_) 
 	{
 	}
 	virtual ~RangeProcessor();
@@ -681,15 +672,10 @@ public:
 	typedef enum {
 		STEM_NONE, STEM_SOME, STEM_ALL, STEM_ALL_Z, STEM_SOME_FULL_POS
 	} stem_strategy;
-	/// Copy constructor.
 	QueryParser(const QueryParser & o);
-	/// Assignment.
 	QueryParser & operator = (const QueryParser & o);
-	/// Move constructor.
-	QueryParser(QueryParser && o);
-	/// Move assignment operator.
-	QueryParser & operator = (QueryParser && o);
-	/// Default constructor.
+	QueryParser(QueryParser && o); /// Move constructor.
+	QueryParser & operator = (QueryParser && o); /// Move assignment operator.
 	QueryParser();
 	~QueryParser();
 	/** Set the stemmer.
@@ -792,11 +778,7 @@ public:
 	 *
 	 *  @since 1.3.3
 	 */
-	void set_max_expansion(Xapian::termcount max_expansion,
-	    int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR,
-	    unsigned flags = FLAG_WILDCARD |
-	    FLAG_PARTIAL |
-	    FLAG_FUZZY);
+	void set_max_expansion(Xapian::termcount max_expansion, int max_type = Xapian::Query::WILDCARD_LIMIT_ERROR, uint flags = FLAG_WILDCARD | FLAG_PARTIAL | FLAG_FUZZY);
 
 	/** Specify minimum length for fixed initial portion in wildcard patterns.
 	 *
@@ -821,7 +803,7 @@ public:
 	 *
 	 *  @since Added in Xapian 1.5.0.
 	 */
-	void set_min_wildcard_prefix(unsigned min_prefix_len, unsigned flags = FLAG_WILDCARD|FLAG_PARTIAL);
+	void set_min_wildcard_prefix(uint min_prefix_len, uint flags = FLAG_WILDCARD|FLAG_PARTIAL);
 
 	/** Parse a query.
 	 *
@@ -846,7 +828,7 @@ public:
 	 *		   @li Syntax: &lt;expression&gt; OR &lt;expression&gt;
 	 *		   @li Syntax: &lt;expression&gt; XOR &lt;expression&gt;
 	 */
-	Query parse_query(const std::string &query_string, unsigned flags = FLAG_DEFAULT, const std::string &default_prefix = std::string());
+	Query parse_query(const std::string &query_string, uint flags = FLAG_DEFAULT, const std::string &default_prefix = std::string());
 
 	/** Add a free-text field term prefix.
 	 *
@@ -1030,7 +1012,7 @@ public:
 
 /// @private @internal Helper for sortable_serialise().
 XAPIAN_VISIBILITY_DEFAULT
-size_t sortable_serialise_(double value, char* buf) noexcept;
+size_t sortable_serialise_(double value, char * buf) noexcept;
 
 /** Convert a floating point number to a string, preserving sort order.
  *

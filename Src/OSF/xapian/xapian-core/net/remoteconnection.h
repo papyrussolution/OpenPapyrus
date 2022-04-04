@@ -7,29 +7,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_REMOTECONNECTION_H
 #define XAPIAN_INCLUDED_REMOTECONNECTION_H
 
-#include <cerrno>
-#include <string>
-#include "remoteprotocol.h"
-#include "safenetdb.h" // For EAI_* constants.
-#include "safeunistd.h"
-
 #ifdef __WIN32__
 #include "safewinsock2.h"
-#include <xapian/error.h>
 
 /** Class to initialise winsock and keep it initialised while we use it.
  *
@@ -45,18 +28,18 @@
  *  inherit from it) or instantiated as a class member or local variable).
  */
 struct WinsockInitializer {
-	WinsockInitializer() {
+	WinsockInitializer() 
+	{
 		WSADATA wsadata;
 		int wsaerror = WSAStartup(MAKEWORD(2, 2), &wsadata);
 		// FIXME - should we check the returned information in wsadata to check
 		// that we have a version of winsock which is recent enough for us?
-
 		if(wsaerror != 0) {
 			throw Xapian::NetworkError("Failed to initialize winsock", wsaerror);
 		}
 	}
-
-	~WinsockInitializer() {
+	~WinsockInitializer() 
+	{
 		WSACleanup();
 	}
 };
@@ -166,19 +149,14 @@ inline int eai_to_xapian(int e) {
  *  sent and received.
  */
 class RemoteConnection {
-	/// Don't allow assignment.
-	void operator = (const RemoteConnection &);
-
-	/// Don't allow copying.
-	RemoteConnection(const RemoteConnection &);
-
+	void operator = (const RemoteConnection &); /// Don't allow assignment.
+	RemoteConnection(const RemoteConnection &); /// Don't allow copying.
 	/** The file descriptor used for reading.
 	 *
 	 *  If this is -1, the connection is unidirectional and write-only.
 	 *  If both fdin and fdout are -1, then the connection has been closed.
 	 */
 	int fdin;
-
 	/** The file descriptor used for writing.
 	 *
 	 *  If this is -1, the connection is unidirectional and read-only.
@@ -186,7 +164,6 @@ class RemoteConnection {
 	 *  It is valid for fdout to be the same as fdin.
 	 */
 	int fdout;
-
 	/// Buffer to hold unprocessed input.
 	std::string buffer;
 
@@ -228,7 +205,6 @@ protected:
 	 */
 	std::string context;
 public:
-	/// Constructor.
 	RemoteConnection(int fdin_, int fdout_, const std::string & context_ = std::string());
 #ifdef __WIN32__
 	~RemoteConnection();
@@ -359,7 +335,6 @@ public:
  */
 class OwnedRemoteConnection : public RemoteConnection {
 public:
-	/// Constructor.
 	OwnedRemoteConnection(int fdin_, int fdout_, const std::string & context_ = std::string()) : RemoteConnection(fdin_, fdout_, context_) 
 	{
 	}

@@ -10,29 +10,15 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_table.h"
-#include "posixy_wrapper.h"
 #include "glass_freelist.h"
 #include "glass_changes.h"
 #include "glass_cursor.h"
 #include "glass_defs.h"
 #include "glass_version.h"
-#include "filetests.h"
-#include "io_utils.h"
-#include "wordaccess.h"
 
 using namespace Glass;
 using namespace std;
@@ -146,7 +132,7 @@ void GlassTable::read_block(uint4 n, uint8 * p) const
 
 	if(GET_LEVEL(p) != LEVEL_FREELIST) {
 		int dir_end = DIR_END(p);
-		if(UNLIKELY(dir_end < DIR_START || unsigned(dir_end) > block_size)) {
+		if(UNLIKELY(dir_end < DIR_START || uint(dir_end) > block_size)) {
 			string msg("dir_end invalid in block ");
 			msg += str(n);
 			throw Xapian::DatabaseCorruptError(msg);
@@ -1273,7 +1259,7 @@ void GlassTable::add(const string &key, string tag, bool already_compressed)
 
 	form_key(key);
 
-	const char* tag_data = tag.data();
+	const char * tag_data = tag.data();
 	size_t tag_size = tag.size();
 
 	bool compressed = false;
@@ -2061,7 +2047,7 @@ bool GlassTable::next_for_sequential(Glass::Cursor * C_, int /*dummy*/) const
 	int c = C_[0].c;
 	AssertRel(c, <, DIR_END(p));
 	c += D2;
-	Assert(unsigned(c) < block_size);
+	Assert(uint(c) < block_size);
 	if(c == DIR_END(p)) {
 		uint4 n = C_[0].get_n();
 		while(true) {
@@ -2118,7 +2104,7 @@ bool GlassTable::prev_default(Glass::Cursor * C_, int j) const
 	int c = C_[j].c;
 	AssertRel(DIR_START, <=, c);
 	AssertRel(c, <, DIR_END(p));
-	AssertRel(unsigned(DIR_END(p)), <=, block_size);
+	AssertRel(uint(DIR_END(p)), <=, block_size);
 	if(c == DIR_START) {
 		if(j == level) RETURN(false);
 		if(!prev_default(C_, j + 1)) RETURN(false);
@@ -2140,7 +2126,7 @@ bool GlassTable::next_default(Glass::Cursor * C_, int j) const
 	const uint8 * p = C_[j].get_p();
 	int c = C_[j].c;
 	AssertRel(c, <, DIR_END(p));
-	AssertRel(unsigned(DIR_END(p)), <=, block_size);
+	AssertRel(uint(DIR_END(p)), <=, block_size);
 	c += D2;
 	if(j > 0) {
 		AssertRel(DIR_START, <, c);

@@ -7,31 +7,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_DOCUMENTINTERNAL_H
 #define XAPIAN_INCLUDED_DOCUMENTINTERNAL_H
-
-#include <xapian/document.h>
-#include <xapian/intrusive_ptr.h>
-#include <xapian/types.h>
-#include "api/terminfo.h"
-#include "api/termlist.h"
-#include "backends/databaseinternal.h"
-#include "overflow.h"
-#include <limits>
-#include <map>
-#include <memory>
-#include <string>
 
 class DocumentTermList;
 class DocumentValueList;
@@ -48,13 +26,9 @@ class Document::Internal : public Xapian::Internal::intrusive_base {
 	friend class ::GlassValueManager;
 	friend class ::HoneyValueManager;
 	friend class ::ValueStreamDocument;
-
-	/// Don't allow assignment.
-	void operator = (const Internal &) = delete;
-
-	/// Don't allow copying.
-	Internal(const Internal &) = delete;
-
+	
+	void operator = (const Internal &) = delete; /// Don't allow assignment.
+	Internal(const Internal &) = delete; /// Don't allow copying.
 	/** The document data.
 	 *
 	 *  If NULL, this hasn't been fetched or set yet.

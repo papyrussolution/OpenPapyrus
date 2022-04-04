@@ -8,15 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_REGISTRY_H
 #define XAPIAN_INCLUDED_REGISTRY_H
@@ -44,12 +35,10 @@ class Weight;
  */
 class XAPIAN_VISIBILITY_DEFAULT Registry {
 public:
-	/// Class holding details of the registry.
-	class Internal;
+	class Internal; /// Class holding details of the registry.
 private:
 	/// @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr_nonnull<Internal> internal;
-
 public:
 	/** Copy constructor.
 	 *
@@ -58,7 +47,6 @@ public:
 	 *  @param other	The object to copy.
 	 */
 	Registry(const Registry & other);
-
 	/** Assignment operator.
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
@@ -66,13 +54,11 @@ public:
 	 *  @param other	The object to copy.
 	 */
 	Registry & operator = (const Registry & other);
-
 	/** Move constructor.
 	 *
 	 * @param other	The object to move.
 	 */
 	Registry(Registry && other);
-
 	/** Move assignment operator.
 	 *
 	 * @param other	The object to move.

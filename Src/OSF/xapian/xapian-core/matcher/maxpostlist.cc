@@ -15,7 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "maxpostlist.h"
 
 using namespace std;
 
@@ -113,9 +112,7 @@ Xapian::docid MaxPostList::get_docid() const
 	return did;
 }
 
-double MaxPostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double MaxPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
 	Assert(did);
 	double res = 0.0;
@@ -162,28 +159,22 @@ PostList * MaxPostList::next(double w_min)
 				delete plist[i];
 				plist[i] = res;
 			}
-
 			if(plist[i]->at_end()) {
 				erase_sublist(i--);
 				continue;
 			}
-
 			if(res)
 				matcher->force_recalc();
-
 			cur_did = plist[i]->get_docid();
 		}
-
 		if(did == 0 || cur_did < did) {
 			did = cur_did;
 		}
 	}
-
 	if(n_kids == 1) {
 		n_kids = 0;
 		return plist[0];
 	}
-
 	return NULL;
 }
 
@@ -217,12 +208,10 @@ PostList * MaxPostList::skip_to(Xapian::docid did_min, double w_min)
 			did = cur_did;
 		}
 	}
-
 	if(n_kids == 1) {
 		n_kids = 0;
 		return plist[0];
 	}
-
 	return NULL;
 }
 

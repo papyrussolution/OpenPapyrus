@@ -15,9 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "remotesubmatch.h"
-#include "backends/remote/remote-database.h"
-#include "weight/weightinternal.h"
 
 using namespace std;
 

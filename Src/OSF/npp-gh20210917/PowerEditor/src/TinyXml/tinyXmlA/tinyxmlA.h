@@ -2,10 +2,6 @@
    www.sourceforge.net/projects/tinyxml
    Original code (2.0 and earlier )copyright (c) 2000-2002 Lee Thomason (www.grinninglizard.com)
 
-   This software is provided 'as-is', without any express or implied
-   warranty. In no event will the authors be held liable for any
-   damages arising from the use of this software.
-
    Permission is granted to anyone to use this software for any
    purpose, including commercial applications, and to alter it and
    redistribute it freely, subject to the following restrictions:
@@ -14,29 +10,24 @@
    not claim that you wrote the original software. If you use this
    software in a product, an acknowledgment in the product documentation
    would be appreciated but is not required.
-
    2. Altered source versions must be plainly marked as such, and
    must not be misrepresented as being the original software.
-
    3. This notice may not be removed or altered from any source
    distribution.
  */
-
 #ifndef TINYXMLA_INCLUDED
 #define TINYXMLA_INCLUDED
 
 #ifdef _MSC_VER
-#pragma warning( push )
-#pragma warning( disable : 4458 ) // declaration of 'parameter' hides class member
-#pragma warning( disable : 4530 )
-#pragma warning( disable : 4786 )
+	#pragma warning( push )
+	#pragma warning( disable : 4458 ) // declaration of 'parameter' hides class member
+	#pragma warning( disable : 4530 )
+	#pragma warning( disable : 4786 )
 #endif
-
 // Help out windows:
 #if defined( _DEBUG ) && !defined( DEBUG )
-#define DEBUG
+	#define DEBUG
 #endif
-
 #if defined( DEBUG ) && defined( _MSC_VER )
 	#define TIXMLA_LOG OutputDebugString
 #else
@@ -60,21 +51,20 @@ class TiXmlUnknownA;
 class TiXmlAttributeA;
 class TiXmlTextA;
 class TiXmlDeclarationA;
-
 class TiXmlParsingDataA;
 
 /*	Internal structure for tracking location of items
         in the XML file.
  */
 struct TiXmlCursorA {
-	TiXmlCursorA() {
+	TiXmlCursorA() 
+	{
 		Clear();
 	}
-
-	void Clear() {
+	void Clear() 
+	{
 		row = col = -1;
 	}
-
 	int row;        // 0 based.
 	int col;        // 0 based.
 };
@@ -115,12 +105,12 @@ class TiXmlBaseA
 	friend class TiXmlDocumentA;
 
 public:
-	TiXmlBaseA()                                                            {
+	TiXmlBaseA()
+	{
 	}
-
-	virtual ~TiXmlBaseA()                                   {
+	virtual ~TiXmlBaseA()
+	{
 	}
-
 	/**	All TinyXml classes can print themselves to a filestream.
 	        This is a formatted print, and will insert tabs and newlines.
 
@@ -134,14 +124,9 @@ public:
 	        into a single space or not. The default is to condense. Note changing this
 	        values is not thread safe.
 	 */
-	static void SetCondenseWhiteSpace(bool condense) {
-		condenseWhiteSpace = condense;
-	}
-
+	static void SetCondenseWhiteSpace(bool condense) { condenseWhiteSpace = condense; }
 	/// Return the current white space setting.
-	static bool IsWhiteSpaceCondensed()                                             {
-		return condenseWhiteSpace;
-	}
+	static bool IsWhiteSpaceCondensed() { return condenseWhiteSpace; }
 
 	/** Return the position, in the original source file, of this node or attribute.
 	        The row and column are 1-based. (That is the first row and first column is
@@ -167,24 +152,19 @@ protected:
 	// See STL_STRING_BUG
 	// Utility class to overcome a bug.
 	class StringToBuffer {
-public:
+	public:
 		StringToBuffer(const TIXMLA_STRING& str);
 		~StringToBuffer();
 		char * buffer;
 	};
 
 	static const char * SkipWhiteSpace(const char *);
-	inline static bool      IsWhiteSpace(int c) {
-		return ( isspace(c) || c == '\n' || c == '\r' );
-	}
-
+	inline static bool      IsWhiteSpace(int c) { return ( isspace(c) || c == '\n' || c == '\r' ); }
 	virtual void StreamOut(TIXMLA_OSTREAM *) const = 0;
-
 	#ifdef TIXMLA_USE_STL
 	static bool StreamWhiteSpace(TIXMLA_ISTREAM * in, TIXMLA_STRING * tag);
 	static bool StreamTo(TIXMLA_ISTREAM * in, int character, TIXMLA_STRING * tag);
 	#endif
-
 	/*	Reads an XML name into the string provided. Returns
 	        a pointer just past the last character of the name,
 	        or 0 if the function has an error.
@@ -247,11 +227,8 @@ public:
 
 		TIXMLA_ERROR_STRING_COUNT
 	};
-
 	static const char * errorString[ TIXMLA_ERROR_STRING_COUNT ];
-
 	TiXmlCursorA location;
-
 private:
 	struct Entity {
 		const char * str;
@@ -852,31 +829,24 @@ protected:
 
 /** XML text. Contained in an element.
  */
-class TiXmlTextA : public TiXmlNodeA
-{
+class TiXmlTextA : public TiXmlNodeA {
 	friend class TiXmlElementA;
 public:
-	/// Constructor.
 	TiXmlTextA (const char * initValue) : TiXmlNodeA(TiXmlNodeA::TEXT)
 	{
 		SetValue(initValue);
 	}
-
-	virtual ~TiXmlTextA() {
+	virtual ~TiXmlTextA() 
+	{
 	}
-
 	#ifdef TIXMLA_USE_STL
-	/// Constructor.
 	TiXmlTextA(const std::string & initValue) : TiXmlNodeA(TiXmlNodeA::TEXT)
 	{
 		SetValue(initValue);
 	}
-
 	#endif
-
 	// [internal use]
 	virtual void Print(FILE* cfile, int depth) const;
-
 protected:
 	// [internal use] Creates a new Element and returns it.
 	virtual TiXmlNodeA* Clone() const;
@@ -907,55 +877,34 @@ protected:
         handled as special cases, not generic attributes, simply
         because there can only be at most 3 and they are always the same.
  */
-class TiXmlDeclarationA : public TiXmlNodeA
-{
+class TiXmlDeclarationA : public TiXmlNodeA {
 public:
 	/// Construct an empty declaration.
-	TiXmlDeclarationA()   : TiXmlNodeA(TiXmlNodeA::DECLARATION) {
+	TiXmlDeclarationA()   : TiXmlNodeA(TiXmlNodeA::DECLARATION) 
+	{
 	}
-
 #ifdef TIXMLA_USE_STL
-	/// Constructor.
-	TiXmlDeclarationA(const std::string & _version,
-	    const std::string & _encoding,
-	    const std::string & _standalone)
-		: TiXmlNodeA(TiXmlNodeA::DECLARATION)
+	TiXmlDeclarationA(const std::string & _version, const std::string & _encoding, const std::string & _standalone) : TiXmlNodeA(TiXmlNodeA::DECLARATION)
 	{
 		version = _version;
 		encoding = _encoding;
 		standalone = _standalone;
 	}
-
 #endif
-
-	/// Construct.
-	TiXmlDeclarationA(const char * _version,
-	    const char * _encoding,
-	    const char * _standalone);
-
-	virtual ~TiXmlDeclarationA()    {
+	TiXmlDeclarationA(const char * _version, const char * _encoding, const char * _standalone);
+	virtual ~TiXmlDeclarationA()    
+	{
 	}
-
 	/// Version. Will return empty if none was found.
-	const char * Version() const {
-		return version.c_str();
-	}
-
+	const char * Version() const { return version.c_str(); }
 	/// Encoding. Will return empty if none was found.
-	const char * Encoding() const {
-		return encoding.c_str();
-	}
-
+	const char * Encoding() const { return encoding.c_str(); }
 	/// Is this a standalone document?
-	const char * Standalone() const {
-		return standalone.c_str();
-	}
-
+	const char * Standalone() const { return standalone.c_str(); }
 	// [internal use] Creates a new Element and returs it.
 	virtual TiXmlNodeA* Clone() const;
 	// [internal use]
 	virtual void Print(FILE* cfile, int depth) const;
-
 protected:
 	// used to be public
 	#ifdef TIXMLA_USE_STL
@@ -965,9 +914,7 @@ protected:
 	//	[internal use]
 	//	Attribtue parsing starts: next char past '<'
 	//					 returns: next char past '>'
-
 	virtual const char * Parse(const char * p, TiXmlParsingDataA* data);
-
 private:
 	TIXMLA_STRING version;
 	TIXMLA_STRING encoding;
@@ -979,15 +926,14 @@ private:
         It will be written back to the XML, unchanged, when the file
         is saved.
  */
-class TiXmlUnknownA : public TiXmlNodeA
-{
+class TiXmlUnknownA : public TiXmlNodeA {
 public:
-	TiXmlUnknownA() : TiXmlNodeA(TiXmlNodeA::UNKNOWN) {
+	TiXmlUnknownA() : TiXmlNodeA(TiXmlNodeA::UNKNOWN) 
+	{
 	}
-
-	virtual ~TiXmlUnknownA() {
+	virtual ~TiXmlUnknownA() 
+	{
 	}
-
 	// [internal use]
 	virtual TiXmlNodeA* Clone() const;
 	// [internal use]
@@ -1008,8 +954,7 @@ protected:
         XML pieces. It can be saved, loaded, and printed to the screen.
         The 'value' of a document node is the xml file name.
  */
-class TiXmlDocumentA : public TiXmlNodeA
-{
+class TiXmlDocumentA : public TiXmlNodeA {
 public:
 	/// Create an empty document, that has no name.
 	TiXmlDocumentA();
@@ -1017,19 +962,15 @@ public:
 	TiXmlDocumentA(const char * documentName);
 
 	#ifdef TIXMLA_USE_STL
-	/// Constructor.
-	TiXmlDocumentA(const std::string & documentName) :
-		TiXmlNodeA(TiXmlNodeA::DOCUMENT)
+	TiXmlDocumentA(const std::string & documentName) : TiXmlNodeA(TiXmlNodeA::DOCUMENT)
 	{
 		value = documentName;
 		error = false;
 	}
-
 	#endif
-
-	virtual ~TiXmlDocumentA() {
+	virtual ~TiXmlDocumentA() 
+	{
 	}
-
 	/** Load a file using the current document value.
 	        Returns true if successful. Will delete any existing
 	        document data before loading.
@@ -1041,7 +982,6 @@ public:
 	bool LoadFile(const char * filename);
 	/// Save a file using the given filename. Returns true if successful.
 	bool SaveFile(const char * filename) const;
-
 	/// Load and Save a file using the given unicode filename. Returns true if successful.
 	bool LoadUnicodeFilePath(const TCHAR* filename);
 	bool SaveUnicodeFilePath(const TCHAR* filename) const;

@@ -15,8 +15,6 @@
 #ifndef XAPIAN_INCLUDED_TCPCLIENT_H
 #define XAPIAN_INCLUDED_TCPCLIENT_H
 
-#include <string>
-
 namespace TcpClient {
 	/** Attempt to open a TCP/IP socket connection to a server.
 	 *

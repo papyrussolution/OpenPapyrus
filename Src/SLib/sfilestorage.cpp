@@ -44,16 +44,16 @@ bool SFileStorage::ValidateName(const char * pName) const
 {
 	bool   ok = true;
 	const  size_t len = sstrlen(pName);
-	THROW(len >= 1 && len <= 255);
+	THROW_S(len >= 1 && len <= 255, SLERR_FILSTRG_INVNAME);
 	for(size_t i = 0; i < len; i++) {
 		const char c = pName[i];
-		THROW((c >= 'a' && c <= 'z') || oneof6(c, '_', '+', '-', ',', '.', '=') || isdec(c));
+		THROW_S((c >= 'a' && c <= 'z') || oneof7(c, '_', '+', '-', ',', '.', '=', '@') || isdec(c), SLERR_FILSTRG_INVNAME);
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName)
+int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName, bool writing)
 {
 	rEntryName.Z();
 	int    ok = 1;
@@ -62,16 +62,21 @@ int SFileStorage::MakeFileEntry(const char * pName, SString & rEntryName)
 	{
 		//char   subdir[64];
 		SString & r_subdir = SLS.AcquireRvlStr();
-		uint32 hash = SlHash::XX32(pName, sstrlen(pName), HashSeed);
-		uint bucket_no = hash % BucketCount;
+		const uint32 hash = SlHash::XX32(pName, sstrlen(pName), HashSeed);
+		const uint   bucket_no = hash % BucketCount;
 		r_subdir.CatHex(static_cast<ulong>(bucket_no));
 		if(r_subdir.Len() < 2) {
 			r_subdir.PadLeft(2 - r_subdir.Len(), '0');
 		}
 		//ultoa(bucket_no, subdir, 16);
 		(rEntryName = BasePath).SetLastDSlash().Cat(r_subdir);
-		THROW(createDir(rEntryName));
+		if(writing) {
+			THROW(createDir(rEntryName));
+		}
 		rEntryName.SetLastDSlash().Cat(pName);
+		if(!writing) {
+			THROW_S_S(fileExists(rEntryName), SLERR_FILSTRG_FILENFOUND, pName);
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -83,7 +88,7 @@ int SFileStorage::PutFile(const char * pName, const void * pBuf, size_t size)
 	SString real_path;
 	THROW(size == 0 || pBuf != 0);
 	THROW(IsValid());
-	THROW(MakeFileEntry(pName, real_path));
+	THROW(MakeFileEntry(pName, real_path, true/*writing*/));
 	{
 		SFile f(real_path, SFile::mWrite|SFile::mBinary);
 		THROW(f.IsValid());
@@ -109,14 +114,14 @@ int SFileStorage::PutFile(const char * pName, const char * pSourceFilePath)
 		THROW(f_in.IsValid());
 		THROW(f_in.CalcSize(&fsize));
 		if(fsize == 0) {
-			THROW(MakeFileEntry(pName, real_path));
+			THROW(MakeFileEntry(pName, real_path, true/*writing*/));
 			{
 				SFile f(real_path, SFile::mWrite|SFile::mBinary);
 				THROW(f.IsValid());
 			}
 		}
 		else if(fsize <= size_limit_for_copy_in_one_chunk) {
-			THROW(MakeFileEntry(pName, real_path));
+			THROW(MakeFileEntry(pName, real_path, true/*writing*/));
 			{
 				size_t actual_size = 0;
 				STempBuffer cbuf(static_cast<size_t>(fsize+256));
@@ -161,7 +166,7 @@ SHandle SFileStorage::Write_Start(const char * pName)
 	SHandle result;
 	InnerWritingBlock * p_item = 0;
 	SString entry_name;
-	THROW(MakeFileEntry(pName, entry_name));
+	THROW(MakeFileEntry(pName, entry_name, true/*writing*/));
 	THROW(p_item = new InnerWritingBlock());
 	THROW(p_item->F.Open(entry_name, SFile::mWrite|SFile::mBinary));
 	WrBlkList.insert(p_item);
@@ -178,7 +183,7 @@ bool SFileStorage::Write(SHandle handle, const void * pBuf, size_t size)
 {
 	bool    ok = true;
 	InnerWritingBlock * p_item = 0;
-	THROW(handle);
+	THROW_S(handle, SLERR_FILSTRG_INVHANDLE);
 	THROW(size == 0 || pBuf);
 	for(uint i = 0; i < WrBlkList.getCount(); i++) {
 		p_item = WrBlkList.at(i);
@@ -187,7 +192,7 @@ bool SFileStorage::Write(SHandle handle, const void * pBuf, size_t size)
 		else
 			p_item = 0;
 	}
-	THROW(p_item);
+	THROW_S(p_item, SLERR_FILSTRG_INVHANDLE);
 	THROW(p_item->F.IsValid());
 	if(size) {
 		THROW(p_item->F.Write(pBuf, size));
@@ -203,7 +208,7 @@ bool SFileStorage::Write_End(SHandle handle, uint64 * pWrittenSize)
 	uint64  written_size = 0;
 	uint    item_idx = 0;
 	InnerWritingBlock * p_item = 0;
-	THROW(handle);
+	THROW_S(handle, SLERR_FILSTRG_INVHANDLE);
 	for(uint i = 0; i < WrBlkList.getCount(); i++) {
 		p_item = WrBlkList.at(i);
 		if(p_item == handle) {
@@ -213,7 +218,7 @@ bool SFileStorage::Write_End(SHandle handle, uint64 * pWrittenSize)
 		else
 			p_item = 0;
 	}
-	THROW(p_item);
+	THROW_S(p_item, SLERR_FILSTRG_INVHANDLE);
 	if(p_item->F.IsValid())
 		p_item->F.Close();
 	written_size = p_item->TotalWrSize;
@@ -223,12 +228,62 @@ bool SFileStorage::Write_End(SHandle handle, uint64 * pWrittenSize)
 	return ok;
 }
 
+uint64 SFileStorage::GetTotalRdSize(SHandle handle) const
+{
+	uint64 result = 0;
+	uint   item_idx = 0;
+	InnerReadingBlock * p_item = 0;
+	THROW_S(handle, SLERR_FILSTRG_INVHANDLE);
+	{
+		for(uint i = 0; i < RdBlkList.getCount(); i++) {
+			p_item = RdBlkList.at(i);
+			if(p_item == handle) {
+				item_idx = i;
+				break;
+			}
+			else
+				p_item = 0;
+		}
+	}
+	THROW_S(p_item, SLERR_FILSTRG_INVHANDLE);
+	result = p_item->TotalRdSize;
+	CATCH
+		result = 0;
+	ENDCATCH
+	return result;
+}
+
+uint64 SFileStorage::GetTotalWrSize(SHandle handle) const
+{
+	uint64 result = 0;
+	uint   item_idx = 0;
+	InnerWritingBlock * p_item = 0;
+	THROW_S(handle, SLERR_FILSTRG_INVHANDLE);
+	{
+		for(uint i = 0; i < WrBlkList.getCount(); i++) {
+			p_item = WrBlkList.at(i);
+			if(p_item == handle) {
+				item_idx = i;
+				break;
+			}
+			else
+				p_item = 0;
+		}
+	}
+	THROW_S(p_item, SLERR_FILSTRG_INVHANDLE);
+	result = p_item->TotalWrSize;
+	CATCH
+		result = 0;
+	ENDCATCH
+	return result;
+}
+
 bool SFileStorage::CloseFile(SHandle handle)
 {
-	bool    ok = true;
-	uint    witem_idx = 0;
-	uint    ritem_idx = 0;
-	THROW(handle);
+	bool   ok = true;
+	uint   witem_idx = 0;
+	uint   ritem_idx = 0;
+	THROW_S(handle, SLERR_FILSTRG_INVHANDLE);
 	{
 		InnerWritingBlock * p_w_item = 0;
 		{
@@ -263,6 +318,9 @@ bool SFileStorage::CloseFile(SHandle handle)
 					p_r_item->F.Close();
 				RdBlkList.atFree(ritem_idx);
 			}
+			else {
+				CALLEXCEPT_S(SLERR_FILSTRG_INVHANDLE);
+			}
 		}
 	}
 	CATCHZOK
@@ -275,7 +333,7 @@ SHandle SFileStorage::GetFile(const char * pName, int64 * pFileSize)
 	int64  fsize = 0;
 	InnerReadingBlock * p_item = 0;
 	SString entry_name;
-	THROW(MakeFileEntry(pName, entry_name));
+	THROW(MakeFileEntry(pName, entry_name, false/*writing*/));
 	THROW(p_item = new InnerReadingBlock());
 	THROW(p_item->F.Open(entry_name, SFile::mRead|SFile::mBinary));
 	THROW(p_item->F.CalcSize(&fsize));
@@ -296,7 +354,7 @@ bool SFileStorage::Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pA
 	bool    ok = true;
 	size_t actual_size = 0;
 	InnerReadingBlock * p_item = 0;
-	THROW(handle);
+	THROW_S(handle, SLERR_FILSTRG_INVHANDLE);
 	THROW(pBuf && bufSize > 0);
 	for(uint i = 0; i < RdBlkList.getCount(); i++) {
 		p_item = RdBlkList.at(i);
@@ -305,7 +363,7 @@ bool SFileStorage::Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pA
 		else
 			p_item = 0;
 	}
-	THROW(p_item);
+	THROW_S(p_item, SLERR_FILSTRG_INVHANDLE);
 	THROW(p_item->F.IsValid());
 	{
 		THROW(p_item->F.Read(pBuf, bufSize, &actual_size));

@@ -15,17 +15,6 @@
 #ifndef XAPIAN_INCLUDED_PROTOMSET_H
 #define XAPIAN_INCLUDED_PROTOMSET_H
 
-#include "api/enquireinternal.h"
-#include "api/result.h"
-#include "collapser.h"
-#include "heap.h"
-#include "matchtimeout.h"
-//#include "msetcmp.h"
-//#include "omassert.h"
-#include "spymaster.h"
-#include "stdclamp.h"
-//#include <algorithm>
-
 using Xapian::Internal::intrusive_ptr;
 
 class ProtoMSet {

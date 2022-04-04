@@ -21,15 +21,13 @@
 
 class Uuid {
 public:
-	/// The size of a UUID in bytes.
-	static constexpr unsigned BINARY_SIZE = 16;
-	/// The size of a UUID string in bytes (not including trailing '\0').
-	static constexpr unsigned STRING_SIZE = 36;
+	static constexpr unsigned BINARY_SIZE = 16; /// The size of a UUID in bytes.
+	static constexpr unsigned STRING_SIZE = 36; /// The size of a UUID string in bytes (not including trailing '\0').
 	Uuid() 
 	{
 	}
 	void generate();
-	void parse(const char* in);
+	void parse(const char * in);
 	void parse(const std::string & in) 
 	{
 		return parse(in.data());
@@ -49,8 +47,8 @@ public:
 		return true;
 	}
 	std::string to_string() const;
-	const char* data() const { return reinterpret_cast<const char*>(uuid_data); }
-	void assign(const char* p) { memcpy(uuid_data, p, BINARY_SIZE); }
+	const char * data() const { return reinterpret_cast<const char *>(uuid_data); }
+	void assign(const char * p) { memcpy(uuid_data, p, BINARY_SIZE); }
 private:
 	/// The UUID data.
 	uchar uuid_data[BINARY_SIZE];

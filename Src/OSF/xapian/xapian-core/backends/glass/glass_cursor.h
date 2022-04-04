@@ -8,27 +8,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
-
 #ifndef XAPIAN_INCLUDED_GLASS_CURSOR_H
 #define XAPIAN_INCLUDED_GLASS_CURSOR_H
 
 #include "glass_defs.h"
 #include "alignment_cast.h"
-//#include "omassert.h"
-//#include <algorithm>
-//#include <cstring>
-//#include <string>
 
 using std::string;
 class GlassTable;
@@ -49,7 +34,7 @@ public:
 	{
 		destroy();
 	}
-	uint8 * init(unsigned block_size) 
+	uint8 * init(uint block_size) 
 	{
 		if(data && refs() > 1) {
 			--refs();
@@ -117,7 +102,7 @@ public:
 			return NULL;
 		return reinterpret_cast<uint8*>(data + 8);
 	}
-	uint8 * get_modifiable_p(unsigned block_size) 
+	uint8 * get_modifiable_p(uint block_size) 
 	{
 		if(UNLIKELY(!data)) 
 			return NULL;
@@ -164,7 +149,7 @@ protected:
 	const GlassTable * B; /// The Btree table
 private:
 	Glass::Cursor * C; /// Pointer to an array of Cursors
-	unsigned long version;
+	ulong version;
 	int level; /** The value of level in the Btree structure. */
 	/** Get the key.
 	 *

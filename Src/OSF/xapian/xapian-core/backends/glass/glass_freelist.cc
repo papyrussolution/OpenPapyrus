@@ -17,9 +17,7 @@
 #pragma hdrstop
 #include "glass_freelist.h"
 #include "glass_table.h"
-#include "omassert.h"
 #include "popcount.h"
-#include "wordaccess.h"
 
 using namespace std;
 using namespace Glass;
@@ -40,7 +38,7 @@ using namespace Glass;
  *  for a block in the B-tree) is set to LEVEL_FREELIST to mark this as a
  *  freelist block).
  */
-const unsigned C_BASE = 8;
+const uint C_BASE = 8;
 
 /// Invalid freelist block value, so we can detect overreading bugs, etc.
 const uint4 UNUSED = static_cast<uint4>(-1);
@@ -219,7 +217,7 @@ void GlassFreeList::commit(const GlassTable * B, uint4 block_size)
 
 GlassFreeListChecker::GlassFreeListChecker(const GlassFreeList & fl)
 {
-	const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
+	const uint BITS_PER_ELT = sizeof(elt_type) * 8;
 	const elt_type ALL_BITS = static_cast<elt_type>(-1);
 	uint4 first_unused = fl.get_first_unused_block();
 	bitmap_size = (first_unused + BITS_PER_ELT - 1) / BITS_PER_ELT;
@@ -236,7 +234,7 @@ GlassFreeListChecker::GlassFreeListChecker(const GlassFreeList & fl)
 
 uint4 GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 {
-	const unsigned BITS_PER_ELT = sizeof(elt_type) * 8;
+	const uint BITS_PER_ELT = sizeof(elt_type) * 8;
 	uint4 c = 0;
 	for(uint4 i = 0; i < bitmap_size; ++i) {
 		elt_type elt = bitmap[i];
@@ -247,7 +245,7 @@ uint4 GlassFreeListChecker::count_set_bits(uint4 * p_first_bad_blk) const
 			if(false) {
 #if HAVE_DECL___BUILTIN_CTZ
 			}
-			else if(sizeof(elt_type) == sizeof(unsigned)) {
+			else if(sizeof(elt_type) == sizeof(uint)) {
 				first_bad_blk += __builtin_ctz(elt);
 #endif
 #if HAVE_DECL___BUILTIN_CTZL

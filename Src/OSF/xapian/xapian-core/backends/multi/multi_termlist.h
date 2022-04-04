@@ -7,22 +7,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_MULTI_TERMLIST_H
 #define XAPIAN_INCLUDED_MULTI_TERMLIST_H
-
-#include "api/termlist.h"
-#include <xapian/database.h>
 
 using Xapian::Internal::intrusive_ptr_nonnull;
 
@@ -32,31 +19,21 @@ using Xapian::Internal::intrusive_ptr_nonnull;
  *  fetches the combined term frequency from the multidatabase.
  */
 class MultiTermList : public TermList {
-	/// Don't allow assignment.
-	void operator = (const MultiTermList &) = delete;
-	/// Don't allow copying.
-	MultiTermList(const MultiTermList &) = delete;
-	/// The TermList in the subdatabase.
-	TermList* real_termlist;
-	/// The multidatabase.
-	intrusive_ptr_nonnull<const Xapian::Database::Internal> db;
+	void operator = (const MultiTermList &) = delete; /// Don't allow assignment.
+	MultiTermList(const MultiTermList &) = delete; /// Don't allow copying.
+	TermList* real_termlist; /// The TermList in the subdatabase.
+	intrusive_ptr_nonnull<const Xapian::Database::Internal> db; /// The multidatabase.
 public:
-	/// Constructor.
 	MultiTermList(const Xapian::Database::Internal* db_, TermList* real_termlist_);
 	~MultiTermList();
-
 	/// Return approximate size of this termlist.
 	Xapian::termcount get_approx_size() const;
-
 	/// Return the termname at the current position.
 	std::string get_termname() const;
-
 	/// Return the wdf for the term at the current position.
 	Xapian::termcount get_wdf() const;
-
 	/// Return the term frequency for the term at the current position.
 	Xapian::doccount get_termfreq() const;
-
 	/** Advance the current position to the next term in the termlist.
 	 *
 	 *  The list starts before the first term in the list, so next(), skip_to()

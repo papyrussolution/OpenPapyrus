@@ -27,15 +27,6 @@
 #ifndef PACKAGE
 	#error config.h must be included first in each C++ source file
 #endif
-//#include <cstdint>
-//#include <type_traits>
-//#include <cstring>
-#include "alignment_cast.h"
-//#include "omassert.h"
-
-#if HAVE_DECL__BYTESWAP_USHORT || HAVE_DECL__BYTESWAP_ULONG
-#include <stdlib.h>
-#endif
 
 inline uint16_t do_bswap(uint16_t value) 
 {

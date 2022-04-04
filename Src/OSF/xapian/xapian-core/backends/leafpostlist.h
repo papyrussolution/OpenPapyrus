@@ -8,22 +8,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_LEAFPOSTLIST_H
 #define XAPIAN_INCLUDED_LEAFPOSTLIST_H
-
-#include "postlist.h"
-//#include <string>
 
 namespace Xapian {
 class Weight;
@@ -35,26 +22,17 @@ class Weight;
  *  class:
  */
 class LeafPostList : public PostList {
-	/// Don't allow assignment.
-	void operator = (const LeafPostList &) = delete;
-
-	/// Don't allow copying.
-	LeafPostList(const LeafPostList &) = delete;
-
+	void operator = (const LeafPostList &) = delete; /// Don't allow assignment.
+	LeafPostList(const LeafPostList &) = delete; /// Don't allow copying.
 protected:
 	const Xapian::Weight * weight;
-
-	/// The term name for this postlist (empty for an alldocs postlist).
-	std::string term;
-
+	std::string term; /// The term name for this postlist (empty for an alldocs postlist).
 	/// Only constructable as a base class for derived classes.
-	explicit LeafPostList(const std::string & term_)
-		: weight(0), term(term_) {
+	explicit LeafPostList(const std::string & term_) : weight(0), term(term_) 
+	{
 	}
-
 public:
 	~LeafPostList();
-
 	/** Set the weighting scheme to use during matching.
 	 *
 	 *  If this isn't called, get_weight() and recalc_maxweight() will both
@@ -99,17 +77,10 @@ public:
 	Xapian::doccount get_termfreq_min() const;
 	Xapian::doccount get_termfreq_max() const;
 	Xapian::doccount get_termfreq_est() const;
-
-	double get_weight(Xapian::termcount doclen,
-	    Xapian::termcount unique_terms,
-	    Xapian::termcount wdfdocmax) const;
-
+	double get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const;
 	double recalc_maxweight();
-
 	TermFreqs get_termfreq_est_using_stats(const Xapian::Weight::Internal & stats) const;
-
 	Xapian::termcount count_matching_subqs() const;
-
 	void gather_position_lists(OrPositionList* orposlist);
 
 	/** Open another postlist from the same database.
@@ -130,11 +101,8 @@ public:
 	 *			(in which case the caller should probably open the
 	 *			postlist via the database instead).
 	 */
-	virtual LeafPostList * open_nearby_postlist(const std::string & term_,
-	    bool need_read_pos) const;
-
+	virtual LeafPostList * open_nearby_postlist(const std::string & term_, bool need_read_pos) const;
 	virtual Xapian::termcount get_wdf_upper_bound() const = 0;
-
 	/** Set the term name.
 	 *
 	 *  This is useful when we optimise a term matching all documents to an
@@ -142,7 +110,8 @@ public:
 	 *  LeafPostList::get_termfreq_est_using_stats() to locate the appropriate
 	 *  TermFreqs object.
 	 */
-	void set_term(const std::string & term_) {
+	void set_term(const std::string & term_) 
+	{
 		term = term_;
 	}
 };

@@ -1347,17 +1347,6 @@ STempBuffer & FASTCALL STempBuffer::operator = (const STempBuffer & rS)
 	SBaseBuffer::Copy(rS);
 	return *this;
 }
-
-bool STempBuffer::IsValid() const { return LOGIC(P_Buf); }
-
-size_t STempBuffer::GetSize() const { return Size; }
-STempBuffer::operator char * () { return P_Buf; }
-STempBuffer::operator const char * () const { return P_Buf; }
-const  uchar * STempBuffer::ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
-const  char * STempBuffer::cptr() const { return P_Buf; }
-const  void * STempBuffer::vcptr() const { return P_Buf; }
-void * STempBuffer::vptr() { return P_Buf; }
-void * STempBuffer::vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
 //
 //
 //

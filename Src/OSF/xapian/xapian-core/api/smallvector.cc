@@ -12,18 +12,9 @@
  *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "api/smallvector.h"
 
 void Xapian::SmallVector_::do_reserve(std::size_t n)
 {
@@ -32,11 +23,8 @@ void Xapian::SmallVector_::do_reserve(std::size_t n)
 		throw std::bad_alloc();
 	void ** blk = new void* [n];
 	if(is_external()) {
-		std::copy(static_cast<void **>(p[0]),
-		    static_cast<void **>(p[1]),
-		    blk);
-		p[1] = blk +
-		    (static_cast<void**>(p[1]) - static_cast<void**>(p[0]));
+		std::copy(static_cast<void **>(p[0]), static_cast<void **>(p[1]), blk);
+		p[1] = blk + (static_cast<void**>(p[1]) - static_cast<void**>(p[0]));
 		delete [] static_cast<void**>(p[0]);
 	}
 	else {
@@ -47,8 +35,7 @@ void Xapian::SmallVector_::do_reserve(std::size_t n)
 	c = n;
 }
 
-void
-Xapian::SmallVector_::do_free()
+void Xapian::SmallVector_::do_free()
 {
 	delete [] static_cast<void**>(p[0]);
 }

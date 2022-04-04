@@ -6,7 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "description_append.h"
 
 using namespace std;
 

@@ -56,14 +56,14 @@
 	 *  If LIST isn't specified, all pointer parameters will be marked in this
 	 *  way (which is often sufficient):
 	 *
-	 *  int foo(const char* p) XAPIAN_NONNULL();
-	 *  int bar(char* p, const char* q) XAPIAN_NONNULL();
+	 *  int foo(const char * p) XAPIAN_NONNULL();
+	 *  int bar(char * p, const char * q) XAPIAN_NONNULL();
 	 *
 	 *  If there are other pointer parameters which can be NULL, then you need
 	 *  to specify a parenthesised list of the parameters to mark:
 	 *
-	 *  int foo(const char* p, int* maybenull) XAPIAN_NONNULL((1));
-	 *  int bar(char* p, void* maybenull, const char* q) XAPIAN_NONNULL((1,3));
+	 *  int foo(const char * p, int* maybenull) XAPIAN_NONNULL((1));
+	 *  int bar(char * p, void* maybenull, const char * q) XAPIAN_NONNULL((1,3));
 	 *
 	 *  NB In a non-class function, the first parameter is numbered 1, but in
 	 *  a non-static class method (which isn't a constructor) then the `this`

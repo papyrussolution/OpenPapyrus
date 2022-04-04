@@ -8,40 +8,23 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_MULTI_POSTLIST_H
 #define XAPIAN_INCLUDED_MULTI_POSTLIST_H
 
-//#include <string>
 #include "backends/postlist.h"
 #include "backends/positionlist.h"
 
 /// Class for merging PostList objects from subdatabases.
 class MultiPostList : public PostList {
-	/// Don't allow assignment.
-	void operator = (const MultiPostList &) = delete;
-	/// Don't allow copying.
-	MultiPostList(const MultiPostList &) = delete;
-	/// Number of PostList* entries in @a postlists.
-	Xapian::doccount n_shards;
-	/// Sub-postlists which we use as a heap.
-	PostList** postlists;
-	/// Number of entries in docids;
-	Xapian::doccount docids_size = 0;
-	/// Heap of docids from the current positions of the postlists.
-	Xapian::docid* docids = nullptr;
+	void operator = (const MultiPostList &) = delete; /// Don't allow assignment.
+	MultiPostList(const MultiPostList &) = delete; /// Don't allow copying.
+	Xapian::doccount n_shards; /// Number of PostList * entries in @a postlists.
+	PostList ** postlists; /// Sub-postlists which we use as a heap.
+	Xapian::doccount docids_size = 0; /// Number of entries in docids;
+	Xapian::docid* docids = nullptr; /// Heap of docids from the current positions of the postlists.
 public:
-	MultiPostList(Xapian::doccount n_shards_, PostList** postlists_) : n_shards(n_shards_), postlists(postlists_)
+	MultiPostList(Xapian::doccount n_shards_, PostList ** postlists_) : n_shards(n_shards_), postlists(postlists_)
 	{
 		try {
 			docids = new Xapian::docid[n_shards];
@@ -51,16 +34,11 @@ public:
 		}
 	}
 	~MultiPostList();
-	/// Get a lower bound on the number of documents indexed by this term.
-	Xapian::doccount get_termfreq_min() const;
-	/// Get an upper bound on the number of documents indexed by this term.
-	Xapian::doccount get_termfreq_max() const;
-	/// Get an estimate of the number of documents indexed by this term.
-	Xapian::doccount get_termfreq_est() const;
-	/// Return the current docid.
-	Xapian::docid get_docid() const;
-	/// Return the wdf for the document at the current position.
-	Xapian::termcount get_wdf() const;
+	Xapian::doccount get_termfreq_min() const; /// Get a lower bound on the number of documents indexed by this term.
+	Xapian::doccount get_termfreq_max() const; /// Get an upper bound on the number of documents indexed by this term.
+	Xapian::doccount get_termfreq_est() const; /// Get an estimate of the number of documents indexed by this term.
+	Xapian::docid get_docid() const; /// Return the current docid.
+	Xapian::termcount get_wdf() const; /// Return the wdf for the document at the current position.
 	/// Return the weight contribution for the current position.
 	double get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const;
 	/// Return true if the current position is past the last entry in this list.
@@ -84,7 +62,7 @@ public:
 	 *		delete us.  This "pruning" can only happen for a non-leaf
 	 *		subclass of this class.
 	 */
-	PostList* next(double w_min);
+	PostList * next(double w_min);
 
 	/** Skip forward to the specified docid.
 	 *
@@ -99,7 +77,7 @@ public:
 	 *		delete us.  This "pruning" can only happen for a non-leaf
 	 *		subclass of this class.
 	 */
-	PostList* skip_to(Xapian::docid, double w_min);
+	PostList * skip_to(Xapian::docid, double w_min);
 
 	// We don't implement check() because we're only used in a PostingIterator
 	// wrapper and that doesn't call check().
@@ -108,9 +86,7 @@ public:
 	// some extra bookkeeping on operations after check(), because we know
 	// which subdatabase a given docid will be in, and so we only actually need
 	// to call check() on that subdatabase.
-
-	/// Return a string description of this object.
-	std::string get_description() const;
+	std::string get_description() const; /// Return a string description of this object.
 };
 
 #endif // XAPIAN_INCLUDED_MULTI_POSTLIST_H

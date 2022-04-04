@@ -7,30 +7,17 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_inverter.h"
 #include "glass_postlist.h"
 #include "glass_positionlist.h"
-#include "api/termlist.h"
 
 using namespace std;
 
-void Inverter::store_positions(const GlassPositionListTable & position_table,
-    Xapian::docid did,
-    const string & tname,
-    const Xapian::VecCOW<Xapian::termpos> & posvec,
-    bool modifying)
+void Inverter::store_positions(const GlassPositionListTable & position_table, Xapian::docid did,
+    const string & tname, const Xapian::VecCOW<Xapian::termpos> & posvec, bool modifying)
 {
 	string s;
 	position_table.pack(s, posvec);
@@ -63,11 +50,8 @@ void Inverter::store_positions(const GlassPositionListTable & position_table,
 	set_positionlist(did, tname, s);
 }
 
-void Inverter::set_positionlist(const GlassPositionListTable & position_table,
-    Xapian::docid did,
-    const string & tname,
-    const Xapian::TermIterator & term,
-    bool modifying)
+void Inverter::set_positionlist(const GlassPositionListTable & position_table, Xapian::docid did,
+    const string & tname, const Xapian::TermIterator & term, bool modifying)
 {
 	auto ptr = term.internal->get_vec_termpos();
 	if(ptr) {
@@ -94,24 +78,19 @@ void Inverter::set_positionlist(const GlassPositionListTable & position_table,
 		delete_positionlist(did, tname);
 }
 
-void Inverter::set_positionlist(Xapian::docid did,
-    const string & term,
-    const string & s)
+void Inverter::set_positionlist(Xapian::docid did, const string & term, const string & s)
 {
 	has_positions_cache = s.empty() ? -1 : 1;
 	pos_changes.insert(make_pair(term, map<Xapian::docid, string>()))
 	.first->second[did] = s;
 }
 
-void Inverter::delete_positionlist(Xapian::docid did,
-    const string & term)
+void Inverter::delete_positionlist(Xapian::docid did, const string & term)
 {
 	set_positionlist(did, term, string());
 }
 
-bool Inverter::get_positionlist(Xapian::docid did,
-    const string & term,
-    string & s) const
+bool Inverter::get_positionlist(Xapian::docid did, const string & term, string & s) const
 {
 	auto i = pos_changes.find(term);
 	if(i == pos_changes.end())

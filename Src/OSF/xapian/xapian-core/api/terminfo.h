@@ -38,26 +38,23 @@ class TermInfo {
 	 *  4 billion positions in one document is not sensible (and not possible
 	 *  unless termpos is configured to be 64 bit).
 	 */
-	mutable unsigned split = 0;
-
+	mutable uint split = 0;
 	/** Positions at which the term occurs.
 	 *
 	 *  The entries are sorted in strictly increasing order (so duplicate
 	 *  entries are not allowed).
 	 */
 	mutable Xapian::VecCOW<Xapian::termpos> positions;
-
 	/** Merge sorted ranges before and after @a split. */
 	void merge() const;
-
 public:
 	/** Constructor.
 	 *
 	 *  @param wdf_   Within-document frequency
 	 */
-	explicit TermInfo(Xapian::termcount wdf_) : wdf(wdf_) {
+	explicit TermInfo(Xapian::termcount wdf_) : wdf(wdf_) 
+	{
 	}
-
 	/** Constructor which also adds an initial position.
 	 *
 	 *  @param wdf_   Within-document frequency
@@ -70,28 +67,20 @@ public:
 	/// Get a pointer to the positions.
 	const Xapian::VecCOW<Xapian::termpos>* get_positions() const 
 	{
-		if(split) merge();
+		if(split) 
+			merge();
 		return &positions;
 	}
-
-	bool has_positions() const {
-		return !positions.empty();
-	}
-
-	size_t count_positions() const {
-		return positions.size();
-	}
-
+	bool has_positions() const { return !positions.empty(); }
+	size_t count_positions() const { return positions.size(); }
 	/// Get the within-document frequency.
-	Xapian::termcount get_wdf() const {
-		return wdf;
-	}
-
+	Xapian::termcount get_wdf() const { return wdf; }
 	/** Increase within-document frequency.
 	 *
 	 *  @return true if the term was flagged as deleted before the operation.
 	 */
-	bool increase_wdf(Xapian::termcount delta) {
+	bool increase_wdf(Xapian::termcount delta) 
+	{
 		if(UNLIKELY(is_deleted())) {
 			split = 0;
 			wdf = delta;
@@ -100,12 +89,12 @@ public:
 		wdf += delta;
 		return false;
 	}
-
 	/** Decrease within-document frequency.
 	 *
 	 *  @return true If the adjusted wdf is zero and there are no positions.
 	 */
-	bool decrease_wdf(Xapian::termcount delta) {
+	bool decrease_wdf(Xapian::termcount delta) 
+	{
 		// Saturating arithmetic - don't let the wdf go below zero.
 		if(wdf >= delta) {
 			wdf -= delta;
@@ -120,15 +109,14 @@ public:
 		}
 		return false;
 	}
-
-	bool remove() {
+	bool remove() 
+	{
 		if(is_deleted())
 			return false;
 		positions.clear();
 		split = 1;
 		return true;
 	}
-
 	/** Add a position.
 	 *
 	 *  If @a termpos is already present, this is a no-op.
@@ -139,15 +127,14 @@ public:
 	 *  @return true if the term was flagged as deleted before the operation.
 	 */
 	bool add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos);
-
 	/** Append a position.
 	 *
 	 *  The position must be >= the largest currently in the list.
 	 */
-	void append_position(Xapian::termpos termpos) {
+	void append_position(Xapian::termpos termpos) 
+	{
 		positions.push_back(termpos);
 	}
-
 	/** Remove a position.
 	 *
 	 *  @param termpos	Position to remove

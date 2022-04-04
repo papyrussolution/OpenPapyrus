@@ -8,11 +8,8 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "tcpserver.h"
-#include "safefcntl.h"
 #include "safenetdb.h"
 #include "safesyssocket.h"
-#include "remoteconnection.h"
 #include "resolver.h"
 #include "socket_utils.h"
 #ifdef __WIN32__
@@ -74,7 +71,7 @@ int XapianTcpServer::get_listening_socket(const std::string & host, int port, bo
 
 		if(tcp_nodelay) {
 			int optval = 1;
-			// 4th argument might need to be void* or char* - cast it to char*
+			// 4th argument might need to be void* or char * - cast it to char *
 			// since C++ allows implicit conversion to void* but not from
 			// void*.
 			retval = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char *>(&optval), sizeof(optval));

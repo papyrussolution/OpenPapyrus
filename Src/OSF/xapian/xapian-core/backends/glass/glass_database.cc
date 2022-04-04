@@ -19,7 +19,6 @@
 #include "glass_defs.h"
 #include "glass_docdata.h"
 #include "glass_document.h"
-#include "../flint_lock.h"
 #include "glass_metadata.h"
 #include "glass_positionlist.h"
 #include "glass_postlist.h"
@@ -28,16 +27,6 @@
 #include "glass_termlist.h"
 #include "glass_valuelist.h"
 #include "glass_values.h"
-#include "fd.h"
-#include "filetests.h"
-#include "io_utils.h"
-#include "parseint.h"
-#include "net/remoteconnection.h"
-#include "api/replication.h"
-#include "replicationprotocol.h"
-#include "posixy_wrapper.h"
-#include "backends/valuestats.h"
-#include "safesysstat.h"
 
 using namespace std;
 using namespace Xapian;
@@ -132,7 +121,8 @@ GlassDatabase::~GlassDatabase()
 	LOGCALL_DTOR(DB, "GlassDatabase");
 }
 
-bool GlassDatabase::database_exists() {
+bool GlassDatabase::database_exists() 
+{
 	LOGCALL(DB, bool, "GlassDatabase::database_exists", NO_ARGS);
 	// The postlist table is the only non-optional one.
 	RETURN(postlist_table.exists());
@@ -141,35 +131,27 @@ bool GlassDatabase::database_exists() {
 void GlassDatabase::create_and_open_tables(int flags, uint block_size)
 {
 	LOGCALL_VOID(DB, "GlassDatabase::create_and_open_tables", flags|block_size);
-	// The caller is expected to create the database directory if it doesn't
-	// already exist.
-
+	// The caller is expected to create the database directory if it doesn't already exist.
 	GlassVersion &v = version_file;
 	v.create(block_size);
-
 	glass_revision_number_t rev = v.get_revision();
 	const string & tmpfile = v.write(rev, flags);
-
 	position_table.create_and_open(flags, v.get_root(Glass::POSITION));
 	synonym_table.create_and_open(flags, v.get_root(Glass::SYNONYM));
 	spelling_table.create_and_open(flags, v.get_root(Glass::SPELLING));
 	docdata_table.create_and_open(flags, v.get_root(Glass::DOCDATA));
 	termlist_table.create_and_open(flags, v.get_root(Glass::TERMLIST));
 	postlist_table.create_and_open(flags, v.get_root(Glass::POSTLIST));
-
 	if(!v.sync(tmpfile, rev, flags)) {
 		throw Xapian::DatabaseCreateError("Failed to create iamglass file");
 	}
-
 	Assert(database_exists());
 }
 
 bool GlassDatabase::open_tables(int flags)
 {
 	LOGCALL(DB, bool, "GlassDatabase::open_tables", flags);
-
 	glass_revision_number_t cur_rev = version_file.get_revision();
-
 	if(cur_rev != 0) {
 		// We're reopening, so ensure that we throw DatabaseError if close()
 		// was called.  It could be argued that reopen() can be a no-op in this
@@ -179,7 +161,6 @@ bool GlassDatabase::open_tables(int flags)
 		if(!postlist_table.is_open())
 			GlassTable::throw_database_closed();
 	}
-
 	version_file.read();
 	glass_revision_number_t rev = version_file.get_revision();
 	if(cur_rev && cur_rev == rev) {
@@ -187,19 +168,15 @@ bool GlassDatabase::open_tables(int flags)
 		// don't need to do anything.
 		RETURN(false);
 	}
-
 	docdata_table.open(flags, version_file.get_root(Glass::DOCDATA), rev);
 	spelling_table.open(flags, version_file.get_root(Glass::SPELLING), rev);
 	synonym_table.open(flags, version_file.get_root(Glass::SYNONYM), rev);
 	termlist_table.open(flags, version_file.get_root(Glass::TERMLIST), rev);
 	position_table.open(flags, version_file.get_root(Glass::POSITION), rev);
 	postlist_table.open(flags, version_file.get_root(Glass::POSTLIST), rev);
-
 	Xapian::termcount swfub = version_file.get_spelling_wordfreq_upper_bound();
 	spelling_table.set_wordfreq_upper_bound(swfub);
-
 	value_manager.reset();
-
 	if(!readonly) {
 		changes.set_oldest_changeset(version_file.get_oldest_changeset());
 		glass_revision_number_t revision = version_file.get_revision();
@@ -224,9 +201,7 @@ glass_revision_number_t GlassDatabase::get_next_revision_number() const
 	RETURN(version_file.get_revision() + 1);
 }
 
-void GlassDatabase::get_changeset_revisions(const string & path,
-    glass_revision_number_t * startrev,
-    glass_revision_number_t * endrev) const
+void GlassDatabase::get_changeset_revisions(const string & path, glass_revision_number_t * startrev, glass_revision_number_t * endrev) const
 {
 	FD fd(posixy_open(path.c_str(), O_RDONLY | O_CLOEXEC));
 	if(fd < 0) {
@@ -234,7 +209,6 @@ void GlassDatabase::get_changeset_revisions(const string & path,
 		    path + " to read";
 		throw Xapian::DatabaseError(message, errno);
 	}
-
 	char buf[REASONABLE_CHANGESET_SIZE];
 	const char * start = buf;
 	const char * end = buf + io_read(fd, buf, REASONABLE_CHANGESET_SIZE);
@@ -246,16 +220,13 @@ void GlassDatabase::get_changeset_revisions(const string & path,
 		throw Xapian::DatabaseError(message);
 	}
 	start += CONST_STRLEN(CHANGES_MAGIC_STRING);
-
 	uint changes_version;
 	if(!unpack_uint(&start, end, &changes_version))
 		throw Xapian::DatabaseError("Couldn't read a valid version number for changeset at " + path);
 	if(changes_version != CHANGES_VERSION)
 		throw Xapian::DatabaseError("Don't support version of changeset at " + path);
-
 	if(!unpack_uint(&start, end, startrev))
 		throw Xapian::DatabaseError("Couldn't read a valid start revision from changeset at " + path);
-
 	if(!unpack_uint(&start, end, endrev))
 		throw Xapian::DatabaseError("Couldn't read a valid end revision for changeset at " + path);
 }
@@ -263,7 +234,6 @@ void GlassDatabase::get_changeset_revisions(const string & path,
 void GlassDatabase::set_revision_number(int flags, glass_revision_number_t new_revision)
 {
 	LOGCALL_VOID(DB, "GlassDatabase::set_revision_number", flags|new_revision);
-
 	glass_revision_number_t rev = version_file.get_revision();
 	if(new_revision <= rev && rev != 0) {
 		string m = "New revision ";
@@ -1502,12 +1472,10 @@ void GlassWritableDatabase::set_metadata(const string & key, const string & valu
 	LOGCALL_VOID(DB, "GlassWritableDatabase::set_metadata", key | value);
 	string btree_key("\x00\xc0", 2);
 	btree_key += key;
-	if(value.empty()) {
+	if(value.empty())
 		postlist_table.del(btree_key);
-	}
-	else {
+	else
 		postlist_table.add(btree_key, value);
-	}
 }
 
 void GlassWritableDatabase::invalidate_doc_object(Xapian::Document::Internal * obj) const

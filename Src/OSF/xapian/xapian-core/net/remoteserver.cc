@@ -15,15 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "remoteserver.h"
-#include "api/msetinternal.h"
-#include "api/termlist.h"
-#include "matcher/matcher.h"
-#include "realtime.h"
-#include "serialise.h"
-#include "serialise-double.h"
-#include "serialise-error.h"
-#include "weight/weightinternal.h"
 
 using namespace std;
 
@@ -712,8 +703,8 @@ void RemoteServer::msg_uniqueterms(const string &message)
 
 void RemoteServer::msg_wdfdocmax(const string & message)
 {
-	const char* p = message.data();
-	const char* p_end = p + message.size();
+	const char * p = message.data();
+	const char * p_end = p + message.size();
 	Xapian::docid did;
 	if(!unpack_uint_last(&p, p_end, &did)) {
 		throw Xapian::NetworkError("Bad MSG_WDFDOCMAX");
@@ -725,8 +716,8 @@ void RemoteServer::msg_wdfdocmax(const string & message)
 
 void RemoteServer::msg_reconstructtext(const string & message)
 {
-	const char* p = message.data();
-	const char* p_end = p + message.size();
+	const char * p = message.data();
+	const char * p_end = p + message.size();
 	Xapian::docid did;
 	size_t length;
 	Xapian::termpos start_pos, end_pos;
@@ -949,8 +940,8 @@ void RemoteServer::msg_addsynonym(const string & message)
 {
 	if(!wdb)
 		throw_read_only();
-	const char* p = message.data();
-	const char* p_end = p + message.size();
+	const char * p = message.data();
+	const char * p_end = p + message.size();
 	// Get the term
 	string term;
 	if(!unpack_string(&p, p_end, term)) {
@@ -964,8 +955,8 @@ void RemoteServer::msg_removesynonym(const string & message)
 {
 	if(!wdb)
 		throw_read_only();
-	const char* p = message.data();
-	const char* p_end = p + message.size();
+	const char * p = message.data();
+	const char * p_end = p + message.size();
 	// Get the term
 	string term;
 	if(!unpack_string(&p, p_end, term)) {

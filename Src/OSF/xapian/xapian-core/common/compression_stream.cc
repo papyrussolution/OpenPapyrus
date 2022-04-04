@@ -43,7 +43,7 @@ CompressionStream::~CompressionStream() {
 	delete [] out;
 }
 
-const char* CompressionStream::compress(const char* buf, size_t* p_size) {
+const char * CompressionStream::compress(const char * buf, size_t* p_size) {
 	lazy_alloc_deflate_zstream();
 	size_t size = *p_size;
 	if(!out || out_len < size) {
@@ -75,7 +75,7 @@ const char* CompressionStream::compress(const char* buf, size_t* p_size) {
 	return out;
 }
 
-bool CompressionStream::decompress_chunk(const char* p, int len, string & buf)
+bool CompressionStream::decompress_chunk(const char * p, int len, string & buf)
 {
 	Bytef blk[8192];
 	inflate_zstream->next_in = reinterpret_cast<const Bytef*>(p);
@@ -95,7 +95,7 @@ bool CompressionStream::decompress_chunk(const char* p, int len, string & buf)
 			throw Xapian::DatabaseError(msg);
 		}
 
-		buf.append(reinterpret_cast<const char*>(blk),
+		buf.append(reinterpret_cast<const char *>(blk),
 		    inflate_zstream->next_out - blk);
 		if(err == Z_STREAM_END) return true;
 		if(inflate_zstream->avail_in == 0) return false;

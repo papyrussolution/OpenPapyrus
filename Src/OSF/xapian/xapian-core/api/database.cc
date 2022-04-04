@@ -15,28 +15,12 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "backends/databaseinternal.h"
-#include "backends/empty_database.h"
-#include "backends/multi/multi_database.h"
-#include "editdistance.h"
-#include "postingiteratorinternal.h"
 
 using namespace std;
 
-[[noreturn]] static void docid_zero_invalid()
-{
-	throw Xapian::InvalidArgumentError("Document ID 0 is invalid");
-}
-
-[[noreturn]] static void empty_metadata_key()
-{
-	throw Xapian::InvalidArgumentError("Empty metadata keys are invalid");
-}
-
-[[noreturn]] static void empty_term_invalid()
-{
-	throw Xapian::InvalidArgumentError("Empty terms are invalid");
-}
+[[noreturn]] static void docid_zero_invalid() { throw Xapian::InvalidArgumentError("Document ID 0 is invalid"); }
+[[noreturn]] static void empty_metadata_key() { throw Xapian::InvalidArgumentError("Empty metadata keys are invalid"); }
+[[noreturn]] static void empty_term_invalid() { throw Xapian::InvalidArgumentError("Empty terms are invalid"); }
 
 namespace Xapian {
 Database::Database(Database::Internal* internal_) : internal(internal_)
@@ -74,7 +58,7 @@ size_t Database::size() const
 void Database::add_database_(const Database& o, bool read_only)
 {
 	if(this == &o) {
-		const char* msg = read_only ? "Database::add_database(): Can't add a Database to itself" : "WritableDatabase::add_database(): Can't add a WritableDatabase to itself";
+		const char * msg = read_only ? "Database::add_database(): Can't add a Database to itself" : "WritableDatabase::add_database(): Can't add a WritableDatabase to itself";
 		throw InvalidArgumentError(msg);
 	}
 	auto o_size = o.internal->size();
@@ -88,7 +72,6 @@ void Database::add_database_(const Database& o, bool read_only)
 		internal = o.internal;
 		return;
 	}
-
 #if 0
 	// The check below doesn't work - for example:
 	//
@@ -147,7 +130,7 @@ void Database::add_database_(const Database& o, bool read_only)
 
 PostingIterator Database::postlist_begin(const string & term) const
 {
-	PostList* pl = internal->open_post_list(term);
+	PostList * pl = internal->open_post_list(term);
 	return pl ? PostingIterator(new PostingIterator::Internal(pl, *this)) : PostingIterator();
 }
 
@@ -156,16 +139,6 @@ TermIterator Database::termlist_begin(Xapian::docid did) const
 	if(did == 0)
 		docid_zero_invalid();
 	return TermIterator(internal->open_term_list(did));
-}
-
-TermIterator Database::allterms_begin(const string & prefix) const
-{
-	return TermIterator(internal->open_allterms(prefix));
-}
-
-bool Database::has_positions() const
-{
-	return internal->has_positions();
 }
 
 PositionIterator Database::positionlist_begin(Xapian::docid did, const string & term) const
@@ -177,15 +150,11 @@ PositionIterator Database::positionlist_begin(Xapian::docid did, const string & 
 	return PositionIterator(internal->open_position_list(did, term));
 }
 
-Xapian::doccount Database::get_doccount() const
-{
-	return internal->get_doccount();
-}
-
-Xapian::docid Database::get_lastdocid() const
-{
-	return internal->get_lastdocid();
-}
+TermIterator Database::allterms_begin(const string & prefix) const { return TermIterator(internal->open_allterms(prefix)); }
+bool Database::has_positions() const { return internal->has_positions(); }
+Xapian::doccount Database::get_doccount() const { return internal->get_doccount(); }
+Xapian::docid Database::get_lastdocid() const { return internal->get_lastdocid(); }
+Xapian::totallength Database::get_total_length() const { return internal->get_total_length(); }
 
 double Database::get_average_length() const
 {
@@ -196,27 +165,26 @@ double Database::get_average_length() const
 	return total_length / double(doc_count);
 }
 
-Xapian::totallength Database::get_total_length() const
-{
-	return internal->get_total_length();
-}
-
 Xapian::doccount Database::get_termfreq(const string & term) const
 {
 	if(term.empty())
 		return get_doccount();
-	Xapian::doccount result;
-	internal->get_freqs(term, &result, NULL);
-	return result;
+	else {
+		Xapian::doccount result;
+		internal->get_freqs(term, &result, NULL);
+		return result;
+	}
 }
 
 Xapian::termcount Database::get_collection_freq(const string & term) const
 {
 	if(term.empty())
 		return get_doccount();
-	Xapian::termcount result;
-	internal->get_freqs(term, NULL, &result);
-	return result;
+	else {
+		Xapian::termcount result;
+		internal->get_freqs(term, NULL, &result);
+		return result;
+	}
 }
 
 Xapian::doccount Database::get_value_freq(Xapian::valueno slot) const { return internal->get_value_freq(slot); }
@@ -259,10 +227,7 @@ Document Database::get_document(Xapian::docid did, uint flags) const
 }
 
 bool Database::term_exists(const string & term) const
-{
-	// NB Internal::term_exists() handles term.empty().
-	return internal->term_exists(term);
-}
+	{ return internal->term_exists(term); } // NB Internal::term_exists() handles term.empty().
 
 void Database::keep_alive()
 {
@@ -330,21 +295,6 @@ string Database::get_spelling_suggestion(const string & word, uint max_edit_dist
 	return (freq_best < freq_exact) ? string() : result;
 }
 
-TermIterator Database::spellings_begin() const
-{
-	return TermIterator(internal->open_spelling_wordlist());
-}
-
-TermIterator Database::synonyms_begin(const string & term) const
-{
-	return TermIterator(internal->open_synonym_termlist(term));
-}
-
-TermIterator Database::synonym_keys_begin(const string & prefix) const
-{
-	return TermIterator(internal->open_synonym_keylist(prefix));
-}
-
 string Database::get_metadata(const string & key) const
 {
 	if(UNLIKELY(key.empty()))
@@ -352,50 +302,22 @@ string Database::get_metadata(const string & key) const
 	return internal->get_metadata(key);
 }
 
-Xapian::TermIterator Database::metadata_keys_begin(const string & prefix) const
-{
-	return TermIterator(internal->open_metadata_keylist(prefix));
-}
-
+TermIterator Database::spellings_begin() const { return TermIterator(internal->open_spelling_wordlist()); }
+TermIterator Database::synonyms_begin(const string & term) const { return TermIterator(internal->open_synonym_termlist(term)); }
+TermIterator Database::synonym_keys_begin(const string & prefix) const { return TermIterator(internal->open_synonym_keylist(prefix)); }
+Xapian::TermIterator Database::metadata_keys_begin(const string & prefix) const { return TermIterator(internal->open_metadata_keylist(prefix)); }
 string Database::get_uuid() const { return internal->get_uuid(); }
 bool Database::locked() const { return internal->locked(); }
 Xapian::WritableDatabase Database::lock(int flags) { return Xapian::WritableDatabase(internal->update_lock(flags)); }
 Xapian::Database Database::unlock() { return Xapian::Database(internal->update_lock(Xapian::DB_READONLY_)); }
-
-Xapian::rev Database::get_revision() const
-{
-	return internal->get_revision();
-}
-
+Xapian::rev Database::get_revision() const { return internal->get_revision(); }
 string Database::reconstruct_text(Xapian::docid did, size_t length, const std::string & prefix, Xapian::termpos start_pos, Xapian::termpos end_pos) const
-{
-	return internal->reconstruct_text(did, length, prefix, start_pos, end_pos);
-}
-
-void WritableDatabase::commit()
-{
-	internal->commit();
-}
-
-void WritableDatabase::begin_transaction(bool flushed)
-{
-	internal->begin_transaction(flushed);
-}
-
-void WritableDatabase::end_transaction_(bool do_commit)
-{
-	internal->end_transaction(do_commit);
-}
-
-Xapian::docid WritableDatabase::add_document(const Document& doc)
-{
-	return internal->add_document(doc);
-}
-
-void WritableDatabase::delete_document(Xapian::docid did)
-{
-	internal->delete_document(did);
-}
+	{ return internal->reconstruct_text(did, length, prefix, start_pos, end_pos); }
+void WritableDatabase::commit() { internal->commit(); }
+void WritableDatabase::begin_transaction(bool flushed) { internal->begin_transaction(flushed); }
+void WritableDatabase::end_transaction_(bool do_commit) { internal->end_transaction(do_commit); }
+Xapian::docid WritableDatabase::add_document(const Document& doc) { return internal->add_document(doc); }
+void WritableDatabase::delete_document(Xapian::docid did) { internal->delete_document(did); }
 
 void WritableDatabase::delete_document(const string & term)
 {

@@ -6,9 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "fileutils.h"
-//#include "safedirent.h"
-#include "safeunistd.h"
 
 using namespace std;
 

@@ -22,14 +22,14 @@
 #define XAPIAN_INCLUDED_ENQUIREINTERNAL_H
 
 #include "backends/databaseinternal.h"
-#include "xapian/constants.h"
-#include "xapian/database.h"
-#include "xapian/enquire.h"
-#include "xapian/intrusive_ptr.h"
-#include "xapian/keymaker.h"
-#include "xapian/matchspy.h"
-#include "xapian/mset.h" // Only needed to forward declare MSet::Internal.
-#include "xapian/query.h"
+//#include "xapian/constants.h"
+//#include "xapian/database.h"
+//#include "xapian/enquire.h"
+//#include "xapian/intrusive_ptr.h"
+//#include "xapian/keymaker.h"
+//#include "xapian/matchspy.h"
+//#include "xapian/mset.h" // Only needed to forward declare MSet::Internal.
+//#include "xapian/query.h"
 //#include <memory>
 //#include <string>
 //#include <vector>

@@ -6,7 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "serialise-error.h"
 
 using namespace std;
 

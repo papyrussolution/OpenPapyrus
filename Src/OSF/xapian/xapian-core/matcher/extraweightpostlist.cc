@@ -6,8 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "extraweightpostlist.h"
-#include "postlisttree.h"
 
 using namespace std;
 
@@ -30,9 +28,9 @@ double ExtraWeightPostList::recalc_maxweight()
 	return pl->recalc_maxweight() + max_extra;
 }
 
-PostList* ExtraWeightPostList::next(double w_min)
+PostList * ExtraWeightPostList::next(double w_min)
 {
-	PostList* res = pl->next(w_min - max_extra);
+	PostList * res = pl->next(w_min - max_extra);
 	if(res) {
 		delete pl;
 		pl = res;
@@ -41,7 +39,7 @@ PostList* ExtraWeightPostList::next(double w_min)
 	return NULL;
 }
 
-PostList* ExtraWeightPostList::skip_to(Xapian::docid, double)
+PostList * ExtraWeightPostList::skip_to(Xapian::docid, double)
 {
 	// ExtraWeightPostList's parent will be PostListTree which doesn't
 	// call skip_to() or check().

@@ -70,12 +70,8 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	MSet & operator = (const MSet & o);
-
-	/// Move constructor.
-	MSet(MSet && o);
-	/// Move assignment operator.
-	MSet & operator = (MSet && o);
-
+	MSet(MSet && o); /// Move constructor.
+	MSet & operator = (MSet && o); /// Move assignment operator.
 	/** Default constructor.
 	 *
 	 *  Creates an empty MSet, mostly useful as a placeholder.

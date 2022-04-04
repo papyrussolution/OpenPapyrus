@@ -8,18 +8,7 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
-
 #ifndef XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_INMEMORY_ALLTERMSLIST_H
 
@@ -27,49 +16,29 @@
 #include "inmemory_database.h"
 
 /** class for alltermslists over several databases */
-class InMemoryAllTermsList : public AllTermsList
-{
-  private:
-    /// Copying is not allowed.
-    InMemoryAllTermsList(const InMemoryAllTermsList &);
-
-    /// Assignment is not allowed.
-    void operator = (const InMemoryAllTermsList &);
-
-    const std::map<std::string, InMemoryTerm>* tmap;
-
-    std::map<std::string, InMemoryTerm>::const_iterator it;
-
-    Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database;
-
-    std::string prefix;
-
-  public:
-    /// Constructor.
-    InMemoryAllTermsList(const std::map<std::string, InMemoryTerm>* tmap_,
-			 Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_,
-			 const std::string & prefix_)
-	: tmap(tmap_), it(tmap->begin()), database(database_),
-	  prefix(prefix_)
-    {
-    }
-
-    Xapian::termcount get_approx_size() const;
-
-    // Gets current termname
-    std::string get_termname() const;
-
-    // Get num of docs indexed by term
-    Xapian::doccount get_termfreq() const;
-
-    TermList* skip_to(const std::string & tname);
-
-    /** next() causes the AllTermsList to move to the next term in the list.
-     */
-    TermList * next();
-
-    // True if we're off the end of the list
-    bool at_end() const;
+class InMemoryAllTermsList : public AllTermsList {
+private:
+	InMemoryAllTermsList(const InMemoryAllTermsList &); /// Copying is not allowed.
+	void operator =(const InMemoryAllTermsList &); /// Assignment is not allowed.
+	const std::map<std::string, InMemoryTerm>* tmap;
+	std::map<std::string, InMemoryTerm>::const_iterator it;
+	Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database;
+	std::string prefix;
+public:
+	InMemoryAllTermsList(const std::map<std::string, InMemoryTerm>* tmap_, Xapian::Internal::intrusive_ptr<const InMemoryDatabase> database_, const std::string & prefix_) : 
+		tmap(tmap_), it(tmap->begin()), database(database_), prefix(prefix_)
+	{
+	}
+	Xapian::termcount get_approx_size() const;
+	// Gets current termname
+	std::string get_termname() const;
+	// Get num of docs indexed by term
+	Xapian::doccount get_termfreq() const;
+	TermList* skip_to(const std::string & tname);
+	/// next() causes the AllTermsList to move to the next term in the list.
+	TermList * next();
+	// True if we're off the end of the list
+	bool at_end() const;
 };
 
 #ifdef DISABLE_GPL_LIBXAPIAN

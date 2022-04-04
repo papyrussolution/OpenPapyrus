@@ -16,42 +16,37 @@
 #ifndef XAPIAN_INCLUDED_SAFESYSSTAT_H
 #define XAPIAN_INCLUDED_SAFESYSSTAT_H
 
-#include <sys/stat.h>
-#include <sys/types.h>
+//#include <sys/stat.h>
+//#include <sys/types.h>
 
 #ifdef __WIN32__
+	// MSVC lacks these POSIX macros and other compilers may too:
+	#ifndef S_ISDIR
+		#define S_ISDIR(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFDIR)
+	#endif
+	#ifndef S_ISREG
+		#define S_ISREG(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFREG)
+	#endif
 
-// MSVC lacks these POSIX macros and other compilers may too:
-#ifndef S_ISDIR
-#define S_ISDIR(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFDIR)
-#endif
-#ifndef S_ISREG
-#define S_ISREG(ST_MODE) (((ST_MODE)&_S_IFMT) == _S_IFREG)
-#endif
+	// On UNIX, mkdir() is prototyped in <sys/stat.h> but on Windows it's in
+	// <direct.h>, so just include that from here to avoid build failures on
+	// MSVC just because of some new use of mkdir().  This also reduces the
+	// number of conditionalised #include statements we need in the sources.
+	#include <direct.h>
 
-// On UNIX, mkdir() is prototyped in <sys/stat.h> but on Windows it's in
-// <direct.h>, so just include that from here to avoid build failures on
-// MSVC just because of some new use of mkdir().  This also reduces the
-// number of conditionalised #include statements we need in the sources.
-#include <direct.h>
-
-// Add overloaded version of mkdir which takes an (ignored) mode argument
-// to allow source code to just specify a mode argument unconditionally.
-//
-// The () around mkdir are in case it's defined as a macro.
-inline int(mkdir)(const char * pathname, mode_t /*mode*/) { return _mkdir(pathname); }
-
+	// Add overloaded version of mkdir which takes an (ignored) mode argument
+	// to allow source code to just specify a mode argument unconditionally.
+	//
+	// The () around mkdir are in case it's defined as a macro.
+	inline int(mkdir)(const char * pathname, mode_t /*mode*/) { return _mkdir(pathname); }
 #else
-
-// These were specified by POSIX.1-1996, so most platforms should have
-// these by now:
-#ifndef S_ISDIR
-#define S_ISDIR(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFDIR)
+	// These were specified by POSIX.1-1996, so most platforms should have
+	// these by now:
+	#ifndef S_ISDIR
+		#define S_ISDIR(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFDIR)
+	#endif
+	#ifndef S_ISREG
+		#define S_ISREG(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFREG)
+	#endif
 #endif
-#ifndef S_ISREG
-#define S_ISREG(ST_MODE) (((ST_MODE)&S_IFMT) == S_IFREG)
-#endif
-
-#endif
-
 #endif /* XAPIAN_INCLUDED_SAFESYSSTAT_H */

@@ -8,22 +8,12 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_QUERY_H
 #define XAPIAN_INCLUDED_QUERY_H
 
 #if !defined XAPIAN_IN_XAPIAN_H && !defined XAPIAN_LIB_BUILD
-#error Never use <xapian/query.h> directly; include <xapian.h> instead.
+	#error Never use <xapian/query.h> directly; include <xapian.h> instead.
 #endif
 
 #include <string>
@@ -41,11 +31,8 @@ class PostingSource;
 /// Class representing a query.
 class XAPIAN_VISIBILITY_DEFAULT Query {
 public:
-	/// Class representing the query internals.
-	class Internal;
-	/// @private @internal Reference counted internals.
-	Xapian::Internal::intrusive_ptr<Internal> internal;
-
+	class Internal; /// Class representing the query internals.
+	Xapian::Internal::intrusive_ptr<Internal> internal; /// @private @internal Reference counted internals.
 	/** A query matching no documents.
 	 *
 	 *  This is a static instance of a default-constructed Xapian::Query
@@ -359,12 +346,8 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	Query & operator = (const Query & o) { internal = o.internal; return *this; }
-
-	/// Move constructor.
-	Query(Query &&) = default;
-
-	/// Move assignment operator.
-	Query & operator = (Query &&) = default;
+	Query(Query &&) = default; /// Move constructor.
+	Query & operator = (Query &&) = default; /// Move assignment operator.
 
 	/** Construct a Query object for a term.
 	 *
@@ -375,13 +358,9 @@ public:
 	 *		    determine the order of terms obtained via
 	 *		    get_terms_begin(). (default: 0)
 	 */
-	Query(const std::string & term,
-	    Xapian::termcount wqf = 1,
-	    Xapian::termpos pos = 0);
-
+	Query(const std::string & term, Xapian::termcount wqf = 1, Xapian::termpos pos = 0);
 	/** Construct a Query object for a PostingSource. */
 	explicit Query(Xapian::PostingSource * source);
-
 	/** Scale using OP_SCALE_WEIGHT.
 	 *
 	 *  @param factor Non-negative real number to multiply weights by.
@@ -523,19 +502,12 @@ public:
 	 *			The length in bytes of any initial substring of target
 	 *			that is required to match exactly.  Default: 0
 	 */
-	Query(op op_,
-	    const std::string & pattern,
-	    Xapian::termcount max_expansion,
-	    int flags,
-	    op combiner,
-	    unsigned edit_distance,
-	    size_t min_prefix_len = 0);
-
+	Query(op op_, const std::string & pattern, Xapian::termcount max_expansion, int flags, op combiner, uint edit_distance, size_t min_prefix_len = 0);
 	/** Construct a Query object from a begin/end iterator pair.
 	 *
 	 *  Dereferencing the iterator should return a Xapian::Query, a non-NULL
 	 *  Xapian::Query*, a std::string or a type which converts to one of
-	 *  these (e.g. const char*).
+	 *  these (e.g. const char *).
 	 *
 	 *  If begin == end then there are no subqueries and the resulting Query
 	 *  won't match anything.
@@ -546,8 +518,7 @@ public:
 	 *  @param window	Window size for OP_NEAR and OP_PHRASE, or 0 to use the
 	 *			number of subqueries as the window size (default: 0).
 	 */
-	template <typename I>
-	Query(op op_, I begin, I end, Xapian::termcount window = 0)
+	template <typename I> Query(op op_, I begin, I end, Xapian::termcount window = 0)
 	{
 		if(begin != end) {
 			typedef typename std::iterator_traits<I>::iterator_category iterator_category;
@@ -660,7 +631,6 @@ public:
 	 *  <code>!o.empty()</code>).
 	 */
 	const Query operator|=(const Query & o);
-
 	/** Combine with another Xapian::Query object using OP_XOR.
 	 *
 	 *  @since Since Xapian 1.4.10, when called on a Query object which is
@@ -669,64 +639,49 @@ public:
 	 *  <code>!o.empty()</code>).
 	 */
 	const Query operator^=(const Query & o);
-
 	/** Scale using OP_SCALE_WEIGHT.
 	 *
 	 *  @param factor Non-negative real number to multiply weights by.
 	 */
-	const Query operator*=(double factor) {
-		return (*this = Query(factor, *this));
-	}
-
+	const Query operator*=(double factor) { return (*this = Query(factor, *this)); }
 	/** Inverse scale using OP_SCALE_WEIGHT.
 	 *
 	 *  @param factor Positive real number to divide weights by.
 	 */
-	const Query operator/=(double factor) {
-		return (*this = Query(1.0 / factor, *this));
-	}
-
+	const Query operator/=(double factor) { return (*this = Query(1.0 / factor, *this)); }
 	/// @private @internal Wrap an existing Internal.
-	explicit Query(Internal * internal_) : internal(internal_) {
+	explicit Query(Internal * internal_) : internal(internal_) 
+	{
 	}
-
 	/** Construct with just an operator.
 	 *
 	 *  @param op_ The operator to use - currently only OP_INVALID is useful.
 	 */
-	explicit Query(Query::op op_) {
+	explicit Query(Query::op op_) 
+	{
 		init(op_, 0);
 		if(op_ != Query::OP_INVALID) done();
 	}
-
 private:
 	void init(Query::op op_, size_t n_subqueries, Xapian::termcount window = 0);
-
-	template <typename I>
-	void init(Query::op op_, Xapian::termcount window,
-	    const I & begin, const I & end, std::random_access_iterator_tag)
+	template <typename I> void init(Query::op op_, Xapian::termcount window, const I & begin, const I & end, std::random_access_iterator_tag)
 	{
 		init(op_, end - begin, window);
 	}
-
-	template <typename I>
-	void init(Query::op op_, Xapian::termcount window,
-	    const I &, const I &, std::input_iterator_tag)
+	template <typename I> void init(Query::op op_, Xapian::termcount window, const I &, const I &, std::input_iterator_tag)
 	{
 		init(op_, 0, window);
 	}
-
 	void add_subquery(bool positional, const Xapian::Query & subquery);
-
-	void add_subquery(bool, const std::string & subquery) {
+	void add_subquery(bool, const std::string & subquery) 
+	{
 		add_subquery(false, Xapian::Query(subquery));
 	}
-
-	void add_subquery(bool positional, const Xapian::Query * subquery) {
+	void add_subquery(bool positional, const Xapian::Query * subquery) 
+	{
 		// FIXME: subquery NULL?
 		add_subquery(positional, *subquery);
 	}
-
 	void done();
 };
 
@@ -833,7 +788,7 @@ public:
 	{
 	}
 	virtual ~Internal();
-	virtual Xapian::Internal::PostList* postlist(Xapian::Internal::QueryOptimiser* qopt, double factor) const = 0;
+	virtual Xapian::Internal::PostList * postlist(Xapian::Internal::QueryOptimiser* qopt, double factor) const = 0;
 	virtual bool postlist_sub_and_like(Xapian::Internal::AndContext& ctx, Xapian::Internal::QueryOptimiser* qopt, double factor) const;
 	virtual void postlist_sub_bool_or_like(Xapian::Internal::BoolOrContext& ctx, Xapian::Internal::QueryOptimiser* qopt) const;
 	virtual void postlist_sub_or_like(Xapian::Internal::OrContext& ctx, Xapian::Internal::QueryOptimiser* qopt, double factor,

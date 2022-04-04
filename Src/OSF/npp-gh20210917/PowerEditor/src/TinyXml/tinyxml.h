@@ -711,11 +711,9 @@ protected:
 
 /** XML text. Contained in an element.
  */
-class TiXmlText : public TiXmlNode
-{
+class TiXmlText : public TiXmlNode {
 	friend class TiXmlElement;
 public:
-	/// Constructor.
 	TiXmlText (const TCHAR * initValue) : TiXmlNode(TiXmlNode::TEXT)
 	{
 		SetValue(initValue);
@@ -724,7 +722,6 @@ public:
 	{
 	}
 	#ifdef TIXML_USE_STL
-		/// Constructor.
 		TiXmlText(const generic_string& initValue) : TiXmlNode(TiXmlNode::TEXT)
 		{
 			SetValue(initValue);
@@ -762,15 +759,13 @@ protected:
         handled as special cases, not generic attributes, simply
         because there can only be at most 3 and they are always the same.
  */
-class TiXmlDeclaration : public TiXmlNode
-{
+class TiXmlDeclaration : public TiXmlNode {
 public:
 	/// Construct an empty declaration.
 	TiXmlDeclaration()   : TiXmlNode(TiXmlNode::DECLARATION) 
 	{
 	}
 #ifdef TIXML_USE_STL
-	/// Constructor.
 	TiXmlDeclaration(const generic_string& _version, const generic_string& _encoding, const generic_string& _standalone) : TiXmlNode(TiXmlNode::DECLARATION)
 	{
 		version = _version;
@@ -778,7 +773,6 @@ public:
 		standalone = _standalone;
 	}
 #endif
-	/// Construct.
 	TiXmlDeclaration(const TCHAR* _version, const TCHAR* _encoding, const TCHAR* _standalone);
 	virtual ~TiXmlDeclaration()     
 	{
@@ -851,7 +845,6 @@ public:
 	/// Create a document with a name. The name of the document is also the filename of the xml.
 	TiXmlDocument(const TCHAR * documentName);
 	#ifdef TIXML_USE_STL
-		/// Constructor.
 		TiXmlDocument(const generic_string& documentName) : TiXmlNode(TiXmlNode::DOCUMENT)
 		{
 			tabsize = 4;

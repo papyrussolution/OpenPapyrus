@@ -8,16 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -45,13 +35,8 @@ static string hex_display_encode(const string & input)
 
 #define DIR_START        11
 
-GlassCursor::GlassCursor(const GlassTable * B_, const Glass::Cursor * C_)
-	: is_positioned(false),
-	is_after_end(false),
-	tag_status(UNREAD),
-	B(B_),
-	version(B_->cursor_version),
-	level(B_->level)
+GlassCursor::GlassCursor(const GlassTable * B_, const Glass::Cursor * C_) : is_positioned(false), is_after_end(false), tag_status(UNREAD),
+	B(B_), version(B_->cursor_version), level(B_->level)
 {
 	B->cursor_created_since_last_modification = true;
 	C = new Glass::Cursor[level + 1];

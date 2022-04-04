@@ -7,15 +7,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_POSITIONITERATOR_H
 #define XAPIAN_INCLUDED_POSITIONITERATOR_H
@@ -43,12 +34,9 @@ public:
 	/// @private @internal Wrap an existing Internal.
 	XAPIAN_VISIBILITY_INTERNAL
 	explicit PositionIterator(Internal * internal_);
-	/// Copy constructor.
-	PositionIterator(const PositionIterator & o);
-	/// Assignment.
-	PositionIterator & operator = (const PositionIterator & o);
-	/// Move constructor.
-	PositionIterator(PositionIterator && o) : internal(o.internal) 
+	PositionIterator(const PositionIterator & o); /// Copy constructor.
+	PositionIterator & operator = (const PositionIterator & o); /// Assignment.
+	PositionIterator(PositionIterator && o) : internal(o.internal)  /// Move constructor.
 	{
 		o.internal = nullptr;
 	}
@@ -105,16 +93,11 @@ public:
 	 *  that Xapian iterator classes are compatible with the STL.
 	 */
 	// @{
-	/// @private
-	typedef std::input_iterator_tag iterator_category;
-	/// @private
-	typedef Xapian::termpos value_type;
-	/// @private
-	typedef Xapian::termpos_diff difference_type;
-	/// @private
-	typedef Xapian::termpos * pointer;
-	/// @private
-	typedef Xapian::termpos & reference;
+	typedef std::input_iterator_tag iterator_category; /// @private
+	typedef Xapian::termpos value_type; /// @private
+	typedef Xapian::termpos_diff difference_type; /// @private
+	typedef Xapian::termpos * pointer; /// @private
+	typedef Xapian::termpos & reference; /// @private
 	// @}
 };
 

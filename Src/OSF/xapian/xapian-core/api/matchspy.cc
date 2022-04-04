@@ -16,7 +16,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "termlist.h"
 
 using namespace std;
 using namespace Xapian;

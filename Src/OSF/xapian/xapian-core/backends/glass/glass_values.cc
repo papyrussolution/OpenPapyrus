@@ -19,7 +19,6 @@
 #include "glass_cursor.h"
 #include "glass_postlist.h"
 #include "glass_termlist.h"
-#include "backends/documentinternal.h"
 
 using namespace Glass;
 using namespace std;
@@ -64,22 +63,21 @@ void ValueChunkReader::next()
 {
 	if(p == end) {
 		p = NULL;
-		return;
 	}
-
-	Xapian::docid delta;
-	if(!unpack_uint(&p, end, &delta))
-		throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
-	did += delta + 1;
-	if(!unpack_string(&p, end, value))
-		throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+	else {
+		Xapian::docid delta;
+		if(!unpack_uint(&p, end, &delta))
+			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
+		did += delta + 1;
+		if(!unpack_string(&p, end, value))
+			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
+	}
 }
 
 void ValueChunkReader::skip_to(Xapian::docid target)
 {
 	if(p == NULL || target <= did)
 		return;
-
 	size_t value_len;
 	while(p != end) {
 		// Get the next docid
@@ -87,17 +85,14 @@ void ValueChunkReader::skip_to(Xapian::docid target)
 		if(UNLIKELY(!unpack_uint(&p, end, &delta)))
 			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value docid");
 		did += delta + 1;
-
 		// Get the length of the string
 		if(UNLIKELY(!unpack_uint(&p, end, &value_len))) {
 			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value length");
 		}
-
 		// Check that it's not too long
 		if(UNLIKELY(value_len > size_t(end - p))) {
 			throw Xapian::DatabaseCorruptError("Failed to unpack streamed value");
 		}
-
 		// Assign the value and return only if we've reached the target
 		if(did >= target) {
 			value.assign(p, value_len);
@@ -109,8 +104,7 @@ void ValueChunkReader::skip_to(Xapian::docid target)
 	p = NULL;
 }
 
-void GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot,
-    const string & val)
+void GlassValueManager::add_value(Xapian::docid did, Xapian::valueno slot, const string & val)
 {
 	auto i = changes.find(slot);
 	if(i == changes.end()) {
@@ -128,25 +122,20 @@ void GlassValueManager::remove_value(Xapian::docid did, Xapian::valueno slot)
 	i->second[did] = string();
 }
 
-Xapian::docid GlassValueManager::get_chunk_containing_did(Xapian::valueno slot,
-    Xapian::docid did,
-    string &chunk) const
+Xapian::docid GlassValueManager::get_chunk_containing_did(Xapian::valueno slot, Xapian::docid did, string &chunk) const
 {
 	LOGCALL(DB, Xapian::docid, "GlassValueManager::get_chunk_containing_did", slot | did | chunk);
 	if(!cursor.get())
 		cursor.reset(postlist_table->cursor_get());
 	if(!cursor.get()) RETURN(0);
-
 	bool exact = cursor->find_entry(make_valuechunk_key(slot, did));
 	if(!exact) {
 		// If we didn't find a chunk starting with docid did, then we need
 		// to check if the chunk contains did.
 		const char * p = cursor->current_key.data();
 		const char * end = p + cursor->current_key.size();
-
 		// Check that it is a value stream chunk.
 		if(end - p < 2 || *p++ != '\0' || *p++ != '\xd8') RETURN(0);
-
 		// Check that it's for the right value slot.
 		Xapian::valueno v;
 		if(!unpack_uint(&p, end, &v)) {
@@ -171,21 +160,13 @@ static const size_t CHUNK_SIZE_THRESHOLD = 2000;
 namespace Glass {
 class ValueUpdater {
 	GlassPostListTable * table;
-
 	Xapian::valueno slot;
-
 	string ctag;
-
 	ValueChunkReader reader;
-
 	string tag;
-
 	Xapian::docid prev_did;
-
 	Xapian::docid first_did;
-
 	Xapian::docid new_first_did;
-
 	Xapian::docid last_allowed_did;
 
 	void append_to_stream(Xapian::docid did, const string & value) {

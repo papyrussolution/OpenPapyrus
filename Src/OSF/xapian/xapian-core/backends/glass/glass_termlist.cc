@@ -9,19 +9,14 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_termlist.h"
-#include "expand/expandweight.h"
 #include "glass_positionlist.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
-GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
-    Xapian::docid did_,
-    bool throw_if_not_present)
-	: db(db_), did(did_), current_wdf(0), current_termfreq(0)
+GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_, Xapian::docid did_, bool throw_if_not_present) : db(db_), did(did_), current_wdf(0), current_termfreq(0)
 {
 	LOGCALL_CTOR(DB, "GlassTermList", db_ | did_ | throw_if_not_present);
-
 	if(!db->termlist_table.get_exact_entry(GlassTermListTable::make_key(did),
 	    data)) {
 		if(!throw_if_not_present) {
@@ -30,10 +25,8 @@ GlassTermList::GlassTermList(intrusive_ptr<const GlassDatabase> db_,
 		}
 		throw Xapian::DocNotFoundError("No termlist for document " + str(did));
 	}
-
 	pos = data.data();
 	end = pos + data.size();
-
 	if(pos == end) {
 		doclen = 0;
 		termlist_size = 0;

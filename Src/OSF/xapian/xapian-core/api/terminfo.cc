@@ -7,28 +7,16 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "terminfo.h"
 
 using namespace std;
 
 void TermInfo::merge() const
 {
 	Assert(!is_deleted());
-	inplace_merge(positions.begin(),
-	    positions.begin() + split,
-	    positions.end());
+	inplace_merge(positions.begin(), positions.begin() + split, positions.end());
 	split = 0;
 }
 
@@ -40,9 +28,7 @@ bool TermInfo::add_position(Xapian::termcount wdf_inc, Xapian::termpos termpos)
 		positions.push_back(termpos);
 		return true;
 	}
-
 	wdf += wdf_inc;
-
 	// Optimise the common case of adding positions in ascending order.
 	if(positions.empty()) {
 		positions.push_back(termpos);
@@ -133,11 +119,9 @@ bool TermInfo::remove_position(Xapian::termpos termpos)
 	return true;
 }
 
-Xapian::termpos TermInfo::remove_positions(Xapian::termpos termpos_first,
-    Xapian::termpos termpos_last)
+Xapian::termpos TermInfo::remove_positions(Xapian::termpos termpos_first, Xapian::termpos termpos_last)
 {
 	Assert(!is_deleted());
-
 	if(split > 0) {
 		// We could remove the requested entries at the same time, but that
 		// seems fiddly to do.

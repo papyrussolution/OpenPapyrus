@@ -15,8 +15,6 @@
 #ifndef XAPIAN_INCLUDED_STR_H
 #define XAPIAN_INCLUDED_STR_H
 
-#include <string>
-
 namespace Xapian {
 	namespace Internal {
 		std::string str(int value); /// Convert int to std::string.

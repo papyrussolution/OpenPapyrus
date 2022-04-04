@@ -2443,7 +2443,7 @@ private:
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
 // Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.
-#define SETIFZ(v,a)                 (!!(v) || !!((v)=(a)))
+#define SETIFZ(v,a)  (!!(v) || !!((v)=(a)))
 #define SETIFZQ(v,a) {if(!(v)) (v)=(a);} // @v11.1.12
 #define SETMAX(v,b) {if((v)<(b)) (v)=(b);}
 #define SETMIN(v,b) {if((v)>(b)) (v)=(b);}
@@ -2726,6 +2726,9 @@ private:
 #define SLERR_WTM_DUPLAYOUTSYMB                459 // @v10.4.9 Дублирование символа layout
 #define SLERR_STRINGISNTUTF8                   460 // @v11.3.3 Строка - не в кодировке utf-8
 #define SLERR_LMDB                             461 // @v11.3.6 Ошибка базы данных LMDB
+#define SLERR_FILSTRG_INVHANDLE                462 // @v11.3.7 Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
+#define SLERR_FILSTRG_INVNAME                  463 // @v11.3.7 Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов и содержать только [0-9a-z_+-,.=@]
+#define SLERR_FILSTRG_FILENFOUND               464 // @v11.3.7 Файл с именем '%s' в хранилище SFileStorage отсутствует
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -5931,15 +5934,15 @@ public:
 	explicit STempBuffer(size_t sz);
 	~STempBuffer();
 	STempBuffer & FASTCALL operator = (const STempBuffer & rS);
-	bool   IsValid() const;
-	size_t GetSize() const;
-	operator char * ();
-	operator const char * () const;
-	const  uchar * ucptr() const;
-	const  char  * cptr() const;
-	const  void * vcptr() const;
-	void * vptr();
-	void * vptr(size_t offs);
+	bool   IsValid() const { return (P_Buf != 0); }
+	size_t GetSize() const { return Size; }
+	operator char * () { return P_Buf; }
+	operator const char * () const { return P_Buf; }
+	const  uchar * ucptr() const { return reinterpret_cast<const uchar *>(P_Buf); }
+	const  char * cptr() const { return P_Buf; }
+	const  void * vcptr() const { return P_Buf; }
+	void * vptr() { return P_Buf; }
+	void * vptr(size_t offs) { return (PTR8(P_Buf)+offs); }
 	int    FASTCALL Alloc(size_t sz);
 	//
 	// Descr: Если текущий размер буфера больше или равен sz, то ничего не делает, в противном
@@ -6374,6 +6377,47 @@ public:
 	}
 	uint8  D[BYTESIZE];
 };
+//
+// Descr: Идентификация алгоритмов хэширования.
+// @persistent
+// Данная классификация объединяет все алгоритмы, суть которых заключается в необратимом
+// преобразовании данных произвольной длины в значение фиксированной длины.
+// Каждый элемент списка гарантированно однозначно соответствует результату с определенной длиной.
+// То есть, не должно такого быть, чтобы алгоритм, подпадающий под один из элементов списка мог
+// сформировать результат разной длины.
+// Note: Не все перечисленные алгоритмы реализованы в рамках данного проекта.
+// Attention! Новые алгоритмы добавлять строго в конец списка с инкрементом последнего значения.  
+//
+#define SHASHF_CRC8            1
+#define SHASHF_CRC16           2
+#define SHASHF_CRC24           3
+#define SHASHF_CRC32           4
+#define SHASHF_CRC64           5
+#define SHASHF_CRCCCITT        6
+#define SHASHF_CRCDNP          7
+#define SHASHF_CRCKERMIT       8
+#define SHASHF_CRCSICK         9  // CRC value that is used as dataprotection measure in communications with Sick electronic devices
+#define SHASHF_ADLER32        10
+#define SHASHF_XX32           11 
+#define SHASHF_XX64           12
+#define SHASHF_MURMUR2_32     13
+#define SHASHF_MURMUR2_64     14
+#define SHASHF_MURMUR3_32     15
+#define SHASHF_MURMUR3_128X32 16
+#define SHASHF_MURMUR3_128X64 17
+#define SHASHF_MD2            18
+#define SHASHF_MD4            19
+#define SHASHF_MD5            20
+#define SHASHF_SHA1           21
+#define SHASHF_SHA256         22
+#define SHASHF_SHA512         23
+#define SHASHF_BLAKE_256      24
+#define SHASHF_BLAKE_512      25
+#define SHASHF_BLAKE2B        26
+#define SHASHF_BLAKE2BP       27
+#define SHASHF_BLAKE2S        28
+#define SHASHF_BLAKE2SP       29
+#define SHASHF_BLAKE3         30
 
 typedef TSBinary <16> binary128;
 typedef TSBinary <20> binary160;
@@ -6396,6 +6440,18 @@ private:
 //
 class SlHash {
 public:
+	static int GetAlgorithmSymb(int ident, SString & rBuf);
+	static int IdentifyAlgorithmSymb(const char * pSymb);
+	//
+	// Descr: Проверяет соответствует ли хэш данных, заданных параметрами {pBuf; bufLen} значению
+	//   хэш-функции hashFuncIdent заданному параметрами {pHash, hashLen}.
+	// Note: Поддерживаются следующие хэш-функции: SHASHF_SHA1, SHASHF_SHA256, SHASHF_SHA512, SHASHF_MD5, SHASHF_CRC32.
+	//   В дальнейшем количество функций увеличится.
+	// Returns:
+	//   >0 - значение хэш-функции соответствует заданному буферу данных
+	//   0  - ошибка (возможно, не допустимые параметры, либо просто значение хэш-функции не соответствует заданному буферу данных).
+	//
+	static int VerifyBuffer(int hashFuncIdent, const void * pHash, size_t hashLen, const void * pBuf, size_t bufLen);
 	//
 	// Descr: Расчитывает хеш блока pData размером len по алгоритму Bob Jenkins
 	//
@@ -9977,15 +10033,21 @@ public:
 	//
 	// Descr: Устанавливает 32-битное значение текущей позиции в файле.
 	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
+	// Returns:
+	//   true - success
+	//   false - error
 	//
-	int    Seek(long offs, int origin = SEEK_SET);
+	bool   Seek(long offs, int origin = SEEK_SET);
 	//
 	// Descr: Устанавливает 64-битное значение текущей позиции в файле.
 	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
 	//   фактически применяется 32-битное значение позиции (младшие четыре байта offs).
 	// Note: При буферизованном чтении вызов функции сбрасывает буфер.
+	// Returns:
+	//   true - success
+	//   false - error
 	//
-	int    Seek64(int64 offs, int origin = SEEK_SET);
+	bool   Seek64(int64 offs, int origin = SEEK_SET);
 	//
 	// Descr: Возвращает значение текущей позиции в файле.
 	//
@@ -10148,12 +10210,22 @@ public:
 	SHandle GetFile(const char * pName, int64 * pFileSize);
 	bool   Read(SHandle handle, void * pBuf, size_t bufSize, size_t * pActualSize);
 	//
+	// Descr: Возвращает общий размер считанных с помощью манипулятора handle байт.
+	//   Если манипулятор открыт для записи, то возвращает 0.
+	//
+	uint64 GetTotalRdSize(SHandle handle) const;
+	//
+	// Descr: Возвращает общий размер записанных с помощью манипулятора handle байт.
+	//   Если манипулятор открыт для чтения, то возвращает 0.
+	//
+	uint64 GetTotalWrSize(SHandle handle) const;
+	//
 	// Descr: Закрывает файл, открытый либо функцией Write_Start() либо GetFile()
 	//
 	bool   CloseFile(SHandle handle);
 private:
 	bool   ValidateName(const char * pName) const;
-	int    MakeFileEntry(const char * pName, SString & rEntryName);
+	int    MakeFileEntry(const char * pName, SString & rEntryName, bool writing);
 
 	enum {
 		stError  = 0x0001,

@@ -76,7 +76,7 @@ template <typename T, typename U> static constexpr inline T safe_shl(T x, U shif
 void BitWriter::encode(Xapian::termpos value, Xapian::termpos outof)
 {
 	Assert(value < outof);
-	unsigned bits = highest_order_bit(outof - Xapian::termpos(1));
+	uint bits = highest_order_bit(outof - Xapian::termpos(1));
 	const Xapian::termpos spare = safe_shl(Xapian::termpos(1), bits) - outof;
 	if(spare) {
 		/* If we have spare values, we can use one fewer bit to encode some

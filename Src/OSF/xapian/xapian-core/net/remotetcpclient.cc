@@ -6,8 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "remotetcpclient.h"
-#include "tcpclient.h"
 
 using namespace std;
 

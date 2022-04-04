@@ -14,56 +14,20 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "wrapperpostlist.h"
 
-Xapian::doccount WrapperPostList::get_termfreq_min() const
-{
-	return pl->get_termfreq_min();
-}
+Xapian::doccount WrapperPostList::get_termfreq_min() const { return pl->get_termfreq_min(); }
+Xapian::doccount WrapperPostList::get_termfreq_max() const { return pl->get_termfreq_max(); }
+Xapian::doccount WrapperPostList::get_termfreq_est() const { return pl->get_termfreq_est(); }
+TermFreqs WrapperPostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal& stats) const { return pl->get_termfreq_est_using_stats(stats); }
+Xapian::docid WrapperPostList::get_docid() const { return pl->get_docid(); }
+double WrapperPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const { return pl->get_weight(doclen, unique_terms, wdfdocmax); }
+bool WrapperPostList::at_end() const { return pl->at_end(); }
+double WrapperPostList::recalc_maxweight() { return pl->recalc_maxweight(); }
+PositionList* WrapperPostList::read_position_list() { return pl->read_position_list(); }
 
-Xapian::doccount WrapperPostList::get_termfreq_max() const
+PostList * WrapperPostList::next(double w_min)
 {
-	return pl->get_termfreq_max();
-}
-
-Xapian::doccount WrapperPostList::get_termfreq_est() const
-{
-	return pl->get_termfreq_est();
-}
-
-TermFreqs WrapperPostList::get_termfreq_est_using_stats(const Xapian::Weight::Internal& stats) const
-{
-	return pl->get_termfreq_est_using_stats(stats);
-}
-
-Xapian::docid WrapperPostList::get_docid() const
-{
-	return pl->get_docid();
-}
-
-double WrapperPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
-{
-	return pl->get_weight(doclen, unique_terms, wdfdocmax);
-}
-
-bool WrapperPostList::at_end() const
-{
-	return pl->at_end();
-}
-
-double WrapperPostList::recalc_maxweight()
-{
-	return pl->recalc_maxweight();
-}
-
-PositionList* WrapperPostList::read_position_list()
-{
-	return pl->read_position_list();
-}
-
-PostList* WrapperPostList::next(double w_min)
-{
-	PostList* result = pl->next(w_min);
+	PostList * result = pl->next(w_min);
 	if(result) {
 		delete pl;
 		pl = result;
@@ -71,9 +35,9 @@ PostList* WrapperPostList::next(double w_min)
 	return NULL;
 }
 
-PostList* WrapperPostList::skip_to(Xapian::docid did, double w_min)
+PostList * WrapperPostList::skip_to(Xapian::docid did, double w_min)
 {
-	PostList* result = pl->skip_to(did, w_min);
+	PostList * result = pl->skip_to(did, w_min);
 	if(result) {
 		delete pl;
 		pl = result;
@@ -81,17 +45,6 @@ PostList* WrapperPostList::skip_to(Xapian::docid did, double w_min)
 	return NULL;
 }
 
-std::string WrapperPostList::get_description() const
-{
-	return pl->get_description();
-}
-
-Xapian::termcount WrapperPostList::get_wdf() const
-{
-	return pl->get_wdf();
-}
-
-Xapian::termcount WrapperPostList::count_matching_subqs() const
-{
-	return pl->count_matching_subqs();
-}
+std::string WrapperPostList::get_description() const { return pl->get_description(); }
+Xapian::termcount WrapperPostList::get_wdf() const { return pl->get_wdf(); }
+Xapian::termcount WrapperPostList::count_matching_subqs() const { return pl->count_matching_subqs(); }

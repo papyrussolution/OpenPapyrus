@@ -16,8 +16,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "expandweight.h"
-#include "api/termlist.h"
 
 using namespace std;
 

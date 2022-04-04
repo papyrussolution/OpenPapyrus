@@ -21,8 +21,7 @@
 #ifndef XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
 
-#include "backends/alltermslist.h"
-//#include <string>
+//#include "backends/alltermslist.h"
 
 namespace Xapian {
 	class Database;

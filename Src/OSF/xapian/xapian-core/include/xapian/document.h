@@ -78,10 +78,8 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	Document& operator = (const Document& o);
-	/// Move constructor.
-	Document(Document&& o);
-	/// Move assignment operator.
-	Document& operator = (Document&& o);
+	Document(Document&& o); /// Move constructor.
+	Document& operator = (Document&& o); /// Move assignment operator.
 	/** Default constructor.
 	 *
 	 *  Creates an empty Document.

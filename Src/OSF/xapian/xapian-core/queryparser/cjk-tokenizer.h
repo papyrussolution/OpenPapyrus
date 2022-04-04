@@ -54,7 +54,6 @@
 #endif
 
 namespace CJK {
-
 /** Should we use the CJK n-gram code?
  *
  *  The first time this is called it reads the environment variable
@@ -62,104 +61,91 @@ namespace CJK {
  *  Subsequent calls cache and return the same value.
  */
 bool is_cjk_enabled();
-
-bool codepoint_is_cjk(unsigned codepoint);
-
-bool codepoint_is_cjk_wordchar(unsigned codepoint);
-
+bool codepoint_is_cjk(uint codepoint);
+bool codepoint_is_cjk_wordchar(uint codepoint);
 size_t get_cjk(Xapian::Utf8Iterator& it);
-
 }
 
 /// Iterator returning unigrams and bigrams.
 class CJKNgramIterator {
-    Xapian::Utf8Iterator it;
+	Xapian::Utf8Iterator it;
+	/** Offset to penultimate Unicode character in current_token.
+	 *
+	 *  If current_token has one Unicode character, this is 0.
+	 */
+	uint offset = 0;
+	std::string current_token;
+	/// Call to set current_token at the start.
+	void init();
+public:
+	explicit CJKNgramIterator(const std::string & s) : it(s) 
+	{
+		init();
+	}
+	explicit CJKNgramIterator(const Xapian::Utf8Iterator& it_) : it(it_) 
+	{
+		init();
+	}
+	CJKNgramIterator() 
+	{
+	}
+	const std::string & operator*() const { return current_token; }
+	CJKNgramIterator& operator++();
 
-    /** Offset to penultimate Unicode character in current_token.
-     *
-     *  If current_token has one Unicode character, this is 0.
-     */
-    unsigned offset = 0;
-
-    std::string current_token;
-
-    /// Call to set current_token at the start.
-    void init();
-
-  public:
-    explicit CJKNgramIterator(const std::string & s) : it(s) {
-	init();
-    }
-
-    explicit CJKNgramIterator(const Xapian::Utf8Iterator& it_) : it(it_) {
-	init();
-    }
-
-    CJKNgramIterator() { }
-
-    const std::string & operator*() const {
-	return current_token;
-    }
-
-    CJKNgramIterator& operator++();
-
-    /// Is this a unigram?
-    bool unigram() const { return offset == 0; }
-
-    const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
-
-    bool operator == (const CJKNgramIterator& other) const {
-	// We only really care about comparisons where one or other is an end
-	// iterator.
-	return current_token.empty() && other.current_token.empty();
-    }
-
-    bool operator != (const CJKNgramIterator& other) const {
-	return !(*this == other);
-    }
+	/// Is this a unigram?
+	bool unigram() const { return offset == 0; }
+	const Xapian::Utf8Iterator& get_utf8iterator() const { return it; }
+	bool operator ==(const CJKNgramIterator& other) const {
+		// We only really care about comparisons where one or other is an end
+		// iterator.
+		return current_token.empty() && other.current_token.empty();
+	}
+	bool operator !=(const CJKNgramIterator& other) const { return !(*this == other); }
 };
 
 #ifdef USE_ICU
 class CJKWordIterator {
-    std::string current_token;
-
-    int32_t p;
-
-    const char* utf8_ptr;
-
-    // copy UBRK_DONE to avoid GCC old-style cast error
+	std::string current_token;
+	int32_t p;
+	const char * utf8_ptr;
+	// copy UBRK_DONE to avoid GCC old-style cast error
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wold-style-cast"
-    static const int32_t done = UBRK_DONE;
+	static const int32_t done = UBRK_DONE;
 #pragma GCC diagnostic pop
 
-    icu::BreakIterator *brk;
+	icu::BreakIterator * brk;
 
-  public:
-    CJKWordIterator(const char* ptr, size_t len);
+public:
+	CJKWordIterator(const char * ptr, size_t len);
 
-    explicit CJKWordIterator(const std::string &s)
-	: CJKWordIterator(s.data(), s.size()) { }
+	explicit CJKWordIterator(const std::string &s)
+		: CJKWordIterator(s.data(), s.size()) {
+	}
 
-    CJKWordIterator()
-	: p(done), brk(NULL) { }
+	CJKWordIterator()
+		: p(done), brk(NULL) {
+	}
 
-    ~CJKWordIterator() { delete brk; }
+	~CJKWordIterator() {
+		delete brk;
+	}
 
-    const std::string & operator*() const {
-	return current_token;
-    }
+	const std::string & operator*() const {
+		return current_token;
+	}
 
-    CJKWordIterator & operator++();
+	CJKWordIterator & operator++();
 
-    bool operator == (const CJKWordIterator & other) const {
-	return p == other.p;
-    }
+	bool operator ==(const CJKWordIterator & other) const {
+		return p == other.p;
+	}
 
-    bool operator != (const CJKWordIterator & other) const {
-	return !(*this == other);
-    }
+	bool operator !=(const CJKWordIterator & other) const {
+		return !(*this == other);
+	}
 };
+
 #endif
 
 #endif // XAPIAN_INCLUDED_CJK_TOKENIZER_H

@@ -44,7 +44,7 @@ Xapian::doccount RemoteKeyList::get_termfreq() const
 TermList* RemoteKeyList::next()
 {
 	SETIFZ(p, data.data());
-	const char* p_end = data.data() + data.size();
+	const char * p_end = data.data() + data.size();
 	if(p == p_end) {
 		data.resize(0);
 		return NULL;

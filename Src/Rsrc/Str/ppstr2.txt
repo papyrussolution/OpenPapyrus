@@ -4891,6 +4891,7 @@ PPTXT_STQCLITESTCMD_ECHO        /!/ "Echo"
 PPTXT_STQCLITESTCMD_INDEXING        "Отправка медиатору данных для индексации"
 PPTXT_STQCLITESTCMD_SEARCH          "Поиск"
 PPTXT_STQCLITESTCMD_STOREBLOB       "Передача BLOB'а медиатору"
+PPTXT_STQCLITESTCMD_GETBLOB         "Получение BLOB'а от медиатора"
 //
 // LastText
 
@@ -5205,6 +5206,9 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 459  "Дублирование символа layout '%s'"
 460  "Кодировка строки отличается от UTF-8"
 461  "Ошибка базы данных LMDB: %s"
+462  "Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage"
+463  "Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов из набора [0..9a..z_+-,.=@]"
+464  "Файл с именем '%s' в хранилище SFileStorage отсутствует"
 500  "Unable to open configuration file for reading"
 501  "Unable to open configuration file for writing"
 502  "Wrong version of configuration file"

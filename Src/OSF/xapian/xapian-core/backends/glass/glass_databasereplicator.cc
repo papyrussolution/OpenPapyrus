@@ -17,17 +17,10 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "glass_databasereplicator.h"
-#include "../flint_lock.h"
 #include "glass_defs.h"
 #include "glass_replicate_internal.h"
 #include "glass_version.h"
 #include "compression_stream.h"
-#include "fd.h"
-#include "internaltypes.h"
-#include "io_utils.h"
-#include "posixy_wrapper.h"
-#include "net/remoteconnection.h"
-#include "replicationprotocol.h"
 
 [[noreturn]] static void throw_connection_closed_unexpectedly()
 {
@@ -139,7 +132,7 @@ void GlassDatabaseReplicator::process_changeset_chunk_version(string & buf, Remo
 	buf.erase(0, size);
 }
 
-void GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table, unsigned v, string & buf, RemoteConnection & conn, double end_time) const
+void GlassDatabaseReplicator::process_changeset_chunk_blocks(Glass::table_type table, uint v, string & buf, RemoteConnection & conn, double end_time) const
 {
 	const char * ptr = buf.data();
 	const char * end = ptr + buf.size();

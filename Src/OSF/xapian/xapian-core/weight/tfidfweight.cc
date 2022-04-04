@@ -19,8 +19,6 @@
 #include "keyword.h"
 #include "weight/idf-norm-dispatch.h"
 #include "weight/wdf-norm-dispatch.h"
-#include "weightinternal.h"
-#include "serialise-double.h"
 
 using namespace std;
 
@@ -309,7 +307,7 @@ double TfIdfWeight::get_wtn(double wt, wt_norm wt_normalization) const
 	return wt;
 }
 
-static inline void parameter_error(const char* message)
+static inline void parameter_error(const char * message)
 {
 	Xapian::Weight::Internal::parameter_error(message, "tfidf");
 }

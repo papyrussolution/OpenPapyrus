@@ -15,19 +15,12 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "databaseinternal.h"
-#include "api/termlist.h"
-#include "postlist.h"
-#include "slowvaluelist.h"
 
 using namespace std;
 using Xapian::Internal::intrusive_ptr;
 
 namespace Xapian {
-[[noreturn]] static void invalid_operation(const char* msg)
-{
-	throw InvalidOperationError(msg);
-}
+[[noreturn]] static void invalid_operation(const char * msg) { throw InvalidOperationError(msg); }
 
 Database::Internal::size_type Database::Internal::size() const
 {

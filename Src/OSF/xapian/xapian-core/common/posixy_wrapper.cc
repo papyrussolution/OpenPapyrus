@@ -22,8 +22,6 @@
 #pragma hdrstop
 
 #ifdef __CYGWIN__
-#include "posixy_wrapper.h"
-#include "filetests.h"
 
 int posixy_unlink(const char * filename)
 {
@@ -51,11 +49,7 @@ int posixy_unlink(const char * filename)
 
 #elif defined __WIN32__
 
-#include "posixy_wrapper.h"
-
 #include <io.h>
-
-#include "safefcntl.h"
 #include "safewindows.h"
 
 /** Call GetLastError() and set errno appropriately. */

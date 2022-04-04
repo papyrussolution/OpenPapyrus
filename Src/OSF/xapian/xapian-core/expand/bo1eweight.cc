@@ -15,8 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "expandweight.h"
-#include "common/log2.h"
 
 using namespace std;
 

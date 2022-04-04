@@ -16,8 +16,8 @@
 #define XAPIAN_INCLUDED_RESULT_H
 
 #include "backends/multi.h"
-#include "xapian/types.h"
-#include <string>
+//#include "xapian/types.h"
+//#include <string>
 
 /** A result in an MSet. */
 class Result {
@@ -29,11 +29,8 @@ class Result {
 public:
 	Result& operator = (const Result&) = delete;
 	Result(const Result&) = delete;
-	/// Move constructor.
-	Result(Result&&) = default;
-	/// Move assignment.
-	Result& operator = (Result&&) = default;
-	/// Constructor.
+	Result(Result&&) = default; /// Move constructor.
+	Result& operator = (Result&&) = default; /// Move assignment.
 	Result(double weight_, Xapian::docid did_) : weight(weight_), did(did_) 
 	{
 	}

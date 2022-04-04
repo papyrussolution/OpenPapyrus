@@ -6,27 +6,21 @@
 #ifndef XAPIAN_INCLUDED_TCPSERVER_H
 #define XAPIAN_INCLUDED_TCPSERVER_H
 
-#ifdef __WIN32__
-	#include "remoteconnection.h"
-	#define SOCKET_INITIALIZER_MIXIN : private WinsockInitializer
-#else
-	#define SOCKET_INITIALIZER_MIXIN
-#endif
 #if defined __CYGWIN__ || defined __WIN32__
 	#include "safewindows.h" // Only for HANDLE!
 #endif
-#include <xapian/visibility.h>
-//#include <string>
 
 /** TCP/IP socket based server for RemoteDatabase.
  *
  *  This class implements the server used by xapian-tcpsrv.
  */
-class XAPIAN_VISIBILITY_DEFAULT XapianTcpServer SOCKET_INITIALIZER_MIXIN {
-	/// Don't allow assignment.
-	void operator = (const XapianTcpServer &);
-	/// Don't allow copying.
-	XapianTcpServer(const XapianTcpServer &);
+#ifdef __WIN32__
+class XAPIAN_VISIBILITY_DEFAULT XapianTcpServer : private WinsockInitializer {
+#else
+class XAPIAN_VISIBILITY_DEFAULT XapianTcpServer {
+#endif
+	void operator = (const XapianTcpServer &); /// Don't allow assignment.
+	XapianTcpServer(const XapianTcpServer &); /// Don't allow copying.
 #if defined __CYGWIN__ || defined __WIN32__
 	HANDLE mutex = NULL; /// Mutex to stop two TcpServers running on the same port.
 #endif
@@ -43,7 +37,6 @@ class XAPIAN_VISIBILITY_DEFAULT XapianTcpServer SOCKET_INITIALIZER_MIXIN {
 	    , HANDLE &mutex
 #endif
 	    );
-
 protected:
 	bool verbose; /** Should we produce output when connections are made or lost? */
 	/** Accept a connection and return the file descriptor for it. */

@@ -8,15 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -27,28 +18,17 @@ using Xapian::Internal::opt_intrusive_ptr;
 
 class Xapian::Registry::Internal : public Xapian::Internal::intrusive_base {
 	friend class Xapian::Registry;
-	/// Registered weighting schemes.
-	std::map<std::string, Xapian::Weight *> wtschemes;
-	/// Registered weighting schemes by their short names. E.g. "bm25".
-	std::map<std::string, Xapian::Weight *> wtschemes_short;
-	/// Registered external posting sources.
-	std::map<std::string, Xapian::PostingSource *> postingsources;
-	/// Registered match spies.
-	std::map<std::string, Xapian::MatchSpy *> matchspies;
-	/// Registered lat-long metrics.
-	std::map<std::string, Xapian::LatLongMetric *> lat_long_metrics;
-	/// Registered KeyMaker subclasses.
-	std::map<std::string, opt_intrusive_ptr<Xapian::KeyMaker> > key_makers;
-	/// Add the standard subclasses provided in the API.
-	void add_defaults();
-	/// Clear all registered weighting schemes.
-	void clear_weighting_schemes();
-	/// Clear all registered posting sources.
-	void clear_posting_sources();
-	/// Clear all registered match spies.
-	void clear_match_spies();
-	/// Clear all registered lat-long metrics.
-	void clear_lat_long_metrics();
+	std::map<std::string, Xapian::Weight *> wtschemes; /// Registered weighting schemes.
+	std::map<std::string, Xapian::Weight *> wtschemes_short; /// Registered weighting schemes by their short names. E.g. "bm25".
+	std::map<std::string, Xapian::PostingSource *> postingsources; /// Registered external posting sources.
+	std::map<std::string, Xapian::MatchSpy *> matchspies; /// Registered match spies.
+	std::map<std::string, Xapian::LatLongMetric *> lat_long_metrics; /// Registered lat-long metrics.
+	std::map<std::string, opt_intrusive_ptr<Xapian::KeyMaker> > key_makers; /// Registered KeyMaker subclasses.
+	void add_defaults(); /// Add the standard subclasses provided in the API.
+	void clear_weighting_schemes(); /// Clear all registered weighting schemes.
+	void clear_posting_sources(); /// Clear all registered posting sources.
+	void clear_match_spies(); /// Clear all registered match spies.
+	void clear_lat_long_metrics(); /// Clear all registered lat-long metrics.
 public:
 	Internal();
 	~Internal();

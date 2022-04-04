@@ -7,16 +7,10 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "termgenerator_internal.h"
-#include "api/msetinternal.h"
-#include "api/queryinternal.h"
 #include "cjk-tokenizer.h"
 
 using namespace std;
@@ -35,9 +29,9 @@ static inline bool should_stem(const std::string & term)
 /** Value representing "ignore this" when returned by check_infix() or
  *  check_infix_digit().
  */
-static const unsigned UNICODE_IGNORE = numeric_limits<uint>::max();
+static const uint UNICODE_IGNORE = numeric_limits<uint>::max();
 
-static inline unsigned check_infix(uint ch)
+static inline uint check_infix(uint ch)
 {
 	if(ch == '\'' || ch == '&' || ch == 0xb7 || ch == 0x5f4 || ch == 0x2027) {
 		// Unicode includes all these except '&' in its word boundary rules,
@@ -77,12 +71,12 @@ static inline uint check_infix_digit(uint ch)
 static inline bool is_digit(uint ch) { return (Unicode::get_category(ch) == Unicode::DECIMAL_DIGIT_NUMBER); }
 static inline uint check_suffix(uint ch) { return (ch == '+' || ch == '#') ? ch : 0; /* FIXME: what about '-'? */ }
 
-template <typename ACTION> static bool parse_cjk(Utf8Iterator & itor, unsigned cjk_flags, bool with_positions, ACTION action)
+template <typename ACTION> static bool parse_cjk(Utf8Iterator & itor, uint cjk_flags, bool with_positions, ACTION action)
 {
 	static_assert(int(MSet::SNIPPET_CJK_WORDS) == TermGenerator::FLAG_CJK_WORDS, "CJK_WORDS flags have same value");
 #ifdef USE_ICU
 	if(cjk_flags & MSet::SNIPPET_CJK_WORDS) {
-		const char* cjk_start = itor.raw();
+		const char * cjk_start = itor.raw();
 		(void)CJK::get_cjk(itor);
 		size_t cjk_left = itor.raw() - cjk_start;
 		for(CJKWordIterator tk(cjk_start, cjk_left);
@@ -119,7 +113,7 @@ template <typename ACTION> static bool parse_cjk(Utf8Iterator & itor, unsigned c
  *  std::string holding the term, and positional is a bool indicating
  *  if this term carries positional information.
  */
-template <typename ACTION> static void parse_terms(Utf8Iterator itor, unsigned cjk_flags, bool with_positions, ACTION action)
+template <typename ACTION> static void parse_terms(Utf8Iterator itor, uint cjk_flags, bool with_positions, ACTION action)
 {
 	while(true) {
 		// Advance to the start of the next term.
@@ -308,14 +302,14 @@ public:
 	explicit SnipPipe(size_t length_) : length(length_ + 1) 
 	{
 	}
-	bool pump(double* r, size_t t, size_t h, unsigned flags);
+	bool pump(double* r, size_t t, size_t h, uint flags);
 	void done();
 	bool drain(const string & input, const string & hi_start, const string & hi_end, const string & omit, string & output);
 };
 
 #define DECAY 2.0
 
-inline bool SnipPipe::pump(double* r, size_t t, size_t h, unsigned flags)
+inline bool SnipPipe::pump(double* r, size_t t, size_t h, uint flags)
 {
 	if(h > 1) {
 		if(pipe.size() >= h - 1) {
@@ -456,7 +450,7 @@ static inline bool snippet_check_trailing_nonwordchar(uint ch)
 	return false;
 }
 
-static inline void append_escaping_xml(const char* p, const char* end, string & output)
+static inline void append_escaping_xml(const char * p, const char * end, string & output)
 {
 	while(p != end) {
 		char ch = *p++;
@@ -591,7 +585,7 @@ inline bool SnipPipe::drain(const string & input, const string & hi_start, const
 		phrase_len = word.highlight;
 		if(phrase_len) output += hi_start;
 	}
-	const char* p = input.data();
+	const char * p = input.data();
 	append_escaping_xml(p + best_begin, p + word.term_end, output);
 	best_begin = word.term_end;
 	if(phrase_len && --phrase_len == 0) 

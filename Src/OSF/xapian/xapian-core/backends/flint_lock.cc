@@ -7,34 +7,20 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "flint_lock.h"
 #ifndef __WIN32__
-#include <cerrno>
-#include "safefcntl.h"
-#include <unistd.h>
-#include <cstdlib>
-#include <sys/types.h>
-#include "safesyssocket.h"
-#include <sys/wait.h>
-#include <signal.h>
-#include <cstring>
+	#include <cerrno>
+	#include <unistd.h>
+	#include <cstdlib>
+	#include <sys/types.h>
+	#include "safesyssocket.h"
+	#include <sys/wait.h>
+	#include <signal.h>
+	#include <cstring>
 #endif
 #include "closefrom.h"
-#include "errno_to_string.h"
-#include "omassert.h"
 #ifdef __CYGWIN__
 #include <cygwin/version.h>
 #include <sys/cygwin.h>

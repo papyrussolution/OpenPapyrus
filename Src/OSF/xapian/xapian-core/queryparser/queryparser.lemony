@@ -17,25 +17,12 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-//#include <config.h>
-#include "api/queryinternal.h"
-#include "omassert.h"
-//#include "str.h"
-//#include "stringutils.h"
-//#include "xapian/error.h"
-//#include "xapian/unicode.h"
 #include "queryparser_internal.h"
 // Include the list of token values lemon generates.
 #undef ERROR
 #undef NEAR
 #include "queryparser_token.h"
 #include "cjk-tokenizer.h"
-//#include <algorithm>
-//#include <cstring>
-//#include <limits>
-//#include <list>
-//#include <string>
-//#include <vector>
 
 // We create the yyParser on the stack.
 #define Parse_ENGINEALWAYSONSTACK
@@ -157,7 +144,7 @@ class State {
     QueryParser::Internal * qpi;
 public:
     Query query;
-    const char* error = NULL;
+    const char * error = NULL;
     uint flags;
     Query::op effective_default_op;
 
@@ -665,7 +652,7 @@ string QueryParser::Internal::parse_term(Utf8Iterator &it, const Utf8Iterator &e
     }
     was_acronym = !term.empty();
     if(cjk_enable && term.empty() && CJK::codepoint_is_cjk(*it)) {
-		const char* cjk = it.raw();
+		const char * cjk = it.raw();
 		char_count = CJK::get_cjk(it);
 		term.assign(cjk, it.raw() - cjk);
 		is_cjk_term = true;

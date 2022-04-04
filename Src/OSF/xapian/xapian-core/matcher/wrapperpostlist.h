@@ -31,10 +31,10 @@ class WrapperPostList : public PostList {
     WrapperPostList(const WrapperPostList&) = delete;
 
   protected:
-    PostList* pl;
+    PostList * pl;
 
   public:
-    explicit WrapperPostList(PostList* pl_) : pl(pl_) {}
+    explicit WrapperPostList(PostList * pl_) : pl(pl_) {}
 
     ~WrapperPostList() { delete pl; }
 
@@ -59,9 +59,9 @@ class WrapperPostList : public PostList {
 
     PositionList* read_position_list();
 
-    PostList* next(double w_min);
+    PostList * next(double w_min);
 
-    PostList* skip_to(Xapian::docid, double w_min);
+    PostList * skip_to(Xapian::docid, double w_min);
 
     std::string get_description() const;
 

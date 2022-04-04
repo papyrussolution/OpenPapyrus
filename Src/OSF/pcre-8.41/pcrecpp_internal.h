@@ -53,7 +53,7 @@ setting in pcre.h. We use:
 
 #ifndef PCRECPP_EXP_DECL
 #ifdef _WIN32
-#    ifndef PCRE_STATIC
+#ifndef PCRE_STATIC
 #define PCRECPP_EXP_DECL       extern __declspec(dllexport)
 #define PCRECPP_EXP_DEFN       __declspec(dllexport)
 #else

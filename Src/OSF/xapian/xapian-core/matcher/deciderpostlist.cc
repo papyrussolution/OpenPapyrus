@@ -6,8 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "deciderpostlist.h"
-#include <xapian/matchdecider.h>
 
 using namespace std;
 

@@ -6,17 +6,12 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "api/rsetinternal.h"
-#include "serialise.h"
-#include "serialise-double.h"
-#include "weight/weightinternal.h"
 
 using namespace std;
 
 string serialise_stats(const Xapian::Weight::Internal &stats)
 {
 	string result;
-
 	pack_uint(result, stats.total_length);
 	pack_uint(result, stats.collection_size);
 	pack_uint(result, stats.rset_size);
@@ -35,11 +30,10 @@ string serialise_stats(const Xapian::Weight::Internal &stats)
 		if(stats.have_max_part)
 			result += serialise_double(i->second.max_part);
 	}
-
 	return result;
 }
 
-void unserialise_stats(const char* p, const char* p_end, Xapian::Weight::Internal& stat)
+void unserialise_stats(const char * p, const char * p_end, Xapian::Weight::Internal& stat)
 {
 	size_t n;
 	// FIXME: Remove on next remote protocol bump.

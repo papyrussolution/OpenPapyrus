@@ -9,14 +9,12 @@
 
 using namespace std;
 
-static inline bool bad_cont(uchar ch) {
-	return static_cast<signed char>(ch) >= static_cast<signed char>(0xc0);
-}
+static inline bool bad_cont(uchar ch) { return static_cast<signed char>(ch) >= static_cast<signed char>(0xc0); }
 
 namespace Xapian {
 namespace Unicode {
 // buf should be at least 4 bytes.
-unsigned nonascii_to_utf8(uint ch, char* buf)
+uint nonascii_to_utf8(uint ch, char * buf)
 {
 	if(ch < 0x800) {
 		buf[0] = char(0xc0 | (ch >> 6));
@@ -43,7 +41,7 @@ unsigned nonascii_to_utf8(uint ch, char* buf)
 }
 }
 
-Utf8Iterator::Utf8Iterator(const char* p_)
+Utf8Iterator::Utf8Iterator(const char * p_)
 {
 	assign(p_, strlen(p_));
 }
@@ -88,9 +86,9 @@ bool Utf8Iterator::calculate_sequence_length() const noexcept
 	return true;
 }
 
-unsigned Utf8Iterator::operator*() const noexcept 
+uint Utf8Iterator::operator*() const noexcept 
 {
-	if(p == NULL) return unsigned(-1);
+	if(p == NULL) return uint(-1);
 	if(seqlen == 0) calculate_sequence_length();
 	uchar ch = *p;
 	if(seqlen == 1) return ch;
@@ -100,20 +98,19 @@ unsigned Utf8Iterator::operator*() const noexcept
 	return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) | ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
 }
 
-unsigned Utf8Iterator::strict_deref() const noexcept
+uint Utf8Iterator::strict_deref() const noexcept
 {
 	if(p == NULL) 
-		return unsigned(-1);
+		return uint(-1);
 	if(seqlen == 0) {
 		if(!calculate_sequence_length())
-			return unsigned(*p) | 0x80000000;
+			return uint(*p) | 0x80000000;
 	}
 	uchar ch = *p;
 	if(seqlen == 1) return ch;
 	if(seqlen == 2) return ((ch & 0x1f) << 6) | (p[1] & 0x3f);
 	if(seqlen == 3)
 		return ((ch & 0x0f) << 12) | ((p[1] & 0x3f) << 6) | (p[2] & 0x3f);
-	return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) |
-	       ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
+	return ((ch & 0x07) << 18) | ((p[1] & 0x3f) << 12) | ((p[2] & 0x3f) << 6) | (p[3] & 0x3f);
 }
 }

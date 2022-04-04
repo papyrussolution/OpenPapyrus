@@ -20,12 +20,10 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #ifdef __WIN32__
-#include "safewindows.h"
+	#include "safewindows.h"
 #else
-#include "safenetdb.h"
+	#include "safenetdb.h"
 #endif
-#include "errno_to_string.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 
@@ -80,8 +78,7 @@ Xapian::Error::get_error_string() const
 	return error_string.c_str();
 }
 
-string
-Xapian::Error::get_description() const
+string Xapian::Error::get_description() const
 {
 	string desc(get_type());
 	desc += ": ";

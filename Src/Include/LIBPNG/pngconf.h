@@ -1,4 +1,3 @@
-
 /* pngconf.h - machine configurable file for libpng
  *
  * libpng version 1.6.23, June 9, 2016
@@ -16,7 +15,6 @@
  * starting here down to where it starts to typedef png_color, png_text,
  * and png_info.
  */
-
 #ifndef PNGCONF_H
 #define PNGCONF_H
 
@@ -197,7 +195,7 @@
  * if necessary override on the command line to get the correct
  * variants for the compiler.
  */
-#    ifndef PNGCAPI
+#ifndef PNGCAPI
 #define PNGCAPI _cdecl
 #endif
 #if PNG_API_RULE == 1 && !defined(PNGAPI)
@@ -245,20 +243,18 @@
 #ifndef PNGAPI
 	#define PNGAPI PNGCAPI
 #endif
-
 /* PNG_IMPEXP may be set on the compilation system command line or (if not set)
  * then in an internal header file when building the library, otherwise (when
  * using the library) it is set here.
  */
 #ifndef PNG_IMPEXP
-#if defined(PNG_USE_DLL) && defined(PNG_DLL_IMPORT)
-/* This forces use of a DLL, disallowing static linking */
-#define PNG_IMPEXP PNG_DLL_IMPORT
-#endif
-
-#ifndef PNG_IMPEXP
-#define PNG_IMPEXP
-#endif
+	#if defined(PNG_USE_DLL) && defined(PNG_DLL_IMPORT)
+		/* This forces use of a DLL, disallowing static linking */
+		#define PNG_IMPEXP PNG_DLL_IMPORT
+	#endif
+	#ifndef PNG_IMPEXP
+		#define PNG_IMPEXP
+	#endif
 #endif
 
 /* In 1.5.2 the definition of PNG_FUNCTION has been changed to always treat
@@ -305,96 +301,92 @@
 		#define PNG_PEDANTIC_WARNINGS_SUPPORTED
 	#endif
 #endif
-
 #ifdef PNG_PEDANTIC_WARNINGS_SUPPORTED
-/* Support for compiler specific function attributes.  These are used
- * so that where compiler support is available, incorrect use of API
- * functions in png.h will generate compiler warnings.  Added at libpng
- * version 1.2.41.  Disabling these removes the warnings but may also produce
- * less efficient code.
- */
-#if defined(__clang__) && defined(__has_attribute)
-/* Clang defines both __clang__ and __GNUC__. Check __clang__ first. */
-#if !defined(PNG_USE_RESULT) && __has_attribute(__warn_unused_result__)
-#define PNG_USE_RESULT __attribute__((__warn_unused_result__))
-#endif
-#if !defined(PNG_NORETURN) && __has_attribute(__noreturn__)
-#define PNG_NORETURN __attribute__((__noreturn__))
-#endif
-#if !defined(PNG_ALLOCATED) && __has_attribute(__malloc__)
-#define PNG_ALLOCATED __attribute__((__malloc__))
-#endif
-#if !defined(PNG_DEPRECATED) && __has_attribute(__deprecated__)
-#define PNG_DEPRECATED __attribute__((__deprecated__))
-#endif
-#if !defined(PNG_PRIVATE)
-#      ifdef __has_extension
-#if __has_extension(attribute_unavailable_with_message)
-#          define PNG_PRIVATE __attribute__((__unavailable__("This function is not exported by libpng.")))
-#endif
-#      endif
-#endif
-#    ifndef PNG_RESTRICT
-#define PNG_RESTRICT __restrict
-#endif
-
-#elif defined(__GNUC__)
-#    ifndef PNG_USE_RESULT
-#define PNG_USE_RESULT __attribute__((__warn_unused_result__))
-#endif
-#    ifndef PNG_NORETURN
-#define PNG_NORETURN   __attribute__((__noreturn__))
-#endif
-#if __GNUC__ >= 3
-#      ifndef PNG_ALLOCATED
-#define PNG_ALLOCATED  __attribute__((__malloc__))
-#      endif
-#      ifndef PNG_DEPRECATED
-#define PNG_DEPRECATED __attribute__((__deprecated__))
-#      endif
-#      ifndef PNG_PRIVATE
-#if 0 /* Doesn't work so we use deprecated instead*/
-#          define PNG_PRIVATE __attribute__((warning("This function is not exported by libpng.")))
-#        else
-#          define PNG_PRIVATE __attribute__((__deprecated__))
-#endif
-#      endif
-#      if((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
-#ifndef PNG_RESTRICT
-#          define PNG_RESTRICT __restrict
-#endif
-#      endif /* __GNUC__.__GNUC_MINOR__ > 3.0 */
-#endif /* __GNUC__ >= 3 */
-
-#elif defined(_MSC_VER) && (_MSC_VER >= 1300)
-#    ifndef PNG_USE_RESULT
-#define PNG_USE_RESULT /* not supported */
-#endif
-#    ifndef PNG_NORETURN
-#define PNG_NORETURN   __declspec(noreturn)
-#endif
-#    ifndef PNG_ALLOCATED
-#      if(_MSC_VER >= 1400)
-#define PNG_ALLOCATED __declspec(restrict)
-#      endif
-#endif
-#    ifndef PNG_DEPRECATED
-#define PNG_DEPRECATED __declspec(deprecated)
-#endif
-#    ifndef PNG_PRIVATE
-#define PNG_PRIVATE __declspec(deprecated)
-#endif
-#    ifndef PNG_RESTRICT
-#      if(_MSC_VER >= 1400)
-#define PNG_RESTRICT __restrict
-#      endif
-#endif
-
-#elif defined(__WATCOMC__)
-#    ifndef PNG_RESTRICT
-#define PNG_RESTRICT __restrict
-#endif
-#endif
+	/* Support for compiler specific function attributes.  These are used
+	 * so that where compiler support is available, incorrect use of API
+	 * functions in png.h will generate compiler warnings.  Added at libpng
+	 * version 1.2.41.  Disabling these removes the warnings but may also produce
+	 * less efficient code.
+	 */
+	#if defined(__clang__) && defined(__has_attribute)
+		/* Clang defines both __clang__ and __GNUC__. Check __clang__ first. */
+		#if !defined(PNG_USE_RESULT) && __has_attribute(__warn_unused_result__)
+			#define PNG_USE_RESULT __attribute__((__warn_unused_result__))
+		#endif
+		#if !defined(PNG_NORETURN) && __has_attribute(__noreturn__)
+			#define PNG_NORETURN __attribute__((__noreturn__))
+		#endif
+		#if !defined(PNG_ALLOCATED) && __has_attribute(__malloc__)
+			#define PNG_ALLOCATED __attribute__((__malloc__))
+		#endif
+		#if !defined(PNG_DEPRECATED) && __has_attribute(__deprecated__)
+			#define PNG_DEPRECATED __attribute__((__deprecated__))
+		#endif
+		#if !defined(PNG_PRIVATE)
+			#ifdef __has_extension
+				#if __has_extension(attribute_unavailable_with_message)
+					#define PNG_PRIVATE __attribute__((__unavailable__("This function is not exported by libpng.")))
+				#endif
+			#endif
+		#endif
+		#ifndef PNG_RESTRICT
+			#define PNG_RESTRICT __restrict
+		#endif
+	#elif defined(__GNUC__)
+		#ifndef PNG_USE_RESULT
+			#define PNG_USE_RESULT __attribute__((__warn_unused_result__))
+		#endif
+		#ifndef PNG_NORETURN
+			#define PNG_NORETURN   __attribute__((__noreturn__))
+		#endif
+		#if __GNUC__ >= 3
+			#ifndef PNG_ALLOCATED
+				#define PNG_ALLOCATED  __attribute__((__malloc__))
+			#endif
+			#ifndef PNG_DEPRECATED
+				#define PNG_DEPRECATED __attribute__((__deprecated__))
+			#endif
+			#ifndef PNG_PRIVATE
+				#if 0 /* Doesn't work so we use deprecated instead*/
+					#define PNG_PRIVATE __attribute__((warning("This function is not exported by libpng.")))
+				#else
+					#define PNG_PRIVATE __attribute__((__deprecated__))
+				#endif
+			#endif
+			#if((__GNUC__ > 3) || !defined(__GNUC_MINOR__) || (__GNUC_MINOR__ >= 1))
+				#ifndef PNG_RESTRICT
+					#define PNG_RESTRICT __restrict
+				#endif
+			#endif /* __GNUC__.__GNUC_MINOR__ > 3.0 */
+		#endif /* __GNUC__ >= 3 */
+	#elif defined(_MSC_VER) && (_MSC_VER >= 1300)
+		#ifndef PNG_USE_RESULT
+			#define PNG_USE_RESULT /* not supported */
+		#endif
+		#ifndef PNG_NORETURN
+			#define PNG_NORETURN   __declspec(noreturn)
+		#endif
+		#ifndef PNG_ALLOCATED
+			#if(_MSC_VER >= 1400)
+				#define PNG_ALLOCATED __declspec(restrict)
+			#endif
+		#endif
+		#ifndef PNG_DEPRECATED
+			#define PNG_DEPRECATED __declspec(deprecated)
+		#endif
+		#ifndef PNG_PRIVATE
+			#define PNG_PRIVATE __declspec(deprecated)
+		#endif
+		#ifndef PNG_RESTRICT
+			#if(_MSC_VER >= 1400)
+				#define PNG_RESTRICT __restrict
+			#endif
+		#endif
+	#elif defined(__WATCOMC__)
+		#ifndef PNG_RESTRICT
+			#define PNG_RESTRICT __restrict
+		#endif
+	#endif
 #endif /* PNG_PEDANTIC_WARNINGS */
 #ifndef PNG_DEPRECATED
 	#define PNG_DEPRECATED  /* Use of this function is deprecated */
@@ -562,19 +554,18 @@ typedef const size_t * png_const_size_tp;
 /* Pointers to pointers; i.e. arrays */
 typedef uint8  ** png_bytepp;
 typedef uint32  ** png_uint_32pp;
-typedef png_int_32   ** png_int_32pp;
-typedef png_uint_16  ** png_uint_16pp;
-typedef png_int_16   ** png_int_16pp;
-typedef const char   ** png_const_charpp_Removed;
-typedef char      ** png_charpp;
+typedef png_int_32 ** png_int_32pp;
+typedef png_uint_16 ** png_uint_16pp;
+typedef png_int_16 ** png_int_16pp;
+typedef const char ** png_const_charpp_Removed;
+typedef char ** png_charpp;
 typedef png_fixed_point ** png_fixed_point_pp;
 #ifdef PNG_FLOATING_POINT_SUPPORTED
 typedef double    ** png_doublepp;
 #endif
 
 /* Pointers to pointers to pointers; i.e., pointer to array */
-typedef char            *** png_charppp;
+typedef char *** png_charppp;
 
 #endif /* PNG_BUILDING_SYMBOL_TABLE */
-
 #endif /* PNGCONF_H */

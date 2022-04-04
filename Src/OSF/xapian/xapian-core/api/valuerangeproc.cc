@@ -30,7 +30,7 @@ static bool decode_xxy(const string & s, int & x1, int &x2, int &y)
 		return true;
 	}
 	if(s.size() < 5 || s.size() > 10) return false;
-	const char* p = s.c_str();
+	const char * p = s.c_str();
 	if(!C_isdigit(*p)) return false;
 	x1 = *p++ - '0';
 	if(C_isdigit(*p)) {

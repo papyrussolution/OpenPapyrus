@@ -50,20 +50,16 @@ class XAPIAN_VISIBILITY_DEFAULT Stem {
 public:
 	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<StemImplementation> internal;
-	/// Copy constructor.
 	Stem(const Stem& o) : internal(o.internal) 
 	{
 	}
-	/// Assignment.
 	Stem& operator = (const Stem& o) 
 	{
 		internal = o.internal;
 		return *this;
 	}
-	/// Move constructor.
-	Stem(Stem&&) = default;
-	/// Move assignment operator.
-	Stem& operator = (Stem&&) = default;
+	Stem(Stem&&) = default; /// Move constructor.
+	Stem& operator = (Stem&&) = default; /// Move assignment operator.
 	/** Construct a Xapian::Stem object which doesn't change terms.
 	 *
 	 *  Equivalent to Stem("none").

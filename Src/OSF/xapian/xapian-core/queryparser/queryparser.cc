@@ -15,7 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "api/vectortermlist.h"
 #include "queryparser_internal.h"
 
 using namespace Xapian;
@@ -88,21 +87,7 @@ void QueryParser::set_default_op(Query::op default_op)
 		    // These are OK.
 		    break;
 		default:
-		    throw Xapian::InvalidArgumentError(
-				  "QueryParser::set_default_op() only accepts "
-				  "OP_AND"
-				  ", "
-				  "OP_OR"
-				  ", "
-				  "OP_NEAR"
-				  ", "
-				  "OP_PHRASE"
-				  ", "
-				  "OP_ELITE_SET"
-				  ", "
-				  "OP_SYNONYM"
-				  " or "
-				  "OP_MAX");
+		    throw Xapian::InvalidArgumentError("QueryParser::set_default_op() only accepts OP_AND, OP_OR, OP_NEAR, OP_PHRASE, OP_ELITE_SET, OP_SYNONYM or OP_MAX");
 	}
 	internal->default_op = default_op;
 }
@@ -112,13 +97,12 @@ Query::op QueryParser::get_default_op() const
 	return internal->default_op;
 }
 
-void QueryParser::set_database(const Database &db) {
+void QueryParser::set_database(const Database &db) 
+{
 	internal->db = db;
 }
 
-void QueryParser::set_max_expansion(Xapian::termcount max_expansion,
-    int max_type,
-    unsigned flags)
+void QueryParser::set_max_expansion(Xapian::termcount max_expansion, int max_type, uint flags)
 {
 	if(flags & FLAG_WILDCARD) {
 		internal->max_wildcard_expansion = max_expansion;
@@ -134,7 +118,7 @@ void QueryParser::set_max_expansion(Xapian::termcount max_expansion,
 	}
 }
 
-void QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len, unsigned flags)
+void QueryParser::set_min_wildcard_prefix(uint min_prefix_len, uint flags)
 {
 	if(flags & FLAG_WILDCARD) {
 		internal->min_wildcard_prefix_len = min_prefix_len;
@@ -144,7 +128,7 @@ void QueryParser::set_min_wildcard_prefix(unsigned min_prefix_len, unsigned flag
 	}
 }
 
-Query QueryParser::parse_query(const string &query_string, unsigned flags, const string &default_prefix)
+Query QueryParser::parse_query(const string &query_string, uint flags, const string &default_prefix)
 {
 	if(!(flags & FLAG_ACCUMULATE)) {
 		internal->stoplist.clear();
@@ -154,7 +138,7 @@ Query QueryParser::parse_query(const string &query_string, unsigned flags, const
 	if(query_string.empty()) 
 		return Query();
 	Query result = internal->parse_query(query_string, flags, default_prefix);
-	if(internal->errmsg && strcmp(internal->errmsg, "parse error") == 0) {
+	if(internal->errmsg && sstreq(internal->errmsg, "parse error")) {
 		flags &= FLAG_CJK_NGRAM | FLAG_NO_POSITIONS;
 		result = internal->parse_query(query_string, flags, default_prefix);
 	}
@@ -174,16 +158,13 @@ void QueryParser::add_prefix(const string &field, Xapian::FieldProcessor * proc)
 	internal->add_prefix(field, proc);
 }
 
-void QueryParser::add_boolean_prefix(const string &field, const string &prefix,
-    const string* grouping)
+void QueryParser::add_boolean_prefix(const string &field, const string &prefix, const string* grouping)
 {
 	Assert(internal.get());
 	internal->add_boolean_prefix(field, prefix, grouping);
 }
 
-void QueryParser::add_boolean_prefix(const string &field,
-    Xapian::FieldProcessor * proc,
-    const string* grouping)
+void QueryParser::add_boolean_prefix(const string &field, Xapian::FieldProcessor * proc, const string* grouping)
 {
 	Assert(internal.get());
 	internal->add_boolean_prefix(field, proc, grouping);
@@ -198,22 +179,17 @@ TermIterator QueryParser::stoplist_begin() const
 TermIterator QueryParser::unstem_begin(const string &term) const
 {
 	struct range_adaptor : public multimap<string, string>::iterator {
-		range_adaptor(multimap<string, string>::iterator i) :
-			multimap<string, string>::iterator(i) {
+		range_adaptor(multimap<string, string>::iterator i) : multimap<string, string>::iterator(i) 
+		{
 		}
-
-		const string & operator*() const {
-			return (*this)->second;
-		}
+		const string & operator*() const { return (*this)->second; }
 	};
 
 	auto range = internal->unstem.equal_range(term);
-	return TermIterator(new VectorTermList(range_adaptor(range.first),
-		   range_adaptor(range.second)));
+	return TermIterator(new VectorTermList(range_adaptor(range.first), range_adaptor(range.second)));
 }
 
-void QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc,
-    const std::string* grouping)
+void QueryParser::add_rangeprocessor(Xapian::RangeProcessor * range_proc, const std::string* grouping)
 {
 	Assert(internal.get());
 	internal->rangeprocs.push_back(RangeProc(range_proc, grouping));

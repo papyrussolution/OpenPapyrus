@@ -16,8 +16,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "valuegepostlist.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 

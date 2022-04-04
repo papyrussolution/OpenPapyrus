@@ -64,10 +64,10 @@ ClusterSet LCDClusterer::cluster(const MSet& mset)
 	// clusters, n clusters have x - 1 points and (k - n) have x points. This
 	// needs to be tested on a dataset to see how well this works.
 	// n * (x - 1) + (k_ - n) * x = size, where 0 <= n < k
-	unsigned n = k_ - size % k_;
-	unsigned x = (size / k_) + 1;
+	uint n = k_ - size % k_;
+	uint x = (size / k_) + 1;
 	AssertEq(n * (x - 1) + (k_ - n) * x, size);
-	unsigned cnum = 1;
+	uint cnum = 1;
 	while(true) {
 		// Container for new cluster
 		Cluster new_cluster;
@@ -94,7 +94,6 @@ ClusterSet LCDClusterer::cluster(const MSet& mset)
 			// Remove from 'points'
 			points.erase(piterator);
 		}
-
 		// Add cluster_center to current cluster
 		new_cluster.add_point(cluster_center->second);
 		// Add cluster to cset

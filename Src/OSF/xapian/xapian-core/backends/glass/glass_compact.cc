@@ -7,72 +7,38 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "backends/flint_lock.h"
 #include "glass_database.h"
 #include "glass_defs.h"
 #include "glass_table.h"
 #include "glass_cursor.h"
 #include "glass_version.h"
-#include "filetests.h"
-#include "internaltypes.h"
-#include "backends/valuestats.h"
-#include "../byte_length_strings.h"
-#include "../prefix_compressed_strings.h"
 
 using namespace std;
 
 // Put all the helpers in a namespace to avoid symbols colliding with those of
 // the same name in other flint-derived backends.
 namespace GlassCompact {
-static inline bool is_user_metadata_key(const string & key)
-{
-	return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0';
-}
-
-static inline bool is_valuestats_key(const string & key)
-{
-	return key.size() > 1 && key[0] == '\0' && key[1] == '\xd0';
-}
-
-static inline bool is_valuechunk_key(const string & key)
-{
-	return key.size() > 1 && key[0] == '\0' && key[1] == '\xd8';
-}
-
-static inline bool is_doclenchunk_key(const string & key)
-{
-	return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0';
-}
+static inline bool is_user_metadata_key(const string & key) { return key.size() > 1 && key[0] == '\0' && key[1] == '\xc0'; }
+static inline bool is_valuestats_key(const string & key) { return key.size() > 1 && key[0] == '\0' && key[1] == '\xd0'; }
+static inline bool is_valuechunk_key(const string & key) { return key.size() > 1 && key[0] == '\0' && key[1] == '\xd8'; }
+static inline bool is_doclenchunk_key(const string & key) { return key.size() > 1 && key[0] == '\0' && key[1] == '\xe0'; }
 
 class PostlistCursor : private GlassCursor {
 	Xapian::docid offset;
-
 public:
 	string key, tag;
 	Xapian::docid firstdid;
 	Xapian::termcount tf, cf;
-
-	PostlistCursor(const GlassTable * in, Xapian::docid offset_)
-		: GlassCursor(in), offset(offset_), firstdid(0)
+	PostlistCursor(const GlassTable * in, Xapian::docid offset_) : GlassCursor(in), offset(offset_), firstdid(0)
 	{
 		rewind();
 		next();
 	}
-
-	bool next() {
+	bool next() 
+	{
 		if(!GlassCursor::next()) return false;
 		// We put all chunks into the non-initial chunk form here, then fix up
 		// the first chunk for each term in the merged database as we merge.
@@ -760,15 +726,9 @@ static void merge_docid_keyed(GlassTable * out, const vector <const GlassTable*>
 
 using namespace GlassCompact;
 
-void GlassDatabase::compact(Xapian::Compactor * compactor,
-    const char * destdir,
-    int fd,
-    const vector <const Xapian::Database::Internal*>& sources,
-    const vector <Xapian::docid> & offset,
-    size_t block_size,
-    Xapian::Compactor::compaction_level compaction,
-    unsigned flags,
-    Xapian::docid last_docid)
+void GlassDatabase::compact(Xapian::Compactor * compactor, const char * destdir, int fd,
+    const vector <const Xapian::Database::Internal*>& sources, const vector <Xapian::docid> & offset, size_t block_size,
+    Xapian::Compactor::compaction_level compaction, uint flags, Xapian::docid last_docid)
 {
 	struct table_list {
 		// The "base name" of the table.
@@ -778,7 +738,6 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 		// Create tables after position lazily.
 		bool lazy;
 	};
-
 	static const table_list tables[] = {
 		// name		type			lazy
 		{ "postlist",   Glass::POSTLIST,        false },
@@ -788,11 +747,8 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 		{ "spelling",   Glass::SPELLING,        true },
 		{ "synonym",    Glass::SYNONYM,         true }
 	};
-	const table_list * tables_end = tables +
-	    (sizeof(tables) / sizeof(tables[0]));
-
+	const table_list * tables_end = tables + (sizeof(tables) / sizeof(tables[0]));
 	const int FLAGS = Xapian::DB_DANGEROUS;
-
 	bool single_file = (flags & Xapian::DBCOMPACT_SINGLE_FILE);
 	bool multipass = (flags & Xapian::DBCOMPACT_MULTIPASS);
 	if(single_file) {
@@ -1111,5 +1067,6 @@ void GlassDatabase::compact(Xapian::Compactor * compactor,
 	for(uint j = 0; j != tabs.size(); ++j) {
 		delete tabs[j];
 	}
-	if(!single_file) lock.release();
+	if(!single_file) 
+		lock.release();
 }

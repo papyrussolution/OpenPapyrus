@@ -891,6 +891,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\SLib\sfilestorage.cpp">
+			</File>
+			<File
 				RelativePath="..\SLib\sformat.cpp">
 			</File>
 			<File

@@ -46,7 +46,7 @@ TermList* RemoteAllTermsList::next()
 	if(!p) {
 		p = data.data();
 	}
-	const char* p_end = data.data() + data.size();
+	const char * p_end = data.data() + data.size();
 	if(p == p_end) {
 		data.resize(0);
 		return NULL;

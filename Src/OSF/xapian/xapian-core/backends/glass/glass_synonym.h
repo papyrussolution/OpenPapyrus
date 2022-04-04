@@ -7,17 +7,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_GLASS_SYNONYM_H
 #define XAPIAN_INCLUDED_GLASS_SYNONYM_H
 
@@ -78,34 +68,28 @@ public:
 	 *  If @a term has no synonyms, no action is taken.
 	 */
 	void clear_synonyms(const std::string & term);
-
 	/** Open synonym termlist for a term.
 	 *
 	 *  If @a term has no synonyms, NULL is returned.
 	 */
 	TermList * open_termlist(const std::string & term);
-
 	/** Override methods of GlassTable.
 	 *
 	 *  NB: these aren't virtual, but we always call them on the subclass in
 	 *  cases where it matters.
 	 *  @{
 	 */
-
-	bool is_modified() const {
-		return !last_term.empty() || GlassTable::is_modified();
-	}
-
-	void flush_db() {
+	bool is_modified() const { return !last_term.empty() || GlassTable::is_modified(); }
+	void flush_db() 
+	{
 		merge_changes();
 		GlassTable::flush_db();
 	}
-
-	void cancel(const RootInfo & root_info, glass_revision_number_t rev) {
+	void cancel(const RootInfo & root_info, glass_revision_number_t rev) 
+	{
 		discard_changes();
 		GlassTable::cancel(root_info, rev);
 	}
-
 	// @}
 };
 
@@ -114,21 +98,11 @@ class GlassCursor;
 class GlassSynonymTermList : public AllTermsList {
 	/// Copying is not allowed.
 	GlassSynonymTermList(const GlassSynonymTermList &);
-
 	/// Assignment is not allowed.
 	void operator = (const GlassSynonymTermList &);
-
-	/// Keep a reference to our database to stop it being deleted.
-	Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
-
-	/** A cursor which runs through the synonym table reading termnames from
-	 *  the keys.
-	 */
-	GlassCursor * cursor;
-
-	/// The prefix to restrict the terms to.
-	string prefix;
-
+	Xapian::Internal::intrusive_ptr<const GlassDatabase> database; /// Keep a reference to our database to stop it being deleted.
+	GlassCursor * cursor; /// A cursor which runs through the synonym table reading termnames from the keys.
+	string prefix; /// The prefix to restrict the terms to.
 public:
 	GlassSynonymTermList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_, GlassCursor * cursor_, const string & prefix_) : 
 		database(database_), cursor(cursor_), prefix(prefix_)
@@ -152,16 +126,12 @@ public:
 	 *  method can be called.
 	 */
 	string get_termname() const;
-
 	/// Return the term frequency for the term at the current position.
 	Xapian::doccount get_termfreq() const;
-
 	/// Advance to the next term in the list.
 	TermList * next();
-
 	/// Advance to the first term which is >= tname.
 	TermList * skip_to(const string &tname);
-
 	/// True if we're off the end of the list
 	bool at_end() const;
 };

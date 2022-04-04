@@ -252,6 +252,7 @@
     <ClCompile Include="..\SLib\szlib.c" />
     <ClCompile Include="..\SLib\dbsql-sqlite.cpp" />
     <ClCompile Include="..\SLib\dbkv-lmdb.cpp" />
+    <ClCompile Include="..\SLib\sfilestorage.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\json.h">

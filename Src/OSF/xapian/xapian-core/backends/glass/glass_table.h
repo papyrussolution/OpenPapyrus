@@ -9,34 +9,16 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301
- * USA
  */
-
 #ifndef XAPIAN_INCLUDED_GLASS_TABLE_H
 #define XAPIAN_INCLUDED_GLASS_TABLE_H
 
-//#include <xapian/constants.h>
-//#include <xapian/error.h>
 #include "glass_freelist.h"
 #include "glass_cursor.h"
 #include "glass_defs.h"
 #include "io_utils.h"
-//#include "omassert.h"
-//#include "str.h"
-//#include "stringutils.h"
 #include "wordaccess.h"
 #include "common/compression_stream.h"
-//#include <algorithm>
-//#include <string>
 
 namespace Glass {
 /** Even for items of at maximum size, it must be possible to get this number of items in a block */
@@ -99,48 +81,19 @@ const int X2 = 2;
 
    last_component(p, c) returns true if this is a final component.
  */
-
-inline uint4 REVISION(const uint8 * b) {
-	return aligned_read4(b);
-}
-
-inline int GET_LEVEL(const uint8 * b) {
-	return b[4];
-}
-
-inline int MAX_FREE(const uint8 * b) {
-	return unaligned_read2(b + 5);
-}
-
-inline int TOTAL_FREE(const uint8 * b) {
-	return unaligned_read2(b + 7);
-}
-
-inline int DIR_END(const uint8 * b) {
-	return unaligned_read2(b + 9);
-}
+inline uint4 REVISION(const uint8 * b) { return aligned_read4(b); }
+inline int GET_LEVEL(const uint8 * b) { return b[4]; }
+inline int MAX_FREE(const uint8 * b) { return unaligned_read2(b + 5); }
+inline int TOTAL_FREE(const uint8 * b) { return unaligned_read2(b + 7); }
+inline int DIR_END(const uint8 * b) { return unaligned_read2(b + 9); }
 
 const int DIR_START = 11;
 
-inline void SET_REVISION(uint8 * b, uint4 rev) {
-	aligned_write4(b, rev);
-}
-
-inline void SET_LEVEL(uint8 * b, int x) {
-	AssertRel(x, <, 256); b[4] = x;
-}
-
-inline void SET_MAX_FREE(uint8 * b, int x) {
-	unaligned_write2(b + 5, x);
-}
-
-inline void SET_TOTAL_FREE(uint8 * b, int x) {
-	unaligned_write2(b + 7, x);
-}
-
-inline void SET_DIR_END(uint8 * b, int x) {
-	unaligned_write2(b + 9, x);
-}
+inline void SET_REVISION(uint8 * b, uint4 rev) { aligned_write4(b, rev); }
+inline void SET_LEVEL(uint8 * b, int x) { AssertRel(x, <, 256); b[4] = x; }
+inline void SET_MAX_FREE(uint8 * b, int x) { unaligned_write2(b + 5, x); }
+inline void SET_TOTAL_FREE(uint8 * b, int x) { unaligned_write2(b + 7, x); }
+inline void SET_DIR_END(uint8 * b, int x) { unaligned_write2(b + 9, x); }
 
 // The item size is stored in 2 bytes, but the top bit is used to store a flag for
 // "is the tag data compressed" and the next two bits are used to flag if this is the
@@ -148,40 +101,25 @@ inline void SET_DIR_END(uint8 * b, int x) {
 const int I_COMPRESSED_BIT = 0x80;
 const int I_LAST_BIT = 0x40;
 const int I_FIRST_BIT = 0x20;
-
 const int I_MASK = (I_COMPRESSED_BIT|I_LAST_BIT|I_FIRST_BIT);
-
 const int ITEM_SIZE_MASK = (0xffff &~(I_MASK << 8));
 const size_t MAX_ITEM_SIZE = (ITEM_SIZE_MASK + 3);
-
-/** Freelist blocks have their level set to LEVEL_FREELIST. */
-const int LEVEL_FREELIST = 254;
+const int LEVEL_FREELIST = 254; /// Freelist blocks have their level set to LEVEL_FREELIST. 
 
 class RootInfo;
 
 class Key {
 	const uint8 * p;
 public:
-	explicit Key(const uint8 * p_) : p(p_) {
+	explicit Key(const uint8 * p_) : p(p_) 
+	{
 	}
-
-	const uint8 * get_address() const {
-		return p;
-	}
-
-	const uint8 * data() const {
-		return p + K1;
-	}
-
-	void read(std::string * key) const {
-		key->assign(reinterpret_cast<const char *>(p + K1), length());
-	}
-
-	int length() const {
-		return p[0];
-	}
-
-	char operator[](size_t i) const {
+	const uint8 * get_address() const { return p; }
+	const uint8 * data() const { return p + K1; }
+	void read(std::string * key) const { key->assign(reinterpret_cast<const char *>(p + K1), length()); }
+	int length() const { return p[0]; }
+	char operator[](size_t i) const 
+	{
 		AssertRel(i, <, size_t(length()));
 		return p[i + K1];
 	}
@@ -192,64 +130,39 @@ public:
 template <class T> class LeafItem_base {
 protected:
 	T p;
-	int get_key_len() const {
-		return p[I2];
-	}
-
-	static int getD(const uint8 * q, int c) {
+	int get_key_len() const { return p[I2]; }
+	static int getD(const uint8 * q, int c) 
+	{
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
 		return unaligned_read2(q + c);
 	}
-
-	int getI() const {
-		return unaligned_read2(p);
-	}
-
-	static int getX(const uint8 * q, int c) {
-		return unaligned_read2(q + c);
-	}
-
+	int getI() const { return unaligned_read2(p); }
+	static int getX(const uint8 * q, int c) { return unaligned_read2(q + c); }
 public:
 	/* LeafItem from block address and offset to item pointer */
-	LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) {
+	LeafItem_base(T p_, int c) : p(p_ + getD(p_, c)) 
+	{
 	}
-
-	explicit LeafItem_base(T p_) : p(p_) {
+	explicit LeafItem_base(T p_) : p(p_) 
+	{
 	}
-
-	T get_address() const {
-		return p;
-	}
-
+	T get_address() const { return p; }
 	/** SIZE in diagram above. */
-	int size() const {
-		return (getI() & ITEM_SIZE_MASK) + 3;
-	}
-
-	bool get_compressed() const {
-		return *p & I_COMPRESSED_BIT;
-	}
-
-	bool first_component() const {
-		return *p & I_FIRST_BIT;
-	}
-
-	bool last_component() const {
-		return *p & I_LAST_BIT;
-	}
-
-	int component_of() const {
-		if(first_component()) return 1;
+	int size() const { return (getI() & ITEM_SIZE_MASK) + 3; }
+	bool get_compressed() const { return *p & I_COMPRESSED_BIT; }
+	bool first_component() const { return *p & I_FIRST_BIT; }
+	bool last_component() const { return *p & I_LAST_BIT; }
+	int component_of() const 
+	{
+		if(first_component()) 
+			return 1;
 		return getX(p, get_key_len() + I2 + K1);
 	}
-
-	Key key() const {
-		return Key(p + I2);
-	}
-
-	void append_chunk(std::string * tag) const {
+	Key key() const { return Key(p + I2); }
+	void append_chunk(std::string * tag) const 
+	{
 		// Offset to the start of the tag data.
 		int cd = get_key_len() + I2 + K1;
 		if(!first_component()) cd += X2;
@@ -258,8 +171,8 @@ public:
 		const char * chunk = reinterpret_cast<const char *>(p + cd);
 		tag->append(chunk, l);
 	}
-
-	bool decompress_chunk(CompressionStream& comp_stream, string & tag) const {
+	bool decompress_chunk(CompressionStream& comp_stream, string & tag) const 
+	{
 		// Offset to the start of the tag data.
 		int cd = get_key_len() + I2 + K1;
 		if(!first_component()) cd += X2;
@@ -273,45 +186,45 @@ public:
 class LeafItem : public LeafItem_base<const uint8 *> {
 public:
 	/* LeafItem from block address and offset to item pointer */
-	LeafItem(const uint8 * p_, int c)
-		: LeafItem_base<const uint8 *>(p_, c) {
+	LeafItem(const uint8 * p_, int c) : LeafItem_base<const uint8 *>(p_, c) 
+	{
 	}
-
-	explicit LeafItem(const uint8 * p_)
-		: LeafItem_base<const uint8 *>(p_) {
+	explicit LeafItem(const uint8 * p_) : LeafItem_base<const uint8 *>(p_) 
+	{
 	}
 };
 
 class LeafItem_wr : public LeafItem_base<uint8 *> {
-	void set_key_len(int x) {
+	void set_key_len(int x) 
+	{
 		AssertRel(x, >=, 0);
 		AssertRel(x, <=, GLASS_BTREE_MAX_KEY_LEN);
 		p[I2] = x;
 	}
-
-	void setI(int x) {
+	void setI(int x) 
+	{
 		unaligned_write2(p, x);
 	}
-
-	static void setX(uint8 * q, int c, int x) {
+	static void setX(uint8 * q, int c, int x) 
+	{
 		unaligned_write2(q + c, x);
 	}
-
 public:
 	/* LeafItem_wr from block address and offset to item pointer */
-	LeafItem_wr(uint8 * p_, int c) : LeafItem_base<uint8 *>(p_, c) {
+	LeafItem_wr(uint8 * p_, int c) : LeafItem_base<uint8 *>(p_, c) 
+	{
 	}
-
-	explicit LeafItem_wr(uint8 * p_) : LeafItem_base<uint8 *>(p_) {
+	explicit LeafItem_wr(uint8 * p_) : LeafItem_base<uint8 *>(p_) 
+	{
 	}
-
-	void set_component_of(int i) {
+	void set_component_of(int i) 
+	{
 		AssertRel(i, >, 1);
 		*p &= ~I_FIRST_BIT;
 		setX(p, get_key_len() + I2 + K1, i);
 	}
-
-	void set_size(int new_size) {
+	void set_size(int new_size) 
+	{
 		AssertRel(new_size, >=, 3);
 		int I = new_size - 3;
 		// We should never be able to pass too large a size here, but don't
@@ -319,8 +232,8 @@ public:
 		if(UNLIKELY(I &~ITEM_SIZE_MASK)) throw Xapian::DatabaseError("item too large!");
 		setI(I);
 	}
-
-	void form_key(const std::string & key_) {
+	void form_key(const std::string & key_) 
+	{
 		std::string::size_type key_len = key_.length();
 		if(key_len > GLASS_BTREE_MAX_KEY_LEN) {
 			// We check term length when a term is added to a document but
@@ -328,18 +241,16 @@ public:
 			// which contain one or more zero bytes.
 			std::string msg("Key too long: length was ");
 			msg += str(key_len);
-			msg += " bytes, maximum length of a key is "
-			    STRINGIZE(GLASS_BTREE_MAX_KEY_LEN) " bytes";
+			msg += " bytes, maximum length of a key is " STRINGIZE(GLASS_BTREE_MAX_KEY_LEN) " bytes";
 			throw Xapian::InvalidArgumentError(msg);
 		}
-
 		set_key_len(key_len);
 		memmove(p + I2 + K1, key_.data(), key_len);
 		*p |= I_FIRST_BIT;
 	}
-
 	// FIXME passing cd here is icky
-	void set_tag(int cd, const char * start, int len, bool compressed, int i, int m) {
+	void set_tag(int cd, const char * start, int len, bool compressed, int i, int m) 
+	{
 		memmove(p + cd, start, len);
 		set_size(cd + len);
 		if(compressed) *p |= I_COMPRESSED_BIT;
@@ -351,15 +262,15 @@ public:
 			set_component_of(i);
 		}
 	}
-
-	void fake_root_item() {
+	void fake_root_item() 
+	{
 		set_key_len(0); // null key length
 		set_size(I2 + K1); // length of the item
 		*p |= I_FIRST_BIT|I_LAST_BIT;
 	}
-
 	operator const LeafItem() const { return LeafItem(p); }
-	static void setD(uint8 * q, int c, int x) {
+	static void setD(uint8 * q, int c, int x) 
+	{
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
@@ -386,98 +297,79 @@ public:
 template <class T> class BItem_base {
 protected:
 	T p;
-	int get_key_len() const {
-		return p[BYTES_PER_BLOCK_NUMBER];
-	}
-
-	static int getD(const uint8 * q, int c) {
+	int get_key_len() const { return p[BYTES_PER_BLOCK_NUMBER]; }
+	static int getD(const uint8 * q, int c) 
+	{
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
 		return unaligned_read2(q + c);
 	}
-
-	static int getX(const uint8 * q, int c) {
-		return unaligned_read2(q + c);
-	}
-
+	static int getX(const uint8 * q, int c) { return unaligned_read2(q + c); }
 public:
 	/* BItem from block address and offset to item pointer */
-	BItem_base(T p_, int c) : p(p_ + getD(p_, c)) {
+	BItem_base(T p_, int c) : p(p_ + getD(p_, c)) 
+	{
 	}
-
-	explicit BItem_base(T p_) : p(p_) {
+	explicit BItem_base(T p_) : p(p_) 
+	{
 	}
-
-	T get_address() const {
-		return p;
-	}
-
+	T get_address() const { return p; }
 	/** SIZE in diagram above. */
-	int size() const {
-		return get_key_len() + K1 + X2 + BYTES_PER_BLOCK_NUMBER;
-	}
-
-	Key key() const {
-		return Key(p + BYTES_PER_BLOCK_NUMBER);
-	}
-
+	int size() const { return get_key_len() + K1 + X2 + BYTES_PER_BLOCK_NUMBER; }
+	Key key() const { return Key(p + BYTES_PER_BLOCK_NUMBER); }
 	/** Get this item's tag as a block number (this block should not be at
 	 *  level 0).
 	 */
-	uint4 block_given_by() const {
-		return unaligned_read4(p);
-	}
-
-	int component_of() const {
-		return getX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1);
-	}
+	uint4 block_given_by() const { return unaligned_read4(p); }
+	int component_of() const { return getX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1); }
 };
 
 class BItem : public BItem_base<const uint8 *> {
 public:
 	/* BItem from block address and offset to item pointer */
-	BItem(const uint8 * p_, int c) : BItem_base<const uint8 *>(p_, c) {
+	BItem(const uint8 * p_, int c) : BItem_base<const uint8 *>(p_, c) 
+	{
 	}
-
-	explicit BItem(const uint8 * p_) : BItem_base<const uint8 *>(p_) {
+	explicit BItem(const uint8 * p_) : BItem_base<const uint8 *>(p_) 
+	{
 	}
 };
 
 class BItem_wr : public BItem_base<uint8 *> {
-	void set_key_len(int x) {
+	void set_key_len(int x) 
+	{
 		AssertRel(x, >=, 0);
 		AssertRel(x, <, GLASS_BTREE_MAX_KEY_LEN);
 		p[BYTES_PER_BLOCK_NUMBER] = x;
 	}
-
-	static void setX(uint8 * q, int c, int x) {
+	static void setX(uint8 * q, int c, int x) 
+	{
 		unaligned_write2(q + c, x);
 	}
-
 public:
 	/* BItem_wr from block address and offset to item pointer */
-	BItem_wr(uint8 * p_, int c) : BItem_base<uint8 *>(p_, c) {
+	BItem_wr(uint8 * p_, int c) : BItem_base<uint8 *>(p_, c) 
+	{
 	}
-
-	explicit BItem_wr(uint8 * p_) : BItem_base<uint8 *>(p_) {
+	explicit BItem_wr(uint8 * p_) : BItem_base<uint8 *>(p_) 
+	{
 	}
-
-	void set_component_of(int i) {
+	void set_component_of(int i) 
+	{
 		setX(p, get_key_len() + BYTES_PER_BLOCK_NUMBER + K1, i);
 	}
-
-	void set_key_and_block(Key newkey, uint4 n) {
+	void set_key_and_block(Key newkey, uint4 n) 
+	{
 		int len = newkey.length() + K1 + X2;
 		// Copy the key size, main part of the key and the count part.
 		memcpy(p + BYTES_PER_BLOCK_NUMBER, newkey.get_address(), len);
 		// Set tag contents to block number
 		set_block_given_by(n);
 	}
-
 	// Takes size as we may be truncating newkey.
-	void set_truncated_key_and_block(Key newkey, int new_comp,
-	    int truncate_size, uint4 n) {
+	void set_truncated_key_and_block(Key newkey, int new_comp, int truncate_size, uint4 n) 
+	{
 		int i = truncate_size;
 		AssertRel(i, <=, newkey.length());
 		// Key size
@@ -489,24 +381,21 @@ public:
 		// Set tag contents to block number
 		set_block_given_by(n);
 	}
-
-	/** Set this item's tag to point to block n (this block should not be at
-	 *  level 0).
-	 */
-	void set_block_given_by(uint4 n) {
+	/// Set this item's tag to point to block n (this block should not be at level 0).
+	void set_block_given_by(uint4 n) 
+	{
 		unaligned_write4(p, n);
 	}
-
-	/** Form an item with a null key and with block number n in the tag.
-	 */
-	void form_null_key(uint4 n) {
+	/// Form an item with a null key and with block number n in the tag.
+	void form_null_key(uint4 n) 
+	{
 		set_block_given_by(n);
 		set_key_len(0); /* null key */
 		set_component_of(0);
 	}
-
 	operator const BItem() const { return BItem(p); }
-	static void setD(uint8 * q, int c, int x) {
+	static void setD(uint8 * q, int c, int x) 
+	{
 		AssertRel(c, >=, DIR_START);
 		AssertRel(c, <, 65535);
 		Assert((c & 1) == 1);
@@ -587,13 +476,9 @@ public:
 	 *  @param permanent If true, the Btree will not reopen on demand.
 	 */
 	void close(bool permanent = false);
-
 	bool readahead_key(const string &key) const;
-
-	/** Determine whether the btree exists on disk.
-	 */
+	/// Determine whether the btree exists on disk.
 	bool exists() const;
-
 	/** Open the btree.
 	 *
 	 *  @param flags_	flags for opening
@@ -605,29 +490,20 @@ public:
 	 *	cannot be opened (but is not corrupt - eg, permission problems,
 	 *	not present, etc).
 	 */
-	void open(int flags_, const RootInfo & root_info,
-	    glass_revision_number_t rev);
-
+	void open(int flags_, const RootInfo & root_info, glass_revision_number_t rev);
 	/** Return true if this table is open.
 	 *
 	 *  NB If the table is lazy and doesn't yet exist, returns false.
 	 */
-	bool is_open() const {
-		return handle >= 0;
-	}
-
+	bool is_open() const { return handle >= 0; }
 	/** Return true if this table is writable. */
-	bool is_writable() const {
-		return writable;
-	}
-
+	bool is_writable() const { return writable; }
 	/** Flush any outstanding changes to the DB file of the table.
 	 *
 	 *  This must be called before commit, to ensure that the DB file is
 	 *  ready to be switched to a new version by the commit.
 	 */
 	void flush_db();
-
 	/** Commit any outstanding changes to the table.
 	 *
 	 *  Commit changes made by calling add() and del() to the Btree.
@@ -644,13 +520,10 @@ public:
 	 *  @param root_info  Information about the root is returned in this.
 	 */
 	void commit(glass_revision_number_t revision, RootInfo * root_info);
-
-	bool sync() {
-		return (flags & Xapian::DB_NO_SYNC) ||
-		       handle < 0 ||
-		       io_sync(handle);
+	bool sync() 
+	{
+		return (flags & Xapian::DB_NO_SYNC) || handle < 0 || io_sync(handle);
 	}
-
 	/** Cancel any outstanding changes.
 	 *
 	 *  This will discard any modifications which haven't been committed
@@ -911,40 +784,25 @@ protected:
 	bool prev_for_sequential(Glass::Cursor * C_, int dummy) const;
 	bool next_for_sequential(Glass::Cursor * C_, int dummy) const;
 
-	static int find_in_leaf(const uint8 * p,
-	    Glass::LeafItem item, int c, bool& exact);
-	static int find_in_branch(const uint8 * p,
-	    Glass::LeafItem item, int c);
+	static int find_in_leaf(const uint8 * p, Glass::LeafItem item, int c, bool& exact);
+	static int find_in_branch(const uint8 * p, Glass::LeafItem item, int c);
 	static int find_in_branch(const uint8 * p, Glass::BItem item, int c);
-
 	/** block_given_by(p, c) finds the item at block address p, directory
 	 *  offset c, and returns its tag value as an integer.
 	 */
 	static uint4 block_given_by(const uint8 * p, int c);
-
 	mutable Glass::Cursor C[Glass::BTREE_CURSOR_LEVELS];
-
 	/** Buffer used when splitting a block.
 	 *
 	 *  This buffer holds the split off part of the block.  It's only used
 	 *  when updating (in GlassTable::add_item().
 	 */
 	uint8 * split_p;
-
-	/** Minimum size tag to try compressing (0 for no compression). */
-	uint4 compress_min;
-
+	uint4 compress_min; /// Minimum size tag to try compressing (0 for no compression).
 	mutable CompressionStream comp_stream;
-
-	/// If true, don't create the table until it's needed.
-	bool lazy;
-
-	/// Last block readahead_key() preread.
-	mutable uint4 last_readahead;
-
-	/// offset to start of table in file.
-	off_t offset;
-
+	bool lazy; /// If true, don't create the table until it's needed.
+	mutable uint4 last_readahead; /// Last block readahead_key() preread.
+	off_t offset; /// offset to start of table in file.
 	/* Debugging methods */
 //    void report_block_full(int m, int n, const uint8 * p);
 };
@@ -966,17 +824,15 @@ namespace Glass {
    "component_of".
  */
 
-template <typename ITEM1, typename ITEM2>
-int compare(ITEM1 a, ITEM2 b)
+template <typename ITEM1, typename ITEM2> int compare(ITEM1 a, ITEM2 b)
 {
-	Key key1 = a.key();
-	Key key2 = b.key();
+	const Key key1 = a.key();
+	const Key key2 = b.key();
 	const uint8* p1 = key1.data();
 	const uint8* p2 = key2.data();
 	int key1_len = key1.length();
 	int key2_len = key2.length();
 	int k_smaller = (key2_len < key1_len ? key2_len : key1_len);
-
 	// Compare the common part of the keys.
 	int diff = memcmp(p1, p2, k_smaller);
 	if(diff == 0) {
@@ -997,8 +853,8 @@ int compare(ITEM1 a, ITEM2 b)
  */
 inline int compare(BItem a, BItem b)
 {
-	Key key1 = a.key();
-	Key key2 = b.key();
+	const Key key1 = a.key();
+	const Key key2 = b.key();
 	const uint8* p1 = key1.data();
 	const uint8* p2 = key2.data();
 	int key1_len = key1.length();
@@ -1015,15 +871,14 @@ inline int compare(BItem a, BItem b)
 	if(diff == 0) {
 		// If the common part matches, compare the lengths.
 		diff = key1_len - key2_len;
-		// We dealt with the "same length" case above so we never need to check
-		// component_of here.
+		// We dealt with the "same length" case above so we never need to check component_of here.
 	}
 	return diff;
 }
 }
 
 #ifdef DISABLE_GPL_LIBXAPIAN
-#error GPL source we cannot relicense included in libxapian
+	#error GPL source we cannot relicense included in libxapian
 #endif
 
 #endif /* XAPIAN_INCLUDED_GLASS_TABLE_H */

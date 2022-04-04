@@ -1307,6 +1307,9 @@
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\xapian\xapian-core\languages\turkish.sbl">

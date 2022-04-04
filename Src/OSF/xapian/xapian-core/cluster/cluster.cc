@@ -17,7 +17,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "cluster/clusterinternal.h"
-#include "api/termlist.h"
 
 using namespace Xapian;
 using namespace std;

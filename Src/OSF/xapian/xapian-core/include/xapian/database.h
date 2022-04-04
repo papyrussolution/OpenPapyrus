@@ -154,11 +154,8 @@ public:
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	Database& operator = (const Database& o);
-	/// Move constructor.
-	Database(Database&& o);
-	/// Move assignment operator.
-	Database& operator = (Database&& o);
-
+	Database(Database&& o); /// Move constructor.
+	Database& operator = (Database&& o); /// Move assignment operator.
 	/** Reopen the database at the latest available revision.
 	 *
 	 *  Xapian databases (at least with most backends) support versioning
@@ -401,7 +398,7 @@ public:
 	 *  @exception Xapian::DocNotFoundError is thrown if the specified docid
 	 *		   is not present in this database.
 	 */
-	Xapian::Document get_document(Xapian::docid did, unsigned flags = 0) const;
+	Xapian::Document get_document(Xapian::docid did, uint flags = 0) const;
 
 	/** Suggest a spelling correction.
 	 *
@@ -413,7 +410,7 @@ public:
 	 *					transposition of two adjacent
 	 *					characters (default is 2).
 	 */
-	std::string get_spelling_suggestion(const std::string & word, unsigned max_edit_distance = 2) const;
+	std::string get_spelling_suggestion(const std::string & word, uint max_edit_distance = 2) const;
 
 	/** An iterator which returns all the spelling correction targets.
 	 *
@@ -636,7 +633,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(const std::string & output, unsigned flags = 0, int block_size = 0) { compact_(&output, 0, flags, block_size, NULL); }
+	void compact(const std::string & output, uint flags = 0, int block_size = 0) { compact_(&output, 0, flags, block_size, NULL); }
 
 	/** Produce a compact version of this database.
 	 *
@@ -686,7 +683,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(int fd, unsigned flags = 0, int block_size = 0) { compact_(NULL, fd, flags, block_size, NULL); }
+	void compact(int fd, uint flags = 0, int block_size = 0) { compact_(NULL, fd, flags, block_size, NULL); }
 	/** Produce a compact version of this database.
 	 *
 	 *  The @a compactor functor allows handling progress output and
@@ -736,7 +733,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(const std::string & output, unsigned flags, int block_size, Xapian::Compactor& compactor) { compact_(&output, 0, flags, block_size, &compactor); }
+	void compact(const std::string & output, uint flags, int block_size, Xapian::Compactor& compactor) { compact_(&output, 0, flags, block_size, &compactor); }
 
 	/** Produce a compact version of this database.
 	 *
@@ -791,7 +788,7 @@ public:
 	 *  @since 1.3.4 This method was added to replace various methods of the
 	 *		     Compactor class.
 	 */
-	void compact(int fd, unsigned flags, int block_size, Xapian::Compactor& compactor) { compact_(NULL, fd, flags, block_size, &compactor); }
+	void compact(int fd, uint flags, int block_size, Xapian::Compactor& compactor) { compact_(NULL, fd, flags, block_size, &compactor); }
 
 	/** Reconstruct document text.
 	 *
@@ -943,17 +940,14 @@ public:
 		Database::operator = (o);
 		return *this;
 	}
-	/// Move constructor.
-	WritableDatabase(WritableDatabase&& o) : Database(std::move(o)) 
+	WritableDatabase(WritableDatabase&& o) : Database(std::move(o))  /// Move constructor.
 	{
 	}
-	/// Move assignment operator.
-	WritableDatabase& operator = (WritableDatabase&& o) 
+	WritableDatabase& operator = (WritableDatabase&& o)  /// Move assignment operator.
 	{
 		Database::operator = (std::move(o));
 		return *this;
 	}
-
 	/** Commit pending modifications.
 	 *
 	 *  Updates to a Xapian database are more efficient when applied in bulk,

@@ -21,18 +21,6 @@
  *   * Neither the name of the <ORGANIZATION> nor the names of its contributors
  *     may be used to endorse or promote products derived from this software
  *     without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
  */
 /* Copyright (C) 2007,2010 Olly Betts
  * Copyright (C) 2010 Evgeny Sizikov
@@ -307,15 +295,18 @@ int SnowballStemImplementation::find_among(const symbol * pool, const Among * v,
 		const Among * w = v + i;
 		if(common_i >= w->s_size) {
 			c = c_orig + w->s_size;
-			if(!fnum || !fnum[i]) return w->result;
+			if(!fnum || !fnum[i]) 
+				return w->result;
 			{
 				int res = f[fnum[i] - 1](this);
 				c = c_orig + w->s_size;
-				if(res) return w->result;
+				if(res) 
+					return w->result;
 			}
 		}
 		i = w->substring_i;
-		if(i < 0) return 0;
+		if(i < 0) 
+			return 0;
 	}
 }
 
@@ -336,17 +327,21 @@ int SnowballStemImplementation::find_among_b(const symbol * pool, const Among * 
 		const Among * w = v + k;
 		for(int x = w->s_size - 1 - common; x >= 0; --x) {
 			if(c_orig - common == lb) {
-				diff = -1; break;
+				diff = -1; 
+				break;
 			}
 			diff = q[-common] - (pool + w->s)[x];
-			if(diff != 0) break;
+			if(diff != 0) 
+				break;
 			++common;
 		}
 		if(diff < 0) {
-			j = k; common_j = common;
+			j = k; 
+			common_j = common;
 		}
 		else {
-			i = k; common_i = common;
+			i = k; 
+			common_i = common;
 		}
 		if(j - i <= 1) {
 			if(i > 0) break;
@@ -359,7 +354,8 @@ int SnowballStemImplementation::find_among_b(const symbol * pool, const Among * 
 		const Among * w = v + i;
 		if(common_i >= w->s_size) {
 			c = c_orig - w->s_size;
-			if(!fnum || !fnum[i]) return w->result;
+			if(!fnum || !fnum[i]) 
+				return w->result;
 			{
 				int res = f[fnum[i] - 1](this);
 				c = c_orig - w->s_size;
@@ -367,12 +363,12 @@ int SnowballStemImplementation::find_among_b(const symbol * pool, const Among * 
 			}
 		}
 		i = w->substring_i;
-		if(i < 0) return 0;
+		if(i < 0) 
+			return 0;
 	}
 }
 
-int SnowballStemImplementation::replace_s(int c_bra, int c_ket, int s_size,
-    const symbol * s)
+int SnowballStemImplementation::replace_s(int c_bra, int c_ket, int s_size, const symbol * s)
 {
 	int adjustment;
 	int len;
@@ -383,9 +379,7 @@ int SnowballStemImplementation::replace_s(int c_bra, int c_ket, int s_size,
 		if(adjustment + len > CAPACITY(p)) {
 			p = increase_size(p, adjustment + len);
 		}
-		memmove(p + c_ket + adjustment,
-		    p + c_ket,
-		    (len - c_ket) * sizeof(symbol));
+		memmove(p + c_ket + adjustment, p + c_ket, (len - c_ket) * sizeof(symbol));
 		SET_SIZE(p, adjustment + len);
 		l += adjustment;
 		if(c >= c_ket)
@@ -393,11 +387,13 @@ int SnowballStemImplementation::replace_s(int c_bra, int c_ket, int s_size,
 		else if(c > c_bra)
 			c = c_bra;
 	}
-	if(s_size) memmove(p + c_bra, s, s_size * sizeof(symbol));
+	if(s_size) 
+		memmove(p + c_bra, s, s_size * sizeof(symbol));
 	return adjustment;
 }
 
-int SnowballStemImplementation::slice_check() {
+int SnowballStemImplementation::slice_check() 
+{
 	Assert(p);
 	if(bra < 0 || bra > ket || ket > l) {
 #if 0
@@ -409,22 +405,27 @@ int SnowballStemImplementation::slice_check() {
 	return 0;
 }
 
-int SnowballStemImplementation::slice_from_s(int s_size, const symbol * s) {
-	if(slice_check()) return -1;
+int SnowballStemImplementation::slice_from_s(int s_size, const symbol * s) 
+{
+	if(slice_check()) 
+		return -1;
 	replace_s(bra, ket, s_size, s);
 	return 0;
 }
 
-void SnowballStemImplementation::insert_s(int c_bra, int c_ket, int s_size,
-    const symbol * s)
+void SnowballStemImplementation::insert_s(int c_bra, int c_ket, int s_size, const symbol * s)
 {
 	int adjustment = replace_s(c_bra, c_ket, s_size, s);
-	if(c_bra <= bra) bra += adjustment;
-	if(c_bra <= ket) ket += adjustment;
+	if(c_bra <= bra) 
+		bra += adjustment;
+	if(c_bra <= ket) 
+		ket += adjustment;
 }
 
-symbol * SnowballStemImplementation::slice_to(symbol * v) {
-	if(slice_check()) return NULL;
+symbol * SnowballStemImplementation::slice_to(symbol * v) 
+{
+	if(slice_check()) 
+		return NULL;
 	{
 		int len = ket - bra;
 		if(CAPACITY(v) < len) {

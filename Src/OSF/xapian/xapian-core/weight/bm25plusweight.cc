@@ -7,8 +7,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "weightinternal.h"
-#include "serialise-double.h"
 
 using namespace std;
 
@@ -157,7 +155,7 @@ double BM25PlusWeight::get_maxextra() const
 	    param_min_normlen)));
 }
 
-static inline void parameter_error(const char* message)
+static inline void parameter_error(const char * message)
 {
 	Xapian::Weight::Internal::parameter_error(message, "bm25plus");
 }

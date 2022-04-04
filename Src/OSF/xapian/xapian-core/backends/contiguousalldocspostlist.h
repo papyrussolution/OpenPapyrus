@@ -8,17 +8,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_CONTIGUOUSALLDOCSPOSTLIST_H
 #define XAPIAN_INCLUDED_CONTIGUOUSALLDOCSPOSTLIST_H
 
@@ -27,10 +17,8 @@
 
 /// A PostList iterating all docids when they form a contiguous range.
 class ContiguousAllDocsPostList : public LeafPostList {
-	/// Don't allow assignment.
-	void operator = (const ContiguousAllDocsPostList &);
-	/// Don't allow copying.
-	ContiguousAllDocsPostList(const ContiguousAllDocsPostList &);
+	void operator = (const ContiguousAllDocsPostList &); /// Don't allow assignment.
+	ContiguousAllDocsPostList(const ContiguousAllDocsPostList &); /// Don't allow copying.
 	/** The current document id.
 	 *
 	 *  This will be 0 before we start and once we reach the end.
@@ -38,7 +26,6 @@ class ContiguousAllDocsPostList : public LeafPostList {
 	Xapian::docid did;
 	Xapian::doccount doccount; /// The number of documents in the database.
 public:
-	/// Constructor.
 	explicit ContiguousAllDocsPostList(Xapian::doccount doccount_) : LeafPostList(std::string()), did(0), doccount(doccount_) 
 	{
 	}

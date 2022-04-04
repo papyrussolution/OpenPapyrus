@@ -62,19 +62,13 @@ public:
 	 *  The internals are reference counted, so copying is cheap.
 	 */
 	Enquire(const Enquire& o);
-
 	/** Copying is allowed.
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	Enquire& operator = (const Enquire& o);
-
-	/// Move constructor.
-	Enquire(Enquire&& o);
-
-	/// Move assignment operator.
-	Enquire& operator = (Enquire&& o);
-
+	Enquire(Enquire&& o); /// Move constructor.
+	Enquire& operator = (Enquire&& o); /// Move assignment operator.
 	/** Constructor.
 	 *
 	 *  @param db	The database (or databases) to query.

@@ -1,14 +1,13 @@
 // uprntf_p.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   11/23/98    stephen     Creation.
- *   03/12/99    stephen     Modified for new C API.
- *   08/07/2003  george      Reunify printf implementations
- */
+// Copyright (C) 1998-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 11/23/98    stephen     Creation.
+// 03/12/99    stephen     Modified for new C API.
+// 08/07/2003  george      Reunify printf implementations
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -20,45 +19,27 @@
 /* ANSI style formatting */
 /* Use US-ASCII characters only for formatting */
 
-/* % */
-#define UFMT_SIMPLE_PERCENT {ufmt_simple_percent, u_printf_simple_percent_handler}
-/* s */
-#define UFMT_STRING         {ufmt_string, u_printf_string_handler}
-/* c */
-#define UFMT_CHAR           {ufmt_char, u_printf_char_handler}
-/* d, i */
-#define UFMT_INT            {ufmt_int, u_printf_integer_handler}
-/* u */
-#define UFMT_UINT           {ufmt_int, u_printf_uinteger_handler}
-/* o */
-#define UFMT_OCTAL          {ufmt_int, u_printf_octal_handler}
-/* x, X */
-#define UFMT_HEX            {ufmt_int, u_printf_hex_handler}
-/* f */
-#define UFMT_DOUBLE         {ufmt_double, u_printf_double_handler}
-/* e, E */
-#define UFMT_SCIENTIFIC     {ufmt_double, u_printf_scientific_handler}
-/* g, G */
-#define UFMT_SCIDBL         {ufmt_double, u_printf_scidbl_handler}
-/* n */
-#define UFMT_COUNT          {ufmt_count, u_printf_count_handler}
+#define UFMT_SIMPLE_PERCENT {ufmt_simple_percent, u_printf_simple_percent_handler} /* % */
+#define UFMT_STRING         {ufmt_string, u_printf_string_handler} /* s */
+#define UFMT_CHAR           {ufmt_char, u_printf_char_handler} /* c */
+#define UFMT_INT            {ufmt_int, u_printf_integer_handler} /* d, i */
+#define UFMT_UINT           {ufmt_int, u_printf_uinteger_handler} /* u */
+#define UFMT_OCTAL          {ufmt_int, u_printf_octal_handler} /* o */
+#define UFMT_HEX            {ufmt_int, u_printf_hex_handler} /* x, X */
+#define UFMT_DOUBLE         {ufmt_double, u_printf_double_handler} /* f */
+#define UFMT_SCIENTIFIC     {ufmt_double, u_printf_scientific_handler} /* e, E */
+#define UFMT_SCIDBL         {ufmt_double, u_printf_scidbl_handler} /* g, G */
+#define UFMT_COUNT          {ufmt_count, u_printf_count_handler} /* n */
 
 /* non-ANSI extensions */
 /* Use US-ASCII characters only for formatting */
 
-/* p */
-#define UFMT_POINTER        {ufmt_pointer, u_printf_pointer_handler}
-/* V */
-#define UFMT_SPELLOUT       {ufmt_double, u_printf_spellout_handler}
-/* P */
-#define UFMT_PERCENT        {ufmt_double, u_printf_percent_handler}
-/* C  K is old format */
-#define UFMT_UCHAR          {ufmt_uchar, u_printf_uchar_handler}
-/* S  U is old format */
-#define UFMT_USTRING        {ufmt_ustring, u_printf_ustring_handler}
-
+#define UFMT_POINTER        {ufmt_pointer, u_printf_pointer_handler} /* p */
+#define UFMT_SPELLOUT       {ufmt_double, u_printf_spellout_handler} /* V */
+#define UFMT_PERCENT        {ufmt_double, u_printf_percent_handler} /* P */
+#define UFMT_UCHAR          {ufmt_uchar, u_printf_uchar_handler} /* C  K is old format */
+#define UFMT_USTRING        {ufmt_ustring, u_printf_ustring_handler} /* S  U is old format */
 #define UFMT_EMPTY {ufmt_empty, NULL}
-
 /**
  * A u_printf handler function.
  * A u_printf handler is responsible for handling a single u_printf
@@ -69,12 +50,8 @@
  * @param args A pointer to the argument data
  * @return The number of Unicode characters written to <TT>stream</TT>.
  */
-typedef int32_t U_EXPORT2
-    u_printf_handler (const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args);
+typedef int32_t U_EXPORT2 u_printf_handler (const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args);
 
 typedef struct u_printf_info {
 	ufmt_type_info info;
@@ -92,10 +69,7 @@ typedef struct u_printf_spec {
 } u_printf_spec;
 
 #define UPRINTF_NUM_FMT_HANDLERS 108
-
-/* We do not use handlers for 0-0x1f */
-#define UPRINTF_BASE_FMT_HANDLERS 0x20
-
+#define UPRINTF_BASE_FMT_HANDLERS 0x20 /* We do not use handlers for 0-0x1f */
 /* buffer size for formatting */
 #define UPRINTF_BUFFER_SIZE 1024
 #define UPRINTF_SYMBOL_BUFFER_SIZE 8
@@ -105,18 +79,11 @@ static const UChar gSpaceStr[] = {0x20, 0}; /* " " */
 
 /* Sets the sign of a format based on u_printf_spec_info */
 /* TODO: Is setting the prefix symbol to a positive sign a good idea in all locales? */
-static void u_printf_set_sign(UNumberFormat    * format,
-    const u_printf_spec_info * info,
-    UChar * prefixBuffer,
-    int32_t * prefixBufLen,
-    UErrorCode * status)
+static void u_printf_set_sign(UNumberFormat * format, const u_printf_spec_info * info, UChar * prefixBuffer,
+    int32_t * prefixBufLen, UErrorCode * status)
 {
 	if(info->fShowSign) {
-		*prefixBufLen = unum_getTextAttribute(format,
-			UNUM_POSITIVE_PREFIX,
-			prefixBuffer,
-			*prefixBufLen,
-			status);
+		*prefixBufLen = unum_getTextAttribute(format, UNUM_POSITIVE_PREFIX, prefixBuffer, *prefixBufLen, status);
 		if(info->fSpace) {
 			/* Setting UNUM_PLUS_SIGN_SYMBOL affects the exponent too. */
 			/* unum_setSymbol(format, UNUM_PLUS_SIGN_SYMBOL, gSpaceStr, 1, &status); */
@@ -124,18 +91,8 @@ static void u_printf_set_sign(UNumberFormat    * format,
 		}
 		else {
 			UChar plusSymbol[UPRINTF_SYMBOL_BUFFER_SIZE];
-			int32_t symbolLen;
-
-			symbolLen = unum_getSymbol(format,
-				UNUM_PLUS_SIGN_SYMBOL,
-				plusSymbol,
-				UPRV_LENGTHOF(plusSymbol),
-				status);
-			unum_setTextAttribute(format,
-			    UNUM_POSITIVE_PREFIX,
-			    plusSymbol,
-			    symbolLen,
-			    status);
+			int32_t symbolLen = unum_getSymbol(format, UNUM_PLUS_SIGN_SYMBOL, plusSymbol, UPRV_LENGTHOF(plusSymbol), status);
+			unum_setTextAttribute(format, UNUM_POSITIVE_PREFIX, plusSymbol, symbolLen, status);
 		}
 	}
 	else {
@@ -143,18 +100,10 @@ static void u_printf_set_sign(UNumberFormat    * format,
 	}
 }
 
-static void u_printf_reset_sign(UNumberFormat    * format,
-    const u_printf_spec_info * info,
-    UChar * prefixBuffer,
-    int32_t * prefixBufLen,
-    UErrorCode * status)
+static void u_printf_reset_sign(UNumberFormat    * format, const u_printf_spec_info * info, UChar * prefixBuffer, int32_t * prefixBufLen, UErrorCode * status)
 {
 	if(info->fShowSign) {
-		unum_setTextAttribute(format,
-		    UNUM_POSITIVE_PREFIX,
-		    prefixBuffer,
-		    *prefixBufLen,
-		    status);
+		unum_setTextAttribute(format, UNUM_POSITIVE_PREFIX, prefixBuffer, *prefixBufLen, status);
 	}
 }
 
@@ -245,10 +194,8 @@ static int32_t u_printf_double_handler(const u_printf_stream_handler * handler, 
 	/* mask off any necessary bits */
 	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
-
 	/* get the formatter */
 	format = u_locbund_getNumberFormat(formatBundle, UNUM_DECIMAL);
-
 	/* handle error */
 	if(format == 0)
 		return 0;
@@ -649,90 +596,64 @@ static int32_t u_printf_percent_handler(const u_printf_stream_handler * handler,
 	if(info->fShowSign) {
 		u_printf_set_sign(format, info, prefixBuffer, &prefixBufferLen, &status);
 	}
-
 	/* format the number */
 	resultLen = unum_formatDouble(format, num, result, UPRINTF_BUFFER_SIZE, 0, &status);
-
 	if(U_FAILURE(status)) {
 		resultLen = 0;
 	}
-
 	/* restore the number format */
 	/* TODO: Is this needed? */
 	unum_setAttribute(format, UNUM_MIN_FRACTION_DIGITS, minDecimalDigits);
 	unum_setAttribute(format, UNUM_MAX_FRACTION_DIGITS, maxDecimalDigits);
-
 	if(info->fShowSign) {
 		/* Reset back to original value regardless of what the error was */
 		UErrorCode localStatus = U_ZERO_ERROR;
 		u_printf_reset_sign(format, info, prefixBuffer, &prefixBufferLen, &localStatus);
 	}
-
 	return handler->pad_and_justify(context, info, result, resultLen);
 }
 
-static int32_t u_printf_ustring_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args)
+static int32_t u_printf_ustring_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
 	int32_t len, written;
 	const UChar * arg = (const UChar *)(args[0].ptrValue);
-
 	/* allocate enough space for the buffer */
-	if(arg == NULL) {
-		arg = gNullStr;
-	}
+	SETIFZQ(arg, gNullStr);
 	len = u_strlen(arg);
-
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
 	if(info->fPrecision != -1 && info->fPrecision < len) {
 		len = info->fPrecision;
 	}
-
 	/* determine if the string should be padded */
 	written = handler->pad_and_justify(context, info, arg, len);
-
 	return written;
 }
 
-static int32_t u_printf_uchar_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args)
+static int32_t u_printf_uchar_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)formatBundle;
-	int32_t written = 0;
 	UChar arg = (UChar)(args[0].int64Value);
-
 	/* width = minimum # of characters to write */
 	/* precision = maximum # of characters to write */
 	/* precision is ignored when handling a uchar */
-
 	/* determine if the string should be padded */
-	written = handler->pad_and_justify(context, info, &arg, 1);
-
+	int32_t written = handler->pad_and_justify(context, info, &arg, 1);
 	return written;
 }
 
-static int32_t u_printf_scidbl_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args)
+static int32_t u_printf_scidbl_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	u_printf_spec_info scidbl_info;
 	double num = args[0].doubleValue;
 	int32_t retVal;
 	UNumberFormat * format;
 	int32_t maxSigDecimalDigits, significantDigits;
-
 	memcpy(&scidbl_info, info, sizeof(u_printf_spec_info));
-
 	/* determine whether to use 'd', 'e' or 'f' notation */
 	if(scidbl_info.fPrecision == -1 && num == uprv_trunc(num)) {
 		/* use 'f' notation */
@@ -741,8 +662,7 @@ static int32_t u_printf_scidbl_handler(const u_printf_stream_handler * handler,
 		/* call the double handler */
 		retVal = u_printf_double_handler(handler, context, formatBundle, &scidbl_info, args);
 	}
-	else if(num < 0.0001 || (scidbl_info.fPrecision < 1 && 1000000.0 <= num)
-	 || (scidbl_info.fPrecision != -1 && num > uprv_pow10(scidbl_info.fPrecision))) {
+	else if(num < 0.0001 || (scidbl_info.fPrecision < 1 && 1000000.0 <= num) || (scidbl_info.fPrecision != -1 && num > uprv_pow10(scidbl_info.fPrecision))) {
 		/* use 'e' or 'E' notation */
 		scidbl_info.fSpec = scidbl_info.fSpec - 2;
 		if(scidbl_info.fPrecision == -1) {
@@ -775,29 +695,21 @@ static int32_t u_printf_scidbl_handler(const u_printf_stream_handler * handler,
 	return retVal;
 }
 
-static int32_t u_printf_count_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args)
+static int32_t u_printf_count_handler(const u_printf_stream_handler * handler, void * context,
+    ULocaleBundle * formatBundle, const u_printf_spec_info * info, const ufmt_args * args)
 {
 	(void)handler;
 	(void)context;
 	(void)formatBundle;
 	int32_t * count = (int32_t*)(args[0].ptrValue);
-
 	/* in the special case of count, the u_printf_spec_info's width */
 	/* will contain the # of chars written thus far */
 	*count = info->fWidth;
-
 	return 0;
 }
 
-static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler,
-    void * context,
-    ULocaleBundle * formatBundle,
-    const u_printf_spec_info * info,
-    const ufmt_args * args)
+static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler, void * context, ULocaleBundle * formatBundle,
+    const u_printf_spec_info * info, const ufmt_args * args)
 {
 	double num = (double)(args[0].doubleValue);
 	UNumberFormat   * format;
@@ -808,24 +720,18 @@ static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler
 	int32_t maxDecimalDigits;
 	int32_t resultLen;
 	UErrorCode status = U_ZERO_ERROR;
-
 	prefixBuffer[0] = 0;
-
 	/* mask off any necessary bits */
 	/* if(! info->fIsLongDouble)
 	   num &= DBL_MAX;*/
-
 	/* get the formatter */
 	format = u_locbund_getNumberFormat(formatBundle, UNUM_SPELLOUT);
-
 	/* handle error */
 	if(format == 0)
 		return 0;
-
 	/* save the formatter's state */
 	minDecimalDigits = unum_getAttribute(format, UNUM_MIN_FRACTION_DIGITS);
 	maxDecimalDigits = unum_getAttribute(format, UNUM_MAX_FRACTION_DIGITS);
-
 	/* set the appropriate flags and number of decimal digits on the formatter */
 	if(info->fPrecision != -1) {
 		/* set the # of decimal digits */
@@ -840,15 +746,12 @@ static int32_t u_printf_spellout_handler(const u_printf_stream_handler * handler
 		/* # of decimal digits is 6 if precision not specified */
 		unum_setAttribute(format, UNUM_FRACTION_DIGITS, 6);
 	}
-
 	/* set whether to show the sign */
 	if(info->fShowSign) {
 		u_printf_set_sign(format, info, prefixBuffer, &prefixBufferLen, &status);
 	}
-
 	/* format the number */
 	resultLen = unum_formatDouble(format, num, result, UPRINTF_BUFFER_SIZE, 0, &status);
-
 	if(U_FAILURE(status)) {
 		resultLen = 0;
 	}
@@ -970,20 +873,16 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 	UChar type;
 	uint16 handlerNum;
 	const UChar * aliasStart = alias;
-
 	/* get maximum number of arguments */
 	for(;;) {
 		/* find % */
 		while(*alias != UP_PERCENT && *alias != 0x0000) {
 			alias++;
 		}
-
 		if(*alias == 0x0000) {
 			break;
 		}
-
 		alias++;
-
 		/* handle the pos number */
 		if(ISDIGIT(*alias)) {
 			/* handle positional parameters */
@@ -1004,12 +903,10 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 		else {
 			return NULL;
 		}
-
 		if(pos > size) {
 			size = pos;
 		}
 	}
-
 	/* create the parsed argument list */
 	typelist = (ufmt_type_info*)uprv_malloc(sizeof(ufmt_type_info) * size);
 	islonglong = (bool*)uprv_malloc(sizeof(bool) * size);
@@ -1020,28 +917,21 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 		if(typelist) {
 			uprv_free(typelist);
 		}
-
 		if(islonglong) {
 			uprv_free(islonglong);
 		}
-
 		if(arglist) {
 			uprv_free(arglist);
 		}
-
 		*status = U_MEMORY_ALLOCATION_ERROR;
 		return NULL;
 	}
-
-	/* reset alias back to the beginning */
-	alias = aliasStart;
-
+	alias = aliasStart; // reset alias back to the beginning 
 	for(;;) {
 		/* find % */
 		while(*alias != UP_PERCENT && *alias != 0x0000) {
 			alias++;
 		}
-
 		if(*alias == 0x0000) {
 			break;
 		}
@@ -1109,10 +999,8 @@ static ufmt_args* parseArguments(const UChar * alias, va_list ap, UErrorCode * s
 			    break;
 		}
 	}
-
 	uprv_free(typelist);
 	uprv_free(islonglong);
-
 	return arglist;
 }
 

@@ -7,15 +7,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_DBFACTORY_H
 #define XAPIAN_INCLUDED_DBFACTORY_H
@@ -58,7 +49,7 @@ namespace Remote {
  *				10000ms, which is 10 seconds).
  */
 XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &host, unsigned int port, unsigned timeout = 10000, unsigned connect_timeout = 10000);
+Database open(const std::string &host, uint port, uint timeout = 10000, uint connect_timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a TCP connection.
@@ -80,7 +71,7 @@ Database open(const std::string &host, unsigned int port, unsigned timeout = 100
  * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
 XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &host, unsigned int port, unsigned timeout = 0, unsigned connect_timeout = 10000, int flags = 0);
+WritableDatabase open_writable(const std::string &host, uint port, uint timeout = 0, uint connect_timeout = 10000, int flags = 0);
 
 /** Construct a Database object for read-only access to a remote database
  *  accessed via a program.
@@ -96,8 +87,7 @@ WritableDatabase open_writable(const std::string &host, unsigned int port, unsig
  *			of 0 means don't timeout.  (Default is 10000ms, which
  *			is 10 seconds).
  */
-XAPIAN_VISIBILITY_DEFAULT
-Database open(const std::string &program, const std::string &args, unsigned timeout = 10000);
+XAPIAN_VISIBILITY_DEFAULT Database open(const std::string &program, const std::string &args, uint timeout = 10000);
 
 /** Construct a WritableDatabase object for update access to a remote database
  *  accessed via a program.
@@ -113,8 +103,7 @@ Database open(const std::string &program, const std::string &args, unsigned time
  *			is 0, which means don't timeout).
  * @param flags		Xapian::DB_RETRY_LOCK or 0.
  */
-XAPIAN_VISIBILITY_DEFAULT
-WritableDatabase open_writable(const std::string &program, const std::string &args, unsigned timeout = 0, int flags = 0);
+XAPIAN_VISIBILITY_DEFAULT WritableDatabase open_writable(const std::string &program, const std::string &args, uint timeout = 0, int flags = 0);
 
 }
 #endif

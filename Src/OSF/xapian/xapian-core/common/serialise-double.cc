@@ -23,8 +23,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "serialise-double.h"
-#include "wordaccess.h"
 
 using namespace std;
 

@@ -14,7 +14,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "backends/valuelist.h"
 
 using namespace std;
 
@@ -25,7 +24,6 @@ namespace Xapian {
 		if(--internal->_refs == 0)
 			delete internal;
 	}
-
 	ValueIterator::ValueIterator(Internal * internal_) : internal(internal_)
 	{
 		LOGCALL_CTOR(API, "ValueIterator", internal_);

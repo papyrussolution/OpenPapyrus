@@ -7,22 +7,11 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "multi_database.h"
-#include "backends/backends.h"
-#include "backends/multi.h"
 #include "expand/ortermlist.h"
 #include "expand/termlistmerger.h"
-#include "multi_alltermslist.h"
 #include "multi_postlist.h"
 #include "multi_termlist.h"
 #include "multi_valuelist.h"
@@ -52,9 +41,9 @@ void MultiDatabase::close()
 	}
 }
 
-PostList* MultiDatabase::open_post_list(const string & term) const
+PostList * MultiDatabase::open_post_list(const string & term) const
 {
-	PostList** postlists = new PostList*[shards.size()];
+	PostList ** postlists = new PostList *[shards.size()];
 	size_t count = 0;
 	try {
 		for(auto&& shard : shards) {
@@ -250,8 +239,7 @@ Xapian::termcount MultiDatabase::get_doclength_lower_bound() const
 	// this we find the *maximum* after negating each of the values (which
 	// since Xapian::termcount is an unsigned type leaves 0 alone but flips the
 	// order of all other values), then negate the answer again at the end.
-	static_assert(std::is_unsigned<Xapian::termcount>::value,
-	    "Unsigned type required");
+	static_assert(std::is_unsigned<Xapian::termcount>::value, "Unsigned type required");
 	Xapian::termcount result = 0;
 	for(auto&& shard : shards) {
 		Xapian::termcount shard_result = -shard->get_doclength_lower_bound();
@@ -272,7 +260,6 @@ Xapian::termcount MultiDatabase::get_doclength_upper_bound() const
 Xapian::termcount MultiDatabase::get_wdf_upper_bound(const string & term) const
 {
 	Assert(!term.empty());
-
 	Xapian::termcount result = 0;
 	for(auto&& shard : shards) {
 		result = max(result, shard->get_wdf_upper_bound(term));
@@ -283,7 +270,7 @@ Xapian::termcount MultiDatabase::get_wdf_upper_bound(const string & term) const
 ValueList* MultiDatabase::open_value_list(Xapian::valueno slot) const
 {
 	SubValueList** valuelists = new SubValueList*[shards.size()];
-	unsigned count = 0;
+	uint count = 0;
 	try {
 		for(auto&& shard : shards) {
 			ValueList* vl = shard->open_value_list(slot);

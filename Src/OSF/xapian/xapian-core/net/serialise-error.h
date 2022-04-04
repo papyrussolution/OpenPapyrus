@@ -15,7 +15,6 @@
 #ifndef XAPIAN_INCLUDED_SERIALISE_ERROR_H
 #define XAPIAN_INCLUDED_SERIALISE_ERROR_H
 
-//#include <string>
 // Forward class declarations:
 
 namespace Xapian {

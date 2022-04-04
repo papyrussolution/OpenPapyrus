@@ -40,8 +40,9 @@
 // an int can result in a warning about comparing signed and unsigned, so we
 // add a wrapper to cast the fd argument of FD_SET to unsigned.
 #include "safewinsock2.h"
-inline void xapian_FD_SET_(int fd, fd_set *set) {
-    FD_SET(unsigned(fd), set);
+inline void xapian_FD_SET_(int fd, fd_set *set) 
+{
+    FD_SET(uint(fd), set);
 }
 #ifdef FD_SET
 #undef FD_SET

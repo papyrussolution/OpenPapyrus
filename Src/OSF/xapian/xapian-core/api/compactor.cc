@@ -8,22 +8,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "safesysstat.h"
-#include "safeunistd.h"
-#include "safefcntl.h"
-#include "backends/backends.h"
-#include "backends/databaseinternal.h"
-#include "backends/postlist.h"
-#include "filetests.h"
-#include "fileutils.h"
-#include "io_utils.h"
 #ifdef XAPIAN_HAS_GLASS_BACKEND
 	#include "backends/glass/glass_database.h"
 	#include "backends/glass/glass_version.h"
@@ -32,7 +19,6 @@
 	#include "backends/honey/honey_database.h"
 	#include "backends/honey/honey_version.h"
 #endif
-#include "backends/multi/multi_database.h"
 
 using namespace std;
 
@@ -172,7 +158,7 @@ void Database::compact_(const string * output_ptr, int fd, uint flags, int block
 			}
 
 #ifdef XAPIAN_ASSERTIONS
-			PostList* pl = shard->open_post_list(string());
+			PostList * pl = shard->open_post_list(string());
 			pl->next();
 			// This test should never fail, since shard->get_doccount() is
 			// non-zero!

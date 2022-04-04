@@ -1407,6 +1407,7 @@ int  Test_StyloQInvitation();
 // @construction finished int  Test_Launch_SCalendarPicker();
 int  Test_StrAssocTree();
 int  Test_Fts();
+int  ImportYYE(const char * pSrcPath);
 
 extern int OnigTestSyntax_main(FILE * fOut);
 extern int OnigTestOptions_main(FILE * fOut);
@@ -1487,6 +1488,7 @@ int DoConstructionTest()
 		QueryPerformanceCounter(&qpc2);
 		SDelay(1);
 	}*/
+	ImportYYE("/DEV/Resource/Data/yeda");
 	TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();

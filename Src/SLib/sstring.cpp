@@ -1617,7 +1617,7 @@ SString & SString::Escape()
 			switch(c) {
 				case '\\':
 				case '\"':
-				// (похоже, android экранирует этом символ. Но нам, как мне кажется, этого делать не следует) case '/':
+				case '/':
 				case '\b':
 				case '\f':
 				case '\n':
@@ -1643,7 +1643,7 @@ SString & SString::Escape()
 				switch(c) {
 					case '\\': CatCharN(c, 2); break;
 					case '\"': Cat("\\\""); break;
-					// (see comment above) case '/':  Cat("\\/"); break;
+					case '/':  Cat("\\/"); break;
 					case '\b': Cat("\\b"); break;
 					case '\f': Cat("\\f"); break;
 					case '\n': Cat("\\n"); break;

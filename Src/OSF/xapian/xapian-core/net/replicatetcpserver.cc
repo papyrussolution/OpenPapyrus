@@ -7,8 +7,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "replicatetcpserver.h"
-#include "api/replication.h"
-#include "remoteconnection.h"
 
 using namespace std;
 

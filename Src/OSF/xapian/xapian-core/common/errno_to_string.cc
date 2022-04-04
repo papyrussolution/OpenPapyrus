@@ -23,7 +23,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "errno_to_string.h"
 
 using namespace std;
 
@@ -33,7 +32,7 @@ void errno_to_string(int e, string & s)
 #ifdef HAVE_STRERRORDESC_NP
 	// GNU-specific replacement for sys_errlist and sys_nerr, added in glibc
 	// 2.32.
-	const char* desc = strerrordesc_np(e);
+	const char * desc = strerrordesc_np(e);
 	if(desc) {
 		s += desc;
 	}
@@ -85,7 +84,7 @@ void errno_to_string(int e, string & s)
 	// actual longest on Linux in English is EILSEQ which needs 50 bytes.
 	char buf[1024];
 #ifdef STRERROR_R_CHAR_P
-	// Returns char* pointing to string describing error.
+	// Returns char * pointing to string describing error.
 	s += strerror_r(e, buf, sizeof(buf));
 # else
 	// XSI-compliant strerror_r returns int:  0 means success; a positive error

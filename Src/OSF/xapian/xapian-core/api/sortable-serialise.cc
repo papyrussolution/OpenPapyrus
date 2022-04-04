@@ -7,15 +7,6 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
@@ -39,7 +30,7 @@ using namespace std;
 #pragma warning(disable:4146)
 #endif
 
-size_t Xapian::sortable_serialise_(double value, char* buf) noexcept
+size_t Xapian::sortable_serialise_(double value, char * buf) noexcept
 {
 	double mantissa;
 	int exponent;
@@ -127,9 +118,9 @@ size_t Xapian::sortable_serialise_(double value, char* buf) noexcept
 
 	// Convert the 52 (or 53) bits of the mantissa into two 32-bit words.
 	mantissa *= 1 << (negative ? 26 : 27);
-	unsigned word1 = static_cast<uint>(mantissa);
+	uint word1 = static_cast<uint>(mantissa);
 	mantissa -= word1;
-	unsigned word2 = static_cast<uint>(mantissa * 4294967296.0); // 1<<32
+	uint word2 = static_cast<uint>(mantissa * 4294967296.0); // 1<<32
 	// If the number is positive, the first bit will always be set because 0.5
 	// <= mantissa < 1, unless mantissa is zero, which we handle specially
 	// above).  If the number is negative, we negate the mantissa instead of
@@ -217,13 +208,13 @@ double Xapian::sortable_unserialise(const std::string & value) noexcept
 		if(negative ^ exponent_negative) exponent ^= 0x07ff;
 	}
 
-	unsigned word1;
-	word1 = (unsigned(first & 0x03) << 24);
+	uint word1;
+	word1 = (uint(first & 0x03) << 24);
 	word1 |= numfromstr(value, ++i) << 16;
 	word1 |= numfromstr(value, ++i) << 8;
 	word1 |= numfromstr(value, ++i);
 
-	unsigned word2 = 0;
+	uint word2 = 0;
 	if(i < value.size()) {
 		word2 = numfromstr(value, ++i) << 24;
 		word2 |= numfromstr(value, ++i) << 16;

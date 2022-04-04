@@ -7,17 +7,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_DEBUGLOG_H
 #define XAPIAN_INCLUDED_DEBUGLOG_H
 
@@ -25,16 +15,15 @@
 // have debug logging enabled, as the support functions aren't visible, so
 // we define XAPIAN_REALLY_NO_DEBUG_LOG there.
 #ifdef XAPIAN_REALLY_NO_DEBUG_LOG
-#ifdef XAPIAN_DEBUG_LOG
-#undef XAPIAN_DEBUG_LOG
-#endif
+	#ifdef XAPIAN_DEBUG_LOG
+		#undef XAPIAN_DEBUG_LOG
+	#endif
 #endif
 
 #ifdef XAPIAN_DEBUG_LOG
 
 #include "output.h"
 #include "pretty.h"
-
 #include <cstring>
 #include <ostream>
 #include <sstream>
@@ -42,62 +31,29 @@
 
 /// A categorisation of debug log messages.
 enum debuglog_categories {
-	// Never wanted.
-	DEBUGLOG_CATEGORY_NEVER = 0,
-
-	/// Public API method and function calls.
-	DEBUGLOG_CATEGORY_API = ('A' - '@'),
-
-	/// Related to database backends.
-	DEBUGLOG_CATEGORY_DB = ('D' - '@'),
-
-	/// Related to exception handling.
-	DEBUGLOG_CATEGORY_EXCEPTION = ('X' - '@'),
-
-	/// Query expansion.
-	DEBUGLOG_CATEGORY_EXPAND = ('E' - '@'),
-
-	/// Matcher.
-	DEBUGLOG_CATEGORY_MATCH = ('M' - '@'),
-
-	/// Debug output from the lemon-generated QueryParser code.
-	DEBUGLOG_CATEGORY_QUERYPARSER = ('Q' - '@'),
-
-	/// Related to the remote backend.
-	DEBUGLOG_CATEGORY_REMOTE = ('R' - '@'),
-
-	/// Related to replication.
-	DEBUGLOG_CATEGORY_REPLICA = ('C' - '@'),
-
-	/// Spelling correction.
-	DEBUGLOG_CATEGORY_SPELLING = ('S' - '@'),
-
-	/// Uncategorised.
-	DEBUGLOG_CATEGORY_UNKNOWN = ('U' - '@'),
-
-	/// Weight calculations.
-	DEBUGLOG_CATEGORY_WTCALC = ('W' - '@'),
-
-	/// Query stuff.
-	DEBUGLOG_CATEGORY_QUERY = ('Y' - '@'),
-
-	/// Messages which are always logged.
-	DEBUGLOG_CATEGORY_ALWAYS = 31
+	DEBUGLOG_CATEGORY_NEVER = 0, // Never wanted.
+	DEBUGLOG_CATEGORY_API = ('A' - '@'), /// Public API method and function calls.
+	DEBUGLOG_CATEGORY_DB = ('D' - '@'), /// Related to database backends.
+	DEBUGLOG_CATEGORY_EXCEPTION = ('X' - '@'), /// Related to exception handling.
+	DEBUGLOG_CATEGORY_EXPAND = ('E' - '@'), /// Query expansion.
+	DEBUGLOG_CATEGORY_MATCH = ('M' - '@'), /// Matcher.
+	DEBUGLOG_CATEGORY_QUERYPARSER = ('Q' - '@'), /// Debug output from the lemon-generated QueryParser code.
+	DEBUGLOG_CATEGORY_REMOTE = ('R' - '@'), /// Related to the remote backend.
+	DEBUGLOG_CATEGORY_REPLICA = ('C' - '@'), /// Related to replication.
+	DEBUGLOG_CATEGORY_SPELLING = ('S' - '@'), /// Spelling correction.
+	DEBUGLOG_CATEGORY_UNKNOWN = ('U' - '@'), /// Uncategorised.
+	DEBUGLOG_CATEGORY_WTCALC = ('W' - '@'), /// Weight calculations.
+	DEBUGLOG_CATEGORY_QUERY = ('Y' - '@'), /// Query stuff.
+	DEBUGLOG_CATEGORY_ALWAYS = 31 /// Messages which are always logged.
 };
 
 /// Class to actually do the logging.
 class DebugLogger {
-	/// Don't allow assignment.
-	void operator = (const DebugLogger&);
-
-	/// Don't allow copying.
-	DebugLogger(const DebugLogger&);
-	/// Mask bitmap of categories the user wants log messages for.
-	uint categories_mask;
-	/// File descriptor for debug logging.
-	int fd;
-	/// The current indent level.
-	int indent_level;
+	void operator = (const DebugLogger&); /// Don't allow assignment.
+	DebugLogger(const DebugLogger&); /// Don't allow copying.
+	uint categories_mask; /// Mask bitmap of categories the user wants log messages for.
+	int fd; /// File descriptor for debug logging.
+	int indent_level; /// The current indent level.
 	/// Initialise categories_mask.
 	void initialise_categories_mask();
 public:
@@ -172,33 +128,22 @@ extern DebugLogger xapian_debuglogger_;
  *  fact.
  */
 class DebugLogFunc {
-	/// This pointer (or 0 if this is a static method or a non-class function).
-	const void* this_ptr;
-
-	/// The category of log message to use for this function/method.
-	debuglog_categories category;
-
-	/// Function/method name.
-	std::string func;
-
-	/// Number of uncaught exceptions when we entered this function.
-	int uncaught_exceptions;
-
-	static int get_uncaught_exceptions() {
+	const void* this_ptr; /// This pointer (or 0 if this is a static method or a non-class function).
+	debuglog_categories category; /// The category of log message to use for this function/method.
+	std::string func; /// Function/method name.
+	int uncaught_exceptions; /// Number of uncaught exceptions when we entered this function.
+	static int get_uncaught_exceptions() 
+	{
 #if __cplusplus >= 201703L
 		return std::uncaught_exceptions();
 #else
 		return int(std::uncaught_exception());
 #endif
 	}
-
 public:
 	/// Constructor called when logging for a "normal" method or function.
-	DebugLogFunc(const void* this_ptr_, debuglog_categories category_,
-	    const char* return_type, const char* func_name,
-	    const std::string & params)
-		: this_ptr(this_ptr_), category(category_),
-		uncaught_exceptions(get_uncaught_exceptions())
+	DebugLogFunc(const void* this_ptr_, debuglog_categories category_, const char * return_type, const char * func_name, const std::string & params) : 
+		this_ptr(this_ptr_), category(category_), uncaught_exceptions(get_uncaught_exceptions())
 	{
 		if(is_category_wanted()) {
 			func.assign(return_type);
@@ -211,38 +156,31 @@ public:
 			xapian_debuglogger_.indent();
 		}
 	}
-
 	/// Log the returned value.
-	void log_return_value(const std::string & return_value) {
+	void log_return_value(const std::string & return_value) 
+	{
 		xapian_debuglogger_.outdent();
-		LOGLINE_(category, '[' << this_ptr << "] " << func << " returned: " <<
-			return_value);
-
+		LOGLINE_(category, '[' << this_ptr << "] " << func << " returned: " << return_value);
 		// Flag that we've logged the return already.
 		category = DEBUGLOG_CATEGORY_NEVER;
 	}
-
 	/// Check if the current category of log message is wanted.
-	bool is_category_wanted() const {
-		return xapian_debuglogger_.is_category_wanted(category);
-	}
-
+	bool is_category_wanted() const { return xapian_debuglogger_.is_category_wanted(category); }
 	/** Destructor.
 	 *
 	 *  This logs that the function/method has returned if this is due to an
 	 *  exception or if the RETURN() macro hasn't been used.
 	 */
-	~DebugLogFunc() {
+	~DebugLogFunc() 
+	{
 		if(!is_category_wanted()) return;
 		xapian_debuglogger_.outdent();
 		if(get_uncaught_exceptions() > uncaught_exceptions) {
 			// An exception is causing the stack to be unwound.
-			LOGLINE_(category, '[' << this_ptr << "] " << func <<
-				" exited due to exception");
+			LOGLINE_(category, '[' << this_ptr << "] " << func << " exited due to exception");
 		}
 		else {
-			LOGLINE_(category, '[' << this_ptr << "] " << func <<
-				" returned (not marked up for return logging)");
+			LOGLINE_(category, '[' << this_ptr << "] " << func << " returned (not marked up for return logging)");
 		}
 	}
 };
@@ -259,31 +197,24 @@ public:
 class DebugLogFuncVoid {
 	/// This pointer (or 0 if this is a static method or a non-class function).
 	const void* this_ptr;
-
 	/// The category of log message to use for this function/method.
 	debuglog_categories category;
-
 	/// Function/method name.
 	std::string func;
-
 	/// Number of uncaught exceptions when we entered this function.
 	int uncaught_exceptions;
-
-	static int get_uncaught_exceptions() {
+	static int get_uncaught_exceptions() 
+	{
 #if __cplusplus >= 201703L
 		return std::uncaught_exceptions();
 #else
 		return int(std::uncaught_exception());
 #endif
 	}
-
 public:
 	/// Constructor called when logging for a "normal" method or function.
-	DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
-	    const char* func_name,
-	    const std::string & params)
-		: this_ptr(this_ptr_), category(category_),
-		uncaught_exceptions(get_uncaught_exceptions())
+	DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_, const char * func_name, const std::string & params) : 
+		this_ptr(this_ptr_), category(category_), uncaught_exceptions(get_uncaught_exceptions())
 	{
 		if(is_category_wanted()) {
 			func.assign("void ");
@@ -299,7 +230,7 @@ public:
 	/// Constructor called when logging for a class constructor.
 	DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
 	    const std::string & params,
-	    const char* class_name)
+	    const char * class_name)
 		: this_ptr(this_ptr_), category(category_),
 		uncaught_exceptions(get_uncaught_exceptions())
 	{
@@ -308,7 +239,7 @@ public:
 			func += "::";
 			// The ctor name is the last component if there are colons (e.g.
 			// for Query::Internal, the ctor is Internal.
-			const char* ctor_name = std::strrchr(class_name, ':');
+			const char * ctor_name = std::strrchr(class_name, ':');
 			if(ctor_name)
 				++ctor_name;
 			else
@@ -324,7 +255,7 @@ public:
 
 	/// Constructor called when logging for a class destructor.
 	DebugLogFuncVoid(const void* this_ptr_, debuglog_categories category_,
-	    const char* class_name)
+	    const char * class_name)
 		: this_ptr(this_ptr_), category(category_),
 		uncaught_exceptions(get_uncaught_exceptions())
 	{
@@ -332,7 +263,7 @@ public:
 			func.assign(class_name);
 			func += "::~";
 			// The dtor name is the last component if there are colons.
-			const char* dtor_name = std::strrchr(class_name, ':');
+			const char * dtor_name = std::strrchr(class_name, ':');
 			if(dtor_name)
 				++dtor_name;
 			else
@@ -357,7 +288,7 @@ public:
 	~DebugLogFuncVoid() {
 		if(!is_category_wanted()) return;
 		xapian_debuglogger_.outdent();
-		const char* reason;
+		const char * reason;
 		if(get_uncaught_exceptions() > uncaught_exceptions) {
 			// An exception is causing the stack to be unwound.
 			reason = " exited due to exception";

@@ -5084,6 +5084,7 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 	};
 	int    ok = 1;
 	InnerBlock ib_;
+	SString temp_buf;
 	SString text;
 	StringSet ss;
 	SString cmd;
@@ -5140,13 +5141,15 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 				for(const SJson * p_inr = p_cur->P_Child->P_Child; p_inr; p_inr = p_inr->P_Next) {
 					if(p_inr->Text.IsEqiAscii("nm")) {
 						if(p_inr->P_Child) {
-							opaque_data = p_inr->P_Child->Text;
-							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
+							(temp_buf = p_inr->P_Child->Text).Unescape();
+							opaque_data = temp_buf;
+							ib_.Tokenize(pTa, temp_buf, ss);
 						}
 					}
 					else if(p_inr->Text.IsEqiAscii("descr")) {
-						if(p_inr->P_Child)
-							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
+						if(p_inr->P_Child) {
+							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
+						}
 					}
 					else if(p_inr->Text.IsEqiAscii("gln")) {
 						if(p_inr->P_Child)
@@ -5161,16 +5164,16 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
 					}
 					else if(p_inr->Text.IsEqiAscii("phone")) {
-						if(p_inr->P_Child)
-							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
+						if(p_inr->P_Child) 
+							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
 					}
 					else if(p_inr->Text.IsEqiAscii("city")) {
 						if(p_inr->P_Child)
-							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
+							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
 					}
 					else if(p_inr->Text.IsEqiAscii("email")) {
 						if(p_inr->P_Child)
-							ib_.Tokenize(pTa, p_inr->P_Child->Text, ss);
+							ib_.Tokenize(pTa, (temp_buf = p_inr->P_Child->Text).Unescape(), ss);
 					}
 				}
 				if(pFtsTra && ss.getCount()) {
@@ -5198,15 +5201,16 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
 								if(p_itm->P_Child) {
-									opaque_data = p_itm->P_Child->Text;
-									ib_.Tokenize(pTa, p_itm->P_Child->Text, ss);
+									(temp_buf = p_itm->P_Child->Text).Unescape();
+									opaque_data = temp_buf;
+									ib_.Tokenize(pTa, temp_buf, ss);
 								}
 							}
 							else if(p_itm->Text.IsEqiAscii("code_list")) {
 								if(p_itm->P_Child && p_itm->P_Child->IsArray()) {
 									for(const SJson * p_cod = p_itm->P_Child->P_Child; p_cod; p_cod = p_cod->P_Next) {
 										if(p_cod->P_Child && p_cod->P_Child->Text.IsEqiAscii("cod") && p_cod->P_Child->P_Child) {
-											ib_.Tokenize(pTa, p_cod->P_Child->P_Child->Text, ss);
+											ib_.Tokenize(pTa, (temp_buf = p_cod->P_Child->P_Child->Text).Unescape(), ss);
 										}
 									}
 								}
@@ -5239,8 +5243,9 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
 								if(p_itm->P_Child) {
-									opaque_data = p_itm->P_Child->Text;
-									ib_.Tokenize(pTa, p_itm->P_Child->Text, ss);
+									(temp_buf = p_itm->P_Child->Text).Unescape();
+									opaque_data = temp_buf;
+									ib_.Tokenize(pTa, temp_buf, ss);
 								}
 							}
 						}
@@ -5271,8 +5276,9 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
 								if(p_itm->P_Child) {
-									opaque_data = p_itm->P_Child->Text;
-									ib_.Tokenize(pTa, p_itm->P_Child->Text, ss);
+									(temp_buf = p_itm->P_Child->Text).Unescape();
+									opaque_data = temp_buf;
+									ib_.Tokenize(pTa, temp_buf, ss);
 								}
 							}
 						}
@@ -5303,8 +5309,9 @@ int StyloQCore::IndexingContent_Json(PPFtsIterface::TransactionHandle * pFtsTra,
 							}
 							else if(p_itm->Text.IsEqiAscii("nm")) {
 								if(p_itm->P_Child) {
-									opaque_data = p_itm->P_Child->Text;
-									ib_.Tokenize(pTa, p_itm->P_Child->Text, ss);
+									(temp_buf = p_itm->P_Child->Text).Unescape();
+									opaque_data = temp_buf;
+									ib_.Tokenize(pTa, temp_buf, ss);
 								}
 							}
 						}
@@ -6852,6 +6859,174 @@ PPID PPStyloQInterchange::ProcessCommand_IndexingContent(const StyloQCore::Stora
 	return doc_id;
 }
 
+/*static*/int PPStyloQInterchange::GetBlobStoragePath(SString & rBuf)
+{	
+	rBuf.Z();
+	int    ok = 0;
+	PPGetPath(PPPATH_WORKSPACE, rBuf);
+	if(rBuf.NotEmpty() && IsDirectory(rBuf)) {
+		rBuf.SetLastSlash().Cat("blob");
+		ok = 1;
+	}
+	else
+		rBuf.Z();
+	return ok;
+}
+
+int PPStyloQInterchange::ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	SJson  js_reply(SJson::tOBJECT);
+	SString blob_path;
+	SString _signature;
+	for(const SJson * p_cur = pDocument; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Type == SJson::tOBJECT) {
+			for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+				if(p_obj->Text.IsEqiAscii("cmd")) {
+					THROW(p_obj->P_Child->Text.IsEqiAscii("getblob")); // @err
+				}
+				else if(p_obj->Text.IsEqiAscii("signature")) {
+					_signature = p_obj->P_Child->Text.Unescape();
+				}
+			}
+		}
+	}
+	THROW(_signature.NotEmpty()); // @err
+	THROW(PPStyloQInterchange::GetBlobStoragePath(blob_path));
+	{
+		assert(blob_path.NotEmpty());
+		SBuffer content_buf; // Бинарное представление BLOB'а
+		const size_t nominal_readbuf_size = SMEGABYTE(1);
+		STempBuffer rb(nominal_readbuf_size+64/*insurance*/); // Временный буфер для чтения файла порциями
+		THROW_SL(rb.IsValid());
+		{
+			{
+				SFileStorage sfs(blob_path);
+				int64   fs = 0; // file-size
+				SHandle rh; // read-handle
+				size_t  actual_size = 0;
+				THROW_SL(sfs.IsValid());
+				rh = sfs.GetFile(_signature, &fs);
+				THROW_SL(rh);
+				do {
+					THROW_SL(sfs.Read(rh, rb, nominal_readbuf_size, &actual_size));
+					THROW_SL(content_buf.Write(rb, actual_size));
+				} while(actual_size);
+				{
+					uint64 rd_bytes = sfs.GetTotalRdSize(rh);
+					THROW_SL(rd_bytes);
+					assert(content_buf.GetAvailableSize() == rd_bytes);
+				}
+			}
+			{
+				const size_t preserve_rd_offs = content_buf.GetRdOffs();
+				const size_t _content_size = content_buf.GetAvailableSize();
+				binary256 _hash = SlHash::Sha256(0, content_buf.GetBufC(content_buf.GetRdOffs()), _content_size);
+				assert(preserve_rd_offs == content_buf.GetRdOffs());
+				{
+					//
+					// Здесь мы будем использовать rResult в качестве временного буфера.
+					// Все из-за того, что на этом участке придется манипулировать буферами большого размера,
+					// а rResult все равно придется "растягивать" для того чтоб вместить в него результирующий json.
+					// Таким образом мы избежим лишнего распределения значительного объема памяти (мы выиграем в производительности,
+					// а не в потреблении памяти).
+					//
+					js_reply.InsertString("contentsize", rResult.Z().Cat(_content_size));
+					SlHash::GetAlgorithmSymb(SHASHF_SHA256, rResult);
+					assert(rResult.NotEmpty());
+					js_reply.InsertString("hashalg", rResult);
+					rResult.Z().EncodeMime64(&_hash, sizeof(_hash));
+					js_reply.InsertString("hash", rResult.Escape());
+					THROW_SL(rResult.EncodeMime64(content_buf.GetBufC(content_buf.GetRdOffs()), _content_size));
+					js_reply.InsertString("content", rResult.Escape());
+				}
+			}
+		}
+	}
+	// Все временные буферы разрушены - теперь сформируем результат
+	THROW_SL(js_reply.ToStr(rResult));
+	CATCH
+		rResult.Z();
+		ok = 0;
+	ENDCATCH
+	return ok;
+}
+
+int PPStyloQInterchange::ProcessCommand_StoreBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult)
+{
+	//SFileStorage
+	// storeblob
+	/*
+		{
+			cmd: storeblob
+			time: epoch-secondes
+			contenttype: mime-declaration
+			contentsize: size-of-content (in raw format - not in encoded version)
+			hashalg: hashing-algorithm (sha-256 or other)
+			hash: hash-value (base64 encoded)
+			signature: text-signature-for-storing-data
+			content: content-data (base64 encoded)
+		}
+	*/
+	rResult.Z();
+	int    ok = 1;
+	long   _time = 0;
+	SString blob_path;
+	SFileFormat _content_type;
+	int64  _content_size = 0;
+	int    _hash_alg = 0;
+	SBinaryChunk blob_data;
+	SBinaryChunk _hash;
+	SString _signature;
+	const char * p_content_b64 = 0;
+	for(const SJson * p_cur = pDocument; p_cur; p_cur = p_cur->P_Next) {
+		if(p_cur->Type == SJson::tOBJECT) {
+			for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
+				if(p_obj->Text.IsEqiAscii("cmd")) {
+					THROW(p_obj->P_Child->Text.IsEqiAscii("storeblob")); // @err
+				}
+				else if(p_obj->Text.IsEqiAscii("time")) {
+					_time = p_obj->P_Child->Text.ToLong();
+				}
+				else if(p_obj->Text.IsEqiAscii("contenttype")) {
+					_content_type.IdentifyMime(p_obj->P_Child->Text);
+				}
+				else if(p_obj->Text.IsEqiAscii("contentsize")) {
+					_content_size = p_obj->P_Child->Text.ToInt64();
+				}
+				else if(p_obj->Text.IsEqiAscii("hashalg")) {
+					_hash_alg = SlHash::IdentifyAlgorithmSymb(p_obj->P_Child->Text);
+				}
+				else if(p_obj->Text.IsEqiAscii("hash")) {
+					THROW_SL(_hash.FromMime64(p_obj->P_Child->Text.Unescape()));
+				}
+				else if(p_obj->Text.IsEqiAscii("signature")) {
+					_signature = p_obj->P_Child->Text.Unescape();
+				}
+				else if(p_obj->Text.IsEqiAscii("content")) {
+					p_content_b64 = p_obj->P_Child->Text.Unescape();
+				}
+			}
+		}
+	}
+	THROW(p_content_b64); // @err
+	THROW(_signature.NotEmpty()); // @err
+	THROW(_hash_alg); // @err
+	THROW(_hash.Len()); // @err
+	THROW_SL(blob_data.FromMime64(p_content_b64));
+	THROW_SL(SlHash::VerifyBuffer(_hash_alg, _hash.PtrC(), _hash.Len(), blob_data.PtrC(), blob_data.Len()));
+	THROW(PPStyloQInterchange::GetBlobStoragePath(blob_path));
+	{
+		assert(blob_path.NotEmpty());
+		SFileStorage sfs(blob_path);
+		THROW_SL(sfs.IsValid());
+		THROW_SL(sfs.PutFile(_signature, blob_data.PtrC(), blob_data.Len()));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration)
 {
 	rResult.Z();
@@ -7300,11 +7475,9 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								StyloQCore::StoragePacket cli_pack;
 								assert(reply_config.Len());
 								if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
-									/*
-									if(ProcessCommand_IndexingContent(cli_pack, p_js_cmd, reply_text_buf) > 0) {
+									if(ProcessCommand_StoreBlob(cli_pack, p_js_cmd, reply_text_buf) > 0) {
 										cmd_reply_ok = true;
 									}
-									*/
 								}
 							}
 						}
@@ -7313,6 +7486,29 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 			}
 			else if(command.IsEqiAscii("getblob")) { // @v11.3.3
 				// Команда отправляется от клиента к сервису-медиатору для того, чтобы получить произвольный бинарный объект по идентификатору, предоставленному другим сервисом
+				if(GetOwnPeerEntry(&own_pack) > 0) {
+					StyloQConfig own_cfg;
+					if(!own_pack.Pool.Get(SSecretTagPool::tagConfig, &reply_config))
+						PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
+					else {
+						reply_config.ToRawStr(temp_buf);
+						if(own_cfg.FromJson(temp_buf)) {
+							uint   own_cfg_role = own_cfg.GetRole();
+							uint64 own_features = own_cfg.GetFeatures();
+							if(!(own_features & StyloQConfig::featrfMediator))
+								PPSetError(PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, command);
+							else {
+								StyloQCore::StoragePacket cli_pack;
+								assert(reply_config.Len());
+								if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
+									if(ProcessCommand_GetBlob(cli_pack, p_js_cmd, reply_text_buf) > 0) {
+										cmd_reply_ok = true;
+									}
+								}
+							}
+						}
+					}
+				}
 			}
 			else if(command.IsEqiAscii("pushindexingcontent")) { // @v11.3.4
 				// Команда передачи сервису-медиатору данных для поисковой индексации
@@ -9109,7 +9305,8 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 			cmdEcho,
 			cmdIndexing,
 			cmdSearch,
-			cmdStoreBlob // storeblob
+			cmdStoreBlob, // storeblob
+			cmdGetBlob    // getblob
 		};
 		StqClientTestDialog(PPStyloQInterchange * pIc, const StyloQCore::StoragePacket & rPack) : TDialog(DLG_STQCLITEST), P_Ic(pIc), Pack(rPack)
 		{
@@ -9135,6 +9332,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				cmd_list.Add(cmdIndexing, PPLoadTextS(PPTXT_STQCLITESTCMD_INDEXING, temp_buf));
 				cmd_list.Add(cmdSearch, PPLoadTextS(PPTXT_STQCLITESTCMD_SEARCH, temp_buf));
 				cmd_list.Add(cmdStoreBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_STOREBLOB, temp_buf)); // @v11.3.6
+				cmd_list.Add(cmdGetBlob, PPLoadTextS(PPTXT_STQCLITESTCMD_GETBLOB, temp_buf)); // @v11.3.7
 				SetupStrAssocCombo(this, CTLSEL_STQCLITEST_FUNC, cmd_list, 0, 0);
 			}
 		}
@@ -9166,6 +9364,44 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 						}
 					}
 				}
+				else if(cmd == cmdGetBlob) {
+					SString temp_buf;
+					{
+						const char * p_test_file_name = "test_webp_js.webp";
+						PPGetPath(PPPATH_TESTROOT, temp_buf);
+						if(temp_buf.NotEmpty()) {
+							temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat(p_test_file_name);
+							if(fileExists(temp_buf)) {
+								SBinaryChunk raw_data;
+								const char * p_signature = "aa.ibqnxppe3cdwt7brszce5yfowu="; // Сигнатура blob'а, отправленного тестовой командой (see cmdStoreBlock)
+								SJson query(SJson::tOBJECT);
+								SJson * p_js = 0;
+								query.InsertString("cmd", "getblob");
+								query.InsertString("signature", p_signature);
+								query.ToStr(dip.CommandJson);
+								if(P_Ic->DoInterchange(dip, svc_reply)) {
+									if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
+										raw_data.ToRawStr(json_buf);
+										p_js = SJson::Parse(json_buf);
+										if(p_js) {
+											setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
+										}
+									}
+								}
+								else {
+									if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
+										raw_data.ToRawStr(json_buf);
+										p_js = SJson::Parse(json_buf);
+										if(p_js) {
+											setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
+										}
+									}
+								}
+								delete p_js;
+							}
+						}
+					}
+				}
 				else if(cmd == cmdStoreBlob) {
 					SString temp_buf;
 					{
@@ -9190,16 +9426,20 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 											StyloQCore::StoragePacket own_pack;
 											SBinaryChunk bc_own_ident;
 											if(P_Ic->GetOwnPeerEntry(&own_pack) > 0 && own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident)) {
+												SBinaryChunk raw_data;
 												SJson query(SJson::tOBJECT);
+												SJson * p_js = 0;
 												query.InsertString("cmd", "storeblob");
 												query.InsertString("time", temp_buf.Z().Cat(time(0)));
 												if(content_type_buf.NotEmpty()) {
 													query.InsertString("contenttype", content_type_buf);
 												}
 												query.InsertString("contentsize", temp_buf.Z().Cat(actual_size));
+												SlHash::GetAlgorithmSymb(SHASHF_SHA256, temp_buf);
+												assert(temp_buf.NotEmpty());
+												query.InsertString("hashalg", temp_buf);
 												const binary256 hash = SlHash::Sha256(0, blob_buf, actual_size);
 												temp_buf.EncodeMime64(&hash, sizeof(hash));
-												query.InsertString("hashalg", "sha-256");
 												query.InsertString("hash", temp_buf);
 												{
 													SBinaryChunk bc_sign;
@@ -9213,18 +9453,24 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 												query.InsertString("content", temp_buf);
 												query.ToStr(dip.CommandJson);
 												if(P_Ic->DoInterchange(dip, svc_reply)) {
-													SBinaryChunk raw_data;
 													if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
 														raw_data.ToRawStr(json_buf);
-														SJson * p_js = SJson::Parse(json_buf);
+														p_js = SJson::Parse(json_buf);
 														if(p_js) {
 															setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
 														}
 													}
 												}
 												else {
-													;
+													if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
+														raw_data.ToRawStr(json_buf);
+														p_js = SJson::Parse(json_buf);
+														if(p_js) {
+															setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
+														}
+													}
 												}
+												delete p_js;
 											}
 										}
 									}
@@ -9282,8 +9528,10 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 							if(svc_reply.Get(SSecretTagPool::tagRawData, &raw_data)) {
 								raw_data.ToRawStr(json_buf);
 								SJson * p_js = SJson::Parse(json_buf);
-								if(p_js)
+								if(p_js) {
 									setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
+								}
+								delete p_js;
 							}
 						}
 						ZDELETE(p_cmd_list);
@@ -9308,6 +9556,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 									json_buf.Transf(CTRANSF_UTF8_TO_INNER);
 									setCtrlString(CTL_STQCLITEST_RESULT, json_buf);
 								}
+								delete p_js;
 							}
 						}
 					}

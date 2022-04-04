@@ -20,14 +20,14 @@
 #pragma hdrstop
 #include "glass_check.h"
 #include "glass_version.h"
-#include "unicode/description_append.h"
 
 using namespace Glass;
 using namespace std;
 
 void GlassTableCheck::print_spaces(int n) const
 {
-	while(n--) out->put(' ');
+	while(n--) 
+		out->put(' ');
 }
 
 void GlassTableCheck::print_bytes(int n, const uint8 * p) const

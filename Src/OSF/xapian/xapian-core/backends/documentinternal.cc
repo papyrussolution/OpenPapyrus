@@ -14,10 +14,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "backends/documentinternal.h"
-#include "api/documenttermlist.h"
-#include "api/documentvaluelist.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 

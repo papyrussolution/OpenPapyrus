@@ -7,43 +7,16 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "slowvaluelist.h"
-#include "documentinternal.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 
-Xapian::docid SlowValueList::get_docid() const
-{
-	return current_did;
-}
-
-string SlowValueList::get_value() const
-{
-	return current_value;
-}
-
-Xapian::valueno SlowValueList::get_valueno() const
-{
-	return slot;
-}
-
-bool SlowValueList::at_end() const
-{
-	return last_docid == 0;
-}
+Xapian::docid SlowValueList::get_docid() const { return current_did; }
+string SlowValueList::get_value() const { return current_value; }
+Xapian::valueno SlowValueList::get_valueno() const { return slot; }
+bool SlowValueList::at_end() const { return last_docid == 0; }
 
 void SlowValueList::next()
 {
@@ -67,14 +40,13 @@ void SlowValueList::next()
 		} catch(const Xapian::DocNotFoundError &) {
 		}
 	}
-
-	// Indicate that we're at_end().
-	last_docid = 0;
+	last_docid = 0; // Indicate that we're at_end().
 }
 
 void SlowValueList::skip_to(Xapian::docid did)
 {
-	if(did <= current_did) return;
+	if(did <= current_did) 
+		return;
 	current_did = did - 1;
 	next();
 }
@@ -84,13 +56,11 @@ bool SlowValueList::check(Xapian::docid did)
 	if(did <= current_did) {
 		return !current_value.empty();
 	}
-
 	if(did > last_docid) {
 		// Indicate that we're at_end().
 		last_docid = 0;
 		return true;
 	}
-
 	current_did = did;
 	try {
 		void * d = db->open_document(current_did, true);

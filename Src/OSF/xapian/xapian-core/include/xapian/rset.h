@@ -39,31 +39,23 @@ public:
 	class Internal;
 	/// @private @internal Reference counted internals.
 	Xapian::Internal::intrusive_ptr<Internal> internal;
-
 	/** Copying is allowed.
 	 *
 	 *  The internals are reference counted, so copying is cheap.
 	 */
 	RSet(const RSet & o);
-
 	/** Copying is allowed.
 	 *
 	 *  The internals are reference counted, so assignment is cheap.
 	 */
 	RSet & operator = (const RSet & o);
-
-	/// Move constructor.
-	RSet(RSet && o);
-
-	/// Move assignment operator.
-	RSet & operator = (RSet && o);
-
+	RSet(RSet && o); /// Move constructor.
+	RSet & operator = (RSet && o); /// Move assignment operator.
 	/** Default constructor.
 	 *
 	 *  Creates an empty RSet.
 	 */
 	RSet();
-
 	/** @private @internal Wrap an existing Internal. */
 	XAPIAN_VISIBILITY_INTERNAL
 	explicit RSet(Internal* internal_);

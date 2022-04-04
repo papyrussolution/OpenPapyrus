@@ -14,14 +14,12 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "valuestreamdocument.h"
-#include "backends/multi/multi_database.h"
 
 using namespace std;
 
 static void clear_valuelists(map<Xapian::valueno, ValueList *> & valuelists)
 {
-	map<Xapian::valueno, ValueList *>::const_iterator i;
+	map <Xapian::valueno, ValueList *>::const_iterator i;
 	for(i = valuelists.begin(); i != valuelists.end(); ++i) {
 		delete i->second;
 	}

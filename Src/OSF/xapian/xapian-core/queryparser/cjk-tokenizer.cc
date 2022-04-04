@@ -37,11 +37,11 @@ bool CJK::is_cjk_enabled()
 	return result;
 }
 
-bool CJK::codepoint_is_cjk(unsigned p)
+bool CJK::codepoint_is_cjk(uint p)
 {
 	// Array containing the last value in each range of codepoints which
 	// are either all CJK or all non-CJK.
-	static const unsigned splits[] = {
+	static const uint splits[] = {
 		// 0E00..0E7F; Thai, Lanna Tai, Pali
 		0x0E00 - 1, 0x0E7F,
 		// 1100..11FF; Hangul Jamo
@@ -98,7 +98,7 @@ bool CJK::codepoint_is_cjk(unsigned p)
 	return ((it - splits) & 1);
 }
 
-bool CJK::codepoint_is_cjk_wordchar(unsigned p)
+bool CJK::codepoint_is_cjk_wordchar(uint p)
 {
 	return codepoint_is_cjk(p) && Xapian::Unicode::is_wordchar(p);
 }
@@ -114,7 +114,8 @@ size_t CJK::get_cjk(Xapian::Utf8Iterator& it)
 	return char_count;
 }
 
-void CJKNgramIterator::init() {
+void CJKNgramIterator::init() 
+{
 	if(it != Xapian::Utf8Iterator()) {
 		uint ch = *it;
 		if(CJK::codepoint_is_cjk_wordchar(ch)) {
@@ -153,7 +154,7 @@ CJKNgramIterator&CJKNgramIterator::operator++()
 }
 
 #ifdef USE_ICU
-CJKWordIterator::CJKWordIterator(const char* ptr, size_t len)
+CJKWordIterator::CJKWordIterator(const char * ptr, size_t len)
 {
 	UErrorCode err = U_ZERO_ERROR;
 	UText utext = UTEXT_INITIALIZER;

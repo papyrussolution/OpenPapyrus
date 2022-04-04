@@ -7,8 +7,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "synonympostlist.h"
-#include "postlisttree.h"
 
 using namespace std;
 

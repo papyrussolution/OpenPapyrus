@@ -15,9 +15,6 @@
 #ifndef XAPIAN_INCLUDED_STDCLAMP_H
 #define XAPIAN_INCLUDED_STDCLAMP_H
 
-//#include <algorithm>
-//#include <functional>
-
 #if __cplusplus >= 201703L
 	#define STD_CLAMP std::clamp
 #else

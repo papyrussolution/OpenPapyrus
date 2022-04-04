@@ -8,24 +8,12 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "uuids.h"
-#include "safefcntl.h"
-#include "safeunistd.h"
 
 #ifdef USE_PROC_FOR_UUID
-#include "safesysstat.h"
+//#include "safesysstat.h"
 #elif defined HAVE_UUID_UUID_H
 #include <exception>
 #include <uuid/uuid.h>
@@ -48,7 +36,7 @@
 using namespace std;
 
 /// Bit-mask to determine where to put hyphens in the string representation.
-static constexpr unsigned UUID_GAP_MASK = 0x2a8;
+static constexpr uint UUID_GAP_MASK = 0x2a8;
 
 void Uuid::generate()
 {
@@ -97,7 +85,7 @@ void Uuid::generate()
 #endif
 }
 
-void Uuid::parse(const char* in)
+void Uuid::parse(const char * in)
 {
 	for(uint i = 0; i != BINARY_SIZE; ++i) {
 		uuid_data[i] = hex_digit(in[0]) << 4 | hex_digit(in[1]);

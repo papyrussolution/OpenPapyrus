@@ -7,7 +7,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "common/log2.h"
 
 using namespace std;
 

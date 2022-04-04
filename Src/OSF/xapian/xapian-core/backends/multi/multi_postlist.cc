@@ -7,20 +7,10 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "multi_postlist.h"
-#include "backends/multi.h"
-#include "backends/postlist.h"
-#include "heap.h"
 
 using namespace std;
 
@@ -94,14 +84,14 @@ PositionList* MultiPostList::open_position_list() const
 	return postlists[shard_number(docids[0], n_shards)]->open_position_list();
 }
 
-PostList* MultiPostList::next(double w_min)
+PostList * MultiPostList::next(double w_min)
 {
 	if(docids_size == 0) {
 		// Make a heap of the mapped docids so that the smallest is at the top
 		// of the heap.
 		Xapian::doccount j = 0;
 		for(Xapian::doccount i = 0; i != n_shards; ++i) {
-			PostList* pl = postlists[i];
+			PostList * pl = postlists[i];
 			if(!pl) continue;
 			pl->next(w_min);
 			if(pl->at_end()) {
@@ -119,7 +109,7 @@ PostList* MultiPostList::next(double w_min)
 	else {
 		Xapian::docid old_did = docids[0];
 		Xapian::doccount shard = shard_number(old_did, n_shards);
-		PostList* pl = postlists[shard];
+		PostList * pl = postlists[shard];
 		pl->next(w_min);
 		if(pl->at_end()) {
 			Heap::pop(docids, docids + docids_size,
@@ -138,7 +128,7 @@ PostList* MultiPostList::next(double w_min)
 	return NULL;
 }
 
-PostList* MultiPostList::skip_to(Xapian::docid did, double w_min)
+PostList * MultiPostList::skip_to(Xapian::docid did, double w_min)
 {
 	Xapian::doccount j = 0;
 	if(docids_size == 0) {
@@ -147,7 +137,7 @@ PostList* MultiPostList::skip_to(Xapian::docid did, double w_min)
 		Xapian::docid shard_did = shard_docid(did, n_shards);
 		Xapian::doccount shard = shard_number(did, n_shards);
 		for(Xapian::doccount i = 0; i != n_shards; ++i) {
-			PostList* pl = postlists[i];
+			PostList * pl = postlists[i];
 			if(!pl) continue;
 			pl->skip_to(shard_did + (i < shard), w_min);
 			if(pl->at_end()) {
@@ -173,7 +163,7 @@ PostList* MultiPostList::skip_to(Xapian::docid did, double w_min)
 			Xapian::docid old_did = docids[i];
 			if(old_did < did) {
 				Xapian::doccount old_shard = shard_number(old_did, n_shards);
-				PostList* pl = postlists[old_shard];
+				PostList * pl = postlists[old_shard];
 				pl->skip_to(shard_did + (old_shard < shard), w_min);
 				if(pl->at_end()) {
 					delete pl;

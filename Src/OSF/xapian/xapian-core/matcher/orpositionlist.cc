@@ -14,7 +14,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "orpositionlist.h"
 
 using namespace std;
 

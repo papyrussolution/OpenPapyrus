@@ -47011,6 +47011,7 @@ public:
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
 	static int   ExecuteIndexingRequest();
+	static int   GetBlobStoragePath(SString & rBuf);
 	//
 	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 private:
@@ -47036,6 +47037,8 @@ private:
 	//    0 - ошибка
 	//
 	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
+	int    ProcessCommand_StoreBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
+	int    ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);

@@ -1694,7 +1694,7 @@ void /* PRIVATE */ png_read_transform_info(png_structrp png_ptr, png_inforp info
 #        ifdef PNG_READ_SCALE_16_TO_8_SUPPORTED
 		png_ptr->transformations |= PNG_SCALE_16_TO_8;
 		info_ptr->bit_depth = 8;
-#        else
+#else
 
 		CONFIGURATION ERROR : you must enable at least one 16 to 8 method
 #endif

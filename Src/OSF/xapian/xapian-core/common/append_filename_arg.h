@@ -31,7 +31,7 @@ static bool append_filename_argument(std::string & cmd, const std::string & arg,
 	cmd.reserve(cmd.size() + arg.size() + 5);
 	// Prevent a leading "-" on the filename being interpreted as a command
 	// line option.
-	const char* prefix = (arg[0] == '-') ? " \".\\" : " \"";
+	const char * prefix = (arg[0] == '-') ? " \".\\" : " \"";
 	if(!leading_space)
 		++prefix;
 	cmd += prefix;
@@ -59,7 +59,7 @@ static bool append_filename_argument(std::string & cmd, const std::string & arg,
 
 	// Prevent a leading "-" on the filename being interpreted as a command
 	// line option.
-	const char* prefix = (arg[0] == '-') ? " './" : " '";
+	const char * prefix = (arg[0] == '-') ? " './" : " '";
 	if(!leading_space)
 		++prefix;
 	cmd += prefix;

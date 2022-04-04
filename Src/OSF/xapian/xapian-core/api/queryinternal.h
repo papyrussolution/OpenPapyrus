@@ -7,24 +7,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #ifndef XAPIAN_INCLUDED_QUERYINTERNAL_H
 #define XAPIAN_INCLUDED_QUERYINTERNAL_H
-
-#include "api/editdistance.h"
-#include "queryvector.h"
-#include "stringutils.h"
-#include "xapian/intrusive_ptr.h"
-#include "xapian/query.h"
 
 const Xapian::termcount DEFAULT_ELITE_SET_SIZE = 10; /// Default set_size for OP_ELITE_SET:
 
@@ -49,7 +34,7 @@ namespace Xapian {
 			const std::string & get_term() const { return term; }
 			termcount get_wqf() const { return wqf; }
 			termpos get_pos() const { return pos; }
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			bool postlist_sub_and_like(AndContext& ctx, QueryOptimiser* qopt, double factor) const;
 			termcount get_length() const noexcept XAPIAN_PURE_FUNCTION { return wqf; }
 			void serialise(std::string & result) const;
@@ -61,7 +46,7 @@ namespace Xapian {
 			Xapian::Internal::opt_intrusive_ptr<PostingSource> source;
 		public:
 			explicit QueryPostingSource(PostingSource * source_);
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void serialise(std::string & result) const;
 			Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 			std::string get_description() const;
@@ -72,7 +57,7 @@ namespace Xapian {
 			Query subquery;
 		public:
 			QueryScaleWeight(double factor, const Query & subquery_);
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			bool postlist_sub_and_like(AndContext& ctx, QueryOptimiser* qopt, double factor) const;
 			termcount get_length() const noexcept XAPIAN_PURE_FUNCTION { return subquery.internal->get_length(); }
 			void serialise(std::string & result) const;
@@ -99,7 +84,7 @@ namespace Xapian {
 			QueryValueRange(Xapian::valueno slot_, const std::string &begin_, const std::string &end_) : QueryValueBase(slot_), begin(begin_), end(end_) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void serialise(std::string & result) const;
 			Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 			std::string get_description() const;
@@ -111,7 +96,7 @@ namespace Xapian {
 			QueryValueLE(Xapian::valueno slot_, const std::string &limit_) : QueryValueBase(slot_), limit(limit_) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void serialise(std::string & result) const;
 			Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 			std::string get_description() const;
@@ -123,7 +108,7 @@ namespace Xapian {
 			QueryValueGE(Xapian::valueno slot_, const std::string &limit_) : QueryValueBase(slot_), limit(limit_) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void serialise(std::string & result) const;
 			Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
 			std::string get_description() const;
@@ -146,8 +131,8 @@ namespace Xapian {
 			 *				 OP_SYNONYM) they can be ignored.
 			 */
 			void do_or_like(OrContext& ctx, QueryOptimiser* qopt, double factor, Xapian::termcount elite_set_size = 0, size_t first = 0, bool keep_zero_weight = true) const;
-			PostList* do_synonym(QueryOptimiser * qopt, double factor) const;
-			PostList* do_max(QueryOptimiser * qopt, double factor) const;
+			PostList * do_synonym(QueryOptimiser * qopt, double factor) const;
+			PostList * do_max(QueryOptimiser * qopt, double factor) const;
 			const std::string get_description_helper(const char * op, Xapian::termcount window = 0) const;
 
 		public:
@@ -169,7 +154,7 @@ namespace Xapian {
 		public:
 			void add_subquery(const Xapian::Query & subquery);
 			Query::Internal * done();
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			bool postlist_sub_and_like(AndContext& ctx, QueryOptimiser* qopt, double factor) const;
 		};
 
@@ -198,7 +183,7 @@ namespace Xapian {
 			explicit QueryOr(size_t n_subqueries) : QueryOrLike(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt, double factor, bool keep_zero_weight) const;
 			void postlist_sub_bool_or_like(BoolOrContext& ctx, QueryOptimiser* qopt) const;
 			std::string get_description() const;
@@ -210,7 +195,7 @@ namespace Xapian {
 			explicit QueryAndNot(size_t n_subqueries) : QueryBranch(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			bool postlist_sub_and_like(AndContext& ctx, QueryOptimiser* qopt, double factor) const;
 			void add_subquery(const Xapian::Query & subquery);
 			Query::Internal * done();
@@ -223,7 +208,7 @@ namespace Xapian {
 			explicit QueryXor(size_t n_subqueries) : QueryOrLike(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void postlist_sub_xor(XorContext& ctx, QueryOptimiser * qopt, double factor) const;
 			std::string get_description() const;
 		};
@@ -234,7 +219,7 @@ namespace Xapian {
 			explicit QueryAndMaybe(size_t n_subqueries) : QueryBranch(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			bool postlist_sub_and_like(AndContext& ctx, QueryOptimiser* qopt, double factor) const;
 			void add_subquery(const Xapian::Query & subquery);
 			Query::Internal * done();
@@ -247,7 +232,7 @@ namespace Xapian {
 			explicit QueryFilter(size_t n_subqueries) : QueryAndLike(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			bool postlist_sub_and_like(AndContext& ctx, QueryOptimiser* qopt, double factor) const;
 			std::string get_description() const;
 		};
@@ -294,7 +279,7 @@ namespace Xapian {
 			{
 			}
 			void serialise(std::string & result) const;
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void postlist_sub_or_like(OrContext& ctx, QueryOptimiser* qopt, double factor, bool keep_zero_weight) const;
 			std::string get_description() const;
 		};
@@ -305,7 +290,7 @@ namespace Xapian {
 			explicit QuerySynonym(size_t n_subqueries) : QueryOrLike(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			Query::Internal * done();
 			std::string get_description() const;
 		};
@@ -316,7 +301,7 @@ namespace Xapian {
 			explicit QueryMax(size_t n_subqueries) : QueryOrLike(n_subqueries) 
 			{
 			}
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			std::string get_description() const;
 		};
 
@@ -355,7 +340,7 @@ namespace Xapian {
 			Xapian::termcount get_max_expansion() const { return max_expansion; }
 			int get_just_flags() const { return flags &~Xapian::Query::WILDCARD_LIMIT_MASK_; }
 			int get_max_type() const { return flags & Xapian::Query::WILDCARD_LIMIT_MASK_; }
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 			void serialise(std::string & result) const;
 
@@ -371,7 +356,8 @@ namespace Xapian {
 					combiner = new_op;
 					return this;
 				}
-				return new QueryWildcard(pattern, max_expansion, flags, new_op);
+				else
+					return new QueryWildcard(pattern, max_expansion, flags, new_op);
 			}
 			/// Return the fixed prefix from the wildcard pattern.
 			std::string get_fixed_prefix() const { return prefix; }
@@ -404,7 +390,7 @@ namespace Xapian {
 			int  get_just_flags() const { return flags &~Xapian::Query::WILDCARD_LIMIT_MASK_; }
 			int  get_max_type() const { return flags & Xapian::Query::WILDCARD_LIMIT_MASK_; }
 			uint get_threshold() const { return edit_distance; }
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			termcount get_length() const noexcept XAPIAN_PURE_FUNCTION;
 			void serialise(std::string & result) const;
 			/** Change the combining operator.
@@ -430,7 +416,7 @@ namespace Xapian {
 			{
 			}
 			Xapian::Query::op get_type() const noexcept XAPIAN_PURE_FUNCTION;
-			PostList* postlist(QueryOptimiser * qopt, double factor) const;
+			PostList * postlist(QueryOptimiser * qopt, double factor) const;
 			void serialise(std::string & result) const;
 			std::string get_description() const;
 		};

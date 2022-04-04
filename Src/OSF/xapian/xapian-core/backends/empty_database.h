@@ -7,21 +7,9 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_EMPTY_DATABASE_H
 #define XAPIAN_INCLUDED_EMPTY_DATABASE_H
-
-#include "backends/databaseinternal.h"
 
 /// Empty database internals.
 class EmptyDatabase : public Xapian::Database::Internal {
@@ -31,7 +19,7 @@ public:
 	}
 	size_type size() const;
 	void close();
-	PostList* open_post_list(const std::string & term) const;
+	PostList * open_post_list(const std::string & term) const;
 	LeafPostList* open_leaf_post_list(const std::string & term, bool need_read_pos) const;
 	TermList* open_term_list(Xapian::docid did) const;
 	TermList* open_term_list_direct(Xapian::docid did) const;

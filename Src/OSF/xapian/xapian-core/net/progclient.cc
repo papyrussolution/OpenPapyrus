@@ -8,8 +8,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "safefcntl.h"
-#include "progclient.h"
 #include "closefrom.h"
 #ifndef __WIN32__
 	#include "safesyssocket.h"

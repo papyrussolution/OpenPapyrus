@@ -35,17 +35,13 @@ public:
 	Internal * internal; /// @private @internal Reference counted internals.
 	/// @private @internal Wrap an existing Internal.
 	XAPIAN_VISIBILITY_INTERNAL explicit TermIterator(Internal * internal_);
-	/// Copy constructor.
 	TermIterator(const TermIterator & o);
-	/// Assignment.
 	TermIterator & operator = (const TermIterator & o);
-	/// Move constructor.
-	TermIterator(TermIterator && o) : internal(o.internal) 
+	TermIterator(TermIterator && o) : internal(o.internal)  /// Move constructor.
 	{
 		o.internal = nullptr;
 	}
-	/// Move assignment operator.
-	TermIterator & operator = (TermIterator && o) 
+	TermIterator & operator = (TermIterator && o)  /// Move assignment operator.
 	{
 		if(this != &o) {
 			if(internal) decref();
@@ -114,16 +110,11 @@ public:
 	 *  that Xapian iterator classes are compatible with the STL.
 	 */
 	// @{
-	/// @private
-	typedef std::input_iterator_tag iterator_category;
-	/// @private
-	typedef std::string value_type;
-	/// @private
-	typedef Xapian::termcount_diff difference_type;
-	/// @private
-	typedef std::string * pointer;
-	/// @private
-	typedef std::string & reference;
+	typedef std::input_iterator_tag iterator_category; /// @private
+	typedef std::string value_type; /// @private
+	typedef Xapian::termcount_diff difference_type; /// @private
+	typedef std::string * pointer; /// @private
+	typedef std::string & reference; /// @private
 	// @}
 private:
 	void decref();

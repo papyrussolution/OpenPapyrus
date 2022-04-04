@@ -8907,6 +8907,10 @@ void FASTCALL CheckPaneDialog::SelectGoods__(int mode)
 								gf.LocList.Add(CnLocID);
 							}
 						}
+						// @v11.3.7 {
+						if(CnExtFlags & CASHFX_USEGOODSMATRIX)
+							gf.Flags |= GoodsFilt::fRestrictByMatrix;
+						// } @v11.3.7 
 						GoodsIterator::GetListByFilt(&gf, &goods_list, 1);
 						if(goods_list.getCount())
 							P_EGSDlg->setSelectionByGoodsList(&goods_list);

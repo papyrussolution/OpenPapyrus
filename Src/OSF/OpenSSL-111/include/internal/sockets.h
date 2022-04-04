@@ -72,7 +72,7 @@ struct servent *PASCAL getservbyname(const char *, const char *);
 #include <sys/socket.h>
 #ifndef NO_SYS_UN_H
 #include <sys/un.h>
-#    ifndef UNIX_PATH_MAX
+#ifndef UNIX_PATH_MAX
 #     define UNIX_PATH_MAX sizeof(((struct sockaddr_un *)NULL)->sun_path)
 #endif
 #endif

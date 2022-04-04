@@ -8,11 +8,7 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "tcpclient.h"
-#include "remoteconnection.h"
 #include "resolver.h"
-#include "realtime.h"
-#include "safefcntl.h"
 #include "safenetdb.h"
 #include "safesyssocket.h"
 #include "socket_utils.h"
@@ -73,7 +69,7 @@ int TcpClient::open_socket(const std::string & hostname, int port,
 
 		if(tcp_nodelay) {
 			int optval = 1;
-			// 4th argument might need to be void* or char* - cast it to char*
+			// 4th argument might need to be void* or char * - cast it to char *
 			// since C++ allows implicit conversion to void* but not from
 			// void*.
 			if(setsockopt(fd, IPPROTO_TCP, TCP_NODELAY,
@@ -133,7 +129,7 @@ int TcpClient::open_socket(const std::string & hostname, int port,
 			err = 0;
 			SOCKLEN_T len = sizeof(err);
 
-			// 4th argument might need to be void* or char* - cast it to char*
+			// 4th argument might need to be void* or char * - cast it to char *
 			// since C++ allows implicit conversion to void* but not from void*.
 			retval = getsockopt(fd, SOL_SOCKET, SO_ERROR,
 				reinterpret_cast<char *>(&err), &len);

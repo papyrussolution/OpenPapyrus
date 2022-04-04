@@ -15,9 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "io_utils.h"
-#include "posixy_wrapper.h"
-#include "safeunistd.h"
 
 // Trying to include the correct headers with the correct defines set to
 // get pread() and pwrite() prototyped on every platform without breaking any

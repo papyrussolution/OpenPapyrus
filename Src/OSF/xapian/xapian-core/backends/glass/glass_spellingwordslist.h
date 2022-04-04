@@ -8,15 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #ifndef XAPIAN_INCLUDED_GLASS_SPELLINGWORDSLIST_H
@@ -31,18 +22,11 @@ class GlassDatabase;
 class GlassSpellingWordsList : public AllTermsList {
 	/// Copying is not allowed.
 	GlassSpellingWordsList(const GlassSpellingWordsList &);
-
 	/// Assignment is not allowed.
 	void operator = (const GlassSpellingWordsList &);
-
 	/// Keep a reference to our database to stop it being deleted.
 	Xapian::Internal::intrusive_ptr<const GlassDatabase> database;
-
-	/** A cursor which runs through the spelling table reading termnames from
-	 *  the keys.
-	 */
-	GlassCursor * cursor;
-
+	GlassCursor * cursor; // A cursor which runs through the spelling table reading termnames from the keys.
 	/** The term frequency of the term at the current position.
 	 *
 	 *  If this value is zero, then we haven't read the term frequency or
@@ -53,9 +37,8 @@ class GlassSpellingWordsList : public AllTermsList {
 	/// Read and cache the term frequency.
 	void read_termfreq() const;
 public:
-	GlassSpellingWordsList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_,
-	    GlassCursor * cursor_)
-		: database(database_), cursor(cursor_), termfreq(0) {
+	GlassSpellingWordsList(Xapian::Internal::intrusive_ptr<const GlassDatabase> database_, GlassCursor * cursor_) : database(database_), cursor(cursor_), termfreq(0) 
+	{
 		// Seek to the entry before the first key with a "W" prefix, so the
 		// first next() will advance us to the first such entry.
 		cursor->find_entry(std::string("W", 1));

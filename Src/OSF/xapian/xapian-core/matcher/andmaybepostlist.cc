@@ -14,16 +14,14 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "andmaybepostlist.h"
-#include "multiandpostlist.h"
 
 using namespace std;
 
-PostList* AndMaybePostList::decay_to_and(Xapian::docid did, double w_min, bool* valid_ptr)
+PostList * AndMaybePostList::decay_to_and(Xapian::docid did, double w_min, bool* valid_ptr)
 {
 	pl = new MultiAndPostList(pl, r, pl_max, r_max, pltree, db_size);
 	r = NULL;
-	PostList* result;
+	PostList * result;
 	if(valid_ptr) {
 		result = pl->check(did, w_min, *valid_ptr);
 	}
@@ -58,11 +56,11 @@ double AndMaybePostList::recalc_maxweight()
 	return pl_max + r_max;
 }
 
-PostList* AndMaybePostList::next(double w_min)
+PostList * AndMaybePostList::next(double w_min)
 {
 	if(w_min > pl_max)
 		return decay_to_and(max(pl_did, r_did) + 1, w_min);
-	PostList* result = pl->next(w_min - r_max);
+	PostList * result = pl->next(w_min - r_max);
 	if(result) {
 		delete pl;
 		pl = result;
@@ -95,7 +93,7 @@ PostList* AndMaybePostList::next(double w_min)
 	return NULL;
 }
 
-PostList* AndMaybePostList::skip_to(Xapian::docid did, double w_min)
+PostList * AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 {
 	// skip_to(pl_did) happens after decay from OR
 	if(did < pl_did)
@@ -105,7 +103,7 @@ PostList* AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 		return decay_to_and(max(did, r_did), w_min);
 	}
 
-	PostList* result = pl->skip_to(did, w_min - r_max);
+	PostList * result = pl->skip_to(did, w_min - r_max);
 	if(result) {
 		delete pl;
 		pl = result;
@@ -137,12 +135,12 @@ PostList* AndMaybePostList::skip_to(Xapian::docid did, double w_min)
 	return NULL;
 }
 
-PostList* AndMaybePostList::check(Xapian::docid did, double w_min, bool& valid)
+PostList * AndMaybePostList::check(Xapian::docid did, double w_min, bool& valid)
 {
 	if(w_min > pl_max)
 		return decay_to_and(max({did, pl_did, r_did}), w_min, &valid);
 
-	PostList* result = pl->check(did, w_min - r_max, valid);
+	PostList * result = pl->check(did, w_min - r_max, valid);
 	if(result) {
 		delete pl;
 		pl = result;

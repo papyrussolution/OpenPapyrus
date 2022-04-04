@@ -29,8 +29,7 @@
 #define HB_CODEPOINT_DECODE3_3(v) ((hb_codepoint_t)(v) & 0x1FFFFFu)
 
 /* Custom encoding used by hb-ucd. */
-#define HB_CODEPOINT_ENCODE3_11_7_14(x, y, \
-	    z) (((uint32_t)((x) & 0x07FFu) << 21) | (((uint32_t)(y) & 0x007Fu) << 14) | (uint32_t)((z) & 0x3FFFu))
+#define HB_CODEPOINT_ENCODE3_11_7_14(x, y, z) (((uint32_t)((x) & 0x07FFu) << 21) | (((uint32_t)(y) & 0x007Fu) << 14) | (uint32_t)((z) & 0x3FFFu))
 #define HB_CODEPOINT_DECODE3_11_7_14_1(v) ((hb_codepoint_t)((v) >> 21))
 #define HB_CODEPOINT_DECODE3_11_7_14_2(v) ((hb_codepoint_t)(((v) >> 14) & 0x007Fu) | 0x0300)
 #define HB_CODEPOINT_DECODE3_11_7_14_3(v) ((hb_codepoint_t)(v) & 0x3FFFu)
@@ -44,12 +43,8 @@ HB_FUNCOBJ(hb_identity);
 
 struct {
 	/* Like identity(), but only retains lvalue-references.  Rvalues are returned as rvalues. */
-	template <typename T> constexpr T&operator() (T& v) const {
-		return v;
-	}
-
-	template <typename T> constexpr hb_remove_reference<T>
-	operator() (T&& v) const { return v; }
+	template <typename T> constexpr T&operator() (T& v) const { return v; }
+	template <typename T> constexpr hb_remove_reference<T> operator() (T&& v) const { return v; }
 }
 
 HB_FUNCOBJ(hb_lidentity);
@@ -63,27 +58,20 @@ struct {
 HB_FUNCOBJ(hb_ridentity);
 
 struct {
-	template <typename T> constexpr bool operator() (T&& v) const {
-		return bool (hb_forward<T> (v));
-	}
+	template <typename T> constexpr bool operator() (T&& v) const { return bool (hb_forward<T> (v)); }
 }
 
 HB_FUNCOBJ(hb_bool);
 
 struct {
 private:
-
 	template <typename T> constexpr auto impl(const T& v, hb_priority<1>) const HB_RETURN(uint32_t, hb_deref(v).hash())
-
-	template <typename T,
-	hb_enable_if(hb_is_integral(T))> constexpr auto impl(const T& v, hb_priority<0>) const HB_AUTO_RETURN
+	template <typename T, hb_enable_if(hb_is_integral(T))> constexpr auto impl(const T& v, hb_priority<0>) const HB_AUTO_RETURN
 	(
 		/* Knuth's multiplicative method: */
 		(uint32_t)v * 2654435761u
 	)
-
 public:
-
 	template <typename T> constexpr auto operator() (const T &v) const HB_RETURN(uint32_t, impl(v, hb_prioritize))
 }
 

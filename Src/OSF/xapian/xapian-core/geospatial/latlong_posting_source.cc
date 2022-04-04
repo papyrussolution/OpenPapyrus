@@ -17,7 +17,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "serialise-double.h"
 
 using namespace Xapian;
 using namespace std;

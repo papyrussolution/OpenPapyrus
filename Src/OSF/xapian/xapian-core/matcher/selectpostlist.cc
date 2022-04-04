@@ -6,8 +6,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "selectpostlist.h"
-#include "postlisttree.h"
 
 bool SelectPostList::vet(double w_min)
 {
@@ -42,10 +40,10 @@ bool SelectPostList::at_end() const
 	return pl == NULL;
 }
 
-PostList* SelectPostList::next(double w_min)
+PostList * SelectPostList::next(double w_min)
 {
 	do {
-		PostList* result = pl->next(w_min);
+		PostList * result = pl->next(w_min);
 		if(result) {
 			delete pl;
 			pl = result;
@@ -54,10 +52,10 @@ PostList* SelectPostList::next(double w_min)
 	return NULL;
 }
 
-PostList* SelectPostList::skip_to(Xapian::docid did, double w_min)
+PostList * SelectPostList::skip_to(Xapian::docid did, double w_min)
 {
 	if(did > pl->get_docid()) {
-		PostList* result = pl->skip_to(did, w_min);
+		PostList * result = pl->skip_to(did, w_min);
 		if(result) {
 			delete pl;
 			pl = result;
@@ -70,9 +68,9 @@ PostList* SelectPostList::skip_to(Xapian::docid did, double w_min)
 	return NULL;
 }
 
-PostList* SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
+PostList * SelectPostList::check(Xapian::docid did, double w_min, bool& valid)
 {
-	PostList* result = pl->check(did, w_min, valid);
+	PostList * result = pl->check(did, w_min, valid);
 	if(result) {
 		delete pl;
 		pl = result;

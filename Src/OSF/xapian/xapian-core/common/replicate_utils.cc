@@ -21,11 +21,6 @@
 #include <xapian-internal.h>
 #pragma hdrstop
 #include "replicate_utils.h"
-#include "io_utils.h"
-#include "posixy_wrapper.h"
-#include "safefcntl.h"
-#include "safesysstat.h"
-#include "safeunistd.h"
 
 using namespace std;
 

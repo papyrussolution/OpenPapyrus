@@ -7,14 +7,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "localsubmatch.h"
-#include "backends/databaseinternal.h"
-#include "backends/leafpostlist.h"
-#include "extraweightpostlist.h"
-#include "queryoptimiser.h"
-#include "synonympostlist.h"
-#include "api/termlist.h"
-#include "weight/weightinternal.h"
 
 using namespace std;
 
@@ -151,7 +143,7 @@ PostList * LocalSubMatch::get_postlist(PostListTree * matcher,
 }
 
 PostList * LocalSubMatch::make_synonym_postlist(PostListTree* pltree,
-    PostList* or_pl,
+    PostList * or_pl,
     QueryOptimiser* qopt,
     double factor,
     bool wdf_disjoint)

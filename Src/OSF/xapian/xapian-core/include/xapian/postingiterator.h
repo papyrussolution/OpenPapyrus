@@ -35,17 +35,13 @@ public:
 	Internal * internal; /// @private @internal Reference counted internals.
 	/// @private @internal Wrap an existing Internal.
 	XAPIAN_VISIBILITY_INTERNAL explicit PostingIterator(Internal * internal_);
-	/// Copy constructor.
-	PostingIterator(const PostingIterator & o);
-	/// Assignment.
-	PostingIterator & operator = (const PostingIterator & o);
-	/// Move constructor.
-	PostingIterator(PostingIterator && o) : internal(o.internal) 
+	PostingIterator(const PostingIterator & o); /// Copy constructor.
+	PostingIterator & operator = (const PostingIterator & o); /// Assignment.
+	PostingIterator(PostingIterator && o) : internal(o.internal)  /// Move constructor.
 	{
 		o.internal = nullptr;
 	}
-	/// Move assignment operator.
-	PostingIterator & operator = (PostingIterator && o) 
+	PostingIterator & operator = (PostingIterator && o)  /// Move assignment operator.
 	{
 		if(this != &o) {
 			if(internal) decref();

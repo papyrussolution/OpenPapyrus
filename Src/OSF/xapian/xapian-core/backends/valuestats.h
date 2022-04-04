@@ -17,7 +17,7 @@
 #define XAPIAN_INCLUDED_VALUESTATS_H
 
 //#include <string>
-#include "xapian/types.h"
+//#include "xapian/types.h"
 
 /** Class to hold statistics for a given slot. */
 struct ValueStats {

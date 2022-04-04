@@ -7,21 +7,9 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "multi_alltermslist.h"
-#include "backends/databaseinternal.h"
-#include "heap.h"
 
 using namespace std;
 
@@ -33,8 +21,7 @@ struct CompareTermListsByTerm {
 	}
 };
 
-MultiAllTermsList::MultiAllTermsList(size_t count_, TermList** termlists_)
-	: count(count_), termlists(termlists_)
+MultiAllTermsList::MultiAllTermsList(size_t count_, TermList** termlists_) : count(count_), termlists(termlists_)
 {
 }
 
@@ -99,8 +86,7 @@ TermList * MultiAllTermsList::next()
 		}
 		while(count > j)
 			delete termlists[--count];
-		Heap::make(termlists, termlists + count,
-		    CompareTermListsByTerm());
+		Heap::make(termlists, termlists + count, CompareTermListsByTerm());
 	}
 	else if(current_termfreq == 0 && count != 0) {
 		// Skip over current_term if we haven't already.
@@ -110,21 +96,17 @@ TermList * MultiAllTermsList::next()
 				break;
 			tl->next();
 			if(tl->at_end()) {
-				Heap::pop(termlists, termlists + count,
-				    CompareTermListsByTerm());
+				Heap::pop(termlists, termlists + count, CompareTermListsByTerm());
 				delete tl;
 				if(--count == 0)
 					break;
 			}
 			else {
-				Heap::replace(termlists, termlists + count,
-				    CompareTermListsByTerm());
+				Heap::replace(termlists, termlists + count, CompareTermListsByTerm());
 			}
 		}
 	}
-
 	current_termfreq = 0;
-
 	if(count <= 1) {
 		if(count == 0) {
 			current_term = std::string();
@@ -133,7 +115,6 @@ TermList * MultiAllTermsList::next()
 		count = 0;
 		return termlists[0];
 	}
-
 	current_term = termlists[0]->get_termname();
 	return NULL;
 }
@@ -155,9 +136,7 @@ TermList * MultiAllTermsList::skip_to(const std::string &term)
 	}
 	while(count > j)
 		delete termlists[--count];
-
 	current_termfreq = 0;
-
 	if(count <= 1) {
 		if(count == 0) {
 			current_term = std::string();
@@ -166,9 +145,7 @@ TermList * MultiAllTermsList::skip_to(const std::string &term)
 		count = 0;
 		return termlists[0];
 	}
-
 	Heap::make(termlists, termlists + count, CompareTermListsByTerm());
-
 	current_term = termlists[0]->get_termname();
 	return NULL;
 }

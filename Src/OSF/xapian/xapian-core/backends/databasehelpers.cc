@@ -8,33 +8,17 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "databasehelpers.h"
-#include "backends.h"
 #include "glass/glass_defs.h"
 #include "honey/honey_defs.h"
-#include "io_utils.h"
-#include "posixy_wrapper.h"
-#include "safesysstat.h"
-#include "safeunistd.h"
 
 using namespace std;
 
 static int test_if_single_file_db_(int fd, off_t pos)
 {
-#if defined XAPIAN_HAS_GLASS_BACKEND || \
-	defined XAPIAN_HAS_HONEY_BACKEND
+#if defined XAPIAN_HAS_GLASS_BACKEND || defined XAPIAN_HAS_HONEY_BACKEND
 	char magic_buf[14];
 	// FIXME: Don't duplicate magic check here...
 	if(io_read(fd, magic_buf, 14) == 14 &&

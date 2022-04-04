@@ -1013,6 +1013,7 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\expand\ortermlist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\expand\termlistmerger.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\geospatial\geoencode.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian-internal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\attributes.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\cluster.h" />

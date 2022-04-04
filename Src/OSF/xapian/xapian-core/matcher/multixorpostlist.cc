@@ -15,7 +15,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "multixorpostlist.h"
 
 using namespace std;
 
@@ -38,8 +37,8 @@ Xapian::doccount MultiXorPostList::get_termfreq_min() const
 	unsigned overflow = 0;
 	for(size_t i = 1; i < n_kids; ++i) {
 		Xapian::doccount tf_max = plist[i]->get_termfreq_max();
-		if(tf_max > max) max = tf_max;
-
+		if(tf_max > max) 
+			max = tf_max;
 		Xapian::doccount old_sum = sum;
 		sum += tf_max;
 		// Track how many times we overflow the type.
@@ -57,7 +56,6 @@ Xapian::doccount MultiXorPostList::get_termfreq_min() const
 		for(size_t i = 0; i < n_kids; ++i) {
 			Xapian::doccount tf_min = plist[i]->get_termfreq_min();
 			Xapian::doccount tf_max = plist[i]->get_termfreq_max();
-
 			Xapian::doccount all_the_rest = sum - tf_max;
 			// If no overflow, or we un-overflowed again...
 			if(overflow == 0 || all_the_rest > sum) {
@@ -67,13 +65,11 @@ Xapian::doccount MultiXorPostList::get_termfreq_min() const
 			}
 		}
 	}
-
 	if(all_exact && result == 0) {
 		// If SUM odd, then the XOR can't be 0, so min XOR is 1 if we didn't
 		// already calculate a minimum.
 		result = sum & 1;
 	}
-
 	return result;
 }
 
@@ -144,7 +140,6 @@ TermFreqs MultiXorPostList::get_termfreq_est_using_stats(const Xapian::Weight::I
 		cf_scale = 1.0 / stats.total_length;
 	}
 	double Pc_est = freqs.collfreq * cf_scale;
-
 	for(size_t i = 1; i < n_kids; ++i) {
 		freqs = plist[i]->get_termfreq_est_using_stats(stats);
 		double P_i = freqs.termfreq * scale;
@@ -158,9 +153,7 @@ TermFreqs MultiXorPostList::get_termfreq_est_using_stats(const Xapian::Weight::I
 			Pr_est += Pr_i - 2.0 * Pr_est * Pr_i;
 		}
 	}
-	RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5),
-	    Xapian::doccount(Pr_est * stats.rset_size + 0.5),
-	    Xapian::termcount(Pc_est * stats.total_length + 0.5)));
+	RETURN(TermFreqs(Xapian::doccount(P_est * stats.collection_size + 0.5), Xapian::doccount(Pr_est * stats.rset_size + 0.5), Xapian::termcount(Pc_est * stats.total_length + 0.5)));
 }
 
 Xapian::docid MultiXorPostList::get_docid() const
@@ -168,9 +161,7 @@ Xapian::docid MultiXorPostList::get_docid() const
 	return did;
 }
 
-double MultiXorPostList::get_weight(Xapian::termcount doclen,
-    Xapian::termcount unique_terms,
-    Xapian::termcount wdfdocmax) const
+double MultiXorPostList::get_weight(Xapian::termcount doclen, Xapian::termcount unique_terms, Xapian::termcount wdfdocmax) const
 {
 	Assert(did);
 	double result = 0;
@@ -225,7 +216,6 @@ PostList * MultiXorPostList::next(double w_min)
 				continue;
 			}
 		}
-
 		Xapian::docid new_did = plist[i]->get_docid();
 		if(did == 0 || new_did < did) {
 			did = new_did;
@@ -235,7 +225,6 @@ PostList * MultiXorPostList::next(double w_min)
 			++matching_count;
 		}
 	}
-
 	if(n_kids == 1) {
 		n_kids = 0;
 		RETURN(plist[0]);

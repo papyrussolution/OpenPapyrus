@@ -15,15 +15,8 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "esetinternal.h"
-#include "backends/databaseinternal.h"
-#include "backends/multi.h"
-#include "api/rsetinternal.h"
-#include "expandweight.h"
 #include "ortermlist.h"
-#include "api/termlist.h"
 #include "termlistmerger.h"
-#include "unicode/description_append.h"
 
 using namespace std;
 

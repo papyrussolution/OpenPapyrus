@@ -7,9 +7,6 @@
 //
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "common/log2.h"
-#include "weightinternal.h"
-#include "serialise-double.h"
 
 using namespace std;
 
@@ -167,7 +164,7 @@ double BB2Weight::get_maxextra() const
 	return 0;
 }
 
-static inline void parameter_error(const char* message)
+static inline void parameter_error(const char * message)
 {
 	Xapian::Weight::Internal::parameter_error(message, "bb2");
 }
