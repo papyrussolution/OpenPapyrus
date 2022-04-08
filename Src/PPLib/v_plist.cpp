@@ -518,7 +518,7 @@ int PPPriceListImporter::Run()
 		else {
 			THROW_SL(UnResolvedRows.insert(&pl_rec));
 		}
-		PPWaitPercent(i + 1, count);
+		PPWaitPercent(i + 1, static_cast<uint>(count));
 	}
 	PPWaitStop();
 	for(i = 0; i < UnResolvedRows.getCount(); i++) {

@@ -2931,11 +2931,11 @@ int PPBillImporter::Import(int useTa)
 		PPTransaction tra(useTa);
 		THROW(tra);
 		PPWaitStart();
-		for(long i = 0; i < Bills.getCountI(); i++) {
+		for(uint i__ = 0; i__ < Bills.getCount(); i__++) {
 			uint   pos = 0;
 			int    is_draft_rcpt = BIN(GetOpType(OpID) == PPOPT_DRAFTRECEIPT);
 			PPBillPacket pack;
-			Sdr_Bill bill = Bills.at(i);
+			Sdr_Bill bill = Bills.at(i__);
 			if(bill.EdiOp == PPEDIOP_ALCODESADV) {
 				PPID   alc_manuf_lot_tag_id = 0;
 				PPID   alc_manuf_kind_id = 0;
@@ -3275,7 +3275,7 @@ int PPBillImporter::Import(int useTa)
 					}
 				}
 			}
-			PPWaitPercent(i + 1, Bills.getCount());
+			PPWaitPercent(i__ + 1, Bills.getCount());
 		}
 		THROW(tra.Commit());
 		if(P_Btd) {

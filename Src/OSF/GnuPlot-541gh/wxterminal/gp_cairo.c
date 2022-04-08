@@ -162,8 +162,9 @@ rgb_color gp_cairo_linetype2color(int linetype)
 {
 	return (linetype <= LT_NODRAW) ? gp_cairo_colorlist[0] : gp_cairo_colorlist[linetype%9 +3];
 }
-
-/* initialize all fields of the plot structure */
+//
+// initialize all fields of the plot structure 
+//
 void gp_cairo_initialize_plot(plot_struct * plot)
 {
 	plot->xscale = 1.0; plot->yscale = 1.0;

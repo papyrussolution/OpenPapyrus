@@ -1,5 +1,5 @@
 // PPCALC.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000-2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -931,6 +931,14 @@ int PosPaymentBlock::EditDialog2()
 			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
 			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
 			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
+			// @v11.3.7 {
+			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
+				showCtrl(CTL_CPPAYM_EADDR, 0);
+				showCtrl(CTL_CPPAYM_EADDRINF, 0);
+				showCtrl(CTL_CPPAYM_PAPERLESS, 0);
+				showCtrl(CTLFRAME_CPPAYM_PAPERLESS, 0);
+			}
+			// } @v11.3.7
 		}
 		DECL_DIALOG_SETDTS()
 		{
@@ -972,7 +980,8 @@ int PosPaymentBlock::EditDialog2()
 			showCtrl(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)); 
 			if(Data.Flags & PosPaymentBlock::fAltCashRegEnabled)
 				setCtrlUInt16(CTL_CPPAYM_ALTCASHREG, BIN(Data.Flags & PosPaymentBlock::fAltCashRegUse));
-			{
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
+				Data.BuyersEAddr.SetIfEmpty(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
 				setCtrlString(CTL_CPPAYM_EADDR, Data.BuyersEAddr);
 				setCtrlUInt16(CTL_CPPAYM_PAPERLESS, BIN(Data.Flags & PosPaymentBlock::fPaperless));
 			}
@@ -996,12 +1005,16 @@ int PosPaymentBlock::EditDialog2()
 			// @v11.3.6 {
 			uint16 v = (Data.Flags & PosPaymentBlock::fAltCashRegEnabled) ? getCtrlUInt16(CTL_CPPAYM_ALTCASHREG) : 0;
 			SETFLAG(Data.Flags, PosPaymentBlock::fAltCashRegUse, v == 1);
-			{
+			Data.SetBuyersEAddr(0, 0);
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { // @v11.3.7
 				SString eaddr_buf;
 				getCtrlString(CTL_CPPAYM_EADDR, eaddr_buf);
 				const int eaddr_status = GetEAddrStatus(eaddr_buf);
-				Data.SetBuyersEAddr(0, 0);
 				if(oneof2(eaddr_status, SNTOK_EMAIL, SNTOK_PHONE)) {
+					if(eaddr_status == SNTOK_PHONE) {
+						SString normal_phone;
+						eaddr_buf = PPEAddr::Phone::NormalizeStr(eaddr_buf, 0, normal_phone);
+					}
 					Data.SetBuyersEAddr(eaddr_status, eaddr_buf);
 					v = getCtrlUInt16(CTL_CPPAYM_PAPERLESS);
 					SETFLAG(Data.Flags, PosPaymentBlock::fPaperless, v);
@@ -1009,6 +1022,9 @@ int PosPaymentBlock::EditDialog2()
 				else {
 					Data.Flags &= ~PosPaymentBlock::fPaperless;
 				}
+			}
+			else { // @v11.3.7
+				Data.Flags &= ~PosPaymentBlock::fPaperless;
 			}
 			// } @v11.3.6 
 			ASSIGN_PTR(pData, Data);

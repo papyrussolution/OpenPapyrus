@@ -1230,6 +1230,7 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 							p_writer->AddAttrib("deleted", false);
 							p_writer->AddAttrib("guid", ser_ident);
 							p_writer->AddAttrib("name", ser_name);
+							p_writer->AddAttrib("personalized", true); // @v11.3.7
 							p_writer->AddAttrib("percentage-discount", temp_buf.Z().Cat(fdiv100i(ser_rec.PDis), MKSFMTD(0, 2, NMBF_EXPLFLOAT)));
 						p_writer->EndElement();
 					}
@@ -1276,10 +1277,10 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 										p_writer->AddAttrib("email", info.Email);
 									}
 									if(info.Phone.NotEmpty()) {
-										p_writer->AddAttrib("phone", info.Phone);
+										p_writer->AddAttrib("mobile-phone", info.Phone); // @v11.3.7 phone-->mobile-phone
 									}
 									else if(info.PsnPhone.NotEmpty()) {
-										p_writer->AddAttrib("phone", info.PsnPhone);
+										p_writer->AddAttrib("mobile-phone", info.PsnPhone); // @v11.3.7 phone-->mobile-phone
 									}
 									p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
 									p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
@@ -1322,10 +1323,10 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 									p_writer->AddAttrib("email", info.Email);
 								}
 								if(info.Phone.NotEmpty()) {
-									p_writer->AddAttrib("phone", info.Phone);
+									p_writer->AddAttrib("mobile-phone", info.Phone); // @v11.3.7 phone-->mobile-phone
 								}
 								else if(info.PsnPhone.NotEmpty()) {
-									p_writer->AddAttrib("phone", info.PsnPhone);
+									p_writer->AddAttrib("mobile-phone", info.PsnPhone); // @v11.3.7 phone-->mobile-phone
 								}
 								p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
 								p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);

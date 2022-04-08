@@ -95,7 +95,6 @@
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCData.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCDataDecoderUtils.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCDataStreamDecoder.cpp" />
-    <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHash.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHashMap.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCHTMLCleaner.cpp" />
     <ClCompile Include="..\osf\Mailspring-Sync\mailcore2\src\MCIndexSet.cpp" />

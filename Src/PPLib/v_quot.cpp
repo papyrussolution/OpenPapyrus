@@ -1,5 +1,5 @@
 // V_QUOT.CPP
-// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 2003, 2004, 2005, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1135,7 +1135,8 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 									}
 									prev_goods_id = goods_id;
 									if(last_goods_id >= first_goods_id && ((goods_id - first_goods_id) & 0xff) == 0) {
-										PROFILE(PPWaitPercent((goods_id - first_goods_id) + _c * i, _c * rc, msg_buf));
+										assert(goods_id >= first_goods_id);
+										PROFILE(PPWaitPercent(static_cast<uint>(goods_id - first_goods_id) + _c * i, _c * rc, msg_buf));
 									}
 								}
 							}
@@ -1172,7 +1173,8 @@ int PPViewQuot::Helper_CreateTmpTblEntries(const QuotFilt * pFilt, PPQuotItemArr
 									}
 									prev_goods_id = goods_id;
 									if(last_goods_id >= first_goods_id && ((goods_id - first_goods_id) & 0xff) == 0) {
-										PROFILE(PPWaitPercent((goods_id - first_goods_id) + _c * i, _c * rc, msg_buf));
+										assert(goods_id >= first_goods_id);
+										PROFILE(PPWaitPercent(static_cast<uint>(goods_id - first_goods_id) + _c * i, _c * rc, msg_buf));
 									}
 								}
 							}

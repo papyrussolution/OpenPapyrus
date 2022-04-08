@@ -237,7 +237,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 			PPWaitPercent(gi.GetIterCounter());
 		}
 		if(!Filt.PrmrGoodsGrpID && !Filt.PrmrGoodsID && Filt.Flags & Filt.fShowUnrefs) {
-			long   t = 0;
+			uint   t = 0;
 			uint   p = 0;
 			PPIDArray owner_list;
 			PPGoodsStrucHeader gsh;

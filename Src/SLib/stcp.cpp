@@ -1573,7 +1573,7 @@ attachment;filename;Message-ID:;Content-ID:;inline;creation-date;modification-da
 			_PUTS(buf, rF);
 			PutField("Content-Transfer-Encoding", "base64", buf);
 			_PUTS(buf, rF);
-			if(oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp))
+			if(SImageBuffer::IsSupportedFormat(ff))
 				(temp_buf = "inline").CatDiv(';', 2).CatEq("filename", fn);
 			else
 				(temp_buf = "attachment").CatDiv(';', 2).CatEq("filename", fn);

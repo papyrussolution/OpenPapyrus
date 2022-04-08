@@ -2729,6 +2729,7 @@ private:
 #define SLERR_FILSTRG_INVHANDLE                462 // @v11.3.7 Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage
 #define SLERR_FILSTRG_INVNAME                  463 // @v11.3.7 Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов и содержать только [0-9a-z_+-,.=@]
 #define SLERR_FILSTRG_FILENFOUND               464 // @v11.3.7 Файл с именем '%s' в хранилище SFileStorage отсутствует
+#define SLERR_INVORUNSUPPHASHFUNC              465 // @v11.3.7 Недопустимая либо неподдерживаемая хэш-функция // 
 
 #define SLERR_FANN_CANT_OPEN_CONFIG_R          500 // Unable to open configuration file for reading
 #define SLERR_FANN_CANT_OPEN_CONFIG_W          501 // Unable to open configuration file for writing
@@ -5629,19 +5630,19 @@ struct SDirEntry { // @flat
 	//
 	// Descr: Возвращает !0 если является каталогом
 	//
-	int    IsFolder() const;
+	bool   IsFolder() const;
 	//
 	// Descr: Возвращает !0 если является ссылкой на каталог верхнего уровня ("..")
 	//
-	int    IsUpFolder() const;
+	bool   IsUpFolder() const;
 	//
 	// Descr: Возвращает !0 если является ссылкой на текущий каталог (".")
 	//
-	int    IsSelf() const;
+	bool   IsSelf() const;
 	//
 	// Descr: Возвращает !0 если является файлом (== (!IsFolder() && !IsUpFolder() && !IsSelf()))
 	//
-	int    IsFile() const;
+	bool   IsFile() const;
 
 	enum {
 		attrRdOnly = 0x00000001, // dos/win _A_RDONLY
@@ -5972,6 +5973,7 @@ public:
 	//
 	bool   FASTCALL IsEq(const void * pData, size_t len) const;
 	bool   FASTCALL operator == (const SBinaryChunk & rS) const;
+	bool   FASTCALL operator != (const SBinaryChunk & rS) const;
 	SBinaryChunk & Z();
 	bool   operator !() const { return Len() == 0; }
 	size_t Len() const;
@@ -6387,6 +6389,7 @@ public:
 // сформировать результат разной длины.
 // Note: Не все перечисленные алгоритмы реализованы в рамках данного проекта.
 // Attention! Новые алгоритмы добавлять строго в конец списка с инкрементом последнего значения.  
+// Note! Константы синхронизированы с таблицей сущностей UED
 //
 #define SHASHF_CRC8            1
 #define SHASHF_CRC16           2
@@ -6452,6 +6455,7 @@ public:
 	//   0  - ошибка (возможно, не допустимые параметры, либо просто значение хэш-функции не соответствует заданному буферу данных).
 	//
 	static int VerifyBuffer(int hashFuncIdent, const void * pHash, size_t hashLen, const void * pBuf, size_t bufLen);
+	static int CalcBufferHash(int hashFuncIdent, const void * pBuf, size_t bufLen, SBinaryChunk & rResult);
 	//
 	// Descr: Расчитывает хеш блока pData размером len по алгоритму Bob Jenkins
 	//
@@ -7105,7 +7109,7 @@ public:
 	int    GetChr();
 	int    FASTCALL GetChr(int * pChr);
 	void   SetReadCyclingParams(int cycleCount, int cycleDelay);
-	int    GetPortNo() const {return PortNo;}
+	int    GetPortNo() const { return PortNo; }
 protected:
 	CommPortParams   CPP;
 	CommPortTimeouts CPT;
@@ -8702,6 +8706,12 @@ public:
 	void   FASTCALL SetInitPath(const char * pPath);
 	int    FASTCALL GetInitPath(SString & rPath) const;
 	//
+	// Descr: Флаги функции Scan()
+	//
+	enum {
+		scanfRecursive = 0x0001 // Рекурсивно перебирать файлы в подкаталогах
+	};
+	//
 	// Descr: Сканирует файловую систему начиная с каталога pPath по шаблону pWildcard.
 	// Note: Если !isempty(pPath), то он сохраняется во внутреннем представленнии головного каталога.
 	// Returns:
@@ -8754,6 +8764,7 @@ private:
 
 	void   ConvertEntry(const InnerEntry & rIEntry, Entry & rEntry) const;
 	int    Implement_Add(const char * pPath, const SDirEntry & rDe, const char * pRemoteUrl);
+	int    Helper_Scan(const char * pPath, const char * pWildcard, long flags);
 
     TSVector <InnerEntry> L;
     long   State;
@@ -10054,8 +10065,9 @@ public:
 	long   Tell();
 	//
 	// Descr: Возвращает 64-битное значение текущей позиции в файле.
-	// Attention: Если файл открыт в стандартном режиме (без флага fNoStd) то
-	//   фактически возвращается 32-битное значение позиции.
+	// Attention: В версии VC 7.1 если файл открыт в стандартном режиме (без флага fNoStd) то
+	//   фактически возвращается 32-битное значение позиции. Это связано с отсутствием в той версии 
+	//   Visual C функции _ftelli64().
 	//
 	int64  Tell64();
 	int    Flush();
@@ -10140,10 +10152,14 @@ public:
 	//   и определением после этого текущей позиции, которая и является размером.
 	//   После подсчета восстанавливает исходную текущую позицию файла.
 	// Returns:
-	//   !0 - размер файла успешно вычислен
-	//   0  - ошибка
+	//   true  - размер файла успешно вычислен
+	//   false - ошибка
 	//
-	int    CalcSize(int64 * pSize);
+	bool   CalcSize(int64 * pSize);
+	//
+	// Descr: Рассчитывает хэш-функцию, заданную алгоритмом hashFunc по файлу, начиная со смещения offs.
+	//
+	bool   CalcHash(int64 offs, int hashFunc/* SHASHF_XXX */, SBinaryChunk & rHash);
 	int    GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME * pModif);
 	//
 	// Descr: Рассчитывает CRC32 файла, начиная со смещения offs.
@@ -10545,6 +10561,10 @@ public:
 		M4               = 125, // @v10.9.9 m4 Macroprocessor
 		Tsv              = 126, // @v10.9.9 tab-separated-values
 		Webp             = 127, // @v11.3.4 webp graphics format
+		Otf              = 128, // @v11.3.7 OpenType font file (4F 54 54 4F 00)
+		Ttf              = 129, // @v11.3.7 TrueType font file (00 01 00 00 00)
+		Ttc              = 130, // @v11.3.7 TrueType font Collection ttcf)
+		Dfont            = 131, // @v11.3.7 Mac OS X Data Fork Font
 
 		FirstUser        = 10000
 	};
@@ -10579,6 +10599,7 @@ public:
 	//  -1 - не удалось идентифицировать формат
 	//
 	int    Identify(const char * pFileName, SString * pExt = 0);
+	int    IdentifyBuffer(const void * pBuf, size_t bufLen);
 	int    IdentifyMime(const char * pMime);
 private:
 	static uint GloBaseIdx;

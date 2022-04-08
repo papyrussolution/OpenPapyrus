@@ -21,7 +21,7 @@ ushort FASTCALL ExecViewAndDestroy(TWindow * pView)
 	return r;
 }
 
-ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade)
+ushort STDCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade)
 {
 	ushort ret = 0;
 	if(genErrMsg ? CheckDialogPtrErr(&pDlg) : CheckDialogPtr(&pDlg)) {
@@ -408,7 +408,7 @@ void FASTCALL DisableOKButton(TDialog * dlg)
 	}
 }
 
-int FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd)
+int STDCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd)
 {
 	int    ok = -1;
 	if(pDlg && btnCmd) {

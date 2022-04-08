@@ -892,7 +892,7 @@ int PPGoodsExporter::ExportPacket(PPGoodsPacket * pPack, const char * pBarcode, 
 					SFileFormat ff;
 					const int fir = ff.Identify(img_path, &ext_buf);
 					if(oneof2(fir, 2, 3)) { // Принимаем только идентификацию по сигнатуре
-						if(oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp)) {
+						if(SImageBuffer::IsSupportedFormat(ff)) { // @v11.3.7 SFileFormat::Webp
 							if(!ext_buf.NotEmptyS()) {
 								SFileFormat::GetExt(ff, ext_buf);
 							}
@@ -1523,8 +1523,7 @@ int TextFieldAnalyzer::Process(const char * pText, RetBlock * pRetBlk)
 				new_text.TrimRight();
 				TempBuf.ShiftLeft(1);
 			}
-			if(new_text.NotEmpty() && !(TempBuf.Len() == 1 && oneof2(first, '.', ',')) &&
-				!(prev_is_mult && isdec(first)) && !(this_is_mult && isdec(last)) &&
+			if(new_text.NotEmpty() && !(TempBuf.Len() == 1 && oneof2(first, '.', ',')) && !(prev_is_mult && isdec(first)) && !(this_is_mult && isdec(last)) &&
 				!oneof4(last, ' ', '/', '-', '(') && !oneof2(first, '/', ')'))
 				new_text.Space();
 			new_text.Cat(TempBuf);
@@ -1946,7 +1945,7 @@ int PPGoodsImporter::Helper_ProcessDirForImages(const char * pPath, ImageFileBlo
 			PPWaitMsg(temp_buf);
 			SFileFormat ff;
 			const int fir = ff.Identify((temp_buf = pPath).SetLastSlash().Cat(de.FileName));
-			if(oneof2(fir, 2, 3) && oneof2(ff, SFileFormat::Jpeg, SFileFormat::Png)) { // Принимаем только идентификацию по сигнатуре
+			if(oneof2(fir, 2, 3) && SImageBuffer::IsSupportedFormat(ff)) { // Принимаем только идентификацию по сигнатуре // @v11.3.7 SFileFormat::Webp
 				BarcodeTbl::Rec bc_rec;
 				ps.Split(de.FileName);
 				code_buf = ps.Nam;

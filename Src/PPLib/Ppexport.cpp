@@ -1,5 +1,5 @@
 // PPEXPORT.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2010, 2011, 2012, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // Импорт/Экспорт данных
 //
@@ -182,20 +182,22 @@ int PPDbTableXmlExportParam_TrfrBill::Serialize(int dir, SBuffer & rBuf, SSerial
 	return ok;
 }
 
-#define GRP_BROWSE 1
-
 class DbTableXmlExportParamDialog : public TDialog {
+protected:
+	enum {
+		ctlgroupBrowse = 1
+	};
+	DECL_DIALOG_DATA(PPDbTableXmlExporter::BaseParam);
 public:
 	DbTableXmlExportParamDialog(uint dlgId) : TDialog(dlgId), Data(0)
 	{
-		FileBrowseCtrlGroup::Setup(this, CTLBRW_DBTEXP_PATH, CTL_DBTEXP_PATH, GRP_BROWSE,
+		FileBrowseCtrlGroup::Setup(this, CTLBRW_DBTEXP_PATH, CTL_DBTEXP_PATH, ctlgroupBrowse,
 			PPTXT_TITLE_SELDBTXMLEXPPATH, 0, FileBrowseCtrlGroup::fbcgfFile|FileBrowseCtrlGroup::fbcgfAllowNExists);
 	}
-	int    setDTS(const PPDbTableXmlExporter::BaseParam * pData)
+	DECL_DIALOG_SETDTS()
 	{
 		int    ok = 1;
-		if(pData)
-			Data = *pData;
+		RVALUEPTR(Data, pData);
 		AddClusterAssoc(CTL_DBTEXP_FLAGS, 0, Data.fReplaceIdsBySync);
 		SetClusterData(CTL_DBTEXP_FLAGS, Data.Flags);
 		SetupPPObjCombo(this, CTLSEL_DBTEXP_REFDBDIV, PPOBJ_DBDIV, Data.RefDbID, 0, 0);
@@ -203,7 +205,7 @@ public:
 		disableCtrl(CTLSEL_DBTEXP_REFDBDIV, !BIN(Data.Flags & Data.fReplaceIdsBySync));
 		return ok;
 	}
-	int    getDTS(PPDbTableXmlExporter::BaseParam * pData)
+	DECL_DIALOG_GETDTS()
 	{
 		int    ok = 1;
 		uint   sel = 0;
@@ -227,11 +229,7 @@ protected:
 			return;
 		clearEvent(event);
 	}
-
-	PPDbTableXmlExporter::BaseParam Data;
 };
-
-#undef GRP_BROWSE
 
 int PPDbTableXmlExportParam_TrfrBill::Edit(PPDbTableXmlExportParam_TrfrBill * pData)
 {

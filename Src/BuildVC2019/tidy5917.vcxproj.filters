@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\tidy-5917\src\access.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\alloc.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\attrdict.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\attrs.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\buffio.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\charsets.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\clean.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\config.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\entities.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\fileio.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\gdoc.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\istack.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\language.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\lexer.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\mappedio.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\message.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\messageobj.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\parser.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\pprint.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\sprtf.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\streamio.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\tagask.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\tags.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\tidylib.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\tmbstr.c" />
+    <ClCompile Include="..\osf\tidy-5917\src\utf8.c" />
+    <ClCompile Include="..\OSF\TIDY-5917\src\tidy-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\tidy-5917\include\tidyplatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\include\tidy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\include\tidyenum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\include\tidybuffio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\access.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\attrs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\attrdict.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\charsets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\clean.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\entities.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\fileio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\forward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\lexer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\mappedio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\message.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\pprint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\streamio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\tags.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\tmbstr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\utf8.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\tidy-int.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\gdoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\language.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\language_en.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\tidy-5917\src\sprtf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{DC7ABA2D-E904-39AD-BC96-C7ACD5749A8B}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

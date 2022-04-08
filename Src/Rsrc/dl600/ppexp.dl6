@@ -1005,6 +1005,7 @@ data Transport {
 	link   Person  OwnerID;        // Владелец транспорта
 	link   Country CountryID;      // Страна, которой принадлежит транспорт
 	link   Person  CaptainID;      // Командир (водитель/капитан) транспорта
+	link   ObjectTag GetTag(string tagSymb[20]); // @v11.3.7
 }
 //
 // Торговая марка
@@ -1018,6 +1019,7 @@ data Brand {
 	string Code[20];               // @reserve Код
 	link   Person OwnerID;         // Владелец торговой марки
 	link   GoodsGroup GoodsGrpID;  // @reserve Товарная группа, к которой относится брэнд
+	link   ObjectTag GetTag(string tagSymb[20]); // @v11.3.7
 }
 //
 // Статус документа
@@ -4654,6 +4656,7 @@ data CashNode {
 	long   CurSessID;
 	date   CurDate;
 	link   Warehouse LocID;
+	link   ObjectTag GetTag(string tagSymb[20]); // @v11.3.7
 }
 //
 // Кассовая сессия //
@@ -8604,6 +8607,7 @@ data GlobalUserAcc {
 	link   User LocalUserID;
 	long   Flags;
 	string Descr[128];
+	link   ObjectTag GetTag(string tagSymb[20]); // @v11.3.7
 }
 //
 // Курс валюты

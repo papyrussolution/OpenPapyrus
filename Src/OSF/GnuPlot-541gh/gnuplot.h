@@ -21,6 +21,7 @@
 #define HAVE_FDOPEN
 #define HAVE_SYS_STAT_H
 #define HAVE_LUA
+//#define HAVE_WEBP // @v11.3.7
 //#define HAVE_CAIROPDF
 //#define HAVE_CAIROEPS
 //#define HAVE_AMOS

@@ -745,7 +745,7 @@ int ExecuteGenericDeviceCommand(PPID dvcID, const char * pCmd, long options)
 				{
 					delete P_Mutex;
 				}
-				int    operator !() const { return (Valid == 0); }
+				bool   operator !() const { return (Valid == 0); }
 			private:
 				virtual void Run()
 				{

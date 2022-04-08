@@ -852,11 +852,19 @@ void PPWaitStop() // @v11.0.3 PPWait(0)
 }
 
 void FASTCALL PPWaitMsg(const char * pMsg) { __WD.SetMessage(pMsg); }
-void FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg) { __WD.SetPercent(p, t, pMsg); }
+void STDCALL  PPWaitPercent(long  p, long  t, const char * pMsg) { __WD.SetPercent(p, t, pMsg); }
+void STDCALL  PPWaitPercent(ulong p, ulong t, const char * pMsg) { __WD.SetPercent(p, t, pMsg); }
+void STDCALL  PPWaitPercent(uint  p, uint  t, const char * pMsg) { __WD.SetPercent(p, t, pMsg); }
+
+void STDCALL  PPWaitPercent(int64 p, int64 t, const char * pMsg) 
+{ 
+	__WD.SetPercent(static_cast<ulong>(R0i((100.0 * static_cast<double>(p)) / static_cast<double>(t))), 100UL, pMsg); 
+}
+
 void FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg) { PPWaitPercent(cntr, cntr.GetTotal(), pMsg); }
 void FASTCALL PPWaitPercent(ulong v, const char * pMsg) { PPWaitPercent(v, 100UL, pMsg); }
 
-void FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
+void STDCALL  PPWaitMsg(int msgGrpID, int msgID, const char * addInfo)
 {
 	SString fmt_buf;
 	if(PPLoadString(msgGrpID, msgID, fmt_buf)) {

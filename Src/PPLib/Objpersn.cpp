@@ -160,9 +160,9 @@ int GetUserByPerson(PPID psnID, PPID * pUserID)
 //
 // PPVCard
 //
-SlVCard::Rec::Rec()
+SlVCard::Rec::Rec() : BirthDay(ZERODATE)
 {
-	Init();
+	//Init();
 }
 
 void SlVCard::Rec::Init()
@@ -416,7 +416,9 @@ struct Storage_PPPersonConfig { // @persistent @store(PropertyTbl)
 	const  long prop_cfg_id = PPPRP_PERSONCFG;
 	const  long cfg_obj_type = PPCFGOBJ_PERSON;
 
-	int    ok = 1, is_new = 0, r;
+	int    ok = 1;
+	int    is_new = 0;
+	int    r;
 	Reference * p_ref = PPRef;
 	size_t sz = sizeof(Storage_PPPersonConfig);
 	Storage_PPPersonConfig * p_cfg = 0;
@@ -5834,8 +5836,6 @@ struct PersonLink {
 	PPIDArray ScndPersonList;
 };
 
-//#define GRP_PSNLIST 1
-
 static int EditPersonRel(PersonLink * pData)
 {
 	class PersonRelDialog : public TDialog {
@@ -5962,7 +5962,6 @@ private:
 	int    IsReverse;
 	LAssocArray Reverse;
 };
-
 
 void PersonRelListDialog::reverseList()
 {

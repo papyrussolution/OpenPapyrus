@@ -1884,7 +1884,8 @@ int PPViewLot::CreateTempTable()
 		THROW(tra);
 		if((!Filt.GoodsID && Filt.GoodsGrpID) && !SupplList.GetSingle() && Filt.Period.GetLength() > period_threshould) {
 			PPIDArray group_goods_list;
-			RECORDNUMBER num_goods = 0, grp_count = 0;
+			RECORDNUMBER num_goods = 0;
+			uint   grp_count = 0;
 			long   grp_calc_threshold = CConfig.GRestCalcThreshold;
 			if(grp_calc_threshold <= 0 || grp_calc_threshold > 1000)
 				grp_calc_threshold = 100;
@@ -1894,7 +1895,7 @@ int PPViewLot::CreateTempTable()
 			goods_flt.GrpID = Filt.GoodsGrpID;
 			THROW(GoodsIterator::GetListByFilt(&goods_flt, &group_goods_list));
 			grp_count = group_goods_list.getCount();
-			if(num_goods && (((1000L * grp_count) / num_goods) < (ulong)grp_calc_threshold)) {
+			if(num_goods && (((1000 * grp_count) / num_goods) < (ulong)grp_calc_threshold)) {
 				//
 				// Если задан одиночный склад и признак закрытого лота, то не следует использовать
 				// внутренние PPViewLot, по скольку при этом выборка идет по отдельному индексу и быстрее будет

@@ -426,7 +426,7 @@ int GoodsFilt::Setup()
 	if(Flags & fWoBrand) {
 		ResultBrandList.Set(0);
 	}
-	else { // } @v10.6.8 
+	else { // } @v10.6.8
 		if(BrandID_) {
 			BrandList.Add(BrandID_);
 			BrandID_ = 0;
@@ -449,7 +449,7 @@ int GoodsFilt::Setup()
 int GoodsFilt::IsEmpty() const
 {
 	const long nemp_fl = (fWithStrucOnly|fIntUnitOnly|fFloatUnitOnly|fHidePassive|
-		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand); 
+		fPassiveOnly|fHideGeneric|fGenGoodsOnly|fWOTaxGdsOnly|fNoDisOnly|fRestrictByMatrix|fOutOfMatrix|fActualOnly|fHasImages|fUseIndepWtOnly|fWoBrand);
 		// @v10.6.8 fWoBrand // @v10.7.7 fHideGeneric
 	// Setup();
 	/*
@@ -1542,7 +1542,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 				dbq = & (*dbq && g->TaxGrpID == Filt.TaxGrpID);
 		}
 		dbq = ppcheckflag(dbq, g->Flags, GF_PASSIV,  (Filt.Flags & GoodsFilt::fHidePassive) ? -1 : BIN(Filt.Flags & GoodsFilt::fPassiveOnly));
-		dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC, (Filt.Flags & GoodsFilt::fHideGeneric) ? -1 : BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly)); // @v10.7.7 
+		dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC, (Filt.Flags & GoodsFilt::fHideGeneric) ? -1 : BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly)); // @v10.7.7
 		// @v10.7.7 dbq = ppcheckflag(dbq, g->Flags, GF_GENERIC,      BIN(Filt.Flags & GoodsFilt::fGenGoodsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_PRICEWOTAXES, BIN(Filt.Flags & GoodsFilt::fWOTaxGdsOnly));
 		dbq = ppcheckflag(dbq, g->Flags, GF_NODISCOUNT,   BIN(Filt.Flags & GoodsFilt::fNoDisOnly));
@@ -1551,7 +1551,7 @@ DBQuery * PPViewGoods::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 		// @v10.6.8 {
 		if(Filt.Flags & GoodsFilt::fWoBrand)
 			dbq = &(*dbq && g->BrandID == 0L);
-		// } @v10.6.8 
+		// } @v10.6.8
 		if(Filt.ManufID && grp_id >= 0)
 			dbq = & (*dbq && g->ManufID == Filt.ManufID);
 		if(p_bc_t)
@@ -2076,7 +2076,7 @@ int PPViewGoods::RemoveAll()
 				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
 				THROW_PP(Data.DestGrpID, PPERR_BARCODESTRUCNEEDED);
 			}
-			// } @v10.7.6 
+			// } @v10.7.6
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -2143,9 +2143,9 @@ int PPViewGoods::RemoveAll()
 					p_title_meta = "barcodestruc";
 					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_BCODESTRUC, Data.DestGrpID, 0, 0);
 				}
-				else 
+				else
 					disable_grp_combo = 1;
-				// } @v10.7.6 
+				// } @v10.7.6
 			}
 			disableCtrl(CTLSEL_REMOVEALL_GRP, disable_grp_combo);
 			if(p_title_meta) {
@@ -2874,7 +2874,7 @@ struct GoodsRecoverParam {
 	enum {
 		fCorrect              = 0x0001, // Исправлять ошибки
 		fCheckAlcoAttribs     = 0x0002, // Проверять алкогольные атрибуты
-		fBarcode              = 0x0004, // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру 
+		fBarcode              = 0x0004, // @v10.8.5 Проверять валидность штрихкодов. Если fCorrect, то добавлять или исправлять контрольную цифру
 		fCreateTechIfPossible = 0x0008  // @v11.3.2 Если для товара может быть создана технология (по существующей автотехнологии и по параметрам группы, то создавать)
 	};
 	SString LogFileName;  // Имя файла журнала, в который заносится информация об ошибках
@@ -2961,14 +2961,14 @@ int PPViewGoods::Repair(PPID /*id*/)
 				THROW(tra.Commit());
 			}
 		}
-		// } @v10.7.9 
+		// } @v10.7.9
 		PPID   prev_id = 0;
 		PPUnit unit_rec;
 		PPID   cfg_def_unit_id = GObj.GetConfig().DefUnitID;
 		if(cfg_def_unit_id > 0 && GObj.FetchUnit(cfg_def_unit_id, &unit_rec) > 0) {
 			;
 		}
-		else 
+		else
 			cfg_def_unit_id = 0;
 		for(InitIteration(); NextIteration(&item) > 0;) {
 			if(item.ID != prev_id) {
@@ -2984,7 +2984,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 					}
 					else
 						parent_rec.ID = 0; // Нулевой идентификатор будет служить индикатором того, что запись не инициализирована
-					if(!pack.Rec.UnitID || GObj.FetchUnit(pack.Rec.UnitID, 0) <= 0) { 
+					if(!pack.Rec.UnitID || GObj.FetchUnit(pack.Rec.UnitID, 0) <= 0) {
 						if(parent_rec.ID && parent_rec.UnitID && GObj.FetchUnit(parent_rec.UnitID, &unit_rec) > 0) {
 							pack.Rec.UnitID = unit_rec.ID;
 							err = 1;
@@ -2995,7 +2995,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 						}
 						logger.LogString(PPTXT_LOG_GOODSHASNTUOM, pack.Rec.Name);
 					}
-					// } @v11.3.2 
+					// } @v11.3.2
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.KindID, is_cls, gc_pack.PropKind, &logger))
 						err = 1;
 					if(!RecoverGoodsExtPropRef(pack.Rec.ID, &pack.ExtRec.GradeID, is_cls, gc_pack.PropGrade, &logger))
@@ -3051,7 +3051,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 							to_turn_packet = 1;
 						}
 					}
-					// } @v11.2.2 
+					// } @v11.2.2
 					if(param.Flags & GoodsRecoverParam::fBarcode) {
 						for(uint i = 0; i < pack.Codes.getCount(); i++) {
 							temp_buf = pack.Codes.at(i).Code;
@@ -3078,7 +3078,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 												}
 											}
 										}
-										// } @v10.8.5 
+										// } @v10.8.5
 									}
 								}
 							}
@@ -3111,7 +3111,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 						PPID   def_prc_id = 0;
 						if(param.Flags & GoodsRecoverParam::fCreateTechIfPossible && parent_rec.ID && parent_rec.DefPrcID)
 							def_prc_id = parent_rec.DefPrcID;
-						// } @v11.3.2 
+						// } @v11.3.2
 						if(err || to_turn_packet) {
 							if(param.Flags & GoodsRecoverParam::fCorrect || def_prc_id) { // @v11.3.2 (|| def_prc_id)
 								THROW(GObj.PutPacket(&item.ID, &pack, 1));
@@ -3121,7 +3121,7 @@ int PPViewGoods::Repair(PPID /*id*/)
 						else if(def_prc_id) {
 							THROW(tec_obj.CreateAutoTech(def_prc_id, item.ID, 0, 1));
 						}
-						// } @v11.3.2 
+						// } @v11.3.2
 					}
 				}
 			}
@@ -3424,7 +3424,7 @@ int PPViewGoods::Export(const PPGoodsImpExpParam * pExpCfg)
 			g_e.P_IEGoods->CloseFile();
 			g_e.P_IEGoods->GetParam().DistributeFile(/*&logger*/0);
 		}
-		// } @v10.9.6 
+		// } @v10.9.6
 		PPWaitStop();
 	}
 	CATCHZOKPPERR
@@ -3639,7 +3639,7 @@ int PPViewGoods::ExportUhtt()
 													if(p_new_item)
 														THROW_SL(new_pack.TagList.insert(p_new_item));
 												}
-												// } @v10.7.9 
+												// } @v10.7.9
 												/* @v10.7.9 ObjTagItem tag_item;
 												if(p_ref->Ot.GetTag(PPOBJ_GOODS, goods_rec.ID, param.CategoryTagID, &tag_item) > 0) {
 													tag_item.GetStr(temp_buf);
@@ -3993,7 +3993,7 @@ int PPViewGoods::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 									GoodsFilt temp_filt;
 									temp_filt.PutExtssData(GoodsFilt::extssBarcodeText, barcode);
 									SETFLAGBYSAMPLE(temp_filt.Flags, GoodsFilt::fShowBarcode, Filt.Flags);
-									return PPView::Execute(PPVIEW_GOODS, &temp_filt, 0, 0);									
+									return PPView::Execute(PPVIEW_GOODS, &temp_filt, 0, 0);
 								}
 							}
 						}
@@ -5414,6 +5414,15 @@ int PPALDD_Transport::InitData(PPFilt & rFilt, long rsrv)
 	}
 	return ok;
 }
+
+void PPALDD_Transport::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS) // @v11.3.7
+{
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	if(pF->Name == "?GetTag") {
+		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_TRANSPORT, H.ID, _ARG_STR(1));
+	}
+}
 //
 // Implementation of PPALDD_Brand
 //
@@ -5482,6 +5491,15 @@ int PPALDD_Brand::Set(long iterId, int commit)
 		Extra[3].Ptr = 0;
 	}
 	return ok;
+}
+
+void PPALDD_Brand::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS) // @v11.3.7
+{
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	if(pF->Name == "?GetTag") {
+		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_BRAND, H.ID, _ARG_STR(1));
+	}
 }
 // } @Muxa
 //

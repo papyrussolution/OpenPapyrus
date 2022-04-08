@@ -1759,7 +1759,7 @@ int PrcssrBizScore::EditParam(Param * pParam)
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 0, Param::fExportXml);
 			dlg->AddClusterAssoc(CTL_BIZSCPRC_FLAGS, 1, Param::fSendToFTP);
 			dlg->SetClusterData(CTL_BIZSCPRC_FLAGS, data.Flags);
-			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0, 
+			SetupPPObjCombo(dlg, CTLSEL_BIZSCPRC_FTPACC, PPOBJ_INTERNETACCOUNT, data.FtpAcctID, 0,
 				reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)/*INETACCT_ONLYFTP*/);
 			while(ok < 0 && ExecView(dlg) == cmOK) {
 				if(!GetPeriodInput(dlg, CTL_BIZSCPRC_PERIOD, &data.Period))
@@ -2362,6 +2362,14 @@ int PPALDD_GlobalUserAcc::Set(long iterId, int commit)
 	return ok;
 }
 
+void PPALDD_GlobalUserAcc::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS) // @v11.3.7
+{
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	if(pF->Name == "?GetTag") {
+		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_GLOBALUSERACC, H.ID, _ARG_STR(1));
+	}
+}
 //
 // Implementation of PPALDD_UHTTStatistic
 //

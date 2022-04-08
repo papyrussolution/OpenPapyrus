@@ -906,13 +906,25 @@ int PPObjBill::PrintCheck__(PPBillPacket * pPack, PPID posNodeID, int addSummato
 }
 
 struct _CcByBillParam {
-	_CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags_(0)
+	_CcByBillParam() : PosNodeID(0), PaymType(0), LocID(0), DivisionN(0), Amount(0.0), Flags_(0), BuyersEAddrType(0)
 	{
 	}
+	bool SetBuyersEAddr(int addrType, const char * pAddr)
+	{
+		bool    ok = true;
+		THROW(oneof3(addrType, 0, SNTOK_EMAIL, SNTOK_PHONE));
+		THROW(isempty(pAddr) || oneof2(addrType, SNTOK_EMAIL, SNTOK_PHONE));
+		THROW(addrType == 0 || !isempty(pAddr));
+		BuyersEAddrType = addrType;
+		(BuyersEAddr = pAddr).Strip();
+		CATCHZOK
+		return ok;
+	}
 	enum { // @v11.1.5
-		fCash   = 0x0001,
-		fBank   = 0x0002,
-		fPrepay = 0x0004 
+		fCash      = 0x0001,
+		fBank      = 0x0002,
+		fPrepay    = 0x0004,
+		fPaperless = 0x0008 // @v11.3.7
 	};
 	PPID   PosNodeID;
 	int    PaymType;
@@ -921,17 +933,116 @@ struct _CcByBillParam {
 	SString Info;
 	double Amount; //@erik v10.5.9
 	long   Flags_;  //@erik v10.5.9
+	int    BuyersEAddrType; // @v11.3.7 (0|SNTOK_EMAIL|SNTOK_PHONE)
+	SString BuyersEAddr; // @v11.3.7
 };
 
 static int _EditCcByBillParam(_CcByBillParam & rParam)
 {
 	//@erik v10.5.9 {
 	class CCByBill: public TDialog {
+		DECL_DIALOG_DATA(_CcByBillParam);
+		enum {
+			dummyFirst = 1,
+			brushInvalid,
+			brushEAddrPhone,
+			brushEAddrEmail,
+		};
 	public:
-		CCByBill(const _CcByBillParam & rParam): TDialog(DLG_CCBYBILL), R_P(rParam)
+		CCByBill(): TDialog(DLG_CCBYBILL), EAddrInputState(0)
 		{
+			// @v11.3.7 {
+			Ptb.SetBrush(brushInvalid, SPaintObj::bsSolid, GetColorRef(SClrCoral), 0);
+			Ptb.SetBrush(brushEAddrPhone, SPaintObj::bsSolid, GetColorRef(SClrAqua),  0);
+			Ptb.SetBrush(brushEAddrEmail, SPaintObj::bsSolid, GetColorRef(SClrCadetblue),  0);
+			if(!DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) {
+				showCtrl(CTL_CCBYBILL_EADDR, 0);
+				showCtrl(CTL_CCBYBILL_EADDRINF, 0);
+				showCtrl(CTL_CCBYBILL_PAPERLESS, 0);
+				showCtrl(CTLFRAME_CCBYBILL_PAPERLESS, 0);
+			}
+			// } @v11.3.7
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
 			setCtrlReal(CTL_CCBYBILL_CASH, 0.0);
-			setCtrlReal(CTL_CCBYBILL_DIFF, -R_P.Amount);
+			setCtrlReal(CTL_CCBYBILL_DIFF, -Data.Amount);
+			//
+			{
+				PPObjCashNode::SelFilt f;
+				f.LocID = 0;
+				f.SyncGroup = 1; // only sync nodes
+				SetupPPObjCombo(this, CTLSEL_CCBYBILL_POSNODE, PPOBJ_CASHNODE, Data.PosNodeID, 0, &f);
+			}
+			// @erik v10.5.9 {
+			AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE, 0, cpmCash);
+			AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, 1, cpmBank);
+			const long __p = CHKXORFLAGS(Data.Flags_, _CcByBillParam::fCash, _CcByBillParam::fBank);
+			if(__p > 0) {
+				if(__p & _CcByBillParam::fCash)
+					SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmCash);
+				else if(__p & _CcByBillParam::fBank)
+					SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmBank);
+				disableCtrl(CTL_CCBYBILL_PAYMTYPE, 1);
+			}
+			else {
+				SetClusterData(CTL_CCBYBILL_PAYMTYPE, Data.PaymType);
+			}
+			// } @erik v10.5.9
+			// @v11.1.5 {
+			AddClusterAssoc(CTL_CCBYBILL_FLAGS, 0, _CcByBillParam::fPrepay);
+			SetClusterData(CTL_CCBYBILL_FLAGS, Data.Flags_);
+			// } @v11.1.5 
+			setCtrlLong(CTL_CCBYBILL_DIVISION, Data.DivisionN);
+			// @v11.3.7
+			if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { 
+				Data.BuyersEAddr.SetIfEmpty(DS.GetConstTLA().PaperlessCheque_FakeEAddr);
+				setCtrlString(CTL_CCBYBILL_EADDR, Data.BuyersEAddr);
+				setCtrlUInt16(CTL_CCBYBILL_PAPERLESS, BIN(Data.Flags_ & _CcByBillParam::fPaperless));
+			}
+			// } @v11.3.7
+			setStaticText(CTL_CCBYBILL_ST_INFO, Data.Info);
+			//
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			Data.PosNodeID = getCtrlLong(CTLSEL_CCBYBILL_POSNODE);
+			if(!Data.PosNodeID) {
+				ok = PPErrorByDialog(this, CTL_CCBYBILL_POSNODE, PPERR_CASHNODENEEDED);
+			}
+			else {
+				GetClusterData(CTL_CCBYBILL_FLAGS, &Data.Flags_); // @v11.1.5
+				Data.PaymType = GetClusterData(CTL_CCBYBILL_PAYMTYPE);
+				Data.DivisionN = getCtrlLong(CTL_CCBYBILL_DIVISION);
+				// @v11.3.7
+				if(DS.CheckExtFlag(ECF_PAPERLESSCHEQUE)) { 
+					SString eaddr_buf;
+					getCtrlString(CTL_CCBYBILL_EADDR, eaddr_buf);
+					const int eaddr_status = GetEAddrStatus(eaddr_buf);
+					if(oneof2(eaddr_status, SNTOK_EMAIL, SNTOK_PHONE)) {
+						if(eaddr_status == SNTOK_PHONE) {
+							SString normal_phone;
+							eaddr_buf = PPEAddr::Phone::NormalizeStr(eaddr_buf, 0, normal_phone);
+						}
+						Data.SetBuyersEAddr(eaddr_status, eaddr_buf);
+						ushort v = getCtrlUInt16(CTL_CCBYBILL_PAPERLESS);
+						SETFLAG(Data.Flags_, _CcByBillParam::fPaperless, v);
+					}
+					else
+						Data.Flags_ &= ~_CcByBillParam::fPaperless;
+				}
+				else
+					Data.Flags_ &= ~_CcByBillParam::fPaperless;
+				// } @v11.3.7
+				ok = 1;
+			}
+			//
+			ASSIGN_PTR(pData, Data);
+			return ok;
 		}
 	private:
 		DECL_HANDLE_EVENT
@@ -939,57 +1050,69 @@ static int _EditCcByBillParam(_CcByBillParam & rParam)
 			TDialog::handleEvent(event);
 			if(event.isCmd(cmInputUpdated)) {
 				if(event.isCtlEvent(CTL_CCBYBILL_CASH)) {
-					double cash = R2(getCtrlReal(CTL_CCBYBILL_CASH));
-					setCtrlReal(CTL_CCBYBILL_DIFF, cash - R_P.Amount);
+					const double cash = R2(getCtrlReal(CTL_CCBYBILL_CASH));
+					setCtrlReal(CTL_CCBYBILL_DIFF, cash - Data.Amount);
 					clearEvent(event);
 				}
+				else if(event.isCtlEvent(CTL_CCBYBILL_EADDR)) {
+					SString eaddr_buf;
+					getCtrlString(CTL_CCBYBILL_EADDR, eaddr_buf);
+					EAddrInputState = GetEAddrStatus(eaddr_buf);
+					drawCtrl(CTL_CCBYBILL_EADDR);
+				}
+				else
+					return;
 			}
+			else if(event.isCmd(cmCtlColor)) {
+				TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
+				if(p_dc && getCtrlHandle(CTL_CCBYBILL_EADDR) == p_dc->H_Ctl) {
+					int brush_ident = 0;
+					if(EAddrInputState == SNTOK_PHONE)
+						brush_ident = brushEAddrPhone;
+					else if(EAddrInputState == SNTOK_EMAIL)
+						brush_ident = brushEAddrEmail;
+					else if(EAddrInputState < 0)
+						brush_ident = brushInvalid;
+					if(brush_ident) {
+						::SetBkMode(p_dc->H_DC, TRANSPARENT);
+						p_dc->H_Br = static_cast<HBRUSH>(Ptb.Get(brush_ident));
+					}
+				}
+				else
+					return;
+			}
+			else
+				return;
+			clearEvent(event);
 		}
-		const _CcByBillParam & R_P;
+		int    GetEAddrStatus(SString & rBuf)
+		{
+			int    status = 0;
+			if(rBuf.NotEmptyS()) {
+				SNaturalTokenArray nta;
+				Trgn.Run(rBuf.ucptr(), rBuf.Len(), nta, 0);
+				if(nta.Has(SNTOK_PHONE))
+					status = SNTOK_PHONE;
+				else if(nta.Has(SNTOK_EMAIL))
+					status = SNTOK_EMAIL;
+				else
+					status = -1;
+			}
+			else
+				status = 0;
+			return status;
+		}
+		int    EAddrInputState; // 0 - empty, -1 - invalid, SNTOK_PHONE, SNTOK_EMAIL
+		PPTokenRecognizer Trgn;
+		SPaintToolBox Ptb;
 	};
 	// } @erik 
 	int    ok = -1;
-	CCByBill * dlg = new CCByBill(rParam);
+	CCByBill * dlg = new CCByBill();
 	if(CheckDialogPtrErr(&dlg)) {
-		// @v10.0.0 {
-		{
-			PPObjCashNode::SelFilt f;
-			f.LocID = 0;
-			f.SyncGroup = 1; // only sync nodes
-			SetupPPObjCombo(dlg, CTLSEL_CCBYBILL_POSNODE, PPOBJ_CASHNODE, rParam.PosNodeID, 0, &f);
-		}
-		// } @v10.0.0
-		// @erik v10.5.9 {
-		dlg->AddClusterAssocDef(CTL_CCBYBILL_PAYMTYPE, 0, cpmCash);
-		dlg->AddClusterAssoc(CTL_CCBYBILL_PAYMTYPE, 1, cpmBank);
-		// @v11.1.5 const long __p = CHKXORFLAGS(rParam.Flags, OPKFX_PAYMENT_CASH, OPKFX_PAYMENT_NONCASH);
-		const long __p = CHKXORFLAGS(rParam.Flags_, _CcByBillParam::fCash, _CcByBillParam::fBank); // @v11.1.5
-		if(__p > 0) {
-			if(__p & _CcByBillParam::fCash)
-				dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmCash);
-			else if(__p & _CcByBillParam::fBank)
-				dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, cpmBank);
-			dlg->disableCtrl(CTL_CCBYBILL_PAYMTYPE, 1);
-		}
-		else {
-			dlg->SetClusterData(CTL_CCBYBILL_PAYMTYPE, rParam.PaymType);
-		}
-		// } @erik v10.5.9
-		// @v11.1.5 {
-		dlg->AddClusterAssoc(CTL_CCBYBILL_FLAGS, 0, _CcByBillParam::fPrepay);
-		dlg->SetClusterData(CTL_CCBYBILL_FLAGS, rParam.Flags_);
-		// } @v11.1.5 
-        dlg->setCtrlLong(CTL_CCBYBILL_DIVISION, rParam.DivisionN);
-        dlg->setStaticText(CTL_CCBYBILL_ST_INFO, rParam.Info);
+		dlg->setDTS(&rParam);
         while(ok < 0 && ExecView(dlg) == cmOK) {
-			rParam.PosNodeID = dlg->getCtrlLong(CTLSEL_CCBYBILL_POSNODE); // @v10.0.0
-			if(!rParam.PosNodeID) {
-				PPErrorByDialog(dlg, CTL_CCBYBILL_POSNODE, PPERR_CASHNODENEEDED);
-			}
-			else {
-				dlg->GetClusterData(CTL_CCBYBILL_FLAGS, &rParam.Flags_); // @v11.1.5
-				rParam.PaymType = dlg->GetClusterData(CTL_CCBYBILL_PAYMTYPE);
-				rParam.DivisionN = dlg->getCtrlLong(CTL_CCBYBILL_DIVISION);
+			if(dlg->getDTS(&rParam)) {
 				ok = 1;
 			}
         }
@@ -1018,7 +1141,7 @@ int PPObjBill::PosPrintByBill(PPID billID)
 			const PPID  __node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
 			SString temp_buf;
 			PPOprKindPacket op_pack;  // @erik v10.5.9
-			P_OpObj->GetPacket(bill_rec.OpID, &op_pack);  // @erik v10.5.9
+			P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik v10.5.9
 			_CcByBillParam param;
 			param.PosNodeID = __node_id;
 			param.LocID = bill_rec.LocID;
@@ -1120,6 +1243,24 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					if(pack.SMemo.NotEmpty())
 						STRNSCPY(cp.Ext.Memo, pack.SMemo);
 					// } @v11.1.12 
+					// @v11.3.7 {
+					if(param.BuyersEAddr.NotEmpty()) {
+						if(param.BuyersEAddrType == SNTOK_EMAIL) {
+							cp.PutExtStrData(CCheckPacket::extssBuyerEMail, param.BuyersEAddr);
+							cp.PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
+						}
+						else if(param.BuyersEAddrType == SNTOK_PHONE) {
+							cp.PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
+							cp.PutExtStrData(CCheckPacket::extssBuyerPhone, param.BuyersEAddr);
+						}
+						SETFLAG(cp.Rec.Flags, CCHKF_PAPERLESS, param.Flags_ & _CcByBillParam::fPaperless);
+					}
+					else {
+						cp.PutExtStrData(CCheckPacket::extssBuyerEMail, 0);
+						cp.PutExtStrData(CCheckPacket::extssBuyerPhone, 0);
+						SETFLAG(cp.Rec.Flags, CCHKF_PAPERLESS, 0);
+					}
+					// } @v11.3.7 
 					PPWaitStart();
 					if(oneof3(pack.OpTypeID, PPOPT_GOODSEXPEND, PPOPT_GOODSRECEIPT, PPOPT_GOODSRETURN) || pack.IsDraft()) {
 						if(CheckOpPrnFlags(pack.Rec.OpID, OPKF_PRT_CHECKTI)) {

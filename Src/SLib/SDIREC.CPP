@@ -21,10 +21,10 @@ SDirec::SDirec(const char * pPath, int enumDir) : InitFlag(0), lPosData(-1), vPo
 
 #define FFIND_DATA struct _finddatai64_t
 
-int SDirEntry::IsFolder() const { return BIN(Attr & 0x10); }
-int SDirEntry::IsUpFolder() const { return BIN(FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0); }
-int SDirEntry::IsSelf() const { return BIN(FileName[0] == '.' && FileName[1] == 0); }
-int SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
+bool   SDirEntry::IsFolder() const { return LOGIC(Attr & 0x10); }
+bool   SDirEntry::IsUpFolder() const { return (FileName[0] == '.' && FileName[1] == '.' && FileName[2] == 0); }
+bool   SDirEntry::IsSelf() const { return (FileName[0] == '.' && FileName[1] == 0); }
+bool   SDirEntry::IsFile() const { return !(IsSelf() || IsUpFolder() || IsFolder()); }
 
 static LDATETIME _tm_to_ldatetime(const struct tm * pTm)
 {
@@ -279,30 +279,50 @@ int SFileEntryPool::Add(const char * pPath, const char * pRemoteUrl)
 	return ok;
 }
 
-int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
+int SFileEntryPool::Helper_Scan(const char * pPath, const char * pWildcard, long flags)
 {
 	int    ok = -1;
-	Z();
-	if(!isempty(pPath)) {
-		SDirEntry fb;
-		SString srch_path(pPath);
-		if(pWildcard) {
-			srch_path.SetLastSlash();
-			SetInitPath(srch_path);
-			srch_path.Cat(pWildcard);
-		}
-		else {
-			SString temp_buf;
-			const SPathStruc ps(pPath);
-			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), temp_buf);
-			SetInitPath(temp_buf.SetLastSlash());
-		}
-		for(SDirec sdirec(srch_path); sdirec.Next(&fb) > 0;) {
+	assert(!isempty(pPath)); // Вызывающая функция обязана проверить это условие
+	SDirEntry fb;
+	SString temp_buf;
+	temp_buf = pPath;
+	if(pWildcard) {
+		temp_buf.SetLastSlash().Cat(pWildcard);
+	}
+	const bool do_recursive = LOGIC(flags & scanfRecursive);
+	for(SDirec sdirec(temp_buf, 0); sdirec.Next(&fb) > 0;) {
+		if(fb.IsFile()) {
 			THROW(Add(pPath, fb));
 			ok = 1;
 		}
+		else if(do_recursive && fb.IsFolder() && !fb.IsSelf() && !fb.IsUpFolder()) {
+			const int r = Helper_Scan((temp_buf = pPath).SetLastSlash().Cat(fb.FileName), pWildcard, flags);
+			THROW(r);
+			if(r > 0)
+				ok = 1;
+		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int SFileEntryPool::Scan(const char * pPath, const char * pWildcard, long flags)
+{
+	Z();
+	int    ok = -1;
+	if(!isempty(pPath)) {
+		SString & r_temp_buf = SLS.AcquireRvlStr();
+		if(pWildcard) {
+			r_temp_buf.SetLastSlash();
+			SetInitPath(r_temp_buf);
+		}
+		else {
+			const SPathStruc ps(pPath);
+			ps.Merge(~(SPathStruc::fNam|SPathStruc::fExt), r_temp_buf);
+			SetInitPath(r_temp_buf.SetLastSlash());
+		}
+		ok = Helper_Scan(pPath, pWildcard, flags);
+	}
 	return ok;
 }
 

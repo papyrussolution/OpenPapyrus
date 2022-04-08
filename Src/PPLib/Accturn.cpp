@@ -1371,8 +1371,7 @@ int AccTurnCore::Repair(long flags, int (*MsgProc)(int msgCode, PPID accID, PPID
 	return ok;
 }
 
-int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID,
-	PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
+int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
 {
 	int    ok = -1, r;
 	RECORDNUMBER numrecs = 0, count = 0;
@@ -1476,8 +1475,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 						break;
 				}
 			}
-			if((msg_code == PPERR_EATURN_BL_2BILL && flags & ATRPRF_RMVZEROBILLLINK) ||
-				(msg_code == PPERR_EATURN_BL_2ACC && flags & ATRPRF_RMVZEROACCLINK)) {
+			if((msg_code == PPERR_EATURN_BL_2BILL && flags & ATRPRF_RMVZEROBILLLINK) || (msg_code == PPERR_EATURN_BL_2ACC && flags & ATRPRF_RMVZEROACCLINK)) {
 				THROW(RollbackTurn(rec.Bill, rec.RByBill, 0));
 			}
 		}
@@ -1489,8 +1487,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 	return ok;
 }
 
-int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate,
-	int (*MsgProc)(PPID, LDATE, long, double, void * paramPtr), void * paramPtr, int use_ta)
+int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate, int (*MsgProc)(PPID, LDATE, long, double, void * paramPtr), void * paramPtr, int use_ta)
 {
 	int    ok = 1, correct = 0, reply;
 	int    msg_done = 0;

@@ -3430,15 +3430,8 @@ SHandle StrAssocTree::Add_Unsafe(SHandle hParent, long id, const char * pStr)
 	return result;
 }
 
-void StrAssocTree::SortByID()
-{
-	L.Implement_SortByID();
-}
-
-void StrAssocTree::SortByText()
-{
-	L.Implement_SortByText(this);
-}
+void StrAssocTree::SortByID() { L.Implement_SortByID(); }
+void StrAssocTree::SortByText() { L.Implement_SortByText(this); }
 //
 // Descr: Функция тестирования структуры StrAssocTree.
 //   Полагается на то, что структура StrAssocArray (которая тоже умеет хранить иерархию строк, но медленная) работает правильно.

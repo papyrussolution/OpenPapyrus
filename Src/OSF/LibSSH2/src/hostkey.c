@@ -19,21 +19,6 @@
  * of any other contributors may be used to endorse or
  * promote products derived from this software without
  * specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
- * CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
- * CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
- * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
- * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
- * OF SUCH DAMAGE.
  */
 #include "libssh2_priv.h"
 #pragma hdrstop
@@ -196,11 +181,8 @@ static int hostkey_method_ssh_rsa_dtor(LIBSSH2_SESSION * session, void ** abstra
 {
 	libssh2_rsa_ctx * rsactx = (libssh2_rsa_ctx*)(*abstract);
 	(void)session;
-
 	_libssh2_rsa_free(rsactx);
-
 	*abstract = NULL;
-
 	return 0;
 }
 
@@ -234,18 +216,13 @@ static int hostkey_method_ssh_dss_dtor(LIBSSH2_SESSION * session,
  *
  * Initialize the server hostkey working area with p/q/g/y set
  */
-static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session,
-    const uchar * hostkey_data,
-    size_t hostkey_data_len,
-    void ** abstract)
+static int hostkey_method_ssh_dss_init(LIBSSH2_SESSION * session, const uchar * hostkey_data, size_t hostkey_data_len, void ** abstract)
 {
 	libssh2_dsa_ctx * dsactx;
 	const uchar * p, * q, * g, * y, * s;
 	ulong p_len, q_len, g_len, y_len, len;
 	int ret;
-
 	(void)hostkey_data_len;
-
 	if(*abstract) {
 		hostkey_method_ssh_dss_dtor(session, abstract);
 		*abstract = NULL;
@@ -468,19 +445,14 @@ static int hostkey_type(const uchar * hostkey, size_t len)
 	const uchar dss[] = {
 		0, 0, 0, 0x07, 's', 's', 'h', '-', 'd', 's', 's'
 	};
-
 	if(len < 11)
 		return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
-
 	if(!memcmp(rsa, hostkey, 11))
 		return LIBSSH2_HOSTKEY_TYPE_RSA;
-
 	if(!memcmp(dss, hostkey, 11))
 		return LIBSSH2_HOSTKEY_TYPE_DSS;
-
 	return LIBSSH2_HOSTKEY_TYPE_UNKNOWN;
 }
-
 /*
  * libssh2_session_hostkey()
  *

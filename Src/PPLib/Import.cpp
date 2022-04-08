@@ -703,7 +703,7 @@ static int LoadHierList(DbfTable * pTbl, int fldnCode, int fldnParent, HierArray
 
 int PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID defUnitID, HierArray * pHierList)
 {
-	int    ok = 1, is_hier = 0;
+	int    ok = 1;
 	uint   i;
 	PPIDArray id_list;
 	PPObjGoodsGroup gg_obj;
@@ -711,9 +711,7 @@ int PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID de
 	int    fldn_hier_objcode = 0;
 	int    fldn_hier_parentcode = 0;
 	get_fld_number(pIniFile, pTbl, PPINISECT_IMP_GOODS, PPINIPARAM_NAME, &fldn_name);
-	if(GetHierarchyFields(pIniFile, pTbl, PPINISECT_IMP_GOODS, PPINIPARAM_HIERARCHY,
-		&fldn_hier_objcode, &fldn_hier_parentcode) > 0)
-		is_hier = 1;
+	const  bool is_hier = (GetHierarchyFields(pIniFile, pTbl, PPINISECT_IMP_GOODS, PPINIPARAM_HIERARCHY, &fldn_hier_objcode, &fldn_hier_parentcode) > 0);
 	if(is_hier && pTbl->top()) {
 		SString wait_msg;
 		IterCounter cntr;
@@ -724,7 +722,8 @@ int PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID de
 		do {
 			if(pTbl->isDeletedRec() <= 0) {
 				PPID   id;
-				char   name[128], obj_code[128];
+				char   name[128];
+				char   obj_code[128];
 				DbfRecord rec(pTbl);
 				THROW(pTbl->getRec(&rec));
 				rec.get(fldn_hier_objcode, obj_code);
@@ -771,15 +770,14 @@ int PPObjGoods::Helper_ImportHier(PPIniFile * pIniFile, DbfTable * pTbl, PPID de
 
 static SString & CodeToHex(SString & rCode)
 {
-	SString temp_buf;
+	rCode.Z();
 	for(size_t i = 0; i < rCode.Len(); i++) {
 		uint8 c = (uint8)rCode.C(i);
 		uint8 lo = (c >> 4);
 		uint8 hi = (c & 0x0f);
-		temp_buf.CatChar(lo + ((lo > 9) ? ('A'-10) : '0'));
-		temp_buf.CatChar(hi + ((hi > 9) ? ('A'-10) : '0'));
+		rCode.CatChar(lo + ((lo > 9) ? ('A'-10) : '0'));
+		rCode.CatChar(hi + ((hi > 9) ? ('A'-10) : '0'));
 	}
-	rCode = temp_buf;
 	return rCode;
 }
 
@@ -1215,7 +1213,7 @@ int PPObjGoods::ImportOld(int use_ta)
 									rec.get(fldn_phperu, phperu_buf, 1);
 									char * p = phperu_buf;
 									char * p_v = val_buf;
-									while((*p >= '0' && *p <= '9') || *p == '.' || *p == ',') {
+									while(isdec(*p) || *p == '.' || *p == ',') {
 										if(*p == ',')
 											*p = '.';
 										*p_v++ = *p++;
@@ -1229,7 +1227,7 @@ int PPObjGoods::ImportOld(int use_ta)
 										while(*p == ' ')
 											p++;
 										p_v = val_buf;
-										while((*p >= '0' && *p <= '9') || *p == '.' || *p == ',') {
+										while(isdec(*p) || *p == '.' || *p == ',') {
 											if(*p == ',')
 												*p = '.';
 											*p_v++ = *p++;
@@ -1243,16 +1241,16 @@ int PPObjGoods::ImportOld(int use_ta)
 										strip(val_buf);
 									}
 									if(val_buf[0]) {
-										if(stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) {
+										if(stricmp1251(val_buf, "г") == 0 || stricmp1251(val_buf, "гр") == 0) { // @[ru]
 											PPLoadString("munit_kg", temp_buf2);
 											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
 										}
-										else if(stricmp1251(val_buf, "л") == 0) {
+										else if(stricmp1251(val_buf, "л") == 0) { // @[ru]
 											PPLoadString("munit_liter", temp_buf2);
 											STRNSCPY(val_buf, temp_buf2);
 										}
-										else if(stricmp1251(val_buf, "мл") == 0) {
+										else if(stricmp1251(val_buf, "мл") == 0) { // @[ru]
 											PPLoadString("munit_liter", temp_buf2);
 											STRNSCPY(val_buf, temp_buf2);
 											phperu /= 1000L;
@@ -3169,17 +3167,17 @@ int PrcssrPersonImport::ProcessComplexELinkText(const char * pText, PPPersonPack
 	*/
 	// @v11.3.1 {
 	static const SIntToSymbTabEntry _PE[] = {
-		{ ELNKRT_PHONE, "телефон" },
-		{ ELNKRT_PHONE, "тел" },
-		{ ELNKRT_PHONE, "phone" },
+		{ ELNKRT_PHONE, "телефон" }, // @[ru]
+		{ ELNKRT_PHONE, "тел" }, // @[ru]
+		{ ELNKRT_PHONE, "phone" }, // @[ru]
 		{ ELNKRT_FAX, "fax" },
-		{ ELNKRT_FAX, "факс" },
-		{ ELNKRT_FAX, "телефакс" },
+		{ ELNKRT_FAX, "факс" }, // @[ru]
+		{ ELNKRT_FAX, "телефакс" }, // @[ru]
 		{ ELNKRT_WEBADDR, "website" },
 		{ ELNKRT_WEBADDR, "site" },
 		{ ELNKRT_WEBADDR, "http" },
 		{ ELNKRT_WEBADDR, "https" }, // @v10.9.1
-		{ ELNKRT_WEBADDR, "сайт" },
+		{ ELNKRT_WEBADDR, "сайт" }, // @[ru]
 		{ ELNKRT_EMAIL, "email" },
 		{ ELNKRT_EMAIL, "e-mail" },
 		{ ELNKRT_EMAIL, "email" },
@@ -3403,7 +3401,7 @@ int PrcssrPersonImport::Run()
 					// Для наименований импортированных из 2GIS суффикс ",офис"
 					// удаляем и далее трактуем эту запись как офисное подразделение торговой сети.
 					//
-					(temp_buf2 = "офис").ToOem();
+					(temp_buf2 = "офис").ToOem(); // @[ru]
 					if(name.CmpSuffix(temp_buf2, 1) == 0) {
 						(temp_buf = name).Trim(name.Len()-temp_buf2.Len()).Strip();
 						if(temp_buf.Last() == ',') {
@@ -4002,7 +4000,7 @@ int ImportSR25()
 							uint pos = 0;
 							// @v10.6.8 @ctr MEMSZERO(unit_rec);
 							unit_rec.Tag = PPOBJ_UNIT;
-							if((temp_buf = r_comp.UnitAbbr).HasChr(181) || temp_buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам)
+							if((temp_buf = r_comp.UnitAbbr).HasChr(181) || temp_buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам) // @[ru]
 								temp_buf.ReplaceStr(micro_prefix, "mk", 1);
 							temp_buf.CopyTo(unit_rec.Name, sizeof(unit_rec.Name));
 							temp_buf.CopyTo(unit_rec.Abbr, sizeof(unit_rec.Abbr));
@@ -4151,7 +4149,7 @@ int ImportCompGS()
 					uint pos = 0;
 					// @v10.6.8 @ctr MEMSZERO(unit_rec);
 					unit_rec.Tag = PPOBJ_UNIT;
-					if((buf = r_item.UnitAbbr).HasChr(181) || buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам)
+					if((buf = r_item.UnitAbbr).HasChr(181) || buf.HasChr(-75)) // Если есть приставка "микро" (проверяем по двум кодам) // @[ru]
 						buf.ReplaceStr(micro_prefix, "mk", 1);
 					buf.CopyTo(unit_rec.Name, sizeof(unit_rec.Name));
 					buf.CopyTo(unit_rec.Abbr, sizeof(unit_rec.Abbr));
@@ -6117,7 +6115,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 			while(f_lat.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
-				if(firstc == '-' || (firstc >= '0' && firstc <= '9'))
+				if(firstc == '-' || isdec(firstc))
 					lat_count++;
 				line_count_lat++;
 				if((line_count_lat % 1000000) == 0) {
@@ -6132,7 +6130,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 			while(f_lon.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
-				if(firstc == '-' || (firstc >= '0' && firstc <= '9'))
+				if(firstc == '-' || isdec(firstc))
 					lon_count++;
 				line_count_lon++;
 				if((line_count_lon % 1000000) == 0) {
@@ -6165,7 +6163,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 			while(f_lat.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
-				if(firstc == '-' || (firstc >= '0' && firstc <= '9')) {
+				if(firstc == '-' || isdec(firstc)) {
                     const long c = line_buf.ToLong();
                     for(uint i = 0; i < grid_count; i++) {
 						SGeoGridTab * p_grid = rGridList.at(i);
@@ -6210,7 +6208,7 @@ int PrcssrOsm::CreateGeoGridTab(const char * pSrcFileName, uint lowDim, uint upp
 			while(f_lon.ReadLine(line_buf)) {
 				line_buf.Chomp().Strip();
 				const char firstc = line_buf.C(0);
-				if(firstc == '-' || (firstc >= '0' && firstc <= '9')) {
+				if(firstc == '-' || isdec(firstc)) {
                     const long c = line_buf.ToLong();
                     if(c == m180val) {
 						minus_180_count++;
@@ -6476,7 +6474,7 @@ int PrcssrOsm::Run()
 		Phase = phaseSortPreprcResults;
         PPLoadText(PPTXT_SORTSPLIT, FmtMsg_SortSplit);
 		PPLoadText(PPTXT_SORTMERGE, FmtMsg_SortMerge);
-		THROW(SortFile(file_name, "distance", PTR_CMPCFUNC(STRINT64))); // @v9.8.3
+		THROW(SortFile(file_name, "distance", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "lat", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "lon", PTR_CMPCFUNC(STRINT64)));
 		THROW(SortFile(file_name, "nodewayassoc", PTR_CMPCFUNC(STRINT64)));
@@ -6677,7 +6675,7 @@ int DoProcessOsm(PrcssrOsmFilt * pFilt)
 //
 // Descr: Преобразование ситуативных транзакций, утекших от яндекс-еда
 //
-int ImportYYE(const char * pSrcPath) // яндекс еда
+static int Helper_ImportYYE(const char * pSrcPath, const char * pFileName) // яндекс еда
 {
 	class InnerBlock {
 	public:
@@ -6784,108 +6782,257 @@ int ImportYYE(const char * pSrcPath) // яндекс еда
 	uint   rec_count = 0;
 	SString temp_buf;
 	SString line_buf;
-	(temp_buf = pSrcPath).Strip().SetLastSlash().Cat("part2.sql"); // org "part1.sql"
-	if(fileExists(temp_buf)) {
+	const SString src_file_name((temp_buf = pSrcPath).Strip().SetLastSlash().Cat(pFileName));
+	if(fileExists(src_file_name)) {
+		PPWaitMsg(src_file_name);
 		const size_t nominal_rd_buf_size = SMEGABYTE(8);
 		STempBuffer rd_buf(nominal_rd_buf_size+128);
 		const char * p_part1_start_data_tag = "LOCK TABLES `orders` WRITE;"; // данные начинаются двумя строками ниже этого текста
-		SFile f_in(temp_buf, SFile::mRead);
+		SFile f_in(src_file_name, SFile::mRead);
+		int64 src_file_size = 0;
+		int64 src_file_cur_offs = 0;
 		bool  do_scan_data = false;
-		THROW_SL(f_in.IsValid());
+		THROW_SL(f_in.CalcSize(&src_file_size));
 		THROW_SL(rd_buf.IsValid());
-		while(!do_scan_data && f_in.ReadLine(line_buf)) {
-			line_buf.Chomp().Strip();
-			if(line_buf.IsEqiAscii(p_part1_start_data_tag)) {
-				THROW(f_in.ReadLine(line_buf)); // skip next line
-				do_scan_data = true;
-			}
-		}
-		if(do_scan_data) {
+		{
+			
 			SString out_file_name;
+			SString supplemental_out_file_name;
 			{
 				SPathStruc ps(f_in.GetName());
-				ps.Nam.CatChar('-').Cat("out");
+				const SString org_file_name = ps.Nam;
+				(ps.Nam = org_file_name).CatChar('-').Cat("out");
 				ps.Ext = "csv";
 				ps.Merge(out_file_name);
+				//
+				(ps.Nam = org_file_name).CatChar('-').Cat("out-supplemental");
+				ps.Ext = "txt";
+				ps.Merge(supplemental_out_file_name);
 			}
 			SFile f_out(out_file_name, SFile::mWrite);
-			const size_t max_input_text_size = SMEGABYTE(4);
-			SString input_text_buf;
-			size_t actual_size = 0;
+			SFile f_supplemental_out(supplemental_out_file_name, SFile::mWrite);
+			//
 			THROW_SL(f_out.IsValid());
-			THROW_SL(f_in.Read(rd_buf, nominal_rd_buf_size, &actual_size));
-			while(actual_size > 0) {
-				for(size_t p__ = 0; p__ < actual_size;) {
-					const uchar  c = rd_buf[p__];
-					const uint16 utf_extra = SUtfConst::TrailingBytesForUTF8[c];
-					if((p__ + utf_extra) < actual_size) {
-						if(SUnicode::IsLegalUtf8(rd_buf.ucptr()+p__, utf_extra+1)) {
-							switch(utf_extra) {
-								case 0:
-									input_text_buf.CatChar(c); 
-									break;
-								case 1:
-									input_text_buf.CatChar(c);
-									input_text_buf.CatChar(rd_buf[p__+1]);
-									break;
-								case 2:
-									input_text_buf.CatChar(c);
-									input_text_buf.CatChar(rd_buf[p__+1]);
-									input_text_buf.CatChar(rd_buf[p__+2]);
-									break;
-								case 3:
-									input_text_buf.CatChar(c);
-									input_text_buf.CatChar(rd_buf[p__+1]);
-									input_text_buf.CatChar(rd_buf[p__+2]);
-									input_text_buf.CatChar(rd_buf[p__+3]);
-									break;
-								case 4:
-									input_text_buf.CatChar(c);
-									input_text_buf.CatChar(rd_buf[p__+1]);
-									input_text_buf.CatChar(rd_buf[p__+2]);
-									input_text_buf.CatChar(rd_buf[p__+3]);
-									input_text_buf.CatChar(rd_buf[p__+4]);
-									break;
-								case 5:
-									input_text_buf.CatChar(c);
-									input_text_buf.CatChar(rd_buf[p__+1]);
-									input_text_buf.CatChar(rd_buf[p__+2]);
-									input_text_buf.CatChar(rd_buf[p__+3]);
-									input_text_buf.CatChar(rd_buf[p__+4]);
-									input_text_buf.CatChar(rd_buf[p__+5]);
-									break;
-								default:
-									assert(0);
-									break;
+			THROW_SL(f_supplemental_out.IsValid());
+			while(!do_scan_data && f_in.ReadLine(line_buf)) {
+				line_buf.Chomp().Strip();
+				if(line_buf.IsEqiAscii(p_part1_start_data_tag)) {
+					THROW(f_in.ReadLine(line_buf)); // skip next line
+					do_scan_data = true;
+				}
+				else
+					f_supplemental_out.WriteLine(line_buf.CR());
+			}
+			if(do_scan_data) {
+				const size_t max_input_text_size = SMEGABYTE(4);
+				SString input_text_buf;
+				size_t actual_size = 0;
+				THROW_SL(f_in.Read(rd_buf, nominal_rd_buf_size, &actual_size));
+				src_file_cur_offs = f_in.Tell64();
+				PPWaitPercent(src_file_cur_offs, src_file_size, src_file_name);
+				while(actual_size > 0) {
+					for(size_t p__ = 0; p__ < actual_size;) {
+						const uchar  c = rd_buf[p__];
+						const uint16 utf_extra = SUtfConst::TrailingBytesForUTF8[c];
+						if((p__ + utf_extra) < actual_size) {
+							if(SUnicode::IsLegalUtf8(rd_buf.ucptr()+p__, utf_extra+1)) {
+								switch(utf_extra) {
+									case 0:
+										input_text_buf.CatChar(c); 
+										break;
+									case 1:
+										input_text_buf.CatChar(c);
+										input_text_buf.CatChar(rd_buf[p__+1]);
+										break;
+									case 2:
+										input_text_buf.CatChar(c);
+										input_text_buf.CatChar(rd_buf[p__+1]);
+										input_text_buf.CatChar(rd_buf[p__+2]);
+										break;
+									case 3:
+										input_text_buf.CatChar(c);
+										input_text_buf.CatChar(rd_buf[p__+1]);
+										input_text_buf.CatChar(rd_buf[p__+2]);
+										input_text_buf.CatChar(rd_buf[p__+3]);
+										break;
+									case 4:
+										input_text_buf.CatChar(c);
+										input_text_buf.CatChar(rd_buf[p__+1]);
+										input_text_buf.CatChar(rd_buf[p__+2]);
+										input_text_buf.CatChar(rd_buf[p__+3]);
+										input_text_buf.CatChar(rd_buf[p__+4]);
+										break;
+									case 5:
+										input_text_buf.CatChar(c);
+										input_text_buf.CatChar(rd_buf[p__+1]);
+										input_text_buf.CatChar(rd_buf[p__+2]);
+										input_text_buf.CatChar(rd_buf[p__+3]);
+										input_text_buf.CatChar(rd_buf[p__+4]);
+										input_text_buf.CatChar(rd_buf[p__+5]);
+										break;
+									default:
+										assert(0);
+										break;
+								}
+							}
+							else
+								input_text_buf.CatChar('?');
+							p__ += (1 + utf_extra);
+							if(input_text_buf.Len() >= max_input_text_size && (input_text_buf.CmpSuffix(");", 0) == 0 || input_text_buf.CmpSuffix("),", 0) == 0)) {
+								InnerBlock::ReadRecord(input_text_buf, f_out, &rec_count);
+								input_text_buf.Z();
 							}
 						}
-						else
-							input_text_buf.CatChar('?');
-						p__ += (1 + utf_extra);
-						if(input_text_buf.Len() >= max_input_text_size && (input_text_buf.CmpSuffix(");", 0) == 0 || input_text_buf.CmpSuffix("),", 0) == 0)) {
-							InnerBlock::ReadRecord(input_text_buf, f_out, &rec_count);
-							input_text_buf.Z();
+						else {
+							char   bytes_to_shift[32];
+							size_t size_to_shift = (1 + MIN(utf_extra, (actual_size - p__ - 1)));
+							assert((size_to_shift+p__) == actual_size);
+							memcpy(bytes_to_shift, rd_buf+p__, size_to_shift);
+							THROW_SL(f_in.Read(rd_buf+size_to_shift, nominal_rd_buf_size-size_to_shift, &actual_size));
+							memcpy(rd_buf, bytes_to_shift, size_to_shift);
+							p__ = 0;
+							//
+							src_file_cur_offs = f_in.Tell64();
+							PPWaitPercent(src_file_cur_offs, src_file_size, src_file_name);
 						}
 					}
-					else {
-						char   bytes_to_shift[32];
-						size_t size_to_shift = (1 + MIN(utf_extra, (actual_size - p__ - 1)));
-						assert((size_to_shift+p__) == actual_size);
-						memcpy(bytes_to_shift, rd_buf+p__, size_to_shift);
-						THROW_SL(f_in.Read(rd_buf+size_to_shift, nominal_rd_buf_size-size_to_shift, &actual_size));
-						memcpy(rd_buf, bytes_to_shift, size_to_shift);
-						p__ = 0;
-					}
+					THROW_SL(f_in.Read(rd_buf, nominal_rd_buf_size, &actual_size));
+					src_file_cur_offs = f_in.Tell64();
+					PPWaitPercent(src_file_cur_offs, src_file_size, src_file_name);
 				}
-				THROW_SL(f_in.Read(rd_buf, nominal_rd_buf_size, &actual_size));
-			}
-			if(input_text_buf.Len()) {
-				InnerBlock::ReadRecord(input_text_buf, f_out, &rec_count);
-				input_text_buf.Z();
+				if(input_text_buf.Len()) {
+					InnerBlock::ReadRecord(input_text_buf, f_out, &rec_count);
+					input_text_buf.Z();
+				}
+				line_buf.Z().CatEq("record_number", rec_count);
+				f_supplemental_out.WriteBlancLine();
+				f_supplemental_out.WriteLine(line_buf.CR());
 			}
 		}
 	}
 	CATCHZOK
+	return ok;
+}
+
+int ImportYYE(const char * pSrcPath) // яндекс еда
+{
+	int    ok = 1;
+	PPWait(1);
+	/* Формат полей для всех 3-х файлов идентичен:
+		id;address_city;address_street;address_house;address_entrance;address_floor;address_office;address_comment;address_reliable;address_full;address_short;address_plot;address_building;
+		courier_id;adopted_by_courier;adopted_by_courier_at;courier_arrived_to_place_at;courier_assigned_at;arrived_to_customer_at;taken_at;moved_to_delivery_at;delivered_at;
+		time_to_delivery;time_to_delivery_min;time_to_delivery_max;pre_delivery_time;location_latitude;location_longitude;notify_priority;notify_priority_up_reason;operator_id;operator_assigned_at;
+		external_order_nr;order_nr;amount_blocked;currency;amount_charged;actual_amount;amount_client_paid;card_payment_failed_at;payment_method_id;payment_status;payment_service;
+		place_payment_method_id;payture_card_id;payture_order_id;payture_session_id;user_id;yandex_uid;user_address_id;crm_comment;first_name;phone_number;user_agent;change_on;
+		persons_quantity;sort_priority;status;is_asap;is_comment_transmitted;is_delayed;started_at;call_center_confirmed_at;cancelled_at;created_at;sent_to_restaurant_at;
+		place_confirmed_at;restaurant_received_at;reminded_call_at;remind_at;reminded_at;updated_at;cancel_reason_id;cart_id;place_id;device_id;feedback_id;promocode_id;
+		sorry_promocode_sent_at;logistic_approve_needed;available_delivery_delay;place_call_requested_at;type;processing_type;address_doorcode;region_id;place_commission;place_acquiring_commission;
+		time_to_place;place_delivery_zone_id;finished_at;fully_payed;legal_info_id;latest_revision_id;taxi_user_id;app;flow_type
+
+
+		`id` int(11) NOT NULL AUTO_INCREMENT,
+		`address_city` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+		`address_street` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_house` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_entrance` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_floor` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_office` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_comment` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_reliable` tinyint(1) DEFAULT NULL,
+		`address_full` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_short` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_plot` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`address_building` varchar(60) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`courier_id` int(11) DEFAULT NULL,
+		`adopted_by_courier` tinyint(1) NOT NULL,
+		`adopted_by_courier_at` datetime DEFAULT NULL,
+		`courier_arrived_to_place_at` datetime DEFAULT NULL,
+		`courier_assigned_at` datetime DEFAULT NULL,
+		`arrived_to_customer_at` datetime DEFAULT NULL,
+		`taken_at` datetime DEFAULT NULL,
+		`moved_to_delivery_at` datetime DEFAULT NULL,
+		`delivered_at` datetime DEFAULT NULL,
+		`time_to_delivery` int(11) DEFAULT NULL,
+		`time_to_delivery_min` int(11) DEFAULT NULL,
+		`time_to_delivery_max` int(11) DEFAULT NULL,
+		`pre_delivery_time` int(11) NOT NULL,
+		`location_latitude` decimal(10,6) NOT NULL,
+		`location_longitude` decimal(10,6) NOT NULL,
+		`notify_priority` datetime NOT NULL,
+		`notify_priority_up_reason` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`operator_id` int(11) DEFAULT NULL,
+		`operator_assigned_at` datetime DEFAULT NULL,
+		`external_order_nr` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`order_nr` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`amount_blocked` int(11) NOT NULL DEFAULT '0',
+		`currency` char(3) COLLATE utf8_unicode_ci NOT NULL,
+		`amount_charged` int(11) NOT NULL DEFAULT '0',
+		`actual_amount` int(11) DEFAULT NULL,
+		`amount_client_paid` int(11) DEFAULT NULL,
+		`card_payment_failed_at` datetime DEFAULT NULL,
+		`payment_method_id` int(11) NOT NULL,
+		`payment_status` smallint(6) NOT NULL DEFAULT '0',
+		`payment_service` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`place_payment_method_id` int(11) NOT NULL,
+		`payture_card_id` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`payture_order_id` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`payture_session_id` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`user_id` int(11) NOT NULL,
+		`yandex_uid` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`user_address_id` int(11) DEFAULT NULL,
+		`crm_comment` varchar(1000) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`first_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+		`phone_number` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+		`user_agent` varchar(512) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`change_on` int(11) DEFAULT NULL,
+		`persons_quantity` int(11) DEFAULT NULL,
+		`sort_priority` datetime NOT NULL,
+		`status` smallint(6) NOT NULL,
+		`is_asap` tinyint(1) NOT NULL,
+		`is_comment_transmitted` tinyint(1) NOT NULL DEFAULT '0',
+		`is_delayed` tinyint(1) NOT NULL DEFAULT '0',
+		`started_at` datetime DEFAULT NULL,
+		`call_center_confirmed_at` datetime DEFAULT NULL,
+		`cancelled_at` datetime DEFAULT NULL,
+		`created_at` datetime NOT NULL,
+		`sent_to_restaurant_at` datetime DEFAULT NULL,
+		`place_confirmed_at` datetime DEFAULT NULL,
+		`restaurant_received_at` datetime DEFAULT NULL,
+		`reminded_call_at` datetime DEFAULT NULL,
+		`remind_at` datetime DEFAULT NULL,
+		`reminded_at` datetime DEFAULT NULL,
+		`updated_at` datetime DEFAULT NULL,
+		`cancel_reason_id` int(11) DEFAULT NULL,
+		`cart_id` bigint(20) DEFAULT NULL,
+		`place_id` int(11) NOT NULL,
+		`device_id` int(11) DEFAULT NULL,
+		`feedback_id` int(11) DEFAULT NULL,
+		`promocode_id` int(11) DEFAULT NULL,
+		`sorry_promocode_sent_at` datetime DEFAULT NULL,
+		`logistic_approve_needed` tinyint(1) NOT NULL DEFAULT '0',
+		`available_delivery_delay` int(11) NOT NULL DEFAULT '0',
+		`place_call_requested_at` datetime DEFAULT NULL,
+		`type` enum('native','marketplace') COLLATE utf8_unicode_ci NOT NULL COMMENT '(DC2Type:order_type)',
+		`processing_type` enum('native','marketplace','fast_food','store') COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '(DC2Type:order_processing_type)',
+		`address_doorcode` varchar(20) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`region_id` int(11) unsigned DEFAULT NULL,
+		`place_commission` decimal(4,2) DEFAULT NULL,
+		`place_acquiring_commission` decimal(4,2) DEFAULT NULL,
+		`time_to_place` int(11) DEFAULT NULL,
+		`place_delivery_zone_id` int(10) unsigned DEFAULT NULL,
+		`finished_at` datetime DEFAULT NULL,
+		`fully_payed` tinyint(1) NOT NULL DEFAULT '0',
+		`legal_info_id` int(11) DEFAULT NULL,
+		`latest_revision_id` int(10) unsigned DEFAULT NULL,
+		`taxi_user_id` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+		`app` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '',
+		`flow_type` varchar(255) COLLATE utf8_unicode_ci DEFAULT 'native' COMMENT 'Order Flow identity',
+	*/
+	THROW(Helper_ImportYYE(pSrcPath, "part1.sql"));
+	THROW(Helper_ImportYYE(pSrcPath, "part2.sql"));
+	THROW(Helper_ImportYYE(pSrcPath, "part3.sql"));
+	CATCHZOKPPERR
+	PPWait(0);
 	return ok;
 }
 //

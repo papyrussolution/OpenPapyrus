@@ -1918,23 +1918,23 @@ int SFile::Unlock(int lckHandle)
 	return ret;
 }
 
-int SFile::CalcSize(int64 * pSize)
+bool SFile::CalcSize(int64 * pSize)
 {
 	assert(InvariantC(0));
-	int    ok = 1;
+	bool   ok = true;
 	int64  sz = 0;
 	if(T == tSBuffer)
 		sz = P_Sb->GetWrOffs();
 	else {
-		if(IsValid()) {
+		THROW(IsValid());
+		{
 			const int64  save_pos = Tell64();
-			Seek64(0, SEEK_END);
+			THROW(Seek64(0, SEEK_END));
 			sz = Tell64();
-			Seek64(save_pos, SEEK_SET);
+			THROW(Seek64(save_pos, SEEK_SET));
 		}
-		else
-			ok = 0;
 	}
+	CATCHZOK
 	ASSIGN_PTR(pSize, sz);
 	return ok;
 }
@@ -1947,22 +1947,101 @@ int SFile::GetDateTime(LDATETIME * pCreate, LDATETIME * pLastAccess, LDATETIME *
 		return IsValid() ? SFile::GetTime(_get_osfhandle(fileno(F)), pCreate, pLastAccess, pModif) : 0;
 }
 
+bool SFile::CalcHash(int64 offs, int hashFuncIdent/* SHASHF_XXX */, SBinaryChunk & rHash)
+{
+	bool   ok = true;
+	const  int64  preserve_pos = Tell64();
+	SlHash::State st;
+	THROW_S(oneof5(hashFuncIdent, SHASHF_SHA1, SHASHF_SHA256, SHASHF_SHA512, SHASHF_MD5, SHASHF_CRC32), SLERR_INVORUNSUPPHASHFUNC);
+	THROW(Seek64(0, SEEK_END));
+	{
+		const int64 file_size = Tell64();
+		const int64 target_size = file_size - offs;
+		THROW(file_size >= 0LL);
+		THROW(target_size >= 0);
+		{
+			const size_t nominal_rd_buf_size = SMEGABYTE(4);
+			STempBuffer rd_buf(nominal_rd_buf_size+128/*isurance*/);
+			size_t actual_rd_size = 0;
+			THROW(rd_buf.IsValid());
+			THROW(Seek64(offs, SEEK_SET));
+			do {
+				THROW(Read(rd_buf, nominal_rd_buf_size, &actual_rd_size));
+				switch(hashFuncIdent) {
+					case SHASHF_SHA1: SlHash::Sha1(&st, rd_buf, actual_rd_size); break;
+					case SHASHF_SHA256: SlHash::Sha256(&st, rd_buf, actual_rd_size); break;
+					case SHASHF_SHA512: SlHash::Sha512(&st, rd_buf, actual_rd_size); break;
+					case SHASHF_MD5: SlHash::Md5(&st, rd_buf, actual_rd_size); break;
+					case SHASHF_CRC32: SlHash::CRC32(&st, rd_buf, actual_rd_size); break;
+					default: 
+						assert(0); 
+						CALLEXCEPT_S(SLERR_INVORUNSUPPHASHFUNC);
+						break;
+				}
+			} while(actual_rd_size == nominal_rd_buf_size);
+			switch(hashFuncIdent) {
+				case SHASHF_SHA1: 
+					{
+						binary160 result = SlHash::Sha1(&st, 0, 0);
+						rHash.Put(&result, sizeof(result));
+					}
+					break;
+				case SHASHF_SHA256: 
+					{
+						binary256 result = SlHash::Sha256(&st, 0, 0); 
+						rHash.Put(&result, sizeof(result));
+					}
+					break;
+				case SHASHF_SHA512: 
+					{
+						binary512 result = SlHash::Sha512(&st, 0, 0); 
+						rHash.Put(&result, sizeof(result));
+					}
+					break;
+				case SHASHF_MD5: 
+					{
+						binary128 result = SlHash::Md5(&st, 0, 0); 
+						rHash.Put(&result, sizeof(result));
+					}
+					break;
+				case SHASHF_CRC32: 
+					{
+						uint32 result = SlHash::CRC32(&st, 0, 0);
+						rHash.Put(&result, sizeof(result));
+					}
+					break;
+				default: 
+					assert(0); 
+					CALLEXCEPT_S(SLERR_INVORUNSUPPHASHFUNC);
+			}
+		}
+	}
+	CATCHZOK
+	Seek64(preserve_pos, SEEK_SET);
+	return ok;
+}
+
 int SFile::CalcCRC(long offs, uint32 * pCrc)
 {
 	int    ok = 1;
 	SCRC32 c;
 	uint32 crc = 0;
-	int64  save_pos = Tell64();
+	const  int64  preserve_pos = Tell64();
 	Seek64(0, SEEK_END);
-	int64  sz = Tell64() - offs;
-	if(sz > 0) {
-		const  long  blk_size = 32*1024;
-		int64  num_blk = sz / blk_size;
-		long   rest = (long)(sz % blk_size);
+	int64  sz = Tell64();
+	//if(sz > 0) {
+	THROW(sz >= 0);
+	THROW(sz >= offs);
+	sz -= offs;
+	{
+		const  size_t blk_size = SKILOBYTE(32);
+		const  int64  num_blk = sz / blk_size;
+		size_t rest = static_cast<size_t>(sz % blk_size);
 		STempBuffer temp_buf(blk_size);
-		Seek64(offs, SEEK_SET);
+		THROW(Seek64(offs, SEEK_SET));
 		for(int64 i = 0; i < num_blk; i++) {
-			THROW(Read(temp_buf, temp_buf.GetSize()));
+			size_t actual_size = 0;
+			THROW(Read(temp_buf, temp_buf.GetSize(), &actual_size));
 			crc = c.Calc(crc, temp_buf.cptr(), temp_buf.GetSize());
 		}
 		if(rest > 0) {
@@ -1970,10 +2049,8 @@ int SFile::CalcCRC(long offs, uint32 * pCrc)
 			crc = c.Calc(crc, temp_buf.cptr(), rest);
 		}
 	}
-	else
-		ok = -1;
 	CATCHZOK
-	Seek64(save_pos, SEEK_SET);
+	Seek64(preserve_pos, SEEK_SET);
 	ASSIGN_PTR(pCrc, crc);
 	return ok;
 }
@@ -1998,6 +2075,18 @@ public:
 	//  -1 - не удалось идентифицировать формат
 	//
 	int    Identify(const char * pFileName, int * pFmtId, SString * pExt) const;
+	//
+	// Descr: Функция идентифицирует формат данных, находящихся в буфере pBuf.
+	//  Функция пытается идентифицировать формат по сигнатуре, полагая, что буфер является образом файла,
+	//  который может быть идентифицирован функцией Identify(const char * pFileName, int * pFmtId, SString * pExt) (see above).
+	// Returns:
+	//   2 - формат идентифицироан по сигнатуре
+	//   4 - формат не удалось идентифицировать по сигнатуре, однако
+	//     по начальному блоку данных он похож на результирующий формат.
+	//     На текущий момент такой вариант возможен для форматов: SFileFormat::TxtAscii, SFileFormat::TxtUtf8, SFileFormat::Txt
+	//  -1 - не удалось идентифицировать формат
+	//
+	int    IdentifyBuffer(const void * pBuf, size_t bufLen, int * pFmtId, SString * pExt) const;
 	int    IdentifyMime(const char * pMime, int * pFmtId) const;
 	int    GetMimeType(int id) const;
 	int    GetMime(int id, SString & rMime) const;
@@ -2256,6 +2345,175 @@ int FileFormatRegBase::IdentifyMime(const char * pMime, int * pFmtId) const
 	return ok;
 }
 
+int FileFormatRegBase::IdentifyBuffer(const void * pBuf, size_t bufLen, int * pFmtId, SString * pExt) const
+{
+	int    ok = -1;
+	int    fmt_id = 0;
+	//LongArray candid_by_ext;
+	LongArray candid_by_sign;
+	if(bufLen) {
+		//const SPathStruc ps(pFileName);
+		int    entry_mime_type;
+		//SString ext = ps.Ext;
+		SString entry_ext;
+		SString entry_sign;
+		SString entry_mime_subtype;
+		SString temp_buf;
+		SString left_buf;
+		SString right_buf;
+		StringSet ss_subsigns;
+		LongArray used_offs_list;
+		StrAssocArray binary_chunk_list;
+		//ASSIGN_PTR(pExt, ext);
+		//STempBuffer sign_buf(512);
+		//SFile file(pFileName, SFile::mRead|SFile::mBinary);
+		//const int64  _fsize = static_cast<int64>(bufLen);
+		//if(file.IsValid())
+		//	file.CalcSize(&_fsize);
+		//ext.Strip().ShiftLeftChr('.').Strip().ToLower();
+		for(uint i = 0; i < getCount(); i++) {
+			Entry entry;
+			if(Get(i, entry, entry_ext, entry_sign, entry_mime_type, entry_mime_subtype)) {
+				/*if(entry_ext.NotEmpty() && entry_ext == ext) {
+					candid_by_ext.addUnique(entry.FmtId);
+				}*/
+				if(entry_sign.NotEmpty()) {
+                    if(entry_sign.C(0) == 'T') {
+						entry_sign.ShiftLeft(1);
+						const size_t len = 512;
+						const size_t actual_size = bufLen;
+						//THROW(sign_buf.Alloc(len));
+						//file.Seek(0);
+						//assert(len <= sign_buf.GetSize());
+						if(len <= bufLen /*&& file.Read(sign_buf, len, &actual_size)*/) {
+							int    r = -1;
+							size_t j = 0;
+							//"EFBBBF"
+							if(PTR8C(pBuf)[0] == 0xEF && PTR8C(pBuf)[1] == 0xBB && PTR8C(pBuf)[2] == 0xBF) // BOM UTF8 
+								j += 3;
+							while(r < 0 && j < actual_size) {
+								const char c = PTRCHRC(pBuf)[j];
+								if(oneof4(c, ' ', '\t', '\x0D', '\x0A')) {
+                                    j++;
+								}
+								else if(entry_sign.CmpL(PTRCHRC(pBuf)+j, 1) == 0) // @v10.0.02 @fix sign_buf-->sign_buf+j
+									r = 1;
+								else
+									r = 0;
+							}
+							if(r) {
+								candid_by_sign.addUnique(entry.FmtId);
+							}
+						}
+                    }
+                    else {
+						//
+						// За пределами 512-байтовой зоны ничего читать не будем!
+						//
+						used_offs_list.clear();
+						binary_chunk_list.Z();
+						ss_subsigns.clear();
+						if(entry_sign.HasChr(' ')) {
+							entry_sign.Tokenize(" ", ss_subsigns);
+							for(uint ssp = 0; ss_subsigns.get(&ssp, temp_buf);) {
+								long offs = 0;
+								if(temp_buf.Divide(':', left_buf, right_buf) > 0) {
+									offs = left_buf.ToLong();
+									temp_buf = right_buf;
+								}
+								if((offs + temp_buf.Len()/2) <= 512 && used_offs_list.addUnique(offs) > 0)
+									binary_chunk_list.Add(offs, temp_buf);
+							}
+						}
+						else
+							binary_chunk_list.Add(0, entry_sign);
+						size_t total_len = 0;
+						{
+							for(uint ci = 0; ci < binary_chunk_list.getCount(); ci++) {
+								StrAssocArray::Item bcl_item = binary_chunk_list.at_WithoutParent(ci);
+								size_t local_len = (size_t)(bcl_item.Id + sstrlen(bcl_item.Txt) / 2);
+								SETMAX(total_len, local_len);
+							}
+						}
+						if(checkirange(total_len, 1, 512)) {
+							const size_t len = total_len;
+							const size_t actual_size = MIN(bufLen, len);
+							//THROW(sign_buf.Alloc(len));
+							//file.Seek(0);
+							//assert(len <= sign_buf.GetSize());
+							if(actual_size == len) {
+								int r = 1;
+								for(uint ci = 0; r && ci < binary_chunk_list.getCount(); ci++) {
+									StrAssocArray::Item bcl_item = binary_chunk_list.at_WithoutParent(ci);
+									const size_t item_len = sstrlen(bcl_item.Txt) / 2;
+									const size_t offs = bcl_item.Id;
+									for(size_t j = 0; r && j < item_len; j++) {
+										const uint8 file_byte = PTR8C(pBuf)[offs+j];
+										const uint8 sign_byte = (uint8)(hex(bcl_item.Txt[j*2]) * 16 + hex(bcl_item.Txt[j*2+1]));
+										if(file_byte != sign_byte)
+											r = 0;
+									}
+								}
+								if(r) {
+									candid_by_sign.addUnique(entry.FmtId);
+								}
+							}
+						}
+                    }
+				}
+				/*else if(entry.SignFunc) {
+					if(entry.SignFunc(file, 0) > 0) {
+						candid_by_sign.addUnique(entry.FmtId);
+					}
+				}*/
+			}
+		}
+		{
+			/*for(uint cidx = 0; !fmt_id && cidx < candid_by_ext.getCount(); cidx++) {
+				const long ext_id = candid_by_ext.get(cidx);
+				for(uint j = 0; !fmt_id && j < candid_by_sign.getCount(); j++)
+					if(ext_id == candid_by_sign.get(j))
+						fmt_id = ext_id;
+			}*/
+			if(fmt_id)
+				ok = 3;
+			else if(candid_by_sign.getCount()) {
+				fmt_id = candid_by_sign.get(0);
+				ok = 2;
+			}
+			/*else if(candid_by_ext.getCount()) {
+				fmt_id = candid_by_ext.get(0);
+				ok = 1;
+			}*/
+			else {
+				STextEncodingStat tes;
+				const size_t actual_size = bufLen;
+				//STempBuffer tbuf(1024);
+				//if(tbuf.IsValid() && file.Read(tbuf, tbuf.GetSize(), &actual_size)) {
+				{
+					tes.Add(pBuf, actual_size);
+					tes.Finish();
+					if(tes.CheckFlag(tes.fAsciiOnly)) {
+						fmt_id = SFileFormat::TxtAscii;
+						ok = 4;
+					}
+					else if(tes.CheckFlag(tes.fLegalUtf8Only)) {
+						fmt_id = SFileFormat::TxtUtf8;
+						ok = 4;
+					}
+					else if(tes.GetEolFormat() != eolUndef && !tes.CheckFlag(tes.fMiscEolf)) {
+						fmt_id = SFileFormat::Txt;
+						ok = 4;
+					}
+				}
+			}
+		}
+	}
+	//CATCHZOK
+	ASSIGN_PTR(pFmtId, fmt_id);
+	return ok;
+}
+
 int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * pExt) const
 {
 	int    ok = -1;
@@ -2275,12 +2533,9 @@ int FileFormatRegBase::Identify(const char * pFileName, int * pFmtId, SString * 
 		StringSet ss_subsigns;
 		LongArray used_offs_list;
 		StrAssocArray binary_chunk_list;
-
 		ASSIGN_PTR(pExt, ext);
-
 		STempBuffer sign_buf(512);
 		SFile file(pFileName, SFile::mRead|SFile::mBinary);
-
 		int64  _fsize = 0;
 		if(file.IsValid())
 			file.CalcSize(&_fsize);
@@ -2567,6 +2822,18 @@ int SFileFormat::Identify(const char * pFileName, SString * pExt)
 	return ok;
 }
 
+int SFileFormat::IdentifyBuffer(const void * pBuf, size_t bufLen)
+{
+	int    ok = 0;
+	Id = Unkn;
+	if(pBuf && bufLen) {
+		const FileFormatRegBase * p_reg = static_cast<const FileFormatRegBase *>(SLS.GetGlobalObject(GloBaseIdx));
+		if(p_reg)
+			ok = p_reg->IdentifyBuffer(pBuf, bufLen, &Id, 0);
+	}
+	return ok;
+}
+
 int SFileFormat::IdentifyMime(const char * pMime)
 {
 	int    ok = 0;
@@ -2593,6 +2860,10 @@ int SFileFormat::IdentifyMime(const char * pMime)
 	Register(Tiff,   "tff;tiff", "4D4D2A");                   // TIFF
 	Register(Gif,    mtImage, "gif", "gif", "47494638");            // GIF
 	Register(Bmp,    mtImage, "bmp", "bmp", "424D");                // BMP
+	Register(Otf,    mtFont,        "opentype", "otf",      "4F54544F00"); // @v11.3.7 OpenType font file
+	Register(Ttf,    mtApplication, "x-font-ttf",  "ttf",   "0001000000"); // @v11.3.7 TrueType font file // ! Ttf стоит перед Ico из-за похожих сигнатур
+	Register(Ttc,    mtApplication, "x-font-ttf",  "ttc",   "7474636600"); // @v11.3.7 TrueType font Collection
+	Register(Dfont,  mtFont,        "ttf",         "dfont", "0000010000"); // @v11.3.7 Mac OS X Data Fork Font
 	Register(Ico,    mtImage, "x-icon", "ico", "0001");             // ICO
 	Register(Cur,    mtApplication, "octet-stream", "cur", "0002"); // CUR
 	Register(Xml,    mtApplication, "xml", "xml", "T<?xml");        // XML
@@ -2885,8 +3156,7 @@ SLTEST_R(SFile)
 {
 	int    ok = 1;
 	SFile file;
-	SString file_name;
-	file_name = MakeOutputFilePath("open_for_write_test.txt");
+	SString file_name(MakeOutputFilePath("open_for_write_test.txt"));
 	//
 	// Тестирование функции IsOpenedForWriting()
 	//
@@ -2926,6 +3196,126 @@ SLTEST_R(SFile)
 		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xml"));
 		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xls"));
 		SLTEST_CHECK_NZ(SFile::WildcardMatch("??xyz*.x*", "12xyz-foo.xlsm"));
+	}
+	{
+		bool   debug_mark = false;
+		const SString root_path(GetSuiteEntry()->InPath);
+		SString file_path;
+		THROW(SLTEST_CHECK_NZ(IsDirectory(root_path)));
+		{
+			// Тестирование функций распознавания типов файлов
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe;
+			STempBuffer file_buf(SMEGABYTE(1));
+			THROW(SLTEST_CHECK_NZ(file_buf.IsValid()));
+			{
+				(file_path = root_path).SetLastSlash().Cat("harfbuzz\\test\\shaping\\data\\in-house\\fonts\\DFONT.dfont");
+				SFileFormat ff;
+				int fir = ff.Identify(file_path);
+				if(oneof3(fir, 2, 3, 4)) {
+					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+					if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+						size_t actual_size = 0;
+						SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						{
+							SFileFormat ff2;
+							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+							SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+							if(!CurrentStatus)
+								debug_mark = true;
+						}
+					}
+				}
+			}
+			{
+				(file_path = root_path).SetLastSlash().Cat("harfbuzz\\test\\shaping\\data\\in-house\\fonts\\TRAK.ttf");
+				SFileFormat ff;
+				int fir = ff.Identify(file_path);
+				if(oneof3(fir, 2, 3, 4)) {
+					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+					if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+						size_t actual_size = 0;
+						SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						{
+							SFileFormat ff2;
+							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+							SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+							if(!CurrentStatus)
+								debug_mark = true;
+						}
+					}
+				}
+			}
+#if 0 // (Не удается пока успешно прогнать эти тесты) {
+			{
+				(file_path = root_path).SetLastSlash().Cat("json\\utf16le.json");
+				SFileFormat ff;
+				int fir = ff.Identify(file_path);
+				if(oneof3(fir, 2, 3, 4)) {
+					SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+					if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+						size_t actual_size = 0;
+						SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+						{
+							SFileFormat ff2;
+							int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+							SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+							if(!CurrentStatus)
+								debug_mark = true;
+						}
+					}
+				}
+			}
+			fep.Scan(root_path, "*.*", SFileEntryPool::scanfRecursive);
+			for(uint p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, &fe, &file_path)) {
+					SFileFormat ff;
+					int fir = ff.Identify(file_path);
+					if(oneof3(fir, 2, 3, 4)) {
+						SFile f_in(file_path, SFile::mRead|SFile::mBinary);
+						if(SLTEST_CHECK_NZ(f_in.IsValid())) {
+							size_t actual_size = 0;
+							SLTEST_CHECK_NZ(f_in.ReadAll(file_buf, SKILOBYTE(128), &actual_size));
+							{
+								SFileFormat ff2;
+								int fir2 = ff2.IdentifyBuffer(file_buf, actual_size);
+								SLTEST_CHECK_NZ(oneof2(fir2, 2, 4));
+								if(!CurrentStatus)
+									debug_mark = true;
+							}
+						}
+					}
+				}
+			}
+#endif // } 0
+		}
+		{
+			SFileEntryPool fep;
+			SFileEntryPool::Entry fe;
+			SBinaryChunk bc_hash;
+			fep.Scan(root_path, "*.*", SFileEntryPool::scanfRecursive);
+			for(uint p = 0; p < fep.GetCount(); p++) {
+				if(fep.Get(p, &fe, &file_path)) {
+					uint32 crc1 = 0;
+					uint32 crc2 = 0;
+					{
+						SFile f1(file_path, SFile::mRead|SFile::mBinary);
+						THROW(SLTEST_CHECK_NZ(f1.IsValid()));
+						THROW(SLTEST_CHECK_NZ(f1.CalcCRC(0, &crc1)));
+					}
+					{
+						SFile f2(file_path, SFile::mRead|SFile::mBinary);
+						THROW(SLTEST_CHECK_NZ(f2.IsValid()));
+						THROW(SLTEST_CHECK_NZ(f2.CalcHash(0, SHASHF_CRC32, bc_hash)));
+						SLTEST_CHECK_EQ(bc_hash.Len(), sizeof(crc2));
+						crc2 = *static_cast<const uint32 *>(bc_hash.PtrC());
+					}
+					SLTEST_CHECK_EQ(crc1, crc2);
+					if(!CurrentStatus)
+						debug_mark = true;
+				}
+			}
+		}
 	}
 	CATCHZOK;
 	return CurrentStatus;

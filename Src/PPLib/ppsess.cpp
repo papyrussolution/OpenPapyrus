@@ -1978,6 +1978,8 @@ static void InitTest()
 	// размер DBTable был кратен 32 (для выравнивания по кэш-линии).
 	//
 	STATIC_ASSERT(sizeof(DBTable) % 32 == 0);
+	STATIC_ASSERT(sizeof(PPObjID_Base) == 8); // @v11.3.7
+	STATIC_ASSERT(sizeof(PPObjID) == 8); // @v11.3.7
 	//
 	// Записи системного журнала и резервной
 	// таблицы системного журнала должны быть эквивалентны.
@@ -3874,7 +3876,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				SString sv;
 				LDATE  dt;
 				if(!CheckExtFlag(ECF_INITONLOGIN)) {
-					if(!CheckExtFlag(ECF_INITONLOGIN)) {
+					if(!CheckExtFlag(ECF_INITONLOGIN)) { // Дублированный вызов на случай ожидания блокировки предыдущим вызовом
 						// @v8.0.3 ExtFlags = (ExtFlags & (ECF_SYSSERVICE | ECF_DBDICTDL600));
 						// @v10.1.4 SetExtFlag(~(ECF_SYSSERVICE|ECF_DBDICTDL600|ECF_DETECTCRDBTEXISTBYOPEN|ECF_OPENSOURCE), 0); // @v9.4.9 ECF_OPENSOURCE
 						// @v10.1.4 {
@@ -3913,6 +3915,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USE_CDB,                 ECF_USECDB,                 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_RCPTDLVRLOCASWAREHOUSE,  ECF_RCPTDLVRLOCASWAREHOUSE, 999);
 						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_USESJLOGINEVENT,         ECF_USESJLOGINEVENT,        999);
+						SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE,         ECF_PAPERLESSCHEQUE,        1); // @v11.3.7
 						if(!SetExtFlagByIniIntParam(ini_file, PPINISECT_CONFIG, PPINIPARAM_CODEPREFIXEDLIST, ECF_CODEPREFIXEDLIST, 999))
 							SetExtFlag(ECF_CODEPREFIXEDLIST, 0);
 						if(ini_file.GetInt(PPINISECT_CONFIG, PPINIPARAM_DISABLEASYNCADVQUEUE, &(iv = 0)) > 0 && iv != 0)
@@ -3922,7 +3925,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 						{
 							SetExtFlag(ECF_TRACESYNCLOT, 0);
 							if(ini_file.GetParam("config", "tracesynclot", temp_buf.Z()) > 0) {
-								long tsl = temp_buf.ToLong();
+								const long tsl = temp_buf.ToLong();
 								if(tsl > 0)
 									SetExtFlag(ECF_TRACESYNCLOT, 1);
 							}
@@ -4075,6 +4078,19 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 					}
 				}
 				// } @v10.9.12
+				// @v11.3.7 {
+				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
+					SNaturalTokenArray nta;
+					PPTokenRecognizer trgn;
+					trgn.Run(sv.ucptr(), sv.Len(), nta, 0);
+					if(nta.Has(SNTOK_PHONE))
+						r_tla.PaperlessCheque_FakeEAddr = PPEAddr::Phone::NormalizeStr(sv, 0, temp_buf);
+					else if(nta.Has(SNTOK_EMAIL))
+						r_tla.PaperlessCheque_FakeEAddr = sv;
+				}
+				else
+					r_tla.PaperlessCheque_FakeEAddr.Z();
+				// } @v11.3.7 
 				r_tla.Bac.Load();
 			}
 			if(CheckExtFlag(ECF_USESJLOGINEVENT))

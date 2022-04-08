@@ -689,10 +689,8 @@ bool FASTCALL SBinaryChunk::IsEq(const void * pData, size_t len) const
 	return (Len() == len && (!len || memcmp(P_Buf, pData, len) == 0));
 }
 
-bool FASTCALL SBinaryChunk::operator == (const SBinaryChunk & rS) const
-{
-	return IsEq(rS);
-}
+bool FASTCALL SBinaryChunk::operator == (const SBinaryChunk & rS) const { return IsEq(rS); }
+bool FASTCALL SBinaryChunk::operator != (const SBinaryChunk & rS) const { return !IsEq(rS); }
 
 SBinaryChunk & FASTCALL SBinaryChunk::operator = (const SBinaryChunk & rS)
 {

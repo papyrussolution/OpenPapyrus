@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\osf\ctemplate\src\tests\compile_test.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\per_expand_data.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_cache.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_dictionary.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_dictionary_interface.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_emitter.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_enums.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_from_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_modifiers.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_naamelist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_pathops.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\ctemplate\src\windows\ctemplate\template_string.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{469b2014-fcf2-4478-8a9d-1a57c06cbf34}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

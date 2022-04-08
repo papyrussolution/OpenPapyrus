@@ -2980,6 +2980,8 @@ PPINIPARAM_VERIFYARTOLOCMETHODS          "verifyartolocmethods" // @v10.7.3 [con
 PPINIPARAM_STRINGHISTORYUSAGE            "stringhistoryusage"   // @v10.7.9 [config] Использование истории ввода строк (0 - disabled, 1 - enabled, -1 - by UI config)
 PPINIPARAM_EXPCHZNGTINSER                "expchzngtinser"       // @v10.9.9 [config] Экспортировать марку честный знак как GTIN+SERIAL без остальной части
 PPINIPARAM_INVENTORYSTOCKVIEWRESTRICTION "inventorystockviewrestriction" // @v10.9.12 [config] Список пользователей (по именам), которым недоступен просмотр учетного остатка в строках инвентаризации
+PPINIPARAM_PAPERLESSCHEQUE               "paperlesscheque" // @v11.3.7 [config] Разрешение на использование функции безбумажной печати чеков
+PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR     "paperlesscheque_fakeeaddr" // @v11.3.7 [config] Фейковый электронный адрес для отправки безбумажного чека.
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT                   "at"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT2                  "at2"
 // @v9.4.12 @obsolete PPINIPARAM_SERVER_AT3                  "at3"
@@ -4892,6 +4894,7 @@ PPTXT_STQCLITESTCMD_INDEXING        "Отправка медиатору дан�
 PPTXT_STQCLITESTCMD_SEARCH          "Поиск"
 PPTXT_STQCLITESTCMD_STOREBLOB       "Передача BLOB'а медиатору"
 PPTXT_STQCLITESTCMD_GETBLOB         "Получение BLOB'а от медиатора"
+PPTXT_STQCLITESTCMD_REQBLOBINFOLIST "Сопоставление списка BLOB'а с медиатором"
 //
 // LastText
 
@@ -5209,6 +5212,7 @@ PPSSYM_FORMAT "int64;int;hex;real;sstr;zstr;date;time;datetime;person;goods;unit
 462  "Внутренняя ошибка: недопустимый манипулятор чтения/записи объекта SFileStorage"
 463  "Имя сохраняемого файла объекта SFileStorage должно быть не длиннее 255 символов из набора [0..9a..z_+-,.=@]"
 464  "Файл с именем '%s' в хранилище SFileStorage отсутствует"
+465  "Недопустимая либо неподдерживаемая хэш-функция"
 500  "Unable to open configuration file for reading"
 501  "Unable to open configuration file for writing"
 502  "Wrong version of configuration file"

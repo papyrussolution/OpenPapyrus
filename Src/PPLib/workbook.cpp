@@ -627,7 +627,7 @@ public:
 				if(fileExists(file_path)) {
 					SFileFormat ff;
 					int    f = ff.Identify(file_path);
-					if(!oneof4(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Gif, SFileFormat::Bmp)) // @v9.6.2 @fix f-->ff
+					if(!SImageBuffer::IsSupportedFormat(ff))
 						DisableImage = 1;
 				}
 				if(DisableImage) {
@@ -1653,7 +1653,7 @@ int PPObjWorkbook::RemoveAll()
 										SFileFormat ff;
 										ff.Identify(file_name, &file_ext);
 										::SetActiveWindow(APPL->H_MainWnd); // @v11.3.2 Без этого вызова окно редактора открывалось как модальное
-										if(oneof6(ff, SFileFormat::Jpeg, SFileFormat::Png, SFileFormat::Tiff, SFileFormat::Gif, SFileFormat::Bmp, SFileFormat::Ico)) {
+										if(SImageBuffer::IsSupportedFormat(ff)) {
 											PPTooltipMessage(rec.Name, file_name, 0/*pBrw->hWnd*/, 5000, 0, SMessageWindow::fTextAlignLeft|
 												SMessageWindow::fOpaque|SMessageWindow::fSizeByText|SMessageWindow::fChildWindow|
 												SMessageWindow::fLargeText|SMessageWindow::fShowOnCenter|SMessageWindow::fPreserveFocus);

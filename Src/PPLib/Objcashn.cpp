@@ -117,7 +117,7 @@ int PPGenCashNode::GetRoundParam(RoundParam * pParam) const
 			pParam->AmtRoundPrec = fdiv100i((long)AmtRoundPrec);
 			pParam->AmtRoundDir  = (ExtFlags & CASHFX_ROUNDAMTUP) ? +1 : ((ExtFlags & CASHFX_ROUNDAMTDOWN) ? -1 : 0);
 		}
-		pParam->IgnPennyFromBCardFlag = BIN(ExtFlags & CASHFX_IGNPENNYFROMBCARD); // @erik v10.6.13 
+		pParam->IgnPennyFromBCardFlag = BIN(ExtFlags & CASHFX_IGNPENNYFROMBCARD); // @erik v10.6.13
 		ok = 1;
 	}
 	return ok;
@@ -775,7 +775,7 @@ int PPObjCashNode::GetSync(PPID id, PPSyncCashNode * pSCN)
 				// @v10.9.6 {
 				if(pSCN->BonusMaxPart == 1)
 					pSCN->BonusMaxPart = 1000;
-				// } @v10.9.6 
+				// } @v10.9.6
 			}
 			else {
 				pSCN->Scf.DaysPeriod = 0;
@@ -934,7 +934,7 @@ int PPObjCashNode::GetTaxSystem(PPID id, LDATE dt, PPID * pTaxSysID)
 					}
 				}
 			}
-			// } @v10.6.12 
+			// } @v10.6.12
 			if(ok < 0 && cn_rec.LocID && psn_obj.LocObj.GetRegister(cn_rec.LocID, PPREGT_TAXSYSTEM, actual_date, false, &reg_rec) > 0 && reg_rec.ExtID > 0) {
 				tax_sys_id = reg_rec.ExtID;
 				ok = 1;
@@ -1922,7 +1922,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 						SString info_buf;
 						for(uint ssp = 0; ss.get(&ssp, temp_buf);) {
 							info_buf.Cat(temp_buf).CRB();
-						} 
+						}
 						// @v11.1.9 {
 						TInputLine * p_il = static_cast<TInputLine *>(dlg->getCtrlView(CTL_DIAGPOSNODE_RESULT));
 						if(p_il) {
@@ -1930,7 +1930,7 @@ IMPL_HANDLE_EVENT(SyncCashNodeCfgDialog)
 							p_il->setType(MKSTYPE(S_ZSTRING, 512));
 							dlg->setCtrlString(CTL_DIAGPOSNODE_RESULT, info_buf);
 						}
-						// } @v11.1.9 
+						// } @v11.1.9
 						// @v11.1.9 dlg->setStaticText(CTL_DIAGPOSNODE_RESULT, info_buf);
 						ExecViewAndDestroy(dlg);
 					}
@@ -2259,7 +2259,7 @@ IMPL_HANDLE_EVENT(AsyncCashNodeDialog)
 				}
 			}
 			clearEvent(event);
-		}		
+		}
 	}
 	else if(event.isCmd(cmImpParam)) {
 		// @v9.1.3 EditCSessImpExpParams(1);
@@ -2856,7 +2856,7 @@ int EquipConfigDialog::EditExtParams()
 		{
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
-			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0, 
+			SetupPPObjCombo(this, CTLSEL_EQCFG_FTPACCT, PPOBJ_INTERNETACCOUNT, Data.FtpAcctID, 0,
 				reinterpret_cast<void *>(PPObjInternetAccount::filtfFtp)/*INETACCT_ONLYFTP*/);
 			SetupPPObjCombo(this, CTLSEL_EQCFG_SALESGRP, PPOBJ_GOODSGROUP, Data.SalesGoodsGrp, OLW_CANSELUPLEVEL, reinterpret_cast<void *>(GGRTYP_SEL_ALT));
 			setCtrlData(CTL_EQCFG_AGENTCODELEN, &Data.AgentCodeLen);
@@ -3427,4 +3427,13 @@ int PPALDD_CashNode::InitData(PPFilt & rFilt, long rsrv)
 		}
 	}
 	return ok;
+}
+
+void PPALDD_CashNode::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & rS) // @v11.3.7
+{
+	#define _ARG_STR(n)  (**static_cast<const SString **>(rS.GetPtr(pApl->Get(n))))
+	#define _RET_INT     (*static_cast<int *>(rS.GetPtr(pApl->Get(0))))
+	if(pF->Name == "?GetTag") {
+		_RET_INT = PPObjTag::Helper_GetTag(PPOBJ_CASHNODE, H.ID, _ARG_STR(1));
+	}
 }

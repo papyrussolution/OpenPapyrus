@@ -1307,7 +1307,7 @@ int PPObjectTransmit::RestoreFromStream(const char * pInFileName, FILE * stream,
 	}
 	if(hdr.PacketType == PPOT_SYNCCMP) {
 		if(pTbl) {
-			long count = 0;
+			uint32 count = 0;
 			for(PPObjID objid; EnumObjectsByIndex(&objid, &idx_rec) > 0;) {
 				int    skip = 0;
 				TempSyncCmpTbl::Rec sct_rec, ex_rec;

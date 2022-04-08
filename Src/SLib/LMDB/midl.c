@@ -4,12 +4,10 @@
 /* This work is part of OpenLDAP Software <http://www.openldap.org/>.
  *
  * Copyright 2000-2021 The OpenLDAP Foundation.
- * Portions Copyright 2001-2021 Howard Chu, Symas Corp.
- * All rights reserved.
+ * Portions Copyright 2001-2021 Howard Chu, Symas Corp. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted only as authorized by the OpenLDAP
- * Public License.
+ * modification, are permitted only as authorized by the OpenLDAP Public License.
  *
  * A copy of this license is available in the file LICENSE in the
  * top-level directory of the distribution or, alternatively, at

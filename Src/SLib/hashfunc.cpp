@@ -57,6 +57,50 @@ static const SIntToSymbTabEntry P_HashFuncDeclList[] = {
 	return id;
 }
 
+/*static*/int SlHash::CalcBufferHash(int hashFuncIdent, const void * pBuf, size_t bufLen, SBinaryChunk & rResult)
+{
+	rResult.Z();
+	int    ok = 1;
+	THROW(pBuf && bufLen); // @err
+	switch(hashFuncIdent) {
+		case SHASHF_SHA1:
+			{
+				const binary160 h = SlHash::Sha1(0, pBuf, bufLen);
+				rResult.Put(&h, sizeof(h));
+			}
+			break;
+		case SHASHF_SHA256:
+			{
+				const binary256 h = SlHash::Sha256(0, pBuf, bufLen);
+				rResult.Put(&h, sizeof(h));
+			}
+			break;
+		case SHASHF_SHA512:
+			{
+				const binary512 h = SlHash::Sha512(0, pBuf, bufLen);
+				rResult.Put(&h, sizeof(h));
+			}
+			break;
+		case SHASHF_MD5:
+			{
+				const binary128 h = SlHash::Md5(0, pBuf, bufLen);
+				rResult.Put(&h, sizeof(h));
+			}
+			break;
+		case SHASHF_CRC32:
+			{
+				const uint32 h = SlHash::CRC32(0, pBuf, bufLen);
+				rResult.Put(&h, sizeof(h));
+			}
+			break;
+		default:
+			CALLEXCEPT_S(SLERR_INVORUNSUPPHASHFUNC);
+			break;
+	}
+	CATCHZOK
+	return ok;
+}
+
 /*static*/int SlHash::VerifyBuffer(int hashFuncIdent, const void * pHash, size_t hashLen, const void * pBuf, size_t bufLen)
 {
 	int    ok = 1;
@@ -99,7 +143,8 @@ static const SIntToSymbTabEntry P_HashFuncDeclList[] = {
 			}
 			break;
 		default:
-			CALLEXCEPT(); // @err
+			CALLEXCEPT(SLERR_INVORUNSUPPHASHFUNC);
+			break;
 	}
 	CATCHZOK
 	return ok;

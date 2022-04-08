@@ -1,5 +1,5 @@
 // PPEXPR.CPP
-// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 // Трансляция формул
@@ -7,13 +7,18 @@
 #include <pp.h>
 #pragma hdrstop
 
-void ExprEvalContext::FC::Init()
+ExprEvalContext::FC::FC() : RetType(MKSTYPE(S_FLOAT, 8)), RetReal(0.0)
+{
+}
+
+ExprEvalContext::FC & ExprEvalContext::FC::Z()
 {
 	ArgList.clear();
 	StrArg.Z();
 	RetType = MKSTYPE(S_FLOAT, 8);
 	RetReal = 0.0;
 	RetStr.Z();
+	return *this;
 }
 
 ExprEvalContext::ExprEvalContext() : ImplementFlags(0), P_Next__(0)
@@ -761,8 +766,8 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 		case tokFunc:
 			{
 				ExprEvalContext::FC fc;
-				fc.Init();
-				int    func = Func;
+				// @v11.3.7 (@ctr) fc.Init();
+				const  int func = Func;
 				size_t arg_list_offs = 0;
 				double first_arg = 0.0;
 				ReadArgString(fc.StrArg, &arg_list_offs);
@@ -809,14 +814,11 @@ int FASTCALL PPExprParser::GetFactor(double * pResult)
 						*pResult = round(first_arg, (arg_count > 1) ? fc.ArgList.at(1) : 0.01, -1);
 						break;
 					case funcEq:
-						if(arg_count == 2)
-							*pResult = BIN(first_arg == fc.ArgList.at(1));
-						else
-							*pResult = 0.0;
+						*pResult = ((arg_count == 2) && first_arg == fc.ArgList.at(1)) ? 1.0 : 0.0;
 						break;
 					case funcNEq:
 						if(arg_count == 2)
-							*pResult = BIN(first_arg != fc.ArgList.at(1));
+							*pResult = (first_arg != fc.ArgList.at(1)) ? 1.0 : 0.0;
 						else
 							*pResult = 1.0;
 						break;

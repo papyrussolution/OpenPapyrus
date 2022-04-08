@@ -1877,9 +1877,9 @@ void ObjLinkFiles::Fns::Reset()
 	Ext[0] = 0;
 }
 
-/*static*/int ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
+/*static*/bool ObjLinkFiles::SplitInnerFileName(const char * pFileName, Fns * pS)
 {
-	int    ok = 0;
+	bool   ok = false;
 	if(pFileName) {
 		pS->Reset();
 		SPathStruc ps(pFileName);
@@ -1899,7 +1899,7 @@ void ObjLinkFiles::Fns::Reset()
 				}
 				if(ss.get(&i, temp_buf)) {
 					pS->Cntr = temp_buf.ToLong();
-					ok = 1;
+					ok = true;
 				}
 			}
 		}
@@ -1936,7 +1936,7 @@ int ObjLinkFiles::Load(PPID objID, const char * pAddedStr)
 			(path = StoreDir).SetLastSlash().Cat(e.FileName);
 			if(GetNum(path, &num) > 0) {
 				FilesNums |= (1 << (num - 1));
-				THROW_SL(Files.insert(newStr((const char *)path)));
+				THROW_SL(Files.insert(newStr(path.cptr())));
 			}
 		}
 		ok = 1;

@@ -9561,6 +9561,7 @@
 	#define CTL_CPPAYM_EADDR          (17 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_EADDRINF       (18 + WINDOWS_ID_BIAS)
 	#define CTL_CPPAYM_PAPERLESS      (19 + WINDOWS_ID_BIAS)
+	#define CTLFRAME_CPPAYM_PAPERLESS (20 + WINDOWS_ID_BIAS)
 // DLG_TAGVGUID                      1150
 #define DLG_QUOTKINDRESTR            1151 // Ограничения применимости вида котировки
 	#define CTL_QKRESTR_PERIOD        (1 + WINDOWS_ID_BIAS)
@@ -10626,6 +10627,10 @@
 	#define CTL_CCBYBILL_CASH         (6 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_DIFF         (7 + WINDOWS_ID_BIAS)
 	#define CTL_CCBYBILL_FLAGS        (8 + WINDOWS_ID_BIAS)
+	#define CTL_CCBYBILL_EADDR        (9 + WINDOWS_ID_BIAS) // @v11.3.7
+	#define CTL_CCBYBILL_EADDRINF     (10 + WINDOWS_ID_BIAS) // @v11.3.7
+	#define CTL_CCBYBILL_PAPERLESS    (11 + WINDOWS_ID_BIAS) // @v11.3.7
+	#define CTLFRAME_CCBYBILL_PAPERLESS (12 + WINDOWS_ID_BIAS) // @v11.3.7
 
 #define DLG_PRCROSM               1314
 	#define CTL_PRCROSM_PATH          (1 + WINDOWS_ID_BIAS)

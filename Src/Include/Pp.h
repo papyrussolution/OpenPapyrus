@@ -715,7 +715,7 @@ public:
 		long   Cntr;
 		char   Ext[32];
 	};
-	static int SplitInnerFileName(const char * pFileName, Fns * pS) /*const*/;
+	static bool SplitInnerFileName(const char * pFileName, Fns * pS) /*const*/;
 private:
 	int    MakeFilePath(PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath);
 	int    MakeExistsFilePath(uint i, PPID objID, /*PPID addedID*/const char * pAddedStr, SString & rPath);
@@ -1086,7 +1086,8 @@ public:
 	virtual int IsFunc(const char * pSymb, int * pFuncId);
 
 	struct FC {
-		void   Init();
+		FC();
+		FC & Z();
 		RealArray ArgList;    // Список числовых представлений аргументов
 		SString StrArg;       // Список аргументов одной строкой
 		TYPEID RetType;
@@ -1984,7 +1985,7 @@ int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
 //
 //
-class PPObjID_Base { // @flat @noctr
+class PPObjID_Base { // @flat @noctr @persistent
 public:
 	PPObjID_Base Set(PPID objType, PPID objID);
 	PPObjID_Base & Z();
@@ -2004,7 +2005,7 @@ public:
 	PPID   Id;
 };
 
-class PPObjID : public PPObjID_Base { // @flat
+class PPObjID : public PPObjID_Base { // @flat @persistent
 public:
 	PPObjID();
 	PPObjID(const PPObjID_Base & rS);
@@ -5619,6 +5620,8 @@ struct PPCommConfig {      // @persistent @store(PropertyTbl)
 #define ECF_USEGEOTRACKING         0x00200000L // Если флаг не установлен, то коммуникации с мобильными устройствами по гео-трекингу отключены
 #define ECF_DLLMODULE              0x00400000L // Работа в режиме DLL-модуля
 #define ECF_OPENSOURCE             0x00800000L // Система собрана в opensource-варианте
+#define ECF_PAPERLESSCHEQUE        0x01000000L // @v11.3.7 Разрешение на использование функционала безбумажных чеков. С моей точки зрения
+	// флаг неправильный. Сделан для того, чтоб собрать оплату с клиентов за эту функцию. Скорее всего в течении нескольких месяцев будет упразднен.
 //
 //
 //
@@ -6719,6 +6722,8 @@ public:
 	SStringTag MainOrgName;
 	SString MainOrgCountryCode;  // Код страны главной организации. Используется для идентификации собственной страны в адресах
 	SStringTag CurDbDivName;
+	SString PaperlessCheque_FakeEAddr; // @v11.3.7 Фейковый электронный адрес для отправки безбумажного чека.
+		// Загружаются из файла конфигурации pp.ini ([config] paperlesscheque_fakeeaddr).
 	BarcodeArrangeConfig Bac;
 	SurKeyArray    SurIdList;    // Массив динамически идентифицируемых записей, используемых
 		// для параметризации структур DL600, не имеющих естественного идентификатора (например SysJournalEntry).
@@ -47006,15 +47011,38 @@ public:
 	SlSRP::Verifier * InitSrpVerifier(const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS, const SBinaryChunk & rSrpV, const SBinaryChunk & rA, SBinaryChunk & rResultB) const;
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
-	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, SString & rResult);
+	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, PPObjIDArray & rOidList, SString & rResult);
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
 	static int   ExecuteIndexingRequest();
 	static int   GetBlobStoragePath(SString & rBuf);
+	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, PPObjID oid, uint itemNumber, SString & rBuf);
+	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf);
 	//
 	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
 private:
+	struct Stq_ReqBlobInfoEntry {
+		Stq_ReqBlobInfoEntry();
+		Stq_ReqBlobInfoEntry & Z();
+		PPObjID Oid;         // При подготовке списка blob'ов к отправке это поле содержит ИД объекта, которому принадлежит blob
+		uint  InnerBlobNumber; // Порядковый номер blob'а по отношению к объекту oid. Используется при подготовке к отправке.
+		int   HashAlg;       // SHASF_XXX Алгоритм хэширования 
+		bool  Missing;       // При получении ответа от медиатора true означает, что у медиатора нет такого blob'а
+		bool  RepDiffHash;   // При получении ответа от медиатора, если у медиатора хэш blob'а отличается от нашего, то это поле устанавливается в true  
+		uint8 Reserve[2];    // @alignment
+		SString SrcFileName; // При подготовке к отправке blob'ов содержит полный путь исходного файла
+		SString Signature;   // Сигнатура blob'а: имя, с которым он будет храниться у медиатора
+		SBinaryChunk Hash;   // Хэш blob'а построенный с помощью алгоритма HashAlg
+	};
+	class Stq_ReqBlobInfoList : public TSCollection <Stq_ReqBlobInfoEntry> {
+	public:
+		Stq_ReqBlobInfoList();
+		bool   SearchSignature(const char * pSignature, uint * pPos) const;
+		SJson * MakeRequestInfoListQuery() const;
+		bool   ParseRequestInfoListReply(const SJson * pJs);
+	};
+	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
 	int    ProcessCommand_PersonEvent(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos);
 	int    ProcessCommand_Report(StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack,
@@ -47038,8 +47066,11 @@ private:
 	//
 	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
 	int    ProcessCommand_StoreBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
-	int    ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
+	SJson * ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
+	SJson * ProcessCommand_ReqBlobInfoList(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
+	bool   AmIMediator(const char * pCommand);
+	SJson * MakeQuery_StoreBlob(const void * pBlobBuf, size_t blobSize, const SString & rSignature);
 	int    FetchPersonFromClientPacket(const StyloQCore::StoragePacket & rCliPack, PPID * pPersonID);
 	int    AcceptStyloQClientAsPerson(const StyloQCore::StoragePacket & rCliPack, PPID personKind, PPID * pPersonID, int use_ta);
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
@@ -56318,19 +56349,22 @@ TView * ValidView(TView *);
 int    FASTCALL InsertView(TBaseBrowserWindow * v);
 ushort FASTCALL ExecView(TWindow *);
 ushort FASTCALL ExecViewAndDestroy(TWindow * pView);
-ushort FASTCALL CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade);
+ushort STDCALL  CheckExecAndDestroyDialog(TDialog * pDlg, int genErrMsg, int toCascade);
 ushort FASTCALL ExecView(TBaseBrowserWindow * v);
 int    FASTCALL GetModelessStatus(int outerModeless = 1);
 void   FASTCALL DisableOKButton(TDialog *);
-int    FASTCALL SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
+int    STDCALL  SetupPhoneButton(TDialog * pDlg, uint inputCtlId, uint btnCmd);
 int    FASTCALL PPWait(int begin);
 void   PPWaitStart(); // @v11.0.3 PPWait(1)
 void   PPWaitStop(); // @v11.0.3 PPWait(0)
 void   FASTCALL PPWaitMsg(const char *);
-void   FASTCALL PPWaitMsg(int msgGrpID, int msgID, const char * = 0);
+void   STDCALL  PPWaitMsg(int msgGrpID, int msgID, const char * = 0);
 void   FASTCALL PPWaitLong(long);
 void   FASTCALL PPWaitPercent(ulong p, const char * pMsg = 0);
-void   FASTCALL PPWaitPercent(ulong p, ulong t, const char * pMsg = 0);
+void   STDCALL  PPWaitPercent(long  p, long  t, const char * pMsg = 0);
+void   STDCALL  PPWaitPercent(ulong p, ulong t, const char * pMsg = 0);
+void   STDCALL  PPWaitPercent(uint  p, uint  t, const char * pMsg = 0);
+void   STDCALL  PPWaitPercent(int64 p, int64 t, const char * pMsg = 0);
 void   FASTCALL PPWaitPercent(const IterCounter & cntr, const char * pMsg = 0);
 void   FASTCALL PPWaitDate(LDATE);
 //
