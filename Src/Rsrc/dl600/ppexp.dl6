@@ -8233,10 +8233,8 @@ data TransportView {
 	declare "DOSSTUB"
 
 	link   Global Glb;
-
 	CurDt   = Glb.CurDate;
 	OrgName = Glb.MainOrgName;
-
 	long FltType;
 	link Person  FltOwnerID;
 	link Person  FltCaptainID;

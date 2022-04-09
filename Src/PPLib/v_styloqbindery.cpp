@@ -149,9 +149,8 @@ int PPViewStyloQBindery::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 					if(p_sign) {
 						SString & r_temp_buf = SLS.AcquireRvlStr();
 						PPLoadString(p_sign, r_temp_buf);
-						if(r_temp_buf.Len()) {
+						if(r_temp_buf.Len())
 							pBlk->TempBuf.Space().Cat(r_temp_buf);
-						}
 					}
 					pBlk->Set(pBlk->TempBuf);
 				}

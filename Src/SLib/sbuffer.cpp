@@ -771,26 +771,24 @@ int SBinaryChunk::FromMime64(const char * pMimeString)
 			size_t out_len = Len();
 			ok = decode64(pMimeString, in_len, static_cast<char *>(P_Buf), &out_len);
 			assert(out_len <= Len());
-			if(ok) {
+			if(ok)
 				L = out_len;
-			}
-			else {
+			else
 				Z();
-			}
 		}
 	}
 	CATCHZOK
 	return ok;
 }
 
-int SBinaryChunk::Ensure(size_t len)
+bool SBinaryChunk::Ensure(size_t len)
 {
-	int    ok = 1;
+	bool   ok = true;
 	CheckInvariants();
 	if(len <= Size || Alloc(len))
 		L = len;
 	else
-		ok = 0;
+		ok = false;
 	return ok;	
 }
 
@@ -825,39 +823,39 @@ bool SBinaryChunk::Put(const void * pData, size_t len)
 	return ok;
 }
 
-int SBinaryChunk::Cat(uint8 byte)
+bool SBinaryChunk::Cat(uint8 byte)
 {
-	int    ok = 1;
+	bool   ok = true;
 	CheckInvariants();
-	size_t new_len = L + 1;
+	const  size_t new_len = L + 1;
 	if(new_len <= Size || Alloc(new_len)) {
 		PTR8(P_Buf)[L] = byte;
 		L = new_len;
 	}
 	else
-		ok = 0;
+		ok = false;
 	return ok;
 }
 
-int SBinaryChunk::Cat(const void * pData, size_t len)
+bool SBinaryChunk::Cat(const void * pData, size_t len)
 {
-	int    ok = 1;
+	bool   ok = true;
 	CheckInvariants();
 	if(len && pData) {
-		size_t new_len = L + len;
+		const size_t new_len = L + len;
 		if(new_len <= Size || Alloc(new_len)) {
 			memcpy(PTR8(P_Buf)+L, pData, len);
 			L = new_len;
 		}
 		else
-			ok = 0;
+			ok = false;
 	}
 	return ok;
 }
 
-int SBinaryChunk::Cat(const SBinaryChunk & rS)
+bool SBinaryChunk::Cat(const SBinaryChunk & rS)
 {
-	return rS.Len() ? Cat(rS.PtrC(), rS.Len()) : 1;
+	return rS.Len() ? Cat(rS.PtrC(), rS.Len()) : true;
 }
 //
 //
@@ -1424,6 +1422,7 @@ int SSerializeContext::GetDbtDescr(uint id, BNFieldList * pList) const
 
 int SSerializeContext::SerializeFieldList(int dir, BNFieldList * pFldList, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	SString temp_buf;
 	uint16 fld_count;
@@ -1463,6 +1462,7 @@ enum SSrlzSign {
 
 int SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	uint16 sign = 0;
 	struct StateBlock { // @persistent
@@ -1482,7 +1482,6 @@ int SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 		blk.SuppDate = SuppDate;
 		blk.LastSymbId = LastSymbId;
 		blk.StructCount = SVectorBase::GetCount(P_DbtDescrList);
-
 		rBuf.Write(sign);
 		rBuf.Write(&blk, sizeof(blk));
 		if(Flags & fSeparateDataStruct) {
@@ -1501,7 +1500,6 @@ int SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 		rBuf.Read(sign);
 		THROW_S(sign == ssrsignState, SLERR_SRLZ_COMMRDFAULT);
 		THROW_S(rBuf.Read(&blk, sizeof(blk)) == sizeof(blk), SLERR_SRLZ_COMMRDFAULT);
-
 		Flags = blk.Flags;
 		SuppDate = blk.SuppDate;
 		LastSymbId = blk.LastSymbId;
@@ -1533,6 +1531,7 @@ int SSerializeContext::SerializeStateOfContext(int dir, SBuffer & rBuf)
 
 int SSerializeContext::Serialize(int dir, TYPEID typ, void * pData, uint8 * pInd, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	DataType _t;
 	if(pInd) {
@@ -1584,6 +1583,7 @@ int SSerializeContext::Serialize(int dir, char * pV, size_t valBufLen, SBuffer &
 
 int SSerializeContext::Serialize(int dir, DateRange & rV, SBuffer & rBuf)
 {
+	assert(dir != 0);
     int    ok = 1;
     THROW(Serialize(dir, rV.low, rBuf));
     THROW(Serialize(dir, rV.upp, rBuf));
@@ -1720,6 +1720,7 @@ int SSerializeContext::Unserialize(const char * pDbtName, const BNFieldList * pF
 
 int SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	SString temp_buf;
 	if(dir > 0) {
@@ -1752,6 +1753,7 @@ int SSerializeContext::Serialize(int dir, SStrCollection * pColl, SBuffer & rBuf
 
 int SSerializeContext::Serialize(int dir, SArray * pArray, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	if(dir > 0) {
 		ok = rBuf.Write(pArray, SBuffer::ffAryCount32);
@@ -1764,6 +1766,7 @@ int SSerializeContext::Serialize(int dir, SArray * pArray, SBuffer & rBuf)
 
 int SSerializeContext::Serialize(int dir, SVector * pArray, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	if(dir > 0) {
 		ok = rBuf.Write(pArray, SBuffer::ffAryCount32);
@@ -1776,6 +1779,7 @@ int SSerializeContext::Serialize(int dir, SVector * pArray, SBuffer & rBuf)
 
 int SSerializeContext::Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	if(dir > 0) {
 		ok = rArray.Write(rBuf, 0);
@@ -1788,6 +1792,7 @@ int SSerializeContext::Serialize(int dir, StrAssocArray & rArray, SBuffer & rBuf
 
 int SSerializeContext::Serialize(int dir, SString & rStr, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	if(dir > 0) {
 		ok = rBuf.Write(rStr);
@@ -1800,6 +1805,7 @@ int SSerializeContext::Serialize(int dir, SString & rStr, SBuffer & rBuf)
 
 int SSerializeContext::Serialize(int dir, SStringU & rStr, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	SString temp_buf;
 	if(dir > 0) {
@@ -1816,6 +1822,7 @@ int SSerializeContext::Serialize(int dir, SStringU & rStr, SBuffer & rBuf)
 
 int SSerializeContext::Serialize(int dir, SBinaryChunk & rBc, SBuffer & rBuf)
 {
+	assert(dir != 0);
 	int    ok = 1;
 	uint32 sz;
 	if(dir > 0) {

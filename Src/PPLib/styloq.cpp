@@ -9437,8 +9437,10 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 	bc_sign.Cat(rOwnIdent);
 	bc_sign.Cat(&oid, sizeof(oid));
 	bc_sign.Cat(&inner_file_number, sizeof(inner_file_number));
-	binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
+	const binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
 	Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), rBuf);
+	while(rBuf.Last() == '=')
+		rBuf.TrimRight();
 	return rBuf;
 }
 
@@ -9448,8 +9450,10 @@ int PPStyloQInterchange::ExecuteInvitationDialog(InterchangeParam & rData)
 	SBinaryChunk bc_sign;
 	bc_sign.Cat(rOwnIdent);
 	bc_sign.Cat(pResourceName, sstrlen(pResourceName));
-	binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
+	const binary128 sign = SlHash::Md5(0, bc_sign.PtrC(), bc_sign.Len());
 	Base32_Encode(reinterpret_cast<const uint8 *>(&sign), sizeof(sign), rBuf);
+	while(rBuf.Last() == '=')
+		rBuf.TrimRight();
 	return rBuf;
 }
 
@@ -9683,7 +9687,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				else if(cmd == cmdGetBlob) {
 					SString temp_buf;
 					{
-						const char * p_test_file_name = "test_webp_js.webp";
+						const char * p_test_file_name = "test_webp.webp";
 						PPGetPath(PPPATH_TESTROOT, temp_buf);
 						if(temp_buf.NotEmpty()) {
 							temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat(p_test_file_name);
@@ -9722,8 +9726,8 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				else if(cmd == cmdStoreBlob) {
 					SString temp_buf;
 					{
-						//D:\Papyrus\Src\PPTEST\DATA\test_webp_js.webp
-						const char * p_test_file_name = "test_webp_js.webp";
+						//D:\Papyrus\Src\PPTEST\DATA\test_webp.webp
+						const char * p_test_file_name = "test_webp.webp";
 						PPGetPath(PPPATH_TESTROOT, temp_buf);
 						if(temp_buf.NotEmpty()) {
 							temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat(p_test_file_name);
