@@ -742,10 +742,9 @@ void * SBinaryChunk::Ptr(size_t offs)
 	return (offs < L) ? (PTR8(P_Buf)+offs) : 0; 
 }
 
-bool SBinaryChunk::ToRawStr(SString & rBuf) const
+SString & SBinaryChunk::ToRawStr(SString & rBuf) const
 {
-	rBuf.Z().CatN(P_Buf, Len());
-	return true;
+	return rBuf.Z().CatN(P_Buf, Len());
 }
 
 SString & SBinaryChunk::Mime64(SString & rBuf) const

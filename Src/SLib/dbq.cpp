@@ -169,7 +169,7 @@ void FASTCALL DBConst::init(const char * s)
 	sptr = newStr(s);
 }
 
-void FASTCALL DBConst::InitForeignStr(const char * pS) // @v9.9.3
+void FASTCALL DBConst::InitForeignStr(const char * pS)
 {
 	Helper_Init(DBConst_ID, fNotOwner, sp);
 	//sptr

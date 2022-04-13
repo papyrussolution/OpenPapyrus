@@ -66,7 +66,7 @@
 #undef USE_WINSOCK
 
 #ifdef HAVE_WINSOCK2_H
-#  define USE_WINSOCK 2
+#define USE_WINSOCK 2
 #else
 #  ifdef HAVE_WINSOCK_H
 #    error "WinSock version 1 is no longer supported, version 2 is required!"

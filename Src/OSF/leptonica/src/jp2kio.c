@@ -878,12 +878,12 @@ static l_uint64 opj_get_user_data_length(FILE * fp) {
 	return (l_uint64)length;
 }
 
-static OPJ_SIZE_T opj_read_from_file(void * p_buffer, OPJ_SIZE_T p_nb_bytes, FILE * fp) {
-	OPJ_SIZE_T l_nb_read = fread(p_buffer, 1, p_nb_bytes, fp);
-	return l_nb_read ? l_nb_read : (OPJ_SIZE_T)-1;
+static size_t opj_read_from_file(void * p_buffer, size_t p_nb_bytes, FILE * fp) {
+	size_t l_nb_read = fread(p_buffer, 1, p_nb_bytes, fp);
+	return l_nb_read ? l_nb_read : (size_t)-1;
 }
 
-static OPJ_SIZE_T opj_write_from_file(void * p_buffer, OPJ_SIZE_T p_nb_bytes, FILE * fp)
+static size_t opj_write_from_file(void * p_buffer, size_t p_nb_bytes, FILE * fp)
 {
 	return fwrite(p_buffer, 1, p_nb_bytes, fp);
 }

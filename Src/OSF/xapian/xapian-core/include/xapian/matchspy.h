@@ -9,17 +9,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_MATCHSPY_H
 #define XAPIAN_INCLUDED_MATCHSPY_H
 
@@ -46,10 +36,8 @@ class Registry;
  */
 class XAPIAN_VISIBILITY_DEFAULT MatchSpy : public Xapian::Internal::opt_intrusive_base {
 private:
-	/// Don't allow assignment.
-	void operator = (const MatchSpy &) = delete;
-	/// Don't allow copying.
-	MatchSpy(const MatchSpy &) = delete;
+	void operator = (const MatchSpy &) = delete; /// Don't allow assignment.
+	MatchSpy(const MatchSpy &) = delete; /// Don't allow copying.
 public:
 	/// Default constructor, needed by subclass constructors.
 	MatchSpy() noexcept 

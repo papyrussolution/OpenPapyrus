@@ -69,7 +69,7 @@ uint32 copy_and_convert(char * to, uint32 to_length, MARIADB_CHARSET_INFO * to_c
 #else
 
 size_t mariadb_time_to_string(const MYSQL_TIME * tm, char * time_str, size_t len,
-    unsigned int digits);
+    uint digits);
 size_t STDCALL mariadb_convert_string(const char * from, size_t * from_len, MARIADB_CHARSET_INFO * from_cs,
     char * to, size_t * to_len, MARIADB_CHARSET_INFO * to_cs, int * errorcode);
 #endif
@@ -768,7 +768,7 @@ static size_t dynamic_column_uint_bytes(ulonglong val)
 }
 
 /**
-   Append the string with given unsigned int value.
+   Append the string with given uint value.
 
    @param str             The string where to put the value
    @param val             The value to put in the string
@@ -786,7 +786,7 @@ static enum enum_dyncol_func_result dynamic_column_uint_store(DYNAMIC_COLUMN * s
 }
 
 /**
-   Read unsigned int value of given length from the string
+   Read uint value of given length from the string
 
    @param store_it_here   The structure to store the value
    @param data            The string which should be read

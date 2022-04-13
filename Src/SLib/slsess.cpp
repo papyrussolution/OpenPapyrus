@@ -521,6 +521,38 @@ static void InitTest()
 	}
 #endif
 	// } @v11.0.0 
+	// @v11.3.8 {
+	{
+		//
+		// Экспресс-тест json
+		//
+		SString js_buf;
+		SJson js_in(SJson::tOBJECT);
+		js_in.InsertString("string-key", "string-val");
+		js_in.InsertBool("bool-key1", true);
+		js_in.InsertBool("bool-key2", false);
+		js_in.ToStr(js_buf);
+		//
+		{
+			SJson * p_js_out = SJson::Parse(js_buf);
+			assert(p_js_out);
+			assert(p_js_out->IsObject());
+			for(const SJson * p_node = p_js_out->P_Child; p_node; p_node = p_node->P_Next) {
+				if(p_node->Text.IsEqiAscii("String-Key")) {
+					assert(p_node->P_Child->IsString());
+					assert(p_node->P_Child->Text.IsEqiAscii("string-val")); 
+				}
+				else if(p_node->Text.IsEqiAscii("bool-key1")) {
+					assert(p_node->P_Child->IsTrue());
+				}
+				else if(p_node->Text.IsEqiAscii("bool-keY2")) {
+					assert(p_node->P_Child->IsFalse());
+				}
+			}
+			delete p_js_out;
+		}
+	}
+	// } @v11.3.8
 #endif // } NDEBUG
 }
 

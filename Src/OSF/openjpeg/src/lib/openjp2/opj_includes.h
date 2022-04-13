@@ -27,6 +27,7 @@
  * since they can react to macro defined there
  */
 #include "opj_config_private.h"
+
 /*
    ==========================================================
    Standard includes used by the library
@@ -40,41 +41,37 @@
    (e.g. FreeBSD) support a 64-bit off_t by default.
  */
 #if defined(OPJ_HAVE_FSEEKO) && !defined(fseek)
-#  define fseek  fseeko
-#  define ftell  ftello
+#define fseek  fseeko
+#define ftell  ftello
 #endif
 
 #if defined(WIN32) && !defined(Windows95) && !defined(__BORLANDC__) && \
-	!(defined(_MSC_VER) && _MSC_VER < 1400) && !(defined(__MINGW32__) && __MSVCRT_VERSION__ < 0x800)
+	!(defined(_MSC_VER) && _MSC_VER < 1400) && \
+	!(defined(__MINGW32__) && __MSVCRT_VERSION__ < 0x800)
 /*
    Windows '95 and Borland C do not support _lseeki64
    Visual Studio does not support _fseeki64 and _ftelli64 until the 2005 release.
    Without these interfaces, files over 2GB in size are not supported for Windows.
  */
-#  define OPJ_FSEEK(stream, offset, whence) _fseeki64(stream, /* __int64 */ offset, whence)
-#  define OPJ_FSTAT(fildes, stat_buff) _fstati64(fildes, /* struct _stati64 */ stat_buff)
-#  define OPJ_FTELL(stream) /* __int64 */ _ftelli64(stream)
-#  define OPJ_STAT_STRUCT_T struct _stati64
-#  define OPJ_STAT(path, stat_buff) _stati64(path, /* struct _stati64 */ stat_buff)
+#define OPJ_FSEEK(stream, offset, whence) _fseeki64(stream, /* __int64 */ offset, whence)
+#define OPJ_FSTAT(fildes, stat_buff) _fstati64(fildes, /* struct _stati64 */ stat_buff)
+#define OPJ_FTELL(stream) /* __int64 */ _ftelli64(stream)
+#define OPJ_STAT_STRUCT_T struct _stati64
+#define OPJ_STAT(path, stat_buff) _stati64(path, /* struct _stati64 */ stat_buff)
 #else
-#  define OPJ_FSEEK(stream, offset, whence) fseek(stream, offset, whence)
-#  define OPJ_FSTAT(fildes, stat_buff) fstat(fildes, stat_buff)
-#  define OPJ_FTELL(stream) ftell(stream)
-#  define OPJ_STAT_STRUCT_T struct stat
-#  define OPJ_STAT(path, stat_buff) stat(path, stat_buff)
+#define OPJ_FSEEK(stream, offset, whence) fseek(stream, offset, whence)
+#define OPJ_FSTAT(fildes, stat_buff) fstat(fildes, stat_buff)
+#define OPJ_FTELL(stream) ftell(stream)
+#define OPJ_STAT_STRUCT_T struct stat
+#define OPJ_STAT(path, stat_buff) stat(path, stat_buff)
 #endif
 /*
-   ==========================================================
    OpenJPEG interface
-   ==========================================================
- */
+*/
 #include "openjpeg.h"
 /*
-   ==========================================================
    OpenJPEG modules
-   ==========================================================
  */
-
 /* Are restricted pointers available? (C99) */
 #if (__STDC_VERSION__ >= 199901L)
 #define OPJ_RESTRICT restrict
@@ -110,6 +107,7 @@ static INLINE long opj_lrintf(float f)
 {
 #ifdef _M_X64
 	return _mm_cvt_ss2si(_mm_load_ss(&f));
+
 	/* commented out line breaks many tests */
 	/* return (long)((f>0.0f) ? (f + 0.5f):(f -0.5f)); */
 #elif defined(_M_IX86)
@@ -118,12 +116,12 @@ static INLINE long opj_lrintf(float f)
 		fld f
 		fistp i
 	};
+
 	return i;
 #else
 	return (long)((f>0.0f) ? (f + 0.5f) : (f - 0.5f));
 #endif
 }
-
 #elif defined(__BORLANDC__)
 static INLINE long opj_lrintf(float f)
 {
@@ -158,33 +156,33 @@ static INLINE long opj_lrintf(float f)
 /* Apparently Visual Studio doesn't define __SSE__ / __SSE2__ macros */
 #if defined(_M_X64)
 /* Intel 64bit support SSE and SSE2 */
-#ifndef __SSE__
-#define __SSE__ 1
-#endif
-#ifndef __SSE2__
-#define __SSE2__ 1
-#endif
+#   ifndef __SSE__
+#       define __SSE__ 1
+#   endif
+#   ifndef __SSE2__
+#       define __SSE2__ 1
+#   endif
 #endif
 
 /* For x86, test the value of the _M_IX86_FP macro. */
 /* See https://msdn.microsoft.com/en-us/library/b0084kay.aspx */
 #if defined(_M_IX86_FP)
-#if _M_IX86_FP >= 1
+#   if _M_IX86_FP >= 1
 #       ifndef __SSE__
 #           define __SSE__ 1
 #       endif
-#endif
-#if _M_IX86_FP >= 2
+#   endif
+#   if _M_IX86_FP >= 2
 #       ifndef __SSE2__
 #           define __SSE2__ 1
 #       endif
-#endif
+#   endif
 #endif
 
 /* Type to use for bit-fields in internal headers */
 typedef unsigned int OPJ_BITFIELD;
 
-#define OPJ_UNUSED(x) (void)x
+// @sobolev (replaced with CXX_UNUSED) #define OPJ_UNUSED_Removed(x) (void)x
 
 #include "opj_inttypes.h"
 #include "opj_clock.h"
@@ -221,5 +219,4 @@ typedef unsigned int OPJ_BITFIELD;
 /* <<JPWL */
 /* V2 */
 #include "opj_codec.h"
-
 #endif /* OPJ_INCLUDES_H */

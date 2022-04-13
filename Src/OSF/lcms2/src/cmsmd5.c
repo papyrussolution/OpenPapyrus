@@ -19,12 +19,12 @@
 
 #ifdef CMS_USE_BIG_ENDIAN
 
-static void byteReverse(uint8 * buf, cmsUInt32Number longs)
+static void byteReverse(uint8 * buf, uint32 longs)
 {
 	do {
-		cmsUInt32Number t = _cmsAdjustEndianess32(*(cmsUInt32Number *)buf);
-		*(cmsUInt32Number *)buf = t;
-		buf += sizeof(cmsUInt32Number);
+		uint32 t = _cmsAdjustEndianess32(*(uint32 *)buf);
+		*(uint32 *)buf = t;
+		buf += sizeof(uint32);
 	} while(--longs);
 }
 
@@ -33,8 +33,8 @@ static void byteReverse(uint8 * buf, cmsUInt32Number longs)
 #endif
 
 typedef struct {
-	cmsUInt32Number buf[4];
-	cmsUInt32Number bits[2];
+	uint32 buf[4];
+	uint32 bits[2];
 	uint8 in[64];
 	cmsContext ContextID;
 } _cmsMD5;
@@ -46,9 +46,9 @@ typedef struct {
 
 #define STEP(f, w, x, y, z, data, s)  ( w += f(x, y, z) + data,  w = w<<s | w>>(32-s),  w += x )
 
-static void cmsMD5_Transform(cmsUInt32Number buf[4], cmsUInt32Number in[16])
+static void cmsMD5_Transform(uint32 buf[4], uint32 in[16])
 {
-	cmsUInt32Number a, b, c, d;
+	uint32 a, b, c, d;
 
 	a = buf[0];
 	b = buf[1];
@@ -146,10 +146,10 @@ cmsHANDLE CMSEXPORT cmsMD5alloc(cmsContext ContextID)
 	return (cmsHANDLE)ctx;
 }
 
-void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number len)
+void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, uint32 len)
 {
 	_cmsMD5 * ctx = (_cmsMD5*)Handle;
-	cmsUInt32Number t = ctx->bits[0];
+	uint32 t = ctx->bits[0];
 	if((ctx->bits[0] = t + (len << 3)) < t)
 		ctx->bits[1]++;
 	ctx->bits[1] += len >> 29;
@@ -163,14 +163,14 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number le
 		}
 		memmove(p, buf, t);
 		byteReverse(ctx->in, 16);
-		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
+		cmsMD5_Transform(ctx->buf, (uint32 *)ctx->in);
 		buf += t;
 		len -= t;
 	}
 	while(len >= 64) {
 		memmove(ctx->in, buf, 64);
 		byteReverse(ctx->in, 16);
-		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
+		cmsMD5_Transform(ctx->buf, (uint32 *)ctx->in);
 		buf += 64;
 		len -= 64;
 	}
@@ -181,7 +181,7 @@ void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number le
 void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 {
 	_cmsMD5* ctx = (_cmsMD5*)Handle;
-	cmsUInt32Number count;
+	uint32 count;
 	uint8 * p;
 	count = (ctx->bits[0] >> 3) & 0x3F;
 	p = ctx->in + count;
@@ -190,7 +190,7 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 	if(count < 8) {
 		memzero(p, count);
 		byteReverse(ctx->in, 16);
-		cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
+		cmsMD5_Transform(ctx->buf, (uint32 *)ctx->in);
 		memzero(ctx->in, 56);
 	}
 	else {
@@ -198,23 +198,23 @@ void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID,  cmsHANDLE Handle)
 	}
 	byteReverse(ctx->in, 14);
 
-	((cmsUInt32Number *)ctx->in)[14] = ctx->bits[0];
-	((cmsUInt32Number *)ctx->in)[15] = ctx->bits[1];
+	((uint32 *)ctx->in)[14] = ctx->bits[0];
+	((uint32 *)ctx->in)[15] = ctx->bits[1];
 
-	cmsMD5_Transform(ctx->buf, (cmsUInt32Number *)ctx->in);
+	cmsMD5_Transform(ctx->buf, (uint32 *)ctx->in);
 	byteReverse((uint8 *)ctx->buf, 4);
 	memmove(ProfileID->ID8, ctx->buf, 16);
 	_cmsFree(ctx->ContextID, ctx);
 }
-
+//
 // Assuming io points to an ICC profile, compute and store MD5 checksum
 // In the header, rendering intentent, attributes and ID should be set to zero
 // before computing MD5 checksum (per 6.1.13 in ICC spec)
-
+//
 boolint CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
 {
 	cmsContext ContextID;
-	cmsUInt32Number BytesNeeded;
+	uint32 BytesNeeded;
 	uint8 * Mem = NULL;
 	cmsHANDLE MD5 = NULL;
 	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
@@ -259,3 +259,62 @@ Error:
 	return FALSE;
 }
 #endif // } 0 @sobolev
+//
+// Assuming io points to an ICC profile, compute and store MD5 checksum
+// In the header, rendering intentent, attributes and ID should be set to zero
+// before computing MD5 checksum (per 6.1.13 in ICC spec)
+//
+boolint CMSEXPORT cmsMD5computeID(cmsHPROFILE hProfile)
+{
+	cmsContext ContextID;
+	uint32 BytesNeeded;
+	uint8 * Mem = NULL;
+	//cmsHANDLE MD5 = NULL;
+	SlHash::State slhst;
+	_cmsICCPROFILE* Icc = (_cmsICCPROFILE*)hProfile;
+	_cmsICCPROFILE Keep;
+	_cmsAssert(hProfile != NULL);
+	ContextID = cmsGetProfileContextID(hProfile);
+	// Save a copy of the profile header
+	memmove(&Keep, Icc, sizeof(_cmsICCPROFILE));
+	// Set RI, attributes and ID
+	memzero(&Icc->attributes, sizeof(Icc->attributes));
+	Icc->RenderingIntent = 0;
+	memzero(&Icc->ProfileID, sizeof(Icc->ProfileID));
+	// Compute needed storage
+	if(!cmsSaveProfileToMem(hProfile, NULL, &BytesNeeded)) 
+		goto Error;
+	// Allocate memory
+	Mem = (uint8 *)_cmsMalloc(ContextID, BytesNeeded);
+	if(Mem == NULL) 
+		goto Error;
+	// Save to temporary storage
+	if(!cmsSaveProfileToMem(hProfile, Mem, &BytesNeeded)) 
+		goto Error;
+	// Create MD5 object
+	
+	//MD5 = cmsMD5alloc(ContextID);
+	//if(MD5 == NULL) 
+		//goto Error;
+	// Add all bytes
+	//cmsMD5add(MD5, Mem, BytesNeeded);
+	SlHash::Md5(&slhst, Mem, BytesNeeded);
+	// Temp storage is no longer needed
+	_cmsFree(ContextID, Mem);
+	// Restore header
+	memmove(Icc, &Keep, sizeof(_cmsICCPROFILE));
+	{
+		// And store the ID
+		//cmsMD5finish(&Icc->ProfileID,  MD5);
+		binary128 md5 = SlHash::Md5(&slhst, 0, 0);
+		memcpy(&Icc->ProfileID, &md5, sizeof(md5));
+	}
+	return TRUE;
+Error:
+	// Free resources as something went wrong
+	// "MD5" cannot be other than NULL here, so no need to free it
+	if(Mem != NULL) 
+		_cmsFree(ContextID, Mem);
+	memmove(Icc, &Keep, sizeof(_cmsICCPROFILE));
+	return FALSE;
+}

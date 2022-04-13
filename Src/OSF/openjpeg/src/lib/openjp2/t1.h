@@ -27,17 +27,15 @@
 #ifndef OPJ_T1_H
 #define OPJ_T1_H
 /**
-@file t1.h
-@brief Implementation of the tier-1 coding (coding of code-block coefficients) (T1)
+   @file t1.h
+   @brief Implementation of the tier-1 coding (coding of code-block coefficients) (T1)
 
-The functions in T1.C have for goal to realize the tier-1 coding operation. The functions
-in T1.C are used by some function in TCD.C.
-*/
+   The functions in T1.C have for goal to realize the tier-1 coding operation. The functions
+   in T1.C are used by some function in TCD.C.
+ */
 
 /** @defgroup T1 T1 - Implementation of the tier-1 coding */
 /*@{*/
-
-/* ----------------------------------------------------------------------- */
 #define T1_NMSEDEC_BITS 7
 
 #define T1_NUMCTXS_ZC  9
@@ -161,96 +159,85 @@ in T1.C are used by some function in TCD.C.
 #define T1_LUT_SIG_S (1U << 7)
 /* END of flags that apply to opj_flag_t */
 
-/* ----------------------------------------------------------------------- */
-
 /** Flags for 4 consecutive rows of a column */
-typedef OPJ_UINT32 opj_flag_t;
-
+typedef uint32_t opj_flag_t;
 /**
-Tier-1 coding (coding of code-block coefficients)
-*/
+   Tier-1 coding (coding of code-block coefficients)
+ */
 typedef struct opj_t1 {
+	/** MQC component */
+	opj_mqc_t mqc;
 
-    /** MQC component */
-    opj_mqc_t mqc;
+	int32_t  * data;
+	/** Flags used by decoder and encoder.
+	 * Such that flags[1+0] is for state of col=0,row=0..3,
+	   flags[1+1] for col=1, row=0..3, flags[1+flags_stride] for col=0,row=4..7, ...
+	   This array avoids too much cache trashing when processing by 4 vertical samples
+	   as done in the various decoding steps. */
+	opj_flag_t * flags;
 
-    OPJ_INT32  *data;
-    /** Flags used by decoder and encoder.
-     * Such that flags[1+0] is for state of col=0,row=0..3,
-       flags[1+1] for col=1, row=0..3, flags[1+flags_stride] for col=0,row=4..7, ...
-       This array avoids too much cache trashing when processing by 4 vertical samples
-       as done in the various decoding steps. */
-    opj_flag_t *flags;
+	uint32_t w;
+	uint32_t h;
+	uint32_t datasize;
+	uint32_t flagssize;
+	boolint encoder;
 
-    OPJ_UINT32 w;
-    OPJ_UINT32 h;
-    OPJ_UINT32 datasize;
-    OPJ_UINT32 flagssize;
-    boolint   encoder;
-
-    /* Thre 3 variables below are only used by the decoder */
-    /* set to TRUE in multithreaded context */
-    boolint     mustuse_cblkdatabuffer;
-    /* Temporary buffer to concatenate all chunks of a codebock */
-    uint8    *cblkdatabuffer;
-    /* Maximum size available in cblkdatabuffer */
-    OPJ_UINT32   cblkdatabuffersize;
+	/* The 3 variables below are only used by the decoder */
+	/* set to TRUE in multithreaded context */
+	boolint mustuse_cblkdatabuffer;
+	/* Temporary buffer to concatenate all chunks of a codebock */
+	uint8    * cblkdatabuffer;
+	/* Maximum size available in cblkdatabuffer */
+	uint32_t cblkdatabuffersize;
 } opj_t1_t;
 
 /** @name Exported functions */
 /*@{*/
-/* ----------------------------------------------------------------------- */
-
 /**
-Encode the code-blocks of a tile
-@param tcd TCD handle
-@param tile The tile to encode
-@param tcp Tile coding parameters
-@param mct_norms  FIXME DOC
-@param mct_numcomps Number of components used for MCT
-*/
+   Encode the code-blocks of a tile
+   @param tcd TCD handle
+   @param tile The tile to encode
+   @param tcp Tile coding parameters
+   @param mct_norms  FIXME DOC
+   @param mct_numcomps Number of components used for MCT
+ */
 boolint opj_t1_encode_cblks(opj_tcd_t* tcd,
-                             opj_tcd_tile_t *tile,
-                             opj_tcp_t *tcp,
-                             const double * mct_norms,
-                             OPJ_UINT32 mct_numcomps);
+    opj_tcd_tile_t * tile,
+    opj_tcp_t * tcp,
+    const double * mct_norms,
+    uint32_t mct_numcomps);
 
 /**
-Decode the code-blocks of a tile
-@param tcd TCD handle
-@param pret Pointer to return value
-@param tilec The tile to decode
-@param tccp Tile coding parameters
-@param p_manager the event manager
-@param p_manager_mutex mutex for the event manager
-@param check_pterm whether PTERM correct termination should be checked
-*/
+   Decode the code-blocks of a tile
+   @param tcd TCD handle
+   @param pret Pointer to return value
+   @param tilec The tile to decode
+   @param tccp Tile coding parameters
+   @param p_manager the event manager
+   @param p_manager_mutex mutex for the event manager
+   @param check_pterm whether PTERM correct termination should be checked
+ */
 void opj_t1_decode_cblks(opj_tcd_t* tcd,
-                         volatile boolint* pret,
-                         opj_tcd_tilecomp_t* tilec,
-                         opj_tccp_t* tccp,
-                         opj_event_mgr_t *p_manager,
-                         opj_mutex_t* p_manager_mutex,
-                         boolint check_pterm);
-
-
+    volatile boolint* pret,
+    opj_tcd_tilecomp_t* tilec,
+    opj_tccp_t* tccp,
+    opj_event_mgr_t * p_manager,
+    opj_mutex_t* p_manager_mutex,
+    boolint check_pterm);
 
 /**
  * Creates a new Tier 1 handle
  * and initializes the look-up tables of the Tier-1 coder/decoder
  * @return a new T1 handle if successful, returns NULL otherwise
-*/
+ */
 opj_t1_t* opj_t1_create(boolint isEncoder);
 
 /**
  * Destroys a previously created T1 handle
  *
  * @param p_t1 Tier 1 handle to destroy
-*/
-void opj_t1_destroy(opj_t1_t *p_t1);
-/* ----------------------------------------------------------------------- */
+ */
+void opj_t1_destroy(opj_t1_t * p_t1);
 /*@}*/
-
 /*@}*/
-
 #endif /* OPJ_T1_H */

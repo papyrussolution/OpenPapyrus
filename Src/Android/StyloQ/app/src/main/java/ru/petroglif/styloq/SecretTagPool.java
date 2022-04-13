@@ -57,6 +57,7 @@ public class SecretTagPool {
 	public final static int tagAssignedFaceRef         = 34;  // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
 		// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
 	public final static int tagErrorCode               = 35;  // @v11.2.10 int32 Код ошибки (ответ)
+	public final static int tagBlob                    = 36;  // @v11.3.8  BLOB передаваемый с пакетом. По тегу tagRawData хранятся мета-данные этого blob'а в json-формате
 	//
 	static final int MAGIC = 0x5E4F7D1A;
 	static final int MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8;

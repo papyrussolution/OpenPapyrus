@@ -17,7 +17,6 @@
 #pragma hdrstop
 #include "glass_freelist.h"
 #include "glass_table.h"
-#include "popcount.h"
 
 using namespace std;
 using namespace Glass;

@@ -91,7 +91,7 @@ extern int mthd_stmt_fetch_row(MYSQL_STMT * stmt, uchar ** row);
 extern int mthd_stmt_fetch_to_bind(MYSQL_STMT * stmt, uchar * row);
 extern int mthd_stmt_read_all_rows(MYSQL_STMT * stmt);
 extern void mthd_stmt_flush_unbuffered(MYSQL_STMT * stmt);
-extern bool _mariadb_read_options(MYSQL * mysql, const char * dir, const char * config_file, const char * group, unsigned int recursion);
+extern bool _mariadb_read_options(MYSQL * mysql, const char * dir, const char * config_file, const char * group, uint recursion);
 extern uchar * mysql_net_store_length(uchar * packet, size_t length);
 
 extern void my_context_install_suspend_resume_hook(struct mysql_async_context * b, void (*hook)(bool, void *), void * user_data);
@@ -124,7 +124,7 @@ extern int mysql_client_plugin_init();
 extern void mysql_client_plugin_deinit();
 
 /* net_get_error */
-void net_get_error(char * buf, size_t buf_len, char * error, size_t error_len, unsigned int * error_no, char * sqlstate)
+void net_get_error(char * buf, size_t buf_len, char * error, size_t error_len, uint * error_no, char * sqlstate)
 {
 	char * p = buf;
 	size_t error_msg_len = 0;
@@ -724,7 +724,7 @@ MYSQL_FIELD * unpack_fields(const MYSQL * mysql,
 	MYSQL_ROWS    * row;
 	MYSQL_FIELD   * field, * result;
 	char    * p;
-	unsigned int i, field_count = sizeof(rset_field_offsets)/sizeof(size_t)/2;
+	uint i, field_count = sizeof(rset_field_offsets)/sizeof(size_t)/2;
 
 	field = result = (MYSQL_FIELD*)ma_alloc_root(alloc, sizeof(MYSQL_FIELD)*fields);
 	if(!result)
@@ -1365,7 +1365,7 @@ MYSQL * mthd_my_real_connect(MYSQL * mysql, const char * host, const char * user
 		bool save_reconnect = mysql->options.reconnect;
 		mysql->options.reconnect = 0;
 		for(; begin < end; begin++) {
-			if(mysql_real_query(mysql, *begin, (unsigned long)strlen(*begin)))
+			if(mysql_real_query(mysql, *begin, (ulong)strlen(*begin)))
 				goto error;
 			/* check if query produced a result set */
 			do {
@@ -1503,9 +1503,9 @@ void ma_invalidate_stmts(MYSQL * mysql, const char * function_name)
    seconds resolution. Applications that use this will be asked to set a timeout
    at the nearest higher whole-seconds value.
  */
-unsigned int STDCALL mysql_get_timeout_value(const MYSQL * mysql)
+uint STDCALL mysql_get_timeout_value(const MYSQL * mysql)
 {
-	unsigned int timeout = 0;
+	uint timeout = 0;
 	if(mysql->options.extension && mysql->options.extension->async_context)
 		timeout = mysql->options.extension->async_context->timeout_value;
 	/* Avoid overflow. */
@@ -1515,7 +1515,7 @@ unsigned int STDCALL mysql_get_timeout_value(const MYSQL * mysql)
 		return (timeout+999)/1000;
 }
 
-unsigned int STDCALL mysql_get_timeout_value_ms(const MYSQL * mysql)
+uint STDCALL mysql_get_timeout_value_ms(const MYSQL * mysql)
 {
 	if(mysql->options.extension && mysql->options.extension->async_context)
 		return mysql->options.extension->async_context->timeout_value;
@@ -1656,7 +1656,7 @@ static void mysql_close_memory(MYSQL * mysql)
 }
 
 void my_set_error(MYSQL * mysql,
-    unsigned int error_nr,
+    uint error_nr,
     const char * sqlstate,
     const char * format,
     ...)
@@ -1752,7 +1752,7 @@ void STDCALL mysql_close(MYSQL * mysql)
 
 int STDCALL mysql_query(MYSQL * mysql, const char * query)
 {
-	return mysql_real_query(mysql, query, (unsigned long)strlen(query));
+	return mysql_real_query(mysql, query, (ulong)strlen(query));
 }
 
 /*
@@ -1982,8 +1982,8 @@ bool STDCALL mysql_read_query_result(MYSQL * mysql)
 int STDCALL mysql_real_query(MYSQL * mysql, const char * query, unsigned long length)
 {
 	bool skip_result = OPT_EXT_VAL(mysql, multi_command);
-	if(length == (unsigned long)-1)
-		length = (unsigned long)strlen(query);
+	if(length == (ulong)-1)
+		length = (ulong)strlen(query);
 	free_old_query(mysql);
 	if(ma_simple_command(mysql, COM_QUERY, query, length, 1, 0))
 		return -1;
@@ -2379,12 +2379,12 @@ static size_t mariadb_server_version_id(MYSQL * mysql)
 	p += 1; /* consume the dot */
 	patch = strtol(p, &p, 10);
 
-	return (major * 10000L + (unsigned long)(minor * 100L + patch));
+	return (major * 10000L + (ulong)(minor * 100L + patch));
 }
 
 unsigned long STDCALL mysql_get_server_version(MYSQL * mysql)
 {
-	return (unsigned long)mariadb_server_version_id(mysql);
+	return (ulong)mariadb_server_version_id(mysql);
 }
 
 char * STDCALL mysql_get_host_info(MYSQL * mysql)
@@ -2414,7 +2414,7 @@ static size_t get_store_length(size_t length)
 }
 
 uchar * ma_get_hash_keyval(const uchar * hash_entry,
-    unsigned int * length,
+    uint * length,
     bool not_used __attribute__((unused)))
 {
 	/* Hash entry has the following format:
@@ -2552,12 +2552,12 @@ int mysql_optionsv(MYSQL * mysql, enum mysql_option option, ...)
 		    break;
 		case MYSQL_OPT_MAX_ALLOWED_PACKET:
 		    if(mysql)
-			    mysql->options.max_allowed_packet = (unsigned long)(*(size_t*)arg1);
+			    mysql->options.max_allowed_packet = (ulong)(*(size_t*)arg1);
 		    else
-			    max_allowed_packet = (unsigned long)(*(size_t*)arg1);
+			    max_allowed_packet = (ulong)(*(size_t*)arg1);
 		    break;
 		case MYSQL_OPT_NET_BUFFER_LENGTH:
-		    net_buffer_length = (unsigned long)(*(size_t*)arg1);
+		    net_buffer_length = (ulong)(*(size_t*)arg1);
 		    break;
 		case MYSQL_OPT_CAN_HANDLE_EXPIRED_PASSWORDS:
 		    if(*(bool*)arg1)
@@ -2824,10 +2824,10 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		case MYSQL_INIT_COMMAND:
 		    /* mysql_get_optionsv(mysql, MYSQL_INIT_COMMAND, commands, elements) */
 	    {
-		    unsigned int * elements;
+		    uint * elements;
 		    if(arg)
 			    *((char **)arg) = mysql->options.init_command ? mysql->options.init_command->buffer : NULL;
-		    if((elements = va_arg(ap, unsigned int *)))
+		    if((elements = va_arg(ap, uint *)))
 			    *elements = mysql->options.init_command ? mysql->options.init_command->elements : 0;
 	    }
 	    break;
@@ -2913,7 +2913,7 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		case MYSQL_OPT_CONNECT_ATTRS:
 		    /* mysql_get_optionsv(mysql, MYSQL_OPT_CONNECT_ATTRS, keys, vals, elements) */
 	    {
-		    unsigned int i, * elements;
+		    uint i, * elements;
 		    char ** key = NULL;
 		    void * arg1;
 		    char ** val = NULL;
@@ -2925,7 +2925,7 @@ int mysql_get_optionv(MYSQL * mysql, enum mysql_option option, void * arg, ...)
 		    if(arg1)
 			    val = *(char ***)arg1;
 
-		    if(!(elements = va_arg(ap, unsigned int *)))
+		    if(!(elements = va_arg(ap, uint *)))
 			    goto error;
 
 		    *elements = 0;
@@ -3039,7 +3039,7 @@ my_ulonglong STDCALL mysql_num_rows(MYSQL_RES * res)
 	return res->row_count;
 }
 
-unsigned int STDCALL mysql_num_fields(MYSQL_RES * res)
+uint STDCALL mysql_num_fields(MYSQL_RES * res)
 {
 	return res->field_count;
 }
@@ -3072,7 +3072,7 @@ uint STDCALL mysql_field_tell(MYSQL_RES * res)
 
 /* MYSQL */
 
-unsigned int STDCALL mysql_field_count(MYSQL * mysql)
+uint STDCALL mysql_field_count(MYSQL * mysql)
 {
 	return mysql->field_count;
 }
@@ -3090,12 +3090,12 @@ bool STDCALL mysql_autocommit(MYSQL * mysql, bool mode)
 
 bool STDCALL mysql_commit(MYSQL * mysql)
 {
-	return((bool)mysql_real_query(mysql, "COMMIT", (unsigned long)strlen("COMMIT")));
+	return((bool)mysql_real_query(mysql, "COMMIT", (ulong)strlen("COMMIT")));
 }
 
 bool STDCALL mysql_rollback(MYSQL * mysql)
 {
-	return((bool)mysql_real_query(mysql, "ROLLBACK", (unsigned long)strlen("ROLLBACK")));
+	return((bool)mysql_real_query(mysql, "ROLLBACK", (ulong)strlen("ROLLBACK")));
 }
 
 my_ulonglong STDCALL mysql_insert_id(MYSQL * mysql)
@@ -3218,7 +3218,7 @@ int STDCALL mysql_set_character_set(MYSQL * mysql, const char * csname)
 		char buff[64];
 
 		snprintf(buff, 63, "SET NAMES %s", cs->csname);
-		if(!mysql_real_query(mysql, buff, (unsigned long)strlen(buff))) {
+		if(!mysql_real_query(mysql, buff, (ulong)strlen(buff))) {
 			mysql->charset = cs;
 			return 0;
 		}
@@ -3231,7 +3231,7 @@ error:
 	return(mysql->net.last_errno);
 }
 
-unsigned int STDCALL mysql_warning_count(MYSQL * mysql)
+uint STDCALL mysql_warning_count(MYSQL * mysql)
 {
 	return mysql->warning_count;
 }
@@ -3428,7 +3428,7 @@ MARIADB_CHARSET_INFO * STDCALL mariadb_get_charset_by_name(const char * csname)
 	return (MARIADB_CHARSET_INFO*)mysql_find_charset_name(csname);
 }
 
-MARIADB_CHARSET_INFO * STDCALL mariadb_get_charset_by_nr(unsigned int csnr)
+MARIADB_CHARSET_INFO * STDCALL mariadb_get_charset_by_nr(uint csnr)
 {
 	return (MARIADB_CHARSET_INFO*)mysql_find_charset_nr(csnr);
 }
@@ -3536,7 +3536,7 @@ MARIADB_CHARSET_INFO * STDCALL mariadb_get_charset_by_nr(unsigned int csnr)
 		    break;
 		case MARIADB_CONNECTION_ASYNC_TIMEOUT:
 		    if(mysql && mysql->options.extension && mysql->options.extension->async_context) {
-			    unsigned int timeout = mysql->options.extension->async_context->timeout_value;
+			    uint timeout = mysql->options.extension->async_context->timeout_value;
 			    if(timeout > UINT_MAX - 999)
 				    *((uint *)arg) = (timeout - 1)/1000 + 1;
 			    else
@@ -3554,7 +3554,7 @@ MARIADB_CHARSET_INFO * STDCALL mariadb_get_charset_by_nr(unsigned int csnr)
 	    break;
 		case MARIADB_CHARSET_ID:
 	    {
-		    unsigned int nr = va_arg(ap, unsigned int);
+		    uint nr = va_arg(ap, uint);
 		    *((MARIADB_CHARSET_INFO**)arg) = (MARIADB_CHARSET_INFO*)mysql_find_charset_nr(nr);
 	    }
 	    break;

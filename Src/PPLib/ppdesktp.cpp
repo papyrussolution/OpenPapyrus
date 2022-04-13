@@ -1983,7 +1983,7 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					PPBizScoreWindow * p_bizscore_wnd = static_cast<PPBizScoreWindow *>(p_desk->GetServiceView(svcviewBizScore));//p_desk->GetBizScoreWnd();
 					CALLPTRMEMB(p_bizscore_wnd, Move_W());
 					p_desk->ArrangeIcons();
-				}				
+				}
 			}
 			break;
 		case WM_RBUTTONUP:
@@ -2067,8 +2067,8 @@ IMPL_HANDLE_EVENT(PPDesktop)
 					e.message.infoView = 0;
 					p_desk->handleEvent(e);
 					p_desk->select();
-					InvalidateRect(hWnd, 0, TRUE); // @v11.2.8
-					UpdateWindow(hWnd); // @v11.2.8
+					::InvalidateRect(hWnd, 0, TRUE); // @v11.2.8
+					::UpdateWindow(hWnd); // @v11.2.8
 				}
 			}
 			break;

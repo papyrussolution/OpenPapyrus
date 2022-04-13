@@ -92,7 +92,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -120,7 +120,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <BufferSecurityCheck>false</BufferSecurityCheck>
@@ -150,7 +150,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>
@@ -179,7 +179,7 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <CompileAs>CompileAsCpp</CompileAs>
-      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <StringPooling>true</StringPooling>

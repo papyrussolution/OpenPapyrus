@@ -27,7 +27,7 @@ static int rpl_alloc_string(MARIADB_RPL_EVENT * event, MARIADB_STRING * s, uchar
 	return 0;
 }
 
-MARIADB_RPL * STDCALL mariadb_rpl_init_ex(MYSQL * mysql, unsigned int version)
+MARIADB_RPL * STDCALL mariadb_rpl_init_ex(MYSQL * mysql, uint version)
 {
 	MARIADB_RPL * rpl;
 	if(version < MARIADB_RPL_REQUIRED_VERSION || version > MARIADB_RPL_VERSION) {
@@ -265,7 +265,7 @@ MARIADB_RPL_EVENT * STDCALL mariadb_rpl_fetch(MARIADB_RPL * rpl, MARIADB_RPL_EVE
 				    if(rpl_alloc_string(rpl_event, &rpl_event->event.uservar.value, ev, len))
 					    goto mem_error;
 				    ev += len;
-				    if((unsigned long)(ev - rpl->buffer) < rpl->buffer_size)
+				    if((ulong)(ev - rpl->buffer) < rpl->buffer_size)
 					    rpl_event->event.uservar.flags = *ev;
 			    }
 			    break;
@@ -414,12 +414,12 @@ int mariadb_rpl_optionsv(MARIADB_RPL * rpl,
 	    }
 		case MARIADB_RPL_SERVER_ID:
 	    {
-		    rpl->server_id = va_arg(ap, unsigned int);
+		    rpl->server_id = va_arg(ap, uint);
 		    break;
 	    }
 		case MARIADB_RPL_FLAGS:
 	    {
-		    rpl->flags = va_arg(ap, unsigned int);
+		    rpl->flags = va_arg(ap, uint);
 		    break;
 	    }
 		case MARIADB_RPL_START:
@@ -459,13 +459,13 @@ int mariadb_rpl_get_optionsv(MARIADB_RPL * rpl,
 	    }
 		case MARIADB_RPL_SERVER_ID:
 	    {
-		    unsigned int * id = va_arg(ap, unsigned int *);
+		    uint * id = va_arg(ap, uint *);
 		    *id = rpl->server_id;
 		    break;
 	    }
 		case MARIADB_RPL_FLAGS:
 	    {
-		    unsigned int * flags = va_arg(ap, unsigned int *);
+		    uint * flags = va_arg(ap, uint *);
 		    *flags = rpl->flags;
 		    break;
 	    }

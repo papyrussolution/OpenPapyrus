@@ -82,8 +82,8 @@ typedef struct _OwnedMem {
 // Suballocator
 typedef struct _SubAllocator {
 	uint8 * Block;
-	cmsUInt32Number BlockSize;
-	cmsUInt32Number Used;
+	uint32 BlockSize;
+	uint32 Used;
 } SUBALLOCATOR;
 
 // Table. Each individual table can hold properties and rows & cols
@@ -107,8 +107,8 @@ typedef struct _FileContext {
 
 // This struct hold all information about an open IT8 handler.
 typedef struct {
-	cmsUInt32Number TablesCount;                      // How many tables in this stream
-	cmsUInt32Number nTable;                           // The actual table
+	uint32 TablesCount;                      // How many tables in this stream
+	uint32 nTable;                           // The actual table
 
 	TABLE Tab[MAXTABLES];
 
@@ -120,7 +120,7 @@ typedef struct {
 	SYMBOL sy;                            // Current symbol
 	int ch;                               // Current character
 
-	cmsInt32Number inum;                  // integer value
+	int32 inum;                  // integer value
 	double dnum;                // real value
 
 	char id[MAXID];                       // identifier
@@ -131,10 +131,10 @@ typedef struct {
 	KEYVALUE*      ValidSampleID;
 
 	char *          Source;                // Points to loc. being parsed
-	cmsInt32Number lineno;                // line counter for error reporting
+	int32 lineno;                // line counter for error reporting
 
 	FILECTX*       FileStack[MAXINCLUDE]; // Stack of files being parsed
-	cmsInt32Number IncludeSP;             // Include Stack Pointer
+	int32 IncludeSP;             // Include Stack Pointer
 
 	char *          MemoryBlock;           // The stream if holded in memory
 
@@ -149,8 +149,8 @@ typedef struct {
 
 	uint8 * Base;
 	uint8 * Ptr;        // For save-to-mem behaviour
-	cmsUInt32Number Used;
-	cmsUInt32Number Max;
+	uint32 Used;
+	uint32 Max;
 } SAVESTREAM;
 
 // ------------------------------------------------------ cmsIT8 parsing routines
@@ -340,7 +340,7 @@ static const char * PredefinedSampleID[] = {
 #define NUMPREDEFINEDSAMPLEID (sizeof(PredefinedSampleID)/sizeof(char *))
 
 //Forward declaration of some internal functions
-static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size);
+static void * AllocChunk(cmsIT8* it8, uint32 size);
 
 // Checks whatever c is a separator
 static boolint isseparator(int c)
@@ -387,10 +387,10 @@ static boolint isabsolutepath(const char * path)
 
 // Makes a file path based on a given reference path
 // NOTE: this function doesn't check if the path exists or even if it's legal
-static boolint BuildAbsolutePath(const char * relPath, const char * basePath, char * buffer, cmsUInt32Number MaxLen)
+static boolint BuildAbsolutePath(const char * relPath, const char * basePath, char * buffer, uint32 MaxLen)
 {
 	char * tail;
-	cmsUInt32Number len;
+	uint32 len;
 	// Already absolute?
 	if(isabsolutepath(relPath)) {
 		strncpy(buffer, relPath, MaxLen);
@@ -403,7 +403,7 @@ static boolint BuildAbsolutePath(const char * relPath, const char * basePath, ch
 	tail = strrchr(buffer, DIR_CHAR);
 	if(tail == NULL) 
 		return FALSE; // Is not absolute and has no separators??
-	len = (cmsUInt32Number)(tail - buffer);
+	len = (uint32)(tail - buffer);
 	if(len >= MaxLen) 
 		return FALSE;
 	// No need to assure zero terminator over here
@@ -488,7 +488,7 @@ static double xpow10(int n)
 }
 
 //  Reads a Real number, tries to follow from integer number
-static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
+static void ReadReal(cmsIT8* it8, int32 inum)
 {
 	it8->dnum = (double)inum;
 	while(isdigit(it8->ch)) {
@@ -513,8 +513,8 @@ static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 
 	// Exponent, example 34.00E+20
 	if(toupper(it8->ch) == 'E') {
-		cmsInt32Number e;
-		cmsInt32Number sgn;
+		int32 e;
+		int32 sgn;
 
 		NextCh(it8); sgn = 1;
 
@@ -528,7 +528,7 @@ static void ReadReal(cmsIT8* it8, cmsInt32Number inum)
 
 		e = 0;
 		while(isdigit(it8->ch)) {
-			cmsInt32Number digit = (it8->ch - '0');
+			int32 digit = (it8->ch - '0');
 
 			if((double)e * 10.0 + (double)digit < (double)+2147483647.0)
 				e = e * 10 + digit;
@@ -596,7 +596,7 @@ static double ParseFloatNumber(const char * Buffer)
 
 		e = 0;
 		while(*Buffer && isdigit((int)*Buffer)) {
-			cmsInt32Number digit = (*Buffer - '0');
+			int32 digit = (*Buffer - '0');
 			if((double)e * 10.0 + digit < (double)+2147483647.0)
 				e = e * 10 + digit;
 			if(*Buffer) Buffer++;
@@ -687,7 +687,7 @@ static void InSymbol(cmsIT8* it8)
 			}
 
 			while(isdigit(it8->ch)) {
-				cmsInt32Number digit = (it8->ch - '0');
+				int32 digit = (it8->ch - '0');
 
 				if((double)it8->inum * 10.0 + (double)digit > (double) +2147483647.0) {
 					ReadReal(it8, it8->inum);
@@ -862,7 +862,7 @@ static void SkipEOLN(cmsIT8* it8)
 }
 
 // Returns a string holding current value
-static boolint GetVal(cmsIT8* it8, char * Buffer, cmsUInt32Number max, const char * ErrorTitle)
+static boolint GetVal(cmsIT8* it8, char * Buffer, uint32 max, const char * ErrorTitle)
 {
 	switch(it8->sy) {
 		case SEOLN: // Empty value
@@ -913,7 +913,7 @@ void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8)
 }
 
 // Allocates a chunk of data, keep linked list
-static void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
+static void * AllocBigBlock(cmsIT8* it8, uint32 size)
 {
 	OWNEDMEM* ptr1;
 	void * ptr = _cmsMallocZero(it8->ContextID, size);
@@ -931,9 +931,9 @@ static void * AllocBigBlock(cmsIT8* it8, cmsUInt32Number size)
 }
 
 // Suballocator.
-static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
+static void * AllocChunk(cmsIT8* it8, uint32 size)
 {
-	cmsUInt32Number Free = it8->Allocator.BlockSize - it8->Allocator.Used;
+	uint32 Free = it8->Allocator.BlockSize - it8->Allocator.Used;
 	uint8 * ptr;
 	size = _cmsALIGNMEM(size);
 	if(size > Free) {
@@ -959,7 +959,7 @@ static void * AllocChunk(cmsIT8* it8, cmsUInt32Number size)
 // Allocates a string
 static char * AllocString(cmsIT8* it8, const char * str)
 {
-	cmsUInt32Number Size = (cmsUInt32Number)strlen(str)+1;
+	uint32 Size = (uint32)strlen(str)+1;
 	char * ptr = (char *)AllocChunk(it8, Size);
 	if(ptr) 
 		strncpy(ptr, str, Size-1);
@@ -1070,7 +1070,7 @@ static void AllocTable(cmsIT8* it8)
 	it8->TablesCount++;
 }
 
-cmsInt32Number CMSEXPORT cmsIT8SetTable(cmsHANDLE IT8, cmsUInt32Number nTable)
+int32 CMSEXPORT cmsIT8SetTable(cmsHANDLE IT8, uint32 nTable)
 {
 	cmsIT8* it8 = (cmsIT8*)IT8;
 
@@ -1086,14 +1086,14 @@ cmsInt32Number CMSEXPORT cmsIT8SetTable(cmsHANDLE IT8, cmsUInt32Number nTable)
 
 	it8->nTable = nTable;
 
-	return (cmsInt32Number)nTable;
+	return (int32)nTable;
 }
 
 // Init an empty container
 cmsHANDLE CMSEXPORT cmsIT8Alloc(cmsContext ContextID)
 {
 	cmsIT8* it8;
-	cmsUInt32Number i;
+	uint32 i;
 
 	it8 = (cmsIT8*)_cmsMallocZero(ContextID, sizeof(cmsIT8));
 	if(it8 == NULL) return NULL;
@@ -1174,7 +1174,7 @@ boolint CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, doubl
 	return AddToList(it8, &GetTable(it8)->HeaderList, cProp, NULL, Buffer, WRITE_UNCOOKED) != NULL;
 }
 
-boolint CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val)
+boolint CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, uint32 Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buffer[1024];
@@ -1229,7 +1229,7 @@ static void AllocateDataFormat(cmsIT8* it8)
 			SynError(it8, "AllocateDataFormat: Unknown NUMBER_OF_FIELDS");
 			t->nSamples = 10;
 		}
-		t->DataFormat = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * sizeof(char *));
+		t->DataFormat = (char **)AllocChunk(it8, ((uint32)t->nSamples + 1) * sizeof(char *));
 		if(t->DataFormat == NULL) {
 			SynError(it8, "AllocateDataFormat: Unable to allocate dataFormat array");
 		}
@@ -1273,7 +1273,7 @@ static void AllocateDataSet(cmsIT8* it8)
 			SynError(it8, "AllocateDataSet: too much data");
 		}
 		else {
-			t->Data = (char **)AllocChunk(it8, ((cmsUInt32Number)t->nSamples + 1) * ((cmsUInt32Number)t->nPatches + 1) * sizeof(char *));
+			t->Data = (char **)AllocChunk(it8, ((uint32)t->nSamples + 1) * ((uint32)t->nPatches + 1) * sizeof(char *));
 			if(t->Data == NULL) {
 				SynError(it8, "AllocateDataSet: Unable to allocate data array");
 			}
@@ -1314,13 +1314,13 @@ static boolint SetData(cmsIT8* it8, int nSet, int nField, const char * Val)
 // Writes a string to file
 static void WriteStr(SAVESTREAM* f, const char * str)
 {
-	cmsUInt32Number len;
+	uint32 len;
 
 	if(str == NULL)
 		str = " ";
 
 	// Length to write
-	len = (cmsUInt32Number)strlen(str);
+	len = (uint32)strlen(str);
 	f->Used += len;
 
 	if(f->stream) { // Should I write it to a file?
@@ -1472,7 +1472,7 @@ static void WriteData(SAVESTREAM* fp, cmsIT8* it8)
 boolint CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName)
 {
 	SAVESTREAM sd;
-	cmsUInt32Number i;
+	uint32 i;
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	memzero(&sd, sizeof(sd));
 	sd.stream = fopen(cFileName, "wt");
@@ -1488,10 +1488,10 @@ boolint CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName)
 }
 
 // Saves to memory
-boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded)
+boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, uint32* BytesNeeded)
 {
 	SAVESTREAM sd;
-	cmsUInt32Number i;
+	uint32 i;
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	memzero(&sd, sizeof(sd));
 	sd.stream = NULL;
@@ -1698,7 +1698,7 @@ static boolint HeaderSection(cmsIT8* it8)
 
 static void ReadType(cmsIT8* it8, char * SheetTypePtr)
 {
-	cmsInt32Number cnt = 0;
+	int32 cnt = 0;
 
 	// First line is a very special case.
 
@@ -1790,8 +1790,8 @@ static void CookPointers(cmsIT8* it8)
 {
 	int idField, i;
 	char * Fld;
-	cmsUInt32Number j;
-	cmsUInt32Number nOldTable = it8->nTable;
+	uint32 j;
+	uint32 nOldTable = it8->nTable;
 
 	for(j = 0; j < it8->TablesCount; j++) {
 		TABLE* t = it8->Tab + j;
@@ -1820,7 +1820,7 @@ static void CookPointers(cmsIT8* it8)
 					char * Label = GetData(it8, i, idField);
 
 					if(Label) {
-						cmsUInt32Number k;
+						uint32 k;
 
 						// This is the label, search for a table containing
 						// this property
@@ -1853,10 +1853,10 @@ static void CookPointers(cmsIT8* it8)
 // Try to infere if the file is a CGATS/IT8 file at all. Read first line
 // that should be something like some printable characters plus a \n
 // returns 0 if this is not like a CGATS, or an integer otherwise. This integer is the number of words in first line?
-static int IsMyBlock(const uint8 * Buffer, cmsUInt32Number n)
+static int IsMyBlock(const uint8 * Buffer, uint32 n)
 {
 	int words = 1, space = 0, quot = 0;
-	cmsUInt32Number i;
+	uint32 i;
 
 	if(n < 10) return 0; // Too small
 
@@ -1892,7 +1892,7 @@ static int IsMyBlock(const uint8 * Buffer, cmsUInt32Number n)
 static boolint IsMyFile(const char * FileName)
 {
 	FILE * fp;
-	cmsUInt32Number Size;
+	uint32 Size;
 	uint8 Ptr[133];
 
 	fp = fopen(FileName, "rt");
@@ -1901,7 +1901,7 @@ static boolint IsMyFile(const char * FileName)
 		return FALSE;
 	}
 
-	Size = (cmsUInt32Number)fread(Ptr, 1, 132, fp);
+	Size = (uint32)fread(Ptr, 1, 132, fp);
 
 	if(fclose(fp) != 0)
 		return FALSE;
@@ -1913,7 +1913,7 @@ static boolint IsMyFile(const char * FileName)
 
 // ---------------------------------------------------------- Exported routines
 
-cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cmsUInt32Number len)
+cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, uint32 len)
 {
 	cmsHANDLE hIT8;
 	cmsIT8*  it8;
@@ -1993,11 +1993,11 @@ int CMSEXPORT cmsIT8EnumDataFormat(cmsHANDLE hIT8, char *** SampleNames)
 	return t->nSamples;
 }
 
-cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames)
+uint32 CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	KEYVALUE* p;
-	cmsUInt32Number n;
+	uint32 n;
 	char ** Props;
 	TABLE* t;
 
@@ -2024,11 +2024,11 @@ cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** Property
 	return n;
 }
 
-cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames)
+uint32 CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	KEYVALUE * p, * tmp;
-	cmsUInt32Number n;
+	uint32 n;
 	const char ** Props;
 	TABLE* t;
 
@@ -2269,7 +2269,7 @@ int CMSEXPORT cmsIT8GetPatchByName(cmsHANDLE hIT8, const char * cPatch)
 	return LocatePatch((cmsIT8*)hIT8, cPatch);
 }
 
-cmsUInt32Number CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8)
+uint32 CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	_cmsAssert(hIT8 != NULL);
@@ -2283,7 +2283,7 @@ int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const cha
 {
 	const char * cLabelFld;
 	char Type[256], Label[256];
-	cmsUInt32Number nTable;
+	uint32 nTable;
 	_cmsAssert(hIT8 != NULL);
 	if(cField != NULL && *cField == 0)
 		cField = "LABEL";

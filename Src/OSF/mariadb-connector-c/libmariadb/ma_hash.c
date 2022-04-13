@@ -172,7 +172,7 @@ uint calc_hashnr_caseup(const uchar * key, uint len)
 #ifndef __SUNPRO_C                              /* SUNPRO can't handle this */
 static inline
 #endif
-unsigned int rec_hashnr(HASH * hash, const uchar * record)
+uint rec_hashnr(HASH * hash, const uchar * record)
 {
 	uint length;
 	uchar * key = (uchar *)hash_key(hash, record, &length, 0);

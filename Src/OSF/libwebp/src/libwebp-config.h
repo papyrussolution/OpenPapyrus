@@ -118,7 +118,7 @@
    significant byte first (like Motorola and SPARC, unlike Intel). */
 #if defined AC_APPLE_UNIVERSAL_BUILD
 # if defined __BIG_ENDIAN__
-#  define WORDS_BIGENDIAN 1
+#define WORDS_BIGENDIAN 1
 # endif
 #else
 # ifndef WORDS_BIGENDIAN

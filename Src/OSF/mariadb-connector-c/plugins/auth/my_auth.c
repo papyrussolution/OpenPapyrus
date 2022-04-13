@@ -102,7 +102,7 @@ auth_plugin_t dummy_fallback_client_plugin =
 static int dummy_fallback_auth_client(MYSQL_PLUGIN_VIO * vio, MYSQL * mysql __attribute__((unused)))
 {
 	char last_error[MYSQL_ERRMSG_SIZE];
-	unsigned int i, last_errno = ((MCPVIO_EXT*)vio)->mysql->net.last_errno;
+	uint i, last_errno = ((MCPVIO_EXT*)vio)->mysql->net.last_errno;
 	if(last_errno) {
 		strncpy(last_error, ((MCPVIO_EXT*)vio)->mysql->net.last_error, sizeof(last_error) - 1);
 		last_error[sizeof(last_error) - 1] = 0;

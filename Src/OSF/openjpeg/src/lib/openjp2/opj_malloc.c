@@ -16,28 +16,43 @@
  * 2. Redistributions in binary form must reproduce the above copyright
  *    notice, this list of conditions and the following disclaimer in the
  *    documentation and/or other materials provided with the distribution.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS `AS IS'
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "opj_includes.h"
 #pragma hdrstop
-// @sobolev #define OPJ_SKIP_POISON
-// @sobolev #include "opj_includes.h"
+#define OPJ_SKIP_POISON
+
 #if defined(OPJ_HAVE_MALLOC_H) && defined(OPJ_HAVE_MEMALIGN)
-	#include <malloc.h>
+#include <malloc.h>
 #endif
+
 #ifndef SIZE_MAX
-	#define SIZE_MAX ((size_t)-1)
+# define SIZE_MAX ((size_t)-1)
 #endif
 
 static INLINE void * opj_aligned_alloc_n(size_t alignment, size_t size)
 {
-	void * ptr;
+	void* ptr;
 	/* alignment shall be power of 2 */
 	assert((alignment != 0U) && ((alignment & (alignment - 1U)) == 0U));
-	/* alignment shall be at least sizeof(void *) */
-	assert(alignment >= sizeof(void *));
+	/* alignment shall be at least sizeof(void*) */
+	assert(alignment >= sizeof(void*));
+
 	if(size == 0U) { /* prevent implementation defined behavior of realloc */
 		return NULL;
 	}
+
 #if defined(OPJ_HAVE_POSIX_MEMALIGN)
 	/* aligned_alloc requires c11, restrict to posix_memalign for now. Quote:
 	 * This function was introduced in POSIX 1003.1d. Although this function is
@@ -71,14 +86,15 @@ static INLINE void * opj_aligned_alloc_n(size_t alignment, size_t size)
 		if(size > (SIZE_MAX - overhead)) {
 			return NULL;
 		}
-		mem = (uint8 *)malloc(size + overhead);
+		mem = (uint8*)SAlloc::M(size + overhead);
 		if(mem == NULL) {
 			return mem;
 		}
-		/* offset = ((alignment + 1U) - ((size_t)(mem + sizeof(void *)) & alignment)) & alignment; */
+		/* offset = ((alignment + 1U) - ((size_t)(mem + sizeof(void*)) & alignment)) & alignment; */
 		/* Use the fact that alignment + 1U is a power of 2 */
-		offset = ((alignment ^ ((size_t)(mem + sizeof(void *)) & alignment)) + 1U) & alignment;
-		ptr = (void *)(mem + sizeof(void *) + offset);
+		offset = ((alignment ^ ((size_t)(mem + sizeof(void*)) & alignment)) + 1U) &
+		    alignment;
+		ptr = (void*)(mem + sizeof(void*) + offset);
 		((void**)ptr)[-1] = mem;
 	}
 #endif
@@ -90,15 +106,15 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 	void * r_ptr;
 	/* alignment shall be power of 2 */
 	assert((alignment != 0U) && ((alignment & (alignment - 1U)) == 0U));
-	/* alignment shall be at least sizeof(void *) */
-	assert(alignment >= sizeof(void *));
+	/* alignment shall be at least sizeof(void*) */
+	assert(alignment >= sizeof(void*));
 	if(new_size == 0U) { /* prevent implementation defined behavior of realloc */
 		return NULL;
 	}
 	/* no portable aligned realloc */
 #if defined(OPJ_HAVE_POSIX_MEMALIGN) || defined(OPJ_HAVE_MEMALIGN)
 	/* glibc doc states one can mix aligned malloc with realloc */
-	r_ptr = realloc(ptr, new_size); /* fast path */
+	r_ptr = SAlloc::R(ptr, new_size); /* fast path */
 	/* we simply use `size_t` to cast, since we are only interest in binary AND
 	 * operator */
 	if(((size_t)r_ptr & (alignment - 1U)) != 0U) {
@@ -110,7 +126,7 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 		if(a_ptr != NULL) {
 			memcpy(a_ptr, r_ptr, new_size);
 		}
-		free(r_ptr);
+		SAlloc::F(r_ptr);
 		r_ptr = a_ptr;
 	}
 	/* _MSC_VER */
@@ -132,7 +148,7 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 			return NULL;
 		}
 		oldmem = ((void**)ptr)[-1];
-		newmem = (uint8 *)realloc(oldmem, new_size + overhead);
+		newmem = (uint8*)SAlloc::R(oldmem, new_size + overhead);
 		if(newmem == NULL) {
 			return newmem;
 		}
@@ -143,12 +159,12 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 			size_t old_offset;
 			size_t new_offset;
 			/* realloc created a new copy, realign the copied memory block */
-			old_offset = (size_t)((uint8 *)ptr - (uint8 *)oldmem);
-			/* offset = ((alignment + 1U) - ((size_t)(mem + sizeof(void *)) & alignment)) & alignment; */
+			old_offset = (size_t)((uint8*)ptr - (uint8*)oldmem);
+			/* offset = ((alignment + 1U) - ((size_t)(mem + sizeof(void*)) & alignment)) & alignment; */
 			/* Use the fact that alignment + 1U is a power of 2 */
-			new_offset  = ((alignment ^ ((size_t)(newmem + sizeof(void *)) & alignment)) + 1U) & alignment;
-			new_offset += sizeof(void *);
-			r_ptr = (void *)(newmem + new_offset);
+			new_offset  = ((alignment ^ ((size_t)(newmem + sizeof(void*)) & alignment)) + 1U) & alignment;
+			new_offset += sizeof(void*);
+			r_ptr = (void*)(newmem + new_offset);
 			if(new_offset != old_offset) {
 				memmove(newmem + new_offset, newmem + old_offset, new_size);
 			}
@@ -159,47 +175,53 @@ static INLINE void * opj_aligned_realloc_n(void * ptr, size_t alignment, size_t 
 	return r_ptr;
 }
 
-void * opj_malloc_Removed(size_t size)
+void * opj_malloc(size_t size)
 {
-	if(size == 0U) { // prevent implementation defined behavior of realloc 
-		return NULL;
-	}
-	return malloc(size);
+	return size ? SAlloc::M(size) : NULL/* prevent implementation defined behavior of realloc */;
 }
 
-void * opj_calloc_Removed(size_t num, size_t size)
+void * opj_calloc(size_t num, size_t size)
 {
-	if(num == 0 || size == 0) { // prevent implementation defined behavior of realloc 
-		return NULL;
-	}
-	return calloc(num, size);
+	return (num && size) ? SAlloc::C(num, size) : NULL/* prevent implementation defined behavior of realloc */;
 }
 
-void * opj_aligned_malloc(size_t size) { return opj_aligned_alloc_n(16U, size); }
-void * opj_aligned_realloc(void * ptr, size_t size) { return opj_aligned_realloc_n(ptr, 16U, size); }
-void * opj_aligned_32_malloc(size_t size) { return opj_aligned_alloc_n(32U, size); }
-void * opj_aligned_32_realloc(void * ptr, size_t size) { return opj_aligned_realloc_n(ptr, 32U, size); }
+void * opj_aligned_malloc(size_t size)
+{
+	return opj_aligned_alloc_n(16U, size);
+}
 
-void opj_aligned_free(void * ptr)
+void * opj_aligned_realloc(void * ptr, size_t size)
+{
+	return opj_aligned_realloc_n(ptr, 16U, size);
+}
+
+void * opj_aligned_32_malloc(size_t size)
+{
+	return opj_aligned_alloc_n(32U, size);
+}
+
+void * opj_aligned_32_realloc(void * ptr, size_t size)
+{
+	return opj_aligned_realloc_n(ptr, 32U, size);
+}
+
+void opj_aligned_free(void* ptr)
 {
 #if defined(OPJ_HAVE_POSIX_MEMALIGN) || defined(OPJ_HAVE_MEMALIGN)
-	free(ptr);
+	SAlloc::F(ptr);
 #elif defined(OPJ_HAVE__ALIGNED_MALLOC)
 	_aligned_free(ptr);
 #else
-	// Generic implementation has malloced pointer stored in front of used area 
+	/* Generic implementation has malloced pointer stored in front of used area */
 	if(ptr != NULL) {
-		free(((void**)ptr)[-1]);
+		SAlloc::F(((void**)ptr)[-1]);
 	}
 #endif
 }
 
-void * opj_realloc_Removed(void * ptr, size_t new_size)
+void * opj_realloc(void * ptr, size_t new_size)
 {
-	if(new_size == 0U) { /* prevent implementation defined behavior of realloc */
-		return NULL;
-	}
-	return realloc(ptr, new_size);
+	return new_size ? SAlloc::R(ptr, new_size) : NULL/* prevent implementation defined behavior of realloc */;
 }
 
-// @sobolev void FASTCALL opj_free_Removed(void * ptr) { free(ptr); }
+// @sobolev (replaced with SAlloc::F) void opj_free__Removed(void * ptr) { SAlloc::F(ptr); }

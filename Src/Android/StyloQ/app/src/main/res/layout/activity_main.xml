@@ -44,6 +44,10 @@
                 android:layout_gravity="center_vertical|right"
                 app:srcCompat="@drawable/ic_test01"/>
     </Toolbar>
+        <ImageView android:id="@+id/TEST_LOADED_IMAGE"
+            android:layout_width="64dp"
+            android:layout_height="64dp">
+        </ImageView>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/serviceListView"
         android:layout_width="match_parent"

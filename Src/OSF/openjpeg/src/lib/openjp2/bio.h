@@ -26,95 +26,92 @@
 #define OPJ_BIO_H
 
 #include <stddef.h> /* ptrdiff_t */
-/**
-@file bio.h
-@brief Implementation of an individual bit input-output (BIO)
 
-The functions in BIO.C have for goal to realize an individual bit input - output.
-*/
+/**
+   @file bio.h
+   @brief Implementation of an individual bit input-output (BIO)
+
+   The functions in BIO.C have for goal to realize an individual bit input - output.
+ */
 
 /** @defgroup BIO BIO - Individual bit input-output stream */
 /*@{*/
 
 /**
-Individual bit input-output stream (BIO)
-*/
+   Individual bit input-output stream (BIO)
+ */
 typedef struct opj_bio {
-    /** pointer to the start of the buffer */
-    uint8 *start;
-    /** pointer to the end of the buffer */
-    uint8 *end;
-    /** pointer to the present position in the buffer */
-    uint8 *bp;
-    /** temporary place where each byte is read or written */
-    OPJ_UINT32 buf;
-    /** coder : number of bits free to write. decoder : number of bits read */
-    OPJ_UINT32 ct;
+	/** pointer to the start of the buffer */
+	uint8 * start;
+	/** pointer to the end of the buffer */
+	uint8 * end;
+	/** pointer to the present position in the buffer */
+	uint8 * bp;
+	/** temporary place where each byte is read or written */
+	uint32_t buf;
+	/** coder : number of bits free to write. decoder : number of bits read */
+	uint32_t ct;
 } opj_bio_t;
 
 /** @name Exported functions */
 /*@{*/
-/* ----------------------------------------------------------------------- */
 /**
-Create a new BIO handle
-@return Returns a new BIO handle if successful, returns NULL otherwise
-*/
+   Create a new BIO handle
+   @return Returns a new BIO handle if successful, returns NULL otherwise
+ */
 opj_bio_t* opj_bio_create(void);
 /**
-Destroy a previously created BIO handle
-@param bio BIO handle to destroy
-*/
-void opj_bio_destroy(opj_bio_t *bio);
+   Destroy a previously created BIO handle
+   @param bio BIO handle to destroy
+ */
+void opj_bio_destroy(opj_bio_t * bio);
 /**
-Number of bytes written.
-@param bio BIO handle
-@return Returns the number of bytes written
-*/
-ptrdiff_t opj_bio_numbytes(opj_bio_t *bio);
+   Number of bytes written.
+   @param bio BIO handle
+   @return Returns the number of bytes written
+ */
+ptrdiff_t opj_bio_numbytes(opj_bio_t * bio);
 /**
-Init encoder
-@param bio BIO handle
-@param bp Output buffer
-@param len Output buffer length
-*/
-void opj_bio_init_enc(opj_bio_t *bio, uint8 *bp, OPJ_UINT32 len);
+   Init encoder
+   @param bio BIO handle
+   @param bp Output buffer
+   @param len Output buffer length
+ */
+void opj_bio_init_enc(opj_bio_t * bio, uint8 * bp, uint32_t len);
 /**
-Init decoder
-@param bio BIO handle
-@param bp Input buffer
-@param len Input buffer length
-*/
-void opj_bio_init_dec(opj_bio_t *bio, uint8 *bp, OPJ_UINT32 len);
+   Init decoder
+   @param bio BIO handle
+   @param bp Input buffer
+   @param len Input buffer length
+ */
+void opj_bio_init_dec(opj_bio_t * bio, uint8 * bp, uint32_t len);
 /**
-Write bits
-@param bio BIO handle
-@param v Value of bits
-@param n Number of bits to write
-*/
-void FASTCALL opj_bio_write(opj_bio_t *bio, OPJ_UINT32 v, OPJ_UINT32 n);
+   Write bits
+   @param bio BIO handle
+   @param v Value of bits
+   @param n Number of bits to write
+ */
+void opj_bio_write(opj_bio_t * bio, uint32_t v, uint32_t n);
 /**
-Read bits
-@param bio BIO handle
-@param n Number of bits to read
-@return Returns the corresponding read number
-*/
-OPJ_UINT32 FASTCALL opj_bio_read(opj_bio_t *bio, OPJ_UINT32 n);
+   Read bits
+   @param bio BIO handle
+   @param n Number of bits to read
+   @return Returns the corresponding read number
+ */
+uint32_t opj_bio_read(opj_bio_t * bio, uint32_t n);
 /**
-Flush bits
-@param bio BIO handle
-@return Returns TRUE if successful, returns FALSE otherwise
-*/
-boolint opj_bio_flush(opj_bio_t *bio);
+   Flush bits
+   @param bio BIO handle
+   @return Returns TRUE if successful, returns FALSE otherwise
+ */
+boolint opj_bio_flush(opj_bio_t * bio);
 /**
-Passes the ending bits (coming from flushing)
-@param bio BIO handle
-@return Returns TRUE if successful, returns FALSE otherwise
-*/
-boolint opj_bio_inalign(opj_bio_t *bio);
-/* ----------------------------------------------------------------------- */
+   Passes the ending bits (coming from flushing)
+   @param bio BIO handle
+   @return Returns TRUE if successful, returns FALSE otherwise
+ */
+boolint opj_bio_inalign(opj_bio_t * bio);
 /*@}*/
-
 /*@}*/
 
 #endif /* OPJ_BIO_H */
-

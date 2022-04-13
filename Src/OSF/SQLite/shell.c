@@ -107,7 +107,7 @@ typedef unsigned char u8;
 #include <dirent.h>
 #define GETPID getpid
 #if defined(__MINGW32__)
-#  define DIRENT dirent
+#define DIRENT dirent
 #  ifndef S_ISLNK
 #   define S_ISLNK(mode) (0)
 #  endif
@@ -155,11 +155,11 @@ typedef unsigned char u8;
 
 #if defined(_WIN32) || defined(WIN32)
 #if SQLITE_OS_WINRT
-#  define SQLITE_OMIT_POPEN 1
+#define SQLITE_OMIT_POPEN 1
 # else
 #include <io.h>
 #include <fcntl.h>
-#  define isatty(h) _isatty(h)
+#define isatty(h) _isatty(h)
 #  ifndef access
 #   define access(f, m) _access((f), (m))
 #  endif
@@ -170,9 +170,9 @@ typedef unsigned char u8;
 #   define strdup _strdup
 #  endif
 #undef popen
-#  define popen _popen
+#define popen _popen
 #undef pclose
-#  define pclose _pclose
+#define pclose _pclose
 #endif
 #else
 /* Make sure isatty() has a prototype. */
@@ -184,7 +184,7 @@ extern int isatty(int);
 extern FILE * popen(const char*, const char*);
 extern int pclose(FILE*);
 # else
-#  define SQLITE_OMIT_POPEN 1
+#define SQLITE_OMIT_POPEN 1
 #endif
 #endif
 
@@ -1157,11 +1157,11 @@ typedef unsigned short ino_t;
 */
 
 #ifndef NULL_INTPTR_T
-#  define NULL_INTPTR_T ((intptr_t)(0))
+#define NULL_INTPTR_T ((intptr_t)(0))
 #endif
 
 #ifndef BAD_INTPTR_T
-#  define BAD_INTPTR_T ((intptr_t)(-1))
+#define BAD_INTPTR_T ((intptr_t)(-1))
 #endif
 
 /*
@@ -1200,7 +1200,7 @@ struct DIR {
 */
 
 #ifndef is_filtered
-#  define is_filtered(a) ((((a).attrib)&_A_HIDDEN) || (((a).attrib)&_A_SYSTEM))
+#define is_filtered(a) ((((a).attrib)&_A_HIDDEN) || (((a).attrib)&_A_SYSTEM))
 #endif
 
 /*
@@ -2237,15 +2237,15 @@ SQLITE_EXTENSION_INIT1
 #include <io.h>
 #include <direct.h>
 /* #include "test_windirent.h" */
-#  define dirent DIRENT
+#define dirent DIRENT
 #  ifndef chmod
 #    define chmod _chmod
 #  endif
 #  ifndef stat
 #    define stat _stat
 #  endif
-#  define mkdir(path, mode) _mkdir(path)
-#  define lstat(path, buf) stat(path, buf)
+#define mkdir(path, mode) _mkdir(path)
+#define lstat(path, buf) stat(path, buf)
 #endif
 #include <time.h>
 #include <errno.h>
@@ -6772,16 +6772,16 @@ SQLITE_EXTENSION_INIT1
 
 #ifndef UINT32_TYPE
 #ifdef HAVE_UINT32_T
-#  define UINT32_TYPE uint32_t
+#define UINT32_TYPE uint32_t
 # else
-#  define UINT32_TYPE unsigned int
+#define UINT32_TYPE unsigned int
 #endif
 #endif
 #ifndef UINT16_TYPE
 #ifdef HAVE_UINT16_T
-#  define UINT16_TYPE uint16_t
+#define UINT16_TYPE uint16_t
 # else
-#  define UINT16_TYPE unsigned short int
+#define UINT16_TYPE unsigned short int
 #endif
 #endif
 /* typedef sqlite3_int64 i64; */

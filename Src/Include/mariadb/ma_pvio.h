@@ -74,7 +74,7 @@ struct st_ma_pvio {
 	MARIADB_TLS * ctls;
 	MYSQL * mysql;
 	PVIO_METHODS * methods;
-	void (* set_error)(MYSQL * mysql, unsigned int error_nr, const char * sqlstate, const char * format, ...);
+	void (* set_error)(MYSQL * mysql, uint error_nr, const char * sqlstate, const char * format, ...);
 	void (* callback)(MARIADB_PVIO * pvio, bool is_read, const uchar * buffer, size_t length);
 };
 

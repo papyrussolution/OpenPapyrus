@@ -17,28 +17,20 @@
 
 // Auxiliary: append a Lab identity after the given sequence of profiles
 // and return the transform. Lab profile is closed, rest of profiles are kept open.
-cmsHTRANSFORM _cmsChain2Lab(cmsContext ContextID,
-    cmsUInt32Number nProfiles,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat,
-    const cmsUInt32Number Intents[],
-    const cmsHPROFILE hProfiles[],
-    const boolint BPC[],
-    const double AdaptationStates[],
-    cmsUInt32Number dwFlags)
+cmsHTRANSFORM _cmsChain2Lab(cmsContext ContextID, uint32 nProfiles, uint32 InputFormat, uint32 OutputFormat,
+    const uint32 Intents[], const cmsHPROFILE hProfiles[], const boolint BPC[], const double AdaptationStates[], uint32 dwFlags)
 {
 	cmsHTRANSFORM xform;
 	cmsHPROFILE hLab;
 	cmsHPROFILE ProfileList[256];
 	boolint BPCList[256];
 	double AdaptationList[256];
-	cmsUInt32Number IntentList[256];
-	cmsUInt32Number i;
-
+	uint32 IntentList[256];
+	uint32 i;
 	// This is a rather big number and there is no need of dynamic memory
 	// since we are adding a profile, 254 + 1 = 255 and this is the limit
-	if(nProfiles > 254) return NULL;
-
+	if(nProfiles > 254) 
+		return NULL;
 	// The output space
 	hLab = cmsCreateLab4ProfileTHR(ContextID, NULL);
 	if(hLab == NULL) return NULL;
@@ -74,11 +66,11 @@ cmsHTRANSFORM _cmsChain2Lab(cmsContext ContextID,
 
 // Compute K -> L* relationship. Flags may include black point compensation. In this case,
 // the relationship is assumed from the profile with BPC to a black point zero.
-static cmsToneCurve * ComputeKToLstar(cmsContext ContextID, cmsUInt32Number nPoints, cmsUInt32Number nProfiles,
-    const cmsUInt32Number Intents[], const cmsHPROFILE hProfiles[], const boolint BPC[], const double AdaptationStates[], cmsUInt32Number dwFlags)
+static cmsToneCurve * ComputeKToLstar(cmsContext ContextID, uint32 nPoints, uint32 nProfiles,
+    const uint32 Intents[], const cmsHPROFILE hProfiles[], const boolint BPC[], const double AdaptationStates[], uint32 dwFlags)
 {
 	cmsToneCurve * out = NULL;
-	cmsUInt32Number i;
+	uint32 i;
 	cmsHTRANSFORM xform;
 	cmsCIELab Lab;
 	float cmyk[4];
@@ -114,13 +106,13 @@ Error:
 // using the proof direction on both profiles to find K->L* relationship
 // then joining both curves. dwFlags may include black point compensation.
 cmsToneCurve * _cmsBuildKToneCurve(cmsContext ContextID,
-    cmsUInt32Number nPoints,
-    cmsUInt32Number nProfiles,
-    const cmsUInt32Number Intents[],
+    uint32 nPoints,
+    uint32 nProfiles,
+    const uint32 Intents[],
     const cmsHPROFILE hProfiles[],
     const boolint BPC[],
     const double AdaptationStates[],
-    cmsUInt32Number dwFlags)
+    uint32 dwFlags)
 {
 	cmsToneCurve * in, * out, * KTone;
 
@@ -182,39 +174,30 @@ typedef struct {
 
 #define ERR_THERESHOLD      5
 
-static int GamutSampler(const uint16 In[], uint16 Out[], void * Cargo)
+static boolint GamutSampler(const uint16 In[], uint16 Out[], void * Cargo)
 {
 	GAMUTCHAIN*  t = (GAMUTCHAIN*)Cargo;
 	cmsCIELab LabIn1, LabOut1;
 	cmsCIELab LabIn2, LabOut2;
 	uint16 Proof[cmsMAXCHANNELS], Proof2[cmsMAXCHANNELS];
 	double dE1, dE2, ErrorRatio;
-
 	// Assume in-gamut by default.
 	ErrorRatio = 1.0;
-
 	// Convert input to Lab
 	cmsDoTransform(t->hInput, In, &LabIn1, 1);
-
 	// converts from PCS to colorant. This always
 	// does return in-gamut values,
 	cmsDoTransform(t->hForward, &LabIn1, Proof, 1);
-
 	// Now, do the inverse, from colorant to PCS.
 	cmsDoTransform(t->hReverse, Proof, &LabOut1, 1);
-
 	memmove(&LabIn2, &LabOut1, sizeof(cmsCIELab));
-
 	// Try again, but this time taking Check as input
 	cmsDoTransform(t->hForward, &LabOut1, Proof2, 1);
 	cmsDoTransform(t->hReverse, Proof2, &LabOut2, 1);
-
 	// Take difference of direct value
 	dE1 = cmsDeltaE(&LabIn1, &LabOut1);
-
 	// Take difference of converted value
 	dE2 = cmsDeltaE(&LabIn2, &LabOut2);
-
 	// if dE1 is small and dE2 is small, value is likely to be in gamut
 	if(dE1 < t->Thereshold && dE2 < t->Thereshold)
 		Out[0] = 0;
@@ -240,7 +223,6 @@ static int GamutSampler(const uint16 In[], uint16 Out[], void * Cargo)
 				Out[0] = 0;
 		}
 	}
-
 	return TRUE;
 }
 
@@ -250,27 +232,21 @@ static int GamutSampler(const uint16 In[], uint16 Out[], void * Cargo)
 //
 // **WARNING: This algorithm does assume that gamut remapping algorithms does NOT move in-gamut colors,
 // of course, many perceptual and saturation intents does not work in such way, but relativ. ones should.
-
-cmsPipeline * _cmsCreateGamutCheckPipeline(cmsContext ContextID,
-    cmsHPROFILE hProfiles[],
-    boolint BPC[],
-    cmsUInt32Number Intents[],
-    double AdaptationStates[],
-    cmsUInt32Number nGamutPCSposition,
-    cmsHPROFILE hGamut)
+cmsPipeline * _cmsCreateGamutCheckPipeline(cmsContext ContextID, cmsHPROFILE hProfiles[], boolint BPC[], uint32 Intents[],
+    double AdaptationStates[], uint32 nGamutPCSposition, cmsHPROFILE hGamut)
 {
 	cmsHPROFILE hLab;
 	cmsPipeline * Gamut;
 	cmsStage * CLUT;
-	cmsUInt32Number dwFormat;
+	uint32 dwFormat;
 	GAMUTCHAIN Chain;
-	cmsUInt32Number nChannels, nGridpoints;
+	uint32 nChannels, nGridpoints;
 	cmsColorSpaceSignature ColorSpace;
-	cmsUInt32Number i;
+	uint32 i;
 	cmsHPROFILE ProfileList[256];
 	boolint BPCList[256];
 	double AdaptationList[256];
-	cmsUInt32Number IntentList[256];
+	uint32 IntentList[256];
 	memzero(&Chain, sizeof(GAMUTCHAIN));
 	if(nGamutPCSposition <= 0 || nGamutPCSposition > 255) {
 		cmsSignalError(ContextID, cmsERROR_RANGE, "Wrong position of PCS. 1..255 expected, %d found.", nGamutPCSposition);
@@ -369,7 +345,7 @@ cmsPipeline * _cmsCreateGamutCheckPipeline(cmsContext ContextID,
 // Total Area Coverage estimation ----------------------------------------------------------------
 
 typedef struct {
-	cmsUInt32Number nOutputChans;
+	uint32 nOutputChans;
 	cmsHTRANSFORM hRoundTrip;
 	float MaxTAC;
 	float MaxInput[cmsMAXCHANNELS];
@@ -377,31 +353,25 @@ typedef struct {
 
 // This callback just accounts the maximum ink dropped in the given node. It does not populate any
 // memory, as the destination table is NULL. Its only purpose it to know the global maximum.
-static int EstimateTAC(const uint16 In[], uint16 Out[], void * Cargo)
+static boolint EstimateTAC(const uint16 In[], uint16 Out[], void * Cargo)
 {
 	cmsTACestimator* bp = (cmsTACestimator*)Cargo;
 	float RoundTrip[cmsMAXCHANNELS];
-	cmsUInt32Number i;
+	uint32 i;
 	float Sum;
-
 	// Evaluate the xform
 	cmsDoTransform(bp->hRoundTrip, In, RoundTrip, 1);
-
 	// All all amounts of ink
 	for(Sum = 0, i = 0; i < bp->nOutputChans; i++)
 		Sum += RoundTrip[i];
-
 	// If above maximum, keep track of input values
 	if(Sum > bp->MaxTAC) {
 		bp->MaxTAC = Sum;
-
 		for(i = 0; i < bp->nOutputChans; i++) {
 			bp->MaxInput[i] = In[i];
 		}
 	}
-
 	return TRUE;
-
 	CXX_UNUSED(Out);
 }
 
@@ -409,8 +379,8 @@ static int EstimateTAC(const uint16 In[], uint16 Out[], void * Cargo)
 double CMSEXPORT cmsDetectTAC(cmsHPROFILE hProfile)
 {
 	cmsTACestimator bp;
-	cmsUInt32Number dwFormatter;
-	cmsUInt32Number GridPoints[MAX_INPUT_DIMENSIONS];
+	uint32 dwFormatter;
+	uint32 GridPoints[MAX_INPUT_DIMENSIONS];
 	cmsHPROFILE hLab;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 
@@ -433,45 +403,35 @@ double CMSEXPORT cmsDetectTAC(cmsHPROFILE hProfile)
 	// Setup a roundtrip on perceptual intent in output profile for TAC estimation
 	bp.hRoundTrip = cmsCreateTransformTHR(ContextID, hLab, TYPE_Lab_16,
 		hProfile, dwFormatter, INTENT_PERCEPTUAL, cmsFLAGS_NOOPTIMIZE|cmsFLAGS_NOCACHE);
-
 	cmsCloseProfile(hLab);
-	if(bp.hRoundTrip == NULL) return 0;
-
+	if(bp.hRoundTrip == NULL) 
+		return 0;
 	// For L* we only need black and white. For C* we need many points
 	GridPoints[0] = 6;
 	GridPoints[1] = 74;
 	GridPoints[2] = 74;
-
 	if(!cmsSliceSpace16(3, GridPoints, EstimateTAC, &bp)) {
 		bp.MaxTAC = 0;
 	}
-
 	cmsDeleteTransform(bp.hRoundTrip);
-
 	// Results in %
 	return bp.MaxTAC;
 }
 
 // Carefully,  clamp on CIELab space.
 
-boolint CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab,
-    double amax, double amin,
-    double bmax, double bmin)
+boolint CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab, double amax, double amin, double bmax, double bmin)
 {
 	// Whole Luma surface to zero
-
 	if(Lab->L < 0) {
 		Lab->L = Lab->a = Lab->b = 0.0;
 		return FALSE;
 	}
-
 	// Clamp white, DISCARD HIGHLIGHTS. This is done
 	// in such way because icc spec doesn't allow the
 	// use of L>100 as a highlight means.
-
 	if(Lab->L > 100)
 		Lab->L = 100;
-
 	// Check out gamut prism, on a, b faces
 
 	if(Lab->a < amin || Lab->a > amax||
@@ -481,22 +441,16 @@ boolint CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab,
 
 		// Falls outside a, b limits. Transports to LCh space,
 		// and then do the clipping
-
 		if(Lab->a == 0.0) { // Is hue exactly 90?
 			// atan will not work, so clamp here
 			Lab->b = Lab->b < 0 ? bmin : bmax;
 			return TRUE;
 		}
-
 		cmsLab2LCh(&LCh, Lab);
-
 		slope = Lab->b / Lab->a;
 		h = LCh.h;
-
 		// There are 4 zones
-
-		if((h >= 0. && h < 45.) ||
-		    (h >= 315 && h <= 360.)) {
+		if((h >= 0. && h < 45.) || (h >= 315 && h <= 360.)) {
 			// clip by amax
 			Lab->a = amax;
 			Lab->b = amax * slope;
@@ -521,6 +475,5 @@ boolint CMSEXPORT cmsDesaturateLab(cmsCIELab* Lab,
 			return FALSE;
 		}
 	}
-
 	return TRUE;
 }

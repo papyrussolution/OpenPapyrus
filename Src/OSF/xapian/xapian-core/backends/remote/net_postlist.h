@@ -41,8 +41,7 @@ public:
 	/// Read the position list for the term in the current document and
 	/// return a pointer to it (not owned by the PostList).
 	PositionList * open_position_list() const;
-	/// Move to the next document in the postlist (the weight parameter is
-	/// ignored).
+	/// Move to the next document in the postlist (the weight parameter is ignored).
 	PostList * next(double);
 	/// Skip forward to the next document with document ID >= the supplied
 	/// document ID (the weight parameter is ignored).

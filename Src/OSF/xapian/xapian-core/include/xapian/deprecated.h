@@ -8,15 +8,6 @@
 // the Free Software Foundation; either version 2 of the License, or
 // (at your option) any later version.
 //
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
 #ifndef XAPIAN_INCLUDED_DEPRECATED_H
 #define XAPIAN_INCLUDED_DEPRECATED_H
 
@@ -47,14 +38,14 @@
 // __attribute__((__deprecated__)) is supported by GCC 3.1 and later, and
 // we require a newer version, so there's no need to check the GCC version
 // in use.
-#  define XAPIAN_DEPRECATED(D) D __attribute__((__deprecated__))
-#  define XAPIAN_DEPRECATED_CLASS __attribute__((__deprecated__))
+#define XAPIAN_DEPRECATED(D) D __attribute__((__deprecated__))
+#define XAPIAN_DEPRECATED_CLASS __attribute__((__deprecated__))
 # elif defined _MSC_VER && _MSC_VER >= 1300
 // __declspec(deprecated) is supported by MSVC 7.0 and later.
-#  define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
-#  define XAPIAN_DEPRECATED_CLASS __declspec(deprecated)
+#define XAPIAN_DEPRECATED(D) __declspec(deprecated) D
+#define XAPIAN_DEPRECATED_CLASS __declspec(deprecated)
 # else
-#  define XAPIAN_DEPRECATED(D) D
+#define XAPIAN_DEPRECATED(D) D
 #endif
 #endif
 

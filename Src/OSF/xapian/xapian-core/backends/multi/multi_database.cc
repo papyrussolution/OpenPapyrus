@@ -10,8 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "expand/ortermlist.h"
-#include "expand/termlistmerger.h"
 #include "multi_postlist.h"
 #include "multi_termlist.h"
 #include "multi_valuelist.h"

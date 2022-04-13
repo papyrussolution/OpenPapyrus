@@ -1426,7 +1426,7 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 	return BIN(path.NotEmpty());
 }*/
 
-// @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) int Test_LCMS2(int argc, const char * argv[]);
+int Test_LCMS2(int argc, const char * argv[]); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
 int DoTest_PThr4w();
 
 static void Test_LibPhoneNumber()
@@ -1488,8 +1488,12 @@ int DoConstructionTest()
 		QueryPerformanceCounter(&qpc2);
 		SDelay(1);
 	}*/
-	ImportYYE("/DEV/Resource/Data/yeda");
-	TestGtinStruc();
+	{ // @v10.9.7 Экпериментальное внедрение тестирования библиотеки lcms2
+		const char * test_lcms_argv[] = { "Test_LCMS2" };
+		Test_LCMS2(1, test_lcms_argv);
+	}
+	//ImportYYE("/DEV/Resource/Data/yeda");
+	//TestGtinStruc();
 	//DoTest_PThr4w();
 	//TestMqc();
 	//TestCRC();
@@ -1522,9 +1526,9 @@ int DoConstructionTest()
 		ZDELETE(p_json);
 	}*/
 #if(_MSC_VER >= 1900)
-	Test_Fts();
+	//Test_Fts();
 #endif
-	Test_LibPhoneNumber();
+	//Test_LibPhoneNumber();
 	//Test_StyloQInvitation();
 	//Test_StrAssocTree();
 	// @construction finished Test_Launch_SCalendarPicker();
@@ -1560,10 +1564,6 @@ int DoConstructionTest()
 		con.Close();
 	}
 	#endif // } 0 @construction
-	/*{ // @v10.9.7 Экпериментальное внедрение тестирования библиотеки lcms2
-		const char * test_lcms_argv[] = { "Test_LCMS2" };
-		Test_LCMS2(1, test_lcms_argv);
-	}*/
 	//PPChZnPrcssr::Test();
 	//TestUdsInterface();
 	//GumboTest();

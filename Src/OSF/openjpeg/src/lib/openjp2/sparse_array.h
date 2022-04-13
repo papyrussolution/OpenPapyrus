@@ -46,10 +46,7 @@ typedef struct opj_sparse_array_int32 opj_sparse_array_int32_t;
  * @param block_height height of a block.
  * @return a new sparse array instance, or NULL in case of failure.
  */
-opj_sparse_array_int32_t* opj_sparse_array_int32_create(OPJ_UINT32 width,
-    OPJ_UINT32 height,
-    OPJ_UINT32 block_width,
-    OPJ_UINT32 block_height);
+opj_sparse_array_int32_t* opj_sparse_array_int32_create(uint32_t width, uint32_t height, uint32_t block_width, uint32_t block_height);
 
 /** Frees a sparse array.
  * @param sa sparse array instance.
@@ -64,12 +61,7 @@ void opj_sparse_array_int32_free(opj_sparse_array_int32_t* sa);
  * @param y1 bottom y coordinate (not included) of the region. Must be greater than y0.
  * @return TRUE or FALSE.
  */
-boolint opj_sparse_array_is_region_valid(const opj_sparse_array_int32_t* sa,
-    OPJ_UINT32 x0,
-    OPJ_UINT32 y0,
-    OPJ_UINT32 x1,
-    OPJ_UINT32 y1);
-
+boolint opj_sparse_array_is_region_valid(const opj_sparse_array_int32_t* sa, uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1);
 /** Read the content of a rectangular region of the sparse array into a
  * user buffer.
  *
@@ -89,16 +81,8 @@ boolint opj_sparse_array_is_region_valid(const opj_sparse_array_int32_t* sa,
  * @param forgiving if set to TRUE and the region is invalid, TRUE will still be returned.
  * @return TRUE in case of success.
  */
-boolint opj_sparse_array_int32_read(const opj_sparse_array_int32_t* sa,
-    OPJ_UINT32 x0,
-    OPJ_UINT32 y0,
-    OPJ_UINT32 x1,
-    OPJ_UINT32 y1,
-    OPJ_INT32* dest,
-    OPJ_UINT32 dest_col_stride,
-    OPJ_UINT32 dest_line_stride,
-    boolint forgiving);
-
+boolint opj_sparse_array_int32_read(const opj_sparse_array_int32_t* sa, uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1,
+    int32_t* dest, uint32_t dest_col_stride, uint32_t dest_line_stride, boolint forgiving);
 /** Write the content of a rectangular region into the sparse array from a
  * user buffer.
  *
@@ -118,8 +102,8 @@ boolint opj_sparse_array_int32_read(const opj_sparse_array_int32_t* sa,
  * @param forgiving if set to TRUE and the region is invalid, TRUE will still be returned.
  * @return TRUE in case of success.
  */
-boolint opj_sparse_array_int32_write(opj_sparse_array_int32_t* sa, OPJ_UINT32 x0, OPJ_UINT32 y0, OPJ_UINT32 x1, OPJ_UINT32 y1, const OPJ_INT32* src,
-    OPJ_UINT32 src_col_stride, OPJ_UINT32 src_line_stride, boolint forgiving);
+boolint opj_sparse_array_int32_write(opj_sparse_array_int32_t* sa, uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1,
+    const int32_t* src, uint32_t src_col_stride, uint32_t src_line_stride, boolint forgiving);
 /*@}*/
 
 #endif /* OPJ_SPARSE_ARRAY_H */

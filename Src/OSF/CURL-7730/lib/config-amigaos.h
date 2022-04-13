@@ -114,19 +114,19 @@
 #define in_addr_t int
 
 #ifndef F_OK
-#  define F_OK 0
+#define F_OK 0
 #endif
 
 #ifndef O_RDONLY
-#  define O_RDONLY 0x0000
+#define O_RDONLY 0x0000
 #endif
 
 #ifndef LONG_MAX
-#  define LONG_MAX 0x7fffffffL
+#define LONG_MAX 0x7fffffffL
 #endif
 
 #ifndef LONG_MIN
-#  define LONG_MIN (-0x7fffffffL-1)
+#define LONG_MIN (-0x7fffffffL-1)
 #endif
 
 #define HAVE_GETNAMEINFO 1

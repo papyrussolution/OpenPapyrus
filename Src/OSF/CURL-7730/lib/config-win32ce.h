@@ -348,9 +348,9 @@
 
 /* The size of `size_t', as computed by sizeof. */
 #if defined(_WIN64)
-#  define SIZEOF_SIZE_T 8
+#define SIZEOF_SIZE_T 8
 #else
-#  define SIZEOF_SIZE_T 4
+#define SIZEOF_SIZE_T 4
 #endif
 
 /* ---------------------------------------------------------------- */
@@ -402,7 +402,7 @@
 #endif
 
 #if !defined(USE_WIN32_LARGE_FILES) && !defined(USE_WIN32_SMALL_FILES)
-#  define USE_WIN32_SMALL_FILES
+#define USE_WIN32_SMALL_FILES
 #endif
 
 /* ---------------------------------------------------------------- */
@@ -428,11 +428,11 @@
 /* ---------------------------------------------------------------- */
 
 #ifndef UNICODE
-#  define UNICODE
+#define UNICODE
 #endif
 
 #ifndef _UNICODE
-#  define _UNICODE
+#define _UNICODE
 #endif
 
 #define CURL_DISABLE_FILE 1

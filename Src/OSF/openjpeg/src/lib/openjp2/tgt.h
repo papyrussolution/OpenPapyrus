@@ -43,25 +43,24 @@
  */
 typedef struct opj_tgt_node {
 	struct opj_tgt_node * parent;
-	OPJ_INT32 value;
-	OPJ_INT32 low;
-	OPJ_UINT32 known;
+	int32_t value;
+	int32_t low;
+	uint32_t known;
 } opj_tgt_node_t;
 
 /**
    Tag tree
  */
 typedef struct opj_tgt_tree {
-	OPJ_UINT32 numleafsh;
-	OPJ_UINT32 numleafsv;
-	OPJ_UINT32 numnodes;
+	uint32_t numleafsh;
+	uint32_t numleafsv;
+	uint32_t numnodes;
 	opj_tgt_node_t * nodes;
-	OPJ_UINT32 nodes_size; /* maximum size taken by nodes */
+	uint32_t nodes_size;  /* maximum size taken by nodes */
 } opj_tgt_tree_t;
 
 /** @name Exported functions */
 /*@{*/
-/* ----------------------------------------------------------------------- */
 /**
    Create a tag-tree
    @param numleafsh Width of the array of leafs of the tree
@@ -69,9 +68,7 @@ typedef struct opj_tgt_tree {
    @param p_manager the event manager
    @return Returns a new tag-tree if successful, returns NULL otherwise
  */
-opj_tgt_tree_t * opj_tgt_create(OPJ_UINT32 numleafsh, OPJ_UINT32 numleafsv,
-    opj_event_mgr_t * p_manager);
-
+opj_tgt_tree_t * opj_tgt_create(uint32_t numleafsh, uint32_t numleafsv, opj_event_mgr_t * p_manager);
 /**
  * Reinitialises a tag-tree from an exixting one.
  *
@@ -81,9 +78,7 @@ opj_tgt_tree_t * opj_tgt_create(OPJ_UINT32 numleafsh, OPJ_UINT32 numleafsv,
  * @param p_manager       the event manager
  * @return  a new tag-tree if successful, NULL otherwise
  */
-opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree,
-    OPJ_UINT32 p_num_leafs_h,
-    OPJ_UINT32 p_num_leafs_v, opj_event_mgr_t * p_manager);
+opj_tgt_tree_t * opj_tgt_init(opj_tgt_tree_t * p_tree, uint32_t p_num_leafs_h, uint32_t p_num_leafs_v, opj_event_mgr_t * p_manager);
 /**
    Destroy a tag-tree, liberating memory
    @param tree Tag-tree to destroy
@@ -100,9 +95,7 @@ void opj_tgt_reset(opj_tgt_tree_t * tree);
    @param leafno Number that identifies the leaf to modify
    @param value New value of the leaf
  */
-void opj_tgt_setvalue(opj_tgt_tree_t * tree,
-    OPJ_UINT32 leafno,
-    OPJ_INT32 value);
+void opj_tgt_setvalue(opj_tgt_tree_t * tree, uint32_t leafno, int32_t value);
 /**
    Encode the value of a leaf of the tag-tree up to a given threshold
    @param bio Pointer to a BIO handle
@@ -110,10 +103,7 @@ void opj_tgt_setvalue(opj_tgt_tree_t * tree,
    @param leafno Number that identifies the leaf to encode
    @param threshold Threshold to use when encoding value of the leaf
  */
-void opj_tgt_encode(opj_bio_t * bio,
-    opj_tgt_tree_t * tree,
-    OPJ_UINT32 leafno,
-    OPJ_INT32 threshold);
+void opj_tgt_encode(opj_bio_t * bio, opj_tgt_tree_t * tree, uint32_t leafno, int32_t threshold);
 /**
    Decode the value of a leaf of the tag-tree up to a given threshold
    @param bio Pointer to a BIO handle
@@ -122,13 +112,7 @@ void opj_tgt_encode(opj_bio_t * bio,
    @param threshold Threshold to use when decoding value of the leaf
    @return Returns 1 if the node's value < threshold, returns 0 otherwise
  */
-OPJ_UINT32 opj_tgt_decode(opj_bio_t * bio,
-    opj_tgt_tree_t * tree,
-    OPJ_UINT32 leafno,
-    OPJ_INT32 threshold);
-/* ----------------------------------------------------------------------- */
+uint32_t opj_tgt_decode(opj_bio_t * bio, opj_tgt_tree_t * tree, uint32_t leafno, int32_t threshold);
 /*@}*/
-
 /*@}*/
-
 #endif /* OPJ_TGT_H */

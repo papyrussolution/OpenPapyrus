@@ -39,7 +39,7 @@
 
 typedef uchar uchar;
 typedef unsigned short ushort;
-typedef unsigned int uint;
+typedef uint uint;
 
 typedef void * iconv_t;
 

@@ -33,9 +33,9 @@
 
 // The list of supported parametric curves
 typedef struct _cmsParametricCurvesCollection_st {
-	cmsUInt32Number nFunctions;                                 // Number of supported functions in this chunk
-	cmsInt32Number FunctionTypes[MAX_TYPES_IN_LCMS_PLUGIN];     // The identification types
-	cmsUInt32Number ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];   // Number of parameters for each function
+	uint32 nFunctions;                                 // Number of supported functions in this chunk
+	int32 FunctionTypes[MAX_TYPES_IN_LCMS_PLUGIN];     // The identification types
+	uint32 ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];   // Number of parameters for each function
 
 	cmsParametricCurveEvaluator Evaluator;                      // The evaluator
 
@@ -43,7 +43,7 @@ typedef struct _cmsParametricCurvesCollection_st {
 } _cmsParametricCurvesCollection;
 
 // This is the default (built-in) evaluator
-static double DefaultEvalParametricFn(cmsInt32Number Type, const double Params[], double R);
+static double DefaultEvalParametricFn(int Type, const double Params[], double R);
 
 // The built-in list
 static _cmsParametricCurvesCollection DefaultCurves = {
@@ -117,8 +117,8 @@ boolint _cmsRegisterParametricCurvesPlugin(cmsContext ContextID, cmsPluginBase* 
 		fl->nFunctions = MAX_TYPES_IN_LCMS_PLUGIN;
 
 	// Copy the data
-	memmove(fl->FunctionTypes,  Plugin->FunctionTypes,   fl->nFunctions * sizeof(cmsUInt32Number));
-	memmove(fl->ParameterCount, Plugin->ParameterCount,  fl->nFunctions * sizeof(cmsUInt32Number));
+	memmove(fl->FunctionTypes,  Plugin->FunctionTypes,   fl->nFunctions * sizeof(uint32));
+	memmove(fl->ParameterCount, Plugin->ParameterCount,  fl->nFunctions * sizeof(uint32));
 
 	// Keep linked list
 	fl->Next = ctx->ParametricCurves;
@@ -164,11 +164,11 @@ static _cmsParametricCurvesCollection * GetParametricCurveByType(cmsContext Cont
 // Low level allocate, which takes care of memory details. nEntries may be zero, and in this case
 // no optimation curve is computed. nSegments may also be zero in the inverse case, where only the
 // optimization curve is given. Both features simultaneously is an error
-static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, cmsUInt32Number nEntries,
-    cmsUInt32Number nSegments, const cmsCurveSegment* Segments, const uint16* Values)
+static cmsToneCurve * AllocateToneCurveStruct(cmsContext ContextID, uint32 nEntries,
+    uint32 nSegments, const cmsCurveSegment* Segments, const uint16* Values)
 {
 	cmsToneCurve * p = 0;
-	cmsUInt32Number i;
+	uint32 i;
 	// We allow huge tables, which are then restricted for smoothing operations
 	if(nEntries > 65530) {
 		cmsSignalError(ContextID, cmsERROR_RANGE, "Couldn't create tone curve of more than 65530 entries");
@@ -244,7 +244,7 @@ Error:
 }
 
 // Parametric Fn using floating point
-static double DefaultEvalParametricFn(cmsInt32Number Type, const double Params[], double R)
+static double DefaultEvalParametricFn(int Type, const double Params[], double R)
 {
 	double e, Val, disc;
 	switch(Type) {
@@ -592,7 +592,7 @@ static double EvalSegmentedFn(const cmsToneCurve * g, double R)
 }
 
 // Access to estimated low-res table
-cmsUInt32Number CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t)
+uint32 CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t)
 {
 	_cmsAssert(t != NULL);
 	return t->nEntries;
@@ -606,12 +606,12 @@ const uint16* CMSEXPORT cmsGetToneCurveEstimatedTable(const cmsToneCurve * t)
 
 // Create an empty gamma curve, by using tables. This specifies only the limited-precision part, and leaves the
 // floating point description empty.
-cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, cmsUInt32Number nEntries, const uint16 Values[])
+cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, uint32 nEntries, const uint16 Values[])
 {
 	return AllocateToneCurveStruct(ContextID, nEntries, 0, NULL, Values);
 }
 
-static cmsUInt32Number EntriesByGamma(double Gamma)
+static uint32 EntriesByGamma(double Gamma)
 {
 	if(fabs(Gamma - 1.0) < 0.001) return 2;
 	return 4096;
@@ -619,12 +619,12 @@ static cmsUInt32Number EntriesByGamma(double Gamma)
 
 // Create a segmented gamma, fill the table
 cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,
-    cmsUInt32Number nSegments, const cmsCurveSegment Segments[])
+    uint32 nSegments, const cmsCurveSegment Segments[])
 {
-	cmsUInt32Number i;
+	uint32 i;
 	double R, Val;
 	cmsToneCurve * g;
-	cmsUInt32Number nGridPoints = 4096;
+	uint32 nGridPoints = 4096;
 
 	_cmsAssert(Segments != NULL);
 
@@ -651,7 +651,7 @@ cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID,
 }
 
 // Use a segmented curve to store the floating point table
-cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, cmsUInt32Number nEntries, const float values[])
+cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, uint32 nEntries, const float values[])
 {
 	cmsCurveSegment Seg[3];
 
@@ -694,11 +694,11 @@ cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, c
 // Parameters goes as: Curve, a, b, c, d, e, f
 // Type is the ICC type +1
 // if type is negative, then the curve is analytically inverted
-cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, cmsInt32Number Type, const double Params[])
+cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, int32 Type, const double Params[])
 {
 	cmsCurveSegment Seg0;
 	int Pos = 0;
-	cmsUInt32Number size;
+	uint32 size;
 	_cmsParametricCurvesCollection* c = GetParametricCurveByType(ContextID, Type, &Pos);
 	_cmsAssert(Params != NULL);
 	if(c == NULL) {
@@ -731,7 +731,7 @@ void CMSEXPORT cmsFreeToneCurve(cmsToneCurve * Curve)
 		_cmsFreeInterpParams(Curve->InterpParams);
 		_cmsFree(ContextID, Curve->Table16);
 		if(Curve->Segments) {
-			for(cmsUInt32Number i = 0; i < Curve->nSegments; i++) {
+			for(uint32 i = 0; i < Curve->nSegments; i++) {
 				_cmsFree(ContextID, Curve->Segments[i].SampledPoints);
 				if(Curve->SegInterp[i] != 0)
 					_cmsFreeInterpParams(Curve->SegInterp[i]);
@@ -766,13 +766,13 @@ cmsToneCurve * CMSEXPORT cmsDupToneCurve(const cmsToneCurve * In)
 //
 //      y = Y^-1(X(t))
 //
-cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCurve * X, const cmsToneCurve * Y, cmsUInt32Number nResultingPoints)
+cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCurve * X, const cmsToneCurve * Y, uint32 nResultingPoints)
 {
 	cmsToneCurve * out = NULL;
 	cmsToneCurve * Yreversed = NULL;
 	float t, x;
 	float* Res = NULL;
-	cmsUInt32Number i;
+	uint32 i;
 	_cmsAssert(X != NULL);
 	_cmsAssert(Y != NULL);
 	Yreversed = cmsReverseToneCurveEx(nResultingPoints, Y);
@@ -840,7 +840,7 @@ static int GetInterval(double In, const uint16 LutTable[], const struct _cms_int
 }
 
 // Reverse a gamma table
-cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(cmsUInt32Number nResultSamples, const cmsToneCurve * InCurve)
+cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(uint32 nResultSamples, const cmsToneCurve * InCurve)
 {
 	cmsToneCurve * out;
 	double a = 0, b = 0, y, x1, y1, x2, y2;
@@ -971,7 +971,7 @@ boolint CMSEXPORT cmsSmoothToneCurve(cmsToneCurve * Tab, double lambda)
 {
 	boolint SuccessStatus = TRUE;
 	float * w, * y, * z;
-	cmsUInt32Number i, nItems, Zeros, Poles;
+	uint32 i, nItems, Zeros, Poles;
 	if(Tab != NULL && Tab->InterpParams != NULL) {
 		cmsContext ContextID = Tab->InterpParams->ContextID;
 		if(!cmsIsToneCurveLinear(Tab)) { // Only non-linear curves need smoothing
@@ -1066,7 +1066,7 @@ boolint CMSEXPORT cmsIsToneCurveLinear(const cmsToneCurve * Curve)
 // Same, but for monotonicity
 boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t)
 {
-	cmsUInt32Number n;
+	uint32 n;
 	int i, last;
 	boolint lDescending;
 
@@ -1119,7 +1119,7 @@ boolint CMSEXPORT cmsIsToneCurveMultisegment(const cmsToneCurve * t)
 	return t->nSegments > 1;
 }
 
-cmsInt32Number CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t)
+int32 CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t)
 {
 	_cmsAssert(t != NULL);
 
@@ -1170,7 +1170,7 @@ double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision)
 {
 	double gamma, sum, sum2;
 	double n, x, y, Std;
-	cmsUInt32Number i;
+	uint32 i;
 
 	_cmsAssert(t != NULL);
 

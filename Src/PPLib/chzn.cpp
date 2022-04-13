@@ -1645,7 +1645,7 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 				if(oneof3(query, qDocumentSend, qGetDoc, qGetTicket)) 
 					rResult = "https";
 				else
-					rResult = "http";
+					rResult = "https"; // @v11.3.8 http-->https
 				rResult.Cat("://").Cat("api").Dot();
 				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
 					rResult.Cat("sb").Dot();

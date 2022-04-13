@@ -250,7 +250,7 @@ Error:
 // Read and create a BRAND NEW MPE LUT from a given profile. All stuff dependent of version, etc
 // is adjusted here in order to create a LUT that takes care of all those details.
 // We add intent = 0xffffffff as a way to read matrix shaper always, no matter of other LUT
-cmsPipeline * CMSEXPORT _cmsReadInputLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent)
+cmsPipeline * CMSEXPORT _cmsReadInputLUT(cmsHPROFILE hProfile, uint32 Intent)
 {
 	cmsTagTypeSignature OriginalType;
 	cmsTagSignature tag16;
@@ -503,7 +503,7 @@ Error:
 }
 
 // Create an output MPE LUT from agiven profile. Version mismatches are handled here
-cmsPipeline * CMSEXPORT _cmsReadOutputLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent)
+cmsPipeline * CMSEXPORT _cmsReadOutputLUT(cmsHPROFILE hProfile, uint32 Intent)
 {
 	cmsTagTypeSignature OriginalType;
 	cmsTagSignature tag16;
@@ -611,7 +611,7 @@ Error:
 
 // This one includes abstract profiles as well. Matrix-shaper cannot be obtained on that device class. The
 // tag name here may default to AToB0
-cmsPipeline * CMSEXPORT _cmsReadDevicelinkLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent)
+cmsPipeline * CMSEXPORT _cmsReadDevicelinkLUT(cmsHPROFILE hProfile, uint32 Intent)
 {
 	cmsPipeline * Lut;
 	cmsTagTypeSignature OriginalType;
@@ -717,7 +717,7 @@ boolint CMSEXPORT cmsIsMatrixShaper(cmsHPROFILE hProfile)
 }
 
 // Returns TRUE if the intent is implemented as CLUT
-boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection)
+boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, uint32 Intent, uint32 UsedDirection)
 {
 	const cmsTagSignature* TagTable;
 
@@ -745,7 +745,7 @@ boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUIn
 
 // Return info about supported intents
 boolint CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile,
-    cmsUInt32Number Intent, cmsUInt32Number UsedDirection)
+    uint32 Intent, uint32 UsedDirection)
 {
 	if(cmsIsCLUT(hProfile, Intent, UsedDirection)) return TRUE;
 
@@ -766,7 +766,7 @@ cmsSEQ* _cmsReadProfileSequence(cmsHPROFILE hProfile)
 	cmsSEQ* ProfileSeq;
 	cmsSEQ* ProfileId;
 	cmsSEQ* NewSeq;
-	cmsUInt32Number i;
+	uint32 i;
 
 	// Take profile sequence description first
 	ProfileSeq = (cmsSEQ*)cmsReadTag(hProfile, cmsSigProfileSequenceDescTag);
@@ -816,9 +816,9 @@ static cmsMLU* GetMLUFromProfile(cmsHPROFILE h, cmsTagSignature sig)
 }
 
 // Create a sequence description out of an array of profiles
-cmsSEQ* _cmsCompileProfileSequence(cmsContext ContextID, cmsUInt32Number nProfiles, cmsHPROFILE hProfiles[])
+cmsSEQ* _cmsCompileProfileSequence(cmsContext ContextID, uint32 nProfiles, cmsHPROFILE hProfiles[])
 {
-	cmsUInt32Number i;
+	uint32 i;
 	cmsSEQ* seq = cmsAllocProfileSequenceDescription(ContextID, nProfiles);
 
 	if(seq == NULL) return NULL;
@@ -860,17 +860,17 @@ static const cmsMLU* GetInfo(cmsHPROFILE hProfile, cmsInfoType Info)
 	return (cmsMLU*)cmsReadTag(hProfile, sig);
 }
 
-cmsUInt32Number CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
-    const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, cmsUInt32Number BufferSize)
+uint32 CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
+    const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize)
 {
 	const cmsMLU* mlu = GetInfo(hProfile, Info);
 	if(mlu == NULL) return 0;
 	return cmsMLUgetWide(mlu, LanguageCode, CountryCode, Buffer, BufferSize);
 }
 
-cmsUInt32Number CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
+uint32 CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
     const char LanguageCode[3], const char CountryCode[3],
-    char * Buffer, cmsUInt32Number BufferSize)
+    char * Buffer, uint32 BufferSize)
 {
 	const cmsMLU* mlu = GetInfo(hProfile, Info);
 	if(mlu == NULL) return 0;

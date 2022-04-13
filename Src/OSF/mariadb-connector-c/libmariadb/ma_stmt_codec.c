@@ -82,7 +82,7 @@ void ma_bmove_upp(char * dst, const char * src, size_t len)
 
 /* {{{ ps_fetch_from_1_to_8_bytes */
 void ps_fetch_from_1_to_8_bytes(MYSQL_BIND * r_param, const MYSQL_FIELD * const field,
-    uchar ** row, unsigned int byte_count)
+    uchar ** row, uint byte_count)
 {
 	bool is_unsigned = test(field->flags & UNSIGNED_FLAG);
 	r_param->buffer_length = byte_count;
@@ -232,7 +232,7 @@ double my_atod(const char * number, const char * end, int * error)
 /*
    strtoui() version, that works for non-null terminated strings
  */
-static unsigned int my_strtoui(const char * str, size_t len, const char ** end, int * err)
+static uint my_strtoui(const char * str, size_t len, const char ** end, int * err)
 {
 	uint64 ull = my_strtoull(str, len, end, err);
 	if(ull > UINT_MAX)
@@ -250,7 +250,7 @@ static unsigned int my_strtoui(const char * str, size_t len, const char ** end, 
    Hour must be < 838, minute < 60, second < 60
    Only 6 places of fraction are considered, the value is truncated after 6 places.
  */
-static const unsigned int frac_mul[] = { 1000000, 100000, 10000, 1000, 100, 10 };
+static const uint frac_mul[] = { 1000000, 100000, 10000, 1000, 100, 10 };
 
 static int parse_time(const char * str, size_t length, const char ** end_ptr, MYSQL_TIME * tm)
 {
@@ -1003,7 +1003,7 @@ static void convert_to_datetime(MYSQL_TIME * t, uchar ** row, uint len, enum enu
 static void ps_fetch_datetime(MYSQL_BIND * r_param, const MYSQL_FIELD * field, uchar ** row)
 {
 	MYSQL_TIME * t = (MYSQL_TIME *)r_param->buffer;
-	unsigned int len = net_field_length(row);
+	uint len = net_field_length(row);
 	switch(r_param->buffer_type) {
 		case MYSQL_TYPE_DATETIME:
 		case MYSQL_TYPE_TIMESTAMP: convert_to_datetime(t, row, len, field->type); break;

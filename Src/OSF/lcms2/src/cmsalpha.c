@@ -30,9 +30,9 @@ cmsINLINE uint8 _cmsQuickSaturateByte(double d)
 }
 
 // Return the size in bytes of a given formatter
-static cmsUInt32Number trueBytesSize(cmsUInt32Number Format)
+static uint32 trueBytesSize(uint32 Format)
 {
-	cmsUInt32Number fmt_bytes = T_BYTES(Format);
+	uint32 fmt_bytes = T_BYTES(Format);
 	// For double, the T_BYTES field returns zero
 	if(fmt_bytes == 0)
 		return sizeof(double);
@@ -290,9 +290,9 @@ static void copy64(void * dst, const void * src)
 }
 
 // Returns the position (x or y) of the formatter in the table of functions
-static int FormatterPos(cmsUInt32Number frm)
+static int FormatterPos(uint32 frm)
 {
-	cmsUInt32Number b = T_BYTES(frm);
+	uint32 b = T_BYTES(frm);
 	if(b == 0 && T_LCMS2_FLOAT(frm))
 		return 5; // DBL
 #ifndef CMS_NO_HALF_SUPPORT
@@ -313,7 +313,7 @@ static int FormatterPos(cmsUInt32Number frm)
 }
 
 // Obtains an alpha-to-alpha function formatter
-static cmsFormatterAlphaFn _cmsGetFormatterAlpha(cmsContext id, cmsUInt32Number in, cmsUInt32Number out)
+static cmsFormatterAlphaFn _cmsGetFormatterAlpha(cmsContext id, uint32 in, uint32 out)
 {
 	static cmsFormatterAlphaFn FormattersAlpha[6][6] = {
 		/* from 8 */ { copy8,       from8to16,   from8to16SE,   from8toHLF,   from8toFLT,    from8toDBL    },
@@ -333,16 +333,16 @@ static cmsFormatterAlphaFn _cmsGetFormatterAlpha(cmsContext id, cmsUInt32Number 
 }
 
 // This function computes the distance from each component to the next one in bytes.
-static void ComputeIncrementsForChunky(cmsUInt32Number Format, cmsUInt32Number ComponentStartingOrder[],
-    cmsUInt32Number ComponentPointerIncrements[])
+static void ComputeIncrementsForChunky(uint32 Format, uint32 ComponentStartingOrder[],
+    uint32 ComponentPointerIncrements[])
 {
-	cmsUInt32Number channels[cmsMAXCHANNELS];
-	cmsUInt32Number extra = T_EXTRA(Format);
-	cmsUInt32Number nchannels = T_CHANNELS(Format);
-	cmsUInt32Number total_chans = nchannels + extra;
-	cmsUInt32Number i;
-	cmsUInt32Number channelSize = trueBytesSize(Format);
-	cmsUInt32Number pixelSize = channelSize * total_chans;
+	uint32 channels[cmsMAXCHANNELS];
+	uint32 extra = T_EXTRA(Format);
+	uint32 nchannels = T_CHANNELS(Format);
+	uint32 total_chans = nchannels + extra;
+	uint32 i;
+	uint32 channelSize = trueBytesSize(Format);
+	uint32 pixelSize = channelSize * total_chans;
 	// Sanity check
 	if(total_chans <= 0 || total_chans >= cmsMAXCHANNELS)
 		return;
@@ -361,7 +361,7 @@ static void ComputeIncrementsForChunky(cmsUInt32Number Format, cmsUInt32Number C
 	}
 	// Handle swap first (ROL of positions), example CMYK -> KCMY | 0123 -> 3012
 	if(T_SWAPFIRST(Format) && total_chans > 1) {
-		cmsUInt32Number tmp = channels[0];
+		uint32 tmp = channels[0];
 		for(i = 0; i < total_chans-1; i++)
 			channels[i] = channels[i+1];
 
@@ -379,15 +379,15 @@ static void ComputeIncrementsForChunky(cmsUInt32Number Format, cmsUInt32Number C
 }
 
 //  On planar configurations, the distance is the stride added to any non-negative
-static void ComputeIncrementsForPlanar(cmsUInt32Number Format, cmsUInt32Number BytesPerPlane,
-    cmsUInt32Number ComponentStartingOrder[], cmsUInt32Number ComponentPointerIncrements[])
+static void ComputeIncrementsForPlanar(uint32 Format, uint32 BytesPerPlane,
+    uint32 ComponentStartingOrder[], uint32 ComponentPointerIncrements[])
 {
-	cmsUInt32Number channels[cmsMAXCHANNELS];
-	cmsUInt32Number extra = T_EXTRA(Format);
-	cmsUInt32Number nchannels = T_CHANNELS(Format);
-	cmsUInt32Number total_chans = nchannels + extra;
-	cmsUInt32Number i;
-	cmsUInt32Number channelSize = trueBytesSize(Format);
+	uint32 channels[cmsMAXCHANNELS];
+	uint32 extra = T_EXTRA(Format);
+	uint32 nchannels = T_CHANNELS(Format);
+	uint32 total_chans = nchannels + extra;
+	uint32 i;
+	uint32 channelSize = trueBytesSize(Format);
 
 	// Sanity check
 	if(total_chans <= 0 || total_chans >= cmsMAXCHANNELS)
@@ -408,7 +408,7 @@ static void ComputeIncrementsForPlanar(cmsUInt32Number Format, cmsUInt32Number B
 
 	// Handle swap first (ROL of positions), example CMYK -> KCMY | 0123 -> 3012
 	if(T_SWAPFIRST(Format) && total_chans > 0) {
-		cmsUInt32Number tmp = channels[0];
+		uint32 tmp = channels[0];
 		for(i = 0; i < total_chans - 1; i++)
 			channels[i] = channels[i+1];
 
@@ -425,10 +425,10 @@ static void ComputeIncrementsForPlanar(cmsUInt32Number Format, cmsUInt32Number B
 }
 
 // Dispatcher por chunky and planar RGB
-static void  ComputeComponentIncrements(cmsUInt32Number Format,
-    cmsUInt32Number BytesPerPlane,
-    cmsUInt32Number ComponentStartingOrder[],
-    cmsUInt32Number ComponentPointerIncrements[])
+static void  ComputeComponentIncrements(uint32 Format,
+    uint32 BytesPerPlane,
+    uint32 ComponentStartingOrder[],
+    uint32 ComponentPointerIncrements[])
 {
 	if(T_PLANAR(Format)) {
 		ComputeIncrementsForPlanar(Format,  BytesPerPlane, ComponentStartingOrder, ComponentPointerIncrements);
@@ -441,16 +441,16 @@ static void  ComputeComponentIncrements(cmsUInt32Number Format,
 // Handles extra channels copying alpha if requested by the flags
 void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
     void * out,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
+    uint32 PixelsPerLine,
+    uint32 LineCount,
     const cmsStride* Stride)
 {
-	cmsUInt32Number i, j, k;
-	cmsUInt32Number nExtra;
-	cmsUInt32Number SourceStartingOrder[cmsMAXCHANNELS];
-	cmsUInt32Number SourceIncrements[cmsMAXCHANNELS];
-	cmsUInt32Number DestStartingOrder[cmsMAXCHANNELS];
-	cmsUInt32Number DestIncrements[cmsMAXCHANNELS];
+	uint32 i, j, k;
+	uint32 nExtra;
+	uint32 SourceStartingOrder[cmsMAXCHANNELS];
+	uint32 SourceIncrements[cmsMAXCHANNELS];
+	uint32 DestStartingOrder[cmsMAXCHANNELS];
+	uint32 DestIncrements[cmsMAXCHANNELS];
 
 	cmsFormatterAlphaFn copyValueFn;
 
@@ -485,8 +485,8 @@ void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
 		uint8 * SourcePtr;
 		uint8 * DestPtr;
 
-		cmsUInt32Number SourceStrideIncrement = 0;
-		cmsUInt32Number DestStrideIncrement = 0;
+		uint32 SourceStrideIncrement = 0;
+		uint32 DestStrideIncrement = 0;
 
 		// The loop itself
 		for(i = 0; i < LineCount; i++) {
@@ -508,8 +508,8 @@ void _cmsHandleExtraChannels(_cmsTRANSFORM* p, const void * in,
 	else { // General case with more than one extra channel
 		uint8 * SourcePtr[cmsMAXCHANNELS];
 		uint8 * DestPtr[cmsMAXCHANNELS];
-		cmsUInt32Number SourceStrideIncrements[cmsMAXCHANNELS];
-		cmsUInt32Number DestStrideIncrements[cmsMAXCHANNELS];
+		uint32 SourceStrideIncrements[cmsMAXCHANNELS];
+		uint32 DestStrideIncrements[cmsMAXCHANNELS];
 		memzero(SourceStrideIncrements, sizeof(SourceStrideIncrements));
 		memzero(DestStrideIncrements, sizeof(DestStrideIncrements));
 		// The loop itself

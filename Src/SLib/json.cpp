@@ -1209,7 +1209,7 @@ static int FASTCALL Lexer(const char * pBuffer, const char ** p, uint * state, S
 		*p = pBuffer;
 	while(**p != '\0') {
 		switch(*state) {
-			case 0:	/* Root document */
+			case 0:	// Root document 
 				switch(*(*p)++) {
 					case '\x20': // space 
 					case '\x09': // horizontal tab 

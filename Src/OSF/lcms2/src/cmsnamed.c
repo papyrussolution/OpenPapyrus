@@ -18,7 +18,7 @@
 // Multilocalized unicode objects. That is an attempt to encapsulate i18n.
 
 // Allocates an empty multi localizad unicode object
-cmsMLU* CMSEXPORT cmsMLUalloc(cmsContext ContextID, cmsUInt32Number nItems)
+cmsMLU* CMSEXPORT cmsMLUalloc(cmsContext ContextID, uint32 nItems)
 {
 	cmsMLU* mlu;
 
@@ -48,7 +48,7 @@ cmsMLU* CMSEXPORT cmsMLUalloc(cmsContext ContextID, cmsUInt32Number nItems)
 // Grows a mempool table for a MLU. Each time this function is called, mempool size is multiplied times two.
 static boolint GrowMLUpool(cmsMLU* mlu)
 {
-	cmsUInt32Number size;
+	uint32 size;
 	void * NewPtr;
 
 	// Sanity check
@@ -75,7 +75,7 @@ static boolint GrowMLUpool(cmsMLU* mlu)
 // Grows a entry table for a MLU. Each time this function is called, table size is multiplied times two.
 static boolint GrowMLUtable(cmsMLU* mlu)
 {
-	cmsUInt32Number AllocatedEntries;
+	uint32 AllocatedEntries;
 	_cmsMLUentry * NewPtr;
 
 	// Sanity check
@@ -97,7 +97,7 @@ static boolint GrowMLUtable(cmsMLU* mlu)
 // Search for a specific entry in the structure. Language and Country are used.
 static int SearchMLUEntry(cmsMLU* mlu, uint16 LanguageCode, uint16 CountryCode)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	// Sanity check
 	if(mlu == NULL) 
 		return -1;
@@ -112,9 +112,9 @@ static int SearchMLUEntry(cmsMLU* mlu, uint16 LanguageCode, uint16 CountryCode)
 
 // Add a block of characters to the intended MLU. Language and country are specified.
 // Only one entry for Language/country pair is allowed.
-static boolint AddMLUBlock(cmsMLU* mlu, cmsUInt32Number size, const wchar_t * Block, uint16 LanguageCode, uint16 CountryCode)
+static boolint AddMLUBlock(cmsMLU* mlu, uint32 size, const wchar_t * Block, uint16 LanguageCode, uint16 CountryCode)
 {
-	cmsUInt32Number Offset;
+	uint32 Offset;
 	uint8 * Ptr;
 
 	// Sanity check
@@ -172,7 +172,7 @@ static void strFrom16(char str[3], uint16 n)
 // Add an ASCII entry. Do not add any \0 termination (ICC1v43_2010-12.pdf page 61)
 boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString)
 {
-	cmsUInt32Number i, len = (cmsUInt32Number)strlen(ASCIIString);
+	uint32 i, len = (uint32)strlen(ASCIIString);
 	wchar_t * WStr;
 	boolint rc;
 	uint16 Lang  = strTo16(LanguageCode);
@@ -188,12 +188,12 @@ boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const 
 }
 
 // We don't need any wcs support library
-/* @sobolev (replaced with sstrlen) static cmsUInt32Number mywcslen(const wchar_t * s)
+/* @sobolev (replaced with sstrlen) static uint32 mywcslen(const wchar_t * s)
 {
 	const wchar_t * p = s;
 	while(*p)
 		p++;
-	return (cmsUInt32Number)(p - s);
+	return (uint32)(p - s);
 }*/
 
 // Add a wide entry. Do not add any \0 terminator (ICC1v43_2010-12.pdf page 61)
@@ -201,10 +201,10 @@ boolint CMSEXPORT cmsMLUsetWide(cmsMLU* mlu, const char Language[3], const char 
 {
 	uint16 Lang  = strTo16(Language);
 	uint16 Cntry = strTo16(Country);
-	cmsUInt32Number len;
+	uint32 len;
 	if(mlu == NULL) return FALSE;
 	if(WideString == NULL) return FALSE;
-	len = (cmsUInt32Number)(sstrlen(WideString)) * sizeof(wchar_t);
+	len = (uint32)(sstrlen(WideString)) * sizeof(wchar_t);
 	return AddMLUBlock(mlu, len, WideString, Lang, Cntry);
 }
 
@@ -260,11 +260,11 @@ void CMSEXPORT cmsMLUfree(cmsMLU* mlu)
 
 // The algorithm first searches for an exact match of country and language, if not found it uses
 // the Language. If none is found, first entry is used instead.
-static const wchar_t * _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
+static const wchar_t * _cmsMLUgetWide(const cmsMLU* mlu, uint32 * len,
     uint16 LanguageCode, uint16 CountryCode,
     uint16* UsedLanguageCode, uint16* UsedCountryCode)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	int Best = -1;
 	_cmsMLUentry* v;
 	if(mlu == NULL) return NULL;
@@ -300,13 +300,13 @@ static const wchar_t * _cmsMLUgetWide(const cmsMLU* mlu, cmsUInt32Number * len,
 }
 
 // Obtain an ASCII representation of the wide string. Setting buffer to NULL returns the len
-cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
+uint32 CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
-    char * Buffer, cmsUInt32Number BufferSize)
+    char * Buffer, uint32 BufferSize)
 {
 	const wchar_t * Wide;
-	cmsUInt32Number StrLen = 0;
-	cmsUInt32Number ASCIIlen, i;
+	uint32 StrLen = 0;
+	uint32 ASCIIlen, i;
 
 	uint16 Lang  = strTo16(LanguageCode);
 	uint16 Cntry = strTo16(CountryCode);
@@ -344,12 +344,12 @@ cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu,
 }
 
 // Obtain a wide representation of the MLU, on depending on current locale settings
-cmsUInt32Number CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu,
+uint32 CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu,
     const char LanguageCode[3], const char CountryCode[3],
-    wchar_t * Buffer, cmsUInt32Number BufferSize)
+    wchar_t * Buffer, uint32 BufferSize)
 {
 	const wchar_t * Wide;
-	cmsUInt32Number StrLen = 0;
+	uint32 StrLen = 0;
 
 	uint16 Lang  = strTo16(LanguageCode);
 	uint16 Cntry = strTo16(CountryCode);
@@ -401,7 +401,7 @@ CMSAPI boolint CMSEXPORT cmsMLUgetTranslation(const cmsMLU* mlu,
 }
 
 // Get the number of translations in the MLU object
-cmsUInt32Number CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu)
+uint32 CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu)
 {
 	if(mlu == NULL) return 0;
 	return mlu->UsedEntries;
@@ -409,7 +409,7 @@ cmsUInt32Number CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu)
 
 // Get the language and country codes for a specific MLU index
 boolint CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu,
-    cmsUInt32Number idx,
+    uint32 idx,
     char LanguageCode[3],
     char CountryCode[3])
 {
@@ -432,7 +432,7 @@ boolint CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu,
 // Grow the list to keep at least NumElements
 static boolint GrowNamedColorList(cmsNAMEDCOLORLIST* v)
 {
-	cmsUInt32Number size;
+	uint32 size;
 	_cmsNAMEDCOLOR * NewPtr;
 
 	if(v == NULL) return FALSE;
@@ -460,8 +460,8 @@ static boolint GrowNamedColorList(cmsNAMEDCOLORLIST* v)
 
 // Allocate a list for n elements
 cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
-    cmsUInt32Number n,
-    cmsUInt32Number ColorantCount,
+    uint32 n,
+    uint32 ColorantCount,
     const char * Prefix,
     const char * Suffix)
 {
@@ -527,7 +527,7 @@ boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* NamedColorList,
     const char * Name,
     uint16 PCS[3], uint16 Colorant[cmsMAXCHANNELS])
 {
-	cmsUInt32Number i;
+	uint32 i;
 
 	if(NamedColorList == NULL) return FALSE;
 
@@ -553,14 +553,14 @@ boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* NamedColorList,
 }
 
 // Returns number of elements
-cmsUInt32Number CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* NamedColorList)
+uint32 CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* NamedColorList)
 {
 	if(NamedColorList == NULL) return 0;
 	return NamedColorList->nColors;
 }
 
 // Info aboout a given color
-boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
+boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, uint32 nColor,
     char * Name,
     char * Prefix,
     char * Suffix,
@@ -586,16 +586,16 @@ boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cms
 }
 
 // Search for a given color name (no prefix or suffix)
-cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* NamedColorList, const char * Name)
+int32 CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* NamedColorList, const char * Name)
 {
-	cmsUInt32Number i;
-	cmsUInt32Number n;
+	uint32 i;
+	uint32 n;
 
 	if(NamedColorList == NULL) return -1;
 	n = cmsNamedColorCount(NamedColorList);
 	for(i = 0; i < n; i++) {
 		if(cmsstrcasecmp(Name,  NamedColorList->List[i].Name) == 0)
-			return (cmsInt32Number)i;
+			return (int32)i;
 	}
 
 	return -1;
@@ -637,7 +637,7 @@ static void EvalNamedColor(const float In[], float Out[], const cmsStage * mpe)
 {
 	cmsNAMEDCOLORLIST* NamedColorList = (cmsNAMEDCOLORLIST*)mpe->Data;
 	uint16 index = (uint16)_cmsQuickSaturateWord(In[0] * 65535.0);
-	cmsUInt32Number j;
+	uint32 j;
 
 	if(index >= NamedColorList->nColors) {
 		cmsSignalError(NamedColorList->ContextID, cmsERROR_RANGE, "Color %d out of range", index);
@@ -675,10 +675,10 @@ cmsNAMEDCOLORLIST* CMSEXPORT cmsGetNamedColorList(cmsHTRANSFORM xform)
 // Profile sequence description routines
 // -------------------------------------------------------------------------------------
 
-cmsSEQ* CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, cmsUInt32Number n)
+cmsSEQ* CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, uint32 n)
 {
 	cmsSEQ* Seq;
-	cmsUInt32Number i;
+	uint32 i;
 
 	if(n == 0) return NULL;
 
@@ -709,7 +709,7 @@ cmsSEQ* CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, cmsUI
 
 void CMSEXPORT cmsFreeProfileSequenceDescription(cmsSEQ* pseq)
 {
-	cmsUInt32Number i;
+	uint32 i;
 
 	for(i = 0; i < pseq->n; i++) {
 		if(pseq->seq[i].Manufacturer != NULL) cmsMLUfree(pseq->seq[i].Manufacturer);
@@ -724,7 +724,7 @@ void CMSEXPORT cmsFreeProfileSequenceDescription(cmsSEQ* pseq)
 cmsSEQ* CMSEXPORT cmsDupProfileSequenceDescription(const cmsSEQ* pseq)
 {
 	cmsSEQ * NewSeq;
-	cmsUInt32Number i;
+	uint32 i;
 
 	if(pseq == NULL)
 		return NULL;
@@ -739,7 +739,7 @@ cmsSEQ* CMSEXPORT cmsDupProfileSequenceDescription(const cmsSEQ* pseq)
 	NewSeq->n        = pseq->n;
 
 	for(i = 0; i < pseq->n; i++) {
-		memmove(&NewSeq->seq[i].attributes, &pseq->seq[i].attributes, sizeof(cmsUInt64Number));
+		memmove(&NewSeq->seq[i].attributes, &pseq->seq[i].attributes, sizeof(uint64));
 
 		NewSeq->seq[i].deviceMfg   = pseq->seq[i].deviceMfg;
 		NewSeq->seq[i].deviceModel = pseq->seq[i].deviceModel;

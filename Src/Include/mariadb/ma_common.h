@@ -50,11 +50,11 @@ struct st_mysql_options_extension {
 	HASH connect_attrs;
 	size_t connect_attrs_len;
 	void (* report_progress)(const MYSQL * mysql,
-	    unsigned int stage,
-	    unsigned int max_stage,
+	    uint stage,
+	    uint max_stage,
 	    double progress,
 	    const char * proc_info,
-	    unsigned int proc_info_length);
+	    uint proc_info_length);
 	MARIADB_DB_DRIVER * db_driver;
 	char * tls_fp; /* finger print of server certificate */
 	char * tls_fp_list; /* white list of finger prints */
@@ -62,7 +62,7 @@ struct st_mysql_options_extension {
 	bool multi_command; /* indicates if client wants to send multiple
 	                          commands in one packet */
 	char * url; /* for connection handler we need to save URL for reconnect */
-	unsigned int tls_cipher_strength;
+	uint tls_cipher_strength;
 	char * tls_version;
 	bool read_only;
 	char * connection_handler;

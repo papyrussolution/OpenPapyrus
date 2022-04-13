@@ -4838,7 +4838,7 @@ struct GoodsStockExt { // @persistent(DBX) @size=28+2*sizeof(SArray)
 	// locID - склад (если 0, то для всех складов), useZeroLoc - если 1 и минимальный остаток по складу locID - 0,
 	// то возвращаем минимальный остаток по складу 0.
 	//
-	double GetMinStock(PPID locID, int useZeroLoc = 1);
+	double GetMinStock(PPID locID, int useZeroLoc = 1) const;
 	//
 	// Descr: Возвращает максимальный минимальный запас товара и склад которому данный запас принадлежит.
 	//
@@ -31056,8 +31056,9 @@ public:
 	int    Init();
 
 	enum {
-		pgifUseSubstCode      = 0x0001,
-		pgifForceUsingInnerDb = 0x0002
+		pgifUseSubstCode          = 0x0001,
+		pgifForceUsingInnerDb     = 0x0002,
+		pgifUseInnerDbByGoodsCode = 0x0004  // @v11.3.8 Искать информацию во внутренней ДБ ЕГАИС по коду товара, если не определен лот
 	};
 
 	int    GetEgaisCodeList(PPID goodsID, BarcodeArray & rList);
@@ -31242,7 +31243,8 @@ private:
 			aMergeDiezNames,    //
 			aChgTaxGroup,       //
 			aChgGoodsType,      //
-			aAssignCodeByTemplate // @v10.7.6
+			aAssignCodeByTemplate, // @v10.7.6
+			aSetAlcoCategory    // @v11.3.8
 		};
 		enum {
 			fMassOpAllowed  = 0x0001,
@@ -45274,7 +45276,7 @@ public:
 	MrpTabPacket & FASTCALL operator = (const MrpTabPacket &);
 	void   Init(PPID objType, PPID objID, const char * pName);
 	void   Destroy();
-	int    IsTree() const;
+	bool   IsTree() const;
 	const  char * GetName() const;
 	PPID   GetBaseID() const;
 	void   FASTCALL SetBaseID(PPID);
@@ -46803,9 +46805,15 @@ public:
 		InterchangeParam();
 		InterchangeParam(const RunServerParam & rRsP);
 		InterchangeParam & Z();
-		int    FASTCALL IsEq(const InterchangeParam & rS) const;
+		//
+		// Descr: Очищает только CommandJson и Blob. Компоненты родительского класса остаются нетронутыми.
+		//   Функция нужна для повторного обращения к тому же сервису.
+		//
+		void   ClearParam();
+		bool   FASTCALL IsEq(const InterchangeParam & rS) const;
 
 		SString CommandJson;
+		SBinaryChunk Blob; // @v11.3.8
 	};
 	struct Document {
 		Document();
@@ -46973,7 +46981,7 @@ public:
 	int    Session_ClientRequest(RoundTripBlock & rB);
 	int    Verification_ClientRequest(RoundTripBlock & rB);
 	int    SearchSession(const SBinaryChunk & rOtherPublic, StyloQCore::StoragePacket * pPack);
-	int    Command_ClientRequest(RoundTripBlock & rB, const char * pCmdJson, SSecretTagPool & rReply);
+	int    Command_ClientRequest(RoundTripBlock & rB, const char * pCmdJson, const SBinaryChunk * pBlob, SSecretTagPool & rReply);
 	int    GetOwnPeerEntry(StyloQCore::StoragePacket * pPack);
 	int    SearchGlobalIdentEntry(int kind, const SBinaryChunk & rIdent, StyloQCore::StoragePacket * pPack);
 	//
@@ -47065,8 +47073,8 @@ private:
 	//    0 - ошибка
 	//
 	PPID   ProcessCommand_IndexingContent(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
-	int    ProcessCommand_StoreBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult);
-	SJson * ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
+	int    ProcessCommand_StoreBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, const SBinaryChunk & rBlob, SString & rResult);
+	SJson * ProcessCommand_GetBlob(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SBinaryChunk & rBlob);
 	SJson * ProcessCommand_ReqBlobInfoList(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument);
 	int    ProcessCommand_Search(const StyloQCore::StoragePacket & rCliPack, const SJson * pDocument, SString & rResult, SString & rDocDeclaration);
 	bool   AmIMediator(const char * pCommand);

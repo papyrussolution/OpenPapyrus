@@ -415,6 +415,30 @@ public class StyloQDatabase extends Database {
 		}
 		return ok;
 	}
+	public ArrayList<Long> GetMediatorIdList() throws StyloQException
+	{
+		ArrayList<Long> result = null;
+		Database.Table tbl = CreateTable("SecTable");
+		if(tbl != null) {
+			final String tn = tbl.GetName();
+			String query = "SELECT ID, Kind, Flags, BI, TimeStamp FROM " + tn + " WHERE kind=" + SecStoragePacket.kForeignService;
+			android.database.Cursor cur = GetHandle().rawQuery(query, null);
+			if(cur != null && cur.moveToFirst()) {
+				do {
+					SecTable.Rec rec = new SecTable.Rec();
+					rec.Init();
+					rec.Set(cur);
+					if(rec.Kind == SecStoragePacket.kForeignService && (rec.Flags & SecStoragePacket.styloqfMediator) != 0) {
+						if(result == null) {
+							result = new ArrayList<Long>();
+						}
+						result.add(new Long(rec.ID));
+					}
+				} while(cur.moveToNext());
+			}
+		}
+		return result;
+	}
 	public ArrayList<Long> GetForeignSvcIdList(boolean skipDups) throws StyloQException
 	{
 		ArrayList<Long> result = null;

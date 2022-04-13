@@ -57,7 +57,7 @@ long int CMSEXPORT cmsfilelength(FILE* f)
 // amount of memoy that can be reclaimed. This is mostly as a safety feature to prevent
 // bogus or evil code to allocate huge blocks that otherwise lcms would never need.
 
-#define MAX_MEMORY_FOR_ALLOC  ((cmsUInt32Number)(1024U*1024U*512U))
+#define MAX_MEMORY_FOR_ALLOC  ((uint32)(1024U*1024U*512U))
 
 // User may override this behaviour by using a memory plug-in, which basically replaces
 // the default memory management functions. In this case, no check is performed and it
@@ -71,7 +71,7 @@ boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase* Plugin
 
 // This is the default memory allocation function. It does a very coarse
 // check of amount of memory, just to prevent exploits
-static void * _cmsMallocDefaultFn(cmsContext ContextID, cmsUInt32Number size)
+static void * _cmsMallocDefaultFn(cmsContext ContextID, uint32 size)
 {
 	if(size > MAX_MEMORY_FOR_ALLOC) 
 		return NULL; // Never allow over maximum
@@ -80,7 +80,7 @@ static void * _cmsMallocDefaultFn(cmsContext ContextID, cmsUInt32Number size)
 }
 
 // Generic allocate & zero
-static void * _cmsMallocZeroDefaultFn(cmsContext ContextID, cmsUInt32Number size)
+static void * _cmsMallocZeroDefaultFn(cmsContext ContextID, uint32 size)
 {
 	void * pt = _cmsMalloc(ContextID, size);
 	if(pt == NULL) 
@@ -101,7 +101,7 @@ static void _cmsFreeDefaultFn(cmsContext ContextID, void * Ptr)
 
 // The default realloc function. Again it checks for exploits. If Ptr is NULL,
 // realloc behaves the same way as malloc and allocates a new block of size bytes.
-static void * _cmsReallocDefaultFn(cmsContext ContextID, void * Ptr, cmsUInt32Number size)
+static void * _cmsReallocDefaultFn(cmsContext ContextID, void * Ptr, uint32 size)
 {
 	if(size > MAX_MEMORY_FOR_ALLOC) 
 		return NULL; // Never realloc over 512Mb
@@ -111,9 +111,9 @@ static void * _cmsReallocDefaultFn(cmsContext ContextID, void * Ptr, cmsUInt32Nu
 
 // The default calloc function. Allocates an array of num elements, each one of size bytes
 // all memory is initialized to zero.
-static void * _cmsCallocDefaultFn(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size)
+static void * _cmsCallocDefaultFn(cmsContext ContextID, uint32 num, uint32 size)
 {
-	cmsUInt32Number Total = num * size;
+	uint32 Total = num * size;
 	// Preserve calloc behaviour
 	if(Total == 0) return NULL;
 	// Safe check for overflow.
@@ -127,7 +127,7 @@ static void * _cmsCallocDefaultFn(cmsContext ContextID, cmsUInt32Number num, cms
 }
 
 // Generic block duplication
-static void * _cmsDupDefaultFn(cmsContext ContextID, const void * Org, cmsUInt32Number size)
+static void * _cmsDupDefaultFn(cmsContext ContextID, const void * Org, uint32 size)
 {
 	void * mem;
 	if(size > MAX_MEMORY_FOR_ALLOC) return NULL; // Never dup over 512Mb
@@ -205,28 +205,28 @@ boolint _cmsRegisterMemHandlerPlugin(cmsContext ContextID, cmsPluginBase * Data)
 }
 
 // Generic allocate
-void * CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size)
+void * CMSEXPORT _cmsMalloc(cmsContext ContextID, uint32 size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->MallocPtr(ContextID, size);
 }
 
 // Generic allocate & zero
-void * CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size)
+void * CMSEXPORT _cmsMallocZero(cmsContext ContextID, uint32 size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->MallocZeroPtr(ContextID, size);
 }
 
 // Generic calloc
-void * CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size)
+void * CMSEXPORT _cmsCalloc(cmsContext ContextID, uint32 num, uint32 size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->CallocPtr(ContextID, num, size);
 }
 
 // Generic reallocate
-void * CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, cmsUInt32Number size)
+void * CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, uint32 size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->ReallocPtr(ContextID, Ptr, size);
@@ -242,7 +242,7 @@ void CMSEXPORT _cmsFree(cmsContext ContextID, void * Ptr)
 }
 
 // Generic block duplication
-void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, cmsUInt32Number size)
+void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, uint32 size)
 {
 	_cmsMemPluginChunkType* ptr = (_cmsMemPluginChunkType*)_cmsContextGetClientChunk(ContextID, MemPlugin);
 	return ptr->DupPtr(ContextID, Org, size);
@@ -254,7 +254,7 @@ void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, cmsUInt32Num
 // this way have be freed at once. Next function allocates a single chunk for linked list
 // I prefer this method over realloc due to the big inpact on xput realloc may have if
 // memory is being swapped to disk. This approach is safer (although that may not be true on all platforms)
-static _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cmsUInt32Number Initial)
+static _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, uint32 Initial)
 {
 	_cmsSubAllocator_chunk* chunk;
 	// 20K by default
@@ -278,7 +278,7 @@ static _cmsSubAllocator_chunk* _cmsCreateSubAllocChunk(cmsContext ContextID, cms
 
 // The suballocated is nothing but a pointer to the first element in the list. We also keep
 // the thread ID in this structure.
-_cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, cmsUInt32Number Initial)
+_cmsSubAllocator* _cmsCreateSubAlloc(cmsContext ContextID, uint32 Initial)
 {
 	// Create the container
 	_cmsSubAllocator* sub = (_cmsSubAllocator*)_cmsMallocZero(ContextID, sizeof(_cmsSubAllocator));
@@ -298,7 +298,8 @@ void _cmsSubAllocDestroy(_cmsSubAllocator* sub)
 	_cmsSubAllocator_chunk * chunk, * n;
 	for(chunk = sub->h; chunk != NULL; chunk = n) {
 		n = chunk->next;
-		if(chunk->Block != NULL) _cmsFree(sub->ContextID, chunk->Block);
+		if(chunk->Block != NULL) 
+			_cmsFree(sub->ContextID, chunk->Block);
 		_cmsFree(sub->ContextID, chunk);
 	}
 	// Free the header
@@ -306,15 +307,15 @@ void _cmsSubAllocDestroy(_cmsSubAllocator* sub)
 }
 
 // Get a pointer to small memory block.
-void *  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
+void *  _cmsSubAlloc(_cmsSubAllocator* sub, uint32 size)
 {
-	cmsUInt32Number Free = sub->h->BlockSize - sub->h->Used;
+	uint32 Free = sub->h->BlockSize - sub->h->Used;
 	uint8 * ptr;
 	size = _cmsALIGNMEM(size);
 	// Check for memory. If there is no room, allocate a new chunk of double memory size.
 	if(size > Free) {
 		_cmsSubAllocator_chunk* chunk;
-		cmsUInt32Number newSize = sub->h->BlockSize * 2;
+		uint32 newSize = sub->h->BlockSize * 2;
 		if(newSize < size) newSize = size;
 		chunk = _cmsCreateSubAllocChunk(sub->ContextID, newSize);
 		if(chunk == NULL) return NULL;
@@ -328,7 +329,7 @@ void *  _cmsSubAlloc(_cmsSubAllocator* sub, cmsUInt32Number size)
 }
 
 // Duplicate in pool
-void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number size)
+void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, uint32 size)
 {
 	void * NewPtr;
 	// Dup of null pointer is also NULL
@@ -360,15 +361,14 @@ void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, cmsUInt32Number si
 // ---------------------------------------------------------------------------------------------------------
 
 // This is our default log error
-static void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text);
+static void DefaultLogErrorHandlerFunction(cmsContext ContextID, uint32 ErrorCode, const char * Text);
 
 // Context0 storage, which is global
 _cmsLogErrorChunkType _cmsLogErrorChunk = { DefaultLogErrorHandlerFunction };
 
 // Allocates and inits error logger container for a given context. If src is NULL, only initializes the value
 // to the default. Otherwise, it duplicates the value. The interface is standard across all context clients
-void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx,
-    const struct _cmsContext_struct* src)
+void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	static _cmsLogErrorChunkType LogErrorChunk = { DefaultLogErrorHandlerFunction };
 	void * from = src ? src->chunks[Logger] : &LogErrorChunk;
@@ -376,7 +376,7 @@ void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx,
 }
 
 // The default error logger does nothing.
-static void DefaultLogErrorHandlerFunction(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text)
+static void DefaultLogErrorHandlerFunction(cmsContext ContextID, uint32 ErrorCode, const char * Text)
 {
 	// slfprintf_stderr("[lcms]: %s\n", Text);
 	// fflush(stderr);
@@ -401,7 +401,7 @@ void CMSEXPORT cmsSetLogErrorHandler(cmsLogErrorHandlerFunction Fn)
 
 // Log an error
 // ErrorText is a text holding an english description of error.
-void CMSEXPORT cmsSignalError(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * ErrorText, ...)
+void CMSEXPORT cmsSignalError(cmsContext ContextID, uint32 ErrorCode, const char * ErrorText, ...)
 {
 	va_list args;
 	char Buffer[MAX_ERROR_MESSAGE_LEN];
@@ -420,7 +420,7 @@ void CMSEXPORT cmsSignalError(cmsContext ContextID, cmsUInt32Number ErrorCode, c
 void _cmsTagSignature2String(char String[5], cmsTagSignature sig)
 {
 	// Convert to big endian
-	cmsUInt32Number be = _cmsAdjustEndianess32((cmsUInt32Number)sig);
+	uint32 be = _cmsAdjustEndianess32((uint32)sig);
 	// Move chars
 	memmove(String, &be, 4);
 	// Make sure of terminator
@@ -493,10 +493,7 @@ boolint _cmsRegisterMutexPlugin(cmsContext ContextID, cmsPluginBase* Data)
 void * CMSEXPORT _cmsCreateMutex(cmsContext ContextID)
 {
 	_cmsMutexPluginChunkType* ptr = (_cmsMutexPluginChunkType*)_cmsContextGetClientChunk(ContextID, MutexPlugin);
-
-	if(ptr->CreateMutexPtr == NULL) return NULL;
-
-	return ptr->CreateMutexPtr(ContextID);
+	return ptr->CreateMutexPtr ? ptr->CreateMutexPtr(ContextID) : NULL;
 }
 
 void CMSEXPORT _cmsDestroyMutex(cmsContext ContextID, void * mtx)

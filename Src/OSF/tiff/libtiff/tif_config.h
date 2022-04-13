@@ -46,6 +46,7 @@
 #define HAVE_SYS_TYPES_H 1 /* Define to 1 if you have the <sys/types.h> header file. */
 /* #undef HAVE_UNISTD_H */ /* Define to 1 if you have the <unistd.h> header file. */
 /* #undef JPEG_DUAL_MODE_8_12 */ /* 8/12 bit libjpeg dual mode enabled */
+#define OJPEG_SUPPORT 1 // @sobolev @v11.3.8
 #define LIBJPEG_12_PATH  /* 12bit libjpeg primary include file with path */
 /* #undef LZMA_SUPPORT */ // Support LZMA2 compression 
 #define LZMA_SUPPORT // @v10.9.6

@@ -48,8 +48,8 @@
 # undef HAVE_UTIMENSAT
 #include <AvailabilityMacros.h>
 #if MAC_OS_X_VERSION_MIN_REQUIRED >= 101300
-#  define HAVE_FUTIMENS 1
-#  define HAVE_UTIMENSAT 1
+#define HAVE_FUTIMENS 1
+#define HAVE_UTIMENSAT 1
 #endif
 #endif
 

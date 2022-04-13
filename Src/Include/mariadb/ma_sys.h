@@ -340,8 +340,8 @@ typedef struct st_ma_mem_root {
 	MA_USED_MEM * pre_alloc;
 	size_t min_malloc;
 	size_t block_size;
-	unsigned int block_num;
-	unsigned int first_block_usage;
+	uint block_num;
+	uint first_block_usage;
 	void (* error_handler)(void);
 } MA_MEM_ROOT;
 #endif
@@ -352,7 +352,7 @@ extern void * _mymalloc(size_t uSize, const char * sFile, uint uLine, myf MyFlag
 extern void * _myrealloc(void * pPtr, size_t uSize, const char * sFile, uint uLine, myf MyFlag);
 extern void * ma_multi_malloc(myf MyFlags, ...);
 extern void _myfree(void * pPtr, const char * sFile, uint uLine, myf MyFlag);
-extern int _sanity(const char * sFile, unsigned int uLine);
+extern int _sanity(const char * sFile, uint uLine);
 #ifndef TERMINATE
 extern void TERMINATE(FILE * file);
 #endif
@@ -366,7 +366,7 @@ extern int ma_printf_error _VARARGS((uint my_err, const char * format, myf MyFla
 extern int ma_vsnprintf(char * str, size_t n, const char * format, va_list ap);
 extern int ma_snprintf(char * to, size_t n, const char * fmt, ...);
 extern int ma_message(uint my_err, const char * str, myf MyFlags);
-extern int _mariadb_stderr_out(unsigned int error, const char * errmsg, myf MyFlags);
+extern int _mariadb_stderr_out(uint error, const char * errmsg, myf MyFlags);
 
 extern void ma_init(void);
 extern void ma_end(int infoflag);

@@ -36,6 +36,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <limits.h>
 
 #ifdef _WIN32
 #include "windirent.h"
@@ -82,10 +83,11 @@ typedef struct img_folder {
 
 /* -------------------------------------------------------------------------- */
 /* Declarations                                                               */
-static int get_num_images(char *imgdirpath);
+static unsigned int get_num_images(char *imgdirpath);
 static int load_images(dircnt_t *dirptr, char *imgdirpath);
 static int get_file_format(const char *filename);
-static char get_next_file(int imageno, dircnt_t *dirptr, img_fol_t *img_fol,
+static char get_next_file(unsigned int imageno, dircnt_t *dirptr,
+                          img_fol_t *img_fol,
                           opj_dparameters_t *parameters);
 static int infile_format(const char *fname);
 
@@ -122,11 +124,11 @@ static void decode_help_display(void)
 }
 
 /* -------------------------------------------------------------------------- */
-static int get_num_images(char *imgdirpath)
+static unsigned int get_num_images(char *imgdirpath)
 {
     DIR *dir;
     struct dirent* content;
-    int num_images = 0;
+    unsigned int num_images = 0;
 
     /*Reading the input images from given input directory*/
 
@@ -139,6 +141,11 @@ static int get_num_images(char *imgdirpath)
     while ((content = readdir(dir)) != NULL) {
         if (strcmp(".", content->d_name) == 0 || strcmp("..", content->d_name) == 0) {
             continue;
+        }
+        if (num_images == UINT_MAX) {
+            fprintf(stderr, "Too many files in folder %s\n", imgdirpath);
+            num_images = 0;
+            break;
         }
         num_images++;
     }
@@ -179,8 +186,24 @@ static int load_images(dircnt_t *dirptr, char *imgdirpath)
 static int get_file_format(const char *filename)
 {
     unsigned int i;
-    static const char *extension[] = {"pgx", "pnm", "pgm", "ppm", "bmp", "tif", "raw", "tga", "png", "j2k", "jp2", "jpt", "j2c", "jpc"  };
-    static const int format[] = { PGX_DFMT, PXM_DFMT, PXM_DFMT, PXM_DFMT, BMP_DFMT, TIF_DFMT, RAW_DFMT, TGA_DFMT, PNG_DFMT, J2K_CFMT, JP2_CFMT, JPT_CFMT, J2K_CFMT, J2K_CFMT };
+    static const char * const extension[] = {
+        "pgx", "pnm", "pgm", "ppm", "bmp",
+        "tif", "tiff",
+        "raw", "yuv", "rawl",
+        "tga", "png",
+        "j2k", "jp2", "jpt", "j2c", "jpc",
+        "jph", /* HTJ2K with JP2 boxes */
+        "jhc" /* HTJ2K codestream */
+    };
+    static const int format[] = {
+        PGX_DFMT, PXM_DFMT, PXM_DFMT, PXM_DFMT, BMP_DFMT,
+        TIF_DFMT, TIF_DFMT,
+        RAW_DFMT, RAW_DFMT, RAWL_DFMT,
+        TGA_DFMT, PNG_DFMT,
+        J2K_CFMT, JP2_CFMT, JPT_CFMT, J2K_CFMT, J2K_CFMT,
+        JP2_CFMT, /* HTJ2K with JP2 boxes */
+        J2K_CFMT /* HTJ2K codestream */
+    };
     const char *ext = strrchr(filename, '.');
     if (ext == NULL) {
         return -1;
@@ -198,7 +221,8 @@ static int get_file_format(const char *filename)
 }
 
 /* -------------------------------------------------------------------------- */
-static char get_next_file(int imageno, dircnt_t *dirptr, img_fol_t *img_fol,
+static char get_next_file(unsigned int imageno, dircnt_t *dirptr,
+                          img_fol_t *img_fol,
                           opj_dparameters_t *parameters)
 {
     char image_filename[OPJ_PATH_LEN], infilename[OPJ_PATH_LEN],
@@ -206,12 +230,18 @@ static char get_next_file(int imageno, dircnt_t *dirptr, img_fol_t *img_fol,
     char *temp_p, temp1[OPJ_PATH_LEN] = "";
 
     strcpy(image_filename, dirptr->filename[imageno]);
-    fprintf(stderr, "File Number %d \"%s\"\n", imageno, image_filename);
+    fprintf(stderr, "File Number %u \"%s\"\n", imageno, image_filename);
     parameters->decod_format = get_file_format(image_filename);
     if (parameters->decod_format == -1) {
         return 1;
     }
-    sprintf(infilename, "%s/%s", img_fol->imgdirpath, image_filename);
+    if (strlen(img_fol->imgdirpath) + 1 + strlen(
+                image_filename) + 1 > sizeof(infilename)) {
+        return 1;
+    }
+    strcpy(infilename, img_fol->imgdirpath);
+    strcat(infilename, "/");
+    strcat(infilename, image_filename);
     if (opj_strcpy_s(parameters->infile, sizeof(parameters->infile),
                      infilename) != 0) {
         return 1;
@@ -224,8 +254,15 @@ static char get_next_file(int imageno, dircnt_t *dirptr, img_fol_t *img_fol,
         sprintf(temp1, ".%s", temp_p);
     }
     if (img_fol->set_out_format == 1) {
-        sprintf(outfilename, "%s/%s.%s", img_fol->imgdirpath, temp_ofname,
-                img_fol->out_format);
+        if (strlen(img_fol->imgdirpath) + 1 + strlen(temp_ofname) + 1 + strlen(
+                    img_fol->out_format) + 1 > sizeof(outfilename)) {
+            return 1;
+        }
+        strcpy(outfilename, img_fol->imgdirpath);
+        strcat(outfilename, "/");
+        strcat(outfilename, temp_ofname);
+        strcat(outfilename, ".");
+        strcat(outfilename, img_fol->out_format);
         if (opj_strcpy_s(parameters->outfile, sizeof(parameters->outfile),
                          outfilename) != 0) {
             return 1;
@@ -271,10 +308,10 @@ static int infile_format(const char *fname)
 
     if (memcmp(buf, JP2_RFC3745_MAGIC, 12) == 0 || memcmp(buf, JP2_MAGIC, 4) == 0) {
         magic_format = JP2_CFMT;
-        magic_s = ".jp2";
+        magic_s = ".jp2 or .jph";
     } else if (memcmp(buf, J2K_CODESTREAM_MAGIC, 4) == 0) {
         magic_format = J2K_CFMT;
-        magic_s = ".j2k or .jpc or .j2c";
+        magic_s = ".j2k or .jpc or .j2c or .jhc";
     } else {
         return -1;
     }
@@ -395,7 +432,7 @@ static int parse_cmdline_decoder(int argc, char **argv,
             fprintf(stderr,
                     "[ERROR] When -ImgDir is used, -OutFor <FORMAT> must be used.\n");
             fprintf(stderr, "Only one format allowed.\n"
-                    "Valid format are PGM, PPM, PNM, PGX, BMP, TIF, RAW and TGA.\n");
+                    "Valid format are PGM, PPM, PNM, PGX, BMP, TIF, TIFF, RAW, YUV and TGA.\n");
             return 1;
         }
         if (!(parameters->outfile[0] == 0)) {
@@ -457,7 +494,7 @@ int main(int argc, char *argv[])
     opj_codestream_info_v2_t* cstr_info = NULL;
     opj_codestream_index_t* cstr_index = NULL;
 
-    OPJ_INT32 num_images, imageno;
+    unsigned int num_images, imageno;
     img_fol_t img_fol;
     dircnt_t *dirptr = NULL;
 
@@ -479,37 +516,38 @@ int main(int argc, char *argv[])
 
     /* Initialize reading of directory */
     if (img_fol.set_imgdir == 1) {
-        int it_image;
+        unsigned int it_image;
         num_images = get_num_images(img_fol.imgdirpath);
-
+        if (num_images == 0) {
+            fprintf(stdout, "Folder is empty\n");
+            goto fails;
+        }
         dirptr = (dircnt_t*)malloc(sizeof(dircnt_t));
         if (!dirptr) {
             return EXIT_FAILURE;
         }
-        dirptr->filename_buf = (char*)malloc((size_t)num_images * OPJ_PATH_LEN * sizeof(
-                char)); /* Stores at max 10 image file names*/
+        /* Stores at max 10 image file names*/
+        dirptr->filename_buf = (char*) calloc((size_t) num_images,
+                                              OPJ_PATH_LEN * sizeof(char));
         if (!dirptr->filename_buf) {
             free(dirptr);
             return EXIT_FAILURE;
         }
-        dirptr->filename = (char**) malloc((size_t)num_images * sizeof(char*));
+        dirptr->filename = (char**) calloc((size_t) num_images, sizeof(char*));
 
         if (!dirptr->filename) {
             goto fails;
         }
 
         for (it_image = 0; it_image < num_images; it_image++) {
-            dirptr->filename[it_image] = dirptr->filename_buf + it_image * OPJ_PATH_LEN;
+            dirptr->filename[it_image] = dirptr->filename_buf + (size_t)it_image *
+                                         OPJ_PATH_LEN;
         }
 
         if (load_images(dirptr, img_fol.imgdirpath) == 1) {
             goto fails;
         }
 
-        if (num_images == 0) {
-            fprintf(stdout, "Folder is empty\n");
-            goto fails;
-        }
     } else {
         num_images = 1;
     }

@@ -12,7 +12,7 @@
 #define XAPIAN_INCLUDED_GLASS_INVERTER_H
 
 //#include "xapian/types.h"
-//#include "api/smallvector.h"
+//#include "smallvector.h"
 //#include <map>
 //#include <string>
 //#include <vector>

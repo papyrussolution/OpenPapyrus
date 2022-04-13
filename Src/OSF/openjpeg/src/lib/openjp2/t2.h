@@ -48,8 +48,6 @@ typedef struct opj_t2 {
 
 /** @name Exported functions */
 /*@{*/
-/* ----------------------------------------------------------------------- */
-
 /**
    Encode the packets of a tile to a destination buffer
    @param t2               T2 handle
@@ -68,17 +66,17 @@ typedef struct opj_t2 {
    @param p_manager        the user event manager
  */
 boolint opj_t2_encode_packets(opj_t2_t* t2,
-    OPJ_UINT32 tileno,
+    uint32_t tileno,
     opj_tcd_tile_t * tile,
-    OPJ_UINT32 maxlayers,
+    uint32_t maxlayers,
     uint8 * dest,
-    OPJ_UINT32 * p_data_written,
-    OPJ_UINT32 len,
+    uint32_t * p_data_written,
+    uint32_t len,
     opj_codestream_info_t * cstr_info,
     opj_tcd_marker_info_t* p_marker_info,
-    OPJ_UINT32 tpnum,
-    OPJ_INT32 tppos,
-    OPJ_UINT32 pino,
+    uint32_t tpnum,
+    int32_t tppos,
+    uint32_t pino,
     J2K_T2_MODE t2_mode,
     opj_event_mgr_t * p_manager);
 
@@ -98,11 +96,11 @@ boolint opj_t2_encode_packets(opj_t2_t* t2,
  */
 boolint opj_t2_decode_packets(opj_tcd_t* tcd,
     opj_t2_t * t2,
-    OPJ_UINT32 tileno,
+    uint32_t tileno,
     opj_tcd_tile_t * tile,
     uint8 * src,
-    OPJ_UINT32 * p_data_read,
-    OPJ_UINT32 len,
+    uint32_t * p_data_read,
+    uint32_t len,
     opj_codestream_index_t * cstr_info,
     opj_event_mgr_t * p_manager);
 
@@ -120,10 +118,6 @@ opj_t2_t* opj_t2_create(opj_image_t * p_image, opj_cp_t * p_cp);
    @param t2 T2 handle to destroy
  */
 void opj_t2_destroy(opj_t2_t * t2);
-
-/* ----------------------------------------------------------------------- */
 /*@}*/
-
 /*@}*/
-
 #endif /* OPJ_T2_H */

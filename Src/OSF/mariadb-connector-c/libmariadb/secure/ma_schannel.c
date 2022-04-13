@@ -402,7 +402,7 @@ SECURITY_STATUS ma_schannel_read_decrypt(MARIADB_PVIO * pvio, CtxtHandle * phCon
 			 */
 			nbytes = MIN(sctx->dataBuf.cbBuffer, ReadBufferSize);
 			memcpy((char *)ReadBuffer, sctx->dataBuf.pvBuffer, nbytes);
-			sctx->dataBuf.cbBuffer -= (unsigned long)nbytes;
+			sctx->dataBuf.cbBuffer -= (ulong)nbytes;
 			sctx->dataBuf.pvBuffer = (char *)sctx->dataBuf.pvBuffer + nbytes;
 
 			*DecryptLength = (DWORD)nbytes;

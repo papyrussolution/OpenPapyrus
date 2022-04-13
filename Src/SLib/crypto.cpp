@@ -141,11 +141,9 @@ SJson * SSecretTagPool::GetJson(uint tag) const
 	SBinaryChunk bch;
 	if(Get(tag, &bch)) {
 		SString temp_buf;
-		if(bch.ToRawStr(temp_buf)) {
-			p_js = SJson::Parse(temp_buf);
-			if(p_js && !p_js->IsValid())
-				ZDELETE(p_js);
-		}
+		p_js = SJson::Parse(bch.ToRawStr(temp_buf));
+		if(p_js && !p_js->IsValid())
+			ZDELETE(p_js);
 	}
 	return p_js;
 }

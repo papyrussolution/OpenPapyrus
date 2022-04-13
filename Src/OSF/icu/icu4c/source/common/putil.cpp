@@ -1258,7 +1258,7 @@ U_CAPI bool U_EXPORT2 uprv_pathIsAbsolute(const char * path)
    (needed for some Darwin ICU build environments) */
 #if U_PLATFORM_IS_DARWIN_BASED && defined(TARGET_OS_SIMULATOR) && TARGET_OS_SIMULATOR
 #if !defined(ICU_DATA_DIR_PREFIX_ENV_VAR)
-#  define ICU_DATA_DIR_PREFIX_ENV_VAR "IPHONE_SIMULATOR_ROOT"
+#define ICU_DATA_DIR_PREFIX_ENV_VAR "IPHONE_SIMULATOR_ROOT"
 #endif
 #endif
 

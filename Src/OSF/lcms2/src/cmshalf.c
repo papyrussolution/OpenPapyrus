@@ -20,7 +20,7 @@
 // This code is inspired in the paper "Fast Half Float Conversions"
 // by Jeroen van der Zijp
 
-static const cmsUInt32Number Mantissa[2048] = {
+static const uint32 Mantissa[2048] = {
 
 0x00000000, 0x33800000, 0x34000000, 0x34400000, 0x34800000, 0x34a00000,
 0x34c00000, 0x34e00000, 0x35000000, 0x35100000, 0x35200000, 0x35300000,
@@ -380,7 +380,7 @@ static uint16 Offset[64] = {
 0x0400, 0x0400, 0x0400, 0x0400
 };
 
-static const cmsUInt32Number Exponent[64] = {
+static const uint32 Exponent[64] = {
 0x00000000, 0x00800000, 0x01000000, 0x01800000, 0x02000000, 0x02800000,
 0x03000000, 0x03800000, 0x04000000, 0x04800000, 0x05000000, 0x05800000,
 0x06000000, 0x06800000, 0x07000000, 0x07800000, 0x08000000, 0x08800000,
@@ -496,7 +496,7 @@ float CMSEXPORT _cmsHalf2Float(uint16 h)
 {
     union {
         float flt;
-        cmsUInt32Number  num;
+        uint32  num;
     } out;
     int n = h >> 10;
     out.num = Mantissa[  (h & 0x3ff) + Offset[ n ] ] + Exponent[ n ];
@@ -507,16 +507,16 @@ uint16 CMSEXPORT _cmsFloat2Half(float flt)
 {
     union {
         float flt;
-        cmsUInt32Number  num;
+        uint32  num;
     } in;
 
-    cmsUInt32Number n, j;
+    uint32 n, j;
 
     in.flt = flt;
     n = in.num;
     j = (n >> 23) & 0x1ff;
 
-    return (uint16) ((cmsUInt32Number) Base[ j ] + (( n & 0x007fffff) >> Shift[ j ]));
+    return (uint16) ((uint32) Base[ j ] + (( n & 0x007fffff) >> Shift[ j ]));
 }
 
 #endif

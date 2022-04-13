@@ -303,7 +303,7 @@ struct mysql_real_connect_params {
 	const char * user;
 	const char * passwd;
 	const char * db;
-	unsigned int port;
+	uint port;
 	const char * unix_socket;
 	unsigned long client_flags;
 };
@@ -316,7 +316,7 @@ static void mysql_real_connect_start_internal(void * d)
 
 int STDCALL mysql_real_connect_start(MYSQL ** ret, MYSQL * mysql, const char * host,
     const char * user, const char * passwd, const char * db,
-    unsigned int port, const char * unix_socket,
+    uint port, const char * unix_socket,
     unsigned long client_flags)
 {
 	MK_ASYNC_START_BODY_RESULTCAST(mysql_real_connect, mysql,
@@ -721,7 +721,7 @@ int STDCALL mysql_dump_debug_info_cont(int * ret, MYSQL * mysql, int ready_statu
 /* Structure used to pass parameters from mysql_refresh_start(). */
 struct mysql_refresh_params {
 	MYSQL * mysql;
-	unsigned int refresh_options;
+	uint refresh_options;
 };
 
 static void mysql_refresh_start_internal(void * d)
@@ -729,7 +729,7 @@ static void mysql_refresh_start_internal(void * d)
 	MK_ASYNC_INTERNAL_BODY(mysql_refresh, (parms->mysql, parms->refresh_options), parms->mysql, int, r_int)
 }
 
-int STDCALL mysql_refresh_start(int * ret, MYSQL * mysql, unsigned int refresh_options)
+int STDCALL mysql_refresh_start(int * ret, MYSQL * mysql, uint refresh_options)
 {
 	MK_ASYNC_START_BODY(mysql_refresh, mysql,
 	{
@@ -1223,7 +1223,7 @@ int STDCALL mysql_stmt_free_result_cont(bool * ret, MYSQL_STMT * stmt, int ready
 /* Structure used to pass parameters from mysql_stmt_send_long_data_start(). */
 struct mysql_stmt_send_long_data_params {
 	MYSQL_STMT * stmt;
-	unsigned int param_number;
+	uint param_number;
 	const char * data;
 	unsigned long length;
 };
@@ -1233,7 +1233,7 @@ static void mysql_stmt_send_long_data_start_internal(void * d)
 	MK_ASYNC_INTERNAL_BODY(mysql_stmt_send_long_data, (parms->stmt, parms->param_number, parms->data, parms->length), parms->stmt->mysql, bool, r_my_bool)
 }
 
-int STDCALL mysql_stmt_send_long_data_start(bool * ret, MYSQL_STMT * stmt, unsigned int param_number, const char * data, unsigned long length)
+int STDCALL mysql_stmt_send_long_data_start(bool * ret, MYSQL_STMT * stmt, uint param_number, const char * data, unsigned long length)
 {
 	MK_ASYNC_START_BODY(mysql_stmt_send_long_data, stmt->mysql,
 	{

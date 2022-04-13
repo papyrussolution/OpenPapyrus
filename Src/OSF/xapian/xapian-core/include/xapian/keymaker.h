@@ -8,15 +8,6 @@
  * modify it under the terms of the GNU General Public License as
  * published by the Free Software Foundation; either version 2 of the
  * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
 
 #ifndef XAPIAN_INCLUDED_KEYMAKER_H
@@ -38,15 +29,12 @@ class Registry;
 
 /** Virtual base class for key making functors. */
 class XAPIAN_VISIBILITY_DEFAULT KeyMaker : public Xapian::Internal::opt_intrusive_base {
-	/// Don't allow assignment.
-	void operator = (const KeyMaker &) = delete;
-	/// Don't allow copying.
-	KeyMaker(const KeyMaker &) = delete;
+	void operator = (const KeyMaker &) = delete; /// Don't allow assignment.
+	KeyMaker(const KeyMaker &) = delete; /// Don't allow copying.
 public:
-	/// Default constructor.
-	KeyMaker() {
+	KeyMaker() 
+	{
 	}
-
 	/** Build a key string for a Document.
 	 *
 	 *  These keys can be used for sorting or collapsing matching documents.
@@ -54,10 +42,8 @@ public:
 	 *  @param doc	Document object to build a key for.
 	 */
 	virtual std::string operator()(const Xapian::Document & doc) const = 0;
-
 	/** Virtual destructor, because we have virtual methods. */
 	virtual ~KeyMaker();
-
 	/** Return the name of this KeyMaker.
 	 *
 	 *  This name is used by the remote backend.  It is passed with the
@@ -73,7 +59,6 @@ public:
 	 *  Xapian::UnimplementedError.
 	 */
 	virtual std::string name() const;
-
 	/** Return this object's parameters serialised as a single string.
 	 *
 	 *  If there are no parameters, just return an empty string.
@@ -83,7 +68,6 @@ public:
 	 *  Xapian::UnimplementedError.
 	 */
 	virtual std::string serialise() const;
-
 	/** Unserialise parameters.
 	 *
 	 *  This method unserialises parameters serialised by the @a serialise()
@@ -105,9 +89,7 @@ public:
 	 *			KeyMaker subclasses with sub-KeyMaker objects to be
 	 *			implemented.
 	 */
-	virtual KeyMaker* unserialise(const std::string & serialised,
-	    const Registry& context) const;
-
+	virtual KeyMaker* unserialise(const std::string & serialised, const Registry& context) const;
 	/** Start reference counting this object.
 	 *
 	 *  You can hand ownership of a dynamically allocated KeyMaker
@@ -115,11 +97,11 @@ public:
 	 *  Xapian method.  Xapian will arrange to delete the object once it is no
 	 *  longer required.
 	 */
-	KeyMaker * release() {
+	KeyMaker * release() 
+	{
 		opt_intrusive_base::release();
 		return this;
 	}
-
 	/** Start reference counting this object.
 	 *
 	 *  You can hand ownership of a dynamically allocated KeyMaker
@@ -127,7 +109,8 @@ public:
 	 *  Xapian method.  Xapian will arrange to delete the object once it is no
 	 *  longer required.
 	 */
-	const KeyMaker * release() const {
+	const KeyMaker * release() const 
+	{
 		opt_intrusive_base::release();
 		return this;
 	}
@@ -153,9 +136,7 @@ class XAPIAN_VISIBILITY_DEFAULT MultiValueKeyMaker : public KeyMaker {
 		Xapian::valueno slot;
 		bool reverse;
 		std::string defvalue;
-		KeySpec(Xapian::valueno slot_, bool reverse_,
-		    const std::string & defvalue_)
-			: slot(slot_), reverse(reverse_), defvalue(defvalue_)
+		KeySpec(Xapian::valueno slot_, bool reverse_, const std::string & defvalue_) : slot(slot_), reverse(reverse_), defvalue(defvalue_)
 		{
 		}
 	};
@@ -169,11 +150,11 @@ public:
 	 *  The iterators must be a begin/end pair returning Xapian::valueno (or
 	 *  a compatible type) when dereferenced.
 	 */
-	template <class Iterator>
-	MultiValueKeyMaker(Iterator begin, Iterator end) {
-		while(begin != end) add_value(*begin++);
+	template <class Iterator> MultiValueKeyMaker(Iterator begin, Iterator end) 
+	{
+		while(begin != end) 
+			add_value(*begin++);
 	}
-
 	virtual std::string operator()(const Xapian::Document & doc) const;
 
 	/** Add a value slot to the list to build a key from.
@@ -188,17 +169,13 @@ public:
 	 *			- this is guaranteed to be greater than any value in
 	 *			this slot.
 	 */
-	void add_value(Xapian::valueno slot, bool reverse = false,
-	    const std::string & defvalue = std::string()) {
+	void add_value(Xapian::valueno slot, bool reverse = false, const std::string & defvalue = std::string()) 
+	{
 		slots.push_back(KeySpec(slot, reverse, defvalue));
 	}
-
 	std::string name() const;
-
 	std::string serialise() const;
-
-	KeyMaker* unserialise(const std::string & serialised,
-	    const Registry& context) const;
+	KeyMaker* unserialise(const std::string & serialised, const Registry& context) const;
 };
 }
 

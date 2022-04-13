@@ -13,7 +13,7 @@
 
 #include <xapian/types.h>
 #include "glass_lazytable.h"
-#include "api/termlist.h"
+#include "termlist.h"
 
 namespace Glass {
 	class RootInfo;

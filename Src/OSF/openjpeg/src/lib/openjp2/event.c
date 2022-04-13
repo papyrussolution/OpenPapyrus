@@ -59,8 +59,6 @@ static char * _itoa(int i, char * a, int r)
 
 #endif /* !_WIN32 */
 #endif
-
-/* ----------------------------------------------------------------------- */
 /**
  * Default callback function.
  * Do nothing.
@@ -71,15 +69,12 @@ static void opj_default_callback(const char * msg, void * client_data)
 	OPJ_ARG_NOT_USED(client_data);
 }
 
-/* ----------------------------------------------------------------------- */
-
-/* ----------------------------------------------------------------------- */
-boolint opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const char * fmt, ...)
+boolint opj_event_msg(opj_event_mgr_t* p_event_mgr, int32_t event_type, const char * fmt, ...)
 {
 #define OPJ_MSG_SIZE 512 /* 512 bytes should be more than enough for a short message */
-	opj_msg_callback msg_handler = 00;
-	void * l_data = 00;
-	if(p_event_mgr != 00) {
+	opj_msg_callback msg_handler = 0;
+	void * l_data = 0;
+	if(p_event_mgr != 0) {
 		switch(event_type) {
 			case EVT_ERROR:
 			    msg_handler = p_event_mgr->error_handler;
@@ -96,14 +91,14 @@ boolint opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const 
 			default:
 			    break;
 		}
-		if(msg_handler == 00) {
+		if(msg_handler == 0) {
 			return FALSE;
 		}
 	}
 	else {
 		return FALSE;
 	}
-	if((fmt != 00) && (p_event_mgr != 00)) {
+	if((fmt != 0) && (p_event_mgr != 0)) {
 		va_list arg;
 		char message[OPJ_MSG_SIZE];
 		memzero(message, OPJ_MSG_SIZE);
@@ -115,19 +110,17 @@ boolint opj_event_msg(opj_event_mgr_t* p_event_mgr, OPJ_INT32 event_type, const 
 		message[OPJ_MSG_SIZE - 1] = '\0';
 		/* deinitialize the optional parameter list */
 		va_end(arg);
-
 		/* output the message to the user program */
 		msg_handler(message, l_data);
 	}
-
 	return TRUE;
 }
 
 void opj_set_default_event_handler(opj_event_mgr_t * p_manager)
 {
-	p_manager->m_error_data = 00;
-	p_manager->m_warning_data = 00;
-	p_manager->m_info_data = 00;
+	p_manager->m_error_data = 0;
+	p_manager->m_warning_data = 0;
+	p_manager->m_info_data = 0;
 	p_manager->error_handler = opj_default_callback;
 	p_manager->info_handler = opj_default_callback;
 	p_manager->warning_handler = opj_default_callback;

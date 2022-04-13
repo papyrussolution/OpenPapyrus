@@ -61,21 +61,21 @@ void TestMemoryLeaks(boolint ok);
 void Say(const char* str);
 
 // Plug-in tests
-cmsInt32Number CheckSimpleContext(void);
-cmsInt32Number CheckAllocContext(void);
-cmsInt32Number CheckAlarmColorsContext(void);
-cmsInt32Number CheckAdaptationStateContext(void);
-cmsInt32Number CheckInterp1DPlugin(void);
-cmsInt32Number CheckInterp3DPlugin(void);
-cmsInt32Number CheckParametricCurvePlugin(void);
-cmsInt32Number CheckFormattersPlugin(void);
-cmsInt32Number CheckTagTypePlugin(void);
-cmsInt32Number CheckMPEPlugin(void);
-cmsInt32Number CheckOptimizationPlugin(void);
-cmsInt32Number CheckIntentPlugin(void);
-cmsInt32Number CheckTransformPlugin(void);
-cmsInt32Number CheckMutexPlugin(void);
-cmsInt32Number CheckMethodPackDoublesFromFloat(void);
+int32 CheckSimpleContext(void);
+int32 CheckAllocContext(void);
+int32 CheckAlarmColorsContext(void);
+int32 CheckAdaptationStateContext(void);
+int32 CheckInterp1DPlugin(void);
+int32 CheckInterp3DPlugin(void);
+int32 CheckParametricCurvePlugin(void);
+int32 CheckFormattersPlugin(void);
+int32 CheckTagTypePlugin(void);
+int32 CheckMPEPlugin(void);
+int32 CheckOptimizationPlugin(void);
+int32 CheckIntentPlugin(void);
+int32 CheckTransformPlugin(void);
+int32 CheckMutexPlugin(void);
+int32 CheckMethodPackDoublesFromFloat(void);
 
 // Zoo
 void CheckProfileZOO(void);

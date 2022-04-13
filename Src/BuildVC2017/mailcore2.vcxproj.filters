@@ -278,13 +278,7 @@
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPMoveMessagesOperation.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPMultipart.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPNamespace.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPNamespaceItem.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIMAPOperation.h">
@@ -317,9 +311,6 @@
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIndexSet.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCIterator.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCLog.h">
       <Filter>Header</Filter>
     </ClInclude>
@@ -347,37 +338,7 @@
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNetService.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPAsyncSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPFetchAllArticlesOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPFetchArticleOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPFetchHeaderOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPFetchOverviewOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPFetchServerTimeOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPGroupInfo.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPListNewsgroupsOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPOperationCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPPostOperation.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCNNTPProgressCallback.h">
@@ -398,37 +359,7 @@
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCOperationQueue.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCOperationQueueCallback.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPAsyncSession.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPCheckAccountOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPDeleteMessagesOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPFetchHeaderOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPFetchMessageOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPFetchMessagesOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPMessageInfo.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPNoopOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPOperation.h">
-      <Filter>Header</Filter>
-    </ClInclude>
-    <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPOperationCallback.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\Mailspring-Sync\mailcore2\src\include\MCPOPProgressCallback.h">

@@ -27,7 +27,7 @@ static const char * ini_exts[] = {"cnf", 0};
 char ** configuration_dirs = NULL;
 #define MAX_CONFIG_DIRS 6
 
-bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, unsigned int recursion);
+bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, uint recursion);
 
 static int add_cfg_dir(char ** cfg_dirs, const char * directory)
 {
@@ -121,7 +121,7 @@ static bool is_group(char * ptr, const char ** groups)
 	return 0;
 }
 
-static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_file, const char * group, unsigned int recursion)
+static bool _mariadb_read_options_from_file(MYSQL * mysql, const char * config_file, const char * group, uint recursion)
 {
 	uint line = 0;
 	bool read_values = 0, found_group = 0, is_escaped = 0, is_quoted = 0;
@@ -262,13 +262,13 @@ err:
 	return rc;
 }
 
-bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, unsigned int recursion)
+bool _mariadb_read_options(MYSQL * mysql, const char * config_dir, const char * config_file, const char * group, uint recursion)
 {
 	int i = 0;
 	int exts;
 	int errors = 0;
 	char filename[FN_REFLEN + 1];
-	unsigned int recursion_stop = 64;
+	uint recursion_stop = 64;
 #ifndef _WIN32
 	char * env;
 #endif

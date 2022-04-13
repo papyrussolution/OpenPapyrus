@@ -1520,15 +1520,12 @@ int xmlTextReaderReadBase64(xmlTextReader * reader, uchar * array ATTRIBUTE_UNUS
  * Returns the number of bytes written to array, or zero if the current
  *    instance is not positioned on an element or -1 in case of error.
  */
-int xmlTextReaderReadBinHex(xmlTextReader * reader,
-    uchar * array ATTRIBUTE_UNUSED,
-    int offset ATTRIBUTE_UNUSED,
-    int len ATTRIBUTE_UNUSED) {
+int xmlTextReaderReadBinHex(xmlTextReader * reader, uchar * array ATTRIBUTE_UNUSED, int offset ATTRIBUTE_UNUSED, int len ATTRIBUTE_UNUSED) 
+{
 	if(!reader || !reader->ctxt)
 		return -1;
 	if(reader->ctxt->wellFormed != 1)
 		return -1;
-
 	if((reader->node == NULL) || (reader->node->type == XML_ELEMENT_NODE))
 		return 0;
 	TODO

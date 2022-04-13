@@ -23,7 +23,7 @@
 
 #include <xapian/types.h>
 #include "honey_lazytable.h"
-#include "api/termlist.h"
+#include "termlist.h"
 #include <map>
 #include <set>
 #include <string>

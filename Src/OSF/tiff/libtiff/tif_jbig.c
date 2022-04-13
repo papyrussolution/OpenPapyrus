@@ -12,10 +12,6 @@
  * publicity relating to the software without the specific, prior written
  * permission of Sam Leffler and Silicon Graphics.
  *
- * THE SOFTWARE IS PROVIDED "AS-IS" AND WITHOUT WARRANTY OF ANY KIND,
- * EXPRESS, IMPLIED OR OTHERWISE, INCLUDING WITHOUT LIMITATION, ANY
- * WARRANTY OF MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE.
- *
  * IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
  * ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
  * OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
@@ -23,7 +19,6 @@
  * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  */
-
 /*
  * TIFF Library.
  *
@@ -39,12 +34,10 @@
 
 static int JBIGSetupDecode(TIFF * tif)
 {
-	if(TIFFNumberOfStrips(tif) != 1)
-	{
+	if(TIFFNumberOfStrips(tif) != 1) {
 		TIFFErrorExt(tif->tif_clientdata, "JBIG", "Multistrip images not supported in decoder");
 		return 0;
 	}
-
 	return 1;
 }
 
@@ -53,15 +46,11 @@ static int JBIGDecode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 	struct jbg_dec_state decoder;
 	int decodeStatus = 0;
 	uchar * pImage = NULL;
-	(void) size, (void) s;
-
-	if(isFillOrder(tif, tif->tif_dir.td_fillorder))
-	{
+	(void)size, (void)s;
+	if(isFillOrder(tif, tif->tif_dir.td_fillorder)) {
 		TIFFReverseBits(tif->tif_rawdata, tif->tif_rawdatasize);
 	}
-
 	jbg_dec_init(&decoder);
-
 #if defined(HAVE_JBG_NEWLEN)
 	jbg_newlen(tif->tif_rawdata, (size_t)tif->tif_rawdatasize);
 	/*
@@ -75,9 +64,8 @@ static int JBIGDecode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 	 * BIE header jbg_dec_in should succeed.
 	 */
 #endif /* HAVE_JBG_NEWLEN */
-	decodeStatus = jbg_dec_in(&decoder, (uchar *)tif->tif_rawdata, (size_t)tif->tif_rawdatasize, NULL);
-	if(JBG_EOK != decodeStatus)
-	{
+	decodeStatus = jbg_dec_in(&decoder, (uchar*)tif->tif_rawdata, (size_t)tif->tif_rawdatasize, NULL);
+	if(JBG_EOK != decodeStatus) {
 		/*
 		 * XXX: JBG_EN constant was defined in pre-2.0 releases of the
 		 * JBIG-KIT. Since the 2.0 the error reporting functions were
@@ -85,11 +73,11 @@ static int JBIGDecode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 		 */
 		TIFFErrorExt(tif->tif_clientdata, "JBIG", "Error (%d) decoding: %s", decodeStatus,
 #if defined(JBG_EN)
-			     jbg_strerror(decodeStatus, JBG_EN)
+		    jbg_strerror(decodeStatus, JBG_EN)
 #else
-			     jbg_strerror(decodeStatus)
+		    jbg_strerror(decodeStatus)
 #endif
-			     );
+		    );
 		jbg_dec_free(&decoder);
 		return 0;
 	}
@@ -102,8 +90,7 @@ static int JBIGDecode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 
 static int JBIGSetupEncode(TIFF * tif)
 {
-	if(TIFFNumberOfStrips(tif) != 1)
-	{
+	if(TIFFNumberOfStrips(tif) != 1) {
 		TIFFErrorExt(tif->tif_clientdata, "JBIG", "Multistrip images not supported in encoder");
 		return 0;
 	}
@@ -113,13 +100,11 @@ static int JBIGSetupEncode(TIFF * tif)
 
 static int JBIGCopyEncodedData(TIFF * tif, uchar * pp, size_t cc, uint16 s)
 {
-	(void) s;
-	while(cc > 0)
-	{
+	(void)s;
+	while(cc > 0) {
 		tmsize_t n = (tmsize_t)cc;
 
-		if(tif->tif_rawcc + n > tif->tif_rawdatasize)
-		{
+		if(tif->tif_rawcc + n > tif->tif_rawdatasize) {
 			n = tif->tif_rawdatasize - tif->tif_rawcc;
 		}
 
@@ -130,8 +115,7 @@ static int JBIGCopyEncodedData(TIFF * tif, uchar * pp, size_t cc, uint16 s)
 		pp += n;
 		cc -= (size_t)n;
 		if(tif->tif_rawcc >= tif->tif_rawdatasize &&
-		    !TIFFFlushData1(tif))
-		{
+		    !TIFFFlushData1(tif)) {
 			return -1;
 		}
 	}
@@ -141,10 +125,9 @@ static int JBIGCopyEncodedData(TIFF * tif, uchar * pp, size_t cc, uint16 s)
 
 static void JBIGOutputBie(uchar * buffer, size_t len, void * userData)
 {
-	TIFF * tif = (TIFF *)userData;
+	TIFF * tif = (TIFF*)userData;
 
-	if(isFillOrder(tif, tif->tif_dir.td_fillorder))
-	{
+	if(isFillOrder(tif, tif->tif_dir.td_fillorder)) {
 		TIFFReverseBits(buffer, (tmsize_t)len);
 	}
 
@@ -156,15 +139,15 @@ static int JBIGEncode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 	TIFFDirectory* dir = &tif->tif_dir;
 	struct jbg_enc_state encoder;
 
-	(void) size, (void) s;
+	(void)size, (void)s;
 
 	jbg_enc_init(&encoder,
-		     dir->td_imagewidth,
-		     dir->td_imagelength,
-		     1,
-		     &buffer,
-		     JBIGOutputBie,
-		     tif);
+	    dir->td_imagewidth,
+	    dir->td_imagelength,
+	    1,
+	    &buffer,
+	    JBIGOutputBie,
+	    tif);
 	/*
 	 * jbg_enc_out does the "real" encoding.  As data is encoded,
 	 * JBIGOutputBie is called, which writes the data to the directory.
@@ -178,7 +161,6 @@ static int JBIGEncode(TIFF * tif, uint8 * buffer, tmsize_t size, uint16 s)
 int TIFFInitJBIG(TIFF * tif, int scheme)
 {
 	assert(scheme == COMPRESSION_JBIG);
-
 	/*
 	 * These flags are set so the JBIG Codec can control when to reverse
 	 * bits and when not to and to allow the jbig decoder and bit reverser
@@ -193,7 +175,6 @@ int TIFFInitJBIG(TIFF * tif, int scheme)
 
 	tif->tif_setupencode = JBIGSetupEncode;
 	tif->tif_encodestrip = JBIGEncode;
-
 	return 1;
 }
 

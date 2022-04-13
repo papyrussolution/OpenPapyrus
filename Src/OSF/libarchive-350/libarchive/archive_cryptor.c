@@ -118,7 +118,7 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 
 #ifdef ARCHIVE_CRYPTOR_USE_Apple_CommonCrypto
 #if MAC_OS_X_VERSION_MAX_ALLOWED < 1090
-#  define kCCAlgorithmAES kCCAlgorithmAES128
+#define kCCAlgorithmAES kCCAlgorithmAES128
 #endif
 
 static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_len)

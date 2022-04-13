@@ -568,11 +568,9 @@ struct __GoodsFilt {
 		записи при чтении ее из БД.
 		При добавлении новых полей в структуру следует уменьшать номер
 		версии (-11, -12, -13, -14 и т.д.) и в функции GoodsFilt::ReadFromProp
-		следить за номером версии считываемой записи и соответственно ее
-		обрабатывать.
+		следить за номером версии считываемой записи и соответственно ее обрабатывать.
 	*/
 	int32  VerTag; // -14 // @v3.11.3
-
 	PPID   GrpID;
 	PPID   ManufID;
 	PPID   UnitID;
@@ -1231,9 +1229,9 @@ static int FASTCALL HasImages(const void * pData)
 static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
 {
 	int    ok = -1;
-	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr); // @v9.5.5
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
 	if(p_brw) {
-		PPViewGoods * p_view = static_cast<PPViewGoods *>(p_brw->P_View); // @v9.5.5
+		PPViewGoods * p_view = static_cast<PPViewGoods *>(p_brw->P_View);
 		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
 	}
 	return ok;
@@ -1302,11 +1300,6 @@ void PPViewGoods::PreprocessBrowser(PPViewBrowser * pBrw)
 		// @v10.6.4 pBrw->InsColumnWord(-1, PPWORD_PLU, 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0);
 		pBrw->InsColumn(-1, "@plu", 17, 0, MKSFMTD(0, 0, NMBF_NOZERO), 0); // @v10.6.4
 	}
-	/*
-	if(Filt.Flags & GoodsFilt::fShowStrucType && Filt.Flags & GoodsFilt::fShowBarcode)
-		// @v9.0.2 pBrw->InsColumnWord(-1, PPWORD_BARCODE, 6, 0, 0, 0);
-		pBrw->InsColumn(-1, "@barcode", 6, 0, 0, 0); // @v9.0.2
-	*/
 	if(Filt.Flags & GoodsFilt::fShowBarcode) {
 		pBrw->InsColumn(-1, "@barcode", 7, 0, 0, 0);
 	}
@@ -1730,8 +1723,6 @@ int PPViewGoods::IsTempTblNeeded()
 			if(temp_buf.NotEmptyS())
 				return 1;
 			else {
-				/* @v8.2.12 else if(Filt.SrchStr_.NotEmpty())
-					return 1; */
 				if(Filt.BarcodeLen.NotEmpty())
 					return 1;
 				if(Filt.ManufID) // @v10.6.8
@@ -1760,9 +1751,8 @@ int PPViewGoods::IsTempTblNeeded()
 					return 1;
 				else if(Filt.GrpID) {
 					Goods2Tbl::Rec grp_rec;
-					if(GObj.Fetch(Filt.GrpID, &grp_rec) > 0)
-						if(grp_rec.Flags & (GF_FOLDER|GF_GENERIC|GF_DYNAMICALTGRP))
-							return 1;
+					if(GObj.Fetch(Filt.GrpID, &grp_rec) > 0 && (grp_rec.Flags & (GF_FOLDER|GF_GENERIC|GF_DYNAMICALTGRP)))
+						return 1;
 				}
 				else if(!oneof2(Filt.InitOrder, OrdByDefault, OrdByName))
 					return 1;
@@ -1969,7 +1959,6 @@ int PPViewGoods::DeleteItem(PPID id)
 //
 PPViewGoods::GoodsMoveParam::GoodsMoveParam() : Action(aMoveToGroup), DestGrpID(0), Flags(0), ClsDimZeroFlags(0), RValue(0.0)
 {
-	// @v10.6.8 @ctr MEMSZERO(Clssfr);
 }
 
 int PPViewGoods::RemoveAll()
@@ -1988,8 +1977,8 @@ int PPViewGoods::RemoveAll()
 			RVALUEPTR(Data, pData);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 0, GoodsMoveParam::aMoveToGroup);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 1, GoodsMoveParam::aChgClssfr);
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 2, GoodsMoveParam::aChgTaxGroup); // @v9.5.0
-			AddClusterAssoc(CTL_REMOVEALL_WHAT, 3, GoodsMoveParam::aChgGoodsType); // @v9.8.12
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 2, GoodsMoveParam::aChgTaxGroup);
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 3, GoodsMoveParam::aChgGoodsType);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 4, GoodsMoveParam::aRemoveAll);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 5, GoodsMoveParam::aActionByFlags);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 6, GoodsMoveParam::aActionByRule);
@@ -1997,6 +1986,7 @@ int PPViewGoods::RemoveAll()
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 8, GoodsMoveParam::aSplitBarcodeItems);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 9, GoodsMoveParam::aMergeDiezNames);
 			AddClusterAssoc(CTL_REMOVEALL_WHAT, 10, GoodsMoveParam::aAssignCodeByTemplate); // @v10.7.6
+			AddClusterAssoc(CTL_REMOVEALL_WHAT, 11, GoodsMoveParam::aSetAlcoCategory); // @v11.3.8
 			SetClusterData(CTL_REMOVEALL_WHAT, Data.Action);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 0, GoodsMoveParam::fRemoveExtTextA);
 			AddClusterAssoc(CTL_REMOVEALL_FLAGS, 1, GoodsMoveParam::fRemoveExtTextB);
@@ -2022,61 +2012,59 @@ int PPViewGoods::RemoveAll()
 			int    ok = 1;
 			uint   sel = 0;
 			GetClusterData(CTL_REMOVEALL_WHAT, &Data.Action);
-			THROW_PP(oneof11(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
+			THROW_PP(oneof12(Data.Action, GoodsMoveParam::aMoveToGroup, GoodsMoveParam::aChgClssfr, GoodsMoveParam::aRemoveAll,
 				GoodsMoveParam::aActionByFlags, GoodsMoveParam::aActionByRule, GoodsMoveParam::aChgMinStock,
 				GoodsMoveParam::aSplitBarcodeItems, GoodsMoveParam::aMergeDiezNames, GoodsMoveParam::aChgTaxGroup,
-				GoodsMoveParam::aChgGoodsType, GoodsMoveParam::aAssignCodeByTemplate), PPERR_USERINPUT);
+				GoodsMoveParam::aChgGoodsType, GoodsMoveParam::aAssignCodeByTemplate, GoodsMoveParam::aSetAlcoCategory), PPERR_USERINPUT);
 			GetClusterData(CTL_REMOVEALL_FLAGS, &Data.Flags);
 			getCtrlString(CTL_REMOVEALL_RULE, Data.Rule);
-			if(Data.Action == GoodsMoveParam::aChgClssfr) {
-				sel = CTL_REMOVEALL_GRP;
-				THROW_PP(Data.Clssfr.GoodsClsID, PPERR_GDSCLSNEEDED);
+			switch(Data.Action) {
+				case GoodsMoveParam::aChgClssfr:
+					sel = CTL_REMOVEALL_GRP;
+					THROW_PP(Data.Clssfr.GoodsClsID, PPERR_GDSCLSNEEDED);
+					break;
+				case GoodsMoveParam::aActionByFlags:
+					sel = CTL_REMOVEALL_FLAGS;
+					THROW_PP(Data.Flags & (GoodsMoveParam::fRemoveExtTextA|GoodsMoveParam::fRemoveExtTextB), PPERR_USERINPUT);
+					break;
+				case GoodsMoveParam::aActionByRule:
+					sel = CTL_REMOVEALL_RULE;
+					THROW_PP(Data.Rule.NotEmptyS(), PPERR_RULENEEDED);
+					break;
+				case GoodsMoveParam::aMoveToGroup:
+					getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+					THROW_PP(Data.DestGrpID, PPERR_GOODSGROUPNEEDED);
+					break;
+				case GoodsMoveParam::aChgTaxGroup:
+					getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+					THROW_PP(Data.DestGrpID, PPERR_TAXGROUPNEEDED);
+					break;
+				case GoodsMoveParam::aChgGoodsType:
+					getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+					THROW_PP(Data.DestGrpID, PPERR_GOODSTYPENEEDED);
+					break;
+				case GoodsMoveParam::aChgMinStock:
+					{
+						LocationCtrlGroup::Rec loc_rec;
+						getGroupData(ctlgroupLoc, &loc_rec);
+						Data.LocList = loc_rec.LocList;
+						if(Data.LocList.IsExists() && Data.LocList.IsEmpty())
+							Data.LocList.Set(0);
+						sel = CTL_REMOVEALL_RULE;
+						Data.RValue = Data.Rule.ToReal();
+						THROW_PP_S(Data.RValue >= 0.0, PPERR_INVMINSTOCKINPUT, Data.Rule);
+						if(Data.RValue == 0.0 && Data.Rule.NotEmptyS()) {
+                			SStrScan scan(Data.Rule);
+							scan.Skip();
+							THROW_PP_S(scan.IsNumber(), PPERR_INVMINSTOCKINPUT, Data.Rule);
+						}
+					}
+					break;
+				case GoodsMoveParam::aAssignCodeByTemplate: // @v10.7.6
+					getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
+					THROW_PP(Data.DestGrpID, PPERR_BARCODESTRUCNEEDED);
+					break;
 			}
-			else if(Data.Action == GoodsMoveParam::aActionByFlags) {
-				sel = CTL_REMOVEALL_FLAGS;
-				THROW_PP(Data.Flags & (GoodsMoveParam::fRemoveExtTextA|GoodsMoveParam::fRemoveExtTextB), PPERR_USERINPUT);
-			}
-			else if(Data.Action == GoodsMoveParam::aActionByRule) {
-				sel = CTL_REMOVEALL_RULE;
-				THROW_PP(Data.Rule.NotEmptyS(), PPERR_RULENEEDED);
-			}
-			else if(Data.Action == GoodsMoveParam::aMoveToGroup) {
-				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
-				THROW_PP(Data.DestGrpID, PPERR_GOODSGROUPNEEDED);
-			}
-			// @v9.5.0 {
-			else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
-				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
-				THROW_PP(Data.DestGrpID, PPERR_TAXGROUPNEEDED);
-			}
-			// } @v9.5.0
-			// @v9.8.12 {
-			else if(Data.Action == GoodsMoveParam::aChgGoodsType) {
-				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
-				THROW_PP(Data.DestGrpID, PPERR_GOODSTYPENEEDED);
-			}
-			// } @v9.8.12
-			else if(Data.Action == GoodsMoveParam::aChgMinStock) {
-				LocationCtrlGroup::Rec loc_rec;
-				getGroupData(ctlgroupLoc, &loc_rec);
-				Data.LocList = loc_rec.LocList;
-				if(Data.LocList.IsExists() && Data.LocList.IsEmpty())
-					Data.LocList.Set(0);
-				sel = CTL_REMOVEALL_RULE;
-                Data.RValue = Data.Rule.ToReal();
-                THROW_PP_S(Data.RValue >= 0.0, PPERR_INVMINSTOCKINPUT, Data.Rule);
-                if(Data.RValue == 0.0 && Data.Rule.NotEmptyS()) {
-                	SStrScan scan(Data.Rule);
-					scan.Skip();
-					THROW_PP_S(scan.IsNumber(), PPERR_INVMINSTOCKINPUT, Data.Rule);
-                }
-			}
-			// @v10.7.6 {
-			else if(Data.Action == GoodsMoveParam::aAssignCodeByTemplate) {
-				getCtrlData(sel = CTLSEL_REMOVEALL_GRP, &Data.DestGrpID);
-				THROW_PP(Data.DestGrpID, PPERR_BARCODESTRUCNEEDED);
-			}
-			// } @v10.7.6
 			ASSIGN_PTR(pData, Data);
 			CATCHZOKPPERRBYDLG
 			return ok;
@@ -2122,35 +2110,35 @@ int PPViewGoods::RemoveAll()
 				PPLoadString("rule", rule_label_buf);
 				addGroup(ctlgroupLoc, 0);
 				showButton(cmLocList, 0);
-				if(Data.Action == GoodsMoveParam::aMoveToGroup) {
-					p_title_meta = "goodsgroup";
-					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL));
+				switch(Data.Action) {
+					case GoodsMoveParam::aMoveToGroup:
+						p_title_meta = "goodsgroup";
+						SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSGROUP, Data.DestGrpID, 0, reinterpret_cast<void *>(GGRTYP_SEL_NORMAL));
+						break;
+					case GoodsMoveParam::aChgTaxGroup:
+						p_title_meta = "taxgroup";
+						SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTAX, Data.DestGrpID, 0, 0);
+						break;
+					case GoodsMoveParam::aChgGoodsType:
+						p_title_meta = "goods_type";
+						SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTYPE, Data.DestGrpID, 0, 0);
+						break;
+					case GoodsMoveParam::aAssignCodeByTemplate: // @v10.7.6
+						p_title_meta = "barcodestruc";
+						SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_BCODESTRUC, Data.DestGrpID, 0, 0);
+						break;
+					case GoodsMoveParam::aSetAlcoCategory: // @v11.3.8
+						break;
+					default: // @v10.7.6
+						disable_grp_combo = 1;
+						break;
 				}
-				// @v9.5.0 {
-				else if(Data.Action == GoodsMoveParam::aChgTaxGroup) {
-					p_title_meta = "taxgroup";
-					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTAX, Data.DestGrpID, 0, 0);
-				}
-				// } @v9.5.0
-				// @v9.8.12 {
-				else if(Data.Action == GoodsMoveParam::aChgGoodsType) {
-					p_title_meta = "goods_type";
-					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_GOODSTYPE, Data.DestGrpID, 0, 0);
-				}
-				// } @v9.8.12
-				// @v10.7.6 {
-				else if(Data.Action == GoodsMoveParam::aAssignCodeByTemplate) {
-					p_title_meta = "barcodestruc";
-					SetupPPObjCombo(this, CTLSEL_REMOVEALL_GRP, PPOBJ_BCODESTRUC, Data.DestGrpID, 0, 0);
-				}
-				else
-					disable_grp_combo = 1;
-				// } @v10.7.6
 			}
 			disableCtrl(CTLSEL_REMOVEALL_GRP, disable_grp_combo);
-			if(p_title_meta) {
+			{
 				SString combo_label_buf;
-				PPLoadString(p_title_meta, combo_label_buf);
+				if(p_title_meta)
+					PPLoadString(p_title_meta, combo_label_buf);
 				setLabelText(CTL_REMOVEALL_GRP, combo_label_buf);
 			}
 			setLabelText(CTL_REMOVEALL_RULE, rule_label_buf);
@@ -2162,6 +2150,8 @@ int PPViewGoods::RemoveAll()
 	GoodsMoveDialog * dlg = 0;
 	int    valid_data = 0;
 	SString temp_buf;
+	SString fmt_buf;
+	SString msg_buf;
 	if(!(GmParam.Flags & GmParam.fInit)) {
 		GmParam.Action = GoodsMoveParam::aMoveToGroup;
 		GmParam.DestGrpID = 0;
@@ -2617,12 +2607,88 @@ int PPViewGoods::RemoveAll()
 				THROW(tra.Commit());
 			}
 		}
-		PPWaitStop();
-		{
-			SString fmt_buf, msg_buf;
-			PPLoadText(PPTXT_GOODSRMVALL, fmt_buf);
-			PPOutputMessage(msg_buf.Printf(fmt_buf, success_count, skip_count), mfInfo | mfOK);
+		else if(GmParam.Action == GoodsMoveParam::aSetAlcoCategory) { // @v11.3.8
+			// @construction
+			bool debug_mark = false; // @debug
+			PrcssrAlcReport arp;
+			PrcssrAlcReport::GoodsItem agi;
+			arp.SetConfig(0);
+			arp.Init();
+			for(InitIteration(OrdByDefault); NextIteration(&item) > 0;) {
+				if(item.GdsClsID && arp.PreprocessGoodsItem(item.ID, 0, 0, PrcssrAlcReport::pgifUseInnerDbByGoodsCode, agi) > 0) {
+					bool do_something = false;
+					enum {
+						updfCategory = 0x0001,
+						updfProof    = 0x0002,
+						updfVolume   = 0x0004
+					};
+					uint update_flags = 0;
+					//PPTXT_ADJALCOGOODS_CATEGORY "Код алкогольной категории товара отличается от внутренней базы данных ЕГАИС: %s"
+					//PPTXT_ADJALCOGOODS_PROOF    "Содержание спирта товара отличается от внутренней базы данных ЕГАИС: %s"
+					//PPTXT_ADJALCOGOODS_VOLUME   "Объем единицы товара отличается от внутренней базы данных ЕГАИС: %s"
+					msg_buf.Z();
+					temp_buf = item.Name;
+					if(agi.RefcCategoryCode.NotEmpty() && agi.CategoryCode != agi.RefcCategoryCode) {
+						// Код алкогольной категории товара отличается от внутренней базы данных ЕГАИС: %s
+						PPLoadText(PPTXT_ADJALCOGOODS_CATEGORY, fmt_buf);
+						temp_buf.Space().CatChar('[').Cat(agi.CategoryCode).CatDiv('-', 1).Cat(agi.RefcCategoryCode).CatChar(']');
+						logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						update_flags |= updfCategory;
+					}
+					if(agi.RefcProof > 0.0 && !feqeps(agi.Proof, agi.RefcProof, 1E-2)) {
+						// Содержание спирта товара отличается от внутренней базы данных ЕГАИС: %s
+						PPLoadText(PPTXT_ADJALCOGOODS_PROOF, fmt_buf);
+						temp_buf.Space().CatChar('[').Cat(agi.Proof, MKSFMTD(0, 2, 0)).CatDiv('-', 1).Cat(agi.RefcProof, MKSFMTD(0, 2, 0)).CatChar(']');
+						logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						update_flags |= updfProof;
+					}
+					if(agi.RefcVolume > 0.0 && !feqeps(agi.Volume, agi.RefcVolume, 1E-3)) {
+						// Объем единицы товара отличается от внутренней базы данных ЕГАИС: %s
+						PPLoadText(PPTXT_ADJALCOGOODS_VOLUME, fmt_buf);
+						temp_buf.Space().CatChar('[').Cat(agi.Volume, MKSFMTD(0, 2, 0)).CatDiv('-', 1).Cat(agi.RefcVolume, MKSFMTD(0, 2, 0)).CatChar(']');
+						logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
+						update_flags |= updfVolume;
+					}
+					if(update_flags) {
+						debug_mark = true; // @debug
+						bool do_update = false;
+						PPGdsClsPacket gc_pack;
+						if(arp.GcObj.Fetch(item.GdsClsID, &gc_pack) > 0) {
+							if(GObj.GetPacket(item.ID, &pack, 0) > 0) {
+								if(update_flags & updfCategory) {
+									if(arp.GetConfig().CategoryClsDim) {
+										long category = agi.RefcCategoryCode.ToLong();
+										if(category > 0 && gc_pack.RealToExtDim(static_cast<double>(category), arp.GetConfig().CategoryClsDim, pack.ExtRec)) {
+											do_update = true;
+										}
+									}
+								}
+								if(update_flags & updfProof) {
+									if(arp.GetConfig().E.ProofClsDim) {
+										if(gc_pack.RealToExtDim(agi.RefcProof, arp.GetConfig().E.ProofClsDim, pack.ExtRec)) {
+											do_update = true;
+										}
+									}
+								}
+								if(update_flags & updfVolume) {
+									if(arp.GetConfig().VolumeClsDim) {
+										if(gc_pack.RealToExtDim(agi.RefcVolume, arp.GetConfig().VolumeClsDim, pack.ExtRec)) {
+											do_update = true;
+										}
+									}
+								}
+								if(do_update) {
+									THROW(GObj.PutPacket(&item.ID, &pack, 1))
+								}
+							}
+						}
+					}
+				}
+			}
 		}
+		PPWaitStop();
+		// @v11.3.8 PPOutputMessage(msg_buf.Printf(PPLoadTextS(PPTXT_GOODSRMVALL, fmt_buf), success_count, skip_count), mfInfo | mfOK);
+		logger.Log(msg_buf.Printf(PPLoadTextS(PPTXT_GOODSRMVALL, fmt_buf), success_count, skip_count)); // @v11.3.8
 	}
 	CATCHZOKPPERR
 	delete dlg;
@@ -4562,53 +4628,54 @@ int PPALDD_Goods::InitData(PPFilt & rFilt, long rsrv)
 		H.ID = rFilt.ID;
 		DL600_GoodsBlock * p_blk = static_cast<DL600_GoodsBlock *>(Extra[0].Ptr);
 		if(p_blk->Obj.GetPacket(rFilt.ID, &p_blk->Pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+			const PPGoodsPacket & r_pack = p_blk->Pack;
 			SString temp_buf;
-			H.ID        = p_blk->Pack.Rec.ID;
-			H.UnitID    = p_blk->Pack.Rec.UnitID;
-			H.PhUnitID  = p_blk->Pack.Rec.PhUnitID;
-			H.PhPerUnit = p_blk->Pack.Rec.PhUPerU;
-			H.GroupID   = p_blk->Pack.Rec.ParentID;
-			H.TypeID    = p_blk->Pack.Rec.GoodsTypeID;
-			H.ClsID     = p_blk->Pack.Rec.GdsClsID;
-			H.ManufID   = p_blk->Pack.Rec.ManufID;
-			H.TaxGrpID  = p_blk->Pack.Rec.TaxGrpID;
-			H.WrOffGrpID = p_blk->Pack.Rec.WrOffGrpID;
-			H.BrandID   = p_blk->Pack.Rec.BrandID;
-			H.Snl       = p_blk->Pack.Rec.ID;
-			H.Flags     = p_blk->Pack.Rec.Flags;
-			H.Kind      = p_blk->Pack.Rec.Kind;
-			p_blk->Pack.Codes.GetSingle(temp_buf); temp_buf.CopyTo(H.SingleBarCode, sizeof(H.SingleBarCode));
-			STRNSCPY(H.Name, p_blk->Pack.Rec.Name);
+			H.ID        = r_pack.Rec.ID;
+			H.UnitID    = r_pack.Rec.UnitID;
+			H.PhUnitID  = r_pack.Rec.PhUnitID;
+			H.PhPerUnit = r_pack.Rec.PhUPerU;
+			H.GroupID   = r_pack.Rec.ParentID;
+			H.TypeID    = r_pack.Rec.GoodsTypeID;
+			H.ClsID     = r_pack.Rec.GdsClsID;
+			H.ManufID   = r_pack.Rec.ManufID;
+			H.TaxGrpID  = r_pack.Rec.TaxGrpID;
+			H.WrOffGrpID = r_pack.Rec.WrOffGrpID;
+			H.BrandID   = r_pack.Rec.BrandID;
+			H.Snl       = r_pack.Rec.ID;
+			H.Flags     = r_pack.Rec.Flags;
+			H.Kind      = r_pack.Rec.Kind;
+			r_pack.Codes.GetSingle(temp_buf); temp_buf.CopyTo(H.SingleBarCode, sizeof(H.SingleBarCode));
+			STRNSCPY(H.Name, r_pack.Rec.Name);
 
-			H.Brutto = p_blk->Pack.Stock.Brutto;
-			H.Length = p_blk->Pack.Stock.PckgDim.Length;   // Габаритная длина упаковки поставки,  мм
-			H.Width  = p_blk->Pack.Stock.PckgDim.Width;    // Габаритная ширина упаковки поставки, мм
-			H.Height = p_blk->Pack.Stock.PckgDim.Height;   // Габаритная высота упаковки поставки, мм
-			H.MinStock = p_blk->Pack.Stock.GetMinStock(0); // Минимальный запас товара
-			H.Package  = p_blk->Pack.Stock.Package;        // Емкость упаковки поставки (торговых единиц)
-			H.ExpiryPeriod = p_blk->Pack.Stock.ExpiryPeriod; // Срок годности товара (дней).
-			H.GseFlags = p_blk->Pack.Stock.GseFlags;
-			H.MinShippmQtty = p_blk->Pack.Stock.MinShippmQtty;
+			H.Brutto = r_pack.Stock.Brutto;
+			H.Length = r_pack.Stock.PckgDim.Length;   // Габаритная длина упаковки поставки,  мм
+			H.Width  = r_pack.Stock.PckgDim.Width;    // Габаритная ширина упаковки поставки, мм
+			H.Height = r_pack.Stock.PckgDim.Height;   // Габаритная высота упаковки поставки, мм
+			H.MinStock = r_pack.Stock.GetMinStock(0); // Минимальный запас товара
+			H.Package  = r_pack.Stock.Package;        // Емкость упаковки поставки (торговых единиц)
+			H.ExpiryPeriod = r_pack.Stock.ExpiryPeriod; // Срок годности товара (дней).
+			H.GseFlags = r_pack.Stock.GseFlags;
+			H.MinShippmQtty = r_pack.Stock.MinShippmQtty;
 
-			p_blk->Pack.GetExtStrData(GDSEXSTR_STORAGE,   temp_buf); temp_buf.CopyTo(H.Storage,   sizeof(H.Storage));
-			p_blk->Pack.GetExtStrData(GDSEXSTR_STANDARD,  temp_buf); temp_buf.CopyTo(H.Standard,  sizeof(H.Standard));
-			p_blk->Pack.GetExtStrData(GDSEXSTR_LABELNAME, temp_buf); temp_buf.CopyTo(H.LabelName, sizeof(H.LabelName));
-			p_blk->Pack.GetExtStrData(GDSEXSTR_INGRED,    temp_buf); temp_buf.CopyTo(H.Ingred, sizeof(H.Ingred));
-			p_blk->Pack.GetExtStrData(GDSEXSTR_ENERGY,    temp_buf); temp_buf.CopyTo(H.Energy, sizeof(H.Energy));
-			p_blk->Pack.GetExtStrData(GDSEXSTR_USAGE,     temp_buf); temp_buf.CopyTo(H.Usage,  sizeof(H.Usage));
-			p_blk->Pack.GetExtStrData(GDSEXSTR_OKOF,      temp_buf); temp_buf.CopyTo(H.OKOF,   sizeof(H.OKOF));
-			if(p_blk->Pack.Rec.GdsClsID) {
+			r_pack.GetExtStrData(GDSEXSTR_STORAGE,   temp_buf); temp_buf.CopyTo(H.Storage,   sizeof(H.Storage));
+			r_pack.GetExtStrData(GDSEXSTR_STANDARD,  temp_buf); temp_buf.CopyTo(H.Standard,  sizeof(H.Standard));
+			r_pack.GetExtStrData(GDSEXSTR_LABELNAME, temp_buf); temp_buf.CopyTo(H.LabelName, sizeof(H.LabelName));
+			r_pack.GetExtStrData(GDSEXSTR_INGRED,    temp_buf); temp_buf.CopyTo(H.Ingred, sizeof(H.Ingred));
+			r_pack.GetExtStrData(GDSEXSTR_ENERGY,    temp_buf); temp_buf.CopyTo(H.Energy, sizeof(H.Energy));
+			r_pack.GetExtStrData(GDSEXSTR_USAGE,     temp_buf); temp_buf.CopyTo(H.Usage,  sizeof(H.Usage));
+			r_pack.GetExtStrData(GDSEXSTR_OKOF,      temp_buf); temp_buf.CopyTo(H.OKOF,   sizeof(H.OKOF));
+			if(r_pack.Rec.GdsClsID) {
 				PPObjGoodsClass gc_obj;
 				PPGdsClsPacket gc_pack;
-				if(gc_obj.Fetch(p_blk->Pack.Rec.GdsClsID, &gc_pack) > 0) {
-					gc_pack.GetExtDim(&p_blk->Pack.ExtRec, PPGdsCls::eX, &H.DimX);
-					gc_pack.GetExtDim(&p_blk->Pack.ExtRec, PPGdsCls::eY, &H.DimY);
-					gc_pack.GetExtDim(&p_blk->Pack.ExtRec, PPGdsCls::eZ, &H.DimZ);
-					gc_pack.GetExtDim(&p_blk->Pack.ExtRec, PPGdsCls::eW, &H.DimW);
-					gc_pack.GetExtProp(&p_blk->Pack.ExtRec, PPGdsCls::eKind, &H.KindID, temp_buf);    temp_buf.CopyTo(H.KindText, sizeof(H.KindText));
-					gc_pack.GetExtProp(&p_blk->Pack.ExtRec, PPGdsCls::eGrade, &H.GradeID, temp_buf);  temp_buf.CopyTo(H.GradeText, sizeof(H.GradeText));
-					gc_pack.GetExtProp(&p_blk->Pack.ExtRec, PPGdsCls::eAdd, &H.AddObjID, temp_buf);   temp_buf.CopyTo(H.AddObjText, sizeof(H.AddObjText));
-					gc_pack.GetExtProp(&p_blk->Pack.ExtRec, PPGdsCls::eAdd2, &H.AddObj2ID, temp_buf); temp_buf.CopyTo(H.AddObj2Text, sizeof(H.AddObj2Text));
+				if(gc_obj.Fetch(r_pack.Rec.GdsClsID, &gc_pack) > 0) {
+					gc_pack.GetExtDim(&r_pack.ExtRec, PPGdsCls::eX, &H.DimX);
+					gc_pack.GetExtDim(&r_pack.ExtRec, PPGdsCls::eY, &H.DimY);
+					gc_pack.GetExtDim(&r_pack.ExtRec, PPGdsCls::eZ, &H.DimZ);
+					gc_pack.GetExtDim(&r_pack.ExtRec, PPGdsCls::eW, &H.DimW);
+					gc_pack.GetExtProp(&r_pack.ExtRec, PPGdsCls::eKind, &H.KindID, temp_buf);    temp_buf.CopyTo(H.KindText, sizeof(H.KindText));
+					gc_pack.GetExtProp(&r_pack.ExtRec, PPGdsCls::eGrade, &H.GradeID, temp_buf);  temp_buf.CopyTo(H.GradeText, sizeof(H.GradeText));
+					gc_pack.GetExtProp(&r_pack.ExtRec, PPGdsCls::eAdd, &H.AddObjID, temp_buf);   temp_buf.CopyTo(H.AddObjText, sizeof(H.AddObjText));
+					gc_pack.GetExtProp(&r_pack.ExtRec, PPGdsCls::eAdd2, &H.AddObj2ID, temp_buf); temp_buf.CopyTo(H.AddObj2Text, sizeof(H.AddObj2Text));
 				}
 			}
 			ok = DlRtm::InitData(rFilt, rsrv);
@@ -4883,7 +4950,7 @@ void PPALDD_Goods::EvaluateFunc(const DlFunc * pF, SV_Uint32 * pApl, RtmStack & 
 			if(gc_obj.Fetch(p_blk->Pack.Rec.GdsClsID, &gc_pack) > 0)
 				gc_pack.GetExtDim(&p_blk->Pack.ExtRec, dim_id, &val);
 		}
-		_RET_LONG = (int)val;
+		_RET_LONG = static_cast<long>(val);
 	}
 	else if(pF->Name == "?GetExtProp") {
 		_RET_STR.Z();
@@ -5005,32 +5072,33 @@ int PPALDD_UhttGoods::InitData(PPFilt & rFilt, long rsrv)
 	UhttGoodsBlock & r_blk = *static_cast<UhttGoodsBlock *>(Extra[0].Ptr);
 	r_blk.Clear();
 	MEMSZERO(H);
-	if(r_blk.GObj.GetPacket(rFilt.ID, &r_blk.Pack, PPObjGoods::gpoSkipQuot) > 0) { // @v8.3.7 PPObjGoods::gpoSkipQuot
+	if(r_blk.GObj.GetPacket(rFilt.ID, &r_blk.Pack, PPObjGoods::gpoSkipQuot) > 0) {
+		const PPGoodsPacket & r_pack = r_blk.Pack;
 		SString temp_buf;
-		H.ID        = r_blk.Pack.Rec.ID;
-		H.UnitID    = r_blk.Pack.Rec.UnitID;
-		H.PhUnitID  = r_blk.Pack.Rec.PhUnitID;
-		H.GroupID   = r_blk.Pack.Rec.ParentID;
-		H.TypeID    = r_blk.Pack.Rec.GoodsTypeID;
-		H.ClsID     = r_blk.Pack.Rec.GdsClsID;
-		H.ManufID   = r_blk.Pack.Rec.ManufID;
-		H.TaxGrpID  = r_blk.Pack.Rec.TaxGrpID;
-		H.BrandID   = r_blk.Pack.Rec.BrandID;
-		H.Flags     = r_blk.Pack.Rec.Flags;
-		H.PhPerUnit = r_blk.Pack.Rec.PhUPerU;
-		H.Brutto    = r_blk.Pack.Stock.Brutto;
-		H.Length    = r_blk.Pack.Stock.PckgDim.Length;
-		H.Width     = r_blk.Pack.Stock.PckgDim.Width;
-		H.Height    = r_blk.Pack.Stock.PckgDim.Height;
-		H.Package   = r_blk.Pack.Stock.Package;
-		H.ExpiryPeriod = r_blk.Pack.Stock.ExpiryPeriod;
-		STRNSCPY(H.Name, r_blk.Pack.Rec.Name);
-		r_blk.Pack.GetExtStrData(GDSEXSTR_STORAGE,  temp_buf); temp_buf.CopyTo(H.Storage,  sizeof(H.Storage));
-		r_blk.Pack.GetExtStrData(GDSEXSTR_STANDARD, temp_buf); temp_buf.CopyTo(H.Standard, sizeof(H.Standard));
-		r_blk.Pack.GetExtStrData(GDSEXSTR_INGRED,   temp_buf); temp_buf.CopyTo(H.Ingred,   sizeof(H.Ingred));
-		r_blk.Pack.GetExtStrData(GDSEXSTR_ENERGY,   temp_buf); temp_buf.CopyTo(H.Energy,   sizeof(H.Energy));
-		r_blk.Pack.GetExtStrData(GDSEXSTR_USAGE,    temp_buf); temp_buf.CopyTo(H.Usage,    sizeof(H.Usage));
-		r_blk.Pack.GetExtStrData(GDSEXSTR_OKOF,     temp_buf); temp_buf.CopyTo(H.OKOF,     sizeof(H.OKOF));
+		H.ID        = r_pack.Rec.ID;
+		H.UnitID    = r_pack.Rec.UnitID;
+		H.PhUnitID  = r_pack.Rec.PhUnitID;
+		H.GroupID   = r_pack.Rec.ParentID;
+		H.TypeID    = r_pack.Rec.GoodsTypeID;
+		H.ClsID     = r_pack.Rec.GdsClsID;
+		H.ManufID   = r_pack.Rec.ManufID;
+		H.TaxGrpID  = r_pack.Rec.TaxGrpID;
+		H.BrandID   = r_pack.Rec.BrandID;
+		H.Flags     = r_pack.Rec.Flags;
+		H.PhPerUnit = r_pack.Rec.PhUPerU;
+		H.Brutto    = r_pack.Stock.Brutto;
+		H.Length    = r_pack.Stock.PckgDim.Length;
+		H.Width     = r_pack.Stock.PckgDim.Width;
+		H.Height    = r_pack.Stock.PckgDim.Height;
+		H.Package   = r_pack.Stock.Package;
+		H.ExpiryPeriod = r_pack.Stock.ExpiryPeriod;
+		STRNSCPY(H.Name, r_pack.Rec.Name);
+		r_pack.GetExtStrData(GDSEXSTR_STORAGE,  temp_buf); temp_buf.CopyTo(H.Storage,  sizeof(H.Storage));
+		r_pack.GetExtStrData(GDSEXSTR_STANDARD, temp_buf); temp_buf.CopyTo(H.Standard, sizeof(H.Standard));
+		r_pack.GetExtStrData(GDSEXSTR_INGRED,   temp_buf); temp_buf.CopyTo(H.Ingred,   sizeof(H.Ingred));
+		r_pack.GetExtStrData(GDSEXSTR_ENERGY,   temp_buf); temp_buf.CopyTo(H.Energy,   sizeof(H.Energy));
+		r_pack.GetExtStrData(GDSEXSTR_USAGE,    temp_buf); temp_buf.CopyTo(H.Usage,    sizeof(H.Usage));
+		r_pack.GetExtStrData(GDSEXSTR_OKOF,     temp_buf); temp_buf.CopyTo(H.OKOF,     sizeof(H.OKOF));
 		ok = DlRtm::InitData(rFilt, rsrv);
 	}
 	return ok;
@@ -5168,82 +5236,83 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 		r_blk.Clear();
 		r_blk.State = r_blk.stSet;
 	}
+	PPGoodsPacket & r_pack = r_blk.Pack;
 	if(commit == 0) {
 		if(iterId == 0) {
 			Goods2Tbl::Rec parent_rec;
-			r_blk.Pack.Rec.ID = H.ID;
+			r_pack.Rec.ID = H.ID;
 			PPID   parent_id = H.GroupID;
 			if(r_blk.GObj.ValidateGoodsParent(parent_id) > 0) {
-				r_blk.Pack.Rec.ParentID = parent_id;
+				r_pack.Rec.ParentID = parent_id;
 			}
 			else {
 				parent_id = r_blk.GObj.GetConfig().DefGroupID;
 				if(r_blk.GObj.ValidateGoodsParent(parent_id) > 0) {
-					r_blk.Pack.Rec.ParentID = parent_id;
+					r_pack.Rec.ParentID = parent_id;
 				}
 				else {
 					PPObjGoodsGroup grp_obj;
 					THROW(grp_obj.AddSimple(&(parent_id = 0), gpkndOrdinaryGroup, 0, "default", 0, 0, 1));
-					r_blk.Pack.Rec.ParentID = parent_id;
+					r_pack.Rec.ParentID = parent_id;
 				}
 			}
-			r_blk.GObj.Fetch(r_blk.Pack.Rec.ParentID, &parent_rec);
+			r_blk.GObj.Fetch(r_pack.Rec.ParentID, &parent_rec);
 
 			(temp_buf = H.Name).Strip().RevertSpecSymb(SFileFormat::Html);
-			STRNSCPY(r_blk.Pack.Rec.Name, temp_buf);
-			STRNSCPY(r_blk.Pack.Rec.Abbr, temp_buf);
-			r_blk.Pack.PutExtStrData(GDSEXSTR_STORAGE,  (temp_buf = H.Storage).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_blk.Pack.PutExtStrData(GDSEXSTR_STANDARD, (temp_buf = H.Standard).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_blk.Pack.PutExtStrData(GDSEXSTR_INGRED,   (temp_buf = H.Ingred).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_blk.Pack.PutExtStrData(GDSEXSTR_ENERGY,   (temp_buf = H.Energy).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_blk.Pack.PutExtStrData(GDSEXSTR_USAGE,    (temp_buf = H.Usage).Strip().RevertSpecSymb(SFileFormat::Html));
-			r_blk.Pack.PutExtStrData(GDSEXSTR_OKOF,     (temp_buf = H.OKOF).Strip().RevertSpecSymb(SFileFormat::Html));
+			STRNSCPY(r_pack.Rec.Name, temp_buf);
+			STRNSCPY(r_pack.Rec.Abbr, temp_buf);
+			r_pack.PutExtStrData(GDSEXSTR_STORAGE,  (temp_buf = H.Storage).Strip().RevertSpecSymb(SFileFormat::Html));
+			r_pack.PutExtStrData(GDSEXSTR_STANDARD, (temp_buf = H.Standard).Strip().RevertSpecSymb(SFileFormat::Html));
+			r_pack.PutExtStrData(GDSEXSTR_INGRED,   (temp_buf = H.Ingred).Strip().RevertSpecSymb(SFileFormat::Html));
+			r_pack.PutExtStrData(GDSEXSTR_ENERGY,   (temp_buf = H.Energy).Strip().RevertSpecSymb(SFileFormat::Html));
+			r_pack.PutExtStrData(GDSEXSTR_USAGE,    (temp_buf = H.Usage).Strip().RevertSpecSymb(SFileFormat::Html));
+			r_pack.PutExtStrData(GDSEXSTR_OKOF,     (temp_buf = H.OKOF).Strip().RevertSpecSymb(SFileFormat::Html));
 			{
 				PPObjUnit u_obj;
 				PPUnit u_rec;
 				if(H.UnitID || H.PhUnitID) {
 					if(H.UnitID) {
 						if(u_obj.Fetch(H.UnitID, &u_rec) && u_rec.Flags & u_rec.Trade)
-							r_blk.Pack.Rec.UnitID = H.UnitID;
+							r_pack.Rec.UnitID = H.UnitID;
 					}
-					SETIFZ(r_blk.Pack.Rec.UnitID, parent_rec.UnitID);
-					SETIFZ(r_blk.Pack.Rec.UnitID, r_blk.GObj.GetConfig().DefUnitID);
+					SETIFZ(r_pack.Rec.UnitID, parent_rec.UnitID);
+					SETIFZ(r_pack.Rec.UnitID, r_blk.GObj.GetConfig().DefUnitID);
 					if(H.PhUnitID) {
 						if(u_obj.Fetch(H.PhUnitID, &u_rec) && u_rec.Flags & u_rec.Physical)
-							r_blk.Pack.Rec.PhUnitID = H.PhUnitID;
-						r_blk.Pack.Rec.PhUPerU = H.PhPerUnit;
+							r_pack.Rec.PhUnitID = H.PhUnitID;
+						r_pack.Rec.PhUPerU = H.PhPerUnit;
 					}
 				}
-				if(!r_blk.Pack.Rec.UnitID && r_blk.DefUnitID) {
+				if(!r_pack.Rec.UnitID && r_blk.DefUnitID) {
 					if(u_obj.Fetch(r_blk.DefUnitID, &u_rec) > 0 && u_rec.Flags & u_rec.Trade)
-						r_blk.Pack.Rec.UnitID = r_blk.DefUnitID;
+						r_pack.Rec.UnitID = r_blk.DefUnitID;
 				}
 			}
 			if(H.ManufID) {
 				PPObjPerson psn_obj;
 				PersonTbl::Rec psn_rec;
 				if(psn_obj.Fetch(H.ManufID, &psn_rec) > 0 && psn_obj.P_Tbl->IsBelongToKind(H.ManufID, PPPRK_MANUF))
-					r_blk.Pack.Rec.ManufID = H.ManufID;
+					r_pack.Rec.ManufID = H.ManufID;
 			}
 			if(H.BrandID) {
 				PPObjBrand br_obj;
 				PPBrand br_rec;
 				if(br_obj.Fetch(H.BrandID, &br_rec) > 0)
-					r_blk.Pack.Rec.BrandID = H.BrandID;
+					r_pack.Rec.BrandID = H.BrandID;
 			}
 			if(H.TaxGrpID) {
 				PPObjGoodsTax gt_obj;
 				PPGoodsTax gt_rec;
 				if(gt_obj.Search(H.TaxGrpID, &gt_rec) > 0)
-					r_blk.Pack.Rec.TaxGrpID = H.TaxGrpID;
+					r_pack.Rec.TaxGrpID = H.TaxGrpID;
 			}
-			r_blk.Pack.Stock.Package = H.Package;
-			r_blk.Pack.Stock.Brutto = static_cast<long>(H.Brutto);
-			r_blk.Pack.Stock.PckgDim.Width = H.Width;
-			r_blk.Pack.Stock.PckgDim.Length = H.Length;
-			r_blk.Pack.Stock.PckgDim.Height = H.Height;
-			r_blk.Pack.Stock.ExpiryPeriod = static_cast<int16>(H.ExpiryPeriod);
-			r_blk.Pack.Rec.Kind = PPGDSK_GOODS;
+			r_pack.Stock.Package = H.Package;
+			r_pack.Stock.Brutto = static_cast<long>(H.Brutto);
+			r_pack.Stock.PckgDim.Width = H.Width;
+			r_pack.Stock.PckgDim.Length = H.Length;
+			r_pack.Stock.PckgDim.Height = H.Height;
+			r_pack.Stock.ExpiryPeriod = static_cast<int16>(H.ExpiryPeriod);
+			r_pack.Rec.Kind = PPGDSK_GOODS;
 		}
 		else if(iterId == GetIterID("iter@BarcodeList")) {
 			SString norm_code, err_msg_buf, msg_buf;
@@ -5256,7 +5325,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 				CALLEXCEPT_PP_S(PPERR_UNSTRICTBARCODE, msg_buf);
 			}
 			if(norm_code.NotEmpty())
-				r_blk.Pack.Codes.Add(norm_code, 0, (I_BarcodeList.Package > 0) ? I_BarcodeList.Package : 1);
+				r_pack.Codes.Add(norm_code, 0, (I_BarcodeList.Package > 0) ? I_BarcodeList.Package : 1);
 		}
 		else if(iterId == GetIterID("iter@TagList")) {
 			if(glob_acc_id && sstreqi_ascii(I_TagList.TagSymb, "OuterGroup")) {
@@ -5267,7 +5336,7 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 						if(r_blk.TagObj.FetchBySymb(temp_buf, &pgg_tag_id) > 0) {
 							r_blk.PrivateGoodsGroupTagID = pgg_tag_id;
 							r_blk.PrivateGoodsGroup = I_TagList.StrVal;
-							THROW(SetOuterGoodsTag(pgg_tag_id, r_blk.PrivateGoodsGroup, r_blk.Pack));
+							THROW(SetOuterGoodsTag(pgg_tag_id, r_blk.PrivateGoodsGroup, r_pack));
 						}
 					}
 				}
@@ -5276,11 +5345,11 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 	}
 	else {
 		PPGlobalAccRights rights_blk(PPTAG_GUA_GOODSRIGHTS);
-		int    has_rights = (r_blk.Pack.Rec.ID == 0) ? rights_blk.IsAllow(PPGlobalAccRights::fCreate) : rights_blk.IsAllow(PPGlobalAccRights::fEdit);
+		int    has_rights = (r_pack.Rec.ID == 0) ? rights_blk.IsAllow(PPGlobalAccRights::fCreate) : rights_blk.IsAllow(PPGlobalAccRights::fEdit);
 		if(has_rights) {
-			PPID   id = r_blk.Pack.Rec.ID;
+			PPID   id = r_pack.Rec.ID;
 			if(id == 0) {
-				THROW(r_blk.GObj.PutPacket(&id, &r_blk.Pack, 1));
+				THROW(r_blk.GObj.PutPacket(&id, &r_pack, 1));
 			}
 			else {
 				//
@@ -5289,14 +5358,14 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 				if(glob_acc_id) {
 					int    any_for_upd = 0;
 					SString ext_a, ext_b, ext_c, ext_d, ext_e;
-					r_blk.Pack.GetExtStrData(GDSEXSTR_A, ext_a);
-					r_blk.Pack.GetExtStrData(GDSEXSTR_B, ext_b);
-					r_blk.Pack.GetExtStrData(GDSEXSTR_C, ext_c);
-					r_blk.Pack.GetExtStrData(GDSEXSTR_D, ext_d);
-					r_blk.Pack.GetExtStrData(GDSEXSTR_E, ext_e);
+					r_pack.GetExtStrData(GDSEXSTR_A, ext_a);
+					r_pack.GetExtStrData(GDSEXSTR_B, ext_b);
+					r_pack.GetExtStrData(GDSEXSTR_C, ext_c);
+					r_pack.GetExtStrData(GDSEXSTR_D, ext_d);
+					r_pack.GetExtStrData(GDSEXSTR_E, ext_e);
 					if(ext_a.NotEmptyS() || ext_b.NotEmptyS() || ext_c.NotEmptyS() || ext_d.NotEmptyS() || ext_e.NotEmptyS())
 						any_for_upd = 1;
-					if(r_blk.PrivateGoodsGroup.NotEmptyS() || r_blk.Pack.Rec.BrandID || r_blk.Pack.Rec.ManufID)
+					if(r_blk.PrivateGoodsGroup.NotEmptyS() || r_pack.Rec.BrandID || r_pack.Rec.ManufID)
 						any_for_upd = 1;
 					if(any_for_upd) {
 						PPGoodsPacket org_pack;
@@ -5306,10 +5375,10 @@ int PPALDD_UhttGoods::Set(long iterId, int commit)
 						org_pack.PutExtStrData(GDSEXSTR_C, ext_c);
 						org_pack.PutExtStrData(GDSEXSTR_D, ext_d);
 						org_pack.PutExtStrData(GDSEXSTR_E, ext_e);
-						if(r_blk.Pack.Rec.BrandID)
-							org_pack.Rec.BrandID = r_blk.Pack.Rec.BrandID;
-						if(r_blk.Pack.Rec.ManufID) {
-							org_pack.Rec.ManufID = r_blk.Pack.Rec.ManufID;
+						if(r_pack.Rec.BrandID)
+							org_pack.Rec.BrandID = r_pack.Rec.BrandID;
+						if(r_pack.Rec.ManufID) {
+							org_pack.Rec.ManufID = r_pack.Rec.ManufID;
 						}
 						if(r_blk.PrivateGoodsGroupTagID) {
 							THROW(SetOuterGoodsTag(r_blk.PrivateGoodsGroupTagID, r_blk.PrivateGoodsGroup, org_pack));

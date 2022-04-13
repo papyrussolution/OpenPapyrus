@@ -4704,6 +4704,7 @@ public:
 	int    IsTreeVisible() const;
 	void   GetTreeRect(RECT & rRect);
 	HWND   GetTreeHWND() const;
+	void   ShowLeftTree(bool visible);
 	//
 	// Descr: Специальные смещения идентификаторов, обозначающие нюансы состояний
 	// отрисовываемых объектов. Базовые инструменты имеют идентификаторы кратные 10,

@@ -37,7 +37,7 @@
 
 /* Errors should be handled via pvio callback function */
 bool ma_tls_initialized = FALSE;
-unsigned int mariadb_deinitialize_ssl = 1;
+uint mariadb_deinitialize_ssl = 1;
 
 const char * tls_protocol_version[] = {"SSLv3", "TLSv1.0", "TLSv1.1", "TLSv1.2", "TLSv1.3", "Unknown"};
 
@@ -123,8 +123,8 @@ static signed char ma_hex2int(char c)
 }
 
 static bool ma_pvio_tls_compare_fp(const char * cert_fp,
-    unsigned int cert_fp_len,
-    const char * fp, unsigned int fp_len)
+    uint cert_fp_len,
+    const char * fp, uint fp_len)
 {
 	char * p = (char *)fp,
 	    * c;
@@ -157,7 +157,7 @@ static bool ma_pvio_tls_compare_fp(const char * cert_fp,
 
 bool ma_pvio_tls_check_fp(MARIADB_TLS * ctls, const char * fp, const char * fp_list)
 {
-	unsigned int cert_fp_len = 64;
+	uint cert_fp_len = 64;
 	char * cert_fp = NULL;
 	bool rc = 1;
 	MYSQL * mysql = ctls->pvio->mysql;

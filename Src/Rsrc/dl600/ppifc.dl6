@@ -1,5 +1,5 @@
 // PPIFC.DL6
-// Copytight (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copytight (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Описание интерфейсов системы Papyrus
 //
@@ -570,7 +570,58 @@ interface IFtp {
 //
 //
 //
-library PapyrusInterfaceLib version(1.1) {
+library PapyrusInterfaceLib version(1.2) { // @v11.3.8 (1.1)-->(1.2)
+
+	enum SNTok {
+		sntokUNKN              = 0,
+		sntokNATURALWORD       = 1,
+		sntokDIGITCODE         = 2,
+		sntokEAN13             = 3,
+		sntokEAN8              = 4,
+		sntokUPCA              = 5,
+		sntokUPCE              = 6,
+		sntokRU_INN            = 7,
+		sntokEGAISWARECODE     = 8, // Код алкогольной продукции ЕГАИС
+		sntokEGAISMARKCODE     = 9, // Код акцизной марки алкогольной продукции ЕГАИС
+		sntokLUHN             = 10, // Цифровая последовательность с контрольной цифрой по алгоритму LUHN в конце
+		sntokDIGLAT           = 11, // Алфавитно-цифровая последовательность (содержащая только цифры и латинские символы)
+		sntokGUID             = 12, // Общепринятое текстовое представление GUID
+		sntokEMAIL            = 13, // Адрес электронной почты
+		sntokPHONE            = 14, // Номер телефона
+		sntokIMEI             = 15, // Код IMEI (с контрольной цифрой по алгоритму LUHN в конце)
+		sntokIP4              = 16, // ip4-address xx.xx.xx.xx
+		sntokIP6              = 17, // @todo ip6-address
+		sntokMACADDR48        = 18, // @todo MAC-address(48) xx-xx-xx-xx-xx-xx or xx:xx:xx:xx:xx:xx
+		sntokDATE             = 19, // date
+		sntokTIME             = 20, // time
+		sntokSOFTWAREVER      = 21, // 9.9.9
+		sntokCOLORHEX         = 22, // #hhhhhh
+		sntokREALNUMBER       = 23, // 9.9 || .9 || 9. || 9,9
+		sntokINTNUMBER        = 24, // 9 || -9
+		sntokPECENTAGE        = 25, //
+		sntokNUMERIC_DOT      = 26, // Десятичное число с десятичным разделителем точка и опциональными разделителями триад [,'`\x20]
+			// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
+		sntokNUMERIC_COM      = 27, // Десятичное число с десятичным разделителем запятая и опциональными разделителями триад ['`\x20]
+			// Допускается лидирующий + или -. Экспоненциальная запись не допускается.
+			// Если число не имеет дробной части, то применяется sntokNUMERIC_DOT
+		sntokCHZN_GS1_GTIN    = 28, // честный знак Идентификационный номер GS1 для идентификации товаров regexp: "[0-9]{14}"
+		sntokCHZN_SIGN_SGTIN  = 29, // честный знак Индивидуальный серийный номер вторичной упаковки regexp: "[0-9]{14}[&#x21;-&#x22;&#x25;-&#x2F;&#x30;-&#x39;&#x41;-&#x5A;&#x5F;&#x61;-&#x7A;]{13}"
+		sntokCHZN_SSCC        = 30, // честный знак Индивидуальный серийный номер третичной/транспортной упаковки regexp: "[0-9]{18}"
+		sntokCHZN_CIGITEM     = 31, // честный знак Маркировка пачки сигарет
+		sntokCHZN_CIGBLOCK    = 32, // честный знак Маркировка блока сигарет
+		sntokRU_OKPO          = 33, // @v10.8.1 Российский код ОКПО
+		sntokRU_SNILS         = 34, // @v10.8.1 Российский код СНИЛС
+		sntokRU_BIC           = 35, // @v10.8.1 Российский банковский идентификационный код (БИК)
+		sntokRU_KPP           = 36  // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
+	}
+
+	interface INaturalTokenArray { // @v11.3.8
+		double Has(in SNTok t);
+	}
+
+	interface INaturalTokenRecognizer { // @v11.3.8
+		INaturalTokenArray * Run(in string text, in long len);
+	}
 	//
 	// Descr: Интерфейс, к классу, реализующему функцию обработки текстовых строк по правила,
 	//   определенным в специальном файле.
@@ -5500,6 +5551,8 @@ library PapyrusInterfaceLib version(1.1) {
 	// Descr: Класс, представляющий интерфейс ICompleteArray
 	//
 	iclass CompleteList : ICompleteList {}
+	iclass NaturalTokenArray : INaturalTokenArray (default) {} // @v11.3.8
+	iclass NaturalTokenRecognizer : INaturalTokenRecognizer (default) {} // @v11.3.8
 	//
 	// Descr: Класс, представляющий интерфейс IPapyrusUtil
 	//

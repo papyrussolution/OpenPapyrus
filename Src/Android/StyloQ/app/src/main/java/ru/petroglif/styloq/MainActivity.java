@@ -2,14 +2,17 @@
 // Copyright (c) A.Sobolev 2021, 2022
 //
 package ru.petroglif.styloq;
+
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.view.Window;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -500,6 +503,13 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					try {
 						// (it works!) ctx.TestDisplaySnackbar(v_info, "Тестовый текст для snackbar'а", -2);
+						if(true) {
+							View v = findViewById(R.id.TEST_LOADED_IMAGE);
+							if(v != null && v instanceof ImageView) {
+								ImageView iv = (ImageView)v;
+								Glide.with(this).load(GlideSupport.ModelPrefix + "si7y2rmkvq6bqm7lfasonoxhpy").into(iv);
+							}
+						}
 						TestScan();
 						if(false) {
 							//
@@ -808,7 +818,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			;
 		}*/
 		//try {
-			if(true) {
+			if(false) {
 				byte [] svc_ident = Base64.getDecoder().decode("4RA8CYgG0PzF/bVebwsJ80qBa5g=");
 				StyloQInterchange.DoInterchangeParam param = new StyloQInterchange.DoInterchangeParam(svc_ident);
 				param.CommandJson = "{cmd=\"echo\"}";

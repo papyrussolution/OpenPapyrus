@@ -24,53 +24,49 @@
  * @brief Implementation of a list of procedures.
 
  * The functions in validation.c aims to have access to a list of procedures.
-*/
+ */
 
 /** @defgroup VAL VAL - validation procedure*/
 /*@{*/
-// 
-// FORWARD DECLARATION
-// 
+
+/**************************************************************************************************
+***************************************** FORWARD DECLARATION ************************************
+**************************************************************************************************/
+
 /**
  * declare a function pointer
  */
-typedef void (*opj_procedure)(void);
+typedef void (* opj_procedure)(void);
 
 /**
  * A list of procedures.
-*/
+ */
 typedef struct opj_procedure_list {
-    /**
-     * The number of validation procedures.
-     */
-    OPJ_UINT32 m_nb_procedures;
-    /**
-     * The number of the array of validation procedures.
-     */
-    OPJ_UINT32 m_nb_max_procedures;
-    /**
-     * The array of procedures.
-     */
-    opj_procedure * m_procedures;
-
+	/**
+	 * The number of validation procedures.
+	 */
+	uint32_t m_nb_procedures;
+	/**
+	 * The number of the array of validation procedures.
+	 */
+	uint32_t m_nb_max_procedures;
+	/**
+	 * The array of procedures.
+	 */
+	opj_procedure * m_procedures;
 } opj_procedure_list_t;
-
-/* ----------------------------------------------------------------------- */
-
 /**
  * Creates a validation list.
  *
  * @return  the newly created validation list.
  */
 opj_procedure_list_t *  opj_procedure_list_create(void);
-
 /**
  * Destroys a validation list.
  *
  * @param p_list the list to destroy.
  */
 void  opj_procedure_list_destroy(opj_procedure_list_t * p_list);
-
 /**
  * Adds a new validation procedure.
  *
@@ -80,7 +76,7 @@ void  opj_procedure_list_destroy(opj_procedure_list_t * p_list);
  *
  * @return  TRUE if the procedure could be added.
  */
-boolint FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager);
+boolint STDCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_validation_list, opj_procedure p_procedure, opj_event_mgr_t* p_manager);
 /**
  * Gets the number of validation procedures.
  *
@@ -88,7 +84,7 @@ boolint FASTCALL opj_procedure_list_add_procedure(opj_procedure_list_t * p_valid
  *
  * @return the number of validation procedures.
  */
-OPJ_UINT32 opj_procedure_list_get_nb_procedures(opj_procedure_list_t * p_validation_list);
+uint32_t FASTCALL opj_procedure_list_get_nb_procedures(const opj_procedure_list_t * p_validation_list);
 /**
  * Gets the pointer on the first validation procedure. This function is similar to the C++
  * iterator class to iterate through all the procedures inside the validation list.
@@ -98,9 +94,7 @@ OPJ_UINT32 opj_procedure_list_get_nb_procedures(opj_procedure_list_t * p_validat
  *
  * @return  a pointer to the first procedure.
  */
-opj_procedure* opj_procedure_list_get_first_procedure(opj_procedure_list_t *
-        p_validation_list);
-
+opj_procedure * FASTCALL opj_procedure_list_get_first_procedure(opj_procedure_list_t * p_validation_list);
 
 /**
  * Clears the list of validation procedures.
@@ -112,4 +106,3 @@ void opj_procedure_list_clear(opj_procedure_list_t * p_validation_list);
 /*@}*/
 
 #endif /* OPJ_FUNCTION_LIST_H */
-

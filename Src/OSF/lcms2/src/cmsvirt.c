@@ -255,7 +255,7 @@ cmsHPROFILE CMSEXPORT cmsCreateGrayProfile(const cmsCIExyY* WhitePoint,
 cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID, cmsColorSpaceSignature ColorSpace, cmsToneCurve * const TransferFunctions[])
 {
 	cmsPipeline * Pipeline;
-	cmsUInt32Number nChannels;
+	uint32 nChannels;
 	cmsHPROFILE hICC = cmsCreateProfilePlaceholder(ContextID);
 	if(!hICC)
 		return NULL;
@@ -344,7 +344,7 @@ cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
 	cmsHPROFILE hICC;
 	cmsPipeline * LUT;
 	cmsStage * CLUT;
-	cmsUInt32Number nChannels;
+	uint32 nChannels;
 
 	if(ColorSpace != cmsSigCmykData) {
 		cmsSignalError(ContextID, cmsERROR_COLORSPACE_CHECK, "InkLimiting: Only CMYK currently supported");
@@ -398,12 +398,9 @@ cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
 	return hICC;
 
 Error:
-	if(LUT != NULL)
-		cmsPipelineFree(LUT);
-
+	cmsPipelineFree(LUT);
 	if(hICC != NULL)
 		cmsCloseProfile(hICC);
-
 	return NULL;
 }
 
@@ -417,12 +414,9 @@ cmsHPROFILE CMSEXPORT cmsCreateLab2ProfileTHR(cmsContext ContextID, const cmsCIE
 {
 	cmsHPROFILE hProfile;
 	cmsPipeline * LUT = NULL;
-
 	hProfile = cmsCreateRGBProfileTHR(ContextID, WhitePoint == NULL ? cmsD50_xyY() : WhitePoint, NULL, NULL);
 	if(hProfile == NULL) return NULL;
-
 	cmsSetProfileVersion(hProfile, 2.1);
-
 	cmsSetDeviceClass(hProfile, cmsSigAbstractClass);
 	cmsSetColorSpace(hProfile,  cmsSigLabData);
 	cmsSetPCS(hProfile,         cmsSigLabData);
@@ -653,16 +647,16 @@ int bchswSampler(const uint16 In[], uint16 Out[], void * Cargo)
 
 // Creates an abstract profile operating in Lab space for Brightness,
 // contrast, Saturation and white point displacement
-cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID, cmsUInt32Number nLUTPoints, double Bright,
-    double Contrast, double Hue, double Saturation, cmsUInt32Number TempSrc, cmsUInt32Number TempDest)
+cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID, uint32 nLUTPoints, double Bright,
+    double Contrast, double Hue, double Saturation, uint32 TempSrc, uint32 TempDest)
 {
 	cmsHPROFILE hICC;
 	cmsPipeline * Pipeline;
 	BCHSWADJUSTS bchsw;
 	cmsCIExyY WhitePnt;
 	cmsStage * CLUT;
-	cmsUInt32Number Dimensions[MAX_INPUT_DIMENSIONS];
-	cmsUInt32Number i;
+	uint32 Dimensions[MAX_INPUT_DIMENSIONS];
+	uint32 i;
 	bchsw.Brightness = Bright;
 	bchsw.Contrast   = Contrast;
 	bchsw.Hue        = Hue;
@@ -723,13 +717,13 @@ Error:
 	return NULL;
 }
 
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(cmsUInt32Number nLUTPoints,
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(uint32 nLUTPoints,
     double Bright,
     double Contrast,
     double Hue,
     double Saturation,
-    cmsUInt32Number TempSrc,
-    cmsUInt32Number TempDest)
+    uint32 TempSrc,
+    uint32 TempDest)
 {
 	return cmsCreateBCHSWabstractProfileTHR(NULL, nLUTPoints, Bright, Contrast, Hue, Saturation, TempSrc, TempDest);
 }
@@ -809,7 +803,7 @@ static
 void FixColorSpaces(cmsHPROFILE hProfile,
     cmsColorSpaceSignature ColorSpace,
     cmsColorSpaceSignature PCS,
-    cmsUInt32Number dwFlags)
+    uint32 dwFlags)
 {
 	if(dwFlags & cmsFLAGS_GUESSDEVICECLASS) {
 		if(IsPCS(ColorSpace) && IsPCS(PCS)) {
@@ -848,7 +842,7 @@ cmsHPROFILE CreateNamedColorDevicelink(cmsHTRANSFORM xform)
 {
 	_cmsTRANSFORM* v = (_cmsTRANSFORM*)xform;
 	cmsHPROFILE hICC = NULL;
-	cmsUInt32Number i, nColors;
+	uint32 i, nColors;
 	cmsNAMEDCOLORLIST * nc2 = NULL, * Original = NULL;
 
 	// Create an empty placeholder
@@ -942,7 +936,7 @@ boolint CheckOne(const cmsAllowedLUT* Tab, const cmsPipeline * Lut)
 static
 const cmsAllowedLUT* FindCombination(const cmsPipeline * Lut, boolint IsV4, cmsTagSignature DestinationTag)
 {
-	cmsUInt32Number n;
+	uint32 n;
 
 	for(n = 0; n < SIZE_OF_ALLOWED_LUT; n++) {
 		const cmsAllowedLUT* Tab = AllowedLUTTypes + n;
@@ -957,10 +951,10 @@ const cmsAllowedLUT* FindCombination(const cmsPipeline * Lut, boolint IsV4, cmsT
 }
 
 // Does convert a transform into a device link profile
-cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, cmsUInt32Number dwFlags)
+cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, uint32 dwFlags)
 {
 	cmsHPROFILE hProfile = NULL;
-	cmsUInt32Number FrmIn, FrmOut, ChansIn, ChansOut;
+	uint32 FrmIn, FrmOut, ChansIn, ChansOut;
 	int ColorSpaceBitsIn, ColorSpaceBitsOut;
 	_cmsTRANSFORM* xform = (_cmsTRANSFORM*)hTransform;
 	cmsPipeline * LUT = NULL;

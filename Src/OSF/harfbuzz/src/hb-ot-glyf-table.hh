@@ -966,48 +966,36 @@ public:
 
 				if(UNLIKELY(!success))
 					return is_vertical ? vmtx->get_advance(gid) : hmtx->get_advance(gid);
-
-				float result = is_vertical
-				    ? phantoms[PHANTOM_TOP].y - phantoms[PHANTOM_BOTTOM].y
-				    : phantoms[PHANTOM_RIGHT].x - phantoms[PHANTOM_LEFT].x;
+				float result = is_vertical ? phantoms[PHANTOM_TOP].y - phantoms[PHANTOM_BOTTOM].y : phantoms[PHANTOM_RIGHT].x - phantoms[PHANTOM_LEFT].x;
 				return hb_clamp(roundf(result), 0.f, (float)UINT_MAX / 2);
 			}
-
 			int get_side_bearing_var(hb_font_t * font, hb_codepoint_t gid, bool is_vertical) const
 			{
-				if(UNLIKELY(gid >= num_glyphs)) return 0;
-
+				if(UNLIKELY(gid >= num_glyphs)) 
+					return 0;
 				hb_glyph_extents_t extents;
-
 				contour_point_t phantoms[PHANTOM_COUNT];
 				if(UNLIKELY(!get_points(font, gid, points_aggregator_t(font, &extents, phantoms))))
 					return is_vertical ? vmtx->get_side_bearing(gid) : hmtx->get_side_bearing(gid);
-
-				return is_vertical
-				       ? ceilf(phantoms[PHANTOM_TOP].y) - extents.y_bearing
-				       : floorf(phantoms[PHANTOM_LEFT].x);
+				return is_vertical ? ceilf(phantoms[PHANTOM_TOP].y) - extents.y_bearing : floorf(phantoms[PHANTOM_LEFT].x);
 			}
-
 #endif
-
 public:
 			bool get_extents(hb_font_t * font, hb_codepoint_t gid, hb_glyph_extents_t * extents) const
 			{
-				if(UNLIKELY(gid >= num_glyphs)) return false;
-
+				if(UNLIKELY(gid >= num_glyphs)) 
+					return false;
 #ifndef HB_NO_VAR
 				if(font->num_coords && font->num_coords == gvar->get_axis_count())
 					return get_points(font, gid, points_aggregator_t(font, extents, nullptr));
 #endif
 				return glyph_for_gid(gid).get_extents(font, *this, extents);
 			}
-
 			const Glyph glyph_for_gid(hb_codepoint_t gid, bool needs_padding_removal = false) const
 			{
-				if(UNLIKELY(gid >= num_glyphs)) return Glyph();
-
+				if(UNLIKELY(gid >= num_glyphs)) 
+					return Glyph();
 				uint start_offset, end_offset;
-
 				if(short_offset) {
 					const HBUINT16 * offsets = (const HBUINT16*)loca_table->dataZ.arrayZ;
 					start_offset = 2 * offsets[gid];
@@ -1018,45 +1006,35 @@ public:
 					start_offset = offsets[gid];
 					end_offset   = offsets[gid + 1];
 				}
-
 				if(UNLIKELY(start_offset > end_offset || end_offset > glyf_table.get_length()))
 					return Glyph();
-
-				Glyph glyph(hb_bytes_t ((const char*)this->glyf_table + start_offset,
-				    end_offset - start_offset), gid);
+				Glyph glyph(hb_bytes_t ((const char*)this->glyf_table + start_offset, end_offset - start_offset), gid);
 				return needs_padding_removal ? glyph.trim_padding() : glyph;
 			}
-
-			void add_gid_and_children(hb_codepoint_t gid, hb_set_t * gids_to_retain,
-			    uint depth = 0) const
+			void add_gid_and_children(hb_codepoint_t gid, hb_set_t * gids_to_retain, uint depth = 0) const
 			{
 				if(UNLIKELY(depth++ > HB_MAX_NESTING_LEVEL)) return;
 				/* Check if is already visited */
-				if(gids_to_retain->has(gid)) return;
-
+				if(gids_to_retain->has(gid)) 
+					return;
 				gids_to_retain->add(gid);
-
 				for(auto &item : glyph_for_gid(gid).get_composite_iterator())
 					add_gid_and_children(item.get_glyph_index(), gids_to_retain, depth);
 			}
-
 #ifdef HB_EXPERIMENTAL_API
 			struct path_builder_t {
 				hb_font_t * font;
 				draw_helper_t * draw_helper;
-
 				struct optional_point_t {
-					optional_point_t() {
-						has_data = false;
+					optional_point_t() : has_data(false)
+					{
 					}
-					optional_point_t(float x_, float y_) {
-						x = x_; y = y_; has_data = true;
+					optional_point_t(float x_, float y_) : x(x_), y(y_), has_data(true)
+					{
 					}
-
 					bool has_data;
 					float x;
 					float y;
-
 					optional_point_t lerp(optional_point_t p, float t)
 					{
 						return optional_point_t(x + t * (p.x - x), y + t * (p.y - y));

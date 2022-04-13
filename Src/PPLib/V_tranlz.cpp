@@ -5018,14 +5018,14 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 		if(ACfg.Hdr.Flags & ACfg.Hdr.fUseOwnEgaisObjects || (flags & pgifForceUsingInnerDb)) {
             SETIFZ(P_RefC, new RefCollection);
             if(P_RefC) {
-				int   _is_ref_a = 0;
+				bool   _is_ref_a = false;
 				if(pTags && pTags->GetItemStr(PPTAG_LOT_FSRARINFA, temp_buf) > 0)
-					_is_ref_a = 1;
+					_is_ref_a = true;
 				else if(lotID && p_ref->Ot.GetTagStr(PPOBJ_LOT, lotID, PPTAG_LOT_FSRARINFA, temp_buf) > 0)
-					_is_ref_a = 1;
+					_is_ref_a = true;
 				if(_is_ref_a) {
 					rItem.InformA = temp_buf;
-					TSVector <EgaisRefATbl::Rec> refa_list; // @v9.8.4 TSArray-->TSVector
+					TSVector <EgaisRefATbl::Rec> refa_list;
 					const int actual_pos = P_RefC->RaC.SearchByCode(rItem.InformA, refa_list);
 					if(actual_pos > 0) {
 						const EgaisRefATbl::Rec & r_item = refa_list.at(actual_pos-1);
@@ -5043,10 +5043,10 @@ int PrcssrAlcReport::PreprocessGoodsItem(PPID goodsID, PPID lotID, const ObjTagL
 					}
 				}
 				{
-					if(isempty(p_egais_code) || rItem.StatusFlags & rItem.stEgaisCodeByGoods)
+					if(isempty(p_egais_code) || (rItem.StatusFlags & rItem.stEgaisCodeByGoods && !(flags & pgifUseInnerDbByGoodsCode && !lotID && !pTags)))
 						p_egais_code = rItem.RefcEgaisCode;
                     if(!isempty(p_egais_code)) {
-						TSVector <EgaisProductTbl::Rec> pr_list; // @v9.8.4 TSArray-->TSVector
+						TSVector <EgaisProductTbl::Rec> pr_list;
                         const int actual_pos = P_RefC->PrC.SearchByCode(p_egais_code, pr_list);
                         if(actual_pos > 0) {
 							EgaisProductCore::Item pr_item;

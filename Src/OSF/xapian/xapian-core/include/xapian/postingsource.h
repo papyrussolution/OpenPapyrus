@@ -8,17 +8,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_POSTINGSOURCE_H
 #define XAPIAN_INCLUDED_POSTINGSOURCE_H
 
@@ -42,10 +32,8 @@ class Registry;
 /** Base class which provides an "external" source of postings.
  */
 class XAPIAN_VISIBILITY_DEFAULT PostingSource : public Xapian::Internal::opt_intrusive_base {
-	/// Don't allow assignment.
-	void operator = (const PostingSource &) = delete;
-	/// Don't allow copying.
-	PostingSource(const PostingSource &) = delete;
+	void operator = (const PostingSource &) = delete; /// Don't allow assignment.
+	PostingSource(const PostingSource &) = delete; /// Don't allow copying.
 	double max_weight_ = 0.0; /// The current upper bound on what get_weight() can return.
 	bool* max_weight_cached_flag_ptr = nullptr; /// Flag to clear when maxweight changes.
 public:
@@ -63,16 +51,13 @@ public:
 	{
 		max_weight_cached_flag_ptr = flag_ptr;
 	}
-	// Destructor.
 	virtual ~PostingSource();
-
 	/** A lower bound on the number of documents this object can return.
 	 *
 	 *  Xapian will always call reset() on a PostingSource before calling this
 	 *  for the first time.
 	 */
 	virtual Xapian::doccount get_termfreq_min() const = 0;
-
 	/** An estimate of the number of documents this object can return.
 	 *
 	 *  It must always be true that:
@@ -83,7 +68,6 @@ public:
 	 *  for the first time.
 	 */
 	virtual Xapian::doccount get_termfreq_est() const = 0;
-
 	/** An upper bound on the number of documents this object can return.
 	 *
 	 *  Xapian will always call reset() on a PostingSource before calling this

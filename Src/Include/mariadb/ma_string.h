@@ -31,7 +31,7 @@ char * ma_ll2str(long long val, char * dst, int radix);
 
 static inline bool ma_check_env_str(const char * env)
 {
-	unsigned int i;
+	uint i;
 	if(!env)
 		return 1;
 	for(i = 0; i < MAX_ENV_SIZE; i++) {

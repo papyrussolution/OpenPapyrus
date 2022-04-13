@@ -50,6 +50,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.UUID;
 import javax.crypto.KeyAgreement;
@@ -1581,6 +1582,10 @@ public class StyloQInterchange {
 						result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "GetForeignConfig", null);
 						result.SvcReply = rpool;
 					}
+					else if(org_cmd_text.equalsIgnoreCase("getblob")) {
+						result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "getblob", null);
+						result.SvcReply = rpool;
+					}
 					else {
 						//Object subj = null;
 						StyloQCommand.DocReference doc_ref = null;
@@ -1634,6 +1639,51 @@ public class StyloQInterchange {
 			if(rtb != null) {
 				rtb.Close();
 				rtb = null;
+			}
+		}
+		return result;
+	}
+	//
+	// Descr: Запрашивает у произвольно выбранного медиатора blob с сигнатурой blobSignature.
+	//
+	public static byte [] QueryBlob(StyloQApp appCtx, String blobSignature)
+	{
+		byte [] result = null;
+		if(appCtx != null && SLib.GetLen(blobSignature) > 0) {
+			ArrayList<StyloQApp.IgnitionServerEntry> isl = appCtx.GetMediatorList();
+			if(isl != null && isl.size() > 0) {
+				Collections.shuffle(isl);
+				for(int i = 0; result == null && i < isl.size(); i++) {
+					StyloQApp.IgnitionServerEntry ise = isl.get(0);
+					if(ise != null) {
+						DoInterchangeParam inner_param = new StyloQInterchange.DoInterchangeParam(ise.SvcIdent);
+						inner_param.AccsPoint = ise.Url;
+						try {
+							JSONObject js_query = new JSONObject();
+							js_query.put("cmd", "getblob");
+							js_query.put("signature", blobSignature);
+							inner_param.CommandJson = js_query.toString();
+							InterchangeResult inner_result = Helper_DoInterchange2(appCtx, inner_param);
+							if(inner_result != null && inner_result.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && inner_result.SvcReply != null) {
+								byte [] reply_raw_data = inner_result.SvcReply.Get(SecretTagPool.tagRawData);
+								if(SLib.GetLen(reply_raw_data) > 0) {
+									String json_text = new String(reply_raw_data);
+									if(SLib.GetLen(json_text) > 0) {
+										JSONObject js_reply = new JSONObject(json_text);
+										result = inner_result.SvcReply.Get(SecretTagPool.tagBlob);
+										//String content_base64 = js_reply.optString("content", null);
+										//if(SLib.GetLen(content_base64) > 0) {
+										//	result = Base64.getDecoder().decode(content_base64);
+										//}
+									}
+								}
+							}
+						} catch(JSONException exn) {
+							;
+						}
+
+					}
+				}
 			}
 		}
 		return result;
@@ -1736,7 +1786,7 @@ public class StyloQInterchange {
 							inner_result.InfoReply = inner_result.SvcReply;
 						String err_msg = (inner_result.InfoReply != null && inner_result.InfoReply instanceof String) ? (String)inner_result.InfoReply : null;
 						StyloQApp.SvcReplySubject srsub = new StyloQApp.SvcReplySubject(param.SvcIdent, inner_result.TextSubj,
-								inner_result.OriginalCmdItem,err_msg);
+							inner_result.OriginalCmdItem,err_msg);
 						appCtx.SendSvcReplyToMainThread(inner_result.ResultTag, srsub, inner_result.InfoReply);
 					}
 				}

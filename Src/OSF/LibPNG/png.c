@@ -2435,7 +2435,7 @@ void /* PRIVATE */ png_ascii_from_fp(png_const_structrp png_ptr, char * ascii, s
 					if(cdigits+czero+1 < precision+clead)
 						fp = modf(fp, &d);
 					else {
-						d = floor(fp + .5);
+						d = floor(fp + 0.5);
 						if(d > 9) {
 							// Rounding up to 10, handle that here. 
 							if(czero > 0) {
@@ -2672,8 +2672,8 @@ void /* PRIVATE */ png_ascii_from_fixed(png_const_structrp png_ptr, char * ascii
 	defined(PNG_READ_RGB_TO_GRAY_SUPPORTED)) || (defined(PNG_sCAL_SUPPORTED) &&	defined(PNG_FLOATING_ARITHMETIC_SUPPORTED))
 png_fixed_point png_fixed(png_const_structrp png_ptr, double fp, const char * text)
 {
-	double r = floor(100000 * fp + .5);
-	if(r > 2147483647. || r < -2147483648.)
+	double r = floor(100000 * fp + 0.5);
+	if(r > 2147483647.0 || r < -2147483648.0)
 		png_fixed_error(png_ptr, text);
 #ifndef PNG_ERROR_TEXT_SUPPORTED
 	CXX_UNUSED(text);
@@ -2823,8 +2823,8 @@ static png_fixed_point png_product2(png_fixed_point a, png_fixed_point b)
 #ifdef PNG_FLOATING_ARITHMETIC_SUPPORTED
 	double r = a * 1E-5;
 	r *= b;
-	r = floor(r+.5);
-	if(r <= 2147483647. && r >= -2147483648.)
+	r = floor(r+0.5);
+	if(r <= 2147483647.0 && r >= -2147483648.0)
 		return (png_fixed_point)r;
 #else
 	png_fixed_point res;
@@ -2844,7 +2844,7 @@ png_fixed_point png_reciprocal2(png_fixed_point a, png_fixed_point b)
 	if(a != 0 && b != 0) {
 		double r = 1E15/a;
 		r /= b;
-		r = floor(r+.5);
+		r = floor(r+0.5);
 		if(r <= 2147483647. && r >= -2147483648.)
 			return (png_fixed_point)r;
 	}

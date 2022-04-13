@@ -18,7 +18,7 @@
 
 #define MYSQL_NO_DATA 100
 #define MYSQL_DATA_TRUNCATED 101
-#define MYSQL_DEFAULT_PREFETCH_ROWS (unsigned long)1
+#define MYSQL_DEFAULT_PREFETCH_ROWS (ulong)1
 
 /* Bind flags */
 #define MADB_BIND_DUMMY 1
@@ -115,8 +115,8 @@ typedef struct st_mysql_bind {
 	unsigned long buffer_length; /* output buffer length, must be set when fetching str/binary */
 	unsigned long offset; /* offset position for char/binary fetch */
 	unsigned long length_value; /* Used if length is 0 */
-	unsigned int flags; /* special flags, e.g. for dummy bind  */
-	unsigned int pack_length; /* Internal length for packed data */
+	uint flags; /* special flags, e.g. for dummy bind  */
+	uint pack_length; /* Internal length for packed data */
 	enum   enum_field_types buffer_type; /* buffer type */
 	bool   error_value; /* used if error is 0 */
 	bool   is_unsigned; /* set if integer type is unsigned */
@@ -126,8 +126,8 @@ typedef struct st_mysql_bind {
 } MYSQL_BIND;
 
 typedef struct st_mysqlnd_upsert_result {
-	unsigned int warning_count;
-	unsigned int server_status;
+	uint warning_count;
+	uint server_status;
 	uint64 affected_rows;
 	uint64 last_insert_id;
 } mysql_upsert_status;
@@ -138,7 +138,7 @@ typedef struct st_mysql_cmd_buffer {
 } MYSQL_CMD_BUFFER;
 
 typedef struct st_mysql_error_info {
-	unsigned int error_no;
+	uint error_no;
 	char error[MYSQL_ERRMSG_SIZE+1];
 	char sqlstate[SQLSTATE_LENGTH + 1];
 } mysql_error_info;
@@ -158,26 +158,26 @@ struct st_mysqlnd_stmt_methods {
 	bool (* bind_param)(const MYSQL_STMT * stmt, const MYSQL_BIND bind);
 	bool (* refresh_bind_param)(const MYSQL_STMT * stmt);
 	bool (* bind_result)(const MYSQL_STMT * stmt, const MYSQL_BIND * bind);
-	bool (* send_long_data)(const MYSQL_STMT * stmt, unsigned int param_num, const char * const data, size_t length);
+	bool (* send_long_data)(const MYSQL_STMT * stmt, uint param_num, const char * const data, size_t length);
 	MYSQL_RES *(* get_parameter_metadata)(const MYSQL_STMT * stmt);
 	MYSQL_RES *(* get_result_metadata)(const MYSQL_STMT * stmt);
 	uint64 (* get_last_insert_id)(const MYSQL_STMT * stmt);
 	uint64 (* get_affected_rows)(const MYSQL_STMT * stmt);
 	uint64 (* get_num_rows)(const MYSQL_STMT * stmt);
-	unsigned int (* get_param_count)(const MYSQL_STMT * stmt);
-	unsigned int (* get_field_count)(const MYSQL_STMT * stmt);
-	unsigned int (* get_warning_count)(const MYSQL_STMT * stmt);
-	unsigned int (* get_error_no)(const MYSQL_STMT * stmt);
+	uint (* get_param_count)(const MYSQL_STMT * stmt);
+	uint (* get_field_count)(const MYSQL_STMT * stmt);
+	uint (* get_warning_count)(const MYSQL_STMT * stmt);
+	uint (* get_error_no)(const MYSQL_STMT * stmt);
 	const char * (* get_error_str)(const MYSQL_STMT * stmt);
 	const char * (* get_sqlstate)(const MYSQL_STMT * stmt);
 	bool (* get_attribute)(const MYSQL_STMT * stmt, enum enum_stmt_attr_type attr_type, const void * value);
 	bool (* set_attribute)(const MYSQL_STMT * stmt, enum enum_stmt_attr_type attr_type, const void * value);
-	void (* set_error)(MYSQL_STMT * stmt, unsigned int error_nr, const char * sqlstate, const char * format, ...);
+	void (* set_error)(MYSQL_STMT * stmt, uint error_nr, const char * sqlstate, const char * format, ...);
 };
 
 typedef int (* mysql_stmt_fetch_row_func)(MYSQL_STMT * stmt, uchar ** row);
-typedef void (* ps_result_callback)(void * data, unsigned int column, uchar ** row);
-typedef bool *(* ps_param_callback)(void * data, MYSQL_BIND * bind, unsigned int row_nr);
+typedef void (* ps_result_callback)(void * data, uint column, uchar ** row);
+typedef bool *(* ps_param_callback)(void * data, MYSQL_BIND * bind, uint row_nr);
 
 struct st_mysql_stmt {
 	MA_MEM_ROOT mem_root;
@@ -186,8 +186,8 @@ struct st_mysql_stmt {
 	unsigned long flags; /* cursor is set here */
 	enum_mysqlnd_stmt_state state;
 	MYSQL_FIELD * fields;
-	unsigned int field_count;
-	unsigned int param_count;
+	uint field_count;
+	uint param_count;
 	uchar send_types_to_server;
 	MYSQL_BIND * params;
 	MYSQL_BIND * bind;
@@ -196,7 +196,7 @@ struct st_mysql_stmt {
 	bool bind_result_done;
 	bool bind_param_done;
 	mysql_upsert_status upsert_status;
-	unsigned int last_errno;
+	uint last_errno;
 	char last_error[MYSQL_ERRMSG_SIZE+1];
 	char sqlstate[SQLSTATE_LENGTH + 1];
 	bool update_max_length;
@@ -205,12 +205,12 @@ struct st_mysql_stmt {
 	bool cursor_exists;
 	void * extension;
 	mysql_stmt_fetch_row_func fetch_row_func;
-	unsigned int execute_count; /* count how many times the stmt was executed */
+	uint execute_count; /* count how many times the stmt was executed */
 	mysql_stmt_use_or_store_func default_rset_handler;
 	struct st_mysqlnd_stmt_methods  * m;
-	unsigned int array_size;
+	uint array_size;
 	size_t row_size;
-	unsigned int prebind_params;
+	uint prebind_params;
 	void * user_data;
 	ps_result_callback result_callback;
 	ps_param_callback param_callback;
@@ -237,7 +237,7 @@ MYSQL_STMT * STDCALL mysql_stmt_init(MYSQL * mysql);
 int STDCALL mysql_stmt_prepare(MYSQL_STMT * stmt, const char * query, unsigned long length);
 int STDCALL mysql_stmt_execute(MYSQL_STMT * stmt);
 int STDCALL mysql_stmt_fetch(MYSQL_STMT * stmt);
-int STDCALL mysql_stmt_fetch_column(MYSQL_STMT * stmt, MYSQL_BIND * bind_arg, unsigned int column, unsigned long offset);
+int STDCALL mysql_stmt_fetch_column(MYSQL_STMT * stmt, MYSQL_BIND * bind_arg, uint column, unsigned long offset);
 int STDCALL mysql_stmt_store_result(MYSQL_STMT * stmt);
 unsigned long STDCALL mysql_stmt_param_count(MYSQL_STMT * stmt);
 bool STDCALL mysql_stmt_attr_set(MYSQL_STMT * stmt, enum enum_stmt_attr_type attr_type, const void * attr);
@@ -247,10 +247,10 @@ bool STDCALL mysql_stmt_bind_result(MYSQL_STMT * stmt, const MYSQL_BIND * bnd);
 bool STDCALL mysql_stmt_close(MYSQL_STMT * stmt);
 bool STDCALL mysql_stmt_reset(MYSQL_STMT * stmt);
 bool STDCALL mysql_stmt_free_result(MYSQL_STMT * stmt);
-bool STDCALL mysql_stmt_send_long_data(MYSQL_STMT * stmt, unsigned int param_number, const char * data, unsigned long length);
+bool STDCALL mysql_stmt_send_long_data(MYSQL_STMT * stmt, uint param_number, const char * data, unsigned long length);
 MYSQL_RES * STDCALL mysql_stmt_result_metadata(MYSQL_STMT * stmt);
 MYSQL_RES * STDCALL mysql_stmt_param_metadata(MYSQL_STMT * stmt);
-unsigned int STDCALL mysql_stmt_errno(MYSQL_STMT * stmt);
+uint STDCALL mysql_stmt_errno(MYSQL_STMT * stmt);
 const char * STDCALL mysql_stmt_error(MYSQL_STMT * stmt);
 const char * STDCALL mysql_stmt_sqlstate(MYSQL_STMT * stmt);
 MYSQL_ROW_OFFSET STDCALL mysql_stmt_row_seek(MYSQL_STMT * stmt, MYSQL_ROW_OFFSET offset);
@@ -259,7 +259,7 @@ void STDCALL mysql_stmt_data_seek(MYSQL_STMT * stmt, uint64 offset);
 uint64 STDCALL mysql_stmt_num_rows(MYSQL_STMT * stmt);
 uint64 STDCALL mysql_stmt_affected_rows(MYSQL_STMT * stmt);
 uint64 STDCALL mysql_stmt_insert_id(MYSQL_STMT * stmt);
-unsigned int STDCALL mysql_stmt_field_count(MYSQL_STMT * stmt);
+uint STDCALL mysql_stmt_field_count(MYSQL_STMT * stmt);
 int STDCALL mysql_stmt_next_result(MYSQL_STMT * stmt);
 bool STDCALL mysql_stmt_more_results(MYSQL_STMT * stmt);
 int STDCALL mariadb_stmt_execute_direct(MYSQL_STMT * stmt, const char * stmt_str, size_t length);

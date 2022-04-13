@@ -24,7 +24,7 @@ typedef struct {
 	const cmsInterpParams* p; // Tetrahedrical interpolation parameters. This is a not-owned pointer.
 
 	uint16 rx[256], ry[256], rz[256];
-	cmsUInt32Number X0[256], Y0[256], Z0[256]; // Precomputed nodes and offsets for 8-bit input data
+	uint32 X0[256], Y0[256], Z0[256]; // Precomputed nodes and offsets for 8-bit input data
 } Prelin8Data;
 
 // Generic optimization for 16 bits Shaper-CLUT-Shaper (any inputs)
@@ -32,8 +32,8 @@ typedef struct {
 	cmsContext ContextID;
 
 	// Number of channels
-	cmsUInt32Number nInputs;
-	cmsUInt32Number nOutputs;
+	uint32 nInputs;
+	uint32 nOutputs;
 
 	_cmsInterpFn16 EvalCurveIn16[MAX_INPUT_DIMENSIONS];   // The maximum number of input channels is known in
 	                                                      // advance
@@ -49,7 +49,7 @@ typedef struct {
 
 // Optimization for matrix-shaper in 8 bits. Numbers are operated in n.14 signed, tables are stored in 1.14 fixed
 
-typedef cmsInt32Number cmsS1Fixed14Number;   // Note that this may hold more than 16 bits!
+typedef int32 cmsS1Fixed14Number;   // Note that this may hold more than 16 bits!
 
 #define DOUBLE_TO_1FIXED14(x) ((cmsS1Fixed14Number)floor((x) * 16384.0 + 0.5))
 
@@ -72,8 +72,8 @@ typedef struct {
 typedef struct {
 	cmsContext ContextID;
 
-	cmsUInt32Number nCurves;  // Number of curves
-	cmsUInt32Number nElements; // Elements in curves
+	uint32 nCurves;  // Number of curves
+	uint32 nElements; // Elements in curves
 	uint16** Curves; // Points to a dynamically  allocated array
 } Curves16Data;
 
@@ -224,7 +224,7 @@ static void PrelinEval16(const uint16 Input[], uint16 Output[], const void * D)
 	Prelin16Data* p16 = (Prelin16Data*)D;
 	uint16 StageABC[MAX_INPUT_DIMENSIONS];
 	uint16 StageDEF[cmsMAXCHANNELS];
-	cmsUInt32Number i;
+	uint32 i;
 	for(i = 0; i < p16->nInputs; i++) {
 		p16->EvalCurveIn16[i](&Input[i], &StageABC[i], p16->ParamsCurveIn16[i]);
 	}
@@ -252,9 +252,9 @@ static void * Prelin16dup(cmsContext ContextID, const void * ptr)
 	return Duped;
 }
 
-static Prelin16Data* PrelinOpt16alloc(cmsContext ContextID, const cmsInterpParams* ColorMap, cmsUInt32Number nInputs, cmsToneCurve ** In, cmsUInt32Number nOutputs, cmsToneCurve ** Out)
+static Prelin16Data* PrelinOpt16alloc(cmsContext ContextID, const cmsInterpParams* ColorMap, uint32 nInputs, cmsToneCurve ** In, uint32 nOutputs, cmsToneCurve ** Out)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	Prelin16Data* p16 = (Prelin16Data*)_cmsMallocZero(ContextID, sizeof(Prelin16Data));
 	if(p16 == NULL) return NULL;
 	p16->nInputs = nInputs;
@@ -293,26 +293,21 @@ static Prelin16Data* PrelinOpt16alloc(cmsContext ContextID, const cmsInterpParam
 
 // Sampler implemented by another LUT. This is a clean way to precalculate the devicelink 3D CLUT for
 // almost any transform. We use floating point precision and then convert from floating point to 16 bits.
-static cmsInt32Number XFormSampler16(const uint16 In[], uint16 Out[], void * Cargo)
+static boolint XFormSampler16(const uint16 In[], uint16 Out[], void * Cargo)
 {
 	cmsPipeline * Lut = (cmsPipeline *)Cargo;
 	float InFloat[cmsMAXCHANNELS], OutFloat[cmsMAXCHANNELS];
-	cmsUInt32Number i;
-
+	uint32 i;
 	_cmsAssert(Lut->InputChannels < cmsMAXCHANNELS);
 	_cmsAssert(Lut->OutputChannels < cmsMAXCHANNELS);
-
 	// From 16 bit to floating point
 	for(i = 0; i < Lut->InputChannels; i++)
 		InFloat[i] = (float)(In[i] / 65535.0);
-
 	// Evaluate in floating point
 	cmsPipelineEvalFloat(InFloat, OutFloat, Lut);
-
 	// Back to 16 bits representation
 	for(i = 0; i < Lut->OutputChannels; i++)
 		Out[i] = _cmsQuickSaturateWord(OutFloat[i] * 65535.0);
-
 	// Always succeed
 	return TRUE;
 }
@@ -321,7 +316,7 @@ static cmsInt32Number XFormSampler16(const uint16 In[], uint16 Out[], void * Car
 static boolint AllCurvesAreLinear(cmsStage * mpe)
 {
 	cmsToneCurve ** Curves;
-	cmsUInt32Number i, n;
+	uint32 i, n;
 
 	Curves = _cmsStageGetPtrToCurveSet(mpe);
 	if(Curves == NULL) return FALSE;
@@ -337,7 +332,7 @@ static boolint AllCurvesAreLinear(cmsStage * mpe)
 
 // This function replaces a specific node placed in "At" by the "Value" numbers. Its purpose
 // is to fix scum dot on broken profiles/transforms. Works on 1, 3 and 4 channels
-static boolint PatchLUT(cmsStage * CLUT, uint16 At[], uint16 Value[], cmsUInt32Number nChannelsOut, cmsUInt32Number nChannelsIn)
+static boolint PatchLUT(cmsStage * CLUT, uint16 At[], uint16 Value[], uint32 nChannelsOut, uint32 nChannelsIn)
 {
 	_cmsStageCLutData* Grid = (_cmsStageCLutData*)CLUT->Data;
 	cmsInterpParams* p16  = Grid->Params;
@@ -409,9 +404,9 @@ static boolint PatchLUT(cmsStage * CLUT, uint16 At[], uint16 Value[], cmsUInt32N
 }
 
 // Auxiliary, to see if two values are equal or very different
-static boolint WhitesAreEqual(cmsUInt32Number n, uint16 White1[], uint16 White2[])
+static boolint WhitesAreEqual(uint32 n, uint16 White1[], uint16 White2[])
 {
-	for(cmsUInt32Number i = 0; i < n; i++) {
+	for(uint32 i = 0; i < n; i++) {
 		if(abs(White1[i] - White2[i]) > 0xf000) return TRUE; // Values are so extremely different that the fixup
 		                                                     // should be avoided
 		if(White1[i] != White2[i]) return FALSE;
@@ -424,7 +419,7 @@ static boolint FixWhiteMisalignment(cmsPipeline * Lut, cmsColorSpaceSignature En
 {
 	uint16 * WhitePointIn, * WhitePointOut;
 	uint16 WhiteIn[cmsMAXCHANNELS], WhiteOut[cmsMAXCHANNELS], ObtainedOut[cmsMAXCHANNELS];
-	cmsUInt32Number i, nOuts, nIns;
+	uint32 i, nOuts, nIns;
 	cmsStage * PreLin = NULL, * CLUT = NULL, * PostLin = NULL;
 
 	if(!_cmsEndPointsBySpace(EntryColorSpace,
@@ -498,14 +493,14 @@ static boolint FixWhiteMisalignment(cmsPipeline * Lut, cmsColorSpaceSignature En
 // This function should be used on 16-bits LUTS only, as floating point losses precision when simplified
 // -----------------------------------------------------------------------------------------------------------------------------------------------
 
-static boolint OptimizeByResampling(cmsPipeline ** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
+static boolint OptimizeByResampling(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
 {
 	cmsPipeline * Src = NULL;
 	cmsPipeline * Dest = NULL;
 	cmsStage * mpe;
 	cmsStage * CLUT;
 	cmsStage * KeepPreLin = NULL, * KeepPostLin = NULL;
-	cmsUInt32Number nGridPoints;
+	uint32 nGridPoints;
 	cmsColorSpaceSignature ColorSpace, OutputColorSpace;
 	cmsStage * NewPreLin = NULL;
 	cmsStage * NewPostLin = NULL;
@@ -828,8 +823,8 @@ static CMS_NO_SANITIZE void PrelinEval8(const uint16 Input[], uint16 Output[], c
 // Curves that contain wide empty areas are not optimizeable
 static boolint IsDegenerated(const cmsToneCurve * g)
 {
-	cmsUInt32Number i, Zeros = 0, Poles = 0;
-	cmsUInt32Number nEntries = g->nEntries;
+	uint32 i, Zeros = 0, Poles = 0;
+	uint32 nEntries = g->nEntries;
 
 	for(i = 0; i < nEntries; i++) {
 		if(g->Table16[i] == 0x0000) Zeros++;
@@ -846,12 +841,12 @@ static boolint IsDegenerated(const cmsToneCurve * g)
 // --------------------------------------------------------------------------------------------------------------
 // We need xput over here
 
-static boolint OptimizeByComputingLinearization(cmsPipeline ** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
+static boolint OptimizeByComputingLinearization(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
 {
 	cmsPipeline * OriginalLut;
-	cmsUInt32Number nGridPoints;
+	uint32 nGridPoints;
 	cmsToneCurve * Trans[cmsMAXCHANNELS], * TransReverse[cmsMAXCHANNELS];
-	cmsUInt32Number t, i;
+	uint32 t, i;
 	float v, In[cmsMAXCHANNELS], Out[cmsMAXCHANNELS];
 	boolint lIsSuitable, lIsLinear;
 	cmsPipeline * OptimizedLUT = NULL, * LutPlusCurves = NULL;
@@ -1027,7 +1022,7 @@ Error:
 static void CurvesFree(cmsContext ContextID, void * ptr)
 {
 	Curves16Data* Data = (Curves16Data*)ptr;
-	for(cmsUInt32Number i = 0; i < Data->nCurves; i++) {
+	for(uint32 i = 0; i < Data->nCurves; i++) {
 		_cmsFree(ContextID, Data->Curves[i]);
 	}
 	_cmsFree(ContextID, Data->Curves);
@@ -1037,7 +1032,7 @@ static void CurvesFree(cmsContext ContextID, void * ptr)
 static void * CurvesDup(cmsContext ContextID, const void * ptr)
 {
 	Curves16Data* Data = (Curves16Data*)_cmsDupMem(ContextID, ptr, sizeof(Curves16Data));
-	cmsUInt32Number i;
+	uint32 i;
 	if(Data == NULL) return NULL;
 	Data->Curves = (uint16**)_cmsDupMem(ContextID, Data->Curves, Data->nCurves * sizeof(uint16*));
 	for(i = 0; i < Data->nCurves; i++) {
@@ -1047,9 +1042,9 @@ static void * CurvesDup(cmsContext ContextID, const void * ptr)
 }
 
 // Precomputes tables for 8-bit on input devicelink.
-static Curves16Data* CurvesAlloc(cmsContext ContextID, cmsUInt32Number nCurves, cmsUInt32Number nElements, cmsToneCurve ** G)
+static Curves16Data* CurvesAlloc(cmsContext ContextID, uint32 nCurves, uint32 nElements, cmsToneCurve ** G)
 {
-	cmsUInt32Number i, j;
+	uint32 i, j;
 	Curves16Data* c16 = (Curves16Data*)_cmsMallocZero(ContextID, sizeof(Curves16Data));
 	if(c16 == NULL) return NULL;
 	c16->nCurves = nCurves;
@@ -1090,7 +1085,7 @@ static void FastEvaluateCurves8(const uint16 In[], uint16 Out[], const void * D)
 {
 	Curves16Data* Data = (Curves16Data*)D;
 	int x;
-	for(cmsUInt32Number i = 0; i < Data->nCurves; i++) {
+	for(uint32 i = 0; i < Data->nCurves; i++) {
 		x = (In[i] >> 8);
 		Out[i] = Data->Curves[i][x];
 	}
@@ -1099,7 +1094,7 @@ static void FastEvaluateCurves8(const uint16 In[], uint16 Out[], const void * D)
 static void FastEvaluateCurves16(const uint16 In[], uint16 Out[], const void * D)
 {
 	Curves16Data* Data = (Curves16Data*)D;
-	for(cmsUInt32Number i = 0; i < Data->nCurves; i++) {
+	for(uint32 i = 0; i < Data->nCurves; i++) {
 		Out[i] = Data->Curves[i][In[i]];
 	}
 }
@@ -1107,19 +1102,19 @@ static void FastEvaluateCurves16(const uint16 In[], uint16 Out[], const void * D
 static void FastIdentity16(const uint16 In[], uint16 Out[], const void * D)
 {
 	cmsPipeline * Lut = (cmsPipeline *)D;
-	for(cmsUInt32Number i = 0; i < Lut->InputChannels; i++) {
+	for(uint32 i = 0; i < Lut->InputChannels; i++) {
 		Out[i] = In[i];
 	}
 }
 
 // If the target LUT holds only curves, the optimization procedure is to join all those
 // curves together. That only works on curves and does not work on matrices.
-static boolint OptimizeByJoiningCurves(cmsPipeline ** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
+static boolint OptimizeByJoiningCurves(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat,
+    uint32* OutputFormat, uint32* dwFlags)
 {
 	cmsToneCurve ** GammaTables = NULL;
 	float InFloat[cmsMAXCHANNELS], OutFloat[cmsMAXCHANNELS];
-	cmsUInt32Number i, j;
+	uint32 i, j;
 	cmsPipeline * Src = *Lut;
 	cmsPipeline * Dest = NULL;
 	cmsStage * mpe;
@@ -1249,7 +1244,7 @@ static void MatShaperEval16(const uint16 In[], uint16 Out[], const void * D)
 {
 	MatShaper8Data* p = (MatShaper8Data*)D;
 	cmsS1Fixed14Number l1, l2, l3, r, g, b;
-	cmsUInt32Number ri, gi, bi;
+	uint32 ri, gi, bi;
 
 	// In this case (and only in this case!) we can use this simplification since
 	// In[] is assured to come from a 8 bit number. (a << 8 | a)
@@ -1268,9 +1263,9 @@ static void MatShaperEval16(const uint16 In[], uint16 Out[], const void * D)
 	l3 =  (p->Mat[2][0] * r + p->Mat[2][1] * g + p->Mat[2][2] * b + p->Off[2] + 0x2000) >> 14;
 
 	// Now we have to clip to 0..1.0 range
-	ri = (l1 < 0) ? 0 : ((l1 > 16384) ? 16384U : (cmsUInt32Number)l1);
-	gi = (l2 < 0) ? 0 : ((l2 > 16384) ? 16384U : (cmsUInt32Number)l2);
-	bi = (l3 < 0) ? 0 : ((l3 > 16384) ? 16384U : (cmsUInt32Number)l3);
+	ri = (l1 < 0) ? 0 : ((l1 > 16384) ? 16384U : (uint32)l1);
+	gi = (l2 < 0) ? 0 : ((l2 > 16384) ? 16384U : (uint32)l2);
+	bi = (l3 < 0) ? 0 : ((l3 > 16384) ? 16384U : (uint32)l3);
 
 	// And across second shaper,
 	Out[0] = p->Shaper2R[ri];
@@ -1320,7 +1315,7 @@ static void FillSecondShaper(uint16* Table, cmsToneCurve * Curve, boolint Is8Bit
 }
 
 // Compute the matrix-shaper structure
-static boolint SetMatShaper(cmsPipeline * Dest, cmsToneCurve * Curve1[3], cmsMAT3* Mat, cmsVEC3* Off, cmsToneCurve * Curve2[3], cmsUInt32Number* OutputFormat)
+static boolint SetMatShaper(cmsPipeline * Dest, cmsToneCurve * Curve1[3], cmsMAT3* Mat, cmsVEC3* Off, cmsToneCurve * Curve2[3], uint32* OutputFormat)
 {
 	MatShaper8Data* p;
 	int i, j;
@@ -1364,7 +1359,7 @@ static boolint SetMatShaper(cmsPipeline * Dest, cmsToneCurve * Curve1[3], cmsMAT
 }
 
 //  8 bits on input allows matrix-shaper boot up to 25 Mpixels per second on RGB. That's fast!
-static boolint OptimizeMatrixShaper(cmsPipeline ** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
+static boolint OptimizeMatrixShaper(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags)
 {
 	cmsStage * Curve1, * Curve2;
 	cmsStage * Matrix1, * Matrix2;
@@ -1562,8 +1557,8 @@ boolint _cmsRegisterOptimizationPlugin(cmsContext ContextID, cmsPluginBase* Data
 }
 
 // The entry point for LUT optimization
-boolint _cmsOptimizePipeline(cmsContext ContextID, cmsPipeline **    PtrLut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags)
+boolint _cmsOptimizePipeline(cmsContext ContextID, cmsPipeline **    PtrLut, uint32 Intent, uint32* InputFormat,
+    uint32* OutputFormat, uint32* dwFlags)
 {
 	_cmsOptimizationPluginChunkType* ctx = (_cmsOptimizationPluginChunkType*)_cmsContextGetClientChunk(ContextID, OptimizationPlugin);
 	_cmsOptimizationCollection* Opts;

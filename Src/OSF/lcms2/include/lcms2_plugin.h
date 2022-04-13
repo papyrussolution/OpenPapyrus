@@ -88,60 +88,59 @@ CMSAPI void CMSEXPORT _cmsMAT3eval(cmsVEC3* r, const cmsMAT3* a, const cmsVEC3* 
 
 // MD5 low level  -------------------------------------------------------------------------------------
 // @sobolev CMSAPI cmsHANDLE CMSEXPORT cmsMD5alloc(cmsContext ContextID);
-// @sobolev CMSAPI void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, cmsUInt32Number len);
+// @sobolev CMSAPI void CMSEXPORT cmsMD5add(cmsHANDLE Handle, const uint8 * buf, uint32 len);
 // @sobolev CMSAPI void CMSEXPORT cmsMD5finish(cmsProfileID* ProfileID, cmsHANDLE Handle);
 
 // Error logging  -------------------------------------------------------------------------------------
 
-CMSAPI void CMSEXPORT  cmsSignalError(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * ErrorText, ...);
+CMSAPI void CMSEXPORT  cmsSignalError(cmsContext ContextID, uint32 ErrorCode, const char * ErrorText, ...);
 
 // Memory management ----------------------------------------------------------------------------------
 
-CMSAPI void * CMSEXPORT _cmsMalloc(cmsContext ContextID, cmsUInt32Number size);
-CMSAPI void * CMSEXPORT _cmsMallocZero(cmsContext ContextID, cmsUInt32Number size);
-CMSAPI void * CMSEXPORT _cmsCalloc(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
-CMSAPI void * CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, cmsUInt32Number NewSize);
+CMSAPI void * CMSEXPORT _cmsMalloc(cmsContext ContextID, uint32 size);
+CMSAPI void * CMSEXPORT _cmsMallocZero(cmsContext ContextID, uint32 size);
+CMSAPI void * CMSEXPORT _cmsCalloc(cmsContext ContextID, uint32 num, uint32 size);
+CMSAPI void * CMSEXPORT _cmsRealloc(cmsContext ContextID, void * Ptr, uint32 NewSize);
 CMSAPI void CMSEXPORT _cmsFree(cmsContext ContextID, void * Ptr);
-CMSAPI void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, cmsUInt32Number size);
+CMSAPI void * CMSEXPORT _cmsDupMem(cmsContext ContextID, const void * Org, uint32 size);
 
 // I/O handler ----------------------------------------------------------------------------------
 
 struct _cms_io_handler {
 	void * stream; // Associated stream, which is implemented differently depending on media.
 	cmsContext ContextID;
-	cmsUInt32Number UsedSpace;
-	cmsUInt32Number ReportedSize;
+	uint32 UsedSpace;
+	uint32 ReportedSize;
 	char PhysicalFile[cmsMAX_PATH];
-	cmsUInt32Number (* Read)(struct _cms_io_handler* iohandler, void * Buffer, cmsUInt32Number size, cmsUInt32Number count);
-	boolint (* Seek)(struct _cms_io_handler* iohandler, cmsUInt32Number offset);
+	uint32 (* Read)(struct _cms_io_handler* iohandler, void * Buffer, uint32 size, uint32 count);
+	boolint (* Seek)(struct _cms_io_handler* iohandler, uint32 offset);
 	boolint (* Close)(struct _cms_io_handler* iohandler);
-	cmsUInt32Number (* Tell)(struct _cms_io_handler* iohandler);
-	boolint (* Write)(struct _cms_io_handler* iohandler, cmsUInt32Number size, const void * Buffer);
+	uint32 (* Tell)(struct _cms_io_handler* iohandler);
+	boolint (* Write)(struct _cms_io_handler* iohandler, uint32 size, const void * Buffer);
 };
 
 // Endianness adjust functions
 CMSAPI uint16 CMSEXPORT  _cmsAdjustEndianess16(uint16 Word);
-CMSAPI cmsUInt32Number CMSEXPORT  _cmsAdjustEndianess32(cmsUInt32Number Value);
-CMSAPI void CMSEXPORT  _cmsAdjustEndianess64(cmsUInt64Number* Result, cmsUInt64Number* QWord);
+CMSAPI uint32 CMSEXPORT  _cmsAdjustEndianess32(uint32 Value);
+CMSAPI void CMSEXPORT  _cmsAdjustEndianess64(uint64* Result, uint64* QWord);
 
 // Helper IO functions
 CMSAPI boolint CMSEXPORT  _cmsReadUInt8Number(cmsIOHANDLER* io,  uint8 * n);
 CMSAPI boolint CMSEXPORT  _cmsReadUInt16Number(cmsIOHANDLER* io, uint16* n);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt32Number(cmsIOHANDLER* io, cmsUInt32Number* n);
+CMSAPI boolint CMSEXPORT  _cmsReadUInt32Number(cmsIOHANDLER* io, uint32* n);
 CMSAPI boolint CMSEXPORT  _cmsReadFloat32Number(cmsIOHANDLER* io, float* n);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt64Number(cmsIOHANDLER* io, cmsUInt64Number* n);
+CMSAPI boolint CMSEXPORT  _cmsReadUInt64Number(cmsIOHANDLER* io, uint64* n);
 CMSAPI boolint CMSEXPORT  _cmsRead15Fixed16Number(cmsIOHANDLER* io, double * n);
 CMSAPI boolint CMSEXPORT  _cmsReadXYZNumber(cmsIOHANDLER* io, cmsCIEXYZ* XYZ);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt16Array(cmsIOHANDLER* io, cmsUInt32Number n, uint16* Array);
-
+CMSAPI boolint CMSEXPORT  _cmsReadUInt16Array(cmsIOHANDLER* io, uint32 n, uint16* Array);
 CMSAPI boolint CMSEXPORT  _cmsWriteUInt8Number(cmsIOHANDLER* io, uint8 n);
 CMSAPI boolint CMSEXPORT  _cmsWriteUInt16Number(cmsIOHANDLER* io, uint16 n);
-CMSAPI boolint CMSEXPORT  _cmsWriteUInt32Number(cmsIOHANDLER* io, cmsUInt32Number n);
+CMSAPI boolint CMSEXPORT  _cmsWriteUInt32Number(cmsIOHANDLER* io, uint32 n);
 CMSAPI boolint CMSEXPORT  _cmsWriteFloat32Number(cmsIOHANDLER* io, float n);
-CMSAPI boolint CMSEXPORT  _cmsWriteUInt64Number(cmsIOHANDLER* io, cmsUInt64Number* n);
+CMSAPI boolint CMSEXPORT  _cmsWriteUInt64Number(cmsIOHANDLER* io, uint64* n);
 CMSAPI boolint CMSEXPORT  _cmsWrite15Fixed16Number(cmsIOHANDLER* io, double n);
 CMSAPI boolint CMSEXPORT  _cmsWriteXYZNumber(cmsIOHANDLER* io, const cmsCIEXYZ* XYZ);
-CMSAPI boolint CMSEXPORT  _cmsWriteUInt16Array(cmsIOHANDLER* io, cmsUInt32Number n, const uint16* Array);
+CMSAPI boolint CMSEXPORT  _cmsWriteUInt16Array(cmsIOHANDLER* io, uint32 n, const uint16* Array);
 
 // ICC base tag
 typedef struct {
@@ -190,9 +189,9 @@ typedef void *    (* _cmsDupUserDataFn)(cmsContext ContextID, const void * Data)
 #define cmsPluginMutexSig                    0x6D747A48     // 'mtxH'
 
 typedef struct _cmsPluginBaseStruct {
-	cmsUInt32Number Magic;                              // 'acpp' signature
-	cmsUInt32Number ExpectedVersion;                    // Expected version of LittleCMS
-	cmsUInt32Number Type;                               // Type of plug-in
+	uint32 Magic;                              // 'acpp' signature
+	uint32 ExpectedVersion;                    // Expected version of LittleCMS
+	uint32 Type;                               // Type of plug-in
 	struct _cmsPluginBaseStruct*   Next;                // For multiple plugin definition. NULL for end of list.
 } cmsPluginBase;
 
@@ -203,13 +202,13 @@ typedef struct _cmsPluginBaseStruct {
 
 // Memory handler. Each new plug-in type replaces current behaviour
 
-typedef void * (* _cmsMallocFnPtrType)(cmsContext ContextID, cmsUInt32Number size);
+typedef void * (* _cmsMallocFnPtrType)(cmsContext ContextID, uint32 size);
 typedef void (* _cmsFreeFnPtrType)(cmsContext ContextID, void * Ptr);
-typedef void * (* _cmsReallocFnPtrType)(cmsContext ContextID, void * Ptr, cmsUInt32Number NewSize);
+typedef void * (* _cmsReallocFnPtrType)(cmsContext ContextID, void * Ptr, uint32 NewSize);
 
-typedef void * (* _cmsMalloZerocFnPtrType)(cmsContext ContextID, cmsUInt32Number size);
-typedef void * (* _cmsCallocFnPtrType)(cmsContext ContextID, cmsUInt32Number num, cmsUInt32Number size);
-typedef void * (* _cmsDupFnPtrType)(cmsContext ContextID, const void * Org, cmsUInt32Number size);
+typedef void * (* _cmsMalloZerocFnPtrType)(cmsContext ContextID, uint32 size);
+typedef void * (* _cmsCallocFnPtrType)(cmsContext ContextID, uint32 num, uint32 size);
+typedef void * (* _cmsDupFnPtrType)(cmsContext ContextID, const void * Org, uint32 size);
 
 typedef struct {
 	cmsPluginBase base;
@@ -257,12 +256,12 @@ typedef union {
 
 typedef struct _cms_interp_struc {  // Used on all interpolations. Supplied by lcms2 when calling the interpolation function
 	cmsContext ContextID; // The calling thread
-	cmsUInt32Number dwFlags; // Keep original flags
-	cmsUInt32Number nInputs; // != 1 only in 3D interpolation
-	cmsUInt32Number nOutputs; // != 1 only in 3D interpolation
-	cmsUInt32Number nSamples[MAX_INPUT_DIMENSIONS]; // Valid on all kinds of tables
-	cmsUInt32Number Domain[MAX_INPUT_DIMENSIONS]; // Domain = nSamples - 1
-	cmsUInt32Number opta[MAX_INPUT_DIMENSIONS]; // Optimization for 3D CLUT. This is the number of nodes
+	uint32 dwFlags; // Keep original flags
+	uint32 nInputs; // != 1 only in 3D interpolation
+	uint32 nOutputs; // != 1 only in 3D interpolation
+	uint32 nSamples[MAX_INPUT_DIMENSIONS]; // Valid on all kinds of tables
+	uint32 Domain[MAX_INPUT_DIMENSIONS]; // Domain = nSamples - 1
+	uint32 opta[MAX_INPUT_DIMENSIONS]; // Optimization for 3D CLUT. This is the number of nodes
 		// premultiplied for each dimension. For example, in 7 nodes, 7, 7^2 , 7^3, 7^4, etc. On
 		// non-regular Samplings may vary according of the number of nodes for each dimension.
 	const void * Table;           // Points to the actual interpolation table
@@ -270,7 +269,7 @@ typedef struct _cms_interp_struc {  // Used on all interpolations. Supplied by l
 } cmsInterpParams;
 
 // Interpolators factory
-typedef cmsInterpFunction (* cmsInterpFnFactory)(cmsUInt32Number nInputChannels, cmsUInt32Number nOutputChannels, cmsUInt32Number dwFlags);
+typedef cmsInterpFunction (* cmsInterpFnFactory)(uint32 nInputChannels, uint32 nOutputChannels, uint32 dwFlags);
 
 // The plug-in
 typedef struct {
@@ -282,14 +281,14 @@ typedef struct {
 // Parametric curves. A negative type means same function but analytically inverted. Max. number of params is 10
 //
 // Evaluator callback for user-supplied parametric curves. May implement more than one type
-typedef  double (* cmsParametricCurveEvaluator)(cmsInt32Number Type, const double Params[10], double R);
+typedef  double (* cmsParametricCurveEvaluator)(int Type, const double Params[10], double R);
 
 // Plug-in may implement an arbitrary number of parametric curves
 typedef struct {
 	cmsPluginBase base;
-	cmsUInt32Number nFunctions;                                 // Number of supported functions
-	cmsUInt32Number FunctionTypes[MAX_TYPES_IN_LCMS_PLUGIN];    // The identification types
-	cmsUInt32Number ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];   // Number of parameters for each function
+	uint32 nFunctions;                                 // Number of supported functions
+	uint32 FunctionTypes[MAX_TYPES_IN_LCMS_PLUGIN];    // The identification types
+	uint32 ParameterCount[MAX_TYPES_IN_LCMS_PLUGIN];   // Number of parameters for each function
 	cmsParametricCurveEvaluator Evaluator;                      // The evaluator
 } cmsPluginParametricCurves;
 //
@@ -299,8 +298,8 @@ typedef struct {
 //
 struct _cmstransform_struct;
 
-typedef uint8 * (* cmsFormatter16)(struct _cmstransform_struct* CMMcargo, uint16 Values[],  uint8 * Buffer, cmsUInt32Number Stride);
-typedef uint8 * (* cmsFormatterFloat)(struct _cmstransform_struct* CMMcargo, float Values[], uint8 *  Buffer, cmsUInt32Number Stride);
+typedef uint8 * (* cmsFormatter16)(struct _cmstransform_struct* CMMcargo, uint16 Values[],  uint8 * Buffer, uint32 Stride);
+typedef uint8 * (* cmsFormatterFloat)(struct _cmstransform_struct* CMMcargo, float Values[], uint8 *  Buffer, uint32 Stride);
 
 // This type holds a pointer to a formatter that can be either 16 bits or float
 typedef union {
@@ -313,9 +312,9 @@ typedef union {
 
 typedef enum { cmsFormatterInput = 0, cmsFormatterOutput = 1 } cmsFormatterDirection;
 
-typedef cmsFormatter (* cmsFormatterFactory)(cmsUInt32Number Type,           // Specific type, i.e. TYPE_RGB_8
+typedef cmsFormatter (* cmsFormatterFactory)(uint32 Type,           // Specific type, i.e. TYPE_RGB_8
     cmsFormatterDirection Dir,
-    cmsUInt32Number dwFlags);                                               // precision
+    uint32 dwFlags);                                               // precision
 
 // Plug-in may implement an arbitrary number of formatters
 typedef struct {
@@ -330,19 +329,19 @@ typedef struct _cms_typehandler_struct {
 	// Allocates and reads items
 	void *   (*ReadPtr)(struct _cms_typehandler_struct* self,
 	cmsIOHANDLER*      io,
-	cmsUInt32Number*   nItems,
-	cmsUInt32Number SizeOfTag);
+	uint32*   nItems,
+	uint32 SizeOfTag);
 	// Writes n Items
-	boolint (* WritePtr)(struct _cms_typehandler_struct* self, cmsIOHANDLER*     io, void *  Ptr, cmsUInt32Number nItems);
+	boolint (* WritePtr)(struct _cms_typehandler_struct* self, cmsIOHANDLER*     io, void *  Ptr, uint32 nItems);
 	// Duplicate an item or array of items
 	void *   (*DupPtr)(struct _cms_typehandler_struct* self,
 	const void * Ptr,
-	cmsUInt32Number n);
+	uint32 n);
 	// Free all resources
 	void (* FreePtr)(struct _cms_typehandler_struct* self, void * Ptr);
 	// Additional parameters used by the calling thread
 	cmsContext ContextID;
-	cmsUInt32Number ICCVersion;
+	uint32 ICCVersion;
 } cmsTagTypeHandler;
 
 // Each plug-in implements a single type
@@ -355,9 +354,9 @@ typedef struct {
 // This function should return the desired type for this tag, given the version of profile
 // and the data being serialized.
 typedef struct {
-	cmsUInt32Number ElemCount;          // If this tag needs an array, how many elements should keep
+	uint32 ElemCount;          // If this tag needs an array, how many elements should keep
 	// For reading.
-	cmsUInt32Number nSupportedTypes;    // In how many types this tag can come (MAX_TYPES_IN_LCMS_PLUGIN maximum)
+	uint32 nSupportedTypes;    // In how many types this tag can come (MAX_TYPES_IN_LCMS_PLUGIN maximum)
 	cmsTagTypeSignature SupportedTypes[MAX_TYPES_IN_LCMS_PLUGIN];
 	// For writing
 	cmsTagTypeSignature (* DecideType)(double ICCVersion, const void * Data);
@@ -376,20 +375,20 @@ typedef struct {
 // one custom intent is found, the one located first is invoked. Usually users should use only one
 // custom intent, so mixing custom intents in same multiprofile transform is not supported.
 //
-typedef cmsPipeline * (* cmsIntentFn)(cmsContext ContextID, cmsUInt32Number nProfiles, cmsUInt32Number Intents[],
-    cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], cmsUInt32Number dwFlags);
+typedef cmsPipeline * (* cmsIntentFn)(cmsContext ContextID, uint32 nProfiles, uint32 Intents[],
+    cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], uint32 dwFlags);
 
 // Each plug-in defines a single intent number.
 typedef struct {
 	cmsPluginBase base;
-	cmsUInt32Number Intent;
+	uint32 Intent;
 	cmsIntentFn Link;
 	char Description[256];
 } cmsPluginRenderingIntent;
 
 // The default ICC intents (perceptual, saturation, rel.col and abs.col)
-CMSAPI cmsPipeline * CMSEXPORT _cmsDefaultICCintents(cmsContext ContextID, cmsUInt32Number nProfiles, cmsUInt32Number Intents[], cmsHPROFILE hProfiles[],
-    boolint BPC[], double AdaptationStates[], cmsUInt32Number dwFlags);
+CMSAPI cmsPipeline * CMSEXPORT _cmsDefaultICCintents(cmsContext ContextID, uint32 nProfiles, uint32 Intents[], cmsHPROFILE hProfiles[],
+    boolint BPC[], double AdaptationStates[], uint32 dwFlags);
 //
 // Pipelines, Multi Process Elements.
 //
@@ -400,8 +399,8 @@ typedef void (* _cmsStageFreeElemFn)(cmsStage * mpe);
 // This function allocates a generic MPE
 CMSAPI cmsStage * CMSEXPORT _cmsStageAllocPlaceholder(cmsContext ContextID,
     cmsStageSignature Type,
-    cmsUInt32Number InputChannels,
-    cmsUInt32Number OutputChannels,
+    uint32 InputChannels,
+    uint32 OutputChannels,
     _cmsStageEvalFn EvalPtr, // Points to fn that evaluates the element (always in floating point)
     _cmsStageDupElemFn DupElemPtr, // Points to a fn that duplicates the stage
     _cmsStageFreeElemFn FreePtr, // Points to a fn that sets the element free
@@ -415,7 +414,7 @@ typedef struct {
 
 // Curves
 typedef struct {
-	cmsUInt32Number nCurves;
+	uint32 nCurves;
 	cmsToneCurve **  TheCurves;
 } _cmsStageToneCurvesData;
 
@@ -433,7 +432,7 @@ typedef struct {
 	} Tab;
 
 	cmsInterpParams* Params;
-	cmsUInt32Number nEntries;
+	uint32 nEntries;
 	boolint HasFloatValues;
 } _cmsStageCLutData;
 //
@@ -443,8 +442,8 @@ typedef struct {
 // to the rest of optimizers.
 //
 typedef void (* _cmsOPTeval16Fn)(const uint16 In[], uint16 Out[], const void * Data);
-typedef boolint (* _cmsOPToptimizeFn)(cmsPipeline ** Lut, cmsUInt32Number Intent, cmsUInt32Number* InputFormat,
-    cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags);
+typedef boolint (* _cmsOPToptimizeFn)(cmsPipeline ** Lut, uint32 Intent, uint32* InputFormat,
+    uint32* OutputFormat, uint32* dwFlags);
 
 // This function may be used to set the optional evaluator and a block of private data. If private data is being used,
 // an optional
@@ -463,20 +462,20 @@ typedef struct {
 // Full xform
 //
 typedef struct {
-	cmsUInt32Number BytesPerLineIn;
-	cmsUInt32Number BytesPerLineOut;
-	cmsUInt32Number BytesPerPlaneIn;
-	cmsUInt32Number BytesPerPlaneOut;
+	uint32 BytesPerLineIn;
+	uint32 BytesPerLineOut;
+	uint32 BytesPerPlaneIn;
+	uint32 BytesPerPlaneOut;
 } cmsStride;
 
 typedef void (* _cmsTransformFn)(struct _cmstransform_struct * CMMcargo, // Legacy function, handles just ONE scanline.
-    const void * InputBuffer, void * OutputBuffer, cmsUInt32Number Size, cmsUInt32Number Stride/*Stride in bytes to the next plana in planar formats*/);
+    const void * InputBuffer, void * OutputBuffer, uint32 Size, uint32 Stride/*Stride in bytes to the next plana in planar formats*/);
 typedef void (* _cmsTransform2Fn)(struct _cmstransform_struct * CMMcargo, const void * InputBuffer, void * OutputBuffer,
-    cmsUInt32Number PixelsPerLine, cmsUInt32Number LineCount, const cmsStride* Stride);
+    uint32 PixelsPerLine, uint32 LineCount, const cmsStride* Stride);
 typedef boolint (* _cmsTransformFactory)(_cmsTransformFn* xform, void ** UserData, _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline ** Lut, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags);
+    cmsPipeline ** Lut, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags);
 typedef boolint (* _cmsTransform2Factory)(_cmsTransform2Fn* xform, void ** UserData, _cmsFreeUserDataFn* FreePrivateDataFn,
-    cmsPipeline ** Lut, cmsUInt32Number* InputFormat, cmsUInt32Number* OutputFormat, cmsUInt32Number* dwFlags);
+    cmsPipeline ** Lut, uint32* InputFormat, uint32* OutputFormat, uint32* dwFlags);
 
 // Retrieve user data as specified by the factory
 CMSAPI void CMSEXPORT _cmsSetTransformUserData(struct _cmstransform_struct * CMMcargo, void * ptr, _cmsFreeUserDataFn FreePrivateDataFn);

@@ -54,7 +54,7 @@ static bool my_win_init()
 	WORD VersionRequested;
 	int err;
 	WSADATA WsaData;
-	const unsigned int MajorVersion = 2,
+	const uint MajorVersion = 2,
 	    MinorVersion = 2;
 	VersionRequested = MAKEWORD(MajorVersion, MinorVersion);
 	/* Load WinSock library */

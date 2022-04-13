@@ -533,9 +533,9 @@ double CMSEXPORT cmsCIE2000DeltaE(const cmsCIELab* Lab1, const cmsCIELab* Lab2, 
 
 // This function returns a number of gridpoints to be used as LUT table. It assumes same number
 // of gripdpoints in all dimensions. Flags may override the choice.
-cmsUInt32Number _cmsReasonableGridpointsByColorspace(cmsColorSpaceSignature Colorspace, cmsUInt32Number dwFlags)
+uint32 _cmsReasonableGridpointsByColorspace(cmsColorSpaceSignature Colorspace, uint32 dwFlags)
 {
-	cmsUInt32Number nChannels;
+	uint32 nChannels;
 
 	// Already specified?
 	if(dwFlags & 0x00FF0000) {
@@ -577,7 +577,7 @@ cmsUInt32Number _cmsReasonableGridpointsByColorspace(cmsColorSpaceSignature Colo
 	return 33;              // 33 for RGB
 }
 
-boolint _cmsEndPointsBySpace(cmsColorSpaceSignature Space, uint16 ** White, uint16 ** Black, cmsUInt32Number * nOutputs)
+boolint _cmsEndPointsBySpace(cmsColorSpaceSignature Space, uint16 ** White, uint16 ** Black, uint32 * nOutputs)
 {
 	// Only most common spaces
 	static uint16 RGBblack[4]  = { 0, 0, 0 };
@@ -719,7 +719,7 @@ int CMSEXPORT _cmsLCMScolorSpace(cmsColorSpaceSignature ProfileSpace)
 	}
 }
 
-cmsUInt32Number CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace)
+uint32 CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace)
 {
 	switch(ColorSpace) {
 		case cmsSigMCH1Data:

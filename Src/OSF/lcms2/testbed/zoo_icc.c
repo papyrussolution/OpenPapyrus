@@ -28,9 +28,9 @@ static char ZOORawWrite[cmsMAX_PATH]  = "c:\\colormaps\\rawwrite\\";
 // Read all tags on a profile given by its handle
 static void ReadAllTags(cmsHPROFILE h)
 {
-	cmsInt32Number i;
+	int32 i;
 	cmsTagSignature sig;
-	cmsInt32Number n = cmsGetTagCount(h);
+	int32 n = cmsGetTagCount(h);
 	for(i = 0; i < n; i++) {
 		sig = cmsGetTagSignature(h, i);
 		if(cmsReadTag(h, sig) == NULL) return;
@@ -41,9 +41,9 @@ static void ReadAllTags(cmsHPROFILE h)
 static void ReadAllRAWTags(cmsHPROFILE h)
 {
 	cmsTagSignature sig;
-	cmsInt32Number len;
-	cmsInt32Number n = cmsGetTagCount(h);
-	for(cmsInt32Number i = 0; i < n; i++) {
+	int32 len;
+	int32 n = cmsGetTagCount(h);
+	for(int32 i = 0; i < n; i++) {
 		sig = cmsGetTagSignature(h, i);
 		len = cmsReadRawTag(h, sig, NULL, 0);
 	}
@@ -53,7 +53,7 @@ static void PrintInfo(cmsHPROFILE h, cmsInfoType Info)
 {
 	wchar_t * text;
 	cmsContext id = 0;
-	cmsInt32Number len = cmsGetProfileInfo(h, Info, "en", "US", NULL, 0);
+	int32 len = cmsGetProfileInfo(h, Info, "en", "US", NULL, 0);
 	if(len == 0) return;
 	text = (wchar_t *)_cmsMalloc(id, len);
 	cmsGetProfileInfo(h, Info, "en", "US", text, len);
@@ -115,7 +115,7 @@ static void ReadAllLUTS(cmsHPROFILE h)
 
 // Check one specimen in the ZOO
 
-static cmsInt32Number CheckSingleSpecimen(const char * Profile)
+static int32 CheckSingleSpecimen(const char * Profile)
 {
 	char BuffSrc[256];
 	char BuffDst[256];
@@ -140,7 +140,7 @@ static cmsInt32Number CheckSingleSpecimen(const char * Profile)
 	return 1;
 }
 
-static cmsInt32Number CheckRAWSpecimen(const char * Profile)
+static int32 CheckRAWSpecimen(const char * Profile)
 {
 	char BuffSrc[256];
 	char BuffDst[256];

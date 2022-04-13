@@ -66,7 +66,7 @@ typedef struct {
 
    @return    hash context on success, NULL on error
  */
-MA_HASH_CTX * ma_hash_new(unsigned int algorithm, MA_HASH_CTX * ctx);
+MA_HASH_CTX * ma_hash_new(uint algorithm, MA_HASH_CTX * ctx);
 
 /**
    @brief release and deinitializes a hash context
@@ -109,7 +109,7 @@ void ma_hash_result(MA_HASH_CTX * ctx, uchar * digest);
 
    @retuns digest size or 0 on error
  */
-static inline size_t ma_hash_digest_size(unsigned int hash_alg)
+static inline size_t ma_hash_digest_size(uint hash_alg)
 {
 	switch(hash_alg) {
 		case MA_HASH_MD5:
@@ -141,7 +141,7 @@ static inline size_t ma_hash_digest_size(unsigned int hash_alg)
 
    @return                 void
  */
-static inline void ma_hash(unsigned int algorithm, const uchar * buffer, size_t buffer_length, uchar * digest)
+static inline void ma_hash(uint algorithm, const uchar * buffer, size_t buffer_length, uchar * digest)
 {
 	MA_HASH_CTX * ctx = NULL;
 #ifdef HAVE_SCHANNEL

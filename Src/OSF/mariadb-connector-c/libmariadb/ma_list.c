@@ -43,7 +43,7 @@ LIST * list_delete(LIST * root, LIST * element)
 	return root;
 }
 
-void list_free(LIST * root, unsigned int free_data)
+void list_free(LIST * root, uint free_data)
 {
 	while(root) {
 		LIST * next = root->next;

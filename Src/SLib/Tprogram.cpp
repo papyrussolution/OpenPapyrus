@@ -240,7 +240,8 @@ int TProgram::AddListToTree(long cmd, const char * pTitle, ListWindow * pLw)
 	int    ok = -1;
 	if(P_TreeWnd) {
 		if(!P_TreeWnd->IsVisible()) {
-			P_TreeWnd->Show(1);
+			// @v11.3.8 P_TreeWnd->Show(1);
+			ShowLeftTree(true); // @v11.3.8 
 			PostMessage(H_MainWnd, WM_COMMAND, cmShowTree, 0);
 		}
 		if(cmd && pLw) // @v10.1.3
@@ -527,6 +528,7 @@ void TProgram::SizeMainWnd(HWND hw)
 	MEMSZERO(rc_client);
 	CALLPTRMEMB(P_Stw, Update());
 	GetClientRect(&rc_client);
+	const RECT org_rc_client(rc_client);
 	int _width  = rc_client.right - rc_client.left;
 	int _height = rc_client.bottom - rc_client.top;
 	if(IsWindowVisible(H_ShortcutsWnd)) {
@@ -560,13 +562,13 @@ void TProgram::SizeMainWnd(HWND hw)
 			//const long tree_wnd_style = TView::GetWindowStyle(h_tree);
 			int  tw_top = rc_client.top;
 			int  tw_bottom = rc_client.bottom;
-			{
+			/* @v11.3.8 {
 				RECT rc_dt;
 				if(H_Desktop && GetWindowRect(H_Desktop, &rc_dt)) {
 					tw_top = rc_dt.top;
 					//tw_bottom = rc_dt.bottom;
 				}
-			}
+			}*/
 			//if(tree_wnd_style & WS_POPUP) {
 			//}
 			SETMIN(_rc.right, rc_client.right / 2);
@@ -577,15 +579,29 @@ void TProgram::SizeMainWnd(HWND hw)
 	}
 	if(H_FrameWnd)
 		::MoveWindow(H_FrameWnd, rc_client.left, rc_client.top, rc_client.right, rc_client.bottom, 1);
-	/*
+	///*
 	if(IsWindowVisible(H_Desktop))
 		MoveWindow(H_Desktop, 0, 0, rc_client.right - 18, rc_client.bottom - 2, 1);
-	*/
+	//*/
 }
 
 int  TProgram::IsTreeVisible() const { return BIN(P_TreeWnd && P_TreeWnd->IsVisible()); }
 void TProgram::GetTreeRect(RECT & rRect) { CALLPTRMEMB(P_TreeWnd, GetRect(rRect)); }
 HWND TProgram::GetTreeHWND() const { return (P_TreeWnd) ? P_TreeWnd->Hwnd : 0; }
+
+void TProgram::ShowLeftTree(bool visible)
+{
+	if(P_TreeWnd) {
+		if(visible) {
+			P_TreeWnd->Show(1);
+			::InvalidateRect(H_MainWnd, 0, true);
+			::UpdateWindow(H_MainWnd);
+		}
+		else {
+			P_TreeWnd->Show(0);
+		}
+	}
+}
 
 INT_PTR CALLBACK ShortcutsWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -801,8 +817,8 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 				BrowserWindow::RegWindowClass(TProgram::GetInst());
 				STimeChunkBrowser::RegWindowClass(TProgram::GetInst());
 				SetTimer(hWnd, 1, 500, 0);
-				p_pgm->P_TreeWnd = new TreeWindow(hWnd);
 				p_pgm->H_FrameWnd = APPL->CreateDlg(4101, hWnd, FrameWndProc, 0);
+				p_pgm->P_TreeWnd = new TreeWindow(hWnd);
 				{
 					if(p_pgm->UICfg.Flags & UserInterfaceSettings::fShowShortcuts) {
 						p_pgm->H_ShortcutsWnd = APPL->CreateDlg(DLG_SHORTCUTS, hWnd, ShortcutsWndProc, 0);
@@ -875,7 +891,8 @@ static BOOL CALLBACK IsBrowsersExists(HWND hwnd, LPARAM lParam)
 						mii.fState &= ~MFS_UNCHECKED;
 						mii.fState |= MFS_CHECKED;
 					}
-					CALLPTRMEMB(p_pgm->P_TreeWnd, Show(BIN(mii.fState & MFS_CHECKED)));
+					// @v11.3.8 CALLPTRMEMB(p_pgm->P_TreeWnd, Show(BIN(mii.fState & MFS_CHECKED)));
+					p_pgm->ShowLeftTree(LOGIC(mii.fState & MFS_CHECKED)); // @v11.3.8
 					SetMenuItemInfo(hmW, cmShowTree, FALSE, &mii);
 					break;
 				}

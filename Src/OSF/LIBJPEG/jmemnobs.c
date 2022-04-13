@@ -17,9 +17,6 @@
 #define JPEG_INTERNALS
 #include "cdjpeg.h"
 #pragma hdrstop
-//#define JPEG_INTERNALS
-//#include "jinclude.h"
-//#include "jpeglib.h"
 #include "jmemsys.h"            /* import the system-dependent declarations */
 /* @sobolev #ifndef HAVE_STDLIB_H // <stdlib.h> should declare SAlloc::M(),free() 
 	extern void * malloc(size_t size);

@@ -110,7 +110,7 @@ static bool net_realloc(NET * net, size_t length)
 		return 1;
 	}
 	net->buff = net->write_pos = buff;
-	net->buff_end = buff+(net->max_packet = (unsigned long)pkt_length);
+	net->buff_end = buff+(net->max_packet = (ulong)pkt_length);
 	return 0;
 }
 
@@ -358,7 +358,7 @@ ulong ma_net_read(NET * net)
 		ulong last_pos = net->where_b;
 		do {
 			length += len;
-			net->where_b += (unsigned long)len;
+			net->where_b += (ulong)len;
 			len = ma_real_read(net, &complen);
 		} while(len == MAX_PACKET_LENGTH);
 		net->where_b = last_pos;
@@ -447,7 +447,7 @@ else {
 			buffer_length -= start;
 			start = 0;
 		}
-		net->where_b = (unsigned long)buffer_length;
+		net->where_b = (ulong)buffer_length;
 		if((packet_length = ma_real_read(net, (size_t*)&complen)) == packet_error)
 			return packet_error;
 		if(_mariadb_uncompress((uchar *)net->buff + net->where_b, &packet_length, &complen)) {
@@ -459,8 +459,8 @@ else {
 		buffer_length += complen;
 	}
 	/* set values */
-	net->buf_length = (unsigned long)buffer_length;
-	net->remain_in_buf = (unsigned long)(buffer_length - current);
+	net->buf_length = (ulong)buffer_length;
+	net->remain_in_buf = (ulong)(buffer_length - current);
 	net->read_pos = net->buff + start + 4;
 	len = current - start - 4;
 	if(is_multi_packet)

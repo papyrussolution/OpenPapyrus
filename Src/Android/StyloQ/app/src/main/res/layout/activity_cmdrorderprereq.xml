@@ -25,6 +25,7 @@
             android:padding="4dp"
             >
             <LinearLayout
+                android:id="@+id/CTL_ACTIVITYHEAD_ROOT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -52,12 +53,18 @@
                         android:textColor="@color/TextIcons"/>
                 </LinearLayout>
                 <View style="@style/FakeView"/>
-                <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
-                    android:layout_gravity="center_vertical|right"
-                    app:srcCompat="@drawable/ic_filterrmv01"/>
-                <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
-                    android:layout_gravity="center_vertical|right"
-                    app:srcCompat="@drawable/ic_search"/>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    >
+                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
+                        android:layout_gravity="center_vertical"
+                        app:srcCompat="@drawable/ic_filterrmv01"/>
+                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
+                        android:layout_gravity="center_vertical"
+                        app:srcCompat="@drawable/ic_search"/>
+                </LinearLayout>>
             </LinearLayout>
             <com.google.android.material.tabs.TabLayout
                 style="@style/TabLayout"

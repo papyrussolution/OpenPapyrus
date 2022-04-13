@@ -219,18 +219,18 @@
 // @sobolev 	#define HB_UNUSED_Removed
 // @sobolev #endif
 #ifndef HB_INTERNAL
-#if !defined(HB_NO_VISIBILITY) && !defined(__MINGW32__) && !defined(__CYGWIN__) && !defined(_MSC_VER) && !defined(__SUNPRO_CC)
-#  define HB_INTERNAL __attribute__((__visibility__("hidden")))
-# elif defined(__MINGW32__)
-/* We use -export-symbols on mingw32, since it does not support visibility attributes. */
-#  define HB_INTERNAL
-# elif defined (_MSC_VER) && defined (HB_DLL_EXPORT)
-/* We do not try to export internal symbols on Visual Studio */
-#  define HB_INTERNAL
-#else
-#  define HB_INTERNAL
-#  define HB_NO_VISIBILITY 1
-#endif
+	#if !defined(HB_NO_VISIBILITY) && !defined(__MINGW32__) && !defined(__CYGWIN__) && !defined(_MSC_VER) && !defined(__SUNPRO_CC)
+		#define HB_INTERNAL __attribute__((__visibility__("hidden")))
+	#elif defined(__MINGW32__)
+	/* We use -export-symbols on mingw32, since it does not support visibility attributes. */
+		#define HB_INTERNAL
+	#elif defined (_MSC_VER) && defined (HB_DLL_EXPORT)
+	/* We do not try to export internal symbols on Visual Studio */
+		#define HB_INTERNAL
+	#else
+		#define HB_INTERNAL
+		#define HB_NO_VISIBILITY 1
+	#endif
 #endif
 /* https://github.com/harfbuzz/harfbuzz/issues/1651 */
 #if defined(__clang__) && __clang_major__ < 10
@@ -266,43 +266,38 @@
  * }
  */
 #if defined(__clang__) && __cplusplus >= 201103L
-/* clang's fallthrough annotations are only available starting in C++11. */
-#  define HB_FALLTHROUGH [[clang::fallthrough]]
+	#define HB_FALLTHROUGH [[clang::fallthrough]] /* clang's fallthrough annotations are only available starting in C++11. */
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
-/* GNU fallthrough attribute is available from GCC7 */
-#  define HB_FALLTHROUGH __attribute__((fallthrough))
+	#define HB_FALLTHROUGH __attribute__((fallthrough)) /* GNU fallthrough attribute is available from GCC7 */
 #elif defined(_MSC_VER)
-/*
- * MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
- * https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
- */
-#include <sal.h>
-#  define HB_FALLTHROUGH __fallthrough
+	/*
+	 * MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
+	 * https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
+	 */
+	#include <sal.h>
+	#define HB_FALLTHROUGH __fallthrough
 #else
-#  define HB_FALLTHROUGH /* FALLTHROUGH */
+	#define HB_FALLTHROUGH /* FALLTHROUGH */
 #endif
-
 /* A tag to enforce use of return value for a function */
 #if __cplusplus >= 201703L
-#  define HB_NODISCARD [[nodiscard]]
+	#define HB_NODISCARD [[nodiscard]]
 #elif defined(__GNUC__) || defined(__clang__)
-#  define HB_NODISCARD __attribute__((warn_unused_result))
+	#define HB_NODISCARD __attribute__((warn_unused_result))
 #elif defined(_MSC_VER)
-#  define HB_NODISCARD _Check_return_
+	#define HB_NODISCARD _Check_return_
 #else
-#  define HB_NODISCARD
+	#define HB_NODISCARD
 #endif
 #define hb_success_t HB_NODISCARD bool
-
 /* https://github.com/harfbuzz/harfbuzz/issues/1852 */
 #if defined(__clang__) && !(defined(_AIX) && (defined(__IBMCPP__) || defined(__ibmxl__)))
-/* Disable certain sanitizer errors. */
-/* https://github.com/harfbuzz/harfbuzz/issues/1247 */
-#define HB_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW __attribute__((no_sanitize("signed-integer-overflow")))
+	/* Disable certain sanitizer errors. */
+	/* https://github.com/harfbuzz/harfbuzz/issues/1247 */
+	#define HB_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW __attribute__((no_sanitize("signed-integer-overflow")))
 #else
-#define HB_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW
+	#define HB_NO_SANITIZE_SIGNED_INTEGER_OVERFLOW
 #endif
-
 #ifdef _WIN32
 /* We need Windows Vista for both Uniscribe backend and for
  * MemoryBarrier.  We don't support compiling on Windows XP,
@@ -321,7 +316,6 @@
 #  ifndef STRICT
 #    define STRICT 1
 #  endif
-
 #  if defined(_WIN32_WCE)
 /* Some things not defined on Windows CE. */
 #    define vsnprintf _vsnprintf
@@ -382,15 +376,13 @@
 #  endif
 #endif
 #ifdef HB_NO_ATEXIT
-#undef HB_USE_ATEXIT
+	#undef HB_USE_ATEXIT
 #endif
 #ifndef HB_USE_ATEXIT
-#  define HB_USE_ATEXIT 0
+	#define HB_USE_ATEXIT 0
 #endif
-
 #define HB_STMT_START do
 #define HB_STMT_END   while(0)
-
 /* Static-assert as expression. */
 template <uint cond> class hb_assert_constant_t;
 template <> class hb_assert_constant_t<1> {};
@@ -455,26 +447,16 @@ static_assert((sizeof(hb_var_int_t) == 4), "");
 
 /* Size signifying variable-sized array */
 #ifndef HB_VAR_ARRAY
-#define HB_VAR_ARRAY 1
+	#define HB_VAR_ARRAY 1
 #endif
 
-static inline float _hb_roundf(float x) {
-	return floorf(x + .5f);
-}
+static inline float _hb_roundf(float x) { return floorf(x + 0.5f); }
 
 #define roundf(x) _hb_roundf(x)
 
 /* Endian swap, used in Windows related backends */
-static inline uint16_t hb_uint16_swap(const uint16_t v)
-{
-	return (v >> 8) | (v << 8);
-}
-
-static inline uint32_t hb_uint32_swap(const uint32_t v)
-{
-	return (hb_uint16_swap(v) << 16) | hb_uint16_swap(v >> 16);
-}
-
+static inline uint16_t hb_uint16_swap(const uint16_t v) { return (v >> 8) | (v << 8); }
+static inline uint32_t hb_uint32_swap(const uint32_t v) { return (hb_uint16_swap(v) << 16) | hb_uint16_swap(v >> 16); }
 /*
  * Big-endian integers.  Here because fundamental.
  */

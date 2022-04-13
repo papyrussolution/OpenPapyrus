@@ -331,7 +331,7 @@ static int FindNearSectors(cmsGDB * gbd, int alpha, int theta, cmsGDBPoint * Clo
 {
 	int nSectors = 0;
 	int a, t;
-	cmsUInt32Number i;
+	uint32 i;
 	cmsGDBPoint * pt;
 	for(i = 0; i < NSTEPS; i++) {
 		a = alpha + Spiral[i].AdvX;
@@ -414,7 +414,7 @@ static boolint InterpolateMissingSector(cmsGDB * gbd, int alpha, int theta)
 
 // Interpolate missing parts. The algorithm fist computes slices at
 // theta=0 and theta=Max.
-boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, cmsUInt32Number dwFlags)
+boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGBD, uint32 dwFlags)
 {
 	int alpha, theta;
 	cmsGDB * gbd = (cmsGDB *)hGBD;

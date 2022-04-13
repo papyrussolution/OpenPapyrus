@@ -18,7 +18,7 @@
 #include <ma_global.h>
 #pragma hdrstop
 
-size_t mariadb_time_to_string(const MYSQL_TIME * tm, char * time_str, size_t len, unsigned int digits)
+size_t mariadb_time_to_string(const MYSQL_TIME * tm, char * time_str, size_t len, uint digits)
 {
 	size_t length;
 	if(!time_str || !len)

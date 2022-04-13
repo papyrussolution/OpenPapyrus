@@ -4173,7 +4173,7 @@ double GoodsStockExt::GetMaxMinStock(PPID * pLocID)
 	return min_stock;
 }
 
-double GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/)
+double GoodsStockExt::GetMinStock(PPID locID, int useZeroLoc /*=1*/) const
 {
 	double min_stock = MinStockList.Get(locID, 0);
 	if(min_stock == 0.0 && locID && useZeroLoc)

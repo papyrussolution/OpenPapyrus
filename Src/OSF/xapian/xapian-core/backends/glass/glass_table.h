@@ -18,7 +18,7 @@
 #include "glass_defs.h"
 #include "io_utils.h"
 #include "wordaccess.h"
-#include "common/compression_stream.h"
+#include "compression_stream.h"
 
 namespace Glass {
 /** Even for items of at maximum size, it must be possible to get this number of items in a block */

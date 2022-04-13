@@ -335,7 +335,6 @@ inline bool SnipPipe::pump(double* r, size_t t, size_t h, uint flags)
 		sum += *r;
 		*r /= DECAY;
 	}
-
 	// If necessary, discard words from the start of the pipe until it has the
 	// desired length.
 	// FIXME: Also shrink the window past words with relevance < 0?
@@ -470,8 +469,8 @@ inline bool SnipPipe::drain(const string & input, const string & hi_start, const
 	}
 	if(best_pipe.empty()) {
 		size_t tail_len = input.size() - best_end;
-		if(tail_len == 0) return false;
-
+		if(tail_len == 0) 
+			return false;
 		// See if this is the end of a sentence.
 		// FIXME: This is quite simplistic - look at the Unicode rules:
 		// https://unicode.org/reports/tr29/#Sentence_Boundaries
@@ -479,21 +478,18 @@ inline bool SnipPipe::drain(const string & input, const string & hi_start, const
 		Utf8Iterator i(input.data() + best_end, tail_len);
 		while(i != Utf8Iterator()) {
 			uint ch = *i;
-			if(sentence_end && Unicode::is_whitespace(ch)) break;
-
+			if(sentence_end && Unicode::is_whitespace(ch)) 
+				break;
 			// Allow "...", "!!", "!?!", etc...
 			sentence_end = (ch == '.' || ch == '?' || ch == '!');
-
 			if(Unicode::is_wordchar(ch)) break;
 			++i;
 		}
-
 		if(sentence_end) {
 			// Include end of sentence punctuation.
 			append_escaping_xml(input.data() + best_end, i.raw(), output);
 			return false;
 		}
-
 		// Include trailing punctuation which includes meaning or context.
 		i.assign(input.data() + best_end, tail_len);
 		int trailing_punc = 0;
@@ -509,20 +505,15 @@ inline bool SnipPipe::drain(const string & input, const string & hi_start, const
 			append_escaping_xml(input.data() + best_end, i.raw(), output);
 			if(i == Utf8Iterator()) return false;
 		}
-
 		// Append "..." or equivalent as this doesn't seem to be the start
 		// of a sentence.
 		output += omit;
-
 		return false;
 	}
-
 	const Sniplet & word = best_pipe.front();
-
 	if(output.empty()) {
 		// Start of the snippet.
 		enum { NO, PUNC, YES } sentence_boundary = (best_begin == 0) ? YES : NO;
-
 		Utf8Iterator i(input.data() + best_begin, word.term_end - best_begin);
 		while(i != Utf8Iterator()) {
 			uint ch = *i;
@@ -594,12 +585,8 @@ inline bool SnipPipe::drain(const string & input, const string & hi_start, const
 	return true;
 }
 
-static void check_query(const Xapian::Query & query,
-    list<vector <string> > & exact_phrases,
-    unordered_map<string, double> & loose_terms,
-    list<const Xapian::Internal::QueryWildcard*> & wildcards,
-    list<const Xapian::Internal::QueryEditDistance*> & fuzzies,
-    size_t & longest_phrase)
+static void check_query(const Xapian::Query & query, list<vector <string> > & exact_phrases, unordered_map<string, double> & loose_terms,
+    list<const Xapian::Internal::QueryWildcard*> & wildcards, list<const Xapian::Internal::QueryEditDistance*> & fuzzies, size_t & longest_phrase)
 {
 	// FIXME: OP_NEAR, non-tight OP_PHRASE, OP_PHRASE with non-term subqueries
 	size_t n_subqs = query.get_num_subqueries();
@@ -626,7 +613,6 @@ static void check_query(const Xapian::Query & query,
 				if(query.get_subquery(i).get_type() != query.LEAF_TERM)
 					goto non_term_subquery;
 			}
-
 			// Tight phrase of terms.
 			exact_phrases.push_back(vector <string>());
 			vector <string> & terms = exact_phrases.back();

@@ -22,10 +22,10 @@
 
 #include <stddef.h>
 /**
-@file SAlloc::M.h
+@file opj_malloc.h
 @brief Internal functions
 
-The functions in SAlloc::M.h are internal utilities used for memory management.
+The functions in opj_malloc.h are internal utilities used for memory management.
 */
 
 /** @defgroup MISC MISC - Miscellaneous internal functions */
@@ -33,21 +33,20 @@ The functions in SAlloc::M.h are internal utilities used for memory management.
 
 /** @name Exported functions */
 /*@{*/
-/* ----------------------------------------------------------------------- */
-
 /**
 Allocate an uninitialized memory block
 @param size Bytes to allocate
 @return Returns a void pointer to the allocated space, or NULL if there is insufficient memory available
 */
-void * opj_malloc_Removed(size_t size);
+void * opj_malloc(size_t size);
+
 /**
 Allocate a memory block with elements initialized to 0
 @param numOfElements  Blocks to allocate
 @param sizeOfElements Bytes per block to allocate
 @return Returns a void pointer to the allocated space, or NULL if there is insufficient memory available
 */
-void * opj_calloc_Removed(size_t numOfElements, size_t sizeOfElements);
+void * opj_calloc(size_t numOfElements, size_t sizeOfElements);
 
 /**
 Allocate memory aligned to a 16 byte boundary
@@ -56,7 +55,7 @@ Allocate memory aligned to a 16 byte boundary
 */
 void * opj_aligned_malloc(size_t size);
 void * opj_aligned_realloc(void *ptr, size_t size);
-void opj_aligned_free(void * ptr);
+void opj_aligned_free(void* ptr);
 
 /**
 Allocate memory aligned to a 32 byte boundary
@@ -72,21 +71,18 @@ Reallocate memory blocks.
 @param s New size in bytes
 @return Returns a void pointer to the reallocated (and possibly moved) memory block
 */
-void * opj_realloc_Removed(void * m, size_t s);
+void * opj_realloc(void * m, size_t s);
+
 /**
 Deallocates or frees a memory block.
 @param m Previously allocated memory block to be freed
 */
-// @sobolev void FASTCALL opj_free_Removed(void * m);
+// @sobolev (replaced with SAlloc::F) void opj_free__Removed(void * m);
 
 #if defined(__GNUC__) && !defined(OPJ_SKIP_POISON)
 #pragma GCC poison malloc calloc realloc free
 #endif
-
-/* ----------------------------------------------------------------------- */
 /*@}*/
-
 /*@}*/
-
 #endif /* OPJ_MALLOC_H */
 

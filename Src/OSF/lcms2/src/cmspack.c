@@ -44,14 +44,14 @@ cmsINLINE uint16 FomLabV4ToLabV2(uint16 x)
 }
 
 typedef struct {
-	cmsUInt32Number Type;
-	cmsUInt32Number Mask;
+	uint32 Type;
+	uint32 Mask;
 	cmsFormatter16 Frm;
 } cmsFormatters16;
 
 typedef struct {
-	cmsUInt32Number Type;
-	cmsUInt32Number Mask;
+	uint32 Type;
+	uint32 Mask;
 	cmsFormatterFloat Frm;
 } cmsFormattersFloat;
 
@@ -73,22 +73,22 @@ typedef struct {
 // Unpacking routines (16 bits) ----------------------------------------------------------------------------------------
 
 // Does almost everything but is slow
-static uint8 * UnrollChunkyBytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollChunkyBytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan      = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra      = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	uint16 v;
-	cmsUInt32Number i;
+	uint32 i;
 
 	if(ExtraFirst) {
 		accum += Extra;
 	}
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		v = FROM_8_TO_16(*accum);
 		v = Reverse ? REVERSE_FLAVOR_16(v) : v;
 		wIn[index] = v;
@@ -108,19 +108,19 @@ static uint8 * UnrollChunkyBytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 }
 
 // Extra channels are just ignored because come in the next planes
-static uint8 * UnrollPlanarBytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollPlanarBytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan     = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap    = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number SwapFirst = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Reverse   = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number i;
+	uint32 nChan     = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap    = T_DOSWAP(info->InputFormat);
+	uint32 SwapFirst = T_SWAPFIRST(info->InputFormat);
+	uint32 Reverse   = T_FLAVOR(info->InputFormat);
+	uint32 i;
 	uint8 * Init = accum;
 	if(DoSwap ^ SwapFirst) {
 		accum += T_EXTRA(info->InputFormat) * Stride;
 	}
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		uint16 v = FROM_8_TO_16(*accum);
 
 		wIn[index] = Reverse ? REVERSE_FLAVOR_16(v) : v;
@@ -131,7 +131,7 @@ static uint8 * UnrollPlanarBytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 }
 
 // Special cases, provided for performance
-static uint8 * Unroll4Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = FROM_8_TO_16(*accum); accum++; // C
 	wIn[1] = FROM_8_TO_16(*accum); accum++; // M
@@ -142,7 +142,7 @@ static uint8 * Unroll4Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll4BytesReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4BytesReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = FROM_8_TO_16(REVERSE_FLAVOR_8(*accum)); accum++; // C
 	wIn[1] = FROM_8_TO_16(REVERSE_FLAVOR_8(*accum)); accum++; // M
@@ -153,7 +153,7 @@ static uint8 * Unroll4BytesReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll4BytesSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4BytesSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[3] = FROM_8_TO_16(*accum); accum++; // K
 	wIn[0] = FROM_8_TO_16(*accum); accum++; // C
@@ -165,7 +165,7 @@ static uint8 * Unroll4BytesSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 *
 }
 
 // KYMC
-static uint8 * Unroll4BytesSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4BytesSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[3] = FROM_8_TO_16(*accum); accum++; // K
 	wIn[2] = FROM_8_TO_16(*accum); accum++; // Y
@@ -176,7 +176,7 @@ static uint8 * Unroll4BytesSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[2] = FROM_8_TO_16(*accum); accum++; // K
 	wIn[1] = FROM_8_TO_16(*accum); accum++; // Y
@@ -189,7 +189,7 @@ static uint8 * Unroll4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uin
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = FROM_8_TO_16(*accum); accum++; // R
 	wIn[1] = FROM_8_TO_16(*accum); accum++; // G
@@ -201,7 +201,7 @@ static uint8 * Unroll3Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3BytesSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3BytesSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum++; // A
 	wIn[2] = FROM_8_TO_16(*accum); accum++; // B
@@ -214,7 +214,7 @@ static uint8 * Unroll3BytesSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 *
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3BytesSkip1SwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3BytesSkip1SwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[2] = FROM_8_TO_16(*accum); accum++; // B
 	wIn[1] = FROM_8_TO_16(*accum); accum++; // G
@@ -227,7 +227,7 @@ static uint8 * Unroll3BytesSkip1SwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[]
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3BytesSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3BytesSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum++; // A
 	wIn[0] = FROM_8_TO_16(*accum); accum++; // R
@@ -241,7 +241,7 @@ static uint8 * Unroll3BytesSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], ui
 }
 
 // BRG
-static uint8 * Unroll3BytesSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3BytesSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[2] = FROM_8_TO_16(*accum); accum++; // B
 	wIn[1] = FROM_8_TO_16(*accum); accum++; // G
@@ -253,7 +253,7 @@ static uint8 * Unroll3BytesSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * UnrollLabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollLabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = FomLabV2ToLabV4(FROM_8_TO_16(*accum)); accum++; // L
 	wIn[1] = FomLabV2ToLabV4(FROM_8_TO_16(*accum)); accum++; // a
@@ -265,7 +265,7 @@ static uint8 * UnrollLabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, 
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * UnrollALabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollALabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum++; // A
 	wIn[0] = FomLabV2ToLabV4(FROM_8_TO_16(*accum)); accum++; // L
@@ -278,7 +278,7 @@ static uint8 * UnrollALabV2_8(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum,
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * UnrollLabV2_16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollLabV2_16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = FomLabV2ToLabV4(*(uint16*)accum); accum += 2;  // L
 	wIn[1] = FomLabV2ToLabV4(*(uint16*)accum); accum += 2;  // a
@@ -291,7 +291,7 @@ static uint8 * UnrollLabV2_16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum,
 }
 
 // for duplex
-static uint8 * Unroll2Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll2Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = FROM_8_TO_16(*accum); accum++; // ch1
 	wIn[1] = FROM_8_TO_16(*accum); accum++; // ch2
@@ -303,7 +303,7 @@ static uint8 * Unroll2Bytes(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, c
 }
 
 // Monochrome duplicates L into RGB for null-transforms
-static uint8 * Unroll1Byte(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1Byte(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = FROM_8_TO_16(*accum); accum++; // L
 	return accum;
@@ -311,7 +311,7 @@ static uint8 * Unroll1Byte(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cm
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll1ByteSkip1(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1ByteSkip1(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = FROM_8_TO_16(*accum); accum++; // L
 	accum += 1;
@@ -320,7 +320,7 @@ static uint8 * Unroll1ByteSkip1(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll1ByteSkip2(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1ByteSkip2(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = FROM_8_TO_16(*accum); accum++; // L
 	accum += 2;
@@ -329,7 +329,7 @@ static uint8 * Unroll1ByteSkip2(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll1ByteReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1ByteReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = REVERSE_FLAVOR_16(FROM_8_TO_16(*accum)); accum++; // L
 	return accum;
@@ -337,23 +337,23 @@ static uint8 * Unroll1ByteReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * UnrollAnyWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollAnyWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan       = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number SwapEndian  = T_ENDIAN16(info->InputFormat);
-	cmsUInt32Number DoSwap      = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse     = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst   = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra       = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst  = DoSwap ^ SwapFirst;
-	cmsUInt32Number i;
+	uint32 nChan       = T_CHANNELS(info->InputFormat);
+	uint32 SwapEndian  = T_ENDIAN16(info->InputFormat);
+	uint32 DoSwap      = T_DOSWAP(info->InputFormat);
+	uint32 Reverse     = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst   = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra       = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst  = DoSwap ^ SwapFirst;
+	uint32 i;
 
 	if(ExtraFirst) {
 		accum += Extra * sizeof(uint16);
 	}
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		uint16 v = *(uint16*)accum;
 		if(SwapEndian)
 			v = CHANGE_ENDIAN(v);
@@ -372,20 +372,20 @@ static uint8 * UnrollAnyWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum,
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * UnrollPlanarWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollPlanarWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapEndian = T_ENDIAN16(info->InputFormat);
-	cmsUInt32Number i;
+	uint32 nChan = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap = T_DOSWAP(info->InputFormat);
+	uint32 Reverse = T_FLAVOR(info->InputFormat);
+	uint32 SwapEndian = T_ENDIAN16(info->InputFormat);
+	uint32 i;
 	uint8 * Init = accum;
 
 	if(DoSwap) {
 		accum += T_EXTRA(info->InputFormat) * Stride;
 	}
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		uint16 v = *(uint16*)accum;
 		if(SwapEndian)
 			v = CHANGE_ENDIAN(v);
@@ -395,7 +395,7 @@ static uint8 * UnrollPlanarWords(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 	return (Init + sizeof(uint16));
 }
 
-static uint8 * Unroll4Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = *(uint16*)accum; accum += 2; // C
 	wIn[1] = *(uint16*)accum; accum += 2; // M
@@ -406,7 +406,7 @@ static uint8 * Unroll4Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll4WordsReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4WordsReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2; // C
 	wIn[1] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2; // M
@@ -417,7 +417,7 @@ static uint8 * Unroll4WordsReverse(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll4WordsSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4WordsSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[3] = *(uint16*)accum; accum += 2; // K
 	wIn[0] = *(uint16*)accum; accum += 2; // C
@@ -429,7 +429,7 @@ static uint8 * Unroll4WordsSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 *
 }
 
 // KYMC
-static uint8 * Unroll4WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[3] = *(uint16*)accum; accum += 2; // K
 	wIn[2] = *(uint16*)accum; accum += 2; // Y
@@ -440,7 +440,7 @@ static uint8 * Unroll4WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll4WordsSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll4WordsSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[2] = *(uint16*)accum; accum += 2; // K
 	wIn[1] = *(uint16*)accum; accum += 2; // Y
@@ -451,7 +451,7 @@ static uint8 * Unroll4WordsSwapSwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uin
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = *(uint16*)accum; accum += 2; // C R
 	wIn[1] = *(uint16*)accum; accum += 2; // M G
@@ -463,7 +463,7 @@ static uint8 * Unroll3Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[2] = *(uint16*)accum; accum += 2; // C R
 	wIn[1] = *(uint16*)accum; accum += 2; // M G
@@ -473,7 +473,7 @@ static uint8 * Unroll3WordsSwap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3WordsSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3WordsSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum += 2; // A
 	wIn[2] = *(uint16*)accum; accum += 2; // R
@@ -484,7 +484,7 @@ static uint8 * Unroll3WordsSkip1Swap(_cmsTRANSFORM * info, uint16 wIn[], uint8 *
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll3WordsSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll3WordsSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	accum += 2; // A
 	wIn[0] = *(uint16*)accum; accum += 2; // R
@@ -495,7 +495,7 @@ static uint8 * Unroll3WordsSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wIn[], ui
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll1Word(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1Word(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = *(uint16*)accum; accum += 2; // L
 	return accum;
@@ -503,7 +503,7 @@ static uint8 * Unroll1Word(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cm
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll1WordReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1WordReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = REVERSE_FLAVOR_16(*(uint16*)accum); accum += 2;
 	return accum;
@@ -511,7 +511,7 @@ static uint8 * Unroll1WordReversed(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll1WordSkip3(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll1WordSkip3(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = wIn[1] = wIn[2] = *(uint16*)accum;
 	accum += 8;
@@ -520,7 +520,7 @@ static uint8 * Unroll1WordSkip3(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Unroll2Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * Unroll2Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	wIn[0] = *(uint16*)accum; accum += 2; // ch1
 	wIn[1] = *(uint16*)accum; accum += 2; // ch2
@@ -530,7 +530,7 @@ static uint8 * Unroll2Words(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, c
 }
 
 // This is a conversion of Lab double to 16 bits
-static uint8 * UnrollLabDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollLabDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	if(T_PLANAR(info->InputFormat)) {
 		cmsCIELab Lab;
@@ -554,7 +554,7 @@ static uint8 * UnrollLabDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 }
 
 // This is a conversion of Lab float to 16 bits
-static uint8 * UnrollLabFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollLabFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	cmsCIELab Lab;
 	if(T_PLANAR(info->InputFormat)) {
@@ -582,7 +582,7 @@ static uint8 * UnrollLabFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * ac
 }
 
 // This is a conversion of XYZ double to 16 bits
-static uint8 * UnrollXYZDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollXYZDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	if(T_PLANAR(info->InputFormat)) {
 		cmsCIEXYZ XYZ;
@@ -606,7 +606,7 @@ static uint8 * UnrollXYZDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * a
 }
 
 // This is a conversion of XYZ float to 16 bits
-static uint8 * UnrollXYZFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollXYZFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	if(T_PLANAR(info->InputFormat)) {
 		cmsCIEXYZ XYZ;
@@ -635,7 +635,7 @@ static uint8 * UnrollXYZFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * ac
 }
 
 // Check if space is marked as ink
-cmsINLINE boolint IsInkSpace(cmsUInt32Number Type)
+cmsINLINE boolint IsInkSpace(uint32 Type)
 {
 	switch(T_COLORSPACE(Type)) {
 		case PT_CMY:
@@ -657,29 +657,29 @@ cmsINLINE boolint IsInkSpace(cmsUInt32Number Type)
 }
 
 // Return the size in bytes of a given formatter
-static cmsUInt32Number PixelSize(cmsUInt32Number Format)
+static uint32 PixelSize(uint32 Format)
 {
-	cmsUInt32Number fmt_bytes = T_BYTES(Format);
+	uint32 fmt_bytes = T_BYTES(Format);
 	// For double, the T_BYTES field is zero
 	if(fmt_bytes == 0)
-		return sizeof(cmsUInt64Number);
+		return sizeof(uint64);
 	// Otherwise, it is already correct for all formats
 	return fmt_bytes;
 }
 
 // Inks does come in percentage, remaining cases are between 0..1.0, again to 16 bits
-static uint8 * UnrollDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
-	cmsUInt32Number Planar     = T_PLANAR(info->InputFormat);
+	uint32 nChan      = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra      = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 Planar     = T_PLANAR(info->InputFormat);
 	double v;
 	uint16 vi;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	double maximum = IsInkSpace(info->InputFormat) ? 655.35 : 65535.0;
 
 	Stride /= PixelSize(info->InputFormat);
@@ -688,7 +688,7 @@ static uint8 * UnrollDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
 			v = (float)((double *)accum)[(i + start) * Stride];
@@ -712,18 +712,18 @@ static uint8 * UnrollDoubleTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accu
 		return accum + (nChan + Extra) * sizeof(double);
 }
 
-static uint8 * UnrollFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan  = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap   = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra   = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
-	cmsUInt32Number Planar     = T_PLANAR(info->InputFormat);
+	uint32 nChan  = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap   = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra   = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 Planar     = T_PLANAR(info->InputFormat);
 	float v;
 	uint16 vi;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	double maximum = IsInkSpace(info->InputFormat) ? 655.35 : 65535.0;
 
 	Stride /= PixelSize(info->InputFormat);
@@ -732,7 +732,7 @@ static uint8 * UnrollFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
 			v = (float)((float *)accum)[(i + start) * Stride];
@@ -761,7 +761,7 @@ static uint8 * UnrollFloatTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum
 }
 
 // For 1 channel, we need to duplicate data (it comes in 0..1.0 range)
-static uint8 * UnrollDouble1Chan(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollDouble1Chan(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	double * Inks = (double *)accum;
 	wIn[0] = wIn[1] = wIn[2] = _cmsQuickSaturateWord(Inks[0] * 65535.0);
@@ -773,17 +773,17 @@ static uint8 * UnrollDouble1Chan(_cmsTRANSFORM * info, uint16 wIn[], uint8 * acc
 //-------------------------------------------------------------------------------------------------------------------
 
 // For anything going from float
-static uint8 * UnrollFloatsToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollFloatsToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan  = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap   = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra   = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
-	cmsUInt32Number Planar     = T_PLANAR(info->InputFormat);
+	uint32 nChan  = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap   = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra   = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 Planar     = T_PLANAR(info->InputFormat);
 	float v;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	float maximum = IsInkSpace(info->InputFormat) ? 100.0F : 1.0F;
 
 	Stride /= PixelSize(info->InputFormat);
@@ -792,7 +792,7 @@ static uint8 * UnrollFloatsToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * ac
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
 			v = (float)((float *)accum)[(i + start) * Stride];
@@ -819,17 +819,17 @@ static uint8 * UnrollFloatsToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * ac
 
 // For anything going from double
 
-static uint8 * UnrollDoublesToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollDoublesToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan  = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap   = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra   = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
-	cmsUInt32Number Planar     = T_PLANAR(info->InputFormat);
+	uint32 nChan  = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap   = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra   = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 Planar     = T_PLANAR(info->InputFormat);
 	double v;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	double maximum = IsInkSpace(info->InputFormat) ? 100.0 : 1.0;
 
 	Stride /= PixelSize(info->InputFormat);
@@ -838,7 +838,7 @@ static uint8 * UnrollDoublesToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * a
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
 			v = (double)((double *)accum)[(i + start)  * Stride];
@@ -864,7 +864,7 @@ static uint8 * UnrollDoublesToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * a
 }
 
 // From Lab double to float
-static uint8 * UnrollLabDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollLabDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
 	double * Pt = (double *)accum;
 	if(T_PLANAR(info->InputFormat)) {
@@ -887,7 +887,7 @@ static uint8 * UnrollLabDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 *
 }
 
 // From Lab double to float
-static uint8 * UnrollLabFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollLabFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
 	float* Pt = (float *)accum;
 	if(T_PLANAR(info->InputFormat)) {
@@ -910,7 +910,7 @@ static uint8 * UnrollLabFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * 
 }
 
 // 1.15 fixed point, that means maximum value is MAX_ENCODEABLE_XYZ (0xFFFF)
-static uint8 * UnrollXYZDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollXYZDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
 	double * Pt = (double *)accum;
 	if(T_PLANAR(info->InputFormat)) {
@@ -932,7 +932,7 @@ static uint8 * UnrollXYZDoubleToFloat(_cmsTRANSFORM * info, float wIn[], uint8 *
 	}
 }
 
-static uint8 * UnrollXYZFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollXYZFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
 	float* Pt = (float *)accum;
 	if(T_PLANAR(info->InputFormat)) {
@@ -958,17 +958,17 @@ static uint8 * UnrollXYZFloatToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * 
 
 // Generic chunky for byte
 
-static uint8 * PackAnyBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackAnyBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan  = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap   = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra   = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan  = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap   = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra   = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	uint8 * swap1;
 	uint8 v = 0;
-	cmsUInt32Number i;
+	uint32 i;
 
 	swap1 = output;
 
@@ -977,7 +977,7 @@ static uint8 * PackAnyBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	}
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		v = FROM_16_TO_8(wOut[index]);
 
@@ -1001,18 +1001,18 @@ static uint8 * PackAnyBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * PackAnyWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackAnyWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan  = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number SwapEndian = T_ENDIAN16(info->OutputFormat);
-	cmsUInt32Number DoSwap   = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra   = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan  = T_CHANNELS(info->OutputFormat);
+	uint32 SwapEndian = T_ENDIAN16(info->OutputFormat);
+	uint32 DoSwap   = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra   = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	uint16* swap1;
 	uint16 v = 0;
-	cmsUInt32Number i;
+	uint32 i;
 
 	swap1 = (uint16*)output;
 
@@ -1021,7 +1021,7 @@ static uint8 * PackAnyWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	}
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		v = wOut[index];
 
@@ -1050,13 +1050,13 @@ static uint8 * PackAnyWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * PackPlanarBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackPlanarBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan     = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap    = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number SwapFirst = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Reverse   = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number i;
+	uint32 nChan     = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap    = T_DOSWAP(info->OutputFormat);
+	uint32 SwapFirst = T_SWAPFIRST(info->OutputFormat);
+	uint32 Reverse   = T_FLAVOR(info->OutputFormat);
+	uint32 i;
 	uint8 * Init = output;
 
 	if(DoSwap ^ SwapFirst) {
@@ -1064,7 +1064,7 @@ static uint8 * PackPlanarBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 	}
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		uint8 v = FROM_16_TO_8(wOut[index]);
 
 		*(uint8 *)output = (uint8)(Reverse ? REVERSE_FLAVOR_8(v) : v);
@@ -1076,13 +1076,13 @@ static uint8 * PackPlanarBytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * PackPlanarWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackPlanarWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number SwapEndian = T_ENDIAN16(info->OutputFormat);
-	cmsUInt32Number i;
+	uint32 nChan      = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 SwapEndian = T_ENDIAN16(info->OutputFormat);
+	uint32 i;
 	uint8 * Init = output;
 	uint16 v;
 
@@ -1091,7 +1091,7 @@ static uint8 * PackPlanarWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 	}
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		v = wOut[index];
 
@@ -1110,7 +1110,7 @@ static uint8 * PackPlanarWords(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 
 // CMYKcm (unrolled for speed)
 
-static uint8 * Pack6Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack6Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1127,7 +1127,7 @@ static uint8 * Pack6Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, c
 
 // KCMYcm
 
-static uint8 * Pack6BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack6BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[5]);
 	*output++ = FROM_16_TO_8(wOut[4]);
@@ -1143,7 +1143,7 @@ static uint8 * Pack6BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 }
 
 // CMYKcm
-static uint8 * Pack6Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack6Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
@@ -1165,7 +1165,7 @@ static uint8 * Pack6Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, c
 }
 
 // KCMYcm
-static uint8 * Pack6WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack6WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[5];
 	output += 2;
@@ -1186,7 +1186,7 @@ static uint8 * Pack6WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack4Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1197,7 +1197,7 @@ static uint8 * Pack4Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack4BytesReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4BytesReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = REVERSE_FLAVOR_8(FROM_16_TO_8(wOut[0]));
 	*output++ = REVERSE_FLAVOR_8(FROM_16_TO_8(wOut[1]));
@@ -1210,7 +1210,7 @@ static uint8 * Pack4BytesReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * ou
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack4BytesSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4BytesSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[3]);
 	*output++ = FROM_16_TO_8(wOut[0]);
@@ -1224,7 +1224,7 @@ static uint8 * Pack4BytesSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * 
 }
 
 // ABGR
-static uint8 * Pack4BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[3]);
 	*output++ = FROM_16_TO_8(wOut[2]);
@@ -1237,7 +1237,7 @@ static uint8 * Pack4BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[2]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1250,7 +1250,7 @@ static uint8 * Pack4BytesSwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack4Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
@@ -1267,7 +1267,7 @@ static uint8 * Pack4Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack4WordsReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4WordsReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = REVERSE_FLAVOR_16(wOut[0]);
 	output += 2;
@@ -1285,7 +1285,7 @@ static uint8 * Pack4WordsReverse(_cmsTRANSFORM * info, uint16 wOut[], uint8 * ou
 }
 
 // ABGR
-static uint8 * Pack4WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[3];
 	output += 2;
@@ -1303,7 +1303,7 @@ static uint8 * Pack4WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 }
 
 // CMYK
-static uint8 * Pack4WordsBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack4WordsBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
@@ -1320,7 +1320,7 @@ static uint8 * Pack4WordsBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * 
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * PackLabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackLabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(FomLabV4ToLabV2(wOut[0]));
 	*output++ = FROM_16_TO_8(FomLabV4ToLabV2(wOut[1]));
@@ -1330,7 +1330,7 @@ static uint8 * PackLabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, 
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * PackALabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackALabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(FomLabV4ToLabV2(wOut[0]));
@@ -1341,7 +1341,7 @@ static uint8 * PackALabV2_8(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * PackLabV2_16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackLabV2_16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = FomLabV4ToLabV2(wOut[0]);
 	output += 2;
@@ -1354,7 +1354,7 @@ static uint8 * PackLabV2_16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output,
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack3Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack3Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1364,7 +1364,7 @@ static uint8 * Pack3Bytes(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack3BytesOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack3BytesOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = (wOut[0] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
@@ -1374,7 +1374,7 @@ static uint8 * Pack3BytesOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * 
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack3BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack3BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[2]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1384,7 +1384,7 @@ static uint8 * Pack3BytesSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack3BytesSwapOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack3BytesSwapOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = (wOut[2] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
@@ -1394,7 +1394,7 @@ static uint8 * Pack3BytesSwapOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack3Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack3Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
@@ -1407,7 +1407,7 @@ static uint8 * Pack3Words(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, c
 	CXX_UNUSED(Stride);
 }
 
-static uint8 * Pack3WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * Pack3WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[2];
 	output += 2;
@@ -1426,7 +1426,7 @@ static
 uint8 * Pack3WordsBigEndian(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
@@ -1445,7 +1445,7 @@ static
 uint8 * Pack3BytesAndSkip1(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1462,7 +1462,7 @@ static
 uint8 * Pack3BytesAndSkip1Optimized(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = (wOut[0] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
@@ -1479,7 +1479,7 @@ static
 uint8 * Pack3BytesAndSkip1SwapFirst(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(wOut[0]);
@@ -1496,7 +1496,7 @@ static
 uint8 * Pack3BytesAndSkip1SwapFirstOptimized(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output++;
 	*output++ = (wOut[0] & 0xFFU);
@@ -1513,7 +1513,7 @@ static
 uint8 * Pack3BytesAndSkip1Swap(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(wOut[2]);
@@ -1530,7 +1530,7 @@ static
 uint8 * Pack3BytesAndSkip1SwapOptimized(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output++;
 	*output++ = (wOut[2] & 0xFFU);
@@ -1547,7 +1547,7 @@ static
 uint8 * Pack3BytesAndSkip1SwapSwapFirst(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[2]);
 	*output++ = FROM_16_TO_8(wOut[1]);
@@ -1564,7 +1564,7 @@ static
 uint8 * Pack3BytesAndSkip1SwapSwapFirstOptimized(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = (wOut[2] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
@@ -1581,7 +1581,7 @@ static
 uint8 * Pack3WordsAndSkip1(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
@@ -1601,7 +1601,7 @@ static
 uint8 * Pack3WordsAndSkip1Swap(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output += 2;
 	*(uint16*)output = wOut[2];
@@ -1621,7 +1621,7 @@ static
 uint8 * Pack3WordsAndSkip1SwapFirst(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output += 2;
 	*(uint16*)output = wOut[0];
@@ -1641,7 +1641,7 @@ static
 uint8 * Pack3WordsAndSkip1SwapSwapFirst(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = wOut[2];
 	output += 2;
@@ -1661,7 +1661,7 @@ static
 uint8 * Pack1Byte(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 
@@ -1675,7 +1675,7 @@ static
 uint8 * Pack1ByteReversed(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(REVERSE_FLAVOR_16(wOut[0]));
 
@@ -1689,7 +1689,7 @@ static
 uint8 * Pack1ByteSkip1(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	output++;
@@ -1704,7 +1704,7 @@ static
 uint8 * Pack1ByteSkip1SwapFirst(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(wOut[0]);
@@ -1719,7 +1719,7 @@ static
 uint8 * Pack1Word(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
@@ -1734,7 +1734,7 @@ static
 uint8 * Pack1WordReversed(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = REVERSE_FLAVOR_16(wOut[0]);
 	output += 2;
@@ -1749,7 +1749,7 @@ static
 uint8 * Pack1WordBigEndian(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
@@ -1764,7 +1764,7 @@ static
 uint8 * Pack1WordSkip1(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 4;
@@ -1779,7 +1779,7 @@ static
 uint8 * Pack1WordSkip1SwapFirst(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	output += 2;
 	*(uint16*)output = wOut[0];
@@ -1796,7 +1796,7 @@ static
 uint8 * PackLabDoubleFrom16(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	if(T_PLANAR(info->OutputFormat)) {
 		cmsCIELab Lab;
@@ -1819,7 +1819,7 @@ static
 uint8 * PackLabFloatFrom16(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	cmsCIELab Lab;
 	cmsLabEncoded2Float(&Lab, wOut);
@@ -1848,7 +1848,7 @@ static
 uint8 * PackXYZDoubleFrom16(_cmsTRANSFORM* Info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	if(T_PLANAR(Info->OutputFormat)) {
 		cmsCIEXYZ XYZ;
@@ -1874,7 +1874,7 @@ static
 uint8 * PackXYZFloatFrom16(_cmsTRANSFORM* Info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	if(T_PLANAR(Info->OutputFormat)) {
 		cmsCIEXYZ XYZ;
@@ -1906,19 +1906,19 @@ static
 uint8 * PackDoubleFrom16(_cmsTRANSFORM * info,
     uint16 wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Planar     = T_PLANAR(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan      = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra      = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 Planar     = T_PLANAR(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	double maximum = IsInkSpace(info->OutputFormat) ? 655.35 : 65535.0;
 	double v = 0;
 	double * swap1 = (double *)output;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 
 	Stride /= PixelSize(info->OutputFormat);
 
@@ -1926,7 +1926,7 @@ uint8 * PackDoubleFrom16(_cmsTRANSFORM * info,
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		v = (double)wOut[index] / maximum;
 
@@ -1950,25 +1950,25 @@ uint8 * PackDoubleFrom16(_cmsTRANSFORM * info,
 		return output + (nChan + Extra) * sizeof(double);
 }
 
-static uint8 * PackFloatFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackFloatFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Planar     = T_PLANAR(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan      = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra      = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 Planar     = T_PLANAR(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	double maximum = IsInkSpace(info->OutputFormat) ? 655.35 : 65535.0;
 	double v = 0;
 	float* swap1 = (float *)output;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	Stride /= PixelSize(info->OutputFormat);
 	if(ExtraFirst)
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		v = (double)wOut[index] / maximum;
 		if(Reverse)
 			v = maximum - v;
@@ -1994,19 +1994,19 @@ static
 uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info,
     float wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
-	cmsUInt32Number nChan = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Planar = T_PLANAR(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse = T_FLAVOR(info->OutputFormat);
+	uint32 Extra = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst = T_SWAPFIRST(info->OutputFormat);
+	uint32 Planar = T_PLANAR(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	double maximum = IsInkSpace(info->OutputFormat) ? 100.0 : 1.0;
 	float* swap1 = (float *)output;
 	double v = 0;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 
 	Stride /= PixelSize(info->OutputFormat);
 
@@ -2014,7 +2014,7 @@ uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info,
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		v = wOut[index] * maximum;
 
@@ -2042,19 +2042,19 @@ static
 uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info,
     float wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Planar     = T_PLANAR(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan      = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra      = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 Planar     = T_PLANAR(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	double maximum = IsInkSpace(info->OutputFormat) ? 100.0 : 1.0;
 	double v = 0;
 	double * swap1 = (double *)output;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 
 	Stride /= PixelSize(info->OutputFormat);
 
@@ -2062,7 +2062,7 @@ uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info,
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		v = wOut[index] * maximum;
 
@@ -2086,7 +2086,7 @@ uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info,
 		return output + (nChan + Extra) * sizeof(double);
 }
 
-static uint8 * PackLabFloatFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackLabFloatFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, uint32 Stride)
 {
 	float* Out = (float *)output;
 	if(T_PLANAR(Info->OutputFormat)) {
@@ -2104,7 +2104,7 @@ static uint8 * PackLabFloatFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * 
 	}
 }
 
-static uint8 * PackLabDoubleFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackLabDoubleFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, uint32 Stride)
 {
 	double * Out = (double *)output;
 	if(T_PLANAR(Info->OutputFormat)) {
@@ -2130,7 +2130,7 @@ static
 uint8 * PackXYZFloatFromFloat(_cmsTRANSFORM* Info,
     float wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	float* Out = (float *)output;
 
@@ -2157,7 +2157,7 @@ static
 uint8 * PackXYZDoubleFromFloat(_cmsTRANSFORM* Info,
     float wOut[],
     uint8 * output,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
 	double * Out = (double *)output;
 
@@ -2189,17 +2189,17 @@ static
 uint8 * UnrollHalfTo16(_cmsTRANSFORM * info,
     uint16 wIn[],
     uint8 * accum,
-    cmsUInt32Number Stride)
+    uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
-	cmsUInt32Number Planar     = T_PLANAR(info->InputFormat);
+	uint32 nChan      = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra      = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 Planar     = T_PLANAR(info->InputFormat);
 	float v;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	float maximum = IsInkSpace(info->InputFormat) ? 655.35F : 65535.0F;
 
 	Stride /= PixelSize(info->OutputFormat);
@@ -2208,7 +2208,7 @@ uint8 * UnrollHalfTo16(_cmsTRANSFORM * info,
 		start = Extra;
 
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
 		if(Planar)
 			v = _cmsHalf2Float( ((uint16*)accum)[(i + start) * Stride]);
@@ -2234,23 +2234,23 @@ uint8 * UnrollHalfTo16(_cmsTRANSFORM * info,
 }
 
 // Decodes an stream of half floats to wIn[] described by input format
-static uint8 * UnrollHalfToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, cmsUInt32Number Stride)
+static uint8 * UnrollHalfToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accum, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->InputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->InputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->InputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->InputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->InputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
-	cmsUInt32Number Planar     = T_PLANAR(info->InputFormat);
+	uint32 nChan      = T_CHANNELS(info->InputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->InputFormat);
+	uint32 Reverse    = T_FLAVOR(info->InputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->InputFormat);
+	uint32 Extra      = T_EXTRA(info->InputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 Planar     = T_PLANAR(info->InputFormat);
 	float v;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	float maximum = IsInkSpace(info->InputFormat) ? 100.0F : 1.0F;
 	Stride /= PixelSize(info->OutputFormat);
 	if(ExtraFirst)
 		start = Extra;
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		if(Planar)
 			v =  _cmsHalf2Float( ((uint16*)accum)[(i + start) * Stride]);
 		else
@@ -2269,24 +2269,24 @@ static uint8 * UnrollHalfToFloat(_cmsTRANSFORM * info, float wIn[], uint8 * accu
 		return accum + (nChan + Extra) * sizeof(uint16);
 }
 
-static uint8 * PackHalfFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackHalfFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Planar     = T_PLANAR(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan      = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra      = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 Planar     = T_PLANAR(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	float maximum = IsInkSpace(info->OutputFormat) ? 655.35F : 65535.0F;
 	float v = 0;
 	uint16* swap1 = (uint16*)output;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	Stride /= PixelSize(info->OutputFormat);
 	if(ExtraFirst)
 		start = Extra;
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		v = (float)wOut[index] / maximum;
 		if(Reverse)
 			v = maximum - v;
@@ -2305,24 +2305,24 @@ static uint8 * PackHalfFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 		return output + (nChan + Extra) * sizeof(uint16);
 }
 
-static uint8 * PackHalfFromFloat(_cmsTRANSFORM * info, float wOut[], uint8 * output, cmsUInt32Number Stride)
+static uint8 * PackHalfFromFloat(_cmsTRANSFORM * info, float wOut[], uint8 * output, uint32 Stride)
 {
-	cmsUInt32Number nChan      = T_CHANNELS(info->OutputFormat);
-	cmsUInt32Number DoSwap     = T_DOSWAP(info->OutputFormat);
-	cmsUInt32Number Reverse    = T_FLAVOR(info->OutputFormat);
-	cmsUInt32Number Extra      = T_EXTRA(info->OutputFormat);
-	cmsUInt32Number SwapFirst  = T_SWAPFIRST(info->OutputFormat);
-	cmsUInt32Number Planar     = T_PLANAR(info->OutputFormat);
-	cmsUInt32Number ExtraFirst = DoSwap ^ SwapFirst;
+	uint32 nChan      = T_CHANNELS(info->OutputFormat);
+	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
+	uint32 Reverse    = T_FLAVOR(info->OutputFormat);
+	uint32 Extra      = T_EXTRA(info->OutputFormat);
+	uint32 SwapFirst  = T_SWAPFIRST(info->OutputFormat);
+	uint32 Planar     = T_PLANAR(info->OutputFormat);
+	uint32 ExtraFirst = DoSwap ^ SwapFirst;
 	float maximum = IsInkSpace(info->OutputFormat) ? 100.0F : 1.0F;
 	uint16* swap1 = (uint16*)output;
 	float v = 0;
-	cmsUInt32Number i, start = 0;
+	uint32 i, start = 0;
 	Stride /= PixelSize(info->OutputFormat);
 	if(ExtraFirst)
 		start = Extra;
 	for(i = 0; i < nChan; i++) {
-		cmsUInt32Number index = DoSwap ? (nChan - i - 1) : i;
+		uint32 index = DoSwap ? (nChan - i - 1) : i;
 		v = wOut[index] * maximum;
 		if(Reverse)
 			v = maximum - v;
@@ -2433,9 +2433,9 @@ static const cmsFormattersFloat InputFormattersFloat[] = {
 };
 
 // Bit fields set to one in the mask are not compared
-static cmsFormatter _cmsGetStockInputFormatter(cmsUInt32Number dwInput, cmsUInt32Number dwFlags)
+static cmsFormatter _cmsGetStockInputFormatter(uint32 dwInput, uint32 dwFlags)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	cmsFormatter fr;
 	switch(dwFlags) {
 		case CMS_PACK_FLAGS_16BITS: {
@@ -2569,9 +2569,9 @@ static const cmsFormattersFloat OutputFormattersFloat[] = {
 };
 
 // Bit fields set to one in the mask are not compared
-static cmsFormatter _cmsGetStockOutputFormatter(cmsUInt32Number dwInput, cmsUInt32Number dwFlags)
+static cmsFormatter _cmsGetStockOutputFormatter(uint32 dwInput, uint32 dwFlags)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	cmsFormatter fr;
 	// Optimization is only a hint
 	dwInput &= ~OPTIMIZED_SH(1);
@@ -2665,8 +2665,8 @@ boolint _cmsRegisterFormattersPlugin(cmsContext ContextID, cmsPluginBase* Data)
 	return TRUE;
 }
 
-cmsFormatter CMSEXPORT _cmsGetFormatter(cmsContext ContextID, cmsUInt32Number Type, // Specific type, i.e. TYPE_RGB_8
-    cmsFormatterDirection Dir, cmsUInt32Number dwFlags)
+cmsFormatter CMSEXPORT _cmsGetFormatter(cmsContext ContextID, uint32 Type, // Specific type, i.e. TYPE_RGB_8
+    cmsFormatterDirection Dir, uint32 dwFlags)
 {
 	_cmsFormattersPluginChunkType* ctx = (_cmsFormattersPluginChunkType*)_cmsContextGetClientChunk(ContextID, FormattersPlugin);
 	cmsFormattersFactoryList* f;
@@ -2682,36 +2682,36 @@ cmsFormatter CMSEXPORT _cmsGetFormatter(cmsContext ContextID, cmsUInt32Number Ty
 }
 
 // Return whatever given formatter refers to float values
-boolint _cmsFormatterIsFloat(cmsUInt32Number Type)
+boolint _cmsFormatterIsFloat(uint32 Type)
 {
 	return T_LCMS2_FLOAT(Type) ? TRUE : FALSE;
 }
 
 // Return whatever given formatter refers to 8 bits
-boolint _cmsFormatterIs8bit(cmsUInt32Number Type)
+boolint _cmsFormatterIs8bit(uint32 Type)
 {
-	cmsUInt32Number Bytes = T_BYTES(Type);
+	uint32 Bytes = T_BYTES(Type);
 	return (Bytes == 1);
 }
 
 // Build a suitable formatter for the colorspace of this profile
-cmsUInt32Number CMSEXPORT cmsFormatterForColorspaceOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, boolint lIsFloat)
+uint32 CMSEXPORT cmsFormatterForColorspaceOfProfile(cmsHPROFILE hProfile, uint32 nBytes, boolint lIsFloat)
 {
 	cmsColorSpaceSignature ColorSpace      = cmsGetColorSpace(hProfile);
-	cmsUInt32Number ColorSpaceBits  = (cmsUInt32Number)_cmsLCMScolorSpace(ColorSpace);
-	cmsUInt32Number nOutputChans    = cmsChannelsOf(ColorSpace);
-	cmsUInt32Number Float   = lIsFloat ? 1U : 0;
+	uint32 ColorSpaceBits  = (uint32)_cmsLCMScolorSpace(ColorSpace);
+	uint32 nOutputChans    = cmsChannelsOf(ColorSpace);
+	uint32 Float   = lIsFloat ? 1U : 0;
 	// Create a fake formatter for result
 	return FLOAT_SH(Float) | COLORSPACE_SH(ColorSpaceBits) | BYTES_SH(nBytes) | CHANNELS_SH(nOutputChans);
 }
 
 // Build a suitable formatter for the colorspace of this profile
-cmsUInt32Number CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, boolint lIsFloat)
+uint32 CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, uint32 nBytes, boolint lIsFloat)
 {
 	cmsColorSpaceSignature ColorSpace = cmsGetPCS(hProfile);
-	cmsUInt32Number ColorSpaceBits = (cmsUInt32Number)_cmsLCMScolorSpace(ColorSpace);
-	cmsUInt32Number nOutputChans = cmsChannelsOf(ColorSpace);
-	cmsUInt32Number Float = lIsFloat ? 1U : 0;
+	uint32 ColorSpaceBits = (uint32)_cmsLCMScolorSpace(ColorSpace);
+	uint32 nOutputChans = cmsChannelsOf(ColorSpace);
+	uint32 Float = lIsFloat ? 1U : 0;
 	// Create a fake formatter for result
 	return FLOAT_SH(Float) | COLORSPACE_SH(ColorSpaceBits) | BYTES_SH(nBytes) | CHANNELS_SH(nOutputChans);
 }

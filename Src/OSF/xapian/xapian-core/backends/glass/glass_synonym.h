@@ -14,7 +14,7 @@
 #include <xapian/types.h>
 #include "backends/alltermslist.h"
 #include "glass_lazytable.h"
-#include "api/termlist.h"
+#include "termlist.h"
 #include <set>
 #include <string>
 

@@ -427,7 +427,7 @@ const char * ma_tls_get_cipher(MARIADB_TLS * ctls)
 	return cipher_name(&CipherInfo);
 }
 
-unsigned int ma_tls_get_finger_print(MARIADB_TLS * ctls, char * fp, unsigned int len)
+uint ma_tls_get_finger_print(MARIADB_TLS * ctls, char * fp, uint len)
 {
 	SC_CTX * sctx = (SC_CTX*)ctls->ssl;
 	PCCERT_CONTEXT pRemoteCertContext = NULL;

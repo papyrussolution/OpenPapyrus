@@ -300,6 +300,67 @@ public class StyloQApp extends SLib.App {
 		}
 		return ISL;
 	}
+	public final ArrayList <IgnitionServerEntry> GetMediatorList()
+	{
+		ArrayList <IgnitionServerEntry> result = null;
+		ArrayList <Long> mediator_id_list = null;
+		result = GetIgnitionServerList();
+		try {
+			StyloQDatabase db = GetDB();
+			if(db != null) {
+				mediator_id_list = db.GetMediatorIdList();
+				if((mediator_id_list != null && mediator_id_list.size() > 0) /*|| (result != null && result.size() > 0)*/) {
+					for(int i = 0; i < mediator_id_list.size(); i++) {
+						long mediator_id = mediator_id_list.get(i);
+						StyloQDatabase.SecStoragePacket mediator_pack = db.GetPeerEntry(i);
+						if(mediator_pack != null && (mediator_pack.Rec.Flags & StyloQDatabase.SecStoragePacket.styloqfMediator) != 0) {
+							byte [] cfg_bytes = mediator_pack.Pool.Get(SecretTagPool.tagConfig);
+							byte [] svc_ident_from_pool = mediator_pack.Pool.Get(SecretTagPool.tagSvcIdent);
+							if(SLib.GetLen(cfg_bytes) > 0 && SLib.GetLen(svc_ident_from_pool) > 0) {
+								if(!SLib.AreByteArraysEqual(svc_ident_from_pool, mediator_pack.Rec.BI)) {
+									; // @error
+								}
+								else {
+									boolean dup_found = false;
+									for(int islidx = 0; !dup_found && islidx < result.size(); islidx++) {
+										IgnitionServerEntry isl_entry = result.get(islidx);
+										if(isl_entry != null && SLib.AreByteArraysEqual(isl_entry.SvcIdent, svc_ident_from_pool))
+											dup_found = true;
+									}
+									if(!dup_found) {
+										StyloQConfig svc_cfg = new StyloQConfig();
+										if(svc_cfg.FromJson(new String(cfg_bytes))) {
+											String svc_url = svc_cfg.Get(StyloQConfig.tagUrl);
+											if(SLib.GetLen(svc_url) > 0) {
+												try {
+													URI uri = new URI(svc_url);
+													int uriprot = SLib.GetUriSchemeId(uri.getScheme());
+													if(uriprot == 0 && SLib.GetLen(svc_cfg.Get(StyloQConfig.tagMqbAuth)) <= 0) {
+														uriprot = SLib.uripprotHttp;
+													}
+													if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps) {
+														IgnitionServerEntry new_isl_entry = new IgnitionServerEntry();
+														new_isl_entry.Url = svc_url;
+														new_isl_entry.SvcIdent = svc_ident_from_pool;
+														result.add(new_isl_entry);
+													}
+												} catch(URISyntaxException exn) {
+													;
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		} catch(StyloQException exn) {
+			result = null;
+		}
+		return result;
+	}
 	public static class SvcReplySubject {
 		public SvcReplySubject(byte [] svcIdent, String textSubj, StyloQCommand.Item cmdItem, String errorMessage)
 		{

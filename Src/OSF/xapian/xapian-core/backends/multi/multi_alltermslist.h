@@ -7,17 +7,7 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
  * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  */
-
 #ifndef XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
 #define XAPIAN_INCLUDED_MULTI_ALLTERMSLIST_H
 
@@ -29,26 +19,17 @@ namespace Xapian {
 
 /// Class for merging AllTermsList objects from subdatabases.
 class MultiAllTermsList : public AllTermsList {
-	/// Don't allow assignment.
-	void operator = (const MultiAllTermsList &);
-	/// Don't allow copying.
-	MultiAllTermsList(const MultiAllTermsList &);
-
+	void operator = (const MultiAllTermsList &); /// Don't allow assignment.
+	MultiAllTermsList(const MultiAllTermsList &); /// Don't allow copying.
 	/** Current termname.
 	 *
 	 *  If current_term.empty(), then either we haven't started yet (and
 	 *  count != 0) or we've reached the end (and count == 0).
 	 */
 	std::string current_term;
-
-	/// Current termfreq (or 0 if not yet calculated).
-	mutable Xapian::doccount current_termfreq;
-
-	/// Number of TermList* entries in @a termlists.
-	mutable size_t count;
-
-	/// Sub-termlists which we use as a heap.
-	TermList** termlists;
+	mutable Xapian::doccount current_termfreq; /// Current termfreq (or 0 if not yet calculated).
+	mutable size_t count; /// Number of TermList* entries in @a termlists.
+	TermList** termlists; /// Sub-termlists which we use as a heap.
 public:
 	MultiAllTermsList(size_t count_, TermList** termlists_);
 	~MultiAllTermsList();

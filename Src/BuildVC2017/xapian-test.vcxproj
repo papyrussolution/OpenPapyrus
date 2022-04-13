@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\xapian-pch.cpp">
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\xapian-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -121,7 +121,7 @@
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -152,7 +152,7 @@ cd $(ProjectDir)</Command>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -185,7 +185,7 @@ cd $(ProjectDir)</Command>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -218,7 +218,7 @@ cd $(ProjectDir)</Command>
       <SDLCheck>false</SDLCheck>
       <ConformanceMode>false</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;..\osf\xapian\xapian-core\tests;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />

@@ -32,17 +32,17 @@ extern "C" {
 
 /* we use the mysqlnd implementation */
 typedef struct ma_charset_info_st {
-	unsigned int nr; /* so far only 1 byte for charset */
-	unsigned int state;
+	uint nr; /* so far only 1 byte for charset */
+	uint state;
 	const char    * csname;
 	const char    * name;
 	const char  * dir;
-	unsigned int codepage;
+	uint codepage;
 	const char  * encoding;
-	unsigned int char_minlen;
-	unsigned int char_maxlen;
-	unsigned int (* mb_charlen)(unsigned int c);
-	unsigned int (* mb_valid)(const char * start, const char * end);
+	uint char_minlen;
+	uint char_maxlen;
+	uint (* mb_charlen)(uint c);
+	uint (* mb_valid)(const char * start, const char * end);
 } MARIADB_CHARSET_INFO;
 
 extern const MARIADB_CHARSET_INFO mariadb_compiled_charsets[];
@@ -52,7 +52,7 @@ extern MARIADB_CHARSET_INFO * ma_charset_latin1;
 extern MARIADB_CHARSET_INFO * ma_charset_utf8_general_ci;
 extern MARIADB_CHARSET_INFO * ma_charset_utf16le_general_ci;
 
-MARIADB_CHARSET_INFO * find_compiled_charset(unsigned int cs_number);
+MARIADB_CHARSET_INFO * find_compiled_charset(uint cs_number);
 MARIADB_CHARSET_INFO * find_compiled_charset_by_name(const char * name);
 
 size_t mysql_cset_escape_quotes(const MARIADB_CHARSET_INFO * cset, char * newstr,  const char * escapestr, size_t escapestr_len);

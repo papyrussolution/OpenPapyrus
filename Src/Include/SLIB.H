@@ -2396,6 +2396,7 @@ private:
 #define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
 #define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
 #define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
+#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1); // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
 #define PTR8(p)               (reinterpret_cast<uint8 *>(p))
 #define PTR16(p)              (reinterpret_cast<uint16*>(p))
 #define PTR32(p)              (reinterpret_cast<uint32*>(p))
@@ -5995,12 +5996,9 @@ public:
 	//   передается в строку как есть. Предполагается, что вызывающая функция знает что делает
 	//   и в отрезке действительно хранятся вразумительные символы.
 	// Returns:
-	//   true - передача осуществлена успешно
-	//   false - ошибка. Пока нет причин для такого возврата. В дальнейшем планируется добавить
-	//     дополнительный аргумент в функцию с целью ограничить потециальный вред от необоснованного
-	//     вызова - то есть, проверку внутреннего содержимого отрезка.
+	//   Ссылку на rBuf
 	//
-	bool   ToRawStr(SString & rBuf) const;
+	SString & ToRawStr(SString & rBuf) const;
 	//
 	// Descr: Кодирует содержимое буфера в формате mime64 и результат вносит в строку rBuf.
 	//
@@ -6665,7 +6663,9 @@ public:
 			// Участвует в формировании символа очереди в случае MQB-обмена.
 		tagAssignedFaceRef = 34,  // @v11.2.4 Ссылка на собственный лик, ассоциированная с записью сервиса. Используется в StyloQ
 			// на стороне клиента в записи сервиса для того, чтобы сообщить сервису приемлемый вариант лика.
-		tagErrorCode       = 35   // @v11.2.10 int32 Код ошибки (ответ)
+		tagErrorCode       = 35,  // @v11.2.10 int32 Код ошибки (ответ)
+		tagBlob            = 36,  // @v11.3.8  BLOB передаваемый с пакетом. По тегу tagRawData хранятся мета-данные этого blob'а в json-формате
+
 	};
 	SSecretTagPool();
 	int    GeneratePrivateKey(uint bitCount);

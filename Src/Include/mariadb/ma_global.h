@@ -257,7 +257,7 @@ typedef int	File;		/* File descriptor */
 	#if defined(_WIN64)
 		#define my_socket uint64
 	#elif defined(_WIN32)
-		#define my_socket unsigned int
+		#define my_socket uint
 	#else
 		typedef int my_socket;
 	#endif
@@ -619,7 +619,7 @@ typedef uint64 my_ulonglong;
     Please, note, uint3korr reads 4 bytes (not 3) !
     It means, that you have to provide enough allocated space !
 */
-#define uint3korr(A)	(long) (*((unsigned int *) (A)) & 0xFFFFFF)
+#define uint3korr(A)	(long) (*((uint *) (A)) & 0xFFFFFF)
 #endif /* HAVE_purify && !_WIN32 */
 #define uint4korr(A)	(*((uint32 *) (A)))
 #define uint5korr(A)	((ulonglong)(((uint32) ((uchar) (A)[0])) +\
@@ -903,7 +903,7 @@ do { doubleget_union _tmp; \
 	#endif
 #endif
 #if SIZEOF_CHARP == SIZEOF_INT
-	typedef unsigned int intptr;
+	typedef uint intptr;
 #elif SIZEOF_CHARP == SIZEOF_LONG
 	typedef unsigned long intptr;
 #elif SIZEOF_CHARP == SIZEOF_LONG_LONG

@@ -25,7 +25,7 @@
 
 // PCS -> PCS round trip transform, always uses relative intent on the device -> pcs
 static
-cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, cmsUInt32Number nIntent)
+cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, uint32 nIntent)
 {
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsHPROFILE hLab = cmsCreateLab4ProfileTHR(ContextID, NULL);
@@ -33,7 +33,7 @@ cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, cmsUInt32Number nIntent
 	boolint BPC[4] = { FALSE, FALSE, FALSE, FALSE };
 	double States[4] = { 1.0, 1.0, 1.0, 1.0 };
 	cmsHPROFILE hProfiles[4];
-	cmsUInt32Number Intents[4];
+	uint32 Intents[4];
 
 	hProfiles[0] = hLab; hProfiles[1] = hProfile; hProfiles[2] = hProfile; hProfiles[3] = hLab;
 	Intents[0]   = INTENT_RELATIVE_COLORIMETRIC; Intents[1] = nIntent; Intents[2] = INTENT_RELATIVE_COLORIMETRIC;
@@ -50,15 +50,15 @@ cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, cmsUInt32Number nIntent
 // assumes more ink results in darker colors. No ink limit is assumed.
 static
 boolint BlackPointAsDarkerColorant(cmsHPROFILE hInput,
-    cmsUInt32Number Intent,
+    uint32 Intent,
     cmsCIEXYZ* BlackPoint,
-    cmsUInt32Number dwFlags)
+    uint32 dwFlags)
 {
 	uint16 * Black;
 	cmsHTRANSFORM xform;
 	cmsColorSpaceSignature Space;
-	cmsUInt32Number nChannels;
-	cmsUInt32Number dwFormat;
+	uint32 nChannels;
+	uint32 dwFormat;
 	cmsHPROFILE hLab;
 	cmsCIELab Lab;
 	cmsCIEXYZ BlackXYZ;
@@ -172,7 +172,7 @@ boolint BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfi
 // just that. There is a special flag for using black point tag, but turned
 // off by default because it is bogus on most profiles. The detection algorithm
 // involves to turn BP to neutral and to use only L component.
-boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags)
+boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags)
 {
 	cmsProfileClassSignature devClass;
 
@@ -316,8 +316,8 @@ double RootOfLeastSquaresFitQuadraticCurve(int n, double x[], double y[])
 // This algorithm comes from the Adobe paper disclosing its black point compensation method.
 boolint CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint,
     cmsHPROFILE hProfile,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags)
+    uint32 Intent,
+    uint32 dwFlags)
 {
 	cmsColorSpaceSignature ColorSpace;
 	cmsHTRANSFORM hRoundTrip = NULL;

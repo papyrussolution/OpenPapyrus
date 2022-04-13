@@ -20,6 +20,7 @@
 #define THREAD_H
 
 #include "openjpeg.h"
+
 /**
    @file thread.h
    @brief Thread API
@@ -87,7 +88,7 @@ opj_cond_t* opj_cond_create(void);
  *    opj_mutex_lock(mutex);
  *    while( !some_application_level_condition )
  *    {
- *  opj_cond_wait(cond, mutex);
+ *        opj_cond_wait(cond, mutex);
  *    }
  *    opj_mutex_unlock(mutex);
  * \endcode
@@ -129,7 +130,7 @@ typedef struct opj_thread_t opj_thread_t;
 /** User function to execute in a thread
  * @param user_data user data provided with opj_thread_create()
  */
-typedef void (* opj_thread_fn)(void * user_data);
+typedef void (* opj_thread_fn)(void* user_data);
 
 /** Creates a new thread.
  * @param thread_fn Function to run in the new thread.
@@ -137,7 +138,7 @@ typedef void (* opj_thread_fn)(void * user_data);
  * @return a thread handle or NULL in case of failure (can for example happen if the library
  * is built without thread support)
  */
-opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void * user_data);
+opj_thread_t* opj_thread_create(opj_thread_fn thread_fn, void* user_data);
 
 /** Wait for a thread to be finished and release associated resources to the
  * thread handle.
@@ -157,10 +158,10 @@ typedef struct opj_tls_t opj_tls_t;
  * @param key key whose value to retrieve.
  * @return value associated with the key, or NULL is missing.
  */
-void * opj_tls_get(opj_tls_t* tls, int key);
+void* opj_tls_get(opj_tls_t* tls, int key);
 
 /** Type of the function used to free a TLS value */
-typedef void (* opj_tls_free_func)(void * value);
+typedef void (* opj_tls_free_func)(void* value);
 
 /** Set a thread local value corresponding to the provided key.
  * @param tls thread local storage handle
@@ -169,9 +170,7 @@ typedef void (* opj_tls_free_func)(void * value);
  * @param free_func function to call currently installed value.
  * @return TRUE if successful.
  */
-boolint opj_tls_set(opj_tls_t* tls, int key, void * value,
-    opj_tls_free_func free_func);
-
+boolint opj_tls_set(opj_tls_t* tls, int key, void* value, opj_tls_free_func free_func);
 /*@}*/
 
 /** @name Thread pool */
@@ -196,7 +195,7 @@ opj_thread_pool_t* opj_thread_pool_create(int num_threads);
  * @param user_data user data provided with opj_thread_create()
  * @param tls handle to thread local storage
  */
-typedef void (* opj_job_fn)(void * user_data, opj_tls_t* tls);
+typedef void (* opj_job_fn)(void* user_data, opj_tls_t* tls);
 
 /** Submit a new job to be run by one of the thread in the thread pool.
  * The job ( thread_fn, user_data ) will be added in the queue of jobs managed
@@ -207,7 +206,7 @@ typedef void (* opj_job_fn)(void * user_data, opj_tls_t* tls);
  * @param user_data User data provided to thread_fn.
  * @return TRUE if the job was successfully submitted.
  */
-boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn, void * user_data);
+boolint opj_thread_pool_submit_job(opj_thread_pool_t* tp, opj_job_fn job_fn, void* user_data);
 
 /** Wait that no more than max_remaining_jobs jobs are remaining in the queue of
  * the thread pool. The aim of this function is to avoid submitting too many
@@ -233,5 +232,7 @@ int opj_thread_pool_get_thread_count(opj_thread_pool_t* tp);
 void opj_thread_pool_destroy(opj_thread_pool_t* tp);
 
 /*@}*/
+
 /*@}*/
+
 #endif /* THREAD_H */

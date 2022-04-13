@@ -13,6 +13,8 @@ interface ISDbfCreateFlds;
 interface ISDbfRecord;
 interface ISDbfTable;
 interface IFtp;
+interface INaturalTokenArray;
+interface INaturalTokenRecognizer;
 interface IPapyrusTextAnalyzer;
 interface IPapyrusAmountList;
 interface IPapyrusUtil;
@@ -449,6 +451,62 @@ interface IFtp : IUnknown {
 ]
 library PapyrusInterfaceLib {
 	importlib("STDOLE2.TLB");
+
+	typedef [v1_enum] enum _SNTok {
+		sntokUNKN = 0,
+		sntokNATURALWORD = 1,
+		sntokDIGITCODE = 2,
+		sntokEAN13 = 3,
+		sntokEAN8 = 4,
+		sntokUPCA = 5,
+		sntokUPCE = 6,
+		sntokRU_INN = 7,
+		sntokEGAISWARECODE = 8,
+		sntokEGAISMARKCODE = 9,
+		sntokLUHN = 10,
+		sntokDIGLAT = 11,
+		sntokGUID = 12,
+		sntokEMAIL = 13,
+		sntokPHONE = 14,
+		sntokIMEI = 15,
+		sntokIP4 = 16,
+		sntokIP6 = 17,
+		sntokMACADDR48 = 18,
+		sntokDATE = 19,
+		sntokTIME = 20,
+		sntokSOFTWAREVER = 21,
+		sntokCOLORHEX = 22,
+		sntokREALNUMBER = 23,
+		sntokINTNUMBER = 24,
+		sntokPECENTAGE = 25,
+		sntokNUMERIC_DOT = 26,
+		sntokNUMERIC_COM = 27,
+		sntokCHZN_GS1_GTIN = 28,
+		sntokCHZN_SIGN_SGTIN = 29,
+		sntokCHZN_SSCC = 30,
+		sntokCHZN_CIGITEM = 31,
+		sntokCHZN_CIGBLOCK = 32,
+		sntokRU_OKPO = 33,
+		sntokRU_SNILS = 34,
+		sntokRU_BIC = 35,
+		sntokRU_KPP = 36
+	} SNTok;
+
+	[
+		object,
+		uuid(89EB11FD-5C08-4C1C-A7EF-7D77428BCACD)
+	]
+	interface INaturalTokenArray : IUnknown {
+		HRESULT __stdcall Has([in] SNTok t, [out,retval] double * pRet);
+	};
+
+	[
+		object,
+		uuid(DD5ECCE9-618E-4BEF-AAE7-55BCBAC033DB)
+	]
+	interface INaturalTokenRecognizer : IUnknown {
+		HRESULT __stdcall Run([in] BSTR text, [in] long len, [out,retval] INaturalTokenArray ** pRet);
+	};
 
 	[
 		object,
@@ -4615,6 +4673,22 @@ library PapyrusInterfaceLib {
 	]
 	coclass CompleteList {
 		interface ICompleteList;
+		interface ISupportErrorInfo;
+	};
+
+	[
+		uuid(7CF12BCB-74E4-4B3E-8BC8-9DB0FD169608)
+	]
+	coclass NaturalTokenArray {
+		[default] interface INaturalTokenArray;
+		interface ISupportErrorInfo;
+	};
+
+	[
+		uuid(24DA0004-40FF-4F69-AD28-6047785F05B9)
+	]
+	coclass NaturalTokenRecognizer {
+		[default] interface INaturalTokenRecognizer;
 		interface ISupportErrorInfo;
 	};
 

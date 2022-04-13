@@ -35,7 +35,7 @@ typedef struct  {
 	CAM02COLOR adoptedWhite;
 	double LA, Yb;
 	double F, c, Nc;
-	cmsUInt32Number surround;
+	uint32 surround;
 	double n, Nbb, Ncb, z, FL, D;
 
 	cmsContext ContextID;
@@ -68,7 +68,7 @@ static CAM02COLOR XYZtoCAT02(CAM02COLOR clr)
 
 static CAM02COLOR ChromaticAdaptation(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	for(i = 0; i < 3; i++) {
 		clr.RGBc[i] = ((pMod->adoptedWhite.XYZ[1] * (pMod->D / pMod->adoptedWhite.RGB[i])) + (1.0 - pMod->D)) * clr.RGB[i];
 	}
@@ -95,7 +95,7 @@ static CAM02COLOR CAT02toHPE(CAM02COLOR clr)
 
 static CAM02COLOR NonlinearCompression(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	double temp;
 	for(i = 0; i < 3; i++) {
 		if(clr.RGBp[i] < 0) {
@@ -214,7 +214,7 @@ static CAM02COLOR InverseCorrelates(CAM02COLOR clr, cmsCIECAM02* pMod)
 
 static CAM02COLOR InverseNonlinearity(CAM02COLOR clr, cmsCIECAM02* pMod)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	double c1;
 	for(i = 0; i < 3; i++) {
 		if((clr.RGBpa[i] - 0.1) < 0) c1 = -1;
@@ -248,7 +248,7 @@ static CAM02COLOR HPEtoCAT02(CAM02COLOR clr)
 
 static CAM02COLOR InverseChromaticAdaptation(CAM02COLOR clr,  cmsCIECAM02* pMod)
 {
-	cmsUInt32Number i;
+	uint32 i;
 	for(i = 0; i < 3; i++) {
 		clr.RGB[i] = clr.RGBc[i] /
 		    ((pMod->adoptedWhite.XYZ[1] * pMod->D / pMod->adoptedWhite.RGB[i]) + 1.0 - pMod->D);

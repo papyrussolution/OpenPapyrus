@@ -215,8 +215,71 @@ int Use001()
 #define USE_IMPL_DL6ICLS_PPObjCCheck
 #define USE_IMPL_DL6ICLS_PPObjSCardSeries
 #define USE_IMPL_DL6ICLS_PPObjSCard
+#define USE_IMPL_DL6ICLS_NaturalTokenArray
+#define USE_IMPL_DL6ICLS_NaturalTokenRecognizer
 
 #include "..\rsrc\dl600\ppifc_auto.cpp"
+//
+//
+//
+DL6_IC_CONSTRUCTOR(NaturalTokenArray, DL6ICLS_NaturalTokenArray_VTab)
+{
+	ExtraPtr = new SNaturalTokenArray;
+}
+
+DL6_IC_DESTRUCTOR(NaturalTokenArray)
+{
+	delete static_cast<SNaturalTokenArray *>(ExtraPtr);
+}
+//
+// Interface INaturalTokenArray implementation
+//
+double DL6ICLS_NaturalTokenArray::Has(SNTok t)
+{
+	const SNaturalTokenArray * p_this = static_cast<const SNaturalTokenArray *>(ExtraPtr);
+	return p_this ? static_cast<double>(p_this->Has(t)) : 0.0;
+}
+
+DL6_IC_CONSTRUCTOR(NaturalTokenRecognizer, DL6ICLS_NaturalTokenRecognizer_VTab)
+{
+	ExtraPtr = new STokenRecognizer;
+}
+
+DL6_IC_DESTRUCTOR(NaturalTokenRecognizer)
+{
+	delete static_cast<STokenRecognizer *>(ExtraPtr);
+}
+//
+// Interface INaturalTokenRecognizer implementation
+//
+static IUnknown * FASTCALL GetINaturalTokenArray(SCoClass * pCls, SNaturalTokenArray * pList, bool delList)
+{
+	IUnknown * p = 0;
+	if(pList && pCls && pCls->CreateInnerInstance("NaturalTokenArray", "INaturalTokenArray", (void **)&p)) {
+		SNaturalTokenArray * p_list_env = static_cast<SNaturalTokenArray *>(SCoClass::GetExtraPtrByInterface(p));
+		if(p_list_env) {
+			*p_list_env = *pList;
+			p_list_env->setPointer(0);
+		}
+		else
+			ReleaseUnknObj(&p);
+	}
+	if(delList)
+		ZDELETE(pList);
+	return p;
+}
+
+INaturalTokenArray * DL6ICLS_NaturalTokenRecognizer::Run(SString & text, int32 len)
+{
+	INaturalTokenArray * p_result = 0;
+	SNaturalTokenArray inner_result;
+	STokenRecognizer * p_this = static_cast<STokenRecognizer *>(ExtraPtr);
+	if(p_this) {
+		SNaturalTokenStat inner_stat;
+		p_this->Run(text.ucptr(), (len >= 0 && len <= text.Len()) ? len : text.Len(), inner_result, &inner_stat);
+	}
+	return reinterpret_cast<INaturalTokenArray *>(GetINaturalTokenArray(this, &inner_result, false));
+}
 //
 //
 //

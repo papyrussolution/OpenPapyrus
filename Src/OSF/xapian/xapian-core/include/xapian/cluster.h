@@ -53,9 +53,9 @@ private:
 	std::unordered_set<std::string> stop_words;
 	Xapian::Stem stemmer;
 };
-
-/** Class representing a set of documents in a cluster
- */
+// 
+// Class representing a set of documents in a cluster
+// 
 class XAPIAN_VISIBILITY_DEFAULT DocumentSet {
 public:
 	class Internal;

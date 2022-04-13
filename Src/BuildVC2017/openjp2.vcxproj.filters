@@ -23,6 +23,7 @@
     <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\tgt.c" />
     <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\thread.c" />
     <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\openjp2-pch.cpp" />
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\ht_dec.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\OSF\openjpeg\src\lib\openjp2\thread.h">

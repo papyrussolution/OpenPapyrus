@@ -23,8 +23,8 @@
 //#include "ma_sha1.h"
 
 static void ma_SHA1Transform(uint32[5], const uchar[64]);
-static void ma_SHA1Encode(uchar *, uint32 *, unsigned int);
-static void ma_SHA1Decode(uint32 *, const uchar *, unsigned int);
+static void ma_SHA1Encode(uchar *, uint32 *, uint);
+static void ma_SHA1Decode(uint32 *, const uchar *, uint);
 
 static uchar PADDING[64] = {
 	0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -96,7 +96,7 @@ void ma_SHA1Init(_MA_SHA1_CTX * context)
 void ma_SHA1Update(_MA_SHA1_CTX * context, const uchar * input,
     size_t inputLen)
 {
-	unsigned int i, index, partLen;
+	uint i, index, partLen;
 
 	/* Compute number of bytes mod 64 */
 	index = (uint)((context->count[0] >> 3) & 0x3F);
@@ -139,7 +139,7 @@ void ma_SHA1Update(_MA_SHA1_CTX * context, const uchar * input,
 void ma_SHA1Final(uchar digest[20], _MA_SHA1_CTX * context)
 {
 	uchar bits[8];
-	unsigned int index, padLen;
+	uint index, padLen;
 
 	/* Save number of bits */
 	bits[7] = context->count[0] & 0xFF;
@@ -279,9 +279,9 @@ static void ma_SHA1Transform(uint32 state[5], const uchar block[64])
    Encodes input (uint32) into output (uchar). Assumes len is
    a multiple of 4.
  */
-static void ma_SHA1Encode(uchar * output, uint32 * input, unsigned int len)
+static void ma_SHA1Encode(uchar * output, uint32 * input, uint len)
 {
-	unsigned int i, j;
+	uint i, j;
 	for(i = 0, j = 0; j < len; i++, j += 4) {
 		output[j] = (uchar)((input[i] >> 24) & 0xff);
 		output[j + 1] = (uchar)((input[i] >> 16) & 0xff);
@@ -296,9 +296,9 @@ static void ma_SHA1Encode(uchar * output, uint32 * input, unsigned int len)
    Decodes input (uchar) into output (uint32). Assumes len is
    a multiple of 4.
  */
-static void ma_SHA1Decode(uint32 * output, const uchar * input, unsigned int len)
+static void ma_SHA1Decode(uint32 * output, const uchar * input, uint len)
 {
-	unsigned int i, j;
+	uint i, j;
 
 	for(i = 0, j = 0; j < len; i++, j += 4)
 		output[i] = ((uint32)input[j + 3]) | (((uint32)input[j + 2]) << 8) |

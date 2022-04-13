@@ -264,10 +264,10 @@ typedef struct st_net {
 	unsigned long remain_in_buf, length;
 	unsigned long buf_length, where_b;
 	unsigned long max_packet, max_packet_size;
-	unsigned int pkt_nr, compress_pkt_nr;
-	unsigned int write_timeout, read_timeout, retry_count;
+	uint pkt_nr, compress_pkt_nr;
+	uint write_timeout, read_timeout, retry_count;
 	int fcntl;
-	unsigned int * return_status;
+	uint * return_status;
 	uchar reading_or_writing;
 	char save_char;
 	char unused_1;
@@ -275,7 +275,7 @@ typedef struct st_net {
 	bool compress;
 	bool unused_3;
 	void * unused_4;
-	unsigned int last_errno;
+	uint last_errno;
 	uchar error;
 	bool unused_5;
 	bool unused_6;
@@ -405,7 +405,7 @@ struct rand_struct {
 enum Item_result {STRING_RESULT, REAL_RESULT, INT_RESULT, ROW_RESULT, DECIMAL_RESULT};
 
 typedef struct st_udf_args {
-	unsigned int arg_count; /* Number of arguments */
+	uint arg_count; /* Number of arguments */
 	enum Item_result * arg_type; /* Pointer to item_results */
 	char ** args;                   /* Pointer to argument */
 	unsigned long * lengths; /* Length of string arguments */
@@ -416,8 +416,8 @@ typedef struct st_udf_args {
 
 typedef struct st_udf_init {
 	bool maybe_null; /* 1 if function can return NULL */
-	unsigned int decimals; /* for real functions */
-	unsigned int max_length; /* For string functions */
+	uint decimals; /* for real functions */
+	uint max_length; /* For string functions */
 	char    * ptr; /* free pointer for function data */
 	bool const_item; /* 0 if result is independent of arguments */
 } UDF_INIT;
@@ -456,6 +456,6 @@ void ma_thread_end(void);
 }
 #endif
 
-#define NULL_LENGTH ((unsigned long)~0)  /* For net_store_length */
+#define NULL_LENGTH ((ulong)~0)  /* For net_store_length */
 
 #endif

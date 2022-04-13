@@ -23,7 +23,7 @@ namespace Xapian {
 }
 
 #include "glass_database.h"
-#include "api/termlist.h"
+#include "termlist.h"
 #include "glass_table.h"
 
 /// A TermList in a glass database.

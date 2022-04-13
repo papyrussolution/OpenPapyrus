@@ -778,9 +778,9 @@ void MrpTabPacket::Destroy()
 	Cache.freeAll();
 }
 
-int MrpTabPacket::IsTree() const
+bool MrpTabPacket::IsTree() const
 {
-	return BIN(BaseID);
+	return LOGIC(BaseID);
 }
 
 const char * MrpTabPacket::GetName() const

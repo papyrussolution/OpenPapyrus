@@ -10,7 +10,6 @@
  */
 #include <xapian-internal.h>
 #pragma hdrstop
-#include "expand/termlistmerger.h"
 #include "glass_spelling.h"
 
 using namespace Glass;

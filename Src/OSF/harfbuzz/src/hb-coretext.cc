@@ -702,7 +702,7 @@ resize_and_retry:
  * The symbols was introduced in iOS 7.0.
  * At any rate, our fallback is safe and works fine. */
 #if !(defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE) && MAC_OS_X_VERSION_MIN_REQUIRED < 1090
-#  define kCTLanguageAttributeName CFSTR("NSLanguage")
+#define kCTLanguageAttributeName CFSTR("NSLanguage")
 #endif
 				CFStringRef lang = CFStringCreateWithCStringNoCopy(kCFAllocatorDefault,
 					hb_language_to_string(buffer->props.language),

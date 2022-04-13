@@ -372,7 +372,9 @@ TreeWindow::~TreeWindow()
 			if(hWnd == GetCapture())
 				ReleaseCapture();
 			break;
-		case WM_SHOWWINDOW: ::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0); break;
+		case WM_SHOWWINDOW: 
+			::PostMessage(APPL->H_MainWnd, WM_SIZE, 0, 0); 
+			break;
 		case WM_SIZE:
 			if(!IsIconic(APPL->H_MainWnd)) {
 				APPL->SizeMainWnd(hWnd);

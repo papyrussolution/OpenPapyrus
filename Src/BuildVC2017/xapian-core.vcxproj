@@ -233,7 +233,7 @@
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -264,7 +264,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -296,7 +296,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -328,7 +328,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -359,7 +359,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -391,7 +391,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -425,7 +425,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -458,7 +458,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -492,7 +492,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -526,7 +526,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
@@ -559,7 +559,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -593,7 +593,7 @@ cd $(ProjectDir)</Command>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <DebugInformationFormat>None</DebugInformationFormat>
-      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\common;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Include;..\osf\xapian\xapian-core;..\osf\xapian\xapian-core\src;..\osf\xapian\xapian-core\include;..\osf\xapian\xapian-core\languages;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -618,39 +618,39 @@ cd $(ProjectDir)</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\compactor.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\constinfo.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\database.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\decvalwtsource.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\document.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\documenttermlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\documentvaluelist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\editdistance.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\enquire.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\error.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\expanddecider.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\keymaker.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\matchspy.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\mset.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\msetiterator.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\positioniterator.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\postingiterator.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\postingsource.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\query.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\queryinternal.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\registry.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\replication.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\result.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\rset.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\smallvector.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\sortable-serialise.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\terminfo.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\termiterator.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\termlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\valueiterator.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\valuerangeproc.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\valuesetmatchdecider.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\api\vectortermlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\compactor.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\constinfo.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\database.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\decvalwtsource.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\document.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\documenttermlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\documentvaluelist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\editdistance.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\enquire.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\error.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\expanddecider.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\keymaker.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\matchspy.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\mset.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\msetiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\positioniterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\postingiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\postingsource.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\query.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\queryinternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\registry.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\replication.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\result.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\rset.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\smallvector.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\sortable-serialise.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\terminfo.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\termiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\termlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\valueiterator.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\valuerangeproc.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\valuesetmatchdecider.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\vectortermlist.cc" />
     <ClCompile Include="..\osf\xapian\xapian-core\backends\alltermslist.cc" />
     <ClCompile Include="..\osf\xapian\xapian-core\backends\contiguousalldocspostlist.cc" />
     <ClCompile Include="..\osf\xapian\xapian-core\backends\databasehelpers.cc" />
@@ -706,27 +706,27 @@ cd $(ProjectDir)</Command>
     <ClCompile Include="..\osf\xapian\xapian-core\backends\slowvaluelist.cc" />
     <ClCompile Include="..\osf\xapian\xapian-core\backends\uuids.cc" />
     <ClCompile Include="..\osf\xapian\xapian-core\backends\valuelist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\cluster.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\cosine_sim.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\kmeans.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\cluster\lcd_clusterer.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\bitstream.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\closefrom.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\compression_stream.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\debuglog.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\errno_to_string.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\fileutils.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\io_utils.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\keyword.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\omassert.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\pack.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\posixy_wrapper.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\replicate_utils.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\safe.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\serialise-double.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\socket_utils.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\str.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\common\xapian-pch.cpp">
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\cluster.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\cosine_sim.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\kmeans.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\lcd_clusterer.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\bitstream.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\closefrom.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\compression_stream.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\debuglog.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\errno_to_string.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\fileutils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\io_utils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\keyword.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\omassert.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\pack.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\posixy_wrapper.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\replicate_utils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\safe.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\serialise-double.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\socket_utils.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\str.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\xapian-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='ServerDebug|Win32'">Create</PrecompiledHeader>
@@ -764,17 +764,17 @@ cd $(ProjectDir)</Command>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='ServerRelease|x64'">
       </PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="..\OSF\xapian\xapian-core\diversify\diversify.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\expand\bo1eweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\expand\esetinternal.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\expand\expandweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\expand\ortermlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\expand\tradeweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\geoencode.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlongcoord.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_distance_keymaker.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_metrics.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\geospatial\latlong_posting_source.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\diversify.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\bo1eweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\esetinternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\expandweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\ortermlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\tradeweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\geoencode.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\latlongcoord.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\latlong_distance_keymaker.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\latlong_metrics.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\latlong_posting_source.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\languages\arabic.sbl.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\languages\armenian.sbl.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\languages\basque.sbl.cc" />
@@ -806,42 +806,42 @@ cd $(ProjectDir)</Command>
     <ClCompile Include="..\OSF\xapian\xapian-core\languages\swedish.sbl.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\languages\tamil.sbl.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\languages\turkish.sbl.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\andmaybepostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\andnotpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\boolorpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\collapser.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\deciderpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\exactphrasepostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\externalpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\extraweightpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\localsubmatch.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\matcher.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\maxpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\msetcmp.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\multiandpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\multixorpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\nearpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpositionlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpospostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\orpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\phrasepostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\remotesubmatch.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\selectpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\synonympostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuegepostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuerangepostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\valuestreamdocument.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\matcher\wrapperpostlist.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\progclient.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\remoteconnection.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\remoteserver.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\remotetcpclient.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\replicatetcpclient.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\replicatetcpserver.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\serialise-error.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\serialise.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\tcpclient.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\net\tcpserver.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\andmaybepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\andnotpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\boolorpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\collapser.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\deciderpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\exactphrasepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\externalpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\extraweightpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\localsubmatch.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\matcher.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\maxpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\msetcmp.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\multiandpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\multixorpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\nearpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\orpositionlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\orpospostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\orpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\phrasepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\remotesubmatch.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\selectpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\synonympostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\valuegepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\valuerangepostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\valuestreamdocument.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\wrapperpostlist.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\progclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\remoteconnection.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\remoteserver.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\remotetcpclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\replicatetcpclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\replicatetcpserver.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\serialise-error.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\serialise.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\tcpclient.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\tcpserver.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\cjk-tokenizer.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\queryparser.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\queryparser\queryparser_internal.cc">
@@ -863,42 +863,42 @@ cd $(ProjectDir)</Command>
     <ClCompile Include="..\OSF\xapian\xapian-core\unicode\description_append.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\unicode\unicode-data.cc" />
     <ClCompile Include="..\OSF\xapian\xapian-core\unicode\utf8itor.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bb2weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bm25plusweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\bm25weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\boolweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\coordweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dicecoeffweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dlhweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\dphweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\ifb2weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\ineb2weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\inl2weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\lmweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\pl2plusweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\pl2weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\tfidfweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\tradweight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\weight.cc" />
-    <ClCompile Include="..\OSF\xapian\xapian-core\weight\weightinternal.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\bb2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\bm25plusweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\bm25weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\boolweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\coordweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\dicecoeffweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\dlhweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\dphweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\ifb2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\ineb2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\inl2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\lmweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\pl2plusweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\pl2weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\tfidfweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\tradweight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\weight.cc" />
+    <ClCompile Include="..\OSF\xapian\xapian-core\src\weightinternal.cc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\documenttermlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\documentvaluelist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\editdistance.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\enquireinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\msetinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\postingiteratorinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\queryinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\queryvector.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\replication.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\result.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\roundestimate.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\rsetinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\smallvector.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\terminfo.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\termlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\api\vectortermlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\documenttermlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\documentvaluelist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\editdistance.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\enquireinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\msetinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\postingiteratorinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\queryinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\queryvector.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\replication.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\result.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\roundestimate.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\rsetinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\smallvector.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\terminfo.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\termlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\vectortermlist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\alltermslist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\backends.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\byte_length_strings.h" />
@@ -960,59 +960,56 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\uuids.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\valuelist.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\backends\valuestats.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\cluster\clusterinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\alignment_cast.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\append_filename_arg.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\bitstream.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\closefrom.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\compression_stream.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\debuglog.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\errno_to_string.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\exp10.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\fd.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\filetests.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\fileutils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\heap.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\internaltypes.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\io_utils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\keyword.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\log2.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\min_non_zero.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\msvcignoreinvalidparam.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\omassert.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\output.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\overflow.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\pack.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\parseint.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\popcount.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\posixy_wrapper.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\pretty.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\realtime.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\replicate_utils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\replicationprotocol.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safedirent.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safefcntl.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safenetdb.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesysselect.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesyssocket.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesysstat.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safesyswait.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safeunistd.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safewindows.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\safewinsock2.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\serialise-double.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\setenv.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\socket_utils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\stdclamp.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\str.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\stringutils.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\common\wordaccess.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\diversify\diversifyinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\expand\esetinternal.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\expand\expandweight.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\expand\ortermlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\expand\termlistmerger.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\geospatial\geoencode.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\alignment_cast.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\append_filename_arg.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\bitstream.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\closefrom.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\compression_stream.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\debuglog.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\errno_to_string.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\exp10.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\fd.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\filetests.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\fileutils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\heap.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\internaltypes.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\io_utils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\keyword.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\log2.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\min_non_zero.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\msvcignoreinvalidparam.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\omassert.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\output.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\overflow.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\pack.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\parseint.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\popcount.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\posixy_wrapper.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\pretty.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\realtime.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\replicationprotocol.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safedirent.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safefcntl.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safenetdb.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safesysselect.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safesyssocket.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safesysstat.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safesyswait.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safeunistd.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safewindows.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\safewinsock2.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\serialise-double.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\setenv.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\socket_utils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\stdclamp.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\str.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\stringutils.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\wordaccess.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\esetinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\expandweight.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\ortermlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\termlistmerger.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\geoencode.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian-internal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\attributes.h" />
@@ -1055,54 +1052,54 @@ cd $(ProjectDir)</Command>
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\version.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\visibility.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\include\xapian\weight.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\andmaybepostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\andnotpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\boolorpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\collapser.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\deciderpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\exactphrasepostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\externalpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\extraweightpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\localsubmatch.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\matcher.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\matchtimeout.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\maxpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\msetcmp.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\multiandpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\multixorpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\nearpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpositionlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpospostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\orpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\phrasepostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\postlisttree.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\protomset.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\queryoptimiser.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\remotesubmatch.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\selectpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\spymaster.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\synonympostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuegepostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuerangepostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\valuestreamdocument.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\matcher\wrapperpostlist.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\progclient.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteconnection.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteprotocol.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\remoteserver.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\remotetcpclient.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\replicatetcpclient.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\replicatetcpserver.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\resolver.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\serialise-error.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\serialise.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\tcpclient.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\net\tcpserver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\andmaybepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\andnotpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\boolorpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\collapser.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\deciderpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\exactphrasepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\externalpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\extraweightpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\localsubmatch.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\matcher.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\matchtimeout.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\maxpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\msetcmp.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\multiandpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\multixorpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\nearpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\orpositionlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\orpospostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\orpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\phrasepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\postlisttree.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\protomset.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\queryoptimiser.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\remotesubmatch.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\selectpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\spymaster.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\synonympostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\valuegepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\valuerangepostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\valuestreamdocument.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\wrapperpostlist.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\progclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\remoteconnection.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\remoteprotocol.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\remoteserver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\remotetcpclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\replicatetcpclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\replicatetcpserver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\resolver.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\serialise-error.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\serialise.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\tcpclient.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\tcpserver.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\cjk-tokenizer.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\queryparser_internal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\queryparser\termgenerator_internal.h" />
     <ClInclude Include="..\OSF\xapian\xapian-core\unicode\description_append.h" />
-    <ClInclude Include="..\OSF\xapian\xapian-core\weight\weightinternal.h" />
+    <ClInclude Include="..\OSF\xapian\xapian-core\src\weightinternal.h" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="..\OSF\xapian\xapian-core\languages\arabic.sbl">

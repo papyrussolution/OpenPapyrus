@@ -129,14 +129,14 @@ enum mariadb_row_event_type {
 
 /* Global transaction id */
 typedef struct st_mariadb_gtid {
-  unsigned int domain_id;
-  unsigned int server_id;
+  uint domain_id;
+  uint server_id;
   uint64 sequence_nr;
 } MARIADB_GTID;
 
 /* Generic replication handle */
 typedef struct st_mariadb_rpl {
-  unsigned int version;
+  uint version;
   MYSQL *mysql;
   char *filename;
   uint32_t filename_length;
@@ -200,7 +200,7 @@ struct st_mariadb_rpl_table_map_event {
   uint64 table_id;
   MARIADB_STRING database;
   MARIADB_STRING table;
-  unsigned int column_count;
+  uint column_count;
   MARIADB_STRING column_types;
   MARIADB_STRING metadata;
   char *null_indicator;
@@ -213,7 +213,7 @@ struct st_mariadb_rpl_rand_event {
 
 struct st_mariadb_rpl_encryption_event {
   char scheme;
-  unsigned int key_version;
+  uint key_version;
   char *nonce;
 };
 
@@ -253,13 +253,13 @@ typedef struct st_mariadb_rpl_event
 {
   /* common header */
   MA_MEM_ROOT memroot;
-  unsigned int checksum;
+  uint checksum;
   char ok;
   enum mariadb_rpl_event event_type;
-  unsigned int timestamp;
-  unsigned int server_id;
-  unsigned int event_length;
-  unsigned int next_event_pos;
+  uint timestamp;
+  uint server_id;
+  uint event_length;
+  uint next_event_pos;
   unsigned short flags;
   /****************/
   union {
@@ -284,7 +284,7 @@ typedef struct st_mariadb_rpl_event
 #define mariadb_rpl_init(a) mariadb_rpl_init_ex((a), MARIADB_RPL_VERSION)
 
 /* Function prototypes */
-MARIADB_RPL * STDCALL mariadb_rpl_init_ex(MYSQL *mysql, unsigned int version);
+MARIADB_RPL * STDCALL mariadb_rpl_init_ex(MYSQL *mysql, uint version);
 
 int mariadb_rpl_optionsv(MARIADB_RPL *rpl, enum mariadb_rpl_option, ...);
 int mariadb_rpl_get_optionsv(MARIADB_RPL *rpl, enum mariadb_rpl_option, ...);

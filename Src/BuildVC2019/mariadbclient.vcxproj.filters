@@ -41,97 +41,97 @@
     <ClCompile Include="..\OSF\mariadb-connector-c\libmariadb\win32_errmsg.c" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
+    <Filter Include="Header">
       <UniqueIdentifier>{0767AC0A-B834-3F8C-A0DA-E6BC0FEB12CD}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Include\mariadb\errmsg.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_common.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_context.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_crypt.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_global.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_hash.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_list.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_priv.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_pthread.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_pvio.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_server_error.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_sha1.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_string.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_sys.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\ma_tls.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_async.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_com.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_ctype.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_dyncol.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_rpl.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_stmt.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mariadb_version.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\my_config.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\my_global.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\my_sys.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mysql.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mysql_com.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mysql_version.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\Include\mariadb\mysqld_error.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

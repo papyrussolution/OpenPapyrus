@@ -59,7 +59,7 @@ struct my_context {
 	ucontext_t spawned_context;
 	int active;
 #ifdef HAVE_VALGRIND
-	unsigned int valgrind_stack_id;
+	uint valgrind_stack_id;
 #endif
 #ifndef DBUG_OFF
 	void * dbug_state;
@@ -76,7 +76,7 @@ struct my_context {
 	void * stack_top;
 	void * stack_bot;
 #ifdef HAVE_VALGRIND
-	unsigned int valgrind_stack_id;
+	uint valgrind_stack_id;
 #endif
 #ifndef DBUG_OFF
 	void * dbug_state;
@@ -93,7 +93,7 @@ struct my_context {
 	void * stack_top;
 	void * stack_bot;
 #ifdef HAVE_VALGRIND
-	unsigned int valgrind_stack_id;
+	uint valgrind_stack_id;
 #endif
 #ifndef DBUG_OFF
 	void * dbug_state;
@@ -169,13 +169,13 @@ struct mysql_async_context {
 	   This is set to the value that should be returned from foo_start() or
 	   foo_cont() when a call is suspended.
 	 */
-	unsigned int events_to_wait_for;
+	uint events_to_wait_for;
 	/*
 	   It is also set to the event(s) that triggered when a suspended call is
 	   resumed, eg. whether we woke up due to connection completed or timeout
 	   in mysql_real_connect_cont().
 	 */
-	unsigned int events_occured;
+	uint events_occured;
 	/*
 	   This is set to the result of the whole asynchronous operation when it
 	   completes. It uses a union, as different calls have different return
@@ -192,7 +192,7 @@ struct mysql_async_context {
 	   The timeout value (in millisecods), for suspended calls that need to wake
 	   up on a timeout (eg. mysql_real_connect_start().
 	 */
-	unsigned int timeout_value;
+	uint timeout_value;
 	/*
 	   This flag is set when we are executing inside some asynchronous call
 	   foo_start() or foo_cont(). It is used to decide whether to use the

@@ -87,7 +87,7 @@ static int mysql_local_infile_init(void ** ptr, const char * filename, void * us
 
 /* {{{ mysql_local_infile_read */
 static
-int mysql_local_infile_read(void * ptr, char * buf, unsigned int buf_len)
+int mysql_local_infile_read(void * ptr, char * buf, uint buf_len)
 {
 	MYSQL_INFILE_INFO * info = (MYSQL_INFILE_INFO*)ptr;
 	size_t count;
@@ -106,7 +106,7 @@ int mysql_local_infile_read(void * ptr, char * buf, unsigned int buf_len)
 
 /* {{{ mysql_local_infile_error */
 static
-int mysql_local_infile_error(void * ptr, char * error_buf, unsigned int error_buf_len)
+int mysql_local_infile_error(void * ptr, char * error_buf, uint error_buf_len)
 {
 	MYSQL_INFILE_INFO * info = (MYSQL_INFILE_INFO*)ptr;
 
@@ -170,7 +170,7 @@ void STDCALL mysql_set_local_infile_handler(MYSQL * conn,
 /* {{{ mysql_handle_local_infile */
 bool mysql_handle_local_infile(MYSQL * conn, const char * filename, bool can_local_infile)
 {
-	unsigned int buflen = 4096;
+	uint buflen = 4096;
 	int bufread;
 	uchar * buf = NULL;
 	void * info = NULL;

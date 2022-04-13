@@ -104,32 +104,32 @@
 //#endif
 // 32-bit base type
 #if(UINT_MAX == 4294967295U)
-	typedef unsigned int cmsUInt32Number;
+	// @sobolev typedef unsigned int cmsUInt32Number_Removed;
 #elif (ULONG_MAX == 4294967295U)
-	typedef unsigned long cmsUInt32Number;
+	// @sobolev typedef unsigned long cmsUInt32Number_Removed;
 #else
 	#error "Unable to find 32 bit unsigned type, unsupported compiler"
 #endif
 #if(INT_MAX == +2147483647)
-	typedef  int cmsInt32Number;
+	// @sobolev typedef  int cmsInt32Number_Removed;
 #elif (LONG_MAX == +2147483647)
-	typedef  long cmsInt32Number;
+	// @sobolev typedef  long cmsInt32Number_Removed;
 #else
 	#error "Unable to find 32 bit signed type, unsupported compiler"
 #endif
 // 64-bit base types
 #ifndef CMS_DONT_USE_INT64
 	#if(ULONG_MAX  == 18446744073709551615U)
-		typedef unsigned long cmsUInt64Number;
+		// @sobolev typedef unsigned long cmsUInt64Number_Removed;
 	#elif (ULLONG_MAX == 18446744073709551615U)
-		typedef unsigned long long cmsUInt64Number;
+		// @sobolev typedef unsigned long long cmsUInt64Number_Removed;
 	#else
 		#define CMS_DONT_USE_INT64 1
 	#endif
 	#if(LONG_MAX == +9223372036854775807)
-		typedef  long cmsInt64Number;
+		// @sobolev typedef  long cmsInt64Number_Removed;
 	#elif (LLONG_MAX == +9223372036854775807)
-		typedef  long long cmsInt64Number;
+		// @sobolev typedef  long long cmsInt64Number_Removed;
 	#else
 		#define CMS_DONT_USE_INT64 1
 	#endif
@@ -143,15 +143,15 @@
 //#endif
 // In the case 64 bit numbers are not supported by the compiler
 #ifdef CMS_DONT_USE_INT64
-	typedef cmsUInt32Number cmsUInt64Number[2];
-	typedef cmsInt32Number cmsInt64Number[2];
+	typedef uint32 uint64[2];
+	typedef int32 int64[2];
 #endif
 
 // Derivative types
-typedef cmsUInt32Number cmsSignature;
+typedef uint32 cmsSignature;
 typedef uint16 cmsU8Fixed8Number;
-typedef cmsInt32Number cmsS15Fixed16Number;
-typedef cmsUInt32Number cmsU16Fixed16Number;
+typedef int32 cmsS15Fixed16Number;
+typedef uint32 cmsU16Fixed16Number;
 // @sobolev typedef int cmsBool_Removed; // Boolean type, which will be using the native integer
 
 // Try to detect windows
@@ -531,8 +531,8 @@ typedef enum {
 
 // Common structures in ICC tags
 typedef struct {
-	cmsUInt32Number len;
-	cmsUInt32Number flag;
+	uint32 len;
+	uint32 flag;
 	uint8 data[1];
 } cmsICCData;
 
@@ -557,7 +557,7 @@ typedef struct {
 typedef union {
 	uint8 ID8[16];
 	uint16 ID16[8];
-	cmsUInt32Number ID32[4];
+	uint32 ID32[4];
 } cmsProfileID;
 
 // ----------------------------------------------------------------------------------------------
@@ -566,20 +566,20 @@ typedef union {
 
 // Profile header -- it is 32-bit aligned, so no issues are expected on alignment
 typedef struct {
-	cmsUInt32Number size;                    // Profile size in bytes
+	uint32 size;                    // Profile size in bytes
 	cmsSignature cmmId;                      // CMM for this profile
-	cmsUInt32Number version;                 // Format version number
+	uint32 version;                 // Format version number
 	cmsProfileClassSignature deviceClass;    // Type of profile
 	cmsColorSpaceSignature colorSpace;       // Color space of data
 	cmsColorSpaceSignature pcs;              // PCS, XYZ or Lab only
 	cmsDateTimeNumber date;                  // Date profile was created
 	cmsSignature magic;                      // Magic Number to identify an ICC profile
 	cmsPlatformSignature platform;           // Primary Platform
-	cmsUInt32Number flags;                   // Various bit settings
+	uint32 flags;                   // Various bit settings
 	cmsSignature manufacturer;               // Device manufacturer
-	cmsUInt32Number model;                   // Device model number
-	cmsUInt64Number attributes;              // Device attributes
-	cmsUInt32Number renderingIntent;         // Rendering intent
+	uint32 model;                   // Device model number
+	uint64 attributes;              // Device attributes
+	uint32 renderingIntent;         // Rendering intent
 	cmsEncodedXYZNumber illuminant;          // Profile illuminant
 	cmsSignature creator;                    // Profile creator
 	cmsProfileID profileID;                  // Profile ID using MD5
@@ -595,8 +595,8 @@ typedef struct {
 // A tag entry in directory
 typedef struct {
 	cmsTagSignature sig;             // The tag signature
-	cmsUInt32Number offset;          // Start of tag
-	cmsUInt32Number size;            // Size in bytes
+	uint32 offset;          // Start of tag
+	uint32 size;            // Size in bytes
 } cmsTagEntry;
 
 // ----------------------------------------------------------------------------------------------
@@ -609,7 +609,7 @@ typedef void * cmsHTRANSFORM;
 
 #define cmsMAXCHANNELS  16                // Maximum number of channels in ICC profiles
 
-// Format of pixel is defined by one cmsUInt32Number, using bit fields as follows
+// Format of pixel is defined by one uint32, using bit fields as follows
 //
 //                               2                1          0
 //                          3 2 10987 6 5 4 3 2 1 098 7654 321
@@ -944,17 +944,17 @@ typedef struct {
 #define cmsILLUMINANT_TYPE_F8      0x0000008
 
 typedef struct {
-	cmsUInt32Number Observer;     // 0 = unknown, 1=CIE 1931, 2=CIE 1964
+	uint32 Observer;     // 0 = unknown, 1=CIE 1931, 2=CIE 1964
 	cmsCIEXYZ Backing;            // Value of backing
-	cmsUInt32Number Geometry;     // 0=unknown, 1=45/0, 0/45 2=0d, d/0
+	uint32 Geometry;     // 0=unknown, 1=45/0, 0/45 2=0d, d/0
 	double Flare;       // 0..1.0
-	cmsUInt32Number IlluminantType;
+	uint32 IlluminantType;
 } cmsICCMeasurementConditions;
 
 typedef struct {
 	cmsCIEXYZ IlluminantXYZ;         // Not the same struct as CAM02,
 	cmsCIEXYZ SurroundXYZ;           // This is for storing the tag
-	cmsUInt32Number IlluminantType;  // viewing condition
+	uint32 IlluminantType;  // viewing condition
 } cmsICCViewingConditions;
 
 // Get LittleCMS version (for shared objects)
@@ -1022,7 +1022,7 @@ CMSAPI void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID);
 // chance to know which thread is responsible of the warning and any environment associated
 // with it. Non-multithreading applications may safely ignore this parameter.
 // Note that under certain special circumstances, ContextID may be NULL.
-typedef void (* cmsLogErrorHandlerFunction)(cmsContext ContextID, cmsUInt32Number ErrorCode, const char * Text);
+typedef void (* cmsLogErrorHandlerFunction)(cmsContext ContextID, uint32 ErrorCode, const char * Text);
 
 // Allows user to set any specific logger
 CMSAPI void CMSEXPORT cmsSetLogErrorHandler(cmsLogErrorHandlerFunction Fn);
@@ -1084,7 +1084,7 @@ typedef struct {
 	cmsCIEXYZ whitePoint;
 	double Yb;
 	double La;
-	cmsUInt32Number surround;
+	uint32 surround;
 	double D_value;
 } cmsViewingConditions;
 
@@ -1100,27 +1100,27 @@ CMSAPI void CMSEXPORT cmsCIECAM02Reverse(cmsHANDLE hModel, const cmsJCh* pIn,   
 
 typedef struct {
 	float x0, x1;         // Domain; for x0 < x <= x1
-	cmsInt32Number Type;             // Parametric type, Type == 0 means sampled segment. Negative values are
+	int32 Type;             // Parametric type, Type == 0 means sampled segment. Negative values are
 	                                 // reserved
 	double Params[10];     // Parameters if Type != 0
-	cmsUInt32Number nGridPoints;     // Number of grid points if Type == 0
+	uint32 nGridPoints;     // Number of grid points if Type == 0
 	float*  SampledPoints;// Points to an array of floats if Type == 0
 } cmsCurveSegment;
 
 // The internal representation is none of your business.
 typedef struct _cms_curve_struct cmsToneCurve;
 
-CMSAPI cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID, cmsUInt32Number nSegments, const cmsCurveSegment Segments[]);
-CMSAPI cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, cmsInt32Number Type, const double Params[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildSegmentedToneCurve(cmsContext ContextID, uint32 nSegments, const cmsCurveSegment Segments[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildParametricToneCurve(cmsContext ContextID, int32 Type, const double Params[]);
 CMSAPI cmsToneCurve * CMSEXPORT cmsBuildGamma(cmsContext ContextID, double Gamma);
-CMSAPI cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, cmsUInt32Number nEntries, const uint16 values[]);
-CMSAPI cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, cmsUInt32Number nEntries, const float values[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurve16(cmsContext ContextID, uint32 nEntries, const uint16 values[]);
+CMSAPI cmsToneCurve * CMSEXPORT cmsBuildTabulatedToneCurveFloat(cmsContext ContextID, uint32 nEntries, const float values[]);
 CMSAPI void CMSEXPORT cmsFreeToneCurve(cmsToneCurve * Curve);
 CMSAPI void CMSEXPORT cmsFreeToneCurveTriple(cmsToneCurve * Curve[3]);
 CMSAPI cmsToneCurve * CMSEXPORT cmsDupToneCurve(const cmsToneCurve * Src);
 CMSAPI cmsToneCurve * CMSEXPORT cmsReverseToneCurve(const cmsToneCurve * InGamma);
-CMSAPI cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(cmsUInt32Number nResultSamples, const cmsToneCurve * InGamma);
-CMSAPI cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCurve * X, const cmsToneCurve * Y, cmsUInt32Number nPoints);
+CMSAPI cmsToneCurve * CMSEXPORT cmsReverseToneCurveEx(uint32 nResultSamples, const cmsToneCurve * InGamma);
+CMSAPI cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCurve * X, const cmsToneCurve * Y, uint32 nPoints);
 CMSAPI boolint CMSEXPORT cmsSmoothToneCurve(cmsToneCurve * Tab, double lambda);
 CMSAPI float CMSEXPORT cmsEvalToneCurveFloat(const cmsToneCurve * Curve, float v);
 CMSAPI uint16 CMSEXPORT cmsEvalToneCurve16(const cmsToneCurve * Curve, uint16 v);
@@ -1128,12 +1128,12 @@ CMSAPI boolint CMSEXPORT cmsIsToneCurveMultisegment(const cmsToneCurve * InGamma
 CMSAPI boolint CMSEXPORT cmsIsToneCurveLinear(const cmsToneCurve * Curve);
 CMSAPI boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t);
 CMSAPI boolint CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve * t);
-CMSAPI cmsInt32Number CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t);
+CMSAPI int32 CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t);
 CMSAPI double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision);
 CMSAPI double * CMSEXPORT cmsGetToneCurveParams(const cmsToneCurve * t);
 
 // Tone curve tabular estimation
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t);
+CMSAPI uint32 CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t);
 CMSAPI const uint16* CMSEXPORT cmsGetToneCurveEstimatedTable(const cmsToneCurve * t);
 
 // Implements pipelines of multi-processing elements -------------------------------------------------------------
@@ -1143,13 +1143,13 @@ typedef struct _cmsPipeline_struct cmsPipeline;
 typedef struct _cmsStage_struct cmsStage;
 
 // Those are hi-level pipelines
-CMSAPI cmsPipeline * CMSEXPORT cmsPipelineAlloc(cmsContext ContextID, cmsUInt32Number InputChannels, cmsUInt32Number OutputChannels);
+CMSAPI cmsPipeline * CMSEXPORT cmsPipelineAlloc(cmsContext ContextID, uint32 InputChannels, uint32 OutputChannels);
 CMSAPI void CMSEXPORT cmsPipelineFree(cmsPipeline * lut);
 CMSAPI cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * Orig);
 CMSAPI cmsContext CMSEXPORT cmsGetPipelineContextID(const cmsPipeline * lut);
-CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineInputChannels(const cmsPipeline * lut);
-CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineOutputChannels(const cmsPipeline * lut);
-CMSAPI cmsUInt32Number CMSEXPORT cmsPipelineStageCount(const cmsPipeline * lut);
+CMSAPI uint32 CMSEXPORT cmsPipelineInputChannels(const cmsPipeline * lut);
+CMSAPI uint32 CMSEXPORT cmsPipelineOutputChannels(const cmsPipeline * lut);
+CMSAPI uint32 CMSEXPORT cmsPipelineStageCount(const cmsPipeline * lut);
 CMSAPI cmsStage * CMSEXPORT cmsPipelineGetPtrToFirstStage(const cmsPipeline * lut);
 CMSAPI cmsStage * CMSEXPORT cmsPipelineGetPtrToLastStage(const cmsPipeline * lut);
 CMSAPI void CMSEXPORT cmsPipelineEval16(const uint16 In[], uint16 Out[], const cmsPipeline * lut);
@@ -1169,39 +1169,39 @@ CMSAPI void CMSEXPORT cmsPipelineUnlinkStage(cmsPipeline * lut, cmsStageLoc loc,
 // then a list of expected types followed with a list of double pointers to Stage elements. If
 // the function founds a match with current pipeline, it fills the pointers and returns TRUE
 // if not, returns FALSE without touching anything.
-CMSAPI boolint CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline * Lut, cmsUInt32Number n, ...);
+CMSAPI boolint CMSEXPORT cmsPipelineCheckAndRetreiveStages(const cmsPipeline * Lut, uint32 n, ...);
 
 // Matrix has double precision and CLUT has only float precision. That is because an ICC profile can encode
 // matrices with far more precision that CLUTS
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocIdentity(cmsContext ContextID, cmsUInt32Number nChannels);
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, cmsUInt32Number nChannels, cmsToneCurve * const Curves[]);
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID, cmsUInt32Number Rows, cmsUInt32Number Cols, const double * Matrix, const double * Offset);
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bit(cmsContext ContextID, cmsUInt32Number nGridPoints, cmsUInt32Number inputChan, cmsUInt32Number outputChan, const uint16* Table);
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloat(cmsContext ContextID, cmsUInt32Number nGridPoints, cmsUInt32Number inputChan, cmsUInt32Number outputChan, const float* Table);
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID, const cmsUInt32Number clutPoints[],
-    cmsUInt32Number inputChan, cmsUInt32Number outputChan, const uint16* Table);
-CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID, const cmsUInt32Number clutPoints[],
-    cmsUInt32Number inputChan, cmsUInt32Number outputChan, const float* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocIdentity(cmsContext ContextID, uint32 nChannels);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocToneCurves(cmsContext ContextID, uint32 nChannels, cmsToneCurve * const Curves[]);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocMatrix(cmsContext ContextID, uint32 Rows, uint32 Cols, const double * Matrix, const double * Offset);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bit(cmsContext ContextID, uint32 nGridPoints, uint32 inputChan, uint32 outputChan, const uint16* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloat(cmsContext ContextID, uint32 nGridPoints, uint32 inputChan, uint32 outputChan, const float* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID, const uint32 clutPoints[],
+    uint32 inputChan, uint32 outputChan, const uint16* Table);
+CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID, const uint32 clutPoints[],
+    uint32 inputChan, uint32 outputChan, const float* Table);
 CMSAPI cmsStage * CMSEXPORT cmsStageDup(cmsStage * mpe);
 CMSAPI void CMSEXPORT cmsStageFree(cmsStage * mpe);
 CMSAPI cmsStage * CMSEXPORT cmsStageNext(const cmsStage * mpe);
-CMSAPI cmsUInt32Number CMSEXPORT cmsStageInputChannels(const cmsStage * mpe);
-CMSAPI cmsUInt32Number CMSEXPORT cmsStageOutputChannels(const cmsStage * mpe);
+CMSAPI uint32 CMSEXPORT cmsStageInputChannels(const cmsStage * mpe);
+CMSAPI uint32 CMSEXPORT cmsStageOutputChannels(const cmsStage * mpe);
 CMSAPI cmsStageSignature CMSEXPORT cmsStageType(const cmsStage * mpe);
 CMSAPI void * CMSEXPORT cmsStageData(const cmsStage * mpe);
 
 // Sampling
-typedef cmsInt32Number (* cmsSAMPLER16)   (const uint16 In[], uint16 Out[], void * Cargo);
-typedef cmsInt32Number (* cmsSAMPLERFLOAT)(const float In[], float Out[], void * Cargo);
+typedef int (* cmsSAMPLER16)(const uint16 In[], uint16 Out[], void * Cargo);
+typedef int (* cmsSAMPLERFLOAT)(const float In[], float Out[], void * Cargo);
 
 // Use this flag to prevent changes being written to destination
 #define SAMPLER_INSPECT     0x01000000
 // For CLUT only
-CMSAPI boolint CMSEXPORT cmsStageSampleCLut16bit(cmsStage * mpe,    cmsSAMPLER16 Sampler, void * Cargo, cmsUInt32Number dwFlags);
-CMSAPI boolint CMSEXPORT cmsStageSampleCLutFloat(cmsStage * mpe, cmsSAMPLERFLOAT Sampler, void * Cargo, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsStageSampleCLut16bit(cmsStage * mpe, cmsSAMPLER16 Sampler, void * Cargo, uint32 dwFlags);
+CMSAPI boolint CMSEXPORT cmsStageSampleCLutFloat(cmsStage * mpe, cmsSAMPLERFLOAT Sampler, void * Cargo, uint32 dwFlags);
 // Slicers
-CMSAPI boolint CMSEXPORT cmsSliceSpace16(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[], cmsSAMPLER16 Sampler, void * Cargo);
-CMSAPI boolint CMSEXPORT cmsSliceSpaceFloat(cmsUInt32Number nInputs, const cmsUInt32Number clutPoints[], cmsSAMPLERFLOAT Sampler, void * Cargo);
+CMSAPI boolint CMSEXPORT cmsSliceSpace16(uint32 nInputs, const uint32 clutPoints[], cmsSAMPLER16 Sampler, void * Cargo);
+CMSAPI boolint CMSEXPORT cmsSliceSpaceFloat(uint32 nInputs, const uint32 clutPoints[], cmsSAMPLERFLOAT Sampler, void * Cargo);
 
 // Multilocalized Unicode management
 // ---------------------------------------------------------------------------------------
@@ -1211,16 +1211,16 @@ typedef struct _cms_MLU_struct cmsMLU;
 #define  cmsNoLanguage "\0\0"
 #define  cmsNoCountry  "\0\0"
 
-CMSAPI cmsMLU*           CMSEXPORT cmsMLUalloc(cmsContext ContextID, cmsUInt32Number nItems);
+CMSAPI cmsMLU*           CMSEXPORT cmsMLUalloc(cmsContext ContextID, uint32 nItems);
 CMSAPI void CMSEXPORT cmsMLUfree(cmsMLU* mlu);
 CMSAPI cmsMLU*           CMSEXPORT cmsMLUdup(const cmsMLU* mlu);
 CMSAPI boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString);
 CMSAPI boolint CMSEXPORT cmsMLUsetWide(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const wchar_t * WideString);
-CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char * Buffer,    cmsUInt32Number BufferSize);
-CMSAPI cmsUInt32Number CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, cmsUInt32Number BufferSize);
+CMSAPI uint32 CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char * Buffer,    uint32 BufferSize);
+CMSAPI uint32 CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize);
 CMSAPI boolint CMSEXPORT cmsMLUgetTranslation(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char ObtainedLanguage[3], char ObtainedCountry[3]);
-CMSAPI cmsUInt32Number CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu);
-CMSAPI boolint CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu, cmsUInt32Number idx, char LanguageCode[3], char CountryCode[3]);
+CMSAPI uint32 CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu);
+CMSAPI boolint CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu, uint32 idx, char LanguageCode[3], char CountryCode[3]);
 
 // Undercolorremoval & black generation
 // -------------------------------------------------------------------------------------
@@ -1250,12 +1250,12 @@ typedef struct {
 typedef struct {
 	double Frequency;
 	double ScreenAngle;
-	cmsUInt32Number SpotShape;
+	uint32 SpotShape;
 } cmsScreeningChannel;
 
 typedef struct {
-	cmsUInt32Number Flag;
-	cmsUInt32Number nChannels;
+	uint32 Flag;
+	uint32 nChannels;
 	cmsScreeningChannel Channels[cmsMAXCHANNELS];
 } cmsScreening;
 
@@ -1265,8 +1265,8 @@ typedef struct {
 typedef struct _cms_NAMEDCOLORLIST_struct cmsNAMEDCOLORLIST;
 
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
-    cmsUInt32Number n,
-    cmsUInt32Number ColorantCount,
+    uint32 n,
+    uint32 ColorantCount,
     const char * Prefix, const char * Suffix);
 
 CMSAPI void CMSEXPORT cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
@@ -1275,10 +1275,10 @@ CMSAPI boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * 
     uint16 PCS[3],
     uint16 Colorant[cmsMAXCHANNELS]);
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* v);
-CMSAPI cmsInt32Number CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char * Name);
+CMSAPI uint32 CMSEXPORT cmsNamedColorCount(const cmsNAMEDCOLORLIST* v);
+CMSAPI int32 CMSEXPORT cmsNamedColorIndex(const cmsNAMEDCOLORLIST* v, const char * Name);
 
-CMSAPI boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, cmsUInt32Number nColor,
+CMSAPI boolint CMSEXPORT cmsNamedColorInfo(const cmsNAMEDCOLORLIST* NamedColorList, uint32 nColor,
     char * Name,
     char * Prefix,
     char * Suffix,
@@ -1296,7 +1296,7 @@ CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsGetNamedColorList(cmsHTRANSFORM xform);
 typedef struct {
 	cmsSignature deviceMfg;
 	cmsSignature deviceModel;
-	cmsUInt64Number attributes;
+	uint64 attributes;
 	cmsTechnologySignature technology;
 	cmsProfileID ProfileID;
 	cmsMLU*                Manufacturer;
@@ -1305,12 +1305,12 @@ typedef struct {
 } cmsPSEQDESC;
 
 typedef struct {
-	cmsUInt32Number n;
+	uint32 n;
 	cmsContext ContextID;
 	cmsPSEQDESC*    seq;
 } cmsSEQ;
 
-CMSAPI cmsSEQ*           CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, cmsUInt32Number n);
+CMSAPI cmsSEQ*           CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, uint32 n);
 CMSAPI cmsSEQ*           CMSEXPORT cmsDupProfileSequenceDescription(const cmsSEQ* pseq);
 CMSAPI void CMSEXPORT cmsFreeProfileSequenceDescription(cmsSEQ* pseq);
 
@@ -1341,8 +1341,8 @@ CMSAPI const cmsDICTentry* CMSEXPORT cmsDictNextEntry(const cmsDICTentry* e);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateProfilePlaceholder(cmsContext ContextID);
 
 CMSAPI cmsContext CMSEXPORT cmsGetProfileContextID(cmsHPROFILE hProfile);
-CMSAPI cmsInt32Number CMSEXPORT cmsGetTagCount(cmsHPROFILE hProfile);
-CMSAPI cmsTagSignature CMSEXPORT cmsGetTagSignature(cmsHPROFILE hProfile, cmsUInt32Number n);
+CMSAPI int32 CMSEXPORT cmsGetTagCount(cmsHPROFILE hProfile);
+CMSAPI cmsTagSignature CMSEXPORT cmsGetTagSignature(cmsHPROFILE hProfile, uint32 n);
 CMSAPI boolint CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write pre-formatted data
@@ -1352,8 +1352,8 @@ CMSAPI boolint CMSEXPORT cmsLinkTag(cmsHPROFILE hProfile, cmsTagSignature sig, c
 CMSAPI cmsTagSignature CMSEXPORT cmsTagLinkedTo(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write raw data
-CMSAPI cmsUInt32Number CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void * Buffer, cmsUInt32Number BufferSize);
-CMSAPI boolint CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data, cmsUInt32Number Size);
+CMSAPI uint32 CMSEXPORT cmsReadRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, void * Buffer, uint32 BufferSize);
+CMSAPI boolint CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data, uint32 Size);
 
 // Access header data
 #define cmsEmbeddedProfileFalse    0x00000000
@@ -1361,21 +1361,21 @@ CMSAPI boolint CMSEXPORT cmsWriteRawTag(cmsHPROFILE hProfile, cmsTagSignature si
 #define cmsUseAnywhere             0x00000000
 #define cmsUseWithEmbeddedDataOnly 0x00000002
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderFlags(cmsHPROFILE hProfile);
-CMSAPI void CMSEXPORT cmsGetHeaderAttributes(cmsHPROFILE hProfile, cmsUInt64Number* Flags);
+CMSAPI uint32 CMSEXPORT cmsGetHeaderFlags(cmsHPROFILE hProfile);
+CMSAPI void CMSEXPORT cmsGetHeaderAttributes(cmsHPROFILE hProfile, uint64* Flags);
 CMSAPI void CMSEXPORT cmsGetHeaderProfileID(cmsHPROFILE hProfile, uint8 * ProfileID);
 CMSAPI boolint CMSEXPORT cmsGetHeaderCreationDateTime(cmsHPROFILE hProfile, struct tm * Dest);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderRenderingIntent(cmsHPROFILE hProfile);
+CMSAPI uint32 CMSEXPORT cmsGetHeaderRenderingIntent(cmsHPROFILE hProfile);
 
-CMSAPI void CMSEXPORT cmsSetHeaderFlags(cmsHPROFILE hProfile, cmsUInt32Number Flags);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderManufacturer(cmsHPROFILE hProfile);
-CMSAPI void CMSEXPORT cmsSetHeaderManufacturer(cmsHPROFILE hProfile, cmsUInt32Number manufacturer);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderCreator(cmsHPROFILE hProfile);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetHeaderModel(cmsHPROFILE hProfile);
-CMSAPI void CMSEXPORT cmsSetHeaderModel(cmsHPROFILE hProfile, cmsUInt32Number model);
-CMSAPI void CMSEXPORT cmsSetHeaderAttributes(cmsHPROFILE hProfile, cmsUInt64Number Flags);
+CMSAPI void CMSEXPORT cmsSetHeaderFlags(cmsHPROFILE hProfile, uint32 Flags);
+CMSAPI uint32 CMSEXPORT cmsGetHeaderManufacturer(cmsHPROFILE hProfile);
+CMSAPI void CMSEXPORT cmsSetHeaderManufacturer(cmsHPROFILE hProfile, uint32 manufacturer);
+CMSAPI uint32 CMSEXPORT cmsGetHeaderCreator(cmsHPROFILE hProfile);
+CMSAPI uint32 CMSEXPORT cmsGetHeaderModel(cmsHPROFILE hProfile);
+CMSAPI void CMSEXPORT cmsSetHeaderModel(cmsHPROFILE hProfile, uint32 model);
+CMSAPI void CMSEXPORT cmsSetHeaderAttributes(cmsHPROFILE hProfile, uint64 Flags);
 CMSAPI void CMSEXPORT cmsSetHeaderProfileID(cmsHPROFILE hProfile, uint8 * ProfileID);
-CMSAPI void CMSEXPORT cmsSetHeaderRenderingIntent(cmsHPROFILE hProfile, cmsUInt32Number RenderingIntent);
+CMSAPI void CMSEXPORT cmsSetHeaderRenderingIntent(cmsHPROFILE hProfile, uint32 RenderingIntent);
 
 CMSAPI cmsColorSpaceSignature
 CMSEXPORT cmsGetPCS(cmsHPROFILE hProfile);
@@ -1389,27 +1389,27 @@ CMSAPI void CMSEXPORT cmsSetDeviceClass(cmsHPROFILE hProfile, cmsProfileClassSig
 CMSAPI void CMSEXPORT cmsSetProfileVersion(cmsHPROFILE hProfile, double Version);
 CMSAPI double CMSEXPORT cmsGetProfileVersion(cmsHPROFILE hProfile);
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetEncodedICCversion(cmsHPROFILE hProfile);
-CMSAPI void CMSEXPORT cmsSetEncodedICCversion(cmsHPROFILE hProfile, cmsUInt32Number Version);
+CMSAPI uint32 CMSEXPORT cmsGetEncodedICCversion(cmsHPROFILE hProfile);
+CMSAPI void CMSEXPORT cmsSetEncodedICCversion(cmsHPROFILE hProfile, uint32 Version);
 
 // How profiles may be used
 #define LCMS_USED_AS_INPUT      0
 #define LCMS_USED_AS_OUTPUT     1
 #define LCMS_USED_AS_PROOF      2
 
-CMSAPI boolint CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection);
+CMSAPI boolint CMSEXPORT cmsIsIntentSupported(cmsHPROFILE hProfile, uint32 Intent, uint32 UsedDirection);
 CMSAPI boolint CMSEXPORT cmsIsMatrixShaper(cmsHPROFILE hProfile);
-CMSAPI boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number UsedDirection);
+CMSAPI boolint CMSEXPORT cmsIsCLUT(cmsHPROFILE hProfile, uint32 Intent, uint32 UsedDirection);
 
 // Translate form/to our notation to ICC
 CMSAPI cmsColorSpaceSignature CMSEXPORT _cmsICCcolorSpace(int OurNotation);
 CMSAPI int CMSEXPORT _cmsLCMScolorSpace(cmsColorSpaceSignature ProfileSpace);
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace);
+CMSAPI uint32 CMSEXPORT cmsChannelsOf(cmsColorSpaceSignature ColorSpace);
 
 // Build a suitable formatter for the colorspace of this profile. nBytes=1 means 8 bits, nBytes=2 means 16 bits.
-CMSAPI cmsUInt32Number CMSEXPORT cmsFormatterForColorspaceOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, boolint lIsFloat);
-CMSAPI cmsUInt32Number CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, cmsUInt32Number nBytes, boolint lIsFloat);
+CMSAPI uint32 CMSEXPORT cmsFormatterForColorspaceOfProfile(cmsHPROFILE hProfile, uint32 nBytes, boolint lIsFloat);
+CMSAPI uint32 CMSEXPORT cmsFormatterForPCSOfProfile(cmsHPROFILE hProfile, uint32 nBytes, boolint lIsFloat);
 
 // Localized info
 typedef enum {
@@ -1419,13 +1419,13 @@ typedef enum {
 	cmsInfoCopyright    = 3
 } cmsInfoType;
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
+CMSAPI uint32 CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
     const char LanguageCode[3], const char CountryCode[3],
-    wchar_t * Buffer, cmsUInt32Number BufferSize);
+    wchar_t * Buffer, uint32 BufferSize);
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
+CMSAPI uint32 CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
     const char LanguageCode[3], const char CountryCode[3],
-    char * Buffer, cmsUInt32Number BufferSize);
+    char * Buffer, uint32 BufferSize);
 
 // IO handlers
 // ----------------------------------------------------------------------------------------------------------
@@ -1434,7 +1434,7 @@ typedef struct _cms_io_handler cmsIOHANDLER;
 
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char * FileName, const char * AccessMode);
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromStream(cmsContext ContextID, FILE* Stream);
-CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, cmsUInt32Number size,
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, uint32 size,
     const char * AccessMode);
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID);
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile);
@@ -1451,16 +1451,16 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromFile(const char * ICCProfile, con
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromFileTHR(cmsContext ContextID, const char * ICCProfile, const char * sAccess);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStream(FILE* ICCProfile, const char * sAccess);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromStreamTHR(cmsContext ContextID, FILE* ICCProfile, const char * sAccess);
-CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMem(const void * MemPtr, cmsUInt32Number dwSize);
-CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void * MemPtr, cmsUInt32Number dwSize);
+CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMem(const void * MemPtr, uint32 dwSize);
+CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromMemTHR(cmsContext ContextID, const void * MemPtr, uint32 dwSize);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandlerTHR(cmsContext ContextID, cmsIOHANDLER* io);
 CMSAPI cmsHPROFILE CMSEXPORT cmsOpenProfileFromIOhandler2THR(cmsContext ContextID, cmsIOHANDLER* io, boolint write);
 CMSAPI boolint CMSEXPORT cmsCloseProfile(cmsHPROFILE hProfile);
 
 CMSAPI boolint CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char * FileName);
 CMSAPI boolint CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream);
-CMSAPI boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, cmsUInt32Number* BytesNeeded);
-CMSAPI cmsUInt32Number CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* io);
+CMSAPI boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, uint32* BytesNeeded);
+CMSAPI uint32 CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* io);
 
 // Predefined virtual profiles
 // ------------------------------------------------------------------------------------------
@@ -1505,27 +1505,27 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfileTHR(cmsContext ContextID);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfile(void);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
-    cmsUInt32Number nLUTPoints,
+    uint32 nLUTPoints,
     double Bright,
     double Contrast,
     double Hue,
     double Saturation,
-    cmsUInt32Number TempSrc,
-    cmsUInt32Number TempDest);
+    uint32 TempSrc,
+    uint32 TempDest);
 
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(cmsUInt32Number nLUTPoints,
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(uint32 nLUTPoints,
     double Bright,
     double Contrast,
     double Hue,
     double Saturation,
-    cmsUInt32Number TempSrc,
-    cmsUInt32Number TempDest);
+    uint32 TempSrc,
+    uint32 TempDest);
 
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfileTHR(cmsContext ContextID);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfile(void);
 
 // Converts a transform to a devicelink profile
-CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, cmsUInt32Number dwFlags);
+CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, uint32 dwFlags);
 
 // Intents ----------------------------------------------------------------------------------------------
 
@@ -1544,10 +1544,10 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, d
 #define INTENT_PRESERVE_K_PLANE_SATURATION            15
 
 // Call with NULL as parameters to get the intent count
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetSupportedIntents(cmsUInt32Number nMax, cmsUInt32Number* Codes, char ** Descriptions);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID,
-    cmsUInt32Number nMax,
-    cmsUInt32Number* Codes,
+CMSAPI uint32 CMSEXPORT cmsGetSupportedIntents(uint32 nMax, uint32* Codes, char ** Descriptions);
+CMSAPI uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID,
+    uint32 nMax,
+    uint32* Codes,
     char ** Descriptions);
 
 // Flags
@@ -1592,86 +1592,86 @@ CMSAPI cmsUInt32Number CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID,
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateTransformTHR(cmsContext ContextID,
     cmsHPROFILE Input,
-    cmsUInt32Number InputFormat,
+    uint32 InputFormat,
     cmsHPROFILE Output,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags);
+    uint32 OutputFormat,
+    uint32 Intent,
+    uint32 dwFlags);
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateTransform(cmsHPROFILE Input,
-    cmsUInt32Number InputFormat,
+    uint32 InputFormat,
     cmsHPROFILE Output,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags);
+    uint32 OutputFormat,
+    uint32 Intent,
+    uint32 dwFlags);
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateProofingTransformTHR(cmsContext ContextID,
     cmsHPROFILE Input,
-    cmsUInt32Number InputFormat,
+    uint32 InputFormat,
     cmsHPROFILE Output,
-    cmsUInt32Number OutputFormat,
+    uint32 OutputFormat,
     cmsHPROFILE Proofing,
-    cmsUInt32Number Intent,
-    cmsUInt32Number ProofingIntent,
-    cmsUInt32Number dwFlags);
+    uint32 Intent,
+    uint32 ProofingIntent,
+    uint32 dwFlags);
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateProofingTransform(cmsHPROFILE Input,
-    cmsUInt32Number InputFormat,
+    uint32 InputFormat,
     cmsHPROFILE Output,
-    cmsUInt32Number OutputFormat,
+    uint32 OutputFormat,
     cmsHPROFILE Proofing,
-    cmsUInt32Number Intent,
-    cmsUInt32Number ProofingIntent,
-    cmsUInt32Number dwFlags);
+    uint32 Intent,
+    uint32 ProofingIntent,
+    uint32 dwFlags);
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateMultiprofileTransformTHR(cmsContext ContextID,
     cmsHPROFILE hProfiles[],
-    cmsUInt32Number nProfiles,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags);
+    uint32 nProfiles,
+    uint32 InputFormat,
+    uint32 OutputFormat,
+    uint32 Intent,
+    uint32 dwFlags);
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateMultiprofileTransform(cmsHPROFILE hProfiles[],
-    cmsUInt32Number nProfiles,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags);
+    uint32 nProfiles,
+    uint32 InputFormat,
+    uint32 OutputFormat,
+    uint32 Intent,
+    uint32 dwFlags);
 
 CMSAPI cmsHTRANSFORM CMSEXPORT cmsCreateExtendedTransform(cmsContext ContextID,
-    cmsUInt32Number nProfiles, cmsHPROFILE hProfiles[],
+    uint32 nProfiles, cmsHPROFILE hProfiles[],
     boolint BPC[],
-    cmsUInt32Number Intents[],
+    uint32 Intents[],
     double AdaptationStates[],
     cmsHPROFILE hGamutProfile,
-    cmsUInt32Number nGamutPCSposition,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat,
-    cmsUInt32Number dwFlags);
+    uint32 nGamutPCSposition,
+    uint32 InputFormat,
+    uint32 OutputFormat,
+    uint32 dwFlags);
 
 CMSAPI void CMSEXPORT cmsDeleteTransform(cmsHTRANSFORM hTransform);
 
 CMSAPI void CMSEXPORT cmsDoTransform(cmsHTRANSFORM Transform,
     const void * InputBuffer,
     void * OutputBuffer,
-    cmsUInt32Number Size);
+    uint32 Size);
 
 CMSAPI void CMSEXPORT cmsDoTransformStride(cmsHTRANSFORM Transform,               // Deprecated
     const void * InputBuffer,
     void * OutputBuffer,
-    cmsUInt32Number Size,
-    cmsUInt32Number Stride);
+    uint32 Size,
+    uint32 Stride);
 
 CMSAPI void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
     const void * InputBuffer,
     void * OutputBuffer,
-    cmsUInt32Number PixelsPerLine,
-    cmsUInt32Number LineCount,
-    cmsUInt32Number BytesPerLineIn,
-    cmsUInt32Number BytesPerLineOut,
-    cmsUInt32Number BytesPerPlaneIn,
-    cmsUInt32Number BytesPerPlaneOut);
+    uint32 PixelsPerLine,
+    uint32 LineCount,
+    uint32 BytesPerLineIn,
+    uint32 BytesPerLineOut,
+    uint32 BytesPerPlaneIn,
+    uint32 BytesPerPlaneOut);
 
 CMSAPI void CMSEXPORT cmsSetAlarmCodes(const uint16 NewAlarm[cmsMAXCHANNELS]);
 CMSAPI void CMSEXPORT cmsGetAlarmCodes(uint16 NewAlarm[cmsMAXCHANNELS]);
@@ -1689,38 +1689,38 @@ CMSAPI double CMSEXPORT cmsSetAdaptationStateTHR(cmsContext ContextID, double d)
 CMSAPI cmsContext CMSEXPORT cmsGetTransformContextID(cmsHTRANSFORM hTransform);
 
 // Grab the input/output formats
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetTransformInputFormat(cmsHTRANSFORM hTransform);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetTransformOutputFormat(cmsHTRANSFORM hTransform);
+CMSAPI uint32 CMSEXPORT cmsGetTransformInputFormat(cmsHTRANSFORM hTransform);
+CMSAPI uint32 CMSEXPORT cmsGetTransformOutputFormat(cmsHTRANSFORM hTransform);
 
 // For backwards compatibility
 CMSAPI boolint CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform,
-    cmsUInt32Number InputFormat,
-    cmsUInt32Number OutputFormat);
+    uint32 InputFormat,
+    uint32 OutputFormat);
 
 // PostScript ColorRenderingDictionary and ColorSpaceArray ----------------------------------------------------
 
 typedef enum { cmsPS_RESOURCE_CSA, cmsPS_RESOURCE_CRD } cmsPSResourceType;
 
 // lcms2 unified method to access postscript color resources
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetPostScriptColorResource(cmsContext ContextID,
+CMSAPI uint32 CMSEXPORT cmsGetPostScriptColorResource(cmsContext ContextID,
     cmsPSResourceType Type,
     cmsHPROFILE hProfile,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags,
+    uint32 Intent,
+    uint32 dwFlags,
     cmsIOHANDLER* io);
 
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetPostScriptCSA(cmsContext ContextID,
+CMSAPI uint32 CMSEXPORT cmsGetPostScriptCSA(cmsContext ContextID,
     cmsHPROFILE hProfile,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags,
+    uint32 Intent,
+    uint32 dwFlags,
     void * Buffer,
-    cmsUInt32Number dwBufferLen);
-CMSAPI cmsUInt32Number CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID,
+    uint32 dwBufferLen);
+CMSAPI uint32 CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID,
     cmsHPROFILE hProfile,
-    cmsUInt32Number Intent,
-    cmsUInt32Number dwFlags,
+    uint32 Intent,
+    uint32 dwFlags,
     void * Buffer,
-    cmsUInt32Number dwBufferLen);
+    uint32 dwBufferLen);
 
 // IT8.7 / CGATS.17-200x handling -----------------------------------------------------------------------------
 
@@ -1728,30 +1728,30 @@ CMSAPI cmsHANDLE CMSEXPORT cmsIT8Alloc(cmsContext ContextID);
 CMSAPI void CMSEXPORT cmsIT8Free(cmsHANDLE hIT8);
 
 // Tables
-CMSAPI cmsUInt32Number CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8);
-CMSAPI cmsInt32Number CMSEXPORT cmsIT8SetTable(cmsHANDLE hIT8, cmsUInt32Number nTable);
+CMSAPI uint32 CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8);
+CMSAPI int32 CMSEXPORT cmsIT8SetTable(cmsHANDLE hIT8, uint32 nTable);
 
 // Persistence
 CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromFile(cmsContext ContextID, const char * cFileName);
-CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, cmsUInt32Number len);
+CMSAPI cmsHANDLE CMSEXPORT cmsIT8LoadFromMem(cmsContext ContextID, const void * Ptr, uint32 len);
 // CMSAPI cmsHANDLE        CMSEXPORT cmsIT8LoadFromIOhandler(cmsContext ContextID, cmsIOHANDLER* io);
 
 CMSAPI boolint CMSEXPORT cmsIT8SaveToFile(cmsHANDLE hIT8, const char * cFileName);
-CMSAPI boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, cmsUInt32Number* BytesNeeded);
+CMSAPI boolint CMSEXPORT cmsIT8SaveToMem(cmsHANDLE hIT8, void * MemPtr, uint32* BytesNeeded);
 // Properties
 CMSAPI const char * CMSEXPORT cmsIT8GetSheetType(cmsHANDLE hIT8);
 CMSAPI boolint CMSEXPORT cmsIT8SetSheetType(cmsHANDLE hIT8, const char * Type);
 CMSAPI boolint CMSEXPORT cmsIT8SetComment(cmsHANDLE hIT8, const char * cComment);
 CMSAPI boolint CMSEXPORT cmsIT8SetPropertyStr(cmsHANDLE hIT8, const char * cProp, const char * Str);
 CMSAPI boolint CMSEXPORT cmsIT8SetPropertyDbl(cmsHANDLE hIT8, const char * cProp, double Val);
-CMSAPI boolint CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, cmsUInt32Number Val);
+CMSAPI boolint CMSEXPORT cmsIT8SetPropertyHex(cmsHANDLE hIT8, const char * cProp, uint32 Val);
 CMSAPI boolint CMSEXPORT cmsIT8SetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey, const char * Buffer);
 CMSAPI boolint CMSEXPORT cmsIT8SetPropertyUncooked(cmsHANDLE hIT8, const char * Key, const char * Buffer);
 CMSAPI const char * CMSEXPORT cmsIT8GetProperty(cmsHANDLE hIT8, const char * cProp);
 CMSAPI double CMSEXPORT cmsIT8GetPropertyDbl(cmsHANDLE hIT8, const char * cProp);
 CMSAPI const char * CMSEXPORT cmsIT8GetPropertyMulti(cmsHANDLE hIT8, const char * Key, const char * SubKey);
-CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames);
-CMSAPI cmsUInt32Number CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames);
+CMSAPI uint32 CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames);
+CMSAPI uint32 CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, const char *** SubpropertyNames);
 // Datasets
 CMSAPI const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col);
 CMSAPI double CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col);
@@ -1778,14 +1778,14 @@ CMSAPI void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char * Formatt
 CMSAPI cmsHANDLE CMSEXPORT cmsGBDAlloc(cmsContext ContextID);
 CMSAPI void CMSEXPORT cmsGBDFree(cmsHANDLE hGBD);
 CMSAPI boolint CMSEXPORT cmsGDBAddPoint(cmsHANDLE hGBD, const cmsCIELab* Lab);
-CMSAPI boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGDB, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsGDBCompute(cmsHANDLE hGDB, uint32 dwFlags);
 CMSAPI boolint CMSEXPORT cmsGDBCheckPoint(cmsHANDLE hGBD, const cmsCIELab* Lab);
 
 // Feature detection  ----------------------------------------------------------------------------------------------
 
 // Estimate the black point
-CMSAPI boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags);
-CMSAPI boolint CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, cmsUInt32Number Intent, cmsUInt32Number dwFlags);
+CMSAPI boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags);
+CMSAPI boolint CMSEXPORT cmsDetectDestinationBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags);
 
 // Estimate total area coverage
 CMSAPI double CMSEXPORT cmsDetectTAC(cmsHPROFILE hProfile);

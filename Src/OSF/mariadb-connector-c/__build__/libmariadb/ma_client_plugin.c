@@ -95,7 +95,7 @@ static int get_plugin_nr(uint type)
 	return -1;
 }
 
-static const char * check_plugin_version(struct st_mysql_client_plugin * plugin, unsigned int version)
+static const char * check_plugin_version(struct st_mysql_client_plugin * plugin, uint version)
 {
 	if(plugin->interface_version < version ||
 	    (plugin->interface_version >> 8) > (version >> 8))
