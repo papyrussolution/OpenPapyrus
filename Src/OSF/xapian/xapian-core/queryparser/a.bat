@@ -1,0 +1,1 @@
+D:\Papyrus\TOOLS\xapian-lemon.exe -q -oqueryparser_internal.cc -hqueryparser_token.h queryparser.lemony
