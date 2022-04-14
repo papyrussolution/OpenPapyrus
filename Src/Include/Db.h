@@ -1858,7 +1858,11 @@ private:
 	RECORDSIZE retBufLen;
 	RECORDSIZE FixRecSize; // @*DBTable::open
 	uint16 PageSize;       // Размер страницы, определенный в спецификации.
+#if CXX_ARCH_BITS==64
+	uint8  Reserve[14];    // @alignment
+#else
 	uint8  Reserve[18];    // @alignment
+#endif
 	BTABLENAME tableName;
 	BNFieldList fields;
 	BNKeyList   indexes;

@@ -160,7 +160,8 @@ void print_file_matches(const char * path, const char * buf, const size_t buf_le
 			if(__print_context.lines_since_last_match > 0 && opts.before > 0) {
 				// TODO: better, but still needs work 
 				// print the previous line(s) 
-				lines_to_print = sclamp(static_cast<ssize_t>(__print_context.lines_since_last_match - (opts.after + 1)), 0, static_cast<ssize_t>(opts.before)); // @sobolev
+				lines_to_print = sclamp(static_cast<ssize_t>(__print_context.lines_since_last_match - (opts.after + 1)), 
+					static_cast<ssize_t>(0), static_cast<ssize_t>(opts.before)); // @sobolev
 				/* @sobolev
 				lines_to_print = __print_context.lines_since_last_match - (opts.after + 1);
 				if(lines_to_print < 0) {
@@ -656,7 +657,7 @@ retry:
 			ptr++;
 		}
 	}
-	return ptr - buf;
+	return static_cast<int>(ptr - buf);
 }
 
 #endif /* _WIN32 */

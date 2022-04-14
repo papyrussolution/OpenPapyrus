@@ -173,9 +173,7 @@ void FinalizeRegistry() {
 		registry.flat_flags_.push_back(f.second);
 	}
 	std::sort(std::begin(registry.flat_flags_), std::end(registry.flat_flags_),
-	    [](const CommandLineFlag* lhs, const CommandLineFlag* rhs) {
-				return lhs->Name() < rhs->Name();
-			});
+	    [](const CommandLineFlag* lhs, const CommandLineFlag* rhs) { return lhs->Name() < rhs->Name(); });
 	registry.flags_.clear();
 	registry.finalized_flags_.store(true, std::memory_order_release);
 }
@@ -251,7 +249,7 @@ void Retire(const char* name, FlagFastTypeId type_id, char* buf)
 {
 	static_assert(sizeof(RetiredFlagObj) == kRetiredFlagObjSize, "");
 	static_assert(alignof(RetiredFlagObj) == kRetiredFlagObjAlignment, "");
-	auto* flag = ::new (static_cast<void*>(buf)) flags_internal::RetiredFlagObj(name, type_id);
+	auto * flag = ::new (static_cast<void*>(buf)) flags_internal::RetiredFlagObj(name, type_id);
 	FlagRegistry::GlobalRegistry().RegisterFlag(*flag, nullptr);
 }
 
@@ -295,23 +293,26 @@ FlagSaver::FlagSaver() : impl_(new flags_internal::FlagSaverImpl)
 
 FlagSaver::~FlagSaver() 
 {
-	if(!impl_) return;
-	impl_->RestoreToRegistry();
-	delete impl_;
+	if(impl_) {
+		impl_->RestoreToRegistry();
+		delete impl_;
+	}
 }
 
 // --------------------------------------------------------------------
 
-CommandLineFlag* FindCommandLineFlag(absl::string_view name) {
-	if(name.empty()) return nullptr;
-	flags_internal::FlagRegistry& registry =
-	    flags_internal::FlagRegistry::GlobalRegistry();
+CommandLineFlag* FindCommandLineFlag(absl::string_view name) 
+{
+	if(name.empty()) 
+		return nullptr;
+	flags_internal::FlagRegistry& registry = flags_internal::FlagRegistry::GlobalRegistry();
 	return registry.FindFlag(name);
 }
 
 // --------------------------------------------------------------------
 
-absl::flat_hash_map<absl::string_view, absl::CommandLineFlag*> GetAllFlags() {
+absl::flat_hash_map<absl::string_view, absl::CommandLineFlag*> GetAllFlags() 
+{
 	absl::flat_hash_map<absl::string_view, absl::CommandLineFlag*> res;
 	flags_internal::ForEachFlag([&](CommandLineFlag& flag) {
 			if(!flag.IsRetired()) res.insert({flag.Name(), &flag});

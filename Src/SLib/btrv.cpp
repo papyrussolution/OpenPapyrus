@@ -7,9 +7,9 @@
 BtrCallProc   _BtrCall;
 BtrCallProcID _BtrCallID;
 
-static int __stdcall _BtrCall_Stub(int, char *, char *, uint16 * pDataBufferLenght, char *, int, int)
+static int __stdcall _BtrCall_Stub(int, char *, char *, uint16 * /*pDataBufferLenght*/, char *, int, int)
 	{ return BE_BTRNINIT; }
-static int __stdcall _BtrCallID_Stub(int, char *, char *, uint16 * pDataBufferLenght, char *, int, int, void *)
+static int __stdcall _BtrCallID_Stub(int, char *, char *, uint16 * /*pDataBufferLenght*/, char *, int, int, void *)
 	{ return BE_BTRNINIT; }
 
 static class BtrCallInit {

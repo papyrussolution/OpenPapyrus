@@ -30632,7 +30632,12 @@ struct GoodsStrucProcessingBlock {
 	};
 	GoodsStrucProcessingBlock();
 	GoodsStrucProcessingBlock(const GoodsStrucProcessingBlock & rS);
-	int    AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, bool checkExistance, bool recursive);
+	enum {
+		addifCheckExistance = 0x0001,
+		addifRecursive      = 0x0002,
+		addifMainTreeOnly   = 0x0004 
+	};
+	int    AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, uint flags/*bool checkExistance, bool recursive*/);
 	PPObjGoodsStruc GSObj;
 	PPObjGoods GObj;
 	TSVector <StrucEntry> StrucList;

@@ -13,7 +13,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
 #ifndef ABSL_BASE_INTERNAL_FAST_TYPE_ID_H_
 #define ABSL_BASE_INTERNAL_FAST_TYPE_ID_H_
 
@@ -22,10 +21,8 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace base_internal {
-
-template <typename Type>
-struct FastTypeTag {
-  constexpr static char dummy_var = 0;
+template <typename Type> struct FastTypeTag {
+	constexpr static char dummy_var = 0;
 };
 
 template <typename Type>
@@ -36,11 +33,7 @@ constexpr char FastTypeTag<Type>::dummy_var;
 // straight up comparisons.
 using FastTypeIdType = const void*;
 
-template <typename Type>
-constexpr inline FastTypeIdType FastTypeId() {
-  return &FastTypeTag<Type>::dummy_var;
-}
-
+template <typename Type> constexpr inline FastTypeIdType FastTypeId() { return &FastTypeTag<Type>::dummy_var; }
 }  // namespace base_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -7378,6 +7378,7 @@ record BRow {
 	QcExpiry      date         "Дата окончания срока действия сертификата качества";
 	QcRegOrg      zstring(48)  "Наименование органа, выдавшего сертификат качества";
 	QcEtc         zstring(48)  "Дополнительная информация по сертификату качества";
+	// @construction PromoIdent    zstring(32)  ""
 	//
 	BillCode      zstring(24)  "@{billno}";
 	BillDate      date         "@{date}";
@@ -7390,7 +7391,7 @@ record BRow {
 	CntragName    zstring(128) "@{contractorname}";
 	CntragNo      long         "@{contractorarcode}";
 	RegistryCode  zstring(32)  "@{contractorcode}";
-	Obj2ID        long         "@{bill_obj2arid}";    // @v8.1.3
+	Obj2ID        long         "@{bill_obj2arid}"; // @v8.1.3
 	Obj2Name      zstring(128) "@{docextobjname}"; // @v8.9.12 (48)-->(128)
 	Obj2INN       zstring(32)  "@{docextobjinn}";
 	Obj2No        long         "@{bill_obj2arno}";

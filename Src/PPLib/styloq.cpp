@@ -9704,7 +9704,7 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 							temp_buf.SetLastSlash().Cat("data").SetLastSlash().Cat(p_test_file_name);
 							if(fileExists(temp_buf)) {
 								SBinaryChunk raw_data;
-								const char * p_signature = "ibqnxppe3cdwt7brszce5yfowu="; // Сигнатура blob'а, отправленного тестовой командой (see cmdStoreBlock)
+								const char * p_signature = "gr2hkflnw7fug24ocmlsdh4a24"; // Сигнатура blob'а, отправленного тестовой командой (see cmdStoreBlock)
 								SJson query(SJson::tOBJECT);
 								SJson * p_js = 0;
 								query.InsertString("cmd", "getblob");

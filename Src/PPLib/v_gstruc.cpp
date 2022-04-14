@@ -223,7 +223,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 	Goods2Tbl::Rec grec;
 	if(Filt.PrmrGoodsID) {
 		if(Cb.GObj.Search(Filt.PrmrGoodsID, &grec) > 0) {
-			THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0, false));
+			THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0));
 		}
 	}
 	else {
@@ -232,7 +232,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 		goods_filt.Flags |= GoodsFilt::fWithStrucOnly;
 		for(GoodsIterator gi(&goods_filt, 0); gi.Next(&grec) > 0;) {
 			if(!(Filt.Flags & Filt.fSkipByPassiveOwner) || !(grec.Flags & GF_PASSIV)) { // @v10.3.2
-				THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, false, false));
+				THROW(Cb.AddItem(grec.ID, grec.StrucID, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0));
 			}
 			PPWaitPercent(gi.GetIterCounter());
 		}
@@ -250,7 +250,7 @@ int PPViewGoodsStruc::MakeList(PPViewBrowser * pBrw)
 				if(!owner_list.getCount() && !(gsh.Flags & GSF_CHILD)) {
 					uint   ex_spos = 0;
 					if(!Cb.StrucList.lsearch(&gs_id, &ex_spos, CMPF_LONG, offsetof(GoodsStrucProcessingBlock::StrucEntry, GStrucID))) {
-						THROW(Cb.AddItem(0, gs_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, false, false));
+						THROW(Cb.AddItem(0, gs_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, 0));
 					}
 				}
 				PPWaitPercent(p, t);
@@ -280,11 +280,11 @@ int PPViewGoodsStruc::Init_(const PPBaseFilt * pBaseFilt)
 	return ok;
 }
 
-int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, bool checkExistance, bool recursive)
+int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScndGroupID, PPID filtScndID, uint __flags/*bool checkExistance, bool recursive*/)
 {
 	int    ok = 1;
 	PPGoodsStruc struc;
-	if(checkExistance) {
+	if(__flags & addifCheckExistance) {
 		PPIDArray ex_goods_list; // Список товаров, с которыми была связана структура strucID в списках
 		for(uint ex_spos = 0; StrucList.lsearch(&strucID, &ex_spos, CMPF_LONG, offsetof(StrucEntry, GStrucID)); ex_spos++) {
 			const StrucEntry & r_entry = StrucList.at(ex_spos);
@@ -304,7 +304,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 				ex_goods_list.atFree(p);
 			for(p = 0; p < ex_goods_list.getCount(); p++) {
 				const PPID ex_goods_id = ex_goods_list.get(p);
-				THROW(AddItem(ex_goods_id, strucID, filtScndGroupID, filtScndID, false, recursive)); // @recursion
+				THROW(AddItem(ex_goods_id, strucID, filtScndGroupID, filtScndID, (__flags & addifRecursive))); // @recursion
 			}
 		}
 	}
@@ -318,7 +318,7 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 			for(uint i = 0; i < count; i++) {
 				if(is_folder) {
 					const PPGoodsStruc * p_struc = struc.Children.at(i);
-					THROW(AddItem(goodsID, p_struc->Rec.ID, filtScndGroupID, filtScndID, checkExistance, recursive)); // @recursion
+					THROW(AddItem(goodsID, p_struc->Rec.ID, filtScndGroupID, filtScndID, __flags)); // @recursion
 				}
 				else {
 					const PPGoodsStrucItem & r_i = struc.Items.at(i);
@@ -367,10 +367,10 @@ int GoodsStrucProcessingBlock::AddItem(PPID goodsID, PPID strucID, PPID filtScnd
 						new_item.Denom = r_i.Denom;
 						new_item.Netto = r_i.Netto;
 						THROW_SL(ItemList.insert(&new_item));
-						if(recursive) {
+						if(__flags & addifRecursive) {
 							PPGoodsStruc inner_struc;
 							if(GObj.LoadGoodsStruc(PPGoodsStruc::Ident(new_item.GoodsID, GSF_COMPL, GSF_PARTITIAL), &inner_struc) > 0) {
-								THROW(AddItem(new_item.GoodsID, inner_struc.Rec.ID, filtScndGroupID, filtScndID, /*checkExistance*/true, /*recursive*/true));
+								THROW(AddItem(new_item.GoodsID, inner_struc.Rec.ID, filtScndGroupID, filtScndID, (addifCheckExistance|addifRecursive)));
 							}
 						}
 					}
@@ -770,7 +770,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 							PPID   struc_id = parent_struc_id ? parent_struc_id : brw_hdr.GStrucID;
 							int r = Cb.GSObj.Put(&struc_id, &gs, 1);
 							if(r > 0) {
-								Cb.AddItem(r_struc_entry.PrmrGoodsID, struc_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, true, false);
+								Cb.AddItem(r_struc_entry.PrmrGoodsID, struc_id, Filt.ScndGoodsGrpID, Filt.ScndGoodsID, GoodsStrucProcessingBlock::addifCheckExistance);
 								Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 								ok = 1;
 							}
@@ -1109,7 +1109,8 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 									PPID   struc_id = parent_struc_id ? parent_struc_id : p_entry->GStrucID;
 									r = P_Blk->Cb.GSObj.Put(&struc_id, &gs, 1);
 									if(r > 0) {
-										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, true, false);
+										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, 
+											GoodsStrucProcessingBlock::addifCheckExistance);
 										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 										//ok = 1;
 									}
@@ -1214,7 +1215,8 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 									PPID   struc_id = parent_struc_id ? parent_struc_id : p_entry->GStrucID;
 									r = P_Blk->Cb.GSObj.Put(&struc_id, &gs, 1);
 									if(r > 0) {
-										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, true, false);
+										P_Blk->Cb.AddItem(p_struc_entry->PrmrGoodsID, struc_id, 0/*Filt.ScndGoodsGrpID*/, /*Filt.ScndGoodsID*/0, 
+											GoodsStrucProcessingBlock::addifCheckExistance);
 										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 										//ok = 1;
 									}

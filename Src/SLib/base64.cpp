@@ -295,7 +295,7 @@ static FORCEINLINE uchar Base32_shift_left(uchar byte, int8 offset) { return Bas
 // sequences shorter than 5 octets is supported and padding will be added to the
 // output as per the specification.
 // 
-static void Base32_encode_sequence(const uchar * plain, int len, SString & rBuf)
+static void Base32_encode_sequence(const uchar * plain, size_t len, SString & rBuf)
 {
 	static const uchar base32[] = "abcdefghijklmnopqrstuvwxyz234567";
 	static const uchar Base32_PADDING_CHAR = '=';
@@ -326,7 +326,7 @@ int Base32_Encode(const uint8 * pData, size_t dataLen, SString & rBuf)
 		// All the hard work is done in encode_sequence(),
 		// here we just need to feed it the data sequence by sequence.
 		for(size_t i = 0, j = 0; i < dataLen; i += 5, j += 8) {
-			Base32_encode_sequence(&pData[i], smin(dataLen-i, 5U), /*&coded[j]*/rBuf);
+			Base32_encode_sequence(&pData[i], smin(dataLen-i, static_cast<size_t>(5)), /*&coded[j]*/rBuf);
 		}
 	}
 	return ok;

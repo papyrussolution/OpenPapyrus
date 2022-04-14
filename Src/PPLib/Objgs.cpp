@@ -1066,7 +1066,7 @@ void GSDialog::ViewHierarchy() // @v11.2.11
 		{
 			P_Box = static_cast<SmartListBox *>(getCtrlView(CTL_GSTRUCTREE_LIST));
 			if(P_Box) {
-				Cb.AddItem(goodsID, strucID, 0, 0, false, true);
+				Cb.AddItem(goodsID, strucID, 0, 0, GoodsStrucProcessingBlock::addifRecursive);
 				GoodsStrucTreeListViewBlock vb(Cb);
 				StrAssocTree * p_tree = vb.MakeTree();
 				if(p_tree) {

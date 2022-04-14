@@ -1,5 +1,5 @@
 // BNKEY.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 1997, 1998, 2003, 2004, 2007, 2008, 2009, 2010, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -87,9 +87,9 @@ int BNKey::setKeyParams(int keyNumber, int acsNumber)
 {
 	if(data) {
 		if(keyNumber != (int)UNDEF)
-			HEAD.keyNumber = keyNumber;
+			HEAD.keyNumber = static_cast<int16>(keyNumber);
 		if(acsNumber != (int)UNDEF)
-			HEAD.acsNumber = acsNumber;
+			HEAD.acsNumber = static_cast<int16>(acsNumber);
 		return 1;
 	}
 	else
@@ -191,7 +191,7 @@ int FASTCALL BNKeyList::copy(const BNKeyList * src)
 	return 1;
 }
 
-int BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
+int BNKeyList::Serialize(int dir, SBuffer & rBuf, SSerializeContext * /*pCtx*/)
 {
 	int    ok = 1;
 	uint32 sz;
@@ -441,11 +441,12 @@ int BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest)
 		I    * h;
 	};
 	int    use = 0;
-	uint   ofs, segOfs;
+	uint   ofs = 0;
+	uint   segOfs = 0;
 	BNKey  k  = getKey(key);
 	uint   ss = table().GetFields()[k.getFieldID(seg)].size();
 	int    ns = k.getNumSeg();
-	uint   keyLen;
+	uint   keyLen = 0;
 	d = static_cast<char *>(dest);
 	if(seg == 0) {
 		use    = 1;
@@ -492,14 +493,14 @@ int BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest)
 		else {
 			if(k.getFlags(seg) & XIF_DESC)
 				cmp = _invertComp(cmp);
-			if(cmp == _GT_ || cmp == _GE_) {
+			if(oneof2(cmp, _GT_, _GE_)) {
 				memmove(d + ofs, val, ss);
 				ofs += ss;
 				if(ns > (seg + 1))
 					ofs += setBound(key, seg + 1, 0, d + ofs);
-				h->low = cmp;
+				h->low = static_cast<uchar>(cmp);
 			}
-			else if(cmp == _LT_ || cmp == _LE_) {
+			else if(oneof2(cmp, _LT_, _LE_)) {
 				if(use == 2)
 					ofs += keyLen;
 				memmove(d + ofs, val, ss);
@@ -508,7 +509,7 @@ int BNKeyList::makeKey(int key, int seg, int cmp, const void * val, void * dest)
 					ofs += setBound(key, seg + 1, 1, d + ofs);
 				if(use == 2)
 					memmove(d + sizeof(I), d + sizeof(I) + keyLen, keyLen);
-				h->upp = cmp;
+				h->upp = static_cast<uchar>(cmp);
 			}
 			else
 				return 0;	// cmp == _NE_

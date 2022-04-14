@@ -3416,7 +3416,7 @@ size_t FASTCALL SString::CharToQp(char c)
 SString & SString::Encode_QuotedPrintable(const char * pBuf, size_t maxLineLen)
 {
 	const  size_t slen = sstrlen(pBuf);
-	uint   linepos = 0; // Line-length counter for line wrapping in the output.
+	size_t linepos = 0; // Line-length counter for line wrapping in the output.
 	for(size_t spos = 0; spos < slen; spos++) {
 		char c = pBuf[spos];
 		// If the character is a linebreak, add a CRLF and reset the line position.
@@ -3492,15 +3492,15 @@ int SString::Decode_QuotedPrintable(SString & rBuf) const
 int FASTCALL SString::Decode_XMLENT(SString & rBuf) const
 {
 	rBuf.Z();
-	const uint len = Len();
-	uint  cp = 0;
+	const size_t len = Len();
+	size_t cp = 0;
 	size_t amp_pos = 0;
 	const char * p_buf = P_Buf;
 	while(cp < len) {
 		const char * p = (p_buf[cp] == '&') ? (p_buf+cp) : static_cast<const char *>(memchr(p_buf+cp, '&', len-cp));
 		if(p) {
 			rBuf.CatN(p_buf+cp, (p-p_buf-cp));
-			uint ofs = (p-p_buf);
+			size_t ofs = (p-p_buf);
 			assert(p_buf[ofs] == '&');
 			ofs++;
 			if(p_buf[ofs] == '#') {
@@ -3897,7 +3897,7 @@ int SStringU::Search(const wchar_t * pPattern, size_t startPos, size_t * pPos) c
 	const size_t plen = sstrlen(pPattern);
 	const size_t tlen = Len();
 	if((plen+startPos) <= tlen) {
-		for(uint i = startPos; i <= (tlen - plen); i++) {
+		for(size_t i = startPos; i <= (tlen - plen); i++) {
 			if(wcsncmp(P_Buf+i, pPattern, plen) == 0) {
 				ASSIGN_PTR(pPos, i);
 				ok = 1;
@@ -4977,12 +4977,12 @@ static const char * FASTCALL SPathFindNextComponent(const char * pPath)
 				StringSet ss(divider, rNormalizedPath);
 				SString temp_buf;
 				SString new_result;
-				uint   p = 0;
+				size_t p = 0;
 				while(rNormalizedPath.Search(dotdot_pattern, 0, 1, &p)) {
 					char next_chr = rNormalizedPath.C(p+3);
 					if(p > 3 && oneof2(next_chr, 0, divider) && rNormalizedPath.C(p-1) != divider) {
-						uint start_pos = 0;
-						uint i = p-3;
+						size_t start_pos = 0;
+						size_t i = p-3;
 						if(i) {
 							do {
 								char c = rNormalizedPath.C(--i);
@@ -6291,9 +6291,9 @@ int STokenizer::SetParam(const Param * pParam)
 	RVALUEPTR(P, pParam);
 	if(P.Cp == cpUTF8) {
 		wchar_t exclusive_char[256];
-		uint    exclusive_char_count = 0;
+		uint   exclusive_char_count = 0;
 		SString temp_buf = P.Delim;
-		uint  cpos = 0;
+		size_t cpos = 0;
 		if(temp_buf.SearchChar('\x0A', &cpos)) {
 			exclusive_char[exclusive_char_count++] = L'\xA0'; // no-break space
 			temp_buf.Excise(cpos, 1);
@@ -6897,7 +6897,7 @@ STokenRecognizer::~STokenRecognizer()
 
 /*static*/int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 {
-	const size_t extra = SUtfConst::TrailingBytesForUTF8[*p];
+	const int8 extra = SUtfConst::TrailingBytesForUTF8[*p];
 	return (extra == 0) ? 1 : ((restLen > extra && SUnicode::IsLegalUtf8(p, 2)) ? (extra+1) : 0);
 }
 
@@ -6951,7 +6951,7 @@ STokenRecognizer::ImplementBlock & STokenRecognizer::ImplementBlock::Z()
 void STokenRecognizer::ImplementBlock::Init(const uchar * pToken, int len)
 {
 	Z();
-	Stat.Len = (len >= 0) ? static_cast<uint32>(len) : sstrlen(pToken);
+	Stat.Len = static_cast<uint32>((len >= 0) ? len : sstrlen(pToken));
 }
 
 int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int len, SNaturalTokenArray & rResultList, SNaturalTokenStat * pStat)
@@ -6972,7 +6972,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 		// } @v11.3.6 
 		for(i = 0; i < toklen; i++) {
             const uchar c = pToken[i];
-			const size_t ul = IsUtf8(pToken+i, toklen-i);
+			const int   ul = IsUtf8(pToken+i, toklen-i);
 			if(ul > 1) {
                 rIb.F |= ImplementBlock::fUtf8;
                 i += (ul-1);

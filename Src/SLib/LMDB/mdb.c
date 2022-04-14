@@ -3792,14 +3792,13 @@ fail:
 	mdb_txn_abort(txn);
 	return rc;
 }
-
-/** Read the environment parameters of a DB environment before
- * mapping it into memory.
- * @param[in] env the environment handle
- * @param[in] prev whether to read the backup meta page
- * @param[out] meta address of where to store the meta information
- * @return 0 on success, non-zero on failure.
- */
+// 
+// Read the environment parameters of a DB environment before mapping it into memory.
+// @param[in] env the environment handle
+// @param[in] prev whether to read the backup meta page
+// @param[out] meta address of where to store the meta information
+// @return 0 on success, non-zero on failure.
+// 
 static int ESECT mdb_env_read_header(MDB_env * env, int prev, MDB_meta * meta)
 {
 	MDB_metabuf pbuf;
@@ -6785,9 +6784,8 @@ int mdb_cursor_get(MDB_cursor * mc, MDB_val * key, MDB_val * data, MDB_cursor_op
 		    rc = mdb_cursor_next(mc, key, data, MDB_NEXT_DUP);
 		    if(rc == MDB_SUCCESS) {
 			    if(mc->mc_xcursor->mx_cursor.mc_flags & C_INITIALIZED) {
-				    MDB_cursor * mx;
 fetchm:
-				    mx = &mc->mc_xcursor->mx_cursor;
+				    MDB_cursor * mx = &mc->mc_xcursor->mx_cursor;
 				    data->mv_size = NUMKEYS(mx->mc_pg[mx->mc_top]) *
 					mx->mc_db->md_pad;
 				    data->mv_data = METADATA(mx->mc_pg[mx->mc_top]);
@@ -6881,11 +6879,11 @@ mmove:
 		mc->mc_flags ^= C_DEL;
 	return rc;
 }
-
-/** Touch all the pages in the cursor stack. Set mc_top.
- *	Makes sure all the pages are writable, before attempting a write operation.
- * @param[in] mc The cursor to operate on.
- */
+// 
+// Touch all the pages in the cursor stack. Set mc_top.
+// Makes sure all the pages are writable, before attempting a write operation.
+// @param[in] mc The cursor to operate on.
+// 
 static int mdb_cursor_touch(MDB_cursor * mc)
 {
 	int rc = MDB_SUCCESS;

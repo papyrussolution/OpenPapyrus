@@ -132,7 +132,7 @@ StrAssocArray * WhatmanObjectRegTable::MakeStrAssocList() const
 static WhatmanObjectRegTable * GetRegTable()
 {
 	static WhatmanObjectRegTable * p_tab = 0;
-	SETIFZ(p_tab, new WhatmanObjectRegTable);
+	SETIFZQ(p_tab, new WhatmanObjectRegTable);
 	return p_tab;
 }
 
@@ -229,14 +229,14 @@ int TWhatmanObject::HandleCommand(int cmd, void * pExt)
 	return ok;
 }
 
-int    TWhatmanObject::GetTextLayout(STextLayout & rTl, int options) const { return -1; }
+int    TWhatmanObject::GetTextLayout(STextLayout & /*rTl*/, int /*options*/) const { return -1; }
 int    TWhatmanObject::EditTool(TWhatmanToolArray::Item * pWtaItem) { return HandleCommand(cmdEditTool, pWtaItem); }
 int    TWhatmanObject::Edit() { return HandleCommand(cmdEdit, 0); }
 int    FASTCALL TWhatmanObject::HasOption(int f) const { return BIN(Options & f); }
 int    FASTCALL TWhatmanObject::HasState(int f) const { return BIN(State & f); }
 TRect  TWhatmanObject::GetBounds() const { return Bounds; }
 TRect  TWhatmanObject::GetInvalidationRect() const { return TRect(Bounds).grow(4, 4); } // @v11.2.4 grow(10, 10)-->grow(4, 4)
-int    TWhatmanObject::Draw(TCanvas2 & rCanv) { return -1; }
+int    TWhatmanObject::Draw(TCanvas2 & /*rCanv*/) { return -1; }
 const  TWhatmanObject::TextParam & TWhatmanObject::GetTextOptions() const { return TextOptions; }
 TWhatman * TWhatmanObject::GetOwner() const { return P_Owner; }
 TWindow  * TWhatmanObject::GetOwnerWindow() const { return P_Owner ? P_Owner->GetOwnerWindow() : 0; }
@@ -700,14 +700,14 @@ int TWhatman::MoveObject(TWhatmanObject * pObj, const TRect & rRect)
 			if(SnapX(rRect.a.x, &p.x) > 0)
 				result.setwidthrel(static_cast<int>(p.x), rRect.width());
 			else if(SnapX(rRect.b.x, &p.x) > 0) {
-				result.b.x = static_cast<int>(p.x);
-				result.a.x = result.b.x - rRect.width();
+				result.b.x = static_cast<int16>(p.x);
+				result.a.x = result.b.x - static_cast<int16>(rRect.width());
 			}
 			if(SnapY(rRect.a.y, &p.y) > 0)
 				result.setheightrel(static_cast<int>(p.y), rRect.height());
 			else if(SnapY(rRect.b.y, &p.y) > 0) {
-				result.b.y = static_cast<int>(p.y);
-				result.a.y = result.b.y - rRect.height();
+				result.b.y = static_cast<int16>(p.y);
+				result.a.y = result.b.y - static_cast<int16>(rRect.height());
 			}
 			ok = pObj->SetBounds(result);
 		}
@@ -752,9 +752,9 @@ int TWhatman::ArrangeObjects2(const LongArray * pObjPosList, const TArrangeParam
 	pt_next = area.a + rParam.UlGap;
 	const  uint row_size = rParam.RowSize;
 	//const  int dir = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? DIREC_VERT : DIREC_HORZ;
-	uint   row_no = 0;
-	uint   item_in_row = 0;
-	int    row_bound = 0; // Минимальный отступ от предыдущего ряда.
+	//uint   row_no = 0;
+	//uint   item_in_row = 0;
+	//int    row_bound = 0; // Минимальный отступ от предыдущего ряда.
 	SUiLayout lo_root;
 	SUiLayoutParam alb_root;
 	//lo_root.Direction = ((rParam.Dir == DIREC_HORZ && row_size) || (rParam.Dir != DIREC_HORZ && !row_size)) ? FLEX_DIRECTION_COLUMN : FLEX_DIRECTION_ROW;

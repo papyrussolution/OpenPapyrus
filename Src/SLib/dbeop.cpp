@@ -480,10 +480,10 @@ IMPL_DBE_PROC(_enumtoa_iii)
 
 IMPL_DBE_PROC(_flagtoa_iii)
 {
-	int    i;
+	size_t i;
 	const char ** p = reinterpret_cast<const char **>(IPAR(2));
 	if(option == CALC_SIZE) {
-		uint   m = 1;
+		size_t m = 1;
 		for(i = 0; i < 2; i++)
 			if((sstrlen(p[i]+2)+1) > m)
 				m = sstrlen(p[i]+2) + 1;

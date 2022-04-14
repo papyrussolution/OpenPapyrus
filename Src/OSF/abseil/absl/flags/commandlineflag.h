@@ -51,28 +51,21 @@ class PrivateHandleAccessor;
 class CommandLineFlag {
 public:
 	constexpr CommandLineFlag() = default;
-
 	// Not copyable/assignable.
 	CommandLineFlag(const CommandLineFlag&) = delete;
 	CommandLineFlag& operator = (const CommandLineFlag&) = delete;
-
-	// absl::CommandLineFlag::IsOfType()
 	//
 	// Return true iff flag has type T.
-	template <typename T> inline bool IsOfType() const 
-	{
-		return TypeId() == base_internal::FastTypeId<T>();
-	}
-	// absl::CommandLineFlag::TryGet()
 	//
-	// Attempts to retrieve the flag value. Returns value on success,
-	// absl::nullopt otherwise.
+	template <typename T> inline bool IsOfType() const { return TypeId() == base_internal::FastTypeId<T>(); }
+	//
+	// Attempts to retrieve the flag value. Returns value on success, absl::nullopt otherwise.
+	//
 	template <typename T> absl::optional<T> TryGet() const 
 	{
 		if(IsRetired() || !IsOfType<T>()) {
 			return absl::nullopt;
 		}
-
 		// Implementation notes:
 		//
 		// We are wrapping a union around the value of `T` to serve three purposes:
@@ -90,9 +83,11 @@ public:
 		// All of this serves to avoid requiring `T` being default constructible.
 		union U {
 			T value;
-			U() {
+			U() 
+			{
 			}
-			~U() {
+			~U() 
+			{
 				value.~T();
 			}
 		};
@@ -101,41 +96,19 @@ public:
 
 		Read(&u.value);
 		// allow retired flags to be "read", so we can report invalid access.
-		if(IsRetired()) {
-			return absl::nullopt;
-		}
-		return std::move(u.value);
+		return IsRetired() ? absl::nullopt : std::move(u.value);
 	}
-
-	// absl::CommandLineFlag::Name()
-	//
-	// Returns name of this flag.
-	virtual absl::string_view Name() const = 0;
-	// absl::CommandLineFlag::Filename()
-	//
-	// Returns name of the file where this flag is defined.
-	virtual std::string Filename() const = 0;
-	// absl::CommandLineFlag::Help()
-	//
-	// Returns help message associated with this flag.
-	virtual std::string Help() const = 0;
-	// absl::CommandLineFlag::IsRetired()
-	//
-	// Returns true iff this object corresponds to retired flag.
-	virtual bool IsRetired() const;
-	// absl::CommandLineFlag::DefaultValue()
-	//
-	// Returns the default value for this flag.
-	virtual std::string DefaultValue() const = 0;
-	// absl::CommandLineFlag::CurrentValue()
-	//
-	// Returns the current value for this flag.
-	virtual std::string CurrentValue() const = 0;
-	// absl::CommandLineFlag::ParseFrom()
+	virtual absl::string_view Name() const = 0; // Returns name of this flag.
+	virtual std::string Filename() const = 0; // Returns name of the file where this flag is defined.
+	virtual std::string Help() const = 0; // Returns help message associated with this flag.
+	virtual bool IsRetired() const; // Returns true iff this object corresponds to retired flag.
+	virtual std::string DefaultValue() const = 0; // Returns the default value for this flag.
+	virtual std::string CurrentValue() const = 0; // Returns the current value for this flag.
 	//
 	// Sets the value of the flag based on specified string `value`. If the flag
 	// was successfully set to new value, it returns true. Otherwise, sets `error`
 	// to indicate the error, leaves the flag unchanged, and returns false.
+	//
 	bool ParseFrom(absl::string_view value, std::string* error);
 protected:
 	~CommandLineFlag() = default;
@@ -158,8 +131,7 @@ private:
 	// Copy-construct a new value of the flag's type in a memory referenced by
 	// the dst based on the current flag's value.
 	virtual void Read(void* dst) const = 0;
-	// To be deleted. Used to return true if flag's current value originated from
-	// command line.
+	// To be deleted. Used to return true if flag's current value originated from command line.
 	virtual bool IsSpecifiedOnCommandLine() const = 0;
 	// Validates supplied value usign validator or parseflag routine
 	virtual bool ValidateInputValue(absl::string_view value) const = 0;

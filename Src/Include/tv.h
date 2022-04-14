@@ -2868,8 +2868,8 @@ public:
 		TSCollection <TWhatmanObject> AfterInsertChain; // Опциональный список объектов, которые должны быть вставлены после нового экземпляра объекта
 			// Этот список может быть сформирован функцией HandleCommand для формирования комплексных объектов.
 	private:
-		SetupByToolCmdBlock(const SetupByToolCmdBlock & rS) {} // disable copy-constructor
-		SetupByToolCmdBlock & operator = (const SetupByToolCmdBlock & rS) {} // disable assignment
+		SetupByToolCmdBlock(const SetupByToolCmdBlock & /*rS*/) {} // disable copy-constructor
+		SetupByToolCmdBlock & operator = (const SetupByToolCmdBlock & /*rS*/) {} // disable assignment
 	};
 	virtual int HandleCommand(int cmd, void * pExt);
 	virtual TWhatmanObject * Dup() const;

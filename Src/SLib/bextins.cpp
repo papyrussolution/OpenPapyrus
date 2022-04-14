@@ -1,5 +1,5 @@
 // BEXTINS.CPP
-// Copyright (c) A.Sobolev 1997-1999, 2000, 2004, 2008, 2009, 2010, 2015, 2017, 2018
+// Copyright (c) A.Sobolev 1997-1999, 2000, 2004, 2008, 2009, 2010, 2015, 2017, 2018, 2022
 // @codepage UTF-8
 // Поддержка операции расширенной вставки записей
 //
@@ -59,7 +59,7 @@ int BExtInsert::flash()
 			ok = P_Tbl->Btr_Implement_BExtInsert(this);
 		}
 		SETFLAG(State, stValid, ok);
-		ActualCount = (State & stValid) ? GetCount() : 0xffffU;
+		ActualCount = static_cast<uint16>((State & stValid) ? GetCount() : 0xffffU);
 		Reset();
 	}
 	return BIN(State & stValid);
