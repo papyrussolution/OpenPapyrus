@@ -2495,7 +2495,7 @@ static ulong BmpSize(long width, long height)
 	if(width < 1 || height < 1) {
 		return 0; // Illegal size 
 	} 
-	else if(width > ((0x7fffffffL - sizeof(BmpFileHeader) - sizeof(BmpInfoHeader)) / height - pad) / 3) {
+	else if(width > static_cast<long>(((0x7fffffffL - sizeof(BmpFileHeader) - sizeof(BmpInfoHeader)) / height - pad) / 3)) {
 		return 0; // Overflow 
 	} 
 	else {
@@ -2507,8 +2507,8 @@ void * SImageBuffer::TransformToBitmap() const
 {
 	HBITMAP h_result = 0;
 	BITMAP  bmp;
-	const int _w = (int)S.x;
-	const int _h = (int)S.y;
+	const uint _w = static_cast<uint>(S.x);
+	const uint _h = static_cast<uint>(S.y);
 	THROW_S((_w >= 1 && _w <= 30000) && (_h >= 1 && _h <= 30000), SLERR_INVIMAGESIZE); // no image
 	{
 		const SImageBuffer::PixF pf(SImageBuffer::PixF::s32ARGB);
@@ -2518,8 +2518,8 @@ void * SImageBuffer::TransformToBitmap() const
 		THROW(uniform_buf.IsValid());
 		memzero(&bmp, sizeof(bmp));
 		bmp.bmType = 0;
-		bmp.bmWidth = _w;
-		bmp.bmHeight = _h;
+		bmp.bmWidth = static_cast<long>(_w);
+		bmp.bmHeight = static_cast<long>(_h);
 		bmp.bmWidthBytes = stride;
 		bmp.bmPlanes = 1;
 		bmp.bmBitsPixel = pf.GetBpp();

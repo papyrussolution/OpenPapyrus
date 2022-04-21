@@ -1566,7 +1566,7 @@ private:
 //
 struct DbTableStat {
 	DbTableStat();
-	void   Clear();
+	DbTableStat & Z();
 	//
 	// Descr: Флаги элементов статистики, которые могут быть инициализированы
 	//   в этой структуре.

@@ -410,9 +410,12 @@ static hb_bool_t hb_ft_get_glyph_from_name(hb_font_t * font CXX_UNUSED_PARAM, vo
 	else {
 		// Make a nul-terminated version
 		char buf[128];
+		/* @sobolev
 		len = hb_min(len, (int)sizeof(buf)-1);
 		strncpy(buf, name, len);
 		buf[len] = '\0';
+		*/
+		STRNSCPY(buf, name); // @sobolev
 		*glyph = FT_Get_Name_Index(ft_face, buf);
 	}
 	if(*glyph == 0) {

@@ -1644,8 +1644,10 @@ SString & ChZnInterface::MakeTargetUrl_(int query, const char * pAddendum, const
 				// https://api.mdlp.crpt.ru:443/api/v1/documents/send
 				if(oneof3(query, qDocumentSend, qGetDoc, qGetTicket)) 
 					rResult = "https";
+				else if(oneof2(query, qAuth, qToken)) // @v11.3.8
+					rResult = "https";
 				else
-					rResult = "https"; // @v11.3.8 http-->https
+					rResult = "http";
 				rResult.Cat("://").Cat("api").Dot();
 				if(rIb.GuaPack.Rec.Flags & PPGlobalUserAcc::fSandBox)
 					rResult.Cat("sb").Dot();
@@ -2724,14 +2726,53 @@ int ChZnInterface::Connect(InitBlock & rIb)
 		{
 			InetUrl url(MakeTargetUrl_(qAuth, 0, rIb, url_buf));
 			THROW(MakeAuthRequest(rIb, req_buf));
+			// @v11.3.8 {
 			{
+				HINTERNET h_inet_sess = 0;
+				HINTERNET h_connection = 0;
+				HINTERNET h_req = 0;
+				WinInternetHandleStack hstk;
+				int    wininet_err = 0;
+				int    win_err = 0;
+				THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+				THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
+				{
+					THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
+					//
+					int  isor = 0;
+					uint iresp = 0;
+					{
+						const CERT_CONTEXT * p_cert = GetClientSslCertificate(rIb);
+						if(p_cert) {
+							isor = InternetSetOption(h_req, INTERNET_OPTION_CLIENT_CERT_CONTEXT, (LPVOID)(p_cert), sizeof(*p_cert));
+							if(!isor) {
+								win_err = GetLastError();
+								iresp = GetLastWinInternetResponse(temp_buf);
+							}
+						}
+					}
+					//
+					MakeHeaderFields(rIb.Token, 0, 0, temp_buf);
+					if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+						SString wi_msg;
+						uint  wi_code = GetLastWinInternetResponse(wi_msg);
+						ReadReply(h_req, temp_buf);
+						if(ReadJsonReplyForSingleItem(temp_buf, "code", result_code) > 0)
+							ok = 1;
+					}
+					else
+						wininet_err = GetLastError();
+				}
+			}
+			// } @v11.3.8 
+			/*{
 				ScURL c;
 				StrStrAssocArray hdr_flds;
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 					Lth.Log("req", url_buf, req_buf);
-					THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+					THROW_SL(c.HttpPost(url, ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)); // ? ScURL::mfDontVerifySslPeer
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
@@ -2742,20 +2783,59 @@ int ChZnInterface::Connect(InitBlock & rIb)
 						}
 					}
 				}
-			}
+			}*/
 		}
 		if(ok > 0) {
 			ok = -1;
 			InetUrl url(MakeTargetUrl_(qToken, 0, rIb, url_buf));
 			THROW(MakeTokenRequest(rIb, result_code, req_buf));
+			// @v11.3.8 {
 			{
+				HINTERNET h_inet_sess = 0;
+				HINTERNET h_connection = 0;
+				HINTERNET h_req = 0;
+				WinInternetHandleStack hstk;
+				int    wininet_err = 0;
+				int    win_err = 0;
+				THROW(h_inet_sess = hstk.Push(InternetOpen(_T("Papyrus"), INTERNET_OPEN_TYPE_DIRECT, 0/*lpszProxy*/, 0/*lpszProxyBypass*/, 0/*dwFlags*/)));
+				THROW(h_connection = hstk.PushConnection(url, h_inet_sess));
+				{
+					THROW(h_req = hstk.PushHttpRequestPost(h_connection, url));
+					//
+					int  isor = 0;
+					uint iresp = 0;
+					{
+						const CERT_CONTEXT * p_cert = GetClientSslCertificate(rIb);
+						if(p_cert) {
+							isor = InternetSetOption(h_req, INTERNET_OPTION_CLIENT_CERT_CONTEXT, (LPVOID)(p_cert), sizeof(*p_cert));
+							if(!isor) {
+								win_err = GetLastError();
+								iresp = GetLastWinInternetResponse(temp_buf);
+							}
+						}
+					}
+					//
+					MakeHeaderFields(rIb.Token, 0, 0, temp_buf);
+					if(HttpSendRequest(h_req, SUcSwitch(temp_buf), -1, const_cast<char *>(req_buf.cptr())/*optional data*/, req_buf.Len()/*optional data length*/)) {
+						SString wi_msg;
+						uint  wi_code = GetLastWinInternetResponse(wi_msg);
+						ReadReply(h_req, temp_buf);
+						if(ReadJsonReplyForSingleItem(temp_buf, "token", rIb.Token) > 0)
+							ok = 1;
+					}
+					else
+						wininet_err = GetLastError();
+				}
+			}
+			// } @v11.3.8 
+			/*{
 				ScURL c;
 				StrStrAssocArray hdr_flds;
 				SHttpProtocol::SetHeaderField(hdr_flds, SHttpProtocol::hdrContentType, "application/json;charset=UTF-8");
 				{
 					SFile wr_stream(ack_buf.Z(), SFile::mWrite);
 					Lth.Log("req", url_buf, req_buf);
-					THROW_SL(c.HttpPost(url, /*ScURL::mfDontVerifySslPeer|*/ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream));
+					THROW_SL(c.HttpPost(url, ScURL::mfVerbose, &hdr_flds, req_buf, &wr_stream)); // ? ScURL::mfDontVerifySslPeer
 					{
 						SBuffer * p_ack_buf = static_cast<SBuffer *>(wr_stream);
 						if(p_ack_buf) {
@@ -2766,7 +2846,7 @@ int ChZnInterface::Connect(InitBlock & rIb)
 						}
 					}
 				}
-			}
+			}*/
 		}
 	}
 	else if(oneof3(rIb.ProtocolId, InitBlock::protidEdoLtElk, InitBlock::protidEdoLtInt, InitBlock::protidGisMt)) {

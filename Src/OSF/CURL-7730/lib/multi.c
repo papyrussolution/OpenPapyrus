@@ -2503,28 +2503,21 @@ CURLMcode curl_multi_perform(struct Curl_multi * multi, int * running_handles)
 	CURLMcode returncode = CURLM_OK;
 	struct Curl_tree * t;
 	struct curltime now = Curl_now();
-
 	if(!GOOD_MULTI_HANDLE(multi))
 		return CURLM_BAD_HANDLE;
-
 	if(multi->in_callback)
 		return CURLM_RECURSIVE_API_CALL;
-
 	data = multi->easyp;
 	while(data) {
 		CURLMcode result;
 		SIGPIPE_VARIABLE(pipe_st);
-
 		sigpipe_ignore(data, &pipe_st);
 		result = multi_runsingle(multi, &now, data);
 		sigpipe_restore(&pipe_st);
-
 		if(result)
 			returncode = result;
-
 		data = data->next; /* operate on next handle */
 	}
-
 	/*
 	 * Simply remove all expired timers from the splay since handles are dealt
 	 * with unconditionally by this function and curl_multi_timeout() requires
@@ -2541,12 +2534,9 @@ CURLMcode curl_multi_perform(struct Curl_multi * multi, int * running_handles)
 			/* the removed may have another timeout in queue */
 			(void)add_next_timeout(now, multi, (Curl_easy *)t->payload);
 	} while(t);
-
 	*running_handles = multi->num_alive;
-
 	if(CURLM_OK >= returncode)
 		Curl_update_timer(multi);
-
 	return returncode;
 }
 
@@ -2554,13 +2544,10 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 {
 	struct Curl_easy * data;
 	struct Curl_easy * nextdata;
-
 	if(GOOD_MULTI_HANDLE(multi)) {
 		if(multi->in_callback)
 			return CURLM_RECURSIVE_API_CALL;
-
 		multi->type = 0; /* not good anymore */
-
 		/* Firsrt remove all remaining easy handles */
 		data = multi->easyp;
 		while(data) {
@@ -2574,30 +2561,23 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 				data->dns.hostcache = NULL;
 				data->dns.hostcachetype = Names::HCACHE_NONE;
 			}
-
 			/* Clear the pointer to the connection cache */
 			data->state.conn_cache = NULL;
 			data->multi = NULL; /* clear the association */
-
 #ifdef USE_LIBPSL
 			if(data->psl == &multi->psl)
 				data->psl = NULL;
 #endif
-
 			data = nextdata;
 		}
-
 		/* Close all the connections in the connection cache */
 		Curl_conncache_close_all_connections(&multi->conn_cache);
-
 		Curl_hash_destroy(&multi->sockhash);
 		Curl_conncache_destroy(&multi->conn_cache);
 		Curl_llist_destroy(&multi->msglist, NULL);
 		Curl_llist_destroy(&multi->pending, NULL);
-
 		Curl_hash_destroy(&multi->hostcache);
 		Curl_psl_destroy(&multi->psl);
-
 #ifdef USE_WINSOCK
 		WSACloseEvent(multi->wsa_event);
 #else
@@ -2607,12 +2587,10 @@ CURLMcode curl_multi_cleanup(struct Curl_multi * multi)
 #endif
 #endif
 		SAlloc::F(multi);
-
 		return CURLM_OK;
 	}
 	return CURLM_BAD_HANDLE;
 }
-
 /*
  * curl_multi_info_read()
  *

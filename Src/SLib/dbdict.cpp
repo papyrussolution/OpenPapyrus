@@ -13,7 +13,7 @@ DbTableStat::DbTableStat() : ReqItems(0), RetItems(0), UnsupItem(0), ID(0), Owne
 {
 }
 
-void DbTableStat::Clear()
+DbTableStat & DbTableStat::Z()
 {
 	ID = 0;
 	OwnerLevel = 0;
@@ -32,6 +32,7 @@ void DbTableStat::Clear()
 	SpaceName.Z();
 	FldList.reset();
 	IdxList.reset();
+	return *this;
 }
 
 DbDictionary::DbDictionary() : State(0)
@@ -211,7 +212,7 @@ BDictionary::BDictionary(int btrDict, const char * pPath) : DbProvider(new DbDic
 		// его появления может проийти некоторое время. По этому, формируем
 		// задержку для ожидания появления созданного файла.
 		//
-		while(!IsFileExists_(b)) { // @v7.9.9 fileExists-->BDictionary::IsFileExists
+		while(!IsFileExists_(b)) {
 			SDelay(10);
 		}
 		if(createMode < 0 && IS_CRM_TEMP(createMode)) {

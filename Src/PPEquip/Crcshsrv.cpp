@@ -137,7 +137,7 @@ private:
 		filTypChkXml
 	};
 	virtual int IsReadyForExport();
-	int    ImportZRepList(SVector * pZRepList, int isLocalFiles);
+	int    ImportZRepList(SVector * pZRepList, bool useLocalFiles);
 	int    ConvertWareList(const SVector * pZRepList, const char *);
 	int    ConvertWareListV10(const SVector * pZRepList, const char * pPath, const char *);
 	int    ConvertCheckHeads(const SVector * pZRepList, const char *);
@@ -154,7 +154,7 @@ private:
 	int    IsFileExists(const char * pFile, const char * pSubDir); // @<<ACS_CRCSHSRV::IsReadyForExport
 	int    GetCashiersList();
 	int    SearchCardCode(SCardCore * pSc, const char * pCode, SCardTbl::Rec * pRec);
-	int    GetFilesLocal();
+	bool   GetFilesLocal();
 	PPBillImpExpParam * CreateImpExpParam(uint sdRecID);
 	void   Backup(const char * pPrefix, const char * pPath);
 	int    Helper_ExportGoods_V10(int mode, const SString & rPathGoods, const PPAsyncCashNode & rCnData, const SString & rStoreIndex,
@@ -251,17 +251,17 @@ int ACS_CRCSHSRV::IsFileExists(const char * pFile, const char * pSubDir)
 	return BIN(DistributeFile_(path, 0/*pEndFileName*/, dfactCheckExistence, pSubDir, 0) > 0);
 }
 
-int ACS_CRCSHSRV::GetFilesLocal()
+bool ACS_CRCSHSRV::GetFilesLocal()
 {
-	int    r = 0;
+	bool   result = false;
 	const  char * p_ready_fname = "ascready.";
 	SString ready_fpath;
 	PPAsyncCashNode acn;
 	if(GetNodeData(&acn) > 0) {
 		(ready_fpath = acn.ImpFiles).SetLastSlash().Cat(p_ready_fname);
-		r = fileExists(ready_fpath);
+		result = fileExists(ready_fpath);
 	}
-	return r;
+	return result;
 }
 
 #define GOODS_XML    "catalog-goods.xml"
@@ -3076,6 +3076,7 @@ public:
 		char   GoodsCode[32];
 		char   Barcode[32];
 		char   Serial[32];
+		char   Mark[256]; // @v11.3.8 Марка ЕГАИС или честный знак
 		double Price;
 		double PriceWithDiscount;
 		double Qtty;
@@ -3227,7 +3228,8 @@ int XmlReader::Next(Packet * pPack)
 	Header hdr;
 	Packet pack;
 	SString tag_name;
-	SString val, attr_name;
+	SString val;
+	SString attr_name;
 	do {
 		if(P_CurRec) {
 			MEMSZERO(hdr);
@@ -3385,10 +3387,10 @@ int XmlReader::Next(Packet * pPack)
 				}
 			}
 		}
-		//
-		// Извлекаем тип оплаты
-		//
 		{
+			//
+			// Извлекаем тип оплаты
+			//
 			/*
 				<payments>
 					<payment typeClass="CashPaymentEntity" amountPurchase="48613.85"/>
@@ -3449,10 +3451,10 @@ int XmlReader::Next(Packet * pPack)
 				}
 			}
 		}
-		//
-		// Извлекаем скидки
-		//
 		{
+			//
+			// Извлекаем скидки
+			//
 			xmlNode * p_fld = P_CurRec->children;
 			for(; p_fld != 0; p_fld = p_fld->next) {
 				if(sstreqi_ascii((const char *)p_fld->name, "discounts")) {
@@ -3506,6 +3508,20 @@ int XmlReader::Next(Packet * pPack)
 					pack.GetHead(&head);
 					STRNSCPY(head.SCardNum, p_dis_fld->children->content);
 					pack.PutHead(&head);
+				}
+			}
+		}
+		{
+			// exciseBottles
+			for(const xmlNode * p_fld = P_CurRec->children; p_fld; p_fld = p_fld->next) {
+				if(sstreqi_ascii((const char *)p_fld->name, "exciseBottles")) {
+					for(const xmlNode * p_inr_fld = p_fld->children; p_inr_fld; p_inr_fld = p_inr_fld->next) {
+						if(SXml::IsName(p_inr_fld, "bottle")) {
+							//<bottle barcode="9414416305528" exciseBarcode="236304799221631120001PBU2FHEAH5OPPWAANJGZJFJCNMS6GCMVE4QWLH2QITKZC7HLYJE3TAMNOLFAZ4U64MJYET4QHBVLELKUK64G22V67EJGSXRKUIH3BBZ2QJJF22VT6HNJ35KFSJMHB667Y" volume="0.0" price="2726.0"/>
+							if(SXml::GetAttrib(p_inr_fld, "barcode", val)) {
+							}
+						}
+					}
 				}
 			}
 		}
@@ -4302,7 +4318,7 @@ int XmlZRepReader::Next(ZRep * pItem)
 	return ok;
 }
 
-int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
+int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, bool useLocalFiles)
 {
 	int    ok = -1, r = 1;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
@@ -4311,8 +4327,8 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 	DbfTable * p_dbftz  = 0;
 	PPImpExp * p_ie_csz = 0;
 	ZRep   zrep;
-	for(oper_date = ChkRepPeriod.low; isLocalFiles || (r > 0 && oper_date <= end); oper_date = plusdate(oper_date, 1)) {
-		if(isLocalFiles)
+	for(oper_date = ChkRepPeriod.low; useLocalFiles || (r > 0 && oper_date <= end); oper_date = plusdate(oper_date, 1)) {
+		if(useLocalFiles)
 			r = 1;
 		else {
 			if(oper_date > ChkRepPeriod.low)
@@ -4421,7 +4437,7 @@ int ACS_CRCSHSRV::ImportZRepList(SVector * pZRepList, int isLocalFiles)
 				ZDELETE(p_dbftz);
 			}
 		}
-		if(isLocalFiles)
+		if(useLocalFiles)
 			break;
 	}
 	pZRepList->sort(PTR_CMPFUNC(_2long));
@@ -4465,8 +4481,10 @@ void ACS_CRCSHSRV::Backup(const char * pPrefix, const char * pPath)
 int ACS_CRCSHSRV::ImportSession(int)
 {
 	int    ok = -1;
-	int    r = 1, files_local = GetFilesLocal();
-	SString wait_msg_tmpl, wait_msg;
+	int    r = 1;
+	const  bool use_local_files = GetFilesLocal();
+	SString wait_msg_tmpl;
+	SString wait_msg;
 	SString query_buf;
 	LDATE  oper_date, end = ChkRepPeriod.upp;
 	SVector zrep_list(sizeof(ZRep));
@@ -4478,14 +4496,15 @@ int ACS_CRCSHSRV::ImportSession(int)
 	// поскольку в противном случае может получиться так, что мы увидим чек,
 	// не увидев Z-отчет, и не сбросим чек в систему.
 	//
-	THROW(r = ImportZRepList(&zrep_list, files_local));
+	THROW(r = ImportZRepList(&zrep_list, use_local_files));
 	if(r > 0) {
+		SString data_dir;
+		SString data_path;
 		AcceptedCheckList.freeAll();
-		for(oper_date = ChkRepPeriod.low; files_local || r > 0 && oper_date <= end; oper_date = plusdate(oper_date, 1)) {
+		for(oper_date = ChkRepPeriod.low; use_local_files || r > 0 && oper_date <= end; oper_date = plusdate(oper_date, 1)) {
 			char   date_buf[32];
 			wait_msg.Printf(wait_msg_tmpl, datefmt(&oper_date, DATF_DMY, date_buf));
 			if(ModuleVer == 10) {
-				SString data_dir, data_path;
 				SDirEntry sd_entry;
 				SPathStruc sp(PathRpt[filTypChkXml]);
 				sp.Merge(SPathStruc::fDrv|SPathStruc::fDir, data_dir);
@@ -4528,7 +4547,7 @@ int ACS_CRCSHSRV::ImportSession(int)
 						THROW(ConvertCheckRows(wait_msg));
 				}
 				else {
-					if(!files_local) {
+					if(!use_local_files) {
 						if(!(ModuleVer == 5 && ModuleSubVer >= 9)) { // @v9.2.7 В режиме 5.9 при посылке запроса на отчеты SetRetail возвращает все отчеты
 							SDelay(2000);
 							if(r > 0)
@@ -4546,7 +4565,7 @@ int ACS_CRCSHSRV::ImportSession(int)
 						THROW(ConvertWareList(&zrep_list, wait_msg));
 						ZDELETE(P_SCardPaymTbl);
 					}
-					if(files_local)
+					if(use_local_files)
 						break;
 				}
 			}

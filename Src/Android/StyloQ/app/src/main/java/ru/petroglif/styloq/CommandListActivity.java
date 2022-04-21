@@ -111,7 +111,7 @@ public class CommandListActivity extends SLib.SlActivity {
 									SvcPack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
 								}
 								if(SvcPack != null) {
-									SLib.SetCtrlString(this, R.id.tbTitle, SvcPack.GetSvcName());
+									SLib.SetCtrlString(this, R.id.tbTitle, SvcPack.GetSvcName(null));
 									StyloQDatabase.SecStoragePacket cmdl_pack = Db.GetForeignSvcCommandList(SvcIdent);
 									ListData = cmdl_pack.GetCommandList();
 									if(ListData == null)

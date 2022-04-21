@@ -120,3 +120,41 @@ int FASTCALL SSqliteDbProvider::ProcessError(int status)
 {
 	return 0;
 }
+
+/*virtual*/int SSqliteDbProvider::Implement_Open(DBTable* pTbl, const char* pFileName, int openMode, char* pPassword)
+{
+	return 0;
+}
+
+/*virtual*/int SSqliteDbProvider::Implement_Close(DBTable* pTbl)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_Search(DBTable* pTbl, int idx, void* pKey, int srchMode, long sf)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_InsertRec(DBTable* pTbl, int idx, void* pKeyBuf, const void* pData)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_UpdateRec(DBTable* pTbl, const void* pDataBuf, int ncc)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_DeleteRec(DBTable* pTbl)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_BExtInsert(BExtInsert* pBei)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_GetPosition(DBTable* pTbl, DBRowId* pPos)
+{
+	return 0;
+}
+/*virtual*/int SSqliteDbProvider::Implement_DeleteFrom(DBTable* pTbl, int useTa, DBQ& rQ)
+{
+	return 0;
+}

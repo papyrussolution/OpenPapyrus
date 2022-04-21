@@ -3695,7 +3695,7 @@ int PPEgaisProcessor::Read_ProductInfo(xmlNode * pFirstNode, PPGoodsPacket * pPa
 					}
 					THROW(GObj.PutPacket(&goods_id, pPack, 1));
 					if(!found_by_rarcode)
-						LogTextWithAddendum(PPTXT_EGAIS_GOODSCREATED, goods_name);
+						LogTextWithAddendum(/*PPTXT_EGAIS_GOODSCREATED*/PPTXT_WAREAUTOCREATED, goods_name);
 				}
 			}
 		}
@@ -6635,7 +6635,7 @@ int PPEgaisProcessor::Helper_Read(void * pCtx, const char * pFileName, long flag
                         	for(const xmlNode * p_n = p_nd->children; p_n; p_n = p_n->next) {
                         		if(SXml::IsName(p_n, "Marks")) {
 									PPGetFilePath(PPPATH_OUT, "egais-marks", out_file_name);
-									const int is_out_empty = fileExists(out_file_name) ? 0 : 1;
+									const bool is_out_empty = !fileExists(out_file_name);
 									SFile out_file(out_file_name, SFile::mAppend);
 									if(is_out_empty) {
 										line_buf.Z().Cat("Type").Tab().Cat("Rank").Tab().Cat("Number").Tab().Cat("Barcode").CR();

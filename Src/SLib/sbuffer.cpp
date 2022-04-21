@@ -395,7 +395,7 @@ int FASTCALL SBuffer::Write(const /*SArray*/SVectorBase * pAry, long options)
 		THROW(Write(&c16, sizeof(c16)));
 	}
 	if(c) {
-		THROW(Write(pAry->dataPtr(), item_size * c)); // @v9.4.1
+		THROW(Write(pAry->dataPtr(), item_size * c));
 	}
 	CATCH
 		WrOffs = beg_pos;

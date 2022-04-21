@@ -3995,10 +3995,9 @@ retry_write:
 			goto retry_write;
 #endif
 		DPUTS("write failed, disk error?");
-		/* On a failure, the pagecache still contains the new data.
-		 * Write some old data back, to prevent it from being used.
-		 * Use the non-SYNC fd; we know it will fail anyway.
-		 */
+		// On a failure, the pagecache still contains the new data.
+		// Write some old data back, to prevent it from being used.
+		// Use the non-SYNC fd; we know it will fail anyway.
 		meta.mm_last_pg = metab.mm_last_pg;
 		meta.mm_txnid = metab.mm_txnid;
 #ifdef _WIN32
@@ -4013,15 +4012,14 @@ fail:
 		env->me_flags |= MDB_FATAL_ERROR;
 		return rc;
 	}
-	/* MIPS has cache coherency issues, this is a no-op everywhere else */
+	// MIPS has cache coherency issues, this is a no-op everywhere else 
 	CACHEFLUSH(env->me_map + off, len, DCACHE);
 done:
-	/* Memory ordering issues are irrelevant; since the entire writer
-	 * is wrapped by wmutex, all of these changes will become visible
-	 * after the wmutex is unlocked. Since the DB is multi-version,
-	 * readers will get consistent data regardless of how fresh or
-	 * how stale their view of these values is.
-	 */
+	// Memory ordering issues are irrelevant; since the entire writer
+	// is wrapped by wmutex, all of these changes will become visible
+	// after the wmutex is unlocked. Since the DB is multi-version,
+	// readers will get consistent data regardless of how fresh or
+	// how stale their view of these values is.
 	if(env->me_txns)
 		env->me_txns->mti_txnid = txn->mt_txnid;
 	return MDB_SUCCESS;

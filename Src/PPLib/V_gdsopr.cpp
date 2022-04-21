@@ -1,5 +1,5 @@
 // V_GDSOPR.CPP
-// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -764,7 +764,7 @@ void GoodsOpAnlzCmpFiltDialog::SetupFlags()
 		Data.CompareItems.RemoveItemByID(item.ObjID);
 	getSelection(&item.ObjID);
 	item.Flags = 0;
-	if(Data.CompareItems.SearchItemByID(item.ObjID, &p) > 0)
+	if(Data.CompareItems.SearchItemByID(item.ObjID, &p))
 		item = Data.CompareItems.at(p);
 	SetClusterData(CTL_GOODSOPRE_FLAGS, item.Flags);
 	PrevID = item.ObjID;

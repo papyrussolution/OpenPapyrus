@@ -3053,7 +3053,7 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 					}
 					log_path.SetLastSlash().Cat("stylo.log");
 				}
-				if(fileExists(temp_path) > 0) {
+				if(fileExists(temp_path)) {
 					long start = 1;
 					SString dir, path;
 					SPathStruc sp(temp_path);

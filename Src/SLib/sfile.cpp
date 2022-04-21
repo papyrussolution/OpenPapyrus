@@ -2796,6 +2796,7 @@ SFileFormat::SFileFormat(int f) : Id(f)
 {
 }
 
+void SFileFormat::Clear() { Id = Unkn; }
 SFileFormat::operator int () const { return Id; }
 int SFileFormat::operator !() const { return (Id == 0); }
 

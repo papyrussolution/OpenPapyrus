@@ -545,8 +545,7 @@ int STDCALL mysql_server_init(int argc, char ** argv, char ** groups);
 void STDCALL mysql_server_end(void);
 void STDCALL mysql_thread_end(void);
 bool STDCALL mysql_thread_init(void);
-int STDCALL mysql_set_server_option(MYSQL * mysql,
-    enum enum_mysql_set_option option);
+int STDCALL mysql_set_server_option(MYSQL * mysql, enum enum_mysql_set_option option);
 const char * STDCALL mysql_get_client_info(void);
 unsigned long STDCALL mysql_get_client_version(void);
 bool STDCALL mariadb_connection(MYSQL * mysql);

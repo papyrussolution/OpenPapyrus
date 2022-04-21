@@ -1367,16 +1367,18 @@ public class StyloQInterchange {
 						StyloQFace current_face = new StyloQFace();
 						if(current_face.FromJson(new String(face_bytes))) {
 							String ees_text = current_face.Get(StyloQFace.tagExpiryEpochSec, 0);
-							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text)))
+							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text))) {
 								do_query_face = false;
+							}
 						}
 					}
 					if(SLib.GetLen(cfg_bytes) > 0) {
 						StyloQConfig current_cfg = new StyloQConfig();
 						if(current_cfg.FromJson(new String(cfg_bytes))) {
 							String ees_text = current_cfg.Get(StyloQConfig.tagExpiryEpochSec);
-							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text)))
+							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text))) {
 								do_query_cfg = false;
+							}
 						}
 					}
 					if(do_query_face || do_query_cfg) {

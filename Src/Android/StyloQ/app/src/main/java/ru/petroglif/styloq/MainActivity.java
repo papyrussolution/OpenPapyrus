@@ -232,7 +232,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							Data = _data;
 						}
 						String text;
-						SLib.SetCtrlString(this, R.id.CTL_STQSERVICE_CN, _data.GetSvcName());
+						SLib.SetCtrlString(this, R.id.CTL_STQSERVICE_CN, _data.GetSvcName(null));
 						byte [] face_ref = _data.Pool.Get(SecretTagPool.tagAssignedFaceRef);
 						int    face_ref_id = 0;
 						SLib.StrAssocArray face_list = new SLib.StrAssocArray();
@@ -427,11 +427,25 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 											StyloQDatabase.SecStoragePacket cur_entry = db.GetPeerEntry(cur_id);
 											if(cur_entry != null) {
 												View iv = ev_subj.RvHolder.itemView;
-												TextView ctl = (TextView) iv.findViewById(R.id.LVITEM_SVCNAME);
-												String text = "";
+												TextView ctl = (TextView)iv.findViewById(R.id.LVITEM_SVCNAME);
+												StyloQFace face = cur_entry.GetFace();
 												if(ctl != null) {
-													ctl.setText(cur_entry.GetSvcName());
+													ctl.setText(cur_entry.GetSvcName(face));
 													//holder.flagView.setImageResource(state.getFlagResource());
+												}
+												String blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
+												{
+													View imgv_ = iv.findViewById(R.id.LVITEM_IMG);
+													if(imgv_ != null && imgv_ instanceof ImageView) {
+														ImageView imgv = (ImageView)imgv_;
+														if(SLib.GetLen(blob_signature) > 0) {
+															imgv.setVisibility(View.VISIBLE);
+															Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
+														}
+														else {
+															imgv.setVisibility(View.GONE);
+														}
+													}
 												}
 											}
 										}
@@ -503,13 +517,6 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					try {
 						// (it works!) ctx.TestDisplaySnackbar(v_info, "Тестовый текст для snackbar'а", -2);
-						if(true) {
-							View v = findViewById(R.id.TEST_LOADED_IMAGE);
-							if(v != null && v instanceof ImageView) {
-								ImageView iv = (ImageView)v;
-								Glide.with(this).load(GlideSupport.ModelPrefix + "si7y2rmkvq6bqm7lfasonoxhpy").into(iv);
-							}
-						}
 						TestScan();
 						if(false) {
 							//

@@ -4147,7 +4147,7 @@ int STimeChunkArray::Helper_Intersect(const STimeChunk & rChunk, STimeChunkArray
 	for(uint j = 0; j < getCount(); j++) {
 		const STimeChunk * p_item = static_cast<const STimeChunk *>(at(j));
 		STimeChunk sect;
-		if(rChunk.Intersect(*p_item, &sect) > 0) {
+		if(rChunk.Intersect(*p_item, &sect)) {
 			rResult.Add(&sect, 0);
 			yes = 1;
 		}

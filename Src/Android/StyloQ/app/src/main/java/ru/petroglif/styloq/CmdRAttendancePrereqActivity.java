@@ -22,6 +22,8 @@ import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONArray;
@@ -598,6 +600,20 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													btn.setText("order");
 											}
 										}
+										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
+										{
+											View imgv_ = iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_IMG);
+											if(imgv_ != null && imgv_ instanceof ImageView) {
+												ImageView imgv = (ImageView)imgv_;
+												if(SLib.GetLen(blob_signature) > 0) {
+													imgv.setVisibility(View.VISIBLE);
+													Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
+												}
+												else {
+													imgv.setVisibility(View.GONE);
+												}
+											}
+										}
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 										{
 											ImageView ctl = (ImageView)iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_EXPANDSTATUS);
@@ -785,6 +801,20 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										if(cur_entry != null && cur_entry.JsItem != null) {
 											final int cur_id = cur_entry.JsItem.optInt("id", 0);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
+											String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
+											{
+												View imgv_ = iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_IMG);
+												if(imgv_ != null && imgv_ instanceof ImageView) {
+													ImageView imgv = (ImageView)imgv_;
+													if(SLib.GetLen(blob_signature) > 0) {
+														imgv.setVisibility(View.VISIBLE);
+														Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
+													}
+													else {
+														imgv.setVisibility(View.GONE);
+													}
+												}
+											}
 											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_PROCESSOR, cur_id);
 											{
 												ImageView ctl = (ImageView)iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_EXPANDSTATUS);

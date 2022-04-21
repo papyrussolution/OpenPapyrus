@@ -4968,7 +4968,7 @@ int EdiProviderImplementation_Kontur::ReadCommonAttributes(const xmlNode * pNode
 		ok = 1;
 	if(SXml::GetAttrib(pNode, "unitOfMeasure", rA.UOM))
 		ok = 1;
-	if(SXml::GetAttrib(pNode, "date", temp_buf) > 0) {
+	if(SXml::GetAttrib(pNode, "date", temp_buf)) {
 		rA.Dt = strtodate_(temp_buf, DATF_DMY);
 		ok = 1;
 	}

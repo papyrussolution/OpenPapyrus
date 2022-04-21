@@ -3454,6 +3454,13 @@ int ScURL::Pop3List(const InetUrl & rUrl, int mflags, LAssocArray & rList) // LI
 		url_local.SetComponent(InetUrl::cPath, 0);
 		url_local.Composite(InetUrl::stScheme|InetUrl::stHost|InetUrl::stPort, temp_buf);
 		THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_URL, temp_buf.cptr())));
+		// @v11.3.8 @develop {
+		/* (doesn't work) if(temp_buf.CmpSuffix(".mail.ru", 1) == 0) {
+			if(url_info.Password.NotEmpty()) {
+				THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_SASL_AUTHZID, url_info.Password.cptr())));
+			}
+		}*/
+		// } @v11.3.8
 	}
 	THROW(SetCommonOptions(mflags|mfTcpKeepAlive, 1024, 0))
 	// THROW(SetError(curl_easy_setopt(_CURLH, CURLOPT_CUSTOMREQUEST, "LIST"))); // @v9.8.11

@@ -2396,7 +2396,7 @@ private:
 #define RVALUEPTR(val,ptr)    ((ptr)?((val = *(ptr)), 1) : 0)
 #define DEREFPTROR(ptr,alt)   ((ptr)?(*(ptr)):(alt))
 #define DEREFPTRORZ(ptr)      DEREFPTROR(ptr,0)
-#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1); // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
+#define CENUMINCR(et, v)      (v) = static_cast<et>(static_cast<int>(v)+1) // @v11.3.8 Макрос для обхода ошибки c++ при инкременте enum-value, унаследованного из c-кода
 #define PTR8(p)               (reinterpret_cast<uint8 *>(p))
 #define PTR16(p)              (reinterpret_cast<uint16*>(p))
 #define PTR32(p)              (reinterpret_cast<uint32*>(p))
@@ -5516,7 +5516,7 @@ char * rmvLastSlash(char *);
 //   pBuf
 //
 SString & getExecPath(SString & rBuf);
-int    FASTCALL fileExists(const char * pFileName);
+bool   FASTCALL fileExists(const char * pFileName);
 int    driveValid(const char * path);
 int    FASTCALL IsDirectory(const char * pStr);
 int    pathValid(const char * pPath, int existOnly);
@@ -10583,6 +10583,11 @@ public:
 	SFileFormat(int f); // no explicit
 	operator int () const;
 	int    operator !() const;
+	//
+	// Descr: Устанавливает значение формата в SFileFormat::Unkn
+	// Note: Здесь нельзя применять семантику Z() из-за смешения с одноименным элементом перечисления.
+	//
+	void   Clear();
 	int    GetMimeType() const;
 	//
 	// Descr: Идентифицирует формат файла pFileName по расширению и сигнатуре.

@@ -90,14 +90,23 @@ public class StyloQDatabase extends Database {
 			}
 			return ok;
 		}
-		public String GetSvcName()
+		public StyloQFace GetFace()
 		{
-			String result = "";
+			StyloQFace result = null;
 			byte[] svc_face = Pool.Get(SecretTagPool.tagFace);
 			if(svc_face != null) {
-				StyloQFace face = new StyloQFace();
-				if(face.FromJson(new String(svc_face)))
-					result = face.GetSimpleText(0);
+				result = new StyloQFace();
+				if(!result.FromJson(new String(svc_face)))
+					result = null;
+			}
+			return result;
+		}
+		public String GetSvcName(StyloQFace outerFaceInstance)
+		{
+			String result = "";
+			StyloQFace face = (outerFaceInstance != null) ? outerFaceInstance : GetFace();
+			if(face != null) {
+				result = face.GetSimpleText(0);
 			}
 			if(SLib.GetLen(result) <= 0) {
 				result = Base64.getEncoder().encodeToString(Rec.BI);

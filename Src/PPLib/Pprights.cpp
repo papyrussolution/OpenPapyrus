@@ -582,7 +582,7 @@ public:
 	{
 		if(!RVALUEPTR(Data, pData))
 			Data.freeAll();
-		if(Data.SearchItemByID(0, 0) <= 0)
+		if(!Data.SearchItemByID(0, 0))
 			Data.Add(0, PPR_READ, 0);
 		setParams(PPOBJ_ACCOUNT2, &Data); // @v9.0.4 PPOBJ_ACCOUNT-->PPOBJ_ACCOUNT2
 		updateList(-1);

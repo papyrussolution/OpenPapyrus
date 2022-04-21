@@ -49,6 +49,7 @@ public class StyloQFace {
 	public static final int tagEMail           = 26; // @v11.3.0
 	public static final int tagVerifiability   = 27; // @v11.3.2 arbitrary || anonymous || verifiable
 	public static final int tagStatus          = 28; // @v11.3.6 statusXXX : string
+	public static final int tagImageBlobSignature = 29; // @v11.3.8 Сигнатура изображения tagImage для передачи клиенту (само изображение клиент получит от медиатора, предъявив сигнатуру)
 	// } @persistent
 	public static final int vArbitrary = 0;
 	public static final int vAnonymous = 1;
@@ -276,6 +277,7 @@ public class StyloQFace {
 			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagEMail,  "email")); // @v11.3.2
 			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagVerifiability,  "verifiability")); // @v11.3.2
 			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagStatus,  "status")); // @v11.3.6
+			TagList.add(new SLib.IntToStrAssoc(StyloQFace.tagImageBlobSignature,  "imgblobs")); // @v11.3.8
 		}
 		return TagList;
 	}

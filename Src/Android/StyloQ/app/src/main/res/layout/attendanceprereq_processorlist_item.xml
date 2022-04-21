@@ -12,13 +12,21 @@
         <ImageView
             android:id="@+id/ATTENDANCEPREREQ_PRC_EXPANDSTATUS"
             android:layout_width="24dp"
-            android:layout_height="24dp"
+            android:layout_height="36dp"
             android:src="@drawable/ic_triangleleft03">
+        </ImageView>
+        <ImageView
+            android:id="@+id/ATTENDANCEPREREQ_PRC_IMG"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:padding="2dp"
+            android:layout_margin="2dp">
         </ImageView>
         <TextView
             android:id="@+id/LVITEM_GENERICNAME"
             android:layout_height="wrap_content"
             android:layout_width="match_parent"
+            android:layout_marginLeft="4dp"
             android:textColor="@color/PrimaryText"
             />
     </LinearLayout>

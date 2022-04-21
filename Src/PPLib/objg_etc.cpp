@@ -1,5 +1,5 @@
 // OBJG_ETC.CPP
-// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2002, 2003, 2005, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Дополнительные классы инфраструктуры управления товарами
 //
@@ -494,7 +494,7 @@ int GoodsValRestrDialog::editItem(long pos, long id)
 	int    ok = -1;
 	uint   _p = 0;
 	const ObjRestrictArray & r_list = Data.GetBillArRestrictList();
-	if(r_list.SearchItemByID(id, &_p) > 0) {
+	if(r_list.SearchItemByID(id, &_p)) {
 		ObjRestrictItem item = r_list.at(_p);
 		while(ok < 0 && EditItem(item) > 0) {
 			if(!Data.SetBillArRestr(item.ObjID, item.Flags)) {

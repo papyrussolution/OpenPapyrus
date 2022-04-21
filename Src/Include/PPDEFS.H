@@ -401,7 +401,9 @@
 //
 #define PPOBJ_CONFIG              1L  // $(PPSecur) Конфигурация системы
 	#define PPCFG_MAIN           1L
-#define PPOBJ_STATUS              2L  // @unused Текущее состояние
+#define PPOBJ_CURRENTSTATE       2L  // Текущее состояние // @v11.3.8 PPOBJ_STATUS-->PPOBJ_CURRENTSTATE Объект теперь используется для хранения специальных
+	// данных, отражающих текущее состояние, используемое для инфраструктурых целей.
+	#define CSTATEPRP_STQOBJBLOBLIST 1L // @v11.3.8 Список идентификаторов объектов, у которых есть BLOB'ы подлежащие отправки сервисам-медиаторам Stylo-Q
 #define PPOBJ_USRGRP              3L  // $(PPSecur) Группы пользователей (struct PPSecur)
 	#define PPGRP_EVERYONE       1L
 #define PPOBJ_USR                 4L  // $(PPSecur) Пользователи (struct PPSecur)

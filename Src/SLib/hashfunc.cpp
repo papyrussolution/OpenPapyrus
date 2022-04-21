@@ -143,7 +143,7 @@ static const SIntToSymbTabEntry P_HashFuncDeclList[] = {
 			}
 			break;
 		default:
-			CALLEXCEPT(SLERR_INVORUNSUPPHASHFUNC);
+			CALLEXCEPT_S(SLERR_INVORUNSUPPHASHFUNC);
 			break;
 	}
 	CATCHZOK

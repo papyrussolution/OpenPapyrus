@@ -52,12 +52,12 @@ tools:context=".CmdRAttendancePrereqActivity">
                     android:textColor="@color/TextIcons"/>
             </LinearLayout>
             <View style="@style/FakeView"/>
-            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
-                android:layout_gravity="center_vertical|right"
-                app:srcCompat="@drawable/ic_filterrmv01"/>
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
                 android:layout_gravity="center_vertical|right"
                 app:srcCompat="@drawable/ic_search"/>
+            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
+                android:layout_gravity="center_vertical|right"
+                app:srcCompat="@drawable/ic_filterrmv01"/>
         </LinearLayout>
         <com.google.android.material.tabs.TabLayout
             style="@style/TabLayout"

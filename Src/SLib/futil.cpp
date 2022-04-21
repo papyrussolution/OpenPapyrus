@@ -10,7 +10,7 @@ SDataMoveProgressInfo::SDataMoveProgressInfo()
 	THISZERO();
 }
 
-int FASTCALL fileExists(const char * pFileName)
+bool FASTCALL fileExists(const char * pFileName)
 {
 /* @snippet Пример определения существования файла посредством WINAPI (Shlwapi.h)
 #ifdef WIN32
@@ -26,7 +26,7 @@ int FASTCALL fileExists(const char * pFileName)
 	if(PathFileExistsA(path) == 1) 
 		return true;
 #endif*/
-	return (!isempty(pFileName) && ::access(pFileName, 0) == 0) ? 1 : SLS.SetError(SLERR_FILENOTFOUND, pFileName);
+	return (!isempty(pFileName) && ::access(pFileName, 0) == 0) ? true : SLS.SetError(SLERR_FILENOTFOUND, pFileName);
 }
 
 #ifdef __WIN32__

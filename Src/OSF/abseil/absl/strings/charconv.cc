@@ -219,10 +219,7 @@ struct CalculatedFloat {
 // minus the number of leading zero bits.)
 unsigned BitWidth(uint128 value) 
 {
-	if(Uint128High64(value) == 0) {
-		return static_cast<unsigned>(bit_width(Uint128Low64(value)));
-	}
-	return (128 - countl_zero(Uint128High64(value)));
+	return (Uint128High64(value) == 0) ? static_cast<unsigned>(bit_width(Uint128Low64(value))) : (128 - countl_zero(Uint128High64(value)));
 }
 
 // Calculates how far to the right a mantissa needs to be shifted to create a
@@ -277,8 +274,7 @@ template <typename FloatType> bool HandleEdgeCase(const strings_internal::Parsed
 			n_char_sequence[nan_size] = '\0';
 		}
 		char* nan_argument = const_cast<char*>(n_char_sequence);
-		*value = negative ? -FloatTraits<FloatType>::MakeNan(nan_argument)
-		    : FloatTraits<FloatType>::MakeNan(nan_argument);
+		*value = negative ? -FloatTraits<FloatType>::MakeNan(nan_argument) : FloatTraits<FloatType>::MakeNan(nan_argument);
 		return true;
 	}
 	if(input.type == strings_internal::FloatType::kInfinity) {
@@ -310,7 +306,8 @@ template <typename FloatType> void EncodeResult(const CalculatedFloat& calculate
 		*value = static_cast<FloatType>(negative ? -0.0 : 0.0);
 		return;
 	}
-	*value = FloatTraits<FloatType>::Make(calculated.mantissa, calculated.exponent, negative);
+	else
+		*value = FloatTraits<FloatType>::Make(calculated.mantissa, calculated.exponent, negative);
 }
 
 // Returns the given uint128 shifted to the right by `shift` bits, and rounds

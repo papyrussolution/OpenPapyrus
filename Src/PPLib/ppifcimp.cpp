@@ -276,7 +276,7 @@ INaturalTokenArray * DL6ICLS_NaturalTokenRecognizer::Run(SString & text, int32 l
 	STokenRecognizer * p_this = static_cast<STokenRecognizer *>(ExtraPtr);
 	if(p_this) {
 		SNaturalTokenStat inner_stat;
-		p_this->Run(text.ucptr(), (len >= 0 && len <= text.Len()) ? len : text.Len(), inner_result, &inner_stat);
+		p_this->Run(text.ucptr(), (len >= 0 && len <= static_cast<int32>(text.Len())) ? len : text.Len(), inner_result, &inner_stat);
 	}
 	return reinterpret_cast<INaturalTokenArray *>(GetINaturalTokenArray(this, &inner_result, false));
 }

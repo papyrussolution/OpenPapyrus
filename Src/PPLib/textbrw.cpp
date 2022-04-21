@@ -255,29 +255,29 @@ int SScEditorStyleSet::ReadStyleAttributes(const xmlNode * pNode, InnerStyle & r
 	rS.FgC.Z();
 	rS.BgC.Z();
 	rS.FontStyle = -1;
-	if(SXml::GetAttrib(pNode, "name", temp_buf) > 0)
+	if(SXml::GetAttrib(pNode, "name", temp_buf))
 		AddS(temp_buf, &rS.StyleNameP);
-	if(SXml::GetAttrib(pNode, "styleID", temp_buf) > 0)
+	if(SXml::GetAttrib(pNode, "styleID", temp_buf))
 		rS.StyleId = (uint)temp_buf.ToLong();
-	if(SXml::GetAttrib(pNode, "fgColor", temp_buf) > 0) {
+	if(SXml::GetAttrib(pNode, "fgColor", temp_buf)) {
 		if(temp_buf.Len() == 6) {
 			temp_buf.Insert(0, "#");
 			rS.FgC.FromStr(temp_buf);
 		}
 	}
-	if(SXml::GetAttrib(pNode, "bgColor", temp_buf) > 0) {
+	if(SXml::GetAttrib(pNode, "bgColor", temp_buf)) {
 		if(temp_buf.Len() == 6) {
 			temp_buf.Insert(0, "#");
 			rS.BgC.FromStr(temp_buf);
 		}
 	}
-	if(SXml::GetAttrib(pNode, "fontName", temp_buf) > 0)
+	if(SXml::GetAttrib(pNode, "fontName", temp_buf))
 		AddS(temp_buf, &rS.FontFaceP);
-	if(SXml::GetAttrib(pNode, "fontStyle", temp_buf) > 0)
+	if(SXml::GetAttrib(pNode, "fontStyle", temp_buf))
 		rS.FontStyle = temp_buf.ToLong();
-	if(SXml::GetAttrib(pNode, "fontSize", temp_buf) > 0)
+	if(SXml::GetAttrib(pNode, "fontSize", temp_buf))
 		rS.FontSize = (uint)temp_buf.ToLong();
-	if(SXml::GetAttrib(pNode, "keywordClass", temp_buf) > 0)
+	if(SXml::GetAttrib(pNode, "keywordClass", temp_buf))
 		AddS(temp_buf, &rS.KeywordClassP);
 	return ok;
 }
@@ -300,11 +300,11 @@ int SScEditorStyleSet::ParseStylesXml(const char * pFileName)
 			if(SXml::IsName(p_n, "LexerStyles")) {
 				for(const xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
 					if(SXml::IsName(p_s, "LexerType")) {
-						if(SXml::GetAttrib(p_s, "name", lexer_name) > 0) {
+						if(SXml::GetAttrib(p_s, "name", lexer_name)) {
 							uint   lexer_id = SScGetLexerIdByName(lexer_name);
 							if(lexer_id) {
 								uint   lexer_descr_p = 0;
-								if(SXml::GetAttrib(p_s, "desc", lexer_descr) > 0) 
+								if(SXml::GetAttrib(p_s, "desc", lexer_descr)) 
 									AddS(lexer_descr, &lexer_descr_p);
 								for(const xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
 									if(SXml::IsName(p_e, "WordsStyle")) {
@@ -413,29 +413,29 @@ int SScEditorStyleSet::ParseModelXml(const char * pFileName)
 			if(SXml::IsName(p_n, "Languages")) {
 				for(const xmlNode * p_s = p_n->children; p_s; p_s = p_s->next) {
 					if(SXml::IsName(p_s, "Language")) {
-						if(SXml::GetAttrib(p_s, "name", lexer_name) > 0) {
+						if(SXml::GetAttrib(p_s, "name", lexer_name)) {
 							uint   lexer_id = SScGetLexerIdByName(lexer_name);
 							if(lexer_id) {
 								InnerLangModel model;
 								MEMSZERO(model);
 								model.LexerId = lexer_id;
-								if(SXml::GetAttrib(p_s, "ext", temp_buf) > 0)
+								if(SXml::GetAttrib(p_s, "ext", temp_buf))
 									AddS(temp_buf, &model.ExtListP);
-								if(SXml::GetAttrib(p_s, "commentLine", temp_buf) > 0)
+								if(SXml::GetAttrib(p_s, "commentLine", temp_buf))
 									AddS(temp_buf, &model.CommentLineP);
-								if(SXml::GetAttrib(p_s, "commentStart", temp_buf) > 0)
+								if(SXml::GetAttrib(p_s, "commentStart", temp_buf))
 									AddS(temp_buf, &model.CommentStartP);
-								if(SXml::GetAttrib(p_s, "commentEnd", temp_buf) > 0)
+								if(SXml::GetAttrib(p_s, "commentEnd", temp_buf))
 									AddS(temp_buf, &model.CommentEndP);
 								THROW_SL(ML.insert(&model));
 								for(const xmlNode * p_e = p_s->children; p_e; p_e = p_e->next) {
 									if(SXml::IsName(p_e, "Keywords")) {
-										if(SXml::GetContent(p_e, temp_buf) > 0 && temp_buf.NotEmptyS()) {
+										if(SXml::GetContent(p_e, temp_buf) && temp_buf.NotEmptyS()) {
 											InnerLangModelKeywords entry;
 											MEMSZERO(entry);
 											entry.LexerId = lexer_id;
 											AddS(temp_buf, &entry.KeywordListP);
-											if(SXml::GetAttrib(p_e, "name", temp_buf) > 0)
+											if(SXml::GetAttrib(p_e, "name", temp_buf))
 												AddS(temp_buf, &entry.KeywordClassP);
 											THROW_SL(KwL.insert(&entry));
 										}

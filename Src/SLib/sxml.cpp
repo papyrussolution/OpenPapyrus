@@ -1,5 +1,5 @@
 // SXML.CPP
-// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, 2002, 2007, 2010, 2012, 2013, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // ¬спомогательные механизмы дл€ работы с XML
 //
 #include <slib-internal.h>
@@ -253,25 +253,25 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 	return ok;
 }
 
-/*static*/int FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
-	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->name), pName)); }
-/*static*/int FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
-	{ return BIN(pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->content), pText)); }
+/*static*/bool FASTCALL SXml::IsName(const xmlNode * pNode, const char * pName)
+	{ return (pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->name), pName)); }
+/*static*/bool FASTCALL SXml::IsContent(const xmlNode * pNode, const char * pText)
+	{ return (pNode && sstreqi_ascii(reinterpret_cast<const char *>(pNode->content), pText)); }
 
-/*static*/int FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
+/*static*/bool FASTCALL SXml::GetContent(const xmlNode * pNode, SString & rResult)
 {
-	int    ok = 0;
+	bool   ok = false;
 	rResult.Z();
 	if(pNode) {
 		if(pNode->content) {
 			rResult.Set(pNode->content);
-			ok = 1;
+			ok = true;
 		}
 		else if(pNode->type == XML_ELEMENT_NODE) {
 			const xmlNode * p_children = pNode->children;
 			if(p_children && p_children->type == XML_TEXT_NODE && p_children->content) {
 				rResult.Set(p_children->content);
-				ok = 1;
+				ok = true;
 			}
 		}
 	}
@@ -288,9 +288,9 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 	return ok;
 }
 
-/*static*/int SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
+/*static*/bool SXml::GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult)
 {
-	int    ok = 0;
+	int    ok = false;
 	rResult.Z();
     if(pNode) {
 		for(const xmlAttr * p_attr = pNode->properties; p_attr; p_attr = p_attr->next) {
@@ -298,7 +298,7 @@ int SXml::WNode::Construct(xmlTextWriter * pWriter, const char * pName)
 				const xmlNode * p_children = p_attr->children;
 				if(p_children && p_children->type == XML_TEXT_NODE)
 					rResult.Set(p_children->content);
-				ok = 1;
+				ok = true;
 			}
 		}
     }

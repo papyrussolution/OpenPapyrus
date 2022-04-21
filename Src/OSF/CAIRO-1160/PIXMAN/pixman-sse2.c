@@ -12,15 +12,6 @@
  * suitability of this software for any purpose.  It is provided "as is"
  * without express or implied warranty.
  *
- * THE COPYRIGHT HOLDERS DISCLAIM ALL WARRANTIES WITH REGARD TO THIS
- * SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
- * FITNESS, IN NO EVENT SHALL THE COPYRIGHT HOLDERS BE LIABLE FOR ANY
- * SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN
- * AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING
- * OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
- * SOFTWARE.
- *
  * Author:  Rodrigo Kumpera (kumpera@gmail.com)
  * André Tupinambá (andrelrt@gmail.com)
  *
@@ -2917,8 +2908,7 @@ static boolint sse2_fill(pixman_implementation_t * imp,
 	return TRUE;
 }
 
-static void sse2_composite_src_n_8_8888(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void sse2_composite_src_n_8_8888(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint32 src, srca;
@@ -3244,44 +3234,29 @@ static void sse2_composite_over_pixbuf_8888(pixman_implementation_t * imp, pixma
 			unpack_128_2x128(xmm_src_hi, &xmm_src_lo, &xmm_src_hi);
 
 			if(opaque) {
-				invert_colors_2x128(xmm_src_lo, xmm_src_hi,
-				    &xmm_dst_lo, &xmm_dst_hi);
-
-				save_128_aligned(
-					(__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
+				invert_colors_2x128(xmm_src_lo, xmm_src_hi, &xmm_dst_lo, &xmm_dst_hi);
+				save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 			}
 			else if(!zero) {
 				xmm_dst_hi = load_128_aligned((__m128i*)dst);
-
 				unpack_128_2x128(xmm_dst_hi, &xmm_dst_lo, &xmm_dst_hi);
-
-				over_rev_non_pre_2x128(xmm_src_lo, xmm_src_hi,
-				    &xmm_dst_lo, &xmm_dst_hi);
-
-				save_128_aligned(
-					(__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
+				over_rev_non_pre_2x128(xmm_src_lo, xmm_src_hi, &xmm_dst_lo, &xmm_dst_hi);
+				save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 			}
-
 			w -= 4;
 			dst += 4;
 			src += 4;
 		}
-
 		while(w) {
 			s = *src++;
 			d = *dst;
-
-			*dst++ = pack_1x128_32(
-				over_rev_non_pre_1x128(
-					unpack_32_1x128(s), unpack_32_1x128(d)));
-
+			*dst++ = pack_1x128_32(over_rev_non_pre_1x128(unpack_32_1x128(s), unpack_32_1x128(d)));
 			w--;
 		}
 	}
 }
 
-static void sse2_composite_over_n_8888_0565_ca(pixman_implementation_t * imp,
-    pixman_composite_info_t * info)
+static void sse2_composite_over_n_8888_0565_ca(pixman_implementation_t * imp, pixman_composite_info_t * info)
 {
 	PIXMAN_COMPOSITE_ARGS(info);
 	uint32 src;
@@ -3441,37 +3416,21 @@ static void sse2_composite_in_n_8(pixman_implementation_t * imp, pixman_composit
 
 		while(w && ((uintptr_t)dst & 15)) {
 			d = (uint32)*dst;
-
-			*dst++ = (uint8)pack_1x128_32(
-				pix_multiply_1x128(
-					xmm_alpha,
-					unpack_32_1x128(d)));
+			*dst++ = (uint8)pack_1x128_32(pix_multiply_1x128(xmm_alpha, unpack_32_1x128(d)));
 			w--;
 		}
-
 		while(w >= 16) {
 			xmm_dst = load_128_aligned((__m128i*)dst);
-
 			unpack_128_2x128(xmm_dst, &xmm_dst_lo, &xmm_dst_hi);
-
-			pix_multiply_2x128(&xmm_alpha, &xmm_alpha,
-			    &xmm_dst_lo, &xmm_dst_hi,
-			    &xmm_dst_lo, &xmm_dst_hi);
-
-			save_128_aligned(
-				(__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
-
+			pix_multiply_2x128(&xmm_alpha, &xmm_alpha, &xmm_dst_lo, &xmm_dst_hi, &xmm_dst_lo, &xmm_dst_hi);
+			save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 			dst += 16;
 			w -= 16;
 		}
-
 		while(w) {
 			d = (uint32)*dst;
-
 			*dst++ = (uint8)pack_1x128_32(
-				pix_multiply_1x128(
-					xmm_alpha,
-					unpack_32_1x128(d)));
+				pix_multiply_1x128(xmm_alpha, unpack_32_1x128(d)));
 			w--;
 		}
 	}
@@ -4401,16 +4360,10 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 	const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);      \
 	const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);      \
 	const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);            \
-	const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x,    \
-		unit_x, -unit_x, unit_x, -unit_x);   \
-	const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4,             \
-		unit_x * 4, -unit_x * 4,             \
-		unit_x * 4, -unit_x * 4,             \
-		unit_x * 4, -unit_x * 4);            \
+	const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x); \
+	const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4, unit_x * 4, -unit_x * 4); \
 	const __m128i xmm_zero = _mm_setzero_si128();                              \
-	__m128i xmm_x = _mm_set_epi16(vx + unit_x * 3, -(vx + 1) - unit_x * 3,     \
-		vx + unit_x * 2, -(vx + 1) - unit_x * 2,     \
-		vx + unit_x * 1, -(vx + 1) - unit_x * 1,     \
+	__m128i xmm_x = _mm_set_epi16(vx + unit_x * 3, -(vx + 1) - unit_x * 3, vx + unit_x * 2, -(vx + 1) - unit_x * 2, vx + unit_x * 1, -(vx + 1) - unit_x * 1, \
 		vx + unit_x * 0, -(vx + 1) - unit_x * 0);    \
 	__m128i xmm_wh_state;
 
@@ -4427,18 +4380,14 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 		xmm_b = _mm_mullo_epi16(_mm_unpacklo_epi8(blbr, xmm_zero), xmm_wb);       \
 		xmm_a = _mm_add_epi16(xmm_a, xmm_b);                                               \
 		/* calculate horizontal weights */                                          \
-		if(phase <= 0)                                                             \
-		{                                                                           \
-			xmm_wh_state = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x,          \
-				16 - BILINEAR_INTERPOLATION_BITS));     \
+		if(phase <= 0) {                                                          \
+			xmm_wh_state = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x, 16 - BILINEAR_INTERPOLATION_BITS)); \
 			xmm_x = _mm_add_epi16(xmm_x, (phase < 0) ? xmm_ux1 : xmm_ux4);         \
 			phase = 0;                                                              \
 		}                                                                           \
-		xmm_wh = _mm_shuffle_epi32(xmm_wh_state, _MM_SHUFFLE(phase, phase,        \
-			phase, phase));      \
+		xmm_wh = _mm_shuffle_epi32(xmm_wh_state, _MM_SHUFFLE(phase, phase, phase, phase)); \
 		/* horizontal interpolation */                                              \
-		xmm_a = _mm_madd_epi16(_mm_unpackhi_epi16(_mm_shuffle_epi32(             \
-				xmm_a, _MM_SHUFFLE(1, 0, 3, 2)), xmm_a), xmm_wh);              \
+		xmm_a = _mm_madd_epi16(_mm_unpackhi_epi16(_mm_shuffle_epi32(xmm_a, _MM_SHUFFLE(1, 0, 3, 2)), xmm_a), xmm_wh); \
 		/* shift the result */                                                      \
 		pix = _mm_srli_epi32(xmm_a, BILINEAR_INTERPOLATION_BITS * 2);              \
 	} while(0)
@@ -4449,15 +4398,13 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 	const __m128i xmm_wt = _mm_set_epi16(wt, wt, wt, wt, wt, wt, wt, wt);      \
 	const __m128i xmm_wb = _mm_set_epi16(wb, wb, wb, wb, wb, wb, wb, wb);      \
 	const __m128i xmm_addc = _mm_set_epi16(0, 1, 0, 1, 0, 1, 0, 1);            \
-	const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x,    \
-		unit_x, -unit_x, unit_x, -unit_x);    \
+	const __m128i xmm_ux1 = _mm_set_epi16(unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x, unit_x, -unit_x); \
 	const __m128i xmm_ux4 = _mm_set_epi16(unit_x * 4, -unit_x * 4,             \
 		unit_x * 4, -unit_x * 4,             \
 		unit_x * 4, -unit_x * 4,             \
 		unit_x * 4, -unit_x * 4);            \
 	const __m128i xmm_zero = _mm_setzero_si128();                              \
-	__m128i xmm_x = _mm_set_epi16(vx, -(vx + 1), vx, -(vx + 1),                \
-		vx, -(vx + 1), vx, -(vx + 1))
+	__m128i xmm_x = _mm_set_epi16(vx, -(vx + 1), vx, -(vx + 1), vx, -(vx + 1), vx, -(vx + 1))
 
 #define BILINEAR_INTERPOLATE_ONE_PIXEL_HELPER(pix, phase)                       \
 	do {                                                                            \
@@ -4472,8 +4419,7 @@ FAST_NEAREST_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_nearest_scanli
 		xmm_b = _mm_mullo_epi16(_mm_unpacklo_epi8(blbr, xmm_zero), xmm_wb);       \
 		xmm_a = _mm_add_epi16(xmm_a, xmm_b);                                       \
 		/* calculate horizontal weights */                                          \
-		xmm_wh = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x,                    \
-			16 - BILINEAR_INTERPOLATION_BITS));     \
+		xmm_wh = _mm_add_epi16(xmm_addc, _mm_srli_epi16(xmm_x, 16 - BILINEAR_INTERPOLATION_BITS)); \
 		xmm_x = _mm_add_epi16(xmm_x, xmm_ux1);                                     \
 		/* horizontal interpolation */                                              \
 		xmm_b = _mm_unpacklo_epi64(/* any value is fine here */ xmm_b, xmm_a);     \
@@ -4604,31 +4550,19 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_x888_8888_cover_SRC, scaled_bilinear_scanline
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_x888_8888_pad_SRC, scaled_bilinear_scanline_sse2_x888_8888_SRC, uint32, uint32, uint32, PAD, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_x888_8888_normal_SRC, scaled_bilinear_scanline_sse2_x888_8888_SRC, uint32, uint32, uint32, NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32 *  dst,
-    const uint32 * mask,
-    const uint32 * src_top,
-    const uint32 * src_bottom,
-    int32 w,
-    int wt,
-    int wb,
-    pixman_fixed_t vx_,
-    pixman_fixed_t unit_x_,
-    pixman_fixed_t max_vx,
-    boolint zero_src)
+static force_inline void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32 *  dst, const uint32 * mask, const uint32 * src_top, const uint32 * src_bottom,
+    int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
 	BILINEAR_DECLARE_VARIABLES;
 	uint32 pix1, pix2;
-
 	while(w && ((uintptr_t)dst & 15)) {
 		BILINEAR_INTERPOLATE_ONE_PIXEL(pix1);
-
 		if(pix1) {
 			pix2 = *dst;
 			*dst = core_combine_over_u_pixel_sse2(pix1, pix2);
 		}
-
 		w--;
 		dst++;
 	}
@@ -4636,23 +4570,17 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8888_OVER(uint32 *  
 		__m128i xmm_src;
 		__m128i xmm_src_hi, xmm_src_lo, xmm_dst_hi, xmm_dst_lo;
 		__m128i xmm_alpha_hi, xmm_alpha_lo;
-
 		BILINEAR_INTERPOLATE_FOUR_PIXELS(xmm_src);
-
 		if(!is_zero(xmm_src)) {
 			if(is_opaque(xmm_src)) {
 				save_128_aligned((__m128i*)dst, xmm_src);
 			}
 			else {
 				__m128i xmm_dst = load_128_aligned((__m128i*)dst);
-
 				unpack_128_2x128(xmm_src, &xmm_src_lo, &xmm_src_hi);
 				unpack_128_2x128(xmm_dst, &xmm_dst_lo, &xmm_dst_hi);
-
 				expand_alpha_2x128(xmm_src_lo, xmm_src_hi, &xmm_alpha_lo, &xmm_alpha_hi);
-				over_2x128(&xmm_src_lo, &xmm_src_hi, &xmm_alpha_lo, &xmm_alpha_hi,
-				    &xmm_dst_lo, &xmm_dst_hi);
-
+				over_2x128(&xmm_src_lo, &xmm_src_hi, &xmm_alpha_lo, &xmm_alpha_hi, &xmm_dst_lo, &xmm_dst_hi);
 				save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 			}
 		}
@@ -4676,24 +4604,14 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_pad_OVER, scaled_bilinear_scanline_
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_none_OVER, scaled_bilinear_scanline_sse2_8888_8888_OVER, uint32, uint32, uint32, NONE, FLAG_NONE)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8888_normal_OVER, scaled_bilinear_scanline_sse2_8888_8888_OVER, uint32, uint32, uint32, NORMAL, FLAG_NONE)
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32 *  dst,
-    const uint8 * mask,
-    const uint32 * src_top,
-    const uint32 * src_bottom,
-    int32 w,
-    int wt,
-    int wb,
-    pixman_fixed_t vx_,
-    pixman_fixed_t unit_x_,
-    pixman_fixed_t max_vx,
-    boolint zero_src)
+static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32 *  dst, const uint8 * mask, const uint32 * src_top, const uint32 * src_bottom,
+    int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
 	BILINEAR_DECLARE_VARIABLES;
 	uint32 pix1, pix2;
 	uint32 m;
-
 	while(w && ((uintptr_t)dst & 15)) {
 		uint32 sa;
 		m = (uint32)*mask++;
@@ -4737,43 +4655,33 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_8_8888_OVER(uint32 *
 				unpack_128_2x128(xmm_dst, &xmm_dst_lo, &xmm_dst_hi);
 				expand_alpha_2x128(xmm_src_lo, xmm_src_hi, &xmm_srca_lo, &xmm_srca_hi);
 				expand_alpha_rev_2x128(xmm_mask_lo, xmm_mask_hi, &xmm_mask_lo, &xmm_mask_hi);
-				in_over_2x128(&xmm_src_lo, &xmm_src_hi, &xmm_srca_lo, &xmm_srca_hi,
-				    &xmm_mask_lo, &xmm_mask_hi, &xmm_dst_lo, &xmm_dst_hi);
-
+				in_over_2x128(&xmm_src_lo, &xmm_src_hi, &xmm_srca_lo, &xmm_srca_hi, &xmm_mask_lo, &xmm_mask_hi, &xmm_dst_lo, &xmm_dst_hi);
 				save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 			}
 		}
 		else {
 			BILINEAR_SKIP_FOUR_PIXELS();
 		}
-
 		w -= 4;
 		dst += 4;
 		mask += 4;
 	}
-
 	while(w) {
 		uint32 sa;
-
 		m = (uint32)*mask++;
-
 		if(m) {
 			BILINEAR_INTERPOLATE_ONE_PIXEL(pix1);
 			sa = pix1 >> 24;
-
 			if(sa == 0xff && m == 0xff) {
 				*dst = pix1;
 			}
 			else {
 				__m128i ms, md, ma, msa;
-
 				pix2 = *dst;
 				ma = expand_alpha_rev_1x128(load_32_1x128(m));
 				ms = unpack_32_1x128(pix1);
 				md = unpack_32_1x128(pix2);
-
 				msa = expand_alpha_rev_1x128(load_32_1x128(sa));
-
 				*dst = pack_1x128_32(in_over_1x128(&ms, &msa, &ma, &md));
 			}
 		}
@@ -4791,17 +4699,8 @@ FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8_8888_pad_OVER, scaled_bilinear_scanlin
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8_8888_none_OVER, scaled_bilinear_scanline_sse2_8888_8_8888_OVER, uint32, uint8, uint32, NONE, FLAG_HAVE_NON_SOLID_MASK)
 FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_8_8888_normal_OVER, scaled_bilinear_scanline_sse2_8888_8_8888_OVER, uint32, uint8, uint32, NORMAL, FLAG_HAVE_NON_SOLID_MASK)
 
-static force_inline void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *  dst,
-    const uint32 * mask,
-    const uint32 * src_top,
-    const uint32 * src_bottom,
-    int32 w,
-    int wt,
-    int wb,
-    pixman_fixed_t vx_,
-    pixman_fixed_t unit_x_,
-    pixman_fixed_t max_vx,
-    boolint zero_src)
+static force_inline void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *  dst, const uint32 * mask, const uint32 * src_top,
+    const uint32 * src_bottom, int32 w, int wt, int wb, pixman_fixed_t vx_, pixman_fixed_t unit_x_, pixman_fixed_t max_vx, boolint zero_src)
 {
 	intptr_t vx = vx_;
 	intptr_t unit_x = unit_x_;
@@ -4834,57 +4733,32 @@ static force_inline void scaled_bilinear_scanline_sse2_8888_n_8888_OVER(uint32 *
 			xmm_dst = load_128_aligned((__m128i*)dst);
 			unpack_128_2x128(xmm_src, &xmm_src_lo, &xmm_src_hi);
 			unpack_128_2x128(xmm_dst, &xmm_dst_lo, &xmm_dst_hi);
-			expand_alpha_2x128(xmm_src_lo, xmm_src_hi,
-			    &xmm_alpha_lo, &xmm_alpha_hi);
-
-			in_over_2x128(&xmm_src_lo, &xmm_src_hi,
-			    &xmm_alpha_lo, &xmm_alpha_hi,
-			    &xmm_mask, &xmm_mask,
-			    &xmm_dst_lo, &xmm_dst_hi);
-
-			save_128_aligned
-				((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
+			expand_alpha_2x128(xmm_src_lo, xmm_src_hi, &xmm_alpha_lo, &xmm_alpha_hi);
+			in_over_2x128(&xmm_src_lo, &xmm_src_hi, &xmm_alpha_lo, &xmm_alpha_hi, &xmm_mask, &xmm_mask, &xmm_dst_lo, &xmm_dst_hi);
+			save_128_aligned((__m128i*)dst, pack_2x128_128(xmm_dst_lo, xmm_dst_hi));
 		}
-
 		dst += 4;
 		w -= 4;
 	}
-
 	while(w) {
 		BILINEAR_INTERPOLATE_ONE_PIXEL(pix1);
 		if(pix1) {
 			uint32 d = *dst;
-
 			__m128i ms = unpack_32_1x128(pix1);
 			__m128i alpha     = expand_alpha_1x128(ms);
 			__m128i dest      = xmm_mask;
 			__m128i alpha_dst = unpack_32_1x128(d);
-
-			*dst = pack_1x128_32
-				    (in_over_1x128(&ms, &alpha, &dest, &alpha_dst));
+			*dst = pack_1x128_32(in_over_1x128(&ms, &alpha, &dest, &alpha_dst));
 		}
-
 		dst++;
 		w--;
 	}
 }
 
-FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_cover_OVER,
-    scaled_bilinear_scanline_sse2_8888_n_8888_OVER,
-    uint32, uint32, uint32,
-    COVER, FLAG_HAVE_SOLID_MASK)
-FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_pad_OVER,
-    scaled_bilinear_scanline_sse2_8888_n_8888_OVER,
-    uint32, uint32, uint32,
-    PAD, FLAG_HAVE_SOLID_MASK)
-FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_none_OVER,
-    scaled_bilinear_scanline_sse2_8888_n_8888_OVER,
-    uint32, uint32, uint32,
-    NONE, FLAG_HAVE_SOLID_MASK)
-FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER,
-    scaled_bilinear_scanline_sse2_8888_n_8888_OVER,
-    uint32, uint32, uint32,
-    NORMAL, FLAG_HAVE_SOLID_MASK)
+FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_cover_OVER, scaled_bilinear_scanline_sse2_8888_n_8888_OVER, uint32, uint32, uint32, COVER, FLAG_HAVE_SOLID_MASK)
+FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_pad_OVER, scaled_bilinear_scanline_sse2_8888_n_8888_OVER, uint32, uint32, uint32, PAD, FLAG_HAVE_SOLID_MASK)
+FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_none_OVER, scaled_bilinear_scanline_sse2_8888_n_8888_OVER, uint32, uint32, uint32, NONE, FLAG_HAVE_SOLID_MASK)
+FAST_BILINEAR_MAINLOOP_COMMON(sse2_8888_n_8888_normal_OVER, scaled_bilinear_scanline_sse2_8888_n_8888_OVER, uint32, uint32, uint32, NORMAL, FLAG_HAVE_SOLID_MASK)
 
 static const pixman_fast_path_t sse2_fast_paths[] =
 {
@@ -5114,44 +4988,34 @@ static uint32 * sse2_fetch_a8(pixman_iter_t * iter, const uint32 * mask)
 
 	while(w >= 16) {
 		xmm0 = _mm_loadu_si128((__m128i*)src);
-
 		xmm1 = _mm_unpacklo_epi8(_mm_setzero_si128(), xmm0);
 		xmm2 = _mm_unpackhi_epi8(_mm_setzero_si128(), xmm0);
 		xmm3 = _mm_unpacklo_epi16(_mm_setzero_si128(), xmm1);
 		xmm4 = _mm_unpackhi_epi16(_mm_setzero_si128(), xmm1);
 		xmm5 = _mm_unpacklo_epi16(_mm_setzero_si128(), xmm2);
 		xmm6 = _mm_unpackhi_epi16(_mm_setzero_si128(), xmm2);
-
 		_mm_store_si128(((__m128i*)(dst +  0)), xmm3);
 		_mm_store_si128(((__m128i*)(dst +  4)), xmm4);
 		_mm_store_si128(((__m128i*)(dst +  8)), xmm5);
 		_mm_store_si128(((__m128i*)(dst + 12)), xmm6);
-
 		dst += 16;
 		src += 16;
 		w -= 16;
 	}
-
 	while(w) {
 		*dst++ = *(src++) << 24;
 		w--;
 	}
-
 	return iter->buffer;
 }
 
-#define IMAGE_FLAGS                                                     \
-	(FAST_PATH_STANDARD_FLAGS | FAST_PATH_ID_TRANSFORM |                \
-	FAST_PATH_BITS_IMAGE | FAST_PATH_SAMPLES_COVER_CLIP_NEAREST)
+#define IMAGE_FLAGS (FAST_PATH_STANDARD_FLAGS | FAST_PATH_ID_TRANSFORM | FAST_PATH_BITS_IMAGE | FAST_PATH_SAMPLES_COVER_CLIP_NEAREST)
 
 static const pixman_iter_info_t sse2_iters[] =
 {
-	{ PIXMAN_x8r8g8b8, IMAGE_FLAGS, ITER_NARROW,
-	  _pixman_iter_init_bits_stride, sse2_fetch_x8r8g8b8, NULL},
-	{ PIXMAN_r5g6b5, IMAGE_FLAGS, ITER_NARROW,
-	  _pixman_iter_init_bits_stride, sse2_fetch_r5g6b5, NULL},
-	{ PIXMAN_a8, IMAGE_FLAGS, ITER_NARROW,
-	  _pixman_iter_init_bits_stride, sse2_fetch_a8, NULL},
+	{ PIXMAN_x8r8g8b8, IMAGE_FLAGS, ITER_NARROW, _pixman_iter_init_bits_stride, sse2_fetch_x8r8g8b8, NULL},
+	{ PIXMAN_r5g6b5, IMAGE_FLAGS, ITER_NARROW, _pixman_iter_init_bits_stride, sse2_fetch_r5g6b5, NULL},
+	{ PIXMAN_a8, IMAGE_FLAGS, ITER_NARROW, _pixman_iter_init_bits_stride, sse2_fetch_a8, NULL},
 	{ PIXMAN_null },
 };
 
@@ -5180,7 +5044,6 @@ pixman_implementation_t * _pixman_implementation_create_sse2(pixman_implementati
 	mask_alpha = create_mask_2x32_128(0x00ff0000, 0x00000000);
 	mask_565_rb = create_mask_2x32_128(0x00f800f8, 0x00f800f8);
 	mask_565_pack_multiplier = create_mask_2x32_128(0x20000004, 0x20000004);
-
 	/* Set up function pointers */
 	imp->combine_32[PIXMAN_OP_OVER] = sse2_combine_over_u;
 	imp->combine_32[PIXMAN_OP_OVER_REVERSE] = sse2_combine_over_reverse_u;
@@ -5192,9 +5055,7 @@ pixman_implementation_t * _pixman_implementation_create_sse2(pixman_implementati
 	imp->combine_32[PIXMAN_OP_ATOP_REVERSE] = sse2_combine_atop_reverse_u;
 	imp->combine_32[PIXMAN_OP_XOR] = sse2_combine_xor_u;
 	imp->combine_32[PIXMAN_OP_ADD] = sse2_combine_add_u;
-
 	imp->combine_32[PIXMAN_OP_SATURATE] = sse2_combine_saturate_u;
-
 	imp->combine_32_ca[PIXMAN_OP_SRC] = sse2_combine_src_ca;
 	imp->combine_32_ca[PIXMAN_OP_OVER] = sse2_combine_over_ca;
 	imp->combine_32_ca[PIXMAN_OP_OVER_REVERSE] = sse2_combine_over_reverse_ca;
@@ -5206,11 +5067,8 @@ pixman_implementation_t * _pixman_implementation_create_sse2(pixman_implementati
 	imp->combine_32_ca[PIXMAN_OP_ATOP_REVERSE] = sse2_combine_atop_reverse_ca;
 	imp->combine_32_ca[PIXMAN_OP_XOR] = sse2_combine_xor_ca;
 	imp->combine_32_ca[PIXMAN_OP_ADD] = sse2_combine_add_ca;
-
 	imp->blt = sse2_blt;
 	imp->fill = sse2_fill;
-
 	imp->iter_info = sse2_iters;
-
 	return imp;
 }

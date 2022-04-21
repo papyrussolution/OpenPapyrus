@@ -755,6 +755,8 @@ IMPL_HANDLE_EVENT(BillHdrImpExpDialog)
 		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
 	else if(event.isClusterClk(CTL_IMPEXPBILH_FLAGS))
 		GetClusterData(CTL_IMPEXPBILH_FLAGS, &Data.Flags);
+	else if(event.isCbSelected(CTLSEL_IMPEXPBILH_PDFMT))
+		SetupCtrls(GetClusterData(CTL_IMPEXP_DIR));
 	else
 		return;
 	clearEvent(event);
@@ -768,6 +770,18 @@ void BillHdrImpExpDialog::SetupCtrls(long direction)
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 0, direction == 0);
 	// @v10.7.11 DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 1, direction == 0 && !(Data.Flags & PPBillImpExpParam::fImpRowsFromSameFile));
 	DisableClusterItem(CTL_IMPEXPBILH_FLAGS, 3, direction);
+	{
+		long pf = getCtrlLong(CTLSEL_IMPEXPBILH_PDFMT);
+		const char * p_ssign = 0;
+		if(pf == piefCokeOrder)
+			p_ssign = "supplierinn";
+		else
+			p_ssign = "impexpparambillh_obj2srchcode";
+		if(p_ssign) {
+			SString temp_buf;
+			setLabelText(CTL_IMPEXPBILH_SRCHCODE2, PPLoadStringS(p_ssign, temp_buf));
+		}
+	}
 }
 
 int BillHdrImpExpDialog::setDTS(const PPBillImpExpParam * pData)
@@ -1762,7 +1776,6 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 		uint   inner_fld_pos = 0;
 		uint   outer_fld_pos = 0;
 		SStrScan scan;
-		PPObjTag tag_obj;
 		PPObjectTag tag_rec;
 		double rval = 0.0;
 		PPID   tag_id = 0;
@@ -1773,7 +1786,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 				if(scan[0] == '.') {
 					scan.Incr(1);
 					(temp_buf = scan).Strip();
-					if(tag_obj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
+					if(TagObj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
 						int   r = 0;
 						const TYPEID typ = dyn_fld.T.Typ;
 						const int    base_typ = stbase(typ);
@@ -1912,7 +1925,7 @@ int PPBillImporter::ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPIm
 								if(arg_scan.GetIdent(temp_buf) && rIep.OtrRec.SearchName(temp_buf.Strip(), &outer_fld_pos)) {
 									arg_scan.Skip();
 									(temp_buf = arg_scan).Strip();
-									if(tag_obj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
+									if(TagObj.SearchBySymb(temp_buf, &tag_id, &tag_rec) > 0 && rIep.OtrRec.GetFieldByPos(outer_fld_pos, &outer_fld)) {
 										PPIDArray obj_id_list;
 										const void * p_outer_fld_data = rIep.OtrRec.GetDataC(outer_fld_pos);
 										PTR32(temp_str_)[0] = 0;
@@ -1999,7 +2012,7 @@ int PPBillImporter::ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, 
 	SString inn;
 	SString bill_ident;
 	StrAssocArray articles;
-	PPObjTag tag_obj;
+	//PPObjTag tag_obj;
 	SdRecord dyn_rec;
 	SdbField dyn_fld, inner_fld;
 	THROW_INVARG(pImpExp);
@@ -2306,9 +2319,8 @@ int PPBillImporter::AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::
 						break;
 					case PPSYM_DLVRLOCTAG: // @v10.4.1
 						if(!isempty(token_text)) {
-							PPObjTag tag_obj;
 							PPObjectTag tag_rec;
-							if(tag_obj.Fetch(ext_id, &tag_rec) > 0) {
+							if(TagObj.Fetch(ext_id, &tag_rec) > 0) {
 								if(tag_rec.ObjTypeID == PPOBJ_LOCATION) {
 									PPIDArray loc_list;
 									if(PPRef->Ot.SearchObjectsByStr(PPOBJ_LOCATION, tag_rec.ID, token_text, &loc_list) > 0) {
@@ -2651,17 +2663,16 @@ int PPBillImporter::ReadData()
 			ok = 1;
 		}
 		if(!imp_rows_from_same_file) {
-			if(GetOpType(BillParam.ImpOpID) != PPOPT_ACCTURN) {
-				THROW(BRowParam.PreprocessImportFileSpec(ss_files));
-				for(uint ssp = 0; ss_files.get(&ssp, filename);) {
-					/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
-					BillParam.PreprocessImportFileName(filename, fn_fld_list);
-					THROW(ie_row.OpenFileForReading(filename));
-					THROW(ReadRows(&ie_row, 0, &fn_fld_list));
-					ie_row.CloseFile();
-					if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
-						ToRemoveFiles.add(filename);
-					}
+			THROW_PP_S(GetOpType(BillParam.ImpOpID) != PPOPT_ACCTURN, PPERR_BILLIMPOPCANTBIACC, CfgNameBRow);
+			THROW(BRowParam.PreprocessImportFileSpec(ss_files));
+			for(uint ssp = 0; ss_files.get(&ssp, filename);) {
+				/*StrAssocArray*/PPImpExpParam::PtTokenList fn_fld_list;
+				BillParam.PreprocessImportFileName(filename, fn_fld_list);
+				THROW(ie_row.OpenFileForReading(filename));
+				THROW(ReadRows(&ie_row, 0, &fn_fld_list));
+				ie_row.CloseFile();
+				if(BillParam.BaseFlags & PPImpExpParam::bfDeleteSrcFiles) {
+					ToRemoveFiles.add(filename);
 				}
 			}
 		}
@@ -2695,6 +2706,109 @@ int PPBillImporter::ResolveUnitPerPack(PPID goodsID, PPID locID, LDATE dt, doubl
 	return (upp > 0.0) ? 1 : -1;
 }
 
+int PPBillImporter::CreateAbsenceGoods(ResolveGoodsItem & rRgi, int use_ta)
+{
+	int    ok = -1;
+	SString temp_buf;
+	SString msg_buf;
+	SString fmt_buf;
+	const PPGoodsConfig & r_gcfg = GObj.GetConfig();
+	if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
+		PPObjGoodsGroup gg_obj;
+		PPObjBrand brand_obj;
+		SString goods_name_buf;
+		PPTransaction tra(use_ta);
+		THROW(tra);
+		{
+			//ResolveGoodsItem & r_rgi = goods_list.at(i);
+			if(isempty(rRgi.GoodsName)) {
+				Logger.Log(PPLoadTextS(PPTXT_CANTCREATEWAREWONAME, msg_buf));
+			}
+			else if(!rRgi.ResolvedGoodsID) {
+				PPGoodsPacket gpack;
+				PPID   parent_id = 0;
+				{
+					temp_buf = rRgi.GroupName;
+					if(temp_buf.NotEmptyS()) {
+						PPID   folder_id = 0;
+						if(!gg_obj.AddSimple(&parent_id, gpkndOrdinaryGroup, folder_id, temp_buf /*grpname*/, 0, r_gcfg.DefUnitID, 0)) {
+							PPGetLastErrorMessage(1, msg_buf);
+							Logger.Log(msg_buf);
+							parent_id = 0;
+						}
+					}
+				}
+				SETIFZ(parent_id, r_gcfg.DefGroupID);
+				if(GObj.InitPacket(&gpack, gpkndGoods, parent_id, 0, rRgi.Barcode)) {
+					const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
+					PPID   by_name_id = 0;
+					SString suffix;
+					long   uc = 1;
+					(goods_name_buf = rRgi.GoodsName).Strip();
+					while(GObj.SearchByName(goods_name_buf, &by_name_id, 0) > 0) {
+						suffix.Z().Space().CatChar('#').Cat(++uc);
+						(goods_name_buf = rRgi.GoodsName).Strip();
+						size_t sum_len = goods_name_buf.Len() + suffix.Len();
+						if(sum_len > max_nm_len)
+							goods_name_buf.Trim(max_nm_len-suffix.Len());
+						goods_name_buf.Cat(suffix);
+					}
+					STRNSCPY(gpack.Rec.Name, goods_name_buf);
+					STRNSCPY(gpack.Rec.Abbr, goods_name_buf);
+					gpack.Rec.UnitID = r_gcfg.DefUnitID;
+					if(rRgi.ArID && rRgi.ArCode[0]) {
+						ArGoodsCodeTbl::Rec ar_code_rec;
+						ar_code_rec.ArID = rRgi.ArID;
+						ar_code_rec.Pack = 1000; // 1.0
+						STRNSCPY(ar_code_rec.Code, rRgi.ArCode);
+						gpack.ArCodes.insert(&ar_code_rec);
+					}
+					if(rRgi.ManufName[0]) {
+						temp_buf = rRgi.ManufName;
+						if(temp_buf.NotEmptyS()) {
+							PPID   manuf_id = 0;
+							THROW(PsnObj.AddSimple(&manuf_id, temp_buf, PPPRK_MANUF, PPPRS_LEGAL, 0));
+							gpack.Rec.ManufID = manuf_id;
+						}
+					}
+					if(rRgi.BrandName[0]) {
+						temp_buf = rRgi.BrandName;
+						if(temp_buf.NotEmptyS()) {
+							PPID   brand_id = 0;
+							THROW(brand_obj.AddSimple(&brand_id, temp_buf, 0, 0));
+							gpack.Rec.BrandID = brand_id;
+						}
+					}
+					if(rRgi.VatRate > 0.0 && rRgi.VatRate <= 40.0) {
+						PPID   tax_grp_id = 0;
+						if(GObj.GTxObj.GetByScheme(&tax_grp_id, rRgi.VatRate, 0.0, 0.0, 0, 0/*use_ta*/) > 0)
+							gpack.Rec.TaxGrpID = tax_grp_id;
+					}
+					PPID goods_id = 0;
+					if(GObj.PutPacket(&goods_id, &gpack, 0)) {
+						PPLoadText(PPTXT_WAREAUTOCREATED, fmt_buf);
+						Logger.Log(msg_buf.Printf(fmt_buf, gpack.Rec.Name));
+						rRgi.ResolvedGoodsID = goods_id;
+						ok = 1;
+					}
+					else {
+						PPGetLastErrorMessage(1, temp_buf);
+						PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
+						Logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, gpack.Rec.Name, temp_buf.cptr()));
+					}
+				}
+			}
+		}
+		THROW(tra.Commit());
+	}
+	else {
+		// Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
+		Logger.Log(PPLoadTextS(PPTXT_TOCREATEWARECFGOPTNEEDED, msg_buf));
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPBillImporter::Import(int useTa)
 {
 	int    ok = 1;
@@ -2707,7 +2821,6 @@ int PPBillImporter::Import(int useTa)
 	PPObjAccSheet acs_obj;
 	PPAccSheet acs_rec;
 	ObjTransmContext ot_ctx(0, &Logger); // Контекст, необходимый для автоматического приходования дефицита классом BillTransmDeficit
-	PPObjTag tag_obj;
 	PPObjectTag tag_rec;
 	ObjTagItem tag_item;
 	ObjTagList tag_list;
@@ -2722,9 +2835,9 @@ int PPBillImporter::Import(int useTa)
 		const  PPID temp_tag_id_1 = BillParam.ImpExpParamDll.ManufTagID;
 		const  PPID temp_tag_id_2 = P_BObj->GetConfig().MnfCountryLotTagID;
 		if(temp_tag_id_1 || temp_tag_id_2) {
-			if(temp_tag_id_1 && tag_obj.Fetch(temp_tag_id_1, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON)
+			if(temp_tag_id_1 && TagObj.Fetch(temp_tag_id_1, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON)
 				mnf_lot_tag_id = temp_tag_id_1;
-			else if(temp_tag_id_2 && tag_obj.Fetch(temp_tag_id_2, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON)
+			else if(temp_tag_id_2 && TagObj.Fetch(temp_tag_id_2, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON)
 				mnf_lot_tag_id = temp_tag_id_2;
 		}
 	}
@@ -2768,114 +2881,40 @@ int PPBillImporter::Import(int useTa)
 					THROW(tra);
 					for(uint i = 0; i < goods_list.getCount(); i++) {
 						ResolveGoodsItem & r_rgi = goods_list.at(i);
-						if(!r_rgi.ResolvedGoodsID && r_rgi.GoodsName[0]) {
-							PPGoodsPacket gpack;
-							PPID   parent_id = 0;
-							// @v10.5.0 {
-							{
-								temp_buf = r_rgi.GroupName;
-								if(temp_buf.NotEmptyS()) {
-									PPID   folder_id = 0;
-									if(!gg_obj.AddSimple(&parent_id, gpkndOrdinaryGroup, folder_id, temp_buf /*grpname*/, 0, r_gcfg.DefUnitID, 0)) {
-										PPGetLastErrorMessage(1, msg_buf);
-										Logger.Log(msg_buf);
-										parent_id = 0;
+						if(!r_rgi.ResolvedGoodsID && CreateAbsenceGoods(r_rgi, 0) > 0) {
+							const PPID goods_id = r_rgi.ResolvedGoodsID;
+							assert(goods_id);
+							BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_id;
+							//
+							// Теперь, когда новый товар создан, нам надо найти все аналогичные позиции в списке (если они там есть)
+							// и сопоставить их с созданным товаров.
+							// Мы сделаем это, основываясь, в порядке уменьшения приоритета, либо на коде товара, либо на коде по статье,
+							// либо на наименовании. Обращаю внимание на то, что сравнение наименований точное с учетом регистра.
+							//
+							if(r_rgi.Barcode[0]) {
+								for(uint j = i+1; j < goods_list.getCount(); j++) {
+									ResolveGoodsItem & r_rgi2 = goods_list.at(j);
+									if(sstreqi_ascii(r_rgi2.Barcode, r_rgi.Barcode)) {
+										r_rgi2.ResolvedGoodsID = goods_id;
+										BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
 									}
 								}
 							}
-							// } @v10.5.0
-							SETIFZ(parent_id, r_gcfg.DefGroupID);
-							if(GObj.InitPacket(&gpack, gpkndGoods, parent_id, 0, r_rgi.Barcode)) {
-								const  size_t max_nm_len = sizeof(static_cast<const Goods2Tbl::Rec *>(0)->Name)-1;
-								PPID   by_name_id = 0;
-								SString suffix;
-								long   uc = 1;
-								(goods_name_buf = r_rgi.GoodsName).Strip();
-								while(GObj.SearchByName(goods_name_buf, &by_name_id, 0) > 0) {
-									suffix.Z().Space().CatChar('#').Cat(++uc);
-									(goods_name_buf = r_rgi.GoodsName).Strip();
-									size_t sum_len = goods_name_buf.Len() + suffix.Len();
-									if(sum_len > max_nm_len)
-										goods_name_buf.Trim(max_nm_len-suffix.Len());
-									goods_name_buf.Cat(suffix);
-								}
-								STRNSCPY(gpack.Rec.Name, goods_name_buf);
-								STRNSCPY(gpack.Rec.Abbr, goods_name_buf);
-								gpack.Rec.UnitID = r_gcfg.DefUnitID;
-								if(r_rgi.ArID && r_rgi.ArCode[0]) {
-									ArGoodsCodeTbl::Rec ar_code_rec;
-									// @v10.7.9 @ctr MEMSZERO(ar_code_rec);
-									ar_code_rec.ArID = r_rgi.ArID;
-									ar_code_rec.Pack = 1000; // 1.0
-									STRNSCPY(ar_code_rec.Code, r_rgi.ArCode);
-									gpack.ArCodes.insert(&ar_code_rec);
-								}
-								if(r_rgi.ManufName[0]) {
-									temp_buf = r_rgi.ManufName;
-									if(temp_buf.NotEmptyS()) {
-										PPID   manuf_id = 0;
-										THROW(PsnObj.AddSimple(&manuf_id, temp_buf, PPPRK_MANUF, PPPRS_LEGAL, 0));
-										gpack.Rec.ManufID = manuf_id;
+							else if(r_rgi.ArID && r_rgi.ArCode[0]) {
+								for(uint j = i+1; j < goods_list.getCount(); j++) {
+									ResolveGoodsItem & r_rgi2 = goods_list.at(j);
+									if(r_rgi2.ArID == r_rgi.ArID && sstreqi_ascii(r_rgi2.ArCode, r_rgi.ArCode)) {
+										r_rgi2.ResolvedGoodsID = goods_id;
+										BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
 									}
 								}
-								// @v10.5.3 {
-								if(r_rgi.BrandName[0]) {
-									temp_buf = r_rgi.BrandName;
-									if(temp_buf.NotEmptyS()) {
-										PPID   brand_id = 0;
-										THROW(brand_obj.AddSimple(&brand_id, temp_buf, 0, 0));
-										gpack.Rec.BrandID = brand_id;
-									}
-								}
-								// } @v10.5.3
-								// @v10.5.0 {
-								if(r_rgi.VatRate > 0.0 && r_rgi.VatRate <= 40.0) {
-									PPID   tax_grp_id = 0;
-									if(GObj.GTxObj.GetByScheme(&tax_grp_id, r_rgi.VatRate, 0.0, 0.0, 0, 0/*use_ta*/) > 0)
-										gpack.Rec.TaxGrpID = tax_grp_id;
-								}
-								// } @v10.5.0
-								PPID goods_id = 0;
-								if(!GObj.PutPacket(&goods_id, &gpack, 0)) {
-									PPGetLastErrorMessage(1, temp_buf);
-									PPLoadText(PPTXT_ERRACCEPTGOODS, fmt_buf);
-									Logger.Log(msg_buf.Printf(fmt_buf, PPOBJ_GOODS, gpack.Rec.Name, temp_buf.cptr()));
-								}
-								else {
-									r_rgi.ResolvedGoodsID = goods_id;
-									BillsRows.at(unres_pos_list.get(i)).GoodsID = goods_id;
-									//
-									// Теперь, когда новый товар создан, нам надо найти все аналогичные позиции в списке (если они там есть)
-									// и сопоставить их с созданным товаров.
-									// Мы сделаем это, основываясь, в порядке уменьшения приоритета, либо на коде товара, либо на коде по статье,
-									// либо на наименовании. Обращаю внимание на то, что сравнение наименований точное с учетом регистра.
-									//
-									if(r_rgi.Barcode[0]) {
-										for(uint j = i+1; j < goods_list.getCount(); j++) {
-											ResolveGoodsItem & r_rgi2 = goods_list.at(j);
-											if(sstreqi_ascii(r_rgi2.Barcode, r_rgi.Barcode)) {
-												r_rgi2.ResolvedGoodsID = goods_id;
-												BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
-											}
-										}
-									}
-									else if(r_rgi.ArID && r_rgi.ArCode[0]) {
-										for(uint j = i+1; j < goods_list.getCount(); j++) {
-											ResolveGoodsItem & r_rgi2 = goods_list.at(j);
-											if(r_rgi2.ArID == r_rgi.ArID && sstreqi_ascii(r_rgi2.ArCode, r_rgi.ArCode)) {
-												r_rgi2.ResolvedGoodsID = goods_id;
-												BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
-											}
-										}
-									}
-									else {
-										for(uint j = i+1; j < goods_list.getCount(); j++) {
-											ResolveGoodsItem & r_rgi2 = goods_list.at(j);
-											if(sstreq(r_rgi2.GoodsName, r_rgi.GoodsName)) {
-												r_rgi2.ResolvedGoodsID = goods_id;
-												BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
-											}
-										}
+							}
+							else {
+								for(uint j = i+1; j < goods_list.getCount(); j++) {
+									ResolveGoodsItem & r_rgi2 = goods_list.at(j);
+									if(sstreq(r_rgi2.GoodsName, r_rgi.GoodsName)) {
+										r_rgi2.ResolvedGoodsID = goods_id;
+										BillsRows.at(unres_pos_list.get(j)).GoodsID = goods_id;
 									}
 								}
 							}
@@ -2950,12 +2989,12 @@ int PPBillImporter::Import(int useTa)
 						int    pack_updated = 0;
 						THROW(P_BObj->ExtractPacket(main_bill_id, &pack) > 0);
 						{
-							if(alc_rep_cfg.CategoryTagID && tag_obj.Fetch(alc_rep_cfg.CategoryTagID, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT)
+							if(alc_rep_cfg.CategoryTagID && TagObj.Fetch(alc_rep_cfg.CategoryTagID, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT)
 								alc_cat_lot_tag_id = alc_rep_cfg.CategoryTagID;
 							if(alc_rep_cfg.LotManufTagList.getCount()) {
 								for(uint k = 0; !alc_manuf_lot_tag_id && k < alc_rep_cfg.LotManufTagList.getCount(); k++) {
 									PPID tag_id = alc_rep_cfg.LotManufTagList.get(k);
-									if(tag_id && tag_obj.Fetch(tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
+									if(tag_id && TagObj.Fetch(tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT && tag_rec.TagEnumID == PPOBJ_PERSON) {
 										alc_manuf_lot_tag_id = tag_id;
 										alc_manuf_kind_id = tag_rec.LinkObjGrp;
 									}
@@ -3037,7 +3076,7 @@ int PPBillImporter::Import(int useTa)
 				if(BillToBillRec(&bill, &pack) > 0) {
 					int    is_bad_packet = 0; // Признак того, что документ не удалось правильно преобразовать
 					for(pos = 0; !is_bad_packet && SearchNextRowForBill(bill, &pos); pos++) {
-						const  Sdr_BRow & r_row = BillsRows.at(pos);
+						const Sdr_BRow & r_row = BillsRows.at(pos);
 						(serial = r_row.Serial).Strip().Transf(CTRANSF_OUTER_TO_INNER);
 						if(!r_row.GoodsID) {
 							;
@@ -3892,9 +3931,341 @@ int PPBillImporter::DoFullEdiProcess()
 	return ok;
 }
 
+class PredefImportRecord_Coke {
+public:
+	static int FASTCALL Compare(const void * p1, const void * p2, void * extraData)
+	{
+		const PredefImportRecord_Coke * i1 = static_cast<const PredefImportRecord_Coke *>(p1);
+		const PredefImportRecord_Coke * i2 = static_cast<const PredefImportRecord_Coke *>(p2);
+		return strcmp(i1->OrderIdent, i2->OrderIdent);
+	}
+	PredefImportRecord_Coke() : DeliveryDate(ZERODATE), OrderDate(ZERODATE), QtyCase(0.0), QtyBottle(0.0), FreeCase(0.0), 
+		Discount(0.0), PriceCase(0.0), PriceEA(0.0), CasesDiscounted(0.0), PcsDiscounted(0.0), GrossValue(0.0)
+	{
+	}
+	PredefImportRecord_Coke & Z()
+	{
+		DeliveryDate = ZERODATE;
+		OrderDate = ZERODATE;
+		QtyCase = 0.0;
+		QtyBottle = 0.0;
+		FreeCase = 0.0;
+		Discount = 0.0;
+		PriceCase = 0.0;
+		PriceEA = 0.0;
+		CasesDiscounted = 0.0;
+		PcsDiscounted = 0.0;
+		GrossValue = 0.0;
+		InputChannel.Z();
+		DiscountPromoIdent.Z();
+		ACTGRINUM.Z();
+		OrderIdent.Z();
+		ClientIdent.Z();
+		ClientName.Z();
+		ClientAddr.Z();
+		ClientDistrib.Z();
+		City.Z();
+		ProductCode.Z();
+		ProductName.Z();
+		DTC.Z();
+		SalesRepIdent.Z();
+		INN.Z();
+		return *this;
+	}
+	bool   Read(const xmlNode * pParentNode)
+	{
+		Z();
+		SString temp_buf;
+		for(const xmlNode * p_c = pParentNode->children; p_c; p_c = p_c->next) {
+			if(SXml::GetContentByName(p_c, "ORDERID", temp_buf)) {
+				OrderIdent = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "DELIVERY_DATE", temp_buf)) {
+				DeliveryDate = strtodate_(temp_buf, DATF_GERMAN);
+			}
+			else if(SXml::GetContentByName(p_c, "SALES_REPID", temp_buf)) {
+				SalesRepIdent = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "CLIENTID", temp_buf)) {
+				ClientIdent = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "CLIENT_NAME", temp_buf)) {
+				ClientName = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "CLIENT_ADDRESS", temp_buf)) {
+				ClientAddr = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "PRODUCT_CODE", temp_buf)) {
+				ProductCode = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "PRODUCT_NAME", temp_buf)) {
+				ProductName = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "QTY_CASES", temp_buf)) {
+				QtyCase = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "DTC", temp_buf)) {
+				DTC = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "CLIENTID_DISTRIB", temp_buf)) {
+				ClientDistrib = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "FISCAL_NUMBER", temp_buf)) {
+				INN = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "QTY_BOTTLES", temp_buf)) {
+				QtyBottle = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "ORDER_DATE", temp_buf)) {
+				OrderDate = strtodate_(temp_buf, DATF_GERMAN);
+			}
+			else if(SXml::GetContentByName(p_c, "FREE_CASE", temp_buf)) {
+				FreeCase = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "DISCOUNT", temp_buf)) {
+				Discount = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "PRICE_CASE", temp_buf)) {
+				PriceCase = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "PRICE_EA", temp_buf)) {
+				PriceEA = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "ACTGRINUM", temp_buf)) {
+				ACTGRINUM = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "CITY", temp_buf)) {
+				City = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "CASES_DISCOUNTED", temp_buf)) {
+				CasesDiscounted = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "PCS_DISCOUNTED", temp_buf)) {
+				PcsDiscounted = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "DISCOUNT_PROMO_ID", temp_buf)) {
+				DiscountPromoIdent = temp_buf;
+			}
+			else if(SXml::GetContentByName(p_c, "GROSS_VALUE", temp_buf)) {
+				GrossValue = temp_buf.ToReal();
+			}
+			else if(SXml::GetContentByName(p_c, "INPUT_CHANNEL", temp_buf)) {
+				InputChannel = temp_buf;
+			}
+		}
+		return (OrderIdent.NotEmpty() && ProductCode.NotEmpty() && (QtyBottle > 0.0 || QtyCase > 0.0));
+	}
+	LDATE  DeliveryDate;
+	LDATE  OrderDate;
+	double QtyCase;             // Количество упаковок
+	double QtyBottle;           // Количество единиц
+	double FreeCase;            // Количество бесплатных упаковок (промо)
+	double Discount;            // Скидка на упаковку без НДС
+	double PriceCase;           // Цена за упаковку без НДС 
+	double PriceEA;             // Цена за единицу без НДС
+	double CasesDiscounted;     //  
+	double PcsDiscounted;       //
+	double GrossValue;          // Сумма с НДС
+	SString InputChannel;
+	SString DiscountPromoIdent;
+	SString ACTGRINUM;
+	SString OrderIdent;
+	SString ClientIdent;
+	SString ClientName;
+	SString ClientAddr;
+	SString ClientDistrib; // Специальная конструкция cliid_dlvraddrid : то есть, наш идентификатор клиента и наш же ид адреса, разделенные символом '_'
+	SString City;
+	SString ProductCode;
+	SString ProductName;
+	SString DTC;
+	SString SalesRepIdent;
+	SString INN/*FiscalNumber*/;
+};
+
+int PPBillImporter::Helper_AcceptCokeData(const SCollection * pRowList, PPID opID, PPID supplArID)
+{
+	int    ok = 1;
+	Reference * p_ref = PPRef;
+	if(pRowList && pRowList->getCount()) {
+		//rec_list.sort(PredefImportRecord_Coke::Compare);
+		SString prev_order_ident;
+		SString temp_buf;
+		SString msg_buf;
+		SString left_buf, right_buf;
+		ArticleTbl::Rec ar_rec;
+		PPID   agent_tag_id = 0;
+		PPID   promo_lot_tag_id = 0;
+		LongArray row_pos_list;
+		PPObjectTag tag_rec;
+		PPOprKind op_rec;
+		THROW(GetOpData(opID, &op_rec) > 0);
+		if(TagObj.SearchBySymb("AGENT-COKE", &agent_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_PERSON) {
+			;
+		}
+		else
+			agent_tag_id = 0;
+		if(TagObj.SearchBySymb("COKE-PROMOLOTCODE", &promo_lot_tag_id, &tag_rec) > 0 && tag_rec.ObjTypeID == PPOBJ_LOT) {
+			;
+		}
+		else
+			promo_lot_tag_id = 0;
+		for(uint rowidx = 0; rowidx < pRowList->getCount();) { // Инкремента нет: он осуществляется во внутреннем цикле do {} while()
+			const uint preserve_idx = rowidx;
+			const PredefImportRecord_Coke * p_item = static_cast<const PredefImportRecord_Coke *>(pRowList->at(rowidx));
+			assert(p_item);
+			//if(p_item->OrderIdent != prev_order_ident) {
+			PPID   ar_id = 0;
+			PPID   dlvr_loc_id = 0;
+			PPBillPacket::SetupObjectBlock sob;
+			PPBillPacket pack;
+			const SString current_order_ident = p_item->OrderIdent;
+			pack.CreateBlank_WithoutCode(BillParam.ImpOpID, 0, LocID, 0);
+			STRNSCPY(pack.Rec.Code, p_item->OrderIdent);
+			pack.Rec.Dt = checkdate(p_item->OrderDate) ? p_item->OrderDate : getcurdate_();
+			if(checkdate(p_item->DeliveryDate))
+				pack.Rec.DueDate = p_item->DeliveryDate;
+			if(p_item->ClientDistrib.NotEmpty() && p_item->ClientDistrib.Divide('_', left_buf, right_buf) > 0) {
+				if(ArObj.Fetch(left_buf.ToLong(), &ar_rec) > 0) {
+					ar_id = ar_rec.ID;
+					dlvr_loc_id = right_buf.ToLong();
+				}
+			}
+			if(!ar_id && p_item->INN.NotEmpty()) {
+				ResolveINN(p_item->INN, 0, 0, 0, op_rec.AccSheetID, &ar_id, 0);
+			}
+			if(ar_id && pack.SetupObject(ar_id, sob)) {
+				if(dlvr_loc_id) {
+					pack.SetFreight_DlvrAddrOnly(dlvr_loc_id);
+				}
+				if(agent_tag_id && p_item->DTC.NotEmpty()) {
+					PPIDArray agent_psn_list;
+					if(p_ref->Ot.SearchObjectsByStr(PPOBJ_PERSON, agent_tag_id, p_item->DTC, &agent_psn_list) > 0) {
+						assert(agent_psn_list.getCount());
+						for(uint apidx = 0; apidx < agent_psn_list.getCount(); apidx++) {
+							const PPID apid = agent_psn_list.get(apidx);
+							PPID  agent_ar_id = 0;
+							if(ArObj.P_Tbl->PersonToArticle(apid, GetAgentAccSheet(), &agent_ar_id) > 0) {
+								assert(agent_ar_id > 0);
+								pack.Ext.AgentID = agent_ar_id;
+								break;
+							}
+						}
+					}
+				}
+				bool skip_this_doc = false;
+				do {
+					PPTransferItem ti;
+					Goods2Tbl::Rec goods_rec;
+					ti.Init(&pack.Rec, 0, 0);
+					if(p_item->ProductCode.NotEmpty()) {
+						ArGoodsCodeTbl::Rec agc_rec;
+						if(GObj.P_Tbl->SearchByArCode(supplArID, p_item->ProductCode, &agc_rec, &goods_rec) > 0) {
+							ti.SetupGoods(goods_rec.ID);
+						}
+						else {
+							if(BillParam.Flags & PPBillImpExpParam::fCreateAbsenceGoods) {
+								ResolveGoodsItem rgi;
+								rgi.ArID = supplArID;
+								STRNSCPY(rgi.ArCode, p_item->ProductCode);
+								(temp_buf = p_item->ProductName).Transf(CTRANSF_UTF8_TO_INNER);
+								STRNSCPY(rgi.GoodsName, temp_buf);
+								if(CreateAbsenceGoods(rgi, 1) > 0) {
+									assert(rgi.ResolvedGoodsID);
+									ti.SetupGoods(rgi.ResolvedGoodsID);
+								}
+							}
+						}
+					}
+					if(ti.GoodsID && GObj.Fetch(ti.GoodsID, &goods_rec) > 0) {
+						double unit_per_pack = 0.0;
+						double net_price_wo_vat = 0.0;
+						double discount_wo_vat = 0.0;
+						ti.Quantity_ = p_item->QtyBottle;
+						if(p_item->QtyCase > 0.0 && p_item->QtyBottle > 0) {
+							unit_per_pack = p_item->QtyBottle / p_item->QtyCase;
+						}
+						if(p_item->PriceEA > 0.0) {
+							net_price_wo_vat = p_item->PriceEA;
+						}
+						else if(p_item->PriceCase > 0.0 && unit_per_pack > 0.0) {
+							net_price_wo_vat = p_item->PriceCase / unit_per_pack;
+						}
+						if(p_item->Discount > 0.0 && unit_per_pack > 0.0) { // Скидка без НДС на упаковку
+							discount_wo_vat = p_item->Discount / unit_per_pack;
+						}
+						{
+							GTaxVect vect;
+							PPGoodsTaxEntry gtx;
+							if(GObj.GTxObj.FetchByID(goods_rec.TaxGrpID, &gtx) > 0) {
+								vect.Calc_(&gtx, net_price_wo_vat+discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
+								ti.Price = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+								if(discount_wo_vat > 0.0) {
+									vect.Calc_(&gtx, discount_wo_vat, 1.0, GTAXVF_AFTERTAXES, 0);
+									ti.Discount = vect.GetValue(GTAXVF_AFTERTAXES | GTAXVF_EXCISE | GTAXVF_VAT);
+								}
+							}
+							else {
+								ti.Price = (net_price_wo_vat + discount_wo_vat);
+								ti.Discount = discount_wo_vat;
+							}
+						}
+						row_pos_list.Z();
+						pack.InsertRow(&ti, &row_pos_list);
+						if(promo_lot_tag_id && row_pos_list.getCount() == 1 && p_item->DiscountPromoIdent.NotEmpty()) {
+							const long row_pos = row_pos_list.get(0);
+							ObjTagList * p_lot_tag_list = pack.LTagL.Get(row_pos);
+							ObjTagList stub_lot_tag_list;
+							if(!p_lot_tag_list)
+								p_lot_tag_list = &stub_lot_tag_list;
+							p_lot_tag_list->PutItemStr(promo_lot_tag_id, p_item->DiscountPromoIdent);
+							pack.LTagL.Set(row_pos, p_lot_tag_list);
+						}
+					}
+					else
+						skip_this_doc = false;
+					// Теперь инкрементируем индекс строки и после этого пытаемся получить следующую (если индекс не вышел за пределы списка).
+					rowidx++; 
+					p_item = (rowidx < pRowList->getCount()) ? static_cast<const PredefImportRecord_Coke *>(pRowList->at(rowidx)) : 0;
+				} while(p_item && p_item->OrderIdent == current_order_ident);
+				if(!skip_this_doc) {
+					BillTbl::Rec ex_bill_rec;
+					PPID   ex_bill_id = 0;
+					if(P_BObj->P_Tbl->SearchAnalog(&pack.Rec, BillCore::safDefault, &ex_bill_id, &ex_bill_rec) > 0) {
+						PPObjBill::MakeCodeString(&ex_bill_rec, PPObjBill::mcsAddOpName|PPObjBill::mcsAddLocName, msg_buf);
+						Logger.LogMsgCode(mfError, PPERR_DOC_ALREADY_EXISTS, msg_buf);
+					}
+					else {
+						if(P_BObj->__TurnPacket(&pack, 0, 1, 1))
+							Logger.LogAcceptMsg(PPOBJ_BILL, pack.Rec.ID, 0);
+						else
+							Logger.LogLastError();
+					}
+				}
+			}
+			else {
+				msg_buf.Z().Cat(p_item->OrderIdent).Space().Cat(p_item->OrderDate, DATF_DMY|DATF_CENTURY);
+				if(p_item->INN.NotEmpty())
+					msg_buf.Space().CatEq("INN", p_item->INN);
+				(temp_buf = p_item->ClientName).Transf(CTRANSF_UTF8_TO_INNER);
+				if(temp_buf.NotEmpty()) {
+					msg_buf.Space().Cat(temp_buf);
+				}
+				PPSetError(PPERR_CANTIDENTIMPBILLAR, msg_buf);
+				Logger.LogLastError();
+				rowidx++; // @important
+			}
+			//}
+			assert(rowidx > preserve_idx || (rowidx < pRowList->getCount())); // Защита от зацикливания //
+		}
+	}
+	CATCHZOK
+	return ok;
+}
+
 int PPBillImporter::Run()
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 	SString file_name;
 	SString temp_buf;
 	SString msg_buf;
@@ -3949,12 +4320,63 @@ int PPBillImporter::Run()
 	else if(Flags & PPBillImporter::fEdiImpExp && Flags & PPBillImporter::fFullEdiProcess) {
 		THROW(DoFullEdiProcess());
 	}
-	else if(oneof3(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR
+	else if(BillParam.PredefFormat == piefCokeOrder) { // @v11.3.8
+		xmlParserCtxt * p_ctx = 0;
+		StringSet ss_files;
+		PPOprKind op_rec;
+		PPID   suppl_ar_id = 0;
+		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, BillParam.Name);
+		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
+		THROW(BillParam.PreprocessImportFileSpec(ss_files));
+		THROW_PP_S(BillParam.Object2SrchCode.NotEmpty(), PPERR_BILLIMPSRCCOD2NEEDED, BillParam.Name);
+		THROW(ResolveINN(BillParam.Object2SrchCode, 0, 0, 0, GetSupplAccSheet(), &suppl_ar_id, 0)); // @err
+		assert(suppl_ar_id);
+		THROW(p_ctx = xmlNewParserCtxt());
+		for(uint ssfp = 0; ss_files.get(&ssfp, temp_buf);) {
+			if(fileExists(temp_buf)) {
+				SString extra_key;
+				SString extra_val;
+				xmlDoc * p_xml_doc = xmlCtxtReadFile(p_ctx, temp_buf, 0, XML_PARSE_NOENT);
+				if(p_xml_doc) {
+					const xmlNode * p_root = xmlDocGetRootElement(p_xml_doc);
+					if(p_root && SXml::IsName(p_root, "NewDataSet")) {
+						TSCollection <PredefImportRecord_Coke> rec_list;
+						for(const xmlNode * p_rec = p_root->children; p_rec; p_rec = p_rec->next) {
+							if(SXml::IsName(p_rec, "Table")) {
+								PredefImportRecord_Coke * p_new_rec = rec_list.CreateNewItem();
+								THROW_SL(p_new_rec);
+								if(!p_new_rec->Read(p_rec)) {
+									assert(rec_list.getCount());
+									rec_list.atFree(rec_list.getCount()-1);
+								}
+							}
+						}
+						// Важно: следующая функция закладывается на то, что строки rec_list
+						// отсортированы по номеру документа. При этом, мы явно не сортируем строки
+						// из-за того, что из-за этого собъется внутренний порядок строк заказа.
+						// Следовательно, мы надеемся на то, что поставщик передает заказы в таком виде,
+						// что строки одного заказа следуют одна-за-другой не перемешиваясь с иными заказами!
+						Helper_AcceptCokeData(&rec_list, BillParam.ImpOpID, suppl_ar_id);
+					}
+					xmlFreeDoc(p_xml_doc);
+					p_xml_doc = 0;
+				}
+				else {
+					PPSetLibXmlError(p_ctx);
+				}
+			}
+		}
+		xmlFreeParserCtxt(p_ctx);
+		//
+	}
+	else if(oneof3(BillParam.PredefFormat, piefNalogR, piefNalogR_ON_NSCHFDOPPRMARK, piefNalogR_ON_NSCHFDOPPR)) { // @v11.2.1 piefNalogR_ON_NSCHFDOPPR 
 		DocNalogRu_Reader reader;
 		StringSet ss_files;
 		PPOprKind op_rec;
 		TSCollection <DocNalogRu_Reader::DocumentInfo> doc_list;
 		const PPGoodsConfig & r_gcfg = GObj.GetConfig();
+		THROW_PP_S(BillParam.ImpOpID, PPERR_UNDEFBILLIMPOP, CfgNameBill);
+		THROW(GetOpData(BillParam.ImpOpID, &op_rec) > 0);
 		THROW(BillParam.PreprocessImportFileSpec(ss_files));
 		for(uint ssfp = 0; ss_files.get(&ssfp, temp_buf);) {
 			if(fileExists(temp_buf)) {
@@ -3962,7 +4384,7 @@ int PPBillImporter::Run()
 				reader.ReadFile(temp_buf, fi, doc_list);
 			}
 		}
-		if(BillParam.ImpOpID && GetOpData(BillParam.ImpOpID, &op_rec) > 0) {
+		{
 			const PPID  contragent_acs_id = op_rec.AccSheetID;
 			const PPID  main_org_id = GetMainOrgID();
 			if(!contragent_acs_id) {
@@ -4106,7 +4528,16 @@ int PPBillImporter::Run()
 									}
 									else {
 										assert(goods_id == 0); // } @v10.8.8
-										if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
+										ResolveGoodsItem rgi;
+										STRNSCPY(rgi.Barcode, barcode);
+										STRNSCPY(rgi.GoodsName, p_item->GoodsName);
+										rgi.VatRate = p_item->VatRate;
+										if(CreateAbsenceGoods(rgi, 1) > 0) {
+											assert(rgi.ResolvedGoodsID > 0);
+											if(GObj.Search(rgi.ResolvedGoodsID, &goods_rec) > 0)
+												goods_id = goods_rec.ID;
+										}
+										/*if(r_gcfg.DefGroupID && r_gcfg.DefUnitID) {
 											PPGoodsPacket new_goods_pack;
 											GObj.InitPacket(&new_goods_pack, gpkndGoods, r_gcfg.DefGroupID, 0, barcode);
 											if(p_item->GoodsName.NotEmpty())
@@ -4117,7 +4548,7 @@ int PPBillImporter::Run()
 											new_goods_pack.Rec.UnitID = r_gcfg.DefUnitID;
 											if(p_item->VatRate > 0.0 && p_item->VatRate <= 40.0) {
 												PPID   tax_grp_id = 0;
-												if(GObj.GTxObj.GetByScheme(&tax_grp_id, p_item->VatRate, 0.0, 0.0, 0, 1/*use_ta*/) > 0)
+												if(GObj.GTxObj.GetByScheme(&tax_grp_id, p_item->VatRate, 0.0, 0.0, 0, 1) > 0)
 													new_goods_pack.Rec.TaxGrpID = tax_grp_id;
 											}
 											if(GObj.PutPacket(&goods_id, &new_goods_pack, 1)) {
@@ -4131,7 +4562,7 @@ int PPBillImporter::Run()
 											// Для автоматического создания товаров в конфигурации товаров должны быть указаны группа и единица измерения по умолчанию
 											PPLoadText(PPTXT_TOCREATEWARECFGOPTNEEDED, msg_buf);
 											Logger.Log(msg_buf);
-										}
+										}*/
 									}
 								}
 								if(goods_id) {

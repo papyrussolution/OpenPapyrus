@@ -1,5 +1,5 @@
 // SXML.H
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #ifndef __SXML_H
@@ -86,9 +86,9 @@ public:
     };
 
 	static int Validate(const char * pXsdFileName, const char * pXmlFileName, SXmlValidationMessageList * pMsgList);
-    static int FASTCALL IsName(const xmlNode * pNode, const char * pName);
-    static int FASTCALL IsContent(const xmlNode * pNode, const char * pText);
-    static int FASTCALL GetContent(const xmlNode * pNode, SString & rResult);
+    static bool FASTCALL IsName(const xmlNode * pNode, const char * pName);
+    static bool FASTCALL IsContent(const xmlNode * pNode, const char * pText);
+    static bool FASTCALL GetContent(const xmlNode * pNode, SString & rResult);
     //
     // Descr: Функция, совмещающая вызов
     // {
@@ -100,8 +100,8 @@ public:
     //    <0 - узел pNode имеет имя pName, но содержание пустое (rResult = 0)
     //    0  - узел pNode не имеет имя pName. В этом случае rResult не меняется.
     //
-    static int GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult);
-    static int GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);
+    static int  GetContentByName(const xmlNode * pNode, const char * pName, SString & rResult);
+    static bool GetAttrib(const xmlNode * pNode, const char * pAttr, SString & rResult);
 };
 //
 // Descr: (ситуативный) Класс, реализующий обертку вокруг xmlTexWriter

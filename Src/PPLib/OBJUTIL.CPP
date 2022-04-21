@@ -1640,7 +1640,7 @@ int FASTCALL CheckCfgRights(PPID id, ushort rt, int oprRights)
 		else {
 			uint   pos = 0;
 			ObjRestrictArray * p_list = DS.GetTLA().Rights.P_CfgList;
-			if(p_list && p_list->getCount() && p_list->SearchItemByID(id, &pos) > 0)
+			if(p_list && p_list->getCount() && p_list->SearchItemByID(id, &pos))
 				ok = BIN((p_list->at(pos).Flags & rt) == rt);
 			else
 				ok = 0;

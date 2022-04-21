@@ -7462,12 +7462,12 @@ int PrcssrSupplInterchange::Run()
 					*/
 				}
 				// } @v11.3.6 
-				// @v10.8.12 {
-				if(!cli.ReceiveVDocs())
-					logger.LogLastError();
-				// } @v10.8.12 
-				if(!cli.ReceiveOrders())
-					logger.LogLastError();
+				if(!(r_eb.P.Flags & SupplInterchangeFilt::fTestMode)) { // @v11.3.8
+					if(!cli.ReceiveVDocs())
+						logger.LogLastError();
+					if(!cli.ReceiveOrders())
+						logger.LogLastError();
+				}
 				// @v11.3.6 {
 				{
 					//

@@ -6898,7 +6898,7 @@ STokenRecognizer::~STokenRecognizer()
 /*static*/int FASTCALL STokenRecognizer::IsUtf8(const uchar * p, size_t restLen)
 {
 	const int8 extra = SUtfConst::TrailingBytesForUTF8[*p];
-	return (extra == 0) ? 1 : ((restLen > extra && SUnicode::IsLegalUtf8(p, 2)) ? (extra+1) : 0);
+	return (extra == 0) ? 1 : ((static_cast<int>(restLen) > extra && SUnicode::IsLegalUtf8(p, 2)) ? (extra+1) : 0);
 }
 
 /*

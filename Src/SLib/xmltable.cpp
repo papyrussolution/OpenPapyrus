@@ -189,7 +189,6 @@ static const xmlNode * FASTCALL _XmlNextElem(const xmlNode * pNode)
 	return 0;
 }
 
-
 const xmlNode * XmlDbFile::Helper_FindRec_(const xmlNode * pCurrent) const
 {
 	const xmlNode * p_target = 0;

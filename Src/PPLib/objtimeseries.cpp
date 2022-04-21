@@ -7736,7 +7736,7 @@ int PrcssrTsStrategyAnalyze::Run()
 		SString out_total_file_name;
 		PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2.txt", out_file_name);
 		PPGetFilePath(PPPATH_OUT, "AnalyzeTsStrategy2-total.txt", out_total_file_name);
-		const int is_out_file_exists = fileExists(out_file_name);
+		const bool is_out_file_exists_ = fileExists(out_file_name);
 		SFile f_out(out_file_name, SFile::mAppend);
 		SFile f_out_total(out_total_file_name, SFile::mAppend);
 		f_out.WriteLine(msg_buf.Z().CatCharN('-', 20).CR());

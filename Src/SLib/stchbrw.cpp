@@ -71,7 +71,7 @@ int STimeChunkGrid::GetChunksByTime(const STimeChunk & rRange, STimeChunkAssocAr
 		for(uint j = 0; j < p_row->getCount(); j++) {
 			const STimeChunkAssoc * p_item = static_cast<const STimeChunkAssoc *>(p_row->at(j));
 			STimeChunk intersection;
-			if(p_item->Chunk.Intersect(rRange, &intersection) > 0) {
+			if(p_item->Chunk.Intersect(rRange, &intersection)) {
 				const long _dur = intersection.GetDuration();
 				if(_dur != 0) {
 					rList.Add(p_item->Id, p_item->Status, &p_item->Chunk, 0);
@@ -1902,7 +1902,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 			for(uint k = 0; k < p_row->getCount(); k++) {
 				const  STimeChunkAssoc * p_chunk = static_cast<const STimeChunkAssoc *>(p_row->at(k));
 				srect.Z();
-				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect) > 0) {
+				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect)) {
 					uint   day_n = 0;
 					for(long quant = St.ScrollX; ; quant++) {
 						const  LDATE  dt = plusdate(St.Bounds.Start.d, quant);
@@ -1911,7 +1911,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 								STimeChunk day_chunk, day_sect;
 								day_chunk.Start.Set(dt, start_tm);
 								day_chunk.Finish.Set(dt, end_tm);
-								if(p_chunk->Chunk.Intersect(day_chunk, &day_sect) > 0) {
+								if(p_chunk->Chunk.Intersect(day_chunk, &day_sect)) {
 									assert(day_sect.Start.d == dt);
 									assert(day_sect.Finish.d == dt);
 									srect.a.y = upp_edge + (int)(vpix_per_sec * ::DiffTime(day_sect.Start.t, start_tm, 3));
@@ -1971,7 +1971,7 @@ int STimeChunkBrowser::CalcChunkRect(const Area * pArea, SRectArray & rRectList)
 			for(uint k = 0; k < p_row->getCount(); k++) {
 				const  STimeChunkAssoc * p_chunk = static_cast<const STimeChunkAssoc *>(p_row->at(k));
 				STimeChunk sect;
-				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect) > 0) {
+				if(p_chunk->Chunk.Intersect(view_time_bounds, &sect)) {
 					long   o = 0;
 					srect.a.y = upp_edge + P.PixRowMargin;
 					if(r_rowst.Order > 1 && r_rowst.OrderList.BSearch((long)(k+1), &o, 0) && o)
@@ -2756,7 +2756,7 @@ void STimeChunkBrowser::Paint()
 				for(k = 0; k < p_holidays->getCount(); k++) {
 					const  STimeChunk * p_chunk = static_cast<const STimeChunk *>(p_holidays->at(k));
 					STimeChunk sect;
-					if(p_chunk->Intersect(view_time_bounds, &sect) > 0) {
+					if(p_chunk->Intersect(view_time_bounds, &sect)) {
 						ChunkToRectX(left_edge, sect, view_time_bounds.Start, rect);
 						canv.Rectangle(rect);
 					}
@@ -2773,7 +2773,7 @@ void STimeChunkBrowser::Paint()
 				long   sec = PixToSec(St.Rsz.Shift);
 				mc.Chunk.Start.addsec(sec);
 				mc.Chunk.Finish.addsec(sec);
-				if(mc.Chunk.Intersect(view_time_bounds, &sect) > 0) {
+				if(mc.Chunk.Intersect(view_time_bounds, &sect)) {
 					move_rect.setheightrel(upp_edge + P.PixRowMargin, P.PixRow);
 					ChunkToRectX(left_edge, sect, view_time_bounds.Start, move_rect);
 					St.Rsz.Prev = move_rect;

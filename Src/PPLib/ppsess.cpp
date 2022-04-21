@@ -85,7 +85,7 @@ static void FASTCALL SetXtfByDlScope(const DlScope * pScope, DbTableStat * pStat
 int DbDict_DL600::ExtractStat(const DlContext * pCtx, const DlScope * pScope, DbTableStat * pStat) const
 {
 	CtmExprConst c;
-	pStat->Clear();
+	pStat->Z();
 	pStat->ID = pScope->GetId();
 	pStat->TblName = pScope->GetName();
 	if(pScope->GetConst(DlScope::cdbtFileName, &c)) {

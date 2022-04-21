@@ -1140,9 +1140,21 @@ int PPObjBill::PosPrintByBill(PPID billID)
 		if(_mode && (!(bill_rec.Flags & BILLF_CHECK) || (PPMaster && PPMessage(mfConf|mfYesNo, PPCFM_BILLCHECKED) == cmYes))) {
 			const PPID  __node_id = NZOR(LConfig.DefBillCashID, Cfg.CashNodeID);
 			SString temp_buf;
+			PPObjPerson psn_obj; // @v11.0.4
+			PPBillPacket pack;
 			PPOprKindPacket op_pack;  // @erik v10.5.9
-			P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik v10.5.9
 			_CcByBillParam param;
+			PPID   bill_person_id = 0;
+			PPPersonPacket psn_pack;
+			P_OpObj->GetPacket(bill_rec.OpID, &op_pack); // @erik v10.5.9
+			THROW(ExtractPacket(billID, &pack) > 0);
+			if(pack.Rec.Object) {
+				bill_person_id = ObjectToPerson(pack.Rec.Object, 0);
+				if(bill_person_id && psn_obj.GetPacket(bill_person_id, &psn_pack, 0) > 0)
+					;
+				else
+					bill_person_id = 0;
+			}
 			param.PosNodeID = __node_id;
 			param.LocID = bill_rec.LocID;
 			param.DivisionN = 0;
@@ -1154,12 +1166,31 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				param.Flags_ |= _CcByBillParam::fBank;
 			else if(op_pack.Rec.ExtFlags & OPKFX_PAYMENT_CASH)
 				param.Flags_ |= _CcByBillParam::fCash;
+			// @v11.3.8 {
+			if(bill_person_id) {
+				const PPELinkArray & r_ela = psn_pack.ELA;
+				StringSet ss;
+				SString _phone;
+				SString _email;
+				r_ela.GetSinglePhone(_phone, 0);
+				if(r_ela.GetListByType(ELNKRT_EMAIL, ss) > 0) {
+					assert(ss.getCount());
+					ss.get(0U, _email);
+				}				
+				if(_email.NotEmpty()) {
+					param.BuyersEAddr = _email;
+					param.BuyersEAddrType = SNTOK_EMAIL;
+				}
+				else if(_phone.NotEmpty()) {
+					param.BuyersEAddr = _phone;
+					param.BuyersEAddrType = SNTOK_PHONE;
+				}
+			}
+			// } @v11.3.8 
 			// } @v11.1.5 
 			if(_EditCcByBillParam(param) > 0) {
 				int    sync_prn_err = 0;
 				PPObjCashNode cn_obj;
-				PPObjPerson psn_obj; // @v11.0.4
-				PPBillPacket pack;
 				Goods2Tbl::Rec prepay_goods_rec;
 				CCheckPacket cp;
 				CCheckPacket * p_cp = 0; // Указатель на cp, который будет инициализирован в случае, если чек надо сохранить в кассовой сессии
@@ -1167,7 +1198,6 @@ int PPObjBill::PosPrintByBill(PPID billID)
 				const  PPID prepay_goods_id = (r_ccfg.PrepayInvoiceGoodsID && GObj.Fetch(r_ccfg.PrepayInvoiceGoodsID, &prepay_goods_rec) > 0) ? prepay_goods_rec.ID : 0;
 				THROW(p_cm = PPCashMachine::CreateInstance(param.PosNodeID));
 				THROW(p_cm->SyncAllowPrint());
-				THROW(ExtractPacket(billID, &pack) > 0);
 				if(_mode == 2) { // correction
 					PPCashMachine::FiscalCorrection fc;
 					fc.Dt = pack.Rec.Dt;
@@ -1220,19 +1250,13 @@ int PPObjBill::PosPrintByBill(PPID billID)
 					}
 					// } @v10.9.7 
 					// @v11.0.4 {
-					if(pack.Rec.Object) {
-						const PPID bill_person_id = ObjectToPerson(pack.Rec.Object, 0);
-						if(bill_person_id) {
-							PPPersonPacket psn_pack;
-							if(psn_obj.GetPacket(bill_person_id, &psn_pack, 0) > 0) {
-								if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, pack.Rec.Dt, temp_buf) && temp_buf.NotEmptyS()) {
-									cp.PutExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
-								}
-								if(psn_pack.GetExtName(temp_buf) <= 0)
-									temp_buf = psn_pack.Rec.Name;
-								cp.PutExtStrData(CCheckPacket::extssBuyerName, temp_buf);
-							}
+					if(bill_person_id) {
+						if(psn_pack.Regs.GetRegNumber(PPREGT_TPID, pack.Rec.Dt, temp_buf) && temp_buf.NotEmptyS()) {
+							cp.PutExtStrData(CCheckPacket::extssBuyerINN, temp_buf);
 						}
+						if(psn_pack.GetExtName(temp_buf) <= 0)
+							temp_buf = psn_pack.Rec.Name;
+						cp.PutExtStrData(CCheckPacket::extssBuyerName, temp_buf);
 					}
 					// } @v11.0.4 
 					/* @v11.1.12 

@@ -512,7 +512,7 @@ int DbDict_Btrieve::DropTableSpec(const char * pTblName, DbTableStat * pStat)
 int DbDict_Btrieve::ExtractStat(const XFile & rRec, DbTableStat * pStat) const
 {
 	if(pStat) {
-		pStat->Clear();
+		pStat->Z();
 		pStat->ID = rRec.XfId;
 		pStat->OwnerLevel = rRec.XfOwnrLvl;
 		pStat->Flags = rRec.XfFlags;

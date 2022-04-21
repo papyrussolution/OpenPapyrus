@@ -1988,7 +1988,7 @@ int PPCommandMngr::ConvertDesktopTo(const long rwFlag)
 	SString temp_buf;
 	if(!(CtrFlags & ctrfSkipObsolete) && F_Obsolete.IsValid()) {
 		int64  fsz = 0;
-		if(F_Obsolete.CalcSize(&fsz) > 0) {
+		if(F_Obsolete.CalcSize(&fsz)) {
 			if(fsz > 0) {
 				THROW(SaveFromAllTo(rwFlag));
 				THROW_SL(F_Obsolete.Close());
@@ -3500,7 +3500,7 @@ public:
 				const char * p_dt_pattern = "[0-3]?[0-9][/.-][0-1]?[0-9][/.-][0-9]?[0-9]?[0-9]?[0-9]";
 				SRegExp2 expr(p_dt_pattern, cp1251, SRegExp2::syntaxDefault, 0);
 				SStrScan scan(srch_str2);
-				while(expr.Find(&scan, 0) > 0) {
+				while(expr.Find(&scan, 0)) {
 					DateRange period;
 					scan.Get(temp_buf.Z());
 					if(strtoperiod(temp_buf, &period, 0)) {
@@ -3520,7 +3520,7 @@ public:
 				expr.Compile(p_code_pattern, cp1251, SRegExp2::syntaxDefault, 0);
 				scan.Offs = 0;
 				scan.Len  = 0;
-				while(expr.Find(&scan, 0) > 0) {
+				while(expr.Find(&scan, 0)) {
 					int has_digit = 0;
 					scan.Get(temp_buf.Z());
 					for(uint i = 0; !has_digit && i < temp_buf.Len(); i++)

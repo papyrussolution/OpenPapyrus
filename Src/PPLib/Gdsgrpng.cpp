@@ -1,5 +1,5 @@
 // GDSGRPNG.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // @Kernel
 // Группировка операций по товару
@@ -1148,7 +1148,7 @@ int GoodsGrpngArray::ProcessGoodsGrouping(const GCTFilt & rFilt, const AdjGdsGrp
 		if(filt.LocList.GetCount() && p_rtloclist->getCount()) {
 			const PPIDArray & a_ary = filt.LocList.Get();
 			for(i = a_ary.getCount(); i > 0; i--) {
-				if(p_rtloclist->SearchItemByID(a_ary.at(i-1), 0) <= 0)
+				if(!p_rtloclist->SearchItemByID(a_ary.at(i-1), 0))
 					filt.LocList.Remove(i-1);
 			}
 		}

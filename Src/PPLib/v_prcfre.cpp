@@ -167,7 +167,7 @@ int PPViewPrcBusy::ProcessPrc(PPID prcID, BExtInsert * pBei)
 				const PrcBusy * p_item1 = static_cast<const PrcBusy *>(busy_list.at(i));
 				for(uint j = 0; j < temp_list.getCount(); j++) {
 					STimeChunk sect;
-					if(p_item1->STimeChunk::Intersect(*static_cast<const STimeChunk *>(temp_list.at(j)), &sect) > 0) {
+					if(p_item1->STimeChunk::Intersect(*static_cast<const STimeChunk *>(temp_list.at(j)), &sect)) {
 						PrcBusy temp_entry = *p_item1;
 						temp_entry.Start  = sect.Start;
 						temp_entry.Finish = sect.Finish;

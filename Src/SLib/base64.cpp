@@ -304,13 +304,13 @@ static void Base32_encode_sequence(const uchar * plain, size_t len, SString & rB
 	for(int block = 0; block < 8; block++) {
 		int octet = Base32_get_octet(block);  // figure out which octet this block starts in
 		int junk  = Base32_get_offset(block);  // how many bits do we drop from this octet?
-		if(octet >= len) {  // we hit the end of the buffer
+		if(octet >= static_cast<int>(len)) {  // we hit the end of the buffer
 			rBuf.CatCharN(Base32_PADDING_CHAR, len);
 			return;
 		}
 		else {
 			uchar c = Base32_shift_right(plain[octet], junk);  // first part
-			if(junk < 0 /*is there a second part?*/ && octet < (len-1)) { // is there still something to read?
+			if(junk < 0 /*is there a second part?*/ && octet < static_cast<int>(len-1)) { // is there still something to read?
 				c |= Base32_shift_right(plain[octet+1], 8 + junk);
 			}
 			rBuf.CatChar(base32[c & 0x1F]);  // 0001 1111

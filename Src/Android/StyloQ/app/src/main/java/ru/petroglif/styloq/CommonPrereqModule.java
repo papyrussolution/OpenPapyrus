@@ -336,7 +336,7 @@ public class CommonPrereqModule {
 			String title_text = null;
 			if(SLib.GetLen(SvcIdent) > 0) {
 				StyloQDatabase.SecStoragePacket svc_packet = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
-				String svc_name = (svc_packet != null) ? svc_packet.GetSvcName() : null;
+				String svc_name = (svc_packet != null) ? svc_packet.GetSvcName(null) : null;
 				if(SLib.GetLen(svc_name) > 0)
 					SLib.SetCtrlString(this, R.id.CTL_ACTIVITYHEAD_SVCNAME, svc_name);
 			}

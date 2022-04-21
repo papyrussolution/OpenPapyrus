@@ -423,6 +423,7 @@ struct DBDivPack;
 struct PPCommSyncID;
 class  PPFtsDatabase;
 class  PPTextAnalyzer;
+struct ResolveGoodsItem;
 typedef struct bignum_st BIGNUM; // OpenSSL
 typedef long PPID;
 typedef LongArray PPIDArray;
@@ -610,15 +611,16 @@ protected:
 // Descr: Общие предопределенные форматы обмена данными (общее поле идентификации, используемое для импорта/экспорта)
 //
 enum PredefinedImpExpFormat { // @persistent
-	piefUndef            = 0, //
-	piefNalogR_Invoice   = 1, // Счет-фактура в формате nalog.ru
-	piefNalogR_REZRUISP  = 2, // Специальный тип документа в формате nalog.ru
-	piefNalogR_SCHFDOPPR = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
-	piefExport_Marks     = 4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
-	piefNalogR           = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
+	piefUndef                    = 0, //
+	piefNalogR_Invoice           = 1, // Счет-фактура в формате nalog.ru
+	piefNalogR_REZRUISP          = 2, // Специальный тип документа в формате nalog.ru
+	piefNalogR_SCHFDOPPR         = 3, // УПД ON_SCHFDOPPR_1_995_01_05_01_02.xsd
+	piefExport_Marks             = 4, // @v10.7.12 Внутренний простой текстовый формат экспорта марок
+	piefNalogR                   = 5, // @v10.8.0 import-only Файлы в формате nalog.ru
 	piefNalogR_ON_NSCHFDOPPRMARK = 6, // @v10.8.0 Счет-фактура с марками
-	piefICalendar        = 7, // @v11.0.1 iCalendar
+	piefICalendar                = 7, // @v11.0.1 iCalendar
 	piefNalogR_ON_NSCHFDOPPR     = 8, // @v11.2.1 Счет-фактура
+	piefCokeOrder                = 9, // @v11.3.8 xml-заказы кока-кола
 };
 //
 // Descr: Габаритные размеры (mm).
@@ -930,8 +932,8 @@ private:
 struct PPCycleFilt { // @size=4
 	PPCycleFilt();
 	PPCycleFilt & Z();
-	int    FASTCALL operator == (const PPCycleFilt & rS) const;
-	int    operator !() const;
+	bool   FASTCALL operator == (const PPCycleFilt & rS) const;
+	bool   operator !() const;
 	int16  Cycle;
 	int16  NumCycles;
 };
@@ -2025,12 +2027,13 @@ class PPObjIDArray : public TSVector <PPObjID> {
 public:
 	friend class PPObjectTransmit;
 	PPObjIDArray();
-	int    Search(PPObjID key, uint * pPos) const;
+	bool   Search(PPObjID key, uint * pPos) const;
 	int    Add(PPID objType, PPID objID);
 	int    Add(PPID objType, const PPIDArray & rList);
 	int    Add_NotPreprocess(PPID objType, PPID objID);
 	int    FASTCALL Is_NotPreprocess_Pos(uint pos) const;
 	int    ProcessRef(PPID objType, PPID * pObjID);
+	PPObjIDArray & SortAndUndup();
 private:
 	int    DoReplace; // @transient
 	LongArray DontPreprocPosList; // @transient Список позиций, которые не должны обрабатываться //
@@ -2068,10 +2071,10 @@ public:
 	//   0  - В списке уже есть элемент с идентификатором id
 	//   !0 - В списке нет элемента с идентификатором id.
 	//
-	int    FASTCALL CheckUniqueID(PPID id) const;
+	bool   FASTCALL CheckUniqueID(PPID id) const;
 	int    UpdateItemByID(PPID id, long flags);
 	int    FASTCALL RemoveItemByID(PPID id);
-	int    SearchItemByID(PPID id, uint * pPos) const;
+	bool   SearchItemByID(PPID id, uint * pPos) const;
 	bool   CheckFlag(PPID id, long flag) const;
 private:
 	int    FASTCALL Helper_MergeItems(const ObjRestrictArray * pS);
@@ -33259,6 +33262,7 @@ public:
 	PPObjQCert  QcObj;
 	PPObjArticle ArObj;
 	PPObjGoods  GObj;
+	PPObjTag TagObj;
 };
 
 class PPBillExporter : public PPBillImpExpBaseProcessBlock {
@@ -33325,6 +33329,10 @@ private:
 	int    ReadRows(PPImpExp * pImpExp, int mode/*linkByLastInsBill*/, const /*StrAssocArray*/PPImpExpParam::PtTokenList * pFnFldList);
 	int    ReadSpecXmlData();
 	int    Helper_EnsurePersonArticle(PPID psnID, PPID accSheetID, PPID psnKindID, PPID * pArID); // @wota
+	//
+	// Descr: Вспомогательная функция акцепта импортируемых заказов по предопределенному формату piefCokeOrder
+	//
+	int    Helper_AcceptCokeData(const SCollection * pRowList, PPID opID, PPID supplArID);
 	int    ReadData();
 	int    ReadDataDll(const PPEdiProviderPacket * pEp);
 	int    Import(int useTa);
@@ -33333,6 +33341,7 @@ private:
 	int    AssignFnFieldToRecord(const /*StrAssocArray*/PPImpExpParam::PtTokenList & rFldList, Sdr_Bill * pRecHdr, Sdr_BRow * pRecRow);
 	int    ProcessDynField(const SdRecord & rDynRec, uint dynFldN, PPImpExpParam & rIep, ObjTagList & rTagList);
 	int    DoFullEdiProcess();
+	int    CreateAbsenceGoods(ResolveGoodsItem & rRgi, int use_ta);
 
 	PPID   AccSheetID;
 	long   LineIdSeq;
@@ -46353,39 +46362,40 @@ public:
 	};
 	enum { // @persistent
 		tagUnkn    =  0, //
-		tagVerifiable_Depricated =  1, // verifiable : bool ("true" || "false")
-		tagCommonName      =  2, // cn : string with optional language shifted on 16 bits left
-		tagName            =  3, // name : string with optional language shifted on 16 bits left
-		tagSurName         =  4, // surname : string with optional language shifted on 16 bits left
-		tagPatronymic      =  5, // patronymic : string with optional language shifted on 16 bits left
-		tagDOB             =  6, // dob : ISO-8601 date representation
-		tagPhone           =  7, // phone : string
-		tagGLN             =  8, // gln : string (numeric)
-		tagCountryIsoSymb  =  9, // countryisosymb : string
-		tagCountryIsoCode  = 10, // countryisocode : string (numeric)
-		tagCountryName     = 11, // country : string with optional language shifted on 16 bits left
-		tagZIP             = 12, // zip : string
-		tagCityName        = 13, // city : string with optional language shifted on 16 bits left
-		tagStreet          = 14, // street : string with optional language shifted on 16 bits left
-		tagAddress         = 15, // address : string with optional language shifted on 16 bits left
-		tagImage           = 16, // image : mimeformat:mime64
-		tagRuINN           = 17, // ru_inn : string (numeric)
-		tagRuKPP           = 18, // ru_kpp : string (numeric)
-		tagRuSnils         = 19, // ru_snils : string (numeric)
-		tagModifTime       = 20, // modtime : ISO-8601 date-time representation (UTC)
-		tagDescr           = 21, // descr : string
-		tagLatitude        = 22, // lat : real
-		tagLongitude       = 23, // lon : real
+		tagVerifiable_Depricated = 1, // verifiable : bool ("true" || "false")
+		tagCommonName         =  2, // cn : string with optional language shifted on 16 bits left
+		tagName               =  3, // name : string with optional language shifted on 16 bits left
+		tagSurName            =  4, // surname : string with optional language shifted on 16 bits left
+		tagPatronymic         =  5, // patronymic : string with optional language shifted on 16 bits left
+		tagDOB                =  6, // dob : ISO-8601 date representation
+		tagPhone              =  7, // phone : string
+		tagGLN                =  8, // gln : string (numeric)
+		tagCountryIsoSymb     =  9, // countryisosymb : string
+		tagCountryIsoCode     = 10, // countryisocode : string (numeric)
+		tagCountryName        = 11, // country : string with optional language shifted on 16 bits left
+		tagZIP                = 12, // zip : string
+		tagCityName           = 13, // city : string with optional language shifted on 16 bits left
+		tagStreet             = 14, // street : string with optional language shifted on 16 bits left
+		tagAddress            = 15, // address : string with optional language shifted on 16 bits left
+		tagImage              = 16, // image : mimeformat:mime64
+		tagRuINN              = 17, // ru_inn : string (numeric)
+		tagRuKPP              = 18, // ru_kpp : string (numeric)
+		tagRuSnils            = 19, // ru_snils : string (numeric)
+		tagModifTime          = 20, // modtime : ISO-8601 date-time representation (UTC)
+		tagDescr              = 21, // descr : string
+		tagLatitude           = 22, // lat : real
+		tagLongitude          = 23, // lon : real
 		//
 		// Замечание по сроку действия: одна сторона передает другой период истечения срока действия в секундах.
 		//   Принимающая сторона складывает это значение с текущим epoch-временем и сохраняет на своей стороне
 		//   для того, чтобы в последующем принять решение о запросе обновления.
 		//
-		tagExpiryPeriodSec = 24, // @v11.2.3 Период истечения срока действия в секундах
-		tagExpiryEpochSec  = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
-		tagEMail           = 26, // @v11.3.0 
-		tagVerifiability   = 27, // @v11.3.2 arbitrary || anonymous || verifiable
-		tagStatus          = 28, // @v11.3.6 statusXXX : string
+		tagExpiryPeriodSec    = 24, // @v11.2.3 Период истечения срока действия в секундах
+		tagExpiryEpochSec     = 25, // @v11.2.3 Время истечения срока действия (секунды с 1/1/1970)
+		tagEMail              = 26, // @v11.3.0 
+		tagVerifiability      = 27, // @v11.3.2 arbitrary || anonymous || verifiable
+		tagStatus             = 28, // @v11.3.6 statusXXX : string
+		tagImageBlobSignature = 29, // @v11.3.8 Сигнатура изображения tagImage для передачи клиенту (само изображение клиент получит от медиатора, предъявив сигнатуру)
 	};
 	/*enum {
 		// @#(fVerifiable^fAnonym)
@@ -46404,6 +46414,8 @@ public:
 	{
 		return oneof9(tag, tagCommonName, tagName, tagSurName, tagPatronymic, tagCountryName, tagCityName, tagStreet, tagAddress, tagDescr);
 	}
+	static int MakeTransmissionJson(PPID id, const SBinaryChunk & rOwnIdent, const char * pSrcJson, SString & rTransmissionJson);
+	static SJson * MakeTransmissionJson(PPID id, const SBinaryChunk & rOwnIdent, const char * pSrcJson);
 	StyloQFace();
 	~StyloQFace();
 	bool   FASTCALL IsEq(const StyloQFace & rS) const;
@@ -46418,6 +46430,7 @@ public:
 	int   SetDob(LDATE dt);
 	int   SetStatus(int status);
 	int   SetImage(int imgFormat/*SFileFormat::XXX*/, const SImageBuffer * pImg);
+	bool  Has(int tag, int lang) const;
 	int   Get(int tag, int lang, SString & rResult) const;
 	int   GetExactly(int tag, int lang, SString & rResult) const;
 	LDATE GetDob() const;
@@ -46436,22 +46449,30 @@ public:
 	int   FromJsonObject(const SJson * pJsObj);
 	//
 	// Descr: Преобразует внутреннее представление лика в текстовый json-объект.
+	// ARG(forTransmission IN): Если true, то формирует результат с небольшими модификациями.
+	//   В частности, изображение, если есть, не передается, но вместо него вставляется тег tagImageBlobSignature
+	//   с сигнатурой изображения чтобы клиент самостоятельно его получил от медиатора.
+	// ARG(rResult OUT): Строковый буфер, в который записывается текстовое представление JSON.
 	// Returns:
 	//   >0 - преобразование успешно
 	//   <0 - лик пустой
 	//   0 - ошибка
 	//
-	int   ToJson(SString & rResult) const;
+	int   ToJson(bool forTransmission, SString & rResult) const;
 	//
 	// Descr: Преобразует внутреннее представление лика в json-объект.
 	//   Объект json, который возвращен функцией должен быть разрушен вызывающей функцией.
+	// ARG(forTransmission IN): Если true, то формирует результат с небольшими модификациями.
+	//   В частности, изображение, если есть, не передается, но вместо него вставляется тег tagImageBlobSignature
+	//   с сигнатурой изображения чтобы клиент самостоятельно его получил от медиатора.
 	// Returns:
 	//   !0 - json-объект лика
 	//   0  - ошибка
 	//
-	SJson * ToJson() const;
+	SJson * ToJson(bool forTransmission) const;
 private:
 	int   GetLanguageList(LongArray & rList) const;
+	int   Implement_Get(int tag, int lang, SString * pResult) const;
 
 	StrAssocArray L;
 };
@@ -46874,6 +46895,20 @@ public:
 		TSCollection <BookingItem> BkList; // @v11.3.6
 		TSVector <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 	};
+	//
+	// Descr: Ифномация о BLOB'е
+	//
+	struct BlobInfo {
+		BlobInfo();
+		BlobInfo & Z();
+		PPObjID Oid;        // Идентификатор объекта данных, которому соответствует BLOB
+		uint   BlobN;       // [1..] Номер BLOB'а в "обойме" объекта Oid
+		SFileFormat Ff;     // Идентификатор формата данных  
+		int    HashAlg;     // Хэш-алгоритм, используемый для расчета хэша BLOB'а
+		SBinaryChunk Hash;  // Хэш BLOB'а
+		SString SrcPath;    // Путь файла, в котором находится оригинальная версия BLOB'а
+		SString Signature;  // Сигнатура, используемая для идентификации BLOB'а сервисами и клиентами Stylo-Q
+	};
 
 	PPStyloQInterchange();
 	explicit PPStyloQInterchange(StyloQCore * pStQC);
@@ -47025,6 +47060,7 @@ public:
 	SlSRP::Verifier * CreateSrpPacket_Svc_Auth(const SBinaryChunk & rMyPub, const SBinaryChunk & rCliIdent, const SBinaryChunk & rSrpS,
 		const SBinaryChunk & rSrpV, const SBinaryChunk & rA, StyloQProtocol & rP);
 	int    MakeIndexingRequestCommand(const StyloQCore::StoragePacket * pOwnPack, const StyloQCommandList::Item * pCmd, long expirationSec, PPObjIDArray & rOidList, SString & rResult);
+	bool   GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oid, uint blobN, BlobInfo & rInfo, SBinaryChunk * pBlobBuf) const;
 	static void  SetupMqbReplyProps(const RoundTripBlock & rB, PPMqbClient::MessageProperties & rProps);
 	static int   Edit_RsrvAttendancePrereqParam(StyloQAttendancePrereqParam & rParam);
 	static int   Edit_IndexingParam(StyloQIndexingParam & rParam);
@@ -47034,19 +47070,21 @@ public:
 	static SString & MakeBlobSignature(const SBinaryChunk & rOwnIdent, const char * pResourceName, SString & rBuf);
 	//
 	void   Debug_Command(const StyloQCommandList::Item * pCmd); // @debug
+	
+	static const uint InnerBlobN_Face;
 private:
-	struct Stq_ReqBlobInfoEntry {
+	struct Stq_ReqBlobInfoEntry : public BlobInfo {
 		Stq_ReqBlobInfoEntry();
 		Stq_ReqBlobInfoEntry & Z();
-		PPObjID Oid;         // При подготовке списка blob'ов к отправке это поле содержит ИД объекта, которому принадлежит blob
-		uint  InnerBlobNumber; // Порядковый номер blob'а по отношению к объекту oid. Используется при подготовке к отправке.
-		int   HashAlg;       // SHASF_XXX Алгоритм хэширования 
+		//PPObjID Oid;         // При подготовке списка blob'ов к отправке это поле содержит ИД объекта, которому принадлежит blob
+		//uint  InnerBlobNumber; // Порядковый номер blob'а по отношению к объекту oid. Используется при подготовке к отправке.
+		//int   HashAlg;       // SHASF_XXX Алгоритм хэширования 
 		bool  Missing;       // При получении ответа от медиатора true означает, что у медиатора нет такого blob'а
 		bool  RepDiffHash;   // При получении ответа от медиатора, если у медиатора хэш blob'а отличается от нашего, то это поле устанавливается в true  
 		uint8 Reserve[2];    // @alignment
-		SString SrcFileName; // При подготовке к отправке blob'ов содержит полный путь исходного файла
-		SString Signature;   // Сигнатура blob'а: имя, с которым он будет храниться у медиатора
-		SBinaryChunk Hash;   // Хэш blob'а построенный с помощью алгоритма HashAlg
+		//SString SrcFileName; // При подготовке к отправке blob'ов содержит полный путь исходного файла
+		//SString Signature;   // Сигнатура blob'а: имя, с которым он будет храниться у медиатора
+		//SBinaryChunk Hash;   // Хэш blob'а построенный с помощью алгоритма HashAlg
 	};
 	class Stq_ReqBlobInfoList : public TSCollection <Stq_ReqBlobInfoEntry> {
 	public:
@@ -47054,6 +47092,16 @@ private:
 		bool   SearchSignature(const char * pSignature, uint * pPos) const;
 		SJson * MakeRequestInfoListQuery() const;
 		bool   ParseRequestInfoListReply(const SJson * pJs);
+	};
+	struct Stq_CmdStat_MakeRsrv_Response {
+		Stq_CmdStat_MakeRsrv_Response();
+		uint   GoodsCount;
+		uint   GoodsGroupCount;
+		uint   BrandCount;
+		uint   ClientCount;
+		uint   DlvrLocCount;
+		uint   PrcCount; // @v11.3.8
+		PPObjIDArray BlobOidList; // @v11.3.8
 	};
 	int    AddImgBlobToReqBlobInfoList(const SBinaryChunk & rOwnIdent, PPObjID oid, Stq_ReqBlobInfoList & rList);
 	int    ExtractSessionFromPacket(const StyloQCore::StoragePacket & rPack, SSecretTagPool & rSessCtx);
@@ -47089,6 +47137,11 @@ private:
 	int    QueryConfigIfNeeded(RoundTripBlock & rB);
 	int    QuerySvcConfig(const SBinaryChunk & rSvcIdent, StyloQConfig &);
 	int    Helper_DoInterchange(InterchangeParam & rParam, SSecretTagPool & rReply);
+	int    Helper_ExecuteIndexingRequest(const StyloQCore::StoragePacket & rOwnPack, const TSCollection <StyloQCore::IgnitionServerEntry> & rMediatorList, const StyloQCommandList::Item * pCmdItem);
+	int    StoreOidListWithBlob(const PPObjIDArray & rList);
+	int    GetOidListWithBlob(PPObjIDArray & rList);
+	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение

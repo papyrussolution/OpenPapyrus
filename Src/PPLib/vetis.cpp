@@ -3763,7 +3763,7 @@ int PPVetisInterface::ParseError(const xmlNode * pNode, VetisErrorEntry & rResul
 	rResult.Z();
 	if(SXml::GetContentByName(pNode, "error", temp_buf)) {
 		rResult.Item = temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
-		if(SXml::GetAttrib(pNode, "code", temp_buf) > 0)
+		if(SXml::GetAttrib(pNode, "code", temp_buf))
 			rResult.Code = temp_buf;
 		ok = 1;
 	}

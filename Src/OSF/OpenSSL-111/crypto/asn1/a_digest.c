@@ -15,13 +15,10 @@
 
 #ifndef NO_ASN1_OLD
 
-int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data,
-    uchar * md, uint * len)
+int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data, uchar * md, uint * len)
 {
-	int inl;
 	uchar * str, * p;
-
-	inl = i2d(data, NULL);
+	int inl = i2d(data, NULL);
 	if(inl <= 0) {
 		ASN1err(ASN1_F_ASN1_DIGEST, ERR_R_INTERNAL_ERROR);
 		return 0;
@@ -32,7 +29,6 @@ int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data,
 	}
 	p = str;
 	i2d(data, &p);
-
 	if(!EVP_Digest(str, inl, md, len, type, NULL)) {
 		OPENSSL_free(str);
 		return 0;
@@ -45,9 +41,8 @@ int ASN1_digest(i2d_of_void * i2d, const EVP_MD * type, char * data,
 
 int ASN1_item_digest(const ASN1_ITEM * it, const EVP_MD * type, void * asn, uchar * md, uint * len)
 {
-	int i;
 	uchar * str = NULL;
-	i = ASN1_item_i2d(static_cast<ASN1_VALUE *>(asn), &str, it);
+	int i = ASN1_item_i2d(static_cast<ASN1_VALUE *>(asn), &str, it);
 	if(!str)
 		return 0;
 	if(!EVP_Digest(str, i, md, len, type, NULL)) {

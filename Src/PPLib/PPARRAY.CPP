@@ -1,5 +1,5 @@
 // PPARRAY.CPP
-// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8 // @v10.4.5
 // @Kernel
 //
@@ -20,15 +20,8 @@ PPCycleFilt & PPCycleFilt::Z()
 	//*reinterpret_cast<uint32 *>(this) = 0;
 }
 
-int FASTCALL PPCycleFilt::operator == (const PPCycleFilt & rS) const
-{
-	return (Cycle == rS.Cycle && NumCycles == rS.NumCycles);
-}
-
-int PPCycleFilt::operator !() const
-{
-	return (Cycle == 0);
-}
+bool FASTCALL PPCycleFilt::operator == (const PPCycleFilt & rS) const { return (Cycle == rS.Cycle && NumCycles == rS.NumCycles); }
+bool PPCycleFilt::operator !() const { return (Cycle == 0); }
 //
 // PPCycleArray
 //
@@ -325,9 +318,9 @@ int ObjRestrictArray::Add(PPID objID, long flags, uint * pPos)
 		return PPSetErrorSLib();
 }
 
-int FASTCALL ObjRestrictArray::CheckUniqueID(PPID objID) const
+bool FASTCALL ObjRestrictArray::CheckUniqueID(PPID objID) const
 {
-	return SearchItemByID(objID, 0) ? 0 : 1;
+	return SearchItemByID(objID, 0) ? false : true;
 }
 
 int ObjRestrictArray::UpdateItemByID(PPID objID, long itemFlags)
@@ -352,7 +345,7 @@ int FASTCALL ObjRestrictArray::RemoveItemByID(PPID objID)
 		return -1;
 }
 
-int ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
+bool ObjRestrictArray::SearchItemByID(PPID objID, uint * pPos) const
 {
 	return lsearch(&objID, pPos, CMPF_LONG);
 }
@@ -729,7 +722,7 @@ PPObjIDArray::PPObjIDArray() : TSVector <PPObjID>(), DoReplace(0)
 {
 }
 
-int PPObjIDArray::Search(PPObjID key, uint * pPos) const
+bool PPObjIDArray::Search(PPObjID key, uint * pPos) const
 {
     return lsearch(&key, pPos, PTR_CMPFUNC(_2long));
 }
@@ -786,6 +779,23 @@ int PPObjIDArray::ProcessRef(PPID objType, PPID * pObjID)
 				}
 		}
 	return ok;
+}
+
+PPObjIDArray & PPObjIDArray::SortAndUndup()
+{
+	uint   c = getCount();
+	if(c > 1) {
+		SVector::sort(PTR_CMPFUNC(_2long));
+		assert(c == getCount()); // @paranoic
+		PPObjID prev = at(--c);
+		do {
+			const PPObjID t = at(--c);
+			if(t == prev)
+				atFree(c+1);
+			prev = t;
+		} while(c);
+	}
+	return *this;
 }
 //
 //
