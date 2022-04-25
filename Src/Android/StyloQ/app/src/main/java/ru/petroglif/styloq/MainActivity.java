@@ -31,8 +31,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			if(data instanceof StyloQConfig)
 				Data = data;
 		}
-		@Override
-		public Object HandleEvent(int ev, Object srcObj, Object subj)
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
 		{
 			Object result = null;
 			switch(ev) {
@@ -41,7 +40,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						requestWindowFeature(Window.FEATURE_NO_TITLE);
 						setContentView(R.layout.dialog_privateconfig);
 						Context ctx = getContext();
-						StyloQApp app_ctx = (StyloQApp) ctx.getApplicationContext();
+						StyloQApp app_ctx = (StyloQApp)ctx.getApplicationContext();
 						if(app_ctx != null)
 							setTitle(SLib.ExpandString(app_ctx, "@{styloqprivconfig}"));
 						SetDTS(Data);
@@ -172,7 +171,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				Data = data;
 			//ResultListener = resultListener;
 		}
-		public Object HandleEvent(int ev, Object srcObj, Object subj)
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
 		{
 			Object result = null;
 			switch(ev) {
@@ -604,7 +603,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								byte[] face_ref = pack.Pool.Get(SecretTagPool.tagAssignedFaceRef);
 								if(!SLib.AreByteArraysEqual(org_face_ref, face_ref)) {
 									org_pack.Pool.Put(SecretTagPool.tagAssignedFaceRef, face_ref);
-									db.PutPeerEntry(org_pack.Rec.ID, org_pack);
+									db.PutPeerEntry(org_pack.Rec.ID, org_pack, true);
 									ReckonServiceEntryCreatedOrUpdated(org_pack.Rec.ID);
 								}
 							}
@@ -621,7 +620,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 									byte [] cfg_bytes = cfg_json.getBytes();
 									if(SLib.GetLen(cfg_bytes) > 0) {
 										own_pack.Pool.Put(SecretTagPool.tagPrivateConfig, cfg_bytes);
-										if(db.PutPeerEntry(own_pack.Rec.ID, own_pack) > 0) {
+										if(db.PutPeerEntry(own_pack.Rec.ID, own_pack, true) > 0) {
 											String pref_lang_ref = pack.Get(StyloQConfig.tagPrefLanguage);
 											int pl = SLib.GetLinguaIdent(pref_lang_ref);
 											app_ctx.SetCurrentLang(pl);
@@ -706,7 +705,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 		if(tbl != null) {
 			final String tn = tbl.GetName();
 			{
-				dbs.StartTransaction();
+				Database.Transaction tra = new Database.Transaction(dbs, true);
 				for(int i = 0; i < 1000; i++) {
 					StyloQDatabase.TestTable.Rec rec = new StyloQDatabase.TestTable.Rec();
 					rec.ID = 0;
@@ -724,7 +723,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					rec.ID = tbl.Insert(rec);
 					test_collection.add(rec);
 				}
-				dbs.CommitWork();
+				tra.Commit();
 			}
 			{
 				for(int i = 0; i < 1000; i++) {

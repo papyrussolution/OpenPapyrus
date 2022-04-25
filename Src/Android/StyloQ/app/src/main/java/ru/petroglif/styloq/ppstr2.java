@@ -2147,6 +2147,11 @@ class ppstr2 {
 	public static final int PPERR_MQBC_SERVER = 12128;
 	public static final int PPERR_MQBC_NORESPONSE = 12129;
 	public static final int PPERR_MQBC_LIBRARYEXCEPTION = 12130;
+	public static final int PPERR_SQ_UNDEFOWNSVCID = 12131;
+	public static final int PPERR_UNDEFBILLIMPOP = 12132;
+	public static final int PPERR_BILLIMPOPCANTBIACC = 12133;
+	public static final int PPERR_BILLIMPSRCCOD2NEEDED = 12134;
+	public static final int PPERR_TECHCANTBESELFPARENTED = 12135;
 	//
 	// .N.
 	//
@@ -4425,6 +4430,16 @@ class ppstr2 {
 	public static final int PPTXT_STQCLITESTCMD_SEARCH = 12023;
 	public static final int PPTXT_EGAIS_SALE = 12024;
 	public static final int PPTXT_STYLOQMQBSVR_NOTHINGTODO = 12025;
+	public static final int PPTXT_STQCLITESTCMD_STOREBLOB = 12026;
+	public static final int PPTXT_STQCLITESTCMD_GETBLOB = 12027;
+	public static final int PPTXT_STQCLITESTCMD_REQBLOBINFOLIST = 12028;
+	public static final int PPINIPARAM_PAPERLESSCHEQUE = 12029;
+	public static final int PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR = 12030;
+	public static final int PPTXT_ADJALCOGOODS_CATEGORY = 12031;
+	public static final int PPTXT_ADJALCOGOODS_PROOF = 12032;
+	public static final int PPTXT_ADJALCOGOODS_VOLUME = 12033;
+	public static final int PPTXT_CANTCREATEWAREWONAME = 12034;
+	public static final int PPTXT_WAREAUTOCREATED = 12035;
 	//
 	// .N.
 	//

@@ -1344,7 +1344,7 @@ U_CAPI void U_EXPORT2 ubidi_invertMap(const int32_t * srcMap, int32_t * destMap,
 			memset(destMap, 0xFF, destLength*sizeof(int32_t));
 		}
 		pi = srcMap+length;
-		while(length>0) {
+		while(length > 0) {
 			if(*--pi>=0) {
 				destMap[*pi] = --length;
 			}

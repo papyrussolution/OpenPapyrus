@@ -38,8 +38,6 @@
 #if  !USE_PDFIO   /* defined in environ.h */
 /* --------------------------------------------*/
 
-/* ----------------------------------------------------------------------*/
-
 l_ok pixConvertToPdfData(PIX * pix, l_int32 type, l_int32 quality,
     uint8 ** pdata, size_t * pnbytes,
     l_int32 x, l_int32 y, l_int32 res,
@@ -49,22 +47,16 @@ l_ok pixConvertToPdfData(PIX * pix, l_int32 type, l_int32 quality,
 	return ERROR_INT("function not present", "pixConvertToPdfData", 1);
 }
 
-/* ----------------------------------------------------------------------*/
-
 l_ok ptraConcatenatePdfToData(L_PTRA * pa_data, SARRAY * sa,
     uint8 ** pdata, size_t * pnbytes)
 {
 	return ERROR_INT("function not present", "ptraConcatenatePdfToData", 1);
 }
 
-/* ----------------------------------------------------------------------*/
-
 l_ok convertTiffMultipageToPdf(const char * filein, const char * fileout)
 {
 	return ERROR_INT("function not present", "convertTiffMultipageToPdf", 1);
 }
-
-/* ----------------------------------------------------------------------*/
 
 l_ok l_generateCIDataForPdf(const char * fname, PIX * pix, l_int32 quality,
     L_COMP_DATA ** pcid)
@@ -72,23 +64,17 @@ l_ok l_generateCIDataForPdf(const char * fname, PIX * pix, l_int32 quality,
 	return ERROR_INT("function not present", "l_generateCIDataForPdf", 1);
 }
 
-/* ----------------------------------------------------------------------*/
-
 L_COMP_DATA * l_generateFlateDataPdf(const char * fname, PIX * pix)
 {
 	return (L_COMP_DATA*)ERROR_PTR("function not present",
 		   "l_generateFlateDataPdf", NULL);
 }
 
-/* ----------------------------------------------------------------------*/
-
 L_COMP_DATA * l_generateJpegData(const char * fname, l_int32 ascii85flag)
 {
 	return (L_COMP_DATA*)ERROR_PTR("function not present",
 		   "l_generateJpegData", NULL);
 }
-
-/* ----------------------------------------------------------------------*/
 
 L_COMP_DATA * l_generateJpegDataMem(uint8 * data, size_t nbytes,
     l_int32 ascii85flag)
@@ -97,15 +83,11 @@ L_COMP_DATA * l_generateJpegDataMem(uint8 * data, size_t nbytes,
 		   "l_generateJpegDataMem", NULL);
 }
 
-/* ----------------------------------------------------------------------*/
-
 l_ok l_generateCIData(const char * fname, l_int32 type, l_int32 quality,
     l_int32 ascii85, L_COMP_DATA ** pcid)
 {
 	return ERROR_INT("function not present", "l_generateCIData", 1);
 }
-
-/* ----------------------------------------------------------------------*/
 
 l_ok pixGenerateCIData(PIX * pixs, l_int32 type, l_int32 quality,
     l_int32 ascii85, L_COMP_DATA ** pcid)
@@ -113,15 +95,11 @@ l_ok pixGenerateCIData(PIX * pixs, l_int32 type, l_int32 quality,
 	return ERROR_INT("function not present", "pixGenerateCIData", 1);
 }
 
-/* ----------------------------------------------------------------------*/
-
 L_COMP_DATA * l_generateFlateData(const char * fname, l_int32 ascii85flag)
 {
 	return (L_COMP_DATA*)ERROR_PTR("function not present",
 		   "l_generateFlateData", NULL);
 }
-
-/* ----------------------------------------------------------------------*/
 
 L_COMP_DATA * l_generateG4Data(const char * fname, l_int32 ascii85flag)
 {
@@ -129,15 +107,11 @@ L_COMP_DATA * l_generateG4Data(const char * fname, l_int32 ascii85flag)
 		   "l_generateG4Data", NULL);
 }
 
-/* ----------------------------------------------------------------------*/
-
 l_ok cidConvertToPdfData(L_COMP_DATA * cid, const char * title,
     uint8 ** pdata, size_t * pnbytes)
 {
 	return ERROR_INT("function not present", "cidConvertToPdfData", 1);
 }
-
-/* ----------------------------------------------------------------------*/
 
 void l_CIDataDestroy(L_COMP_DATA  ** pcid)
 {
@@ -145,15 +119,11 @@ void l_CIDataDestroy(L_COMP_DATA  ** pcid)
 	return;
 }
 
-/* ----------------------------------------------------------------------*/
-
 void l_pdfSetG4ImageMask(l_int32 flag)
 {
 	L_ERROR("function not present\n", "l_pdfSetG4ImageMask");
 	return;
 }
-
-/* ----------------------------------------------------------------------*/
 
 void l_pdfSetDateAndVersion(l_int32 flag)
 {
@@ -161,8 +131,4 @@ void l_pdfSetDateAndVersion(l_int32 flag)
 	return;
 }
 
-/* ----------------------------------------------------------------------*/
-
-/* --------------------------------------------*/
 #endif  /* !USE_PDFIO */
-/* --------------------------------------------*/

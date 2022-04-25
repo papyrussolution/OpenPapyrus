@@ -1,20 +1,12 @@
+// ucnv_u7.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2002-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- **********************************************************************
- *   file name:  ucnv_u7.c
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2002jul01
- *   created by: Markus W. Scherer
- *
- *   UTF-7 converter implementation. Used to be in ucnv_utf.c.
- */
+// Copyright (C) 2002-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2002jul01
+// created by: Markus W. Scherer
+// UTF-7 converter implementation. Used to be in ucnv_utf.c.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -191,9 +183,8 @@ static void U_CALLCONV _UTF7Reset(UConverter * cnv, UConverterResetChoice choice
 	}
 }
 
-static void U_CALLCONV _UTF7Open(UConverter * cnv,
-    UConverterLoadArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF7Open(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	(void)pArgs;
 	if(UCNV_GET_VERSION(cnv)<=1) {
 		/* TODO(markus): Should just use cnv->options rather than copying the version number. */
@@ -205,34 +196,25 @@ static void U_CALLCONV _UTF7Open(UConverter * cnv,
 	}
 }
 
-static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const uint8 * source, * sourceLimit;
+static void U_CALLCONV _UTF7ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
-
 	uint8 * bytes;
 	uint8 byteIndex;
-
 	int32_t length, targetCapacity;
-
 	/* UTF-7 state */
 	uint16 bits;
 	int8 base64Counter;
 	bool inDirectMode;
-
 	int8 base64Value;
-
 	int32_t sourceIndex, nextSourceIndex;
-
 	uint8 b;
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-
-	source = (const uint8 *)pArgs->source;
-	sourceLimit = (const uint8 *)pArgs->sourceLimit;
+	UConverter * cnv = pArgs->converter;
+	const uint8 * source = (const uint8 *)pArgs->source;
+	const uint8 * sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -266,7 +248,7 @@ directMode:
 		if(length>targetCapacity) {
 			length = targetCapacity;
 		}
-		while(length>0) {
+		while(length > 0) {
 			b = *source++;
 			if(!isLegalUTF7(b)) {
 				/* illegal */
@@ -469,32 +451,23 @@ unicodeMode:
 	return;
 }
 
-static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const UChar * source, * sourceLimit;
-	uint8 * target, * targetLimit;
-	int32_t * offsets;
-
+static void U_CALLCONV _UTF7FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	int32_t length, targetCapacity, sourceIndex;
 	UChar c;
-
 	/* UTF-7 state */
 	const bool * encodeDirectly;
 	uint8 bits;
 	int8 base64Counter;
 	bool inDirectMode;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-
+	UConverter * cnv = pArgs->converter;
 	/* set up the local pointers */
-	source = pArgs->source;
-	sourceLimit = pArgs->sourceLimit;
-	target = (uint8 *)pArgs->target;
-	targetLimit = (uint8 *)pArgs->targetLimit;
-	offsets = pArgs->offsets;
-
+	const UChar * source = pArgs->source;
+	const UChar * sourceLimit = pArgs->sourceLimit;
+	uint8 * target = (uint8 *)pArgs->target;
+	uint8 * targetLimit = (uint8 *)pArgs->targetLimit;
+	int32_t * offsets = pArgs->offsets;
 	/* get the state machine state */
 	{
 		uint32_t status = cnv->fromUnicodeStatus;
@@ -515,7 +488,7 @@ directMode:
 		if(length>targetCapacity) {
 			length = targetCapacity;
 		}
-		while(length>0) {
+		while(length > 0) {
 			c = *source++;
 			/* currently always encode CR LF SP TAB directly */
 			if(c<=127 && encodeDirectly[c]) {
@@ -918,36 +891,26 @@ const UConverterSharedData _UTF7Data =
  */
 
 U_CDECL_BEGIN
-static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const uint8 * source, * sourceLimit;
+static void U_CALLCONV _IMAPToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
-
 	uint8 * bytes;
 	uint8 byteIndex;
-
 	int32_t length, targetCapacity;
-
 	/* UTF-7 state */
 	uint16 bits;
 	int8 base64Counter;
 	bool inDirectMode;
-
 	int8 base64Value;
-
 	int32_t sourceIndex, nextSourceIndex;
-
 	UChar c;
 	uint8 b;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-
-	source = (const uint8 *)pArgs->source;
-	sourceLimit = (const uint8 *)pArgs->sourceLimit;
+	UConverter * cnv = pArgs->converter;
+	const uint8 * source = (const uint8 *)pArgs->source;
+	const uint8 * sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
@@ -980,7 +943,7 @@ directMode:
 		if(length>targetCapacity) {
 			length = targetCapacity;
 		}
-		while(length>0) {
+		while(length > 0) {
 			b = *source++;
 			if(!isLegalIMAP(b)) {
 				/* illegal */
@@ -1195,32 +1158,26 @@ endloop:
 	return;
 }
 
-static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const UChar * source, * sourceLimit;
+static void U_CALLCONV _IMAPFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
+	const UChar * sourceLimit;
 	uint8 * target, * targetLimit;
 	int32_t * offsets;
-
 	int32_t length, targetCapacity, sourceIndex;
 	UChar c;
 	uint8 b;
-
 	/* UTF-7 state */
 	uint8 bits;
 	int8 base64Counter;
 	bool inDirectMode;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-
+	UConverter * cnv = pArgs->converter;
 	/* set up the local pointers */
-	source = pArgs->source;
+	const UChar * source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetLimit = (uint8 *)pArgs->targetLimit;
 	offsets = pArgs->offsets;
-
 	/* get the state machine state */
 	{
 		uint32_t status = cnv->fromUnicodeStatus;
@@ -1239,7 +1196,7 @@ directMode:
 		if(length>targetCapacity) {
 			length = targetCapacity;
 		}
-		while(length>0) {
+		while(length > 0) {
 			c = *source++;
 			/* encode 0x20..0x7e except '&' directly */
 			if(inSetDIMAP(c)) {

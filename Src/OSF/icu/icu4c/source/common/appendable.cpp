@@ -35,7 +35,7 @@ bool Appendable::appendString(const UChar * s, int32_t length)
 			}
 		}
 	}
-	else if(length>0) {
+	else if(length > 0) {
 		const UChar * limit = s+length;
 		do {
 			if(!appendCodeUnit(*s++)) {

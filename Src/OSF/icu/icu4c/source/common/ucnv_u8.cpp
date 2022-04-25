@@ -499,25 +499,21 @@ lowsurrogate:
 }
 
 U_CDECL_BEGIN
-static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args,
-    UErrorCode * err) {
-	UConverter * cnv;
+static UChar32 U_CALLCONV ucnv_getNextUChar_UTF8(UConverterToUnicodeArgs * args, UErrorCode * err) 
+{
 	const uint8 * sourceInitial;
 	const uint8 * source;
 	uint8 myByte;
 	UChar32 ch;
 	int8 i;
-
 	/* UTF-8 only here, the framework handles CESU-8 to combine surrogate pairs */
-
-	cnv = args->converter;
+	UConverter * cnv = args->converter;
 	sourceInitial = source = (const uint8 *)args->source;
 	if(source >= (const uint8 *)args->sourceLimit) {
 		/* no input */
 		*err = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0xffff;
 	}
-
 	myByte = (uint8)*(source++);
 	if(U8_IS_SINGLE(myByte)) {
 		args->source = (const char *)source;

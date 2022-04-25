@@ -303,7 +303,7 @@ U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds,
 		return 0;
 	}
 
-	if(length>0) {
+	if(length > 0) {
 		DataHeader * outHeader;
 		const char * s;
 		int32_t maxLength;

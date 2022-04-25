@@ -5,8 +5,6 @@ package ru.petroglif.styloq;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteCursor;
 import android.database.sqlite.SQLiteCursorDriver;
@@ -14,16 +12,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQuery;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Array;
-import java.sql.Struct;
 import java.util.ArrayList;
 import java.util.Base64;
 
@@ -168,7 +160,7 @@ public class Database {
 		}
 		public void Init() throws StyloQException
 		{
-			int count = FieldList.size();
+			final int count = FieldList.size();
 			for(int i = 0; i < count; i++) {
 				Field fld_info = FieldList.get(i);
 				java.lang.reflect.Field fld = fld_info.Rf;//Cls.getDeclaredField(fld_info.Name);
@@ -179,7 +171,7 @@ public class Database {
 		public java.lang.reflect.Field GetFld(String fldName)
 		{
 			java.lang.reflect.Field rf = null;
-			int count = FieldList.size();
+			final int count = FieldList.size();
 			for(int i = 0; rf == null && i < count; i++) {
 				Field fld_info = FieldList.get(i);
 				if(fld_info.Name.equalsIgnoreCase(fldName))
@@ -259,7 +251,7 @@ public class Database {
 					fld.set(this, val);
 				}
 				else if(fldType == DataType.T_DOUBLE()) {
-					fld.setDouble(this, Double.parseDouble(val));
+					fld.setDouble(this, SLib.strtodouble(val));
 				}
 				else if(fldType == DataType.S_RAW) {
 					fld.set(this, Base64.getDecoder().decode(val));
@@ -376,11 +368,11 @@ public class Database {
 		{
 			boolean ok = true;
 			if(cur != null) {
-				int fld_count = cur.getColumnCount();
+				final int fld_count = cur.getColumnCount();
 				ContentValues data = new ContentValues();
 				for(int i = 0; i < fld_count; i++) {
-					String fld_name = cur.getColumnName(i);
-					int fld_type = cur.getType(i);
+					final String fld_name = cur.getColumnName(i);
+					final int fld_type = cur.getType(i);
 					if(fld_type == android.database.Cursor.FIELD_TYPE_BLOB) {
 						byte [] fld_value = cur.getBlob(i);
 						data.put(fld_name, fld_value);
@@ -390,11 +382,11 @@ public class Database {
 						data.put(fld_name, (fld_value != null) ? fld_value : "");
 					}
 					else if(fld_type == android.database.Cursor.FIELD_TYPE_INTEGER) {
-						long fld_value = cur.getLong(i);
+						final long fld_value = cur.getLong(i);
 						data.put(fld_name, fld_value);
 					}
 					else if(fld_type == android.database.Cursor.FIELD_TYPE_FLOAT) {
-						double fld_value = cur.getDouble(i);
+						final double fld_value = cur.getDouble(i);
 						data.put(fld_name, fld_value);
 					}
 				}
@@ -686,7 +678,40 @@ public class Database {
 			DBHelper.close();
 	}
 	public boolean IsOpen() { return (DB != null) ? DB.isOpen() : false; }
-	public boolean StartTransaction()
+	public static class Transaction {
+		public Transaction(@NotNull Database ownerDb, boolean useTa)
+		{
+			OwnerDb = ownerDb;
+			Started = false;
+			UseTa = useTa;
+			if(UseTa) {
+				if(OwnerDb.Internal_StartTransaction())
+					Started = true;
+			}
+		}
+		public boolean Commit()
+		{
+			boolean result = true;
+			if(UseTa && Started) {
+				result = OwnerDb.Internal_CommitWork();
+				Started = false;
+			}
+			return result;
+		}
+		public boolean Abort()
+		{
+			boolean result = true;
+			if(UseTa && Started) {
+				result = OwnerDb.Internal_RollbackWork();
+				Started = false;
+			}
+			return result;
+		}
+		private Database OwnerDb;
+		private boolean UseTa;
+		private boolean Started;
+	}
+	private boolean Internal_StartTransaction()
 	{
 		boolean ok = false;
 		if(DB != null) {
@@ -695,7 +720,7 @@ public class Database {
 		}
 		return ok;
 	}
-	public boolean CommitWork()
+	private boolean Internal_CommitWork()
 	{
 		boolean ok = false;
 		if(DB != null) {
@@ -705,7 +730,7 @@ public class Database {
 		}
 		return ok;
 	}
-	public boolean RollbackWork()
+	private boolean Internal_RollbackWork()
 	{
 		boolean ok = false;
 		if(DB != null) {

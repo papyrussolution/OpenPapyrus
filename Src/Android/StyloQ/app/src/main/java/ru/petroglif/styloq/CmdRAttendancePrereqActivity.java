@@ -583,11 +583,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
 										{
 											double val = cur_entry.JsItem.optDouble("price", 0.0);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? String.format("%.2f", val) : "");
+											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? SLib.formatdouble(val, 2) : "");
 										}
 										{
 											double val = cur_entry.JsItem.optDouble("stock", 0.0);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? String.format("%.0f", val) : "");
+											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
 										}
 										{
 											View ctl = iv.findViewById(R.id.buttonOrder);
@@ -953,13 +953,21 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										SetupRecyclerListView(fv, R.id.attendancePrereqAttendanceView, R.layout.attendanceprereq_attendance_item);
 										{
 											View btn = fv.findViewById(R.id.CTL_PREV);
-											btn.setOnClickListener(new View.OnClickListener()
-												{ @Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }});
+											if(btn != null) {
+												btn.setOnClickListener(new View.OnClickListener() {
+													@Override public void onClick(View v)
+														{ HandleEvent(SLib.EV_COMMAND, v, null); }
+												});
+											}
 										}
 										{
 											View btn = fv.findViewById(R.id.CTL_NEXT);
-											btn.setOnClickListener(new View.OnClickListener()
-												{ @Override public void onClick(View v) { HandleEvent(SLib.EV_COMMAND, v, null); }});
+											if(btn != null) {
+												btn.setOnClickListener(new View.OnClickListener() {
+													@Override public void onClick(View v)
+														{ HandleEvent(SLib.EV_COMMAND, v, null); }
+												});
+											}
 										}
 									}
 									else {

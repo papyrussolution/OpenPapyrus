@@ -934,7 +934,6 @@ int capi_rsa_priv_dec(int flen, const uchar * from,
 	}
 	OPENSSL_cleanse(tmpbuf, flen);
 	OPENSSL_free(tmpbuf);
-
 	return flen;
 }
 

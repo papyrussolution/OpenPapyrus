@@ -463,7 +463,7 @@ int PPNamedFiltMngr::GetXmlPoolDir(SString &rXmlPoolPath)
 		return ok;
 }
 
-int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, int readOnly) //@erik v10.7.4
+int PPNamedFiltMngr::LoadPool2(const char * pDbSymb, PPNamedFiltPool * pPool, bool readOnly) //@erik v10.7.4
 {
 	int    ok = 1;
 	pPool->Flags &= ~PPNamedFiltPool::fReadOnly;
@@ -618,7 +618,7 @@ int ViewFiltPool()
 		PPNamedFiltPool pool(0, 0);
 		SString db_symb;
 		THROW_PP(p_dbdict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-		THROW(mngr.LoadPool2(db_symb, &pool, 0));
+		THROW(mngr.LoadPool2(db_symb, &pool, false));
 		THROW(CheckDialogPtrErr(&(dlg = new FiltPoolDialog(&mngr, &pool))));
 		while(ExecView(dlg) == cmOK) {
 			if(mngr.SavePool2(&pool)) {

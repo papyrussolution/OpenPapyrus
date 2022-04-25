@@ -266,7 +266,7 @@ template <typename T> inline T * LocalMemory<T>::allocateInsteadAndCopy(int32_t 
 	if(newCapacity>0) {
 		T * p = (T*)uprv_malloc(newCapacity*sizeof(T));
 		if(p) {
-			if(length>0) {
+			if(length > 0) {
 				if(length>newCapacity) {
 					length = newCapacity;
 				}
@@ -489,7 +489,7 @@ inline T * MaybeStackArray<T, stackCapacity>::resize(int32_t newCapacity, int32_
 #endif
 		T * p = (T*)uprv_malloc(newCapacity*sizeof(T));
 		if(p) {
-			if(length>0) {
+			if(length > 0) {
 				if(length>capacity) {
 					length = capacity;
 				}
@@ -698,7 +698,7 @@ inline H * MaybeStackHeaderAndArray<H, T, stackCapacity>::resize(int32_t newCapa
 			if(length<0) {
 				length = 0;
 			}
-			else if(length>0) {
+			else if(length > 0) {
 				if(length>capacity) {
 					length = capacity;
 				}

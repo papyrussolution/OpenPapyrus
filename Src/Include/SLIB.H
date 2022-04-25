@@ -4287,7 +4287,7 @@ public:
 	//   Полный аналог CatCurDateTime(dateFmt, timFmt)
 	//
 	SString & CatCurDateTime(long datFmt = DATF_DMY, long timFmt = TIMF_HMS);
-	SString & Cat(const DateRange &, int ext = 0);
+	SString & Cat(const DateRange &, bool ext = false);
 	SString & Cat(const S_GUID &, int fmt = S_GUID::fmtIDL);
 	//
 	// Descr: Конкатенация конструкции <text> с вариантами

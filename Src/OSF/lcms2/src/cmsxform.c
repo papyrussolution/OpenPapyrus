@@ -189,22 +189,14 @@ void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
 
 // Float xform converts floats. Since there are no performance issues, one routine does all job, including gamut check.
 // Note that because extended range, we can use a -1.0 value for out of gamut in this case.
-static
-void FloatXFORM(_cmsTRANSFORM* p,
-    const void * in,
-    void * out,
-    uint32 PixelsPerLine,
-    uint32 LineCount,
-    const cmsStride* Stride)
+static void FloatXFORM(_cmsTRANSFORM* p, const void * in, void * out, uint32 PixelsPerLine, uint32 LineCount, const cmsStride* Stride)
 {
 	uint8 * accum;
 	uint8 * output;
 	float fIn[cmsMAXCHANNELS], fOut[cmsMAXCHANNELS];
 	float OutOfGamut;
 	uint32 i, j, c, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(p, in, out, PixelsPerLine, LineCount, Stride);
-
 	strideIn = 0;
 	strideOut = 0;
 	memzero(fIn, sizeof(fIn));
@@ -483,27 +475,17 @@ void _cmsAllocTransformPluginChunk(struct _cmsContext_struct* ctx, const struct 
 }
 
 // Adaptor for old versions of plug-in
-static
-void _cmsTransform2toTransformAdaptor(struct _cmstransform_struct * CMMcargo,
-    const void * InputBuffer,
-    void * OutputBuffer,
-    uint32 PixelsPerLine,
-    uint32 LineCount,
-    const cmsStride* Stride)
+static void _cmsTransform2toTransformAdaptor(struct _cmstransform_struct * CMMcargo,
+    const void * InputBuffer, void * OutputBuffer, uint32 PixelsPerLine, uint32 LineCount, const cmsStride* Stride)
 {
 	uint32 i, strideIn, strideOut;
-
 	_cmsHandleExtraChannels(CMMcargo, InputBuffer, OutputBuffer, PixelsPerLine, LineCount, Stride);
-
 	strideIn = 0;
 	strideOut = 0;
-
 	for(i = 0; i < LineCount; i++) {
 		void * accum = (uint8 *)InputBuffer + strideIn;
 		void * output = (uint8 *)OutputBuffer + strideOut;
-
 		CMMcargo->OldXform(CMMcargo, accum, output, PixelsPerLine, Stride->BytesPerPlaneIn);
-
 		strideIn += Stride->BytesPerLineIn;
 		strideOut += Stride->BytesPerLineOut;
 	}

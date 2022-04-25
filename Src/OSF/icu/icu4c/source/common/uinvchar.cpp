@@ -174,7 +174,7 @@ U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t lengt
 	 * For EBCDIC systems, this works for characters with codes from
 	 * codepages 37 and 1047 or compatible.
 	 */
-	while(length>0) {
+	while(length > 0) {
 		c = (uint8)(*cs++);
 		u = (UChar)CHAR_TO_UCHAR(c);
 		U_ASSERT((u!=0 || c==0)); /* only invariant chars converted? */
@@ -186,7 +186,7 @@ U_CAPI void U_EXPORT2 u_charsToUChars(const char * cs, UChar * us, int32_t lengt
 U_CAPI void U_EXPORT2 u_UCharsToChars(const UChar * us, char * cs, int32_t length) {
 	UChar u;
 
-	while(length>0) {
+	while(length > 0) {
 		u = *us++;
 		if(!UCHAR_IS_INVARIANT(u)) {
 			U_ASSERT(FALSE); /* Variant characters were used. These are not portable in ICU. */

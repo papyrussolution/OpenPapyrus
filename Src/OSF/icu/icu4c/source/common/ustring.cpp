@@ -1010,7 +1010,7 @@ U_CAPI int32_t U_EXPORT2 u_countChar32(const UChar * s, int32_t length)
 	}
 	count = 0;
 	if(length>=0) {
-		while(length>0) {
+		while(length > 0) {
 			++count;
 			if(U16_IS_LEAD(*s) && length>=2 && U16_IS_TRAIL(*(s+1))) {
 				s += 2;

@@ -6242,20 +6242,16 @@ static int32 TestCurve(const char * label, cmsToneCurve * curve, Function fn)
 	return ok;
 }
 
-static
-int32 CheckFloatSamples(void)
+static int32 CheckFloatSamples(void)
 {
 	float y[kNumPoints];
 	int i;
 	cmsToneCurve * curve;
 	int32 ok;
-
 	for(i = 0; i < kNumPoints; i++) {
 		float x = (float)i / (kNumPoints-1);
-
 		y[i] = StraightLine(x);
 	}
-
 	curve = cmsBuildTabulatedToneCurveFloat(NULL, kNumPoints, y);
 	ok = TestCurve("Float Samples", curve, StraightLine);
 	cmsFreeToneCurve(curve);
@@ -6263,18 +6259,14 @@ int32 CheckFloatSamples(void)
 	return ok;
 }
 
-static
-int32 CheckFloatSegments(void)
+static int32 CheckFloatSegments(void)
 {
 	int32 ok = 1;
 	int i;
 	cmsToneCurve * curve;
-
 	float y[ kNumPoints];
-
 	// build a segmented curve with a sampled section...
 	cmsCurveSegment Seg[3];
-
 	// Initialize segmented curve part up to 0.1
 	Seg[0].x0 = -1e22f;  // -infinity
 	Seg[0].x1 = 0.1f;
@@ -6284,20 +6276,16 @@ int32 CheckFloatSegments(void)
 	Seg[0].Params[2] = 0.0f;    // b
 	Seg[0].Params[3] = 0.1f; // c
 	Seg[0].Params[4] = 0.0f;
-
 	// From zero to 1
 	Seg[1].x0 = 0.1f;
 	Seg[1].x1 = 0.9f;
 	Seg[1].Type = 0;
-
 	Seg[1].nGridPoints = kNumPoints;
 	Seg[1].SampledPoints = y;
-
 	for(i = 0; i < kNumPoints; i++) {
 		float x = (float)(0.1 + ((float)i / (kNumPoints-1)) * (0.9 - 0.1));
 		y[i] = StraightLine(x);
 	}
-
 	// from 1 to +infinity
 	Seg[2].x0 = 0.9f;
 	Seg[2].x1 = 1e22f; // +infinity
@@ -6308,18 +6296,13 @@ int32 CheckFloatSegments(void)
 	Seg[2].Params[2] = 0.0f;
 	Seg[2].Params[3] = 0.1f;
 	Seg[2].Params[4] = 0.0f;
-
 	curve = cmsBuildSegmentedToneCurve(0, 3, Seg);
-
 	ok = TestCurve("Float Segmented Curve", curve, StraightLine);
-
 	cmsFreeToneCurve(curve);
-
 	return ok;
 }
 
-static
-int32 CheckReadRAW(void)
+static int32 CheckReadRAW(void)
 {
 	int32 tag_size, tag_size1;
 	char buffer[4];
@@ -6390,8 +6373,7 @@ static int32 CheckMeta(void)
 }
 
 // Bug on applying null transforms on floating point buffers
-static
-int32 CheckFloatNULLxform(void)
+static int32 CheckFloatNULLxform(void)
 {
 	int i;
 	float in[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
@@ -6455,15 +6437,12 @@ static int32 CheckMatrixSimplify(void)
 	return buf[0] == 144 && buf[1] == 0 && buf[2] == 69;
 }
 
-static
-int32 CheckTransformLineStride(void)
+static int32 CheckTransformLineStride(void)
 {
 	cmsHPROFILE pIn;
 	cmsHPROFILE pOut;
 	cmsHTRANSFORM t;
-
 	// Our buffer is formed by 4 RGB8 lines, each line is 2 pixels wide plus a padding of one byte
-
 	uint8 buf1[] = { 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0,
 				  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0,
 				  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0,

@@ -4,9 +4,12 @@
 package ru.petroglif.styloq;
 
 import static ru.petroglif.styloq.JobServerProtocol.PPSCMD_SQ_SESSION;
+import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
+
 import android.net.Uri;
 import android.util.Log;
+
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
@@ -14,9 +17,11 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
+
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -53,6 +58,7 @@ import java.util.Base64;
 import java.util.Collections;
 import java.util.StringTokenizer;
 import java.util.UUID;
+
 import javax.crypto.KeyAgreement;
 
 public class StyloQInterchange {
@@ -217,7 +223,89 @@ public class StyloQInterchange {
 		MqbClient.RoutingParamEntry MqbRpe; // Параметры маршрутизации при использовании брокера MQ
 		MqbClient.RoutingParamEntry MqbRpeReply;
 	}
-	public StyloQFace SelectFaceForSvc(StyloQDatabase db, SecretTagPool svcPool, StyloQDatabase.SecStoragePacket ownPeerEntry) throws StyloQException
+	public StyloQFace GetFaceForTransmission(StyloQDatabase db, final byte [] svcIdent, StyloQDatabase.SecStoragePacket ownPeerEntry, boolean force) throws StyloQException
+	{
+		StyloQFace result = null;
+		if(SLib.GetLen(svcIdent) > 0) {
+			StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
+			if(svc_pack != null) {
+				StyloQFace selected_face = null; //SelectFaceForSvc(db, svcIdent, ownPeerEntry);
+				final long svc_id = svc_pack.Rec.ID;
+				// Параметр svcPool не обязательно извлечен из базы данных - вполне возможно, что
+				// это - урезанный пул, пришедший от сервиса.
+				//
+				// Пока эта функция - почти заглушка. Возвращает первый встретившийся лик
+				//
+				ArrayList<StyloQFace> face_list = db.GetFaceList();
+				if(face_list != null) {
+					byte[] face_ident = null;
+					face_ident = svc_pack.Pool.Get(SecretTagPool.tagAssignedFaceRef);
+					StyloQFace assigned_result = null;
+					StyloQFace cfg_default_result = null;
+					StyloQFace default_result = null;
+					byte[] cfg_def_face_ident = null;
+					if(ownPeerEntry != null) {
+						final byte[] cfg_bytes = ownPeerEntry.Pool.Get(SecretTagPool.tagPrivateConfig);
+						if(SLib.GetLen(cfg_bytes) > 0) {
+							String cfg_json = new String(cfg_bytes);
+							StyloQConfig private_config = new StyloQConfig();
+							private_config.FromJson(cfg_json);
+							String def_face_ref_hex = private_config.Get(StyloQConfig.tagDefFace);
+							if(SLib.GetLen(def_face_ref_hex) > 0)
+								cfg_def_face_ident = Base64.getDecoder().decode(def_face_ref_hex);
+						}
+					}
+					for(int i = 0; assigned_result == null && i < face_list.size(); i++) {
+						StyloQFace face_item = face_list.get(i);
+						if(SLib.GetLen(face_ident) > 0 && SLib.AreByteArraysEqual(face_ident, face_item.BI))
+							assigned_result = face_item;
+						else if(SLib.GetLen(cfg_def_face_ident) > 0 && SLib.AreByteArraysEqual(cfg_def_face_ident, face_item.BI))
+							cfg_default_result = face_item;
+						else if(default_result == null)
+							default_result = face_item;
+					}
+					if(assigned_result != null)
+						selected_face = assigned_result;
+					else if(cfg_default_result != null)
+						selected_face = cfg_default_result;
+					else if(default_result != null)
+						selected_face = default_result;
+				}
+				if(selected_face == null) {
+					StyloQFace default_face = new StyloQFace();
+					String anonym_name = db.MakeTextHashForForeignService(svc_pack, 8);
+					//String anonym_name_before1139 = "Anonym-" + UUID.randomUUID().toString();
+					default_face.Set(StyloQFace.tagCommonName, 0, anonym_name);
+					String jstext = default_face.ToJson();
+					if(SLib.GetLen(jstext) > 0) {
+						StyloQDatabase.SecStoragePacket sp = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kFace);
+						sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
+						long new_id = db.PutPeerEntry(sp.Rec.ID, sp, true);
+						if(new_id > 0)
+							selected_face = db.GetFace(new_id, SecretTagPool.tagSelfyFace, null);
+					}
+				}
+				if(selected_face != null) {
+					if(force) {
+						result = selected_face;
+					}
+					else {
+						long face_id = selected_face.ID;
+						StyloQDatabase.SysJournalTable.Rec ev_last_set = db.GetLastObjEvent(SLib.PPACN_STYLOQFACETRANSMITTED, PPOBJ_STYLOQBINDERY, svc_id);
+						if(ev_last_set == null)
+							result = selected_face;
+						else {
+							StyloQDatabase.SysJournalTable.Rec ev_last_face_upd = (face_id > 0) ? db.GetLastObjEvent(SLib.PPACN_OBJUPD, PPOBJ_STYLOQBINDERY, face_id) : null;
+							if(ev_last_face_upd != null && ev_last_set.TimeStamp <= ev_last_face_upd.TimeStamp)
+								result = selected_face;
+						}
+					}
+				}
+			}
+		}
+		return result;
+	}
+	public StyloQFace SelectFaceForSvc(StyloQDatabase db, final byte [] svcIdent, StyloQDatabase.SecStoragePacket ownPeerEntry) throws StyloQException
 	{
 		// Параметр svcPool не обязательно извлечен из базы данных - вполне возможно, что
 		// это - урезанный пул, пришедший от сервиса.
@@ -228,20 +316,17 @@ public class StyloQInterchange {
 		ArrayList<StyloQFace> face_list = db.GetFaceList();
 		if(face_list != null) {
 			byte [] face_ident = null;
-			if(svcPool != null) {
-				byte [] svc_ident = svcPool.Get(SecretTagPool.tagSvcIdent);
-				if(SLib.GetLen(svc_ident) > 0) {
-					StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svc_ident);
-					if(svc_pack != null)
-						face_ident = svc_pack.Pool.Get(SecretTagPool.tagAssignedFaceRef);
-				}
+			if(SLib.GetLen(svcIdent) > 0) {
+				StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svcIdent);
+				if(svc_pack != null)
+					face_ident = svc_pack.Pool.Get(SecretTagPool.tagAssignedFaceRef);
 			}
 			StyloQFace assigned_result = null;
 			StyloQFace cfg_default_result = null;
 			StyloQFace default_result = null;
 			byte [] cfg_def_face_ident = null;
 			if(ownPeerEntry != null) {
-				byte[] cfg_bytes = ownPeerEntry.Pool.Get(SecretTagPool.tagPrivateConfig);
+				final byte[] cfg_bytes = ownPeerEntry.Pool.Get(SecretTagPool.tagPrivateConfig);
 				if(SLib.GetLen(cfg_bytes) > 0) {
 					String cfg_json = new String(cfg_bytes);
 					StyloQConfig private_config = new StyloQConfig();
@@ -274,7 +359,7 @@ public class StyloQInterchange {
 			if(SLib.GetLen(jstext) > 0) {
 				StyloQDatabase.SecStoragePacket sp = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kFace);
 				sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
-				long new_id = db.PutPeerEntry(sp.Rec.ID, sp);
+				long new_id = db.PutPeerEntry(sp.Rec.ID, sp, true);
 				if(new_id > 0)
 					result = db.GetFace(new_id, SecretTagPool.tagSelfyFace, null);
 			}
@@ -369,7 +454,6 @@ public class StyloQInterchange {
 			tp.P.Put(SecretTagPool.tagClientIdent, own_ident);
 			tp.P.Put(SecretTagPool.tagSvcIdent, svc_ident);
 			tp.FinishWriting(null);
-			//
 			int uriprot = SLib.GetUriSchemeId(rtb.Url.getScheme());
 			if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps) {
 				if(SendHttpQuery(rtb, tp, null) > 0) {
@@ -387,8 +471,7 @@ public class StyloQInterchange {
 					}
 				}
 			}
-			else if((uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) ||
-				(uriprot == SLib.uripprotUnkn && SLib.GetLen(rtb.MqbAuth) > 0)) {
+			else if((uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) || (uriprot == SLib.uripprotUnkn && SLib.GetLen(rtb.MqbAuth) > 0)) {
 				MqbClient.InitParam mqip = new MqbClient.InitParam(rtb.Url, rtb.MqbAuth, rtb.MqbSecret);
 				// (done by MqbClient.InitParam) mqip.Host = uri.getHost();
 				// (done by MqbClient.InitParam) mqip.Port = uri.getPort();
@@ -410,16 +493,14 @@ public class StyloQInterchange {
 					if(!tp.CheckRepError(Ctx)) {
 						;  // @todo error
 					}
-					else {
-						if(tp.H.Type == PPSCMD_SQ_SESSION && (tp.H.Flags & JobServerProtocol.hfAck) != 0) {
-							// Ключ шифрования сессии есть и у нас и у сервиса!
-							//THROW(rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, 0));
-							MqbClient.RoutingParamEntry rpe_regular = new MqbClient.RoutingParamEntry(); // маршрут до очереди, в которой сервис будет с нами общаться
-							rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, null, reply_rpe);
-							// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
-							SetRoundTripBlockReplyValues(rtb, mqbc, rpe_regular, reply_rpe);
-							ok = true; // SUCCESS!
-						}
+					else if(tp.H.Type == PPSCMD_SQ_SESSION && (tp.H.Flags & JobServerProtocol.hfAck) != 0) {
+						// Ключ шифрования сессии есть и у нас и у сервиса!
+						//THROW(rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, 0));
+						MqbClient.RoutingParamEntry rpe_regular = new MqbClient.RoutingParamEntry(); // маршрут до очереди, в которой сервис будет с нами общаться
+						rpe_regular.SetupStyloQRpc(sess_pub_key, other_sess_public, null, reply_rpe);
+						// Устанавливаем факторы RoundTrimBlock, которые нам понадобяться при последующих обменах
+						SetRoundTripBlockReplyValues(rtb, mqbc, rpe_regular, reply_rpe);
+						ok = true; // SUCCESS!
 					}
 				}
 			}
@@ -777,6 +858,8 @@ public class StyloQInterchange {
 	{
 		long   new_id = 0;
 		int    ok = 0;
+		long   transmitted_face_id = 0L;
+		boolean face_tramsitted = false;
 		byte[] cli_ident = rtb.Sess.Get(SecretTagPool.tagClientIdent);
 		byte[] cli_secret = rtb.Sess.Get(SecretTagPool.tagSecret);
 		byte[] sess_secret = rtb.Sess.Get(SecretTagPool.tagSessionSecret);
@@ -797,12 +880,16 @@ public class StyloQInterchange {
 		tp.P.Put(SecretTagPool.tagClientIdent, cli_ident);
 		{
 			// Вставляем наш лик для представления перед сервисом
-			if(rtb.SelfyFace == null)
-				rtb.SelfyFace = SelectFaceForSvc(db, rtb.Other, rtb.StP);
+			if(rtb.SelfyFace == null) {
+				//rtb.SelfyFace = SelectFaceForSvc(db, svc_ident, rtb.StP);
+				rtb.SelfyFace = GetFaceForTransmission(db, svc_ident, rtb.StP, true);
+			}
 			if(rtb.SelfyFace != null) {
 				js_selfy_face = rtb.SelfyFace.ToJson();
-				if(js_selfy_face != null)
+				if(js_selfy_face != null) {
 					tp.P.Put(SecretTagPool.tagFace, js_selfy_face.getBytes());
+					transmitted_face_id = rtb.SelfyFace.ID;
+				}
 			}
 		}
 		tp.P.Put(SecretTagPool.tagSrpVerifier, svk.V);
@@ -862,6 +949,8 @@ public class StyloQInterchange {
 			}
 		}
 		if(ok > 0) {
+			if(transmitted_face_id > 0)
+				face_tramsitted = true;
 			long ex_id = 0;
 			StyloQDatabase.SecStoragePacket stp = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, svc_ident);
 			if(stp != null) {
@@ -899,7 +988,18 @@ public class StyloQInterchange {
 						stp.Pool.Put(SecretTagPool.tagConfig, other_cfg_bytes);
 				}
 			}
-			new_id = db.PutPeerEntry(ex_id, stp);
+			{
+				Database.Transaction tra = new Database.Transaction(db, true);
+				new_id = db.PutPeerEntry(ex_id, stp, false);
+				if(new_id > 0) {
+					if(face_tramsitted) {
+						db.LogEvent(SLib.PPACN_STYLOQFACETRANSMITTED, PPOBJ_STYLOQBINDERY, new_id, transmitted_face_id, false);
+					}
+					tra.Commit();
+				}
+				else
+					tra.Abort();
+			}
 		}
 		return new_id;
 	}
@@ -1233,7 +1333,7 @@ public class StyloQInterchange {
 						sep = Math.min(cli_session_expiry_period, svc_session_expiry_period);
 					sess_pack.Rec.Expiration = EvaluateExpiryTime(sep);
 				}
-				sess_id = db.StoreSession(0, sess_pack, 1);
+				sess_id = db.StoreSession(0, sess_pack, true);
 				if(sess_id < 0)
 					ok = false;
 			}
@@ -1351,7 +1451,7 @@ public class StyloQInterchange {
 		String MqbSecret;
 		String CommandJson;
 	}
-	private static int QueryConfigIfNeeded(StyloQApp appCtx, StyloQInterchange ic, StyloQInterchange.RoundTripBlock rtb) throws StyloQException
+	private static int QueryConfigAndSetFaceIfNeeded(StyloQApp appCtx, StyloQInterchange ic, StyloQInterchange.RoundTripBlock rtb) throws StyloQException
 	{
 		int    result = -1;
 		if(rtb != null && rtb.InnerSvcID > 0) {
@@ -1359,6 +1459,24 @@ public class StyloQInterchange {
 			if(dbs != null) {
 				StyloQDatabase.SecStoragePacket svc_pack = dbs.GetPeerEntry(rtb.InnerSvcID);
 				if(svc_pack != null && svc_pack.Rec.Kind == StyloQDatabase.SecStoragePacket.kForeignService) {
+					//
+					long transmitted_face_id = 0;
+					boolean my_face_tramsitted = false;
+					StyloQFace my_face_to_transmit = null;
+					String my_face_to_transmit_js = null;
+					final byte [] svc_ident = svc_pack.Pool.Get(SecretTagPool.tagSvcIdent);
+					if(SLib.GetLen(svc_ident) > 0) {
+						// Вставляем наш лик для представления перед сервисом
+						my_face_to_transmit = ic.GetFaceForTransmission(dbs, svc_ident, rtb.StP, false);
+						if(my_face_to_transmit != null) {
+							my_face_to_transmit_js = my_face_to_transmit.ToJson();
+							if(my_face_to_transmit_js != null) {
+								//tp.P.Put(SecretTagPool.tagFace, js_selfy_face.getBytes());
+								transmitted_face_id = rtb.SelfyFace.ID;
+							}
+						}
+					}
+					//
 					byte [] face_bytes = svc_pack.Pool.Get(SecretTagPool.tagFace);
 					byte [] cfg_bytes = svc_pack.Pool.Get(SecretTagPool.tagConfig);
 					boolean do_query_cfg = true;
@@ -1432,7 +1550,7 @@ public class StyloQInterchange {
 										}
 									}
 									if(do_update_svc_pack) {
-										final long id = dbs.PutPeerEntry(rtb.InnerSvcID, svc_pack);
+										final long id = dbs.PutPeerEntry(rtb.InnerSvcID, svc_pack, true);
 										if(id == rtb.InnerSvcID)
 											result = 1;
 									}
@@ -1519,7 +1637,7 @@ public class StyloQInterchange {
 			boolean is_current_sess_valid = false;
 			if(rtb.InnerSessID > 0) {
 				if(ic.Session_ClientRequest(rtb)) {
-					QueryConfigIfNeeded(appCtx, ic, rtb);
+					QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
 					do_req_cmd = true;
 					is_current_sess_valid = true;
 				}
@@ -1531,7 +1649,7 @@ public class StyloQInterchange {
 				// Либо нет сохраненной сессии, либо при попытке соединится с ней что-то пошло не так
 				if(rtb.InnerSvcID > 0) {
 					if(ic.Verification_ClientRequest(dbs, rtb)) {
-						QueryConfigIfNeeded(appCtx, ic, rtb);
+						QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
 						do_req_cmd = true;
 						result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Verification", null);
 					}

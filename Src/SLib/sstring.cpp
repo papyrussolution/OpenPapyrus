@@ -2794,9 +2794,9 @@ SString & SString::CatCurDateTime(long datFmt/*= DATF_DMY*/, long timFmt/*= TIMF
 	return Cat(getcurdatetime_(), datFmt, timFmt);
 }
 
-SString & SString::Cat(const DateRange & rPeriod, int ext)
+SString & SString::Cat(const DateRange & rPeriod, bool ext)
 {
-	char   temp_buf[64];
+	char   temp_buf[128];
 	if(ext)
 		periodfmtex(&rPeriod, temp_buf, sizeof(temp_buf));
 	else
@@ -2806,7 +2806,7 @@ SString & SString::Cat(const DateRange & rPeriod, int ext)
 
 SString & SString::Cat(const S_GUID & rUuid, int fmt)
 {
-	SString & r_temp_buf = SLS.AcquireRvlStr(); // @v9.9.4
+	SString & r_temp_buf = SLS.AcquireRvlStr();
     return Cat(rUuid.ToStr(fmt, r_temp_buf));
 }
 

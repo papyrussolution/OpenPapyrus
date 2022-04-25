@@ -593,18 +593,15 @@ static uint16 getName(UCharNames * names, uint32_t code, UCharNameChoice nameCho
  * enumGroupNames() enumerates all the names in a 32-group
  * and either calls the enumerator function or finds a given input name.
  */
-static bool enumGroupNames(UCharNames * names, const uint16 * group,
-    UChar32 start, UChar32 end,
-    UEnumCharNamesFn * fn, void * context,
-    UCharNameChoice nameChoice) {
+static bool enumGroupNames(UCharNames * names, const uint16 * group, UChar32 start, UChar32 end,
+    UEnumCharNamesFn * fn, void * context, UCharNameChoice nameChoice) 
+{
 	uint16 offsets[LINES_PER_GROUP+2], lengths[LINES_PER_GROUP+2];
 	const uint8 * s = (uint8 *)names+names->groupStringOffset+GET_GROUP_OFFSET(group);
-
 	s = expandGroupLengths(s, offsets, lengths);
 	if(fn!=DO_FIND_NAME) {
 		char buffer[200];
 		uint16 length;
-
 		while(start<=end) {
 			length = expandName(names,
 				s+offsets[start&GROUP_MASK],
@@ -616,7 +613,7 @@ static bool enumGroupNames(UCharNames * names, const uint16 * group,
 				buffer[length = getExtName(start, buffer, sizeof(buffer))] = 0;
 			}
 			/* here, we assume that the buffer is large enough */
-			if(length>0) {
+			if(length > 0) {
 				if(!fn(context, start, nameChoice, buffer, length)) {
 					return FALSE;
 				}
@@ -636,24 +633,21 @@ static bool enumGroupNames(UCharNames * names, const uint16 * group,
 	}
 	return TRUE;
 }
-
 /*
  * enumExtNames enumerate extended names.
  * It only needs to do it if it is called with a real function and not
  * with the dummy DO_FIND_NAME, because u_charFromName() does a check
  * for extended names by itself.
  */
-static bool enumExtNames(UChar32 start, UChar32 end,
-    UEnumCharNamesFn * fn, void * context)
+static bool enumExtNames(UChar32 start, UChar32 end, UEnumCharNamesFn * fn, void * context)
 {
 	if(fn!=DO_FIND_NAME) {
 		char buffer[200];
 		uint16 length;
-
 		while(start<=end) {
 			buffer[length = getExtName(start, buffer, sizeof(buffer))] = 0;
 			/* here, we assume that the buffer is large enough */
-			if(length>0) {
+			if(length > 0) {
 				if(!fn(context, start, U_EXTENDED_CHAR_NAME, buffer, length)) {
 					return FALSE;
 				}
@@ -661,23 +655,17 @@ static bool enumExtNames(UChar32 start, UChar32 end,
 			++start;
 		}
 	}
-
 	return TRUE;
 }
 
-static bool enumNames(UCharNames * names,
-    UChar32 start, UChar32 limit,
-    UEnumCharNamesFn * fn, void * context,
-    UCharNameChoice nameChoice) {
-	uint16 startGroupMSB, endGroupMSB, groupCount;
-	const uint16 * group, * groupLimit;
-
-	startGroupMSB = (uint16)(start>>GROUP_SHIFT);
-	endGroupMSB = (uint16)((limit-1)>>GROUP_SHIFT);
-
+static bool enumNames(UCharNames * names, UChar32 start, UChar32 limit, UEnumCharNamesFn * fn, void * context, UCharNameChoice nameChoice) 
+{
+	uint16 groupCount;
+	const uint16 * groupLimit;
+	uint16 startGroupMSB = (uint16)(start>>GROUP_SHIFT);
+	uint16 endGroupMSB = (uint16)((limit-1)>>GROUP_SHIFT);
 	/* find the group that contains start, or the highest before it */
-	group = getGroup(names, start);
-
+	const uint16 * group = getGroup(names, start);
 	if(startGroupMSB<group[GROUP_MSB] && nameChoice==U_EXTENDED_CHAR_NAME) {
 		/* enumerate synthetic names between start and the group start */
 		UChar32 extLimit = ((UChar32)group[GROUP_MSB]<<GROUP_SHIFT);
@@ -689,7 +677,6 @@ static bool enumNames(UCharNames * names,
 		}
 		start = extLimit;
 	}
-
 	if(startGroupMSB==endGroupMSB) {
 		if(startGroupMSB==group[GROUP_MSB]) {
 			/* if start and limit-1 are in the same group, then enumerate only in that one */
@@ -700,7 +687,6 @@ static bool enumNames(UCharNames * names,
 		const uint16 * groups = GET_GROUPS(names);
 		groupCount = *groups++;
 		groupLimit = groups+groupCount*GROUP_LENGTH;
-
 		if(startGroupMSB==group[GROUP_MSB]) {
 			/* enumerate characters in the partial start group */
 			if((start&GROUP_MASK)!=0) {
@@ -726,7 +712,6 @@ static bool enumNames(UCharNames * names,
 			}
 			group = nextGroup;
 		}
-
 		/* enumerate entire groups between the start- and end-groups */
 		while(group<groupLimit && group[GROUP_MSB]<endGroupMSB) {
 			const uint16 * nextGroup;
@@ -746,7 +731,6 @@ static bool enumNames(UCharNames * names,
 			}
 			group = nextGroup;
 		}
-
 		/* enumerate within the end group (group[GROUP_MSB]==endGroupMSB) */
 		if(group<groupLimit && group[GROUP_MSB]==endGroupMSB) {
 			return enumGroupNames(names, group, (limit-1)&~GROUP_MASK, limit-1, fn, context, nameChoice);
@@ -761,30 +745,23 @@ static bool enumNames(UCharNames * names,
 			return TRUE;
 		}
 	}
-
-	/* we have not found a group, which means everything is made of
-	   extended names. */
+	// we have not found a group, which means everything is made of extended names.
 	if(nameChoice == U_EXTENDED_CHAR_NAME) {
 		if(limit > UCHAR_MAX_VALUE + 1) {
 			limit = UCHAR_MAX_VALUE + 1;
 		}
 		return enumExtNames(start, limit - 1, fn, context);
 	}
-
 	return TRUE;
 }
 
-static uint16 writeFactorSuffix(const uint16 * factors, uint16 count,
-    const char * s,              /* suffix elements */
-    uint32_t code,
-    uint16 indexes[8], /* output fields from here */
-    const char * elementBases[8], const char * elements[8],
-    char * buffer, uint16 bufferLength) {
+static uint16 writeFactorSuffix(const uint16 * factors, uint16 count, const char * s/* suffix elements */, 
+	uint32_t code, uint16 indexes[8]/* output fields from here */, const char * elementBases[8], const char * elements[8],
+    char * buffer, uint16 bufferLength) 
+{
 	uint16 i, factor, bufferPos = 0;
 	char c;
-
 	/* write elements according to the factors */
-
 	/*
 	 * the factorized elements are determined by modulo arithmetic
 	 * with the factors of this algorithm
@@ -802,13 +779,11 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count,
 	 * guarantees here that code<=factors[0]
 	 */
 	indexes[0] = (uint16)code;
-
 	/* write each element */
 	for(;;) {
 		if(elementBases!=NULL) {
 			*elementBases++ = s;
 		}
-
 		/* skip indexes[i] strings */
 		factor = indexes[i];
 		while(factor>0) {
@@ -819,17 +794,14 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count,
 		if(elements!=NULL) {
 			*elements++ = s;
 		}
-
 		/* write element */
 		while((c = *s++)!=0) {
 			WRITE_CHAR(buffer, bufferLength, bufferPos, c);
 		}
-
 		/* we do not need to perform the rest of this loop for i==count - break here */
 		if(i>=count) {
 			break;
 		}
-
 		/* skip the rest of the strings for this factors[i] */
 		factor = (uint16)(factors[i]-indexes[i]-1);
 		while(factor>0) {
@@ -837,27 +809,22 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count,
 			}
 			--factor;
 		}
-
 		++i;
 	}
-
 	/* zero-terminate */
 	if(bufferLength>0) {
 		*buffer = 0;
 	}
-
 	return bufferPos;
 }
-
 /*
  * Important:
  * Parts of findAlgName() are almost the same as some of getAlgName().
  * Fixes must be applied to both.
  */
-static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoice nameChoice,
-    char * buffer, uint16 bufferLength) {
+static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoice nameChoice, char * buffer, uint16 bufferLength) 
+{
 	uint16 bufferPos = 0;
-
 	/* Only the normative character name can be algorithmic. */
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
 		/* zero-terminate */
@@ -866,28 +833,22 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 		}
 		return 0;
 	}
-
 	switch(range->type) {
 		case 0: {
 		    /* name = prefix hex-digits */
 		    const char * s = (const char *)(range+1);
 		    char c;
-
 		    uint16 i, count;
-
 		    /* copy prefix */
 		    while((c = *s++)!=0) {
 			    WRITE_CHAR(buffer, bufferLength, bufferPos, c);
 		    }
-
 		    /* write hexadecimal code point value */
 		    count = range->variant;
-
 		    /* zero-terminate */
 		    if(count<bufferLength) {
 			    buffer[count] = 0;
 		    }
-
 		    for(i = count; i>0;) {
 			    if(--i<bufferLength) {
 				    c = (char)(code&0xf);
@@ -901,7 +862,6 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 			    }
 			    code >>= 4;
 		    }
-
 		    bufferPos += count;
 		    break;
 	    }
@@ -912,14 +872,11 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 		    uint16 count = range->variant;
 		    const char * s = (const char *)(factors+count);
 		    char c;
-
 		    /* copy prefix */
 		    while((c = *s++)!=0) {
 			    WRITE_CHAR(buffer, bufferLength, bufferPos, c);
 		    }
-
-		    bufferPos += writeFactorSuffix(factors, count,
-			    s, code-range->start, indexes, NULL, NULL, buffer, bufferLength);
+		    bufferPos += writeFactorSuffix(factors, count, s, code-range->start, indexes, NULL, NULL, buffer, bufferLength);
 		    break;
 	    }
 		default:
@@ -930,41 +887,32 @@ static uint16 getAlgName(AlgorithmicRange * range, uint32_t code, UCharNameChoic
 		    }
 		    break;
 	}
-
 	return bufferPos;
 }
-
 /*
  * Important: enumAlgNames() and findAlgName() are almost the same.
  * Any fix must be applied to both.
  */
-static bool enumAlgNames(AlgorithmicRange * range,
-    UChar32 start, UChar32 limit,
-    UEnumCharNamesFn * fn, void * context,
-    UCharNameChoice nameChoice) {
+static bool enumAlgNames(AlgorithmicRange * range, UChar32 start, UChar32 limit, UEnumCharNamesFn * fn, void * context, UCharNameChoice nameChoice) 
+{
 	char buffer[200];
 	uint16 length;
-
 	if(nameChoice!=U_UNICODE_CHAR_NAME && nameChoice!=U_EXTENDED_CHAR_NAME) {
 		return TRUE;
 	}
-
 	switch(range->type) {
 		case 0: {
 		    char * s, * end;
 		    char c;
-
 		    /* get the full name of the start character */
 		    length = getAlgName(range, (uint32_t)start, nameChoice, buffer, sizeof(buffer));
 		    if(length<=0) {
 			    return TRUE;
 		    }
-
 		    /* call the enumerator function with this first character */
 		    if(!fn(context, start, nameChoice, buffer, length)) {
 			    return FALSE;
 		    }
-
 		    /* go to the end of the name; all these names have the same length */
 		    end = buffer;
 		    while(*end!=0) {

@@ -30,23 +30,17 @@
 
 /* This is a table-less and callback-less version of ucnv_MBCSSingleToBMPWithOffsets(). */
 U_CDECL_BEGIN
-static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	const uint8 * source;
-	UChar * target;
-	int32_t targetCapacity, length;
+static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
+	int32_t length;
 	int32_t * offsets;
-
 	int32_t sourceIndex;
-
 	/* set up the local pointers */
-	source = (const uint8 *)pArgs->source;
-	target = pArgs->target;
-	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
+	const uint8 * source = (const uint8 *)pArgs->source;
+	UChar * target = pArgs->target;
+	int32_t targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
-
 	sourceIndex = 0;
-
 	/*
 	 * since the conversion here is 1:1 UChar:uint8, we need only one counter
 	 * for the minimum of the sourceLength and targetCapacity
@@ -60,11 +54,9 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		length = targetCapacity;
 	}
-
 	if(targetCapacity>=8) {
 		/* This loop is unrolled for speed and improved pipelining. */
 		int32_t count, loops;
-
 		loops = count = targetCapacity>>3;
 		length = targetCapacity &= 0x7;
 		do {
@@ -94,7 +86,6 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 			} while(--loops>0);
 		}
 	}
-
 	/* conversion loop */
 	while(targetCapacity>0) {
 		*target++ = *source++;
@@ -107,7 +98,7 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 
 	/* set offsets */
 	if(offsets) {
-		while(length>0) {
+		while(length > 0) {
 			*offsets++ = sourceIndex++;
 			--length;
 		}
@@ -116,41 +107,34 @@ static void U_CALLCONV _Latin1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pAr
 }
 
 /* This is a table-less and callback-less version of ucnv_MBCSSingleGetNextUChar(). */
-static UChar32 U_CALLCONV _Latin1GetNextUChar(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static UChar32 U_CALLCONV _Latin1GetNextUChar(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	const uint8 * source = (const uint8 *)pArgs->source;
 	if(source<(const uint8 *)pArgs->sourceLimit) {
 		pArgs->source = (const char *)(source+1);
 		return *source;
 	}
-
 	/* no output because of empty input */
 	*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 	return 0xffff;
 }
 
 /* This is a table-less version of ucnv_MBCSSingleFromBMPWithOffsets(). */
-static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const UChar * source, * sourceLimit;
+static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	uint8 * target, * oldTarget;
 	int32_t targetCapacity, length;
 	int32_t * offsets;
-
 	UChar32 cp;
 	UChar c, max;
-
 	int32_t sourceIndex;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	source = pArgs->source;
-	sourceLimit = pArgs->sourceLimit;
+	UConverter * cnv = pArgs->converter;
+	const UChar * source = pArgs->source;
+	const UChar * sourceLimit = pArgs->sourceLimit;
 	target = oldTarget = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
-
 	if(cnv->sharedData==&_Latin1Data) {
 		max = 0xff; /* Latin-1 */
 	}
@@ -183,7 +167,6 @@ static void U_CALLCONV _Latin1FromUnicodeWithOffsets(UConverterFromUnicodeArgs *
 	if(targetCapacity>=16) {
 		int32_t count, loops;
 		UChar u, oredChars;
-
 		loops = count = targetCapacity>>4;
 		do {
 			oredChars = u = *source++;

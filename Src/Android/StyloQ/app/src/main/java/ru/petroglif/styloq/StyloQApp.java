@@ -157,7 +157,7 @@ public class StyloQApp extends SLib.App {
 								Db.Upgrade(cur_ver, prev_ver);
 							}
 							if(sjrec == null || (int)sjrec.Extra < cur_ver) {
-								Db.LogEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0, 0, cur_ver, 1);
+								Db.LogEvent(SLib.PPACN_RECENTVERSIONLAUNCHED, 0, 0, cur_ver, true);
 							}
 						}
 						//
@@ -206,12 +206,12 @@ public class StyloQApp extends SLib.App {
 	{
 		return _StrStor.GetString(GetCurrentLang(), signature);
 	}
-	public void DisplayMessage(View anchorView, String msg, int duration)
+	public void DisplayMessage(Context anchorView, String msg, int duration)
 	{
 		Toast window = Toast.makeText(this, msg, duration);
 		window.show();
 	}
-	public void DisplayMessage(View anchorView, int strGroup, int strIdent, int duration)
+	public void DisplayMessage(Context anchorView, int strGroup, int strIdent, int duration)
 	{
 		String msg = _StrStor.GetString(GetCurrentLang(), strGroup, strIdent);
 		if(msg != null) {
@@ -219,7 +219,7 @@ public class StyloQApp extends SLib.App {
 			window.show();
 		}
 	}
-	public void DisplayError(View anchorView, String msg, int duration)
+	public void DisplayError(Context anchorView, String msg, int duration)
 	{
 		//Snackbar window = Snackbar.make(this, v, msg, duration);
 		//window.setBackgroundTint(Color.RED);
@@ -228,13 +228,13 @@ public class StyloQApp extends SLib.App {
 		Toast window = Toast.makeText(this, msg, duration);
 		window.show();
 	}
-	public void DisplayError(View anchorView, int errCode, int duration)
+	public void DisplayError(Context anchorView, int errCode, int duration)
 	{
 		String msg = _StrStor.GetString(GetCurrentLang(), ppstr2.PPSTR_ERROR, errCode);
 		if(msg != null)
 			DisplayError(anchorView, msg, duration);
 	}
-	public void DisplayError(View anchorView, StyloQException exn, int duration)
+	public void DisplayError(Context anchorView, StyloQException exn, int duration)
 	{
 		String msg = exn.GetMessage(this);
 		if(msg != null)

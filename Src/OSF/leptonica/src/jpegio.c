@@ -1,16 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-*====================================================================*/
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file jpegio.c
  * <pre>
@@ -1206,7 +1201,6 @@ static void jpeg_error_catch_all_1(j_common_ptr cinfo)
 static void jpeg_error_catch_all_2(j_common_ptr cinfo)
 {
 	struct callback_data  * pcb_data;
-
 	pcb_data = (struct callback_data *)cinfo->client_data;
 	(*cinfo->err->output_message)(cinfo);
 	jpeg_destroy(cinfo);
@@ -1217,7 +1211,6 @@ static void jpeg_error_catch_all_2(j_common_ptr cinfo)
 static uint8 jpeg_getc(j_decompress_ptr cinfo)
 {
 	struct jpeg_source_mgr * datasrc;
-
 	datasrc = cinfo->src;
 	if(datasrc->bytes_in_buffer == 0) {
 		if(!(*datasrc->fill_input_buffer)(cinfo)) {
@@ -1241,20 +1234,17 @@ static boolean jpeg_comment_callback(j_decompress_ptr cinfo)
 	l_int32 length, i;
 	uint8               * comment;
 	struct callback_data  * pcb_data;
-
 	/* Get the size of the comment */
 	length = jpeg_getc(cinfo) << 8;
 	length += jpeg_getc(cinfo);
 	length -= 2;
 	if(length <= 0)
 		return 1;
-
 	/* Extract the comment from the file */
 	if((comment = (uint8 *)SAlloc::C(length + 1, sizeof(uint8))) == NULL)
 		return 0;
 	for(i = 0; i < length; i++)
 		comment[i] = jpeg_getc(cinfo);
-
 	/* Save the comment and return */
 	pcb_data = (struct callback_data *)cinfo->client_data;
 	if(pcb_data->comment) { /* clear before overwriting previous comment */

@@ -5752,6 +5752,7 @@ private:
 #define PPSCMD_SQ_SRPAUTH_S2         10122 // @v11.0.11 Авторизация по SRP-протоколу (the second phase)
 #define PPSCMD_SQ_SRPAUTH_ACK        10123 // @v11.0.11 Авторизация по SRP-протоколу (завершающее сообщение от клиента серверу об Успешности авторизации)
 #define PPSCMD_SQ_COMMAND            10124 // @v11.0.11 Собственно команда в рамках протокола Stylo-Q
+#define PPSCMD_EXECJOBIMM            10125 // @v11.3.9  Запустить задачу непосредственно по этой команде.
 
 #define PPSCMD_TEST                  11000 // Сеанс тестирования //
 //
@@ -16308,6 +16309,7 @@ struct PPJobDescr { // @persistent
 class PPJob : public PPExtStrContainer { // @persistent
 public:
 	PPJob();
+	PPJob(const PPJob & rS);
 	PPJob & FASTCALL operator = (const PPJob &);
 	int    FASTCALL Write(SBuffer & rBuf);
 	int    FASTCALL Read(SBuffer & rBuf);
@@ -16400,8 +16402,8 @@ public:
 	//   0  - нет больше ни одного задания, идентификатор которого был бы более
 	//      *pID и удловлеворяющего необходимым критериям.
 	//
-	int    Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb = 0) const;
-	const  PPJob * GetJobItem(PPID id, int ignoreDbSymb = 0) const; // @v10.8.3 GetJob-->GetJobItem с целью исключить совпадение по имени с функцией WinAPI GetJob
+	int    Enum(PPID * pID, PPJob * pJob, bool ignoreDbSymb = false) const;
+	const  PPJob * GetJobItem(PPID id, bool ignoreDbSymb = false) const; // @v10.8.3 GetJob-->GetJobItem с целью исключить совпадение по имени с функцией WinAPI GetJob
 	int    PutJobItem(PPID * pID, const PPJob * pJob);
 private:
 	enum {
@@ -16429,7 +16431,7 @@ public:
 	int    LoadResource(PPID jobID, PPJobDescr * pJob);
 	int    GetResourceList(int loadText, StrAssocArray & rList);
 	int    SavePool(const PPJobPool *);
-	int    LoadPool2(const char * pDbSymb, PPJobPool *, int readOnly); //@erik v10.7.4
+	int    LoadPool2(const char * pDbSymb, PPJobPool *, bool readOnly); //@erik v10.7.4
 	int    SavePool2(const PPJobPool *); //@erik v10.7.4
 	int    IsPoolChanged() const;
 	DirChangeNotification * CreateDcn();
@@ -16652,7 +16654,7 @@ public:
 	//  0  - ошибка
 	//
 	int    SavePool(const PPNamedFiltPool *) const;
-	int    LoadPool2(const char * pDbSymb, PPNamedFiltPool *, int readOnly); //@erik v10.7.5
+	int    LoadPool2(const char * pDbSymb, PPNamedFiltPool *, bool readOnly); //@erik v10.7.5
 	int    SavePool2(const PPNamedFiltPool *) const;  //@erik v10.7.5
 	int    ConvertBinToXml(); //@erik v10.7.5
 	int    GetXmlPoolDir(SString &rXmlPoolPath); //@erik v10.7.4
@@ -36747,7 +36749,7 @@ private:
 	virtual int  Read(PPObjPack *, PPID, void * stream, ObjTransmContext *);
 	virtual int  Write(PPObjPack *, PPID *, void * stream, ObjTransmContext *);
 	virtual int  ProcessObjRefs(PPObjPack *, PPObjIDArray *, int replace, ObjTransmContext * pCtx);
-	int    Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode);
+	int    Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode, LongArray & rRecurList);
 	int    AddItemsToList(StrAssocArray *, PPIDArray * pIdList, PPIDArray * pGoodsIdList, long extraParam, PPID goodsID = 0);
 		// @<<PPObjTech::MakeList_
 	int    SearchAuto(PPID prcID, PPID goodsID, PPID * pTechID);
@@ -48443,10 +48445,12 @@ public:
 	int    DeleteItem(PPID);
 private:
 	static int FASTCALL GetDataForBrowser(SBrowserDataProcBlock * pBlk);
+	static int CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr);
 	virtual SArray  * CreateBrowserArray(uint * pBrwId, SString * pSubTitle);
 	virtual void   PreprocessBrowser(PPViewBrowser * pBrw);
 	virtual int    ProcessCommand(uint ppvCmd, const void *, PPViewBrowser *);
 	virtual int    Print(const void *);
+	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw);
 	int    CheckForFilt(PPJob & rJob);
 	int    MakeList();
 	int    SavePool();

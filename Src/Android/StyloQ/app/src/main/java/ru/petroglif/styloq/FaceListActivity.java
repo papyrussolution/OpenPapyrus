@@ -19,7 +19,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	static class FaceDialog extends SLib.SlDialog {
 		private int CurrentLangId;
 
-		public Object HandleEvent(int ev, Object srcObj, Object subj)
+		@Override public Object HandleEvent(int ev, Object srcObj, Object subj)
 		{
 			Object result = null;
 			switch(ev) {
@@ -207,7 +207,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 								StyloQDatabase.SecStoragePacket sp = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kFace);
 								sp.Rec.ID = pack.ID;
 								sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
-								long new_id = Db.PutPeerEntry(sp.Rec.ID, sp);
+								long new_id = Db.PutPeerEntry(sp.Rec.ID, sp, true);
 								if(new_id > 0) {
 									StyloQFace ex_item = null;
 									int ex_item_idx = 0;
@@ -241,7 +241,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							StyloQDatabase.SecStoragePacket sp = new StyloQDatabase.SecStoragePacket(StyloQDatabase.SecStoragePacket.kFace);
 							sp.Rec.ID = pack.ID;
 							sp.Pool.Put(SecretTagPool.tagSelfyFace, jstext.getBytes(StandardCharsets.UTF_8));
-							long new_id = Db.PutPeerEntry(sp.Rec.ID, sp);
+							long new_id = Db.PutPeerEntry(sp.Rec.ID, sp, true);
 							if(new_id > 0) {
 								StyloQFace ex_item = null;
 								int ex_item_idx = 0;

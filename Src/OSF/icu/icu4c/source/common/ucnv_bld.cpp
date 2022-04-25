@@ -835,23 +835,18 @@ U_CFUNC bool ucnv_canCreateConverter(const char * converterName, UErrorCode * er
 	return U_SUCCESS(*err);
 }
 
-UConverter * ucnv_createAlgorithmicConverter(UConverter * myUConverter,
-    UConverterType type,
-    const char * locale, uint32_t options,
-    UErrorCode * err) {
+UConverter * ucnv_createAlgorithmicConverter(UConverter * myUConverter, UConverterType type, const char * locale, uint32_t options, UErrorCode * err) 
+{
 	UConverter * cnv;
 	const UConverterSharedData * sharedData;
 	UConverterLoadArgs stackArgs = UCNV_LOAD_ARGS_INITIALIZER;
-
 	UTRACE_ENTRY_OC(UTRACE_UCNV_OPEN_ALGORITHMIC);
 	UTRACE_DATA1(UTRACE_OPEN_CLOSE, "open algorithmic converter type %d", (int32_t)type);
-
 	if(type<0 || UCNV_NUMBER_OF_SUPPORTED_CONVERTER_TYPES<=type) {
 		*err = U_ILLEGAL_ARGUMENT_ERROR;
 		UTRACE_EXIT_STATUS(U_ILLEGAL_ARGUMENT_ERROR);
 		return NULL;
 	}
-
 	sharedData = converterData[type];
 	if(sharedData == NULL || sharedData->isReferenceCounted) {
 		/* not a valid type, or not an algorithmic converter */
@@ -859,7 +854,6 @@ UConverter * ucnv_createAlgorithmicConverter(UConverter * myUConverter,
 		UTRACE_EXIT_STATUS(U_ILLEGAL_ARGUMENT_ERROR);
 		return NULL;
 	}
-
 	stackArgs.name = "";
 	stackArgs.options = options;
 	stackArgs.locale = locale;

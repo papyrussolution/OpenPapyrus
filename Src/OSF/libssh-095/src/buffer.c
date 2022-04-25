@@ -672,13 +672,12 @@ int FASTCALL ssh_buffer_validate_length(const struct ssh_buffer_struct * buffer,
  *
  * @returns             The SSH String, NULL on error.
  */
-struct ssh_string_struct * ssh_buffer_get_ssh_string(struct ssh_buffer_struct * buffer)                            {
+struct ssh_string_struct * ssh_buffer_get_ssh_string(struct ssh_buffer_struct * buffer)
+{
 	uint32_t stringlen;
 	uint32_t hostlen;
 	struct ssh_string_struct * str = NULL;
-	int rc;
-
-	rc = ssh_buffer_get_u32(buffer, &stringlen);
+	int rc = ssh_buffer_get_u32(buffer, &stringlen);
 	if(rc == 0) {
 		return NULL;
 	}
@@ -692,17 +691,14 @@ struct ssh_string_struct * ssh_buffer_get_ssh_string(struct ssh_buffer_struct * 
 	if(str == NULL) {
 		return NULL;
 	}
-
 	stringlen = ssh_buffer_get_data(buffer, ssh_string_data(str), hostlen);
 	if(stringlen != hostlen) {
 		/* should never happen */
 		ZFREE(str);
 		return NULL;
 	}
-
 	return str;
 }
-
 /**
  * @brief Pre-calculate the size we need for packing the buffer.
  *

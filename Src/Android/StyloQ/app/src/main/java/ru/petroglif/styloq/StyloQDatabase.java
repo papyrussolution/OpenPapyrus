@@ -3,6 +3,7 @@
 //
 package ru.petroglif.styloq;
 
+import static ru.petroglif.styloq.SLib.PPOBJ_STYLOQBINDERY;
 import static ru.petroglif.styloq.SLib.THROW;
 import android.content.Context;
 import android.database.SQLException;
@@ -159,7 +160,7 @@ public class StyloQDatabase extends Database {
 				assert (pi != null && pi.length == 20);
 				if(pi != null && pi.length == 20) {
 					pack.Rec.BI = pi;
-					id = PutPeerEntry(0, pack);
+					id = PutPeerEntry(0, pack, true);
 				}
 			}
 		}
@@ -251,27 +252,52 @@ public class StyloQDatabase extends Database {
 	SysJournalTable.Rec GetLastEvent(int action, long extraVal)
 	{
 		SysJournalTable.Rec result = null;
-		try {
-			Database.Table tbl = CreateTable(SysJournalTable.TBL_NAME);
-			if(tbl != null) {
-				final String tn = tbl.GetName();
-				String query = "SELECT * FROM " + tn + " WHERE Action=" + action;
-				if(extraVal > 0)
-					query = query + " and Extra="+extraVal;
-				query = query + " order by TimeStamp desc limit 1";
-				android.database.Cursor cur = GetHandle().rawQuery(query, null);
-				if(cur != null && cur.moveToFirst()) {
-					result = new SysJournalTable.Rec();
-					result.Init();
-					result.Set(cur);
+		if(action > 0) {
+			try {
+				Database.Table tbl = CreateTable(SysJournalTable.TBL_NAME);
+				if(tbl != null) {
+					final String tn = tbl.GetName();
+					String query = "SELECT * FROM " + tn + " WHERE Action=" + action;
+					if(extraVal > 0)
+						query = query + " and Extra=" + extraVal;
+					query = query + " order by TimeStamp desc limit 1";
+					android.database.Cursor cur = GetHandle().rawQuery(query, null);
+					if(cur != null && cur.moveToFirst()) {
+						result = new SysJournalTable.Rec();
+						result.Init();
+						result.Set(cur);
+					}
 				}
+			} catch(StyloQException exn) {
+				result = null;
 			}
-		} catch(StyloQException exn) {
-			result = null;
 		}
 		return result;
 	}
-	boolean LogEvent(int action, int obj, long id, long extData, int use_ta)
+	SysJournalTable.Rec GetLastObjEvent(int action, int objType, long objID)
+	{
+		SysJournalTable.Rec result = null;
+		if(action > 0 && objType > 0 && objID > 0) {
+			try {
+				Database.Table tbl = CreateTable(SysJournalTable.TBL_NAME);
+				if(tbl != null) {
+					final String tn = tbl.GetName();
+					String query = "SELECT * FROM " + tn + " WHERE Action=" + action + " AND ObjType=" + objType + " AND ObjID=" + objID;
+					query = query + " order by TimeStamp desc limit 1";
+					android.database.Cursor cur = GetHandle().rawQuery(query, null);
+					if(cur != null && cur.moveToFirst()) {
+						result = new SysJournalTable.Rec();
+						result.Init();
+						result.Set(cur);
+					}
+				}
+			} catch(StyloQException exn) {
+				result = null;
+			}
+		}
+		return result;
+	}
+	boolean LogEvent(int action, int obj, long id, long extData, boolean useTa)
 	{
 		boolean ok = false;
 		long result_id = 0;
@@ -279,59 +305,61 @@ public class StyloQDatabase extends Database {
 		Database.Table tbl = CreateTable(SysJournalTable.TBL_NAME);
 		if(tbl != null) {
 			try {
+				Transaction tra = new Transaction(this, useTa);
 				rec = new SysJournalTable.Rec();
 				rec.TimeStamp = System.currentTimeMillis();
 				rec.Action = action;
 				rec.ObjType = obj;
 				rec.ObjID = id;
 				rec.Extra = extData;
-				StartTransaction();
 				result_id = tbl.Insert(rec);
-				if(result_id > 0) {
-					CommitWork();
-					ok = true;
-				}
+				if(result_id > 0)
+					ok = tra.Commit();
 				else
-					RollbackWork();
+					tra.Abort();
 			} catch(StyloQException exn) {
 				//exn.printStackTrace();
 			}
 		}
 		return ok;
 	}
-	public long PutPeerEntry(long id, SecStoragePacket pack) throws StyloQException
+	public long PutPeerEntry(long id, SecStoragePacket pack, boolean useTa) throws StyloQException
 	{
 		long result_id = 0;
 		Database.Table tbl = CreateTable("SecTable");
 		if(tbl != null) {
 			if(id == 0) { // insert packet
 				if(pack.PreprocessBeforeStoring(null)) {
-					StartTransaction();
+					Transaction tra = new Transaction(this, useTa);
 					result_id = tbl.Insert(pack.Rec);
-					CommitWork();
+					if(result_id > 0)
+						LogEvent(SLib.PPACN_OBJADD, PPOBJ_STYLOQBINDERY, result_id, 0, false);
+					tra.Commit();
 				}
 			}
 			else { // update packet
 				SecStoragePacket ex_pack = GetPeerEntry(id);
 				if(ex_pack != null) {
 					if(pack == null) {
-						StartTransaction();
+						Transaction tra = new Transaction(this, useTa);
 						if(RemoveRec(tbl, id) > 0) {
-							CommitWork();
-							result_id = id;
+							LogEvent(SLib.PPACN_OBJRMV, PPOBJ_STYLOQBINDERY, id, 0, false);
+							if(tra.Commit())
+								result_id = id;
 						}
 						else
-							RollbackWork();
+							tra.Abort();
 					}
 					else {
 						if(pack.PreprocessBeforeStoring(ex_pack)) {
-							StartTransaction();
+							Transaction tra = new Transaction(this, useTa);
 							if(UpdateRec(tbl, id, pack.Rec) > 0) {
-								CommitWork();
-								result_id = id;
+								LogEvent(SLib.PPACN_OBJUPD, PPOBJ_STYLOQBINDERY, id, 0, false);
+								if(tra.Commit())
+									result_id = id;
 							}
 							else
-								RollbackWork();
+								tra.Abort();
 						}
 					}
 				}
@@ -397,9 +425,9 @@ public class StyloQDatabase extends Database {
 		if(tbl != null) {
 			SecStoragePacket pack = GetPeerEntry(id);
 			if(pack != null && pack.Rec.Kind == SecStoragePacket.kForeignService) {
+				Transaction tra = new Transaction(this,true);
 				try {
 					final String tn = tbl.GetName();
-					StartTransaction();
 					//public static final int kSession        = 4;
 					//public static final int kDocIncoming    = 6; // Входящие документы
 					//public static final int kDocOutcominig  = 7; // Исходящие документы
@@ -413,11 +441,10 @@ public class StyloQDatabase extends Database {
 						String query = "DELETE FROM " + tn + " WHERE id=" + id;
 						GetHandle().execSQL(query);
 					}
-					CommitWork();
-					ok = true;
+					ok = tra.Commit();
 				} catch(SQLException exn) {
 					ok = false;
-					RollbackWork();
+					tra.Abort();
 					new StyloQException(ppstr2.PPERR_JEXN_SQL, exn.getMessage());
 				}
 			}
@@ -687,7 +714,7 @@ public class StyloQDatabase extends Database {
 								long _ex_doc_id_from_db = 0;
 								pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 								{
-									StartTransaction();
+									Transaction tra = new Transaction(this, true);
 									// Документ такого типа может быть только один в комбинации {direction; rIdent}
 									ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, correspondId, ident);
 									if(ex_id_list != null) {
@@ -696,60 +723,60 @@ public class StyloQDatabase extends Database {
 											if(_ex_doc_id_from_json > 0 && local_id == _ex_doc_id_from_json)
 												_ex_doc_id_from_db = local_id;
 											else
-												PutPeerEntry(local_id, null); // @throw
+												PutPeerEntry(local_id, null, false); // @throw
 										}
 									}
-									result_id = PutPeerEntry(_ex_doc_id_from_db, pack);
-									CommitWork();
+									result_id = PutPeerEntry(_ex_doc_id_from_db, pack, false);
+									tra.Commit();
 								}
 							}
 						}
 						else if(docType == SecStoragePacket.doctypCommandList && raw_doc_type.equalsIgnoreCase("commandlist")) {
 							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 							{
-								StartTransaction();
+								Transaction tra = new Transaction(this, true);
 								// Документ такого типа может быть только один в комбинации {direction; rIdent}
 								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
 								if(ex_id_list != null) {
 									for(int i = 0; i < ex_id_list.size(); i++) {
 										long _id_to_remove = ex_id_list.get(i);
-										PutPeerEntry(_id_to_remove, null); // @throw
+										PutPeerEntry(_id_to_remove, null, false); // @throw
 									}
 								}
-								result_id = PutPeerEntry(0, pack);
-								CommitWork();
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
 						}
 						else if(docType == SecStoragePacket.doctypReport && raw_doc_type.equalsIgnoreCase("view")) {
 							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 							{
-								StartTransaction();
+								Transaction tra = new Transaction(this, true);
 								// Документ такого типа может быть только один в комбинации {direction; rIdent}
 								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
 								if(ex_id_list != null) {
 									for(int i = 0; i < ex_id_list.size(); i++) {
 										long _id_to_remove = ex_id_list.get(i);
-										PutPeerEntry(_id_to_remove, null); // @throw
+										PutPeerEntry(_id_to_remove, null, false); // @throw
 									}
 								}
-								result_id = PutPeerEntry(0, pack);
-								CommitWork();
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
 						}
 						else if(docType == SecStoragePacket.doctypOrderPrereq && raw_doc_type.equalsIgnoreCase("orderprereq")) {
 							pack = InitDocumentPacket(pack_kind, docType, correspondId, ident, doc_expiry, pool);
 							{
-								StartTransaction();
+								Transaction tra = new Transaction(this, true);
 								// Документ такого типа может быть только один в комбинации {direction; rIdent}
 								ArrayList<Long> ex_id_list = GetDocIdListByType(direction, docType, 0, ident);
 								if(ex_id_list != null) {
 									for(int i = 0; i < ex_id_list.size(); i++) {
 										long _id_to_remove = ex_id_list.get(i);
-										PutPeerEntry(_id_to_remove, null); // @throw
+										PutPeerEntry(_id_to_remove, null, false); // @throw
 									}
 								}
-								result_id = PutPeerEntry(0, pack);
-								CommitWork();
+								result_id = PutPeerEntry(0, pack, false);
+								tra.Commit();
 							}
 						}
 					}
@@ -806,7 +833,7 @@ public class StyloQDatabase extends Database {
 		try {
 			Database.Table tbl = CreateTable("SecTable");
 			if(tbl != null) {
-				StartTransaction();
+				Transaction tra = new Transaction(this, true);
 				final String tn = tbl.GetName();
 				String query = "SELECT * FROM " + tn + " WHERE kind=" + SecStoragePacket.kCounter;
 				android.database.Cursor cur = GetHandle().rawQuery(query, null);
@@ -838,9 +865,9 @@ public class StyloQDatabase extends Database {
 					}
 				}
 				if(result > 0)
-					CommitWork();
+					tra.Commit();
 				else
-					RollbackWork();
+					tra.Abort();
 			}
 		} catch(StyloQException exn) {
 			result = 0;
@@ -920,14 +947,14 @@ public class StyloQDatabase extends Database {
 		}
 		return result;
 	}
-	public long StoreSession(long id, SecStoragePacket pack, int use_ta) throws StyloQException
+	public long StoreSession(long id, SecStoragePacket pack, boolean useTa) throws StyloQException
 	{
 		long result_id = 0;
 		try {
 			long correspind_id = 0;
 			SecStoragePacket org_pack;
 			SecStoragePacket correspond_pack = null;
-			StartTransaction();
+			Transaction tra = new Transaction(this, useTa);
 			if(pack != null) {
 				int correspond_type = 0;
 				if(pack.Pool.Get(SecretTagPool.tagSessionPublicKey) != null &&
@@ -975,13 +1002,13 @@ public class StyloQDatabase extends Database {
 												// на запись, не являющуюся сессией.
 												// Тем не менее, мы удалим ту запись, поскольку будем менять ссылку correspond_pack.Rec.CorrespondID
 											}
-											correspond_pack.Rec.CorrespondID = PutPeerEntry(correspond_pack.Rec.CorrespondID, null);
+											correspond_pack.Rec.CorrespondID = PutPeerEntry(correspond_pack.Rec.CorrespondID, null, false);
 										}
 									}
-									new_id = PutPeerEntry(new_id, pack);
+									new_id = PutPeerEntry(new_id, pack, false);
 									correspond_pack.Rec.CorrespondID = new_id;
 									assert (correspind_id > 0);
-									correspind_id = PutPeerEntry(correspind_id, correspond_pack);
+									correspind_id = PutPeerEntry(correspind_id, correspond_pack, false);
 									result_id = new_id;
 								}
 								else {
@@ -1005,7 +1032,7 @@ public class StyloQDatabase extends Database {
 											}
 										}
 										pack.Rec.ID = org_pack.Rec.ID;
-										result_id = PutPeerEntry(id, pack);
+										result_id = PutPeerEntry(id, pack, false);
 									}
 									else {
 										// @error
@@ -1031,7 +1058,7 @@ public class StyloQDatabase extends Database {
 							if(correspond_pack.Rec.CorrespondID == id) {
 								// Обнуляем ссылку на удаляемую запись в коррерспондирующем пакете
 								correspond_pack.Rec.CorrespondID = 0;
-								PutPeerEntry(correspind_id, correspond_pack);
+								PutPeerEntry(correspind_id, correspond_pack, false);
 							}
 							else {
 								// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
@@ -1041,10 +1068,10 @@ public class StyloQDatabase extends Database {
 							// @problem (логическая целостность таблицы нарушена, но прерывать исполнение нельзя - мы все равно удаляем запись)
 						}
 					}
-					PutPeerEntry(id, null);
+					PutPeerEntry(id, null, false);
 				}
 			}
-			CommitWork();
+			tra.Commit();
 		} catch(NoSuchAlgorithmException exn) {
 			new StyloQException(ppstr2.PPERR_JEXN_NOSUCHALG, exn.getMessage());
 		}

@@ -768,23 +768,21 @@ static void _updateOffsets(int32_t * offsets, int32_t length,
  * and wrong output, but they will not cause a crash.
  */
 
-static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCode * err) {
+static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCode * err) 
+{
 	UConverterFromUnicode fromUnicode;
-	UConverter * cnv;
 	const UChar * s;
 	char * t;
 	int32_t * offsets;
 	int32_t sourceIndex;
 	int32_t errorInputLength;
 	bool converterSawEndOfInput, calledCallback;
-
 	/* variables for m:n conversion */
 	UChar replay[UCNV_EXT_MAX_UCHARS];
 	const UChar * realSource, * realSourceLimit;
 	int32_t realSourceIndex;
 	bool realFlush;
-
-	cnv = pArgs->converter;
+	UConverter * cnv = pArgs->converter;
 	s = pArgs->source;
 	t = pArgs->target;
 	offsets = pArgs->offsets;
@@ -885,7 +883,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 			/* update offsets if we write any */
 			if(offsets) {
 				int32_t length = (int32_t)(pArgs->target-t);
-				if(length>0) {
+				if(length > 0) {
 					_updateOffsets(offsets, length, sourceIndex, errorInputLength);
 
 					/*
@@ -1014,7 +1012,7 @@ static void _fromUnicodeWithCallback(UConverterFromUnicodeArgs * pArgs, UErrorCo
 						U_ASSERT(cnv->preFromULength==0);
 
 						length = (int32_t)(pArgs->sourceLimit-pArgs->source);
-						if(length>0) {
+						if(length > 0) {
 							u_memcpy(cnv->preFromU, pArgs->source, length);
 							cnv->preFromULength = (int8)-length;
 						}
@@ -1209,27 +1207,24 @@ U_CAPI void U_EXPORT2 ucnv_fromUnicode(UConverter * cnv, char ** target, const c
 
 /* ucnv_toUnicode() --------------------------------------------------------- */
 
-static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode * err) {
+static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode * err) 
+{
 	UConverterToUnicode toUnicode;
-	UConverter * cnv;
 	const char * s;
 	UChar * t;
 	int32_t * offsets;
 	int32_t sourceIndex;
 	int32_t errorInputLength;
 	bool converterSawEndOfInput, calledCallback;
-
 	/* variables for m:n conversion */
 	char replay[UCNV_EXT_MAX_BYTES];
 	const char * realSource, * realSourceLimit;
 	int32_t realSourceIndex;
 	bool realFlush;
-
-	cnv = pArgs->converter;
+	UConverter * cnv = pArgs->converter;
 	s = pArgs->source;
 	t = pArgs->target;
 	offsets = pArgs->offsets;
-
 	/* get the converter implementation function */
 	sourceIndex = 0;
 	if(offsets==NULL) {
@@ -1326,7 +1321,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 			/* update offsets if we write any */
 			if(offsets) {
 				int32_t length = (int32_t)(pArgs->target-t);
-				if(length>0) {
+				if(length > 0) {
 					_updateOffsets(offsets, length, sourceIndex, errorInputLength);
 
 					/*
@@ -1457,7 +1452,7 @@ static void _toUnicodeWithCallback(UConverterToUnicodeArgs * pArgs, UErrorCode *
 						U_ASSERT(cnv->preToULength==0);
 
 						length = (int32_t)(pArgs->sourceLimit-pArgs->source);
-						if(length>0) {
+						if(length > 0) {
 							uprv_memcpy(cnv->preToU, pArgs->source, length);
 							cnv->preToULength = (int8)-length;
 						}

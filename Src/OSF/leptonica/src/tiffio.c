@@ -1,17 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-*====================================================================*/
-
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file tiffio.c
  * <pre>
@@ -119,18 +113,10 @@ static const size_t MaxNumTiffBytes = (1 << 28) - 1;   /* 256 MB */
 
 /* All functions with TIFF interfaces are static. */
 static PIX * pixReadFromTiffStream(TIFF * tif);
-static l_int32   getTiffStreamResolution(TIFF * tif, l_int32 * pxres,
-    l_int32 * pyres);
-static l_int32   tiffReadHeaderTiff(TIFF * tif, l_int32 * pwidth,
-    l_int32 * pheight, l_int32 * pbps,
-    l_int32 * pspp, l_int32 * pres,
-    l_int32 * pcmap, l_int32 * pformat);
-static l_int32   writeCustomTiffTags(TIFF * tif, NUMA * natags,
-    SARRAY * savals, SARRAY * satypes,
-    NUMA * nasizes);
-static l_int32   pixWriteToTiffStream(TIFF * tif, PIX * pix, l_int32 comptype,
-    NUMA * natags, SARRAY * savals,
-    SARRAY * satypes, NUMA * nasizes);
+static l_int32   getTiffStreamResolution(TIFF * tif, l_int32 * pxres, l_int32 * pyres);
+static l_int32   tiffReadHeaderTiff(TIFF * tif, l_int32 * pwidth, l_int32 * pheight, l_int32 * pbps, l_int32 * pspp, l_int32 * pres, l_int32 * pcmap, l_int32 * pformat);
+static l_int32   writeCustomTiffTags(TIFF * tif, NUMA * natags, SARRAY * savals, SARRAY * satypes, NUMA * nasizes);
+static l_int32   pixWriteToTiffStream(TIFF * tif, PIX * pix, l_int32 comptype, NUMA * natags, SARRAY * savals, SARRAY * satypes, NUMA * nasizes);
 static TIFF     * fopenTiff(FILE * fp, const char * modestring);
 static TIFF     * openTiff(const char * filename, const char * modestring);
 
@@ -385,20 +371,15 @@ PIX * pixReadTiff(const char * filename, l_int32 n)
  *          it stops working.
  * </pre>
  */
-PIX * pixReadStreamTiff(FILE * fp,
-    l_int32 n)
+PIX * pixReadStreamTiff(FILE * fp, l_int32 n)
 {
 	PIX * pix;
 	TIFF  * tif;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (PIX *)ERROR_PTR("stream not defined", procName, NULL);
-
 	if((tif = fopenTiff(fp, "r")) == NULL)
 		return (PIX *)ERROR_PTR("tif not opened", procName, NULL);
-
 	if(TIFFSetDirectory(tif, n) == 0) {
 		TIFFCleanup(tif);
 		return NULL;

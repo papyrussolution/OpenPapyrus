@@ -221,26 +221,18 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_BE(UConverterFromUnicodeAr
 	/* write the BOM if necessary */
 	if(args->converter->fromUnicodeStatus==UCNV_NEED_TO_WRITE_BOM) {
 		static const char bom[] = { 0, 0, (char)0xfeu, (char)0xffu };
-		ucnv_fromUWriteBytes(args->converter,
-		    bom, 4,
-		    &args->target, args->targetLimit,
-		    &args->offsets, -1,
-		    err);
+		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-
 	myTarget = (unsigned char *)args->target;
 	temp[0] = 0;
-
 	if(args->converter->fromUChar32) {
 		ch = args->converter->fromUChar32;
 		args->converter->fromUChar32 = 0;
 		goto lowsurogate;
 	}
-
 	while(mySource < sourceLimit && myTarget < targetLimit) {
 		ch = *(mySource++);
-
 		if(U_IS_SURROGATE(ch)) {
 			if(U_IS_LEAD(ch)) {
 lowsurogate:
@@ -314,27 +306,19 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_BE_OFFSET_LOGIC(UConverter
 	int32_t offsetNum = 0;
 	unsigned int indexToWrite;
 	unsigned char temp[sizeof(uint32_t)];
-
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
 		return;
 	}
-
 	/* write the BOM if necessary */
 	if(args->converter->fromUnicodeStatus==UCNV_NEED_TO_WRITE_BOM) {
 		static const char bom[] = { 0, 0, (char)0xfeu, (char)0xffu };
-		ucnv_fromUWriteBytes(args->converter,
-		    bom, 4,
-		    &args->target, args->targetLimit,
-		    &args->offsets, -1,
-		    err);
+		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-
 	myTarget = (unsigned char *)args->target;
 	myOffsets = args->offsets;
 	temp[0] = 0;
-
 	if(args->converter->fromUChar32) {
 		ch = args->converter->fromUChar32;
 		args->converter->fromUChar32 = 0;
@@ -667,26 +651,18 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE(UConverterFromUnicodeAr
 	UChar32 ch, ch2;
 	unsigned int indexToWrite;
 	unsigned char temp[sizeof(uint32_t)];
-
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
 		return;
 	}
-
 	/* write the BOM if necessary */
 	if(args->converter->fromUnicodeStatus==UCNV_NEED_TO_WRITE_BOM) {
 		static const char bom[] = { (char)0xffu, (char)0xfeu, 0, 0 };
-		ucnv_fromUWriteBytes(args->converter,
-		    bom, 4,
-		    &args->target, args->targetLimit,
-		    &args->offsets, -1,
-		    err);
+		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-
 	myTarget = (unsigned char *)args->target;
 	temp[3] = 0;
-
 	if(args->converter->fromUChar32) {
 		ch = args->converter->fromUChar32;
 		args->converter->fromUChar32 = 0;
@@ -769,36 +745,26 @@ static void U_CALLCONV T_UConverter_fromUnicode_UTF32_LE_OFFSET_LOGIC(UConverter
 	unsigned int indexToWrite;
 	unsigned char temp[sizeof(uint32_t)];
 	int32_t offsetNum = 0;
-
 	if(mySource >= sourceLimit) {
 		/* no input, nothing to do */
 		return;
 	}
-
 	/* write the BOM if necessary */
 	if(args->converter->fromUnicodeStatus==UCNV_NEED_TO_WRITE_BOM) {
 		static const char bom[] = { (char)0xffu, (char)0xfeu, 0, 0 };
-		ucnv_fromUWriteBytes(args->converter,
-		    bom, 4,
-		    &args->target, args->targetLimit,
-		    &args->offsets, -1,
-		    err);
+		ucnv_fromUWriteBytes(args->converter, bom, 4, &args->target, args->targetLimit, &args->offsets, -1, err);
 		args->converter->fromUnicodeStatus = 0;
 	}
-
 	myTarget = (unsigned char *)args->target;
 	myOffsets = args->offsets;
 	temp[3] = 0;
-
 	if(args->converter->fromUChar32) {
 		ch = args->converter->fromUChar32;
 		args->converter->fromUChar32 = 0;
 		goto lowsurogate;
 	}
-
 	while(mySource < sourceLimit && myTarget < targetLimit) {
 		ch = *(mySource++);
-
 		if(U16_IS_SURROGATE(ch)) {
 			if(U16_IS_LEAD(ch)) {
 lowsurogate:
@@ -981,9 +947,8 @@ static void U_CALLCONV _UTF32Reset(UConverter * cnv, UConverterResetChoice choic
 	}
 }
 
-static void U_CALLCONV _UTF32Open(UConverter * cnv,
-    UConverterLoadArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF32Open(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	(void)pArgs;
 	(void)pErrorCode;
 	_UTF32Reset(cnv, UCNV_RESET_BOTH);
@@ -991,25 +956,20 @@ static void U_CALLCONV _UTF32Open(UConverter * cnv,
 
 static const char utf32BOM[8] = { 0, 0, (char)0xfeu, (char)0xffu, (char)0xffu, (char)0xfeu, 0, 0 };
 
-static void U_CALLCONV _UTF32ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF32ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv = pArgs->converter;
 	const char * source = pArgs->source;
 	const char * sourceLimit = pArgs->sourceLimit;
 	int32_t * offsets = pArgs->offsets;
-
-	int32_t state, offsetDelta;
 	char b;
-
-	state = cnv->mode;
-
+	int32_t state = cnv->mode;
 	/*
 	 * If we detect a BOM in this buffer, then we must add the BOM size to the
 	 * offsets because the actual converter function will not see and count the BOM.
 	 * offsetDelta will have the number of the BOM bytes that are in the current buffer.
 	 */
-	offsetDelta = 0;
-
+	int32_t offsetDelta = 0;
 	while(source<sourceLimit && U_SUCCESS(*pErrorCode)) {
 		switch(state) {
 			case 0:
@@ -1048,10 +1008,8 @@ static void U_CALLCONV _UTF32ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 				    /* switch to UTF-32BE and pass the previous bytes */
 				    int32_t count = (int32_t)(source-pArgs->source); /* number of bytes from this buffer
 				  */
-
 				    /* reset the source */
 				    source = pArgs->source;
-
 				    if(count==(state&3)) {
 					    /* simple: all in the same buffer, just reset source */
 				    }

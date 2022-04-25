@@ -200,7 +200,8 @@ static void U_CALLCONV _SCSUOpen(UConverter * cnv,
 	cnv->subCharLen = -1;
 }
 
-static void U_CALLCONV _SCSUClose(UConverter * cnv) {
+static void U_CALLCONV _SCSUClose(UConverter * cnv) 
+{
 	if(cnv->extraInfo!=NULL) {
 		if(!cnv->isExtraLocal) {
 			uprv_free(cnv->extraInfo);
@@ -211,9 +212,8 @@ static void U_CALLCONV _SCSUClose(UConverter * cnv) {
 
 /* SCSU-to-Unicode conversion functions ------------------------------------- */
 
-static void U_CALLCONV _SCSUToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
+static void U_CALLCONV _SCSUToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	SCSUData * scsu;
 	const uint8 * source, * sourceLimit;
 	UChar * target;
@@ -222,15 +222,11 @@ static void U_CALLCONV _SCSUToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs
 	bool isSingleByteMode;
 	uint8 state, byteOne;
 	int8 quoteWindow, dynamicWindow;
-
 	int32_t sourceIndex, nextSourceIndex;
-
 	uint8 b;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
+	UConverter * cnv = pArgs->converter;
 	scsu = (SCSUData*)cnv->extraInfo;
-
 	source = (const uint8 *)pArgs->source;
 	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
@@ -574,7 +570,6 @@ endloop:
 	scsu->toUQuoteWindow = quoteWindow;
 	scsu->toUDynamicWindow = dynamicWindow;
 	scsu->toUByteOne = byteOne;
-
 	/* write back the updated pointers */
 	pArgs->source = (const char *)source;
 	pArgs->target = target;
@@ -589,9 +584,8 @@ endloop:
  * re-copy the original function and remove the variables
  * offsets, sourceIndex, and nextSourceIndex.
  */
-static void U_CALLCONV _SCSUToUnicode(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
+static void U_CALLCONV _SCSUToUnicode(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	SCSUData * scsu;
 	const uint8 * source, * sourceLimit;
 	UChar * target;
@@ -599,13 +593,10 @@ static void U_CALLCONV _SCSUToUnicode(UConverterToUnicodeArgs * pArgs,
 	bool isSingleByteMode;
 	uint8 state, byteOne;
 	int8 quoteWindow, dynamicWindow;
-
 	uint8 b;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
+	UConverter * cnv = pArgs->converter;
 	scsu = (SCSUData*)cnv->extraInfo;
-
 	source = (const uint8 *)pArgs->source;
 	sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
@@ -1039,61 +1030,45 @@ U_CDECL_BEGIN
  * How to achieve both?
  *  - Only replace the result after an SDX or SCU?
  */
-
-static void U_CALLCONV _SCSUFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	SCSUData * scsu;
-	const UChar * source, * sourceLimit;
+static void U_CALLCONV _SCSUFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
-
 	bool isSingleByteMode;
 	uint8 dynamicWindow;
 	uint32_t currentOffset;
-
 	uint32_t c, delta;
-
 	int32_t sourceIndex, nextSourceIndex;
-
 	int32_t length;
-
 	/* variables for compression heuristics */
 	uint32_t offset;
 	UChar lead, trail;
 	int code;
 	int8 window;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	scsu = (SCSUData*)cnv->extraInfo;
-
+	UConverter * cnv = pArgs->converter;
+	SCSUData * scsu = (SCSUData*)cnv->extraInfo;
 	/* set up the local pointers */
-	source = pArgs->source;
-	sourceLimit = pArgs->sourceLimit;
+	const UChar * source = pArgs->source;
+	const UChar * sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
 	offsets = pArgs->offsets;
-
 	/* get the state machine state */
 	isSingleByteMode = scsu->fromUIsSingleByteMode;
 	dynamicWindow = scsu->fromUDynamicWindow;
 	currentOffset = scsu->fromUDynamicOffsets[dynamicWindow];
-
 	c = cnv->fromUChar32;
-
 	/* sourceIndex=-1 if the current character began in the previous buffer */
 	sourceIndex = c==0 ? 0 : -1;
 	nextSourceIndex = 0;
-
 	/* similar conversion "loop" as in toUnicode */
 loop:
 	if(isSingleByteMode) {
 		if(c!=0 && targetCapacity>0) {
 			goto getTrailSingle;
 		}
-
 		/* state machine for single-byte mode */
 /* singleByteMode: */
 		while(source<sourceLimit) {
@@ -1104,7 +1079,6 @@ loop:
 			}
 			c = *source++;
 			++nextSourceIndex;
-
 			if((c-0x20)<=0x5f) {
 				/* pass US-ASCII graphic character through */
 				*target++ = (uint8)c;
@@ -1114,8 +1088,7 @@ loop:
 				--targetCapacity;
 			}
 			else if(c<0x20) {
-				if((1UL<<c)&0x2601 /* binary 0010 0110 0000 0001, check for b==0xd || b==0xa || b==9 ||
-				                      b==0 */                                                                  ) {
+				if((1UL<<c)&0x2601 /* binary 0010 0110 0000 0001, check for b==0xd || b==0xa || b==9 || b==0 */) {
 					/* CR/LF/TAB/NUL */
 					*target++ = (uint8)c;
 					if(offsets) {
@@ -1584,52 +1557,39 @@ outputBytes:
  * re-copy the original function and remove the variables
  * offsets, sourceIndex, and nextSourceIndex.
  */
-static void U_CALLCONV _SCSUFromUnicode(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	SCSUData * scsu;
-	const UChar * source, * sourceLimit;
+static void U_CALLCONV _SCSUFromUnicode(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	uint8 * target;
 	int32_t targetCapacity;
-
 	bool isSingleByteMode;
 	uint8 dynamicWindow;
 	uint32_t currentOffset;
-
 	uint32_t c, delta;
-
 	int32_t length;
-
 	/* variables for compression heuristics */
 	uint32_t offset;
 	UChar lead, trail;
 	int code;
 	int8 window;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	scsu = (SCSUData*)cnv->extraInfo;
-
+	UConverter * cnv = pArgs->converter;
+	SCSUData * scsu = (SCSUData*)cnv->extraInfo;
 	/* set up the local pointers */
-	source = pArgs->source;
-	sourceLimit = pArgs->sourceLimit;
+	const UChar * source = pArgs->source;
+	const UChar * sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
-
 	/* get the state machine state */
 	isSingleByteMode = scsu->fromUIsSingleByteMode;
 	dynamicWindow = scsu->fromUDynamicWindow;
 	currentOffset = scsu->fromUDynamicOffsets[dynamicWindow];
-
 	c = cnv->fromUChar32;
-
 	/* similar conversion "loop" as in toUnicode */
 loop:
 	if(isSingleByteMode) {
 		if(c!=0 && targetCapacity>0) {
 			goto getTrailSingle;
 		}
-
 		/* state machine for single-byte mode */
 /* singleByteMode: */
 		while(source<sourceLimit) {

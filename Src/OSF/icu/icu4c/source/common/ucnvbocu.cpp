@@ -370,18 +370,15 @@ static int32_t packDiff(int32_t diff) {
 
 static void U_CALLCONV _Bocu1FromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
 {
-	UConverter * cnv;
-	const UChar * source, * sourceLimit;
+	const UChar * sourceLimit;
 	uint8 * target;
 	int32_t targetCapacity;
 	int32_t * offsets;
 	int32_t prev, c, diff;
-
 	int32_t sourceIndex, nextSourceIndex;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	source = pArgs->source;
+	UConverter * cnv = pArgs->converter;
+	const UChar * source = pArgs->source;
 	sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
@@ -636,22 +633,17 @@ getTrail:
  * re-copy the original function and remove the variables
  * offsets, sourceIndex, and nextSourceIndex.
  */
-static void U_CALLCONV _Bocu1FromUnicode(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const UChar * source, * sourceLimit;
+static void U_CALLCONV _Bocu1FromUnicode(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	uint8 * target;
 	int32_t targetCapacity;
-
 	int32_t prev, c, diff;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	source = pArgs->source;
-	sourceLimit = pArgs->sourceLimit;
+	UConverter * cnv = pArgs->converter;
+	const UChar * source = pArgs->source;
+	const UChar * sourceLimit = pArgs->sourceLimit;
 	target = (uint8 *)pArgs->target;
 	targetCapacity = (int32_t)(pArgs->targetLimit-pArgs->target);
-
 	/* get the converter state from UConverter */
 	c = cnv->fromUChar32;
 	prev = (int32_t)cnv->fromUnicodeStatus;
@@ -941,7 +933,6 @@ static inline int32_t decodeBocu1TrailByte(int32_t count, int32_t b) {
 	else {
 		b -= BOCU1_TRAIL_BYTE_OFFSET;
 	}
-
 	/* add trail byte into difference and decrement count */
 	if(count==1) {
 		return b;
@@ -954,29 +945,22 @@ static inline int32_t decodeBocu1TrailByte(int32_t count, int32_t b) {
 	}
 }
 
-static void U_CALLCONV _Bocu1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const uint8 * source, * sourceLimit;
+static void U_CALLCONV _Bocu1ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UChar * target;
 	const UChar * targetLimit;
 	int32_t * offsets;
-
 	int32_t prev, count, diff, c;
-
 	int8 byteIndex;
 	uint8 * bytes;
-
 	int32_t sourceIndex, nextSourceIndex;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	source = (const uint8 *)pArgs->source;
-	sourceLimit = (const uint8 *)pArgs->sourceLimit;
+	UConverter * cnv = pArgs->converter;
+	const uint8 * source = (const uint8 *)pArgs->source;
+	const uint8 * sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
 	offsets = pArgs->offsets;
-
 	/* get the converter state from UConverter */
 	prev = (int32_t)cnv->toUnicodeStatus;
 	if(prev==0) {
@@ -1187,25 +1171,19 @@ endloop:
  * re-copy the original function and remove the variables
  * offsets, sourceIndex, and nextSourceIndex.
  */
-static void U_CALLCONV _Bocu1ToUnicode(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
-	UConverter * cnv;
-	const uint8 * source, * sourceLimit;
+static void U_CALLCONV _Bocu1ToUnicode(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UChar * target;
 	const UChar * targetLimit;
-
 	int32_t prev, count, diff, c;
-
 	int8 byteIndex;
 	uint8 * bytes;
-
 	/* set up the local pointers */
-	cnv = pArgs->converter;
-	source = (const uint8 *)pArgs->source;
-	sourceLimit = (const uint8 *)pArgs->sourceLimit;
+	UConverter * cnv = pArgs->converter;
+	const uint8 * source = (const uint8 *)pArgs->source;
+	const uint8 * sourceLimit = (const uint8 *)pArgs->sourceLimit;
 	target = pArgs->target;
 	targetLimit = pArgs->targetLimit;
-
 	/* get the converter state from UConverter */
 	prev = (int32_t)cnv->toUnicodeStatus;
 	if(prev==0) {

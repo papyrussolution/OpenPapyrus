@@ -104,7 +104,7 @@ inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacit
 		else {
 			/* string */
 			if((destIndex+length)<=destCapacity) {
-				while(length>0) {
+				while(length > 0) {
 					dest[destIndex++] = *s++;
 					--length;
 				}

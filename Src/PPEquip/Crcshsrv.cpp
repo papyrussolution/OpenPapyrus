@@ -1269,21 +1269,32 @@ int ACS_CRCSHSRV::ExportDataV10(int updOnly)
 									p_writer->AddAttrib("deleted", false);
 									p_writer->AddAttrib("guid", info.Rec.PersonID);
 									p_writer->AddAttrib("last-name", info.PsnName);
+									bool is_thereis_email = false;
+									bool is_thereis_phone = false;
 									if(checkdate(info.PsnDOB)) {
 										temp_buf.Z().Cat(info.PsnDOB, DATF_ISO8601|DATF_CENTURY);
 										p_writer->AddAttrib("birth-date", temp_buf);
 									}
 									if(info.Email.NotEmpty()) {
 										p_writer->AddAttrib("email", info.Email);
+										is_thereis_email = true;
 									}
 									if(info.Phone.NotEmpty()) {
 										p_writer->AddAttrib("mobile-phone", info.Phone); // @v11.3.7 phone-->mobile-phone
+										is_thereis_phone = true;
 									}
 									else if(info.PsnPhone.NotEmpty()) {
 										p_writer->AddAttrib("mobile-phone", info.PsnPhone); // @v11.3.7 phone-->mobile-phone
+										is_thereis_phone = true;
 									}
 									p_writer->AddAttrib("send-by-sms", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
 									p_writer->AddAttrib("send-by-email", (info.Flags & AsyncCashSCardInfo::fDisableSendPaperlassCCheck) ? false : true);
+									// @v11.3.9 {
+									if(is_thereis_email)
+										p_writer->AddAttrib("receipt-feedback", "BY_EMAIL");
+									else if(is_thereis_phone)
+										p_writer->AddAttrib("receipt-feedback", "BY_PHONE");
+									// } @v11.3.9 
 								}
 								p_writer->EndElement();
 							}

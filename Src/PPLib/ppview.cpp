@@ -1508,7 +1508,7 @@ static int PublishNfViewToMqb(const PPNamedFilt * pNf, const char * pFileName)
 	{
 		PPNamedFiltMngr mgr;
 		PPNamedFiltPool pool(0, 1);
-		THROW(mgr.LoadPool2(db_symb, &pool, 1));
+		THROW(mgr.LoadPool2(db_symb, &pool, true));
 		const PPNamedFilt * p_nf = pool.GetBySymb(filt_symb, 0);
 		THROW(p_nf);
 		THROW(ExecuteNF(p_nf, pDl600Name, rResultFileName));
@@ -1560,7 +1560,7 @@ int PPView::ExecNfViewParam::Read(SBuffer & rBuf, long)
 		PPNamedFilt nf;
 		PPID   nf_id = 0, sel_nf_id = 0;
 		StrAssocArray nf_list;
-		THROW(nf_mngr.LoadPool2(db_symb, &nf_pool, 0)); //@erik v10.7.5 LoadPool-->LoadPool2
+		THROW(nf_mngr.LoadPool2(db_symb, &nf_pool, false)); //@erik v10.7.5 LoadPool-->LoadPool2
 		for(nf_id = 0; nf_pool.Enum(&nf_id, &nf) > 0;) {
 			if(rData.NfSymb.NotEmpty() && rData.NfSymb.CmpNC(nf.Symb) == 0)
 				sel_nf_id = nf.ID;

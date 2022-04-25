@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -1228,6 +1229,7 @@ public class SLib {
 	// и подлежит актуализации при изменении оригинала).
 	// Текстовые строки, соответствующие событиям содержатся в группе [PPSTR_ACTION=112]
 	// со значениями, равными приведенным ниже символам.
+	// Символы и значения констант синхронизированы с проектом Papyrus (see ppdefs.h)
 	//
 	public static final int PPACN_LOGIN                  = 1;
 	public static final int PPACN_LOGOUT                 = 2;
@@ -1339,10 +1341,17 @@ public class SLib {
 	public static final int PPACN_BILLUNLINK            = 89; // @v10.8.3 Удалена привязка документа к другому документу. Дополнительный параметр - ид документа, к которому была привязка
 	public static final int PPACN_EVENTDETECTION        = 90; // @v10.8.10 Попытка обнаружения события (PPObjEvent). Следующая попытка будет опираться на время этой записи.
 	public static final int PPACN_RECENTVERSIONLAUNCHED = 91; // @v11.2.10 Событие, иниициируемое при запуске сеанса, версия которого превышает последнее значение, зафиксированное
-	// таким же событием. Используетс в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
-	// там другие механизмы.
+		// таким же событием. Используетс в Stylo-Q и, возможно, в иных однопользовательских приложениях. В Papyrus'е не применяется из-за того, что он многопользовательский -
+		// там другие механизмы.
+	public static final int PPACN_STYLOQSVCSELFREG       = 92; // @v11.2.12 Сервис Stylo-Q отправил собственные регистрационные данные медиатору. Доп параметр - ид медиатора.
+			// Событие используется для правильной идентификации необходимости повторной саморегистрации после изменения собственных данных.
+	public static final int PPACN_SCARDOWNERSET          = 93; // @v11.3.1 Установлен владелец персональной карты. Доп параметр - ID предыдущего владельца.
+	public static final int PPACN_STYLOQSVCIDXQUERY      = 94; // @v11.3.4 Сервис Stylo-Q отправил медиатору данные для индексации. Доп параметр - ид медиатора.
+		// Событие используется для правильной идентификации необходимости повторной посылки данных.
+	public static final int PPACN_STYLOQFACETRANSMITTED  = 95; // @v11.3.9 Клиент Stylo-Q передал сервису свой лик. Объект: oid сервиса {PPOBJ_STYLOQBINDERY; id},
+	// доп параметр - ид лика. Событие используется для правильной идентификации необходимости повторной посылки данных.
 	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	public static final int PPACN_LAST                  = 91; // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	public static final int PPACN_LAST                   = 95; // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 	
 	public static class ListViewEvent {
 		int    ItemIdx;
@@ -2917,6 +2926,24 @@ public class SLib {
 			case 2:
 			default: return (ord == 2) ? timeconstDayOfMonth : timeconstYear;
 		}
+	}
+	public static double strtodouble(final String buf)
+	{
+		double result = 0.0;
+		if(GetLen(buf) > 0) {
+			buf.replace(',', '.');
+			try {
+				result = Double.parseDouble(buf);
+			} catch(NumberFormatException exn) {
+				result = 0.0;
+			}
+		}
+		return result;
+	}
+	public static String formatdouble(double v, int decimals)
+	{
+		String fmt = "%." + Integer.toString(decimals) + "f";
+		return String.format(Locale.US, fmt, v);
 	}
 	public static LDATE strtodate(String buf, int style)
 	{
@@ -4667,13 +4694,19 @@ public class SLib {
 							{ @Override public void onClick(View v) { HandleEvent(EV_COMMAND, v, null); }});
 					}
 				}
+				else if(v instanceof ImageView) {
+					if(v.getId() != 0) {
+						ImageView btn = (ImageView)v;
+						btn.setOnClickListener(new View.OnClickListener()
+							{ @Override public void onClick(View v) { HandleEvent(EV_COMMAND, v, null); }});
+					}
+				}
 				else if(v instanceof ViewGroup) {
 					this.SetupButtonHandlerLoop((ViewGroup)v); // @recursion
 				}
 			}
 		}
-		@Override
-		public void onCreate(Bundle savedInstanceState)
+		@Override public void onCreate(Bundle savedInstanceState)
 		{
 			super.onCreate(savedInstanceState);
 			HandleEvent(EV_CREATE, this, savedInstanceState);

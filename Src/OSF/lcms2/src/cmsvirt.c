@@ -18,28 +18,20 @@
 // Virtual (built-in) profiles
 // -----------------------------------------------------------------------------------
 
-static
-boolint SetTextTags(cmsHPROFILE hProfile, const wchar_t * Description)
+static boolint SetTextTags(cmsHPROFILE hProfile, const wchar_t * Description)
 {
 	cmsMLU * DescriptionMLU, * CopyrightMLU;
 	boolint rc = FALSE;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
-
 	DescriptionMLU  = cmsMLUalloc(ContextID, 1);
 	CopyrightMLU    = cmsMLUalloc(ContextID, 1);
-
 	if(DescriptionMLU == NULL || CopyrightMLU == NULL) goto Error;
-
 	if(!cmsMLUsetWide(DescriptionMLU,  "en", "US", Description)) goto Error;
 	if(!cmsMLUsetWide(CopyrightMLU,    "en", "US", L"No copyright, use freely")) goto Error;
-
 	if(!cmsWriteTag(hProfile, cmsSigProfileDescriptionTag,  DescriptionMLU)) goto Error;
 	if(!cmsWriteTag(hProfile, cmsSigCopyrightTag,           CopyrightMLU)) goto Error;
-
 	rc = TRUE;
-
 Error:
-
 	if(DescriptionMLU)
 		cmsMLUfree(DescriptionMLU);
 	if(CopyrightMLU)
@@ -47,30 +39,23 @@ Error:
 	return rc;
 }
 
-static
-boolint SetSeqDescTag(cmsHPROFILE hProfile, const char * Model)
+static boolint SetSeqDescTag(cmsHPROFILE hProfile, const char * Model)
 {
 	boolint rc = FALSE;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsSEQ* Seq = cmsAllocProfileSequenceDescription(ContextID, 1);
-
 	if(Seq == NULL) return FALSE;
-
 	Seq->seq[0].deviceMfg = (cmsSignature)0;
 	Seq->seq[0].deviceModel = (cmsSignature)0;
-
 #ifdef CMS_DONT_USE_INT64
 	Seq->seq[0].attributes[0] = 0;
 	Seq->seq[0].attributes[1] = 0;
 #else
 	Seq->seq[0].attributes = 0;
 #endif
-
 	Seq->seq[0].technology = (cmsTechnologySignature)0;
-
 	cmsMLUsetASCII(Seq->seq[0].Manufacturer, cmsNoLanguage, cmsNoCountry, "Little CMS");
 	cmsMLUsetASCII(Seq->seq[0].Model,        cmsNoLanguage, cmsNoCountry, Model);
-
 	if(!_cmsWriteProfileSequence(hProfile, Seq)) goto Error;
 
 	rc = TRUE;
@@ -556,17 +541,14 @@ cmsHPROFILE CMSEXPORT cmsCreateXYZProfile(void)
 //    G = ((G'sRGB + 0.055) / 1.055)^2.4
 //    B = ((B'sRGB + 0.055) / 1.055)^2.4
 
-static
-cmsToneCurve * Build_sRGBGamma(cmsContext ContextID)
+static cmsToneCurve * Build_sRGBGamma(cmsContext ContextID)
 {
 	double Parameters[5];
-
 	Parameters[0] = 2.4;
 	Parameters[1] = 1. / 1.055;
 	Parameters[2] = 0.055 / 1.055;
 	Parameters[3] = 1. / 12.92;
 	Parameters[4] = 0.04045;
-
 	return cmsBuildParametricToneCurve(ContextID, 4, Parameters);
 }
 
@@ -612,26 +594,19 @@ typedef struct {
 	cmsCIEXYZ WPsrc, WPdest;
 } BCHSWADJUSTS, * LPBCHSWADJUSTS;
 
-static
-int bchswSampler(const uint16 In[], uint16 Out[], void * Cargo)
+static int bchswSampler(const uint16 In[], uint16 Out[], void * Cargo)
 {
 	cmsCIELab LabIn, LabOut;
 	cmsCIELCh LChIn, LChOut;
 	cmsCIEXYZ XYZ;
 	LPBCHSWADJUSTS bchsw = (LPBCHSWADJUSTS)Cargo;
-
 	cmsLabEncoded2Float(&LabIn, In);
-
 	cmsLab2LCh(&LChIn, &LabIn);
-
 	// Do some adjusts on LCh
-
 	LChOut.L = LChIn.L * bchsw->Contrast + bchsw->Brightness;
 	LChOut.C = LChIn.C + bchsw->Saturation;
 	LChOut.h = LChIn.h + bchsw->Hue;
-
 	cmsLCh2Lab(&LabOut, &LChOut);
-
 	// Move white point in Lab
 	if(bchsw->lAdjustWP) {
 		cmsLab2XYZ(&bchsw->WPsrc, &XYZ, &LabOut);
@@ -792,18 +767,12 @@ cmsHPROFILE CMSEXPORT cmsCreateNULLProfile(void)
 	return cmsCreateNULLProfileTHR(NULL);
 }
 
-static
-int IsPCS(cmsColorSpaceSignature ColorSpace)
+static int IsPCS(cmsColorSpaceSignature ColorSpace)
 {
-	return (ColorSpace == cmsSigXYZData ||
-	       ColorSpace == cmsSigLabData);
+	return (ColorSpace == cmsSigXYZData || ColorSpace == cmsSigLabData);
 }
 
-static
-void FixColorSpaces(cmsHPROFILE hProfile,
-    cmsColorSpaceSignature ColorSpace,
-    cmsColorSpaceSignature PCS,
-    uint32 dwFlags)
+static void FixColorSpaces(cmsHPROFILE hProfile, cmsColorSpaceSignature ColorSpace, cmsColorSpaceSignature PCS, uint32 dwFlags)
 {
 	if(dwFlags & cmsFLAGS_GUESSDEVICECLASS) {
 		if(IsPCS(ColorSpace) && IsPCS(PCS)) {
@@ -837,18 +806,15 @@ void FixColorSpaces(cmsHPROFILE hProfile,
 // In this way, LittleCMS may be used to "group" several named color databases into a single profile.
 // It has, however, several minor limitations. PCS is always Lab, which is not very critic since this
 // is the normal PCS for named color profiles.
-static
-cmsHPROFILE CreateNamedColorDevicelink(cmsHTRANSFORM xform)
+static cmsHPROFILE CreateNamedColorDevicelink(cmsHTRANSFORM xform)
 {
 	_cmsTRANSFORM* v = (_cmsTRANSFORM*)xform;
 	cmsHPROFILE hICC = NULL;
 	uint32 i, nColors;
 	cmsNAMEDCOLORLIST * nc2 = NULL, * Original = NULL;
-
 	// Create an empty placeholder
 	hICC = cmsCreateProfilePlaceholder(v->ContextID);
 	if(hICC == NULL) return NULL;
-
 	// Critical information
 	cmsSetDeviceClass(hICC, cmsSigNamedColorClass);
 	cmsSetColorSpace(hICC, v->ExitColorSpace);
@@ -919,28 +885,22 @@ static const cmsAllowedLUT AllowedLUTTypes[] = {
 #define SIZE_OF_ALLOWED_LUT (sizeof(AllowedLUTTypes)/sizeof(cmsAllowedLUT))
 
 // Check a single entry
-static
-boolint CheckOne(const cmsAllowedLUT* Tab, const cmsPipeline * Lut)
+static boolint CheckOne(const cmsAllowedLUT* Tab, const cmsPipeline * Lut)
 {
 	cmsStage * mpe;
 	int n;
-
 	for(n = 0, mpe = Lut->Elements; mpe != NULL; mpe = mpe->Next, n++) {
 		if(n > Tab->nTypes) return FALSE;
 		if(cmsStageType(mpe) != Tab->MpeTypes[n]) return FALSE;
 	}
-
 	return (n == Tab->nTypes);
 }
 
-static
-const cmsAllowedLUT* FindCombination(const cmsPipeline * Lut, boolint IsV4, cmsTagSignature DestinationTag)
+static const cmsAllowedLUT* FindCombination(const cmsPipeline * Lut, boolint IsV4, cmsTagSignature DestinationTag)
 {
 	uint32 n;
-
 	for(n = 0; n < SIZE_OF_ALLOWED_LUT; n++) {
 		const cmsAllowedLUT* Tab = AllowedLUTTypes + n;
-
 		if(IsV4 ^ Tab->IsV4) continue;
 		if((Tab->RequiredTag != 0) && (Tab->RequiredTag != DestinationTag)) continue;
 

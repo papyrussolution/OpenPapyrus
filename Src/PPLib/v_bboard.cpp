@@ -35,7 +35,6 @@ int PPViewServerStat::EditBaseFilt(PPBaseFilt * pFilt)
 	ServerStatFilt filt;
 	PPIniFile ini_file(0, 0, 0, 1);
 	PPInputStringDialogParam isd_param;
-
 	THROW(ini_file.IsValid());
 	PPLoadText(PPTXT_JOBSERVERADDRPORT, isd_param.Title);
 	isd_param.InputTitle = isd_param.Title;

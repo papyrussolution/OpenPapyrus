@@ -9,6 +9,9 @@
         android:id="@+id/LVITEM_GENERICNAME"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
+        android:layout_marginLeft="2dp"
+        android:textSize="12sp"
+        android:textFontWeight="500"
         android:textColor="@color/PrimaryText"
         />
     <LinearLayout
@@ -22,6 +25,8 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:minWidth="40dp"
+            android:textSize="12sp"
+            android:textFontWeight="600"
             android:layout_marginRight="8dp"
             android:textAlignment="viewEnd"
             android:textColor="@color/PrimaryText"
@@ -31,6 +36,19 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:minWidth="40dp"
+            android:textSize="12sp"
+            android:textFontWeight="600"
+            android:layout_marginRight="8dp"
+            android:textAlignment="viewEnd"
+            android:textColor="@color/PrimaryText"
+            />
+        <TextView
+            android:id="@+id/ORDERPREREQ_TI_AMOUNT"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:minWidth="40dp"
+            android:textSize="14sp"
+            android:textFontWeight="600"
             android:layout_marginRight="8dp"
             android:textAlignment="viewEnd"
             android:textColor="@color/Accent"

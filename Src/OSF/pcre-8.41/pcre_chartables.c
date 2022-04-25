@@ -1,7 +1,6 @@
-/*************************************************
-*      Perl-Compatible Regular Expressions       *
-*************************************************/
-
+//
+// Perl-Compatible Regular Expressions
+//
 /* This file contains character tables that are used when no external tables
    are passed to PCRE by the application that calls it. The tables are used only
    for characters whose code values are less than 256.

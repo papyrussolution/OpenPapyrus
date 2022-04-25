@@ -5389,7 +5389,7 @@ IMPL_HANDLE_EVENT(SelCheckListDialog)
 			State |= stInputUpdated;
 			if(event.isCtlEvent(CTL_SELCHECK_DATE)) {
 				if(State & stTblOrders) {
-					LDATE  dt = getCtrlDate(CTL_SELCHECK_DATE);
+					const LDATE  dt = getCtrlDate(CTL_SELCHECK_DATE);
 					if(dt != LastDate && checkdate(dt, 1)) {
 						LastDate = dt;
 						State |= stListUpdated;

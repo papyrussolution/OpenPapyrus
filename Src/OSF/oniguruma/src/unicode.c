@@ -841,10 +841,10 @@ typedef struct {
 
 #include "unicode_egcb_data.c"
 
-static enum EGCB_TYPE egcb_get_type(OnigCodePoint code)                      {
+static enum EGCB_TYPE egcb_get_type(OnigCodePoint code)                      
+{
 	OnigCodePoint low, high, x;
 	enum EGCB_TYPE type;
-
 	for(low = 0, high = (OnigCodePoint)EGCB_RANGE_NUM; low < high;) {
 		x = (low + high) >> 1;
 		if(code > EGCB_RANGES[x].end)
@@ -852,11 +852,7 @@ static enum EGCB_TYPE egcb_get_type(OnigCodePoint code)                      {
 		else
 			high = x;
 	}
-
-	type = (low < (OnigCodePoint)EGCB_RANGE_NUM &&
-	    code >= EGCB_RANGES[low].start) ?
-	    EGCB_RANGES[low].type : EGCB_Other;
-
+	type = (low < (OnigCodePoint)EGCB_RANGE_NUM && code >= EGCB_RANGES[low].start) ? EGCB_RANGES[low].type : EGCB_Other;
 	return type;
 }
 
@@ -864,16 +860,12 @@ static enum EGCB_TYPE egcb_get_type(OnigCodePoint code)                      {
 #define IS_HANGUL(code)          ((code) >= EGCB_L)
 
 /* GB1 and GB2 are outside of this function. */
-static enum EGCB_BREAK_TYPE unicode_egcb_is_break_2code(OnigCodePoint from_code, OnigCodePoint to_code)                            {
-	enum EGCB_TYPE from;
-	enum EGCB_TYPE to;
-
-	from = egcb_get_type(from_code);
-	to   = egcb_get_type(to_code);
-
+static enum EGCB_BREAK_TYPE unicode_egcb_is_break_2code(OnigCodePoint from_code, OnigCodePoint to_code)
+{
+	enum EGCB_TYPE from = egcb_get_type(from_code);
+	enum EGCB_TYPE to   = egcb_get_type(to_code);
 	/* short cut */
 	if(from == 0 && to == 0) goto GB999;
-
 	/* GB3 */
 	if(from == EGCB_CR && to == EGCB_LF) return EGCB_NOT_BREAK;
 	/* GB4 */
@@ -885,39 +877,32 @@ static enum EGCB_BREAK_TYPE unicode_egcb_is_break_2code(OnigCodePoint from_code,
 		/* GB6 */
 		if(from == EGCB_L && to != EGCB_T) return EGCB_NOT_BREAK;
 		/* GB7 */
-		if((from == EGCB_LV || from == EGCB_V)
-		 && (to == EGCB_V || to == EGCB_T)) return EGCB_NOT_BREAK;
-
+		if((from == EGCB_LV || from == EGCB_V) && (to == EGCB_V || to == EGCB_T)) return EGCB_NOT_BREAK;
 		/* GB8 */
 		if((to == EGCB_T) && (from == EGCB_LVT || from == EGCB_T))
 			return EGCB_NOT_BREAK;
-
 		goto GB999;
 	}
-
 	/* GB9 */
-	if(to == EGCB_Extend || to == EGCB_ZWJ) return EGCB_NOT_BREAK;
-
+	if(to == EGCB_Extend || to == EGCB_ZWJ) 
+			return EGCB_NOT_BREAK;
 	/* GB9a */
-	if(to == EGCB_SpacingMark) return EGCB_NOT_BREAK;
+	if(to == EGCB_SpacingMark) 
+			return EGCB_NOT_BREAK;
 	/* GB9b */
-	if(from == EGCB_Prepend) return EGCB_NOT_BREAK;
-
+	if(from == EGCB_Prepend) 
+			return EGCB_NOT_BREAK;
 	/* GB10 removed */
-
 	/* GB11 */
 	if(from == EGCB_ZWJ) {
 		if(onigenc_unicode_is_code_ctype(to_code, PROP_INDEX_EXTENDEDPICTOGRAPHIC))
 			return EGCB_BREAK_UNDEF_GB11;
-
 		goto GB999;
 	}
-
 	/* GB12, GB13 */
 	if(from == EGCB_Regional_Indicator && to == EGCB_Regional_Indicator) {
 		return EGCB_BREAK_UNDEF_RI_RI;
 	}
-
 GB999:
 	return EGCB_BREAK;
 }

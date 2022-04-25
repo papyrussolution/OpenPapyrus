@@ -426,30 +426,26 @@ extern const UConverterSharedData _ISO2022CNData;
 /*************** Converter implementations ******************/
 
 /* The purpose of this function is to get around gcc compiler warnings. */
-static inline void fromUWriteUInt8(UConverter * cnv,
-    const char * bytes, int32_t length,
-    uint8 ** target, const char * targetLimit,
-    int32_t ** offsets,
-    int32_t sourceIndex,
-    UErrorCode * pErrorCode)
+static inline void fromUWriteUInt8(UConverter * cnv, const char * bytes, int32_t length, uint8 ** target, const char * targetLimit,
+    int32_t ** offsets, int32_t sourceIndex, UErrorCode * pErrorCode)
 {
 	char * targetChars = (char *)*target;
-	ucnv_fromUWriteBytes(cnv, bytes, length, &targetChars, targetLimit,
-	    offsets, sourceIndex, pErrorCode);
+	ucnv_fromUWriteBytes(cnv, bytes, length, &targetChars, targetLimit, offsets, sourceIndex, pErrorCode);
 	*target = (uint8 *)targetChars;
 }
 
-static inline void setInitialStateToUnicodeKR(UConverter * /*converter*/, UConverterDataISO2022 * myConverterData) {
+static inline void setInitialStateToUnicodeKR(UConverter * /*converter*/, UConverterDataISO2022 * myConverterData) 
+{
 	if(myConverterData->version == 1) {
 		UConverter * cnv = myConverterData->currentConverter;
-
 		cnv->toUnicodeStatus = 0; /* offset */
 		cnv->mode = 0; /* state */
 		cnv->toULength = 0; /* byteIndex */
 	}
 }
 
-static inline void setInitialStateFromUnicodeKR(UConverter * converter, UConverterDataISO2022 * myConverterData) {
+static inline void setInitialStateFromUnicodeKR(UConverter * converter, UConverterDataISO2022 * myConverterData) 
+{
 	/* in ISO-2022-KR the designator sequence appears only once
 	 * in a file so we append it only once
 	 */
@@ -462,15 +458,14 @@ static inline void setInitialStateFromUnicodeKR(UConverter * converter, UConvert
 	}
 	if(myConverterData->version == 1) {
 		UConverter * cnv = myConverterData->currentConverter;
-
 		cnv->fromUChar32 = 0;
 		cnv->fromUnicodeStatus = 1; /* prevLength */
 	}
 }
 
-static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * errorCode) {
+static void U_CALLCONV _ISO2022Open(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * errorCode) 
+{
 	char myLocale[7] = {' ', ' ', ' ', ' ', ' ', ' ', '\0'};
-
 	cnv->extraInfo = uprv_malloc(sizeof(UConverterDataISO2022));
 	if(cnv->extraInfo != NULL) {
 		UConverterNamePieces stackPieces;

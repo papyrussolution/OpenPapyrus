@@ -1,29 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*====================================================================*/
-
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file coloring.c
  * <pre>
@@ -770,27 +752,20 @@ PIX * pixLinearMapToTargetColor(PIX * pixd,
  *          will be invariant.
  * </pre>
  */
-l_ok pixelLinearMapToTargetColor(l_uint32 scolor,
-    l_uint32 srcmap,
-    l_uint32 dstmap,
-    l_uint32 * pdcolor)
+l_ok pixelLinearMapToTargetColor(l_uint32 scolor, l_uint32 srcmap, l_uint32 dstmap, l_uint32 * pdcolor)
 {
 	l_int32 srval, sgval, sbval, drval, dgval, dbval;
 	l_int32 srmap, sgmap, sbmap, drmap, dgmap, dbmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pdcolor)
 		return ERROR_INT("&dcolor not defined", procName, 1);
 	*pdcolor = 0;
-
 	extractRGBValues(scolor, &srval, &sgval, &sbval);
 	extractRGBValues(srcmap, &srmap, &sgmap, &sbmap);
 	extractRGBValues(dstmap, &drmap, &dgmap, &dbmap);
 	srmap = MIN(254, MAX(1, srmap));
 	sgmap = MIN(254, MAX(1, sgmap));
 	sbmap = MIN(254, MAX(1, sbmap));
-
 	if(srval <= srmap)
 		drval = (srval * drmap) / srmap;
 	else
@@ -803,7 +778,6 @@ l_ok pixelLinearMapToTargetColor(l_uint32 scolor,
 		dbval = (sbval * dbmap) / sbmap;
 	else
 		dbval = dbmap + ((255 - dbmap) * (sbval - sbmap)) / (255 - sbmap);
-
 	composeRGBPixel(drval, dgval, dbval, pdcolor);
 	return 0;
 }
@@ -853,10 +827,7 @@ l_ok pixelLinearMapToTargetColor(l_uint32 scolor,
  *          and choosing a target foreground color for dstval.
  * </pre>
  */
-PIX * pixShiftByComponent(PIX * pixd,
-    PIX * pixs,
-    l_uint32 srcval,
-    l_uint32 dstval)
+PIX * pixShiftByComponent(PIX * pixd, PIX * pixs, l_uint32 srcval, l_uint32 dstval)
 {
 	l_int32 i, j, w, h, wpl;
 	l_int32 rval, gval, bval, rsval, gsval, bsval, rdval, gdval, bdval;
@@ -864,9 +835,7 @@ PIX * pixShiftByComponent(PIX * pixd,
 	l_uint32 pixel;
 	l_uint32 * line, * data;
 	PIXCMAP   * cmap;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs)
 		return (PIX *)ERROR_PTR("pixs not defined", procName, pixd);
 	if(pixd && (pixd != pixs))
@@ -925,7 +894,6 @@ PIX * pixShiftByComponent(PIX * pixd,
 			line[j] = pixel;
 		}
 	}
-
 cleanup:
 	SAlloc::F(rtab);
 	SAlloc::F(gtab);
@@ -952,20 +920,12 @@ cleanup:
  *          the src --> dest shift.
  * </pre>
  */
-l_ok pixelShiftByComponent(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    l_uint32 srcval,
-    l_uint32 dstval,
-    l_uint32 * ppixel)
+l_ok pixelShiftByComponent(l_int32 rval, l_int32 gval, l_int32 bval, l_uint32 srcval, l_uint32 dstval, l_uint32 * ppixel)
 {
 	l_int32 rsval, rdval, gsval, gdval, bsval, bdval, rs, gs, bs;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!ppixel)
 		return ERROR_INT("&pixel defined", procName, 1);
-
 	extractRGBValues(srcval, &rsval, &gsval, &bsval);
 	extractRGBValues(dstval, &rdval, &gdval, &bdval);
 	if(rdval == rsval)
@@ -1013,31 +973,20 @@ l_ok pixelShiftByComponent(l_int32 rval,
  *          the resulting pixel is black; %fract == 1 results in white.
  * </pre>
  */
-l_ok pixelFractionalShift(l_int32 rval,
-    l_int32 gval,
-    l_int32 bval,
-    float fract,
-    l_uint32 * ppixel)
+l_ok pixelFractionalShift(l_int32 rval, l_int32 gval, l_int32 bval, float fract, l_uint32 * ppixel)
 {
 	l_int32 nrval, ngval, nbval;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!ppixel)
 		return ERROR_INT("&pixel defined", procName, 1);
 	if(fract < -1.0 || fract > 1.0)
 		return ERROR_INT("fraction not in [-1 ... +1]", procName, 1);
-
-	nrval = (fract < 0) ? (l_int32)((1.0 + fract) * rval + 0.5) :
-	    rval + (l_int32)(fract * (255 - rval) + 0.5);
-	ngval = (fract < 0) ? (l_int32)((1.0 + fract) * gval + 0.5) :
-	    gval + (l_int32)(fract * (255 - gval) + 0.5);
-	nbval = (fract < 0) ? (l_int32)((1.0 + fract) * bval + 0.5) :
-	    bval + (l_int32)(fract * (255 - bval) + 0.5);
+	nrval = (fract < 0) ? (l_int32)((1.0 + fract) * rval + 0.5) : rval + (l_int32)(fract * (255 - rval) + 0.5);
+	ngval = (fract < 0) ? (l_int32)((1.0 + fract) * gval + 0.5) : gval + (l_int32)(fract * (255 - gval) + 0.5);
+	nbval = (fract < 0) ? (l_int32)((1.0 + fract) * bval + 0.5) : bval + (l_int32)(fract * (255 - bval) + 0.5);
 	composeRGBPixel(nrval, ngval, nbval, ppixel);
 	return 0;
 }
-
 /*!
  * \brief   pixMapWithInvariantHue()
  *
@@ -1062,27 +1011,20 @@ l_ok pixelFractionalShift(l_int32 rval,
  *            pixd = pixMapWithInvariantHue(NULL, pixs, ...);
  * </pre>
  */
-PIX * pixMapWithInvariantHue(PIX * pixd,
-    PIX * pixs,
-    l_uint32 srcval,
-    float fract)
+PIX * pixMapWithInvariantHue(PIX * pixd, PIX * pixs, l_uint32 srcval, float fract)
 {
 	l_int32 rval, gval, bval;
 	l_uint32 dstval;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!pixs || pixGetDepth(pixs) != 32)
 		return (PIX *)ERROR_PTR("pixs undefined or not 32 bpp", procName, pixd);
 	if(pixd && (pixd != pixs))
 		return (PIX *)ERROR_PTR("pixd exists, but != pixs", procName, pixd);
 	if(fract < -1.0 || fract > 1.0)
 		return (PIX *)ERROR_PTR("fraction not in [-1 ... +1]", procName, NULL);
-
 	/* Generate the dstval that is %fract toward white from %srcval */
 	extractRGBValues(srcval, &rval, &gval, &bval);
 	pixelFractionalShift(rval, gval, bval, fract, &dstval);
-
 	/* Use the (%srcval, dstval) pair to define the linear transform */
 	return pixLinearMapToTargetColor(pixd, pixs, srcval, dstval);
 }

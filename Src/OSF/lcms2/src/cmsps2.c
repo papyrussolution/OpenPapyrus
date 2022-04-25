@@ -272,19 +272,16 @@ typedef struct {
 static int _cmsPSActualColumn = 0;
 
 // Convert to byte
-static
-uint8 Word2Byte(uint16 w)
+static uint8 Word2Byte(uint16 w)
 {
 	return (uint8)floor((double)w / 257.0 + 0.5);
 }
 
 // Write a cooked byte
-static
-void WriteByte(cmsIOHANDLER* m, uint8 b)
+static void WriteByte(cmsIOHANDLER* m, uint8 b)
 {
 	_cmsIOPrintf(m, "%02x", b);
 	_cmsPSActualColumn += 2;
-
 	if(_cmsPSActualColumn > MAXPSCOLS) {
 		_cmsIOPrintf(m, "\n");
 		_cmsPSActualColumn = 0;
@@ -295,12 +292,10 @@ void WriteByte(cmsIOHANDLER* m, uint8 b)
 
 // Removes offending carriage returns
 
-static
-char * RemoveCR(const char * txt)
+static char * RemoveCR(const char * txt)
 {
 	static char Buffer[2048];
 	char * pt;
-
 	strncpy(Buffer, txt, 2047);
 	Buffer[2047] = 0;
 	for(pt = Buffer; *pt; pt++)
@@ -309,8 +304,7 @@ char * RemoveCR(const char * txt)
 	return Buffer;
 }
 
-static
-void EmitHeader(cmsIOHANDLER* m, const char * Title, cmsHPROFILE hProfile)
+static void EmitHeader(cmsIOHANDLER* m, const char * Title, cmsHPROFILE hProfile)
 {
 	time_t timer;
 	cmsMLU * Description, * Copyright;
@@ -340,20 +334,13 @@ void EmitHeader(cmsIOHANDLER* m, const char * Title, cmsHPROFILE hProfile)
 // Emits White & Black point. White point is always D50, Black point is the device
 // Black point adapted to D50.
 
-static
-void EmitWhiteBlackD50(cmsIOHANDLER* m, cmsCIEXYZ* BlackPoint)
+static void EmitWhiteBlackD50(cmsIOHANDLER* m, cmsCIEXYZ* BlackPoint)
 {
-	_cmsIOPrintf(m, "/BlackPoint [%f %f %f]\n", BlackPoint->X,
-	    BlackPoint->Y,
-	    BlackPoint->Z);
-
-	_cmsIOPrintf(m, "/WhitePoint [%f %f %f]\n", cmsD50_XYZ()->X,
-	    cmsD50_XYZ()->Y,
-	    cmsD50_XYZ()->Z);
+	_cmsIOPrintf(m, "/BlackPoint [%f %f %f]\n", BlackPoint->X, BlackPoint->Y, BlackPoint->Z);
+	_cmsIOPrintf(m, "/WhitePoint [%f %f %f]\n", cmsD50_XYZ()->X, cmsD50_XYZ()->Y, cmsD50_XYZ()->Z);
 }
 
-static
-void EmitRangeCheck(cmsIOHANDLER* m)
+static void EmitRangeCheck(cmsIOHANDLER* m)
 {
 	_cmsIOPrintf(m, "dup 0.0 lt { pop 0.0 } if "
 	    "dup 1.0 gt { pop 1.0 } if ");
@@ -361,11 +348,9 @@ void EmitRangeCheck(cmsIOHANDLER* m)
 
 // Does write the intent
 
-static
-void EmitIntent(cmsIOHANDLER* m, uint32 RenderingIntent)
+static void EmitIntent(cmsIOHANDLER* m, uint32 RenderingIntent)
 {
 	const char * intent;
-
 	switch(RenderingIntent) {
 		case INTENT_PERCEPTUAL:            intent = "Perceptual"; break;
 		case INTENT_RELATIVE_COLORIMETRIC: intent = "RelativeColorimetric"; break;
@@ -387,8 +372,7 @@ void EmitIntent(cmsIOHANDLER* m, uint32 RenderingIntent)
 
 // Lab -> XYZ, see the discussion above
 
-static
-void EmitLab2XYZ(cmsIOHANDLER* m)
+static void EmitLab2XYZ(cmsIOHANDLER* m)
 {
 	_cmsIOPrintf(m, "/RangeABC [ 0 1 0 1 0 1]\n");
 	_cmsIOPrintf(m, "/DecodeABC [\n");
@@ -405,15 +389,13 @@ void EmitLab2XYZ(cmsIOHANDLER* m)
 	_cmsIOPrintf(m, "]\n");
 }
 
-static
-void EmitSafeGuardBegin(cmsIOHANDLER* m, const char * name)
+static void EmitSafeGuardBegin(cmsIOHANDLER* m, const char * name)
 {
 	_cmsIOPrintf(m, "%%LCMS2: Save previous definition of %s on the operand stack\n", name);
 	_cmsIOPrintf(m, "currentdict /%s known { /%s load } { null } ifelse\n", name, name);
 }
 
-static
-void EmitSafeGuardEnd(cmsIOHANDLER* m, const char * name, int depth)
+static void EmitSafeGuardEnd(cmsIOHANDLER* m, const char * name, int depth)
 {
 	_cmsIOPrintf(m, "%%LCMS2: Restore previous definition of %s\n", name);
 	if(depth > 1) {
@@ -425,16 +407,12 @@ void EmitSafeGuardEnd(cmsIOHANDLER* m, const char * name, int depth)
 
 // Outputs a table of words. It does use 16 bits
 
-static
-void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve * Table, const char * name)
+static void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve * Table, const char * name)
 {
 	uint32 i;
 	double gamma;
-
 	if(Table == NULL) return; // Error
-
 	if(Table->nEntries <= 0) return; // Empty table
-
 	// Suppress whole if identity
 	if(cmsIsToneCurveLinear(Table)) return;
 
@@ -500,20 +478,17 @@ void Emit1Gamma(cmsIOHANDLER* m, cmsToneCurve * Table, const char * name)
 
 // Compare gamma table
 
-static
-boolint GammaTableEquals(uint16* g1, uint16* g2, uint32 nEntries)
+static boolint GammaTableEquals(uint16* g1, uint16* g2, uint32 nEntries)
 {
 	return memcmp(g1, g2, nEntries* sizeof(uint16)) == 0;
 }
 
 // Does write a set of gamma curves
 
-static
-void EmitNGamma(cmsIOHANDLER* m, uint32 n, cmsToneCurve * g[], const char * nameprefix)
+static void EmitNGamma(cmsIOHANDLER* m, uint32 n, cmsToneCurve * g[], const char * nameprefix)
 {
 	uint32 i;
 	static char buffer[2048];
-
 	for(i = 0; i < n; i++) {
 		if(g[i] == NULL) return; // Error
 
@@ -605,13 +580,8 @@ static int OutputValueSampler(const uint16 In[], uint16 Out[], void * Cargo)
 
 // Writes a Pipeline on memstream. Could be 8 or 16 bits based
 
-static
-void WriteCLUT(cmsIOHANDLER* m, cmsStage * mpe, const char * PreMaj,
-    const char * PostMaj,
-    const char * PreMin,
-    const char * PostMin,
-    int FixWhite,
-    cmsColorSpaceSignature ColorSpace)
+static void WriteCLUT(cmsIOHANDLER* m, cmsStage * mpe, const char * PreMaj, const char * PostMaj, const char * PreMin,
+    const char * PostMin, int FixWhite, cmsColorSpaceSignature ColorSpace)
 {
 	uint32 i;
 	cmsPsSamplerCargo sc;
@@ -644,8 +614,7 @@ void WriteCLUT(cmsIOHANDLER* m, cmsStage * mpe, const char * PreMaj,
 
 // Dumps CIEBasedA Color Space Array
 
-static
-int EmitCIEBasedA(cmsIOHANDLER* m, cmsToneCurve * Curve, cmsCIEXYZ* BlackPoint)
+static int EmitCIEBasedA(cmsIOHANDLER* m, cmsToneCurve * Curve, cmsCIEXYZ* BlackPoint)
 {
 	_cmsIOPrintf(m, "[ /CIEBasedA\n");
 	_cmsIOPrintf(m, "  <<\n");
@@ -670,14 +639,11 @@ int EmitCIEBasedA(cmsIOHANDLER* m, cmsToneCurve * Curve, cmsCIEXYZ* BlackPoint)
 
 // Dumps CIEBasedABC Color Space Array
 
-static
-int EmitCIEBasedABC(cmsIOHANDLER* m, double * Matrix, cmsToneCurve ** CurveSet, cmsCIEXYZ* BlackPoint)
+static int EmitCIEBasedABC(cmsIOHANDLER* m, double * Matrix, cmsToneCurve ** CurveSet, cmsCIEXYZ* BlackPoint)
 {
 	int i;
-
 	_cmsIOPrintf(m, "[ /CIEBasedABC\n");
 	_cmsIOPrintf(m, "<<\n");
-
 	EmitSafeGuardBegin(m, "lcms2gammaproc0");
 	EmitSafeGuardBegin(m, "lcms2gammaproc1");
 	EmitSafeGuardBegin(m, "lcms2gammaproc2");
@@ -712,8 +678,7 @@ int EmitCIEBasedABC(cmsIOHANDLER* m, double * Matrix, cmsToneCurve ** CurveSet, 
 	return 1;
 }
 
-static
-int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline * Pipeline, uint32 Intent, cmsCIEXYZ* BlackPoint)
+static int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline * Pipeline, uint32 Intent, cmsCIEXYZ* BlackPoint)
 {
 	const char * PreMaj;
 	const char * PostMaj;
@@ -721,9 +686,7 @@ int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline * Pipeline, uint32 Intent, cmsC
 	cmsStage * mpe;
 	int i, numchans;
 	static char buffer[2048];
-
 	mpe = Pipeline->Elements;
-
 	switch(cmsStageInputChannels(mpe)) {
 		case 3:
 		    _cmsIOPrintf(m, "[ /CIEBasedDEF\n");
@@ -788,14 +751,12 @@ int EmitCIEBasedDEF(cmsIOHANDLER* m, cmsPipeline * Pipeline, uint32 Intent, cmsC
 
 // Generates a curve from a gray profile
 
-static
-cmsToneCurve * ExtractGray2Y(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Intent)
+static cmsToneCurve * ExtractGray2Y(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Intent)
 {
 	cmsToneCurve * Out = cmsBuildTabulatedToneCurve16(ContextID, 256, NULL);
 	cmsHPROFILE hXYZ  = cmsCreateXYZProfile();
 	cmsHTRANSFORM xform = cmsCreateTransformTHR(ContextID, hProfile, TYPE_GRAY_8, hXYZ, TYPE_XYZ_DBL, Intent, cmsFLAGS_NOOPTIMIZE);
 	int i;
-
 	if(Out != NULL && xform != NULL) {
 		for(i = 0; i < 256; i++) {
 			uint8 Gray = (uint8)i;
@@ -815,8 +776,7 @@ cmsToneCurve * ExtractGray2Y(cmsContext ContextID, cmsHPROFILE hProfile, uint32 
 // Because PostScript has only 8 bits in /Table, we should use
 // a more perceptually uniform space... I do choose Lab.
 
-static
-int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags)
+static int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags)
 {
 	cmsHPROFILE hLab;
 	cmsHTRANSFORM xform;
@@ -825,15 +785,11 @@ int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 d
 	int rc;
 	cmsHPROFILE Profiles[2];
 	cmsCIEXYZ BlackPointAdaptedToD50;
-
 	// Does create a device-link based transform.
 	// The DeviceLink is next dumped as working CSA.
-
 	InputFormat = cmsFormatterForColorspaceOfProfile(hProfile, 2, FALSE);
 	nChannels   = T_CHANNELS(InputFormat);
-
 	cmsDetectBlackPoint(&BlackPointAdaptedToD50, hProfile, Intent, 0);
-
 	// Adjust output to Lab4
 	hLab = cmsCreateLab4ProfileTHR(m->ContextID, NULL);
 
@@ -890,26 +846,20 @@ int WriteInputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 d
 	return 1;
 }
 
-static
-double * GetPtrToMatrix(const cmsStage * mpe)
+static double * GetPtrToMatrix(const cmsStage * mpe)
 {
 	_cmsStageMatrixData* Data = (_cmsStageMatrixData*)mpe->Data;
-
 	return Data->Double;
 }
 
 // Does create CSA based on matrix-shaper. Allowed types are gray and RGB based
-static
-int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage * Matrix, cmsStage * Shaper)
+static int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage * Matrix, cmsStage * Shaper)
 {
 	cmsColorSpaceSignature ColorSpace;
 	int rc;
 	cmsCIEXYZ BlackPointAdaptedToD50;
-
 	ColorSpace = cmsGetColorSpace(hProfile);
-
 	cmsDetectBlackPoint(&BlackPointAdaptedToD50, hProfile, INTENT_RELATIVE_COLORIMETRIC, 0);
-
 	if(ColorSpace == cmsSigGrayData) {
 		cmsToneCurve ** ShaperCurve = _cmsStageGetPtrToCurveSet(Shaper);
 		rc = EmitCIEBasedA(m, ShaperCurve[0], &BlackPointAdaptedToD50);
@@ -939,22 +889,18 @@ int WriteInputMatrixShaper(cmsIOHANDLER* m, cmsHPROFILE hProfile, cmsStage * Mat
 // Creates a PostScript color list from a named profile data.
 // This is a HP extension, and it works in Lab instead of XYZ
 
-static
-int WriteNamedColorCSA(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent)
+static int WriteNamedColorCSA(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent)
 {
 	cmsHTRANSFORM xform;
 	cmsHPROFILE hLab;
 	uint32 i, nColors;
 	char ColorName[cmsMAX_PATH];
 	cmsNAMEDCOLORLIST* NamedColorList;
-
 	hLab  = cmsCreateLab4ProfileTHR(m->ContextID, NULL);
 	xform = cmsCreateTransform(hNamedColor, TYPE_NAMED_COLOR_INDEX, hLab, TYPE_Lab_DBL, Intent, 0);
 	if(xform == NULL) return 0;
-
 	NamedColorList = cmsGetNamedColorList(xform);
 	if(NamedColorList == NULL) return 0;
-
 	_cmsIOPrintf(m, "<<\n");
 	_cmsIOPrintf(m, "(colorlistcomment) (%s)\n", "Named color CSA");
 	_cmsIOPrintf(m, "(Prefix) [ (Pantone ) (PANTONE ) ]\n");
@@ -983,17 +929,11 @@ int WriteNamedColorCSA(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent)
 }
 
 // Does create a Color Space Array on XYZ colorspace for PostScript usage
-static
-uint32 GenerateCSA(cmsContext ContextID,
-    cmsHPROFILE hProfile,
-    uint32 Intent,
-    uint32 dwFlags,
-    cmsIOHANDLER* mem)
+static uint32 GenerateCSA(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags, cmsIOHANDLER* mem)
 {
 	uint32 dwBytesUsed;
 	cmsPipeline * lut = NULL;
 	cmsStage * Matrix, * Shaper;
-
 	// Is a named color profile?
 	if(cmsGetDeviceClass(hProfile) == cmsSigNamedColorClass) {
 		if(!WriteNamedColorCSA(mem, hProfile, Intent)) goto Error;
@@ -1100,8 +1040,7 @@ Error:
 
  */
 
-static
-void EmitPQRStage(cmsIOHANDLER* m, cmsHPROFILE hProfile, int DoBPC, int lIsAbsolute)
+static void EmitPQRStage(cmsIOHANDLER* m, cmsHPROFILE hProfile, int DoBPC, int lIsAbsolute)
 {
 	if(lIsAbsolute) {
 		// For absolute colorimetric intent, encode back to relative
@@ -1165,8 +1104,7 @@ void EmitPQRStage(cmsIOHANDLER* m, cmsHPROFILE hProfile, int DoBPC, int lIsAbsol
 	}
 }
 
-static
-void EmitXYZ2Lab(cmsIOHANDLER* m)
+static void EmitXYZ2Lab(cmsIOHANDLER* m)
 {
 	_cmsIOPrintf(m, "/RangeLMN [ -0.635 2.0 0 2 -0.635 2.0 ]\n");
 	_cmsIOPrintf(m, "/EncodeLMN [\n");
@@ -1190,8 +1128,7 @@ void EmitXYZ2Lab(cmsIOHANDLER* m)
 // would give a reasonable accuracy. Note also that CRD tables must operate in
 // 8 bits.
 
-static
-int WriteOutputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags)
+static int WriteOutputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags)
 {
 	cmsHPROFILE hLab;
 	cmsHTRANSFORM xform;
@@ -1289,16 +1226,13 @@ int WriteOutputLUT(cmsIOHANDLER* m, cmsHPROFILE hProfile, uint32 Intent, uint32 
 }
 
 // Builds a ASCII string containing colorant list in 0..1.0 range
-static
-void BuildColorantList(char * Colorant, uint32 nColorant, uint16 Out[])
+static void BuildColorantList(char * Colorant, uint32 nColorant, uint16 Out[])
 {
 	char Buff[32];
 	uint32 j;
-
 	Colorant[0] = 0;
 	if(nColorant > cmsMAXCHANNELS)
 		nColorant = cmsMAXCHANNELS;
-
 	for(j = 0; j < nColorant; j++) {
 		snprintf(Buff, 31, "%.3f", Out[j] / 65535.0);
 		Buff[31] = 0;
@@ -1311,8 +1245,7 @@ void BuildColorantList(char * Colorant, uint32 nColorant, uint16 Out[])
 // Creates a PostScript color list from a named profile data.
 // This is a HP extension.
 
-static
-int WriteNamedColorCRD(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent, uint32 dwFlags)
+static int WriteNamedColorCRD(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent, uint32 dwFlags)
 {
 	cmsHTRANSFORM xform;
 	uint32 i, nColors, nColorant;
@@ -1365,11 +1298,7 @@ int WriteNamedColorCRD(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent, 
 // CRD are always LUT-Based, no matter if profile is
 // implemented as matrix-shaper.
 
-static
-uint32  GenerateCRD(cmsContext ContextID,
-    cmsHPROFILE hProfile,
-    uint32 Intent, uint32 dwFlags,
-    cmsIOHANDLER* mem)
+static uint32  GenerateCRD(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Intent, uint32 dwFlags, cmsIOHANDLER* mem)
 {
 	uint32 dwBytesUsed;
 

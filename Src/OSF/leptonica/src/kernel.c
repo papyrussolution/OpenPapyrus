@@ -1,16 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-*====================================================================*/
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file kernel.c
  * <pre>
@@ -970,7 +965,6 @@ PIX * kernelDisplayInPix(L_KERNEL     * kel,
 		}
 		y0 += size + gthick;
 	}
-
 	pixDestroy(&pixt0);
 	pixDestroy(&pixt1);
 	return pixd;
@@ -991,19 +985,15 @@ PIX * kernelDisplayInPix(L_KERNEL     * kel,
  *     (1) The numbers can be ints or floats.
  * </pre>
  */
-NUMA * parseStringForNumbers(const char * str,
-    const char * seps)
+NUMA * parseStringForNumbers(const char * str, const char * seps)
 {
 	char      * newstr, * head;
 	char      * tail = NULL;
 	float val;
 	NUMA * na;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!str)
 		return (NUMA*)ERROR_PTR("str not defined", procName, NULL);
-
 	newstr = stringNew(str); /* to enforce const-ness of str */
 	na = numaCreate(0);
 	head = strtokSafe(newstr, seps, &tail);
@@ -1015,7 +1005,6 @@ NUMA * parseStringForNumbers(const char * str,
 		numaAddNumber(na, val);
 		SAlloc::F(head);
 	}
-
 	SAlloc::F(newstr);
 	return na;
 }
@@ -1041,17 +1030,12 @@ NUMA * parseStringForNumbers(const char * str,
  *      (3) This returns a normalized kernel.
  * </pre>
  */
-L_KERNEL * makeFlatKernel(l_int32 height,
-    l_int32 width,
-    l_int32 cy,
-    l_int32 cx)
+L_KERNEL * makeFlatKernel(l_int32 height, l_int32 width, l_int32 cy, l_int32 cx)
 {
 	l_int32 i, j;
 	float normval;
 	L_KERNEL  * kel;
-
 	PROCNAME(__FUNCTION__);
-
 	if((kel = kernelCreate(height, width)) == NULL)
 		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
 	kernelSetOrigin(kel, cy, cx);
@@ -1064,7 +1048,6 @@ L_KERNEL * makeFlatKernel(l_int32 height,
 
 	return kel;
 }
-
 /*!
  * \brief   makeGaussianKernel()
  *
@@ -1085,17 +1068,12 @@ L_KERNEL * makeFlatKernel(l_int32 height,
  *          not too small or too large).
  * </pre>
  */
-L_KERNEL * makeGaussianKernel(l_int32 halfh,
-    l_int32 halfw,
-    float stdev,
-    float max)
+L_KERNEL * makeGaussianKernel(l_int32 halfh, l_int32 halfw, float stdev, float max)
 {
 	l_int32 sx, sy, i, j;
 	float val;
 	L_KERNEL  * kel;
-
 	PROCNAME(__FUNCTION__);
-
 	sx = 2 * halfw + 1;
 	sy = 2 * halfh + 1;
 	if((kel = kernelCreate(sy, sx)) == NULL)
@@ -1109,10 +1087,8 @@ L_KERNEL * makeGaussianKernel(l_int32 halfh,
 			kernelSetElement(kel, i, j, max * val);
 		}
 	}
-
 	return kel;
 }
-
 /*!
  * \brief   makeGaussianKernelSep()
  *
@@ -1138,18 +1114,11 @@ L_KERNEL * makeGaussianKernel(l_int32 halfh,
  *          makeGaussianKernel().
  * </pre>
  */
-l_ok makeGaussianKernelSep(l_int32 halfh,
-    l_int32 halfw,
-    float stdev,
-    float max,
-    L_KERNEL ** pkelx,
-    L_KERNEL ** pkely)
+l_ok makeGaussianKernelSep(l_int32 halfh, l_int32 halfw, float stdev, float max, L_KERNEL ** pkelx, L_KERNEL ** pkely)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!pkelx || !pkely)
 		return ERROR_INT("&kelx and &kely not defined", procName, 1);
-
 	*pkelx = makeGaussianKernel(0, halfw, stdev, max);
 	*pkely = makeGaussianKernel(halfh, 0, stdev, 1.0);
 	return 0;
@@ -1182,35 +1151,26 @@ l_ok makeGaussianKernelSep(l_int32 halfh,
  *          normalization in pixConvolve().
  * </pre>
  */
-L_KERNEL * makeDoGKernel(l_int32 halfh,
-    l_int32 halfw,
-    float stdev,
-    float ratio)
+L_KERNEL * makeDoGKernel(l_int32 halfh, l_int32 halfw, float stdev, float ratio)
 {
 	l_int32 sx, sy, i, j;
 	float pi, squaredist, highnorm, lownorm, val;
 	L_KERNEL  * kel;
-
 	PROCNAME(__FUNCTION__);
-
 	sx = 2 * halfw + 1;
 	sy = 2 * halfh + 1;
 	if((kel = kernelCreate(sy, sx)) == NULL)
 		return (L_KERNEL*)ERROR_PTR("kel not made", procName, NULL);
 	kernelSetOrigin(kel, halfh, halfw);
-
 	pi = 3.1415926535;
 	for(i = 0; i < sy; i++) {
 		for(j = 0; j < sx; j++) {
-			squaredist = (float)((i - halfh) * (i - halfh) +
-			    (j - halfw) * (j - halfw));
+			squaredist = (float)((i - halfh) * (i - halfh) + (j - halfw) * (j - halfw));
 			highnorm = 1. / (2 * stdev * stdev);
 			lownorm = highnorm / (ratio * ratio);
-			val = (highnorm / pi) * expf(-(highnorm * squaredist))
-			    - (lownorm / pi) * expf(-(lownorm * squaredist));
+			val = (highnorm / pi) * expf(-(highnorm * squaredist)) - (lownorm / pi) * expf(-(lownorm * squaredist));
 			kernelSetElement(kel, i, j, val);
 		}
 	}
-
 	return kel;
 }

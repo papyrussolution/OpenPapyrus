@@ -347,6 +347,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		tSetTimeSeriesProp,   // @10.2.5
 		tSetTimeSeriesStkEnv, // @v10.2.10
 		tGetCommonMqsConfig,  // @v10.5.9
+		tExecJobImm           // @v11.3.9
 	};
 	enum {
 		cmdfNeedAuth = 0x0001, // Команда требует авторизованного сеанса
@@ -469,6 +470,7 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 		{ PPHS_SETTIMESERIESPROP        , /*"settimeseriesprop",*/         tSetTimeSeriesProp,       PPSCMD_SETTIMESERIESPROP,     cmdfNeedAuth }, // @v10.2.5
 		{ PPHS_SETTIMESERIESSTKENV      , /*"settimeseriesstkenv",*/       tSetTimeSeriesStkEnv,     PPSCMD_SETTIMESERIESSTKENV,   cmdfNeedAuth }, // @v10.2.10
 		{ PPHS_GETCOMMONMQSCONFIG       , /*"getcommonmqsconfig",*/        tGetCommonMqsConfig,      PPSCMD_GETCOMMONMQSCONFIG,    cmdfNeedAuth }, // @v10.5.9
+		{ PPHS_EXECJOBIMM               ,                                  tExecJobImm,              PPSCMD_EXECJOBIMM,                       0 }, // @v11.3.9
 	};
 	int    ok = 1;
 	size_t p = 0;
@@ -776,6 +778,10 @@ int PPServerCmd::ParseLine(const SString & rLine, long flags)
 			}
 			break;
 		case tGetCommonMqsConfig: // @v10.5.9
+			break;
+		case tExecJobImm: // @v11.3.9
+			THROW_PP_S(GetWord(rLine, &p), PPERR_JOBSRV_ARG_JOBID, rLine); // jobid
+			PutParam(1, Term);
 			break;
 		default:
 			err = PPERR_INVSERVERCMD;
@@ -1206,7 +1212,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 	SString msg_buf;
 	const LDATETIME curdtm = getcurdatetime_();
 	pPlan->freeAll();
-	int    r = Mngr.LoadPool2(0, pPool, 1); 
+	int    r = Mngr.LoadPool2(0, pPool, true); 
 	if(r > 0) { //@erik v10.7.4
 		PPJob job;
 		for(PPID id = 0; pPool->Enum(&id, &job) > 0;) {
@@ -3196,6 +3202,27 @@ PPWorkerSession::CmdRet PPWorkerSession::ProcessCommand_(PPServerCmd * pEv, PPJo
 				pack.F.GetZeroPositionFile(PPOBJ_WORKBOOK, obj_id, path);
 				THROW_PP_S(path.NotEmptyS(), PPERR_WORKBOOKHASNTCONTENT, pack.Rec.Name);
 				ok = TransmitFile(tfvStart, path, rReply);
+			}
+			break;
+		case PPSCMD_EXECJOBIMM: // @v11.3.9 @construction
+			{
+				pEv->GetParam(1, temp_buf);
+				PPID    job_id = temp_buf.ToLong();
+				PPJobMngr mngr;
+				PPJobPool pool(&mngr, 0, 1);					
+				THROW(job_id > 0);
+				THROW(mngr.LoadPool2(0, &pool, true));
+				{
+					const PPJob * p_job = pool.GetJobItem(job_id, true);
+					THROW(p_job);
+					THROW(!(p_job->Flags & PPJob::fDisable)); // @err
+					{
+						PPJob job(*p_job);
+						PPJobSession * p_sess = new PPJobSession(&job, pool);
+						p_sess->Start(1);
+						ok = cmdretOK;
+					}
+				}
 			}
 			break;
 		/*

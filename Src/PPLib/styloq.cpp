@@ -29,6 +29,7 @@ const long __DefMqbConsumeTimeout = 5000;
 	advert
 	getconfig
 	getface
+	setface - передается от клиента сервису для обноления собственного лика
 	getcommandlist
 	pushindexingcontent
 	getforeignconfig
@@ -561,16 +562,16 @@ int StyloQFace::ToJson(bool forTransmission, SString & rResult) const
 	SString temp_buf(pSrcJson);
 	THROW(temp_buf.NotEmptyS());
 	{
-		StyloQFace fc_pack;
-		StyloQFace fc_copy_for_transmission;
+		StyloQFace face_pack;
+		StyloQFace face_copy_for_transmission;
 		StyloQFace * p_result_pack = 0;
-		THROW(fc_pack.FromJson(temp_buf));
-		if(fc_pack.Has(tagImage, 0)) {
+		THROW(face_pack.FromJson(temp_buf));
+		if(face_pack.Has(tagImage, 0)) {
 			SString img_signature;
-			for(uint i = 0; i < fc_pack.L.getCount(); i++) {
-				StrAssocArray::Item item = fc_pack.L.Get(i);
+			for(uint i = 0; i < face_pack.L.getCount(); i++) {
+				StrAssocArray::Item item = face_pack.L.Get(i);
 				if(item.Id != tagImage) {
-					fc_copy_for_transmission.L.Add(item.Id, item.Txt);
+					face_copy_for_transmission.L.Add(item.Id, item.Txt);
 				}
 				else { 
 					SString fmt_buf;
@@ -585,12 +586,12 @@ int StyloQFace::ToJson(bool forTransmission, SString & rResult) const
 				}
 			}
 			if(img_signature.NotEmpty()) {
-				fc_copy_for_transmission.L.Add(StyloQFace::tagImageBlobSignature, img_signature);
+				face_copy_for_transmission.L.Add(StyloQFace::tagImageBlobSignature, img_signature);
 			}
-			p_result_pack = &fc_copy_for_transmission;
+			p_result_pack = &face_copy_for_transmission;
 		}
 		else {
-			p_result_pack = &fc_pack;
+			p_result_pack = &face_pack;
 		}
 		if(p_result_pack) {
 			p_result_pack->Get(StyloQFace::tagExpiryPeriodSec, 0, temp_buf);
@@ -7244,6 +7245,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 {
 	rInfo.Z();
 	int    ok = false;
+	SString temp_buf;
 	if(oid.Obj == PPOBJ_STYLOQBINDERY) {
 		StyloQCore::StoragePacket pack;
 		if(P_T->GetPeerEntry(oid.Id, &pack) > 0) {
@@ -7252,15 +7254,13 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 				face_tag_id = SSecretTagPool::tagFace;
 			else
 				face_tag_id = SSecretTagPool::tagSelfyFace;
-			StyloQFace fc;
-			if(pack.GetFace(face_tag_id, fc) > 0) {
-				//fc.GetImage()
+			StyloQFace face_pack;
+			if(pack.GetFace(face_tag_id, face_pack) > 0) {
 				int    img_format = 0;
-				SString store_buf;
-				if(fc.Get(StyloQFace::tagImage, 0, store_buf) > 0) {
+				if(face_pack.Get(StyloQFace::tagImage, 0, temp_buf) > 0) {
 					SString fmt_buf;
 					SString base64_buf;
-					if(store_buf.Divide(':', fmt_buf, base64_buf) > 0) {
+					if(temp_buf.Divide(':', fmt_buf, base64_buf) > 0) {
 						fmt_buf.Strip();
 						SFileFormat ff;
 						if(ff.IdentifyMime(fmt_buf)) {
@@ -7273,9 +7273,7 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 								rInfo.HashAlg = SHASHF_SHA256;
 								SlHash::CalcBufferHash(rInfo.HashAlg, bc_img.Ptr(), bc_img.Len(), rInfo.Hash);
 								PPStyloQInterchange::MakeBlobSignature(rOwnIdent, oid, rInfo.BlobN, rInfo.Signature);
-								if(pBlobBuf) {
-									*pBlobBuf = bc_img;
-								}
+								ASSIGN_PTR(pBlobBuf, bc_img);
 								ok = true;
 							}
 						}
@@ -7292,7 +7290,6 @@ bool PPStyloQInterchange::GetBlobInfo(const SBinaryChunk & rOwnIdent, PPObjID oi
 			uint idx = 0;
 			ObjLinkFiles::Fns fns;
 			int atr = 0; // Результат вызова olf.At(idx)
-			SString temp_buf;
 			if(blobN == 0)
 				atr = olf.At(idx, temp_buf);
 			else {
@@ -7604,16 +7601,16 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 							if(p_ri->Scope == PPFtsIterface::scopeStyloQSvc) {
 								if(bc_temp.FromMime64(temp_buf)) {
 									StyloQCore::StoragePacket sp;
-									StyloQFace fac;
+									StyloQFace face_pack;
 									temp_buf.Z();
 									if(P_T->SearchGlobalIdentEntry(StyloQCore::kForeignService, bc_temp, &sp) > 0) {
-										if(sp.GetFace(SSecretTagPool::tagFace, fac) > 0) {
-											fac.GetRepresentation(0, temp_buf);
+										if(sp.GetFace(SSecretTagPool::tagFace, face_pack) > 0) {
+											face_pack.GetRepresentation(0, temp_buf);
 										}
 									}
 									else if(P_T->SearchGlobalIdentEntry(StyloQCore::kNativeService, bc_temp, &sp) > 0) {
-										if(sp.GetFace(SSecretTagPool::tagSelfyFace, fac) > 0) {
-											fac.GetRepresentation(0, temp_buf);
+										if(sp.GetFace(SSecretTagPool::tagSelfyFace, face_pack) > 0) {
+											face_pack.GetRepresentation(0, temp_buf);
 										}										
 									}
 									if(temp_buf.NotEmpty()) {
@@ -8162,6 +8159,34 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				//p_js_reply->InsertString("reply", "Bye");
 				PPLoadText(PPTXT_SQ_GOODBYE, reply_text_buf);
 				reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
+			}
+			else if(command.IsEqiAscii("setface")) {
+				StyloQCore::StoragePacket cli_pack;
+				SBinaryChunk bc_face;
+				if(!rRcvPack.P.Get(SSecretTagPool::tagFace, &bc_face)) {
+				}
+				else if(!SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
+				}
+				else {
+					StyloQFace other_face;
+					assert(bc_face.Len()); // rRcvPack.P.Get гарантирует!
+					if(bc_face.Len() && other_face.FromJson(bc_face.ToRawStr(temp_buf))) {
+						// Необходимо модифицировать оригинальный face установкой
+						// фактического времени истечения срока действия //
+						other_face.Get(StyloQFace::tagExpiryPeriodSec, 0, temp_buf);
+						const int64 ees = EvaluateExpiryTime(temp_buf.ToLong());
+						if(ees > 0)
+							other_face.Set(StyloQFace::tagExpiryEpochSec, 0, temp_buf.Z().Cat(ees));
+						if(other_face.ToJson(temp_buf)) {
+							bc_face.Z().Cat(temp_buf.cptr(), temp_buf.Len());
+							cli_pack.Pool.Put(SSecretTagPool::tagFace, bc_face);
+							PPID   temp_id = cli_pack.Rec.ID;
+							if(P_T->PutPeerEntry(&temp_id, &cli_pack, 1)) {
+								cmd_reply_ok = true;
+							}
+						}
+					}					
+				}
 			}
 			else if(command.IsEqiAscii("getconfig") || command.IsEqiAscii("getface")) {
 				if(GetOwnPeerEntry(&own_pack) > 0) {
@@ -9891,9 +9916,9 @@ int PPStyloQInterchange::TestClientInteractive(PPID svcID)
 				svc_title.Cat(bc_ident.Mime64(temp_buf));
 			}
 			if(Pack.Pool.Get(SSecretTagPool::tagFace, &bc_face)) {
-				StyloQFace face;
-				if(face.FromJson(bc_face.ToRawStr(temp_buf))) {
-					if(face.GetRepresentation(0, temp_buf))
+				StyloQFace face_pack;
+				if(face_pack.FromJson(bc_face.ToRawStr(temp_buf))) {
+					if(face_pack.GetRepresentation(0, temp_buf))
 						svc_title.CatDivIfNotEmpty(' ', 0).Cat(temp_buf.Transf(CTRANSF_UTF8_TO_INNER));
 				}
 			}

@@ -283,9 +283,9 @@ bool BMPSet::contains(UChar32 c) const {
  * Check for sufficient length for trail unit for each surrogate pair.
  * Handle single surrogates as surrogate code points as usual in ICU.
  */
-const UChar * BMPSet::span(const UChar * s, const UChar * limit, USetSpanCondition spanCondition) const {
+const UChar * BMPSet::span(const UChar * s, const UChar * limit, USetSpanCondition spanCondition) const 
+{
 	UChar c, c2;
-
 	if(spanCondition) {
 		// span
 		do {
@@ -382,9 +382,9 @@ const UChar * BMPSet::span(const UChar * s, const UChar * limit, USetSpanConditi
 }
 
 /* Symmetrical with span(). */
-const UChar * BMPSet::spanBack(const UChar * s, const UChar * limit, USetSpanCondition spanCondition) const {
+const UChar * BMPSet::spanBack(const UChar * s, const UChar * limit, USetSpanCondition spanCondition) const 
+{
 	UChar c, c2;
-
 	if(spanCondition) {
 		// span
 		for(;;) {
@@ -676,12 +676,10 @@ int32_t BMPSet::spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition 
 				} while(U8_IS_SINGLE(b));
 			}
 		}
-
-		int32_t prev = length;
-		UChar32 c;
+		const int32_t prev = length;
 		// trail byte: collect a multi-byte character
 		// (or  lead byte in last-trail position)
-		c = utf8_prevCharSafeBody(s, 0, &length, b, -3);
+		UChar32 c = utf8_prevCharSafeBody(s, 0, &length, b, -3);
 		// c is a valid code point, not ASCII, not a surrogate
 		if(c<=0x7ff) {
 			if((USetSpanCondition)((table7FF[c&0x3f]&((uint32_t)1<<(c>>6)))!=0) != spanCondition) {
@@ -710,7 +708,7 @@ int32_t BMPSet::spanBackUTF8(const uint8 * s, int32_t length, USetSpanCondition 
 				return prev+1;
 			}
 		}
-	} while(length>0);
+	} while(length > 0);
 	return 0;
 }
 

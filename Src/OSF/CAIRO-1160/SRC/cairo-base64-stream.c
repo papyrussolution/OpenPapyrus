@@ -53,16 +53,13 @@ static cairo_status_t _cairo_base64_stream_write(cairo_output_stream_t * base, c
 		stream->in_mem += length;
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	do {
 		uchar dst[4];
-
 		for(i = stream->in_mem; i < 3; i++) {
 			src[i] = *data++;
 			length--;
 		}
 		stream->in_mem = 0;
-
 		dst[0] = base64_table[src[0] >> 2];
 		dst[1] = base64_table[(src[0] & 0x03) << 4 | src[1] >> 4];
 		dst[2] = base64_table[(src[1] & 0x0f) << 2 | src[2] >> 6];

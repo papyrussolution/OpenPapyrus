@@ -727,7 +727,7 @@ U_CAPI int32_t U_EXPORT2 uloc_getDisplayName(const char * locale,
 					sub0Pos = 0;
 					length = 0;
 				}
-				else if(length>0) {
+				else if(length > 0) {
 					/* true length is the length of just the component we got. */
 					length = haveLang ? langLen : restLen;
 					if(dest && sub0Pos!=0) {

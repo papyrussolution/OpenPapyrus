@@ -74,7 +74,7 @@ U_CFUNC void ucnv_fromUWriteBytes(UConverter * cnv,
 	*target = t;
 
 	/* write overflow */
-	if(length>0) {
+	if(length > 0) {
 		if(cnv!=NULL) {
 			t = (char *)cnv->charErrorBuffer;
 			cnv->charErrorBufferLength = (int8)length;
@@ -114,7 +114,7 @@ U_CFUNC void ucnv_toUWriteUChars(UConverter * cnv,
 	*target = t;
 
 	/* write overflow */
-	if(length>0) {
+	if(length > 0) {
 		if(cnv!=NULL) {
 			t = cnv->UCharErrorBuffer;
 			cnv->UCharErrorBufferLength = (int8)length;

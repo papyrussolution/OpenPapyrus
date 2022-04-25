@@ -1,17 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-*====================================================================*/
-
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file textops.c
  * <pre>
@@ -1033,7 +1027,6 @@ SARRAY * splitStringToParagraphs(char * textstr,
 	sarrayDestroy(&salines);
 	return saout;
 }
-
 /*!
  * \brief   stringAllWhitespace()
  *
@@ -1041,18 +1034,14 @@ SARRAY * splitStringToParagraphs(char * textstr,
  * \param[out]   pval      1 if all whitespace; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-static l_int32 stringAllWhitespace(char     * textstr,
-    l_int32 * pval)
+static l_int32 stringAllWhitespace(char     * textstr, l_int32 * pval)
 {
 	l_int32 len, i;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!textstr)
 		return ERROR_INT("textstr not defined", procName, 1);
 	if(!pval)
 		return ERROR_INT("&va not defined", procName, 1);
-
 	len = strlen(textstr);
 	*pval = 1;
 	for(i = 0; i < len; i++) {
@@ -1071,19 +1060,15 @@ static l_int32 stringAllWhitespace(char     * textstr,
  * \param[out]   pval      1 if leading char is [space] or [tab]; 0 otherwise
  * \return  0 if OK, 1 on error
  */
-static l_int32 stringLeadingWhitespace(char     * textstr,
-    l_int32 * pval)
+static l_int32 stringLeadingWhitespace(char     * textstr, l_int32 * pval)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!textstr)
 		return ERROR_INT("textstr not defined", procName, 1);
 	if(!pval)
 		return ERROR_INT("&va not defined", procName, 1);
-
 	*pval = 0;
 	if(textstr[0] == ' ' || textstr[0] == '\t')
 		*pval = 1;
-
 	return 0;
 }

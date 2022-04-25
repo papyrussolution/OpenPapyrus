@@ -1,29 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-   -
-   -  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-   -  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-   -  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-   -  A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL ANY
-   -  CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-   -  EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-   -  PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-   -  PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
-   -  OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-   -  NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-   -  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*====================================================================*/
-
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file bmpio.c
  * <pre>
@@ -42,9 +24,7 @@
 #pragma hdrstop
 #include "bmp.h"
 
-/* --------------------------------------------*/
 #if  USE_BMPIO   /* defined in environ.h */
-/* --------------------------------------------*/
 
 /* Here we're setting the pixel value 0 to white (255) and the
  * value 1 to black (0).  This is the convention for grayscale, but
@@ -83,17 +63,13 @@ PIX * pixReadStreamBmp(FILE * fp)
 	uint8  * data;
 	size_t size;
 	PIX * pix;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!fp)
 		return (PIX *)ERROR_PTR("fp not defined", procName, NULL);
-
 	/* Read data from file and decode into Y,U,V arrays */
 	rewind(fp);
 	if((data = l_binaryReadStream(fp, &size)) == NULL)
 		return (PIX *)ERROR_PTR("data not read", procName, NULL);
-
 	pix = pixReadMemBmp(data, size);
 	SAlloc::F(data);
 	return pix;
@@ -118,8 +94,7 @@ PIX * pixReadStreamBmp(FILE * fp)
  *          are valid in later versions.
  * </pre>
  */
-PIX * pixReadMemBmp(const uint8  * cdata,
-    size_t size)
+PIX * pixReadMemBmp(const uint8  * cdata, size_t size)
 {
 	uint8 pel[4];
 	uint8   * cmapBuf, * fdata, * data;
@@ -431,9 +406,7 @@ l_ok pixWriteStreamBmp(FILE * fp,
  *          a simple memcpy for bmp output.
  * </pre>
  */
-l_ok pixWriteMemBmp(uint8  ** pfdata,
-    size_t * pfsize,
-    PIX * pixs)
+l_ok pixWriteMemBmp(uint8  ** pfdata, size_t * pfsize, PIX * pixs)
 {
 	uint8 pel[4];
 	uint8    * cta = NULL; /* address of the bmp color table array */
@@ -635,5 +608,4 @@ l_ok pixWriteMemBmp(uint8  ** pfdata,
 	return 0;
 }
 
-/* --------------------------------------------*/
 #endif  /* USE_BMPIO */

@@ -1415,18 +1415,12 @@ static uint8 * Pack3WordsSwap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outpu
 	output += 2;
 	*(uint16*)output = wOut[0];
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3WordsBigEndian(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3WordsBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
@@ -1434,154 +1428,100 @@ uint8 * Pack3WordsBigEndian(_cmsTRANSFORM * info,
 	output += 2;
 	*(uint16*)output = CHANGE_ENDIAN(wOut[2]);
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	*output++ = FROM_16_TO_8(wOut[1]);
 	*output++ = FROM_16_TO_8(wOut[2]);
 	output++;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1Optimized(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1Optimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = (wOut[0] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
 	*output++ = (wOut[2] & 0xFFU);
 	output++;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1SwapFirst(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(wOut[0]);
 	*output++ = FROM_16_TO_8(wOut[1]);
 	*output++ = FROM_16_TO_8(wOut[2]);
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1SwapFirstOptimized(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1SwapFirstOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output++;
 	*output++ = (wOut[0] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
 	*output++ = (wOut[2] & 0xFFU);
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1Swap(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1Swap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(wOut[2]);
 	*output++ = FROM_16_TO_8(wOut[1]);
 	*output++ = FROM_16_TO_8(wOut[0]);
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1SwapOptimized(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1SwapOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output++;
 	*output++ = (wOut[2] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
 	*output++ = (wOut[0] & 0xFFU);
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1SwapSwapFirst(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1SwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[2]);
 	*output++ = FROM_16_TO_8(wOut[1]);
 	*output++ = FROM_16_TO_8(wOut[0]);
 	output++;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3BytesAndSkip1SwapSwapFirstOptimized(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3BytesAndSkip1SwapSwapFirstOptimized(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = (wOut[2] & 0xFFU);
 	*output++ = (wOut[1] & 0xFFU);
 	*output++ = (wOut[0] & 0xFFU);
 	output++;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3WordsAndSkip1(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3WordsAndSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
@@ -1590,18 +1530,12 @@ uint8 * Pack3WordsAndSkip1(_cmsTRANSFORM * info,
 	*(uint16*)output = wOut[2];
 	output += 2;
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3WordsAndSkip1Swap(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3WordsAndSkip1Swap(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output += 2;
 	*(uint16*)output = wOut[2];
@@ -1610,18 +1544,12 @@ uint8 * Pack3WordsAndSkip1Swap(_cmsTRANSFORM * info,
 	output += 2;
 	*(uint16*)output = wOut[0];
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3WordsAndSkip1SwapFirst(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3WordsAndSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output += 2;
 	*(uint16*)output = wOut[0];
@@ -1630,18 +1558,12 @@ uint8 * Pack3WordsAndSkip1SwapFirst(_cmsTRANSFORM * info,
 	output += 2;
 	*(uint16*)output = wOut[2];
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack3WordsAndSkip1SwapSwapFirst(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack3WordsAndSkip1SwapSwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[2];
 	output += 2;
@@ -1650,163 +1572,101 @@ uint8 * Pack3WordsAndSkip1SwapSwapFirst(_cmsTRANSFORM * info,
 	*(uint16*)output = wOut[0];
 	output += 2;
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1Byte(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1Byte(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1ByteReversed(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1ByteReversed(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(REVERSE_FLAVOR_16(wOut[0]));
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1ByteSkip1(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1ByteSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*output++ = FROM_16_TO_8(wOut[0]);
 	output++;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1ByteSkip1SwapFirst(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1ByteSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output++;
 	*output++ = FROM_16_TO_8(wOut[0]);
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1Word(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1Word(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1WordReversed(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1WordReversed(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = REVERSE_FLAVOR_16(wOut[0]);
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1WordBigEndian(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1WordBigEndian(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = CHANGE_ENDIAN(wOut[0]);
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1WordSkip1(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1WordSkip1(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	*(uint16*)output = wOut[0];
 	output += 4;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
-static
-uint8 * Pack1WordSkip1SwapFirst(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * Pack1WordSkip1SwapFirst(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	output += 2;
 	*(uint16*)output = wOut[0];
 	output += 2;
-
 	return output;
-
 	CXX_UNUSED(info);
 	CXX_UNUSED(Stride);
 }
 
 // Unencoded Float values -- don't try optimize speed
-static
-uint8 * PackLabDoubleFrom16(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackLabDoubleFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	if(T_PLANAR(info->OutputFormat)) {
 		cmsCIELab Lab;
 		double * Out = (double *)output;
 		cmsLabEncoded2Float(&Lab, wOut);
-
 		Out[0]        = Lab.L;
 		Out[Stride]   = Lab.a;
 		Out[Stride*2] = Lab.b;
-
 		return output + sizeof(double);
 	}
 	else {
@@ -1815,85 +1675,60 @@ uint8 * PackLabDoubleFrom16(_cmsTRANSFORM * info,
 	}
 }
 
-static
-uint8 * PackLabFloatFrom16(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackLabFloatFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	cmsCIELab Lab;
 	cmsLabEncoded2Float(&Lab, wOut);
-
 	if(T_PLANAR(info->OutputFormat)) {
 		float* Out = (float *)output;
-
 		Stride /= PixelSize(info->OutputFormat);
-
 		Out[0]        = (float)Lab.L;
 		Out[Stride]   = (float)Lab.a;
 		Out[Stride*2] = (float)Lab.b;
-
 		return output + sizeof(float);
 	}
 	else {
 		((float *)output)[0] = (float)Lab.L;
 		((float *)output)[1] = (float)Lab.a;
 		((float *)output)[2] = (float)Lab.b;
-
 		return output + (3 + T_EXTRA(info->OutputFormat)) * sizeof(float);
 	}
 }
 
-static
-uint8 * PackXYZDoubleFrom16(_cmsTRANSFORM* Info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackXYZDoubleFrom16(_cmsTRANSFORM* Info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	if(T_PLANAR(Info->OutputFormat)) {
 		cmsCIEXYZ XYZ;
 		double * Out = (double *)output;
 		cmsXYZEncoded2Float(&XYZ, wOut);
-
 		Stride /= PixelSize(Info->OutputFormat);
-
 		Out[0]        = XYZ.X;
 		Out[Stride]   = XYZ.Y;
 		Out[Stride*2] = XYZ.Z;
-
 		return output + sizeof(double);
 	}
 	else {
 		cmsXYZEncoded2Float((cmsCIEXYZ*)output, wOut);
-
 		return output + (sizeof(cmsCIEXYZ) + T_EXTRA(Info->OutputFormat) * sizeof(double));
 	}
 }
 
-static
-uint8 * PackXYZFloatFrom16(_cmsTRANSFORM* Info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackXYZFloatFrom16(_cmsTRANSFORM* Info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	if(T_PLANAR(Info->OutputFormat)) {
 		cmsCIEXYZ XYZ;
 		float* Out = (float *)output;
 		cmsXYZEncoded2Float(&XYZ, wOut);
-
 		Stride /= PixelSize(Info->OutputFormat);
-
 		Out[0]        = (float)XYZ.X;
 		Out[Stride]   = (float)XYZ.Y;
 		Out[Stride*2] = (float)XYZ.Z;
-
 		return output + sizeof(float);
 	}
 	else {
 		cmsCIEXYZ XYZ;
 		float* Out = (float *)output;
 		cmsXYZEncoded2Float(&XYZ, wOut);
-
 		Out[0] = (float)XYZ.X;
 		Out[1] = (float)XYZ.Y;
 		Out[2] = (float)XYZ.Z;
@@ -1902,11 +1737,7 @@ uint8 * PackXYZFloatFrom16(_cmsTRANSFORM* Info,
 	}
 }
 
-static
-uint8 * PackDoubleFrom16(_cmsTRANSFORM * info,
-    uint16 wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackDoubleFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * output, uint32 Stride)
 {
 	uint32 nChan      = T_CHANNELS(info->OutputFormat);
 	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
@@ -1988,13 +1819,7 @@ static uint8 * PackFloatFrom16(_cmsTRANSFORM * info, uint16 wOut[], uint8 * outp
 		return output + (nChan + Extra) * sizeof(float);
 }
 
-// --------------------------------------------------------------------------------------------------------
-
-static
-uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info,
-    float wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info, float wOut[], uint8 * output, uint32 Stride)
 {
 	uint32 nChan = T_CHANNELS(info->OutputFormat);
 	uint32 DoSwap = T_DOSWAP(info->OutputFormat);
@@ -2038,11 +1863,7 @@ uint8 * PackFloatsFromFloat(_cmsTRANSFORM * info,
 		return output + (nChan + Extra) * sizeof(float);
 }
 
-static
-uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info,
-    float wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info, float wOut[], uint8 * output, uint32 Stride)
 {
 	uint32 nChan      = T_CHANNELS(info->OutputFormat);
 	uint32 DoSwap     = T_DOSWAP(info->OutputFormat);
@@ -2055,12 +1876,9 @@ uint8 * PackDoublesFromFloat(_cmsTRANSFORM * info,
 	double v = 0;
 	double * swap1 = (double *)output;
 	uint32 i, start = 0;
-
 	Stride /= PixelSize(info->OutputFormat);
-
 	if(ExtraFirst)
 		start = Extra;
-
 	for(i = 0; i < nChan; i++) {
 		uint32 index = DoSwap ? (nChan - i - 1) : i;
 
@@ -2126,55 +1944,39 @@ static uint8 * PackLabDoubleFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 *
 }
 
 // From 0..1 range to 0..MAX_ENCODEABLE_XYZ
-static
-uint8 * PackXYZFloatFromFloat(_cmsTRANSFORM* Info,
-    float wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackXYZFloatFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, uint32 Stride)
 {
 	float* Out = (float *)output;
-
 	if(T_PLANAR(Info->OutputFormat)) {
 		Stride /= PixelSize(Info->OutputFormat);
-
 		Out[0]        = (float)(wOut[0] * MAX_ENCODEABLE_XYZ);
 		Out[Stride]   = (float)(wOut[1] * MAX_ENCODEABLE_XYZ);
 		Out[Stride*2] = (float)(wOut[2] * MAX_ENCODEABLE_XYZ);
-
 		return output + sizeof(float);
 	}
 	else {
 		Out[0] = (float)(wOut[0] * MAX_ENCODEABLE_XYZ);
 		Out[1] = (float)(wOut[1] * MAX_ENCODEABLE_XYZ);
 		Out[2] = (float)(wOut[2] * MAX_ENCODEABLE_XYZ);
-
 		return output + (sizeof(float)*3 + T_EXTRA(Info->OutputFormat) * sizeof(float));
 	}
 }
 
 // Same, but convert to double
-static
-uint8 * PackXYZDoubleFromFloat(_cmsTRANSFORM* Info,
-    float wOut[],
-    uint8 * output,
-    uint32 Stride)
+static uint8 * PackXYZDoubleFromFloat(_cmsTRANSFORM* Info, float wOut[], uint8 * output, uint32 Stride)
 {
 	double * Out = (double *)output;
-
 	if(T_PLANAR(Info->OutputFormat)) {
 		Stride /= PixelSize(Info->OutputFormat);
-
 		Out[0]        = (double)(wOut[0] * MAX_ENCODEABLE_XYZ);
 		Out[Stride]   = (double)(wOut[1] * MAX_ENCODEABLE_XYZ);
 		Out[Stride*2] = (double)(wOut[2] * MAX_ENCODEABLE_XYZ);
-
 		return output + sizeof(double);
 	}
 	else {
 		Out[0] = (double)(wOut[0] * MAX_ENCODEABLE_XYZ);
 		Out[1] = (double)(wOut[1] * MAX_ENCODEABLE_XYZ);
 		Out[2] = (double)(wOut[2] * MAX_ENCODEABLE_XYZ);
-
 		return output + (sizeof(double)*3 + T_EXTRA(Info->OutputFormat) * sizeof(double));
 	}
 }
@@ -2185,11 +1987,7 @@ uint8 * PackXYZDoubleFromFloat(_cmsTRANSFORM* Info,
 
 // Decodes an stream of half floats to wIn[] described by input format
 
-static
-uint8 * UnrollHalfTo16(_cmsTRANSFORM * info,
-    uint16 wIn[],
-    uint8 * accum,
-    uint32 Stride)
+static uint8 * UnrollHalfTo16(_cmsTRANSFORM * info, uint16 wIn[], uint8 * accum, uint32 Stride)
 {
 	uint32 nChan      = T_CHANNELS(info->InputFormat);
 	uint32 DoSwap     = T_DOSWAP(info->InputFormat);

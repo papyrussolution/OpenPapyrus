@@ -535,7 +535,7 @@ U_CAPI bool U_EXPORT2 uset_getSerializedRange(const USerializedSet* set, int32_t
 //     int32_t i;
 //
 //     /* check the last range limit first for more efficient appending */
-//     if(length>0) {
+//     if(length > 0) {
 //         if(c>=array[length-1]) {
 //             return length;
 //         }

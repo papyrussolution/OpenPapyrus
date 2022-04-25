@@ -648,19 +648,15 @@ int tls13_change_cipher_state(SSL * s, int which)
 	}
 	else if(label == client_application_traffic)
 		memcpy(s->client_app_traffic_secret, secret, hashlen);
-
 	if(!ssl_log_secret(s, log_label, secret, hashlen)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
-
-	if(finsecret != NULL
-	 && !tls13_derive_finishedkey(s, ssl_handshake_md(s), secret,
+	if(finsecret != NULL && !tls13_derive_finishedkey(s, ssl_handshake_md(s), secret,
 	    finsecret, finsecretlen)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
-
 	if(!s->server && label == client_early_traffic)
 		s->statem.enc_write_state = ENC_WRITE_STATE_WRITE_PLAIN_ALERTS;
 	else
@@ -684,12 +680,10 @@ int tls13_update_key(SSL * s, int sending)
 	uchar secret[EVP_MAX_MD_SIZE];
 	EVP_CIPHER_CTX * ciph_ctx;
 	int ret = 0;
-
 	if(s->server == sending)
 		insecret = s->server_app_traffic_secret;
 	else
 		insecret = s->client_app_traffic_secret;
-
 	if(sending) {
 		s->statem.enc_write_state = ENC_WRITE_STATE_INVALID;
 		iv = s->write_iv;
@@ -701,18 +695,12 @@ int tls13_update_key(SSL * s, int sending)
 		ciph_ctx = s->enc_read_ctx;
 		RECORD_LAYER_reset_read_sequence(&s->rlayer);
 	}
-
-	if(!derive_secret_key_and_iv(s, sending, ssl_handshake_md(s),
-	    s->s3->tmp.new_sym_enc, insecret, NULL,
-	    application_traffic,
-	    sizeof(application_traffic) - 1, secret, iv,
-	    ciph_ctx)) {
+	if(!derive_secret_key_and_iv(s, sending, ssl_handshake_md(s), s->s3->tmp.new_sym_enc, insecret, NULL,
+	    application_traffic, sizeof(application_traffic) - 1, secret, iv, ciph_ctx)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
-
 	memcpy(insecret, secret, hashlen);
-
 	s->statem.enc_write_state = ENC_WRITE_STATE_VALID;
 	ret = 1;
 err:
@@ -725,14 +713,11 @@ int tls13_alert_code(int code)
 	/* There are 2 additional alerts in TLSv1.3 compared to TLSv1.2 */
 	if(code == SSL_AD_MISSING_EXTENSION || code == SSL_AD_CERTIFICATE_REQUIRED)
 		return code;
-
 	return tls1_alert_code(code);
 }
 
-int tls13_export_keying_material(SSL * s, uchar * out, size_t olen,
-    const char * label, size_t llen,
-    const uchar * context,
-    size_t contextlen, int use_context)
+int tls13_export_keying_material(SSL * s, uchar * out, size_t olen, const char * label, size_t llen,
+    const uchar * context, size_t contextlen, int use_context)
 {
 	uchar exportsecret[EVP_MAX_MD_SIZE];
 #ifdef CHARSET_EBCDIC

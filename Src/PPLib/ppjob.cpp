@@ -263,7 +263,7 @@ int PPJobMngr::LoadPool(const char * pDbSymb, PPJobPool * pPool, int readOnly)
 }
 
 //@erik v10.7.4
-int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, int readOnly)
+int PPJobMngr::LoadPool2(const char * pDbSymb, PPJobPool * pPool, bool readOnly)
 {
 	int    ok = 1;
 	xmlParserCtxt * p_xml_parser = 0;
@@ -543,6 +543,14 @@ PPJob::PPJob() : ID(0), Flags(0), EstimatedTime(0), NextJobID(0), EmailAccID(0),
 	memzero(Reserve, sizeof(Reserve));
 }
 
+PPJob::PPJob(const PPJob & rS) : PPExtStrContainer(rS), ID(rS.ID), Flags(rS.Flags), EstimatedTime(rS.EstimatedTime), NextJobID(rS.NextJobID), 
+	EmailAccID(rS.EmailAccID), ScheduleBeforeTime(rS.ScheduleBeforeTime), LastRunningTime(rS.LastRunningTime),
+	Dtr(rS.Dtr), Ver(rS.Ver), Name(rS.Name), Descr(rS.Descr), DbSymb(rS.DbSymb), Param(rS.Param)
+{
+	STRNSCPY(Symb, rS.Symb);
+	memzero(Reserve, sizeof(Reserve));
+}
+
 PPJob & FASTCALL PPJob::operator = (const PPJob & s)
 {
 	ID      = s.ID;
@@ -647,7 +655,8 @@ int PPJob::Write2(xmlTextWriter * pXmlWriter) const //@erik v10.7.4
 		pp_job_node.PutInner("ExtString", temp_buf);
 		pp_job_node.PutInner("Flags", temp_buf.Z().Cat(flags));
 		pp_job_node.PutInner("EstimatedTime", temp_buf.Z().Cat(EstimatedTime));
-		pp_job_node.PutInner("LastRunningTime", temp_buf.Z().Cat(LastRunningTime));
+		if(!!LastRunningTime) // @v11.3.9
+			pp_job_node.PutInner("LastRunningTime", temp_buf.Z().Cat(LastRunningTime, DATF_ISO8601|DATF_CENTURY, 0));
 		pp_job_node.PutInner("Ver", temp_buf.Z().Cat(Ver));
 		pp_job_node.PutInner("NextJobID", temp_buf.Z().Cat(NextJobID));
 		pp_job_node.PutInner("EmailAccID", temp_buf.Z().Cat(EmailAccID));
@@ -777,7 +786,7 @@ int PPJobPool::CheckUniqueJob(const PPJob * pJob) const
 	return ok;
 }
 
-int PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
+int PPJobPool::Enum(PPID * pID, PPJob * pJob, bool ignoreDbSymb) const
 {
 	for(uint i = 0; i < getCount(); i++) {
 		const PPJob * p_job = at(i);
@@ -790,7 +799,7 @@ int PPJobPool::Enum(PPID * pID, PPJob * pJob, int ignoreDbSymb) const
 	return 0;
 }
 
-const PPJob * PPJobPool::GetJobItem(PPID id, int ignoreDbSymb) const
+const PPJob * PPJobPool::GetJobItem(PPID id, bool ignoreDbSymb) const
 {
 	if(id) {
 		for(uint i = 0; i < getCount(); i++) {
@@ -4298,7 +4307,7 @@ public:
 				}
 			}
 		}
-		CATCHZOKPPERR
+		//CATCHZOKPPERR
 		return ok;
 	}
 };

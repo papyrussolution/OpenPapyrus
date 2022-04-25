@@ -1,17 +1,11 @@
-/*====================================================================*
-   -  Copyright (C) 2001 Leptonica.  All rights reserved.
-   -
-   -  Redistribution and use in source and binary forms, with or without
-   -  modification, are permitted provided that the following conditions
-   -  are met:
-   -  1. Redistributions of source code must retain the above copyright
-   -     notice, this list of conditions and the following disclaimer.
-   -  2. Redistributions in binary form must reproduce the above
-   -     copyright notice, this list of conditions and the following
-   -     disclaimer in the documentation and/or other materials
-   -     provided with the distribution.
-*====================================================================*/
-
+// 
+// Copyright (C) 2001 Leptonica.  All rights reserved.
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+// 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+// 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
+//   disclaimer in the documentation and/or other materials provided with the distribution.
+// 
 /*!
  * \file sudoku.c
  * <pre>
@@ -334,7 +328,6 @@ void sudokuDestroy(L_SUDOKU  ** psud)
 	SAlloc::F(sud);
 	*psud = NULL;
 }
-
 /*---------------------------------------------------------------------*
 *                           Solve the puzzle                          *
 *---------------------------------------------------------------------*/
@@ -348,25 +341,20 @@ void sudokuDestroy(L_SUDOKU  ** psud)
 l_int32 sudokuSolve(L_SUDOKU  * sud)
 {
 	PROCNAME(__FUNCTION__);
-
 	if(!sud)
 		return ERROR_INT("sud not defined", procName, 0);
-
 	if(!sudokuValidState(sud->init))
 		return ERROR_INT("initial state not valid", procName, 0);
-
 	while(1) {
 		if(sudokuNewGuess(sud))
 			break;
 		if(sud->finished == TRUE)
 			break;
 	}
-
 	if(sud->failure == TRUE) {
 		lept_stderr("Failure after %d guesses\n", sud->nguess);
 		return 0;
 	}
-
 	lept_stderr("Solved after %d guesses\n", sud->nguess);
 	return 1;
 }
@@ -817,14 +805,11 @@ L_SUDOKU * sudokuGenerate(l_int32 * array,
  *          of the solution.
  * </pre>
  */
-l_int32 sudokuOutput(L_SUDOKU  * sud,
-    l_int32 arraytype)
+l_int32 sudokuOutput(L_SUDOKU  * sud, l_int32 arraytype)
 {
 	l_int32 i, j;
 	l_int32 * array;
-
 	PROCNAME(__FUNCTION__);
-
 	if(!sud)
 		return ERROR_INT("sud not defined", procName, 1);
 	if(arraytype == L_SUDOKU_INIT)

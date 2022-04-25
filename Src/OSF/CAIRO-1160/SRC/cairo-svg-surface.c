@@ -988,7 +988,6 @@ static cairo_status_t base64_write_func(void * closure, const uchar * data, uint
 	}
 	do {
 		uchar dst[4];
-
 		for(i = info->in_mem; i < 3; i++) {
 			src[i] = *data++;
 			length--;
@@ -1010,12 +1009,10 @@ static cairo_status_t base64_write_func(void * closure, const uchar * data, uint
 		}
 		_cairo_output_stream_write(info->output, dst, 4);
 	} while(length >= 3);
-
 	for(i = 0; i < length; i++) {
 		src[i] = *data++;
 	}
 	info->in_mem = length;
-
 	return _cairo_output_stream_get_status(info->output);
 }
 

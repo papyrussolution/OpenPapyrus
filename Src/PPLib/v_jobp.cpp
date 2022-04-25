@@ -220,7 +220,7 @@ int EditJobItem(PPJobMngr * pMngr, PPJobPool * pJobPool, PPJob * pData) { DIALOG
 //
 class JobPoolDialog : public PPListDialog {
 public:
-	JobPoolDialog(PPJobMngr * pMngr, PPJobPool * pData) : PPListDialog(DLG_JOBPOOL, CTL_JOBPOOL_LIST), P_Mngr(pMngr), P_Data(pData), ForAllDb(0)
+	JobPoolDialog(PPJobMngr * pMngr, PPJobPool * pData) : PPListDialog(DLG_JOBPOOL, CTL_JOBPOOL_LIST), P_Mngr(pMngr), P_Data(pData), ForAllDb(false)
 	{
 		updateList(-1);
 	}
@@ -231,7 +231,7 @@ private:
 		if(event.isCmd(cmPrint))
 			PPAlddPrint(REPORT_JOBPOOL, PView(P_Data), 0);
 		else if(event.isClusterClk(CTL_JOBPOOL_FLAGS)) {
-			ForAllDb = BIN(getCtrlUInt16(CTL_JOBPOOL_FLAGS) & 0x0001);
+			ForAllDb = LOGIC(getCtrlUInt16(CTL_JOBPOOL_FLAGS) & 0x0001);
 			updateList(-1);
 		}
 		else
@@ -245,7 +245,8 @@ private:
 
 	PPJobMngr * P_Mngr;
 	PPJobPool * P_Data;
-	int    ForAllDb;    // Показывать задачи для всех баз данных
+	bool   ForAllDb;    // Показывать задачи для всех баз данных
+	uint8  Reserve[3];  // @alignment
 };
 
 int JobPoolDialog::setupList()
@@ -325,7 +326,7 @@ int ViewJobPool()
 	JobPoolDialog * dlg = 0;
 	THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_READ, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	THROW(mngr.LoadPool2(db_symb, &pool, 0)); //@erik v10.7.4 LoadPool-->LoadPool2
+	THROW(mngr.LoadPool2(db_symb, &pool, false)); //@erik v10.7.4 LoadPool-->LoadPool2
 	THROW(CheckDialogPtrErr(&(dlg = new JobPoolDialog(&mngr, &pool))));
 	while(ExecView(dlg) == cmOK) {
 		THROW(CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0));
@@ -426,7 +427,7 @@ int PPViewJob::LoadPool()
 	ZDELETE(P_Pool);
 	THROW_MEM(P_Pool = new PPJobPool(&Mngr, 0, 0));
 	THROW_PP(CurDict->GetDbSymb(db_symb), PPERR_DBSYMBUNDEF);
-	THROW(Mngr.LoadPool2(db_symb, P_Pool, 0)); // @erik v10.7.4 LoadPool-->LoadPool2
+	THROW(Mngr.LoadPool2(db_symb, P_Pool, false)); // @erik v10.7.4 LoadPool-->LoadPool2
 	Mngr.GetResourceList(0, CmdSymbList);
 	CATCH
 		ZDELETE(P_Pool);
@@ -547,7 +548,7 @@ int PPViewJob::EditItem(PPID id)
 {
 	int    ok = -1;
 	if(P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
-		const PPJob * p_job = P_Pool->GetJobItem(id, (Filt.Flags & JobFilt::fForAllDb));
+		const PPJob * p_job = P_Pool->GetJobItem(id, LOGIC(Filt.Flags & JobFilt::fForAllDb));
 		if(p_job) {
 			PPJob job = *p_job;
 			if(EditJobItem(&Mngr, P_Pool, &job) > 0)
@@ -598,16 +599,47 @@ int PPViewJob::_GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 	return ok;
 }
 
-// static
-int FASTCALL PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
+/*static*/int FASTCALL PPViewJob::GetDataForBrowser(SBrowserDataProcBlock * pBlk)
 {
 	PPViewJob * p_v = static_cast<PPViewJob *>(pBlk->ExtraPtr);
 	return p_v ? p_v->_GetDataForBrowser(pBlk) : 0;
 }
 
+/*static*/int PPViewJob::CellStyleFunc(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, void * extraPtr)
+{
+	int    ok = -1;
+	PPViewBrowser * p_brw = static_cast<PPViewBrowser *>(extraPtr);
+	if(p_brw) {
+		PPViewJob * p_view = static_cast<PPViewJob *>(p_brw->P_View);
+		ok = p_view ? p_view->CellStyleFunc_(pData, col, paintAction, pStyle, p_brw) : -1;
+	}
+	return ok;
+}
+
+int PPViewJob::CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pStyle, PPViewBrowser * pBrw)
+{
+	int    ok = -1;
+	if(pBrw && pData && pStyle) {
+		const  BrowserDef * p_def = pBrw->getDef();
+		if(col >= 0 && col < p_def->getCountI()) {
+			const BroColumn & r_col = p_def->at(col);
+			const JobViewItem * p_item = static_cast<const JobViewItem *>(pData);
+			if(r_col.OrgOffs == 1) { // name
+				if(p_item->Flags & PPJob::fDisable) {
+					ok = pStyle->SetFullCellColor(GetColorRef(SClrLightgrey));
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 {
-	CALLPTRMEMB(pBrw, SetDefUserProc(PPViewJob::GetDataForBrowser, this));
+	if(pBrw) {
+		pBrw->SetDefUserProc(PPViewJob::GetDataForBrowser, this);
+		pBrw->SetCellStyleFunc(PPViewJob::CellStyleFunc, pBrw);
+	}
 }
 
 /*virtual*/int PPViewJob::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * pBrw)
@@ -626,7 +658,7 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 			case PPVCMD_ADDBYSAMPLE: // @v10.4.3
 				ok = -1;
 				if(job_id && P_Pool && CheckCfgRights(PPCFGOBJ_JOBPOOL, PPR_MOD, 0)) {
-					const PPJob * p_job = P_Pool->GetJobItem(job_id, (Filt.Flags & JobFilt::fForAllDb));
+					const PPJob * p_job = P_Pool->GetJobItem(job_id, LOGIC(Filt.Flags & JobFilt::fForAllDb));
 					if(p_job) {
 						PPJob  new_job = *p_job;
 						PPID   new_id = 0;
@@ -672,6 +704,45 @@ void PPViewJob::PreprocessBrowser(PPViewBrowser * pBrw)
 			case PPVCMD_SAVE:
 				ok = -1;
 				LoadPool(); // внутри вызывается функция SavePool
+				break;
+			case PPVCMD_EXECJOBIMM:
+				{
+					if(PPMaster) {
+						const SymbHashTable * p_ht = PPGetStringHash(PPSTR_HASHTOKEN);
+						const PPJob * p_job = P_Pool->GetJobItem(job_id, LOGIC(Filt.Flags & JobFilt::fForAllDb));
+						if(p_ht && p_job) {
+							PPJobSrvClient cli;
+							PPJobSrvReply reply;
+							if(cli.Connect(0, 0)) {
+								SString cmd_buf;
+								SString fmt_buf;
+								SString msg_buf;
+								p_ht->GetByAssoc(PPHS_EXECJOBIMM, cmd_buf);
+								if(cmd_buf.NotEmpty()) {
+									cmd_buf.Space().Cat(p_job->ID);
+									PPJobSrvReply reply;
+									cli.Exec(cmd_buf, reply);
+									uint  msg_options = 0;
+									if(reply.CheckRepError()) {
+										PPLoadText(PPTXT_EXECJOBIMM_SUCCESS, fmt_buf);
+										msg_buf.Printf(fmt_buf, p_job->Name.cptr());
+										msg_options = mfInfo|mfOK;
+									}
+									else {
+										SString temp_buf;
+										PPGetLastErrorMessage(1, temp_buf);
+										PPLoadText(PPTXT_EXECJOBIMM_ERROR, fmt_buf);
+										(msg_buf = fmt_buf).CatDiv(':', 2).CatParStr(p_job->Name).Space().Cat(temp_buf);
+										msg_options = mfError|mfOK;
+									}
+									PPOutputMessage(msg_buf, msg_options);
+								}
+							}
+							else
+								PPError();
+						}
+					}
+				}
 				break;
 			case PPVCMD_PRINT:
 				ok = -1;
@@ -741,7 +812,7 @@ int PPViewJob::MakeList()
 				item.LastRunningTime = job.LastRunningTime;
 				item.Ver = job.Ver;
 				if(job.NextJobID) {
-					const PPJob * p_job = P_Pool->GetJobItem(job.NextJobID, Filt.Flags & JobFilt::fForAllDb);
+					const PPJob * p_job = P_Pool->GetJobItem(job.NextJobID, LOGIC(Filt.Flags & JobFilt::fForAllDb));
 					if(p_job)
 						p_job->Name.CopyTo(item.NextJob, sizeof(item.NextJob));
 				}

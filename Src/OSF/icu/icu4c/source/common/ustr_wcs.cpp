@@ -38,7 +38,7 @@ static inline bool u_growAnyBufferFromStatic(void * context, void ** pBuffer, in
 	// and related warnings.
 	char * newBuffer = (char *)uprv_malloc(reqCapacity*size);
 	if(newBuffer) {
-		if(length>0) {
+		if(length > 0) {
 			uprv_memcpy(newBuffer, *pBuffer, (size_t)length*size);
 		}
 		*pCapacity = reqCapacity;

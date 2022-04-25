@@ -247,43 +247,34 @@ size_t Curl_hash_str(void * key, size_t key_length, size_t slots_num)
 	const char * key_str = (const char *)key;
 	const char * end = key_str + key_length;
 	size_t h = 5381;
-
 	while(key_str < end) {
 		h += h << 5;
 		h ^= *key_str++;
 	}
-
 	return (h % slots_num);
 }
 
-size_t Curl_str_key_compare(void * k1, size_t key1_len,
-    void * k2, size_t key2_len)
+size_t Curl_str_key_compare(void * k1, size_t key1_len, void * k2, size_t key2_len)
 {
-	if((key1_len == key2_len) && !memcmp(k1, k2, key1_len))
-		return 1;
-
-	return 0;
+	return ((key1_len == key2_len) && !memcmp(k1, k2, key1_len)) ? 1 : 0;
 }
 
-void Curl_hash_start_iterate(struct Curl_hash * hash,
-    struct Curl_hash_iterator * iter)
+void Curl_hash_start_iterate(struct Curl_hash * hash, struct Curl_hash_iterator * iter)
 {
 	iter->hash = hash;
 	iter->slot_index = 0;
 	iter->current_element = NULL;
 }
 
-struct Curl_hash_element * Curl_hash_next_element(struct Curl_hash_iterator * iter)                            {
+struct Curl_hash_element * Curl_hash_next_element(struct Curl_hash_iterator * iter)
+{
 	struct Curl_hash * h = iter->hash;
-
 	/* Get the next element in the current list, if any */
 	if(iter->current_element)
 		iter->current_element = iter->current_element->next;
-
 	/* If we have reached the end of the list, find the next one */
 	if(!iter->current_element) {
-		int i;
-		for(i = iter->slot_index; i < h->slots; i++) {
+		for(int i = iter->slot_index; i < h->slots; i++) {
 			if(h->table[i].head) {
 				iter->current_element = h->table[i].head;
 				iter->slot_index = i + 1;
@@ -291,7 +282,6 @@ struct Curl_hash_element * Curl_hash_next_element(struct Curl_hash_iterator * it
 			}
 		}
 	}
-
 	if(iter->current_element) {
 		struct Curl_hash_element * he = (struct Curl_hash_element *)iter->current_element->ptr;
 		return he;
@@ -301,8 +291,7 @@ struct Curl_hash_element * Curl_hash_next_element(struct Curl_hash_iterator * it
 }
 
 #if 0 /* useful function for debugging hashes and their contents */
-void Curl_hash_print(struct Curl_hash * h,
-    void (*func)(void *))
+void Curl_hash_print(struct Curl_hash * h, void (*func)(void *))
 {
 	struct Curl_hash_iterator iter;
 	struct Curl_hash_element * he;

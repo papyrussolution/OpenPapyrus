@@ -24,8 +24,7 @@
 // Black point detection -------------------------------------------------------------------------
 
 // PCS -> PCS round trip transform, always uses relative intent on the device -> pcs
-static
-cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, uint32 nIntent)
+static cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, uint32 nIntent)
 {
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
 	cmsHPROFILE hLab = cmsCreateLab4ProfileTHR(ContextID, NULL);
@@ -48,11 +47,7 @@ cmsHTRANSFORM CreateRoundtripXForm(cmsHPROFILE hProfile, uint32 nIntent)
 
 // Use darker colorants to obtain black point. This works in the relative colorimetric intent and
 // assumes more ink results in darker colors. No ink limit is assumed.
-static
-boolint BlackPointAsDarkerColorant(cmsHPROFILE hInput,
-    uint32 Intent,
-    cmsCIEXYZ* BlackPoint,
-    uint32 dwFlags)
+static boolint BlackPointAsDarkerColorant(cmsHPROFILE hInput, uint32 Intent, cmsCIEXYZ* BlackPoint, uint32 dwFlags)
 {
 	uint16 * Black;
 	cmsHTRANSFORM xform;
@@ -129,13 +124,11 @@ boolint BlackPointAsDarkerColorant(cmsHPROFILE hInput,
 // Get a black point of output CMYK profile, discounting any ink-limiting embedded
 // in the profile. For doing that, we use perceptual intent in input direction:
 // Lab (0, 0, 0) -> [Perceptual] Profile -> CMYK -> [Rel. colorimetric] Profile -> Lab
-static
-boolint BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile)
+static boolint BlackPointUsingPerceptualBlack(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfile)
 {
 	cmsHTRANSFORM hRoundTrip;
 	cmsCIELab LabIn, LabOut;
 	cmsCIEXYZ BlackXYZ;
-
 	// Is the intent supported by the profile?
 	if(!cmsIsIntentSupported(hProfile, INTENT_PERCEPTUAL, LCMS_USED_AS_INPUT)) {
 		BlackPoint->X = BlackPoint->Y = BlackPoint->Z = 0.0;
@@ -258,8 +251,7 @@ boolint CMSEXPORT cmsDetectBlackPoint(cmsCIEXYZ* BlackPoint, cmsHPROFILE hProfil
 // Least Squares Fit of a Quadratic Curve to Data
 // http://www.personal.psu.edu/jhm/f90/lectures/lsq2.html
 
-static
-double RootOfLeastSquaresFitQuadraticCurve(int n, double x[], double y[])
+static double RootOfLeastSquaresFitQuadraticCurve(int n, double x[], double y[])
 {
 	double sum_x = 0, sum_x2 = 0, sum_x3 = 0, sum_x4 = 0;
 	double sum_y = 0, sum_yx = 0, sum_yx2 = 0;
@@ -267,9 +259,7 @@ double RootOfLeastSquaresFitQuadraticCurve(int n, double x[], double y[])
 	int i;
 	cmsMAT3 m;
 	cmsVEC3 v, res;
-
 	if(n < 4) return 0;
-
 	for(i = 0; i < n; i++) {
 		double xn = x[i];
 		double yn = y[i];

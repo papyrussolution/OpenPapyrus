@@ -1295,21 +1295,17 @@ static boolint Type_MLU_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	CXX_UNUSED(self);
 }
 
-static
-void * Type_MLU_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_MLU_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsMLUdup((cmsMLU*)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_MLU_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_MLU_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsMLUfree((cmsMLU*)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -1318,11 +1314,9 @@ void Type_MLU_Free(struct _cms_typehandler_struct* self, void * Ptr)
 // ********************************************************************************
 
 // Decide which LUT type to use on writing
-static
-cmsTagTypeSignature DecideLUTtypeA2B(double ICCVersion, const void * Data)
+static cmsTagTypeSignature DecideLUTtypeA2B(double ICCVersion, const void * Data)
 {
 	cmsPipeline * Lut = (cmsPipeline *)Data;
-
 	if(ICCVersion < 4.0) {
 		if(Lut->SaveAs8Bits) return cmsSigLut8Type;
 		return cmsSigLut16Type;
@@ -1332,11 +1326,9 @@ cmsTagTypeSignature DecideLUTtypeA2B(double ICCVersion, const void * Data)
 	}
 }
 
-static
-cmsTagTypeSignature DecideLUTtypeB2A(double ICCVersion, const void * Data)
+static cmsTagTypeSignature DecideLUTtypeB2A(double ICCVersion, const void * Data)
 {
 	cmsPipeline * Lut = (cmsPipeline *)Data;
-
 	if(ICCVersion < 4.0) {
 		if(Lut->SaveAs8Bits) return cmsSigLut8Type;
 		return cmsSigLut16Type;
@@ -1364,18 +1356,14 @@ cmsTagTypeSignature DecideLUTtypeB2A(double ICCVersion, const void * Data)
  */
 
 // Read 8 bit tables as gamma functions
-static
-boolint Read8bitTables(cmsContext ContextID, cmsIOHANDLER* io, cmsPipeline * lut, uint32 nChannels)
+static boolint Read8bitTables(cmsContext ContextID, cmsIOHANDLER* io, cmsPipeline * lut, uint32 nChannels)
 {
 	uint8 * Temp = NULL;
 	uint32 i, j;
 	cmsToneCurve * Tables[cmsMAXCHANNELS];
-
 	if(nChannels > cmsMAXCHANNELS) return FALSE;
 	if(nChannels <= 0) return FALSE;
-
 	memzero(Tables, sizeof(Tables));
-
 	Temp = (uint8 *)_cmsMalloc(ContextID, 256);
 	if(Temp == NULL) return FALSE;
 
@@ -1411,13 +1399,11 @@ Error:
 	return FALSE;
 }
 
-static
-boolint Write8bitTables(cmsContext ContextID, cmsIOHANDLER* io, uint32 n, _cmsStageToneCurvesData* Tables)
+static boolint Write8bitTables(cmsContext ContextID, cmsIOHANDLER* io, uint32 n, _cmsStageToneCurvesData* Tables)
 {
 	int j;
 	uint32 i;
 	uint8 val;
-
 	for(i = 0; i < n; i++) {
 		if(Tables) {
 			// Usual case of identity curves
@@ -1444,23 +1430,17 @@ boolint Write8bitTables(cmsContext ContextID, cmsIOHANDLER* io, uint32 n, _cmsSt
 }
 
 // Check overflow
-static
-uint32 uipow(uint32 n, uint32 a, uint32 b)
+static uint32 uipow(uint32 n, uint32 a, uint32 b)
 {
 	uint32 rv = 1, rc;
-
 	if(a == 0) return 0;
 	if(n == 0) return 0;
-
 	for(; b > 0; b--) {
 		rv *= a;
-
 		// Check for overflow
 		if(rv > UINT_MAX / a) return (uint32) -1;
 	}
-
 	rc = rv * n;
-
 	if(rv != rc / n) return (uint32) -1;
 	return rc;
 }
@@ -1469,34 +1449,26 @@ uint32 uipow(uint32 n, uint32 a, uint32 b)
 // 8 bit lut may be scaled easely to v4 PCS, but we need also to properly adjust
 // PCS on BToAxx tags and AtoB if abstract. We need to fix input direction.
 
-static
-void * Type_LUT8_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUT8_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint8 InputChannels, OutputChannels, CLUTpoints;
 	uint8 * Temp = NULL;
 	cmsPipeline * NewLUT = NULL;
 	uint32 nTabSize, i;
 	double Matrix[3*3];
-
 	*nItems = 0;
-
 	if(!_cmsReadUInt8Number(io, &InputChannels)) goto Error;
 	if(!_cmsReadUInt8Number(io, &OutputChannels)) goto Error;
 	if(!_cmsReadUInt8Number(io, &CLUTpoints)) goto Error;
-
 	if(CLUTpoints == 1) goto Error; // Impossible value, 0 for no CLUT and then 2 at least
-
 	// Padding
 	if(!_cmsReadUInt8Number(io, NULL)) goto Error;
-
 	// Do some checking
 	if(InputChannels == 0 || InputChannels > cmsMAXCHANNELS) goto Error;
 	if(OutputChannels == 0 || OutputChannels > cmsMAXCHANNELS) goto Error;
-
 	// Allocates an empty Pipeline
 	NewLUT = cmsPipelineAlloc(self->ContextID, InputChannels, OutputChannels);
 	if(NewLUT == NULL) goto Error;
-
 	// Read the Matrix
 	if(!_cmsRead15Fixed16Number(io,  &Matrix[0])) goto Error;
 	if(!_cmsRead15Fixed16Number(io,  &Matrix[1])) goto Error;
@@ -1566,8 +1538,7 @@ Error:
 }
 
 // We only allow a specific MPE structure: Matrix plus prelin, plus clut, plus post-lin.
-static
-boolint Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	uint32 j, nTabSize, i, n;
 	uint8 val;
@@ -1577,14 +1548,12 @@ boolint Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, 
 	_cmsStageMatrixData* MatMPE = NULL;
 	_cmsStageCLutData* clut = NULL;
 	uint32 clutPoints;
-
 	// Disassemble the LUT into components.
 	mpe = NewLUT->Elements;
 	if(mpe->Type == cmsSigMatrixElemType) {
 		MatMPE = (_cmsStageMatrixData*)mpe->Data;
 		mpe = mpe->Next;
 	}
-
 	if(mpe != NULL && mpe->Type == cmsSigCurveSetElemType) {
 		PreMPE = (_cmsStageToneCurvesData*)mpe->Data;
 		mpe = mpe->Next;
@@ -1660,21 +1629,17 @@ boolint Type_LUT8_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, 
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_LUT8_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_LUT8_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsPipelineDup((cmsPipeline *)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_LUT8_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_LUT8_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline *)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -1683,16 +1648,12 @@ void Type_LUT8_Free(struct _cms_typehandler_struct* self, void * Ptr)
 // ********************************************************************************
 
 // Read 16 bit tables as gamma functions
-static
-boolint Read16bitTables(cmsContext ContextID, cmsIOHANDLER* io, cmsPipeline * lut,
-    uint32 nChannels, uint32 nEntries)
+static boolint Read16bitTables(cmsContext ContextID, cmsIOHANDLER* io, cmsPipeline * lut, uint32 nChannels, uint32 nEntries)
 {
 	uint32 i;
 	cmsToneCurve * Tables[cmsMAXCHANNELS];
-
 	// Maybe an empty table? (this is a lcms extension)
 	if(nEntries <= 0) return TRUE;
-
 	// Check for malicious profiles
 	if(nEntries < 2) return FALSE;
 	if(nChannels > cmsMAXCHANNELS) return FALSE;
@@ -1722,18 +1683,14 @@ Error:
 	return FALSE;
 }
 
-static
-boolint Write16bitTables(cmsContext ContextID, cmsIOHANDLER* io, _cmsStageToneCurvesData* Tables)
+static boolint Write16bitTables(cmsContext ContextID, cmsIOHANDLER* io, _cmsStageToneCurvesData* Tables)
 {
 	uint32 j;
 	uint32 i;
 	uint16 val;
 	uint32 nEntries;
-
 	_cmsAssert(Tables != NULL);
-
 	nEntries = Tables->TheCurves[0]->nEntries;
-
 	for(i = 0; i < Tables->nCurves; i++) {
 		for(j = 0; j < nEntries; j++) {
 			val = Tables->TheCurves[i]->Table16[j];
@@ -1745,21 +1702,17 @@ boolint Write16bitTables(cmsContext ContextID, cmsIOHANDLER* io, _cmsStageToneCu
 	CXX_UNUSED(ContextID);
 }
 
-static
-void * Type_LUT16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUT16_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint8 InputChannels, OutputChannels, CLUTpoints;
 	cmsPipeline * NewLUT = NULL;
 	uint32 nTabSize;
 	double Matrix[3*3];
 	uint16 InputEntries, OutputEntries;
-
 	*nItems = 0;
-
 	if(!_cmsReadUInt8Number(io, &InputChannels)) return NULL;
 	if(!_cmsReadUInt8Number(io, &OutputChannels)) return NULL;
 	if(!_cmsReadUInt8Number(io, &CLUTpoints)) return NULL; // 255 maximum
-
 	// Padding
 	if(!_cmsReadUInt8Number(io, NULL)) return NULL;
 
@@ -1835,8 +1788,7 @@ Error:
 // We only allow some specific MPE structures: Matrix plus prelin, plus clut, plus post-lin.
 // Some empty defaults are created for missing parts
 
-static
-boolint Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	uint32 nTabSize;
 	cmsPipeline * NewLUT = (cmsPipeline *)Ptr;
@@ -1845,7 +1797,6 @@ boolint Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 	_cmsStageMatrixData* MatMPE = NULL;
 	_cmsStageCLutData* clut = NULL;
 	uint32 i, InputChannels, OutputChannels, clutPoints;
-
 	// Disassemble the LUT into components.
 	mpe = NewLUT->Elements;
 	if(mpe != NULL && mpe->Type == cmsSigMatrixElemType) {
@@ -1956,21 +1907,17 @@ boolint Type_LUT16_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_LUT16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_LUT16_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsPipelineDup((cmsPipeline *)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_LUT16_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_LUT16_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline *)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -1980,16 +1927,13 @@ void Type_LUT16_Free(struct _cms_typehandler_struct* self, void * Ptr)
 
 // V4 stuff. Read matrix for LutAtoB and LutBtoA
 
-static
-cmsStage * ReadMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 Offset)
+static cmsStage * ReadMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 Offset)
 {
 	double dMat[3*3];
 	double dOff[3];
 	cmsStage * Mat;
-
 	// Go to address
 	if(!io->Seek(io, Offset)) return NULL;
-
 	// Read the Matrix
 	if(!_cmsRead15Fixed16Number(io, &dMat[0])) return NULL;
 	if(!_cmsRead15Fixed16Number(io, &dMat[1])) return NULL;
@@ -2012,9 +1956,7 @@ cmsStage * ReadMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, ui
 
 //  V4 stuff. Read CLUT part for LutAtoB and LutBtoA
 
-static
-cmsStage * ReadCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
-    uint32 Offset, uint32 InputChannels, uint32 OutputChannels)
+static cmsStage * ReadCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 Offset, uint32 InputChannels, uint32 OutputChannels)
 {
 	uint8 gridPoints8[cmsMAXCHANNELS]; // Number of grid points in each dimension.
 	uint32 GridPoints[cmsMAXCHANNELS], i;
@@ -2068,12 +2010,10 @@ cmsStage * ReadCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 	return CLUT;
 }
 
-static
-cmsToneCurve * ReadEmbeddedCurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io)
+static cmsToneCurve * ReadEmbeddedCurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io)
 {
 	cmsTagTypeSignature BaseType;
 	uint32 nItems;
-
 	BaseType = _cmsReadTypeBase(io);
 	switch(BaseType) {
 		case cmsSigCurveType:
@@ -2094,28 +2034,21 @@ cmsToneCurve * ReadEmbeddedCurve(struct _cms_typehandler_struct* self, cmsIOHAND
 }
 
 // Read a set of curves from specific offset
-static
-cmsStage * ReadSetOfCurves(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 Offset, uint32 nCurves)
+static cmsStage * ReadSetOfCurves(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32 Offset, uint32 nCurves)
 {
 	cmsToneCurve * Curves[cmsMAXCHANNELS];
 	uint32 i;
 	cmsStage * Lin = NULL;
-
 	if(nCurves > cmsMAXCHANNELS) return FALSE;
-
 	if(!io->Seek(io, Offset)) return FALSE;
-
 	for(i = 0; i < nCurves; i++)
 		Curves[i] = NULL;
-
 	for(i = 0; i < nCurves; i++) {
 		Curves[i] = ReadEmbeddedCurve(self, io);
 		if(Curves[i] == NULL) goto Error;
 		if(!_cmsReadAlignment(io)) goto Error;
 	}
-
 	Lin = cmsStageAllocToneCurves(self->ContextID, nCurves, Curves);
-
 Error:
 	for(i = 0; i < nCurves; i++)
 		cmsFreeToneCurve(Curves[i]);
@@ -2144,8 +2077,7 @@ Error:
 
  */
 
-static
-void * Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint32 BaseOffset;
 	uint8 inputChan;        // Number of input channels
@@ -2156,14 +2088,10 @@ void * Type_LUTA2B_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, 
 	uint32 offsetC;         // Offset to CLUT
 	uint32 offsetA;         // Offset to first "A" curve
 	cmsPipeline * NewLUT = NULL;
-
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
-
 	if(!_cmsReadUInt8Number(io, &inputChan)) return NULL;
 	if(!_cmsReadUInt8Number(io, &outputChan)) return NULL;
-
 	if(!_cmsReadUInt16Number(io, NULL)) return NULL;
-
 	if(!_cmsReadUInt32Number(io, &offsetB)) return NULL;
 	if(!_cmsReadUInt32Number(io, &offsetMat)) return NULL;
 	if(!_cmsReadUInt32Number(io, &offsetM)) return NULL;
@@ -2212,20 +2140,15 @@ Error:
 }
 
 // Write a set of curves
-static
-boolint WriteMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsStage * mpe)
+static boolint WriteMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsStage * mpe)
 {
 	uint32 i, n;
-
 	_cmsStageMatrixData* m = (_cmsStageMatrixData*)mpe->Data;
-
 	n = mpe->InputChannels * mpe->OutputChannels;
-
 	// Write the Matrix
 	for(i = 0; i < n; i++) {
 		if(!_cmsWrite15Fixed16Number(io, m->Double[i])) return FALSE;
 	}
-
 	if(m->Offset != NULL) {
 		for(i = 0; i < mpe->OutputChannels; i++) {
 			if(!_cmsWrite15Fixed16Number(io, m->Offset[i])) return FALSE;
@@ -2243,16 +2166,13 @@ boolint WriteMatrix(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsS
 }
 
 // Write a set of curves
-static
-boolint WriteSetOfCurves(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsTagTypeSignature Type, cmsStage * mpe)
+static boolint WriteSetOfCurves(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsTagTypeSignature Type, cmsStage * mpe)
 {
 	uint32 i, n;
 	cmsTagTypeSignature CurrentType;
 	cmsToneCurve ** Curves;
-
 	n      = cmsStageOutputChannels(mpe);
 	Curves = _cmsStageGetPtrToCurveSet(mpe);
-
 	for(i = 0; i < n; i++) {
 		// If this is a table-based curve, use curve type even on V4
 		CurrentType = Type;
@@ -2290,13 +2210,11 @@ boolint WriteSetOfCurves(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 	return TRUE;
 }
 
-static
-boolint WriteCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint8 Precision, cmsStage * mpe)
+static boolint WriteCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint8 Precision, cmsStage * mpe)
 {
 	uint8 gridPoints[cmsMAXCHANNELS]; // Number of grid points in each dimension.
 	uint32 i;
 	_cmsStageCLutData* CLUT = (_cmsStageCLutData*)mpe->Data;
-
 	if(CLUT->HasFloatValues) {
 		cmsSignalError(self->ContextID, cmsERROR_NOT_SUITABLE, "Cannot save floating point data, CLUT are 8 or 16 bit only");
 		return FALSE;
@@ -2331,8 +2249,7 @@ boolint WriteCLUT(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint8 
 	return TRUE;
 }
 
-static
-boolint Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsPipeline * Lut = (cmsPipeline *)Ptr;
 	uint32 inputChan, outputChan;
@@ -2341,10 +2258,8 @@ boolint Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 	cmsStage * CLUT = NULL;
 	uint32 offsetB = 0, offsetMat = 0, offsetM = 0, offsetC = 0, offsetA = 0;
 	uint32 BaseOffset, DirectoryPos, CurrentPos;
-
 	// Get the base for all offsets
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
-
 	if(Lut->Elements != NULL)
 		if(!cmsPipelineCheckAndRetreiveStages(Lut, 1, cmsSigCurveSetElemType, &B))
 			if(!cmsPipelineCheckAndRetreiveStages(Lut, 3, cmsSigCurveSetElemType, cmsSigMatrixElemType, cmsSigCurveSetElemType,
@@ -2420,28 +2335,23 @@ boolint Type_LUTA2B_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_LUTA2B_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_LUTA2B_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsPipelineDup((cmsPipeline *)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_LUTA2B_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_LUTA2B_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline *)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
 // LutBToA type
 
-static
-void * Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint8 inputChan;        // Number of input channels
 	uint8 outputChan;       // Number of output channels
@@ -2452,15 +2362,11 @@ void * Type_LUTB2A_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, 
 	uint32 offsetC;         // Offset to CLUT
 	uint32 offsetA;         // Offset to first "A" curve
 	cmsPipeline * NewLUT = NULL;
-
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
-
 	if(!_cmsReadUInt8Number(io, &inputChan)) return NULL;
 	if(!_cmsReadUInt8Number(io, &outputChan)) return NULL;
-
 	if(inputChan == 0 || inputChan >= cmsMAXCHANNELS) return NULL;
 	if(outputChan == 0 || outputChan >= cmsMAXCHANNELS) return NULL;
-
 	// Padding
 	if(!_cmsReadUInt16Number(io, NULL)) return NULL;
 
@@ -2515,8 +2421,7 @@ Error:
    B - Matrix - M - CLUT - A
  */
 
-static
-boolint Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsPipeline * Lut = (cmsPipeline *)Ptr;
 	uint32 inputChan, outputChan;
@@ -2525,9 +2430,7 @@ boolint Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 	cmsStage * CLUT = NULL;
 	uint32 offsetB = 0, offsetMat = 0, offsetM = 0, offsetC = 0, offsetA = 0;
 	uint32 BaseOffset, DirectoryPos, CurrentPos;
-
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
-
 	if(!cmsPipelineCheckAndRetreiveStages(Lut, 1, cmsSigCurveSetElemType, &B))
 		if(!cmsPipelineCheckAndRetreiveStages(Lut, 3, cmsSigCurveSetElemType, cmsSigMatrixElemType, cmsSigCurveSetElemType, &B,
 		    &Matrix, &M))
@@ -2597,21 +2500,17 @@ boolint Type_LUTB2A_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_LUTB2A_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_LUTB2A_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsPipelineDup((cmsPipeline *)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline *)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -2626,21 +2525,17 @@ void Type_LUTB2A_Free(struct _cms_typehandler_struct* self, void * Ptr)
    of a lut tag, and so on.
  */
 
-static
-void * Type_ColorantTable_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_ColorantTable_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint32 i, Count;
 	cmsNAMEDCOLORLIST* List;
 	char Name[34];
 	uint16 PCS[3];
-
 	if(!_cmsReadUInt32Number(io, &Count)) return NULL;
-
 	if(Count > cmsMAXCHANNELS) {
 		cmsSignalError(self->ContextID, cmsERROR_RANGE, "Too many colorants '%d'", Count);
 		return NULL;
 	}
-
 	List = cmsAllocNamedColorList(self->ContextID, Count, 0, "", "");
 	for(i = 0; i < Count; i++) {
 		if(io->Read(io, Name, 32, 1) != 1) goto Error;
@@ -2663,16 +2558,12 @@ Error:
 }
 
 // Saves a colorant table. It is using the named color structure for simplicity sake
-static
-boolint Type_ColorantTable_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_ColorantTable_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsNAMEDCOLORLIST* NamedColorList = (cmsNAMEDCOLORLIST*)Ptr;
 	uint32 i, nColors;
-
 	nColors = cmsNamedColorCount(NamedColorList);
-
 	if(!_cmsWriteUInt32Number(io, nColors)) return FALSE;
-
 	for(i = 0; i < nColors; i++) {
 		char root[cmsMAX_PATH];
 		uint16 PCS[3];
@@ -2690,22 +2581,18 @@ boolint Type_ColorantTable_Write(struct _cms_typehandler_struct* self, cmsIOHAND
 	CXX_UNUSED(self);
 }
 
-static
-void * Type_ColorantTable_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_ColorantTable_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	cmsNAMEDCOLORLIST* nc = (cmsNAMEDCOLORLIST*)Ptr;
 	return (void *)cmsDupNamedColorList(nc);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeNamedColorList((cmsNAMEDCOLORLIST*)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -2724,8 +2611,7 @@ void Type_ColorantTable_Free(struct _cms_typehandler_struct* self, void * Ptr)
 //termination. In order to maintain maximum portability, it is strongly recommended
 //that special characters of the 7-bit ASCII set not be used.
 
-static
-void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint32 vendorFlag;      // Bottom 16 bits for ICC use
 	uint32 count;           // Count of named colors
@@ -2734,17 +2620,13 @@ void * Type_NamedColor_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 	char suffix[32];                 // Suffix for each color name
 	cmsNAMEDCOLORLIST*   v;
 	uint32 i;
-
 	*nItems = 0;
 	if(!_cmsReadUInt32Number(io, &vendorFlag)) return NULL;
 	if(!_cmsReadUInt32Number(io, &count)) return NULL;
 	if(!_cmsReadUInt32Number(io, &nDeviceCoords)) return NULL;
-
 	if(io->Read(io, prefix, 32, 1) != 1) return NULL;
 	if(io->Read(io, suffix, 32, 1) != 1) return NULL;
-
 	prefix[31] = suffix[31] = 0;
-
 	v = cmsAllocNamedColorList(self->ContextID, count, nDeviceCoords, prefix, suffix);
 	if(v == NULL) {
 		cmsSignalError(self->ContextID, cmsERROR_RANGE, "Too many named colors '%d'", count);
@@ -2779,28 +2661,21 @@ Error:
 }
 
 // Saves a named color list into a named color profile
-static
-boolint Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_NamedColor_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsNAMEDCOLORLIST* NamedColorList = (cmsNAMEDCOLORLIST*)Ptr;
 	char prefix[33];                // Prefix for each color name
 	char suffix[33];                // Suffix for each color name
 	uint32 i, nColors;
-
 	nColors = cmsNamedColorCount(NamedColorList);
-
 	if(!_cmsWriteUInt32Number(io, 0)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, nColors)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, NamedColorList->ColorantCount)) return FALSE;
-
 	strncpy(prefix, (const char *)NamedColorList->Prefix, 32);
 	strncpy(suffix, (const char *)NamedColorList->Suffix, 32);
-
 	suffix[32] = prefix[32] = 0;
-
 	if(!io->Write(io, 32, prefix)) return FALSE;
 	if(!io->Write(io, 32, suffix)) return FALSE;
-
 	for(i = 0; i < nColors; i++) {
 		uint16 PCS[3];
 		uint16 Colorant[cmsMAXCHANNELS];
@@ -3082,13 +2957,11 @@ static void * Type_UcrBg_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER
 	return (void *)n;
 }
 
-static
-boolint Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsUcrBg* Value = (cmsUcrBg*)Ptr;
 	uint32 TextSize;
 	char * Text;
-
 	// First curve is Under color removal
 	if(!_cmsWriteUInt32Number(io, Value->Ucr->nEntries)) return FALSE;
 	if(!_cmsWriteUInt16Array(io, Value->Ucr->nEntries, Value->Ucr->Table16)) return FALSE;
@@ -3110,28 +2983,21 @@ boolint Type_UcrBg_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io,
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_UcrBg_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_UcrBg_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	cmsUcrBg* Src = (cmsUcrBg*)Ptr;
 	cmsUcrBg* NewUcrBg = (cmsUcrBg*)_cmsMallocZero(self->ContextID, sizeof(cmsUcrBg));
-
 	if(NewUcrBg == NULL) return NULL;
-
 	NewUcrBg->Bg   = cmsDupToneCurve(Src->Bg);
 	NewUcrBg->Ucr  = cmsDupToneCurve(Src->Ucr);
 	NewUcrBg->Desc = cmsMLUdup(Src->Desc);
-
 	return (void *)NewUcrBg;
-
 	CXX_UNUSED(n);
 }
 
-static
-void Type_UcrBg_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_UcrBg_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsUcrBg* Src = (cmsUcrBg*)Ptr;
-
 	if(Src->Ucr) cmsFreeToneCurve(Src->Ucr);
 	if(Src->Bg) cmsFreeToneCurve(Src->Bg);
 	if(Src->Desc) cmsMLUfree(Src->Desc);
@@ -3157,12 +3023,7 @@ void Type_UcrBg_Free(struct _cms_typehandler_struct* self, void * Ptr)
  */
 
 // Auxiliary, read an string specified as count + string
-static
-boolint ReadCountAndSting(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    cmsMLU* mlu,
-    uint32* SizeOfTag,
-    const char * Section)
+static boolint ReadCountAndSting(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, cmsMLU* mlu, uint32* SizeOfTag, const char * Section)
 {
 	uint32 Count;
 	char * Text;
@@ -3212,8 +3073,7 @@ Error:
 	return NULL;
 }
 
-static
-boolint Type_CrdInfo_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_CrdInfo_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsMLU* mlu = (cmsMLU*)Ptr;
 	if(!WriteCountAndSting(self, io, mlu, "nm")) goto Error;
@@ -3249,17 +3109,13 @@ static void Type_CrdInfo_Free(struct _cms_typehandler_struct* self, void * Ptr)
 //The screeningType describes various screening parameters including screen
 //frequency, screening angle, and spot shape.
 
-static
-void * Type_Screening_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_Screening_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	cmsScreening* sc = NULL;
 	uint32 i;
-
 	sc = (cmsScreening*)_cmsMallocZero(self->ContextID, sizeof(cmsScreening));
 	if(sc == NULL) return NULL;
-
 	*nItems = 0;
-
 	if(!_cmsReadUInt32Number(io, &sc->Flag)) goto Error;
 	if(!_cmsReadUInt32Number(io, &sc->nChannels)) goto Error;
 
@@ -3285,37 +3141,29 @@ Error:
 	CXX_UNUSED(SizeOfTag);
 }
 
-static
-boolint Type_Screening_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_Screening_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsScreening* sc = (cmsScreening*)Ptr;
 	uint32 i;
-
 	if(!_cmsWriteUInt32Number(io, sc->Flag)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, sc->nChannels)) return FALSE;
-
 	for(i = 0; i < sc->nChannels; i++) {
 		if(!_cmsWrite15Fixed16Number(io, sc->Channels[i].Frequency)) return FALSE;
 		if(!_cmsWrite15Fixed16Number(io, sc->Channels[i].ScreenAngle)) return FALSE;
 		if(!_cmsWriteUInt32Number(io, sc->Channels[i].SpotShape)) return FALSE;
 	}
-
 	return TRUE;
-
 	CXX_UNUSED(nItems);
 	CXX_UNUSED(self);
 }
 
-static
-void * Type_Screening_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_Screening_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsScreening));
-
 	CXX_UNUSED(n);
 }
 
-static
-void Type_Screening_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_Screening_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -3328,61 +3176,42 @@ void Type_Screening_Free(struct _cms_typehandler_struct* self, void * Ptr)
 //CIE 'absolute' illuminant white point tristimulus values and CIE 'absolute'
 //surround tristimulus values.
 
-static
-void * Type_ViewingConditions_Read(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    uint32* nItems,
-    uint32 SizeOfTag)
+static void * Type_ViewingConditions_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	cmsICCViewingConditions* vc = NULL;
-
 	vc = (cmsICCViewingConditions*)_cmsMallocZero(self->ContextID, sizeof(cmsICCViewingConditions));
 	if(vc == NULL) return NULL;
-
 	*nItems = 0;
-
 	if(!_cmsReadXYZNumber(io, &vc->IlluminantXYZ)) goto Error;
 	if(!_cmsReadXYZNumber(io, &vc->SurroundXYZ)) goto Error;
 	if(!_cmsReadUInt32Number(io, &vc->IlluminantType)) goto Error;
-
 	*nItems = 1;
-
 	return (void *)vc;
-
 Error:
 	if(vc != NULL)
 		_cmsFree(self->ContextID, vc);
-
 	return NULL;
-
 	CXX_UNUSED(SizeOfTag);
 }
 
-static
-boolint Type_ViewingConditions_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_ViewingConditions_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsICCViewingConditions* sc = (cmsICCViewingConditions*)Ptr;
-
 	if(!_cmsWriteXYZNumber(io, &sc->IlluminantXYZ)) return FALSE;
 	if(!_cmsWriteXYZNumber(io, &sc->SurroundXYZ)) return FALSE;
 	if(!_cmsWriteUInt32Number(io, sc->IlluminantType)) return FALSE;
-
 	return TRUE;
-
 	CXX_UNUSED(nItems);
 	CXX_UNUSED(self);
 }
 
-static
-void * Type_ViewingConditions_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_ViewingConditions_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return _cmsDupMem(self->ContextID, Ptr, sizeof(cmsICCViewingConditions));
-
 	CXX_UNUSED(n);
 }
 
-static
-void Type_ViewingConditions_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_ViewingConditions_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	_cmsFree(self->ContextID, Ptr);
 }
@@ -3391,21 +3220,17 @@ void Type_ViewingConditions_Free(struct _cms_typehandler_struct* self, void * Pt
 // Type cmsSigMultiProcessElementType
 // ********************************************************************************
 
-static
-void * GenericMPEdup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * GenericMPEdup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsStageDup((cmsStage *)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void GenericMPEfree(struct _cms_typehandler_struct* self, void * Ptr)
+static void GenericMPEfree(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsStageFree((cmsStage *)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -3415,8 +3240,7 @@ void GenericMPEfree(struct _cms_typehandler_struct* self, void * Ptr)
 // specified either in terms of a formula, or by a sampled curve.
 
 // Read an embedded segmented curve
-static
-cmsToneCurve * ReadSegmentedCurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io)
+static cmsToneCurve * ReadSegmentedCurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io)
 {
 	cmsCurveSegSignature ElementSig;
 	uint32 i, j;
@@ -3424,13 +3248,10 @@ cmsToneCurve * ReadSegmentedCurve(struct _cms_typehandler_struct* self, cmsIOHAN
 	cmsCurveSegment*  Segments;
 	cmsToneCurve * Curve;
 	float PrevBreak = MINUS_INF; // - infinite
-
 	// Take signature and channels for each element.
 	if(!_cmsReadUInt32Number(io, (uint32 *)&ElementSig)) return NULL;
-
 	// That should be a segmented curve
 	if(ElementSig != cmsSigSegmentedCurve) return NULL;
-
 	if(!_cmsReadUInt32Number(io, NULL)) return NULL;
 	if(!_cmsReadUInt16Number(io, &nSegments)) return NULL;
 	if(!_cmsReadUInt16Number(io, NULL)) return NULL;
@@ -3517,31 +3338,21 @@ Error:
 	return NULL;
 }
 
-static
-boolint ReadMPECurve(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    void * Cargo,
-    uint32 n,
-    uint32 SizeOfTag)
+static boolint ReadMPECurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Cargo, uint32 n, uint32 SizeOfTag)
 {
 	cmsToneCurve ** GammaTables = (cmsToneCurve **)Cargo;
-
 	GammaTables[n] = ReadSegmentedCurve(self, io);
 	return (GammaTables[n] != NULL);
-
 	CXX_UNUSED(SizeOfTag);
 }
 
-static
-void * Type_MPEcurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPEcurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	cmsStage * mpe = NULL;
 	uint16 InputChans, OutputChans;
 	uint32 i, BaseOffset;
 	cmsToneCurve ** GammaTables;
-
 	*nItems = 0;
-
 	// Get actual position as a basis for element offsets
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
 
@@ -3572,27 +3383,22 @@ void * Type_MPEcurve_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io
 }
 
 // Write a single segmented curve. NO CHECK IS PERFORMED ON VALIDITY
-static
-boolint WriteSegmentedCurve(cmsIOHANDLER* io, cmsToneCurve * g)
+static boolint WriteSegmentedCurve(cmsIOHANDLER* io, cmsToneCurve * g)
 {
 	uint32 i, j;
 	cmsCurveSegment* Segments = g->Segments;
 	uint32 nSegments = g->nSegments;
-
 	if(!_cmsWriteUInt32Number(io, cmsSigSegmentedCurve)) goto Error;
 	if(!_cmsWriteUInt32Number(io, 0)) goto Error;
 	if(!_cmsWriteUInt16Number(io, (uint16)nSegments)) goto Error;
 	if(!_cmsWriteUInt16Number(io, 0)) goto Error;
-
 	// Write the break-points
 	for(i = 0; i < nSegments - 1; i++) {
 		if(!_cmsWriteFloat32Number(io, Segments[i].x1)) goto Error;
 	}
-
 	// Write the segments
 	for(i = 0; i < g->nSegments; i++) {
 		cmsCurveSegment* ActualSeg = Segments + i;
-
 		if(ActualSeg->Type == 0) {
 			// This is a sampled curve
 			if(!_cmsWriteUInt32Number(io, (uint32)cmsSigSampledCurveSeg)) goto Error;
@@ -3633,31 +3439,21 @@ Error:
 	return FALSE;
 }
 
-static
-boolint WriteMPECurve(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    void * Cargo,
-    uint32 n,
-    uint32 SizeOfTag)
+static boolint WriteMPECurve(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Cargo, uint32 n, uint32 SizeOfTag)
 {
 	_cmsStageToneCurvesData* Curves  = (_cmsStageToneCurvesData*)Cargo;
-
 	return WriteSegmentedCurve(io, Curves->TheCurves[n]);
-
 	CXX_UNUSED(SizeOfTag);
 	CXX_UNUSED(self);
 }
 
 // Write a curve, checking first for validity
-static
-boolint Type_MPEcurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_MPEcurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	uint32 BaseOffset;
 	cmsStage * mpe = (cmsStage *)Ptr;
 	_cmsStageToneCurvesData* Curves = (_cmsStageToneCurvesData*)mpe->Data;
-
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
-
 	// Write the header. Since those are curves, input and output channels are same
 	if(!_cmsWriteUInt16Number(io, (uint16)mpe->InputChannels)) return FALSE;
 	if(!_cmsWriteUInt16Number(io, (uint16)mpe->InputChannels)) return FALSE;
@@ -3675,37 +3471,29 @@ boolint Type_MPEcurve_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* 
 // is organized as follows:
 // array = [e11, e12, ..., e1P, e21, e22, ..., e2P, ..., eQ1, eQ2, ..., eQP, e1, e2, ..., eQ]
 
-static
-void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	cmsStage * mpe;
 	uint16 InputChans, OutputChans;
 	uint32 nElems, i;
 	double * Matrix;
 	double * Offsets;
-
 	if(!_cmsReadUInt16Number(io, &InputChans)) return NULL;
 	if(!_cmsReadUInt16Number(io, &OutputChans)) return NULL;
-
 	// Input and output chans may be ANY (up to 0xffff),
 	// but we choose to limit to 16 channels for now
 	if(InputChans >= cmsMAXCHANNELS) return NULL;
 	if(OutputChans >= cmsMAXCHANNELS) return NULL;
-
 	nElems = (uint32)InputChans * OutputChans;
-
 	Matrix = (double *)_cmsCalloc(self->ContextID, nElems, sizeof(double));
 	if(Matrix == NULL) return NULL;
-
 	Offsets = (double *)_cmsCalloc(self->ContextID, OutputChans, sizeof(double));
 	if(Offsets == NULL) {
 		_cmsFree(self->ContextID, Matrix);
 		return NULL;
 	}
-
 	for(i = 0; i < nElems; i++) {
 		float v;
-
 		if(!_cmsReadFloat32Number(io, &v)) {
 			_cmsFree(self->ContextID, Matrix);
 			_cmsFree(self->ContextID, Offsets);
@@ -3713,7 +3501,6 @@ void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 		}
 		Matrix[i] = v;
 	}
-
 	for(i = 0; i < OutputChans; i++) {
 		float v;
 
@@ -3736,22 +3523,17 @@ void * Type_MPEmatrix_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 	CXX_UNUSED(SizeOfTag);
 }
 
-static
-boolint Type_MPEmatrix_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_MPEmatrix_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	uint32 i, nElems;
 	cmsStage * mpe = (cmsStage *)Ptr;
 	_cmsStageMatrixData* Matrix = (_cmsStageMatrixData*)mpe->Data;
-
 	if(!_cmsWriteUInt16Number(io, (uint16)mpe->InputChannels)) return FALSE;
 	if(!_cmsWriteUInt16Number(io, (uint16)mpe->OutputChannels)) return FALSE;
-
 	nElems = mpe->InputChannels * mpe->OutputChannels;
-
 	for(i = 0; i < nElems; i++) {
 		if(!_cmsWriteFloat32Number(io, (float)Matrix->Double[i])) return FALSE;
 	}
-
 	for(i = 0; i < mpe->OutputChannels; i++) {
 		if(Matrix->Offset == NULL) {
 			if(!_cmsWriteFloat32Number(io, 0)) return FALSE;
@@ -3767,27 +3549,21 @@ boolint Type_MPEmatrix_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER*
 	CXX_UNUSED(self);
 }
 
-static
-void * Type_MPEclut_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPEclut_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	cmsStage * mpe = NULL;
 	uint16 InputChans, OutputChans;
 	uint8 Dimensions8[16];
 	uint32 i, nMaxGrids, GridPoints[MAX_INPUT_DIMENSIONS];
 	_cmsStageCLutData* clut;
-
 	if(!_cmsReadUInt16Number(io, &InputChans)) return NULL;
 	if(!_cmsReadUInt16Number(io, &OutputChans)) return NULL;
-
 	if(InputChans == 0) goto Error;
 	if(OutputChans == 0) goto Error;
-
 	if(io->Read(io, Dimensions8, sizeof(uint8), 16) != 16)
 		goto Error;
-
 	// Copy MAX_INPUT_DIMENSIONS at most. Expand to uint32
 	nMaxGrids = InputChans > MAX_INPUT_DIMENSIONS ? (uint32)MAX_INPUT_DIMENSIONS : InputChans;
-
 	for(i = 0; i < nMaxGrids; i++) {
 		if(Dimensions8[i] == 1) goto Error; // Impossible value, 0 for no CLUT and then 2 at least
 		GridPoints[i] = (uint32)Dimensions8[i];
@@ -3815,28 +3591,22 @@ Error:
 }
 
 // Write a CLUT in floating point
-static
-boolint Type_MPEclut_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_MPEclut_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	uint8 Dimensions8[16]; // 16 because the spec says 16 and not max number of channels
 	uint32 i;
 	cmsStage * mpe = (cmsStage *)Ptr;
 	_cmsStageCLutData* clut = (_cmsStageCLutData*)mpe->Data;
-
 	// Check for maximum number of channels supported by lcms
 	if(mpe->InputChannels > MAX_INPUT_DIMENSIONS) return FALSE;
-
 	// Only floats are supported in MPE
 	if(clut->HasFloatValues == FALSE) return FALSE;
-
 	if(!_cmsWriteUInt16Number(io, (uint16)mpe->InputChannels)) return FALSE;
 	if(!_cmsWriteUInt16Number(io, (uint16)mpe->OutputChannels)) return FALSE;
 	memzero(Dimensions8, sizeof(Dimensions8));
 	for(i = 0; i < mpe->InputChannels; i++)
 		Dimensions8[i] = (uint8)clut->Params->nSamples[i];
-
 	if(!io->Write(io, 16, Dimensions8)) return FALSE;
-
 	for(i = 0; i < clut->nEntries; i++) {
 		if(!_cmsWriteFloat32Number(io, clut->Tab.TFloat[i])) return FALSE;
 	}
@@ -3849,17 +3619,8 @@ boolint Type_MPEclut_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* i
 
 // This is the list of built-in MPE types
 static _cmsTagTypeLinkedList SupportedMPEtypes[] = {
-	{{ (cmsTagTypeSignature)cmsSigBAcsElemType, NULL, NULL, NULL, NULL, NULL, 0 }, &SupportedMPEtypes[1] }, // Ignore
-	                                                                                                        // those
-	                                                                                                        // elements
-	                                                                                                        // for
-	                                                                                                        // now
-	{{ (cmsTagTypeSignature)cmsSigEAcsElemType, NULL, NULL, NULL, NULL, NULL, 0 }, &SupportedMPEtypes[2] }, // (That's
-	                                                                                                        // what
-	                                                                                                        // the
-	                                                                                                        // spec
-	                                                                                                        // says)
-
+	{{ (cmsTagTypeSignature)cmsSigBAcsElemType, NULL, NULL, NULL, NULL, NULL, 0 }, &SupportedMPEtypes[1] }, // Ignore those elements for now
+	{{ (cmsTagTypeSignature)cmsSigEAcsElemType, NULL, NULL, NULL, NULL, NULL, 0 }, &SupportedMPEtypes[2] }, // (That's what the spec says)
 	{TYPE_MPE_HANDLER((cmsTagTypeSignature)cmsSigCurveSetElemType,     MPEcurve),      &SupportedMPEtypes[3] },
 	{TYPE_MPE_HANDLER((cmsTagTypeSignature)cmsSigMatrixElemType,       MPEmatrix),     &SupportedMPEtypes[4] },
 	{TYPE_MPE_HANDLER((cmsTagTypeSignature)cmsSigCLutElemType,         MPEclut),        NULL },
@@ -3867,12 +3628,7 @@ static _cmsTagTypeLinkedList SupportedMPEtypes[] = {
 
 _cmsTagTypePluginChunkType _cmsMPETypePluginChunk = { NULL };
 
-static
-boolint ReadMPEElem(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    void * Cargo,
-    uint32 n,
-    uint32 SizeOfTag)
+static boolint ReadMPEElem(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Cargo, uint32 n, uint32 SizeOfTag)
 {
 	cmsStageSignature ElementSig;
 	cmsTagTypeHandler* TypeHandler;
@@ -3914,17 +3670,14 @@ boolint ReadMPEElem(struct _cms_typehandler_struct* self,
 }
 
 // This is the main dispatcher for MPE
-static
-void * Type_MPE_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
+static void * Type_MPE_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint16 InputChans, OutputChans;
 	uint32 ElementCount;
 	cmsPipeline * NewLUT = NULL;
 	uint32 BaseOffset;
-
 	// Get actual position as a basis for element offsets
 	BaseOffset = io->Tell(io) - sizeof(_cmsTagBase);
-
 	// Read channels and element count
 	if(!_cmsReadUInt16Number(io, &InputChans)) return NULL;
 	if(!_cmsReadUInt16Number(io, &OutputChans)) return NULL;
@@ -3957,8 +3710,7 @@ Error:
 }
 
 // This one is a liitle bit more complex, so we don't use position tables this time.
-static
-boolint Type_MPE_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_MPE_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	uint32 i, BaseOffset, DirectoryPos, CurrentPos;
 	uint32 inputChan, outputChan;
@@ -4048,21 +3800,17 @@ Error:
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_MPE_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_MPE_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	return (void *)cmsPipelineDup((cmsPipeline *)Ptr);
-
 	CXX_UNUSED(n);
 	CXX_UNUSED(self);
 }
 
-static
-void Type_MPE_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_MPE_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsPipelineFree((cmsPipeline *)Ptr);
 	return;
-
 	CXX_UNUSED(self);
 }
 
@@ -4080,17 +3828,11 @@ typedef struct {
 	double Max;
 } _cmsVCGTGAMMA;
 
-static
-void * Type_vcgt_Read(struct _cms_typehandler_struct* self,
-    cmsIOHANDLER* io,
-    uint32* nItems,
-    uint32 SizeOfTag)
+static void * Type_vcgt_Read(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, uint32* nItems, uint32 SizeOfTag)
 {
 	uint32 TagType, n, i;
 	cmsToneCurve ** Curves;
-
 	*nItems = 0;
-
 	// Read tag type
 	if(!_cmsReadUInt32Number(io, &TagType)) return NULL;
 
@@ -4217,12 +3959,10 @@ Error:
 }
 
 // We don't support all flavors, only 16bits tables and formula
-static
-boolint Type_vcgt_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
+static boolint Type_vcgt_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, void * Ptr, uint32 nItems)
 {
 	cmsToneCurve ** Curves =  (cmsToneCurve **)Ptr;
 	uint32 i, j;
-
 	if(cmsGetToneCurveParametricType(Curves[0]) == 5 &&
 	    cmsGetToneCurveParametricType(Curves[1]) == 5 &&
 	    cmsGetToneCurveParametricType(Curves[2]) == 5) {
@@ -4265,26 +4005,20 @@ boolint Type_vcgt_Write(struct _cms_typehandler_struct* self, cmsIOHANDLER* io, 
 	CXX_UNUSED(nItems);
 }
 
-static
-void * Type_vcgt_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
+static void * Type_vcgt_Dup(struct _cms_typehandler_struct* self, const void * Ptr, uint32 n)
 {
 	cmsToneCurve ** OldCurves =  (cmsToneCurve **)Ptr;
 	cmsToneCurve ** NewCurves;
-
 	NewCurves = (cmsToneCurve **)_cmsCalloc(self->ContextID, 3, sizeof(cmsToneCurve *));
 	if(NewCurves == NULL) return NULL;
-
 	NewCurves[0] = cmsDupToneCurve(OldCurves[0]);
 	NewCurves[1] = cmsDupToneCurve(OldCurves[1]);
 	NewCurves[2] = cmsDupToneCurve(OldCurves[2]);
-
 	return (void *)NewCurves;
-
 	CXX_UNUSED(n);
 }
 
-static
-void Type_vcgt_Free(struct _cms_typehandler_struct* self, void * Ptr)
+static void Type_vcgt_Free(struct _cms_typehandler_struct* self, void * Ptr)
 {
 	cmsFreeToneCurveTriple((cmsToneCurve **)Ptr);
 	_cmsFree(self->ContextID, Ptr);

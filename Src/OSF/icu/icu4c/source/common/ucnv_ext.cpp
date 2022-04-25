@@ -441,7 +441,7 @@ U_CFUNC void ucnv_extContinueMatchToU(UConverter * cnv,
 
 		/* move the rest up inside the buffer */
 		length = cnv->preToULength-cnv->preToUFirstLength;
-		if(length>0) {
+		if(length > 0) {
 			uprv_memmove(cnv->preToU, cnv->preToU+cnv->preToUFirstLength, length);
 		}
 

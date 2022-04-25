@@ -45,49 +45,36 @@ static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArg
 #define _UTF16PEFromUnicodeWithOffsets   _UTF16LEFromUnicodeWithOffsets
 #endif
 
-static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv;
-	const UChar * source;
 	char * target;
 	int32_t * offsets;
-
 	uint32_t targetCapacity, length, sourceIndex;
 	UChar c, trail;
 	char overflow[4];
-
-	source = pArgs->source;
+	const UChar * source = pArgs->source;
 	length = (int32_t)(pArgs->sourceLimit-source);
 	if(length<=0) {
 		/* no input, nothing to do */
 		return;
 	}
-
 	cnv = pArgs->converter;
-
 	/* write the BOM if necessary */
 	if(cnv->fromUnicodeStatus==UCNV_NEED_TO_WRITE_BOM) {
 		static const char bom[] = { (char)0xfeu, (char)0xffu };
-		ucnv_fromUWriteBytes(cnv,
-		    bom, 2,
-		    &pArgs->target, pArgs->targetLimit,
-		    &pArgs->offsets, -1,
-		    pErrorCode);
+		ucnv_fromUWriteBytes(cnv, bom, 2, &pArgs->target, pArgs->targetLimit, &pArgs->offsets, -1, pErrorCode);
 		cnv->fromUnicodeStatus = 0;
 	}
-
 	target = pArgs->target;
 	if(target >= pArgs->targetLimit) {
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		return;
 	}
-
 	targetCapacity = (uint32_t)(pArgs->targetLimit-target);
 	offsets = pArgs->offsets;
 	sourceIndex = 0;
-
 	/* c!=0 indicates in several places outside the main loops that a surrogate was found */
-
 	if((c = (UChar)cnv->fromUChar32)!=0 && U16_IS_TRAIL(trail = *source) && targetCapacity>=4) {
 		/* the last buffer ended with a lead surrogate, output the surrogate pair */
 		++source;
@@ -238,42 +225,32 @@ static void U_CALLCONV _UTF16BEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 		}
 		cnv->fromUChar32 = c;
 	}
-
-	if(length>0) {
+	if(length > 0) {
 		/* output length bytes with overflow (length>targetCapacity>0) */
-		ucnv_fromUWriteBytes(cnv,
-		    overflow, length,
-		    (char **)&target, pArgs->targetLimit,
-		    &offsets, sourceIndex,
-		    pErrorCode);
+		ucnv_fromUWriteBytes(cnv, overflow, length, (char **)&target, pArgs->targetLimit, &offsets, sourceIndex, pErrorCode);
 		targetCapacity = (uint32_t)(pArgs->targetLimit-(char *)target);
 	}
-
 	if(U_SUCCESS(*pErrorCode) && source<pArgs->sourceLimit && targetCapacity==0) {
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 	}
-
 	/* write back the updated pointers */
 	pArgs->source = source;
 	pArgs->target = (char *)target;
 	pArgs->offsets = offsets;
 }
 
-static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv;
 	const uint8 * source;
 	UChar * target;
 	int32_t * offsets;
-
 	uint32_t targetCapacity, length, count, sourceIndex;
 	UChar c, trail;
-
 	if(pArgs->converter->mode<8) {
 		_UTF16ToUnicodeWithOffsets(pArgs, pErrorCode);
 		return;
 	}
-
 	cnv = pArgs->converter;
 	source = (const uint8 *)pArgs->source;
 	length = (int32_t)((const uint8 *)pArgs->sourceLimit-source);
@@ -281,18 +258,15 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 		/* no input, nothing to do */
 		return;
 	}
-
 	target = pArgs->target;
 	if(target >= pArgs->targetLimit) {
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 		return;
 	}
-
 	targetCapacity = (uint32_t)(pArgs->targetLimit-target);
 	offsets = pArgs->offsets;
 	sourceIndex = 0;
 	c = 0;
-
 	/* complete a partial UChar or pair from the last call */
 	if(cnv->toUnicodeStatus!=0) {
 		/*
@@ -383,7 +357,7 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					return;
 				}
 			}
-		} while(length>0);
+		} while(length > 0);
 		cnv->toULength = (int8)count;
 	}
 
@@ -495,7 +469,7 @@ static void U_CALLCONV _UTF16BEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 
 	if(U_SUCCESS(*pErrorCode)) {
 		/* check for a remaining source byte */
-		if(length>0) {
+		if(length > 0) {
 			if(targetCapacity==0) {
 				*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 			}
@@ -673,37 +647,27 @@ const UConverterSharedData _UTF16BEData =
 
 /* UTF-16LE ----------------------------------------------------------------- */
 U_CDECL_BEGIN
-static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv;
-	const UChar * source;
 	char * target;
 	int32_t * offsets;
-
-	uint32_t targetCapacity, length, sourceIndex;
+	uint32_t targetCapacity, sourceIndex;
 	UChar c, trail;
 	char overflow[4];
-
-	source = pArgs->source;
-	length = (int32_t)(pArgs->sourceLimit-source);
+	const UChar * source = pArgs->source;
+	uint32_t length = (int32_t)(pArgs->sourceLimit-source);
 	if(length<=0) {
 		/* no input, nothing to do */
 		return;
 	}
-
 	cnv = pArgs->converter;
-
 	/* write the BOM if necessary */
 	if(cnv->fromUnicodeStatus==UCNV_NEED_TO_WRITE_BOM) {
 		static const char bom[] = { (char)0xffu, (char)0xfeu };
-		ucnv_fromUWriteBytes(cnv,
-		    bom, 2,
-		    &pArgs->target, pArgs->targetLimit,
-		    &pArgs->offsets, -1,
-		    pErrorCode);
+		ucnv_fromUWriteBytes(cnv, bom, 2, &pArgs->target, pArgs->targetLimit, &pArgs->offsets, -1, pErrorCode);
 		cnv->fromUnicodeStatus = 0;
 	}
-
 	target = pArgs->target;
 	if(target >= pArgs->targetLimit) {
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
@@ -866,42 +830,32 @@ static void U_CALLCONV _UTF16LEFromUnicodeWithOffsets(UConverterFromUnicodeArgs 
 		}
 		cnv->fromUChar32 = c;
 	}
-
-	if(length>0) {
+	if(length > 0) {
 		/* output length bytes with overflow (length>targetCapacity>0) */
-		ucnv_fromUWriteBytes(cnv,
-		    overflow, length,
-		    &target, pArgs->targetLimit,
-		    &offsets, sourceIndex,
-		    pErrorCode);
+		ucnv_fromUWriteBytes(cnv, overflow, length, &target, pArgs->targetLimit, &offsets, sourceIndex, pErrorCode);
 		targetCapacity = (uint32_t)(pArgs->targetLimit-(char *)target);
 	}
-
 	if(U_SUCCESS(*pErrorCode) && source<pArgs->sourceLimit && targetCapacity==0) {
 		*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 	}
-
 	/* write back the updated pointers */
 	pArgs->source = source;
 	pArgs->target = target;
 	pArgs->offsets = offsets;
 }
 
-static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv;
 	const uint8 * source;
 	UChar * target;
 	int32_t * offsets;
-
 	uint32_t targetCapacity, length, count, sourceIndex;
 	UChar c, trail;
-
 	if(pArgs->converter->mode<8) {
 		_UTF16ToUnicodeWithOffsets(pArgs, pErrorCode);
 		return;
 	}
-
 	cnv = pArgs->converter;
 	source = (const uint8 *)pArgs->source;
 	length = (int32_t)((const uint8 *)pArgs->sourceLimit-source);
@@ -1011,7 +965,7 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 					return;
 				}
 			}
-		} while(length>0);
+		} while(length > 0);
 		cnv->toULength = (int8)count;
 	}
 
@@ -1123,7 +1077,7 @@ static void U_CALLCONV _UTF16LEToUnicodeWithOffsets(UConverterToUnicodeArgs * pA
 
 	if(U_SUCCESS(*pErrorCode)) {
 		/* check for a remaining source byte */
-		if(length>0) {
+		if(length > 0) {
 			if(targetCapacity==0) {
 				*pErrorCode = U_BUFFER_OVERFLOW_ERROR;
 			}
@@ -1388,18 +1342,15 @@ static inline bool IS_UTF16(const UConverter * cnv) {
 }
 
 U_CDECL_BEGIN
-static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _UTF16ToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv = pArgs->converter;
 	const char * source = pArgs->source;
 	const char * sourceLimit = pArgs->sourceLimit;
 	int32_t * offsets = pArgs->offsets;
-
 	int32_t state, offsetDelta;
 	uint8 b;
-
 	state = cnv->mode;
-
 	/*
 	 * If we detect a BOM in this buffer, then we must add the BOM size to the
 	 * offsets because the actual converter function will not see and count the BOM.

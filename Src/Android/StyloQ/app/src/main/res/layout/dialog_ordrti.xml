@@ -7,6 +7,11 @@
     android:layout_height="match_parent"
     android:padding="4dp"
     >
+    <ImageView
+        android:id="@+id/CTL_ORDRTI_IMG"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        />
     <TextView
         android:id="@+id/CTL_ORDRTI_GOODSNAME"
         android:layout_height="wrap_content"
@@ -19,32 +24,84 @@
         android:orientation="horizontal"
         android:paddingTop="16dp"
         android:gravity="right">
-        <TextView
-            android:id="@+id/CTLLBL_ORDRTI_PRICE"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:layout_marginRight="16dp"
-            android:text="@{price}"
-            />
-        <TextView
-            android:id="@+id/CTL_ORDRTI_PRICE"
-            android:layout_height="wrap_content"
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/InputLine"
-            android:id="@+id/CTL_ORDRTI_QTTY"
             android:layout_height="wrap_content"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:hint="@{qtty}">
-            <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/CTLLBL_ORDRTI_PRICE"
                 android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginRight="16dp"
+                android:text="@{price}"
                 />
-        </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/CTL_ORDRTI_PRICE"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:textColor="@color/PrimaryText"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:orientation="horizontal">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp"
+                android:gravity="center_vertical">
+                <TextView
+                    android:id="@+id/CTL_ORDRTI_PACK"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:textSize="10sp"
+                    android:gravity="center_vertical"
+                    />
+                <TextView
+                    android:id="@+id/CTL_ORDRTI_MINORMULT"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:textSize="10sp"
+                    android:gravity="center_vertical"
+                    />
+            </LinearLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/InputLine"
+                android:id="@+id/CTL_ORDRTI_QTTY"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="@{qtty}">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="numberDecimal"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="vertical">
+                <ImageView
+                    android:id="@+id/CTL_QTTY_UP"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_triangleup03"/>
+                <ImageView
+                    android:id="@+id/CTL_QTTY_DN"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_triangledown03"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

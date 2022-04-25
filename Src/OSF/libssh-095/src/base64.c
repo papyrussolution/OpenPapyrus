@@ -161,10 +161,10 @@ error:
 } while(0)
 
 /* Returns 0 if ok, -1 if not (ie invalid char into the stuff) */
-static int to_block4(ulong * block, const char * source, int num) {
+static int to_block4(ulong * block, const char * source, int num) 
+{
 	const char * ptr = NULL;
 	uint i;
-
 	*block = 0;
 	if(num < 1) {
 		return 0;

@@ -813,6 +813,21 @@ IMPL_HANDLE_EVENT(TechDialog)
 				OLW_SETUPSINGLE, reinterpret_cast<void *>(Data.Rec.GoodsID ? Data.Rec.GoodsID : -1));
 		}
 	}
+	else if(event.isCbSelected(CTLSEL_TECH_PARENT)) {
+		UI_LOCAL_LOCK_ENTER
+		PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
+		if(Data.Rec.ID && parent_id == Data.Rec.ID) {
+			setCtrlLong(CTLSEL_TECH_PARENT, 0);
+			{
+				SString err_msg;
+				PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
+				SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+				PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
+					SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+			}
+		}
+		UI_LOCAL_LOCK_LEAVE
+	}
 	else if(event.isCbSelected(CTLSEL_TECH_PRC))
 		SetupCtrls();
 	else if(event.isClusterClk(CTL_TECH_SIGN))
@@ -911,7 +926,8 @@ int TechDialog::getDTS(PPTechPacket * pData)
 	Data.Rec.PrcID = prc_grp_rec.PrcID;
 	sel = CTLSEL_TECH_PRC;
 	THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
-	getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+	getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+	THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
 	sel = CTLSEL_TECH_GOODS;
 	THROW(getGroupData(GRP_GOODS, &rec));
 	if(Data.Rec.Kind == 0)
@@ -1004,7 +1020,8 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 					Data.Rec.PrcID = prc_grp_rec.PrcID;
 					sel = CTLSEL_TECH_PRC;
 					THROW_PP(Data.Rec.PrcID, PPERR_PRCNEEDED);
-					getCtrlData(CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+					getCtrlData(sel = CTLSEL_TECH_PARENT, &Data.Rec.ParentID);
+					THROW_PP(!Data.Rec.ID || Data.Rec.ParentID != Data.Rec.ID, PPERR_TECHCANTBESELFPARENTED); // @v11.3.9
 					sel = CTLSEL_TECH_GOODS;
 					{
 						GoodsCtrlGroup::Rec rec;
@@ -1036,7 +1053,22 @@ int PPObjTech::EditDialog(PPTechPacket * pData)
 				DECL_HANDLE_EVENT
 				{
 					TDialog::handleEvent(event);
-					if(event.isCmd(cmGoodsStruc)) {
+					if(event.isCbSelected(CTLSEL_TECH_PARENT)) {
+						UI_LOCAL_LOCK_ENTER
+						PPID parent_id = getCtrlLong(CTLSEL_TECH_PARENT);
+						if(Data.Rec.ID && parent_id == Data.Rec.ID) {
+							setCtrlLong(CTLSEL_TECH_PARENT, 0);
+							{
+								SString err_msg;
+								PPGetMessage(mfError, PPERR_TECHCANTBESELFPARENTED, 0, 1, err_msg);
+								SMessageWindow::DestroyByParent(H()); // Убираем с экрана предыдущие уведомления //
+								PPTooltipMessage(err_msg, 0, H(), 20000, GetColorRef(SClrRed),
+									SMessageWindow::fTopmost|SMessageWindow::fSizeByText|SMessageWindow::fPreserveFocus|SMessageWindow::fLargeText);
+							}
+						}
+						UI_LOCAL_LOCK_LEAVE
+					}
+					else if(event.isCmd(cmGoodsStruc)) {
 						PPObjGoodsStruc gs_obj;
 						PPID   org_struc_id = Data.Rec.GStrucID;
 						gs_obj.Edit(&Data.Rec.GStrucID, 0);
@@ -1188,14 +1220,15 @@ int PPObjTech::AddBySample(PPID * pID, PPID sampleID)
 	return ok;
 }
 
-int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode)
+int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID parentID, const char * pCode, LongArray & rRecurList)
 {
 	int    ok = 1;
-	if(pList && !pList->Search(techID)) {
+	if(pList && !pList->Search(techID) && techID != parentID) { // @v11.3.9 (techID != parentID)
 		TechTbl::Rec parent_rec;
-		if(parentID) {
+		if(parentID && !rRecurList.lsearch(parentID)) {
 			if(Fetch(parentID, &parent_rec) > 0) {
-				THROW(Helper_AddItemToList(pList, parent_rec.ID, parent_rec.ParentID, parent_rec.Code)); // @recursion
+				assert(parent_rec.ID == parentID); // @paranoic
+				THROW(Helper_AddItemToList(pList, parent_rec.ID, parent_rec.ParentID, parent_rec.Code, rRecurList)); // @recursion
 			}
 			else
 				parentID = 0;
@@ -1206,6 +1239,7 @@ int PPObjTech::Helper_AddItemToList(StrAssocArray * pList, PPID techID, PPID par
 			// (после предыдущей проверки в список мог быть добавлен элемент techID)
 			//
 			THROW_SL(pList->Add(techID, parentID, pCode));
+			rRecurList.add(techID); // @v11.3.9
 		}
 	}
 	CATCHZOK
@@ -1219,6 +1253,7 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	PPID   prc_id = 0;
 	PPObjGoods goods_obj;
 	PPIDArray id_list;
+	LongArray recur_list;
 	DBQ  * dbq = 0;
 	union {
 		TechTbl::Key2 k2;
@@ -1247,17 +1282,20 @@ int PPObjTech::AddItemsToList(StrAssocArray * pList, PPIDArray * pIdList, PPIDAr
 	BExtQuery q(P_Tbl, idx);
 	q.select(P_Tbl->ID, P_Tbl->ParentID, P_Tbl->OrderN, P_Tbl->GoodsID, P_Tbl->Code, 0).where(*dbq);
 	for(q.initIteration(false, &k, spGe); q.nextIteration() > 0;) {
-		if(!(prc_id && goodsID) || P_Tbl->data.GoodsID == labs(goodsID)) {
-			if(id_list.lsearch(P_Tbl->data.ID)) {
+		TechTbl::Rec tec_rec;
+		P_Tbl->copyBufTo(&tec_rec);
+		if(!(prc_id && goodsID) || tec_rec.GoodsID == labs(goodsID)) {
+			if(id_list.lsearch(tec_rec.ID)) {
 				// Зацикливание рекурсии. Следует оборвать рекурсию.
 				prc_id = 0;
 				break;
 			}
 			else
-				THROW(id_list.add(P_Tbl->data.ID));
-			THROW(Helper_AddItemToList(pList, P_Tbl->data.ID, P_Tbl->data.ParentID, P_Tbl->data.Code));
-			if(pGoodsIdList && P_Tbl->data.GoodsID) {
-				const PPID goods_id = P_Tbl->data.GoodsID;
+				THROW(id_list.add(tec_rec.ID));
+			recur_list.Z();
+			THROW(Helper_AddItemToList(pList, tec_rec.ID, tec_rec.ParentID, tec_rec.Code, recur_list));
+			if(pGoodsIdList && tec_rec.GoodsID) {
+				const PPID goods_id = tec_rec.GoodsID;
 				Goods2Tbl::Rec goods_rec;
 				if(goods_obj.Fetch(goods_id, &goods_rec) > 0) {
 					if(goods_rec.Flags & GF_GENERIC) {

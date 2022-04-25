@@ -219,22 +219,13 @@ static void hostcache_prune(struct Curl_hash * hostcache, long cache_timeout, ti
 void Curl_hostcache_prune(struct Curl_easy * data)
 {
 	time_t now;
-
 	if((data->set.dns_cache_timeout == -1) || !data->dns.hostcache)
-		/* cache forever means never prune, and NULL hostcache means
-		   we can't do it */
-		return;
-
+		return; // cache forever means never prune, and NULL hostcache means we can't do it 
 	if(data->share)
 		Curl_share_lock(data, CURL_LOCK_DATA_DNS, CURL_LOCK_ACCESS_SINGLE);
-
 	time(&now);
-
 	/* Remove outdated and unused entries from the hostcache */
-	hostcache_prune(data->dns.hostcache,
-	    data->set.dns_cache_timeout,
-	    now);
-
+	hostcache_prune(data->dns.hostcache, data->set.dns_cache_timeout, now);
 	if(data->share)
 		Curl_share_unlock(data, CURL_LOCK_DATA_DNS);
 }

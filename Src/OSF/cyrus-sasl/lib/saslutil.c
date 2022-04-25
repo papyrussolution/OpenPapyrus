@@ -107,17 +107,12 @@ static char index_64[128] = {
  * Returns SASL_OK on success, SASL_BUFOVER if result won't fit
  */
 
-int sasl_encode64(const char * _in,
-    unsigned inlen,
-    char * _out,
-    unsigned outmax,
-    unsigned * outlen)
+int sasl_encode64(const char * _in, unsigned inlen, char * _out, unsigned outmax, unsigned * outlen)
 {
 	const unsigned char * in = (const unsigned char *)_in;
 	unsigned char * out = (unsigned char *)_out;
 	unsigned char oval;
 	unsigned olen;
-
 	/* check params */
 	if((inlen > 0) && (in == NULL)) return SASL_BADPARAM;
 
@@ -149,9 +144,7 @@ int sasl_encode64(const char * _in,
 		*out++ = (inlen < 2) ? '=' : basis_64[(in[1] << 2) & 0x3c];
 		*out++ = '=';
 	}
-
 	*out = '\0';
-
 	return SASL_OK;
 }
 
@@ -170,17 +163,12 @@ int sasl_encode64(const char * _in,
  * SASL_OK on success
  */
 
-int sasl_decode64(const char * in,
-    unsigned inlen,
-    char * out,
-    unsigned outmax,                /* size of the buffer, not counting the NUL */
-    unsigned * outlen)
+int sasl_decode64(const char * in, unsigned inlen, char * out, unsigned outmax/* size of the buffer, not counting the NUL */, unsigned * outlen)
 {
 	unsigned len = 0;
 	unsigned j;
 	int c[4];
 	int saw_equal = 0;
-
 	/* check parameters */
 	if(out == NULL) return SASL_FAIL;
 
@@ -525,10 +513,8 @@ int get_fqhostname(char * name,
 			goto LOWERCASE;
 		}
 	}
-
-	if(result == NULL || result->ai_canonname == NULL
-	    || strchr(result->ai_canonname, '.') == NULL
-	    || strlen(result->ai_canonname) > namelen -1) {
+	if(result == NULL || result->ai_canonname == NULL || strchr(result->ai_canonname, '.') == NULL
+	    || sstrleni(result->ai_canonname) > namelen -1) {
 		freeaddrinfo(result);
 		if(abort_if_no_fqdn) {
 #ifdef WIN32
