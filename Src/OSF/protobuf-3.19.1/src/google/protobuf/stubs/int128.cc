@@ -18,7 +18,6 @@
 //
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/stubs/int128.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {
@@ -100,7 +99,8 @@ uint128 & uint128::operator/=(const uint128 & divisor) {
 	return *this;
 }
 
-uint128 & uint128::operator%=(const uint128 & divisor) {
+uint128 & uint128::operator%=(const uint128 & divisor) 
+{
 	uint128 quotient = 0;
 	uint128 remainder = 0;
 	DivModImpl(*this, divisor, &quotient, &remainder);

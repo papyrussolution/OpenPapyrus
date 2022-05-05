@@ -727,7 +727,7 @@ int PPObjLocation::Validate(LocationTbl::Rec * pRec, int /*chkRefs*/)
 		THROW(P_Tbl->GetTypeDescription(t, &ltd));
 		if(pRec->Name[0] == 0) {
 			THROW_PP(t == LOCTYP_WHCELLAUTOGEN ||
-				(t == LOCTYP_ADDRESS && (pRec->CityID || LocationCore::IsEmptyAddressRec(*pRec))), PPERR_NAMENEEDED);
+				(t == LOCTYP_ADDRESS && (pRec->CityID || !LocationCore::IsEmptyAddressRec(*pRec))), PPERR_NAMENEEDED); // @v11.3.10 @fix IsEmptyAddressRec-->!IsEmptyAddressRec
 		}
 		THROW_PP(pRec->OwnerID || t != LOCTYP_DIVISION, PPERR_DIVOWNERNEEDED);
 		THROW_PP(pRec->Code[0] || !(ltd.Flags & LocTypeDescr::fCodeRequired), PPERR_LOCREQCODE);
@@ -1583,7 +1583,7 @@ int LocationExtFieldsDialog::Edit(SStringTag * pData)
 		for(int valid_data = 0; !valid_data && ExecView(p_dlg) == cmOK;) {
 			if(!p_dlg->getDTS(&data))
 				PPError();
-			else if(sstrlen(Data.Tail) + data.Len() - prev_txt.Len() < sizeof(Data.Tail)){
+			else if(sstrlen(Data.Tail) + data.Len() - prev_txt.Len() < sizeof(Data.Tail)) {
 				LocationCore::SetExField(&Data, data.Id, data);
 				ASSIGN_PTR(pData, data);
 				ok = valid_data = 1;
@@ -1626,7 +1626,6 @@ int LocationExtFieldsDialog::setupList()
 	SString temp_buf;
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; i < FieldNames.getCount(); i++) {
-		//TaggedString item = FieldNames.at(i);
 		StrAssocArray::Item item = FieldNames.Get(i);
 		ss.clear();
 		temp_buf.Z().Cat(item.Id);
@@ -1686,7 +1685,7 @@ int LocationDialog::GetGeoCoord()
 {
 	int    ok = -1;
 	uint   sel;
-	SString temp_buf, nmb;
+	SString temp_buf;
 	if(getCtrlString(sel = CTL_LOCATION_COORD, temp_buf)) {
 		SGeoPosLL pos;
 		if(pos.FromStr(temp_buf)) {
@@ -1710,9 +1709,8 @@ void LocationDialog::UpdateWarehouseList(long pos, int byPos /*= 1*/)
 		for(uint i = 0; i < Data.WarehouseList.GetCount(); i++) {
 			const PPID loc_id = Data.WarehouseList.Get(i);
 			LocationTbl::Rec loc_rec;
-			if(LocObj.Fetch(loc_id, &loc_rec) > 0) {
+			if(LocObj.Fetch(loc_id, &loc_rec) > 0)
 				temp_buf = loc_rec.Name;
-			}
 			else
 				ideqvalstr(loc_id, temp_buf.Z());
 			p_box->addItem(loc_id, temp_buf);
@@ -1728,6 +1726,7 @@ void LocationDialog::UpdateWarehouseList(long pos, int byPos /*= 1*/)
 IMPL_HANDLE_EVENT(LocationDialog)
 {
 	TDialog::handleEvent(event);
+	SString temp_buf;
 	if(event.isClusterClk(CTL_LOCATION_FLAGS) && LocTyp == LOCTYP_ADDRESS)
 		SetupCtrls();
 	else if(event.isClusterClk(CTL_LOCATION_VOLUMEVAL)) {
@@ -1783,9 +1782,8 @@ IMPL_HANDLE_EVENT(LocationDialog)
 				if(ReqAutoName()) {
 					Data.ParentID = getCtrlLong(CTLSEL_LOCATION_PARENT);
 					getCtrlData(CTL_LOCATION_CODE, Data.Code);
-					SString name_buf;
-					LocObj.MakeCodeString(&Data, 0, name_buf);
-					setCtrlString(CTL_LOCATION_NAME, name_buf);
+					LocObj.MakeCodeString(&Data, 0, temp_buf);
+					setCtrlString(CTL_LOCATION_NAME, temp_buf);
 				}
 			}
 		}
@@ -1798,7 +1796,6 @@ IMPL_HANDLE_EVENT(LocationDialog)
 	else if(event.isCmd(cmLocAction1)) {
 		const PPID def_phn_svc_id = DS.GetConstTLA().DefPhnSvcID;
 		if(def_phn_svc_id) {
-			SString temp_buf;
 			getCtrlString(CTL_LOCATION_PHONE, temp_buf);
 			if(temp_buf.Len() >= 5) {
 				SString phone_buf;
@@ -1836,11 +1833,10 @@ IMPL_HANDLE_EVENT(LocationDialog)
 	}
 	else if(event.isCmd(cmTest)) {
 		if(LocTyp == LOCTYP_ADDRESS) {
-			SString addr_buf;
 			PPLocationPacket addr;
 			getDTS(&addr);
-			LocationCore::GetAddress(addr, 0, addr_buf);
-			LocObj.EditAddrStruc(addr_buf);
+			LocationCore::GetAddress(addr, 0, temp_buf);
+			LocObj.EditAddrStruc(temp_buf);
 		}
 	}
 	else if(event.isCmd(cmaMore)) {
@@ -1848,7 +1844,6 @@ IMPL_HANDLE_EVENT(LocationDialog)
 			PPObjPerson psn_obj;
 			PPID   psn_id = Data.OwnerID;
 			if(psn_obj.Edit(&psn_id, 0) > 0) {
-				SString temp_buf;
 				GetPersonName(Data.OwnerID, temp_buf);
 				setCtrlString(CTL_LOCATION_OWNERNAME, temp_buf);
 			}

@@ -429,7 +429,7 @@ static void enter_state_js_slash(statemachine_ctx * ctx, int start, char chr,
 	char buffer[JSPARSER_RING_BUFFER_SIZE];
 	int pos;
 
-	assert(ctx != NULL);
+	assert(ctx);
 	assert(ctx->user != NULL);
 
 	js = CAST(jsparser_ctx *, ctx->user);
@@ -509,7 +509,7 @@ static void enter_state_js_comment_after(statemachine_ctx * ctx, int start,
 {
 	jsparser_ctx * js;
 
-	assert(ctx != NULL);
+	assert(ctx);
 	assert(ctx->user != NULL);
 
 	js = CAST(jsparser_ctx *, ctx->user);
@@ -602,7 +602,7 @@ void jsparser_copy(jsparser_ctx * dst, jsparser_ctx * src)
 
 void jsparser_reset(jsparser_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	ctx->statemachine->current_state = 0;
 	ctx->buffer_start = 0;
 	ctx->buffer_end = 0;
@@ -622,7 +622,7 @@ int jsparser_parse(jsparser_ctx * ctx, const char * str, int size)
 
 void jsparser_delete(jsparser_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	statemachine_delete(ctx->statemachine);
 	statemachine_definition_delete(ctx->statemachine_def);
 	SAlloc::F(ctx);

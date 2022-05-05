@@ -85,7 +85,7 @@ static int LZMAFixupTags(TIFF * tif)
 static int LZMASetupDecode(TIFF * tif)
 {
 	LZMAState* sp = DecoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	/* if we were last encoding, terminate this mode */
 	if(sp->state & LSTATE_INIT_ENCODE) {
 		lzma_end(&sp->stream);
@@ -103,7 +103,7 @@ static int LZMAPreDecode(TIFF * tif, uint16 s)
 	LZMAState* sp = DecoderState(tif);
 	lzma_ret ret;
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	if((sp->state & LSTATE_INIT_DECODE) == 0)
 		tif->tif_setupdecode(tif);
 	sp->stream.next_in = tif->tif_rawdata;
@@ -129,7 +129,7 @@ static int LZMADecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	static const char module[] = __FUNCTION__;
 	LZMAState* sp = DecoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->state == LSTATE_INIT_DECODE);
 	sp->stream.next_in = tif->tif_rawcp;
 	sp->stream.avail_in = (size_t)tif->tif_rawcc;
@@ -175,7 +175,7 @@ static int LZMADecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 static int LZMASetupEncode(TIFF * tif)
 {
 	LZMAState* sp = EncoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->state & LSTATE_INIT_DECODE) {
 		lzma_end(&sp->stream);
 		sp->state = 0;
@@ -192,7 +192,7 @@ static int LZMAPreEncode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->state != LSTATE_INIT_ENCODE)
 		tif->tif_setupencode(tif);
 	sp->stream.next_out = tif->tif_rawdata;
@@ -211,7 +211,7 @@ static int LZMAEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	LZMAState * sp = EncoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->state == LSTATE_INIT_ENCODE);
 	(void)s;
 	sp->stream.next_in = bp;

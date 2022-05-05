@@ -7,25 +7,9 @@
 
    1. Redistributions of source code must retain the above copyright
    notice, this list of conditions and the following disclaimer.
-
    2. Redistributions in binary form must the following disclaimer in
-     the documentation and/or other materials provided with the
-     distribution.
-
-   THIS SOFTWARE IS PROVIDED BY <COPYRIGHT HOLDER> ``AS IS'' AND ANY
-   EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-   IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-   PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> OR
-   CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-   SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-   LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-   USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-   ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-   OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
-   OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-   SUCH DAMAGE.
+     the documentation and/or other materials provided with the distribution.
  */
-
 /*
    Numeric format:
    ===============
@@ -107,14 +91,10 @@ enum enum_dyncol_format {
    1 byte - flags, 2 bytes - columns counter,  2 bytes - name pool size
  */
 #define FIXED_HEADER_SIZE_NM 5
-
 #define COLUMN_NUMBER_SIZE 2
-/* 2 bytes offset from the name pool */
-#define COLUMN_NAMEPTR_SIZE 2
-
+#define COLUMN_NAMEPTR_SIZE 2 /* 2 bytes offset from the name pool */
 #define MAX_OFFSET_LENGTH    4
 #define MAX_OFFSET_LENGTH_NM 5
-
 #define DYNCOL_NUM_CHAR 6
 
 bool mariadb_dyncol_has_names(DYNAMIC_COLUMN * str)
@@ -124,24 +104,13 @@ bool mariadb_dyncol_has_names(DYNAMIC_COLUMN * str)
 	return test(str->str[0] & DYNCOL_FLG_NAMES);
 }
 
-static enum enum_dyncol_func_result dynamic_column_time_store(DYNAMIC_COLUMN * str,
-    MYSQL_TIME * value, enum enum_dyncol_format format);
-static enum enum_dyncol_func_result dynamic_column_date_store(DYNAMIC_COLUMN * str,
-    MYSQL_TIME * value);
-static enum enum_dyncol_func_result dynamic_column_time_read_internal(DYNAMIC_COLUMN_VALUE * store_it_here,
-    uchar * data, size_t length);
-static enum enum_dyncol_func_result dynamic_column_date_read_internal(DYNAMIC_COLUMN_VALUE * store_it_here,
-    uchar * data, size_t length);
-static enum enum_dyncol_func_result dynamic_column_get_internal(DYNAMIC_COLUMN * str,
-    DYNAMIC_COLUMN_VALUE * store_it_here,
-    uint num_key, LEX_STRING * str_key);
-static enum enum_dyncol_func_result dynamic_column_exists_internal(DYNAMIC_COLUMN * str, uint num_key,
-    LEX_STRING * str_key);
-static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUMN * str,
-    uint add_column_count,
-    void * column_keys,
-    DYNAMIC_COLUMN_VALUE * values,
-    bool string_keys);
+static enum enum_dyncol_func_result dynamic_column_time_store(DYNAMIC_COLUMN * str, MYSQL_TIME * value, enum enum_dyncol_format format);
+static enum enum_dyncol_func_result dynamic_column_date_store(DYNAMIC_COLUMN * str, MYSQL_TIME * value);
+static enum enum_dyncol_func_result dynamic_column_time_read_internal(DYNAMIC_COLUMN_VALUE * store_it_here, uchar * data, size_t length);
+static enum enum_dyncol_func_result dynamic_column_date_read_internal(DYNAMIC_COLUMN_VALUE * store_it_here, uchar * data, size_t length);
+static enum enum_dyncol_func_result dynamic_column_get_internal(DYNAMIC_COLUMN * str, DYNAMIC_COLUMN_VALUE * store_it_here, uint num_key, LEX_STRING * str_key);
+static enum enum_dyncol_func_result dynamic_column_exists_internal(DYNAMIC_COLUMN * str, uint num_key, LEX_STRING * str_key);
+static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUMN * str, uint add_column_count, void * column_keys, DYNAMIC_COLUMN_VALUE * values, bool string_keys);
 static int plan_sort_num(const void * a, const void * b);
 static int plan_sort_named(const void * a, const void * b);
 
@@ -169,17 +138,12 @@ struct st_dyn_header {
 
 typedef struct st_dyn_header DYN_HEADER;
 
-static inline bool read_fixed_header(DYN_HEADER * hdr,
-    DYNAMIC_COLUMN * str);
-static void set_fixed_header(DYNAMIC_COLUMN * str,
-    uint offset_size,
-    uint column_count);
-
+static inline bool read_fixed_header(DYN_HEADER * hdr, DYNAMIC_COLUMN * str);
+static void set_fixed_header(DYNAMIC_COLUMN * str, uint offset_size, uint column_count);
 /*
    Calculate entry size (E) and header size (H) by offset size (O) and column
    count (C) and fixed part of entry size (F).
  */
-
 #define calc_param(E, H, F, O, C) do { \
 		(*(E)) = (O) + F;                 \
 		(*(H)) = (*(E)) * (C);            \
@@ -188,13 +152,10 @@ static void set_fixed_header(DYNAMIC_COLUMN * str,
 /**
    Name pool size functions, for numeric format it is 0
  */
-
-static size_t name_size_num(void * keys __attribute__((unused)),
-    uint i __attribute__((unused)))
+static size_t name_size_num(void * keys __attribute__((unused)), uint i __attribute__((unused)))
 {
 	return 0;
 }
-
 /**
    Name pool size functions.
  */
@@ -202,95 +163,72 @@ static size_t name_size_named(void * keys, uint i)
 {
 	return ((LEX_STRING*)keys)[i].length;
 }
-
 /**
-   Comparator function for references on column numbers for qsort
-   (numeric format)
+   Comparator function for references on column numbers for qsort (numeric format)
  */
-
 static int column_sort_num(const void * a, const void * b)
 {
 	return **((uint**)a) - **((uint**)b);
 }
-
 /**
-   Comparator function for references on column numbers for qsort
-   (names format)
+   Comparator function for references on column numbers for qsort (names format)
  */
-
 int mariadb_dyncol_column_cmp_named(const LEX_STRING * s1, const LEX_STRING * s2)
 {
 	/*
 	   We compare instead of subtraction to avoid data loss in case of huge
 	   length difference (more then fit in int).
 	 */
-	int rc = (s1->length > s2->length ? 1 :
-	    (s1->length < s2->length ? -1 : 0));
+	int rc = (s1->length > s2->length ? 1 : (s1->length < s2->length ? -1 : 0));
 	if(rc == 0)
-		rc = memcmp((void *)s1->str, (void *)s2->str,
-			(size_t)s1->length);
+		rc = memcmp((void *)s1->str, (void *)s2->str, (size_t)s1->length);
 	return rc;
 }
-
 /**
-   Comparator function for references on column numbers for qsort
-   (names format)
+   Comparator function for references on column numbers for qsort (names format)
  */
-
 static int column_sort_named(const void * a, const void * b)
 {
-	return mariadb_dyncol_column_cmp_named(*((LEX_STRING**)a),
-		   *((LEX_STRING**)b));
+	return mariadb_dyncol_column_cmp_named(*((LEX_STRING**)a), *((LEX_STRING**)b));
 }
-
 /**
    Check limit function (numeric format)
  */
-
 static bool check_limit_num(const void * val)
 {
 	return **((uint**)val) > UINT_MAX16;
 }
-
 /**
    Check limit function (names format)
  */
-
 static bool check_limit_named(const void * val)
 {
 	return (*((LEX_STRING**)val))->length > MAX_NAME_LENGTH;
 }
-
 /**
    Write numeric format static header part.
  */
-
 static void set_fixed_header_num(DYNAMIC_COLUMN * str, DYN_HEADER * hdr)
 {
 	set_fixed_header(str, (uint)hdr->offset_size, hdr->column_count);
 	hdr->header = (uchar *)str->str + FIXED_HEADER_SIZE;
 	hdr->nmpool = hdr->dtpool = hdr->header + hdr->header_size;
 }
-
 /**
    Write names format static header part.
  */
-
 static void set_fixed_header_named(DYNAMIC_COLUMN * str, DYN_HEADER * hdr)
 {
 	DBUG_ASSERT(hdr->column_count <= 0xffff);
 	DBUG_ASSERT(hdr->offset_size <= MAX_OFFSET_LENGTH_NM);
 	/* size of data offset, named format flag, size of names offset (0 means 2) */
-	str->str[0] =
-	    (char)((str->str[0] & ~(DYNCOL_FLG_OFFSET | DYNCOL_FLG_NMOFFSET)) |
-	    (hdr->offset_size - 2) | DYNCOL_FLG_NAMES);
+	str->str[0] = (char)((str->str[0] & ~(DYNCOL_FLG_OFFSET | DYNCOL_FLG_NMOFFSET)) | (hdr->offset_size - 2) | DYNCOL_FLG_NAMES);
 	int2store(str->str + 1, hdr->column_count); /* columns number */
 	int2store(str->str + 3, hdr->nmpool_size);
 	hdr->header = (uchar *)str->str + FIXED_HEADER_SIZE_NM;
 	hdr->nmpool = hdr->header + hdr->header_size;
 	hdr->dtpool = hdr->nmpool + hdr->nmpool_size;
 }
-
 /**
    Store offset and type information in the given place
 
@@ -1670,7 +1608,6 @@ static enum enum_dyncol_func_result calc_var_sizes(DYN_HEADER * hdr,
 
    @return ER_DYNCOL_* return code
  */
-
 static enum enum_dyncol_func_result dynamic_column_create_many_internal_fmt(DYNAMIC_COLUMN * str, uint column_count,
     void * column_keys, DYNAMIC_COLUMN_VALUE * values, bool new_str, bool string_keys)
 {
@@ -1696,16 +1633,11 @@ static enum enum_dyncol_func_result dynamic_column_create_many_internal_fmt(DYNA
 
    @return ER_DYNCOL_* return code
  */
-
-enum enum_dyncol_func_result dynamic_column_create_many(DYNAMIC_COLUMN * str,
-    uint column_count,
-    uint * column_numbers,
-    DYNAMIC_COLUMN_VALUE * values){
-	return(dynamic_column_create_many_internal_fmt(str, column_count,
-	       column_numbers, values,
-	       TRUE, FALSE));
+enum enum_dyncol_func_result dynamic_column_create_many(DYNAMIC_COLUMN * str, uint column_count,
+    uint * column_numbers, DYNAMIC_COLUMN_VALUE * values)
+{
+	return(dynamic_column_create_many_internal_fmt(str, column_count, column_numbers, values, TRUE, FALSE));
 }
-
 /**
    Create packed string which contains given columns
 
@@ -1717,17 +1649,11 @@ enum enum_dyncol_func_result dynamic_column_create_many(DYNAMIC_COLUMN * str,
 
    @return ER_DYNCOL_* return code
  */
-
-enum enum_dyncol_func_result mariadb_dyncol_create_many_num(DYNAMIC_COLUMN * str,
-    uint column_count,
-    uint * column_numbers,
-    DYNAMIC_COLUMN_VALUE * values,
-    bool new_string){
-	return(dynamic_column_create_many_internal_fmt(str, column_count,
-	       column_numbers, values,
-	       new_string, FALSE));
+enum enum_dyncol_func_result mariadb_dyncol_create_many_num(DYNAMIC_COLUMN * str, uint column_count,
+    uint * column_numbers, DYNAMIC_COLUMN_VALUE * values, bool new_string)
+{
+	return(dynamic_column_create_many_internal_fmt(str, column_count, column_numbers, values, new_string, FALSE));
 }
-
 /**
    Create packed string which contains given columns
 
@@ -1740,16 +1666,11 @@ enum enum_dyncol_func_result mariadb_dyncol_create_many_num(DYNAMIC_COLUMN * str
    @return ER_DYNCOL_* return code
  */
 
-enum enum_dyncol_func_result mariadb_dyncol_create_many_named(DYNAMIC_COLUMN * str,
-    uint column_count,
-    LEX_STRING * column_keys,
-    DYNAMIC_COLUMN_VALUE * values,
-    bool new_string){
-	return(dynamic_column_create_many_internal_fmt(str, column_count,
-	       column_keys, values,
-	       new_string, TRUE));
+enum enum_dyncol_func_result mariadb_dyncol_create_many_named(DYNAMIC_COLUMN * str, uint column_count, LEX_STRING * column_keys,
+    DYNAMIC_COLUMN_VALUE * values, bool new_string)
+{
+	return(dynamic_column_create_many_internal_fmt(str, column_count, column_keys, values, new_string, TRUE));
 }
-
 /**
    Create packed string which contains given column
 
@@ -1759,12 +1680,10 @@ enum enum_dyncol_func_result mariadb_dyncol_create_many_named(DYNAMIC_COLUMN * s
 
    @return ER_DYNCOL_* return code
  */
-
-enum enum_dyncol_func_result dynamic_column_create(DYNAMIC_COLUMN * str, uint column_nr,
-    DYNAMIC_COLUMN_VALUE * value){
+enum enum_dyncol_func_result dynamic_column_create(DYNAMIC_COLUMN * str, uint column_nr, DYNAMIC_COLUMN_VALUE * value)
+{
 	return(dynamic_column_create_many(str, 1, &column_nr, value));
 }
-
 /**
    Calculate length of data between given two header entries
 
@@ -1776,26 +1695,19 @@ enum enum_dyncol_func_result dynamic_column_create(DYNAMIC_COLUMN * str, uint co
 
    @return number of bytes
  */
-
-static size_t get_length_interval(uchar * entry, uchar * entry_next,
-    uchar * header_end, size_t offset_size,
-    size_t last_offset)
+static size_t get_length_interval(uchar * entry, uchar * entry_next, uchar * header_end, size_t offset_size, size_t last_offset)
 {
 	size_t offset, offset_next;
 	DYNAMIC_COLUMN_TYPE type, type_next;
 	DBUG_ASSERT(entry < entry_next);
-
-	if(type_and_offset_read_num(&type, &offset, entry + COLUMN_NUMBER_SIZE,
-	    offset_size))
+	if(type_and_offset_read_num(&type, &offset, entry + COLUMN_NUMBER_SIZE, offset_size))
 		return DYNCOL_OFFSET_ERROR;
 	if(entry_next >= header_end)
 		return (last_offset - offset);
-	if(type_and_offset_read_num(&type_next, &offset_next,
-	    entry_next + COLUMN_NUMBER_SIZE, offset_size))
+	if(type_and_offset_read_num(&type_next, &offset_next, entry_next + COLUMN_NUMBER_SIZE, offset_size))
 		return DYNCOL_OFFSET_ERROR;
 	return (offset_next - offset);
 }
-
 /**
    Calculate length of data between given hdr->entry and next_entry
 
@@ -1814,24 +1726,17 @@ static size_t hdr_interval_length(DYN_HEADER * hdr, uchar * next_entry)
 	DBUG_ASSERT(hdr->entry < next_entry);
 	DBUG_ASSERT(hdr->entry >= hdr->header);
 	DBUG_ASSERT(next_entry <= hdr->header + hdr->header_size);
-
-	if((*fmt->type_and_offset_read)(&hdr->type, &hdr->offset,
-	    hdr->entry + fmt->fixed_hdr_entry,
-	    hdr->offset_size))
+	if((*fmt->type_and_offset_read)(&hdr->type, &hdr->offset, hdr->entry + fmt->fixed_hdr_entry, hdr->offset_size))
 		return DYNCOL_OFFSET_ERROR;
 	if(next_entry == hdr->header + hdr->header_size)
 		return hdr->data_size - hdr->offset;
-	if((*fmt->type_and_offset_read)(&next_entry_type, &next_entry_offset,
-	    next_entry + fmt->fixed_hdr_entry,
-	    hdr->offset_size))
+	if((*fmt->type_and_offset_read)(&next_entry_type, &next_entry_offset, next_entry + fmt->fixed_hdr_entry, hdr->offset_size))
 		return DYNCOL_OFFSET_ERROR;
 	return (next_entry_offset - hdr->offset);
 }
-
 /**
    Comparator function for references to header entries for qsort
  */
-
 static int header_compar_num(const void * a, const void * b)
 {
 	uint va = uint2korr((uchar *)a), vb = uint2korr((uchar *)b);
@@ -1854,7 +1759,6 @@ static uchar * find_entry_num(DYN_HEADER * hdr, uint key)
 	int2store(header_entry, key);
 	return hdr->entry = (uchar *)bsearch(header_entry, hdr->header, (size_t)hdr->column_count, hdr->entry_size, &header_compar_num);
 }
-
 /**
    Read name from header entry
 
@@ -1865,15 +1769,12 @@ static uchar * find_entry_num(DYN_HEADER * hdr, uint key)
    @return 0 ok
    @return 1 error in data
  */
-
 static bool read_name(DYN_HEADER * hdr, uchar * entry, LEX_STRING * name)
 {
 	size_t nmoffset = uint2korr(entry);
 	uchar * next_entry = entry + hdr->entry_size;
-
 	if(nmoffset > hdr->nmpool_size)
 		return 1;
-
 	name->str = (char *)hdr->nmpool + nmoffset;
 	if(next_entry == hdr->header + hdr->header_size)
 		name->length = hdr->nmpool_size - nmoffset;
@@ -1885,7 +1786,6 @@ static bool read_name(DYN_HEADER * hdr, uchar * entry, LEX_STRING * name)
 	}
 	return 0;
 }
-
 /**
    Find entry in the names format header by the column number
 
@@ -2294,40 +2194,27 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
 	struct st_service_funcs * fmt;
 	uint i;
 	enum enum_dyncol_func_result rc;
-
 	(*names) = 0; (*count) = 0;
-
 	if(str->length == 0)
 		return ER_DYNCOL_OK; /* no columns */
-
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
-
 	fmt = fmt_data + header.format;
-
-	if(header.entry_size * header.column_count + fmt->fixed_hdr >
-	    str->length)
+	if(header.entry_size * header.column_count + fmt->fixed_hdr > str->length)
 		return ER_DYNCOL_FORMAT;
-
 	if(header.format == dyncol_fmt_num)
-		*names = (LEX_STRING*)SAlloc::M(sizeof(LEX_STRING) * header.column_count +
-			DYNCOL_NUM_CHAR * header.column_count);
+		*names = (LEX_STRING*)SAlloc::M(sizeof(LEX_STRING) * header.column_count + DYNCOL_NUM_CHAR * header.column_count);
 	else
-		*names = (LEX_STRING*)SAlloc::M(sizeof(LEX_STRING) * header.column_count +
-			header.nmpool_size + header.column_count);
+		*names = (LEX_STRING*)SAlloc::M(sizeof(LEX_STRING) * header.column_count + header.nmpool_size + header.column_count);
 	if(!(*names))
 		return ER_DYNCOL_RESOURCE;
 	pool = ((char *)(*names)) + sizeof(LEX_STRING) * header.column_count;
-
-	for(i = 0, read = header.header;
-	    i < header.column_count;
-	    i++, read += header.entry_size) {
+	for(i = 0, read = header.header; i < header.column_count; i++, read += header.entry_size) {
 		if(header.format == dyncol_fmt_num) {
 			uint nm = uint2korr(read);
 			(*names)[i].str = pool;
 			pool += DYNCOL_NUM_CHAR;
-			(*names)[i].length =
-			    ma_ll2str(nm, (*names)[i].str, 10) - (*names)[i].str;
+			(*names)[i].length = ma_ll2str(nm, (*names)[i].str, 10) - (*names)[i].str;
 		}
 		else {
 			LEX_STRING tmp;
@@ -2343,7 +2230,6 @@ enum enum_dyncol_func_result mariadb_dyncol_list_named(DYNAMIC_COLUMN * str, uin
 	(*count) = header.column_count;
 	return ER_DYNCOL_OK;
 }
-
 /**
    Find the place of the column in the header or place where it should be put
 
@@ -2419,12 +2305,9 @@ static bool find_place(DYN_HEADER * hdr, void * key, bool string_keys)
 		hdr->entry += hdr->entry_size; /* Point at next bigger key */
 	return flag == 0;
 }
-
 /*
-   It is internal structure which describes a plan of changing the record
-   of dynamic columns
+   It is internal structure which describes a plan of changing the record of dynamic columns
  */
-
 typedef enum {PLAN_REPLACE, PLAN_ADD, PLAN_DELETE, PLAN_NOP} PLAN_ACT;
 
 struct st_plan {
@@ -2439,24 +2322,19 @@ struct st_plan {
 };
 
 typedef struct st_plan PLAN;
-
 /**
    Sort function for plan by column number
  */
-
 static int plan_sort_num(const void * a, const void * b)
 {
 	return *((uint*)((PLAN*)a)->key) - *((uint*)((PLAN*)b)->key);
 }
-
 /**
    Sort function for plan by column name
  */
-
 static int plan_sort_named(const void * a, const void * b)
 {
-	return mariadb_dyncol_column_cmp_named((LEX_STRING*)((PLAN*)a)->key,
-		   (LEX_STRING*)((PLAN*)b)->key);
+	return mariadb_dyncol_column_cmp_named((LEX_STRING*)((PLAN*)a)->key, (LEX_STRING*)((PLAN*)b)->key);
 }
 
 #define DELTA_CHECK(S, D, C)        \
@@ -2622,51 +2500,33 @@ err:
 }
 
 static enum enum_dyncol_func_result dynamic_column_update_move_left(DYNAMIC_COLUMN * str, PLAN * plan,
-    size_t offset_size,
-    size_t entry_size,
-    size_t header_size,
-    size_t new_offset_size,
-    size_t new_entry_size,
-    size_t new_header_size,
-    uint column_count,
-    uint new_column_count,
-    uint add_column_count,
-    uchar * header_end,
-    size_t max_offset){
-	uchar * write;
+    size_t offset_size, size_t entry_size, size_t header_size, size_t new_offset_size, size_t new_entry_size,
+    size_t new_header_size, uint column_count, uint new_column_count, uint add_column_count, uchar * header_end, size_t max_offset)
+{
 	uchar * header_base = (uchar *)str->str + FIXED_HEADER_SIZE;
 	uint i, j, k;
 	size_t curr_offset;
-
-	write = (uchar *)str->str + FIXED_HEADER_SIZE;
+	uchar * write = (uchar *)str->str + FIXED_HEADER_SIZE;
 	set_fixed_header(str, (uint)new_offset_size, new_column_count);
-
 	/*
 	   Move headers first.
 	   i= index in array of changes
 	   j= index in packed string header index
 	 */
-	for(curr_offset = 0, i = 0, j = 0;
-	    i < add_column_count || j < column_count;
-	    i++) {
+	for(curr_offset = 0, i = 0, j = 0; i < add_column_count || j < column_count; i++) {
 		size_t UNINIT_VAR(first_offset);
 		uint start = j, end;
-
 		/*
-		   Search in i and j for the next column to add from i and where to
-		   add.
+		   Search in i and j for the next column to add from i and where to add.
 		 */
-
 		while(i < add_column_count && plan[i].act == PLAN_NOP)
 			i++; /* skip NOP */
-
 		if(i == add_column_count)
 			j = end = column_count;
 		else {
 			/*
 			   old data portion. We don't need to check that j < column_count
-			   as plan[i].place is guaranteed to have a pointer inside the
-			   data.
+			   as plan[i].place is guaranteed to have a pointer inside the data.
 			 */
 			while(header_base + j * entry_size < plan[i].place)
 				j++;
@@ -2675,23 +2535,15 @@ static enum enum_dyncol_func_result dynamic_column_update_move_left(DYNAMIC_COLU
 				j++; /* data at 'j' will be removed */
 		}
 		plan[i].mv_end = end;
-
 		{
 			DYNAMIC_COLUMN_TYPE tp;
-			if(type_and_offset_read_num(&tp, &first_offset,
-			    header_base + start * entry_size +
-			    COLUMN_NUMBER_SIZE, offset_size))
+			if(type_and_offset_read_num(&tp, &first_offset, header_base + start * entry_size + COLUMN_NUMBER_SIZE, offset_size))
 				return ER_DYNCOL_FORMAT;
 		}
 		/* find data to be moved */
 		if(start < end) {
-			size_t data_size =
-			    get_length_interval(header_base + start * entry_size,
-				header_base + end * entry_size,
-				header_end, offset_size, max_offset);
-			if(data_size == DYNCOL_OFFSET_ERROR ||
-			    (long)data_size < 0 ||
-			    data_size > max_offset - first_offset) {
+			size_t data_size = get_length_interval(header_base + start * entry_size, header_base + end * entry_size, header_end, offset_size, max_offset);
+			if(data_size == DYNCOL_OFFSET_ERROR || (long)data_size < 0 || data_size > max_offset - first_offset) {
 				str->length = 0; // just something valid
 				return ER_DYNCOL_FORMAT;
 			}
@@ -2971,7 +2823,6 @@ static enum enum_dyncol_func_result dynamic_column_update_move_right(DYNAMIC_COL
 }
 
 #endif
-
 /**
    Update the packed string with the given columns
 
@@ -2985,28 +2836,20 @@ static enum enum_dyncol_func_result dynamic_column_update_move_right(DYNAMIC_COL
 /* plan allocated on the stack */
 #define IN_PLACE_PLAN 4
 
-enum enum_dyncol_func_result dynamic_column_update_many(DYNAMIC_COLUMN * str,
-    uint add_column_count,
-    uint * column_numbers,
-    DYNAMIC_COLUMN_VALUE * values){
-	return dynamic_column_update_many_fmt(str, add_column_count, column_numbers,
-		   values, FALSE);
+enum enum_dyncol_func_result dynamic_column_update_many(DYNAMIC_COLUMN * str, uint add_column_count, uint * column_numbers, DYNAMIC_COLUMN_VALUE * values)
+{
+	return dynamic_column_update_many_fmt(str, add_column_count, column_numbers, values, FALSE);
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_update_many_num(DYNAMIC_COLUMN * str,
-    uint add_column_count,
-    uint * column_numbers,
-    DYNAMIC_COLUMN_VALUE * values){
-	return dynamic_column_update_many_fmt(str, add_column_count, column_numbers,
-		   values, FALSE);
+enum enum_dyncol_func_result mariadb_dyncol_update_many_num(DYNAMIC_COLUMN * str, uint add_column_count, uint * column_numbers, DYNAMIC_COLUMN_VALUE * values)
+{
+	return dynamic_column_update_many_fmt(str, add_column_count, column_numbers, values, FALSE);
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_update_many_named(DYNAMIC_COLUMN * str,
-    uint add_column_count,
-    LEX_STRING * column_names,
-    DYNAMIC_COLUMN_VALUE * values){
-	return dynamic_column_update_many_fmt(str, add_column_count, column_names,
-		   values, TRUE);
+enum enum_dyncol_func_result mariadb_dyncol_update_many_named(DYNAMIC_COLUMN * str, uint add_column_count,
+    LEX_STRING * column_names, DYNAMIC_COLUMN_VALUE * values)
+{
+	return dynamic_column_update_many_fmt(str, add_column_count, column_names, values, TRUE);
 }
 
 static uint numlen(uint val)
@@ -3083,30 +2926,22 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 		goto end;
 	fmt = fmt_data + header.format;
 	/* new format can't be numeric if the old one is names */
-	DBUG_ASSERT(new_header.format == dyncol_fmt_str ||
-	    header.format == dyncol_fmt_num);
+	DBUG_ASSERT(new_header.format == dyncol_fmt_str || header.format == dyncol_fmt_num);
 	if(header.column_count == 0)
 		goto create_new_string;
-
 	qsort(plan, (size_t)add_column_count, sizeof(PLAN), new_fmt->plan_sort);
-
 	new_header.column_count = header.column_count;
 	new_header.nmpool_size = header.nmpool_size;
-	if((convert = (new_header.format == dyncol_fmt_str &&
-	    header.format == dyncol_fmt_num))) {
+	if((convert = (new_header.format == dyncol_fmt_str && header.format == dyncol_fmt_num))) {
 		DBUG_ASSERT(new_header.nmpool_size == 0);
-		for(i = 0, header.entry = header.header;
-		    i < header.column_count;
-		    i++, header.entry += header.entry_size) {
+		for(i = 0, header.entry = header.header; i < header.column_count; i++, header.entry += header.entry_size) {
 			new_header.nmpool_size += numlen(uint2korr(header.entry));
 		}
 	}
-
 	if(fmt->fixed_hdr + header.header_size + header.nmpool_size > str->length) {
 		rc = ER_DYNCOL_FORMAT;
 		goto end;
 	}
-
 	/*
 	   Calculate how many columns and data is added/deleted and make a 'plan'
 	   for each of them.
@@ -3117,12 +2952,10 @@ static enum enum_dyncol_func_result dynamic_column_update_many_fmt(DYNAMIC_COLUM
 		   at the time of create.  This can be fixed later to just use the later
 		   by comparing the pointers.
 		 */
-		if(i < add_column_count - 1 &&
-		    new_fmt->column_sort(&plan[i].key, &plan[i+1].key) == 0) {
+		if(i < add_column_count - 1 && new_fmt->column_sort(&plan[i].key, &plan[i+1].key) == 0) {
 			rc = ER_DYNCOL_DATA;
 			goto end;
 		}
-
 		/* Set common variables for all plans */
 		plan[i].ddelta = data_delta;
 		plan[i].ndelta = name_delta;
@@ -3738,31 +3571,25 @@ enum enum_dyncol_func_result mariadb_dyncol_val_double(double * dbl, DYNAMIC_COL
 
 #define JSON_STACK_PROTECTION 10
 
-static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json,
-    uint lvl){
+static enum enum_dyncol_func_result mariadb_dyncol_json_internal(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json, uint lvl)
+{
 	DYN_HEADER header;
 	uint i;
 	enum enum_dyncol_func_result rc;
-
 	if(lvl >= JSON_STACK_PROTECTION) {
 		rc = ER_DYNCOL_RESOURCE;
 		goto err;
 	}
-
 	if(str->length == 0)
 		return ER_DYNCOL_OK; /* no columns */
-
 	if((rc = init_read_hdr(&header, str)) < 0)
 		goto err;
-
 	if(header.entry_size * header.column_count + FIXED_HEADER_SIZE >
 	    str->length) {
 		rc = ER_DYNCOL_FORMAT;
 		goto err;
 	}
-
 	rc = ER_DYNCOL_RESOURCE;
-
 	if(ma_dynstr_append_mem(json, "{", 1))
 		goto err;
 	for(i = 0, header.entry = header.header;
@@ -3836,13 +3663,12 @@ err:
 	return rc;
 }
 
-enum enum_dyncol_func_result mariadb_dyncol_json(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json) {
+enum enum_dyncol_func_result mariadb_dyncol_json(DYNAMIC_COLUMN * str, DYNAMIC_STRING * json) 
+{
 	if(ma_init_dynamic_string(json, NULL, str->length * 2, 100))
 		return ER_DYNCOL_RESOURCE;
-
 	return mariadb_dyncol_json_internal(str, json, 1);
 }
-
 /**
    Convert to DYNAMIC_COLUMN_VALUE values and names (LEX_STING) dynamic array
 
@@ -3861,23 +3687,18 @@ enum enum_dyncol_func_result mariadb_dyncol_unpack(DYNAMIC_COLUMN * str,
 	char * nm;
 	uint i;
 	enum enum_dyncol_func_result rc;
-
-	*count = 0; *names = 0; *vals = 0;
-
+	*count = 0; 
+	*names = 0; 
+	*vals = 0;
 	if(str->length == 0)
 		return ER_DYNCOL_OK; /* no columns */
-
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
-
-	if(header.entry_size * header.column_count + FIXED_HEADER_SIZE >
-	    str->length)
+	if(header.entry_size * header.column_count + FIXED_HEADER_SIZE > str->length)
 		return ER_DYNCOL_FORMAT;
-
 	*vals = (DYNAMIC_COLUMN_VALUE*)SAlloc::M(sizeof(DYNAMIC_COLUMN_VALUE)* header.column_count);
 	if(header.format == dyncol_fmt_num) {
-		*names = (LEX_STRING*)SAlloc::M(sizeof(LEX_STRING) * header.column_count +
-			DYNCOL_NUM_CHAR * header.column_count);
+		*names = (LEX_STRING*)SAlloc::M(sizeof(LEX_STRING) * header.column_count + DYNCOL_NUM_CHAR * header.column_count);
 		nm = (char *)((*names) + header.column_count);
 	}
 	else {
@@ -3888,12 +3709,8 @@ enum enum_dyncol_func_result mariadb_dyncol_unpack(DYNAMIC_COLUMN * str,
 		rc = ER_DYNCOL_RESOURCE;
 		goto err;
 	}
-
-	for(i = 0, header.entry = header.header;
-	    i < header.column_count;
-	    i++, header.entry += header.entry_size) {
-		header.length =
-		    hdr_interval_length(&header, header.entry + header.entry_size);
+	for(i = 0, header.entry = header.header; i < header.column_count; i++, header.entry += header.entry_size) {
+		header.length = hdr_interval_length(&header, header.entry + header.entry_size);
 		header.data = header.dtpool + header.offset;
 		/*
 		   Check that the found data is within the ranges. This can happen if
@@ -3906,7 +3723,6 @@ enum enum_dyncol_func_result mariadb_dyncol_unpack(DYNAMIC_COLUMN * str,
 		}
 		if((rc = dynamic_column_get_value(&header, (*vals) + i)) < 0)
 			goto err;
-
 		if(header.format == dyncol_fmt_num) {
 			uint num = uint2korr(header.entry);
 			(*names)[i].str = nm;
@@ -3920,22 +3736,13 @@ enum enum_dyncol_func_result mariadb_dyncol_unpack(DYNAMIC_COLUMN * str,
 			}
 		}
 	}
-
 	*count = header.column_count;
 	return ER_DYNCOL_OK;
-
 err:
-	if(*vals) {
-		SAlloc::F(*vals);
-		*vals = 0;
-	}
-	if(*names) {
-		SAlloc::F(*names);
-		*names = 0;
-	}
+	ZFREE(*vals);
+	ZFREE(*names);
 	return rc;
 }
-
 /**
    Get not NULL column count
 
@@ -3944,21 +3751,18 @@ err:
 
    @return ER_DYNCOL_* return code
  */
-
-enum enum_dyncol_func_result mariadb_dyncol_column_count(DYNAMIC_COLUMN * str, uint * column_count) {
+enum enum_dyncol_func_result mariadb_dyncol_column_count(DYNAMIC_COLUMN * str, uint * column_count) 
+{
 	DYN_HEADER header;
 	enum enum_dyncol_func_result rc;
-
 	(*column_count) = 0;
 	if(str->length == 0)
 		return ER_DYNCOL_OK;
-
 	if((rc = init_read_hdr(&header, str)) < 0)
 		return rc;
 	*column_count = header.column_count;
 	return rc;
 }
-
 /**
    Release dynamic column memory
 

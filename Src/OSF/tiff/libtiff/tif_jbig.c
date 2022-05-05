@@ -179,13 +179,3 @@ int TIFFInitJBIG(TIFF * tif, int scheme)
 }
 
 #endif /* JBIG_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

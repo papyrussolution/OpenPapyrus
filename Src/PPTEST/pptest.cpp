@@ -1489,8 +1489,10 @@ int DoConstructionTest()
 		SDelay(1);
 	}*/
 	{ // @v10.9.7 Ёкпериментальное внедрение тестировани€ библиотеки lcms2
+#if _MSC_VER >= 1910
 		const char * test_lcms_argv[] = { "Test_LCMS2" };
 		Test_LCMS2(1, test_lcms_argv);
+#endif
 	}
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//TestGtinStruc();

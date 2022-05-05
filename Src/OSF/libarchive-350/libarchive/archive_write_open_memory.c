@@ -25,7 +25,6 @@ struct write_memory_data {
 static int memory_write_free(struct archive *, void *);
 static int memory_write_open(struct archive *, void *);
 static ssize_t  memory_write(struct archive *, void *, const void * buff, size_t);
-
 /*
  * Client provides a pointer to a block of memory to receive
  * the data.  The 'size' param both tells us the size of the

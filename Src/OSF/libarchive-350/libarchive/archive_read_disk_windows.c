@@ -471,25 +471,20 @@ int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
     const char * (*lookup_uname)(void * pPrivate, int64 uid), void (*cleanup_uname)(void * pPrivate))
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_uname_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_uname_lookup");
 	if(a->cleanup_uname != NULL && a->lookup_uname_data != NULL)
 		(a->cleanup_uname)(a->lookup_uname_data);
-
 	a->lookup_uname = lookup_uname;
 	a->cleanup_uname = cleanup_uname;
 	a->lookup_uname_data = private_data;
 	return ARCHIVE_OK;
 }
-
 /*
  * Create a new archive_read_disk object and initialize it with global state.
  */
-struct archive * archive_read_disk_new(void)                 {
-	struct archive_read_disk * a;
-
-	a = (struct archive_read_disk *)SAlloc::C(1, sizeof(*a));
+struct archive * archive_read_disk_new(void)                 
+{
+	struct archive_read_disk * a = (struct archive_read_disk *)SAlloc::C(1, sizeof(*a));
 	if(a == NULL)
 		return NULL;
 	a->archive.magic = ARCHIVE_READ_DISK_MAGIC;
@@ -506,12 +501,9 @@ static int _archive_read_free(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	int r;
-
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
 	if(a->archive.state != ARCHIVE_STATE_CLOSED)
 		r = _archive_read_close(&a->archive);
 	else
@@ -532,15 +524,10 @@ static int _archive_read_free(struct archive * _a)
 static int _archive_read_close(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		a->archive.state = ARCHIVE_STATE_CLOSED;
-
 	tree_close(a->tree);
-
 	return ARCHIVE_OK;
 }
 
@@ -558,8 +545,7 @@ static void setup_symlink_mode(struct archive_read_disk * a, char symlink_mode,
 int archive_read_disk_set_symlink_logical(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_logical");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_logical");
 	setup_symlink_mode(a, 'L', 1);
 	return ARCHIVE_OK;
 }
@@ -567,8 +553,7 @@ int archive_read_disk_set_symlink_logical(struct archive * _a)
 int archive_read_disk_set_symlink_physical(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_physical");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_physical");
 	setup_symlink_mode(a, 'P', 0);
 	return ARCHIVE_OK;
 }
@@ -576,8 +561,7 @@ int archive_read_disk_set_symlink_physical(struct archive * _a)
 int archive_read_disk_set_symlink_hybrid(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_hybrid");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_symlink_hybrid");
 	setup_symlink_mode(a, 'H', 1); /* Follow symlinks initially. */
 	return ARCHIVE_OK;
 }
@@ -585,8 +569,7 @@ int archive_read_disk_set_symlink_hybrid(struct archive * _a)
 int archive_read_disk_set_atime_restored(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_restore_atime");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_restore_atime");
 	a->flags |= ARCHIVE_READDISK_RESTORE_ATIME;
 	if(a->tree != NULL)
 		a->tree->flags |= needsRestoreTimes;
@@ -597,12 +580,8 @@ int archive_read_disk_set_behavior(struct archive * _a, int flags)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	int r = ARCHIVE_OK;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_honor_nodump");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_honor_nodump");
 	a->flags = flags;
-
 	if(flags & ARCHIVE_READDISK_RESTORE_ATIME)
 		r = archive_read_disk_set_atime_restored(_a);
 	else {

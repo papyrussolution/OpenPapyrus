@@ -3,7 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/escaping.h"
 
 #if defined(__native_client__)
 

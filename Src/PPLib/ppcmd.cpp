@@ -335,7 +335,7 @@ int PPCommandItem::Read2(const void * pHandler, const long rwFlag) //@erik v10.6
 	THROW(pHandler);
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
-		if(SXml::IsName(p_parent_node, "CommandItem")){
+		if(SXml::IsName(p_parent_node, "CommandItem")) {
 			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::GetContentByName(p_node, "Kind", temp_buf))
 					Kind = static_cast<int16>(temp_buf.ToLong());
@@ -357,14 +357,14 @@ int PPCommandItem::Read2(const void * pHandler, const long rwFlag) //@erik v10.6
 	return ok;
 }
 
-int PPCommandItem::IsEq(const void * pCommand) const  //@erik v10.6.1
+bool PPCommandItem::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
-	int yes = 1;
+	//bool   yes = true;
 	if(!pCommand)
-		return 0;
+		return false;
 	else {
 		const PPCommandItem * p_compare_item = static_cast<const PPCommandItem *>(pCommand);
-#define CMPF(f) if(f != p_compare_item->f) return 0;
+#define CMPF(f) if(f != p_compare_item->f) return false;
 		CMPF(Kind);
 		CMPF(Flags);
 		CMPF(ID);
@@ -372,7 +372,7 @@ int PPCommandItem::IsEq(const void * pCommand) const  //@erik v10.6.1
 		CMPF(Icon);
 #undef CMPF
 	}
-	return 1;
+	return true;
 }
 
 /*virtual*/void FASTCALL PPCommandItem::SetUniqueID(long * pID)
@@ -508,25 +508,25 @@ int PPCommand::Read2(const void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int PPCommand::IsEq(const void * pCommand) const  //@erik v10.6.1
+bool PPCommand::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
 	if(!pCommand)
-		return 0;
+		return false;
 	else {
 		const PPCommand * p_compare_command = static_cast<const PPCommand *>(pCommand);
 		if(!PPCommandItem::IsEq(pCommand)) {
-			return 0;
+			return false;
 		}
 		else {
-			#define CMPF(f) if(f != p_compare_command->f) return 0;
+			#define CMPF(f) if(f != p_compare_command->f) return false;
 			CMPF(CmdID);
 			CMPF(P);
 			#undef CMPF
 			if(!Param.IsEq(p_compare_command->Param))
-				return 0;
+				return false;
 		}	
 	}
-	return 1;
+	return true;
 }
 //
 //
@@ -738,31 +738,31 @@ int PPCommandFolder::Read2(const void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int PPCommandFolder::IsEq(const void * pCommand) const  //@erik v10.6.1
+bool PPCommandFolder::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
-	int    yes = 1;
+	bool   yes = true;
 	if(pCommand) {
 		const  PPCommandFolder * p_compare_folder = static_cast<const PPCommandFolder *>(pCommand);
 		if(!PPCommandItem::IsEq(p_compare_folder))
-			yes = 0;
+			yes = false;
 		else {
 			const uint c = List.getCount();
 			if(c != p_compare_folder->List.getCount())
-				yes = 0;
+				yes = false;
 			else {
 				for(uint i = 0; yes && i < c; i++) {
 					const PPCommandItem * p_comm_item = List.at(i);
 					if(p_comm_item) {
 						const PPCommandItem * p_other_comm_item = p_compare_folder->SearchByID(p_comm_item->GetID(), 0);
 						if(!p_other_comm_item || !p_comm_item->IsEq(p_other_comm_item))
-							yes = 0;
+							yes = false;
 					}
 				}
 			}
 		}
 	}
 	else
-		yes = 0;
+		yes = false;
 	return yes;
 }
 // } @erik
@@ -1456,7 +1456,7 @@ int PPCommandGroup::Write2(void * pHandler, const long rwFlag) const
 	SString temp_buf;
 	assert(pHandler);
 	THROW(pHandler);
-	if(rwFlag == PPCommandMngr::fRWByXml){
+	if(rwFlag == PPCommandMngr::fRWByXml) {
 		SString db_symb = DbSymb;
 		if(db_symb.NotEmpty() || Type == cmdgrpcMenu) { // @v11.0.1 (Type == cmdgrpcMenu)
 			// @v11.0.1 {
@@ -1522,9 +1522,9 @@ int PPCommandGroup::Read2(const void * pHandler, const long rwFlag)
 	if(rwFlag == PPCommandMngr::fRWByXml) {
 		const xmlNode * p_parent_node = static_cast<const xmlNode *>(pHandler);
 		if(SXml::IsName(p_parent_node, "CommandGroup")) {
-			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next){
+			for(const xmlNode * p_node = p_parent_node->children; p_node; p_node = p_node->next) {
 				if(SXml::GetContentByName(p_node, "DbSymb", temp_buf) > 0) {
-					if(temp_buf.NotEmpty()){
+					if(temp_buf.NotEmpty()) {
 						DbSymb = temp_buf.Transf(CTRANSF_UTF8_TO_OUTER);
 					}						
 				}
@@ -1572,25 +1572,25 @@ int PPCommandGroup::Read2(const void * pHandler, const long rwFlag)
 	return ok;
 }
 
-int PPCommandGroup::IsEq(const void * pCommand) const  //@erik v10.6.1
+bool PPCommandGroup::IsEq(const void * pCommand) const  //@erik v10.6.1
 {
-	int yes = 1;
-	if(pCommand){
+	bool   yes = true;
+	if(pCommand) {
 		const PPCommandGroup * p_compare_group = static_cast<const PPCommandGroup *>(pCommand);
 		if(BIN(DbSymb.CmpNC(p_compare_group->DbSymb)!=0)) {
-			yes = 0;
+			yes = false;
 		}
 		else {
 			if(BIN(Logo_.CmpNC(p_compare_group->Logo_)!=0)) {
-				yes = 0;
+				yes = false;
 			}
 			else if(!PPCommandFolder::IsEq(p_compare_group)) {
-				yes = 0;
+				yes = false;
 			}
 		}
 	}
 	else
-		yes = 0;
+		yes = false;
 	return yes;
 }
 // } @erik

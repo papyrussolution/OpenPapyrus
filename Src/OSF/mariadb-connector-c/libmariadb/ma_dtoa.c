@@ -17,8 +17,7 @@
 
 /****************************************************************
 
-   This file incorporates work covered by the following copyright and
-   permission notice:
+   This file incorporates work covered by the following copyright and permission notice:
 
    The author of this software is David M. Gay.
 
@@ -90,31 +89,25 @@ size_t ma_fcvt(double x, int precision, char * to, bool * error)
 	char * res, * src, * end, * dst = to;
 	char buf[DTOA_BUFF_SIZE];
 	DBUG_ASSERT(precision >= 0 && precision < NOT_FIXED_DEC && to != NULL);
-
 	res = dtoa(x, 5, precision, &decpt, &sign, &end, buf, sizeof(buf));
-
 	if(decpt == DTOA_OVERFLOW) {
 		dtoa_free(res, buf, sizeof(buf));
 		*to++ = '0';
 		*to = '\0';
-		if(error != NULL)
+		if(error)
 			*error = TRUE;
 		return 1;
 	}
-
 	src = res;
 	len = (int)(end - src);
-
 	if(sign)
 		*dst++ = '-';
-
 	if(decpt <= 0) {
 		*dst++ = '0';
 		*dst++ = '.';
 		for(i = decpt; i < 0; i++)
 			*dst++ = '0';
 	}
-
 	for(i = 1; i <= len; i++) {
 		*dst++ = *src++;
 		if(i == decpt && i < len)
@@ -132,7 +125,7 @@ size_t ma_fcvt(double x, int precision, char * to, bool * error)
 	}
 
 	*dst = '\0';
-	if(error != NULL)
+	if(error)
 		*error = FALSE;
 
 	dtoa_free(res, buf, sizeof(buf));
@@ -222,12 +215,12 @@ size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to,
 		dtoa_free(res, buf, sizeof(buf));
 		*to++ = '0';
 		*to = '\0';
-		if(error != NULL)
+		if(error)
 			*error = TRUE;
 		return 1;
 	}
 
-	if(error != NULL)
+	if(error)
 		*error = FALSE;
 
 	src = res;
@@ -307,7 +300,7 @@ size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to,
 		/* Do we have to truncate any digits? */
 		if(width < len) {
 			if(width < decpt) {
-				if(error != NULL)
+				if(error)
 					*error = TRUE;
 				width = decpt;
 			}
@@ -368,7 +361,7 @@ size_t ma_gcvt(double x, my_gcvt_arg_type type, int width, char * to,
 
 		if(width <= 0) {
 			/* Overflow */
-			if(error != NULL)
+			if(error)
 				*error = TRUE;
 			width = 0;
 		}
@@ -583,14 +576,12 @@ typedef struct Stack_alloc {
 	 */
 	Bigint * freelist[Kmax+1];
 } Stack_alloc;
-
 /*
    Try to allocate object on stack, and resort to malloc if all
    stack memory is used. Ensure allocated objects to be aligned by the pointer
    size in order to not break the alignment rules when storing a pointer to a
    Bigint.
  */
-
 static Bigint * Balloc(int k, Stack_alloc * alloc)
 {
 	Bigint * rv;
@@ -615,7 +606,6 @@ static Bigint * Balloc(int k, Stack_alloc * alloc)
 	rv->p.x = (ULong*)(rv + 1);
 	return rv;
 }
-
 /*
    If object was allocated on stack, try putting it to the free list. Otherwise call SAlloc::F().
  */
@@ -807,8 +797,7 @@ static Bigint * mult(Bigint * a, Bigint * b, Stack_alloc * alloc)
 				z = *x++ *(ULLong)y + *xc + carry;
 				carry = z >> 32;
 				*xc++ = (ULong)(z & FFFFFFFF);
-			}
-			while(x < xae);
+			} while(x < xae);
 			*xc = (ULong)carry;
 		}
 	}
@@ -820,29 +809,21 @@ static Bigint * mult(Bigint * a, Bigint * b, Stack_alloc * alloc)
    Precalculated array of powers of 5: tested to be enough for
    vasting majority of dtoa_r cases.
  */
-static ULong powers5[] =
-{
+static ULong powers5[] = {
 	625UL,
-
 	390625UL,
-
 	2264035265UL, 35UL,
-
 	2242703233UL, 762134875UL,  1262UL,
-
 	3211403009UL, 1849224548UL, 3668416493UL, 3913284084UL, 1593091UL,
-
 	781532673UL,  64985353UL,   253049085UL,  594863151UL,  3553621484UL,
 	3288652808UL, 3167596762UL, 2788392729UL, 3911132675UL, 590UL,
-
 	2553183233UL, 3201533787UL, 3638140786UL, 303378311UL, 1809731782UL,
 	3477761648UL, 3583367183UL, 649228654UL, 2915460784UL, 487929380UL,
 	1011012442UL, 1677677582UL, 3428152256UL, 1710878487UL, 1438394610UL,
 	2161952759UL, 4100910556UL, 1608314830UL, 349175UL
 };
 
-static Bigint p5_a[] =
-{
+static Bigint p5_a[] = {
 	/* { x } - k - maxwds - sign - wds */
 	{ { powers5 }, 1, 1, 0, 1 },
 	{ { powers5 + 1 }, 1, 1, 0, 1 },
@@ -861,10 +842,8 @@ static Bigint * pow5mult(Bigint * b, int k, Stack_alloc * alloc)
 	int i;
 	static int p05[3] = { 5, 25, 125 };
 	bool overflow = FALSE;
-
 	if((i = k & 3))
 		b = multadd(b, p05[i-1], 0, alloc);
-
 	if(!(k >>= 2))
 		return b;
 	p5 = p5_a;
@@ -896,13 +875,12 @@ static Bigint * pow5mult(Bigint * b, int k, Stack_alloc * alloc)
 
 static Bigint * lshift(Bigint * b, int k, Stack_alloc * alloc)
 {
-	int i, k1, n, n1;
+	int i;
 	Bigint * b1;
 	ULong * x, * x1, * xe, z;
-
-	n = k >> 5;
-	k1 = b->k;
-	n1 = n + b->wds + 1;
+	int n = k >> 5;
+	int k1 = b->k;
+	int n1 = n + b->wds + 1;
 	for(i = b->maxwds; n1 > i; i <<= 1)
 		k1++;
 	b1 = Balloc(k1, alloc);
@@ -917,15 +895,14 @@ static Bigint * lshift(Bigint * b, int k, Stack_alloc * alloc)
 		do {
 			*x1++ = *x << k | z;
 			z = *x++ >> k1;
-		}
-		while(x < xe);
+		} while(x < xe);
 		if((*x1 = z))
 			++n1;
 	}
 	else
-		do
+		do {
 			*x1++ = *x++;
-		while(x < xe);
+		} while(x < xe);
 	b1->wds = n1 - 1;
 	Bfree(b, alloc);
 	return b1;
@@ -934,10 +911,8 @@ static Bigint * lshift(Bigint * b, int k, Stack_alloc * alloc)
 static int cmp(Bigint * a, Bigint * b)
 {
 	ULong * xa, * xa0, * xb, * xb0;
-	int i, j;
-
-	i = a->wds;
-	j = b->wds;
+	int i = a->wds;
+	int j = b->wds;
 	if(i -= j)
 		return i;
 	xa0 = a->p.x;
@@ -956,11 +931,10 @@ static int cmp(Bigint * a, Bigint * b)
 static Bigint * diff(Bigint * a, Bigint * b, Stack_alloc * alloc)
 {
 	Bigint * c;
-	int i, wa, wb;
+	int wa, wb;
 	ULong * xa, * xae, * xb, * xbe, * xc;
 	ULLong borrow, y;
-
-	i = cmp(a, b);
+	int i = cmp(a, b);
 	if(!i) {
 		c = Balloc(0, alloc);
 		c->wds = 1;
@@ -1010,10 +984,8 @@ static Bigint * d2b(U * d, int * e, int * bits, Stack_alloc * alloc)
 	int i;
 #define d0 word0(d)
 #define d1 word1(d)
-
 	b = Balloc(1, alloc);
 	x = b->p.x;
-
 	z = d0 & Frac_mask;
 	d0 &= 0x7fffffff; /* clear sign bit, which we ignore */
 	if((de = (int)(d0 >> Exp_shift)))
@@ -1046,8 +1018,7 @@ static Bigint * d2b(U * d, int * e, int * bits, Stack_alloc * alloc)
 #undef d1
 }
 
-static const double tens[] =
-{
+static const double tens[] = {
 	1e0, 1e1, 1e2, 1e3, 1e4, 1e5, 1e6, 1e7, 1e8, 1e9,
 	1e10, 1e11, 1e12, 1e13, 1e14, 1e15, 1e16, 1e17, 1e18, 1e19,
 	1e20, 1e21, 1e22
@@ -1063,11 +1034,9 @@ static const double bigtens[] = { 1e16, 1e32, 1e64, 1e128, 1e256 };
 
 static int quorem(Bigint * b, Bigint * S)
 {
-	int n;
 	ULong * bx, * bxe, q, * sx, * sxe;
 	ULLong borrow, carry, y, ys;
-
-	n = S->wds;
+	int n = S->wds;
 	if(b->wds < n)
 		return 0;
 	sx = S->p.x;
@@ -1117,7 +1086,6 @@ static int quorem(Bigint * b, Bigint * S)
 	}
 	return q;
 }
-
 /*
    dtoa for IEEE arithmetic (dmg): convert double to ASCII string.
 
@@ -1152,7 +1120,6 @@ static int quorem(Bigint * b, Bigint * S)
            something like 10^(k-15) that we must resort to the Long
            calculation.
  */
-
 static char * dtoa(double dd, int mode, int ndigits, int * decpt, int * sign,
     char ** rve, char * buf, size_t buf_size)
 {
@@ -1546,16 +1513,13 @@ bump_up:
 	 && rounding == 1
 #endif
 	    ) {
-		if(!word1(&u) && !(word0(&u) & Bndry_mask) &&
-		    word0(&u) & (Exp_mask & ~Exp_msk1)
-		    ) {
+		if(!word1(&u) && !(word0(&u) & Bndry_mask) && word0(&u) & (Exp_mask & ~Exp_msk1)) {
 			/* The special case */
 			b2 += Log2P;
 			s2 += Log2P;
 			spec_case = 1;
 		}
 	}
-
 	/*
 	   Arrange for convenient computation of quotients:
 	   shift left if necessary so divisor has 4 leading 0 bits.
@@ -1652,8 +1616,7 @@ one_digit:
 				if(j1 > 0) {
 					b = lshift(b, 1, &alloc);
 					j1 = cmp(b, S);
-					if((j1 > 0 || (j1 == 0 && dig & 1))
-					 && dig++ == '9')
+					if((j1 > 0 || (j1 == 0 && dig & 1)) && dig++ == '9')
 						goto round_9_up;
 				}
 accept_dig:

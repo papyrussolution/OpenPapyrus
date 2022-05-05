@@ -3616,8 +3616,8 @@ PPAutoTranslSvc_Microsoft::~PPAutoTranslSvc_Microsoft()
 	xmlFreeParserCtxt(P_XpCtx);
 	if(S.ReqCount) {
 		SString log_msg_buf;
-		log_msg_buf.CatEq("ReqCount", (uint32)S.ReqCount).Space().CatEq("InpChrCount", (uint32)S.InpChrCount).Space().
-			CatEq("OutpChrCount", (uint32)S.OutpChrCount).Space().CatEq("TotalTiming", (int64)S.TotalTiming);
+		log_msg_buf.CatEq("ReqCount", S.ReqCount).Space().CatEq("InpChrCount", S.InpChrCount).Space().
+			CatEq("OutpChrCount", S.OutpChrCount).Space().CatEq("TotalTiming", S.TotalTiming);
 		PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 }
@@ -3696,7 +3696,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 			// @v11.1.10 {
 			{
 				SString log_msg_buf;
-				log_msg_buf.Cat("Auth Error").CatDiv(':', 2).CatEq("status", static_cast<long>(LastStatusCode)).Space().CatEq("message", LastStatusMessage);
+				log_msg_buf.Cat("Auth Error").CatDiv(':', 2).CatEq("status", LastStatusCode).Space().CatEq("message", LastStatusMessage);
 				PPLogMessage(PPFILNAM_AUTOTRANSL_LOG, log_msg_buf, LOGMSGF_TIME|LOGMSGF_USER|LOGMSGF_DIRECTOUTP);
 			}
 			// } @v11.1.10 
@@ -3870,7 +3870,7 @@ static int FASTCALL Helper_CollectLldFileStat(const char * pPath, SFile * pOutFi
 					int   xml_format = 0;
 					xfd.Run(dest_path, &xml_format);
 					if(xml_format) {
-                        temp_buf.Z().CatEq("xmlformat", static_cast<long>(xml_format)).CR();
+                        temp_buf.Z().CatEq("xmlformat", xml_format).CR();
                         pDetectTypeOutFile->WriteLine(temp_buf);
 					}
 				}

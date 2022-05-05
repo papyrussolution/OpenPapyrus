@@ -69,7 +69,7 @@ static int do_open(const sasl_utils_t * utils, sasl_conn_t * conn, int rdwr, MDB
 	if(!db_env) {
 		if(utils->getcallback(conn, SASL_CB_GETOPT, (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
 			const char * p;
-			if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK && p != NULL && *p != 0) {
+			if(getopt(cntxt, 0, "sasldb_path", &p, 0) == SASL_OK && p && *p != 0) {
 				path = p;
 			}
 			if(getopt(cntxt, NULL, "sasldb_maxreaders", &p, NULL) == SASL_OK && p != NULL && *p != 0) {
@@ -321,14 +321,11 @@ int _sasl_check_db(const sasl_utils_t * utils, sasl_conn_t * conn)
 		return SASL_BADPARAM;
 	if(utils->getcallback(conn, SASL_CB_GETOPT, (sasl_callback_ft*)&getopt, &cntxt) == SASL_OK) {
 		const char * p;
-		if(getopt(cntxt, NULL, "sasldb_path", &p, NULL) == SASL_OK
-		 && p != NULL && *p != 0) {
+		if(getopt(cntxt, 0, "sasldb_path", &p, 0) == SASL_OK && p && *p != 0) {
 			path = p;
 		}
 	}
-
-	ret = utils->getcallback(conn, SASL_CB_VERIFYFILE,
-		(sasl_callback_ft*)&vf, &cntxt);
+	ret = utils->getcallback(conn, SASL_CB_VERIFYFILE, (sasl_callback_ft*)&vf, &cntxt);
 	if(ret != SASL_OK) {
 		utils->seterror(conn, 0, "verifyfile failed");
 		return ret;

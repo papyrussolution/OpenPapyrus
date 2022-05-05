@@ -2747,7 +2747,7 @@ static void md5_transform(uint32 * pHash, const uint32 * in)
 	return result;
 }
 
-void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
+void FASTCALL SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
 {
 	// The K array
 	static const uint32 K[64] = {
@@ -2772,9 +2772,8 @@ void SlHash::__Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer)
 	uint32 t;
 	uint   i;
 	// Copy H into S
-	for(i = 0; i < 8; i++) {
-		S[i] = pCtx->H[i];
-	}
+	// @v11.3.10 for(i = 0; i < 8; i++) { S[i] = pCtx->H[i]; }
+	memcpy(S, pCtx->H, sizeof(S)); // @v11.3.10
 	// Copy the H into 512-bits into W[0..15]
 	for(i = 0; i < 16; i++) {
 		SHA256_LOAD32H(W[i], PTR8C(pBuffer) + (4*i));
@@ -4154,7 +4153,33 @@ int FASTCALL SBdtFunct::Implement_Transform(TransformBlock & rBlk)
 #define BOBJEN_HASHLEN   1
 #define BOBJEN_MAXPAIR  60
 #define BOBJEN_MAXLEN   70
+//
+// Декларации для тестирования идентичности lzma-варианта (для замещения его собственным)
+//
+struct lzma_sha256_state {
+	uint32 state[8]; /// Internal state
+	uint64 size; /// Size of the message excluding padding
+};
 
+struct lzma_check_state {
+	union {
+		uint8  u8[64];
+		uint32 u32[16];
+		uint64 u64[8];
+	} buffer;
+	union {
+		uint32 crc32;
+		uint64 crc64;
+		lzma_sha256_state sha256;
+	} state;
+};
+
+static void __lzma_sha256_init(lzma_check_state * check);
+static void __lzma_sha256_update(const uint8 * buf, size_t size, lzma_check_state * check);
+static void __lzma_sha256_finish(lzma_check_state * check);
+//
+// }
+//
 //#define DISPLAY(...) slfprintf_stderr(__VA_ARGS__)
 //#define DISPLAYLEVEL(l, ...) do { if(g_displayLevel>=l) DISPLAY(__VA_ARGS__); } while(0)
 //static int g_displayLevel = 2;
@@ -4442,6 +4467,25 @@ SLTEST_R(BDT)
 					//SLTEST_CHECK_NZ(sstreq(jbig2dec_test_results[i], hex_outp));
 				}
 				SLTEST_CHECK_NZ(hex.IsEq(jbig2dec_test_results[i]));
+			}
+		}
+		{
+			//static void __lzma_sha256_init(lzma_check_state * check);
+			//static void __lzma_sha256_update(const uint8 * buf, size_t size, lzma_check_state * check);
+			//static void __lzma_sha256_finish(lzma_check_state * check);
+			SBinaryChunk bc;
+			for(uint i = 0; i < 100; i++) {
+				const size_t len = SLS.GetTLA().Rg.GetUniformInt(SMEGABYTE(8));
+				bc.Randomize(len);
+				assert(bc.Len() == len);
+				binary256 h1 = SlHash::Sha256(0, bc.PtrC(), bc.Len());
+				{
+					lzma_check_state lzmas;
+					__lzma_sha256_init(&lzmas);
+					__lzma_sha256_update(PTR8C(bc.PtrC()), bc.Len(), &lzmas);
+					__lzma_sha256_finish(&lzmas);
+					SLTEST_CHECK_Z(memcmp(&h1, &lzmas.buffer, sizeof(h1)));
+				}
 			}
 		}
 		/*{ // SHA-256
@@ -4863,7 +4907,7 @@ public:
 	}
 	void Test()
 	{
-		const uint32 prime = 2654435761U;
+		const uint32 prime = _SlConst.MagicHashPrime32/*2654435761U*/;
 		const uint64 prime64 = 11400714785074694797ULL;
 		//#define SANITY_BUFFER_SIZE 2243
 		BYTE sanityBuffer[2243];
@@ -5505,6 +5549,176 @@ done:
 		}
 	}
 	printf("\n");
+}
+//
+// Реализация sh256 из LZMA. Для тестирования идентичности с целью замены на собственную имплементацию.
+//
+// Rotate a uint32_t. GCC can optimize this to a rotate instruction at least on x86.
+//static inline uint32_t rotr_32(uint32_t num, unsigned amount) { return (num >> amount) | (num << (32 - amount)); }
+
+#ifdef WORDS_BIGENDIAN
+	#ifndef conv32be
+		#define conv32be(num) ((uint32_t)(num))
+	#endif
+	#ifndef conv64be
+		#define conv64be(num) ((uint64_t)(num))
+	#endif
+#else
+	#ifndef conv32be
+		#define conv32be(num) sbswap32(num)
+	#endif
+	#ifndef conv64be
+		#define conv64be(num) sbswap64(num)
+	#endif
+#endif
+
+#define LZMA_blk0(i) (W[i] = conv32be(data[i]))
+#define LZMA_blk2(i) (W[i & 15] += LZMA_s1(W[(i - 2) & 15]) + W[(i - 7) & 15] + LZMA_s0(W[(i - 15) & 15]))
+
+#define LZMA_Ch(x, y, z) (z ^ (x & (y ^ z)))
+#define LZMA_Maj(x, y, z) ((x & (y ^ z)) + (y & z))
+
+#define LZMA_a(i) T[(0 - i) & 7]
+#define LZMA_b(i) T[(1 - i) & 7]
+#define LZMA_c(i) T[(2 - i) & 7]
+#define LZMA_d(i) T[(3 - i) & 7]
+#define LZMA_e(i) T[(4 - i) & 7]
+#define LZMA_f(i) T[(5 - i) & 7]
+#define LZMA_g(i) T[(6 - i) & 7]
+#define LZMA_h(i) T[(7 - i) & 7]
+
+#define LZMA_R(i, j, blk) LZMA_h(i) += LZMA_S1(LZMA_e(i)) + LZMA_Ch(LZMA_e(i), LZMA_f(i), LZMA_g(i)) + SHA256_K[i + j] + blk; LZMA_d(i) += LZMA_h(i); LZMA_h(i) += LZMA_S0(LZMA_a(i)) + LZMA_Maj(LZMA_a(i), LZMA_b(i), LZMA_c(i))
+#define LZMA_R0(i) LZMA_R(i, 0, LZMA_blk0(i))
+#define LZMA_R2(i) LZMA_R(i, j, LZMA_blk2(i))
+
+#define LZMA_S0(x) slrotr32(x ^ slrotr32(x ^ slrotr32(x, 9), 11), 2)
+#define LZMA_S1(x) slrotr32(x ^ slrotr32(x ^ slrotr32(x, 14), 5), 6)
+#define LZMA_s0(x) (slrotr32(x ^ slrotr32(x, 11), 7) ^ (x >> 3))
+#define LZMA_s1(x) (slrotr32(x ^ slrotr32(x, 2), 17) ^ (x >> 10))
+
+static void process(lzma_check_state * check)
+{
+	//LZMA_SHA256_transform(check->state.sha256.state, check->buffer.u32);
+	//static void LZMA_SHA256_transform(uint32 state[8], const uint32 data[16])
+	uint32 * state = check->state.sha256.state;
+	const uint32 * data = check->buffer.u32;
+	{
+		static const uint32 SHA256_K[64] = {
+			0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
+			0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+			0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
+			0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+			0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC,
+			0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+			0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
+			0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+			0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
+			0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+			0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,
+			0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+			0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
+			0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+			0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
+			0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2,
+		};
+		uint32_t W[16];
+		uint32_t T[8];
+		// Copy state[] to working vars.
+		memcpy(T, state, sizeof(T));
+		// The first 16 operations unrolled
+		LZMA_R0(0); 
+		LZMA_R0(1); 
+		LZMA_R0(2); 
+		LZMA_R0(3);
+		LZMA_R0(4); 
+		LZMA_R0(5); 
+		LZMA_R0(6); 
+		LZMA_R0(7);
+		LZMA_R0(8); 
+		LZMA_R0(9); 
+		LZMA_R0(10); 
+		LZMA_R0(11);
+		LZMA_R0(12); 
+		LZMA_R0(13); 
+		LZMA_R0(14); 
+		LZMA_R0(15);
+		// The remaining 48 operations partially unrolled
+		for(unsigned int j = 16; j < 64; j += 16) {
+			LZMA_R2(0); 
+			LZMA_R2(1); 
+			LZMA_R2(2); 
+			LZMA_R2(3);
+			LZMA_R2(4); 
+			LZMA_R2(5); 
+			LZMA_R2(6); 
+			LZMA_R2(7);
+			LZMA_R2(8); 
+			LZMA_R2(9); 
+			LZMA_R2(10); 
+			LZMA_R2(11);
+			LZMA_R2(12); 
+			LZMA_R2(13); 
+			LZMA_R2(14); 
+			LZMA_R2(15);
+		}
+		// Add the working vars back into state[].
+		state[0] += LZMA_a(0);
+		state[1] += LZMA_b(0);
+		state[2] += LZMA_c(0);
+		state[3] += LZMA_d(0);
+		state[4] += LZMA_e(0);
+		state[5] += LZMA_f(0);
+		state[6] += LZMA_g(0);
+		state[7] += LZMA_h(0);
+	}
+}
+
+static void __lzma_sha256_init(lzma_check_state * check)
+{
+	static const uint32_t s[8] = { 0x6A09E667, 0xBB67AE85, 0x3C6EF372, 0xA54FF53A, 0x510E527F, 0x9B05688C, 0x1F83D9AB, 0x5BE0CD19, };
+	memcpy(check->state.sha256.state, s, sizeof(s));
+	check->state.sha256.size = 0;
+}
+
+static void __lzma_sha256_update(const uint8 * buf, size_t size, lzma_check_state * check)
+{
+	// Copy the input data into a properly aligned temporary buffer.
+	// This way we can be called with arbitrarily sized buffers
+	// (no need to be multiple of 64 bytes), and the code works also
+	// on architectures that don't allow unaligned memory access.
+	while(size > 0) {
+		const size_t copy_start = static_cast<size_t>(check->state.sha256.size & 0x3F);
+		size_t copy_size = 64 - copy_start;
+		if(copy_size > size)
+			copy_size = size;
+		memcpy(check->buffer.u8 + copy_start, buf, copy_size);
+		buf += copy_size;
+		size -= copy_size;
+		check->state.sha256.size += copy_size;
+		if((check->state.sha256.size & 0x3F) == 0)
+			process(check);
+	}
+}
+
+static void __lzma_sha256_finish(lzma_check_state * check)
+{
+	// Add padding as described in RFC 3174 (it describes SHA-1 but
+	// the same padding style is used for SHA-256 too).
+	size_t pos = static_cast<size_t>(check->state.sha256.size & 0x3F);
+	check->buffer.u8[pos++] = 0x80;
+	while(pos != 64 - 8) {
+		if(pos == 64) {
+			process(check);
+			pos = 0;
+		}
+		check->buffer.u8[pos++] = 0x00;
+	}
+	// Convert the message size from bytes to bits.
+	check->state.sha256.size *= 8;
+	check->buffer.u64[(64 - 8) / 8] = conv64be(check->state.sha256.size);
+	process(check);
+	for(size_t i = 0; i < 8; ++i)
+		check->buffer.u32[i] = conv32be(check->state.sha256.state[i]);
 }
 
 #endif // } SLTEST_RUNNING

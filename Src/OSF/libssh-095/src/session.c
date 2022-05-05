@@ -156,11 +156,9 @@ void ssh_free(ssh_session session)
 	int i;
 	struct ssh_iterator * it = NULL;
 	struct ssh_buffer_struct * b = NULL;
-
 	if(session == NULL) {
 		return;
 	}
-
 	/*
 	 * Delete all channels
 	 *
@@ -168,43 +166,34 @@ void ssh_free(ssh_session session)
 	 * channel we call ssh_channel_close() first. So we need a working socket
 	 * and poll context for it.
 	 */
-	for(it = ssh_list_get_iterator(session->channels);
-	    it != NULL;
-	    it = ssh_list_get_iterator(session->channels)) {
+	for(it = ssh_list_get_iterator(session->channels); it != NULL; it = ssh_list_get_iterator(session->channels)) {
 		ssh_channel_do_free(ssh_iterator_value(ssh_channel, it));
 		ssh_list_remove(session->channels, it);
 	}
 	ssh_list_free(session->channels);
 	session->channels = NULL;
-
 #ifdef WITH_PCAP
 	if(session->pcap_ctx) {
 		ssh_pcap_context_free(session->pcap_ctx);
 		session->pcap_ctx = NULL;
 	}
 #endif
-
 	ssh_socket_free(session->socket);
 	session->socket = NULL;
-
 	if(session->default_poll_ctx) {
 		ssh_poll_ctx_free(session->default_poll_ctx);
 	}
-
 	SSH_BUFFER_FREE(session->in_buffer);
 	SSH_BUFFER_FREE(session->out_buffer);
 	session->in_buffer = session->out_buffer = NULL;
-
 	if(session->in_hashbuf != NULL) {
 		SSH_BUFFER_FREE(session->in_hashbuf);
 	}
 	if(session->out_hashbuf != NULL) {
 		SSH_BUFFER_FREE(session->out_hashbuf);
 	}
-
 	crypto_free(session->current_crypto);
 	crypto_free(session->next_crypto);
-
 #ifndef _WIN32
 	ssh_agent_free(session->agent);
 #endif /* _WIN32 */
@@ -404,8 +393,7 @@ const char * ssh_get_hmac_in(ssh_session session)
  * @return Returns HMAC algorithm name or NULL if unknown.
  */
 const char * ssh_get_hmac_out(ssh_session session) {
-	if((session != NULL) &&
-	    (session->current_crypto != NULL)) {
+	if((session != NULL) && (session->current_crypto != NULL)) {
 		return ssh_hmac_type_to_string(session->current_crypto->out_hmac, session->current_crypto->out_hmac_etm);
 	}
 	return NULL;

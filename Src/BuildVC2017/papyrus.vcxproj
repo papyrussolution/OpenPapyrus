@@ -2323,6 +2323,9 @@
     <ProjectReference Include="ZBAR.vcxproj">
       <Project>{64adc8ff-d2ce-4d6e-a2c0-a0c75f5ba7d5}</Project>
     </ProjectReference>
+    <ProjectReference Include="zstd-sl-lib.vcxproj">
+      <Project>{901495e1-9cc5-40c4-aa96-edff1b260ce8}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

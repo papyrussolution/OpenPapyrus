@@ -85,7 +85,7 @@ static int ZIPSetupDecode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	/* if we were last encoding, terminate this mode */
 	if(sp->state & ZSTATE_INIT_ENCODE) {
 		deflateEnd(&sp->stream);
@@ -112,7 +112,7 @@ static int ZIPPreDecode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	if((sp->state & ZSTATE_INIT_DECODE) == 0)
 		tif->tif_setupdecode(tif);
 	sp->stream.next_in = tif->tif_rawdata;
@@ -131,7 +131,7 @@ static int ZIPDecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = DecoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->state == ZSTATE_INIT_DECODE);
 	sp->stream.next_in = tif->tif_rawcp;
 	sp->stream.avail_in = (uInt)tif->tif_rawcc;
@@ -171,7 +171,7 @@ static int ZIPSetupEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState* sp = EncoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->state & ZSTATE_INIT_DECODE) {
 		inflateEnd(&sp->stream);
 		sp->state = 0;
@@ -194,7 +194,7 @@ static int ZIPPreEncode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->state != ZSTATE_INIT_ENCODE)
 		tif->tif_setupencode(tif);
 	sp->stream.next_out = tif->tif_rawdata;
@@ -214,7 +214,7 @@ static int ZIPEncode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	static const char module[] = __FUNCTION__;
 	ZIPState * sp = EncoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->state == ZSTATE_INIT_ENCODE);
 	(void)s;
 	sp->stream.next_in = bp;
@@ -388,12 +388,3 @@ bad:
 }
 
 #endif /* ZIP_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

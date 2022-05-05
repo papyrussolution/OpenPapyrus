@@ -313,7 +313,7 @@ ASN1_INTEGER * c2i_ASN1_INTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 		ret->type |= V_ASN1_NEG;
 
 	*pp += len;
-	if(a != NULL)
+	if(a)
 		(*a) = ret;
 	return ret;
 err:
@@ -444,7 +444,7 @@ ASN1_INTEGER * d2i_ASN1_UINTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 	OPENSSL_free(ret->data);
 	ret->data = s;
 	ret->length = (int)len;
-	if(a != NULL)
+	if(a)
 		(*a) = ret;
 	*pp = p;
 	return ret;

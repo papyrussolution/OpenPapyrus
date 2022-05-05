@@ -9,8 +9,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/flags/internal/program_name.h"
-#include "absl/flags/internal/path_util.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

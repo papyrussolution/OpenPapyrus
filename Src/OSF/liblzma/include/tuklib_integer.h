@@ -139,9 +139,9 @@
 	#ifndef conv32le
 		#define conv32le(num) bswap32(num)
 	#endif
-#ifndef conv64le
-#define conv64le(num) bswap64(num)
-#endif
+	#ifndef conv64le
+		#define conv64le(num) bswap64(num)
+	#endif
 #else
 	#ifndef conv16be
 		#define conv16be(num) bswap16(num)

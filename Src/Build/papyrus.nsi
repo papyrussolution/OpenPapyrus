@@ -352,6 +352,7 @@ Section "Файлы приложения" SEC01
 		File "${SRC_TOOLS}\rc.gid"
 		File "${SRC_TOOLS}\rcdll.dll"
 	!endif
+	File "${SRC_ROOT}\src\rsrc\data\styloq_ignition_servers" ; @v11.3.10
 	SetOverwrite ifnewer
 	File "${SRC_ROOT}\Src\PPEquip\ppdrv.ini" ; @v7.2.6
 	File "${SRC_REDIST}\dll\w3dbav80.dll"

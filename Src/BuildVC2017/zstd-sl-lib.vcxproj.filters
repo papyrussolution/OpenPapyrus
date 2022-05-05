@@ -1,0 +1,194 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\zstd\lib\pool.c" />
+    <ClCompile Include="..\osf\zstd\lib\debug.c" />
+    <ClCompile Include="..\osf\zstd\lib\threading.c" />
+    <ClCompile Include="..\osf\zstd\lib\entropy_common.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd-pch.cpp" />
+    <ClCompile Include="..\osf\zstd\lib\hist.c" />
+    <ClCompile Include="..\osf\zstd\lib\error_private.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_common.c" />
+    <ClCompile Include="..\osf\zstd\lib\fse_decompress.c" />
+    <ClCompile Include="..\osf\zstd\lib\fse_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\huf_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress_literals.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress_sequences.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress_superblock.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_fast.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_double_fast.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_lazy.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_opt.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_ldm.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstdmt_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\huf_decompress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_decompress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_decompress_block.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_ddict.c" />
+    <ClCompile Include="..\osf\zstd\lib\cover.c" />
+    <ClCompile Include="..\osf\zstd\lib\fastcover.c" />
+    <ClCompile Include="..\osf\zstd\lib\divsufsort.c" />
+    <ClCompile Include="..\osf\zstd\lib\zdict.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v01.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v02.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v03.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v04.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v05.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v06.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v07.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\zstd\lib\include\bits.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\bitstream.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\clevels.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\compiler.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\cover.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\cpu.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\debug.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\divsufsort.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\error_private.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\fse.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\hist.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\huf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\mem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\pool.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\portability_macros.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\threading.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zbuff.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zdict.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_compress_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_compress_literals.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_compress_sequences.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_compress_superblock.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_cwksp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_ddict.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_decompress_block.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_decompress_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_deps.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_double_fast.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_errors.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_fast.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_lazy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_ldm.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_ldm_geartab.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_legacy.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_opt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_trace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v01.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v02.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v03.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v04.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v05.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v06.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_v07.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd-internal.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstdmt_compress.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

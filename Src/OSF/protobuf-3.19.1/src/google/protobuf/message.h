@@ -98,10 +98,10 @@
 #ifndef GOOGLE_PROTOBUF_MESSAGE_H__
 #define GOOGLE_PROTOBUF_MESSAGE_H__
 
-#include <iosfwd>
-#include <string>
-#include <type_traits>
-#include <vector>
+//#include <iosfwd>
+//#include <string>
+//#include <type_traits>
+//#include <vector>
 #include <google/protobuf/stubs/casts.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/arena.h>

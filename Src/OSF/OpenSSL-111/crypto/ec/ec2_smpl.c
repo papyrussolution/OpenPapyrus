@@ -142,7 +142,7 @@ int ec_GF2m_simple_group_get_curve(const EC_GROUP * group, BIGNUM * p,
 			return 0;
 	}
 
-	if(a != NULL) {
+	if(a) {
 		if(!BN_copy(a, group->a))
 			goto err;
 	}

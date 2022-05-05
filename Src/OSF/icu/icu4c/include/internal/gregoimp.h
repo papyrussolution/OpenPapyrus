@@ -232,7 +232,7 @@ inline double ClockMath::floorDivide(double numerator, double denominator) {
 
 inline bool Grego::isLeapYear(int32_t year) {
 	// year&0x3 == year%4
-	return ((year&0x3) == 0) && ((year%100 != 0) || (year%400 == 0));
+	return ((year & 0x3) == 0) && ((year % 100 != 0) || (year % 400 == 0));
 }
 
 inline int8 Grego::monthLength(int32_t year, int32_t month) {

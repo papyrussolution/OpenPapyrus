@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\png\arm\arm_init.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\arm\filter_neon_intrinsics.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\intel\filter_sse2_intrinsics.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\intel\intel_init.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\arm\palette_neon_intrinsics.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\png.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngerror.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngget.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngmem.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngpread.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngread.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngrio.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngrtran.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngrutil.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngset.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngtrans.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngwio.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngwrite.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngwtran.c" />
+    <ClCompile Include="..\OSF\wxWidgets\src\png\pngwutil.c" />
+  </ItemGroup>
+</Project>

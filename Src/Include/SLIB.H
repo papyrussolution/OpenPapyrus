@@ -115,6 +115,17 @@
 	#endif
 	#include <windows.h>
 	#define _Windows
+	// @v11.3.10 (for Visual C _MSC_VER == 1310) {
+	#ifndef MAXUINT32
+		#define MAXUINT32   ((uint32)~((uint32)0))
+	#endif
+	#ifndef MAXINT32
+		#define MAXINT32    ((int32)(MAXUINT32 >> 1))
+	#endif
+	#ifndef MININT32
+		#define MININT32    ((int32)~MAXINT32)
+	#endif
+	// } @v11.3.10 
 	// @v10.3.10 #define pow10l(x) pow(10,(x))
 	// @v10.3.10 #define pow10(x)  pow(10,(x))
 	#define MAXDRIVE 3
@@ -573,7 +584,8 @@ public:
 		ListBoxDefSignature_STDTREE(0xABCD0003),  // StdTreeListBoxDef
 		ListBoxDefSignature_STRING(0xABCD0004),   // StringListBoxDef
 		ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
-		ListBoxDefSignature_STDTREE2(0xABCD0006)  // StdTreeListBoxDef2
+		ListBoxDefSignature_STDTREE2(0xABCD0006), // StdTreeListBoxDef2
+		MagicHashPrime32(2654435761U)/*0x9e3779b1*/ // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
 	{
 	}
 	const uint VectorImageMask;
@@ -593,6 +605,7 @@ public:
 	const uint32 ListBoxDefSignature_STRING;   //0xABCD0004 // StringListBoxDef
 	const uint32 ListBoxDefSignature_DBQ;      //0xABCD0005 // DBQListBoxDef
 	const uint32 ListBoxDefSignature_STDTREE2; //0xABCD0006 // StdTreeListBoxDef2
+	const uint32 MagicHashPrime32;             // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
 };
 
 extern const SlConstParam _SlConst;
@@ -2990,7 +3003,7 @@ struct STypEx { // @persistent @size=16
 	DECL_INVARIANT_C();
 	void   Init();
 	int    IsPure() const;
-	int    FASTCALL IsEq(const STypEx &) const;
+	bool   FASTCALL IsEq(const STypEx &) const;
 	int    FASTCALL IsZStr(size_t * pLen) const;
 	int    FASTCALL IsWZStr(size_t * pLen) const;
 	int    FASTCALL IsRaw(size_t * pLen) const;
@@ -4301,7 +4314,9 @@ public:
 	SString & CatXmlElem(const char * pName, int typ, const StringSet * pList);
 	SString & CatEq(const char * pKey, const char * pVal);
 	SString & CatEqQ(const char * pKey, const char * pVal);
+	SString & CatEq(const char * pKey, bool val);
 	SString & CatEq(const char * pKey, uint16 val);
+	SString & CatEq(const char * pKey, int val);
 	SString & CatEq(const char * pKey, uint val);
 	SString & CatEq(const char * pKey, long val);
 	SString & CatEq(const char * pKey, ulong val);
@@ -5061,7 +5076,8 @@ void   STDCALL  encodedate(int, int, int, void *);
 void   STDCALL  decodedate(int *, int *, int *, const void *);
 void   STDCALL  decode_fat_datetime(uint16 fd, uint16 ft, LDATETIME *);
 void   STDCALL  encode_fat_datetime(uint16 * fd, uint16 * ft, const LDATETIME *);
-int    FASTCALL IsLeapYear(uint y);
+bool   FASTCALL IsLeapYear_Gregorian(uint y);
+inline bool IsLeapYear_Julian(uint y) { return ((y % 4) == 0); }
 int    FASTCALL checkdate(const void * pBinDate);
 //
 // Descr: Проверяет корректность даты dt. Если dt == ZERODATE и параметр zeroIsOk != 0,
@@ -6616,7 +6632,7 @@ public:
 private:
 	static const  uchar * Sha1_Body(State::ShaCtx * pCtx, const uchar * data, size_t size);
 	static void FASTCALL Md5TransformHelper(State::Md5Ctx * pCtx);
-	static void __Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer);
+	static void FASTCALL __Sha256TransformHelper(State::ShaCtx * pCtx, const void * pBuffer);
 	static void __Sha512TransformHelper(State::Sha512Ctx * pCtx, const void * pBuffer);
 };
 //
@@ -11760,6 +11776,12 @@ struct SJson {
 	static bool FASTCALL IsTrue(const SJson * pN) { return (pN && pN->Type == SJson::tTRUE); }
 	static bool FASTCALL IsFalse(const SJson * pN) { return (pN && pN->Type == SJson::tFALSE); }
 	//
+	// Descr: Если pN != 0 и имеет одно из логических значений SJson::tTRUE или SJson::tFALSE,
+	//   то функция возвращает, соответственно, 1 или 0. Если pN == 0 или не является логической величиной,
+	//   то возвращает -1.
+	//
+	static int  FASTCALL GetBoolean(const SJson * pN);
+	//
 	// Descr: Возвращает строку, в которой экранированные с помощью символа '\' знаки заменены
 	//   на свои оригинальные значения.
 	// Note: В случае, если фактически замена была осущетсвлена, то возвращается ссылка на
@@ -12998,8 +13020,8 @@ struct FRect { // @persistent
 	FRect(float width, float height);
 	FRect(const TRect & r);
 	FRect(const RECT & r);
-	int    FASTCALL operator == (const FRect & rS) const;
-	int    FASTCALL operator != (const FRect & rS) const;
+	bool   FASTCALL operator == (const FRect & rS) const;
+	bool   FASTCALL operator != (const FRect & rS) const;
 	FRect & Z();
 	//
 	// Descr: Присваивает всем 4-м координатам одно и тоже значение v.
@@ -13012,7 +13034,7 @@ struct FRect { // @persistent
 	FRect & Grow(float aDX, float aDY);
 	FRect & Move__(float aDX, float aDY);
 	FRect & FASTCALL MoveCenterTo(SPoint2F center);
-	int    FASTCALL IsEq(const FRect & rS) const;
+	bool   FASTCALL IsEq(const FRect & rS) const;
 	bool   IsEmpty() const;
 	int    Contains(SPoint2F p) const;
 	int    FASTCALL Contains(const FRect & rR) const;
@@ -14775,6 +14797,19 @@ private:
 //
 class SAlloc {
 public:
+	struct VcCrtMemBlockHeader { // For research only! Блок распределенной памяти, используемый в vc 2017. 
+		VcCrtMemBlockHeader * _block_header_next;
+		VcCrtMemBlockHeader * _block_header_prev;
+		char const * _file_name;
+		int    _line_number;
+		int    _block_use;
+		size_t _data_size;
+		long   _request_number;
+		uchar  _gap[/*no_mans_land_size*/4];
+		// Followed by:
+		// unsigned char    _data[_data_size];
+		// unsigned char    _another_gap[no_mans_land_size];
+	};	
 	class Stat { // @v10.5.12 @construction
 	public:
 		struct AllocEntry {
@@ -16352,9 +16387,9 @@ public:
 	friend class SGeoGridTab::Finder;
 
 	SGeoGridTab(uint dim);
-	int    FASTCALL IsEq(const SGeoGridTab & rS) const;
-	int    FASTCALL operator == (const SGeoGridTab & rS) const;
-	int    FASTCALL operator != (const SGeoGridTab & rS) const;
+	bool   FASTCALL IsEq(const SGeoGridTab & rS) const;
+	bool   FASTCALL operator == (const SGeoGridTab & rS) const;
+	bool   FASTCALL operator != (const SGeoGridTab & rS) const;
 	void   SetSrcCountLat(uint64 c);
 	void   SetSrcCountLon(uint64 c);
 	uint   GetDim() const;

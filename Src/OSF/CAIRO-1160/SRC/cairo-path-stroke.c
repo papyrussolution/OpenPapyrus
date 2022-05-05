@@ -291,7 +291,7 @@ static cairo_status_t _tessellate_fan(cairo_stroker_t * stroker, const cairo_slo
 
 BEVEL:
 	/* Ensure a leak free connection... */
-	if(stroker->add_external_edge != NULL) {
+	if(stroker->add_external_edge) {
 		if(clockwise)
 			return stroker->add_external_edge(stroker->closure, inpt, outpt);
 		else
@@ -316,7 +316,7 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 		return CAIRO_STATUS_SUCCESS;
 	}
 	if(clockwise) {
-		if(stroker->add_external_edge != NULL) {
+		if(stroker->add_external_edge) {
 			status = stroker->add_external_edge(stroker->closure, &out->cw, &in->point);
 			if(UNLIKELY(status))
 				return status;
@@ -328,7 +328,7 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 		outpt = &out->ccw;
 	}
 	else {
-		if(stroker->add_external_edge != NULL) {
+		if(stroker->add_external_edge) {
 			status = stroker->add_external_edge(stroker->closure, &in->ccw, &in->point);
 			if(UNLIKELY(status))
 				return status;
@@ -476,7 +476,7 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 			 * faces by comparing the slopes
 			     */
 			    if(_cairo_slope_compare_sgn(fdx1, fdy1, mdx, mdy) != _cairo_slope_compare_sgn(fdx2, fdy2, mdx, mdy)) {
-				    if(stroker->add_external_edge != NULL) {
+				    if(stroker->add_external_edge) {
 					    points[0].x = _cairo_fixed_from_double(mx);
 					    points[0].y = _cairo_fixed_from_double(my);
 					    if(clockwise) {
@@ -517,7 +517,7 @@ static cairo_status_t FASTCALL _cairo_stroker_join(cairo_stroker_t * stroker, co
 		/* fall through ... */
 
 		case CAIRO_LINE_JOIN_BEVEL:
-		    if(stroker->add_external_edge != NULL) {
+		    if(stroker->add_external_edge) {
 			    if(clockwise) {
 				    return stroker->add_external_edge(stroker->closure,
 					       inpt, outpt);
@@ -573,17 +573,11 @@ static cairo_status_t _cairo_stroker_add_cap(cairo_stroker_t * stroker,
 		    quad[2].x = f->cw.x + fvector.dx;
 		    quad[2].y = f->cw.y + fvector.dy;
 		    quad[3] = f->cw;
-
-		    if(stroker->add_external_edge != NULL) {
-			    cairo_status_t status;
-
-			    status = stroker->add_external_edge(stroker->closure,
-				    &quad[0], &quad[1]);
+		    if(stroker->add_external_edge) {
+			    cairo_status_t status = stroker->add_external_edge(stroker->closure, &quad[0], &quad[1]);
 			    if(UNLIKELY(status))
 				    return status;
-
-			    status = stroker->add_external_edge(stroker->closure,
-				    &quad[1], &quad[2]);
+			    status = stroker->add_external_edge(stroker->closure, &quad[1], &quad[2]);
 			    if(UNLIKELY(status))
 				    return status;
 
@@ -601,7 +595,7 @@ static cairo_status_t _cairo_stroker_add_cap(cairo_stroker_t * stroker,
 
 		case CAIRO_LINE_CAP_BUTT:
 		default:
-		    if(stroker->add_external_edge != NULL) {
+		    if(stroker->add_external_edge) {
 			    return stroker->add_external_edge(stroker->closure,
 				       &f->ccw, &f->cw);
 		    }
@@ -801,7 +795,7 @@ static cairo_status_t _cairo_stroker_add_sub_edge(cairo_stroker_t * stroker,
 	end->cw.x += p2->x - p1->x;
 	end->cw.y += p2->y - p1->y;
 
-	if(stroker->add_external_edge != NULL) {
+	if(stroker->add_external_edge) {
 		cairo_status_t status;
 
 		status = stroker->add_external_edge(stroker->closure,

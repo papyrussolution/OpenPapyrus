@@ -386,9 +386,9 @@ ObjIdListFilt & FASTCALL ObjIdListFilt::operator = (long value)
 	return *this;
 }
 
-int FASTCALL ObjIdListFilt::IsEq(const ObjIdListFilt & s) const
+bool FASTCALL ObjIdListFilt::IsEq(const ObjIdListFilt & s) const
 {
-	return P_List ? P_List->IsEq(s.P_List) : (s.P_List ? 0 : 1);
+	return P_List ? P_List->IsEq(s.P_List) : (s.P_List ? false : true);
 }
 
 ObjIdListFilt & ObjIdListFilt::InitEmpty()

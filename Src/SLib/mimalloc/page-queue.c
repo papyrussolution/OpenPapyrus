@@ -115,7 +115,7 @@ size_t mi_good_size(size_t size) NOEXCEPT
 #if(MI_DEBUG>1)
 	static bool mi_page_queue_contains(mi_page_queue_t* queue, const mi_page_t* page) 
 	{
-		mi_assert_internal(page != NULL);
+		mi_assert_internal(page);
 		mi_page_t * list = queue->first;
 		while(list) {
 			mi_assert_internal(list->next == NULL || list->next->prev == list);
@@ -200,7 +200,7 @@ static inline void mi_heap_queue_first_update(mi_heap_t* heap, const mi_page_que
  */
 static void mi_page_queue_remove(mi_page_queue_t* queue, mi_page_t* page) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_expensive(mi_page_queue_contains(queue, page));
 	mi_assert_internal(page->xblock_size == queue->block_size || (page->xblock_size > MI_LARGE_OBJ_SIZE_MAX && mi_page_queue_is_huge(queue)) ||
 	    (mi_page_is_in_full(page) && mi_page_queue_is_full(queue)));
@@ -248,7 +248,7 @@ static void mi_page_queue_push(mi_heap_t* heap, mi_page_queue_t* queue, mi_page_
 
 static void mi_page_queue_enqueue_from(mi_page_queue_t* to, mi_page_queue_t* from, mi_page_t* page) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_expensive(mi_page_queue_contains(from, page));
 	mi_assert_expensive(!mi_page_queue_contains(to, page));
 	mi_assert_internal((page->xblock_size == to->block_size && page->xblock_size == from->block_size) ||

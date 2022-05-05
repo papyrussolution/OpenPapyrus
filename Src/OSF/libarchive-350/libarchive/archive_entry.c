@@ -4,8 +4,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -111,28 +110,27 @@ static size_t wcslen(const wchar_t * s)
 // 
 struct archive_entry * archive_entry_clear(struct archive_entry * entry)                        
 {
-	if(entry == NULL)
-		return NULL;
-	archive_mstring_clean(&entry->ae_fflags_text);
-	archive_mstring_clean(&entry->ae_gname);
-	archive_mstring_clean(&entry->ae_hardlink);
-	archive_mstring_clean(&entry->ae_pathname);
-	archive_mstring_clean(&entry->ae_sourcepath);
-	archive_mstring_clean(&entry->ae_symlink);
-	archive_mstring_clean(&entry->ae_uname);
-	archive_entry_copy_mac_metadata(entry, NULL, 0);
-	archive_acl_clear(&entry->acl);
-	archive_entry_xattr_clear(entry);
-	archive_entry_sparse_clear(entry);
-	SAlloc::F(entry->stat);
-	entry->ae_symlink_type = AE_SYMLINK_TYPE_UNDEFINED;
-	memzero(entry, sizeof(*entry));
+	if(entry) {
+		archive_mstring_clean(&entry->ae_fflags_text);
+		archive_mstring_clean(&entry->ae_gname);
+		archive_mstring_clean(&entry->ae_hardlink);
+		archive_mstring_clean(&entry->ae_pathname);
+		archive_mstring_clean(&entry->ae_sourcepath);
+		archive_mstring_clean(&entry->ae_symlink);
+		archive_mstring_clean(&entry->ae_uname);
+		archive_entry_copy_mac_metadata(entry, NULL, 0);
+		archive_acl_clear(&entry->acl);
+		archive_entry_xattr_clear(entry);
+		archive_entry_sparse_clear(entry);
+		SAlloc::F(entry->stat);
+		entry->ae_symlink_type = AE_SYMLINK_TYPE_UNDEFINED;
+		memzero(entry, sizeof(*entry));
+	}
 	return entry;
 }
 
 struct archive_entry * archive_entry_clone(struct archive_entry * entry)                        
 {
-	struct archive_entry * entry2;
 	struct ae_xattr * xp;
 	struct ae_sparse * sp;
 	size_t s;
@@ -140,15 +138,13 @@ struct archive_entry * archive_entry_clone(struct archive_entry * entry)
 	/* Allocate new structure and copy over all of the fields. */
 	/* TODO: Should we copy the archive over?  Or require a new archive
 	 * as an argument? */
-	entry2 = archive_entry_new2(entry->archive);
+	struct archive_entry * entry2 = archive_entry_new2(entry->archive);
 	if(entry2 == NULL)
 		return NULL;
 	entry2->ae_stat = entry->ae_stat;
 	entry2->ae_fflags_set = entry->ae_fflags_set;
 	entry2->ae_fflags_clear = entry->ae_fflags_clear;
-
-	/* TODO: XXX If clone can have a different archive, what do we do here if
-	 * character sets are different? XXX */
+	/* TODO: XXX If clone can have a different archive, what do we do here if character sets are different? XXX */
 	archive_mstring_copy(&entry2->ae_fflags_text, &entry->ae_fflags_text);
 	archive_mstring_copy(&entry2->ae_gname, &entry->ae_gname);
 	archive_mstring_copy(&entry2->ae_hardlink, &entry->ae_hardlink);
@@ -173,29 +169,23 @@ struct archive_entry * archive_entry_clone(struct archive_entry * entry)
 	copy_digest(entry2, entry, sha512);
 
 #undef copy_digest
-
 	/* Copy ACL data over. */
 	archive_acl_copy(&entry2->acl, &entry->acl);
-
 	/* Copy Mac OS metadata. */
 	p = archive_entry_mac_metadata(entry, &s);
 	archive_entry_copy_mac_metadata(entry2, p, s);
-
 	/* Copy xattr data over. */
 	xp = entry->xattr_head;
 	while(xp != NULL) {
 		archive_entry_xattr_add_entry(entry2, xp->name, xp->value, xp->size);
 		xp = xp->next;
 	}
-
 	/* Copy sparse data over. */
 	sp = entry->sparse_head;
 	while(sp != NULL) {
-		archive_entry_sparse_add_entry(entry2,
-		    sp->offset, sp->length);
+		archive_entry_sparse_add_entry(entry2, sp->offset, sp->length);
 		sp = sp->next;
 	}
-
 	return (entry2);
 }
 
@@ -205,25 +195,23 @@ void archive_entry_free(struct archive_entry * entry)
 	SAlloc::F(entry);
 }
 
-struct archive_entry * archive_entry_new(void)                       {
+struct archive_entry * archive_entry_new(void)
+{
 	return archive_entry_new2(NULL);
 }
 
-struct archive_entry * archive_entry_new2(struct archive * a)                        {
-	struct archive_entry * entry;
-
-	entry = (struct archive_entry *)SAlloc::C(1, sizeof(*entry));
+struct archive_entry * archive_entry_new2(struct archive * a)                        
+{
+	struct archive_entry * entry = (struct archive_entry *)SAlloc::C(1, sizeof(*entry));
 	if(entry == NULL)
 		return NULL;
 	entry->archive = a;
 	entry->ae_symlink_type = AE_SYMLINK_TYPE_UNDEFINED;
 	return (entry);
 }
-
 /*
  * Functions for reading fields from an archive_entry.
  */
-
 time_t archive_entry_atime(struct archive_entry * entry)
 {
 	return static_cast<time_t>(entry->ae_stat.aest_atime);
@@ -272,8 +260,7 @@ long archive_entry_ctime_nsec(struct archive_entry * entry)
 dev_t archive_entry_dev(struct archive_entry * entry)
 {
 	if(entry->ae_stat.aest_dev_is_broken_down)
-		return ae_makedev(entry->ae_stat.aest_devmajor,
-			   entry->ae_stat.aest_devminor);
+		return ae_makedev(entry->ae_stat.aest_devmajor, entry->ae_stat.aest_devminor);
 	else
 		return (entry->ae_stat.aest_dev);
 }
@@ -1184,11 +1171,9 @@ void archive_entry_set_is_metadata_encrypted(struct archive_entry * entry, char 
 	}
 }
 
-int _archive_entry_copy_uname_l(struct archive_entry * entry,
-    const char * name, size_t len, struct archive_string_conv * sc)
+int _archive_entry_copy_uname_l(struct archive_entry * entry, const char * name, size_t len, struct archive_string_conv * sc)
 {
-	return (archive_mstring_copy_mbs_len_l(&entry->ae_uname,
-	       name, len, sc));
+	return (archive_mstring_copy_mbs_len_l(&entry->ae_uname, name, len, sc));
 }
 
 const void * archive_entry_mac_metadata(struct archive_entry * entry, size_t * s)
@@ -1197,8 +1182,7 @@ const void * archive_entry_mac_metadata(struct archive_entry * entry, size_t * s
 	return entry->mac_metadata;
 }
 
-void archive_entry_copy_mac_metadata(struct archive_entry * entry,
-    const void * p, size_t s)
+void archive_entry_copy_mac_metadata(struct archive_entry * entry, const void * p, size_t s)
 {
 	SAlloc::F(entry->mac_metadata);
 	if(p == NULL || s == 0) {
@@ -1218,56 +1202,31 @@ void archive_entry_copy_mac_metadata(struct archive_entry * entry,
 const uchar * archive_entry_digest(struct archive_entry * entry, int type)
 {
 	switch(type) {
-		case ARCHIVE_ENTRY_DIGEST_MD5:
-		    return entry->digest.md5;
-		case ARCHIVE_ENTRY_DIGEST_RMD160:
-		    return entry->digest.rmd160;
-		case ARCHIVE_ENTRY_DIGEST_SHA1:
-		    return entry->digest.sha1;
-		case ARCHIVE_ENTRY_DIGEST_SHA256:
-		    return entry->digest.sha256;
-		case ARCHIVE_ENTRY_DIGEST_SHA384:
-		    return entry->digest.sha384;
-		case ARCHIVE_ENTRY_DIGEST_SHA512:
-		    return entry->digest.sha512;
-		default:
-		    return NULL;
+		case ARCHIVE_ENTRY_DIGEST_MD5: return entry->digest.md5;
+		case ARCHIVE_ENTRY_DIGEST_RMD160: return entry->digest.rmd160;
+		case ARCHIVE_ENTRY_DIGEST_SHA1: return entry->digest.sha1;
+		case ARCHIVE_ENTRY_DIGEST_SHA256: return entry->digest.sha256;
+		case ARCHIVE_ENTRY_DIGEST_SHA384: return entry->digest.sha384;
+		case ARCHIVE_ENTRY_DIGEST_SHA512: return entry->digest.sha512;
+		default: return NULL;
 	}
 }
 
-int archive_entry_set_digest(struct archive_entry * entry, int type,
-    const uchar * digest)
+int archive_entry_set_digest(struct archive_entry * entry, int type, const uchar * digest)
 {
-#define copy_digest(_e, _t, _d) \
-	memcpy(_e->digest._t, _d, sizeof(_e->digest._t))
-
+#define copy_digest(_e, _t, _d) memcpy(_e->digest._t, _d, sizeof(_e->digest._t))
 	switch(type) {
-		case ARCHIVE_ENTRY_DIGEST_MD5:
-		    copy_digest(entry, md5, digest);
-		    break;
-		case ARCHIVE_ENTRY_DIGEST_RMD160:
-		    copy_digest(entry, rmd160, digest);
-		    break;
-		case ARCHIVE_ENTRY_DIGEST_SHA1:
-		    copy_digest(entry, sha1, digest);
-		    break;
-		case ARCHIVE_ENTRY_DIGEST_SHA256:
-		    copy_digest(entry, sha256, digest);
-		    break;
-		case ARCHIVE_ENTRY_DIGEST_SHA384:
-		    copy_digest(entry, sha384, digest);
-		    break;
-		case ARCHIVE_ENTRY_DIGEST_SHA512:
-		    copy_digest(entry, sha512, digest);
-		    break;
-		default:
-		    return ARCHIVE_WARN;
+		case ARCHIVE_ENTRY_DIGEST_MD5: copy_digest(entry, md5, digest); break;
+		case ARCHIVE_ENTRY_DIGEST_RMD160: copy_digest(entry, rmd160, digest); break;
+		case ARCHIVE_ENTRY_DIGEST_SHA1: copy_digest(entry, sha1, digest); break;
+		case ARCHIVE_ENTRY_DIGEST_SHA256: copy_digest(entry, sha256, digest); break;
+		case ARCHIVE_ENTRY_DIGEST_SHA384: copy_digest(entry, sha384, digest); break;
+		case ARCHIVE_ENTRY_DIGEST_SHA512: copy_digest(entry, sha512, digest); break;
+		default: return ARCHIVE_WARN;
 	}
-
 	return ARCHIVE_OK;
 #undef copy_digest
 }
-
 /*
  * ACL management.  The following would, of course, be a lot simpler
  * if: 1) the last draft of POSIX.1e were a really thorough and
@@ -1276,8 +1235,8 @@ int archive_entry_set_digest(struct archive_entry * entry, int type,
  * following is a lot more complex than might seem necessary to the
  * uninitiated.
  */
-
-struct archive_acl * archive_entry_acl(struct archive_entry * entry)                      {
+struct archive_acl * archive_entry_acl(struct archive_entry * entry)                      
+{
 	return &entry->acl;
 }
 
@@ -1285,26 +1244,20 @@ void archive_entry_acl_clear(struct archive_entry * entry)
 {
 	archive_acl_clear(&entry->acl);
 }
-
 /*
  * Add a single ACL entry to the internal list of ACL data.
  */
-int archive_entry_acl_add_entry(struct archive_entry * entry,
-    int type, int permset, int tag, int id, const char * name)
+int archive_entry_acl_add_entry(struct archive_entry * entry, int type, int permset, int tag, int id, const char * name)
 {
 	return archive_acl_add_entry(&entry->acl, type, permset, tag, id, name);
 }
-
 /*
  * As above, but with a wide-character name.
  */
-int archive_entry_acl_add_entry_w(struct archive_entry * entry,
-    int type, int permset, int tag, int id, const wchar_t * name)
+int archive_entry_acl_add_entry_w(struct archive_entry * entry, int type, int permset, int tag, int id, const wchar_t * name)
 {
-	return archive_acl_add_entry_w_len(&entry->acl,
-		   type, permset, tag, id, name, wcslen(name));
+	return archive_acl_add_entry_w_len(&entry->acl, type, permset, tag, id, name, wcslen(name));
 }
-
 /*
  * Return a bitmask of ACL types in an archive entry ACL list
  */
@@ -1312,7 +1265,6 @@ int archive_entry_acl_types(struct archive_entry * entry)
 {
 	return (archive_acl_types(&entry->acl));
 }
-
 /*
  * Return a count of entries matching "want_type".
  */
@@ -1320,7 +1272,6 @@ int archive_entry_acl_count(struct archive_entry * entry, int want_type)
 {
 	return archive_acl_count(&entry->acl, want_type);
 }
-
 /*
  * Prepare for reading entries from the ACL data.  Returns a count
  * of entries matching "want_type", or zero if there are no
@@ -1330,7 +1281,6 @@ int archive_entry_acl_reset(struct archive_entry * entry, int want_type)
 {
 	return archive_acl_reset(&entry->acl, want_type);
 }
-
 /*
  * Return the next ACL entry in the list.  Fake entries for the
  * standard permissions and include them in the returned list.

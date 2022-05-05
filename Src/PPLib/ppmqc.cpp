@@ -427,6 +427,15 @@ int PPMqbClient::Disconnect()
 				}
 			}
 			// } @v11.2.2 
+			// @v11.3.10 {
+			if(AutoDeleteDeclaredQueues.getCount()) {
+				SString temp_buf;
+				AutoDeleteDeclaredQueues.sortAndUndup();
+				for(uint ssp = 0; AutoDeleteDeclaredQueues.get(&ssp, temp_buf);) {
+					QueueDelete(temp_buf, 0);
+				}
+			}
+			// } @v11.3.10
 		}
 		if(ChannelN) {
 			amqp_channel_close(GetNativeConnHandle(P_Conn), ChannelN, AMQP_REPLY_SUCCESS);
@@ -872,6 +881,11 @@ int PPMqbClient::QueueDeclare(const char * pQueue, long queueFlags)
 		amqp_queue_declare_ok_t * p_qdo = amqp_queue_declare(GetNativeConnHandle(P_Conn), ChannelN, queue, 
 			BIN(queueFlags & mqofPassive), BIN(queueFlags & mqofDurable), BIN(queueFlags & mqofExclusive), BIN(queueFlags & mqofAutoDelete), amqp_empty_table);
 		THROW(VerifyRpcReply());
+		// @v11.3.10 {
+		if(queueFlags & mqofAutoDelete) {
+			AutoDeleteDeclaredQueues.add(pQueue);
+		}
+		// } @v11.3.10 
 	}
 	CATCHZOK
 	return ok;
@@ -923,6 +937,20 @@ int PPMqbClient::QueueUnbind(const char * pQueue, const char * pExchange, const 
 		amqp_bytes_t exchange = amqp_cstring_bytes(pExchange);
 		amqp_bytes_t routing_key = amqp_cstring_bytes(pRoutingKey);
 		amqp_queue_unbind_ok_t * p_ok = amqp_queue_unbind(GetNativeConnHandle(P_Conn), ChannelN, queue, exchange, routing_key, amqp_empty_table);
+		THROW(VerifyRpcReply());
+	}
+	CATCHZOK
+	return ok;
+}
+
+int PPMqbClient::QueueDelete(const char * pQueue, long queueFlags)
+{
+	int    ok = 1;
+	if(P_Conn) {
+		amqp_bytes_t queue = amqp_cstring_bytes(pQueue);
+		boolint if_unused = 0;
+		boolint if_empty = 0;
+		amqp_queue_delete_ok_t * p_ok = amqp_queue_delete(GetNativeConnHandle(P_Conn), ChannelN, queue, if_unused, if_empty);
 		THROW(VerifyRpcReply());
 	}
 	CATCHZOK

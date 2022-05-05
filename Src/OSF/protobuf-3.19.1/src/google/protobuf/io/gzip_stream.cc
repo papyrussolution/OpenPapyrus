@@ -24,10 +24,10 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 
+//#define HAVE_ZLIB 1 // @sobolev
+
 #if HAVE_ZLIB
 #include <google/protobuf/io/gzip_stream.h>
-#include <google/protobuf/stubs/common.h>
-#include <google/protobuf/stubs/logging.h>
 
 namespace google {
 namespace protobuf {

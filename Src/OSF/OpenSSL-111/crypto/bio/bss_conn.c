@@ -159,8 +159,7 @@ static int conn_state(BIO * b, BIO_CONNECT * c)
 					    b->retry_reason = BIO_RR_CONNECT;
 					    ERR_clear_error();
 				    }
-				    else if((c->addr_iter = BIO_ADDRINFO_next(c->addr_iter))
-					!= NULL) {
+				    else if((c->addr_iter = BIO_ADDRINFO_next(c->addr_iter)) != NULL) {
 					    /*
 					     * if there are more addresses to try, do that first
 					     */
@@ -302,8 +301,7 @@ static int conn_read(BIO * b, char * out, int outl)
 		if(ret <= 0)
 			return ret;
 	}
-
-	if(out != NULL) {
+	if(out) {
 		clear_socket_error();
 		ret = readsocket(b->num, out, outl);
 		BIO_clear_retry_flags(b);
@@ -364,7 +362,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 			    ret = 1;
 		    break;
 		case BIO_C_GET_CONNECT:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    pptr = (const char **)ptr;
 			    if(num == 0) {
 				    *pptr = data->param_hostname;
@@ -402,7 +400,7 @@ static long conn_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    }
 		    break;
 		case BIO_C_SET_CONNECT:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    b->init = 1;
 			    if(num == 0) {
 				    char * hold_service = data->param_service;

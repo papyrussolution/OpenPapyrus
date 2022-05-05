@@ -3,10 +3,8 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/escaping.h"
 #include "absl/strings/internal/char_map.h"
 #include "absl/strings/internal/escaping.h"
-#include "absl/strings/internal/resize_uninitialized.h"
 #include "absl/strings/internal/utf8.h"
 #include "absl/strings/str_join.h"
 

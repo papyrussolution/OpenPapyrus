@@ -863,8 +863,8 @@ xmlSchemaType * xmlSchemaGetBuiltInListSimpleTypeItemType(const xmlSchemaType * 
 static const uint daysInMonth[12] = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 static const uint daysInMonthLeap[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-#define MAX_DAYINMONTH(yr, mon)      (IsLeapYear(yr) ? daysInMonthLeap[mon - 1] : daysInMonth[mon - 1])
-#define VALID_MDAY(dt)   (IsLeapYear(dt->year) ? (dt->day <= daysInMonthLeap[dt->mon - 1]) : (dt->day <= daysInMonth[dt->mon - 1]))
+#define MAX_DAYINMONTH(yr, mon)      (IsLeapYear_Gregorian(yr) ? daysInMonthLeap[mon - 1] : daysInMonth[mon - 1])
+#define VALID_MDAY(dt)   (IsLeapYear_Gregorian(dt->year) ? (dt->day <= daysInMonthLeap[dt->mon - 1]) : (dt->day <= daysInMonth[dt->mon - 1]))
 #define VALID_DATE(dt)   (VALID_YEAR(dt->year) && VALID_MONTH(dt->mon) && VALID_MDAY(dt))
 #define VALID_TIME(dt)   (VALID_HOUR(dt->hour) && VALID_MIN(dt->min) && VALID_SEC(dt->sec) && VALID_TZO(dt->tzo))
 #define VALID_DATETIME(dt) (VALID_DATE(dt) && VALID_TIME(dt))
@@ -875,7 +875,7 @@ static const uint daysInMonthLeap[12] = { 31, 29, 31, 30, 31, 30, 31, 31, 30, 31
 static const long dayInYearByMonth[12] = { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
 static const long dayInLeapYearByMonth[12] = { 0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335 };
 
-#define DAY_IN_YEAR(day, month, year) ((IsLeapYear(year) ? dayInLeapYearByMonth[month - 1] : dayInYearByMonth[month - 1]) + day)
+#define DAY_IN_YEAR(day, month, year) ((IsLeapYear_Gregorian(year) ? dayInLeapYearByMonth[month - 1] : dayInYearByMonth[month - 1]) + day)
 
 #ifndef NDEBUG
 #define DEBUG_DATE(dt)							\

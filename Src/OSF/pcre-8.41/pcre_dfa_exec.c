@@ -641,8 +641,7 @@ static int internal_dfa_exec(dfa_match_data * md, const pcre_uchar * this_start_
 							    DPRINTF(("%.*sSet matched string = \"%.*s\"\n", rlevel*2-2, SP, offsets[1] - offsets[0], (char *)current_subject));
 						    }
 						    if((md->moptions & PCRE_DFA_SHORTEST) != 0) {
-							    DPRINTF(("%.*sEnd of internal_dfa_exec %d: returning %d\n%.*s---------------------\n\n", rlevel*2-2, SP, rlevel,
-								    match_count, rlevel*2-2, SP));
+							    DPRINTF(("%.*sEnd of internal_dfa_exec %d: returning %d\n%.*s---------------------\n\n", rlevel*2-2, SP, rlevel, match_count, rlevel*2-2, SP));
 							    return match_count;
 						    }
 					    }

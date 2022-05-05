@@ -25,12 +25,12 @@
 #ifndef ABSL_SYNCHRONIZATION_INTERNAL_KERNEL_TIMEOUT_H_
 #define ABSL_SYNCHRONIZATION_INTERNAL_KERNEL_TIMEOUT_H_
 
-#include <time.h>
-#include <algorithm>
-#include <limits>
+//#include <time.h>
+//#include <algorithm>
+//#include <limits>
 #include "absl/base/internal/raw_logging.h"
-#include "absl/time/clock.h"
 #include "absl/time/time.h"
+#include "absl/time/clock.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -43,7 +43,8 @@ public:
 	// A timeout that should expire at <t>.  Any value, in the full
 	// InfinitePast() to InfiniteFuture() range, is valid here and will be
 	// respected.
-	explicit KernelTimeout(absl::Time t) : ns_(MakeNs(t)) {
+	explicit KernelTimeout(absl::Time t) : ns_(MakeNs(t)) 
+	{
 	}
 
 	// No timeout.

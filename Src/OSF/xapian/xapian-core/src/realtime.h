@@ -63,7 +63,7 @@ inline double now()
 #  else
 	if(UNLIKELY(ftime(&tp) != 0))
 		return double(std::time(NULL));
-#  endif
+#endif
 	return tp.time + (tp.millitm * 1e-3);
 # else
 	return double(std::time(NULL));

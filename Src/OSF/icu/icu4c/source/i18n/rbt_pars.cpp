@@ -987,7 +987,7 @@ void TransliteratorParser::parseRules(const UnicodeString & rule,
 				// Couldn't parse an ID.  Try to parse a global filter
 				int32_t withParens = -1;
 				UnicodeSet* f = TransliteratorIDParser::parseGlobalFilter(rule, p, direction, withParens, NULL);
-				if(f != NULL) {
+				if(f) {
 					if(ICU_Utility::parseChar(rule, p, END_OF_RULE) && (direction == UTRANS_FORWARD) == (withParens == 0)) {
 						if(compoundFilter != NULL) {
 							// Multiple compound filters

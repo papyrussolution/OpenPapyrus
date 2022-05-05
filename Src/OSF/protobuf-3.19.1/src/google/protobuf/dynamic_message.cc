@@ -54,11 +54,8 @@
 #pragma hdrstop
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/stubs/hash.h>
 #include <google/protobuf/arenastring.h>
-#include <google/protobuf/map_field.h>
-#include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/map_type_handler.h>
 #include <google/protobuf/reflection_ops.h>
 #include <google/protobuf/port_def.inc>  // NOLINT

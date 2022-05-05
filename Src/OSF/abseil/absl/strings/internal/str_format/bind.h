@@ -4,15 +4,15 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_BIND_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_BIND_H_
 
-#include <array>
-#include <cstdio>
-#include <sstream>
-#include <string>
-#include "absl/base/port.h"
-#include "absl/strings/internal/str_format/arg.h"
-#include "absl/strings/internal/str_format/checker.h"
-#include "absl/strings/internal/str_format/parser.h"
-#include "absl/types/span.h"
+//#include <array>
+//#include <cstdio>
+//#include <sstream>
+//#include <string>
+//#include "absl/base/port.h"
+//#include "absl/strings/internal/str_format/arg.h"
+//#include "absl/strings/internal/str_format/checker.h"
+//#include "absl/strings/internal/str_format/parser.h"
+//#include "absl/types/span.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

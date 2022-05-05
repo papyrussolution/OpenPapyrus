@@ -917,7 +917,7 @@ static void * AllocBigBlock(cmsIT8* it8, uint32 size)
 {
 	OWNEDMEM* ptr1;
 	void * ptr = _cmsMallocZero(it8->ContextID, size);
-	if(ptr != NULL) {
+	if(ptr) {
 		ptr1 = (OWNEDMEM*)_cmsMallocZero(it8->ContextID, sizeof(OWNEDMEM));
 		if(ptr1 == NULL) {
 			_cmsFree(it8->ContextID, ptr);
@@ -1984,7 +1984,7 @@ int CMSEXPORT cmsIT8EnumDataFormat(cmsHANDLE hIT8, char *** SampleNames)
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	TABLE* t;
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	t = GetTable(it8);
 
@@ -2001,7 +2001,7 @@ uint32 CMSEXPORT cmsIT8EnumProperties(cmsHANDLE hIT8, char *** PropertyNames)
 	char ** Props;
 	TABLE* t;
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	t = GetTable(it8);
 
@@ -2031,18 +2031,13 @@ uint32 CMSEXPORT cmsIT8EnumPropertyMulti(cmsHANDLE hIT8, const char * cProp, con
 	uint32 n;
 	const char ** Props;
 	TABLE* t;
-
-	_cmsAssert(hIT8 != NULL);
-
+	_cmsAssert(hIT8);
 	t = GetTable(it8);
-
 	if(!IsAvailableOnList(t->HeaderList, cProp, NULL, &p)) {
 		*SubpropertyNames = 0;
 		return 0;
 	}
-
 	// Pass#1 - count properties
-
 	n = 0;
 	for(tmp = p; tmp != NULL; tmp = tmp->NextSubkey) {
 		if(tmp->Subkey != NULL)
@@ -2117,18 +2112,14 @@ static int LocateSample(cmsIT8* it8, const char * cSample)
 int CMSEXPORT cmsIT8FindDataFormat(cmsHANDLE hIT8, const char * cSample)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-
-	_cmsAssert(hIT8 != NULL);
-
+	_cmsAssert(hIT8);
 	return LocateSample(it8, cSample);
 }
 
 const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-
-	_cmsAssert(hIT8 != NULL);
-
+	_cmsAssert(hIT8);
 	return GetData(it8, row, col);
 }
 
@@ -2147,7 +2138,7 @@ boolint CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const ch
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	return SetData(it8, row, col, Val);
 }
@@ -2157,7 +2148,7 @@ boolint CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, doubl
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buff[256];
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	snprintf(Buff, 255, it8->DoubleFormatter, Val);
 
@@ -2169,7 +2160,7 @@ const char * CMSEXPORT cmsIT8GetData(cmsHANDLE hIT8, const char * cPatch, const 
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int iField, iSet;
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	iField = LocateSample(it8, cSample);
 	if(iField < 0) {
@@ -2199,7 +2190,7 @@ boolint CMSEXPORT cmsIT8SetData(cmsHANDLE hIT8, const char * cPatch, const char 
 	int iField, iSet;
 	TABLE* t;
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	t = GetTable(it8);
 
@@ -2239,7 +2230,7 @@ boolint CMSEXPORT cmsIT8SetDataDbl(cmsHANDLE hIT8, const char * cPatch,
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buff[256];
 
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 
 	snprintf(Buff, 255, it8->DoubleFormatter, Val);
 	return cmsIT8SetData(hIT8, cPatch, cSample, Buff);
@@ -2252,7 +2243,7 @@ const char * CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buf
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	TABLE* t;
 	char * Data;
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 	t = GetTable(it8);
 	Data = GetData(it8, nPatch, t->SampleID);
 	if(!Data) 
@@ -2265,14 +2256,14 @@ const char * CMSEXPORT cmsIT8GetPatchName(cmsHANDLE hIT8, int nPatch, char * buf
 
 int CMSEXPORT cmsIT8GetPatchByName(cmsHANDLE hIT8, const char * cPatch)
 {
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 	return LocatePatch((cmsIT8*)hIT8, cPatch);
 }
 
 uint32 CMSEXPORT cmsIT8TableCount(cmsHANDLE hIT8)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 	return it8->TablesCount;
 }
 
@@ -2284,7 +2275,7 @@ int CMSEXPORT cmsIT8SetTableByLabel(cmsHANDLE hIT8, const char * cSet, const cha
 	const char * cLabelFld;
 	char Type[256], Label[256];
 	uint32 nTable;
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 	if(cField != NULL && *cField == 0)
 		cField = "LABEL";
 	if(cField == NULL)
@@ -2305,7 +2296,7 @@ boolint CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	int pos;
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 	pos = LocateSample(it8, cSample);
 	if(pos == -1)
 		return FALSE;
@@ -2316,7 +2307,7 @@ boolint CMSEXPORT cmsIT8SetIndexColumn(cmsHANDLE hIT8, const char * cSample)
 void CMSEXPORT cmsIT8DefineDblFormat(cmsHANDLE hIT8, const char * Formatter)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-	_cmsAssert(hIT8 != NULL);
+	_cmsAssert(hIT8);
 	if(Formatter == NULL)
 		strcpy(it8->DoubleFormatter, DEFAULT_DBL_FORMAT);
 	else

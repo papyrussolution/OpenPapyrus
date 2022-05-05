@@ -229,7 +229,7 @@ struct K2FrameSt {
 
 	SString & ToStr(SString & rBuf) const
 	{
-		rBuf.CatEq("Addr", (ulong)H.Addr).Space().CatEq("ReqNum", (ulong)H.ReqNum).Space().CatEq("Cmd", (ulong)H.Cmd).Space().CatEq("DataLen", (ulong)H.DataLen);
+		rBuf.CatEq("Addr", H.Addr).Space().CatEq("ReqNum", H.ReqNum).Space().CatEq("Cmd", H.Cmd).Space().CatEq("DataLen", H.DataLen);
 		return rBuf;
 	}
 };
@@ -640,7 +640,7 @@ int K2Controller::GetAddr(uint16 & rAddr)
 				ok = -1;
 				{
 					SString msg_buf;
-					(msg_buf = "Wicked").CatDiv(':', 2).CatEq("GetAddr returns reserved addr", (long)rAddr);
+					(msg_buf = "Wicked").CatDiv(':', 2).CatEq("GetAddr returns reserved addr", rAddr);
 					DRVS.Log(msg_buf, 0xffff); // @debug
 				}
 			}

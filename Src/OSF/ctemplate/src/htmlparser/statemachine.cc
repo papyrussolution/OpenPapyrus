@@ -140,7 +140,7 @@ int statemachine_get_state(statemachine_ctx * ctx) { return ctx->current_state; 
 void statemachine_set_state(statemachine_ctx * ctx, int state)
 {
 	statemachine_definition * def;
-	assert(ctx != NULL);
+	assert(ctx);
 	assert(ctx->definition != NULL);
 	def = ctx->definition;
 	assert(state < def->num_states);
@@ -227,7 +227,7 @@ void statemachine_copy(statemachine_ctx * dst, statemachine_ctx * src, statemach
  */
 void statemachine_delete(statemachine_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	SAlloc::F(ctx);
 }
 
@@ -236,7 +236,7 @@ void statemachine_delete(statemachine_ctx * ctx)
  */
 void statemachine_start_record(statemachine_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	ctx->record_buffer[0] = '\0';
 	ctx->record_pos = 0;
 	ctx->recording = 1;
@@ -248,7 +248,7 @@ void statemachine_start_record(statemachine_ctx * ctx)
  */
 const char * statemachine_stop_record(statemachine_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	assert(ctx->recording);
 	ctx->record_buffer[ctx->record_pos] = '\0';
 	ctx->recording = 0;

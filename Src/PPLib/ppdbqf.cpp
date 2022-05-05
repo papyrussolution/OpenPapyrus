@@ -1,5 +1,5 @@
 // PPDBQF.CPP
-// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 //
 #include <pp.h>
 #pragma hdrstop
@@ -90,6 +90,32 @@ static IMPL_DBE_PROC(dbqf_unxtext_iii)
         SString & r_temp_buf = SLS.AcquireRvlStr();
 		PPRef->UtrC.GetText(TextRefIdent(obj_type, obj_id, static_cast<int16>(text_prop)), r_temp_buf);
 		r_temp_buf.Transf(CTRANSF_UTF8_TO_INNER);
+		STRNSCPY(text_buf, r_temp_buf);
+		result->init(text_buf);
+	}
+}
+
+static IMPL_DBE_PROC(dbqf_techcapacity_ir) // @v11.3.10
+{
+	char   text_buf[128];
+	if(!DbeInitSize(option, result, sizeof(text_buf))) {
+		PTR32(text_buf)[0] = 0;
+		PPID   prc_id  = params[0].lval;
+		double capacity = params[1].rval;
+        SString & r_temp_buf = SLS.AcquireRvlStr();
+		if(capacity > 0.0) {
+			bool is_capacity_rev = false;
+			if(prc_id) {
+				PPObjProcessor prc_obj;
+				ProcessorTbl::Rec prc_rec;
+				if(prc_obj.GetRecWithInheritance(prc_id, &prc_rec, 1) > 0 && prc_rec.Flags & PRCF_TECHCAPACITYREV)
+					is_capacity_rev = true;
+			}
+			if(is_capacity_rev)
+				r_temp_buf.Cat(1.0 / capacity, MKSFMTD(0, 0, 0));
+			else
+				r_temp_buf.Cat(capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
+		}
 		STRNSCPY(text_buf, r_temp_buf);
 		result->init(text_buf);
 	}
@@ -1317,6 +1343,7 @@ int PPDbqFuncPool::IdIsTxtUuidEq = 0; // @v10.9.10
 int PPDbqFuncPool::IdArIsCatPerson       = 0; // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 int PPDbqFuncPool::IdObjMemoPerson       = 0; // @v11.1.12 (fldPersonID)
 int PPDbqFuncPool::IdObjMemoPersonEvent  = 0; // @v11.1.12 (fldPersonEventID)
+int PPDbqFuncPool::IdTechCapacity        = 0; // @v11.3.10 (fldPrcID, fldCapacity)
 
 static IMPL_DBE_PROC(dbqf_goodsstockdim_i)
 {
@@ -1611,6 +1638,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	THROW(DbqFuncTab::RegisterDyn(&IdUnxText,             BTS_STRING, dbqf_unxtext_iii,            3, BTS_INT, BTS_INT, BTS_INT)); // @v10.7.2
 	THROW(DbqFuncTab::RegisterDyn(&IdIsTxtUuidEq,         BTS_INT,    dbqf_istxtuuideq_ss,         2, BTS_STRING, BTS_STRING)); // @v10.9.10
 	THROW(DbqFuncTab::RegisterDyn(&IdArIsCatPerson,       BTS_INT,    dbqf_ariscatperson_ii,       2, BTS_INT, BTS_INT)); // @v11.1.9
+	THROW(DbqFuncTab::RegisterDyn(&IdTechCapacity,        BTS_STRING, dbqf_techcapacity_ir,        2, BTS_INT, BTS_REAL)); // @v11.3.10
 	CATCHZOK
 	return ok;
 }

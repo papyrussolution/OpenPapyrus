@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -30,7 +29,6 @@
 #include <google/protobuf/compiler/cpp/cpp_padding_optimizer.h>
 #include <google/protobuf/compiler/cpp/cpp_parse_function_generator.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/generated_message_table_driven.h>
 #include <google/protobuf/generated_message_util.h>
 #include <google/protobuf/map_entry_lite.h>
@@ -259,15 +257,14 @@ void CollectMapInfo(const Options& options, const Descriptor* descriptor,
 		default:
 		    vars["val_cpp"] = PrimitiveTypeName(options, val->cpp_type());
 	}
-	vars["key_wire_type"] =
-	    "TYPE_" + ToUpper(DeclaredTypeMethodName(key->type()));
-	vars["val_wire_type"] =
-	    "TYPE_" + ToUpper(DeclaredTypeMethodName(val->type()));
+	vars["key_wire_type"] = "TYPE_" + ToUpper(DeclaredTypeMethodName(key->type()));
+	vars["val_wire_type"] = "TYPE_" + ToUpper(DeclaredTypeMethodName(val->type()));
 }
 
 // Does the given field have a private (internal helper only) has_$name$()
 // method?
-bool HasPrivateHasMethod(const FieldDescriptor* field) {
+bool HasPrivateHasMethod(const FieldDescriptor* field) 
+{
 	// Only for oneofs in message types with no field presence. has_$name$(),
 	// based on the oneof case, is still useful internally for generated code.
 	return IsProto3(field->file()) && field->real_containing_oneof();
@@ -276,10 +273,7 @@ bool HasPrivateHasMethod(const FieldDescriptor* field) {
 // TODO(ckennelly):  Cull these exclusions if/when these protos do not have
 // their methods overridden by subclasses.
 
-bool ShouldMarkClassAsFinal(const Descriptor* descriptor,
-    const Options& options) {
-	return true;
-}
+bool ShouldMarkClassAsFinal(const Descriptor* descriptor, const Options& options) { return true; }
 
 // Returns true to make the message serialize in order, decided by the following
 // factors in the order of precedence.
@@ -287,18 +281,13 @@ bool ShouldMarkClassAsFinal(const Descriptor* descriptor,
 // --the message is in the allowlist (true)
 // --GOOGLE_PROTOBUF_SHUFFLE_SERIALIZE is defined (false)
 // --a ranage of message names that are allowed to stay in order (true)
-bool ShouldSerializeInOrder(const Descriptor* descriptor,
-    const Options& options) {
-	return true;
-}
+bool ShouldSerializeInOrder(const Descriptor* descriptor, const Options& options) { return true; }
 
-bool TableDrivenParsingEnabled(const Descriptor* descriptor,
-    const Options& options,
-    MessageSCCAnalyzer* scc_analyzer) {
+bool TableDrivenParsingEnabled(const Descriptor* descriptor, const Options& options, MessageSCCAnalyzer* scc_analyzer) 
+{
 	if(!options.table_driven_parsing) {
 		return false;
 	}
-
 	// Consider table-driven parsing.  We only do this if:
 	// - We have has_bits for fields.  This avoids a check on every field we set
 	//   when are present (the common case).
@@ -309,9 +298,7 @@ bool TableDrivenParsingEnabled(const Descriptor* descriptor,
 			break;
 		}
 	}
-
 	if(!has_hasbit) return false;
-
 	const double table_sparseness = 0.5;
 	int max_field_number = 0;
 	for(auto field : FieldRange(descriptor)) {

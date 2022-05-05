@@ -233,7 +233,7 @@ static int bio_read_intern(BIO * b, void * data, size_t dlen, size_t * readbytes
 	ret = b->method->bread(b, static_cast<char *>(data), dlen, readbytes);
 	if(ret > 0)
 		b->num_read += (uint64_t)*readbytes;
-	if(b->callback != NULL || b->callback_ex != NULL)
+	if(b->callback || b->callback_ex)
 		ret = (int)bio_call_callback(b, BIO_CB_READ | BIO_CB_RETURN, static_cast<const char *>(data), dlen, 0, 0L, ret, readbytes);
 	/* Shouldn't happen */
 	if(ret > 0 && *readbytes > dlen) {
@@ -288,7 +288,7 @@ static int bio_write_intern(BIO * b, const void * data, size_t dlen, size_t * wr
 	ret = b->method->bwrite(b, static_cast<const char *>(data), dlen, written);
 	if(ret > 0)
 		b->num_write += (uint64_t)*written;
-	if(b->callback != NULL || b->callback_ex != NULL)
+	if(b->callback || b->callback_ex)
 		ret = (int)bio_call_callback(b, BIO_CB_WRITE | BIO_CB_RETURN, static_cast<const char *>(data), dlen, 0, 0L, ret, written);
 	return ret;
 }
@@ -325,7 +325,7 @@ int FASTCALL BIO_puts(BIO * b, const char * buf)
 		BIOerr(BIO_F_BIO_PUTS, BIO_R_UNSUPPORTED_METHOD);
 		return -2;
 	}
-	if(b->callback != NULL || b->callback_ex != NULL) {
+	if(b->callback || b->callback_ex) {
 		ret = (int)bio_call_callback(b, BIO_CB_PUTS, buf, 0, 0, 0L, 1L, NULL);
 		if(ret <= 0)
 			return ret;
@@ -343,7 +343,7 @@ int FASTCALL BIO_puts(BIO * b, const char * buf)
 		ret = 1;
 	}
 
-	if(b->callback != NULL || b->callback_ex != NULL)
+	if(b->callback || b->callback_ex)
 		ret = (int)bio_call_callback(b, BIO_CB_PUTS | BIO_CB_RETURN, buf, 0, 0,
 			0L, ret, &written);
 
@@ -372,7 +372,7 @@ int BIO_gets(BIO * b, char * buf, int size)
 		BIOerr(BIO_F_BIO_GETS, BIO_R_INVALID_ARGUMENT);
 		return 0;
 	}
-	if(b->callback != NULL || b->callback_ex != NULL) {
+	if(b->callback || b->callback_ex) {
 		ret = (int)bio_call_callback(b, BIO_CB_GETS, buf, size, 0, 0L, 1, NULL);
 		if(ret <= 0)
 			return ret;
@@ -390,7 +390,7 @@ int BIO_gets(BIO * b, char * buf, int size)
 		ret = 1;
 	}
 
-	if(b->callback != NULL || b->callback_ex != NULL)
+	if(b->callback || b->callback_ex)
 		ret = (int)bio_call_callback(b, BIO_CB_GETS | BIO_CB_RETURN, buf, size,
 			0, 0L, ret, &readbytes);
 
@@ -441,13 +441,13 @@ long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 		BIOerr(BIO_F_BIO_CTRL, BIO_R_UNSUPPORTED_METHOD);
 		return -2;
 	}
-	if(b->callback != NULL || b->callback_ex != NULL) {
+	if(b->callback || b->callback_ex) {
 		ret = bio_call_callback(b, BIO_CB_CTRL, static_cast<const char *>(parg), 0, cmd, larg, 1L, NULL);
 		if(ret <= 0)
 			return ret;
 	}
 	ret = b->method->ctrl(b, cmd, larg, parg);
-	if(b->callback != NULL || b->callback_ex != NULL)
+	if(b->callback || b->callback_ex)
 		ret = bio_call_callback(b, BIO_CB_CTRL | BIO_CB_RETURN, static_cast<const char *>(parg), 0, cmd,
 			larg, ret, NULL);
 
@@ -457,26 +457,22 @@ long FASTCALL BIO_ctrl(BIO * b, int cmd, long larg, void * parg)
 long BIO_callback_ctrl(BIO * b, int cmd, BIO_info_cb * fp)
 {
 	long ret;
-
 	if(b == NULL)
 		return 0;
-
-	if((b->method == NULL) || (b->method->callback_ctrl == NULL)
-	   || (cmd != BIO_CTRL_SET_CALLBACK)) {
+	if((b->method == NULL) || (b->method->callback_ctrl == NULL) || (cmd != BIO_CTRL_SET_CALLBACK)) {
 		BIOerr(BIO_F_BIO_CALLBACK_CTRL, BIO_R_UNSUPPORTED_METHOD);
 		return -2;
 	}
-	if(b->callback != NULL || b->callback_ex != NULL) {
+	if(b->callback || b->callback_ex) {
 		ret = bio_call_callback(b, BIO_CB_CTRL, reinterpret_cast<const char *>(&fp), 0, cmd, 0, 1L, NULL);
 		if(ret <= 0)
 			return ret;
 	}
 	ret = b->method->callback_ctrl(b, cmd, fp);
-	if(b->callback != NULL || b->callback_ex != NULL)
+	if(b->callback || b->callback_ex)
 		ret = bio_call_callback(b, BIO_CB_CTRL | BIO_CB_RETURN, reinterpret_cast<const char *>(&fp), 0, cmd, 0, ret, NULL);
 	return ret;
 }
-
 /*
  * It is unfortunate to duplicate in functions what the BIO_(w)pending macros
  * do; but those macros have inappropriate return type, and for interfacing
@@ -491,12 +487,10 @@ size_t BIO_ctrl_wpending(BIO * bio)
 {
 	return BIO_ctrl(bio, BIO_CTRL_WPENDING, 0, NULL);
 }
-
 /* put the 'bio' on the end of b's list of operators */
 BIO * BIO_push(BIO * b, BIO * bio)
 {
 	BIO * lb;
-
 	if(b == NULL)
 		return bio;
 	lb = b;

@@ -5,8 +5,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/escaping.h"
-#include "absl/strings/internal/memutil.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

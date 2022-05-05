@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\filemagic\src\apprentice.c" />
+    <ClCompile Include="..\OSF\filemagic\src\apptype.c" />
+    <ClCompile Include="..\OSF\filemagic\src\ascmagic.c" />
+    <ClCompile Include="..\OSF\filemagic\src\asctime_r.c" />
+    <ClCompile Include="..\OSF\filemagic\src\asprintf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\buffer.c" />
+    <ClCompile Include="..\OSF\filemagic\src\cdf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\cdf_time.c" />
+    <ClCompile Include="..\OSF\filemagic\src\compress.c" />
+    <ClCompile Include="..\OSF\filemagic\src\ctime_r.c" />
+    <ClCompile Include="..\OSF\filemagic\src\der.c" />
+    <ClCompile Include="..\OSF\filemagic\src\dprintf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\encoding.c" />
+    <ClCompile Include="..\OSF\filemagic\src\file.c" />
+    <ClCompile Include="..\OSF\filemagic\src\fmtcheck.c" />
+    <ClCompile Include="..\OSF\filemagic\src\fsmagic.c" />
+    <ClCompile Include="..\OSF\filemagic\src\funcs.c" />
+    <ClCompile Include="..\OSF\filemagic\src\getline.c" />
+    <ClCompile Include="..\OSF\filemagic\src\gmtime_r.c" />
+    <ClCompile Include="..\OSF\filemagic\src\is_csv.c" />
+    <ClCompile Include="..\OSF\filemagic\src\is_json.c" />
+    <ClCompile Include="..\OSF\filemagic\src\is_tar.c" />
+    <ClCompile Include="..\OSF\filemagic\src\localtime_r.c" />
+    <ClCompile Include="..\OSF\filemagic\src\magic.c" />
+    <ClCompile Include="..\OSF\filemagic\src\pread.c" />
+    <ClCompile Include="..\OSF\filemagic\src\print.c" />
+    <ClCompile Include="..\OSF\filemagic\src\readcdf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\readelf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\seccomp.c" />
+    <ClCompile Include="..\OSF\filemagic\src\softmagic.c" />
+    <ClCompile Include="..\OSF\filemagic\src\strcasestr.c" />
+    <ClCompile Include="..\OSF\filemagic\src\strlcat.c" />
+    <ClCompile Include="..\OSF\filemagic\src\strlcpy.c" />
+    <ClCompile Include="..\OSF\filemagic\src\vasprintf.c" />
+    <ClCompile Include="..\OSF\filemagic\src\filemagic-pch.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\filemagic\src\cdf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\der.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\elfclass.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\file.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\file_opts.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\mygetopt.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\readelf.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\filemagic\src\tar.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

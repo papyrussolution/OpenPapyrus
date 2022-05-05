@@ -1459,7 +1459,7 @@ static cairo_int_status_t composite_mask(const cairo_traps_compositor_t * compos
 {
 	struct composite_mask * data = static_cast<struct composite_mask *>(closure);
 	TRACE_FUNCTION_SIMPLE();
-	if(src != NULL) {
+	if(src) {
 		compositor->composite(dst, op, src, data->mask, extents->x + src_x, extents->y + src_y,
 		    extents->x + data->mask_x, extents->y + data->mask_y, extents->x - dst_x,  extents->y - dst_y, extents->width,      extents->height);
 	}

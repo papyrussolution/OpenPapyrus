@@ -1110,11 +1110,11 @@ int PiritEquip::RunOneCommand(const char * pCmd, const char * pInputData, char *
 				}
 				//int    rl = STokenRecognizer::EncodeChZn1162(product_type_bytes, Check.ChZnGTIN, p_serial, chzn_1162_bytes, sizeof(chzn_1162_bytes));
 				THROW(PreprocessChZnMark(chzn_code, fabs(qtty), uom_fragm, 0, &result) > 0);
-				result_buf.Z().CatEq("CheckResult", (long)result.CheckResult).Semicol().
-					CatEq("Reason", (long)result.Reason).Semicol().
-					CatEq("ProcessingResult", (long)result.ProcessingResult).Semicol().
-					CatEq("ProcessingCode", (long)result.ProcessingCode).Semicol().
-					CatEq("Status", (long)result.Status);
+				result_buf.Z().CatEq("CheckResult", result.CheckResult).Semicol().
+					CatEq("Reason", result.Reason).Semicol().
+					CatEq("ProcessingResult", result.ProcessingResult).Semicol().
+					CatEq("ProcessingCode", result.ProcessingCode).Semicol().
+					CatEq("Status", result.Status);
 				if(outSize < result_buf.BufSize()){
 					NotEnoughBuf(str);
 					strnzcpy(pOutputData, result_buf.cptr(), outSize);
@@ -1690,7 +1690,7 @@ SString & PiritEquip::LastErrorText(SString & rMsg)
 	else {
 		if(rMsg.NotEmpty())
 			rMsg.Space();
-		rMsg.CatEq("ErrCode", static_cast<long>(LastError));
+		rMsg.CatEq("ErrCode", LastError);
 	}
 	rMsg.Transf(CTRANSF_UTF8_TO_OUTER); // @v10.4.6
 	return rMsg;
@@ -1726,7 +1726,7 @@ int PiritEquip::ENQ_ACK()
 			if(try_no >= max_tries) {
 				if(LogFileName.NotEmpty()) {
 					SString msg_buf;
-					(msg_buf = "Error ENQ_ACK() tries exceeded").Space().CatChar('(').Cat(try_no).CatChar(')').Space().CatEq("reply", (long)r);
+					(msg_buf = "Error ENQ_ACK() tries exceeded").Space().CatChar('(').Cat(try_no).CatChar(')').Space().CatEq("reply", r);
 					SLS.LogMessage(LogFileName, msg_buf, 8192);
 				}
 				return 0;
@@ -1788,14 +1788,14 @@ int PiritEquip::SetConnection()
 	THROW(ENQ_ACK());
 	if(LogFileName.NotEmpty()) {
 		SString msg_buf;
-		(msg_buf = "Connection is established").CatDiv(':', 2).CatEq("cbr", (long)port_params.Cbr);
+		(msg_buf = "Connection is established").CatDiv(':', 2).CatEq("cbr", port_params.Cbr);
 		SLS.LogMessage(LogFileName, msg_buf, 8192);
 	}
 	CATCH
 		CommPort.ClosePort(); // @v10.0.02
 		if(LogFileName.NotEmpty()) {
 			SString msg_buf;
-			(msg_buf = "Error on connection").CatDiv(':', 2).CatEq("cbr", (long)port_params.Cbr);
+			(msg_buf = "Error on connection").CatDiv(':', 2).CatEq("cbr", port_params.Cbr);
 			SLS.LogMessage(LogFileName, msg_buf, 8192);
 		}
 		ok = 0;
@@ -2801,7 +2801,7 @@ int PiritEquip::ReturnCheckParam(const SString & rInput, char * pOutput, size_t 
 				// } @v11.3.3 
 				if(cc_number == 18 || cc_number < 0) // @v10.1.9 Костыль: Некоторые аппараты всегад возвращают 18-й номер чека. Трактуем это как 0.
 					cc_number = 0;
-				s_output.CatEq("CHECKNUM", (long)cc_number).Semicol();
+				s_output.CatEq("CHECKNUM", cc_number).Semicol();
 			}
 		}
 		else if(buf.IsEqiAscii("CASHAMOUNT")) {

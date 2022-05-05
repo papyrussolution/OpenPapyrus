@@ -595,7 +595,7 @@ static void cff_dict_remove(cairo_hash_table_t * dict, unsigned short oprtr)
 	cff_dict_operator_t key, * op;
 	_cairo_dict_init_key(&key, oprtr);
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
-	if(op != NULL) {
+	if(op) {
 		SAlloc::F(op->operand);
 		_cairo_hash_table_remove(dict, (cairo_hash_entry_t*)op);
 		SAlloc::F(op);
@@ -607,11 +607,10 @@ static uchar * cff_dict_get_operands(cairo_hash_table_t * dict, unsigned short o
 	cff_dict_operator_t key, * op;
 	_cairo_dict_init_key(&key, oprtr);
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
-	if(op != NULL) {
+	if(op) {
 		*size = op->operand_length;
 		return op->operand;
 	}
-
 	return NULL;
 }
 
@@ -621,7 +620,7 @@ static cairo_status_t cff_dict_set_operands(cairo_hash_table_t * dict, unsigned 
 	cairo_status_t status;
 	_cairo_dict_init_key(&key, oprtr);
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
-	if(op != NULL) {
+	if(op) {
 		SAlloc::F(op->operand);
 		op->operand = static_cast<uchar *>(_cairo_malloc(size));
 		if(UNLIKELY(op->operand == NULL))
@@ -646,7 +645,7 @@ static int cff_dict_get_location(cairo_hash_table_t * dict, unsigned short oprtr
 	cff_dict_operator_t key, * op;
 	_cairo_dict_init_key(&key, oprtr);
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
-	if(op != NULL) {
+	if(op) {
 		*size = op->operand_length;
 		return op->operand_offset;
 	}
@@ -698,11 +697,9 @@ static cairo_status_t cff_dict_write(cairo_hash_table_t * dict, cairo_array_t * 
 	 * begin with the ROS operator. */
 	_cairo_dict_init_key(&key, ROS_OP);
 	op = (cff_dict_operator_t *)_cairo_hash_table_lookup(dict, &key.base);
-	if(op != NULL)
+	if(op)
 		cairo_dict_write_operator(op, &write_info);
-
 	_cairo_hash_table_foreach(dict, _cairo_dict_collect, &write_info);
-
 	return write_info.status;
 }
 

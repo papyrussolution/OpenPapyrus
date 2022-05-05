@@ -134,7 +134,7 @@ static int dlfcn_load(DSO * dso)
 err:
 	/* Cleanup! */
 	OPENSSL_free(filename);
-	if(ptr != NULL)
+	if(ptr)
 		dlclose(ptr);
 	return 0;
 }

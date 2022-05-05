@@ -4,20 +4,20 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_ARG_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_ARG_H_
 
-#include <string.h>
-#include <wchar.h>
-#include <cstdio>
-#include <iomanip>
-#include <limits>
-#include <memory>
-#include <sstream>
-#include <string>
-#include <type_traits>
-#include "absl/base/port.h"
-#include "absl/meta/type_traits.h"
-#include "absl/numeric/int128.h"
-#include "absl/strings/internal/str_format/extension.h"
-#include "absl/strings/string_view.h"
+//#include <string.h>
+//#include <wchar.h>
+//#include <cstdio>
+//#include <iomanip>
+//#include <limits>
+//#include <memory>
+//#include <sstream>
+//#include <string>
+//#include <type_traits>
+//#include "absl/base/port.h"
+//#include "absl/meta/type_traits.h"
+//#include "absl/numeric/int128.h"
+//#include "absl/strings/internal/str_format/extension.h"
+//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -44,9 +44,7 @@ struct HasUserDefinedConvert<T, void_t<decltype(AbslFormatConvert(
 
 void AbslFormatConvert();  // Stops the lexical name lookup
 template <typename T>
-auto FormatConvertImpl(const T& v, FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink)
-->decltype(AbslFormatConvert(v,
+auto FormatConvertImpl(const T& v, FormatConversionSpecImpl conv, FormatSinkImpl* sink)->decltype(AbslFormatConvert(v,
 std::declval<const FormatConversionSpec&>(),
 std::declval<FormatSink*>())) {
 	using FormatConversionSpecT =

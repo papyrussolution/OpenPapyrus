@@ -202,7 +202,7 @@ static int LZWSetupDecode(TIFF * tif)
 		(void)TIFFPredictorInit(tif);
 		sp = DecoderState(tif);
 	}
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->dec_codetab == NULL) {
 		sp->dec_codetab = (code_t*)SAlloc::M(CSIZE*sizeof(code_t));
 		if(sp->dec_codetab == NULL) {
@@ -235,7 +235,7 @@ static int LZWPreDecode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = DecoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->dec_codetab == NULL) {
 		tif->tif_setupdecode(tif);
 		if(sp->dec_codetab == NULL)
@@ -335,7 +335,7 @@ static int LZWDecode(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 	code_t * codep, * free_entp, * maxcodep, * oldcodep;
 
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->dec_codetab != NULL);
 
 	/*
@@ -544,7 +544,7 @@ static int LZWDecodeCompat(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 	long nextbits, nextdata, nbitsmask;
 	code_t * codep, * free_entp, * maxcodep, * oldcodep;
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	/*
 	   Fail if value does not fit in long.
 	 */
@@ -722,7 +722,7 @@ static int LZWSetupEncode(TIFF * tif)
 {
 	static const char module[] = __FUNCTION__;
 	LZWCodecState * sp = EncoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	sp->enc_hashtab = static_cast<hash_t *>(SAlloc::M(HSIZE*sizeof(hash_t)));
 	if(sp->enc_hashtab == NULL) {
 		TIFFErrorExt(tif->tif_clientdata, module, "No space for LZW hash table");
@@ -737,7 +737,7 @@ static int LZWPreEncode(TIFF * tif, uint16 s)
 {
 	LZWCodecState * sp = EncoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->enc_hashtab == NULL) {
 		tif->tif_setupencode(tif);
 	}
@@ -1100,12 +1100,3 @@ bad:
  * WARRANTIES OF MERCHANTIBILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  */
 #endif /* LZW_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

@@ -19,8 +19,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/parse_context.h>
-#include <google/protobuf/stubs/stringprintf.h>
-#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/arenastring.h>
 #include <google/protobuf/port_def.inc>
 
@@ -93,7 +91,7 @@ const char* EpsCopyInputStream::NextBuffer(int overrun, int depth) {
 	// Move the slop bytes of previous buffer to start of the patch buffer.
 	// Note we must use memmove because the previous buffer could be part of
 	// buffer_.
-	std::memmove(buffer_, buffer_end_, kSlopBytes);
+	memmove(buffer_, buffer_end_, kSlopBytes);
 	if(overall_limit_ > 0 &&
 	    (depth < 0 || !ParseEndsInSlopRegion(buffer_, overrun, depth))) {
 		const void* data;

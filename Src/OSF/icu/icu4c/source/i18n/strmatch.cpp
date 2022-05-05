@@ -284,7 +284,7 @@ void StringMatcher::setData(const TransliterationRuleData* d) {
 	while(i<pattern.length()) {
 		UChar32 c = pattern.char32At(i);
 		UnicodeFunctor* f = data->lookup(c);
-		if(f != NULL) {
+		if(f) {
 			f->setData(data);
 		}
 		i += U16_LENGTH(c);

@@ -23,14 +23,13 @@
 #ifndef GOOGLE_PROTOBUF_COMMON_H__
 #define GOOGLE_PROTOBUF_COMMON_H__
 
-#include <algorithm>
-#include <iostream>
-#include <map>
-#include <memory>
-#include <set>
-#include <string>
-#include <vector>
-
+//#include <algorithm>
+//#include <iostream>
+//#include <map>
+//#include <memory>
+//#include <set>
+//#include <string>
+//#include <vector>
 #include <google/protobuf/stubs/macros.h>
 #include <google/protobuf/stubs/platform_macros.h>
 #include <google/protobuf/stubs/port.h>
@@ -133,8 +132,7 @@ PROTOBUF_EXPORT int UTF8SpnStructurallyValid(StringPiece str);
 //
 // Optimized for: all structurally valid and no byte copying is done.
 //
-PROTOBUF_EXPORT char* UTF8CoerceToStructurallyValid(StringPiece str, char* dst,
-    char replace_char);
+PROTOBUF_EXPORT char* UTF8CoerceToStructurallyValid(StringPiece str, char* dst, char replace_char);
 }  // namespace internal
 
 // This lives in message_lite.h now, but we leave this here for any users that
@@ -144,8 +142,8 @@ PROTOBUF_EXPORT void ShutdownProtobufLibrary();
 namespace internal {
 // Strongly references the given variable such that the linker will be forced
 // to pull in this variable's translation unit.
-template <typename T>
-void StrongReference(const T& var) {
+template <typename T> void StrongReference(const T& var) 
+{
 	auto volatile unused = &var;
 	(void)&unused; // Use address to avoid an extra load of "unused".
 }
@@ -154,26 +152,14 @@ void StrongReference(const T& var) {
 #if PROTOBUF_USE_EXCEPTIONS
 class FatalException : public std::exception {
 public:
-	FatalException(const char* filename, int line, const std::string& message)
-		: filename_(filename), line_(line), message_(message) {
+	FatalException(const char* filename, int line, const std::string& message) : filename_(filename), line_(line), message_(message) 
+	{
 	}
-
 	virtual ~FatalException() throw();
-
 	const char* what() const throw() override;
-
-	const char* filename() const {
-		return filename_;
-	}
-
-	int line() const {
-		return line_;
-	}
-
-	const std::string& message() const {
-		return message_;
-	}
-
+	const char* filename() const { return filename_; }
+	int line() const { return line_; }
+	const std::string& message() const { return message_; }
 private:
 	const char* filename_;
 	const int line_;

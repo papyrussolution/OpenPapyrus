@@ -329,7 +329,7 @@ typedef int Memento_mutex;
 
 static void Memento_initMutex(Memento_mutex * m)
 {
-	(void)m;
+	CXX_UNUSED(m);
 }
 
 #define MEMENTO_DO_LOCK() do { } while(0)
@@ -1663,11 +1663,10 @@ int stashed_map[OPEN_MAX];
 
 static void Memento_signal(int sig)
 {
-	(void)sig;
+	CXX_UNUSED(sig);
 	slfprintf_stderr("SEGV at:\n");
 	memento.segv = 1;
 	Memento_bt_internal(0);
-
 	exit(1);
 }
 
@@ -1675,15 +1674,12 @@ static int squeeze(void)
 {
 	pid_t pid;
 	int i, status;
-
 	if(memento.patternBit < 0)
 		return 1;
 	if(memento.squeezing && memento.patternBit >= MEMENTO_MAXPATTERN)
 		return 1;
-
 	if(memento.patternBit == 0)
 		memento.squeezeAt = memento.sequence;
-
 	if(!memento.squeezing) {
 		slfprintf_stderr("Memory squeezing @ %d\n", memento.squeezeAt);
 	}
@@ -1762,7 +1758,7 @@ static int squeeze(void)
 
 static void Memento_signal(int sig)
 {
-	(void)sig;
+	CXX_UNUSED(sig);
 	memento.segv = 1;
 	/* If we just return from this function the SEGV will be unhandled, and
 	 * we'll launch into whatever JIT debugging system the OS provides. At
@@ -2140,14 +2136,10 @@ void * Memento_takeByteRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	(void)Memento_checkBytePointerOrNull(blk);
-
 	return do_takeRef(blk);
 }
 
@@ -2155,14 +2147,10 @@ void * Memento_takeShortRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
 	if(Memento_event()) Memento_breakpoint();
-
 	if(!blk)
 		return NULL;
-
 	(void)Memento_checkShortPointerOrNull(blk);
-
 	return do_takeRef(blk);
 }
 
@@ -2170,14 +2158,11 @@ void * Memento_takeIntRef(void * blk)
 {
 	if(!memento.inited)
 		Memento_init();
-
-	if(Memento_event()) Memento_breakpoint();
-
+	if(Memento_event()) 
+		Memento_breakpoint();
 	if(!blk)
 		return NULL;
-
 	(void)Memento_checkIntPointerOrNull(blk);
-
 	return do_takeRef(blk);
 }
 

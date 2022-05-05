@@ -11,8 +11,8 @@
 #ifndef ABSL_TIME_CLOCK_H_
 #define ABSL_TIME_CLOCK_H_
 
-#include "absl/base/macros.h"
-#include "absl/time/time.h"
+//#include "absl/base/macros.h"
+//#include "absl/time/time.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

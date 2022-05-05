@@ -365,6 +365,7 @@ private:
 			}
 			if(ret_size > 0) {
 				temp_buf_u.CopyFromN(static_cast<wchar_t *>(ret_buf.vptr()), ret_size);
+				temp_buf_u.CopyToUtf8(rResultJsonBuf, 0);
 			}
 		}
 		CATCHZOK
@@ -829,11 +830,18 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 
 /*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
 {
+	rResult.Z();
 	int    ok = 1;
+	int    mcv_status = -1;
 	StateBlock stb;
 	THROW(Connect(&stb));
 	if(P_Fptr10 && P_Fptr10->IsValid() && P_Fptr10->ProcessJsonProc) {
 		SString temp_buf;
+		{
+			SJson  js(SJson::tOBJECT);
+			js.InsertString("type", "cancelMarkingCodeValidation");
+			THROW(CallJsonProc(&js, temp_buf));
+		}
 		{
 			SJson  js(SJson::tOBJECT);
 			js.InsertString("type", "clearMarkingCodeValidationResult");
@@ -844,7 +852,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 			js.InsertString("type", "beginMarkingCodeValidation");
 			{
 				SJson * p_js_params = new SJson(SJson::tOBJECT);
-				p_js_params->InsertString("imcType", /*"auto"*/"imcShort");
+				p_js_params->InsertString("imcType", "auto"/*"imcShort"*/);
 				temp_buf.Z().EncodeMime64(pCode, sstrlen(pCode));
 				p_js_params->InsertString("imc", temp_buf);
 				// itemPieceSold itemDryForSale 
@@ -856,6 +864,133 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 				js.Insert("params", p_js_params);
 			}
 			THROW(CallJsonProc(&js, temp_buf));
+		}
+		//
+		{
+			const uint max_tries = 5;
+			const long _timeout = 500;
+			uint  try_no = 0;
+			do {
+				if(try_no)
+					SDelay(_timeout);
+				SJson js(SJson::tOBJECT);
+				js.InsertString("type", "getMarkingCodeValidationStatus");
+				THROW(CallJsonProc(&js, temp_buf));
+				{
+					int    err_code = -1;
+					SString err_text;
+					SString err_description;
+					SString mark_operator_item_status;
+					SString mark_operator_response_result;
+					SString imc_type;
+					SString imc_barcode;
+					int    imc_mode_processing = 0;
+					SJson * p_js_reply = SJson::Parse(temp_buf);
+					if(p_js_reply) {
+						if(p_js_reply->IsObject()) {
+							for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+								if(p_itm->Text.IsEqiAscii("driverError") && SJson::IsObject(p_itm->P_Child)) {
+									for(const SJson * p_dei = p_itm->P_Child->P_Child; p_dei; p_dei = p_dei->P_Next) {
+										if(p_dei->Text.IsEqiAscii("code")) {
+											err_code = p_dei->P_Child->Text.ToLong();
+										}
+										else if(p_dei->Text.IsEqiAscii("error")) {
+											if(p_dei->P_Child)
+												(err_text = p_dei->P_Child->Text).Unescape();
+										}
+										else if(p_dei->Text.IsEqiAscii("description")) {
+											if(p_dei->P_Child)
+												(err_description = p_dei->P_Child->Text).Unescape();
+										}
+									}
+								}
+								else if(p_itm->Text.IsEqiAscii("onlineValidation") && SJson::IsObject(p_itm->P_Child)) {
+									CCheckPacket::PreprocessChZnCodeResult ttt; // @debug
+									for(const SJson * p_olv = p_itm->P_Child->P_Child; p_olv; p_olv = p_olv->P_Next) {
+										if(p_olv->Text.IsEqiAscii("itemInfoCheckResult") && SJson::IsObject(p_olv->P_Child)) { // object tag 2106
+											for(const SJson * p_icr = p_olv->P_Child->P_Child; p_icr; p_icr = p_icr->P_Next) {
+												if(p_icr->Text.IsEqiAscii("imcCheckFlag")) {
+													int b = SJson::GetBoolean(p_icr->P_Child);
+													if(b == 1)
+														rResult.CheckResult |= (1 << 0);
+												}
+												else if(p_icr->Text.IsEqiAscii("imcCheckResult")) {
+													int b = SJson::GetBoolean(p_icr->P_Child);
+													if(b == 1)
+														rResult.CheckResult |= (1 << 1);
+												}
+												else if(p_icr->Text.IsEqiAscii("imcStatusInfo")) {
+													int b = SJson::GetBoolean(p_icr->P_Child);
+													if(b == 1)
+														rResult.CheckResult |= (1 << 2);
+												}
+												else if(p_icr->Text.IsEqiAscii("imcEstimatedStatusCorrect")) {
+													int b = SJson::GetBoolean(p_icr->P_Child);
+													if(b == 1)
+														rResult.CheckResult |= (1 << 3);
+												}
+												else if(p_icr->Text.IsEqiAscii("ecrStandAloneFlag")) {
+													int b = SJson::GetBoolean(p_icr->P_Child);
+													if(b == 1)
+														rResult.CheckResult |= (1 << 4);
+												}
+											}
+										}
+										else if(p_olv->Text.IsEqiAscii("markOperatorItemStatus")) { // tag 2109
+											if(p_olv->P_Child)
+												(mark_operator_item_status = p_olv->P_Child->Text).Unescape();
+										}
+										else if(p_olv->Text.IsEqiAscii("markOperatorResponse") && SJson::IsObject(p_olv->P_Child)) { // object tag 2005
+											rResult.ProcessingResult |= (1 << 0); // Зарезервирован - 1
+											rResult.ProcessingResult |= (1 << 2); // Зарезервирован - 1
+											for(const SJson * p_mor = p_olv->P_Child->P_Child; p_mor; p_mor = p_mor->P_Next) {
+												if(p_mor->Text.IsEqiAscii("responseStatus")) {
+													int b = SJson::GetBoolean(p_mor->P_Child);
+													if(b == 1)
+														rResult.ProcessingResult |= (1 << 1);
+												}
+												else if(p_mor->Text.IsEqiAscii("itemStatusCheck")) {
+													int b = SJson::GetBoolean(p_mor->P_Child);
+													if(b == 1)
+														rResult.ProcessingResult |= (1 << 3);
+												}
+											}
+										}
+										else if(p_olv->Text.IsEqiAscii("markOperatorResponseResult")) { // tag 2105
+											rResult.ProcessingCode;
+											if(p_olv->P_Child)
+												(mark_operator_response_result = p_olv->P_Child->Text).Unescape();
+										}
+										else if(p_olv->Text.IsEqiAscii("imcType")) { // tag 2100
+											if(p_olv->P_Child)
+												(imc_type = p_olv->P_Child->Text).Unescape();
+										}
+										else if(p_olv->Text.IsEqiAscii("imcBarcode")) { // tag 2101
+											if(p_olv->P_Child)
+												(imc_barcode = p_olv->P_Child->Text).Unescape();
+										}
+										else if(p_olv->Text.IsEqiAscii("imcModeProcessing")) { // tag 2102
+											if(p_olv->P_Child)
+												imc_mode_processing = p_olv->P_Child->Text.ToLong();
+										}
+									}									
+								}
+								else if(p_itm->Text.IsEqiAscii("sentImcRequest")) {
+									int b = SJson::GetBoolean(p_itm->P_Child);
+								}
+								else if(p_itm->Text.IsEqiAscii("ready")) {
+									if(SJson::IsTrue(p_itm->P_Child))
+										mcv_status = 1;					
+								}
+							}
+						}
+						if(mcv_status > 0) {
+							
+						}
+					}
+				}
+				try_no++;
+			} while(mcv_status < 0 && try_no < max_tries);
 		}
 	}
 	CATCHZOK
@@ -1423,6 +1558,35 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 			//
 			p_result->Insert("operator", p_inner);
 		}
+		// @v11.3.10 {
+		{
+			SJson * p_inner = 0; // new SJson(SJson::tOBJECT); // clientInfo
+			bool paperless = false;
+			SString buyers_email;
+			SString buyers_phone;
+			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
+			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
+			if(buyers_email.NotEmpty()) {
+				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+				SETIFZQ(p_inner, new SJson(SJson::tOBJECT));
+				p_inner->InsertString("emailOrPhone", buyers_email);
+			}
+			else if(buyers_phone.NotEmpty()) {
+				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+				SETIFZQ(p_inner, new SJson(SJson::tOBJECT));
+				p_inner->InsertString("emailOrPhone", buyers_phone);
+			}
+			else
+				paperless = false;
+			if(paperless) {
+				//electronically
+				p_result->InsertBool("electronically", true);
+				//P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, paperless);
+			}
+			if(p_inner)
+				p_result->Insert("clientInfo", p_inner);
+		}
+		// } @v11.3.10 
 		if(P_SlipFmt) {
 			int r;
 			SString line_buf;
@@ -1721,6 +1885,30 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 					// } @v11.0.0 
 					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
+					// @v11.3.10 {
+					{
+						bool paperless = false;
+						SString buyers_email;
+						SString buyers_phone;
+						pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
+						pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
+						if(buyers_email.NotEmpty()) {
+							paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+							temp_buf_u.Z().CopyFromMb_INNER(buyers_email, buyers_email.Len());
+							P_Fptr10->SetParamStrProc(fph, 1008, temp_buf_u);
+						}
+						else if(buyers_phone.NotEmpty()) {
+							paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+							temp_buf_u.Z().CopyFromMb_INNER(buyers_phone, buyers_phone.Len());
+							P_Fptr10->SetParamStrProc(fph, 1008, temp_buf_u);
+						}
+						else
+							paperless = false;
+						if(paperless) {
+							P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, paperless);
+						}
+					}
+					// } @v11.3.10 
 					THROW(P_Fptr10->OpenReceiptProc(fph) == 0);
 				}
 				else if(P_Disp) {

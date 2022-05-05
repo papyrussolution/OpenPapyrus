@@ -183,7 +183,7 @@ static int LogL16Decode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	tmsize_t cc;
 	int rc;
 	assert(s == 0);
-	assert(sp != NULL);
+	assert(sp);
 	npixels = occ / sp->pixel_size;
 	if(sp->user_datafmt == SGILOGDATAFMT_16BIT)
 		tp = reinterpret_cast<int16 *>(op);
@@ -245,7 +245,7 @@ static int LogLuvDecode24(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	uchar * bp;
 	uint32* tp;
 	assert(s == 0);
-	assert(sp != NULL);
+	assert(sp);
 	npixels = occ / sp->pixel_size;
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
 		tp = reinterpret_cast<uint32 *>(op);
@@ -295,7 +295,7 @@ static int LogLuvDecode32(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	int rc;
 	assert(s == 0);
 	sp = DecoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	npixels = occ / sp->pixel_size;
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
 		tp = (uint32 *)op;
@@ -398,7 +398,7 @@ static int LogL16Encode(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	int rc = 0, mask;
 	tmsize_t beg;
 	assert(s == 0);
-	assert(sp != NULL);
+	assert(sp);
 	npixels = cc / sp->pixel_size;
 	if(sp->user_datafmt == SGILOGDATAFMT_16BIT)
 		tp = (int16 *)bp;
@@ -488,7 +488,7 @@ static int LogLuvEncode24(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	uint32* tp;
 
 	assert(s == 0);
-	assert(sp != NULL);
+	assert(sp);
 	npixels = cc / sp->pixel_size;
 
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
@@ -542,7 +542,7 @@ static int LogLuvEncode32(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 	int rc = 0, mask;
 	tmsize_t beg;
 	assert(s == 0);
-	assert(sp != NULL);
+	assert(sp);
 	npixels = cc / sp->pixel_size;
 	if(sp->user_datafmt == SGILOGDATAFMT_RAW)
 		tp = (uint32 *)bp;
@@ -1121,7 +1121,7 @@ static int LogL16InitState(TIFF * tif)
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory * td = &tif->tif_dir;
 	LogLuvState * sp = DecoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(td->td_photometric == PHOTOMETRIC_LOGL);
 	if(td->td_samplesperpixel != 1) {
 		TIFFErrorExt(tif->tif_clientdata, module, "Sorry, can not handle LogL image with %s=%d", "Samples/pixel", td->td_samplesperpixel);
@@ -1194,7 +1194,7 @@ static int LogLuvInitState(TIFF * tif)
 	static const char module[] = __FUNCTION__;
 	TIFFDirectory* td = &tif->tif_dir;
 	LogLuvState* sp = DecoderState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(td->td_photometric == PHOTOMETRIC_LOGLUV);
 	/* for some reason, we can't do this in TIFFInitLogLuv */
 	if(td->td_planarconfig != PLANARCONFIG_CONTIG) {
@@ -1466,12 +1466,3 @@ bad:
 }
 
 #endif /* LOGLUV_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

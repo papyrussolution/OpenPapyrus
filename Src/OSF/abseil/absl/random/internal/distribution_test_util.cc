@@ -4,7 +4,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/random/internal/distribution_test_util.h"
-#include "absl/strings/str_format.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

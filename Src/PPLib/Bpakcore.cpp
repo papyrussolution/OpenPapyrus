@@ -3264,15 +3264,15 @@ void PPBillPacket::SetLots(const PPTrfrArray & rS)
 int FASTCALL PPBillPacket::ChkTIdx(int idx) const
 	{ return (idx >= 0 && idx < (int)Lots.getCount()) ? 1 : PPSetError(PPERR_INVTIIDX); }
 
-int FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
+bool FASTCALL PPBillPacket::SearchTI(int rByBill, uint * pPos) const
 {
-	int    ok = 0;
+	bool   ok = false;
 	uint   pos = 0;
 	if(rByBill > 0) {
 		for(uint i = 0; !ok && i < Lots.getCount(); i++) {
 			if(Lots.at(i).RByBill == rByBill) {
 				pos = i;
-				ok = 1;
+				ok = true;
 			}
 		}
 	}

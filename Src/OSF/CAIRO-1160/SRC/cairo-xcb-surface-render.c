@@ -1289,7 +1289,7 @@ static cairo_status_t _render_fill_boxes(void * abstract_dst,
 	render_color.alpha = color->alpha_short;
 
 	max_count = 0;
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		if(chunk->count > max_count)
 			max_count = chunk->count;
 	}
@@ -1299,7 +1299,7 @@ static cairo_status_t _render_fill_boxes(void * abstract_dst,
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		int i, j;
 
 		for(i = j = 0; i < chunk->count; i++) {
@@ -1363,7 +1363,7 @@ static cairo_int_status_t _render_composite_boxes(cairo_xcb_surface_t * dst, cai
 		goto cleanup_boxes;
 
 	num_boxes = 0;
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		const cairo_box_t * box = chunk->base;
 		int i;
 
@@ -2228,7 +2228,7 @@ static cairo_status_t _cairo_xcb_surface_fixup_unbounded_boxes(cairo_xcb_surface
 		_cairo_boxes_init_with_clip(&clear, clip);
 		status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &box);
 		assert(status == CAIRO_STATUS_SUCCESS);
-		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 			for(i = 0; i < chunk->count; i++) {
 				status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &chunk->base[i]);
 				if(UNLIKELY(status)) {
@@ -2541,7 +2541,7 @@ static boolint cairo_boxes_for_each_box(cairo_boxes_t * boxes,
 	struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 	int i;
 
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		for(i = 0; i < chunk->count; i++)
 			if(!func(&chunk->base[i], data))
 				return FALSE;

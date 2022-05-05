@@ -399,12 +399,11 @@ bool LowLevelAlloc::DeleteArena(Arena * arena) {
 	Free(arena);
 	return true;
 }
-
-// ---------------------------------------------------------------------------
-
+//
 // Addition, checking for overflow.  The intent is to die if an external client
 // manages to push through a request that would cause arithmetic to fail.
-static inline uintptr_t CheckedAdd(uintptr_t a, uintptr_t b) {
+static inline uintptr_t CheckedAdd(uintptr_t a, uintptr_t b) 
+{
 	uintptr_t sum = a + b;
 	ABSL_RAW_CHECK(sum >= a, "LowLevelAlloc arithmetic overflow");
 	return sum;
@@ -425,22 +424,19 @@ static AllocList * Next(int i, AllocList * prev, LowLevelAlloc::Arena * arena) {
 	ABSL_RAW_CHECK(i < prev->levels, "too few levels in Next()");
 	AllocList * next = prev->next[i];
 	if(next != nullptr) {
-		ABSL_RAW_CHECK(
-			next->header.magic == Magic(kMagicUnallocated, &next->header),
-			"bad magic number in Next()");
+		ABSL_RAW_CHECK(next->header.magic == Magic(kMagicUnallocated, &next->header), "bad magic number in Next()");
 		ABSL_RAW_CHECK(next->header.arena == arena, "bad arena pointer in Next()");
 		if(prev != &arena->freelist) {
 			ABSL_RAW_CHECK(prev < next, "unordered freelist");
-			ABSL_RAW_CHECK(reinterpret_cast<char *>(prev) + prev->header.size <
-			    reinterpret_cast<char *>(next),
-			    "malformed freelist");
+			ABSL_RAW_CHECK(reinterpret_cast<char *>(prev) + prev->header.size < reinterpret_cast<char *>(next), "malformed freelist");
 		}
 	}
 	return next;
 }
 
 // Coalesce list item "a" with its successor if they are adjacent.
-static void Coalesce(AllocList * a) {
+static void Coalesce(AllocList * a) 
+{
 	AllocList * n = a->next[0];
 	if(n != nullptr && reinterpret_cast<char *>(a) + a->header.size ==
 	    reinterpret_cast<char *>(n)) {
@@ -479,8 +475,7 @@ static void AddToFreelist(void * v, LowLevelAlloc::Arena * arena) {
 // L < arena->mu
 void LowLevelAlloc::Free(void * v) {
 	if(v != nullptr) {
-		AllocList * f = reinterpret_cast<AllocList *>(
-			reinterpret_cast<char *>(v) - sizeof(f->header));
+		AllocList * f = reinterpret_cast<AllocList *>(reinterpret_cast<char *>(v) - sizeof(f->header));
 		LowLevelAlloc::Arena * arena = f->header.arena;
 		ArenaLock section(arena);
 		AddToFreelist(v, arena);

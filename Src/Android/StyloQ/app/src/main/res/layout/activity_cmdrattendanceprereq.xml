@@ -24,43 +24,60 @@ tools:context=".CmdRAttendancePrereqActivity">
         android:orientation="vertical"
         android:padding="4dp"
         >
-        <LinearLayout
+        <LinearLayout style="@style/PageHeaderRegular"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:background="@color/Primary"
-            android:layout_marginBottom="4dp"
-            android:padding="4dp"
+            android:layout_marginBottom="2dp"
             >
+            <ImageView
+                android:id="@+id/CTLIMG_PAGEHEADER_SVC"
+                android:layout_width="64dp"
+                android:layout_height="80dp"
+                android:padding="2dp"
+                android:layout_margin="2dp"
+                android:layout_gravity="center_vertical">
+            </ImageView>
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                >
-                <TextView
-                    android:id="@+id/CTL_ACTIVITYHEAD_SVCNAME"
-                    android:layout_width="wrap_content"
+                android:orientation="vertical">
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="16"
-                    android:textStyle="bold"
-                    android:textColor="@color/TextIcons"/>
-                <TextView
-                    android:id="@+id/CTL_ACTIVITYHEAD_TITLE"
-                    android:layout_width="wrap_content"
+                    android:orientation="horizontal">
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        >
+                        <TextView style="@style/PageHeaderTitleText"
+                            android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/PrimaryText"/>
+                        <TextView style="@style/PageHeaderTopicText"
+                            android:id="@+id/CTL_PAGEHEADER_TOPIC"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/PrimaryText"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:ems="12"
-                    android:textColor="@color/TextIcons"/>
+                    android:orientation="horizontal">
+                    <View style="@style/FakeView"/>
+                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
+                        android:layout_gravity="center_vertical|right"
+                        app:srcCompat="@drawable/ic_search"/>
+                    <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
+                        android:layout_gravity="center_vertical|right"
+                        app:srcCompat="@drawable/ic_filterrmv01"/>
+                </LinearLayout>
             </LinearLayout>
-            <View style="@style/FakeView"/>
-            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonSearch"
-                android:layout_gravity="center_vertical|right"
-                app:srcCompat="@drawable/ic_search"/>
-            <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonClearFiter"
-                android:layout_gravity="center_vertical|right"
-                app:srcCompat="@drawable/ic_filterrmv01"/>
         </LinearLayout>
-        <com.google.android.material.tabs.TabLayout
-            style="@style/TabLayout"
+        <com.google.android.material.tabs.TabLayout style="@style/TabLayout"
             app:tabTextAppearance="@style/TabTextAppearance"
             android:id="@+id/TABLAYOUT_ATTENDANCEPREREQ"
             android:layout_width="wrap_content"

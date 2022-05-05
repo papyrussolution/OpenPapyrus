@@ -1,5 +1,4 @@
 /* $Id: tif_jpeg.c,v 1.134 2017-10-17 19:04:47 erouault Exp $ */
-
 /*
  * Copyright (c) 1994-1997 Sam Leffler
  * Copyright (c) 1994-1997 Silicon Graphics, Inc.
@@ -11,13 +10,6 @@
  * Sam Leffler and Silicon Graphics may not be used in any advertising or
  * publicity relating to the software without the specific, prior written
  * permission of Sam Leffler and Silicon Graphics.
- *
- * IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
- * ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
- * OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
- * WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
- * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
- * OF THIS SOFTWARE.
  */
 #include "tiffiop.h"
 #pragma hdrstop
@@ -535,22 +527,17 @@ static void TIFFjpeg_tables_src(JPEGState* sp)
  * when done with strip/tile.
  * This is also a handy place to compute samplesperclump, bytesperline.
  */
-static int alloc_downsampled_buffers(TIFF * tif, jpeg_component_info* comp_info,
-    int num_components)
+static int alloc_downsampled_buffers(TIFF * tif, jpeg_component_info* comp_info, int num_components)
 {
 	JPEGState* sp = JState(tif);
 	int ci;
 	jpeg_component_info* compptr;
 	JSAMPARRAY buf;
 	int samples_per_clump = 0;
-
 	for(ci = 0, compptr = comp_info; ci < num_components;
 	    ci++, compptr++) {
-		samples_per_clump += compptr->h_samp_factor *
-		    compptr->v_samp_factor;
-		buf = TIFFjpeg_alloc_sarray(sp, JPOOL_IMAGE,
-		    compptr->width_in_blocks * DCTSIZE,
-		    (JDIMENSION)(compptr->v_samp_factor*DCTSIZE));
+		samples_per_clump += compptr->h_samp_factor * compptr->v_samp_factor;
+		buf = TIFFjpeg_alloc_sarray(sp, JPOOL_IMAGE, compptr->width_in_blocks * DCTSIZE, (JDIMENSION)(compptr->v_samp_factor*DCTSIZE));
 		if(buf == NULL)
 			return 0;
 		sp->ds_buffer[ci] = buf;
@@ -647,8 +634,7 @@ static void JPEGFixupTagsSubsampling(TIFF * tif)
 	m.buffersize = 2048;
 	m.buffer = SAlloc::M(m.buffersize);
 	if(!m.buffer) {
-		TIFFWarningExt(tif->tif_clientdata, module,
-		    "Unable to allocate memory for auto-correcting of subsampling values; auto-correcting skipped");
+		TIFFWarningExt(tif->tif_clientdata, module, "Unable to allocate memory for auto-correcting of subsampling values; auto-correcting skipped");
 		return;
 	}
 	m.buffercurrentbyte = NULL;
@@ -657,8 +643,7 @@ static void JPEGFixupTagsSubsampling(TIFF * tif)
 	m.filepositioned = 0;
 	m.filebytesleft = tif->tif_dir.td_stripbytecount[0];
 	if(!JPEGFixupTagsSubsamplingSec(&m))
-		TIFFWarningExt(tif->tif_clientdata, module,
-		    "Unable to auto-correct subsampling values, likely corrupt JPEG compressed data in first strip/tile; auto-correcting skipped");
+		TIFFWarningExt(tif->tif_clientdata, module, "Unable to auto-correct subsampling values, likely corrupt JPEG compressed data in first strip/tile; auto-correcting skipped");
 	SAlloc::F(m.buffer);
 }
 
@@ -852,7 +837,7 @@ static int JPEGSetupDecode(TIFF * tif)
 		return TIFFReInitJPEG_12(tif, COMPRESSION_JPEG, 0);
 #endif
 	JPEGInitializeLibJPEG(tif, TRUE);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->cinfo.comm.is_decompressor);
 	/* Read JPEGTables if it is present */
 	if(TIFFFieldSet(tif, FIELD_JPEGTABLES)) {
@@ -920,7 +905,7 @@ int TIFFJPEGIsFullStripRequired(TIFF * tif)
 	uint32 segment_width, segment_height;
 	int downsampled_output;
 	int ci;
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->cinfo.comm.is_decompressor == 0) {
 		tif->tif_setupdecode(tif);
 	}
@@ -1437,7 +1422,7 @@ static int JPEGSetupEncode(TIFF * tif)
 		return TIFFReInitJPEG_12(tif, COMPRESSION_JPEG, 1);
 #endif
 	JPEGInitializeLibJPEG(tif, FALSE);
-	assert(sp != NULL);
+	assert(sp);
 	assert(!sp->cinfo.comm.is_decompressor);
 	sp->photometric = td->td_photometric;
 	/*
@@ -1586,7 +1571,7 @@ static int JPEGPreEncode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	uint32 segment_width, segment_height;
 	int downsampled_input;
-	assert(sp != NULL);
+	assert(sp);
 	if(sp->cinfo.comm.is_decompressor == 1) {
 		tif->tif_setupencode(tif);
 	}
@@ -1721,7 +1706,7 @@ static int JPEGEncode(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 	short * line16 = NULL;
 	int line16_count = 0;
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	/* data is expected to be supplied in multiples of a scanline */
 	nrows = cc / sp->bytesperline;
 	if(cc % sp->bytesperline)
@@ -1783,7 +1768,7 @@ static int JPEGEncodeRaw(TIFF * tif, uint8 * buf, tmsize_t cc, uint16 s)
 	tmsize_t bytesperclumpline;
 
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	/* data is expected to be supplied in multiples of a clumpline */
 	/* a clumpline is equivalent to v_sampling desubsampled scanlines */
 	/* TODO: the following calculation of bytesperclumpline, should substitute calculation of sp->bytesperline,
@@ -1948,7 +1933,7 @@ static int JPEGVSetField(TIFF * tif, uint32 tag, va_list ap)
 	const TIFFField* fip;
 	uint32 v32;
 
-	assert(sp != NULL);
+	assert(sp);
 
 	switch(tag) {
 		case TIFFTAG_JPEGTABLES:
@@ -2000,7 +1985,7 @@ static int JPEGVSetField(TIFF * tif, uint32 tag, va_list ap)
 static int JPEGVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	JPEGState* sp = JState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	switch(tag) {
 		case TIFFTAG_JPEGTABLES:
 		    *va_arg(ap, uint32*) = sp->jpegtables_length;
@@ -2024,7 +2009,7 @@ static int JPEGVGetField(TIFF * tif, uint32 tag, va_list ap)
 static void JPEGPrintDir(TIFF * tif, FILE* fd, long flags)
 {
 	JPEGState* sp = JState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	(void)flags;
 	if(sp != NULL) {
 		if(TIFFFieldSet(tif, FIELD_JPEGTABLES))
@@ -2212,18 +2197,7 @@ int TIFFInitJPEG(TIFF * tif, int scheme)
 		}
 #undef SIZE_OF_JPEGTABLES
 	}
-
 	return 1;
 }
 
 #endif /* JPEG_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

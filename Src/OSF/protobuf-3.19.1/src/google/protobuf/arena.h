@@ -22,9 +22,9 @@
 #define GOOGLE_PROTOBUF_ARENA_H__
 
 
-#include <limits>
-#include <type_traits>
-#include <utility>
+//#include <limits>
+//#include <type_traits>
+//#include <utility>
 #ifdef max
 #undef max  // Visual Studio defines this macro
 #endif
@@ -38,8 +38,7 @@ using type_info = ::type_info;
 #else
 #include <typeinfo>
 #endif
-
-#include <type_traits>
+//#include <type_traits>
 #include <google/protobuf/arena_impl.h>
 #include <google/protobuf/port.h>
 

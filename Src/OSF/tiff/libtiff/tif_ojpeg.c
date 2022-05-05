@@ -30,13 +30,6 @@
 
    The licence agreement for this file is the same as the rest of the LibTiff library.
 
-   IN NO EVENT SHALL JORIS VAN DAMME OR AWARE SYSTEMS BE LIABLE FOR
-   ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
-   OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-   WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
-   LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
-   OF THIS SOFTWARE.
-
    Joris Van Damme and/or AWare Systems may be available for custom
    development. If you like what you see, and need anything similar or related,
    contact <info@awaresystems.be>.
@@ -596,7 +589,7 @@ static void OJPEGPrintDir(TIFF * tif, FILE* fd, long flags)
 	OJPEGState* sp = (OJPEGState*)tif->tif_data;
 	uint8 m;
 	(void)flags;
-	assert(sp != NULL);
+	assert(sp);
 	if(TIFFFieldSet(tif, FIELD_OJPEG_JPEGINTERCHANGEFORMAT))
 		fprintf(fd, "  JpegInterchangeFormat: " TIFF_UINT64_FORMAT "\n", (TIFF_UINT64_T)sp->jpeg_interchange_format);
 	if(TIFFFieldSet(tif, FIELD_OJPEG_JPEGINTERCHANGEFORMATLENGTH))
@@ -2365,11 +2358,3 @@ static void OJPEGLibjpegJpegSourceMgrTermSource(jpeg_decompress_struct* cinfo)
 }
 
 #endif
-
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

@@ -1500,7 +1500,7 @@ static void DupPluginOptimizationList(struct _cmsContext_struct* ctx, const stru
 	_cmsOptimizationCollection*  entry;
 	_cmsOptimizationCollection*  Anterior = NULL;
 	_cmsOptimizationPluginChunkType* head = (_cmsOptimizationPluginChunkType*)src->chunks[OptimizationPlugin];
-	_cmsAssert(ctx != NULL);
+	_cmsAssert(ctx);
 	_cmsAssert(head != NULL);
 	// Walk the list copying all nodes
 	for(entry = head->OptimizationCollection; entry != NULL; entry = entry->Next) {
@@ -1519,7 +1519,7 @@ static void DupPluginOptimizationList(struct _cmsContext_struct* ctx, const stru
 
 void  _cmsAllocOptimizationPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	if(src != NULL) {
+	if(src) {
 		// Copy all linked list
 		DupPluginOptimizationList(ctx, src);
 	}

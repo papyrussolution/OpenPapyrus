@@ -1605,16 +1605,8 @@ static cairo_status_t cairo_scaled_font_text_to_glyphs_internal_uncached(cairo_s
  * Since: 1.8
  **/
 #define CACHING_THRESHOLD 16
-cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_font,
-    double x,
-    double y,
-    const char * utf8,
-    int utf8_len,
-    cairo_glyph_t ** glyphs,
-    int * num_glyphs,
-    cairo_text_cluster_t ** clusters,
-    int * num_clusters,
-    cairo_text_cluster_flags_t * cluster_flags)
+cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_font, double x, double y, const char * utf8,
+    int utf8_len, cairo_glyph_t ** glyphs, int * num_glyphs, cairo_text_cluster_t ** clusters, int * num_clusters, cairo_text_cluster_flags_t * cluster_flags)
 {
 	int num_chars = 0;
 	cairo_glyph_t * orig_glyphs;
@@ -1671,17 +1663,12 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
 	orig_glyphs = *glyphs;
 	orig_clusters = clusters ? *clusters : NULL;
 	if(scaled_font->backend->text_to_glyphs) {
-		status = scaled_font->backend->text_to_glyphs(scaled_font, x, y,
-			utf8, utf8_len,
-			glyphs, num_glyphs,
-			clusters, num_clusters,
-			cluster_flags);
+		status = scaled_font->backend->text_to_glyphs(scaled_font, x, y, utf8, utf8_len, glyphs, num_glyphs, clusters, num_clusters, cluster_flags);
 		if(status != CAIRO_INT_STATUS_UNSUPPORTED) {
 			if(status == CAIRO_INT_STATUS_SUCCESS) {
 				/* The checks here are crude; we only should do them in
 				 * user-font backend, but they don't hurt here.  This stuff
 				 * can be hard to get right. */
-
 				if(*num_glyphs < 0) {
 					status = _cairo_error(CAIRO_STATUS_NEGATIVE_COUNT);
 					goto DONE;
@@ -1690,7 +1677,6 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
 					status = _cairo_error(CAIRO_STATUS_NULL_POINTER);
 					goto DONE;
 				}
-
 				if(clusters) {
 					if(*num_clusters < 0) {
 						status = _cairo_error(CAIRO_STATUS_NEGATIVE_COUNT);
@@ -1700,20 +1686,13 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
 						status = _cairo_error(CAIRO_STATUS_NULL_POINTER);
 						goto DONE;
 					}
-
 					/* Don't trust the backend, validate clusters! */
-					status =
-					    _cairo_validate_text_clusters(utf8, utf8_len,
-						*glyphs, *num_glyphs,
-						*clusters, *num_clusters,
-						*cluster_flags);
+					status = _cairo_validate_text_clusters(utf8, utf8_len, *glyphs, *num_glyphs, *clusters, *num_clusters, *cluster_flags);
 				}
 			}
-
 			goto DONE;
 		}
 	}
-
 	if(*num_glyphs < num_chars) {
 		*glyphs = cairo_glyph_allocate(num_chars);
 		if(UNLIKELY(*glyphs == NULL)) {
@@ -1722,7 +1701,6 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
 		}
 	}
 	*num_glyphs = num_chars;
-
 	if(clusters) {
 		if(*num_clusters < num_chars) {
 			*clusters = cairo_text_cluster_allocate(num_chars);
@@ -1733,32 +1711,19 @@ cairo_status_t cairo_scaled_font_text_to_glyphs(cairo_scaled_font_t * scaled_fon
 		}
 		*num_clusters = num_chars;
 	}
-
 	if(num_chars > CACHING_THRESHOLD)
-		status = cairo_scaled_font_text_to_glyphs_internal_cached(scaled_font,
-			x, y,
-			utf8,
-			*glyphs,
-			clusters,
-			num_chars);
+		status = cairo_scaled_font_text_to_glyphs_internal_cached(scaled_font, x, y, utf8, *glyphs, clusters, num_chars);
 	else
-		status = cairo_scaled_font_text_to_glyphs_internal_uncached(scaled_font,
-			x, y,
-			utf8,
-			*glyphs,
-			clusters,
-			num_chars);
+		status = cairo_scaled_font_text_to_glyphs_internal_uncached(scaled_font, x, y, utf8, *glyphs, clusters, num_chars);
 
 DONE:   /* error that should be logged on scaled_font happened */
 	_cairo_scaled_font_thaw_cache(scaled_font);
-
 	if(UNLIKELY(status)) {
 		*num_glyphs = 0;
 		if(*glyphs != orig_glyphs) {
 			cairo_glyph_free(*glyphs);
 			*glyphs = orig_glyphs;
 		}
-
 		if(clusters) {
 			*num_clusters = 0;
 			if(*clusters != orig_clusters) {
@@ -1767,17 +1732,10 @@ DONE:   /* error that should be logged on scaled_font happened */
 			}
 		}
 	}
-
 	return _cairo_scaled_font_set_error(scaled_font, status);
-
 BAIL:   /* error with input arguments */
-
-	if(num_glyphs)
-		*num_glyphs = 0;
-
-	if(num_clusters)
-		*num_clusters = 0;
-
+	ASSIGN_PTR(num_glyphs, 0);
+	ASSIGN_PTR(num_clusters, 0);
 	return status;
 }
 

@@ -4970,7 +4970,7 @@ size_t SSL_client_hello_get0_random(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = s->clienthello->random;
 	return SSL3_RANDOM_SIZE;
 }
@@ -4979,7 +4979,7 @@ size_t SSL_client_hello_get0_session_id(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = s->clienthello->session_id;
 	return s->clienthello->session_id_len;
 }
@@ -4988,7 +4988,7 @@ size_t SSL_client_hello_get0_ciphers(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = PACKET_data(&s->clienthello->ciphersuites);
 	return PACKET_remaining(&s->clienthello->ciphersuites);
 }
@@ -4997,7 +4997,7 @@ size_t SSL_client_hello_get0_compression_methods(SSL * s, const uchar ** out)
 {
 	if(s->clienthello == NULL)
 		return 0;
-	if(out != NULL)
+	if(out)
 		*out = s->clienthello->compressions;
 	return s->clienthello->compressions_len;
 }
@@ -5052,7 +5052,7 @@ int SSL_client_hello_get0_ext(SSL * s, uint type, const uchar ** out,
 	for(i = 0; i < s->clienthello->pre_proc_exts_len; ++i) {
 		r = s->clienthello->pre_proc_exts + i;
 		if(r->present && r->type == type) {
-			if(out != NULL)
+			if(out)
 				*out = PACKET_data(&r->data);
 			if(outlen != NULL)
 				*outlen = PACKET_remaining(&r->data);

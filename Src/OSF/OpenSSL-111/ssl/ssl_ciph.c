@@ -446,7 +446,7 @@ DEFINE_RUN_ONCE_STATIC(do_load_builtin_compressions)
 	ssl_comp_methods = sk_SSL_COMP_new(sk_comp_cmp);
 	if(COMP_get_type(method) != NID_undef && ssl_comp_methods != NULL) {
 		comp = static_cast<SSL_COMP *>(OPENSSL_malloc(sizeof(*comp)));
-		if(comp != NULL) {
+		if(comp) {
 			comp->method = method;
 			comp->id = SSL_COMP_ZLIB_IDX;
 			comp->name = COMP_get_name(method);
@@ -470,7 +470,7 @@ int ssl_cipher_get_evp(const SSL_SESSION * s, const EVP_CIPHER ** enc, const EVP
 	const SSL_CIPHER * c = s->cipher;
 	if(c == NULL)
 		return 0;
-	if(comp != NULL) {
+	if(comp) {
 		SSL_COMP ctmp;
 #ifndef OPENSSL_NO_COMP
 		if(!load_builtin_compressions()) {
@@ -867,7 +867,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p,
 	 */
 	max_strength_bits = 0;
 	curr = *head_p;
-	while(curr != NULL) {
+	while(curr) {
 		if(curr->active && (curr->cipher->strength_bits > max_strength_bits))
 			max_strength_bits = curr->cipher->strength_bits;
 		curr = curr->next;
@@ -881,7 +881,7 @@ static int ssl_cipher_strength_sort(CIPHER_ORDER ** head_p,
 	 * Now find the strength_bits values actually used
 	 */
 	curr = *head_p;
-	while(curr != NULL) {
+	while(curr) {
 		if(curr->active)
 			number_uses[curr->cipher->strength_bits]++;
 		curr = curr->next;

@@ -657,7 +657,7 @@ struct Fann2 {
 		Neuron * last_neuron; // A pointer to the neuron past the last neuron in the layer the number of neurons is last_neuron - first_neuron 
 	};
 	
-	int    FASTCALL IsEq(const Fann2 & rS) const; // @construction
+	bool   FASTCALL IsEq(const Fann2 & rS) const; // @construction
 
 	enum fann_errno_enum errno_f; // The type of error that last occured. 
 	FILE * error_log;         // Where to log error messages. 

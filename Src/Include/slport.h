@@ -771,6 +771,11 @@
 		#define CXX_FALLTHROUGH [[clang::fallthrough]]
 	#elif CXX_GNU >= CXX_MAKE_VER(7, 0, 0)
 		#define CXX_FALLTHROUGH __attribute__((__fallthrough__))
+	#elif (CXX_MSC >= CXX_MAKE_VER(16, 0, 0))
+		// MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
+		// https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
+		#include <sal.h>
+		#define CXX_FALLTHROUGH __fallthrough
 	#else
 		#define CXX_FALLTHROUGH (void)0 // @fallthrough
 	#endif

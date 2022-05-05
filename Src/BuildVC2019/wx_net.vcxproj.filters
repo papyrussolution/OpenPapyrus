@@ -1,0 +1,75 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Setup Headers">
+      <UniqueIdentifier>{63537534-1833-5C1F-8DBD-359A84F294C8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSW Headers">
+      <UniqueIdentifier>{5AFFF20E-29F9-512B-B80A-7DC45976CDAC}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Common Headers">
+      <UniqueIdentifier>{8C07E926-65B0-5F00-B0D6-7F40DA69BB25}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\wxWidgets\src\common\dummy.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\fs_inet.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\ftp.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\http.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\protocol.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sckaddr.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sckfile.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sckipc.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\sckstrm.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\socket.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\common\url.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\sockmsw.cpp" />
+    <ClCompile Include="..\OSF\wxWidgets\src\msw\urlmsw.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\protocol\file.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\fs_inet.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\protocol\ftp.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\protocol\http.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\protocol\log.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\protocol\protocol.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sckaddr.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sckipc.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\sckstrm.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\socket.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\wxWidgets\include\wx\url.h">
+      <Filter>Common Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\setup.h">
+      <Filter>Setup Headers</Filter>
+    </CustomBuild>
+    <CustomBuild Include="..\OSF\wxWidgets\include\wx\msw\genrcdefs.h">
+      <Filter>MSW Headers</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\wxWidgets\src\msw\version.rc" />
+  </ItemGroup>
+</Project>

@@ -6,12 +6,11 @@ package ru.petroglif.styloq;
 import android.content.Context;
 import android.content.Intent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageView;
-
 import androidx.recyclerview.widget.RecyclerView;
-
+import com.bumptech.glide.Glide;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -41,7 +40,6 @@ public class CommandListActivity extends SLib.SlActivity {
 				if(a != null)
 					a.notifyDataSetChanged();
 			}
-			//RecyclerView view = (RecyclerView)((parentView == null) ? findViewById(rcListView) : parentView.findViewById(rcListView));
 		}
 	}
 	@NotNull private StyloQCommand.CommandPrestatus GetCommandStatus(final StyloQCommand.Item cmdItem)
@@ -102,6 +100,11 @@ public class CommandListActivity extends SLib.SlActivity {
 				{
 					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
 					SetupRecyclerListView(null, R.id.commandListView, R.layout.command_list_item);
+					{
+						View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
+						if(vg != null && vg instanceof ViewGroup)
+							SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
+					}
 					try {
 						Db = app_ctx.GetDB();
 						if(Db != null) {
@@ -110,12 +113,28 @@ public class CommandListActivity extends SLib.SlActivity {
 								if(SvcPack == null) {
 									SvcPack = Db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
 								}
+								String blob_signature = null;
 								if(SvcPack != null) {
-									SLib.SetCtrlString(this, R.id.tbTitle, SvcPack.GetSvcName(null));
+									StyloQFace face = SvcPack.GetFace();
+									if(face != null)
+										blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
+									SLib.SetCtrlString(this, R.id.CTL_PAGEHEADER_SVCTITLE, SvcPack.GetSvcName(face));
 									StyloQDatabase.SecStoragePacket cmdl_pack = Db.GetForeignSvcCommandList(SvcIdent);
 									ListData = cmdl_pack.GetCommandList();
 									if(ListData == null)
 										ListData = new StyloQCommand.List();
+								}
+								{
+									View imgv_ = findViewById(R.id.CTLIMG_PAGEHEADER_SVC);
+									if(imgv_ != null && imgv_ instanceof ImageView) {
+										ImageView imgv = (ImageView)imgv_;
+										if(SLib.GetLen(blob_signature) > 0) {
+											imgv.setVisibility(View.VISIBLE);
+											Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
+										}
+										else
+											imgv.setVisibility(View.GONE);
+									}
 								}
 							}
 						}

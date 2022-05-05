@@ -481,7 +481,7 @@ int rand_drbg_restart(RAND_DRBG * drbg,
 		return 0;
 	}
 
-	if(buffer != NULL) {
+	if(buffer) {
 		if(entropy > 0) {
 			if(drbg->max_entropylen < len) {
 				RANDerr(RAND_F_RAND_DRBG_RESTART,

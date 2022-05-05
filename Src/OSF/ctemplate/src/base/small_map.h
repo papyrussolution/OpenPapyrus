@@ -2,8 +2,7 @@
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -43,8 +42,7 @@
 namespace ctemplate {
 template <bool> struct CompileAssert { };
 
-#define COMPILE_ASSERT(expr, msg) \
-	typedef CompileAssert<(bool (expr))> msg[bool (expr) ? 1 : -1]
+#define COMPILE_ASSERT(expr, msg) typedef CompileAssert<(bool (expr))> msg[bool (expr) ? 1 : -1]
 
 // An STL-like associative container which starts out backed by a simple
 // array but switches to some other container type if it grows beyond a
@@ -145,7 +143,7 @@ public:
 		}
 
 		inline iterator& operator++() {
-			if(array_iter_ != NULL) {
+			if(array_iter_) {
 				++array_iter_;
 			}
 			else {
@@ -161,7 +159,7 @@ public:
 		}
 
 		inline iterator& operator--() {
-			if(array_iter_ != NULL) {
+			if(array_iter_) {
 				--array_iter_;
 			}
 			else {
@@ -177,7 +175,7 @@ public:
 		}
 
 		inline value_type* operator->() const {
-			if(array_iter_ != NULL) {
+			if(array_iter_) {
 				return array_iter_->get();
 			}
 			else {
@@ -186,7 +184,7 @@ public:
 		}
 
 		inline value_type& operator*() const {
-			if(array_iter_ != NULL) {
+			if(array_iter_) {
 				return *array_iter_->get();
 			}
 			else {
@@ -195,7 +193,7 @@ public:
 		}
 
 		inline bool operator==(const iterator& other) const {
-			if(array_iter_ != NULL) {
+			if(array_iter_) {
 				return array_iter_ == other.array_iter_;
 			}
 			else {
@@ -233,15 +231,15 @@ public:
 		typedef typename NormalMap::const_iterator::pointer pointer;
 		typedef typename NormalMap::const_iterator::reference reference;
 
-		inline const_iterator() : array_iter_(NULL) {
+		inline const_iterator() : array_iter_(NULL) 
+		{
 		}
-
-		inline const_iterator(const iterator& other)
-			: array_iter_(other.array_iter_), hash_iter_(other.hash_iter_) {
+		inline const_iterator(const iterator& other) : array_iter_(other.array_iter_), hash_iter_(other.hash_iter_) 
+		{
 		}
-
-		inline const_iterator& operator++() {
-			if(array_iter_ != NULL) {
+		inline const_iterator& operator++() 
+		{
+			if(array_iter_) {
 				++array_iter_;
 			}
 			else {
@@ -249,15 +247,15 @@ public:
 			}
 			return *this;
 		}
-
-		inline const_iterator operator++(int) {
+		inline const_iterator operator++(int) 
+		{
 			const_iterator result(*this);
 			++(*this);
 			return result;
 		}
-
-		inline const_iterator& operator--() {
-			if(array_iter_ != NULL) {
+		inline const_iterator& operator--() 
+		{
+			if(array_iter_) {
 				--array_iter_;
 			}
 			else {
@@ -265,59 +263,54 @@ public:
 			}
 			return *this;
 		}
-
-		inline const_iterator operator--(int) {
+		inline const_iterator operator--(int) 
+		{
 			const_iterator result(*this);
 			--(*this);
 			return result;
 		}
-
-		inline const value_type* operator->() const {
-			if(array_iter_ != NULL) {
+		inline const value_type* operator->() const 
+		{
+			if(array_iter_) {
 				return array_iter_->get();
 			}
 			else {
 				return hash_iter_.operator->();
 			}
 		}
-
-		inline const value_type& operator*() const {
-			if(array_iter_ != NULL) {
+		inline const value_type& operator*() const 
+		{
+			if(array_iter_) {
 				return *array_iter_->get();
 			}
 			else {
 				return *hash_iter_;
 			}
 		}
-
-		inline bool operator==(const const_iterator& other) const {
-			if(array_iter_ != NULL) {
+		inline bool operator==(const const_iterator& other) const 
+		{
+			if(array_iter_) {
 				return array_iter_ == other.array_iter_;
 			}
 			else {
 				return other.array_iter_ == NULL && hash_iter_ == other.hash_iter_;
 			}
 		}
-
-		inline bool operator!=(const const_iterator& other) const {
-			return !(*this == other);
-		}
-
+		inline bool operator!=(const const_iterator& other) const { return !(*this == other); }
 private:
 		friend class small_map;
-		inline explicit const_iterator(const ManualConstructor<value_type>* init)
-			: array_iter_(init) {
+		inline explicit const_iterator(const ManualConstructor<value_type>* init) : array_iter_(init) 
+		{
 		}
-
-		inline explicit const_iterator(const typename NormalMap::const_iterator& init)
-			: array_iter_(NULL), hash_iter_(init) {
+		inline explicit const_iterator(const typename NormalMap::const_iterator& init) : array_iter_(NULL), hash_iter_(init) 
+		{
 		}
-
 		const ManualConstructor<value_type>* array_iter_;
 		typename NormalMap::const_iterator hash_iter_;
 	};
 
-	iterator find(const key_type& key) {
+	iterator find(const key_type& key) 
+	{
 		key_equal compare;
 		if(size_ >= 0) {
 			for(int i = 0; i < size_; i++) {

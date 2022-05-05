@@ -508,6 +508,7 @@ PPObjPack::PPObjPack() : Data(0), Mod(ZERODATETIME), Priority(PPObjectTransmit::
 
 int PPObject::CreateReservedObjects(long flags)
 {
+	//@cfgperson_regstaffcal
 	// @todo Выдавать на экран список объектов, созданных в результате работы функции
 	int    ok = 1;
 	PPIDArray obj_type_list;
@@ -527,9 +528,25 @@ int PPObject::CreateReservedObjects(long flags)
     }
 	for(uint i = 0; i < obj_type_list.getCount(); i++) {
 		PPObject * p_o = GetPPObject(obj_type_list.at(i), 0);
-		if(p_o && !p_o->MakeReserved(flags))
-			ok = PPErrorZ();
-		delete p_o;
+		if(p_o) {
+			if(p_o->MakeReserved(flags)) {
+				if(p_o->Obj == PPOBJ_STAFFCAL) {
+					/*
+					// @todo Если в конфигурации персоналий не определен регулярный штатный календарь, то его надо создать (PPSTCAL_REGULAR) и
+					// включить в конфигурацию.
+					//
+					PPPersonConfig psn_cfg;
+					PPObjPerson::ReadConfig(&psn_cfg);
+					if(!psn_cfg.RegStaffCalID) {
+						
+					}
+					*/
+				}
+			}
+			else
+				ok = PPErrorZ();
+			delete p_o;
+		}
 	}
 	if(flags & mrfInitializeDb) {
 		PPObjSecur sec_obj(PPOBJ_CONFIG, 0);

@@ -2680,15 +2680,19 @@ static bool string_trim(gravity_vm * vm, GravityValue * args, uint16 nargs, uint
 	// process left
 	if(oneof2(direction, 0, 1)) {
 		for(int32 i = 0; i<index_right; ++i) {
-			if(isspace(s[i])) ++index_left;
-			else break;
+			if(isspace(s[i])) 
+				++index_left;
+			else 
+				break;
 		}
 	}
 	// process right
 	if(oneof2(direction, 0, 2)) {
 		for(int32 i = index_right-1; i>=index_left; --i) {
-			if(isspace(s[i])) --index_right;
-			else break;
+			if(isspace(s[i])) 
+				--index_right;
+			else 
+				break;
 		}
 	}
 	// index_left and index_right now points to the right indexes

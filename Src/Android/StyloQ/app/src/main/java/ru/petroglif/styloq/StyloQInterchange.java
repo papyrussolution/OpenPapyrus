@@ -18,7 +18,6 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.Envelope;
 import com.rabbitmq.client.GetResponse;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -201,8 +200,19 @@ public class StyloQInterchange {
 		}
 		void Close()
 		{
-			if(Mqbc != null)
+			if(Mqbc != null) {
+				if(MqbRpeReply != null) {
+					if(SLib.GetLen(MqbRpeReply.QueueName) > 0 && SLib.GetLen(MqbRpeReply.ExchangeName) > 0 &&
+							SLib.GetLen(MqbRpeReply.RoutingKey) > 0) {
+						try {
+							Mqbc.QueueUnbind(MqbRpeReply.QueueName, MqbRpeReply.ExchangeName, MqbRpeReply.RoutingKey);
+						} catch(StyloQException exn) {
+							;
+						}
+					}
+				}
 				Mqbc.Close();
+			}
 		}
 		SecretTagPool Other; // Блок параметров сервиса, к которому осуществляется запрос
 		SecretTagPool Sess;  // Блок параметров сессии
@@ -292,11 +302,11 @@ public class StyloQInterchange {
 					else {
 						long face_id = selected_face.ID;
 						StyloQDatabase.SysJournalTable.Rec ev_last_set = db.GetLastObjEvent(SLib.PPACN_STYLOQFACETRANSMITTED, PPOBJ_STYLOQBINDERY, svc_id);
-						if(ev_last_set == null)
+						if(ev_last_set == null || ev_last_set.Extra != face_id)
 							result = selected_face;
 						else {
 							StyloQDatabase.SysJournalTable.Rec ev_last_face_upd = (face_id > 0) ? db.GetLastObjEvent(SLib.PPACN_OBJUPD, PPOBJ_STYLOQBINDERY, face_id) : null;
-							if(ev_last_face_upd != null && ev_last_set.TimeStamp <= ev_last_face_upd.TimeStamp)
+							if(ev_last_face_upd != null && (ev_last_set.TimeStamp <= ev_last_face_upd.TimeStamp))
 								result = selected_face;
 						}
 					}
@@ -1236,15 +1246,10 @@ public class StyloQInterchange {
 				if(mqbc != null) {
 					{
 						final int cmto1 = MqbClient.__DefMqbConsumeTimeout;
-						// @v11.3.1 AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().expiration(Integer.toString(cmto1)).build();
-						// @v11.3.1 mqbc.Publish(rpe_init.ExchangeName, rpe_init.RoutingKey, props, tp.D);
 						PublishMqb(mqbc, rtb, rpe_init, tp.D); // @v11.3.1
 						//debug_ver.VerifySession(static_cast<const uchar *>(__m.PtrC()), &p_bytes_HAMK);
-						// @v11.3.1 GetResponse resp = mqbc.ConsumeMessage(reply_rpe.QueueName, null, cmto1);
 						GetResponse resp = ConsumeMqb(mqbc, rtb, reply_rpe.QueueName, cmto1); // @v11.3.1
 						THROW(resp != null, ppstr2.PPERR_SQ_NOSVCRESPTOSRPAUTH1, Integer.toString(cmto1));
-						// @v11.3.1 Envelope env = resp.getEnvelope();
-						// @v11.3.1 mqbc.Ack(env.getDeliveryTag());
 						tp.Read(resp.getBody(), sess_secret);
 					}
 					if(!tp.CheckRepError(Ctx)) {
@@ -1263,14 +1268,9 @@ public class StyloQInterchange {
 						tp = CreateSrpPacket_Cli_Auth2(__m, cli_ident, srp_protocol_fault); // User -> Host: (bytes_M)
 						if(!srp_protocol_fault) {
 							final int cmto2 = MqbClient.__DefMqbConsumeTimeout;
-							// @v11.3.1 AMQP.BasicProperties props = new AMQP.BasicProperties.Builder().expiration(Integer.toString(cmto2)).build();
-							// @v11.3.1 mqbc.Publish(rpe_regular.ExchangeName, rpe_regular.RoutingKey, props, tp.D);
 							PublishMqb(mqbc, rtb, rpe_regular, tp.D); // @v11.3.1
-							// @v11.3.1 GetResponse resp = mqbc.ConsumeMessage(reply_rpe.QueueName, null, cmto2);
 							GetResponse resp = ConsumeMqb(mqbc, rtb, reply_rpe.QueueName, cmto2); // @v11.3.1
 							THROW(resp != null, ppstr2.PPERR_SQ_NOSVCRESPTOSRPAUTH2, Integer.toString(cmto2));
-							// @v11.3.1 Envelope env = resp.getEnvelope();
-							// @v11.3.1 mqbc.Ack(env.getDeliveryTag());
 							tp.Read(resp.getBody(), sess_secret);
 							if(!tp.CheckRepError(Ctx)) {
 								// Сервис вернул ошибку: можно уходить - верификация не пройдена
@@ -1279,13 +1279,9 @@ public class StyloQInterchange {
 								byte[] __hamk = tp.P.Get(SecretTagPool.tagSrpHAMK);
 								tp = CreateSrpPacket_Cli_HAMK(usr, __hamk, srp_protocol_fault);
 								if(tp != null) {
-									// @v11.3.1 mqbc.Publish(rpe_regular.ExchangeName, rpe_regular.RoutingKey, props, tp.D);
 									PublishMqb(mqbc, rtb, rpe_regular, tp.D); // @v11.3.1
-									// @v11.3.1 resp = mqbc.ConsumeMessage(reply_rpe.QueueName, null, cmto2);
 									resp = ConsumeMqb(mqbc, rtb, reply_rpe.QueueName, cmto2); // @v11.3.1
 									THROW(resp != null, ppstr2.PPERR_SQ_NOSVCRESPTOSRPHAMK, Integer.toString(cmto2));
-									// @v11.3.1 env = resp.getEnvelope();
-									// @v11.3.1 mqbc.Ack(env.getDeliveryTag());
 									tp.Read(resp.getBody(), sess_secret);
 									if(!tp.CheckRepError(Ctx)) {
 										// Сервис вернул ошибку: так, вообще-то, быть не может - это должно было быть завершающее подтверждение
@@ -1342,7 +1338,7 @@ public class StyloQInterchange {
 		}
 		return ok;
 	}
-	SecretTagPool Command_ClientRequest(RoundTripBlock rtb, String cmdJson) throws StyloQException
+	SecretTagPool Command_ClientRequest(RoundTripBlock rtb, String cmdJson, SecretTagPool additionalItemsToSend) throws StyloQException
 	{
 		boolean ok = false;
 		SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
@@ -1352,6 +1348,13 @@ public class StyloQInterchange {
 		JobServerProtocol.StyloQFrame tp = new JobServerProtocol.StyloQFrame();
 		tp.StartWriting(JobServerProtocol.PPSCMD_SQ_COMMAND, JobServerProtocol.StyloQFrame.psubtypeForward);
 		tp.P.Put(SecretTagPool.tagRawData, cmdJson.getBytes(StandardCharsets.UTF_8), ds);
+		if(additionalItemsToSend != null && additionalItemsToSend.L != null) {
+			for(int i = 0; i < additionalItemsToSend.L.size(); i++) {
+				SecretTagPool.Entry entry = additionalItemsToSend.L.get(i);
+				if(entry != null && SLib.GetLen(entry.Data) > 0 && entry.I != SecretTagPool.tagRawData)
+					tp.P.Put(entry.I, entry.Data);
+			}
+		}
 		tp.FinishWriting(sess_secret);
 		int uriprot = SLib.GetUriSchemeId(rtb.Url.getScheme());
 		if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps) {
@@ -1434,6 +1437,7 @@ public class StyloQInterchange {
 			LoclAddendum = null;
 			SvcCapabilities = 0;
 			OriginalCmdItem = null;
+			RetrActivity_ = null;
 			AccsPoint = null;
 			MqbAuth = null;
 			MqbSecret = null;
@@ -1446,6 +1450,7 @@ public class StyloQInterchange {
 			// предоставленной сервисом, то это поле содержи ссылку на элемент команды.
 			// После выполнения команды ссылка попадет в блок отображения результатов для
 			// того, чтобы тот мог обработать результат каким-либо специфическим образом.
+		SLib.SlActivity RetrActivity_; // activity в которую необходимо вернуть результат исполнения //
 		String AccsPoint;
 		String MqbAuth;
 		String MqbSecret;
@@ -1463,16 +1468,16 @@ public class StyloQInterchange {
 					long transmitted_face_id = 0;
 					boolean my_face_tramsitted = false;
 					StyloQFace my_face_to_transmit = null;
-					String my_face_to_transmit_js = null;
+					JSONObject jsobj_my_face_to_transmit = null;
 					final byte [] svc_ident = svc_pack.Pool.Get(SecretTagPool.tagSvcIdent);
 					if(SLib.GetLen(svc_ident) > 0) {
 						// Вставляем наш лик для представления перед сервисом
 						my_face_to_transmit = ic.GetFaceForTransmission(dbs, svc_ident, rtb.StP, false);
 						if(my_face_to_transmit != null) {
-							my_face_to_transmit_js = my_face_to_transmit.ToJson();
-							if(my_face_to_transmit_js != null) {
+							jsobj_my_face_to_transmit = my_face_to_transmit.ToJsonObj();
+							if(jsobj_my_face_to_transmit != null) {
 								//tp.P.Put(SecretTagPool.tagFace, js_selfy_face.getBytes());
-								transmitted_face_id = rtb.SelfyFace.ID;
+								transmitted_face_id = my_face_to_transmit.ID;
 							}
 						}
 					}
@@ -1481,31 +1486,39 @@ public class StyloQInterchange {
 					byte [] cfg_bytes = svc_pack.Pool.Get(SecretTagPool.tagConfig);
 					boolean do_query_cfg = true;
 					boolean do_query_face = true;
+					SecretTagPool additional_pool_to_send = null;
 					if(SLib.GetLen(face_bytes) > 0) {
 						StyloQFace current_face = new StyloQFace();
 						if(current_face.FromJson(new String(face_bytes))) {
 							String ees_text = current_face.Get(StyloQFace.tagExpiryEpochSec, 0);
-							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text))) {
+							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text)))
 								do_query_face = false;
-							}
 						}
 					}
 					if(SLib.GetLen(cfg_bytes) > 0) {
 						StyloQConfig current_cfg = new StyloQConfig();
 						if(current_cfg.FromJson(new String(cfg_bytes))) {
 							String ees_text = current_cfg.Get(StyloQConfig.tagExpiryEpochSec);
-							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text))) {
+							if(SLib.GetLen(ees_text) > 0 && !IsExpired(Long.parseLong(ees_text)))
 								do_query_cfg = false;
-							}
 						}
 					}
 					if(do_query_face || do_query_cfg) {
 						JSONObject js_query = new JSONObject();
+						if(jsobj_my_face_to_transmit != null) {
+							String jstxt_my_face_to_transmit = jsobj_my_face_to_transmit.toString();
+							if(SLib.GetLen(jstxt_my_face_to_transmit) > 0) {
+								SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
+								additional_pool_to_send = new SecretTagPool();
+								additional_pool_to_send.Put(SecretTagPool.tagFace, jstxt_my_face_to_transmit.getBytes(), ds);
+								my_face_tramsitted = true;
+							}
+						}
 						try {
 							js_query.put("cmd", "GetConfig");
 							String jsq_text = js_query.toString();
 							if(jsq_text != null) {
-								SecretTagPool reply = ic.Command_ClientRequest(rtb, jsq_text);
+								SecretTagPool reply = ic.Command_ClientRequest(rtb, jsq_text, additional_pool_to_send);
 								if(reply != null) {
 									boolean do_update_svc_pack = false;
 									face_bytes = reply.Get(SecretTagPool.tagFace);
@@ -1550,11 +1563,50 @@ public class StyloQInterchange {
 										}
 									}
 									if(do_update_svc_pack) {
-										final long id = dbs.PutPeerEntry(rtb.InnerSvcID, svc_pack, true);
-										if(id == rtb.InnerSvcID)
+										Database.Transaction tra = new Database.Transaction(dbs,true);
+										final long id = dbs.PutPeerEntry(rtb.InnerSvcID, svc_pack, false);
+										if(my_face_tramsitted && transmitted_face_id > 0) {
+											dbs.LogEvent(SLib.PPACN_STYLOQFACETRANSMITTED, SLib.PPOBJ_STYLOQBINDERY, id, transmitted_face_id, false);
+										}
+										if(id == rtb.InnerSvcID) {
+											tra.Commit();
 											result = 1;
+										}
+										else
+											tra.Abort();
+									}
+									else if(my_face_tramsitted && transmitted_face_id > 0) {
+										dbs.LogEvent(SLib.PPACN_STYLOQFACETRANSMITTED, SLib.PPOBJ_STYLOQBINDERY, rtb.InnerSvcID, transmitted_face_id, true);
 									}
 								}
+							}
+						} catch(JSONException exn) {
+							result = 0;
+							new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+						}
+					}
+					else if(jsobj_my_face_to_transmit != null) {
+						// Автономная передача собственного лика сервису
+						JSONObject js_query = new JSONObject();
+						try {
+							js_query.put("cmd", "setface");
+							String jsq_text = js_query.toString();
+							if(jsq_text != null) {
+								String jstxt_my_face_to_transmit = jsobj_my_face_to_transmit.toString();
+								if(SLib.GetLen(jstxt_my_face_to_transmit) > 0) {
+									SecretTagPool.DeflateStrategy ds = new SecretTagPool.DeflateStrategy(256);
+									additional_pool_to_send = new SecretTagPool();
+									additional_pool_to_send.Put(SecretTagPool.tagFace, jstxt_my_face_to_transmit.getBytes(), ds);
+									my_face_tramsitted = true;
+									//
+									SecretTagPool reply = ic.Command_ClientRequest(rtb, jsq_text, additional_pool_to_send);
+									if(reply != null) {
+										if(my_face_tramsitted && transmitted_face_id > 0) {
+											dbs.LogEvent(SLib.PPACN_STYLOQFACETRANSMITTED, SLib.PPOBJ_STYLOQBINDERY, rtb.InnerSvcID, transmitted_face_id, true);
+										}
+									}
+								}
+								//js_query.put("face", jsobj_my_face_to_transmit);
 							}
 						} catch(JSONException exn) {
 							result = 0;
@@ -1566,38 +1618,12 @@ public class StyloQInterchange {
 		}
 		return result;
 	}
-	private static class InterchangeResult {
-		InterchangeResult(StyloQApp.SvcQueryResult tag, byte [] svcIdent, String textSubj, Object reply)
-		{
-			SvcIdent = svcIdent;
-			SvcReply = null;
-			ResultTag = tag;
-			InfoReply = reply;
-			OriginalCmdItem = null;
-			TextSubj = textSubj;
-		}
-		InterchangeResult(StyloQApp.SvcQueryResult tag, byte [] svcIdent, StyloQCommand.Item cmdItem, Object reply)
-		{
-			SvcIdent = svcIdent;
-			SvcReply = null;
-			ResultTag = tag;
-			InfoReply = reply;
-			OriginalCmdItem = cmdItem;
-			TextSubj = null;
-		}
-		byte [] SvcIdent;
-		SecretTagPool SvcReply;
-		StyloQApp.SvcQueryResult ResultTag;
-		Object InfoReply;
-		StyloQCommand.Item OriginalCmdItem;
-		String TextSubj;
-	}
 	//
 	// Descr: Процедура реализующая базовый механизм запроса к сервису.
 	//
-	private static @NonNull InterchangeResult Helper_DoInterchange2(StyloQApp appCtx, DoInterchangeParam param)
+	private static StyloQApp.InterchangeResult Helper_DoInterchange2(StyloQApp appCtx, DoInterchangeParam param)
 	{
-		InterchangeResult result = null; //new InterchangeResult();
+		StyloQApp.InterchangeResult result = null; //new InterchangeResult();
 		boolean debug_mark = false;
 		StyloQInterchange.RoundTripBlock rtb = null;
 		try {
@@ -1642,7 +1668,7 @@ public class StyloQInterchange {
 					is_current_sess_valid = true;
 				}
 				else
-					result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "SessionRequest", null);
+					result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "SessionRequest", null);
 			}
 			if(!is_current_sess_valid) {
 				boolean do_registration = false;
@@ -1651,7 +1677,7 @@ public class StyloQInterchange {
 					if(ic.Verification_ClientRequest(dbs, rtb)) {
 						QueryConfigAndSetFaceIfNeeded(appCtx, ic, rtb);
 						do_req_cmd = true;
-						result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Verification", null);
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Verification", null);
 					}
 					else {
 						int reply_err_code = appCtx.GetLastError();
@@ -1661,7 +1687,7 @@ public class StyloQInterchange {
 							do_registration = true;
 						}
 						else
-							result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "Verification", null);
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "Verification", null);
 					}
 				}
 				else
@@ -1671,17 +1697,17 @@ public class StyloQInterchange {
 						long svc_id = ic.Registration_ClientRequest(dbs, rtb);
 						if(svc_id > 0) {
 							do_req_cmd = true;
-							result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent,"RegistrationClientRequest", new Long(svc_id));
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent,"RegistrationClientRequest", new Long(svc_id));
 						}
 						else
-							result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"RegistrationClientRequest", null);
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"RegistrationClientRequest", null);
 					}
 					else
-						result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"KexClientRequest", null);
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"KexClientRequest", null);
 				}
 			}
 			if(do_req_cmd && SLib.GetLen(param.CommandJson) > 0) {
-				SecretTagPool rpool = ic.Command_ClientRequest(rtb, param.CommandJson);
+				SecretTagPool rpool = ic.Command_ClientRequest(rtb, param.CommandJson, null);
 				if(rpool != null) {
 					StyloQDatabase.SecStoragePacket svc_pack = dbs.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, param.SvcIdent);
 					long svc_id = (svc_pack != null) ? svc_pack.Rec.ID : 0;
@@ -1694,16 +1720,16 @@ public class StyloQInterchange {
 						byte[] doc_ident = dbs.MakeDocumentStorageIdent(param.SvcIdent, null);
 						long new_doc_id = dbs.PutDocument(-1, StyloQDatabase.SecStoragePacket.doctypCommandList, doc_ident, svc_id, rpool);
 						if(new_doc_id > 0)
-							result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "UpdateCommandList", param.SvcIdent);
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "UpdateCommandList", param.SvcIdent);
 						else
-							result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"UpdateCommandList", param.SvcIdent);
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent,"UpdateCommandList", param.SvcIdent);
 					}
 					else if(org_cmd_text.equalsIgnoreCase("GetForeignConfig")) {
-						result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "GetForeignConfig", null);
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "GetForeignConfig", null);
 						result.SvcReply = rpool;
 					}
 					else if(org_cmd_text.equalsIgnoreCase("getblob")) {
-						result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "getblob", null);
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "getblob", null);
 						result.SvcReply = rpool;
 					}
 					else {
@@ -1734,27 +1760,34 @@ public class StyloQInterchange {
 								doc_ref.ID = new_doc_id;
 								doc_ref.Decl = new StyloQCommand.DocDeclaration();
 								doc_ref.Decl.FromJson(new String(raw_doc_decl));
-								result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, param.OriginalCmdItem, doc_ref);
+								result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, doc_ref);
 							}
 							else
-								result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, param.OriginalCmdItem, rpool);
+								result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, rpool);
 						}
+						else if(param.RetrActivity_ != null)
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param, /*doc_ref*/rpool);
 						else
-							result = new InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Command", /*doc_ref*/rpool);
+							result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.SUCCESS, param.SvcIdent, "Command", /*doc_ref*/rpool);
 					}
 				}
 				else {
-					if(param.OriginalCmdItem != null)
-						result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, param.OriginalCmdItem, /*reply_pool*/null);
+					if(param.OriginalCmdItem != null || param.RetrActivity_ != null)
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param, /*reply_pool*/null);
 					else
-						result = new InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "Command", /*reply_pool*/null);
+						result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.ERROR, param.SvcIdent, "Command", /*reply_pool*/null);
 				}
 			}
 			//}
 		} catch(StyloQException exn) {
-			result = new InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param.SvcIdent, param.OriginalCmdItem, exn.GetMessage(appCtx));
+			if(param.RetrActivity_ != null)
+				result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
+			else
+				result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
 		} catch(JSONException exn) {
-			result = new InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param.SvcIdent, param.OriginalCmdItem, new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage()).GetMessage(appCtx));
+			StyloQException stq_exn = new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
+			String exn_msg = stq_exn.GetMessage(appCtx);
+			result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn_msg);
 		} finally {
 			if(rtb != null) {
 				rtb.Close();
@@ -1783,7 +1816,7 @@ public class StyloQInterchange {
 							js_query.put("cmd", "getblob");
 							js_query.put("signature", blobSignature);
 							inner_param.CommandJson = js_query.toString();
-							InterchangeResult inner_result = Helper_DoInterchange2(appCtx, inner_param);
+							StyloQApp.InterchangeResult inner_result = Helper_DoInterchange2(appCtx, inner_param);
 							if(inner_result != null && inner_result.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && inner_result.SvcReply != null) {
 								byte [] reply_raw_data = inner_result.SvcReply.Get(SecretTagPool.tagRawData);
 								if(SLib.GetLen(reply_raw_data) > 0) {
@@ -1825,7 +1858,7 @@ public class StyloQInterchange {
 						js_query.put("foreignsvcident", svc_ident_hex);
 						inner_param.CommandJson = js_query.toString();
 					}
-					InterchangeResult inner_result = Helper_DoInterchange2(appCtx, inner_param);
+					StyloQApp.InterchangeResult inner_result = Helper_DoInterchange2(appCtx, inner_param);
 					if(inner_result != null && inner_result.ResultTag == StyloQApp.SvcQueryResult.SUCCESS && inner_result.SvcReply != null) {
 						byte[] reply_raw_data = inner_result.SvcReply.Get(SecretTagPool.tagRawData);
 						if(SLib.GetLen(reply_raw_data) > 0) {
@@ -1900,14 +1933,13 @@ public class StyloQInterchange {
 					}
 				}
 				if(SLib.GetLen(param.AccsPoint) > 0) {
-					InterchangeResult inner_result = Helper_DoInterchange2(appCtx, param);
+					StyloQApp.InterchangeResult inner_result = Helper_DoInterchange2(appCtx, param);
 					if(inner_result != null) {
 						if(inner_result.ResultTag != StyloQApp.SvcQueryResult.UNDEF && inner_result.InfoReply == null)
 							inner_result.InfoReply = inner_result.SvcReply;
-						String err_msg = (inner_result.InfoReply != null && inner_result.InfoReply instanceof String) ? (String)inner_result.InfoReply : null;
-						StyloQApp.SvcReplySubject srsub = new StyloQApp.SvcReplySubject(param.SvcIdent, inner_result.TextSubj,
-							inner_result.OriginalCmdItem,err_msg);
-						appCtx.SendSvcReplyToMainThread(inner_result.ResultTag, srsub, inner_result.InfoReply);
+						//StyloQApp.SvcReplySubject srsub = new StyloQApp.SvcReplySubject(param.SvcIdent,
+							// inner_result.TextSubj, inner_result.OriginalCmdItem, inner_result.RetrActivity, inner_result.GetErrMsg());
+						appCtx.SendSvcReplyToMainThread(/*srsub*/inner_result, inner_result.InfoReply);
 					}
 				}
 				else {
@@ -1915,8 +1947,11 @@ public class StyloQInterchange {
 				}
 			}
 		} catch(StyloQException exn) {
-			StyloQApp.SvcReplySubject srsub = new StyloQApp.SvcReplySubject(param.SvcIdent, null, param.OriginalCmdItem, exn.GetMessage(appCtx));
-			appCtx.SendSvcReplyToMainThread(StyloQApp.SvcQueryResult.EXCEPTION, srsub, null);
+			StyloQApp.InterchangeResult inner_result = new StyloQApp.InterchangeResult(StyloQApp.SvcQueryResult.EXCEPTION, param, exn.GetMessage(appCtx));
+			inner_result.RetrActivity = param.RetrActivity_;
+			//StyloQApp.SvcReplySubject srsub = new StyloQApp.SvcReplySubject(param.SvcIdent, null,
+			//	param.OriginalCmdItem, param.RetrActivity_, exn.GetMessage(appCtx));
+			appCtx.SendSvcReplyToMainThread(/*StyloQApp.SvcQueryResult.EXCEPTION,*/inner_result, null);
 		}
 		finally {
 			if(rtb != null) {

@@ -128,7 +128,7 @@ cairo_status_t _cairo_polygon_init_boxes(cairo_polygon_t * polygon, const cairo_
 	polygon->extents.p2.x = polygon->extents.p2.y = INT32_MIN;
 	polygon->limits = NULL;
 	polygon->num_limits = 0;
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		for(i = 0; i < chunk->count; i++) {
 			cairo_point_t p1, p2;
 			p1 = chunk->base[i].p1;

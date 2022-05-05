@@ -1,5 +1,5 @@
 // ACCTURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2022
 // @codepage UTF-8
 // @Kernel
 //
@@ -58,8 +58,8 @@ int AccTurnCore::GetExtentAccListByGen(PPID genAccID, ObjRestrictArray * pAccLis
 	THROW(AccObj.GetPacket(genAccID, &pack) > 0);
 	THROW_PP(pack.Rec.Type == ACY_AGGR, PPERR_ACCNGEN);
 	for(uint i = 0; pack.GenList.enumItems(&i, reinterpret_cast<void **>(&p_item));) {
-		long   f = p_item->Flags & ~(ACGF_ACO1GRP | ACGF_ACO2GRP);
-		int    aco = abs(GetAcoByGenFlags(p_item->Flags));
+		const  long  f = p_item->Flags & ~(ACGF_ACO1GRP | ACGF_ACO2GRP);
+		const  int   aco = abs(GetAcoByGenFlags(p_item->Flags));
 		if(aco == ACO_3) {
 			AcctID acctid;
 			if(AcctRelToID(p_item->ObjID, &acctid, 0) > 0)
@@ -155,37 +155,41 @@ int AccTurnCore::ConvertAcctID(const AcctID & rAci, Acct * pAcct, PPID * pCurID,
 
 int AccTurnCore::ConvertStr(const char * pStr, PPID curID, Acct * pAcct, AcctID * pAcctId, PPID * pAccSheetID)
 {
-	int    ok = 1, r, tok[3], hasbranch = 0;
-	PPID   acc_id = 0, sheet_id = 0, ar_id  = 0;
+	int    ok = 1;
+	int    r;
+	int    tok[3];
 	PPAccount acc_rec;
 	pAcct->Z();
 	AccObj.ParseString(pStr, tok);
 	THROW_PP(tok[0], PPERR_ACCNFOUND);
 	THROW(r = AccObj.FetchNum(tok[0], 0, curID, &acc_rec));
 	THROW_PP_S(r > 0, PPERR_BALNOTEXISTS, pStr);
-	acc_id    = acc_rec.ID;
-	sheet_id  = acc_rec.AccSheetID;
-	hasbranch = BIN(AccObj.HasAnySubacct(tok[0]) > 0);
-	pAcct->ac  = tok[0];
-	if(tok[1]) {
-		if(hasbranch) {
-			THROW(AccObj.FetchNum(tok[0], tok[1], curID, &acc_rec) > 0); // @v6.0.9
-			acc_id    = acc_rec.ID;
-			sheet_id  = acc_rec.AccSheetID;
-			pAcct->sb = tok[1];
-			tok[1]    = tok[2];
-		}
+	{
+		PPID  acc_id    = acc_rec.ID;
+		PPID  sheet_id  = acc_rec.AccSheetID;
+		PPID   ar_id  = 0;
+		const bool hasbranch = (AccObj.HasAnySubacct(tok[0]) > 0);
+		pAcct->ac  = tok[0];
 		if(tok[1]) {
-			THROW_PP(sheet_id, PPERR_ACCHASNTBRANCHES);
-			THROW(Art.SearchNum(sheet_id, tok[1]));
-			ar_id     = Art.data.ID;
-			pAcct->ar = tok[1];
+			if(hasbranch) {
+				THROW(AccObj.FetchNum(tok[0], tok[1], curID, &acc_rec) > 0);
+				acc_id    = acc_rec.ID;
+				sheet_id  = acc_rec.AccSheetID;
+				pAcct->sb = tok[1];
+				tok[1]    = tok[2];
+			}
+			if(tok[1]) {
+				THROW_PP(sheet_id, PPERR_ACCHASNTBRANCHES);
+				THROW(Art.SearchNum(sheet_id, tok[1]));
+				ar_id     = Art.data.ID;
+				pAcct->ar = tok[1];
+			}
 		}
-	}
-	ASSIGN_PTR(pAccSheetID, sheet_id);
-	if(pAcctId) {
-		pAcctId->ac = acc_id;
-		pAcctId->ar = ar_id;
+		ASSIGN_PTR(pAccSheetID, sheet_id);
+		if(pAcctId) {
+			pAcctId->ac = acc_id;
+			pAcctId->ar = ar_id;
+		}
 	}
 	CATCHZOK
 	return ok;
@@ -291,7 +295,8 @@ void AccTurnCore::GetAccRelIDs(const AccTurnTbl::Rec * pRec, PPID * pDbtRelID, P
 int AccTurnCore::ConvertRec(const AccTurnTbl::Rec * pRec, PPAccTurn * pAturn, int useCache)
 {
 	int    ok = 1;
-	PPID   acc_id = 0, cur_id = 0;
+	PPID   acc_id = 0;
+	PPID   cur_id = 0;
 	AcctRelTbl::Rec acr_rec;
 	PPAccount acc_rec;
 	SETIFZ(pRec, &data);
@@ -596,9 +601,9 @@ int AccTurnCore::UpdateRelsArRef(PPID arID, long arNo, int use_ta)
 	return ok;
 }
 
-int AccTurnCore::IsFRRLocked()
+bool AccTurnCore::IsFRRLocked() const
 {
-	return BIN(Frrl && Frrl->Counter > 0);
+	return (Frrl && Frrl->Counter > 0);
 }
 //
 // @v6.2.3 Заменено чтение записей с блокировками на SearchByID_ForUpdate
@@ -1357,7 +1362,8 @@ int AccTurnCore::SearchArticleRef(PPID _id, int removeUnusedRel, PPID * pBillID)
 //
 int AccTurnCore::Repair(long flags, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
 {
-	int    ok = 1, r;
+	int    ok = 1;
+	int    r;
 	{
 		PPTransaction tra(1);
 		THROW(tra);
@@ -1373,8 +1379,10 @@ int AccTurnCore::Repair(long flags, int (*MsgProc)(int msgCode, PPID accID, PPID
 
 int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCode, PPID accID, PPID billID, LDATE dt, long oprno, void * paramPtr), void * paramPtr)
 {
-	int    ok = -1, r;
-	RECORDNUMBER numrecs = 0, count = 0;
+	int    ok = -1;
+	int    r;
+	RECORDNUMBER numrecs = 0;
+	RECORDNUMBER count = 0;
 	AccTurnTbl::Key2 k2;
 	MEMSZERO(k2);
 	getNumRecs(&numrecs);
@@ -1440,8 +1448,7 @@ int AccTurnCore::Helper_Repair(long flags, int reverse, int (*MsgProc)(int msgCo
 						if(mirror.Dt != rec.Dt) {
 							//
 							// Индекс, содержащий поле Dt - не модифицируемый.
-							// В связи с этим, если дата не верная, придется удалить запись
-							// и вставить снова.
+							// В связи с этим, если дата не верная, придется удалить запись и вставить снова.
 							//
 							THROW_DB(getDirectForUpdate(-1, 0, pos));
 							THROW_DB(deleteRec()); // @sfu
@@ -1564,7 +1571,8 @@ int AccTurnCore::RecalcRest(PPID accRelID, LDATE startDate, int (*MsgProc)(PPID,
 int AccTurnCore::UpdateAccNum(PPID accID, int newAc, int newSb, int use_ta)
 {
 	int    ok = 1;
-	PPAccountPacket acc_pack, add_acc_pack;
+	PPAccountPacket acc_pack;
+	PPAccountPacket add_acc_pack;
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1634,12 +1642,15 @@ int AccTurnCore::RecalcBalance(const RecoverBalanceParam * pParam, PPLogger & rL
 	return ok;
 }
 
-int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd,
-	char * pAccStr, int correct, PPLogger & rLogger, int use_ta)
+int AccTurnCore::_CheckBalance(PPID accID, LDATE dt, double dbt, double crd, char * pAccStr, int correct, PPLogger & rLogger, int use_ta)
 {
 	int    err = 0;
-	SString fmt_buf, log_msg;
-	char   sdate[32], sdbt[32], sbdbt[32], scrd[32];
+	SString fmt_buf;
+	SString log_msg;
+	char   sdate[32];
+	char   sdbt[32];
+	char   sbdbt[32];
+	char   scrd[32];
 	BalanceTbl::Key1 bk;
 	bk.AccID = accID;
 	bk.Dt  = dt;
@@ -1867,10 +1878,13 @@ int AccTurnCore::RevalCurRest(const CurRevalParam & rParam, const Acct * pAcc, c
 {
 	int    ok = 1;
 	uint   i;
-	AcctID base_acc_id, cur_acc_id;
+	AcctID base_acc_id;
+	AcctID cur_acc_id;
 	PPID   base_acc_rel_id;
 	PPID   cur_acc_rel_id;
-	double base_rest, cur_rest, new_base_rest = 0.0;
+	double base_rest;
+	double cur_rest;
+	double new_base_rest = 0.0;
 	{
 		PPObjBill * p_bobj = BillObj;
 		PPTransaction tra(use_ta);

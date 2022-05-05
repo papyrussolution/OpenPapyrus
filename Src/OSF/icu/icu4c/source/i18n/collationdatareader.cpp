@@ -165,7 +165,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 			return;
 		}
 	}
-	else if(baseData != NULL) {
+	else if(baseData) {
 		// Use the base data. Only the settings are tailored.
 		tailoring.data = baseData;
 	}
@@ -209,7 +209,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	else if(data == NULL) {
 		// Nothing to do.
 	}
-	else if(baseData != NULL) {
+	else if(baseData) {
 		data->jamoCE32s = baseData->jamoCE32s;
 	}
 	else {
@@ -331,7 +331,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	else if(data == NULL) {
 		// Nothing to do.
 	}
-	else if(baseData != NULL) {
+	else if(baseData) {
 		// No tailoring-specific data: Alias the root collator's set.
 		data->unsafeBackwardSet = baseData->unsafeBackwardSet;
 	}
@@ -358,7 +358,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 					return;
 				}
 			}
-			else if(baseData != NULL) {
+			else if(baseData) {
 				data->fastLatinTable = baseData->fastLatinTable;
 				data->fastLatinTableLength = baseData->fastLatinTableLength;
 			}
@@ -396,7 +396,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	else if(data == NULL) {
 		// Nothing to do.
 	}
-	else if(baseData != NULL) {
+	else if(baseData) {
 		data->numScripts = baseData->numScripts;
 		data->scriptsIndex = baseData->scriptsIndex;
 		data->scriptStarts = baseData->scriptStarts;
@@ -416,7 +416,7 @@ void CollationDataReader::read(const CollationTailoring * base, const uint8 * in
 	else if(data == NULL) {
 		// Nothing to do.
 	}
-	else if(baseData != NULL) {
+	else if(baseData) {
 		data->compressibleBytes = baseData->compressibleBytes;
 	}
 	else {

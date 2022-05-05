@@ -33,7 +33,7 @@
 static inline mi_block_t* mi_page_block_at(const mi_page_t* page, void * page_start, size_t block_size, size_t i) 
 {
 	UNUSED(page);
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_internal(i <= page->reserved);
 	return (mi_block_t*)((uint8_t*)page_start + (i * block_size));
 }
@@ -311,7 +311,7 @@ void _mi_heap_delayed_free(mi_heap_t* heap)
 // Move a page from the full list back to a regular list
 void _mi_page_unfull(mi_page_t* page) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_expensive(_mi_page_is_valid(page));
 	mi_assert_internal(mi_page_is_in_full(page));
 	if(!mi_page_is_in_full(page)) 
@@ -341,7 +341,7 @@ static void mi_page_to_full(mi_page_t* page, mi_page_queue_t* pq)
 // the `page->heap->thread_delayed_free` into this page.
 // Currently only called through `mi_heap_collect_ex` which ensures this.
 void _mi_page_abandon(mi_page_t* page, mi_page_queue_t* pq) {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_expensive(_mi_page_is_valid(page));
 	mi_assert_internal(pq == mi_page_queue_of(page));
 	mi_assert_internal(mi_page_heap(page) != NULL);
@@ -371,7 +371,7 @@ void _mi_page_abandon(mi_page_t* page, mi_page_queue_t* pq) {
 // Free a page with no more free blocks
 void _mi_page_free(mi_page_t* page, mi_page_queue_t* pq, bool force) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_expensive(_mi_page_is_valid(page));
 	mi_assert_internal(pq == mi_page_queue_of(page));
 	mi_assert_internal(mi_page_all_free(page));
@@ -398,7 +398,7 @@ void _mi_page_free(mi_page_t* page, mi_page_queue_t* pq, bool force)
 // allocating again so careful when changing this.
 void _mi_page_retire(mi_page_t* page) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	mi_assert_expensive(_mi_page_is_valid(page));
 	mi_assert_internal(mi_page_all_free(page));
 	mi_page_set_has_aligned(page, false);
@@ -661,7 +661,7 @@ static mi_page_t* mi_page_queue_find_free_ex(mi_heap_t* heap, mi_page_queue_t* p
 	// search through the pages in "next fit" order
 	size_t count = 0;
 	mi_page_t* page = pq->first;
-	while(page != NULL) {
+	while(page) {
 		mi_page_t* next = page->next; // remember next
 		count++;
 		// 0. collect freed blocks by us and other threads

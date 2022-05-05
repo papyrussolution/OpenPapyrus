@@ -2152,6 +2152,7 @@ class ppstr2 {
 	public static final int PPERR_BILLIMPOPCANTBIACC = 12133;
 	public static final int PPERR_BILLIMPSRCCOD2NEEDED = 12134;
 	public static final int PPERR_TECHCANTBESELFPARENTED = 12135;
+	public static final int PPERR_JOBSRV_ARG_JOBID = 12136;
 	//
 	// .N.
 	//
@@ -4211,7 +4212,6 @@ class ppstr2 {
 	public static final int PPTXT_EGAIS_BILLREJECTOOD = 11802;
 	public static final int PPTXT_EGAIS_BILLREJECT = 11803;
 	public static final int PPTXT_EGAIS_GOODSREJECTEDCFG = 11804;
-	public static final int PPTXT_EGAIS_GOODSCREATED = 11805;
 	public static final int PPTXT_EGAIS_READINGDATA = 11806;
 	public static final int PPTXT_EGAIS_DOCDELETED = 11807;
 	public static final int PPTXT_EGAIS_RBYBILLDUP = 11808;
@@ -4440,6 +4440,12 @@ class ppstr2 {
 	public static final int PPTXT_ADJALCOGOODS_VOLUME = 12033;
 	public static final int PPTXT_CANTCREATEWAREWONAME = 12034;
 	public static final int PPTXT_WAREAUTOCREATED = 12035;
+	public static final int PPTXT_EXECJOBIMM_SUCCESS = 12036;
+	public static final int PPTXT_EXECJOBIMM_ERROR = 12037;
+	public static final int PPTXT_SQ_LOG_CLIFACERCVD = 12038;
+	public static final int PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN = 12039;
+	public static final int PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS = 12040;
+	public static final int PPTXT_SMPLSRCHRESULT_SUCCESS = 12041;
 	//
 	// .N.
 	//
@@ -4914,6 +4920,7 @@ class ppstr2 {
 	public static final int PPHS_CHZNPRODTYPE_MILK = 10310;
 	public static final int PPHS_STYLOQBINDERY = 10311;
 	public static final int PPHS_TIMEZONES = 10312;
+	public static final int PPHS_EXECJOBIMM = 10313;
 	//
 	// .N.
 	//

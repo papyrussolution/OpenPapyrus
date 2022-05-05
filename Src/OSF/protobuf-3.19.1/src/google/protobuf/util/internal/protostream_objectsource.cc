@@ -19,18 +19,10 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/util/internal/protostream_objectsource.h>
-#include <google/protobuf/stubs/stringprintf.h>
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/util/internal/field_mask_utility.h>
 #include <google/protobuf/util/internal/constants.h>
-#include <google/protobuf/util/internal/utility.h>
-#include <google/protobuf/stubs/strutil.h>
-#include <google/protobuf/stubs/casts.h>
-#include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/time.h>
-#include <google/protobuf/stubs/map_util.h>
 #include <google/protobuf/stubs/status_macros.h>
 #include <google/protobuf/port_def.inc>
 
@@ -166,13 +158,10 @@ util::Status ProtoStreamObjectSource::WriteMessage(const google::protobuf::Type&
 		if(field == nullptr) {
 			// If we didn't find a field, skip this unknown tag.
 			// TODO(wpoon): Check return boolean value.
-			WireFormat::SkipField(
-				stream_, tag,
-				nullptr);
+			WireFormat::SkipField(stream_, tag, nullptr);
 			tag = stream_->ReadTag();
 			continue;
 		}
-
 		if(field->cardinality() == google::protobuf::Field::CARDINALITY_REPEATED) {
 			if(IsMap(*field)) {
 				ow->StartObject(field_name);
@@ -701,8 +690,7 @@ util::Status ProtoStreamObjectSource::RenderField(const google::protobuf::Field*
 		--recursion_depth_;
 
 		if(!stream_->ConsumedEntireMessage()) {
-			return util::InvalidArgumentError(
-				"Nested protocol message not parsed in its entirety.");
+			return util::InvalidArgumentError("Nested protocol message not parsed in its entirety.");
 		}
 		stream_->PopLimit(old_limit);
 	}
@@ -713,8 +701,8 @@ util::Status ProtoStreamObjectSource::RenderField(const google::protobuf::Field*
 	return util::Status();
 }
 
-util::Status ProtoStreamObjectSource::RenderNonMessageField(const google::protobuf::Field* field, StringPiece field_name,
-    ObjectWriter* ow) const {
+util::Status ProtoStreamObjectSource::RenderNonMessageField(const google::protobuf::Field* field, StringPiece field_name, ObjectWriter* ow) const 
+{
 	// Temporary buffers of different types.
 	uint32_t buffer32 = 0;
 	uint64_t buffer64 = 0;
@@ -787,13 +775,11 @@ util::Status ProtoStreamObjectSource::RenderNonMessageField(const google::protob
 	    }
 		case google::protobuf::Field::TYPE_ENUM: {
 		    stream_->ReadVarint32(&buffer32);
-
 		    // If the field represents an explicit NULL value, render null.
 		    if(field->type_url() == kStructNullValueTypeUrl) {
 			    ow->RenderNull(field_name);
 			    break;
 		    }
-
 		    // Get the nested enum type for this field.
 		    // TODO(skarvaje): Avoid string manipulation. Find ways to speed this
 		    // up.
@@ -1026,7 +1012,8 @@ bool IsPackable(const google::protobuf::Field& field) {
 }
 
 // TODO(skarvaje): Speed this up by not doing a linear scan.
-const google::protobuf::EnumValue* FindEnumValueByNumber(const google::protobuf::Enum& tech_enum, int number) {
+const google::protobuf::EnumValue* FindEnumValueByNumber(const google::protobuf::Enum& tech_enum, int number) 
+{
 	for(int i = 0; i < tech_enum.enumvalue_size(); ++i) {
 		const google::protobuf::EnumValue& ev = tech_enum.enumvalue(i);
 		if(ev.number() == number) {
@@ -1036,18 +1023,14 @@ const google::protobuf::EnumValue* FindEnumValueByNumber(const google::protobuf:
 	return nullptr;
 }
 
-// TODO(skarvaje): Look into optimizing this by not doing computation on
-// double.
-const std::string FormatNanos(uint32_t nanos, bool with_trailing_zeros) {
+// TODO(skarvaje): Look into optimizing this by not doing computation on double.
+const std::string FormatNanos(uint32_t nanos, bool with_trailing_zeros) 
+{
 	if(nanos == 0) {
 		return with_trailing_zeros ? ".000" : "";
 	}
-
-	const char* format = (nanos % 1000 != 0)      ? "%.9f"
-	    : (nanos % 1000000 != 0) ? "%.6f"
-	    : "%.3f";
-	std::string formatted =
-	    StringPrintf(format, static_cast<double>(nanos) / kNanosPerSecond);
+	const char* format = (nanos % 1000 != 0) ? "%.9f" : (nanos % 1000000 != 0) ? "%.6f" : "%.3f";
+	std::string formatted = StringPrintf(format, static_cast<double>(nanos) / kNanosPerSecond);
 	// remove the leading 0 before decimal.
 	return formatted.substr(1);
 }

@@ -54,22 +54,26 @@
                 android:src="@drawable/ic_triangleright03">
             </ImageView>
         </LinearLayout>
+        <!--
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="4dp"
             >
-            <LinearLayout android:background="@drawable/shape_listitem" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="48dp"/>
-            <LinearLayout android:background="@drawable/shape_listitem" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
-            <LinearLayout android:background="@drawable/shape_listitem" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
-            <LinearLayout android:background="@drawable/shape_listitem" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
-            <LinearLayout android:background="@drawable/shape_listitem" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
+            <LinearLayout android:background="@drawable/shape_viewframe" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="48dp"/>
+            <LinearLayout android:background="@drawable/shape_viewframe" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
+            <LinearLayout android:background="@drawable/shape_viewframe" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
+            <LinearLayout android:background="@drawable/shape_viewframe" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
+            <LinearLayout android:background="@drawable/shape_viewframe" android:layout_margin="2dp" android:layout_height="20dp" android:layout_width="0dp" android:layout_weight="1"/>
         </LinearLayout>
+        -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/attendancePrereqAttendanceView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="@drawable/shape_pageheader"
+            android:padding="2dp"
             layoutManager="LinearLayoutManager" />
     </LinearLayout>
 </LinearLayout>

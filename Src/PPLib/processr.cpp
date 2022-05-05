@@ -745,6 +745,8 @@ int PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, 
 					rec.Flags |= PRCF_ALLOWCANCELAFTERCLOSE;
 				if(parent_rec.Flags & PRCF_ALLOWREPEATING) // @v11.0.4
 					rec.Flags |= PRCF_ALLOWREPEATING;
+				if(parent_rec.Flags & PRCF_TECHCAPACITYREV) // @v11.3.10
+					rec.Flags |= PRCF_TECHCAPACITYREV;
 				//
 				// Квант временной диаграммы наследуется в случае, если в нижнем по иерархии процессоре он не определен.
 				//
@@ -764,7 +766,8 @@ int PPObjProcessor::GetRecWithInheritance(PPID prcID, ProcessorTbl::Rec * pRec, 
 int PPObjProcessor::IsSwitchable(PPID prcID, PPIDArray * pSwitchPrcList)
 {
 	int    ok = -1;
-	ProcessorTbl::Rec prc_rec, parent_rec;
+	ProcessorTbl::Rec prc_rec;
+	ProcessorTbl::Rec parent_rec;
 	CALLPTRMEMB(pSwitchPrcList, clear()); // @v10.7.1 freeAll()-->clear()
 	if(Fetch(prcID, &prc_rec) > 0 && Fetch(prc_rec.ParentID, &parent_rec) > 0)
 		if(parent_rec.Flags & PRCF_CANSWITCHPAN) {
@@ -1555,6 +1558,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 		AddClusterAssoc(CTL_PRC_FLAGS, 6, PRCF_ALLOWCIP);
 		AddClusterAssoc(CTL_PRC_FLAGS, 7, PRCF_ALLOWCANCELAFTERCLOSE);
 		AddClusterAssoc(CTL_PRC_FLAGS, 8, PRCF_ALLOWREPEATING); // @v11.0.4
+		AddClusterAssoc(CTL_PRC_FLAGS, 9, PRCF_TECHCAPACITYREV); // @v11.3.10
 		SetClusterData(CTL_PRC_FLAGS, Data.Rec.Flags);
 		setCtrlData(CTL_PRC_LABELCOUNT, &Data.Rec.LabelCount);
 		setCtrlData(CTL_PRC_CIPMAX, &Data.Rec.CipMax);
@@ -1597,6 +1601,7 @@ int ProcessorDialog::setDTS(const PPProcessorPacket * pData)
 	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 10, PRCF_AUTOCREATE);
 	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 11, PRCF_ALLOWCANCELAFTERCLOSE);
 	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 12, PRCF_ALLOWREPEATING); // @v11.0.4
+	AddClusterAssoc(CTL_PRC_GRP_FLAGS, 13, PRCF_TECHCAPACITYREV); // @v11.3.10
 	SetClusterData(CTL_PRC_GRP_FLAGS, Data.Rec.Flags);
 	{
 		long  tcbquant = Data.Rec.TcbQuant * 5;
@@ -2104,6 +2109,17 @@ int PPViewProcessor::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 				ok = -1;
 				ExportUhtt();
 				break;
+			case PPVCMD_TOGGLEPRCGRP: // @v11.3.10
+				ok = -1;
+				if(Filt.Kind == PPPRCK_GROUP) {
+					Filt.Kind = PPPRCK_PROCESSOR;
+					ok = ChangeFilt(1, pBrw);
+				}
+				else if(Filt.Kind == PPPRCK_PROCESSOR) {
+					Filt.Kind = PPPRCK_GROUP;
+					ok = ChangeFilt(1, pBrw);
+				}
+				break;
 		}
 	}
 	return ok;
@@ -2432,4 +2448,3 @@ int PPALDD_UhttProcessor::Set(long iterId, int commit)
 		r_blk.Clear();
 	return ok;
 }
-

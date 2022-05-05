@@ -51,7 +51,7 @@ int FASTCALL _decode_date_fmt(int style, int * pDiv)
 	return ord;
 }
 
-int FASTCALL IsLeapYear(uint y)
+bool FASTCALL IsLeapYear_Gregorian(uint y)
 {
 	return ((y % 4) == 0 && ((y % 100) != 0 || (y % 400) == 0));
 }
@@ -206,7 +206,7 @@ int FASTCALL DaysSinceChristmasToDate(int g, int * pYear, int * pMon, int * pDay
 			mon = 12;
 			day = (y == 4 || hy == 4) ? 30 : 31; // Граничная проблема: конец четверки годов или 400-летия
 		}
-		else if(IsLeapYear(_year)) {
+		else if(IsLeapYear_Gregorian(_year)) {
 			mon = LeapYearDayToMonth[day-1];
 			day -= LeapYearDaysPrecedingMonth[mon];
 			mon++;
@@ -232,7 +232,7 @@ int FASTCALL dayspermonth(int month, int year)
 	int    dpm = 0;
 	if(month >= 1 && month <= 12) {
 		dpm = daysPerMonth[month-1];
-		if(month == 2 && IsLeapYear(year))
+		if(month == 2 && IsLeapYear_Gregorian(year))
 			dpm++;
 	}
 	return dpm;
@@ -455,7 +455,7 @@ static void _ltodate360(long nd, void * dt, int format)
 	ldiv_t xd = ldiv(nd, 360L);
 	int    y = (int)xd.quot + 1;
 	int    d = (int)xd.rem;
-	int    m = getMon(&d, IsLeapYear(y));
+	int    m = getMon(&d, IsLeapYear_Gregorian(y));
 	_encodedate(d, m, y, dt, format);
 }
 
@@ -659,7 +659,7 @@ void _plusperiod(void * dest, int prd, int numperiods, int format, int _360)
 			else if(prd == PRD_ANNUAL)
 				y += numperiods;
 			if(d > daysPerMonth[m-1])
-				d = (m == 2 && d >= 29 && IsLeapYear(y)) ? 29 : daysPerMonth[m-1];
+				d = (m == 2 && d >= 29 && IsLeapYear_Gregorian(y)) ? 29 : daysPerMonth[m-1];
 			_encodedate(d, m, y, dest, format);
 		}
 	}
@@ -1658,7 +1658,7 @@ LDATE LDATE::Helper_GetActual(LDATE rel, LDATE cmp) const
 			result.setyear(y);
 			result.setmonth(m);
 			if(d != ANY_DAYITEM_VALUE && d > daysPerMonth[m-1])
-				d = (m == 2 && d >= 29 && IsLeapYear(y)) ? 29 : daysPerMonth[m-1];
+				d = (m == 2 && d >= 29 && IsLeapYear_Gregorian(y)) ? 29 : daysPerMonth[m-1];
 			result.setday(d);
 			if(plus_y)
 				plusperiod(&result, PRD_ANNUAL, plus_y, 0);
@@ -2577,7 +2577,7 @@ static int FASTCALL DaysSinceEpoch(int year)
 // The maximum number of days in a month depend on the year and month.
 // It is the difference between the days to the month and the days to the following month
 //
-#define MaxDaysInMonth(YEAR, MONTH) (IsLeapYear(YEAR) ? LeapYearDaysPrecedingMonth[(MONTH)+1] - LeapYearDaysPrecedingMonth[(MONTH)] : \
+#define MaxDaysInMonth(YEAR, MONTH) (IsLeapYear_Gregorian(YEAR) ? LeapYearDaysPrecedingMonth[(MONTH)+1] - LeapYearDaysPrecedingMonth[(MONTH)] : \
 	NormalYearDaysPrecedingMonth[(MONTH)+1] - NormalYearDaysPrecedingMonth[(MONTH)])
 
 #define ConvertMillisecondsTo100ns(MILLISECONDS) ((MILLISECONDS)*10000LL)
@@ -2689,7 +2689,7 @@ static void FASTCALL __TimeToTimeFields(uint64 Time, SUniTime_Inner * pTimeField
 	//  Now test whether the year we are working on (i.e., The year
 	//  after the total number of elapsed years) is a leap year or not.
 	//
-	if(IsLeapYear(years + 1)) {
+	if(IsLeapYear_Gregorian(years + 1)) {
 		//
 		// The current year is a leap year, so figure out what month
 		// it is, and then subtract the number of days preceding the
@@ -2780,7 +2780,7 @@ static int FASTCALL __TimeFieldsToTime(const SUniTime_Inner * pTimeFields, uint6
 		// Compute the total number of elapsed days represented by the input time field variable
 		//
 		uint32 elapsed_days = ElapsedYearsToDays(year-1601);
-		if(IsLeapYear(year-1600))
+		if(IsLeapYear_Gregorian(year-1600))
 			elapsed_days += LeapYearDaysPrecedingMonth[month];
 		else
 			elapsed_days += NormalYearDaysPrecedingMonth[month];

@@ -355,7 +355,7 @@ int ssh_is_server_known(ssh_session session)
 
 	ZFREE(host);
 	ZFREE(hostport);
-	if(file != NULL) {
+	if(file) {
 		fclose(file);
 	}
 

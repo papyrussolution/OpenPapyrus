@@ -343,29 +343,29 @@ SGeoGridTab::SGeoGridTab(uint dim) : Dim(dim), SrcCountLat(0), SrcCountLon(0)
 	assert(dim >= 4 && dim <= 32);
 }
 
-int FASTCALL SGeoGridTab::IsEq(const SGeoGridTab & rS) const
+bool FASTCALL SGeoGridTab::IsEq(const SGeoGridTab & rS) const
 {
 	//
 	// При сравнении SrcCountLat и SrcCountLon не учитываем поскольку
 	// эти поля не влияют на результат использования таблицы (важны только при построении
 	// и для справочных целей.
 	//
-	int    yes = 1;
+	bool   yes = true;
     if(Dim != rS.Dim)
-		yes = 0;
+		yes = false;
 	else if(LatIdx != rS.LatIdx)
-		yes = 0;
+		yes = false;
 	else if(LonIdx != rS.LonIdx)
-		yes = 0;
+		yes = false;
 	return yes;
 }
 
-int FASTCALL SGeoGridTab::operator == (const SGeoGridTab & rS) const
+bool FASTCALL SGeoGridTab::operator == (const SGeoGridTab & rS) const
 {
 	return IsEq(rS);
 }
 
-int FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
+bool FASTCALL SGeoGridTab::operator != (const SGeoGridTab & rS) const
 {
 	return !IsEq(rS);
 }

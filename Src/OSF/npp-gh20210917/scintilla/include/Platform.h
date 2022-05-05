@@ -535,9 +535,9 @@ public:
 
 #if defined(__clang__)
 # if __has_feature(attribute_analyzer_noreturn)
-#  define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
+#define CLANG_ANALYZER_NORETURN __attribute__((analyzer_noreturn))
 # else
-#  define CLANG_ANALYZER_NORETURN
+#define CLANG_ANALYZER_NORETURN
 # endif
 #else
 #define CLANG_ANALYZER_NORETURN

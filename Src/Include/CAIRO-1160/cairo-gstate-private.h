@@ -60,7 +60,7 @@ cairo_private cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate, cairo_s
 cairo_private void _cairo_gstate_fini(cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_save(cairo_gstate_t ** gstate, cairo_gstate_t ** freelist);
 cairo_private cairo_status_t _cairo_gstate_restore(cairo_gstate_t ** gstate, cairo_gstate_t ** freelist);
-cairo_private boolint _cairo_gstate_is_group(cairo_gstate_t * gstate);
+cairo_private boolint FASTCALL _cairo_gstate_is_group(const cairo_gstate_t * gstate);
 cairo_private cairo_status_t _cairo_gstate_redirect_target(cairo_gstate_t * gstate, cairo_surface_t * child);
 cairo_private cairo_surface_t * _cairo_gstate_get_target(cairo_gstate_t * gstate);
 cairo_private cairo_surface_t * _cairo_gstate_get_original_target(cairo_gstate_t * gstate);
@@ -161,6 +161,6 @@ cairo_private cairo_status_t _cairo_gstate_glyph_extents(cairo_gstate_t * gstate
 cairo_private cairo_status_t _cairo_gstate_show_text_glyphs(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, const cairo_glyph_text_info_t * info);
 cairo_private cairo_status_t _cairo_gstate_glyph_path(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs, cairo_path_fixed_t * path);
 cairo_private cairo_status_t _cairo_gstate_set_antialias(cairo_gstate_t * gstate, cairo_antialias_t antialias);
-cairo_private cairo_antialias_t _cairo_gstate_get_antialias(cairo_gstate_t * gstate);
+cairo_private cairo_antialias_t FASTCALL _cairo_gstate_get_antialias(const cairo_gstate_t * gstate);
 
 #endif /* CAIRO_GSTATE_PRIVATE_H */

@@ -25,8 +25,8 @@
 #ifndef GOOGLE_PROTOBUF_IO_TOKENIZER_H__
 #define GOOGLE_PROTOBUF_IO_TOKENIZER_H__
 
-#include <string>
-#include <vector>
+//#include <string>
+//#include <vector>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/logging.h>
 #include <google/protobuf/port_def.inc>
@@ -51,24 +51,20 @@ typedef int ColumnNumber;
 // to stdout.
 class PROTOBUF_EXPORT ErrorCollector {
 public:
-	inline ErrorCollector() {
+	inline ErrorCollector() 
+	{
 	}
-
 	virtual ~ErrorCollector();
-
 	// Indicates that there was an error in the input at the given line and
 	// column numbers.  The numbers are zero-based, so you may want to add
 	// 1 to each before printing them.
-	virtual void AddError(int line, ColumnNumber column,
-	    const std::string & message) = 0;
-
+	virtual void AddError(int line, ColumnNumber column, const std::string & message) = 0;
 	// Indicates that there was a warning in the input at the given line and
 	// column numbers.  The numbers are zero-based, so you may want to add
 	// 1 to each before printing them.
-	virtual void AddWarning(int /* line */, ColumnNumber /* column */,
-	    const std::string & /* message */) {
+	virtual void AddWarning(int /* line */, ColumnNumber /* column */, const std::string & /* message */) 
+	{
 	}
-
 private:
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(ErrorCollector);
 };
@@ -90,42 +86,26 @@ public:
 	enum TokenType {
 		TYPE_START, // Next() has not yet been called.
 		TYPE_END, // End of input reached.  "text" is empty.
-
-		TYPE_IDENTIFIER, // A sequence of letters, digits, and underscores, not
-		                 // starting with a digit.  It is an error for a number
-		                 // to be followed by an identifier with no space in
-		                 // between.
-		TYPE_INTEGER, // A sequence of digits representing an integer.  Normally
-		              // the digits are decimal, but a prefix of "0x" indicates
-		              // a hex number and a leading zero indicates octal, just
-		              // like with C numeric literals.  A leading negative sign
-		              // is NOT included in the token; it's up to the parser to
-		              // interpret the unary minus operator on its own.
-		TYPE_FLOAT, // A floating point literal, with a fractional part and/or
-		            // an exponent.  Always in decimal.  Again, never
-		            // negative.
-		TYPE_STRING, // A quoted sequence of escaped characters.  Either single
-		             // or double quotes can be used, but they must match.
-		             // A string literal cannot cross a line break.
-		TYPE_SYMBOL, // Any other printable character, like '!' or '+'.
-		             // Symbols are always a single character, so "!+$%" is
-		             // four tokens.
-		TYPE_WHITESPACE, // A sequence of whitespace.  This token type is only
-		                 // produced if report_whitespace() is true.  It is not
-		                 // reported for whitespace within comments or strings.
-		TYPE_NEWLINE, // A newline (\n).  This token type is only
-		              // produced if report_whitespace() is true and
-		              // report_newlines() is true.  It is not reported for
-		              // newlines in comments or strings.
+		TYPE_IDENTIFIER, // A sequence of letters, digits, and underscores, not starting with a digit.  It is an error for a number
+			// to be followed by an identifier with no space in between.
+		TYPE_INTEGER, // A sequence of digits representing an integer.  Normally the digits are decimal, but a prefix of "0x" indicates
+			// a hex number and a leading zero indicates octal, just like with C numeric literals.  A leading negative sign
+			// is NOT included in the token; it's up to the parser to interpret the unary minus operator on its own.
+		TYPE_FLOAT, // A floating point literal, with a fractional part and/or an exponent.  Always in decimal.  Again, never negative.
+		TYPE_STRING, // A quoted sequence of escaped characters.  Either single or double quotes can be used, but they must match.
+			// A string literal cannot cross a line break.
+		TYPE_SYMBOL, // Any other printable character, like '!' or '+'. Symbols are always a single character, so "!+$%" is four tokens.
+		TYPE_WHITESPACE, // A sequence of whitespace.  This token type is only produced if report_whitespace() is true.  It is not
+			// reported for whitespace within comments or strings.
+		TYPE_NEWLINE, // A newline (\n).  This token type is only produced if report_whitespace() is true and
+			// report_newlines() is true.  It is not reported for newlines in comments or strings.
 	};
 
 	// Structure representing a token read from the token stream.
 	struct Token {
 		TokenType type;
-		std::string text; // The exact text of the token as it appeared in
-		                  // the input.  e.g. tokens of TYPE_STRING will still
-		                  // be escaped and in quotes.
-
+		std::string text; // The exact text of the token as it appeared in the input.  e.g. tokens of TYPE_STRING will still
+			// be escaped and in quotes.
 		// "line" and "column" specify the position of the first character of
 		// the token within the input stream.  They are zero-based.
 		int line;
@@ -188,9 +168,7 @@ public:
 	//   /* Block comment attached to
 	//    * grault. */
 	//   optional int32 grault = 6;
-	bool NextWithComments(std::string* prev_trailing_comments,
-	    std::vector <std::string>* detached_comments,
-	    std::string* next_leading_comments);
+	bool NextWithComments(std::string* prev_trailing_comments, std::vector <std::string>* detached_comments, std::string* next_leading_comments);
 
 	// Parse helpers ---------------------------------------------------
 
@@ -212,8 +190,7 @@ public:
 	// result.  If the text is not from a Token of type TYPE_INTEGER originally
 	// parsed by a Tokenizer, the result is undefined (possibly an assert
 	// failure).
-	static bool ParseInteger(const std::string & text, uint64_t max_value,
-	    uint64_t* output);
+	static bool ParseInteger(const std::string & text, uint64_t max_value, uint64_t* output);
 
 	// Options ---------------------------------------------------------
 
@@ -221,10 +198,7 @@ public:
 	// which would otherwise be integers but which have the 'f' suffix will be
 	// forced to be interpreted as floats.  For all other purposes, the 'f' is
 	// ignored.
-	void set_allow_f_after_float(bool value) {
-		allow_f_after_float_ = value;
-	}
-
+	void set_allow_f_after_float(bool value) { allow_f_after_float_ = value; }
 	// Valid values for set_comment_style().
 	enum CommentStyle {
 		// Line comments begin with "//", block comments are delimited by "/*" and
@@ -241,45 +215,30 @@ public:
 
 	// Whether to require whitespace between a number and a field name.
 	// Default is true. Do not use this; for Google-internal cleanup only.
-	void set_require_space_after_number(bool require) {
-		require_space_after_number_ = require;
-	}
-
+	void set_require_space_after_number(bool require) { require_space_after_number_ = require; }
 	// Whether to allow string literals to span multiple lines. Default is false.
 	// Do not use this; for Google-internal cleanup only.
-	void set_allow_multiline_strings(bool allow) {
-		allow_multiline_strings_ = allow;
-	}
-
+	void set_allow_multiline_strings(bool allow) { allow_multiline_strings_ = allow; }
 	// If true, whitespace tokens are reported by Next().
 	// Note: `set_report_whitespace(false)` implies `set_report_newlines(false)`.
 	bool report_whitespace() const;
 	void set_report_whitespace(bool report);
-
 	// If true, newline tokens are reported by Next().
 	// Note: `set_report_newlines(true)` implies `set_report_whitespace(true)`.
 	bool report_newlines() const;
 	void set_report_newlines(bool report);
-
 	// External helper: validate an identifier.
 	static bool IsIdentifier(const std::string & text);
-
-	// -----------------------------------------------------------------
 private:
 	GOOGLE_DISALLOW_EVIL_CONSTRUCTORS(Tokenizer);
 
 	Token current_; // Returned by current().
 	Token previous_; // Returned by previous().
-
 	ZeroCopyInputStream* input_;
 	ErrorCollector* error_collector_;
-
-	char current_char_; // == buffer_[buffer_pos_], updated by NextChar().
 	const char* buffer_; // Current buffer returned from input_.
 	int buffer_size_; // Size of buffer_.
 	int buffer_pos_; // Current position within the buffer.
-	bool read_error_; // Did we previously encounter a read error?
-
 	// Line and column number of current_char_ within the whole input stream.
 	int line_;
 	ColumnNumber column_;
@@ -292,12 +251,15 @@ private:
 	int record_start_;
 
 	// Options.
-	bool allow_f_after_float_;
 	CommentStyle comment_style_;
+	bool allow_f_after_float_;
 	bool require_space_after_number_;
 	bool allow_multiline_strings_;
 	bool report_whitespace_ = false;
 	bool report_newlines_ = false;
+	char current_char_; // == buffer_[buffer_pos_], updated by NextChar().
+	bool read_error_; // Did we previously encounter a read error?
+	uint8 Reserve; // @alignment
 
 	// Since we count columns we need to interpret tabs somehow.  We'll take
 	// the standard 8-character definition for lack of any way to do better.
@@ -309,13 +271,10 @@ private:
 
 	// Consume this character and advance to the next one.
 	void NextChar();
-
 	// Read a new buffer from the input.
 	void Refresh();
-
 	inline void RecordTo(std::string* target);
 	inline void StopRecording();
-
 	// Called when the current character is the first character of a new
 	// token (not including whitespace or comments).
 	inline void StartToken();
@@ -323,12 +282,11 @@ private:
 	// end of the last token.  After this returns, current_.text will
 	// contain all text consumed since StartToken() was called.
 	inline void EndToken();
-
 	// Convenience method to add an error at the current line and column.
-	void AddError(const std::string & message) {
+	void AddError(const std::string & message) 
+	{
 		error_collector_->AddError(line_, column_, message);
 	}
-
 	// -----------------------------------------------------------------
 	// The following four methods are used to consume tokens of specific
 	// types.  They are actually used to consume all characters *after*
@@ -346,27 +304,15 @@ private:
 	// It also needs to know if the first character was a . to parse floating
 	// point correctly.
 	TokenType ConsumeNumber(bool started_with_zero, bool started_with_dot);
-
-	// Consume the rest of a line.
-	void ConsumeLineComment(std::string* content);
-	// Consume until "*/".
-	void ConsumeBlockComment(std::string* content);
+	void ConsumeLineComment(std::string* content); // Consume the rest of a line.
+	void ConsumeBlockComment(std::string* content); // Consume until "*/".
 
 	enum NextCommentStatus {
-		// Started a line comment.
-		LINE_COMMENT,
-
-		// Started a block comment.
-		BLOCK_COMMENT,
-
-		// Consumed a slash, then realized it wasn't a comment.  current_ has
-		// been filled in with a slash token.  The caller should return it.
-		SLASH_NOT_COMMENT,
-
-		// We do not appear to be starting a comment here.
-		NO_COMMENT
+		LINE_COMMENT, // Started a line comment.
+		BLOCK_COMMENT, // Started a block comment.
+		SLASH_NOT_COMMENT, // Consumed a slash, then realized it wasn't a comment.  current_ has been filled in with a slash token.  The caller should return it.
+		NO_COMMENT // We do not appear to be starting a comment here.
 	};
-
 	// If we're at the start of a new comment, consume it and return what kind
 	// of comment it is.
 	NextCommentStatus TryConsumeCommentStart();
@@ -374,11 +320,9 @@ private:
 	// If we're looking at a TYPE_WHITESPACE token and `report_whitespace_` is
 	// true, consume it and return true.
 	bool TryConsumeWhitespace();
-
 	// If we're looking at a TYPE_NEWLINE token and `report_newlines_` is true,
 	// consume it and return true.
 	bool TryConsumeNewline();
-
 	// -----------------------------------------------------------------
 	// These helper methods make the parsing code more readable.  The
 	// "character classes" referred to are defined at the top of the .cc file.
@@ -389,40 +333,30 @@ private:
 
 	// Returns true if the current character is of the given character
 	// class, but does not consume anything.
-	template <typename CharacterClass>
-	inline bool LookingAt();
+	template <typename CharacterClass> inline bool LookingAt();
 
 	// If the current character is in the given class, consume it and return
 	// true.  Otherwise return false.
 	// e.g. TryConsumeOne<Letter>()
-	template <typename CharacterClass>
-	inline bool TryConsumeOne();
+	template <typename CharacterClass> inline bool TryConsumeOne();
 
 	// Like above, but try to consume the specific character indicated.
 	inline bool TryConsume(char c);
 
 	// Consume zero or more of the given character class.
-	template <typename CharacterClass>
-	inline void ConsumeZeroOrMore();
-
+	template <typename CharacterClass> inline void ConsumeZeroOrMore();
 	// Consume one or more of the given character class or log the given
 	// error message.
 	// e.g. ConsumeOneOrMore<Digit>("Expected digits.");
-	template <typename CharacterClass>
-	inline void ConsumeOneOrMore(const char* error);
+	template <typename CharacterClass> inline void ConsumeOneOrMore(const char* error);
 };
 
 // inline methods ====================================================
-inline const Tokenizer::Token& Tokenizer::current() {
-	return current_;
-}
+inline const Tokenizer::Token& Tokenizer::current() { return current_; }
+inline const Tokenizer::Token& Tokenizer::previous() { return previous_; }
 
-inline const Tokenizer::Token& Tokenizer::previous() {
-	return previous_;
-}
-
-inline void Tokenizer::ParseString(const std::string & text,
-    std::string* output) {
+inline void Tokenizer::ParseString(const std::string & text, std::string* output) 
+{
 	output->clear();
 	ParseStringAppend(text, output);
 }

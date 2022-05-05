@@ -356,9 +356,9 @@ static XXH64_hash_t XXH3_avalanche(uint64 h64)
 // 
 XXH_FORCE_INLINE XXH64_hash_t XXH3_len_1to3_64b(const void * data, size_t len, const void * keyPtr, XXH64_hash_t seed)
 {
-	assert(data != NULL);
+	assert(data);
 	assert(checkirange(len, 1, 3));
-	assert(keyPtr != NULL);
+	assert(keyPtr);
 	{   
 		BYTE const c1 = ((const BYTE *)data)[0];
 	    BYTE const c2 = ((const BYTE *)data)[len >> 1];
@@ -372,8 +372,8 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_1to3_64b(const void * data, size_t len, c
 
 XXH_FORCE_INLINE XXH64_hash_t XXH3_len_4to8_64b(const void * data, size_t len, const void * keyPtr, XXH64_hash_t seed)
 {
-	assert(data != NULL);
-	assert(keyPtr != NULL);
+	assert(data);
+	assert(keyPtr);
 	assert(checkirange(len, 4, 8));
 	{   
 		uint32 const in1 = XXH_readLE32(data);
@@ -387,8 +387,8 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_4to8_64b(const void * data, size_t len, c
 
 XXH_FORCE_INLINE XXH64_hash_t XXH3_len_9to16_64b(const void * data, size_t len, const void * keyPtr, XXH64_hash_t seed)
 {
-	assert(data != NULL);
-	assert(keyPtr != NULL);
+	assert(data);
+	assert(keyPtr);
 	assert(checkirange(len, 9, 16));
 	{   
 		const uint64* const key64 = (const uint64*)keyPtr;
@@ -764,9 +764,9 @@ XXH_FORCE_INLINE void XXH3_accumulate(uint64* XXH_RESTRICT acc, const void * XXH
 XXH3_hashLong_internal_loop(uint64* XXH_RESTRICT acc, const void * XXH_RESTRICT data, size_t len,
     const void * XXH_RESTRICT secret, size_t secretSize, XXH3_accWidth_e accWidth)
 {
-	size_t const nb_rounds = (secretSize - STRIPE_LEN) / XXH_SECRET_CONSUME_RATE;
-	size_t const block_len = STRIPE_LEN * nb_rounds;
-	size_t const nb_blocks = len / block_len;
+	const size_t nb_rounds = (secretSize - STRIPE_LEN) / XXH_SECRET_CONSUME_RATE;
+	const size_t block_len = STRIPE_LEN * nb_rounds;
+	const size_t nb_blocks = len / block_len;
 	size_t n;
 	assert(secretSize >= XXH3_SECRET_SIZE_MIN);
 	for(n = 0; n < nb_blocks; n++) {
@@ -776,7 +776,7 @@ XXH3_hashLong_internal_loop(uint64* XXH_RESTRICT acc, const void * XXH_RESTRICT 
 	/* last partial block */
 	assert(len > STRIPE_LEN);
 	{   
-		size_t const nbStripes = (len - (block_len * nb_blocks)) / STRIPE_LEN;
+		const size_t nbStripes = (len - (block_len * nb_blocks)) / STRIPE_LEN;
 	    assert(nbStripes <= (secretSize / XXH_SECRET_CONSUME_RATE));
 	    XXH3_accumulate(acc, (const char *)data + nb_blocks*block_len, secret, nbStripes, accWidth);
 		/* last stripe */
@@ -1034,7 +1034,7 @@ XXH_FORCE_INLINE void XXH3_consumeStripes(uint64* acc, XXH32_hash_t* nbStripesSo
 	assert(*nbStripesSoFarPtr < nbStripesPerBlock);
 	if(nbStripesPerBlock - *nbStripesSoFarPtr <= totalStripes) {
 		/* need a scrambling operation */
-		size_t const nbStripes = nbStripesPerBlock - *nbStripesSoFarPtr;
+		const size_t nbStripes = nbStripesPerBlock - *nbStripesSoFarPtr;
 		XXH3_accumulate(acc, data, PTRCHRC(secret) + nbStripesSoFarPtr[0] * XXH_SECRET_CONSUME_RATE, nbStripes, accWidth);
 		XXH3_scrambleAcc(acc, PTRCHRC(secret) + secretLimit);
 		XXH3_accumulate(acc, (const char *)data + nbStripes * STRIPE_LEN, secret, totalStripes - nbStripes, accWidth);
@@ -1067,7 +1067,7 @@ XXH_FORCE_INLINE XXH_errorcode XXH3_update(XXH3_state_t* state, const void * inp
 	#define XXH3_INTERNALBUFFER_STRIPES (XXH3_INTERNALBUFFER_SIZE / STRIPE_LEN)
 	    STATIC_ASSERT(XXH3_INTERNALBUFFER_SIZE % STRIPE_LEN == 0); /* clean multiple */
 	    if(state->bufferedSize) { /* some data within internal buffer: fill then consume it */
-		    size_t const loadSize = XXH3_INTERNALBUFFER_SIZE - state->bufferedSize;
+		    const size_t loadSize = XXH3_INTERNALBUFFER_SIZE - state->bufferedSize;
 		    memcpy(state->buffer + state->bufferedSize, input, loadSize);
 		    p += loadSize;
 		    XXH3_consumeStripes(state->acc, &state->nbStripesSoFar, state->nbStripesPerBlock,
@@ -1100,7 +1100,7 @@ XXH_FORCE_INLINE void XXH3_digest_long(XXH64_hash_t* acc, const XXH3_state_t* st
 {
 	memcpy(acc, state->acc, sizeof(state->acc)); // digest locally, state remains unaltered, and can continue ingesting more data afterwards 
 	if(state->bufferedSize >= STRIPE_LEN) {
-		size_t const totalNbStripes = state->bufferedSize / STRIPE_LEN;
+		const size_t totalNbStripes = state->bufferedSize / STRIPE_LEN;
 		XXH32_hash_t nbStripesSoFar = state->nbStripesSoFar;
 		XXH3_consumeStripes(acc, &nbStripesSoFar, state->nbStripesPerBlock,
 		    state->buffer, totalNbStripes, state->secret, state->secretLimit, accWidth);
@@ -1112,7 +1112,7 @@ XXH_FORCE_INLINE void XXH3_digest_long(XXH64_hash_t* acc, const XXH3_state_t* st
 	else { /* bufferedSize < STRIPE_LEN */
 		if(state->bufferedSize) { /* one last stripe */
 			char lastStripe[STRIPE_LEN];
-			size_t const catchupSize = STRIPE_LEN - state->bufferedSize;
+			const size_t catchupSize = STRIPE_LEN - state->bufferedSize;
 			memcpy(lastStripe, (const char *)state->buffer + sizeof(state->buffer) - catchupSize, catchupSize);
 			memcpy(lastStripe + catchupSize, state->buffer, state->bufferedSize);
 			XXH3_accumulate_512(acc, lastStripe, (const char *)state->secret + state->secretLimit - XXH_SECRET_LASTACC_START, accWidth);
@@ -1137,9 +1137,9 @@ XXH_PUBLIC_API XXH64_hash_t XXH3_64bits_digest(const XXH3_state_t* state)
 // 
 XXH_FORCE_INLINE XXH128_hash_t XXH3_len_1to3_128b(const void * data, size_t len, const void * keyPtr, XXH64_hash_t seed)
 {
-	assert(data != NULL);
+	assert(data);
 	assert(checkirange(len, 1, 3));
-	assert(keyPtr != NULL);
+	assert(keyPtr);
 	{   
 		const uint32* const key32 = (const uint32*)keyPtr;
 	    BYTE const c1 = ((const BYTE *)data)[0];
@@ -1157,8 +1157,8 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_1to3_128b(const void * data, size_t len,
 
 XXH_FORCE_INLINE XXH128_hash_t XXH3_len_4to8_128b(const void * data, size_t len, const void * keyPtr, XXH64_hash_t seed)
 {
-	assert(data != NULL);
-	assert(keyPtr != NULL);
+	assert(data);
+	assert(keyPtr);
 	assert(checkirange(len, 4, 8));
 	{   
 		uint32 const in1 = XXH_readLE32(data);
@@ -1180,8 +1180,8 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_4to8_128b(const void * data, size_t len,
 
 XXH_FORCE_INLINE XXH128_hash_t XXH3_len_9to16_128b(const void * data, size_t len, const void * keyPtr, XXH64_hash_t seed)
 {
-	assert(data != NULL);
-	assert(keyPtr != NULL);
+	assert(data);
+	assert(keyPtr);
 	assert(checkirange(len, 9, 16));
 	{   const uint64* const key64 = (const uint64*)keyPtr;
 	    uint64 const ll1 = XXH_readLE64(data) ^ (XXH_readLE64(key64) + seed);

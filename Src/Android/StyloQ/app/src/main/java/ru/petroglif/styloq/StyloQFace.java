@@ -342,14 +342,14 @@ public class StyloQFace {
 		}
 		return ok;
 	}
-	String ToJson()
+	JSONObject ToJsonObj()
 	{
-		String result = null;
+		JSONObject result = null;
 		try {
 			if(L.size() > 0) {
 				int [] lang_list = GetLanguageList();
 				ArrayList<SLib.IntToStrAssoc> tag_list = GetTagList();
-				JSONObject jsobj = new JSONObject();
+				result = new JSONObject();
 				for(int i = 0; i < tag_list.size(); i++) {
 					SLib.IntToStrAssoc tag_entry = tag_list.get(i);
 					if(IsTagLangDependent(tag_entry.Key)) {
@@ -362,7 +362,7 @@ public class StyloQFace {
 									if(SLib.GetLen(lc) > 0) {
 										String temp_tag = tag_entry.Value;
 										temp_tag = temp_tag + "." + lc;
-										jsobj.put(temp_tag, val);
+										result.put(temp_tag, val);
 									}
 								}
 							}
@@ -370,22 +370,26 @@ public class StyloQFace {
 						else {
 							String val = GetExactly(tag_entry.Key, 0);
 							if(SLib.GetLen(val) > 0)
-								jsobj.put(tag_entry.Value, val);
+								result.put(tag_entry.Value, val);
 						}
 					}
 					else {
 						String val = GetExactly(tag_entry.Key, 0);
 						if(SLib.GetLen(val) > 0)
-							jsobj.put(tag_entry.Value, val);
+							result.put(tag_entry.Value, val);
 					}
 				}
-				result = jsobj.toString();
 			}
 		} catch(JSONException exn) {
 			result = null;
 			new StyloQException(ppstr2.PPERR_JEXN_JSON, exn.getMessage());
 		}
 		return result;
+	}
+	String ToJson()
+	{
+		JSONObject jsobj_ = ToJsonObj();
+		return (jsobj_ != null) ? jsobj_.toString() : null;
 	}
 	int [] GetLanguageList()
 	{

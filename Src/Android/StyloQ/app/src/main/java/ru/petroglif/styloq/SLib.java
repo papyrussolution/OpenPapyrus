@@ -1393,6 +1393,7 @@ public class SLib {
 	public static final int EV_DESTROY              = 17; // Посылается функцией onDestroy
 	public static final int EV_ACTIVITYSTART        = 18; // Посылается в SlActivity функцией onStart
 	public static final int EV_ACTIVITYRESUME       = 19; // Посылается в SlActivity функцией onResume
+	public static final int EV_SVCQUERYRESULT       = 20; // @v11.3.10 Посылается в SlActivity после выполнения запроса к сервису по заданию этой activity
 	//
 	public static final int cmOK                    = 10; // Значение эквивалентно тому же в tvdefs.h
 	public static final int cmCancel                = 11; // Значение эквивалентно тому же в tvdefs.h
@@ -4117,7 +4118,9 @@ public class SLib {
 		View v = null;
 		if(viewContaiter != null) {
 			if(viewContaiter instanceof Activity)
-				v = ((Activity) viewContaiter).findViewById(ctlId);
+				v = ((Activity)viewContaiter).findViewById(ctlId);
+			if(viewContaiter instanceof SlFragmentStatic)
+				v = ((SlFragmentStatic)viewContaiter).getView().findViewById(ctlId);
 			else if(viewContaiter instanceof ViewGroup)
 				v = ((ViewGroup) viewContaiter).findViewById(ctlId);
 			else if(viewContaiter instanceof Dialog)

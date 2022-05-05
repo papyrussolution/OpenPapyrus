@@ -834,6 +834,7 @@ PPERR_INVGENERICGOODSOP            "Обобщенный товар '%s'\n\003н
 PPERR_SCALE_INVLOGNUM              "Логический номер весов должен находиться в диапазоне 1..254"
 PPERR_INTRSTRNOVRRNG               "Пересечение диапазонов оборотов"
 PPERR_TRNOVRRNG                    "Верхняя граница диапазона, должна быть больше нижней"
+PPERR_SCSERRULE_DUPZEROTRNOVR      "Дублирование признака '@{trnovrrngdis_zerotrnovr}' в списке правил персональных карт"
 PPERR_BARCODEORSERNFOUND           "Штрихкод или серийный номер '%s' не найден"
 PPERR_INVTODOSTATUS                "Недопустимый статус задачи"
 PPERR_SCARDCLOSED                  "Карта '%s' закрыта для использования"
@@ -4896,6 +4897,7 @@ PPTXT_SQ_CMDSUCCESS_PSNEV           "Команда создания персо�
 PPTXT_SQ_CMDSUCCESS_DTLOGIN         "Запрос авторизации сессии Papyrus выполнен успешно"
 PPTXT_SQ_HELLO                      "Здравствуйте!"
 PPTXT_SQ_GOODBYE                    "До свидания!"
+PPTXT_SQ_LOG_CLIFACERCVD            "От клиента получен лик"
 PPTXT_MALFORMEDCMDFILEMOVED         "Сбойный командный файл перенесен в отдельный каталог: %s"
 PPTXT_STQCLITESTCMD_ECHO        /!/ "Echo"
 PPTXT_STQCLITESTCMD_INDEXING        "Отправка медиатору данных для индексации"
@@ -4908,6 +4910,12 @@ PPTXT_ADJALCOGOODS_PROOF            "Содержание спирта това�
 PPTXT_ADJALCOGOODS_VOLUME           "Объем единицы товара отличается от внутренней базы данных ЕГАИС: %s"
 PPTXT_EXECJOBIMM_SUCCESS            "Серверная задача '%s' успешно запущена"
 PPTXT_EXECJOBIMM_ERROR              "Сервер отчетался об ошибке запуска задачи: %s"
+// Следующие три строки - для поиска в StyloQ
+PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN "Слишком короткая строка для поиска. Введите не менее %s символов"
+PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS "Слишком много результатов поиска (> %s). Уточните поисковый запрос"
+PPTXT_SMPLSRCHRESULT_SUCCESS        "Найдено %s результатов"
+PPTXT_LOG_STQENTRYPOINTCREATED   /!/ "Stylo-Q MQB server's entry-point was created"
+PPTXT_LOG_STQMQBSVRENTPTNOTFOUND /!/ "No Stylo-Q MQB server's entry-points were found"
 //
 // LastText
 
@@ -5006,6 +5014,7 @@ PPTXT_EXECJOBIMM_ERROR              "Сервер отчетался об оши
 93 "Установлен владелец персональной карты"
 94 "Отправка медиатору данных для индексации сервиса Stylo-Q"
 95 "Отправка сервису Stylo-Q клиентского лика"
+96 "Изменена персоналия-владелец карты"
 
 [119]
 1  "Объект получен"
@@ -8493,6 +8502,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @filter_edittextfileparam                 "Параметры редактирования текстового файла"
 @filter_styloqattendanceprereqparam       "Параметры подготовки данных резервирования услуг Stylo-Q"
 @filter_styloqattendanceprereqparam_prctitle "Заговок для процессоров"
+@filter_styloqattendanceprereqparam_maxscheduledays "Максимальный период планирования, дней"
 @filter_styloqindexingparam               "Параметры индексации данных для Stylo-Q"
 //
 // Команды и popup-меню
@@ -12384,6 +12394,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @processor_prcf_autocreate                "Автоматически создавать процессор при создании объекта"
 @processor_prcf_hasext                    ""
 @processor_prcf_allowrepeating            "Допускает ввод параметров повтора в сессиях"
+@processor_prcf_techcapacityrev           "Производительность технологий как время на единицу товара"
 @processor_printer                        "@{printer}"
 @processor_srvjobsymb                     "@{jobtask}"
 @processor_supersesstiming                "Стандартная продолжительность суперсессий"
@@ -12725,6 +12736,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @trnovrrngdis                             "Правило для диапазона оборотов карты"
 @trnovrrngdisbonus                        "Правило начисления бонуса"
 @trnovrrngdis_range                       "@{turnoverrange}"
+@trnovrrngdis_zerotrnovr                  "Нулевые обороты"
 @trnovrrngdis_value                       "@{value}"
 @trnovrrngdis_series                      "Серия, в которую должна перейти карта"
 @trnovrrngdis_loc                         ""
@@ -12901,6 +12913,7 @@ IMPEXPCMD_DECLNORDER    "DECLNORDER"
 @techcapacity_fabsolute                   "Абсолютное время"
 
 @tech_capacity                            "@{productivity}, 1/@{munit_second_s}"
+@tech_capacity_secperpc                   "@{productivity}, @{munit_second_s} на единицу"
 @tech_cipmax                              "Максимум зарегистрированных персоналий"
 @tech_code                                "@{code}"
 @tech_cost                                "@{worth}"

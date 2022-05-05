@@ -19,9 +19,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/util/internal/field_mask_utility.h>
-#include <google/protobuf/util/internal/utility.h>
-#include <google/protobuf/stubs/status.h>
-#include <google/protobuf/stubs/strutil.h>
 #include <google/protobuf/stubs/status_macros.h>
 // Must be included last.
 #include <google/protobuf/port_def.inc>
@@ -48,11 +45,10 @@ std::string AppendPathSegmentToPrefix(StringPiece prefix,
 }
 }  // namespace
 
-std::string ConvertFieldMaskPath(const StringPiece path,
-    ConverterCallback converter) {
+std::string ConvertFieldMaskPath(const StringPiece path, ConverterCallback converter) 
+{
 	std::string result;
 	result.reserve(path.size() << 1);
-
 	bool is_quoted = false;
 	bool is_escaping = false;
 	int current_segment_start = 0;
@@ -175,8 +171,7 @@ util::Status DecodeCompactFieldMaskPaths(StringPiece paths,
 		previous_position = i + 1;
 	}
 	if(in_map_key) {
-		return util::InvalidArgumentError(
-			StrCat("Invalid FieldMask '", paths, "'. Cannot find matching ']' for all '['."));
+		return util::InvalidArgumentError(StrCat("Invalid FieldMask '", paths, "'. Cannot find matching ']' for all '['."));
 	}
 	if(!prefix.empty()) {
 		return util::InvalidArgumentError(StrCat("Invalid FieldMask '", paths, "'. Cannot find matching ')' for all '('."));

@@ -30,8 +30,7 @@ static pixman_timer_t * timers;
 
 static void dump_timers(void)
 {
-	pixman_timer_t * timer;
-	for(timer = timers; timer != NULL; timer = timer->next) {
+	for(pixman_timer_t * timer = timers; timer; timer = timer->next) {
 		printf("%s:   total: %llu     n: %llu      avg: %f\n", timer->name, timer->total, timer->n_times, timer->total / (double)timer->n_times);
 	}
 }

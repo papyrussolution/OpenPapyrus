@@ -562,26 +562,17 @@ static int server_idle(sasl_conn_t * conn)
 {
 	sasl_server_conn_t * s_conn = NULL;
 	mechanism_t * m;
-
 	if(!mechlist) {
 		return 0;
 	}
-
 	if(!conn)
 		return 1;
 	s_conn = (sasl_server_conn_t*)conn;
-
-	for(m = s_conn->mech_list;
-	    m != NULL;
-	    m = m->next) {
-		if(m->m.plug->idle
-		 &&  m->m.plug->idle(m->m.plug->glob_context,
-		    conn,
-		    s_conn->sparams)) {
+	for(m = s_conn->mech_list; m != NULL; m = m->next) {
+		if(m->m.plug->idle &&  m->m.plug->idle(m->m.plug->glob_context, conn, s_conn->sparams)) {
 			return 1;
 		}
 	}
-
 	return 0;
 }
 

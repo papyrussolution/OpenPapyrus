@@ -5,8 +5,7 @@
 //
 // Copyright 2010 the V8 project authors. All rights reserved.
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 //  * Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
 //  * Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following
@@ -79,8 +78,8 @@ static void GenerateCountedDigits(int count, int* decimal_point,
     Bignum* numerator, Bignum* denominator,
     Vector<char> buffer, int* length);
 
-void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits,
-    Vector<char> buffer, int* length, int* decimal_point) {
+void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits, Vector<char> buffer, int* length, int* decimal_point) 
+{
 	DOUBLE_CONVERSION_ASSERT(v > 0);
 	DOUBLE_CONVERSION_ASSERT(!Double(v).IsSpecial());
 	uint64_t significand;
@@ -114,12 +113,10 @@ void BignumDtoa(double v, BignumDtoaMode mode, int requested_digits,
 		buffer[0] = '\0';
 		*length = 0;
 		// Set decimal-point to -requested_digits. This is what Gay does.
-		// Note that it should not have any effect anyways since the string is
-		// empty.
+		// Note that it should not have any effect anyways since the string is empty.
 		*decimal_point = -requested_digits;
 		return;
 	}
-
 	Bignum numerator;
 	Bignum denominator;
 	Bignum delta_minus;
@@ -604,10 +601,8 @@ static void InitialScaledStartValues(uint64_t significand,
 // then simply adjust the power so that 10^(k-1) <= v < 10^k (with k ==
 // estimated_power) but do not touch the numerator or denominator.
 // Otherwise the routine multiplies the numerator and the deltas by 10.
-static void FixupMultiply10(int estimated_power, bool is_even,
-    int* decimal_point,
-    Bignum* numerator, Bignum* denominator,
-    Bignum* delta_minus, Bignum* delta_plus) {
+static void FixupMultiply10(int estimated_power, bool is_even, int* decimal_point, Bignum* numerator, Bignum* denominator, Bignum* delta_minus, Bignum* delta_plus) 
+{
 	bool in_range;
 	if(is_even) {
 		// For IEEE doubles half-way cases (in decimal system numbers ending with 5)

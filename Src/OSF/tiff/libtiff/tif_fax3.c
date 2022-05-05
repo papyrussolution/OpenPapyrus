@@ -135,7 +135,7 @@ static int Fax3PreDecode(TIFF * tif, uint16 s)
 {
 	Fax3CodecState* sp = DecoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	sp->bit = 0;                    /* force initial read */
 	sp->data = 0;
 	sp->EOLcnt = 0; /* force initial scan for EOL */
@@ -685,7 +685,7 @@ static int Fax3PreEncode(TIFF * tif, uint16 s)
 {
 	Fax3CodecState * sp = EncoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	sp->bit = 8;
 	sp->data = 0;
 	sp->tag = G3_1D;
@@ -1484,12 +1484,3 @@ int TIFFInitCCITTRLEW(TIFF * tif, int scheme)
 }
 
 #endif /* CCITT_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

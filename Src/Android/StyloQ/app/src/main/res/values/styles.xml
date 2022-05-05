@@ -84,4 +84,33 @@
         <item name="android:layout_marginTop">1dp</item>
         <item name="android:layout_marginBottom">1dp</item>
     </style>
+    <style name="PageHeaderRegular">
+        <item name="android:background">@drawable/shape_pageheader</item>
+        <item name="android:padding">2dp</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+    <style name="PageHeaderTitleText">
+        <item name="android:fontFamily">@font/bagnard_sans</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:layout_margin">4dp</item>
+    </style>
+    <style name="PageHeaderTopicText">
+        <item name="android:fontFamily">@font/bagnard_sans</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:layout_margin">4dp</item>
+    </style>
+    <style name="PageBodyRegular">
+        <item name="android:background">@drawable/shape_viewframe</item>
+    </style>
+    <style name="AttendanceMinutCell">
+        <item name="android:background">@drawable/shape_viewframe</item>
+        <item name="android:layout_margin">1dp</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textColor">@color/PrimaryText</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:gravity">center_horizontal|center_vertical</item>
+    </style>
 </resources>

@@ -720,10 +720,11 @@
 	#define PPACN_SCARDOWNERSET         93L // @v11.3.1 Установлен владелец персональной карты. Доп параметр - ID предыдущего владельца.
 	#define PPACN_STYLOQSVCIDXQUERY     94L // @v11.3.4 Сервис Stylo-Q отправил медиатору данные для индексации. Доп параметр - ид медиатора.
 		// Событие используется для правильной идентификации необходимости повторной посылки данных.
-	#define PPACN_STYLOQFACETRANSMITTED 95L // @v11.3.9 Клиент Stylo-Q передал сервису свой лик. Объект: oid сервиса {PPOBJ_STYLOQBINDERY; id}, 
+	#define PPACN_STYLOQFACETRANSMITTED 95L // @v11.3.9 Клиент Stylo-Q передал сервису свой лик. Объект: oid сервиса {PPOBJ_STYLOQBINDERY; id},
 		// доп параметр - ид лика. Событие используется для правильной идентификации необходимости повторной посылки данных.
-	// !!! При вставке нового значения изменить PPACN_LAST !!!
-	#define PPACN_LAST                  95L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
+	#define PPACN_SCARDOWNERUPDATED     96L // @v11.3.10 Изменилась персоналия-владелец карты. Событие привязывается к карте (PPOBJ_SCARD). Доп параметр - ид персоналии.
+		// !!! При вставке нового значения изменить PPACN_LAST !!!
+	#define PPACN_LAST                  96L // Последнее значение (ИЗМЕНИТЬ ПРИ ВСТАВКЕ НОВОГО ЗНАЧЕНИЯ)
 
 	#define SYSMAINTENANCEFUNC_AUTOMQSCONFIG 1 // @v10.7.5 Автоматическое обновление конфигурации обмена с брокером сообщений
 	//
@@ -902,6 +903,7 @@
 	#define SCPPRP_GRPLIST        2L // Список элементов-членов группы
 #define PPOBJ_STAFFCAL           58L // $ Штатный календарь
 	#define PPSTCAL_STANDARD     10L // Стандартный календарь.
+	#define PPSTCAL_REGULAR      11L // @v11.3.10 Регулярный календарь
 #define PPOBJ_NAMEDOBJASSOC      59L // $ Именованные ассоциации объектов
 #define PPOBJ_BIZSCORE           60L // Определители бизнес-показателей
 	#define BZSPRP_DESCR          1L // Описание показателя, совмещенное с формулой
@@ -2063,6 +2065,7 @@
 	#define CTL_PERSON_ST_INFO          (54 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_FULLSCARDBUT     (55 + WINDOWS_ID_BIAS)
 	#define CTL_PERSON_GENDER           (56 + WINDOWS_ID_BIAS)
+	#define CTL_PERSON_EMAIL            (57 + WINDOWS_ID_BIAS)
 #define DLG_REG_PRIVATE            26 // Регистр. данные физ. лиц
 #define DLG_REG_FREE               27 // Регистр. данные частных предпр.
 #define DLG_REG_LEGAL              28 // Регистр. данные юр. лиц
@@ -7747,6 +7750,7 @@
 	#define CTL_TRNVRRNG_SERIES       (3 + WINDOWS_ID_BIAS)
 	#define CTLSEL_TRNVRRNG_SERIES    (4 + WINDOWS_ID_BIAS)
 	#define CTL_TRNVRRNG_METHOD       (5 + WINDOWS_ID_BIAS)
+	#define CTL_TRNVRRNG_ZEROTRNOVR   (6 + WINDOWS_ID_BIAS)
 #define DLG_QUOTLIST              843 // Список видов котировок
 	#define CTL_QUOTLIST_LIST           (1 + WINDOWS_ID_BIAS)
 #define DLG_CBXSEL               844
@@ -11296,6 +11300,7 @@
 #define DLG_STQATTCPARAM          1411 // @v11.3.3
 	#define CTL_STQATTCPARAM_PRCLIST         (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQATTCPARAM_PRCTTL          (2  + WINDOWS_ID_BIAS)
+	#define CTL_STQATTCPARAM_MAXSCHD         (3  + WINDOWS_ID_BIAS)
 #define DLG_STQCLITEST            1412 // @v11.3.3
 	#define CTL_STQCLITEST_SVC               (1  + WINDOWS_ID_BIAS)
 	#define CTL_STQCLITEST_FUNC              (2  + WINDOWS_ID_BIAS)

@@ -270,10 +270,8 @@
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
 	#define HB_FALLTHROUGH __attribute__((fallthrough)) /* GNU fallthrough attribute is available from GCC7 */
 #elif defined(_MSC_VER)
-	/*
-	 * MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
-	 * https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
-	 */
+	// MSVC's __fallthrough annotations are checked by /analyze (Code Analysis):
+	// https://msdn.microsoft.com/en-us/library/ms235402%28VS.80%29.aspx
 	#include <sal.h>
 	#define HB_FALLTHROUGH __fallthrough
 #else
@@ -302,23 +300,23 @@
 /* We need Windows Vista for both Uniscribe backend and for
  * MemoryBarrier.  We don't support compiling on Windows XP,
  * though we run on it fine. */
-#  if defined(_WIN32_WINNT) && _WIN32_WINNT < 0x0600
+#if defined(_WIN32_WINNT) && _WIN32_WINNT < 0x0600
 #    undef _WIN32_WINNT
-#  endif
+#endif
 #  ifndef _WIN32_WINNT
 #    if WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP)
 #      define _WIN32_WINNT 0x0600
 #    endif
-#  endif
+#endif
 #  ifndef WIN32_LEAN_AND_MEAN
-#    define WIN32_LEAN_AND_MEAN 1
-#  endif
+#define WIN32_LEAN_AND_MEAN 1
+#endif
 #  ifndef STRICT
-#    define STRICT 1
-#  endif
-#  if defined(_WIN32_WCE)
+#define STRICT 1
+#endif
+#if defined(_WIN32_WCE)
 /* Some things not defined on Windows CE. */
-#    define vsnprintf _vsnprintf
+#define vsnprintf _vsnprintf
 #ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #    endif
@@ -330,10 +328,10 @@
 #ifndef HB_NO_GETENV
 #      define HB_NO_GETENV
 #    endif
-#  endif
-#  if defined(_MSC_VER) && _MSC_VER < 1900
-#    define snprintf _snprintf
-#  endif
+#endif
+#if defined(_MSC_VER) && _MSC_VER < 1900
+#define snprintf _snprintf
+#endif
 #endif
 
 #ifdef HB_NO_GETENV
@@ -350,7 +348,7 @@
 /* atexit() is only safe to be called from shared libraries on certain
  * platforms.  Whitelist.
  * https://bugs.freedesktop.org/show_bug.cgi?id=82246 */
-#  if defined(__linux) && defined(__GLIBC_PREREQ)
+#if defined(__linux) && defined(__GLIBC_PREREQ)
 #    if __GLIBC_PREREQ(2, 3)
 /* From atexit() manpage, it's safe with glibc 2.2.3 on Linux. */
 #      define HB_USE_ATEXIT 1
@@ -361,19 +359,19 @@
  * https://msdn.microsoft.com/en-us/library/zk17ww08.aspx
  * mingw32 headers say atexit is safe to use in shared libraries.
  */
-#    define HB_USE_ATEXIT 1
+#define HB_USE_ATEXIT 1
 #  elif defined(__ANDROID__)
 /* This is available since Android NKD r8 or r8b:
  * https://issuetracker.google.com/code/p/android/issues/detail?id=6455
  */
-#    define HB_USE_ATEXIT 1
+#define HB_USE_ATEXIT 1
 #  elif defined(__APPLE__)
 /* For macOS and related platforms, the atexit man page indicates
  * that it will be invoked when the library is unloaded, not only
  * at application exit.
  */
-#    define HB_USE_ATEXIT 1
-#  endif
+#define HB_USE_ATEXIT 1
+#endif
 #endif
 #ifdef HB_NO_ATEXIT
 	#undef HB_USE_ATEXIT

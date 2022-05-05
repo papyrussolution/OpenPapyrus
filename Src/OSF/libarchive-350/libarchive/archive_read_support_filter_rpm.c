@@ -50,13 +50,9 @@ int archive_read_support_filter_rpm(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_rpm");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_rpm");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "rpm";
 	bidder->bid = rpm_bidder_bid;
@@ -75,7 +71,6 @@ static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archi
 	b = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 8, &avail));
 	if(b == NULL)
 		return 0;
-
 	bits_checked = 0;
 	/*
 	 * Verify Header Magic Bytes : 0XED 0XAB 0XEE 0XDB

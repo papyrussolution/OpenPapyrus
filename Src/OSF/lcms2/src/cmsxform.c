@@ -463,7 +463,7 @@ static void DupPluginTransformList(struct _cmsContext_struct* ctx, const struct 
 // Allocates memory for transform plugin factory
 void _cmsAllocTransformPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	if(src != NULL) {
+	if(src) {
 		// Copy all linked list
 		DupPluginTransformList(ctx, src);
 	}

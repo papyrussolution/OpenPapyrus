@@ -1394,14 +1394,14 @@ void SSuffixTree::OutputChrChunk(const SSuffixTree::IndexBase & rRange, long fla
 	const String * p_str = GetStr(rRange.StrP);
 	const uint end_idx = GetEndIdx(&rRange);
 	if(p_str) {
-		rBuf.CatEq("str", (ulong)rRange.StrP).CatChar('[').Cat(rRange.StartIdx).CatChar('-').Cat(end_idx).CatChar(']');
+		rBuf.CatEq("str", rRange.StrP).CatChar('[').Cat(rRange.StartIdx).CatChar('-').Cat(end_idx).CatChar(']');
 		rBuf.Space();
 		for(uint i = rRange.StartIdx; i <= end_idx; i++) {
 			OutputChr(p_str, i, flags, rBuf);
 		}
 	}
 	else {
-		rBuf.CatEq("zerostr", (ulong)rRange.StrP).CatChar('[').Cat(rRange.StartIdx).CatChar('-').Cat(end_idx).CatChar(']');
+		rBuf.CatEq("zerostr", rRange.StrP).CatChar('[').Cat(rRange.StartIdx).CatChar('-').Cat(end_idx).CatChar(']');
 	}
 }
 
@@ -1409,11 +1409,11 @@ void SSuffixTree::OutputEdge(uint edgeP, long flags, SString & rBuf) const
 {
 	const Edge * p_edge = GetEdge(edgeP);
 	if(p_edge) {
-		rBuf.CatEq("edge", (ulong)edgeP).CatDiv(':', 2);
+		rBuf.CatEq("edge", edgeP).CatDiv(':', 2);
 		OutputChrChunk(*p_edge, flags, rBuf);
 	}
 	else {
-		rBuf.CatEq("zeroedge", (ulong)edgeP);
+		rBuf.CatEq("zeroedge", edgeP);
 	}
 }
 
@@ -1423,7 +1423,7 @@ void SSuffixTree::OutputNode(uint nodeP, uint tabs, long flags, SString & rBuf) 
 	if(tabs)
 		rBuf.Tab(tabs);
 	if(p_node) {
-		rBuf.CatEq("node", (ulong)nodeP).CatDiv(':', 2);
+		rBuf.CatEq("node", nodeP).CatDiv(':', 2);
 		{
             const EdgeHub * p_hub = GetEdgeHub(p_node->EdgeHubP);
             if(p_hub) {
@@ -1452,7 +1452,7 @@ void SSuffixTree::OutputNode(uint nodeP, uint tabs, long flags, SString & rBuf) 
 		}
 	}
 	else {
-		rBuf.CatEq("zeronode", (ulong)nodeP);
+		rBuf.CatEq("zeronode", nodeP);
 	}
 }
 

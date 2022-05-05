@@ -9,12 +9,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/cord_analysis.h"
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_btree.h"
-#include "absl/strings/internal/cord_rep_crc.h"
-#include "absl/strings/internal/cord_rep_flat.h"
-#include "absl/strings/internal/cord_rep_ring.h"
-#include "absl/functional/function_ref.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

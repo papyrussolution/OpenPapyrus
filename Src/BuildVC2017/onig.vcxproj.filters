@@ -83,30 +83,30 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\osf\oniguruma\src\regint.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\oniguruma\src\regparse.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\oniguruma\src\regenc.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\osf\oniguruma\src\st.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\oniguruma\src\oniguruma.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="..\OSF\oniguruma\src\oniggnu.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{B76D3BD4-97C1-3C08-9B6E-E6F2D73EA1DE}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Test">
       <UniqueIdentifier>{6b99e639-e857-45da-97a7-b4a34dbac422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{B76D3BD4-97C1-3C08-9B6E-E6F2D73EA1DE}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

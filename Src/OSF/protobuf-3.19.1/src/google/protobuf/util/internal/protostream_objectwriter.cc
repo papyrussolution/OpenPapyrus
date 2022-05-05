@@ -23,12 +23,8 @@
 #include <google/protobuf/util/internal/field_mask_utility.h>
 #include <google/protobuf/util/internal/object_location_tracker.h>
 #include <google/protobuf/util/internal/constants.h>
-#include <google/protobuf/util/internal/utility.h>
-#include <google/protobuf/stubs/strutil.h>
-#include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/statusor.h>
 #include <google/protobuf/stubs/time.h>
-#include <google/protobuf/stubs/map_util.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {
@@ -995,26 +991,20 @@ Status ProtoStreamObjectWriter::RenderStructValue(ProtoStreamObjectWriter* ow,
 		    break;
 	    }
 		default: {
-		    return util::InvalidArgumentError(
-			    "Invalid struct data type. Only number, string, boolean or  null "
-			    "values are supported.");
+		    return util::InvalidArgumentError("Invalid struct data type. Only number, string, boolean or  null values are supported.");
 	    }
 	}
 	ow->ProtoWriter::RenderDataPiece(struct_field_name, data);
 	return Status();
 }
 
-Status ProtoStreamObjectWriter::RenderTimestamp(ProtoStreamObjectWriter* ow,
-    const DataPiece& data) {
+Status ProtoStreamObjectWriter::RenderTimestamp(ProtoStreamObjectWriter* ow, const DataPiece& data) 
+{
 	if(data.type() == DataPiece::TYPE_NULL) return Status();
 	if(data.type() != DataPiece::TYPE_STRING) {
-		return util::InvalidArgumentError(
-			StrCat("Invalid data type for timestamp, value is ",
-			data.ValueAsStringOrDefault("")));
+		return util::InvalidArgumentError(StrCat("Invalid data type for timestamp, value is ", data.ValueAsStringOrDefault("")));
 	}
-
 	StringPiece value(data.str());
-
 	int64 seconds;
 	int32 nanos;
 	if(!::google::protobuf::internal::ParseTime(value.ToString(), &seconds,
@@ -1027,43 +1017,33 @@ Status ProtoStreamObjectWriter::RenderTimestamp(ProtoStreamObjectWriter* ow,
 	return Status();
 }
 
-static inline util::Status RenderOneFieldPath(ProtoStreamObjectWriter* ow,
-    StringPiece path) {
-	ow->ProtoWriter::RenderDataPiece(
-		"paths", DataPiece(ConvertFieldMaskPath(path, &ToSnakeCase), true));
+static inline util::Status RenderOneFieldPath(ProtoStreamObjectWriter* ow, StringPiece path) 
+{
+	ow->ProtoWriter::RenderDataPiece("paths", DataPiece(ConvertFieldMaskPath(path, &ToSnakeCase), true));
 	return Status();
 }
 
-Status ProtoStreamObjectWriter::RenderFieldMask(ProtoStreamObjectWriter* ow,
-    const DataPiece& data) {
+Status ProtoStreamObjectWriter::RenderFieldMask(ProtoStreamObjectWriter* ow, const DataPiece& data) 
+{
 	if(data.type() == DataPiece::TYPE_NULL) return Status();
 	if(data.type() != DataPiece::TYPE_STRING) {
-		return util::InvalidArgumentError(
-			StrCat("Invalid data type for field mask, value is ",
-			data.ValueAsStringOrDefault("")));
+		return util::InvalidArgumentError(StrCat("Invalid data type for field mask, value is ", data.ValueAsStringOrDefault("")));
 	}
-
 	// TODO(tsun): figure out how to do proto descriptor based snake case
 	// conversions as much as possible. Because ToSnakeCase sometimes returns the
 	// wrong value.
-	return DecodeCompactFieldMaskPaths(data.str(),
-		   std::bind(&RenderOneFieldPath, ow, _1));
+	return DecodeCompactFieldMaskPaths(data.str(), std::bind(&RenderOneFieldPath, ow, _1));
 }
 
-Status ProtoStreamObjectWriter::RenderDuration(ProtoStreamObjectWriter* ow,
-    const DataPiece& data) {
+Status ProtoStreamObjectWriter::RenderDuration(ProtoStreamObjectWriter* ow, const DataPiece& data) 
+{
 	if(data.type() == DataPiece::TYPE_NULL) return Status();
 	if(data.type() != DataPiece::TYPE_STRING) {
-		return util::InvalidArgumentError(
-			StrCat("Invalid data type for duration, value is ",
-			data.ValueAsStringOrDefault("")));
+		return util::InvalidArgumentError(StrCat("Invalid data type for duration, value is ", data.ValueAsStringOrDefault("")));
 	}
-
 	StringPiece value(data.str());
-
 	if(!HasSuffixString(value, "s")) {
-		return util::InvalidArgumentError(
-			"Illegal duration format; duration must end with 's'");
+		return util::InvalidArgumentError("Illegal duration format; duration must end with 's'");
 	}
 	value = value.substr(0, value.size() - 1);
 	int sign = 1;
@@ -1071,46 +1051,40 @@ Status ProtoStreamObjectWriter::RenderDuration(ProtoStreamObjectWriter* ow,
 		sign = -1;
 		value = value.substr(1);
 	}
-
 	StringPiece s_secs, s_nanos;
 	SplitSecondsAndNanos(value, &s_secs, &s_nanos);
 	uint64_t unsigned_seconds;
 	if(!safe_strtou64(s_secs, &unsigned_seconds)) {
-		return util::InvalidArgumentError(
-			"Invalid duration format, failed to parse seconds");
+		return util::InvalidArgumentError("Invalid duration format, failed to parse seconds");
 	}
-
 	int32_t nanos = 0;
-	Status nanos_status = GetNanosFromStringPiece(
-		s_nanos, "Invalid duration format, failed to parse nano seconds",
-		"Duration value exceeds limits", &nanos);
+	Status nanos_status = GetNanosFromStringPiece(s_nanos, "Invalid duration format, failed to parse nano seconds", "Duration value exceeds limits", &nanos);
 	if(!nanos_status.ok()) {
 		return nanos_status;
 	}
 	nanos = sign * nanos;
-
 	int64_t seconds = sign * unsigned_seconds;
 	if(seconds > kDurationMaxSeconds || seconds < kDurationMinSeconds ||
 	    nanos <= -kNanosPerSecond || nanos >= kNanosPerSecond) {
 		return util::InvalidArgumentError("Duration value exceeds limits");
 	}
-
 	ow->ProtoWriter::RenderDataPiece("seconds", DataPiece(seconds));
 	ow->ProtoWriter::RenderDataPiece("nanos", DataPiece(nanos));
 	return Status();
 }
 
-Status ProtoStreamObjectWriter::RenderWrapperType(ProtoStreamObjectWriter* ow,
-    const DataPiece& data) {
-	if(data.type() == DataPiece::TYPE_NULL) return Status();
+Status ProtoStreamObjectWriter::RenderWrapperType(ProtoStreamObjectWriter* ow, const DataPiece& data) 
+{
+	if(data.type() == DataPiece::TYPE_NULL) 
+		return Status();
 	ow->ProtoWriter::RenderDataPiece("value", data);
 	return Status();
 }
 
-ProtoStreamObjectWriter* ProtoStreamObjectWriter::RenderDataPiece(StringPiece name, const DataPiece& data) {
+ProtoStreamObjectWriter* ProtoStreamObjectWriter::RenderDataPiece(StringPiece name, const DataPiece& data) 
+{
 	Status status;
 	if(invalid_depth() > 0) return this;
-
 	if(current_ == nullptr) {
 		const TypeRenderer* type_renderer =
 		    FindTypeRenderer(GetFullTypeWithUrl(master_type_.name()));

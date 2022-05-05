@@ -109,18 +109,18 @@
  */
 #if U_PLATFORM_IMPLEMENTS_POSIX
 #if U_PLATFORM == U_PF_OS400
-#    define HAVE_DLFCN_H 0
-#    define HAVE_DLOPEN 0
+#define HAVE_DLFCN_H 0
+#define HAVE_DLOPEN 0
 #   else
 #ifndef HAVE_DLFCN_H
-#    define HAVE_DLFCN_H 1
+#define HAVE_DLFCN_H 1
 #endif
 #ifndef HAVE_DLOPEN
-#    define HAVE_DLOPEN 1
+#define HAVE_DLOPEN 1
 #endif
 #endif
 #ifndef HAVE_GETTIMEOFDAY
-#    define HAVE_GETTIMEOFDAY 1
+#define HAVE_GETTIMEOFDAY 1
 #endif
 #else
 #define HAVE_DLFCN_H 0
@@ -850,7 +850,7 @@ static bool compareBinaryFiles(const char * defaultTZFileName, const char * TZFi
 		result = FALSE;
 	}
 
-	if(file != NULL) {
+	if(file) {
 		fclose(file);
 	}
 

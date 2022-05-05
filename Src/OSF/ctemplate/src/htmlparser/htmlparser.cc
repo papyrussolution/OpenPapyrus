@@ -403,7 +403,7 @@ const char * entityfilter_process(entityfilter_ctx * ctx, char c)
 static void enter_tag_name(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	html->tag[0] = '\0';
 	statemachine_start_record(ctx);
@@ -417,7 +417,7 @@ static void enter_tag_name(statemachine_ctx * ctx, int start, char chr, int end)
 static void exit_tag_name(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	nopad_strncpy(html->tag, statemachine_stop_record(ctx),
 	    HTMLPARSER_MAX_STRING, statemachine_record_length(ctx));
@@ -434,7 +434,7 @@ static void exit_tag_name(statemachine_ctx * ctx, int start, char chr, int end)
 static void enter_attr(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	html->attr[0] = '\0';
 	statemachine_start_record(ctx);
@@ -448,11 +448,8 @@ static void enter_attr(statemachine_ctx * ctx, int start, char chr, int end)
 static void exit_attr(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
-
-	nopad_strncpy(html->attr, statemachine_stop_record(ctx),
-	    HTMLPARSER_MAX_STRING, statemachine_record_length(ctx));
-
+	assert(html);
+	nopad_strncpy(html->attr, statemachine_stop_record(ctx), HTMLPARSER_MAX_STRING, statemachine_record_length(ctx));
 	tolower_str(html->attr);
 }
 
@@ -464,7 +461,7 @@ static void exit_attr(statemachine_ctx * ctx, int start, char chr, int end)
 static void enter_value(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	html->value_index = 0;
 
@@ -486,7 +483,7 @@ static void enter_value_content(statemachine_ctx * ctx, int start, char chr,
     int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	html->value[0] = '\0';
 	statemachine_start_record(ctx);
@@ -500,7 +497,7 @@ static void exit_value_content(statemachine_ctx * ctx, int start, char chr,
     int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	nopad_strncpy(html->value, statemachine_stop_record(ctx),
 	    HTMLPARSER_MAX_STRING, statemachine_record_length(ctx));
@@ -516,7 +513,7 @@ static void exit_value_content(statemachine_ctx * ctx, int start, char chr,
 static void in_state_value(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	html->value_index++;
 
@@ -540,7 +537,7 @@ static void in_state_value(statemachine_ctx * ctx, int start, char chr, int end)
 static void tag_close(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 	if(sstreq(html->tag, "script")) {
 		ctx->next_state = HTMLPARSER_STATE_INT_CDATA_TEXT;
 		jsparser_reset(html->jsparser);
@@ -559,7 +556,7 @@ static void tag_close(statemachine_ctx * ctx, int start, char chr, int end)
 static void in_state_cdata(statemachine_ctx * ctx, int start, char chr, int end)
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
-	assert(html != NULL);
+	assert(html);
 
 	if(html->in_js)
 		jsparser_parse_chr(html->jsparser, chr);
@@ -587,7 +584,7 @@ static void exit_state_cdata_may_close(statemachine_ctx * ctx, int start,
 {
 	htmlparser_ctx * html = CAST(htmlparser_ctx *, ctx->user);
 	const char * cdata_close_tag;
-	assert(html != NULL);
+	assert(html);
 
 	cdata_close_tag = statemachine_stop_record(ctx);
 	assert(cdata_close_tag[0] == '/');
@@ -607,7 +604,7 @@ static void exit_state_cdata_may_close(statemachine_ctx * ctx, int start,
  */
 void htmlparser_reset_mode(htmlparser_ctx * ctx, int mode)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	statemachine_reset(ctx->statemachine);
 	ctx->in_js = 0;
 	ctx->tag[0] = '\0';
@@ -640,7 +637,7 @@ void htmlparser_reset_mode(htmlparser_ctx * ctx, int mode)
  */
 void htmlparser_reset(htmlparser_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	htmlparser_reset_mode(ctx, HTMLPARSER_MODE_HTML);
 }
 
@@ -1000,7 +997,7 @@ int htmlparser_insert_text(htmlparser_ctx * ctx)
  */
 void htmlparser_delete(htmlparser_ctx * ctx)
 {
-	assert(ctx != NULL);
+	assert(ctx);
 	statemachine_definition_delete(ctx->statemachine_def);
 	statemachine_delete(ctx->statemachine);
 	jsparser_delete(ctx->jsparser);

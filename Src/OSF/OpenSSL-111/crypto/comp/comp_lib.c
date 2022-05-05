@@ -21,7 +21,7 @@ COMP_CTX * COMP_CTX_new(COMP_METHOD * meth)
 		return NULL;
 	}
 	ret->meth = meth;
-	if((ret->meth->init != NULL) && !ret->meth->init(ret)) {
+	if(ret->meth->init && !ret->meth->init(ret)) {
 		OPENSSL_free(ret);
 		ret = NULL;
 	}

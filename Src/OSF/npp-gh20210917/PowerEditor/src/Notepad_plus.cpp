@@ -445,7 +445,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	// Macro Menu
 	std::vector <MacroShortcut> & macros = nppParam.getMacroList();
 	HMENU hMacroMenu = ::GetSubMenu(_mainMenuHandle, MENUINDEX_MACRO);
-	size_t const posBase = 6;
+	const size_t posBase = 6;
 	size_t nbMacro = macros.size();
 	if(nbMacro >= 1)
 		::InsertMenu(hMacroMenu, posBase - 1, MF_BYPOSITION, static_cast<UINT>(-1), 0);

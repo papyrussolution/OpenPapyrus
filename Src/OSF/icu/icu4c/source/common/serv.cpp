@@ -661,7 +661,7 @@ UnicodeString &ICUService::getDisplayName(const UnicodeString & id, UnicodeStrin
 		const Hashtable* map = getVisibleIDMap(status);
 		if(map != NULL) {
 			ICUServiceFactory* f = (ICUServiceFactory*)map->get(id);
-			if(f != NULL) {
+			if(f) {
 				f->getDisplayName(id, locale, result);
 				return result;
 			}
@@ -673,7 +673,7 @@ UnicodeString &ICUService::getDisplayName(const UnicodeString & id, UnicodeStrin
 				UnicodeString us;
 				fallbackKey->currentID(us);
 				f = (ICUServiceFactory*)map->get(us);
-				if(f != NULL) {
+				if(f) {
 					f->getDisplayName(id, locale, result);
 					delete fallbackKey;
 					return result;
@@ -785,7 +785,7 @@ URegistryKey ICUService::registerInstance(UObject* objToAdopt, const UnicodeStri
 		delete key;
 
 		ICUServiceFactory* f = createSimpleFactory(objToAdopt, canonicalID, visible, status);
-		if(f != NULL) {
+		if(f) {
 			return registerFactory(f, status);
 		}
 	}

@@ -1478,17 +1478,14 @@ static int iso9660_write_header(struct archive_write * a, struct archive_entry *
 	 * Ignore a path which looks like the top of directory name
 	 * since we have already made the root directory of an ISO image.
 	 */
-	if(archive_strlen(&(file->parentdir)) == 0 &&
-	    archive_strlen(&(file->basename)) == 0) {
+	if(archive_strlen(&(file->parentdir)) == 0 && archive_strlen(&(file->basename)) == 0) {
 		isofile_free(file);
 		return r;
 	}
-
 	isofile_add_entry(iso9660, file);
 	isoent = isoent_new(file);
 	if(isoent == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate data");
 		return ARCHIVE_FATAL;
 	}
 	if(isoent->file->dircnt > iso9660->dircnt_max)
@@ -4668,12 +4665,9 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 		/*
 		 * Convert a path-separator from '\' to  '/'
 		 */
-		if(archive_strlen(&(file->symlink)) > 0 &&
-		    cleanup_backslash_1(file->symlink.s) != 0) {
-			const wchar_t * wp =
-			    archive_entry_symlink_w(file->entry);
+		if(archive_strlen(&(file->symlink)) > 0 && cleanup_backslash_1(file->symlink.s) != 0) {
+			const wchar_t * wp = archive_entry_symlink_w(file->entry);
 			struct archive_wstring ws;
-
 			if(wp != NULL) {
 				int r;
 				archive_string_init(&ws);
@@ -5271,13 +5265,9 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 	 * the same as the path of `cur_dirent', add isoent to
 	 * `cur_dirent'.
 	 */
-	if(archive_strlen(&(iso9660->cur_dirstr))
-	    == archive_strlen(&(isoent->file->parentdir)) &&
-	    strcmp(iso9660->cur_dirstr.s, fn) == 0) {
+	if(archive_strlen(&(iso9660->cur_dirstr)) == archive_strlen(&(isoent->file->parentdir)) && strcmp(iso9660->cur_dirstr.s, fn) == 0) {
 		if(!isoent_add_child_tail(iso9660->cur_dirent, isoent)) {
-			np = (struct isoent *)__archive_rb_tree_find_node(
-				&(iso9660->cur_dirent->rbtree),
-				isoent->file->basename.s);
+			np = (struct isoent *)__archive_rb_tree_find_node(&(iso9660->cur_dirent->rbtree), isoent->file->basename.s);
 			goto same_entry;
 		}
 		return ARCHIVE_OK;
@@ -5368,25 +5358,18 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 		 * inserted. */
 		iso9660->cur_dirent = dent;
 		archive_string_empty(&(iso9660->cur_dirstr));
-		archive_string_ensure(&(iso9660->cur_dirstr),
-		    archive_strlen(&(dent->file->parentdir)) +
-		    archive_strlen(&(dent->file->basename)) + 2);
-		if(archive_strlen(&(dent->file->parentdir)) +
-		    archive_strlen(&(dent->file->basename)) == 0)
+		archive_string_ensure(&(iso9660->cur_dirstr), archive_strlen(&(dent->file->parentdir)) + archive_strlen(&(dent->file->basename)) + 2);
+		if(archive_strlen(&(dent->file->parentdir)) + archive_strlen(&(dent->file->basename)) == 0)
 			iso9660->cur_dirstr.s[0] = 0;
 		else {
 			if(archive_strlen(&(dent->file->parentdir)) > 0) {
-				archive_string_copy(&(iso9660->cur_dirstr),
-				    &(dent->file->parentdir));
+				archive_string_copy(&(iso9660->cur_dirstr), &(dent->file->parentdir));
 				archive_strappend_char(&(iso9660->cur_dirstr), '/');
 			}
-			archive_string_concat(&(iso9660->cur_dirstr),
-			    &(dent->file->basename));
+			archive_string_concat(&(iso9660->cur_dirstr), &(dent->file->basename));
 		}
-
 		if(!isoent_add_child_tail(dent, isoent)) {
-			np = (struct isoent *)__archive_rb_tree_find_node(
-				&(dent->rbtree), isoent->file->basename.s);
+			np = (struct isoent *)__archive_rb_tree_find_node(&(dent->rbtree), isoent->file->basename.s);
 			goto same_entry;
 		}
 		return ARCHIVE_OK;

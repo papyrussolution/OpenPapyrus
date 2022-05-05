@@ -236,9 +236,9 @@ FRect::FRect(const RECT & r) // @v11.2.11
 	b.y = static_cast<float>(r.bottom);
 }
 
-int FASTCALL FRect::operator == (const FRect & rS) const { return IsEq(rS); }
-int FASTCALL FRect::operator != (const FRect & rS) const { return !IsEq(rS); }
-int FASTCALL FRect::IsEq(const FRect & rS) const { return (a == rS.a && b == rS.b); }
+bool FASTCALL FRect::operator == (const FRect & rS) const { return IsEq(rS); }
+bool FASTCALL FRect::operator != (const FRect & rS) const { return !IsEq(rS); }
+bool FASTCALL FRect::IsEq(const FRect & rS) const { return (a == rS.a && b == rS.b); }
 
 FRect & FRect::Set(float v)
 {

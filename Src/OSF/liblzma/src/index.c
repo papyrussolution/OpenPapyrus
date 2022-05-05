@@ -1005,8 +1005,8 @@ lzma_index_hash * lzma_index_hash_init(lzma_index_hash * index_hash, const lzma_
 		index_hash->pos = 0;
 		index_hash->crc32 = 0;
 		// These cannot fail because LZMA_CHECK_BEST is known to be supported.
-		(void)lzma_check_init(&index_hash->blocks.check, LZMA_CHECK_BEST);
-		(void)lzma_check_init(&index_hash->records.check, LZMA_CHECK_BEST);
+		lzma_check_init(&index_hash->blocks.check, LZMA_CHECK_BEST);
+		lzma_check_init(&index_hash->records.check, LZMA_CHECK_BEST);
 	}
 	return index_hash;
 }

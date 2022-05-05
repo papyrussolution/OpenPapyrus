@@ -1,20 +1,12 @@
+// SELFMT.H
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/********************************************************************
- * COPYRIGHT:
- * Copyright (c) 1997-2011, International Business Machines Corporation and
- * others. All Rights Reserved.
- * Copyright (C) 2010 , Yahoo! Inc.
- ********************************************************************
- *
- * File SELFMT.H
- *
- * Modification History:
- *
- *   Date        Name        Description
- *   11/11/09    kirtig      Finished first cut of implementation.
- ********************************************************************/
-
+// Copyright (c) 1997-2011, International Business Machines Corporation and others. All Rights Reserved.
+// Copyright (C) 2010 , Yahoo! Inc.
+// Modification History:
+// Date        Name        Description
+// 11/11/09    kirtig      Finished first cut of implementation.
+//
 #ifndef SELFMT
 #define SELFMT
 
@@ -24,7 +16,6 @@
 
 #include "unicode/messagepattern.h"
 #include "unicode/numfmt.h"
-
 /**
  * \file
  * \brief C++ API: SelectFormat object
@@ -35,7 +26,6 @@
 U_NAMESPACE_BEGIN
 
 class MessageFormat;
-
 /**
   * <p><code>SelectFormat</code> supports the creation of  internationalized
   * messages by selecting phrases based on keywords. The pattern  specifies
@@ -187,7 +177,6 @@ class MessageFormat;
 
 class U_I18N_API SelectFormat : public Format {
 public:
-
     /**
      * Creates a new <code>SelectFormat</code> for a given pattern string.
      * @param  pattern the pattern for this <code>SelectFormat</code>.
@@ -197,19 +186,16 @@ public:
      * @stable ICU 4.4
      */
     SelectFormat(const UnicodeString & pattern, UErrorCode& status);
-
     /**
      * copy constructor.
      * @stable ICU 4.4
      */
     SelectFormat(const SelectFormat& other);
-
     /**
      * Destructor.
      * @stable ICU 4.4
      */
     virtual ~SelectFormat();
-
     /**
      * Sets the pattern used by this select format.
      * for the keyword rules.
@@ -222,10 +208,7 @@ public:
      * @stable ICU 4.4
      */
     void applyPattern(const UnicodeString & pattern, UErrorCode& status);
-
-
     using Format::format;
-
     /**
      * Selects the phrase for  the given keyword
      *

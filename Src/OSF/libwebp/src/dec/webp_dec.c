@@ -147,7 +147,7 @@ static VP8StatusCode ParseVP8X(const uint8** const data,
 // appropriately.
 static VP8StatusCode ParseOptionalChunks(const uint8** const data,
     size_t* const data_size,
-    size_t const riff_size,
+    const size_t riff_size,
     const uint8** const alpha_data,
     size_t* const alpha_size) {
 	const uint8* buf;

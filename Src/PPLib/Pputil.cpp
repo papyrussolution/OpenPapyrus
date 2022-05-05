@@ -283,9 +283,9 @@ PPDimention & PPDimention::Z()
 }
 
 int    PPDimention::operator !() const { return BIN(Length == 0 && Width == 0 && Height == 0); }
-int    FASTCALL PPDimention::IsEq(const PPDimention & rS) const { return BIN(Length == rS.Length && Width == rS.Width && Height == rS.Height); }
-int    FASTCALL PPDimention::operator == (const PPDimention & rS) const { return IsEq(rS); }
-int    FASTCALL PPDimention::operator != (const PPDimention & rS) const { return !IsEq(rS); }
+bool   FASTCALL PPDimention::IsEq(const PPDimention & rS) const { return (Length == rS.Length && Width == rS.Width && Height == rS.Height); }
+bool   FASTCALL PPDimention::operator == (const PPDimention & rS) const { return IsEq(rS); }
+bool   FASTCALL PPDimention::operator != (const PPDimention & rS) const { return !IsEq(rS); }
 double PPDimention::CalcVolumeM() const { return (fdiv1000i(Width) * fdiv1000i(Length) * fdiv1000i(Height)); }
 double PPDimention::CalcVolumeMM() const { return (Width * Length * Height); }
 
@@ -4403,9 +4403,9 @@ int PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollecti
 					for(uint i = 0; i < uhtt_list.getCount(); i++) {
 						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
 						log_buf.Z().
-							CatEq("goodsid", (long)p_uhtt_item->GoodsID).CatDiv(';', 2).
+							CatEq("goodsid", p_uhtt_item->GoodsID).CatDiv(';', 2).
 							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
-							CatEq("loc", (long)p_uhtt_item->LocID);
+							CatEq("loc", p_uhtt_item->LocID);
 						logger.Log(log_buf);
 					}
 				}
@@ -4483,9 +4483,9 @@ int TestUhttClient()
 					for(uint i = 0; i < uhtt_list.getCount(); i++) {
 						const UhttQuotPacket * p_uhtt_item = uhtt_list.at(i);
 						temp_buf.Z().
-							CatEq("goodsid", (long)p_uhtt_item->GoodsID).CatDiv(';', 2).
+							CatEq("goodsid", p_uhtt_item->GoodsID).CatDiv(';', 2).
 							CatEq("value", p_uhtt_item->Value).CatDiv(';', 2).
-							CatEq("loc", (long)p_uhtt_item->LocID);
+							CatEq("loc", p_uhtt_item->LocID);
 						log_buf.CR().Cat(temp_buf);
 					}
 				}
@@ -4512,7 +4512,7 @@ int TestUhttClient()
 					for(uint i = 0; i < uhtt_loc_list.getCount(); i++) {
 						const UhttLocationPacket * p_uhtt_loc_item = uhtt_loc_list.at(i);
 						temp_buf.Z().
-							CatEq("id", (long)p_uhtt_loc_item->ID).CatDiv(';', 2).
+							CatEq("id", p_uhtt_loc_item->ID).CatDiv(';', 2).
 							CatEq("phone", p_uhtt_loc_item->Phone).CatDiv(';', 2).
 							CatEq("contact", p_uhtt_loc_item->Contact);
 						log_buf.CR().Cat(temp_buf);

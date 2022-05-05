@@ -35,7 +35,7 @@ int X509_STORE_load_locations(X509_STORE * ctx, const char * file,
 {
 	X509_LOOKUP * lookup;
 
-	if(file != NULL) {
+	if(file) {
 		lookup = X509_STORE_add_lookup(ctx, X509_LOOKUP_file());
 		if(lookup == NULL)
 			return 0;

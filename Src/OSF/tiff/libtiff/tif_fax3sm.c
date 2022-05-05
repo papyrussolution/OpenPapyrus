@@ -1254,10 +1254,3 @@ const TIFFFaxTabEnt TIFFFaxBlackTable[8192] = {
 	{8, 4, 6}, {8, 2, 3}, {8, 3, 4}, {8, 2, 2}, {8, 5, 7}, {8, 2, 3}, {8, 3, 1}, {8, 2, 2}, {8, 4, 5}, {8, 2, 3},
 	{8, 3, 4}, {8, 2, 2}
 };
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

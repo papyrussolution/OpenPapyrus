@@ -628,9 +628,9 @@ enum PredefinedImpExpFormat { // @persistent
 struct PPDimention { // @noctr @novtbl
 	PPDimention & Z();
 	int    operator !() const;
-	int    FASTCALL IsEq(const PPDimention & rS) const;
-	int    FASTCALL operator == (const PPDimention & rS) const;
-	int    FASTCALL operator != (const PPDimention & rS) const;
+	bool   FASTCALL IsEq(const PPDimention & rS) const;
+	bool   FASTCALL operator == (const PPDimention & rS) const;
+	bool   FASTCALL operator != (const PPDimention & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	//
 	// Descr: Возвращает объем в куб.метрах
@@ -874,9 +874,9 @@ public:
 	//   Если value == 0, то список просто очищается.
 	//
 	ObjIdListFilt & FASTCALL operator = (long value);
-	int    operator ! () const { return (P_List == 0); }
-	int    IsExists() const { return BIN(P_List); }
-	int    FASTCALL IsEq(const ObjIdListFilt &) const;
+	bool   operator ! () const { return (P_List == 0); }
+	bool   IsExists() const { return LOGIC(P_List); }
+	bool   FASTCALL IsEq(const ObjIdListFilt &) const;
 	bool   IsEmpty() const;
 	int    FASTCALL CheckID(PPID) const;
 	const  PPIDArray & Get() const { return *P_List; }
@@ -1471,6 +1471,7 @@ public:
 	static int IdArIsCatPerson;     // @v11.1.9 (fldArticle, personCategoryID) Определяет соотносится ли статья fldArticle с персоналией, имеющей категорию personCategoryID
 	static int IdObjMemoPerson;     // @v11.1.12 (fldPersonID)
 	static int IdObjMemoPersonEvent; // @v11.1.12 (fldPersonEventID)
+	static int IdTechCapacity;      // @v11.3.10 (fldPrcID, fldCapacity)
 
 	static int Register();
 	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
@@ -6218,13 +6219,13 @@ public:
 	// Descr: Типы зарезервированных параметров маршрутизации
 	//
 	enum {
-		rtrsrvPapyrusDbx = 1, // Обмен пакетами синхронизации баз данных
+		rtrsrvPapyrusDbx         = 1, // Обмен пакетами синхронизации баз данных
 		rtrsrvPapyrusPosProtocol = 2, // Обмен между хостом и автономными кассовыми узлами Papyrus
-		rtrsrvStyloView  = 3, // Обмен с системой StyloView
-		rtrsrvRpc        = 4, // Короткие запросы
+		rtrsrvStyloView          = 3, // Обмен с системой StyloView
+		rtrsrvRpc                = 4, // Короткие запросы
 		rtrsrvRpcListener        = (rtrsrvRpc | 0x8000), // Короткие запросы (только слушатель)
-		rtrsrvRpcReply   = 5, // Ответы на rtrsrvRpc
-		rtrsrvStyloQRpc  = 6, // @v11.0.9 Запросы в рамках проекта Stylo-Q
+		rtrsrvRpcReply           = 5, // Ответы на rtrsrvRpc
+		rtrsrvStyloQRpc          = 6, // @v11.0.9 Запросы в рамках проекта Stylo-Q
 		rtrsrvStyloQRpcReply     = 7, // @v11.0.9 Ответы на rtrsrvStyloQRpc
 		rtrsrvStyloQRpcListener  = (rtrsrvStyloQRpc | 0x8000), // @v11.0.9 Короткие запросы (только слушатель)
 	};
@@ -6294,6 +6295,7 @@ public:
 	int    ExchangeDeclare(const char * pExchange, int type /* exgtXXX */, long exchangeFlags);
 	int    QueueBind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
 	int    QueueUnbind(const char * pQueue, const char * pExchange, const char * pRoutingKey);
+	int    QueueDelete(const char * pQueue, long queueFlags);
 	int    ApplyRoutingParamEntry(const RoutingParamEntry & rP);
 	//
 	// Descr: Устанавливает время жизни сообщения (ttlMs) в свойствах pProps и возвращает
@@ -6331,6 +6333,8 @@ private:
 	SString Host;
 	int    Port;
 	SStrCollection ConsumeTagList; // @v11.2.2
+	StringSet AutoDeleteDeclaredQueues; // @v11.3.10 Список созданных auto-delete-очередей, которые надо удалить.
+		// Сам rabbit-mq почему-то не удаляет их :(
 };
 
 class MqbEventResponder {
@@ -9599,8 +9603,8 @@ public:
 	// Note: Значения используются как смещения битовой маски поля FormBits //
 	//
 	enum { // @persistent (не менять значения элементов ни в коем случае!)
-		pbBill   =  0,
-		pbQCert  =  1,
+		pbBill           =  0,
+		pbQCert          =  1,
 		pbInvoice        =  2,
 		pbCashOrder      =  3,
 		pbWayBill        =  4, // Товарно-транспортная накладная
@@ -10252,7 +10256,7 @@ public:
 	//   документам и оплатам, а также при заполнении книги продаж/покупок.
 	//
 	int    InitAccturnInvoice(const PPBillPacket * pPack);
-	int    FASTCALL IsEq(const PPTransferItem & rS) const;
+	bool   FASTCALL IsEq(const PPTransferItem & rS) const;
 	//
 	// Descr: Возвращает !0 если строка является корректировкой прихода.
 	// Note: Признаком такой корректировки является одновременно установленные флаги PPTFR_CORRECTION и PPTFR_REVAL.
@@ -11605,7 +11609,7 @@ public:
 	//   восстановления пакета после ошибки в проведении.
 	//
 	void   SetLots(const PPTrfrArray & rS);
-	int    FASTCALL SearchTI(int rByBill, uint * pPos) const;
+	bool   FASTCALL SearchTI(int rByBill, uint * pPos) const;
 	int    UsesDistribCost() const;
 	//
 	// Descr: заносит элемент pItem в список товарных строк документа
@@ -16022,14 +16026,14 @@ public:
 	int    GetKind() const { return Kind; }
 	bool   IsKind(int k) const { return (static_cast<int>(Kind) == k); }
 	virtual ~PPCommandItem();
-	virtual int Write_Depricated(SBuffer &, long) const;
-	virtual int Read_Depricated(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
-	virtual const PPCommandItem * Next(uint * pPos) const;
+	virtual int    Write_Depricated(SBuffer &, long) const;
+	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual const  PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
-	virtual void FASTCALL SetUniqueID(long * pID);
+	virtual void   FASTCALL SetUniqueID(long * pID);
 	int    FASTCALL Copy(const PPCommandItem &);
 	int    Enumerate(CmdItemIterFunc func, long parentID, void * extraPtr) const;
 // @todo Теоретически, следующие поля надо бы сделать protected, но первая попытка "захлебнулась" - много неочевидных присваиваний.
@@ -16044,11 +16048,11 @@ public:
 class PPCommand : public PPCommandItem {
 public:
 	PPCommand();
-	virtual int Write_Depricated(SBuffer &, long) const;
-	virtual int Read_Depricated(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual int    Write_Depricated(SBuffer &, long) const;
+	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommand &);
 	long   CmdID;         // Идентификатор дескриптора команды (PPCommandDescr)
@@ -16122,12 +16126,12 @@ public:
 	PPCommandFolder();
 	PPCommandFolder(const PPCommandFolder & rS);
 	PPCommandFolder & FASTCALL operator = (const PPCommandFolder & rS);
-	virtual int Write_Depricated(SBuffer &, long) const;
-	virtual int Read_Depricated(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
-	virtual const PPCommandItem * Next(uint * pPos) const;
+	virtual int    Write_Depricated(SBuffer &, long) const;
+	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual const  PPCommandItem * Next(uint * pPos) const;
 	virtual PPCommandItem * Dup() const;
 	int    FASTCALL Copy(const PPCommandFolder &);
 	uint   GetCount() const;
@@ -16171,11 +16175,11 @@ public:
 	PPCommandGroup(PPCommandGroupCategory cmdgrpc, const char * pDbSymb, const char * pName);
 	PPCommandGroup(const PPCommandGroup &);
 	PPCommandGroup & FASTCALL operator = (const PPCommandGroup &);
-	virtual int Write_Depricated(SBuffer &, long) const;
-	virtual int Read_Depricated(SBuffer &, long);
-	virtual int Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
-	virtual int Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
-	virtual int IsEq(const void * pCommand) const; // @erik v10.6.1
+	virtual int    Write_Depricated(SBuffer &, long) const;
+	virtual int    Read_Depricated(SBuffer &, long);
+	virtual int    Write2(void * pHandler, const long rwFlag) const; // @erik v10.6.1
+	virtual int    Read2(const void * pHandler, const long rwFlag); // @erik v10.6.1
+	virtual bool   IsEq(const void * pCommand) const; // @erik v10.6.1
 	virtual PPCommandItem * Dup() const;
 	void   FASTCALL SetDbSymb(const char * pDbSymb);
 	int    FASTCALL IsDbSymbEq(const char * pDbSymb) const;
@@ -17330,6 +17334,7 @@ struct PPELink {
 class PPELinkArray : public TSArray <PPELink> {
 public:
 	static int SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry);
+	static int SetupNewEmailEntry(const char * pEmail, PPELink & rEntry);
 	PPELinkArray();
 	int    FASTCALL IsEq(const PPELinkArray & rS) const;
 	int    AddItem(PPID kindID, const char * pAddr);
@@ -17339,6 +17344,8 @@ public:
 	int    GetPhones(uint maxCount, SString & rBuf, long elinkType = ELNKRT_PHONE) const;
 	int    GetListByType(PPID eLinkType, StringSet & rSs) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
+private:
+	static int Helper_SetupNewEntry(PPID elinkType, const char * pValue, PPELink & rEntry);
 };
 //
 // @ModuleDecl(PPObjCurrency)
@@ -21648,7 +21655,7 @@ public:
 	//
 	int    IdentifyAcc(long * pAco, PPID * pAccID, PPID curID, PPID personRelID, PPIDArray * pAccList);
 	int    LockingFRR(int lock, int * pFRRL_Tag, int use_ta);
-	int    IsFRRLocked();
+	bool   IsFRRLocked() const;
 	int    RevalCurRests(const CurRevalParam *);
 	int    SortGenAccList(ObjRestrictArray *);
 	int    ReplaceArticle(PPID dest, PPID src);
@@ -26549,11 +26556,12 @@ private:
 	int    PreventDupRegister(PPID id, PPPersonPacket *); // @<<PPObjPerson::Write()
 		// @<<PPObjPerson::Write
 	int    Helper_GetAddrID(const PersonTbl::Rec *, PPID psnID, PPID dlvrAddrID, int option, PPID * pAddrID);
-	int    Helper_PutSCard(PPID personID, PPPersonPacket * pPack, PPObjSCard * pScObj);
+	int    Helper_PutSCard(PPID personID, PPPersonPacket * pPack);
 
 	SCtrLite Sctr;
 	PPObjArticle * P_ArObj;    //
 	PPObjProcessor * P_PrcObj; // Скрытый экземпляр для быстрой обработки сообщений DBMSG_PERSONACQUIREKIND
+	PPObjSCard * P_ScObj;      // @v11.3.10 При изменении пакета (PPObjPerson::PutPacket) необходимо идентифицировать карты, владелец которых меняется //
 	PPPersonConfig Cfg;        // Использовать только через PPObjPerson::GetConfig()
 	int    DoObjVer_Person;    // @v10.5.3 Хранить версии измененных и удаленных объектов
 public:
@@ -34604,14 +34612,14 @@ private:
 	TSVector <LockSet> locks;
 	GtaBlock GtaB;
 	SString NameBuf;         // Is returned by GetNamePtr
-	PackageCore * P_PckgT;   //
-	CurRateCore * P_Cr;      //
-	InventoryCore * P_InvT;  //
-	GoodsSaldoCore * P_GsT;  //
-	PPObjSCard  * P_ScObj;   //
-	PPObjLocation LocObj;    //
-	PPObjGoods GObj;         //
-	PPObjArticle ArObj;      //
+	PackageCore * P_PckgT;
+	CurRateCore * P_Cr;
+	InventoryCore * P_InvT;
+	GoodsSaldoCore * P_GsT;
+	PPObjSCard * P_ScObj;
+	PPObjLocation LocObj;
+	PPObjGoods GObj;
+	PPObjArticle ArObj;
 };
 
 class PPObjAccTurn : public PPObject {
@@ -35510,7 +35518,8 @@ struct TrnovrRngDis {      // @persistent @flat
 	enum {
 		fBonusAbsoluteValue = 0x0001, // Величина Value применяется как абсолютное значение, начисляемое на бонусную карту
 		fDiscountAddValue   = 0x0002, // Величина Value применяется как инкремент для величины скидки [-100..+100]
-		fDiscountMultValue  = 0x0004  // Величина Value применяется как мультипликатор для величины скидки [0..10]
+		fDiscountMultValue  = 0x0004, // Величина Value применяется как мультипликатор для величины скидки [0..10]
+		fZeroTurnover       = 0x0008  // @v11.3.10 Если флаг установлен, то правило применяется к нулевым оборотам
 	};
 	RealRange R;
 	double Value;          //
@@ -35531,7 +35540,7 @@ public:
 	bool   FASTCALL IsEq(const PPSCardSerRule & rS) const;
 	int    ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const;
 	int    IsList() const;
-	int    CheckTrnovrRng(const RealRange & rR, long pos) const;
+	int    CheckTrnovrRng(const TrnovrRngDis & rItem, long pos) const;
 	//int    GetPDisValue(double amt, double * pValue) const;
 	const TrnovrRngDis * SearchItem(double amount) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pSCtx);
@@ -36362,6 +36371,9 @@ private:
 #define PRCF_HASEXT                0x00200000L // С процессором связана запись расширения в PropertyTbl
 #define PRCF_ALLOWCANCELAFTERCLOSE 0x00400000L // Разрешение на перевод сессии в состояние 'ОТМЕНЕНА' из 'ЗАКРЫТА'
 #define PRCF_ALLOWREPEATING        0x00800000L // @v11.0.4 Допускается ввод параметров повтора для сессий
+#define PRCF_TECHCAPACITYREV       0x01000000L // @v11.3.10 Обратное представление производительности технологий. 
+	// То есть, время на одну ед товара, а не количество единиц товара в единицу времени. В базе данных представление остается тем же,
+	// но при вводе и выводе на экран - отображается обратная величина.
 //
 // Флаг передаваемый с дополнительным параметром, и сигнализирующий о том, что
 // речь идет о группе процессоров
@@ -44405,10 +44417,7 @@ public:
 	int    RenameDup(PPIDArray * pIdList);
 	int    PreprocessTempRec(const SCardTbl::Rec * pSrcRec, TempSCardTbl::Rec * pDestRec, RAssocArray * pTrnovrList/*, int calcTrnovr*/);
 	int    ProcessSelection(const SCardSelPrcssrParam * pParam, PPLogger *);
-	const  StrAssocArray & GetList() const
-	{
-		return List;
-	}
+	const  StrAssocArray & GetList() const { return List; }
 	int    CellStyleFunc_(const void * pData, long col, int paintAction, BrowserWindow::CellStyle * pCellStyle);
 private:
 	struct PreprocessScRecBlock {
@@ -46471,7 +46480,7 @@ public:
 	//   !0 - json-объект лика
 	//   0  - ошибка
 	//
-	SJson * ToJson(bool forTransmission) const;
+	SJson * ToJsonObject(bool forTransmission) const;
 private:
 	int   GetLanguageList(LongArray & rList) const;
 	int   Implement_Get(int tag, int lang, SString * pResult) const;
@@ -46638,7 +46647,8 @@ public:
 	StyloQAttendancePrereqParam(const StyloQAttendancePrereqParam & rS);
 	StyloQAttendancePrereqParam & FASTCALL operator = (const StyloQAttendancePrereqParam & rS);
 
-	uint8  ReserveStart[64]; // @reserve
+	uint8  ReserveStart[60]; // @reserve
+	int32  MaxScheduleDays;  // @v11.3.10 Максимальное количество дней от текущего, доступные для заказа услуги
 	ObjIdListFilt PrcList;   // @anchor 
 	SString PrcTitle;        // Строка, используемая для именования процессоров (мастера, врачи и т.д.)
 private:
@@ -46708,9 +46718,6 @@ public:
 		sqbdtContact    = 502, // Контактные данные персоналии
 		sqbdtTodo       = 503, // Задача (todo)
 		sqbdtSvcReq     = 504, // Запрос на обслуживание
-	};
-	struct CallbackItem {
-
 	};
 	struct Item {
 		Item();
@@ -46863,9 +46870,11 @@ public:
 			double Qtty;
 			double Cost;
 			double Price;
+			double Discount;
 		};
 		struct TransferItem {
 			TransferItem();
+			int    RowIdx;  // [1..], 0 - undefined
 			int    GoodsID; // service-domain-id
 			int    UnitID;  // service-domain-id
 			int    Flags;
@@ -46874,6 +46883,7 @@ public:
 		};
 		struct BookingItem {
 			BookingItem();
+			int    RowIdx; // [1..], 0 - undefined
 			int    PrcID;
 			int    GoodsID;
 			int    Flags;
@@ -46889,6 +46899,7 @@ public:
 		int    OpID;
 		int    ClientID;  // service-domain-id
 		int    DlvrLocID; // service-domain-id
+		double Amount;    // @v11.3.10
 		SString Code;
 		SBinaryChunk SvcIdent;
 		S_GUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
@@ -47117,11 +47128,15 @@ private:
 	//
 	// Descr: Обрабатывает команду создания документа по инициативе клиента.
 	// Returns:
-	//    PPOBJ_BILL - функция успешно завершена. идентификатор созданного или уже существующего документа присвоен по указателю pResultID.
-	//    PPOBJ_TSESSION - функция успешно завершена. идентификатор созданной или уже существующей техсессии присвоен по указателю pResultID.
-	//    0 - ошибка
+	//    !0 - json-объект для возврата клиенту
+	//     0 - error
+	//    //PPOBJ_BILL - функция успешно завершена. идентификатор созданного или уже существующего документа присвоен по указателю pResultID.
+	//    //PPOBJ_TSESSION - функция успешно завершена. идентификатор созданной или уже существующей техсессии присвоен по указателю pResultID.
+	//    //0 - ошибка
 	//
-	int   ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
+	SJson * ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
+	SJson * MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, PPID prcID, PPObjTSession & rTSesObj, long maxScheduleDays, 
+		LAssocArray * pGoodsToPrcList, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
 	// Returns:
 	//   >0 - идентификатор созданного документа (PPOBJ_STYLOQBINDERY)
@@ -47144,6 +47159,7 @@ private:
 	int    GetOidListWithBlob(PPObjIDArray & rList);
 	int    MakeRsrvPriceListResponse_ExportClients(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
 	int    MakeRsrvPriceListResponse_ExportGoods(const SBinaryChunk & rOwnIdent, const PPStyloPalmPacket * pPack, SJson * pJs, Stq_CmdStat_MakeRsrv_Response * pStat);
+	int    GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent);
 	//
 	// Descr: Возвращает дополнение для идентфикации локального (относящегося к машине или сеансу) сервера.
 	// ARG(flag IN): Уточняет о какой локальности идет речь. Если flag == smqbpfLocalMachine то дополнение
@@ -49172,7 +49188,7 @@ private:
 	PPObjGoodsGroup GgObj;
 	PPObjQuotKind QkObj;
 	PPObjCSession CsObj;
-	PPObjSCard  ScObj;
+	PPObjSCard ScObj;
 	PPObjCashNode CnObj;
 };
 //
@@ -52608,9 +52624,8 @@ private:
 	uint   CtlAnonym;    //
 	long   Flags;
 	Rec    Data;
-
 	PPObjPerson PsnObj;
-	PPObjSCard  ScObj;
+	PPObjSCard ScObj;
 };
 
 class PersonListCtrlGroup : public CtrlGroup {

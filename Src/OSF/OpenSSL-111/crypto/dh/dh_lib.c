@@ -74,7 +74,7 @@ DH * DH_new_method(ENGINE * engine)
 	ret->flags = ret->meth->flags;
 	if(!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_DH, ret, &ret->ex_data))
 		goto err;
-	if((ret->meth->init != NULL) && !ret->meth->init(ret)) {
+	if(ret->meth->init && !ret->meth->init(ret)) {
 		DHerr(DH_F_DH_NEW_METHOD, ERR_R_INIT_FAIL);
 		goto err;
 	}

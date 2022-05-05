@@ -691,7 +691,7 @@ int32 CheckTagTypePlugin(void)
 		goto Error;
 	}
 	ptr = (uint32 *)cmsReadTag(h, SigInt);
-	if(ptr != NULL) {
+	if(ptr) {
 		Fail("read tag/context switching failed");
 		goto Error;
 	}

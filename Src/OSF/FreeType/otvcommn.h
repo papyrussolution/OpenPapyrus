@@ -250,9 +250,7 @@ FT_LOCAL(void) otv_ClassDef_validate(FT_Bytes table, OTV_Validator otvalid);
 FT_LOCAL(void) otv_Device_validate(FT_Bytes table, OTV_Validator otvalid);
 //
 //
-/*****                                                               *****/
 /*****                           LOOKUPS                             *****/
-/*****                                                               *****/
 //
 //
 FT_LOCAL(void) otv_Lookup_validate(FT_Bytes table, OTV_Validator otvalid);
@@ -260,40 +258,23 @@ FT_LOCAL(void) otv_LookupList_validate(FT_Bytes table, OTV_Validator otvalid);
 
 //
 //
-/*****                                                               *****/
 /*****                        FEATURES                               *****/
-/*****                                                               *****/
 //
 //
-
-FT_LOCAL(void)
-otv_Feature_validate(FT_Bytes table,
-    OTV_Validator otvalid);
-
+FT_LOCAL(void) otv_Feature_validate(FT_Bytes table, OTV_Validator otvalid);
 /* lookups must already be validated */
-FT_LOCAL(void)
-otv_FeatureList_validate(FT_Bytes table,
-    FT_Bytes lookups,
-    OTV_Validator otvalid);
-
+FT_LOCAL(void) otv_FeatureList_validate(FT_Bytes table, FT_Bytes lookups, OTV_Validator otvalid);
 //
 //
-/*****                                                               *****/
 /*****                       LANGUAGE SYSTEM                         *****/
-/*****                                                               *****/
 //
 //
-
 FT_LOCAL(void) otv_LangSys_validate(FT_Bytes table, OTV_Validator otvalid);
-
 //
 //
-/*****                                                               *****/
 /*****                           SCRIPTS                             *****/
-/*****                                                               *****/
 //
 //
-
 FT_LOCAL(void) otv_Script_validate(FT_Bytes table, OTV_Validator otvalid);
 /* features must already be validated */
 FT_LOCAL(void) otv_ScriptList_validate(FT_Bytes table, FT_Bytes features, OTV_Validator otvalid);

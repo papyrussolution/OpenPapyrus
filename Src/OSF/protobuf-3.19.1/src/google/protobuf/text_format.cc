@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -23,19 +22,10 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/text_format.h>
-#include <google/protobuf/stubs/stringprintf.h>
-#include <google/protobuf/any.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/io/tokenizer.h>
-#include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/map_field.h>
-#include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/wire_format_lite.h>
 #include <google/protobuf/io/strtod.h>
-#include <google/protobuf/stubs/map_util.h>
-#include <google/protobuf/stubs/stl_util.h>
 #include <google/protobuf/port_def.inc> // Must be included last.
 
 #define DEBUG_STRING_SILENT_MARKER "\t "
@@ -43,14 +33,14 @@
 namespace google {
 namespace protobuf {
 namespace {
-inline bool IsHexNumber(const std::string & str) {
-	return (str.length() >= 2 && str[0] == '0' &&
-	       (str[1] == 'x' || str[1] == 'X'));
+inline bool IsHexNumber(const std::string & str) 
+{
+	return (str.length() >= 2 && str[0] == '0' && (str[1] == 'x' || str[1] == 'X'));
 }
 
-inline bool IsOctNumber(const std::string & str) {
-	return (str.length() >= 2 && str[0] == '0' &&
-	       (str[1] >= '0' && str[1] < '8'));
+inline bool IsOctNumber(const std::string & str) 
+{
+	return (str.length() >= 2 && str[0] == '0' && (str[1] >= '0' && str[1] < '8'));
 }
 }  // namespace
 

@@ -1473,13 +1473,14 @@ int SCS_SHTRIHFRF::PrintCheckByBill(const PPBillPacket * pPack, double multiplie
 int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormatName, uint flags)
 {
 	int    ok = -1;
+	const  bool is_cfg_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 	SString  temp_buf;
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
 	THROW_INVARG(pPack);
 	THROW(ConnectFR());
-	if(CConfig.Flags & CCFLG_DEBUG) {
-		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", static_cast<long>(devtypeCombo)).
+	if(is_cfg_debug) {
+		(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc entry").CatDiv(':', 2).CatEq("DeviceType", devtypeCombo).
 			CatDiv(';', 2).CatEq("SlipFormat", pFormatName);
 		PPLogMessage(PPFILNAM_SHTRIH_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 	}
@@ -1531,7 +1532,7 @@ int SCS_SHTRIHFRF::PrintSlipDoc(const CCheckPacket * pPack, const char * pFormat
 		}
 	}
 	else {
-		if(CConfig.Flags & CCFLG_DEBUG) {
+		if(is_cfg_debug) {
 			(temp_buf = "SCS_SHTRIHFRF::PrintSlipDoc printing skiped");
 			PPLogMessage(PPFILNAM_SHTRIH_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
 		}

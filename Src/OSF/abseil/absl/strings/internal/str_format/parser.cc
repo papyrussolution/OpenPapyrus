@@ -8,7 +8,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/internal/str_format/parser.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -59,28 +58,22 @@ ABSL_CONST_INIT const ConvTag kTags[256] = {
 };
 
 namespace {
-bool CheckFastPathSetting(const UnboundConversion& conv) {
-	bool width_precision_needed =
-	    conv.width.value() >= 0 || conv.precision.value() >= 0;
+bool CheckFastPathSetting(const UnboundConversion& conv) 
+{
+	bool width_precision_needed = conv.width.value() >= 0 || conv.precision.value() >= 0;
 	if(width_precision_needed && conv.flags == Flags::kBasic) {
-		fprintf(stderr,
-		    "basic=%d left=%d show_pos=%d sign_col=%d alt=%d zero=%d "
-		    "width=%d precision=%d\n",
-		    conv.flags == Flags::kBasic ? 1 : 0,
-		    FlagsContains(conv.flags, Flags::kLeft) ? 1 : 0,
-		    FlagsContains(conv.flags, Flags::kShowPos) ? 1 : 0,
-		    FlagsContains(conv.flags, Flags::kSignCol) ? 1 : 0,
-		    FlagsContains(conv.flags, Flags::kAlt) ? 1 : 0,
-		    FlagsContains(conv.flags, Flags::kZero) ? 1 : 0, conv.width.value(),
+		fprintf(stderr, "basic=%d left=%d show_pos=%d sign_col=%d alt=%d zero=%d width=%d precision=%d\n",
+		    conv.flags == Flags::kBasic ? 1 : 0, FlagsContains(conv.flags, Flags::kLeft) ? 1 : 0,
+		    FlagsContains(conv.flags, Flags::kShowPos) ? 1 : 0, FlagsContains(conv.flags, Flags::kSignCol) ? 1 : 0,
+		    FlagsContains(conv.flags, Flags::kAlt) ? 1 : 0, FlagsContains(conv.flags, Flags::kZero) ? 1 : 0, conv.width.value(),
 		    conv.precision.value());
 		return false;
 	}
 	return true;
 }
 
-template <bool is_positional>
-const char * ConsumeConversion(const char * pos, const char * const end,
-    UnboundConversion * conv, int * next_arg) {
+template <bool is_positional> const char * ConsumeConversion(const char * pos, const char * const end, UnboundConversion * conv, int * next_arg) 
+{
 	const char* const original_pos = pos;
 	char c;
 	// Read the next char into `c` and update `pos`. Returns false if there are
@@ -135,12 +128,12 @@ const char * ConsumeConversion(const char * pos, const char * const end,
 				break;
 			}
 		}
-
 		if(c <= '9') {
 			if(c >= '0') {
 				int maybe_width = parse_digits();
 				if(!is_positional && c == '$') {
-					if(ABSL_PREDICT_FALSE(*next_arg != 0)) return nullptr;
+					if(ABSL_PREDICT_FALSE(*next_arg != 0)) 
+						return nullptr;
 					// Positional conversion.
 					*next_arg = -1;
 					return ConsumeConversion<true>(original_pos, end, conv, next_arg);
@@ -152,9 +145,11 @@ const char * ConsumeConversion(const char * pos, const char * const end,
 				conv->flags = conv->flags | Flags::kNonBasic;
 				ABSL_FORMAT_PARSER_INTERNAL_GET_CHAR();
 				if(is_positional) {
-					if(ABSL_PREDICT_FALSE(c < '1' || c > '9')) return nullptr;
+					if(ABSL_PREDICT_FALSE(c < '1' || c > '9')) 
+						return nullptr;
 					conv->width.set_from_arg(parse_digits());
-					if(ABSL_PREDICT_FALSE(c != '$')) return nullptr;
+					if(ABSL_PREDICT_FALSE(c != '$')) 
+						return nullptr;
 					ABSL_FORMAT_PARSER_INTERNAL_GET_CHAR();
 				}
 				else {
@@ -220,48 +215,39 @@ const char * ConsumeConversion(const char * pos, const char * const end,
 }
 }  // namespace
 
-std::string LengthModToString(LengthMod v) {
+std::string LengthModToString(LengthMod v) 
+{
 	switch(v) {
-		case LengthMod::h:
-		    return "h";
-		case LengthMod::hh:
-		    return "hh";
-		case LengthMod::l:
-		    return "l";
-		case LengthMod::ll:
-		    return "ll";
-		case LengthMod::L:
-		    return "L";
-		case LengthMod::j:
-		    return "j";
-		case LengthMod::z:
-		    return "z";
-		case LengthMod::t:
-		    return "t";
-		case LengthMod::q:
-		    return "q";
-		case LengthMod::none:
-		    return "";
+		case LengthMod::h: return "h";
+		case LengthMod::hh: return "hh";
+		case LengthMod::l: return "l";
+		case LengthMod::ll: return "ll";
+		case LengthMod::L: return "L";
+		case LengthMod::j: return "j";
+		case LengthMod::z: return "z";
+		case LengthMod::t: return "t";
+		case LengthMod::q: return "q";
+		case LengthMod::none: return "";
 	}
 	return "";
 }
 
-const char * ConsumeUnboundConversion(const char * p, const char * end,
-    UnboundConversion * conv, int * next_arg) {
-	if(*next_arg < 0) return ConsumeConversion<true>(p, end, conv, next_arg);
+const char * ConsumeUnboundConversion(const char * p, const char * end, UnboundConversion * conv, int * next_arg) 
+{
+	if(*next_arg < 0) 
+		return ConsumeConversion<true>(p, end, conv, next_arg);
 	return ConsumeConversion<false>(p, end, conv, next_arg);
 }
 
 struct ParsedFormatBase::ParsedFormatConsumer {
-	explicit ParsedFormatConsumer(ParsedFormatBase * parsedformat)
-		: parsed(parsedformat), data_pos(parsedformat->data_.get()) {
+	explicit ParsedFormatConsumer(ParsedFormatBase * parsedformat) : parsed(parsedformat), data_pos(parsedformat->data_.get()) 
+	{
 	}
-
-	bool Append(string_view s) {
-		if(s.empty()) return true;
-
+	bool Append(string_view s) 
+	{
+		if(s.empty()) 
+			return true;
 		size_t text_end = AppendText(s);
-
 		if(!parsed->items_.empty() && !parsed->items_.back().is_conversion) {
 			// Let's extend the existing text run.
 			parsed->items_.back().text_end = text_end;
@@ -272,51 +258,46 @@ struct ParsedFormatBase::ParsedFormatConsumer {
 		}
 		return true;
 	}
-
-	bool ConvertOne(const UnboundConversion &conv, string_view s) {
+	bool ConvertOne(const UnboundConversion &conv, string_view s) 
+	{
 		size_t text_end = AppendText(s);
 		parsed->items_.push_back({true, text_end, conv});
 		return true;
 	}
-
-	size_t AppendText(string_view s) {
+	size_t AppendText(string_view s) 
+	{
 		memcpy(data_pos, s.data(), s.size());
 		data_pos += s.size();
 		return static_cast<size_t>(data_pos - parsed->data_.get());
 	}
-
 	ParsedFormatBase * parsed;
 	char* data_pos;
 };
 
-ParsedFormatBase::ParsedFormatBase(string_view format, bool allow_ignored,
-    std::initializer_list<FormatConversionCharSet> convs)
-	: data_(format.empty() ? nullptr : new char[format.size()]) {
-	has_error_ = !ParseFormatString(format, ParsedFormatConsumer(this)) ||
-	    !MatchesConversions(allow_ignored, convs);
+ParsedFormatBase::ParsedFormatBase(string_view format, bool allow_ignored, std::initializer_list<FormatConversionCharSet> convs) : 
+	data_(format.empty() ? nullptr : new char[format.size()]) 
+{
+	has_error_ = !ParseFormatString(format, ParsedFormatConsumer(this)) || !MatchesConversions(allow_ignored, convs);
 }
 
 bool ParsedFormatBase::MatchesConversions(bool allow_ignored,
     std::initializer_list<FormatConversionCharSet> convs) const {
 	std::unordered_set<int> used;
 	auto add_if_valid_conv = [&](int pos, char c) {
-		    if(static_cast<size_t>(pos) > convs.size() ||
-			!Contains(convs.begin()[pos - 1], c))
+		    if(static_cast<size_t>(pos) > convs.size() || !Contains(convs.begin()[pos - 1], c))
 			    return false;
 		    used.insert(pos);
 		    return true;
 	    };
 	for(const ConversionItem &item : items_) {
-		if(!item.is_conversion) continue;
+		if(!item.is_conversion) 
+			continue;
 		auto &conv = item.conv;
-		if(conv.precision.is_from_arg() &&
-		    !add_if_valid_conv(conv.precision.get_from_arg(), '*'))
+		if(conv.precision.is_from_arg() && !add_if_valid_conv(conv.precision.get_from_arg(), '*'))
 			return false;
-		if(conv.width.is_from_arg() &&
-		    !add_if_valid_conv(conv.width.get_from_arg(), '*'))
+		if(conv.width.is_from_arg() && !add_if_valid_conv(conv.width.get_from_arg(), '*'))
 			return false;
-		if(!add_if_valid_conv(conv.arg_position,
-		    FormatConversionCharToChar(conv.conv)))
+		if(!add_if_valid_conv(conv.arg_position, FormatConversionCharToChar(conv.conv)))
 			return false;
 	}
 	return used.size() == convs.size() || allow_ignored;

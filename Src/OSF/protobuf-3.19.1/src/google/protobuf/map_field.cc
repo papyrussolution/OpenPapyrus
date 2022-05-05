@@ -18,8 +18,6 @@
 //
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/map_field.h>
-#include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {

@@ -83,13 +83,9 @@ int archive_read_support_filter_xz(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_xz");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_xz");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "xz";
 	bidder->bid = xz_bidder_bid;
@@ -116,13 +112,9 @@ int archive_read_support_filter_lzma(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_lzma");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lzma");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "lzma";
 	bidder->bid = lzma_bidder_bid;
@@ -149,13 +141,9 @@ int archive_read_support_filter_lzip(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_lzip");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lzip");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "lzip";
 	bidder->bid = lzip_bidder_bid;
@@ -408,7 +396,6 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	void * out_block;
 	struct private_data * state;
 	int ret;
-
 	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
 	out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
@@ -417,19 +404,15 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 		SAlloc::F(state);
 		return ARCHIVE_FATAL;
 	}
-
 	self->data = state;
 	state->out_block_size = out_block_size;
-	state->out_block = out_block;
+	state->out_block = (uchar *)out_block;
 	self->read = xz_filter_read;
 	self->skip = NULL; /* not supported */
 	self->close = xz_filter_close;
-
 	state->stream.avail_in = 0;
-
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = state->out_block_size;
-
 	state->crc32 = 0;
 	if(self->code == ARCHIVE_FILTER_LZIP) {
 		/*
@@ -473,20 +456,16 @@ static int lzip_init(struct archive_read_filter * self)
 	ssize_t avail_in;
 	uint32 dicsize;
 	int log2dic, ret;
-
 	state = (struct private_data *)self->data;
-	h = __archive_read_filter_ahead(self->upstream, 6, &avail_in);
+	h = (const uchar *)__archive_read_filter_ahead(self->upstream, 6, &avail_in);
 	if(h == NULL)
 		return ARCHIVE_FATAL;
-
 	/* Get a version number. */
 	state->lzip_ver = h[4];
-
 	/*
 	 * Setup lzma property.
 	 */
 	props[0] = 0x5d;
-
 	/* Get dictionary size. */
 	log2dic = h[5] & 0x1f;
 	if(log2dic < 12 || log2dic > 27)
@@ -525,27 +504,23 @@ static int lzip_tail(struct archive_read_filter * self)
 	const uchar * f;
 	ssize_t avail_in;
 	int tail;
-
 	state = (struct private_data *)self->data;
 	if(state->lzip_ver == 0)
 		tail = 12;
 	else
 		tail = 20;
-	f = __archive_read_filter_ahead(self->upstream, tail, &avail_in);
+	f = (const uchar *)__archive_read_filter_ahead(self->upstream, tail, &avail_in);
 	if(f == NULL && avail_in < 0)
 		return ARCHIVE_FATAL;
 	if(f == NULL || avail_in < tail) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Remaining data is less bytes");
 		return ARCHIVE_FAILED;
 	}
-
-	/* Check the crc32 value of the uncompressed data of the current
-	 * member */
+	/* Check the crc32 value of the uncompressed data of the current member */
 	if(state->crc32 != archive_le32dec(f)) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: CRC32 error");
 		return ARCHIVE_FAILED;
 	}
-
 	/* Check the uncompressed size of the current member */
 	if((uint64)state->member_out != archive_le64dec(f + 4)) {
 		archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "Lzip: Uncompressed size error");
@@ -599,7 +574,7 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
 				return ret;
 			state->in_stream = 1;
 		}
-		state->stream.next_in = __archive_read_filter_ahead(self->upstream, 1, &avail_in);
+		state->stream.next_in = (const uint8 *)__archive_read_filter_ahead(self->upstream, 1, &avail_in);
 		if(state->stream.next_in == NULL && avail_in < 0) {
 			archive_set_error(&self->archive->archive, ARCHIVE_ERRNO_MISC, "truncated input");
 			return ARCHIVE_FATAL;

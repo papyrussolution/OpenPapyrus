@@ -76,8 +76,7 @@ util::StatusOr<float> DoubleToFloat(double before)
 		// Converting a double +inf/-inf to float should just work.
 		return static_cast<float>(before);
 	}
-	else if(before > std::numeric_limits<float>::max() ||
-	    before < -std::numeric_limits<float>::max()) {
+	else if(before > std::numeric_limits<float>::max() || before < -std::numeric_limits<float>::max()) {
 		// Double value outside of the range of float.
 		return util::InvalidArgumentError(DoubleAsString(before));
 	}

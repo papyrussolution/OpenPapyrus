@@ -466,9 +466,9 @@
  * @internal
  */
 #if defined(__GNUC__) && __GNUC__>=3
-#    define U_MALLOC_ATTR __attribute__ ((__malloc__))
+#define U_MALLOC_ATTR __attribute__ ((__malloc__))
 #else
-#    define U_MALLOC_ATTR
+#define U_MALLOC_ATTR
 #endif
 
 /**
@@ -542,9 +542,7 @@ namespace std {
 #elif defined(__clang__)
     // Test for compiler vs. feature separately.
     // Other compilers might choke on the feature test.
-#    if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || \
-             (UPRV_HAS_FEATURE(cxx_attributes) && \
-             UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
+#    if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || (UPRV_HAS_FEATURE(cxx_attributes) && UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
 #       define U_FALLTHROUGH [[clang::fallthrough]]
 #   endif
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
@@ -862,9 +860,9 @@ namespace std {
  * @stable ICU 2.0
  */
 #if U_PLATFORM == U_PF_OS390 && defined(__cplusplus)
-#    define U_CALLCONV __cdecl
+#define U_CALLCONV __cdecl
 #else
-#    define U_CALLCONV U_EXPORT2
+#define U_CALLCONV U_EXPORT2
 #endif
 
 /**
@@ -873,9 +871,9 @@ namespace std {
  * @internal
  */
 #if U_PLATFORM == U_PF_OS390 && defined(__cplusplus)
-#    define U_CALLCONV_FPTR U_CALLCONV
+#define U_CALLCONV_FPTR U_CALLCONV
 #else
-#    define U_CALLCONV_FPTR
+#define U_CALLCONV_FPTR
 #endif
 /** @} */
 

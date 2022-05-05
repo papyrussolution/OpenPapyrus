@@ -7,32 +7,52 @@ android:layout_height="match_parent"
 android:orientation="vertical"
 tools:context=".CommandListActivity">
 <LinearLayout
+    android:id="@+id/CTL_PAGEHEADER_ROOT"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="4dp"
     >
-    <androidx.appcompat.widget.Toolbar
+    <androidx.appcompat.widget.Toolbar style="@style/PageHeaderRegular"
         android:id="@+id/toolbarCommandList"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="?attr/colorPrimary"
-        android:minHeight="24dp">
-        <TextView
-            android:id="@+id/tbTitle"
+        >
+        <!--android:background="?attr/colorPrimary"-->
+        <ImageView
+            android:id="@+id/CTLIMG_PAGEHEADER_SVC"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="2dp"
+            android:layout_margin="2dp"
+            android:layout_gravity="center_vertical">
+        </ImageView>
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_gravity="left"
-            android:ems="10"
-            android:text="Commands"
-            android:textColor="@color/PrimaryText"/>
+            android:orientation="vertical">
+            <TextView style="@style/PageHeaderTitleText"
+                android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/PrimaryText"
+                />
+            <TextView style="@style/PageHeaderTopicText"
+                android:id="@+id/CTL_PAGEHEADER_TOPIC"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="@color/PrimaryText"
+                android:text="@{cmd_pl}"/>
+        </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/commandListView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="4dp"
+        android:background="@drawable/shape_pageheader"
+        android:padding="2dp"
         app:layoutManager="LinearLayoutManager">
     </androidx.recyclerview.widget.RecyclerView>
 </LinearLayout>

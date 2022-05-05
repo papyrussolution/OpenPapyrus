@@ -1742,7 +1742,7 @@ int PPViewVatBook::_SetVATParams(VATBookTbl::Rec * pRec, const BVATAccmArray * p
 				pRec->Flags |= VATBF_VATFREE;
 			rate = selling ? p_vati->PRate : p_vati->CRate;
 		}
-		else if(Filt.Kind == PPVTB_SELL){
+		else if(Filt.Kind == PPVTB_SELL) {
 			if(IsMainOrgVatFree > 0)
 				pRec->Flags |= VATBF_VATFREE;
 			rate = selling ? p_vati->PRate : p_vati->CRate;

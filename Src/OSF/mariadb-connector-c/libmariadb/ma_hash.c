@@ -185,13 +185,10 @@ uint rec_hashnr(HASH * hash, const uchar * record)
 void * hash_search(HASH * hash, const uchar * key, uint length)
 {
 	HASH_LINK * pos;
-	uint flag, idx;
-
-	flag = 1;
+	uint idx;
+	uint flag = 1;
 	if(hash->records) {
-		idx = hash_mask((*hash->calc_hashnr)(key, length ? length :
-			hash->key_length),
-			hash->blength, hash->records);
+		idx = hash_mask((*hash->calc_hashnr)(key, length ? length : hash->key_length), hash->blength, hash->records);
 		do {
 			pos = dynamic_element(&hash->array, idx, HASH_LINK*);
 			if(!hashcmp(hash, pos, key, length)) {
@@ -203,8 +200,7 @@ void * hash_search(HASH * hash, const uchar * key, uint length)
 				if(hash_rec_mask(hash, pos, hash->blength, hash->records) != idx)
 					break; /* Wrong link */
 			}
-		}
-		while((idx = pos->next) != NO_RECORD);
+		} while((idx = pos->next) != NO_RECORD);
 	}
 	hash->current_record = NO_RECORD;
 	return 0;
@@ -217,7 +213,6 @@ void * hash_next(HASH * hash, const uchar * key, uint length)
 {
 	HASH_LINK * pos;
 	uint idx;
-
 	if(hash->current_record != NO_RECORD) {
 		HASH_LINK * data = dynamic_element(&hash->array, 0, HASH_LINK*);
 		for(idx = data[hash->current_record].next; idx != NO_RECORD; idx = pos->next) {
@@ -239,8 +234,7 @@ static void movelink(HASH_LINK * array, uint find, uint next_link, uint newlink)
 	HASH_LINK * old_link;
 	do {
 		old_link = array+next_link;
-	}
-	while((next_link = old_link->next) != find);
+	} while((next_link = old_link->next) != find);
 	old_link->next = newlink;
 	return;
 }
@@ -251,8 +245,7 @@ static int hashcmp(HASH * hash, HASH_LINK * pos, const uchar * key, uint length)
 {
 	uint rec_keylength;
 	uchar * rec_key = (uchar *)hash_key(hash, pos->data, &rec_keylength, 1);
-	return (length && length != rec_keylength) ||
-	       memcmp(rec_key, key, rec_keylength);
+	return (length && length != rec_keylength) || memcmp(rec_key, key, rec_keylength);
 }
 
 /* Write a hash-key to the hash-index */
@@ -263,18 +256,14 @@ bool hash_insert(HASH * info, const uchar * record)
 	uint halfbuff, hash_nr, first_index, idx;
 	uchar * ptr_to_rec = NULL, * ptr_to_rec2 = NULL;
 	HASH_LINK * data, * empty, * gpos = NULL, * gpos2 = NULL, * pos;
-
 	LINT_INIT(gpos); LINT_INIT(gpos2);
 	LINT_INIT(ptr_to_rec); LINT_INIT(ptr_to_rec2);
-
 	flag = 0;
 	if(!(empty = (HASH_LINK*)ma_alloc_dynamic(&info->array)))
-		return(TRUE);                   /* No more memory */
-
+		return(TRUE); /* No more memory */
 	info->current_record = NO_RECORD;
 	data = dynamic_element(&info->array, 0, HASH_LINK*);
 	halfbuff = info->blength >> 1;
-
 	idx = first_index = info->records-halfbuff;
 	if(idx != info->records) {                      /* If some records */
 		do {
@@ -327,9 +316,7 @@ bool hash_insert(HASH * info, const uchar * record)
 					ptr_to_rec2 = pos->data;
 				}
 			}
-		}
-		while((idx = pos->next) != NO_RECORD);
-
+		} while((idx = pos->next) != NO_RECORD);
 		if((flag & (LOWFIND | LOWUSED)) == LOWFIND) {
 			gpos->data = ptr_to_rec;
 			gpos->next = NO_RECORD;
@@ -378,13 +365,11 @@ bool hash_delete(HASH * hash, uchar * record)
 	HASH_LINK * data, * lastpos, * gpos, * pos, * pos3, * empty;
 	if(!hash->records)
 		return 1;
-
 	blength = hash->blength;
 	data = dynamic_element(&hash->array, 0, HASH_LINK*);
 	/* Search after record with key */
 	pos = data+ hash_mask(rec_hashnr(hash, record), blength, hash->records);
 	gpos = 0;
-
 	while(pos->data != record) {
 		gpos = pos;
 		if(pos->next == NO_RECORD)

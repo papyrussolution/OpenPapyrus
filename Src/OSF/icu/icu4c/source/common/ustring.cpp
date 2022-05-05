@@ -585,7 +585,7 @@ U_CAPI UChar * U_EXPORT2 u_strtok_r(UChar * src,
 	uint32_t nonDelimIdx;
 
 	/* If saveState is NULL, the user messed up. */
-	if(src != NULL) {
+	if(src) {
 		tokSource = src;
 		*saveState = src; /* Set to "src" in case there are no delimiters */
 	}

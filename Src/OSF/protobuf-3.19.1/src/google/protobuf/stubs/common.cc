@@ -20,7 +20,6 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/stubs/common.h>
 #ifdef _WIN32
 	#ifndef WIN32_LEAN_AND_MEAN
 		#define WIN32_LEAN_AND_MEAN  // We only need minimal includes
@@ -31,13 +30,6 @@
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
-
-#include <google/protobuf/stubs/callback.h>
-#include <google/protobuf/stubs/logging.h>
-#include <google/protobuf/stubs/status.h>
-#include <google/protobuf/stubs/stringpiece.h>
-#include <google/protobuf/stubs/strutil.h>
-#include <google/protobuf/stubs/int128.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {

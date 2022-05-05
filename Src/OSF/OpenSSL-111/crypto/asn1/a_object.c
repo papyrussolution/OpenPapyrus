@@ -152,7 +152,7 @@ int a2d_ASN1_OBJECT(uchar * out, int olen, const char * buf, int num)
 					break;
 			}
 		}
-		if(out != NULL) {
+		if(out) {
 			if(len + i > olen) {
 				ASN1err(ASN1_F_A2D_ASN1_OBJECT, ASN1_R_BUFFER_TOO_SMALL);
 				goto err;
@@ -319,7 +319,7 @@ ASN1_OBJECT * c2i_ASN1_OBJECT(ASN1_OBJECT ** a, const uchar ** pp,
 	/* ret->flags=ASN1_OBJECT_FLAG_DYNAMIC; we know it is dynamic */
 	p += length;
 
-	if(a != NULL)
+	if(a)
 		(*a) = ret;
 	*pp = p;
 	return ret;

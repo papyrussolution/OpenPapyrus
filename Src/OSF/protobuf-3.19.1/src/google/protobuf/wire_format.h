@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -27,7 +26,7 @@
 #ifndef GOOGLE_PROTOBUF_WIRE_FORMAT_H__
 #define GOOGLE_PROTOBUF_WIRE_FORMAT_H__
 
-#include <string>
+//#include <string>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/parse_context.h>
 #include <google/protobuf/io/coded_stream.h>
@@ -133,30 +132,21 @@ public:
 	// Skips a field value of the given WireType.  The input should start
 	// positioned immediately after the tag.  If unknown_fields is non-nullptr,
 	// the contents of the field will be added to it.
-	static bool SkipField(io::CodedInputStream* input, uint32_t tag,
-	    UnknownFieldSet* unknown_fields);
-
+	static bool SkipField(io::CodedInputStream* input, uint32_t tag, UnknownFieldSet* unknown_fields);
 	// Reads and ignores a message from the input.  If unknown_fields is
 	// non-nullptr, the contents will be added to it.
-	static bool SkipMessage(io::CodedInputStream* input,
-	    UnknownFieldSet* unknown_fields);
+	static bool SkipMessage(io::CodedInputStream* input, UnknownFieldSet* unknown_fields);
 
 	// Read a packed enum field. If the is_valid function is not nullptr, values
 	// for which is_valid(value) returns false are appended to
 	// unknown_fields_stream.
-	static bool ReadPackedEnumPreserveUnknowns(io::CodedInputStream* input,
-	    uint32_t field_number,
-	    bool (*is_valid)(int),
-	    UnknownFieldSet* unknown_fields,
-	    RepeatedField<int>* values);
-
+	static bool ReadPackedEnumPreserveUnknowns(io::CodedInputStream* input, uint32_t field_number,
+	    bool (*is_valid)(int), UnknownFieldSet* unknown_fields, RepeatedField<int>* values);
 	// Write the contents of an UnknownFieldSet to the output.
-	static void SerializeUnknownFields(const UnknownFieldSet& unknown_fields,
-	    io::CodedOutputStream* output) {
-		output->SetCur(InternalSerializeUnknownFieldsToArray(
-			    unknown_fields, output->Cur(), output->EpsCopy()));
+	static void SerializeUnknownFields(const UnknownFieldSet& unknown_fields, io::CodedOutputStream* output) 
+	{
+		output->SetCur(InternalSerializeUnknownFieldsToArray(unknown_fields, output->Cur(), output->EpsCopy()));
 	}
-
 	// Same as above, except writing directly to the provided buffer.
 	// Requires that the buffer have sufficient capacity for
 	// ComputeUnknownFieldsSize(unknown_fields).

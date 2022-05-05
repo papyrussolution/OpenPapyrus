@@ -96,7 +96,7 @@ static cmsTagTypeHandler* GetHandler(cmsTagTypeSignature sig, _cmsTagTypeLinkedL
 static boolint _cmsWriteWCharArray(cmsIOHANDLER* io, uint32 n, const wchar_t * Array)
 {
 	uint32 i;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	_cmsAssert(!(Array == NULL && n > 0));
 	for(i = 0; i < n; i++) {
 		if(!_cmsWriteUInt16Number(io, (uint16)Array[i])) return FALSE;
@@ -109,7 +109,7 @@ static boolint _cmsReadWCharArray(cmsIOHANDLER* io, uint32 n, wchar_t * Array)
 {
 	uint32 i;
 	uint16 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	for(i = 0; i < n; i++) {
 		if(Array != NULL) {
 			if(!_cmsReadUInt16Number(io, &tmp)) return FALSE;
@@ -4440,7 +4440,7 @@ static void DupTagTypeList(struct _cmsContext_struct* ctx, const struct _cmsCont
 
 void _cmsAllocTagTypePluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	if(src != NULL) {
+	if(src) {
 		// Duplicate the LIST
 		DupTagTypeList(ctx, src, TagTypePlugin);
 	}
@@ -4453,7 +4453,7 @@ void _cmsAllocTagTypePluginChunk(struct _cmsContext_struct* ctx, const struct _c
 void _cmsAllocMPETypePluginChunk(struct _cmsContext_struct* ctx,
     const struct _cmsContext_struct* src)
 {
-	if(src != NULL) {
+	if(src) {
 		// Duplicate the LIST
 		DupTagTypeList(ctx, src, MPEPlugin);
 	}
@@ -4639,7 +4639,7 @@ static void DupTagList(struct _cmsContext_struct* ctx, const struct _cmsContext_
 
 void _cmsAllocTagPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	if(src != NULL) {
+	if(src) {
 		DupTagList(ctx, src);
 	}
 	else {

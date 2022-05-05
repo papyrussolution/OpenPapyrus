@@ -5221,19 +5221,20 @@ browser PROCESSOR north(100), 1, 1, "@{view_processor} {%s}", OWNER|GRID, 0
 	"@group",                3, notype, 0, 20
 	"@warehouse",            4, notype, 0, 20
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM    : kbEnter,  PPDV_EDITFILE02,     "@{edit}\tEnter"
-		ADDITEM     : kbIns,    PPDV_ADDFILE02,      "@{add}\tInsert"
-		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,   "@{delete}\tDelete"
-		DETAIL      : kbF3,     PPDV_LINS01,         "@{detail}\tF3"
+		EDITITEM     : kbEnter,  PPDV_EDITFILE02,     "@{edit}\tEnter"
+		ADDITEM      : kbIns,    PPDV_ADDFILE02,      "@{add}\tInsert"
+		DELETEITEM   : kbDel,    PPDV_DELETEFILE02,   "@{delete}\tDelete"
+		DETAIL       : kbF3,     PPDV_LINS01,         "@{detail}\tF3"
 		separator
-		VIEWTECH    : kbCtrlT,  TBBM_TECH,           "@{view_tech}\tCtrl-T"
-		VIEWTSESS   : kbCtrlS,  TBBM_TSESS,          "@{view_tsession}\tCtrl-S"
+		VIEWTECH     : kbCtrlT,  TBBM_TECH,           "@{view_tech}\tCtrl-T"
+		VIEWTSESS    : kbCtrlS,  TBBM_TSESS,          "@{view_tsession}\tCtrl-S"
 		separator
-		SYSJ        : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT    : kbCtrlH,  PPDV_SYNC01,         "@{dotransmit}\tCtrl-H" // @v7.7.2
-		PRINT       : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
+		SYSJ         : kbCtrlJ,  PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT     : kbCtrlH,  PPDV_SYNC01,         "@{dotransmit}\tCtrl-H" // @v7.7.2
+		PRINT        : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
 		separator
-		CHANGEFILT  : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
+		TOGGLEPRCGRP : kbCtrlA,  PPDV_TOGGLE01,       "@{processor_pl}/@{processorgroup_pl}" // @v11.3.10
+		CHANGEFILT   : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
 	}
 }
 //
@@ -5252,22 +5253,23 @@ browser TECH north(100), 2, 0, "@{view_tech} {%s}", OWNER|GRID, 0
 	"@productivity",             6, notype, NMBF_NOTRAILZ | NMBF_NOZERO, 8.6
 	"@tech_initqtty",            9, notype, NMBF_NOZERO, 8.1
 	toolbar TB_FIRST_TOOLBAR {
-		EDITITEM   : kbEnter, PPDV_EDITFILE02,        "@{edit}\tEnter"
-		ADDITEM    : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
-		ADDBYSAMPLE: kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
-		DELETEITEM : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
-		MOVEUP     : kbCtrlW, TBBM_ARROWUP,           "@{moveup}\tCtrl-W"
-		MOVEDOWN   : kbCtrlS, TBBM_ARROWDN,           "@{movedown}\tCtrl-S"
+		EDITITEM    : kbEnter, PPDV_EDITFILE02,        "@{edit}\tEnter"
+		ADDITEM     : kbIns,   PPDV_ADDFILE02,         "@{add}\tInsert"
+		ADDBYSAMPLE : kbAltF2, PPDV_CREATEBYEXAMPLE01, "@{doaddbysample}\tAlt-F2"
+		DELETEITEM  : kbDel,   PPDV_DELETEFILE02,      "@{delete}\tDelete"
+		MOVEUP      : kbCtrlW, TBBM_ARROWUP,           "@{moveup}\tCtrl-W"
+		MOVEDOWN    : kbCtrlS, TBBM_ARROWDN,           "@{movedown}\tCtrl-S"
 		separator
-		VIEWCHILDS : kbF3,    TBBM_DIVISION,      "@{techderived_pl}\tF3"
-		EDITGOODS  : kbF2,    PPDV_WARESINGLE01,  "@{ware}\tF2"
-		EDITPRC    : kbF4,    TBBM_PRC,           "@{processor}\tF4"
-		SYSJ       : kbCtrlJ, PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
-		TRANSMIT   : kbCtrlH, PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
+		VIEWCHILDS  : kbF3,    TBBM_DIVISION,      "@{techderived_pl}\tF3"
+		EDITGOODS   : kbF2,    PPDV_WARESINGLE01,  "@{ware}\tF2"
+		EDITPRC     : kbF4,    TBBM_PRC,           "@{processor}\tF4"
+		EDITCAPACITY: kbF5,    PPDV_NOICON,        "@{productivity}\tF5"
+		SYSJ        : kbCtrlJ, PPDV_SYSJOURNAL,    "@{view_sysjournal}\tCtrl-J"
+		TRANSMIT    : kbCtrlH, PPDV_SYNC01,        "@{dotransmit}\tCtrl-H"
 		separator
-		PRINT      : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
+		PRINT       : kbF7,    PPDV_PRINTER01,     "@{print}\tF7"
 		separator
-		CHANGEFILT : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
+		CHANGEFILT  : kbCtrlV, PPDV_FILTER01,      "@{filter}\tCtrl-V"
 	}
 }
 

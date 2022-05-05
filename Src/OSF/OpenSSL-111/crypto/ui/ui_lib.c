@@ -622,7 +622,7 @@ void UI_destroy_method(UI_METHOD * ui_method)
 
 int UI_method_set_opener(UI_METHOD * method, int (*opener)(UI * ui))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_open_session = opener;
 		return 0;
 	}
@@ -632,7 +632,7 @@ int UI_method_set_opener(UI_METHOD * method, int (*opener)(UI * ui))
 int UI_method_set_writer(UI_METHOD * method,
     int (*writer)(UI * ui, UI_STRING * uis))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_write_string = writer;
 		return 0;
 	}
@@ -641,7 +641,7 @@ int UI_method_set_writer(UI_METHOD * method,
 
 int UI_method_set_flusher(UI_METHOD * method, int (*flusher)(UI * ui))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_flush = flusher;
 		return 0;
 	}
@@ -651,7 +651,7 @@ int UI_method_set_flusher(UI_METHOD * method, int (*flusher)(UI * ui))
 int UI_method_set_reader(UI_METHOD * method,
     int (*reader)(UI * ui, UI_STRING * uis))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_read_string = reader;
 		return 0;
 	}
@@ -660,18 +660,16 @@ int UI_method_set_reader(UI_METHOD * method,
 
 int UI_method_set_closer(UI_METHOD * method, int (*closer)(UI * ui))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_close_session = closer;
 		return 0;
 	}
 	return -1;
 }
 
-int UI_method_set_data_duplicator(UI_METHOD * method,
-    void *(*duplicator)(UI * ui, void * ui_data),
-    void (*destructor)(UI * ui, void * ui_data))
+int UI_method_set_data_duplicator(UI_METHOD * method, void *(*duplicator)(UI * ui, void * ui_data), void (*destructor)(UI * ui, void * ui_data))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_duplicate_data = duplicator;
 		method->ui_destroy_data = destructor;
 		return 0;
@@ -679,14 +677,9 @@ int UI_method_set_data_duplicator(UI_METHOD * method,
 	return -1;
 }
 
-int UI_method_set_prompt_constructor(UI_METHOD * method,
-    char *(*prompt_constructor)(UI * ui,
-    const char
-    * object_desc,
-    const char
-    * object_name))
+int UI_method_set_prompt_constructor(UI_METHOD * method, char *(*prompt_constructor)(UI * ui, const char * object_desc, const char * object_name))
 {
-	if(method != NULL) {
+	if(method) {
 		method->ui_construct_prompt = prompt_constructor;
 		return 0;
 	}
@@ -700,59 +693,42 @@ int UI_method_set_ex_data(UI_METHOD * method, int idx, void * data)
 
 int(*UI_method_get_opener(const UI_METHOD *method)) (UI *)
 {
-	if(method != NULL)
-		return method->ui_open_session;
-	return NULL;
+	return method ? method->ui_open_session : NULL;
 }
 
 int(*UI_method_get_writer(const UI_METHOD *method)) (UI *, UI_STRING *)
 {
-	if(method != NULL)
-		return method->ui_write_string;
-	return NULL;
+	return method ? method->ui_write_string : NULL;
 }
 
 int(*UI_method_get_flusher(const UI_METHOD *method)) (UI *)
 {
-	if(method != NULL)
-		return method->ui_flush;
-	return NULL;
+	return method ? method->ui_flush : NULL;
 }
 
 int(*UI_method_get_reader(const UI_METHOD *method)) (UI *, UI_STRING *)
 {
-	if(method != NULL)
-		return method->ui_read_string;
-	return NULL;
+	return method ? method->ui_read_string : NULL;
 }
 
 int(*UI_method_get_closer(const UI_METHOD *method)) (UI *)
 {
-	if(method != NULL)
-		return method->ui_close_session;
-	return NULL;
+	return method ? method->ui_close_session : NULL;
 }
 
-char *(*UI_method_get_prompt_constructor(const UI_METHOD *method))
-	(UI *, const char *, const char *)
+char *(*UI_method_get_prompt_constructor(const UI_METHOD *method))(UI *, const char *, const char *)
 {
-	if(method != NULL)
-		return method->ui_construct_prompt;
-	return NULL;
+	return method ? method->ui_construct_prompt : NULL;
 }
 
 void *(*UI_method_get_data_duplicator(const UI_METHOD *method))(UI *, void *)
 {
-	if(method != NULL)
-		return method->ui_duplicate_data;
-	return NULL;
+	return method ? method->ui_duplicate_data : NULL;
 }
 
 void(*UI_method_get_data_destructor(const UI_METHOD *method)) (UI *, void *)
 {
-	if(method != NULL)
-		return method->ui_destroy_data;
-	return NULL;
+	return method ? method->ui_destroy_data : NULL;
 }
 
 const void * UI_method_get_ex_data(const UI_METHOD * method, int idx)
@@ -760,19 +736,9 @@ const void * UI_method_get_ex_data(const UI_METHOD * method, int idx)
 	return CRYPTO_get_ex_data(&method->ex_data, idx);
 }
 
-enum UI_string_types UI_get_string_type(UI_STRING * uis){
-	return uis->type;
-}
-
-int UI_get_input_flags(UI_STRING * uis)
-{
-	return uis->input_flags;
-}
-
-const char * UI_get0_output_string(UI_STRING * uis)
-{
-	return uis->out_string;
-}
+enum UI_string_types UI_get_string_type(UI_STRING * uis) { return uis->type; }
+int UI_get_input_flags(UI_STRING * uis) { return uis->input_flags; }
+const char * UI_get0_output_string(UI_STRING * uis) { return uis->out_string; }
 
 const char * UI_get0_action_string(UI_STRING * uis)
 {

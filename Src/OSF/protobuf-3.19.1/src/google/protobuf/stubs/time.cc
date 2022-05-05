@@ -2,7 +2,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/stubs/time.h>
-#include <google/protobuf/stubs/stringprintf.h>
 
 namespace google {
 namespace protobuf {
@@ -49,36 +48,25 @@ int64 SecondsPer4Years(int year)
 	}
 }
 
-bool IsLeapYear(int year) {
-	return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0);
-}
+bool IsLeapYear(int year) { return year % 400 == 0 || (year % 4 == 0 && year % 100 != 0); }
+int64 SecondsPerYear(int year) { return kSecondsPerDay * (IsLeapYear(year) ? 366 : 365); }
 
-int64 SecondsPerYear(int year) {
-	return kSecondsPerDay * (IsLeapYear(year) ? 366 : 365);
-}
+static const int kDaysInMonth[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
-static const int kDaysInMonth[13] = {
-	0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-};
-
-int64 SecondsPerMonth(int month, bool leap) {
+int64 SecondsPerMonth(int month, bool leap) 
+{
 	if(month == 2 && leap) {
 		return kSecondsPerDay * (kDaysInMonth[month] + 1);
 	}
 	return kSecondsPerDay * kDaysInMonth[month];
 }
 
-static const int kDaysSinceJan[13] = {
-	0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334,
-};
+static const int kDaysSinceJan[13] = { 0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, };
 
-bool ValidateDateTime(const DateTime& time) {
-	if(time.year < 1 || time.year > 9999 ||
-	    time.month < 1 || time.month > 12 ||
-	    time.day < 1 || time.day > 31 ||
-	    time.hour < 0 || time.hour > 23 ||
-	    time.minute < 0 || time.minute > 59 ||
-	    time.second < 0 || time.second > 59) {
+bool ValidateDateTime(const DateTime& time) 
+{
+	if(time.year < 1 || time.year > 9999 || time.month < 1 || time.month > 12 || time.day < 1 || time.day > 31 ||
+	    time.hour < 0 || time.hour > 23 || time.minute < 0 || time.minute > 59 || time.second < 0 || time.second > 59) {
 		return false;
 	}
 	if(time.month == 2 && IsLeapYear(time.year)) {
@@ -89,9 +77,9 @@ bool ValidateDateTime(const DateTime& time) {
 	}
 }
 
-// Count the number of seconds elapsed from 0001-01-01T00:00:00 to the given
-// time.
-int64 SecondsSinceCommonEra(const DateTime& time) {
+// Count the number of seconds elapsed from 0001-01-01T00:00:00 to the given time.
+int64 SecondsSinceCommonEra(const DateTime& time) 
+{
 	int64 result = 0;
 	// Years should be between 1 and 9999.
 	assert(time.year >= 1 && time.year <= 9999);
@@ -120,20 +108,16 @@ int64 SecondsSinceCommonEra(const DateTime& time) {
 	if(month > 2 && IsLeapYear(year)) {
 		result += kSecondsPerDay;
 	}
-	assert(time.day >= 1 &&
-	    time.day <= (month == 2 && IsLeapYear(year)
-	    ? kDaysInMonth[month] + 1
-	    : kDaysInMonth[month]));
+	assert(time.day >= 1 && time.day <= (month == 2 && IsLeapYear(year) ? kDaysInMonth[month] + 1 : kDaysInMonth[month]));
 	result += kSecondsPerDay * (time.day - 1);
-	result += kSecondsPerHour * time.hour +
-	    kSecondsPerMinute * time.minute +
-	    time.second;
+	result += kSecondsPerHour * time.hour + kSecondsPerMinute * time.minute + time.second;
 	return result;
 }
 
 // Format nanoseconds with either 3, 6, or 9 digits depending on the required
 // precision to represent the exact value.
-std::string FormatNanos(int32 nanos) {
+std::string FormatNanos(int32 nanos) 
+{
 	if(nanos % kNanosPerMillisecond == 0) {
 		return StringPrintf("%03d", nanos / kNanosPerMillisecond);
 	}

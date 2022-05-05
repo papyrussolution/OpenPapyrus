@@ -2433,8 +2433,8 @@ static void DupFormatterFactoryList(struct _cmsContext_struct* ctx, const struct
 // The interpolation plug-in memory chunk allocator/dup
 void _cmsAllocFormattersPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	_cmsAssert(ctx != NULL);
-	if(src != NULL) {
+	_cmsAssert(ctx);
+	if(src) {
 		// Duplicate the LIST
 		DupFormatterFactoryList(ctx, src);
 	}

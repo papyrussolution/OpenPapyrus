@@ -1453,7 +1453,7 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 	 */
 
 	/* Read magic1,magic2,lzma_params from the ZIPX stream. */
-	if((p = __archive_read_ahead(a, 9, NULL)) == NULL) {
+	if((p = (const uint8 *)__archive_read_ahead(a, 9, NULL)) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated lzma data");
 		return ARCHIVE_FATAL;
 	}
@@ -1469,25 +1469,20 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 	/* Initialize the 'uncompressed size' field to unknown; we'll manually
 	 * monitor how many bytes there are still to be uncompressed. */
 	alone_header.uncompressed_size = UINT64_MAX;
-
 	if(!zip->uncompressed_buffer) {
 		zip->uncompressed_buffer_size = 256 * 1024;
-		zip->uncompressed_buffer =
-		    (uint8 *)SAlloc::M(zip->uncompressed_buffer_size);
-
+		zip->uncompressed_buffer = (uint8 *)SAlloc::M(zip->uncompressed_buffer_size);
 		if(zip->uncompressed_buffer == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "No memory for lzma decompression");
 			return ARCHIVE_FATAL;
 		}
 	}
-
-	zip->zipx_lzma_stream.next_in = (void *)&alone_header;
+	zip->zipx_lzma_stream.next_in = (const uint8 *)&alone_header;
 	zip->zipx_lzma_stream.avail_in = sizeof(alone_header);
 	zip->zipx_lzma_stream.total_in = 0;
 	zip->zipx_lzma_stream.next_out = zip->uncompressed_buffer;
 	zip->zipx_lzma_stream.avail_out = zip->uncompressed_buffer_size;
 	zip->zipx_lzma_stream.total_out = 0;
-
 	/* Feed only the header into the lzma alone decoder. This will
 	 * effectively initialize the decoder, and will not produce any
 	 * output bytes yet. */
@@ -1496,27 +1491,22 @@ static int zipx_lzma_alone_init(struct archive_read * a, struct zip * zip)
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "lzma stream initialization error");
 		return ARCHIVE_FATAL;
 	}
-
 	/* We've already consumed some bytes, so take this into account. */
 	__archive_read_consume(a, 9);
 	zip->entry_bytes_remaining -= 9;
 	zip->entry_compressed_bytes_read += 9;
-
 	zip->decompress_init = 1;
 	return ARCHIVE_OK;
 }
 
-static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff,
-    size_t * size, int64 * offset)
+static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct zip* zip = (struct zip *)(a->format->data);
 	int ret;
 	lzma_ret lz_ret;
 	const void * compressed_buf;
 	ssize_t bytes_avail, in_bytes, to_consume = 0;
-
 	CXX_UNUSED(offset);
-
 	/* Initialize decompressor if not yet initialized. */
 	if(!zip->decompress_init) {
 		ret = zipx_xz_init(a, zip);
@@ -1531,7 +1521,7 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff,
 	}
 
 	in_bytes = zipmin(zip->entry_bytes_remaining, bytes_avail);
-	zip->zipx_lzma_stream.next_in = compressed_buf;
+	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
 	zip->zipx_lzma_stream.total_in = 0;
 	zip->zipx_lzma_stream.next_out = zip->uncompressed_buffer;
@@ -1605,11 +1595,9 @@ static int zip_read_data_zipx_lzma_alone(struct archive_read * a, const void ** 
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated lzma file body");
 		return ARCHIVE_FATAL;
 	}
-
 	/* Set decompressor parameters. */
 	in_bytes = zipmin(zip->entry_bytes_remaining, bytes_avail);
-
-	zip->zipx_lzma_stream.next_in = compressed_buf;
+	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
 	zip->zipx_lzma_stream.total_in = 0;
 	zip->zipx_lzma_stream.next_out = zip->uncompressed_buffer;

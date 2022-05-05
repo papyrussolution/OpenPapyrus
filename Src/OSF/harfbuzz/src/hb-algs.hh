@@ -37,111 +37,77 @@
 struct {
 	/* Note.  This is dangerous in that if it's passed an rvalue, it returns rvalue-reference. */
 	template <typename T> constexpr auto operator() (T&& v) const HB_AUTO_RETURN(hb_forward<T> (v) )
-}
-
-HB_FUNCOBJ(hb_identity);
+} HB_FUNCOBJ(hb_identity);
 
 struct {
 	/* Like identity(), but only retains lvalue-references.  Rvalues are returned as rvalues. */
 	template <typename T> constexpr T&operator() (T& v) const { return v; }
 	template <typename T> constexpr hb_remove_reference<T> operator() (T&& v) const { return v; }
-}
-
-HB_FUNCOBJ(hb_lidentity);
+} HB_FUNCOBJ(hb_lidentity);
 
 struct {
 	/* Like identity(), but always returns rvalue. */
 	template <typename T> constexpr hb_remove_reference<T>
 	operator() (T&& v) const { return v; }
-}
-
-HB_FUNCOBJ(hb_ridentity);
+} HB_FUNCOBJ(hb_ridentity);
 
 struct {
 	template <typename T> constexpr bool operator() (T&& v) const { return bool (hb_forward<T> (v)); }
-}
-
-HB_FUNCOBJ(hb_bool);
+} HB_FUNCOBJ(hb_bool);
 
 struct {
 private:
 	template <typename T> constexpr auto impl(const T& v, hb_priority<1>) const HB_RETURN(uint32_t, hb_deref(v).hash())
 	template <typename T, hb_enable_if(hb_is_integral(T))> constexpr auto impl(const T& v, hb_priority<0>) const HB_AUTO_RETURN
-	(
-		/* Knuth's multiplicative method: */
-		(uint32_t)v * 2654435761u
-	)
+	( (uint32_t)v * _SlConst.MagicHashPrime32 /* Knuth's multiplicative method: */ )
 public:
 	template <typename T> constexpr auto operator() (const T &v) const HB_RETURN(uint32_t, impl(v, hb_prioritize))
-}
-
-HB_FUNCOBJ(hb_hash);
+} HB_FUNCOBJ(hb_hash);
 
 struct {
 private:
-
 	/* Pointer-to-member-function. */
 	template <typename Appl, typename T, typename ... Ts> auto impl(Appl&& a, hb_priority<2>, T &&v, Ts&&... ds) const HB_AUTO_RETURN
 		((hb_deref(hb_forward<T> (v)).*hb_forward<Appl> (a))(hb_forward<Ts> (ds) ...))
-
 	/* Pointer-to-member. */
 	template <typename Appl, typename T> auto impl(Appl&& a, hb_priority<1>, T &&v) const HB_AUTO_RETURN
 		((hb_deref(hb_forward<T> (v))).*hb_forward<Appl> (a))
-
 	/* Operator(). */
 	template <typename Appl, typename ... Ts> auto impl(Appl&& a, hb_priority<0>, Ts&&... ds) const HB_AUTO_RETURN
 		(hb_deref(hb_forward<Appl> (a)) (hb_forward<Ts> (ds) ...))
-
 public:
-
 	template <typename Appl, typename ... Ts> auto operator() (Appl&& a, Ts&&... ds) const HB_AUTO_RETURN
 	(
 		impl(hb_forward<Appl> (a),
 		hb_prioritize,
 		hb_forward<Ts> (ds) ...)
 	)
-}
-
-HB_FUNCOBJ(hb_invoke);
+} HB_FUNCOBJ(hb_invoke);
 
 template <unsigned Pos, typename Appl, typename V>
 struct hb_partial_t {
-	hb_partial_t(Appl a, V v) : a(a), v(v) {
+	hb_partial_t(Appl a, V v) : a(a), v(v) 
+	{
 	}
-
 	static_assert(Pos > 0, "");
-
 	template <typename ... Ts,
 	unsigned P = Pos,
-	hb_enable_if(P == 1)> auto operator() (Ts&& ... ds)->decltype(hb_invoke(hb_declval(Appl),
-	    hb_declval(V),
-	    hb_declval(Ts) ...))
+	hb_enable_if(P == 1)> auto operator() (Ts&& ... ds)->decltype(hb_invoke(hb_declval(Appl), hb_declval(V), hb_declval(Ts) ...))
 	{
-		return hb_invoke(hb_forward<Appl> (a),
-			   hb_forward<V> (v),
-			   hb_forward<Ts> (ds) ...);
+		return hb_invoke(hb_forward<Appl> (a), hb_forward<V> (v), hb_forward<Ts> (ds) ...);
 	}
-	template <typename T0, typename ... Ts,
-	unsigned P = Pos,
-	hb_enable_if(P == 2)> auto operator() (T0&& d0, Ts&& ... ds)->decltype(hb_invoke(hb_declval(Appl),
-	    hb_declval(T0),
-	    hb_declval(V),
-	    hb_declval(Ts) ...))
+	template <typename T0, typename ... Ts, unsigned P = Pos,
+		hb_enable_if(P == 2)> auto operator() (T0&& d0, Ts&& ... ds)->decltype(hb_invoke(hb_declval(Appl),
+	    hb_declval(T0), hb_declval(V), hb_declval(Ts) ...))
 	{
-		return hb_invoke(hb_forward<Appl> (a),
-			   hb_forward<T0> (d0),
-			   hb_forward<V> (v),
-			   hb_forward<Ts> (ds) ...);
+		return hb_invoke(hb_forward<Appl> (a), hb_forward<T0> (d0), hb_forward<V> (v), hb_forward<Ts> (ds) ...);
 	}
-
 private:
 	hb_reference_wrapper<Appl> a;
 	V v;
 };
 
-template <unsigned Pos = 1, typename Appl, typename V>
-auto hb_partial(Appl&& a, V&& v) HB_AUTO_RETURN
-	(( hb_partial_t<Pos, Appl, V> (a, v) ))
+template <unsigned Pos = 1, typename Appl, typename V> auto hb_partial(Appl&& a, V&& v) HB_AUTO_RETURN (( hb_partial_t<Pos, Appl, V> (a, v) ))
 
 /* The following, HB_PARTIALIZE, macro uses a particular corner-case
  * of C++11 that is not particularly well-supported by all compilers.
@@ -193,51 +159,36 @@ private:
 		hb_has(hb_forward<Pred> (p),
 		hb_forward<Val> (v))
 	)
-
 	template <typename Pred, typename Val> auto impl(Pred&& p, Val &&v, hb_priority<0>) const HB_AUTO_RETURN
 	(
 		hb_forward<Pred> (p) == hb_forward<Val> (v)
 	)
-
 public:
-
 	template <typename Pred, typename Val> auto operator() (Pred&& p, Val &&v) const HB_RETURN(bool,
-	    impl(hb_forward<Pred> (p),
-	    hb_forward<Val> (v),
-	    hb_prioritize)
-	    )
-}
-
-HB_FUNCOBJ(hb_match);
+	    impl(hb_forward<Pred> (p), hb_forward<Val> (v), hb_prioritize))
+} HB_FUNCOBJ(hb_match);
 
 struct {
 private:
-
 	template <typename Proj, typename Val> auto impl(Proj&& f, Val &&v, hb_priority<2>) const HB_AUTO_RETURN
 		(hb_deref(hb_forward<Proj> (f)).get(hb_forward<Val> (v)))
-
 	template <typename Proj, typename Val> auto impl(Proj&& f, Val &&v, hb_priority<1>) const HB_AUTO_RETURN
 	(
 		hb_invoke(hb_forward<Proj> (f),
 		hb_forward<Val> (v))
 	)
-
 	template <typename Proj, typename Val> auto impl(Proj&& f, Val &&v, hb_priority<0>) const HB_AUTO_RETURN
 	(
 		hb_forward<Proj> (f)[hb_forward<Val> (v)]
 	)
-
 public:
-
 	template <typename Proj, typename Val> auto operator() (Proj&& f, Val &&v) const HB_AUTO_RETURN
 	(
 		impl(hb_forward<Proj> (f),
 		hb_forward<Val> (v),
 		hb_prioritize)
 	)
-}
-
-HB_FUNCOBJ(hb_get);
+} HB_FUNCOBJ(hb_get);
 
 template <typename T1, typename T2> struct hb_pair_t {
 	typedef T1 first_t;
@@ -450,52 +401,22 @@ template <typename T> static inline HB_CONST_FUNC uint hb_ctz(T v)
 	assert(0);
 	return 0; // Shut up stupid compiler
 }
-
 /*
  * Tiny stuff.
  */
-
 /* ASCII tag/character handling */
-static inline bool ISALPHA(uchar c) {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
-}
-
-static inline bool ISALNUM(uchar c) {
-	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
-}
-
-static inline bool ISSPACE(uchar c) {
-	return c == ' ' || c =='\f'|| c =='\n'|| c =='\r'|| c =='\t'|| c =='\v';
-}
-
-static inline uchar TOUPPER(uchar c) {
-	return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c;
-}
-
-static inline uchar TOLOWER(uchar c) {
-	return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c;
-}
-
-static inline bool ISHEX(uchar c) {
-	return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
-}
-
-static inline uchar TOHEX(uint8_t c) {
-	return (c & 0xF) <= 9 ? (c & 0xF) + '0' : (c & 0xF) + 'a' - 10;
-}
-
-static inline uint8_t FROMHEX(uchar c) {
-	return (c >= '0' && c <= '9') ? c - '0' : TOLOWER(c) - 'a' + 10;
-}
-
-static inline uint DIV_CEIL(const uint a, uint b) {
-	return (a + (b - 1)) / b;
-}
+static inline bool ISALPHA(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'); }
+static inline bool ISALNUM(uchar c) { return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9'); }
+static inline bool ISSPACE(uchar c) { return c == ' ' || c =='\f'|| c =='\n'|| c =='\r'|| c =='\t'|| c =='\v'; }
+static inline uchar TOUPPER(uchar c) { return (c >= 'a' && c <= 'z') ? c - 'a' + 'A' : c; }
+static inline uchar TOLOWER(uchar c) { return (c >= 'A' && c <= 'Z') ? c - 'A' + 'a' : c; }
+static inline bool ISHEX(uchar c) { return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F'); }
+static inline uchar TOHEX(uint8_t c) { return (c & 0xF) <= 9 ? (c & 0xF) + '0' : (c & 0xF) + 'a' - 10; }
+static inline uint8_t FROMHEX(uchar c) { return (c >= '0' && c <= '9') ? c - '0' : TOLOWER(c) - 'a' + 10; }
+static inline uint DIV_CEIL(const uint a, uint b) { return (a + (b - 1)) / b; }
 
 #undef  ARRAY_LENGTH
-template <typename Type, uint n> static inline uint ARRAY_LENGTH(const Type (&)[n]) {
-	return n;
-}
+template <typename Type, uint n> static inline uint ARRAY_LENGTH(const Type (&)[n]) { return n; }
 
 /* A const version, but does not detect erratically being called on pointers. */
 #define ARRAY_LENGTH_CONST(__array) ((signed int)(sizeof(__array) / sizeof(__array[0])))

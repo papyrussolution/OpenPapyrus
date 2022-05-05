@@ -234,7 +234,7 @@ void FASTCALL _cairo_boxes_extents(const cairo_boxes_t * boxes, cairo_box_t * bo
 		return;
 	}
 	b = boxes->chunks.base[0];
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		for(i = 0; i < chunk->count; i++) {
 			if(chunk->base[i].p1.x < b.p1.x)
 				b.p1.x = chunk->base[i].p1.x;
@@ -287,7 +287,7 @@ cairo_box_t * _cairo_boxes_to_array(const cairo_boxes_t * boxes, int * num_boxes
 		return NULL;
 	}
 	j = 0;
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		for(i = 0; i < chunk->count; i++)
 			box[j++] = chunk->base[i];
 	}
@@ -305,7 +305,7 @@ void _cairo_boxes_fini(cairo_boxes_t * boxes)
 
 boolint _cairo_boxes_for_each_box(cairo_boxes_t * boxes, boolint (*func)(cairo_box_t * box, void * data), void * data)
 {
-	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(cairo_boxes_t::_cairo_boxes_chunk * chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		for(int i = 0; i < chunk->count; i++)
 			if(!func(&chunk->base[i], data))
 				return FALSE;
@@ -372,7 +372,7 @@ void _cairo_debug_print_boxes(FILE * stream, const cairo_boxes_t * boxes)
 	    _cairo_fixed_to_double(extents.p2.x),
 	    _cairo_fixed_to_double(extents.p2.y));
 
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		for(i = 0; i < chunk->count; i++) {
 			slfprintf_stderr("  box[%d]: (%f, %f), (%f, %f)\n", i,
 			    _cairo_fixed_to_double(chunk->base[i].p1.x),

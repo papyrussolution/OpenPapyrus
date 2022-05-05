@@ -78,7 +78,7 @@ void CRYPTO_get_mem_functions(void *(**m)(size_t, const char *, int), void *(**r
 		*m = malloc_impl;
 	if(r != NULL)
 		*r = realloc_impl;
-	if(f != NULL)
+	if(f)
 		*f = free_impl;
 }
 

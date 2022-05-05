@@ -15,22 +15,21 @@
 #ifndef ABSL_CONTAINER_INTERNAL_INLINED_VECTOR_INTERNAL_H_
 #define ABSL_CONTAINER_INTERNAL_INLINED_VECTOR_INTERNAL_H_
 
-#include <algorithm>
-#include <cstddef>
-#include <cstring>
-#include <iterator>
-#include <limits>
-#include <memory>
-#include <new>
-#include <type_traits>
-#include <utility>
-
-#include "absl/base/attributes.h"
-#include "absl/base/macros.h"
-#include "absl/container/internal/compressed_tuple.h"
-#include "absl/memory/memory.h"
-#include "absl/meta/type_traits.h"
-#include "absl/types/span.h"
+//#include <algorithm>
+//#include <cstddef>
+//#include <cstring>
+//#include <iterator>
+//#include <limits>
+//#include <memory>
+//#include <new>
+//#include <type_traits>
+//#include <utility>
+//#include "absl/base/attributes.h"
+//#include "absl/base/macros.h"
+//#include "absl/container/internal/compressed_tuple.h"
+//#include "absl/memory/memory.h"
+//#include "absl/meta/type_traits.h"
+//#include "absl/types/span.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

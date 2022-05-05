@@ -54,7 +54,7 @@ static void jbig2_png_flush(png_structp png_ptr)
 #else
 	png_FILE_p f = (png_FILE_p)png_get_io_ptr(png_ptr);
 #endif
-	if(f != NULL)
+	if(f)
 		fflush(f);
 }
 

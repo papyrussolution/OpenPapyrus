@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/any_test.pb.h>
@@ -39,19 +27,19 @@
 namespace google {
 namespace protobuf {
 namespace {
-TEST(AnyMetadataTest, ConstInit) {
+TEST(AnyMetadataTest, ConstInit) 
+{
 	PROTOBUF_CONSTINIT static internal::AnyMetadata metadata(nullptr, nullptr);
 	(void)metadata;
 }
 
-TEST(AnyTest, TestPackAndUnpack) {
+TEST(AnyTest, TestPackAndUnpack) 
+{
 	protobuf_unittest::TestAny submessage;
 	submessage.set_int32_value(12345);
 	protobuf_unittest::TestAny message;
 	ASSERT_TRUE(message.mutable_any_value()->PackFrom(submessage));
-
 	std::string data = message.SerializeAsString();
-
 	ASSERT_TRUE(message.ParseFromString(data));
 	EXPECT_TRUE(message.has_any_value());
 	submessage.Clear();
@@ -59,14 +47,16 @@ TEST(AnyTest, TestPackAndUnpack) {
 	EXPECT_EQ(12345, submessage.int32_value());
 }
 
-TEST(AnyTest, TestPackFromSerializationExceedsSizeLimit) {
+TEST(AnyTest, TestPackFromSerializationExceedsSizeLimit) 
+{
 	protobuf_unittest::TestAny submessage;
 	submessage.mutable_text()->resize(INT_MAX, 'a');
 	protobuf_unittest::TestAny message;
 	EXPECT_FALSE(message.mutable_any_value()->PackFrom(submessage));
 }
 
-TEST(AnyTest, TestUnpackWithTypeMismatch) {
+TEST(AnyTest, TestUnpackWithTypeMismatch) 
+{
 	protobuf_unittest::TestAny payload;
 	payload.set_int32_value(13);
 	google::protobuf::Any any;
@@ -77,7 +67,8 @@ TEST(AnyTest, TestUnpackWithTypeMismatch) {
 	EXPECT_FALSE(any.UnpackTo(&dest));
 }
 
-TEST(AnyTest, TestPackAndUnpackAny) {
+TEST(AnyTest, TestPackAndUnpackAny) 
+{
 	// We can pack a Any message inside another Any message.
 	protobuf_unittest::TestAny submessage;
 	submessage.set_int32_value(12345);
@@ -85,9 +76,7 @@ TEST(AnyTest, TestPackAndUnpackAny) {
 	any.PackFrom(submessage);
 	protobuf_unittest::TestAny message;
 	message.mutable_any_value()->PackFrom(any);
-
 	std::string data = message.SerializeAsString();
-
 	ASSERT_TRUE(message.ParseFromString(data));
 	EXPECT_TRUE(message.has_any_value());
 	any.Clear();
@@ -97,7 +86,8 @@ TEST(AnyTest, TestPackAndUnpackAny) {
 	EXPECT_EQ(12345, submessage.int32_value());
 }
 
-TEST(AnyTest, TestPackWithCustomTypeUrl) {
+TEST(AnyTest, TestPackWithCustomTypeUrl) 
+{
 	protobuf_unittest::TestAny submessage;
 	submessage.set_int32_value(12345);
 	google::protobuf::Any any;
@@ -142,15 +132,13 @@ TEST(AnyTest, TestIs) {
 	EXPECT_FALSE(any.Is<protobuf_unittest::TestAny>());
 }
 
-TEST(AnyTest, MoveConstructor) {
+TEST(AnyTest, MoveConstructor) 
+{
 	protobuf_unittest::TestAny payload;
 	payload.set_int32_value(12345);
-
 	google::protobuf::Any src;
 	src.PackFrom(payload);
-
 	const char* type_url = src.type_url().data();
-
 	google::protobuf::Any dst(std::move(src));
 	EXPECT_EQ(type_url, dst.type_url().data());
 	payload.Clear();
@@ -158,15 +146,13 @@ TEST(AnyTest, MoveConstructor) {
 	EXPECT_EQ(12345, payload.int32_value());
 }
 
-TEST(AnyTest, MoveAssignment) {
+TEST(AnyTest, MoveAssignment) 
+{
 	protobuf_unittest::TestAny payload;
 	payload.set_int32_value(12345);
-
 	google::protobuf::Any src;
 	src.PackFrom(payload);
-
 	const char* type_url = src.type_url().data();
-
 	google::protobuf::Any dst;
 	dst = std::move(src);
 	EXPECT_EQ(type_url, dst.type_url().data());

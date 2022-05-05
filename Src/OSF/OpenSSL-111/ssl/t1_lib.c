@@ -1384,9 +1384,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
 	}
 	if(tctx->ext.ticket_key_cb) {
 		uchar * nctick = (uchar *)etick;
-		int rv = tctx->ext.ticket_key_cb(s, nctick,
-			nctick + TLSEXT_KEYNAME_LENGTH,
-			ctx, hctx, 0);
+		int rv = tctx->ext.ticket_key_cb(s, nctick, nctick + TLSEXT_KEYNAME_LENGTH, ctx, hctx, 0);
 		if(rv < 0) {
 			ret = SSL_TICKET_FATAL_ERR_OTHER;
 			goto end;
@@ -1400,17 +1398,12 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
 	}
 	else {
 		/* Check key name matches */
-		if(memcmp(etick, tctx->ext.tick_key_name,
-		    TLSEXT_KEYNAME_LENGTH) != 0) {
+		if(memcmp(etick, tctx->ext.tick_key_name, TLSEXT_KEYNAME_LENGTH) != 0) {
 			ret = SSL_TICKET_NO_DECRYPT;
 			goto end;
 		}
-		if(HMAC_Init_ex(hctx, tctx->ext.secure->tick_hmac_key,
-		    sizeof(tctx->ext.secure->tick_hmac_key),
-		    EVP_sha256(), NULL) <= 0
-		   || EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL,
-		    tctx->ext.secure->tick_aes_key,
-		    etick + TLSEXT_KEYNAME_LENGTH) <= 0) {
+		if(HMAC_Init_ex(hctx, tctx->ext.secure->tick_hmac_key, sizeof(tctx->ext.secure->tick_hmac_key), EVP_sha256(), NULL) <= 0 || 
+			EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, tctx->ext.secure->tick_aes_key, etick + TLSEXT_KEYNAME_LENGTH) <= 0) {
 			ret = SSL_TICKET_FATAL_ERR_OTHER;
 			goto end;
 		}

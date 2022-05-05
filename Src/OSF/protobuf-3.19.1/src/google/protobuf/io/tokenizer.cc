@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -79,9 +78,7 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/io/tokenizer.h>
-#include <google/protobuf/stubs/stringprintf.h>
 #include <google/protobuf/io/strtod.h>
-#include <google/protobuf/stubs/stl_util.h>
 
 namespace google {
 namespace protobuf {

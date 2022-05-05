@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 //     * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -16,18 +15,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // This file defines common macros that are used in protobuf.
 //
 // To hide these definitions from the outside world (and to prevent collisions
@@ -120,10 +107,8 @@
 
 // Portable check for GCC minimum version:
 // https://gcc.gnu.org/onlinedocs/cpp/Common-Predefined-Macros.html
-#if defined(__GNUC__) && defined(__GNUC_MINOR__) \
-    && defined(__GNUC_PATCHLEVEL__)
-#  define PROTOBUF_GNUC_MIN(x, y) \
-  (__GNUC__ > (x) || __GNUC__ == (x) && __GNUC_MINOR__ >= (y))
+#if defined(__GNUC__) && defined(__GNUC_MINOR__) && defined(__GNUC_PATCHLEVEL__)
+#  define PROTOBUF_GNUC_MIN(x, y) (__GNUC__ > (x) || __GNUC__ == (x) && __GNUC_MINOR__ >= (y))
 #else
 #  define PROTOBUF_GNUC_MIN(x, y) 0
 #endif
@@ -609,34 +594,28 @@
 #error PROTOBUF_ATTRIBUTE_INIT_PRIORITY was previously defined
 #endif
 #if PROTOBUF_GNUC_MIN(3, 0) && (!defined(__APPLE__) || defined(__clang__)) && !((defined(sun) || defined(__sun)) && (defined(__SVR4) || defined(__svr4__)))
-#define PROTOBUF_ATTRIBUTE_INIT_PRIORITY __attribute__((init_priority((102))))
+	#define PROTOBUF_ATTRIBUTE_INIT_PRIORITY __attribute__((init_priority((102))))
 #else
-#define PROTOBUF_ATTRIBUTE_INIT_PRIORITY
+	#define PROTOBUF_ATTRIBUTE_INIT_PRIORITY
 #endif
-
 #ifdef PROTOBUF_PRAGMA_INIT_SEG
-#error PROTOBUF_PRAGMA_INIT_SEG was previously defined
+	#error PROTOBUF_PRAGMA_INIT_SEG was previously defined
 #endif
 #if _MSC_VER
-#define PROTOBUF_PRAGMA_INIT_SEG __pragma(init_seg(lib))
+	#define PROTOBUF_PRAGMA_INIT_SEG __pragma(init_seg(lib))
 #else
-#define PROTOBUF_PRAGMA_INIT_SEG
+	#define PROTOBUF_PRAGMA_INIT_SEG
 #endif
-
 #ifdef PROTOBUF_ATTRIBUTE_WEAK
 #error PROTOBUF_ATTRIBUTE_WEAK was previously defined
 #endif
-#if __has_attribute(weak) && \
-    !defined(__APPLE__) && \
-    (!defined(_WIN32) || __clang_major__ < 9) && \
-    !defined(__MINGW32__)
-#define PROTOBUF_ATTRIBUTE_WEAK __attribute__((weak))
-#define PROTOBUF_HAVE_ATTRIBUTE_WEAK 1
+#if __has_attribute(weak) && !defined(__APPLE__) && (!defined(_WIN32) || __clang_major__ < 9) && !defined(__MINGW32__)
+	#define PROTOBUF_ATTRIBUTE_WEAK __attribute__((weak))
+	#define PROTOBUF_HAVE_ATTRIBUTE_WEAK 1
 #else
-#define PROTOBUF_ATTRIBUTE_WEAK
-#define PROTOBUF_HAVE_ATTRIBUTE_WEAK 0
+	#define PROTOBUF_ATTRIBUTE_WEAK
+	#define PROTOBUF_HAVE_ATTRIBUTE_WEAK 0
 #endif
-
 // Macros to detect sanitizers.
 #ifdef PROTOBUF_ASAN
 #error PROTOBUF_ASAN was previously defined

@@ -338,11 +338,11 @@ class FileDescriptorSet final :
     *this = ::std::move(from);
   }
 
-  inline FileDescriptorSet& operator = (const FileDescriptorSet& from) {
+  inline FileDescriptorSet& operator=(const FileDescriptorSet& from) {
     CopyFrom(from);
     return *this;
   }
-  inline FileDescriptorSet& operator = (FileDescriptorSet&& from) noexcept {
+  inline FileDescriptorSet& operator=(FileDescriptorSet&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -477,11 +477,11 @@ class FileDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline FileDescriptorProto& operator = (const FileDescriptorProto& from) {
+  inline FileDescriptorProto& operator=(const FileDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline FileDescriptorProto& operator = (FileDescriptorProto&& from) noexcept {
+  inline FileDescriptorProto& operator=(FileDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -851,11 +851,11 @@ class DescriptorProto_ExtensionRange final :
     *this = ::std::move(from);
   }
 
-  inline DescriptorProto_ExtensionRange& operator = (const DescriptorProto_ExtensionRange& from) {
+  inline DescriptorProto_ExtensionRange& operator=(const DescriptorProto_ExtensionRange& from) {
     CopyFrom(from);
     return *this;
   }
-  inline DescriptorProto_ExtensionRange& operator = (DescriptorProto_ExtensionRange&& from) noexcept {
+  inline DescriptorProto_ExtensionRange& operator=(DescriptorProto_ExtensionRange&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1021,11 +1021,11 @@ class DescriptorProto_ReservedRange final :
     *this = ::std::move(from);
   }
 
-  inline DescriptorProto_ReservedRange& operator = (const DescriptorProto_ReservedRange& from) {
+  inline DescriptorProto_ReservedRange& operator=(const DescriptorProto_ReservedRange& from) {
     CopyFrom(from);
     return *this;
   }
-  inline DescriptorProto_ReservedRange& operator = (DescriptorProto_ReservedRange&& from) noexcept {
+  inline DescriptorProto_ReservedRange& operator=(DescriptorProto_ReservedRange&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1171,11 +1171,11 @@ class DescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline DescriptorProto& operator = (const DescriptorProto& from) {
+  inline DescriptorProto& operator=(const DescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline DescriptorProto& operator = (DescriptorProto&& from) noexcept {
+  inline DescriptorProto& operator=(DescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1500,11 +1500,11 @@ class ExtensionRangeOptions final :
     *this = ::std::move(from);
   }
 
-  inline ExtensionRangeOptions& operator = (const ExtensionRangeOptions& from) {
+  inline ExtensionRangeOptions& operator=(const ExtensionRangeOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ExtensionRangeOptions& operator = (ExtensionRangeOptions&& from) noexcept {
+  inline ExtensionRangeOptions& operator=(ExtensionRangeOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1796,11 +1796,11 @@ class FieldDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline FieldDescriptorProto& operator = (const FieldDescriptorProto& from) {
+  inline FieldDescriptorProto& operator=(const FieldDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline FieldDescriptorProto& operator = (FieldDescriptorProto&& from) noexcept {
+  inline FieldDescriptorProto& operator=(FieldDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2205,11 +2205,11 @@ class OneofDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline OneofDescriptorProto& operator = (const OneofDescriptorProto& from) {
+  inline OneofDescriptorProto& operator=(const OneofDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline OneofDescriptorProto& operator = (OneofDescriptorProto&& from) noexcept {
+  inline OneofDescriptorProto& operator=(OneofDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2365,11 +2365,11 @@ class EnumDescriptorProto_EnumReservedRange final :
     *this = ::std::move(from);
   }
 
-  inline EnumDescriptorProto_EnumReservedRange& operator = (const EnumDescriptorProto_EnumReservedRange& from) {
+  inline EnumDescriptorProto_EnumReservedRange& operator=(const EnumDescriptorProto_EnumReservedRange& from) {
     CopyFrom(from);
     return *this;
   }
-  inline EnumDescriptorProto_EnumReservedRange& operator = (EnumDescriptorProto_EnumReservedRange&& from) noexcept {
+  inline EnumDescriptorProto_EnumReservedRange& operator=(EnumDescriptorProto_EnumReservedRange&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2515,11 +2515,11 @@ class EnumDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline EnumDescriptorProto& operator = (const EnumDescriptorProto& from) {
+  inline EnumDescriptorProto& operator=(const EnumDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline EnumDescriptorProto& operator = (EnumDescriptorProto&& from) noexcept {
+  inline EnumDescriptorProto& operator=(EnumDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2743,11 +2743,11 @@ class EnumValueDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline EnumValueDescriptorProto& operator = (const EnumValueDescriptorProto& from) {
+  inline EnumValueDescriptorProto& operator=(const EnumValueDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline EnumValueDescriptorProto& operator = (EnumValueDescriptorProto&& from) noexcept {
+  inline EnumValueDescriptorProto& operator=(EnumValueDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -2918,11 +2918,11 @@ class ServiceDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline ServiceDescriptorProto& operator = (const ServiceDescriptorProto& from) {
+  inline ServiceDescriptorProto& operator=(const ServiceDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ServiceDescriptorProto& operator = (ServiceDescriptorProto&& from) noexcept {
+  inline ServiceDescriptorProto& operator=(ServiceDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3098,11 +3098,11 @@ class MethodDescriptorProto final :
     *this = ::std::move(from);
   }
 
-  inline MethodDescriptorProto& operator = (const MethodDescriptorProto& from) {
+  inline MethodDescriptorProto& operator=(const MethodDescriptorProto& from) {
     CopyFrom(from);
     return *this;
   }
-  inline MethodDescriptorProto& operator = (MethodDescriptorProto&& from) noexcept {
+  inline MethodDescriptorProto& operator=(MethodDescriptorProto&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -3328,11 +3328,11 @@ class FileOptions final :
     *this = ::std::move(from);
   }
 
-  inline FileOptions& operator = (const FileOptions& from) {
+  inline FileOptions& operator=(const FileOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline FileOptions& operator = (FileOptions&& from) noexcept {
+  inline FileOptions& operator=(FileOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4007,11 +4007,11 @@ class MessageOptions final :
     *this = ::std::move(from);
   }
 
-  inline MessageOptions& operator = (const MessageOptions& from) {
+  inline MessageOptions& operator=(const MessageOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline MessageOptions& operator = (MessageOptions&& from) noexcept {
+  inline MessageOptions& operator=(MessageOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4364,11 +4364,11 @@ class FieldOptions final :
     *this = ::std::move(from);
   }
 
-  inline FieldOptions& operator = (const FieldOptions& from) {
+  inline FieldOptions& operator=(const FieldOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline FieldOptions& operator = (FieldOptions&& from) noexcept {
+  inline FieldOptions& operator=(FieldOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -4815,11 +4815,11 @@ class OneofOptions final :
     *this = ::std::move(from);
   }
 
-  inline OneofOptions& operator = (const OneofOptions& from) {
+  inline OneofOptions& operator=(const OneofOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline OneofOptions& operator = (OneofOptions&& from) noexcept {
+  inline OneofOptions& operator=(OneofOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -5111,11 +5111,11 @@ class EnumOptions final :
     *this = ::std::move(from);
   }
 
-  inline EnumOptions& operator = (const EnumOptions& from) {
+  inline EnumOptions& operator=(const EnumOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline EnumOptions& operator = (EnumOptions&& from) noexcept {
+  inline EnumOptions& operator=(EnumOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -5438,11 +5438,11 @@ class EnumValueOptions final :
     *this = ::std::move(from);
   }
 
-  inline EnumValueOptions& operator = (const EnumValueOptions& from) {
+  inline EnumValueOptions& operator=(const EnumValueOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline EnumValueOptions& operator = (EnumValueOptions&& from) noexcept {
+  inline EnumValueOptions& operator=(EnumValueOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -5750,11 +5750,11 @@ class ServiceOptions final :
     *this = ::std::move(from);
   }
 
-  inline ServiceOptions& operator = (const ServiceOptions& from) {
+  inline ServiceOptions& operator=(const ServiceOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ServiceOptions& operator = (ServiceOptions&& from) noexcept {
+  inline ServiceOptions& operator=(ServiceOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -6062,11 +6062,11 @@ class MethodOptions final :
     *this = ::std::move(from);
   }
 
-  inline MethodOptions& operator = (const MethodOptions& from) {
+  inline MethodOptions& operator=(const MethodOptions& from) {
     CopyFrom(from);
     return *this;
   }
-  inline MethodOptions& operator = (MethodOptions&& from) noexcept {
+  inline MethodOptions& operator=(MethodOptions&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -6421,11 +6421,11 @@ class UninterpretedOption_NamePart final :
     *this = ::std::move(from);
   }
 
-  inline UninterpretedOption_NamePart& operator = (const UninterpretedOption_NamePart& from) {
+  inline UninterpretedOption_NamePart& operator=(const UninterpretedOption_NamePart& from) {
     CopyFrom(from);
     return *this;
   }
-  inline UninterpretedOption_NamePart& operator = (UninterpretedOption_NamePart&& from) noexcept {
+  inline UninterpretedOption_NamePart& operator=(UninterpretedOption_NamePart&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -6578,11 +6578,11 @@ class UninterpretedOption final :
     *this = ::std::move(from);
   }
 
-  inline UninterpretedOption& operator = (const UninterpretedOption& from) {
+  inline UninterpretedOption& operator=(const UninterpretedOption& from) {
     CopyFrom(from);
     return *this;
   }
-  inline UninterpretedOption& operator = (UninterpretedOption&& from) noexcept {
+  inline UninterpretedOption& operator=(UninterpretedOption&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -6825,11 +6825,11 @@ class SourceCodeInfo_Location final :
     *this = ::std::move(from);
   }
 
-  inline SourceCodeInfo_Location& operator = (const SourceCodeInfo_Location& from) {
+  inline SourceCodeInfo_Location& operator=(const SourceCodeInfo_Location& from) {
     CopyFrom(from);
     return *this;
   }
-  inline SourceCodeInfo_Location& operator = (SourceCodeInfo_Location&& from) noexcept {
+  inline SourceCodeInfo_Location& operator=(SourceCodeInfo_Location&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -7061,11 +7061,11 @@ class SourceCodeInfo final :
     *this = ::std::move(from);
   }
 
-  inline SourceCodeInfo& operator = (const SourceCodeInfo& from) {
+  inline SourceCodeInfo& operator=(const SourceCodeInfo& from) {
     CopyFrom(from);
     return *this;
   }
-  inline SourceCodeInfo& operator = (SourceCodeInfo&& from) noexcept {
+  inline SourceCodeInfo& operator=(SourceCodeInfo&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -7202,11 +7202,11 @@ class GeneratedCodeInfo_Annotation final :
     *this = ::std::move(from);
   }
 
-  inline GeneratedCodeInfo_Annotation& operator = (const GeneratedCodeInfo_Annotation& from) {
+  inline GeneratedCodeInfo_Annotation& operator=(const GeneratedCodeInfo_Annotation& from) {
     CopyFrom(from);
     return *this;
   }
-  inline GeneratedCodeInfo_Annotation& operator = (GeneratedCodeInfo_Annotation&& from) noexcept {
+  inline GeneratedCodeInfo_Annotation& operator=(GeneratedCodeInfo_Annotation&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -7397,11 +7397,11 @@ class GeneratedCodeInfo final :
     *this = ::std::move(from);
   }
 
-  inline GeneratedCodeInfo& operator = (const GeneratedCodeInfo& from) {
+  inline GeneratedCodeInfo& operator=(const GeneratedCodeInfo& from) {
     CopyFrom(from);
     return *this;
   }
-  inline GeneratedCodeInfo& operator = (GeneratedCodeInfo&& from) noexcept {
+  inline GeneratedCodeInfo& operator=(GeneratedCodeInfo&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

@@ -9,10 +9,10 @@
 #ifndef ABSL_STRINGS_CORDZ_FUNCTIONS_H_
 #define ABSL_STRINGS_CORDZ_FUNCTIONS_H_
 
-#include <stdint.h>
-#include "absl/base/attributes.h"
-#include "absl/base/config.h"
-#include "absl/base/optimization.h"
+//#include <stdint.h>
+//#include "absl/base/attributes.h"
+//#include "absl/base/config.h"
+//#include "absl/base/optimization.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

@@ -135,7 +135,7 @@ static int file_free(BIO * a)
 static int file_read(BIO * b, char * out, int outl)
 {
 	int ret = 0;
-	if(b->init && (out != NULL)) {
+	if(b->init && (out)) {
 		if(b->flags & BIO_FLAGS_UPLINK)
 			ret = UP_fread(out, 1, (int)outl, static_cast<FILE *>(b->ptr));
 		else
@@ -297,7 +297,7 @@ static long file_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_C_GET_FILE_PTR:
 		    /* the ptr parameter is actually a FILE ** in this case. */
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    fpp = (FILE**)ptr;
 			    *fpp = (FILE*)b->ptr;
 		    }

@@ -131,11 +131,11 @@ class Struct final :
     *this = ::std::move(from);
   }
 
-  inline Struct& operator = (const Struct& from) {
+  inline Struct& operator=(const Struct& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Struct& operator = (Struct&& from) noexcept {
+  inline Struct& operator=(Struct&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -271,11 +271,11 @@ class Value final :
     *this = ::std::move(from);
   }
 
-  inline Value& operator = (const Value& from) {
+  inline Value& operator=(const Value& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Value& operator = (Value&& from) noexcept {
+  inline Value& operator=(Value&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -519,11 +519,11 @@ class ListValue final :
     *this = ::std::move(from);
   }
 
-  inline ListValue& operator = (const ListValue& from) {
+  inline ListValue& operator=(const ListValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline ListValue& operator = (ListValue&& from) noexcept {
+  inline ListValue& operator=(ListValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

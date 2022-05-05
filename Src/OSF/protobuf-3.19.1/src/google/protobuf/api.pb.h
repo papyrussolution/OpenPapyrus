@@ -84,11 +84,11 @@ class Api final :
     *this = ::std::move(from);
   }
 
-  inline Api& operator = (const Api& from) {
+  inline Api& operator=(const Api& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Api& operator = (Api&& from) noexcept {
+  inline Api& operator=(Api&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -323,11 +323,11 @@ class Method final :
     *this = ::std::move(from);
   }
 
-  inline Method& operator = (const Method& from) {
+  inline Method& operator=(const Method& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Method& operator = (Method&& from) noexcept {
+  inline Method& operator=(Method&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -540,11 +540,11 @@ class Mixin final :
     *this = ::std::move(from);
   }
 
-  inline Mixin& operator = (const Mixin& from) {
+  inline Mixin& operator=(const Mixin& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Mixin& operator = (Mixin&& from) noexcept {
+  inline Mixin& operator=(Mixin&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

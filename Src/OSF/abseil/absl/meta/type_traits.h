@@ -35,10 +35,10 @@
 #ifndef ABSL_META_TYPE_TRAITS_H_
 #define ABSL_META_TYPE_TRAITS_H_
 
-#include <cstddef>
-#include <functional>
-#include <type_traits>
-#include "absl/base/config.h"
+//#include <cstddef>
+//#include <functional>
+//#include <type_traits>
+//#include "absl/base/config.h"
 
 // MSVC constructibility traits do not detect destructor properties and so our
 // implementations should not use them as a source-of-truth.

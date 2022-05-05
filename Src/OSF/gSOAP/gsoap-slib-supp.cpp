@@ -25,7 +25,7 @@ int gSoapSslClientContextInit(struct soap * pSoap, const char * pKeyfile)
 	if(soaperr != SOAP_OK) {
 		SString msg_buf;
 		(msg_buf = "Error on soap_ssl_client_context").CatDiv(':', 2).CatEq("errcode", soaperr).Space().CatEq("CaFile", r_cfg.CaFile).Space().
-			CatEq("CaPath", r_cfg.CaPath).Space().CatEq("CaFileExists", (long)fileExists(r_cfg.CaFile));
+			CatEq("CaPath", r_cfg.CaPath).Space().CatEq("CaFileExists", fileExists(r_cfg.CaFile));
 		SLS.LogMessage(0, msg_buf);
 		ok = 0;
 	}

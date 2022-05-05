@@ -116,8 +116,7 @@ int tls1_change_cipher_state(SSL * s, int which)
 			reuse_dd = 1;
 		}
 		else if((s->enc_read_ctx = EVP_CIPHER_CTX_new()) == NULL) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_CHANGE_CIPHER_STATE,
-			    ERR_R_MALLOC_FAILURE);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_CHANGE_CIPHER_STATE, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}
 		else {
@@ -133,12 +132,10 @@ int tls1_change_cipher_state(SSL * s, int which)
 #ifndef OPENSSL_NO_COMP
 		COMP_CTX_free(s->expand);
 		s->expand = NULL;
-		if(comp != NULL) {
+		if(comp) {
 			s->expand = COMP_CTX_new(comp->method);
 			if(s->expand == NULL) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-				    SSL_F_TLS1_CHANGE_CIPHER_STATE,
-				    SSL_R_COMPRESSION_LIBRARY_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS1_CHANGE_CIPHER_STATE, SSL_R_COMPRESSION_LIBRARY_ERROR);
 				goto err;
 			}
 		}
@@ -193,7 +190,7 @@ int tls1_change_cipher_state(SSL * s, int which)
 #ifndef OPENSSL_NO_COMP
 		COMP_CTX_free(s->compress);
 		s->compress = NULL;
-		if(comp != NULL) {
+		if(comp) {
 			s->compress = COMP_CTX_new(comp->method);
 			if(s->compress == NULL) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR,
@@ -566,31 +563,17 @@ int tls1_export_keying_material(SSL * s, uchar * out, size_t olen,
 	 * label len) = 15, so size of val > max(prohibited label len) = 15 and
 	 * the comparisons won't have buffer overflow
 	 */
-	if(memcmp(val, TLS_MD_CLIENT_FINISH_CONST,
-	    TLS_MD_CLIENT_FINISH_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_CLIENT_FINISH_CONST, TLS_MD_CLIENT_FINISH_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_SERVER_FINISH_CONST,
-	    TLS_MD_SERVER_FINISH_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_SERVER_FINISH_CONST, TLS_MD_SERVER_FINISH_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_MASTER_SECRET_CONST,
-	    TLS_MD_MASTER_SECRET_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_MASTER_SECRET_CONST, TLS_MD_MASTER_SECRET_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_EXTENDED_MASTER_SECRET_CONST,
-	    TLS_MD_EXTENDED_MASTER_SECRET_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_EXTENDED_MASTER_SECRET_CONST, TLS_MD_EXTENDED_MASTER_SECRET_CONST_SIZE) == 0)
 		goto err1;
-	if(memcmp(val, TLS_MD_KEY_EXPANSION_CONST,
-	    TLS_MD_KEY_EXPANSION_CONST_SIZE) == 0)
+	if(memcmp(val, TLS_MD_KEY_EXPANSION_CONST, TLS_MD_KEY_EXPANSION_CONST_SIZE) == 0)
 		goto err1;
-
-	rv = tls1_PRF(s,
-		val, vallen,
-		NULL, 0,
-		NULL, 0,
-		NULL, 0,
-		NULL, 0,
-		s->session->master_key, s->session->master_key_length,
-		out, olen, 0);
-
+	rv = tls1_PRF(s, val, vallen, NULL, 0, NULL, 0, NULL, 0, NULL, 0, s->session->master_key, s->session->master_key_length, out, olen, 0);
 	goto ret;
 err1:
 	SSLerr(SSL_F_TLS1_EXPORT_KEYING_MATERIAL, SSL_R_TLS_ILLEGAL_EXPORTER_LABEL);

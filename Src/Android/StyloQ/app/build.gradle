@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId "ru.petroglif.styloq"
-        minSdkVersion 27
+        minSdkVersion 28
         targetSdkVersion 29
         versionCode 2
         versionName '1.1'

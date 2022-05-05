@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -20,10 +19,7 @@
 #pragma hdrstop
 #include <google/protobuf/util/internal/type_info.h>
 #include <google/protobuf/type.pb.h>
-#include <google/protobuf/util/internal/utility.h>
-#include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/statusor.h>
-#include <google/protobuf/stubs/status.h>
 
 namespace google {
 namespace protobuf {

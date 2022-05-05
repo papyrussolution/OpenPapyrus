@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\zstd\lib\debug.c" />
+    <ClCompile Include="..\osf\zstd\lib\entropy_common.c" />
+    <ClCompile Include="..\osf\zstd\lib\error_private.c" />
+    <ClCompile Include="..\osf\zstd\lib\pool.c" />
+    <ClCompile Include="..\osf\zstd\lib\threading.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd-pch.cpp" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_common.c" />
+    <ClCompile Include="..\osf\zstd\lib\fse_decompress.c" />
+    <ClCompile Include="..\osf\zstd\lib\hist.c" />
+    <ClCompile Include="..\osf\zstd\lib\fse_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\huf_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstdmt_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress_literals.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress_sequences.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_compress_superblock.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_fast.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_double_fast.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_lazy.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_opt.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_ldm.c" />
+    <ClCompile Include="..\osf\zstd\lib\huf_decompress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_decompress.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_decompress_block.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_ddict.c" />
+    <ClCompile Include="..\osf\zstd\lib\cover.c" />
+    <ClCompile Include="..\osf\zstd\lib\fastcover.c" />
+    <ClCompile Include="..\osf\zstd\lib\divsufsort.c" />
+    <ClCompile Include="..\osf\zstd\lib\zdict.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v01.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v02.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v03.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v04.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v05.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v06.c" />
+    <ClCompile Include="..\osf\zstd\lib\zstd_v07.c" />
+    <ClCompile Include="..\osf\zstd\programs\util.c" />
+    <ClCompile Include="..\osf\zstd\programs\timefn.c" />
+    <ClCompile Include="..\osf\zstd\programs\benchfn.c" />
+    <ClCompile Include="..\osf\zstd\programs\benchzstd.c" />
+    <ClCompile Include="..\osf\zstd\programs\datagen.c" />
+    <ClCompile Include="..\osf\zstd\programs\dibio.c" />
+    <ClCompile Include="..\osf\zstd\programs\fileio.c" />
+    <ClCompile Include="..\osf\zstd\programs\fileio_asyncio.c" />
+    <ClCompile Include="..\osf\zstd\programs\zstdcli.c" />
+    <ClCompile Include="..\osf\zstd\programs\zstdcli_trace.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\zstd\programs\benchzstd.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\zstd\programs\datagen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\zstd\programs\dibio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\zstd\programs\fileio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\zstd\programs\platform.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\osf\zstd\programs\util.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\benchfn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\fileio_asyncio.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\fileio_common.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\fileio_types.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\timefn.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\zstdcli_trace.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\zstd\programs\windres\verrsrc.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\zstd\programs\zstd.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

@@ -107,10 +107,9 @@ static FORCEINLINE uint32_t Select(uint32_t a, uint32_t b, uint32_t c)
 	    Sub3((a      ) & 0xff, (b      ) & 0xff, (c      ) & 0xff);
 	return (pa_minus_pb <= 0) ? a : b;
 }
-
-//------------------------------------------------------------------------------
+//
 // Predictors
-
+//
 uint32_t VP8LPredictor0_C(const uint32_t* const left, const uint32_t* const top) 
 {
 	(void)top;
@@ -227,10 +226,9 @@ GENERATE_PREDICTOR_ADD(VP8LPredictor10_C, PredictorAdd10_C)
 GENERATE_PREDICTOR_ADD(VP8LPredictor11_C, PredictorAdd11_C)
 GENERATE_PREDICTOR_ADD(VP8LPredictor12_C, PredictorAdd12_C)
 GENERATE_PREDICTOR_ADD(VP8LPredictor13_C, PredictorAdd13_C)
-
-//------------------------------------------------------------------------------
-
+//
 // Inverse prediction.
+//
 static void PredictorInverseTransform_C(const VP8LTransform* const transform, int y_start, int y_end, const uint32_t* in, uint32_t* out) 
 {
 	const int width = transform->xsize_;
@@ -271,9 +269,9 @@ static void PredictorInverseTransform_C(const VP8LTransform* const transform, in
 		}
 	}
 }
-
-// Add green to blue and red channels (i.e. perform the inverse transform of
-// 'subtract green').
+//
+// Add green to blue and red channels (i.e. perform the inverse transform of 'subtract green').
+//
 void VP8LAddGreenToBlueAndRed_C(const uint32_t* src, int num_pixels, uint32_t* dst) 
 {
 	for(int i = 0; i < num_pixels; ++i) {

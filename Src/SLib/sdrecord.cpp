@@ -26,9 +26,9 @@ SdbField & SdbField::Z()
 	return *this;
 }
 
-int FASTCALL SdbField::IsEq(const SdbField & rPat) const
+bool FASTCALL SdbField::IsEq(const SdbField & rPat) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	THROW(ID == rPat.ID);
 	THROW(OuterFormat == rPat.OuterFormat);
 	THROW(InnerOffs == rPat.InnerOffs);
@@ -435,9 +435,9 @@ int SdRecord::DestroyDataBuf()
 		return -1;
 }
 
-int FASTCALL SdRecord::IsEq(const SdRecord & rPat) const
+bool FASTCALL SdRecord::IsEq(const SdRecord & rPat) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	uint   c;
 	SdbField f1, f2;
 	THROW(ID == rPat.ID);

@@ -25,15 +25,8 @@
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/parse_context.h>
 #include <google/protobuf/reflection_internal.h>
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/map_field.h>
-#include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/reflection_ops.h>
-#include <google/protobuf/unknown_field_set.h>
-#include <google/protobuf/stubs/map_util.h>
-#include <google/protobuf/stubs/stl_util.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {

@@ -15,74 +15,83 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_FORMAT_OUTPUT_H_
 #define ABSL_STRINGS_INTERNAL_STR_FORMAT_OUTPUT_H_
 
-#include <cstdio>
-#include <ios>
-#include <ostream>
-#include <string>
-#include "absl/base/port.h"
-#include "absl/strings/string_view.h"
+//#include <cstdio>
+//#include <ios>
+//#include <ostream>
+//#include <string>
+//#include "absl/base/port.h"
+//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace str_format_internal {
-
 // RawSink implementation that writes into a char* buffer.
 // It will not overflow the buffer, but will keep the total count of chars
 // that would have been written.
 class BufferRawSink {
- public:
-  BufferRawSink(char* buffer, size_t size) : buffer_(buffer), size_(size) {}
+public:
+	BufferRawSink(char* buffer, size_t size) : buffer_(buffer), size_(size) {
+	}
 
-  size_t total_written() const { return total_written_; }
-  void Write(string_view v);
+	size_t total_written() const {
+		return total_written_;
+	}
 
- private:
-  char* buffer_;
-  size_t size_;
-  size_t total_written_ = 0;
+	void Write(string_view v);
+
+private:
+	char* buffer_;
+	size_t size_;
+	size_t total_written_ = 0;
 };
 
 // RawSink implementation that writes into a FILE*.
 // It keeps track of the total number of bytes written and any error encountered
 // during the writes.
 class FILERawSink {
- public:
-  explicit FILERawSink(std::FILE* output) : output_(output) {}
+public:
+	explicit FILERawSink(std::FILE* output) : output_(output) {
+	}
 
-  void Write(string_view v);
+	void Write(string_view v);
 
-  size_t count() const { return count_; }
-  int error() const { return error_; }
+	size_t count() const {
+		return count_;
+	}
 
- private:
-  std::FILE* output_;
-  int error_ = 0;
-  size_t count_ = 0;
+	int error() const {
+		return error_;
+	}
+
+private:
+	std::FILE* output_;
+	int error_ = 0;
+	size_t count_ = 0;
 };
 
 // Provide RawSink integration with common types from the STL.
 inline void AbslFormatFlush(std::string* out, string_view s) {
-  out->append(s.data(), s.size());
+	out->append(s.data(), s.size());
 }
+
 inline void AbslFormatFlush(std::ostream* out, string_view s) {
-  out->write(s.data(), static_cast<std::streamsize>(s.size()));
+	out->write(s.data(), static_cast<std::streamsize>(s.size()));
 }
 
 inline void AbslFormatFlush(FILERawSink* sink, string_view v) {
-  sink->Write(v);
+	sink->Write(v);
 }
 
 inline void AbslFormatFlush(BufferRawSink* sink, string_view v) {
-  sink->Write(v);
+	sink->Write(v);
 }
 
 // This is a SFINAE to get a better compiler error message when the type
 // is not supported.
 template <typename T>
-auto InvokeFlush(T* out, string_view s) -> decltype(AbslFormatFlush(out, s)) {
-  AbslFormatFlush(out, s);
+auto InvokeFlush(T* out, string_view s)->decltype(AbslFormatFlush(out, s)) {
+	AbslFormatFlush(out, s);
 }
-
 }  // namespace str_format_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

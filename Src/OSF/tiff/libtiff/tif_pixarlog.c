@@ -650,7 +650,7 @@ static int PixarLogSetupDecode(TIFF * tif)
 	PixarLogState* sp = DecoderState(tif);
 	tmsize_t tbuf_size;
 	uint32 strip_height;
-	assert(sp != NULL);
+	assert(sp);
 	/* This function can possibly be called several times by */
 	/* PredictorSetupDecode() if this function succeeds but */
 	/* PredictorSetup() fails */
@@ -701,7 +701,7 @@ static int PixarLogPreDecode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	PixarLogState* sp = DecoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	sp->stream.next_in = tif->tif_rawdata;
 	assert(sizeof(sp->stream.avail_in)==4); // if this assert gets raised, we need to simplify this code to reflect a ZLib that is likely updated
 		// to deal with 8byte memory sizes, though this code will respond appropriately even before we simplify it 
@@ -741,7 +741,7 @@ static int PixarLogDecode(TIFF * tif, uint8 * op, tmsize_t occ, uint16 s)
 	}
 	llen = sp->stride * td->td_imagewidth;
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	sp->stream.next_in = tif->tif_rawcp;
 	sp->stream.avail_in = (uInt)tif->tif_rawcc;
 	sp->stream.next_out = (uchar *)sp->tbuf;
@@ -841,7 +841,7 @@ static int PixarLogSetupEncode(TIFF * tif)
 	TIFFDirectory * td = &tif->tif_dir;
 	PixarLogState* sp = EncoderState(tif);
 	tmsize_t tbuf_size;
-	assert(sp != NULL);
+	assert(sp);
 	/* for some reason, we can't do this in TIFFInitPixarLog */
 	sp->stride = (td->td_planarconfig == PLANARCONFIG_CONTIG ? td->td_samplesperpixel : 1);
 	tbuf_size = multiply_ms(multiply_ms(multiply_ms(sp->stride, td->td_imagewidth), td->td_rowsperstrip), sizeof(uint16));
@@ -874,7 +874,7 @@ static int PixarLogPreEncode(TIFF * tif, uint16 s)
 	static const char module[] = __FUNCTION__;
 	PixarLogState * sp = EncoderState(tif);
 	(void)s;
-	assert(sp != NULL);
+	assert(sp);
 	sp->stream.next_out = tif->tif_rawdata;
 	assert(sizeof(sp->stream.avail_out)==4); /* if this assert gets raised, we need to simplify this code to reflect a ZLib that is likely
 		updated to deal with 8byte memory sizes, though this code will respond appropriately even before we simplify it */
@@ -1356,12 +1356,3 @@ bad:
 }
 
 #endif /* PIXARLOG_SUPPORT */
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

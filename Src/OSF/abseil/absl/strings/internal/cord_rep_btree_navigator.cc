@@ -9,9 +9,6 @@
 #include "absl/absl-internal.h"
 #pragma hdrstop
 #include "absl/strings/internal/cord_rep_btree_navigator.h"
-#include <cassert>
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_btree.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

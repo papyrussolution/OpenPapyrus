@@ -1,5 +1,5 @@
 // STYPE.CPP
-// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020
+// Copyright (c) Sobolev A. 1995, 1996, 2003, 2004, 2006, 2007, 2008, 2009, 2010, 2011, 2014, 2015, 2016, 2017, 2019, 2020, 2022
 // @codepage UTF-8
 //
 #include <slib-internal.h>
@@ -212,13 +212,13 @@ int STypEx::IsPure() const
 	return BIN(Mod == 0 && !(Flags & (fStruct|fOf)));
 }
 
-int FASTCALL STypEx::IsEq(const STypEx & s) const
+bool FASTCALL STypEx::IsEq(const STypEx & s) const
 {
 	if(Typ == s.Typ && Dim == s.Dim && Link == s.Link && Mod == s.Mod) {
 		if((Flags & (fStruct | fOf)) == (s.Flags & (fStruct | fOf)))
-			return 1;
+			return true;
 	}
-	return 0;
+	return false;
 }
 
 int FASTCALL STypEx::IsZStr(size_t * pLen) const

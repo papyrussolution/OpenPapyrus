@@ -97,7 +97,7 @@ void CMSEXPORT  _cmsAdjustEndianess64(uint64* Result, uint64* QWord)
 boolint CMSEXPORT  _cmsReadUInt8Number(cmsIOHANDLER* io, uint8 * n)
 {
 	uint8 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &tmp, sizeof(uint8), 1) != 1)
 		return FALSE;
 	ASSIGN_PTR(n, tmp);
@@ -107,7 +107,7 @@ boolint CMSEXPORT  _cmsReadUInt8Number(cmsIOHANDLER* io, uint8 * n)
 boolint CMSEXPORT  _cmsReadUInt16Number(cmsIOHANDLER* io, uint16* n)
 {
 	uint16 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &tmp, sizeof(uint16), 1) != 1)
 		return FALSE;
 	ASSIGN_PTR(n, _cmsAdjustEndianess16(tmp));
@@ -117,7 +117,7 @@ boolint CMSEXPORT  _cmsReadUInt16Number(cmsIOHANDLER* io, uint16* n)
 boolint CMSEXPORT  _cmsReadUInt16Array(cmsIOHANDLER* io, uint32 n, uint16* Array)
 {
 	uint32 i;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	for(i = 0; i < n; i++) {
 		if(Array != NULL) {
 			if(!_cmsReadUInt16Number(io, Array + i)) return FALSE;
@@ -132,7 +132,7 @@ boolint CMSEXPORT  _cmsReadUInt16Array(cmsIOHANDLER* io, uint32 n, uint16* Array
 boolint CMSEXPORT  _cmsReadUInt32Number(cmsIOHANDLER* io, uint32* n)
 {
 	uint32 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &tmp, sizeof(uint32), 1) != 1)
 		return FALSE;
 	ASSIGN_PTR(n, _cmsAdjustEndianess32(tmp));
@@ -142,10 +142,10 @@ boolint CMSEXPORT  _cmsReadUInt32Number(cmsIOHANDLER* io, uint32* n)
 boolint CMSEXPORT  _cmsReadFloat32Number(cmsIOHANDLER* io, float* n)
 {
 	uint32 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &tmp, sizeof(uint32), 1) != 1)
 		return FALSE;
-	if(n != NULL) {
+	if(n) {
 		tmp = _cmsAdjustEndianess32(tmp);
 		*n = *(float *)(void *)&tmp;
 		// Safeguard which covers against absurd values
@@ -168,10 +168,10 @@ boolint CMSEXPORT  _cmsReadFloat32Number(cmsIOHANDLER* io, float* n)
 boolint CMSEXPORT   _cmsReadUInt64Number(cmsIOHANDLER* io, uint64* n)
 {
 	uint64 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &tmp, sizeof(uint64), 1) != 1)
 		return FALSE;
-	if(n != NULL) {
+	if(n) {
 		_cmsAdjustEndianess64(n, &tmp);
 	}
 	return TRUE;
@@ -180,10 +180,10 @@ boolint CMSEXPORT   _cmsReadUInt64Number(cmsIOHANDLER* io, uint64* n)
 boolint CMSEXPORT  _cmsRead15Fixed16Number(cmsIOHANDLER* io, double * n)
 {
 	uint32 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &tmp, sizeof(uint32), 1) != 1)
 		return FALSE;
-	if(n != NULL) {
+	if(n) {
 		*n = _cms15Fixed16toDouble((cmsS15Fixed16Number)_cmsAdjustEndianess32(tmp));
 	}
 	return TRUE;
@@ -192,7 +192,7 @@ boolint CMSEXPORT  _cmsRead15Fixed16Number(cmsIOHANDLER* io, double * n)
 boolint CMSEXPORT  _cmsReadXYZNumber(cmsIOHANDLER* io, cmsCIEXYZ* XYZ)
 {
 	cmsEncodedXYZNumber xyz;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Read(io, &xyz, sizeof(cmsEncodedXYZNumber), 1) != 1) return FALSE;
 	if(XYZ != NULL) {
 		XYZ->X = _cms15Fixed16toDouble((cmsS15Fixed16Number)_cmsAdjustEndianess32((uint32)xyz.X));
@@ -204,7 +204,7 @@ boolint CMSEXPORT  _cmsReadXYZNumber(cmsIOHANDLER* io, cmsCIEXYZ* XYZ)
 
 boolint CMSEXPORT  _cmsWriteUInt8Number(cmsIOHANDLER* io, uint8 n)
 {
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	if(io->Write(io, sizeof(uint8), &n) != 1)
 		return FALSE;
 	return TRUE;
@@ -213,7 +213,7 @@ boolint CMSEXPORT  _cmsWriteUInt8Number(cmsIOHANDLER* io, uint8 n)
 boolint CMSEXPORT  _cmsWriteUInt16Number(cmsIOHANDLER* io, uint16 n)
 {
 	uint16 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	tmp = _cmsAdjustEndianess16(n);
 	if(io->Write(io, sizeof(uint16), &tmp) != 1)
 		return FALSE;
@@ -223,7 +223,7 @@ boolint CMSEXPORT  _cmsWriteUInt16Number(cmsIOHANDLER* io, uint16 n)
 boolint CMSEXPORT  _cmsWriteUInt16Array(cmsIOHANDLER* io, uint32 n, const uint16* Array)
 {
 	uint32 i;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	_cmsAssert(Array != NULL);
 	for(i = 0; i < n; i++) {
 		if(!_cmsWriteUInt16Number(io, Array[i])) return FALSE;
@@ -234,7 +234,7 @@ boolint CMSEXPORT  _cmsWriteUInt16Array(cmsIOHANDLER* io, uint32 n, const uint16
 boolint CMSEXPORT  _cmsWriteUInt32Number(cmsIOHANDLER* io, uint32 n)
 {
 	uint32 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	tmp = _cmsAdjustEndianess32(n);
 	if(io->Write(io, sizeof(uint32), &tmp) != 1)
 		return FALSE;
@@ -244,7 +244,7 @@ boolint CMSEXPORT  _cmsWriteUInt32Number(cmsIOHANDLER* io, uint32 n)
 boolint CMSEXPORT  _cmsWriteFloat32Number(cmsIOHANDLER* io, float n)
 {
 	uint32 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	tmp = *(uint32 *)(void *)&n;
 	tmp = _cmsAdjustEndianess32(tmp);
 	if(io->Write(io, sizeof(uint32), &tmp) != 1)
@@ -255,7 +255,7 @@ boolint CMSEXPORT  _cmsWriteFloat32Number(cmsIOHANDLER* io, float n)
 boolint CMSEXPORT  _cmsWriteUInt64Number(cmsIOHANDLER* io, uint64* n)
 {
 	uint64 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	_cmsAdjustEndianess64(&tmp, n);
 	if(io->Write(io, sizeof(uint64), &tmp) != 1)
 		return FALSE;
@@ -266,7 +266,7 @@ boolint CMSEXPORT  _cmsWriteUInt64Number(cmsIOHANDLER* io, uint64* n)
 boolint CMSEXPORT  _cmsWrite15Fixed16Number(cmsIOHANDLER* io, double n)
 {
 	uint32 tmp;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	tmp = _cmsAdjustEndianess32((uint32)_cmsDoubleTo15Fixed16(n));
 	if(io->Write(io, sizeof(uint32), &tmp) != 1)
 		return FALSE;
@@ -277,7 +277,7 @@ boolint CMSEXPORT  _cmsWrite15Fixed16Number(cmsIOHANDLER* io, double n)
 boolint CMSEXPORT  _cmsWriteXYZNumber(cmsIOHANDLER* io, const cmsCIEXYZ* XYZ)
 {
 	cmsEncodedXYZNumber xyz;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	_cmsAssert(XYZ != NULL);
 	xyz.X = (cmsS15Fixed16Number)_cmsAdjustEndianess32((uint32)_cmsDoubleTo15Fixed16(XYZ->X));
 	xyz.Y = (cmsS15Fixed16Number)_cmsAdjustEndianess32((uint32)_cmsDoubleTo15Fixed16(XYZ->Y));
@@ -360,7 +360,7 @@ cmsTagTypeSignature CMSEXPORT _cmsReadTypeBase(cmsIOHANDLER* io)
 {
 	_cmsTagBase Base;
 
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 
 	if(io->Read(io, &Base, sizeof(_cmsTagBase), 1) != 1)
 		return (cmsTagTypeSignature)0;
@@ -372,7 +372,7 @@ cmsTagTypeSignature CMSEXPORT _cmsReadTypeBase(cmsIOHANDLER* io)
 boolint CMSEXPORT _cmsWriteTypeBase(cmsIOHANDLER* io, cmsTagTypeSignature sig)
 {
 	_cmsTagBase Base;
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	Base.sig = (cmsTagTypeSignature)_cmsAdjustEndianess32(sig);
 	memzero(&Base.reserved, sizeof(Base.reserved));
 	return io->Write(io, sizeof(_cmsTagBase), &Base);
@@ -384,7 +384,7 @@ boolint CMSEXPORT _cmsReadAlignment(cmsIOHANDLER* io)
 	uint32 NextAligned, At;
 	uint32 BytesToNextAlignedPos;
 
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 
 	At = io->Tell(io);
 	NextAligned = _cmsALIGNLONG(At);
@@ -401,7 +401,7 @@ boolint CMSEXPORT _cmsWriteAlignment(cmsIOHANDLER* io)
 	uint32 NextAligned, At;
 	uint32 BytesToNextAlignedPos;
 
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 
 	At = io->Tell(io);
 	NextAligned = _cmsALIGNLONG(At);
@@ -420,7 +420,7 @@ boolint CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char * frm, ...)
 	uint8 Buffer[2048];
 	boolint rc;
 
-	_cmsAssert(io != NULL);
+	_cmsAssert(io);
 	_cmsAssert(frm != NULL);
 
 	va_start(args, frm);
@@ -594,7 +594,7 @@ void * _cmsContextGetClientChunk(cmsContext ContextID, _cmsMemoryClient mc)
 	}
 	ctx = _cmsGetContext(ContextID);
 	ptr = ctx->chunks[mc];
-	if(ptr != NULL)
+	if(ptr)
 		return ptr;
 	// A null ptr means no special settings for that context, and this
 	// reverts to Context0 globals

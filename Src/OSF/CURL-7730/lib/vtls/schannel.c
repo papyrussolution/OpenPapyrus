@@ -1272,12 +1272,8 @@ static void traverse_cert_store(const CERT_CONTEXT * context, Read_crt_func func
 {
 	const CERT_CONTEXT * current_context = NULL;
 	bool should_continue = true;
-	while(should_continue &&
-	    (current_context = CertEnumCertificatesInStore(
-		    context->hCertStore,
-		    current_context)) != NULL)
+	while(should_continue && (current_context = CertEnumCertificatesInStore(context->hCertStore, current_context)) != NULL)
 		should_continue = func(current_context, arg);
-
 	if(current_context)
 		CertFreeCertificateContext(current_context);
 }

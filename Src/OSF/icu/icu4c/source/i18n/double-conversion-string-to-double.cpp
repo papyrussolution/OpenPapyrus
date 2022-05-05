@@ -35,15 +35,15 @@
 U_NAMESPACE_BEGIN
 
 #ifdef _MSC_VER
-#  if _MSC_VER >= 1900
+#if _MSC_VER >= 1900
 // Fix MSVC >= 2015 (_MSC_VER == 1900) warning
 // C4244: 'argument': conversion from 'const uc16' to 'char', possible loss of data
 // against Advance and friends, when instantiated with **it as char, not uc16.
 __pragma(warning(disable : 4244))
-#  endif
-#  if _MSC_VER <= 1700 // VS2012, see IsDecimalDigitForRadix warning fix, below
-#    define VS2012_RADIXWARN
-#  endif
+#endif
+#if _MSC_VER <= 1700 // VS2012, see IsDecimalDigitForRadix warning fix, below
+#define VS2012_RADIXWARN
+#endif
 #endif
 
 namespace double_conversion {

@@ -1,5 +1,5 @@
 // DL600.H
-// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021
+// Copyright (c) A.Sobolev 2006, 2007, 2008, 2010, 2011, 2015, 2016б 2017, 2018, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #ifndef __DL600_H
@@ -500,7 +500,7 @@ public:
 	int    EnumFunctions(uint * pI, DlFunc * pFunc) const;
 	int    FASTCALL Write(SBuffer & rBuf) const;
 	int    FASTCALL Read(SBuffer & rBuf);
-	int    FASTCALL IsEq(const DlScope & rPat) const;
+	bool   FASTCALL IsEq(const DlScope & rPat) const;
 	void   SetFixDataBuf(void * pBuf, size_t size, int clear = 0);
 	void * FASTCALL GetFixDataPtr(size_t offs) const;
 	//

@@ -77,29 +77,31 @@ static int MyClose(thandle_t opaque) {
 	return 0;
 }
 
-static toff_t MySize(thandle_t opaque) {
+static toff_t MySize(thandle_t opaque) 
+{
 	const MyData* const my_data = (MyData*)opaque;
 	return my_data->size;
 }
 
-static toff_t MySeek(thandle_t opaque, toff_t offset, int whence) {
+static toff_t MySeek(thandle_t opaque, toff_t offset, int whence) 
+{
 	MyData* const my_data = (MyData*)opaque;
-	offset += (whence == SEEK_CUR) ? my_data->pos
-	    : (whence == SEEK_SET) ? 0
-	    : my_data->size;
+	offset += (whence == SEEK_CUR) ? my_data->pos : (whence == SEEK_SET) ? 0 : my_data->size;
 	if(offset > my_data->size) return (toff_t)-1;
 	my_data->pos = offset;
 	return offset;
 }
 
-static int MyMapFile(thandle_t opaque, void** base, toff_t* size) {
+static int MyMapFile(thandle_t opaque, void** base, toff_t* size) 
+{
 	(void)opaque;
 	(void)base;
 	(void)size;
 	return 0;
 }
 
-static void MyUnmapFile(thandle_t opaque, void* base, toff_t size) {
+static void MyUnmapFile(thandle_t opaque, void* base, toff_t size) 
+{
 	(void)opaque;
 	(void)base;
 	(void)size;
@@ -264,8 +266,7 @@ int ReadTIFF(const uint8* const data, size_t data_size, struct WebPPicture* cons
 	(void)pic;
 	(void)keep_alpha;
 	(void)metadata;
-	fprintf(stderr, "TIFF support not compiled. Please install the libtiff "
-	    "development package before building.\n");
+	fprintf(stderr, "TIFF support not compiled. Please install the libtiff development package before building.\n");
 	return 0;
 }
 #endif  // WEBP_HAVE_TIFF

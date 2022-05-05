@@ -10,13 +10,6 @@
  * Sam Leffler and Silicon Graphics may not be used in any advertising or
  * publicity relating to the software without the specific, prior written
  * permission of Sam Leffler and Silicon Graphics.
- *
- * IN NO EVENT SHALL SAM LEFFLER OR SILICON GRAPHICS BE LIABLE FOR
- * ANY SPECIAL, INCIDENTAL, INDIRECT OR CONSEQUENTIAL DAMAGES OF ANY KIND,
- * OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
- * WHETHER OR NOT ADVISED OF THE POSSIBILITY OF DAMAGE, AND ON ANY THEORY OF
- * LIABILITY, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
- * OF THIS SOFTWARE.
  */
 /*
  * TIFF Library.
@@ -393,7 +386,7 @@ static int fpAcc(TIFF * tif, uint8 * cp0, tmsize_t cc)
 static int PredictorDecodeRow(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->decoderow != NULL);
 	assert(sp->decodepfunc != NULL);
 	if((*sp->decoderow)(tif, op0, occ0, s)) {
@@ -412,7 +405,7 @@ static int PredictorDecodeRow(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 static int PredictorDecodeTile(TIFF * tif, uint8 * op0, tmsize_t occ0, uint16 s)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->decodetile != NULL);
 	if((*sp->decodetile)(tif, op0, occ0, s)) {
 		tmsize_t rowsize = sp->rowsize;
@@ -589,7 +582,7 @@ static int fpDiff(TIFF * tif, uint8 * cp0, tmsize_t cc)
 static int PredictorEncodeRow(TIFF * tif, uint8 * bp, tmsize_t cc, uint16 s)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->encodepfunc != NULL);
 	assert(sp->encoderow != NULL);
 	/* XXX horizontal differencing alters user's data XXX */
@@ -606,7 +599,7 @@ static int PredictorEncodeTile(TIFF * tif, uint8 * bp0, tmsize_t cc0, uint16 s)
 	tmsize_t cc = cc0, rowsize;
 	uchar * bp;
 	int result_code;
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->encodepfunc != NULL);
 	assert(sp->encodetile != NULL);
 	/*
@@ -646,7 +639,7 @@ static const TIFFField predictFields[] = {
 static int PredictorVSetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->vsetparent != NULL);
 	switch(tag) {
 		case TIFFTAG_PREDICTOR:
@@ -663,7 +656,7 @@ static int PredictorVSetField(TIFF * tif, uint32 tag, va_list ap)
 static int PredictorVGetField(TIFF * tif, uint32 tag, va_list ap)
 {
 	TIFFPredictorState * sp = PredictorState(tif);
-	assert(sp != NULL);
+	assert(sp);
 	assert(sp->vgetparent != NULL);
 	switch(tag) {
 		case TIFFTAG_PREDICTOR:
@@ -734,12 +727,3 @@ int TIFFPredictorCleanup(TIFF * tif)
 	tif->tif_setupencode = sp->setupencode;
 	return 1;
 }
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

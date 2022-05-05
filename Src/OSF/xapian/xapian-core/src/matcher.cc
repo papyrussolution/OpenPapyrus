@@ -245,7 +245,7 @@ Matcher::Matcher(const Xapian::Database& db_,
 	// bit tricky to hook up as it probably needs an async ReadFile() to be
 	// active.
 	first_oversize = 0;
-#  endif
+#endif
 #endif
 #endif
 

@@ -181,14 +181,10 @@ static HRESULT ExtractMetadata(IWICImagingFactory* const factory, IWICBitmapFram
 
 static int HasPalette(GUID pixel_format) 
 {
-	return (IsEqualGUID(MAKE_REFGUID(pixel_format),
-	       MAKE_REFGUID(GUID_WICPixelFormat1bppIndexed)) ||
-	       IsEqualGUID(MAKE_REFGUID(pixel_format),
-	       MAKE_REFGUID(GUID_WICPixelFormat2bppIndexed)) ||
-	       IsEqualGUID(MAKE_REFGUID(pixel_format),
-	       MAKE_REFGUID(GUID_WICPixelFormat4bppIndexed)) ||
-	       IsEqualGUID(MAKE_REFGUID(pixel_format),
-	       MAKE_REFGUID(GUID_WICPixelFormat8bppIndexed)));
+	return (IsEqualGUID(MAKE_REFGUID(pixel_format), MAKE_REFGUID(GUID_WICPixelFormat1bppIndexed)) ||
+	       IsEqualGUID(MAKE_REFGUID(pixel_format), MAKE_REFGUID(GUID_WICPixelFormat2bppIndexed)) ||
+	       IsEqualGUID(MAKE_REFGUID(pixel_format), MAKE_REFGUID(GUID_WICPixelFormat4bppIndexed)) ||
+	       IsEqualGUID(MAKE_REFGUID(pixel_format), MAKE_REFGUID(GUID_WICPixelFormat8bppIndexed)));
 }
 
 static int HasAlpha(IWICImagingFactory* const factory,
@@ -229,9 +225,8 @@ static int HasAlpha(IWICImagingFactory* const factory,
 	return has_alpha;
 }
 
-int ReadPictureWithWIC(const char* const filename,
-    WebPPicture* const pic, int keep_alpha,
-    Metadata* const metadata) {
+int ReadPictureWithWIC(const char* const filename, WebPPicture* const pic, int keep_alpha, Metadata* const metadata) 
+{
 	// From Microsoft SDK 6.0a -- ks.h
 	// Define a local copy to avoid link errors under mingw.
 	WEBP_DEFINE_GUID(GUID_NULL_, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
@@ -258,9 +253,7 @@ int ReadPictureWithWIC(const char* const filename,
 	const WICFormatImporter* importer = NULL;
 	GUID src_container_format = GUID_NULL_;
 	// From Windows Kits\10\Include\10.0.19041.0\um\wincodec.h
-	WEBP_DEFINE_GUID(GUID_ContainerFormatWebp_,
-	    0xe094b0e2, 0x67f2, 0x45b3,
-	    0xb0, 0xea, 0x11, 0x53, 0x37, 0xca, 0x7c, 0xf3);
+	WEBP_DEFINE_GUID(GUID_ContainerFormatWebp_, 0xe094b0e2, 0x67f2, 0x45b3, 0xb0, 0xea, 0x11, 0x53, 0x37, 0xca, 0x7c, 0xf3);
 	static const GUID* kAlphaContainers[] = {
 		&GUID_ContainerFormatBmp,
 		&GUID_ContainerFormatPng,
@@ -304,7 +297,6 @@ int ReadPictureWithWIC(const char* const filename,
 	IFS(IWICBitmapDecoder_GetFrame(decoder, 0, &frame));
 	IFS(IWICBitmapFrameDecode_GetPixelFormat(frame, &src_pixel_format));
 	IFS(IWICBitmapDecoder_GetContainerFormat(decoder, &src_container_format));
-
 	if(SUCCEEDED(hr) && keep_alpha) {
 		const GUID** guid;
 		for(guid = kAlphaContainers; *guid != NULL; ++guid) {
@@ -383,9 +375,8 @@ int ReadPictureWithWIC(const char* const filename,
 }
 
 #else  // !HAVE_WINCODEC_H
-int ReadPictureWithWIC(const char* const filename,
-    struct WebPPicture* const pic, int keep_alpha,
-    struct Metadata* const metadata) {
+int ReadPictureWithWIC(const char* const filename, struct WebPPicture* const pic, int keep_alpha, struct Metadata* const metadata) 
+{
 	(void)filename;
 	(void)pic;
 	(void)keep_alpha;

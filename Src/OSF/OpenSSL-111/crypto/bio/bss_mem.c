@@ -197,7 +197,7 @@ static int mem_read(BIO * b, char * out, int outl)
 		bm = bbm->buf;
 	BIO_clear_retry_flags(b);
 	ret = (outl >= 0 && (size_t)outl > bm->length) ? (int)bm->length : outl;
-	if((out != NULL) && (ret > 0)) {
+	if((out) && (ret > 0)) {
 		memcpy(out, bm->data, ret);
 		bm->length -= ret;
 		bm->max -= ret;
@@ -274,7 +274,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    break;
 		case BIO_CTRL_INFO:
 		    ret = (long)bm->length;
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    pptr = (char **)ptr;
 			    *pptr = (char *)&(bm->data[0]);
 		    }
@@ -286,7 +286,7 @@ static long mem_ctrl(BIO * b, int cmd, long num, void * ptr)
 		    *bbm->readp = *bbm->buf;
 		    break;
 		case BIO_C_GET_BUF_MEM_PTR:
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    if(!(b->flags & BIO_FLAGS_MEM_RDONLY))
 				    mem_buf_sync(b);
 			    bm = bbm->buf;

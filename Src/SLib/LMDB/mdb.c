@@ -190,11 +190,11 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 /* Solaris just defines one or the other */
 #define LITTLE_ENDIAN 1234
 #define BIG_ENDIAN    4321
-#  ifdef _LITTLE_ENDIAN
+#ifdef _LITTLE_ENDIAN
 #define BYTE_ORDER  LITTLE_ENDIAN
-#  else
+#else
 #define BYTE_ORDER  BIG_ENDIAN
-#  endif
+#endif
 # else
 #define BYTE_ORDER   __BYTE_ORDER
 #endif
@@ -284,12 +284,12 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 
 #if defined(MDB_USE_POSIX_MUTEX) && (MDB_USE_ROBUST)
 /* glibc < 2.12 only provided _np API */
-#  if(defined(__GLIBC__) && GLIBC_VER < 0x02000c) || \
+#if(defined(__GLIBC__) && GLIBC_VER < 0x02000c) || \
 	(defined(PTHREAD_MUTEX_ROBUST_NP) && !defined(PTHREAD_MUTEX_ROBUST))
 #define PTHREAD_MUTEX_ROBUST PTHREAD_MUTEX_ROBUST_NP
 #define pthread_mutexattr_setrobust(attr, flag)      pthread_mutexattr_setrobust_np(attr, flag)
 #define pthread_mutex_consistent(mutex)      pthread_mutex_consistent_np(mutex)
-#  endif
+#endif
 #endif /* MDB_USE_POSIX_MUTEX && MDB_USE_ROBUST */
 
 #if defined(MDB_OWNERDEAD) && (MDB_USE_ROBUST)

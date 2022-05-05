@@ -63,7 +63,7 @@ EVP_PKEY * d2i_PrivateKey(int type, EVP_PKEY ** a, const uchar ** pp,
 		}
 	}
 	*pp = p;
-	if(a != NULL)
+	if(a)
 		(*a) = ret;
 	return ret;
 err:

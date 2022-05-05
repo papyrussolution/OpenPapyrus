@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -22,15 +21,10 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/parse_context.h>
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/io/zero_copy_stream.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/generated_message_tctable_decl.h>
 #include <google/protobuf/generated_message_tctable_impl.h>
-#include <google/protobuf/stubs/stl_util.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {

@@ -22,14 +22,9 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/util/message_differencer.h>
-#include <google/protobuf/stubs/stringprintf.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/descriptor.pb.h>
 #include <google/protobuf/generated_enum_reflection.h>
-#include <google/protobuf/map_field.h>
 #include <google/protobuf/text_format.h>
-#include <google/protobuf/util/field_comparator.h>
 // Always include as last one, otherwise it can break compilation
 #include <google/protobuf/port_def.inc>
 

@@ -182,7 +182,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	tp->threadH = threadH = (HANDLE)_beginthreadex((void *)NULL/* No security info */,
 		    stackSize/* default stack size */, __ptw32_threadStart, parms, (uint)CREATE_SUSPENDED, (unsigned*)&(tp->thread));
 	if(threadH != 0) {
-		if(a != NULL) {
+		if(a) {
 			(void)__ptw32_setthreadpriority(thread, SCHED_OTHER, priority);
 		}
 #if defined(HAVE_CPU_AFFINITY)
@@ -216,7 +216,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 				 */
 				SuspendThread(threadH);
 			}
-			if(a != NULL) {
+			if(a) {
 				(void)__ptw32_setthreadpriority(thread, SCHED_OTHER, priority);
 			}
 #if defined(HAVE_CPU_AFFINITY)

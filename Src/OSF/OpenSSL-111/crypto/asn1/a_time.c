@@ -49,7 +49,7 @@ static void determine_days(struct tm * tm)
 	tm->tm_yday = ydays[m] + d - 1;
 	if(m >= 2) {
 		/* March and onwards can be one day further into the year */
-		tm->tm_yday += IsLeapYear(y);
+		tm->tm_yday += IsLeapYear_Gregorian(y);
 		m += 2;
 	}
 	else {
@@ -155,7 +155,7 @@ int asn1_time_to_tm(struct tm * tm, const ASN1_TIME * d)
 			    /* check if tm_mday is valid in tm_mon */
 			    if(tmp.tm_mon == 1) {
 				    /* it's February */
-				    md = mdays[1] + IsLeapYear(tmp.tm_year + 1900);
+				    md = mdays[1] + IsLeapYear_Gregorian(tmp.tm_year + 1900);
 			    }
 			    else {
 				    md = mdays[tmp.tm_mon];
@@ -352,7 +352,7 @@ ASN1_GENERALIZEDTIME * ASN1_TIME_to_generalizedtime(const ASN1_TIME * t,
 	if(!ASN1_TIME_to_tm(t, &tm))
 		return NULL;
 
-	if(out != NULL)
+	if(out)
 		ret = *out;
 
 	ret = asn1_time_from_tm(ret, &tm, V_ASN1_GENERALIZEDTIME);

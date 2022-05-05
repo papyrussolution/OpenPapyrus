@@ -86,7 +86,7 @@ size_t rand_acquire_entropy_from_cpu(RAND_POOL * pool)
 	size_t bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 	if(bytes_needed > 0) {
 		buffer = rand_pool_add_begin(pool, bytes_needed);
-		if(buffer != NULL) {
+		if(buffer) {
 			/* Whichever comes first, use RDSEED, RDRAND or nothing */
 			if((OPENSSL_ia32cap_P[2] & (1 << 18)) != 0) {
 				if(OPENSSL_ia32_rdseed_bytes(buffer, bytes_needed) == bytes_needed) {
@@ -146,7 +146,7 @@ size_t rand_drbg_get_entropy(RAND_DRBG * drbg, uchar ** pout, int entropy, size_
 	if(drbg->parent != NULL) {
 		size_t bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 		uchar * buffer = rand_pool_add_begin(pool, bytes_needed);
-		if(buffer != NULL) {
+		if(buffer) {
 			size_t bytes = 0;
 			/*
 			 * Get random data from parent. Include our address as additional input,

@@ -716,7 +716,7 @@ int getopt(int argc, char * argv[], char * opstring)
 }
 
 #ifndef PASSWORD_MAX
-#  define PASSWORD_MAX 255
+#define PASSWORD_MAX 255
 #endif
 
 #include <conio.h>

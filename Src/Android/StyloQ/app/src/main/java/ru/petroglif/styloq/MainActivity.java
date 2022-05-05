@@ -22,6 +22,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	static class PrivateConfigDialog extends SLib.SlDialog {
@@ -287,10 +289,44 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 	}
 	public final int CUSTOMIZED_REQUEST_CODE = 0x0000ffff;
 	private ArrayList <Long> SvcListData;
+	private int TouchedListItemIdx; // Элемент, на который нажали пальцем. Для временного изменения окраски.
 	public MainActivity()
 	{
 		super();
 		SvcListData = null;
+		TouchedListItemIdx = -1;
+	}
+	private class ResetTouchedListItemIdx_TimerTask extends TimerTask {
+		@Override public void run() { runOnUiThread(new Runnable() { @Override public void run() { SetTouchedItemIndex(-1); }}); }
+	}
+	private boolean NotifyListItemChanged(int idx)
+	{
+		boolean result = false;
+		View v = findViewById(R.id.serviceListView);
+		if(v != null && v instanceof RecyclerView) {
+			RecyclerView view = (RecyclerView) v;
+			RecyclerView.Adapter adapter = view.getAdapter();
+			if(adapter != null && idx < adapter.getItemCount()) {
+				adapter.notifyItemChanged(idx);
+				result = true;
+			}
+		}
+		return result;
+	}
+	private void SetTouchedItemIndex(int idx)
+	{
+		if(idx >= 0) {
+			TouchedListItemIdx = idx;
+			if(NotifyListItemChanged(idx)) {
+				Timer tmr = new Timer();
+				tmr.schedule(new ResetTouchedListItemIdx_TimerTask(), 2000);
+			}
+		}
+		else {
+			final int _idx = TouchedListItemIdx;
+			TouchedListItemIdx = -1;
+			NotifyListItemChanged(_idx);
+		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
@@ -377,6 +413,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 							}
 						}
 						else {
+							SetTouchedItemIndex(ev_subj.ItemIdx);
 							try {
 								StyloQDatabase db = app_ctx.GetDB();
 								if(db != null) {
@@ -396,6 +433,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					StyloQApp app_ctx = (StyloQApp)getApplication();
 					if(ev_subj != null && app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < SvcListData.size()) {
+						SetTouchedItemIndex(ev_subj.ItemIdx);
 						long svc_id = SvcListData.get(ev_subj.ItemIdx);
 						try {
 							StyloQDatabase db = app_ctx.GetDB();
@@ -426,6 +464,10 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 											StyloQDatabase.SecStoragePacket cur_entry = db.GetPeerEntry(cur_id);
 											if(cur_entry != null) {
 												View iv = ev_subj.RvHolder.itemView;
+												if(TouchedListItemIdx == ev_subj.ItemIdx)
+													iv.setBackgroundResource(R.drawable.shape_listitem_focused);
+												else
+													iv.setBackgroundResource(R.drawable.shape_listitem);
 												TextView ctl = (TextView)iv.findViewById(R.id.LVITEM_SVCNAME);
 												StyloQFace face = cur_entry.GetFace();
 												if(ctl != null) {
@@ -441,9 +483,8 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 															imgv.setVisibility(View.VISIBLE);
 															Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
 														}
-														else {
+														else
 															imgv.setVisibility(View.GONE);
-														}
 													}
 												}
 											}

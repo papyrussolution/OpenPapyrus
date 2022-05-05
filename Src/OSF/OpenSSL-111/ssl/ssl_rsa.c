@@ -661,10 +661,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 			ret = 0;
 			goto end;
 		}
-
-		while((ca = PEM_read_bio_X509(in, NULL, passwd_callback,
-		    passwd_callback_userdata))
-		    != NULL) {
+		while((ca = PEM_read_bio_X509(in, NULL, passwd_callback, passwd_callback_userdata)) != NULL) {
 			if(ctx)
 				r = SSL_CTX_add0_chain_cert(ctx, ca);
 			else

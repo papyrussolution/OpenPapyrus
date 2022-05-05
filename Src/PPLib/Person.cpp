@@ -489,16 +489,16 @@ PPELink::PPELink() : KindID(0)
 	PTR32(Addr)[0] = 0;
 }
 
-/*static*/int PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry)
+/*static*/int PPELinkArray::Helper_SetupNewEntry(PPID elinkType, const char * pValue, PPELink & rEntry)
 {
 	int    ok = 1;
 	rEntry.KindID = 0;
 	PTR32(rEntry.Addr)[0] = 0;
-	if(!isempty(pPhone)) {
+	if(!isempty(pValue)) {
 		PPObjELinkKind elk_obj;
 		PPELinkKind elk_rec;
 		for(SEnum en = elk_obj.Enum(0); en.Next(&elk_rec) > 0;) {
-			if(elk_rec.Type == ELNKRT_PHONE) {
+			if(elk_rec.Type == elinkType) {
 				if(elk_rec.Flags & ELNKF_PREF) {
 					rEntry.KindID = elk_rec.ID;
 					break;
@@ -507,7 +507,7 @@ PPELink::PPELink() : KindID(0)
 					rEntry.KindID = elk_rec.ID;
 			}
 		}
-		STRNSCPY(rEntry.Addr, pPhone);
+		STRNSCPY(rEntry.Addr, pValue);
 		if(!rEntry.KindID)
 			ok = -1;
 	}
@@ -515,6 +515,9 @@ PPELink::PPELink() : KindID(0)
 		ok = 0;
 	return ok;
 }
+
+/*static*/int PPELinkArray::SetupNewPhoneEntry(const char * pPhone, PPELink & rEntry) { return Helper_SetupNewEntry(ELNKRT_PHONE, pPhone, rEntry); }
+/*static*/int PPELinkArray::SetupNewEmailEntry(const char * pEmail, PPELink & rEntry) { return Helper_SetupNewEntry(ELNKRT_EMAIL, pEmail, rEntry); }
 
 PPELinkArray::PPELinkArray() : TSArray <PPELink>()
 {

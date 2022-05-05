@@ -1757,8 +1757,8 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 			if(!isempty(p_inner_printer)) // Ранее был pPrinter @erik v10.4.10
 				msg_buf.CatDiv(';', 2).CatEq("Printer", p_inner_printer); // Ранее был pPrinter @erik v10.4.10
 			if(numCopies > 1)
-				msg_buf.CatDiv(';', 2).CatEq("Copies", (long)numCopies);
-			msg_buf.CatDiv(';', 2).CatEq("Mks", (int64)(profile_end - profile_start));
+				msg_buf.CatDiv(';', 2).CatEq("Copies", numCopies);
+			msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
 			PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
 		}
 	}
@@ -1842,8 +1842,8 @@ int CrystalReportPrint(const char * pReportName, const char * pDir, const char *
 //				if (!isempty(pPrinter))
 //					msg_buf.CatDiv(';', 2).CatEq("Printer", pPrinter);
 //				if (numCopies > 1)
-//					msg_buf.CatDiv(';', 2).CatEq("Copies", (long)numCopies);
-//				msg_buf.CatDiv(';', 2).CatEq("Mks", (int64)(profile_end - profile_start));
+//					msg_buf.CatDiv(';', 2).CatEq("Copies", numCopies);
+//				msg_buf.CatDiv(';', 2).CatEq("Mks", (profile_end - profile_start));
 //				PPLogMessage(PPFILNAM_REPORTING_LOG, msg_buf, LOGMSGF_USER | LOGMSGF_TIME | LOGMSGF_DBINFO);
 //			}
 //		}

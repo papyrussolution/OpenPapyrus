@@ -501,7 +501,7 @@ static inline mi_thread_free_t mi_tf_set_block(mi_thread_free_t tf, mi_block_t* 
 // note: needs up-to-date used count, (as the `xthread_free` list may not be empty). see `_mi_page_collect_free`.
 static inline bool mi_page_all_free(const mi_page_t* page) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	return (page->used == 0);
 }
 
@@ -515,7 +515,7 @@ static inline bool mi_page_has_any_available(const mi_page_t* page)
 // are there immediately available blocks, i.e. blocks available on the free list.
 static inline bool mi_page_immediate_available(const mi_page_t* page) 
 {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	return (page->free != NULL);
 }
 

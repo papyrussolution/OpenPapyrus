@@ -134,7 +134,7 @@ static void dump_traps(cairo_traps_t * traps, const char * filename)
 	_cairo_traps_extents(traps, &extents);
 	printf("%s: extents=(%d, %d, %d, %d)\n", filename, extents.p1.x, extents.p1.y, extents.p2.x, extents.p2.y);
 	file = fopen(filename, "a");
-	if(file != NULL) {
+	if(file) {
 		for(n = 0; n < traps->num_traps; n++) {
 			fprintf(file, "%d %d L:(%d, %d), (%d, %d) R:(%d, %d), (%d, %d)\n",
 			    traps->traps[n].top,
@@ -160,7 +160,7 @@ static void dump_edges(cairo_bo_start_event_t * events, int num_edges, const cha
 	if(getenv("CAIRO_DEBUG_TRAPS") == NULL)
 		return;
 	file = fopen(filename, "a");
-	if(file != NULL) {
+	if(file) {
 		for(n = 0; n < num_edges; n++) {
 			fprintf(file, "(%d, %d), (%d, %d) %d %d %d\n",
 			    events[n].edge.edge.line.p1.x,
@@ -837,7 +837,7 @@ static void CAIRO_PRINTF_FORMAT(1, 2) event_log(const char * fmt, ...)
 	if(getenv("CAIRO_DEBUG_EVENTS") == NULL)
 		return;
 	file = fopen("bo-events.txt", "a");
-	if(file != NULL) {
+	if(file) {
 		va_list ap;
 		va_start(ap, fmt);
 		vfprintf(file, fmt, ap);

@@ -18,16 +18,6 @@
 //
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/util/internal/proto_writer.h>
-#include <google/protobuf/wire_format_lite.h>
-#include <google/protobuf/util/internal/field_mask_utility.h>
-#include <google/protobuf/util/internal/object_location_tracker.h>
-#include <google/protobuf/util/internal/constants.h>
-#include <google/protobuf/util/internal/utility.h>
-#include <google/protobuf/stubs/strutil.h>
-#include <google/protobuf/stubs/statusor.h>
-#include <google/protobuf/stubs/time.h>
-#include <google/protobuf/stubs/map_util.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {

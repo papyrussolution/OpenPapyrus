@@ -625,7 +625,7 @@ double sigmoid(double a, double x) { return (1.0 / (1.0 + exp(-(a * x)))); }
 int flnfact(uint n, SMathResult * pResult)
 {
 	/* CHECK_POINTER(result) */
-	if(n < FACT_TAB_SIZE){
+	if(n < FACT_TAB_SIZE) {
 		pResult->V = log(ffactr(n));
 		pResult->E = 2.0 * SMathConst::Epsilon * fabs(pResult->V);
 	}

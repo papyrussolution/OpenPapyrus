@@ -1929,7 +1929,7 @@ void OprKindDialog::editOptions2(uint dlgID, int useMainAmt, const PPIDArray * p
 				dlg->GetClusterData(CTL_OPKMORE_MCR, &ext_f);
 			}
 			//@erik v10.5.9 { 
-			if(paym_type_flg > 0){
+			if(paym_type_flg > 0) {
 				ext_f &= ~(OPKFX_PAYMENT_CASH|OPKFX_PAYMENT_NONCASH);
 				ext_f |= dlg->GetClusterData(CTL_OPKMORE_PAYMTYPE);
 			}				

@@ -38,7 +38,7 @@ void * _freed_pool_get_search(freed_pool_t * pool)
 	int i;
 	for(i = ARRAY_LENGTH(pool->pool); i--;) {
 		ptr = _atomic_fetch(&pool->pool[i]);
-		if(ptr != NULL) {
+		if(ptr) {
 			_cairo_atomic_int_set_relaxed(&pool->top, i);
 			return ptr;
 		}

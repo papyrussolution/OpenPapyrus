@@ -14,11 +14,11 @@
         >
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbarFaceList"
+            style="@style/PageHeaderRegular"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="24dp">
+            >
             <TextView
                 android:id="@+id/tbTitle"
                 android:layout_width="wrap_content"
@@ -35,8 +35,11 @@
             android:id="@+id/faceListView"
             android:layout_width="match_parent"
             android:layout_height="120dp"
-            android:divider="@android:color/transparent"
-            android:dividerHeight="2dp"
+            android:layout_marginTop="4dp"
+            android:footerDividersEnabled="false"
+            android:headerDividersEnabled="false"
+            android:background="@drawable/shape_pageheader"
+            android:padding="2dp"
             >
         </ListView>
     </LinearLayout>

@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -16,23 +15,10 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 #ifndef GOOGLE_PROTOBUF_PLATFORM_MACROS_H_
 #define GOOGLE_PROTOBUF_PLATFORM_MACROS_H_
 
-#define GOOGLE_PROTOBUF_PLATFORM_ERROR \
-#error "Host platform was not detected as supported by protobuf"
+#define GOOGLE_PROTOBUF_PLATFORM_ERROR #error "Host platform was not detected as supported by protobuf"
 
 // Processor architecture detection.  For more info on what's defined, see:
 //   http://msdn.microsoft.com/en-us/library/b0084kay.aspx
@@ -87,15 +73,15 @@
 # if (((__GNUC__ == 4) && (__GNUC_MINOR__ >= 7)) || (__GNUC__ > 4))
 // We fallback to the generic Clang/GCC >= 4.7 implementation in atomicops.h
 # elif defined(__clang__)
-#  if !__has_extension(c_atomic)
+#if !__has_extension(c_atomic)
 GOOGLE_PROTOBUF_PLATFORM_ERROR
-#  endif
+#endif
 // We fallback to the generic Clang/GCC >= 4.7 implementation in atomicops.h
 # endif
 # if __LP64__
-#  define GOOGLE_PROTOBUF_ARCH_64_BIT 1
+#define GOOGLE_PROTOBUF_ARCH_64_BIT 1
 # else
-#  define GOOGLE_PROTOBUF_ARCH_32_BIT 1
+#define GOOGLE_PROTOBUF_ARCH_32_BIT 1
 # endif
 #else
 GOOGLE_PROTOBUF_PLATFORM_ERROR

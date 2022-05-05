@@ -93,7 +93,7 @@ int PPGenCashNode::SetRoundParam(const RoundParam * pParam)
 			}
 		}
 //@erik v10.6.13 {
-		if(pParam->IgnPennyFromBCardFlag){
+		if(pParam->IgnPennyFromBCardFlag) {
 			ExtFlags |= CASHFX_IGNPENNYFROMBCARD;
 		}
 		else {

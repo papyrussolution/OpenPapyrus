@@ -322,7 +322,7 @@ void StringReplacer::setData(const TransliterationRuleData* d) {
 	while(i<output.length()) {
 		UChar32 c = output.char32At(i);
 		UnicodeFunctor* f = data->lookup(c);
-		if(f != NULL) {
+		if(f) {
 			f->setData(data);
 		}
 		i += U16_LENGTH(c);

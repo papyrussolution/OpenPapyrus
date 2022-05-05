@@ -1323,9 +1323,9 @@ struct VetisVetDocument : public VetisDocument {
 	LDATETIME LastUpdateDate;
 	//
 	enum {
-		waybilltTTN = 1,
+		waybilltTTN         = 1,
 		waybilltConsignment = 2,
-		waybilltCMR = 3,
+		waybilltCMR         = 3,
 		waybilltAvia        = 4
 	};
 	int    WayBillType;
@@ -3525,6 +3525,7 @@ private:
 	int    Helper_PutOutgoingBillList(PPIDArray & rBillList, const long putBillRowFlags);
 	int    SearchLastStockEntry(PPID docEntityID, VetisVetDocument & rDocEntity, PPID & rStockEntryEntityID, S_GUID & rStockEntryGUID, S_GUID & rStockEntryUUID, double & rRest);
 	int    PrepareOutgoingTransportData(PPID billID, VetisPrepareOutgoingConsignmentRequest & rReq);
+	int    SearchDupOutgoingConsignment(const VetisVetDocument & rRec);
 	//
 	// Descr: Специализированная структура для оптимизации серии вызовов PutBillRow для одного и того же документа.
 	//
@@ -8046,6 +8047,25 @@ static LDATE GetFinalExpiryData(const VetisGoodsDate & rD)
 	return final_expiry_date;
 }
 
+int PPVetisInterface::SearchDupOutgoingConsignment(const VetisVetDocument & rRec) // @construction
+{
+	//VetisVetDocument::fCargoExpertized
+	int    ok = -1;
+	VetisDocumentTbl::Key3 k3;
+	VetisDocumentTbl::Rec rec;
+	k3.WayBillDate = rRec.WayBillDate;
+	STRNSCPY(k3.WayBillNumber, rRec.WayBillNumber);
+	if(PeC.DT.search(3, &k3, spEq)) do {
+		PeC.DT.copyBufTo(&rec);
+		if(rec.WayBillDate == rRec.WayBillDate && sstreq(rec.WayBillNumber, rRec.WayBillNumber)) { // @paranoic
+			if(rec.VetisDocStatus == vetisdocstCONFIRMED) {
+				//if(rec.FromEntityID == rRec.FromEnity)
+			}
+		}
+	} while(PeC.DT.search(3, &k3, spNext) && PeC.DT.data.WayBillDate == rRec.WayBillDate && sstreq(PeC.DT.data.WayBillNumber, rRec.WayBillNumber));
+	return ok;
+}
+
 int PPVetisInterface::InitOutgoingEntry(PPID docEntityID, const TSCollection <VetisRouteSectionR13nRules> * pRegRuleList, OutcomingList & rList)
 {
 	int    ok = 1;
@@ -10196,7 +10216,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 				text_buf.Z();
 				if(BillObj->Search(R_Data.NativeBillID, &bill_rec) > 0) {
 					PPObjBill::MakeCodeString(&bill_rec, PPObjBill::mcsAddLocName|PPObjBill::mcsAddOpName|PPObjBill::mcsAddObjName, temp_buf);
-					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat(temp_buf).Space().CatEq("#row", (long)R_Data.NativeBillRow);
+					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat(temp_buf).Space().CatEq("#row", R_Data.NativeBillRow);
 					setCtrlString(CTL_VETVDOC_LINKBILL, text_buf);
 					// @v11.1.8 {
 					if(!(R_Data.Flags & VetisVetDocument::fFromMainOrg)) {
@@ -10205,7 +10225,7 @@ static int EditVetisVetDocument(VetisVetDocument & rData, PPID mainOrgID, PPID l
 					// } @v11.1.8 
 				}
 				else {
-					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat("not found").Space().CatEq("#row", (long)R_Data.NativeBillRow);
+					text_buf.CatChar('#').Cat(bill_rec.ID).Space().Cat("not found").Space().CatEq("#row", R_Data.NativeBillRow);
 					enableCommand(cmLinkedBill, 0);
 					enableCommand(cmUnmatch, 0); // @v11.1.8
 				}

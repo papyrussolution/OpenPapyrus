@@ -268,7 +268,7 @@ static ssh_key ssh_pki_openssh_import(const char * text_key, const char * passph
 		}
 	}
 out:
-	if(buffer != NULL) {
+	if(buffer) {
 		SSH_BUFFER_FREE(buffer);
 		buffer = NULL;
 	}
@@ -580,7 +580,7 @@ error:
 	ZFREE(pubkey_s);
 	ZFREE(kdf_options);
 	ZFREE(salt);
-	if(buffer != NULL) {
+	if(buffer) {
 		SSH_BUFFER_FREE(buffer);
 	}
 

@@ -5,13 +5,7 @@
 #pragma hdrstop
 #include "absl/strings/internal/cordz_info.h"
 #include "absl/debugging/stacktrace.h"
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_btree.h"
-#include "absl/strings/internal/cord_rep_crc.h"
-#include "absl/strings/internal/cord_rep_ring.h"
 #include "absl/strings/internal/cordz_handle.h"
-#include "absl/strings/internal/cordz_statistics.h"
-#include "absl/strings/internal/cordz_update_tracker.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

@@ -32,7 +32,7 @@
 	#include <brotli/decode.h>
 #endif
 #ifdef HAVE_ZSTD
-	#include <zstd.h>
+	#include <..\OSF\zstd\lib\include\zstd.h>
 #endif
 //#include "sendf.h"
 #include "http.h"
@@ -679,26 +679,22 @@ static CURLcode zstd_unencode_write(struct connectdata * conn, struct contenc_wr
 	in.pos = 0;
 	in.src = buf;
 	in.size = nbytes;
-
 	for(;;) {
 		out.pos = 0;
 		out.dst = zp->decomp;
 		out.size = DSIZ;
-
 		errorCode = ZSTD_decompressStream(zp->zds, &out, &in);
 		if(ZSTD_isError(errorCode)) {
 			return CURLE_BAD_CONTENT_ENCODING;
 		}
 		if(out.pos > 0) {
-			result = Curl_unencode_write(conn, writer->downstream,
-				zp->decomp, out.pos);
+			result = Curl_unencode_write(conn, writer->downstream, (const char *)zp->decomp, out.pos);
 			if(result)
 				break;
 		}
 		if((in.pos == nbytes) && (out.pos < out.size))
 			break;
 	}
-
 	return result;
 }
 

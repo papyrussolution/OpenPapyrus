@@ -87,7 +87,7 @@ static int bio_free(BIO * bio)
 	if(bio == NULL)
 		return 0;
 	b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	if(b->peer)
 		bio_destroy_pair(bio);
 	OPENSSL_free(b->buf);
@@ -104,7 +104,7 @@ static int bio_read(BIO * bio, char * buf, int size_)
 	if(!bio->init)
 		return 0;
 	b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	assert(b->peer != NULL);
 	peer_b = static_cast<bio_bio_st *>(b->peer->ptr);
 	assert(peer_b != NULL);
@@ -192,7 +192,7 @@ static ossl_ssize_t bio_nread0(BIO * bio, char ** buf)
 	if(!bio->init)
 		return 0;
 	b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	assert(b->peer != NULL);
 	peer_b = static_cast<bio_bio_st *>(b->peer->ptr);
 	assert(peer_b != NULL);
@@ -252,7 +252,7 @@ static int bio_write(BIO * bio, const char * buf, int num_)
 	if(!bio->init || buf == NULL || num == 0)
 		return 0;
 	b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	assert(b->peer != NULL);
 	assert(b->buf != NULL);
 
@@ -318,7 +318,7 @@ static ossl_ssize_t bio_nwrite0(BIO * bio, char ** buf)
 	if(!bio->init)
 		return 0;
 	b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	assert(b->peer != NULL);
 	assert(b->buf != NULL);
 	b->request = 0;
@@ -366,7 +366,7 @@ static ossl_ssize_t bio_nwrite(BIO * bio, char ** buf, size_t num_)
 	if(num <= 0)
 		return num;
 	b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	b->len += num;
 	assert(b->len <= b->size);
 
@@ -377,7 +377,7 @@ static long bio_ctrl(BIO * bio, int cmd, long num, void * ptr)
 {
 	long ret;
 	struct bio_bio_st * b = static_cast<bio_bio_st *>(bio->ptr);
-	assert(b != NULL);
+	assert(b);
 	switch(cmd) {
 		/* specific CTRL codes */
 		case BIO_C_SET_WRITE_BUF_SIZE:

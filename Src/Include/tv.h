@@ -587,8 +587,8 @@ struct SUiLayoutParam { // @persistent
 	// Descr: конструктор для контейнера с наиболее популярными аргументами.
 	//
 	explicit SUiLayoutParam(int direction, uint justifyContent = alignAuto, uint alignContent = alignAuto);
-	int    FASTCALL operator == (const SUiLayoutParam & rS) const;
-	int    FASTCALL operator != (const SUiLayoutParam & rS) const;
+	bool   FASTCALL operator == (const SUiLayoutParam & rS) const;
+	bool   FASTCALL operator != (const SUiLayoutParam & rS) const;
 	SUiLayoutParam & SetDefault();
 	bool   FASTCALL IsEq(const SUiLayoutParam & rS) const;
 	//
@@ -1018,7 +1018,7 @@ public:
 
 	SFontDescr(const char * pFace, int size, int flags);
 	void   Init();
-	int    FASTCALL IsEq(const SFontDescr & rS) const;
+	bool   FASTCALL IsEq(const SFontDescr & rS) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    ToStr(SString & rBuf, long fmt) const;
 	int    FASTCALL FromStr(const char *);
@@ -1042,7 +1042,7 @@ private:
 //
 struct SParaDescr { // @persistent
 	SParaDescr();
-	int    FASTCALL IsEq(const SParaDescr &) const;
+	bool   FASTCALL IsEq(const SParaDescr &) const;
 	int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 	int    GetJustif() const;
 
@@ -1178,9 +1178,9 @@ public:
 		~Pen();
 		Pen  & FASTCALL operator = (const Pen & rS);
 		int    FASTCALL Copy(const Pen & rS);
-		int    FASTCALL IsEq(const Pen & rS) const;
+		bool   FASTCALL IsEq(const Pen & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
-		int    IsDashed() const;
+		bool   IsDashed() const;
 		//
 		// Descr: Возвращает !0, если перо является предельно простым,
 		//   то есть может быть определено только цветом.
@@ -1192,7 +1192,7 @@ public:
 		//   MiterLimit = 4.0 || 0
 		//   P_DashRule = 0
 		//
-		int    IsSimple() const;
+		bool   IsSimple() const;
 		int    FASTCALL SetSimple(SColor);
 		int    AddDashItem(float f);
 
@@ -1216,7 +1216,7 @@ public:
 		Brush & FASTCALL operator = (const Brush &);
 		int    FASTCALL operator == (const Brush &) const;
 		void   FASTCALL Copy(const Brush & rS);
-		int    FASTCALL IsEq(const Brush & rS) const;
+		bool   FASTCALL IsEq(const Brush & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 		int    IsSimple() const;
 		void   FASTCALL SetSimple(SColor);
@@ -1313,7 +1313,7 @@ public:
 	public:
 		CStyle();
 		CStyle(int fontId, int penId, int brushId);
-		int    FASTCALL IsEq(const CStyle & rS) const;
+		bool   FASTCALL IsEq(const CStyle & rS) const;
 		int    Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx);
 
 		int    FontId;

@@ -1728,10 +1728,9 @@ SPaintObj::Pen & FASTCALL SPaintObj::Pen::operator = (const Pen & rS)
 	return *this;
 }
 
-int SPaintObj::Pen::IsDashed() const
+bool SPaintObj::Pen::IsDashed() const
 {
-	return ((P_DashRule && P_DashRule->getCount()) || oneof4(S, SPaintObj::psDash,
-		SPaintObj::psDot, SPaintObj::psDashDot, SPaintObj::psDashDotDot));
+	return ((P_DashRule && P_DashRule->getCount()) || oneof4(S, SPaintObj::psDash, SPaintObj::psDot, SPaintObj::psDashDot, SPaintObj::psDashDotDot));
 }
 
 int SPaintObj::Pen::AddDashItem(float f)
@@ -1744,19 +1743,19 @@ int SPaintObj::Pen::AddDashItem(float f)
 		return SLS.SetError(SLERR_NOMEM);
 }
 
-int FASTCALL SPaintObj::Pen::IsEq(const Pen & rS) const
+bool FASTCALL SPaintObj::Pen::IsEq(const Pen & rS) const
 {
 	if(!(C == rS.C && W__ == rS.W__ && LineCap == rS.LineCap && Join == rS.Join && MiterLimit == rS.MiterLimit && DashOffs == rS.DashOffs))
-		return 0;
+		return false;
 	else if(P_DashRule != 0 && rS.P_DashRule != 0)
 		return P_DashRule->IsEq(rS.P_DashRule);
 	else if(P_DashRule == 0 && rS.P_DashRule == 0)
-		return 1;
+		return true;
 	else
-		return 0;
+		return false;
 }
 
-int SPaintObj::Pen::IsSimple() const
+bool SPaintObj::Pen::IsSimple() const
 {
 	return (W__ == 1.0f && !IsDashed() && S == SPaintObj::psSolid &&
 		oneof2(LineCap, 0, SPaintObj::lcButt) && oneof2(Join, 0, SPaintObj::ljMiter) &&
@@ -1790,9 +1789,9 @@ int FASTCALL SPaintObj::Brush::operator == (const Brush & rS) const
 	return IsEq(rS);
 }
 
-int FASTCALL SPaintObj::Brush::IsEq(const Brush & rS) const
+bool FASTCALL SPaintObj::Brush::IsEq(const Brush & rS) const
 {
-	return BIN(C == rS.C && S == rS.S && Hatch == rS.Hatch && Rule == rS.Rule && IdPattern == rS.IdPattern);
+	return (C == rS.C && S == rS.S && Hatch == rS.Hatch && Rule == rS.Rule && IdPattern == rS.IdPattern);
 }
 
 SPaintObj::Brush & FASTCALL SPaintObj::Brush::operator = (const Brush & rS)
@@ -1858,9 +1857,9 @@ void SFontDescr::Init()
 	memzero(Reserve, sizeof(Reserve));
 }
 
-int FASTCALL SFontDescr::IsEq(const SFontDescr & rS) const
+bool FASTCALL SFontDescr::IsEq(const SFontDescr & rS) const
 {
-	return BIN(Face.CmpNC(rS.Face) == 0 && Size == rS.Size && Flags == rS.Flags && Weight == rS.Weight && CharSet == rS.CharSet);
+	return (Face.CmpNC(rS.Face) == 0 && Size == rS.Size && Flags == rS.Flags && Weight == rS.Weight && CharSet == rS.CharSet);
 }
 
 int SFontDescr::ToStr(SString & rBuf, long fmt) const
@@ -2211,9 +2210,9 @@ SPaintObj::CStyle::CStyle(int fontId, int penId, int brushId) : SPaintObj::Base(
 	// @v10.3.0 (@speedcritical) memzero(Reserve, sizeof(Reserve));
 }
 
-int FASTCALL SPaintObj::CStyle::IsEq(const CStyle & rS) const
+bool FASTCALL SPaintObj::CStyle::IsEq(const CStyle & rS) const
 {
-	return BIN(FontId == rS.FontId && PenId == rS.PenId && BrushId == rS.BrushId);
+	return (FontId == rS.FontId && PenId == rS.PenId && BrushId == rS.BrushId);
 }
 
 int SPaintObj::CStyle::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
@@ -2933,10 +2932,9 @@ int SParaDescr::Serialize(int dir, SBuffer & rBuf, SSerializeContext * pCtx)
 	return ok;
 }
 
-int FASTCALL SParaDescr::IsEq(const SParaDescr & rS) const
+bool FASTCALL SParaDescr::IsEq(const SParaDescr & rS) const
 {
-	return BIN(LuIndent == rS.LuIndent && RlIndent == rS.RlIndent && StartIndent == rS.StartIndent &&
-		Spacing == rS.Spacing && Flags == rS.Flags);
+	return (LuIndent == rS.LuIndent && RlIndent == rS.RlIndent && StartIndent == rS.StartIndent && Spacing == rS.Spacing && Flags == rS.Flags);
 }
 
 int SParaDescr::GetJustif() const

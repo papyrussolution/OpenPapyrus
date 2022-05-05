@@ -117,7 +117,7 @@ int PosiflexEquip::GetConfig(char * pBuf, size_t bufSize)
 {
 	int    ok = 0;
 	SString str;
-	str.CatEq("STRLEN", (long)STRLEN);
+	str.CatEq("STRLEN", STRLEN);
 	if(str.Len() + 1 > bufSize)
 		ok = 2;
 	else

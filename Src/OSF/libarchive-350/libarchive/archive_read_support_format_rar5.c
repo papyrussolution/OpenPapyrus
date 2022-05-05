@@ -746,24 +746,18 @@ static void reset_file_context(struct rar5* rar)
 	else {
 		rar->cstate.solid_offset = 0;
 	}
-
 	rar->cstate.write_ptr = 0;
 	rar->cstate.last_write_ptr = 0;
 	rar->cstate.last_unstore_ptr = 0;
-
 	rar->file.redir_type = REDIR_TYPE_NONE;
 	rar->file.redir_flags = 0;
-
 	free_filters(rar);
 }
 
-static inline int get_archive_read(struct archive* a,
-    struct archive_read** ar)
+static inline int get_archive_read(struct archive* a, struct archive_read** ar)
 {
 	*ar = (struct archive_read*)a;
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW,
-	    "archive_read_support_format_rar5");
-
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_rar5");
 	return ARCHIVE_OK;
 }
 

@@ -481,7 +481,7 @@ int StyloQFace::FromJson(const char * pJsonText)
 	return ok;
 }
 
-SJson * StyloQFace::ToJson(bool forTransmission) const
+SJson * StyloQFace::ToJsonObject(bool forTransmission) const
 {
 	SJson * p_result = 0;
 	if(L.getCount()) {
@@ -533,7 +533,7 @@ int StyloQFace::ToJson(bool forTransmission, SString & rResult) const
 	SJson * p_js = 0;
 	rResult.Z();
 	if(L.getCount()) {
-		p_js = ToJson(forTransmission);
+		p_js = ToJsonObject(forTransmission);
 		ok = BIN(p_js && p_js->ToStr(rResult));
 	}
 	else
@@ -600,7 +600,7 @@ int StyloQFace::ToJson(bool forTransmission, SString & rResult) const
 				ep = 3600; // Значение по умолчанию. Для отладки небольшое, в реальности должно быть сутки или более.
 				p_result_pack->Set(StyloQFace::tagExpiryPeriodSec, 0, temp_buf.Z().Cat(ep));
 			}
-			p_result = p_result_pack->ToJson(true);
+			p_result = p_result_pack->ToJsonObject(true);
 		}
 	}
 	CATCH
@@ -1744,6 +1744,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 	SBuffer cbuf;
 	SSerializeContext sctx;
 	bool   do_destroy_lob = false;
+	const  RECORDSIZE fix_rec_size = getRecSize();
 	{
 		PPTransaction tra(use_ta);
 		THROW(tra);
@@ -1761,10 +1762,11 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 					ok = -1;
 				}
 				else {
+					
 					pPack->Rec.ID = outer_id;
 					// @v11.3.8 THROW_DB(rereadForUpdate(0, 0));
 					// (Этот вызов почему-то ломает внутреннюю структуру LOB-поля) copyBufFrom(&pPack->Rec);
-					// @v11.3.8 copyBufFrom(&pPack->Rec); // @v11.3.4 @fix
+					copyBufFrom(&pPack->Rec, fix_rec_size); // @v11.3.4 @fix
 					THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
 					THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
 					THROW_DB(updateRec());
@@ -1791,7 +1793,7 @@ int StyloQCore::PutPeerEntry(PPID * pID, StoragePacket * pPack, int use_ta)
 				}
 			}
 			pPack->Rec.ID = 0;
-			copyBufFrom(&pPack->Rec);
+			copyBufFrom(&pPack->Rec, fix_rec_size);
 			THROW_SL(pPack->Pool.Serialize(+1, cbuf, &sctx));
 			THROW(writeLobData(VT, cbuf.GetBuf(0), cbuf.GetAvailableSize()));
 			THROW_DB(insertRec(0, &new_id));
@@ -2581,7 +2583,7 @@ int PPObjStyloQBindery::EditFace(PPID id)
 			}
 			if(EditStyloQFace(face_pack) > 0) {
 				SBinarySet::DeflateStrategy ds(512);
-				THROW(face_pack.ToJson(temp_buf));
+				THROW(face_pack.ToJson(false, temp_buf));
 				bin_chunk.Put(temp_buf, temp_buf.Len());
 				pack.Pool.Put(tag_id, bin_chunk, &ds);
 				THROW(P_Tbl->PutPeerEntry(&id, &pack, 1));
@@ -2661,20 +2663,20 @@ PPStyloQInterchange::Document::LotExtCode::LotExtCode() : Flags(0), BoxRefN(0)
 	PTR32(Code)[0] = 0;
 }
 
-PPStyloQInterchange::Document::ValuSet::ValuSet() : Qtty(0.0), Cost(0.0), Price(0.0)
+PPStyloQInterchange::Document::ValuSet::ValuSet() : Qtty(0.0), Cost(0.0), Price(0.0), Discount(0.0)
 {
 }
 
-PPStyloQInterchange::Document::TransferItem::TransferItem() : GoodsID(0), UnitID(0), Flags(0)
+PPStyloQInterchange::Document::TransferItem::TransferItem() : RowIdx(0), GoodsID(0), UnitID(0), Flags(0)
 {
 }
 
-PPStyloQInterchange::Document::BookingItem::BookingItem() : PrcID(0), GoodsID(0), Flags(0), ReqTime(ZERODATETIME), EstimatedDurationSec(0)
+PPStyloQInterchange::Document::BookingItem::BookingItem() : RowIdx(0), PrcID(0), GoodsID(0), Flags(0), ReqTime(ZERODATETIME), EstimatedDurationSec(0)
 {
 }
 
 PPStyloQInterchange::Document::Document() : ID(0), CreationTime(ZERODATETIME), Time(ZERODATETIME), DueTime(ZERODATETIME), OpID(0),
-	ClientID(0), DlvrLocID(0)
+	ClientID(0), DlvrLocID(0), Amount(0.0)
 {
 }
 
@@ -2714,6 +2716,9 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 			else if(p_cur->Text.IsEqiAscii("dlvrlocid")) {
 				DlvrLocID = p_cur->P_Child->Text.ToLong();
 			}
+			else if(p_cur->Text.IsEqiAscii("amount")) {
+				Amount = p_cur->P_Child->Text.ToReal();
+			}
 			else if(p_cur->Text.IsEqiAscii("memo")) {
 				Memo = SJson::Unescape(p_cur->P_Child->Text);
 			}
@@ -2724,7 +2729,10 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 							TransferItem * p_new_item = TiList.CreateNewItem();
 							THROW_SL(p_new_item);
 							for(const SJson * p_ti_cur = p_js_ti->P_Child; p_ti_cur; p_ti_cur = p_ti_cur->P_Next) {
-								if(p_ti_cur->Text.IsEqiAscii("goodsid")) {
+								if(p_ti_cur->Text.IsEqiAscii("rowidx")) {
+									p_new_item->RowIdx = p_ti_cur->P_Child->Text.ToLong();
+								}
+								else if(p_ti_cur->Text.IsEqiAscii("goodsid")) {
 									p_new_item->GoodsID = p_ti_cur->P_Child->Text.ToLong();
 								}
 								else if(p_ti_cur->Text.IsEqiAscii("unitid")) {
@@ -2745,6 +2753,9 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 											else if(p_set_cur->Text.IsEqiAscii("price")) {
 												p_new_item->Set.Price = p_set_cur->P_Child->Text.ToReal();
 											}
+											else if(p_set_cur->Text.IsEqiAscii("discount")) {
+												p_new_item->Set.Discount = p_set_cur->P_Child->Text.ToReal();
+											}
 										}
 									}
 								}
@@ -2760,7 +2771,10 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 							BookingItem * p_new_item = BkList.CreateNewItem();
 							THROW_SL(p_new_item);
 							for(const SJson * p_ti_cur = p_js_ti->P_Child; p_ti_cur; p_ti_cur = p_ti_cur->P_Next) {
-								if(p_ti_cur->Text.IsEqiAscii("goodsid")) {
+								if(p_ti_cur->Text.IsEqiAscii("rowidx")) {
+									p_new_item->RowIdx = p_ti_cur->P_Child->Text.ToLong();
+								}
+								else if(p_ti_cur->Text.IsEqiAscii("goodsid")) {
 									p_new_item->GoodsID = p_ti_cur->P_Child->Text.ToLong();
 								}
 								if(p_ti_cur->Text.IsEqiAscii("prcid")) {
@@ -2786,6 +2800,9 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 											}
 											else if(p_set_cur->Text.IsEqiAscii("price")) {
 												p_new_item->Set.Price = p_set_cur->P_Child->Text.ToReal();
+											}
+											else if(p_set_cur->Text.IsEqiAscii("discount")) {
+												p_new_item->Set.Discount = p_set_cur->P_Child->Text.ToReal();
 											}
 										}
 									}
@@ -5112,7 +5129,7 @@ int PPStyloQInterchange::QueryConfigIfNeeded(RoundTripBlock & rB)
 					const int64 ees = EvaluateExpiryTime(temp_buf.ToLong());
 					if(ees > 0)
 						other_face.Set(StyloQFace::tagExpiryEpochSec, 0, temp_buf.Z().Cat(ees));
-					THROW_SL(other_face.ToJson(temp_buf));
+					THROW_SL(other_face.ToJson(false, temp_buf));
 					face_bytes.Z().Cat(temp_buf.cptr(), temp_buf.Len());
 					svc_pack.Pool.Put(SSecretTagPool::tagFace, face_bytes);
 					rB.Other.Put(SSecretTagPool::tagFace, face_bytes);
@@ -6445,6 +6462,7 @@ int StyloQAttendancePrereqParam::InitInstance()
 			int    ok = 1;
 			RVALUEPTR(Data, pData);
 			setCtrlString(CTL_STQATTCPARAM_PRCTTL, Data.PrcTitle);
+			setCtrlLong(CTL_STQATTCPARAM_MAXSCHD, Data.MaxScheduleDays); // @v11.3.10
 			SetDataRef(&Data.PrcList);
 			return ok;
 		}
@@ -6452,11 +6470,109 @@ int StyloQAttendancePrereqParam::InitInstance()
 		{
 			int    ok = 1;
 			getCtrlString(CTL_STQATTCPARAM_PRCTTL, Data.PrcTitle);
+			Data.MaxScheduleDays = inrangeordefault(getCtrlLong(CTL_STQATTCPARAM_MAXSCHD), 1L, 365L, 7L); // @v11.3.10
 			ASSIGN_PTR(pData, Data);
 			return ok;
 		}
 	};
 	DIALOG_PROC_BODY(RsrvAttendancePrereqParamDialog, &rParam);
+}
+
+SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, PPID prcID, PPObjTSession & rTSesObj, 
+	long maxScheduleDays, LAssocArray * pGoodsToPrcList, Stq_CmdStat_MakeRsrv_Response * pStat)
+{
+	SJson * p_result = 0;
+	PPProcessorPacket prc_pack;
+	if(rTSesObj.PrcObj.GetPacket(prcID, &prc_pack) > 0) {
+		SString temp_buf;
+		PPIDArray goods_id_list;
+		rTSesObj.TecObj.GetGoodsListByPrc(prcID, &goods_id_list);
+		if(goods_id_list.getCount()) {
+			PPObjPerson psn_obj;
+			PPObjStaffCal scal_obj;
+			goods_id_list.sortAndUndup();
+			p_result = new SJson(SJson::tOBJECT);
+			p_result->InsertInt("id", prc_pack.Rec.ID);
+			p_result->InsertString("nm", (temp_buf = prc_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+			// @todo Внести подробную информацию о связанном объекте
+			if(prc_pack.Rec.LinkObjType == PPOBJ_PERSON) {
+				PersonTbl::Rec psn_rec;
+				if(psn_obj.Fetch(prc_pack.Rec.LinkObjID, &psn_rec) > 0) {
+					const PPObjID oid(PPOBJ_PERSON, psn_rec.ID);
+					{
+						const PPID reg_cal_id = psn_obj.GetConfig().RegStaffCalID;
+						if(reg_cal_id) {
+							const LDATE curdt = getcurdate_();
+							STimeChunkArray work_list;
+							//STimeChunkArray collapse_list;
+							DateRange period;
+							assert(maxScheduleDays >= 0);
+							period.Set(curdt, plusdate(curdt, maxScheduleDays));
+							assert(checkdate(period.low) && checkdate(period.upp));
+							ScObjAssoc scoa;
+							scal_obj.InitScObjAssoc(reg_cal_id, 0, oid.Id, &scoa);
+							if(scal_obj.CalcPeriod(scoa, period, 0, 0, 0, &work_list) && work_list.getCount()) {
+								work_list.Sort();
+								SJson * p_js_wl = new SJson(SJson::tARRAY);
+								for(uint wlidx = 0; wlidx < work_list.getCount(); wlidx++) {
+									const STimeChunk * p_wl_item = (const STimeChunk *)work_list.at(wlidx);
+									SJson * p_js_wli = new SJson(SJson::tOBJECT);
+									p_js_wli->InsertString("low", temp_buf.Z().Cat(p_wl_item->Start, DATF_ISO8601|DATF_CENTURY, 0));
+									p_js_wli->InsertString("upp", temp_buf.Z().Cat(p_wl_item->Finish, DATF_ISO8601|DATF_CENTURY, 0));
+									p_js_wl->InsertChild(p_js_wli);
+								}
+								p_result->Insert("worktime", p_js_wl);
+							}
+						}
+					}
+					{
+						BlobInfo blob_info;
+						if(GetBlobInfo(rOwnIdent, oid, 0, blob_info, 0)) {
+							assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
+							p_result->InsertString("imgblobs", blob_info.Signature);
+							if(pStat)
+								pStat->BlobOidList.Add(oid.Obj, oid.Id);
+						}
+					}
+				}
+			}
+			{
+				SJson * p_js_prcgoodslist = new SJson(SJson::tARRAY);
+				for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
+					const PPID goods_id = goods_id_list.get(gidx);
+					SJson * p_js_goods_item = new SJson(SJson::tOBJECT);
+					p_js_goods_item->InsertInt("id", goods_id);
+					p_js_prcgoodslist->InsertChild(p_js_goods_item);
+					if(pGoodsToPrcList)
+						pGoodsToPrcList->Add(goods_id, prcID);
+				}
+				p_result->Insert("goods_list", p_js_prcgoodslist);
+			}
+			{
+				SJson * p_js_busylist = new SJson(SJson::tARRAY);
+				uint   busylist_count = 0;
+				PrcBusyArray busy_list;
+				STimeChunk observe_time_chunk(getcurdatetime_(), LDATETIME().SetFar());
+				rTSesObj.P_Tbl->LoadBusyArray(prcID, 0, TSESK_SESSION, &observe_time_chunk, &busy_list);
+				for(uint blidx = 0; blidx < busy_list.getCount(); blidx++) {
+					const STimeChunk * p_busy_item = static_cast<const STimeChunk *>(busy_list.at(blidx));
+					if(checkdate(p_busy_item->Start.d) && checkdate(p_busy_item->Finish.d)) {
+						SJson * p_js_busy_entry = new SJson(SJson::tOBJECT);
+						p_js_busy_entry->InsertString("low", temp_buf.Z().Cat(p_busy_item->Start, DATF_ISO8601|DATF_CENTURY, 0));
+						p_js_busy_entry->InsertString("upp", temp_buf.Z().Cat(p_busy_item->Finish, DATF_ISO8601|DATF_CENTURY, 0));
+						p_js_busylist->InsertChild(p_js_busy_entry);
+						busylist_count++;
+					}
+				}
+				if(busylist_count) {
+					p_result->Insert("busy_list", p_js_busylist);
+				}
+				else
+					ZDELETE(p_js_busylist);
+			}
+		}
+	}
+	return p_result;
 }
 
 int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
@@ -6486,15 +6602,19 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	PPIDArray goods_id_list; // @reusable
 	PPIDArray prc_id_list;
 	LAssocArray goods_to_prc_list;
+	long   max_schedule_days = 7;
 	THROW(GetOwnPeerEntry(&own_pack) > 0);
 	THROW_PP(own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident), PPERR_SQ_UNDEFOWNSVCID);
 	{
 		if(rCmdItem.GetAttendanceParam(param) > 0) {
-			if(param.PrcTitle.NotEmpty()) {
+			max_schedule_days = inrangeordefault(param.MaxScheduleDays, 1L, 365L, 7L);
+			//if(param.PrcTitle.NotEmpty()) {
 				SJson * p_js_param = new SJson(SJson::tOBJECT);
-				p_js_param->InsertString("prctitle", (temp_buf = param.PrcTitle).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+				if(param.PrcTitle.NotEmpty())
+					p_js_param->InsertString("prctitle", (temp_buf = param.PrcTitle).Transf(CTRANSF_INNER_TO_UTF8).Escape());
+				p_js_param->InsertInt("MaxScheduleDays", max_schedule_days); // @v11.3.10
 				js.Insert("param", p_js_param);
-			}
+			//}
 		}
 	}
 	{
@@ -6505,67 +6625,14 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	}
 	if(prc_id_list.getCount()) {
 		prc_id_list.sortAndUndup();
+		PPObjStaffCal scal_obj;
 		PrcBusyArray busy_list;
 		SJson * p_js_prc_list = new SJson(SJson::tARRAY);
 		for(uint prcidx = 0; prcidx < prc_id_list.getCount(); prcidx++) {
 			const PPID prc_id = prc_id_list.get(prcidx);
-			PPProcessorPacket prc_pack;
-			if(tses_obj.PrcObj.GetPacket(prc_id, &prc_pack) > 0) {
-				goods_id_list.Z();
-				tses_obj.TecObj.GetGoodsListByPrc(prc_id, &goods_id_list);
-				if(goods_id_list.getCount()) {
-					goods_id_list.sortAndUndup();
-					SJson * p_js_prc = new SJson(SJson::tOBJECT);
-					p_js_prc->InsertInt("id", prc_pack.Rec.ID);
-					p_js_prc->InsertString("nm", (temp_buf = prc_pack.Rec.Name).Transf(CTRANSF_INNER_TO_UTF8).Escape());
-					// @todo Внести подробную информацию о связанном объекте
-					if(prc_pack.Rec.LinkObjType == PPOBJ_PERSON) {
-						PersonTbl::Rec psn_rec;
-						if(psn_obj.Fetch(prc_pack.Rec.LinkObjID, &psn_rec) > 0) {
-							const PPObjID oid(PPOBJ_PERSON, psn_rec.ID);
-							if(GetBlobInfo(bc_own_ident, oid, 0, blob_info, 0)) {
-								assert(blob_info.Signature.Len() && blob_info.Signature.IsAscii());
-								p_js_prc->InsertString("imgblobs", blob_info.Signature);
-								stat.BlobOidList.Add(oid.Obj, oid.Id);
-							}
-						}
-					}
-					{
-						SJson * p_js_prcgoodslist = new SJson(SJson::tARRAY);
-						for(uint gidx = 0; gidx < goods_id_list.getCount(); gidx++) {
-							const PPID goods_id = goods_id_list.get(gidx);
-							SJson * p_js_goods_item = new SJson(SJson::tOBJECT);
-							p_js_goods_item->InsertInt("id", goods_id);
-							p_js_prcgoodslist->InsertChild(p_js_goods_item);
-							goods_to_prc_list.Add(goods_id, prc_id);
-						}
-						p_js_prc->Insert("goods_list", p_js_prcgoodslist);
-					}
-					{
-						SJson * p_js_busylist = new SJson(SJson::tARRAY);
-						uint   busylist_count = 0;
-						busy_list.clear();
-						STimeChunk observe_time_chunk(getcurdatetime_(), LDATETIME().SetFar());
-						tses_obj.P_Tbl->LoadBusyArray(prc_id, 0, TSESK_SESSION, &observe_time_chunk, &busy_list);
-						for(uint blidx = 0; blidx < busy_list.getCount(); blidx++) {
-							const STimeChunk * p_busy_item = static_cast<const STimeChunk *>(busy_list.at(blidx));
-							if(checkdate(p_busy_item->Start.d) && checkdate(p_busy_item->Finish.d)) {
-								SJson * p_js_busy_entry = new SJson(SJson::tOBJECT);
-								p_js_busy_entry->InsertString("low", temp_buf.Z().Cat(p_busy_item->Start, DATF_ISO8601|DATF_CENTURY, 0));
-								p_js_busy_entry->InsertString("upp", temp_buf.Z().Cat(p_busy_item->Finish, DATF_ISO8601|DATF_CENTURY, 0));
-								p_js_busylist->InsertChild(p_js_busy_entry);
-								busylist_count++;
-							}
-						}
-						if(busylist_count) {
-							p_js_prc->Insert("busy_list", p_js_busylist);
-						}
-						else
-							ZDELETE(p_js_busylist);
-					}
-					p_js_prc_list->InsertChild(p_js_prc);
-				}
-			}
+			SJson * p_js_prc = MakeRsrvAttendancePrereqResponse_Prc(bc_own_ident, prc_id, tses_obj, max_schedule_days, &goods_to_prc_list, &stat);
+			if(p_js_prc)
+				p_js_prc_list->InsertChild(p_js_prc);
 		}
 		js.Insert("processor_list", p_js_prc_list);
 		{
@@ -7671,10 +7738,12 @@ int PPStyloQInterchange::ProcessCommand_Search(const StyloQCore::StoragePacket &
 	return ok;
 }
 
-int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID)
+SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID)
 {
 	int    result_obj_type = 0;
 	PPID   result_obj_id = 0;
+	SString temp_buf;
+	SJson * p_js_reply = 0;
 	//PPID   result_bill_id = 0;
 	//PPID   result_tses_id = 0;
 	Document doc;
@@ -7758,6 +7827,25 @@ int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePa
 					THROW(tses_obj.PutPacket(&result_obj_id, &tses_pack, 0));
 					THROW(tra.Commit());
 					result_obj_type = PPOBJ_TSESSION;
+					{
+						assert(result_obj_id);
+						S_GUID _uuid;
+						p_js_reply = new SJson(SJson::tOBJECT);
+						p_js_reply->InsertInt("result-objtype", result_obj_type);
+						p_js_reply->InsertInt("document-id", result_obj_id);
+						PPRef->Ot.GetTagGuid(PPOBJ_TSESSION, result_obj_id, PPTAG_TSESS_UUID, _uuid);
+						if(!!_uuid) {
+							temp_buf.Z().Cat(_uuid, S_GUID::fmtIDL);
+							p_js_reply->InsertString("document-uuid", temp_buf);
+						}
+						if(p_item->PrcID) {
+							/*
+							SJson * p_js_prc = MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, p_item->PrcID, tses_obj, 
+								long maxScheduleDays, LAssocArray & rGoodsToPrcList, Stq_CmdStat_MakeRsrv_Response & rStat)
+							*/
+						}
+						p_js_reply->InsertString("result", "ok");
+					}
 				}
 			}
 		}
@@ -7780,40 +7868,55 @@ int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePa
 				PPObjPerson psn_obj;
 				PPObjArticle ar_obj;
 				PPAlbatrossConfig acfg;
-				PPBillPacket bpack;
+				PPBillPacket bpack_; // Пакет нового документа
+				PPBillPacket ex_bpack_; // Пакет документа, найденный по UUID
+				PPBillPacket * p_bpack = 0; // Указатель на пакет, который буде сохраняться в БД (&bpack || &ex_bpack)
 				PPOprKind op_rec;
 				PPObjAccSheet acs_obj;
 				PPAccSheet acs_rec;
+				BillTbl::Rec ex_bill_rec;
 				THROW(p_bobj);
 				DS.FetchAlbatrosConfig(&acfg);
 				THROW(GetOpData(acfg.Hdr.OpID, &op_rec) > 0);
+				if(p_bobj->SearchByGuid(doc.Uuid, &ex_bill_rec) > 0 && ex_bill_rec.EdiOp == PPEDIOP_ORDER) {
+					if(p_bobj->ExtractPacket(ex_bill_rec.ID, &ex_bpack_) > 0) {
+						if(ex_bpack_.BTagL.GetItemStr(PPTAG_BILL_EDICHANNEL, temp_buf) > 0 && temp_buf.IsEqiAscii("STYLOQ")) {
+							p_bpack = &ex_bpack_;
+						}
+					}
+				}
 				{
 					PPTransaction tra(1);
 					THROW(tra);
-					THROW(bpack.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, 0/*locID*/, 0));
-					STRNSCPY(bpack.Rec.Code, doc.Code);
-					bpack.SetupEdiAttributes(PPEDIOP_ORDER, "STYLOQ", 0); // @!
-					bpack.SetGuid(doc.Uuid);
+					if(!p_bpack) {
+						THROW(bpack_.CreateBlank_WithoutCode(acfg.Hdr.OpID, 0, 0/*locID*/, 0));
+						STRNSCPY(bpack_.Rec.Code, doc.Code);
+						bpack_.SetupEdiAttributes(PPEDIOP_ORDER, "STYLOQ", 0); // @!
+						bpack_.SetGuid(doc.Uuid);
+						p_bpack = &bpack_;
+					}
+					assert(p_bpack);
 					if(checkdate(doc.Time.d))
-						bpack.Rec.Dt = doc.Time.d;
+						p_bpack->Rec.Dt = doc.Time.d;
 					else if(checkdate(doc.CreationTime.d))
-						bpack.Rec.Dt = doc.CreationTime.d;
+						p_bpack->Rec.Dt = doc.CreationTime.d;
 					if(checkdate(doc.DueTime.d)) 
-						bpack.Rec.DueDate = doc.DueTime.d;
+						p_bpack->Rec.DueDate = doc.DueTime.d;
+					(p_bpack->SMemo = doc.Memo).Strip().Transf(CTRANSF_UTF8_TO_INNER);
 					{
 						PPID  person_id = 0;
 						if(doc.ClientID) {
 							ArticleTbl::Rec ar_rec;
 							THROW(ar_obj.Search(doc.ClientID, &ar_rec) > 0);
 							THROW(ar_rec.AccSheetID == op_rec.AccSheetID);
-							bpack.Rec.Object = ar_rec.ID;
+							p_bpack->Rec.Object = ar_rec.ID;
 							if(doc.DlvrLocID) {
 								PPID cli_psn_id = ObjectToPerson(ar_rec.ID, 0);
 								if(cli_psn_id) {
 									PPIDArray dlvr_loc_list;
 									psn_obj.GetDlvrLocList(cli_psn_id, &dlvr_loc_list);
 									if(dlvr_loc_list.lsearch(doc.DlvrLocID))
-										bpack.SetFreight_DlvrAddrOnly(doc.DlvrLocID);
+										p_bpack->SetFreight_DlvrAddrOnly(doc.DlvrLocID);
 								}
 							}
 							{
@@ -7822,7 +7925,7 @@ int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePa
 									if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 										PPID ar_id = 0;
 										if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0)
-											bpack.Ext.AgentID = ar_id;
+											p_bpack->Ext.AgentID = ar_id;
 									}
 								}
 							}
@@ -7831,7 +7934,7 @@ int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePa
 							if(AcceptStyloQClientAsPerson(rCliPack, acs_rec.ObjGroup, &person_id, 0) > 0) {
 								PPID ar_id = 0;
 								if(ar_obj.P_Tbl->PersonToArticle(person_id, acs_rec.ID, &ar_id) > 0) {
-									bpack.Rec.Object = ar_id;
+									p_bpack->Rec.Object = ar_id;
 								}
 							}
 						}
@@ -7839,22 +7942,48 @@ int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePa
 					for(uint i = 0; i < doc.TiList.getCount(); i++) {
 						const Document::TransferItem * p_item = doc.TiList.at(i);
 						Goods2Tbl::Rec goods_rec;
+						uint   ex_row_pos = 0;
 						THROW(p_item);
 						THROW(gobj.Search(p_item->GoodsID, &goods_rec) > 0);
 						THROW(p_item->Set.Qtty > 0.0);
-						{
-							PPTransferItem ti(&bpack.Rec, TISIGN_UNDEF);
+						if(p_item->RowIdx > 0 && p_bpack->SearchTI(p_item->RowIdx, &ex_row_pos)) {
+							PPTransferItem & r_ti = p_bpack->TI(ex_row_pos);
+							if(p_item->GoodsID != r_ti.GoodsID)
+								r_ti.SetupGoods(p_item->GoodsID);
+							r_ti.Cost  = p_item->Set.Cost;
+							r_ti.Price = p_item->Set.Price;
+							r_ti.Discount = p_item->Set.Discount;
+							r_ti.Quantity_ = fabs(p_item->Set.Qtty);
+						}
+						else {
+							PPTransferItem ti(&p_bpack->Rec, TISIGN_UNDEF);
+							if(p_item->RowIdx >= 0)
+								ti.RByBill = p_item->RowIdx;
 							ti.SetupGoods(p_item->GoodsID);
 							ti.Cost  = p_item->Set.Cost;
 							ti.Price = p_item->Set.Price;
+							ti.Discount = p_item->Set.Discount;
 							ti.Quantity_ = fabs(p_item->Set.Qtty);
-							THROW(bpack.LoadTItem(&ti, 0, 0));
+							THROW(p_bpack->LoadTItem(&ti, 0, 0));
 						}
 					}
-					THROW(p_bobj->__TurnPacket(&bpack, 0, 1, 0));
+					THROW(p_bobj->__TurnPacket(p_bpack, 0, 1, 0));
 					THROW(tra.Commit());
 					result_obj_type = PPOBJ_BILL;
-					result_obj_id = bpack.Rec.ID;
+					result_obj_id = p_bpack->Rec.ID;
+					{
+						assert(result_obj_id);
+						S_GUID _uuid;
+						p_js_reply = new SJson(SJson::tOBJECT);
+						p_js_reply->InsertInt("result-objtype", result_obj_type);
+						p_js_reply->InsertInt("document-id", result_obj_id);
+						PPRef->Ot.GetTagGuid(PPOBJ_BILL, result_obj_id, PPTAG_BILL_UUID, _uuid);
+						if(!!_uuid) {
+							temp_buf.Z().Cat(_uuid, S_GUID::fmtIDL);
+							p_js_reply->InsertString("document-uuid", temp_buf);
+						}
+						p_js_reply->InsertString("result", "ok");
+					}
 				}
 			}
 		}
@@ -7862,9 +7991,10 @@ int PPStyloQInterchange::ProcessCommand_PostDocument(const StyloQCore::StoragePa
 	CATCH
 		result_obj_type = 0;
 		result_obj_id = 0;
+		ZDELETE(p_js_reply);
 	ENDCATCH
 	ASSIGN_PTR(pResultID, result_obj_id);
-	return result_obj_type;
+	return p_js_reply;
 }
 
 int PPStyloQInterchange::LoadViewSymbList()
@@ -7894,6 +8024,48 @@ bool PPStyloQInterchange::AmIMediator(const char * pCommand)
 	THROW(own_cfg.FromJson(bc_cfg.ToRawStr(temp_buf)));
 	THROW_PP_S(own_cfg.GetFeatures() & StyloQConfig::featrfMediator, PPERR_SQ_CMDFAULT_IMNOTMEDIATOR, pCommand);
 	CATCHZOK
+	return ok;
+}
+
+int PPStyloQInterchange::GetAndStoreClientsFace(const StyloQProtocol & rRcvPack, const SBinaryChunk & rCliIdent)
+{
+	int    ok = -1;
+	StyloQCore::StoragePacket cli_pack;
+	SBinaryChunk bc_face;
+	if(rRcvPack.P.Get(SSecretTagPool::tagFace, &bc_face)) {
+		SString temp_buf;
+		SString msg_buf;
+		PPLoadText(PPTXT_SQ_LOG_CLIFACERCVD, msg_buf);
+		msg_buf.CatDiv(':', 2).Cat(rCliIdent.Mime64(temp_buf));
+		if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
+			StyloQFace other_face;
+			assert(bc_face.Len()); // rRcvPack.P.Get гарантирует!
+			if(bc_face.Len() && other_face.FromJson(bc_face.ToRawStr(temp_buf))) {
+				// Необходимо модифицировать оригинальный face установкой
+				// фактического времени истечения срока действия //
+				other_face.Get(StyloQFace::tagExpiryPeriodSec, 0, temp_buf);
+				const int64 ees = EvaluateExpiryTime(temp_buf.ToLong());
+				if(ees > 0)
+					other_face.Set(StyloQFace::tagExpiryEpochSec, 0, temp_buf.Z().Cat(ees));
+				if(other_face.ToJson(false, temp_buf)) {
+					bc_face.Put(temp_buf.cptr(), temp_buf.Len());
+					cli_pack.Pool.Put(SSecretTagPool::tagFace, bc_face);
+					PPID   temp_id = cli_pack.Rec.ID;
+					if(P_T->PutPeerEntry(&temp_id, &cli_pack, 1)) {
+						rCliIdent.Mime64(temp_buf);
+						msg_buf.Space().Cat("saved");
+						ok = 1;
+					}
+				}
+			}					
+		}
+		if(ok <= 0) {
+			msg_buf.Space().Cat("not saved");
+			PPGetLastErrorMessage(1, temp_buf);
+			msg_buf.CatDiv('-', 1).Cat(temp_buf);
+		}
+		PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_DBINFO);
+	}
 	return ok;
 }
 
@@ -8084,7 +8256,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 								temp_bch.Put(temp_buf.cptr(), temp_buf.Len());
 								pack.Pool.Put(SSecretTagPool::tagConfig, temp_bch);
 								if(foreign_face.GetCount()) {
-									if(foreign_face.ToJson(temp_buf)) {
+									if(foreign_face.ToJson(false, temp_buf)) {
 										temp_bch.Put(temp_buf.cptr(), temp_buf.Len());
 										pack.Pool.Put(SSecretTagPool::tagFace, temp_bch);
 									}
@@ -8134,7 +8306,7 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 										p_js_fcfg = 0;
 										//
 										if(foreign_face.GetCount()) {
-											SJson * p_js_fface = foreign_face.ToJson(true/*forTransmission*/);
+											SJson * p_js_fface = foreign_face.ToJsonObject(true/*forTransmission*/);
 											if(p_js_fface) {
 												p_js_reply->Insert("face", p_js_fface);
 												p_js_fface = 0;
@@ -8161,31 +8333,8 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				reply_text_buf.Transf(CTRANSF_INNER_TO_UTF8);
 			}
 			else if(command.IsEqiAscii("setface")) {
-				StyloQCore::StoragePacket cli_pack;
-				SBinaryChunk bc_face;
-				if(!rRcvPack.P.Get(SSecretTagPool::tagFace, &bc_face)) {
-				}
-				else if(!SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
-				}
-				else {
-					StyloQFace other_face;
-					assert(bc_face.Len()); // rRcvPack.P.Get гарантирует!
-					if(bc_face.Len() && other_face.FromJson(bc_face.ToRawStr(temp_buf))) {
-						// Необходимо модифицировать оригинальный face установкой
-						// фактического времени истечения срока действия //
-						other_face.Get(StyloQFace::tagExpiryPeriodSec, 0, temp_buf);
-						const int64 ees = EvaluateExpiryTime(temp_buf.ToLong());
-						if(ees > 0)
-							other_face.Set(StyloQFace::tagExpiryEpochSec, 0, temp_buf.Z().Cat(ees));
-						if(other_face.ToJson(temp_buf)) {
-							bc_face.Z().Cat(temp_buf.cptr(), temp_buf.Len());
-							cli_pack.Pool.Put(SSecretTagPool::tagFace, bc_face);
-							PPID   temp_id = cli_pack.Rec.ID;
-							if(P_T->PutPeerEntry(&temp_id, &cli_pack, 1)) {
-								cmd_reply_ok = true;
-							}
-						}
-					}					
+				if(GetAndStoreClientsFace(rRcvPack, rCliIdent) > 0) {
+					cmd_reply_ok = true;
 				}
 			}
 			else if(command.IsEqiAscii("getconfig") || command.IsEqiAscii("getface")) {
@@ -8220,6 +8369,10 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 						else
 							reply_face.Z(); */
 					}
+					//
+					// Возможно, в пакете с запросом конифигурации/лика клиент присал и собственный лик
+					//
+					GetAndStoreClientsFace(rRcvPack, rCliIdent);
 				}
 			}
 			else if(command.IsEqiAscii("getcommandlist")) {
@@ -8297,33 +8450,8 @@ int PPStyloQInterchange::ProcessCmd(const StyloQProtocol & rRcvPack, const SBina
 				StyloQCore::StoragePacket cli_pack;
 				if(SearchGlobalIdentEntry(StyloQCore::kClient, rCliIdent, &cli_pack) > 0) {
 					PPID   result_obj_id = 0;
-					PPID   result_obj_type = ProcessCommand_PostDocument(cli_pack, p_in_declaration, p_in_doc, &result_obj_id);
-					if(result_obj_type == PPOBJ_BILL) {
-						assert(result_obj_id);
-						S_GUID _uuid;
-						p_js_reply = new SJson(SJson::tOBJECT);
-						p_js_reply->InsertInt("result-objtype", result_obj_type);
-						p_js_reply->InsertInt("document-id", result_obj_id);
-						PPRef->Ot.GetTagGuid(PPOBJ_BILL, result_obj_id, PPTAG_BILL_UUID, _uuid);
-						if(!!_uuid) {
-							temp_buf.Z().Cat(_uuid, S_GUID::fmtIDL);
-							p_js_reply->InsertString("document-uuid", temp_buf);
-						}
-						p_js_reply->InsertString("result", "ok");
-						cmd_reply_ok = true;
-					}
-					else if(result_obj_type == PPOBJ_TSESSION) {
-						assert(result_obj_id);
-						S_GUID _uuid;
-						p_js_reply = new SJson(SJson::tOBJECT);
-						p_js_reply->InsertInt("result-objtype", result_obj_type);
-						p_js_reply->InsertInt("document-id", result_obj_id);
-						PPRef->Ot.GetTagGuid(PPOBJ_TSESSION, result_obj_id, PPTAG_TSESS_UUID, _uuid);
-						if(!!_uuid) {
-							temp_buf.Z().Cat(_uuid, S_GUID::fmtIDL);
-							p_js_reply->InsertString("document-uuid", temp_buf);
-						}
-						p_js_reply->InsertString("result", "ok");
+					p_js_reply = ProcessCommand_PostDocument(cli_pack, p_in_declaration, p_in_doc, &result_obj_id);
+					if(p_js_reply) {
 						cmd_reply_ok = true;
 					}
 				}
@@ -8535,7 +8663,7 @@ public:
 	{
 		delete P_Ic;
 	}
-	int SrpAuth()
+	int SrpAuth(const SBinaryChunk & rOtherPublic)
 	{
 		int    ok = 1;
 		int    debug_mark = 0;
@@ -8549,7 +8677,7 @@ public:
 		PPID   id = 0; // Внутренний идентификатор записи клиента в DBMS
 		SString temp_buf;
 		StyloQCore::StoragePacket storage_pack;
-		SBinaryChunk other_public;
+		// @v11.3.10 SBinaryChunk other_public;
 		SBinaryChunk my_public;
 		SBinaryChunk srp_s;
 		SBinaryChunk srp_v;
@@ -8558,9 +8686,11 @@ public:
 		SBinaryChunk __m; // M
 		SBinaryChunk temp_bc;
 		SBinaryChunk debug_cli_secret; // @debug do remove after debugging!
-		THROW(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public));
+		// @v11.3.10 THROW(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public));
 		//THROW_PP(TPack.P.Get(SSecretTagPool::tagClientIdent, &cli_ident), PPERR_SQ_UNDEFCLIID);
 		THROW_PP(CliIdent.Len(), PPERR_SQ_UNDEFCLIID);
+		assert(rOtherPublic.Len());
+		THROW_PP(rOtherPublic.Len(), PPERR_SQ_UNDEFSESSPUBKEY); // @v11.3.10
 		THROW(Login()); // @error (Inner service error: unable to login
 		THROW(SETIFZ(P_Ic, new PPStyloQInterchange));
 		B.Other.Put(SSecretTagPool::tagClientIdent, CliIdent);
@@ -8580,7 +8710,7 @@ public:
 			p_srp_vrf = P_Ic->CreateSrpPacket_Svc_Auth(my_public, CliIdent, srp_s, srp_v, __a, reply_tp);
 			props.Z();
 			assert(StartUp_Param.MqbInitParam.ConsumeParamList.getCount() == 0);
-			THROW(rpe.SetupStyloQRpc(my_public, other_public, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
+			THROW(rpe.SetupStyloQRpc(my_public, rOtherPublic, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
 			THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
 			//
 			const long cmto = PPMqbClient::SetupMessageTtl(__DefMqbConsumeTimeout, &props);
@@ -8651,14 +8781,14 @@ public:
 					B.Sess.Get(SSecretTagPool::tagSessionSecret, &_sess_secret);
 					assert(_sess_secret.Len());
 					assert(my_public.Len());
-					assert(other_public.Len());
+					// @v11.3.10 assert(rOtherPublic.Len());
 					assert(B.Sess.Get(SSecretTagPool::tagSessionPrivateKey, 0));
 					sess_pack.Pool.Put(SSecretTagPool::tagSessionPublicKey, my_public);
 					{
 						B.Sess.Get(SSecretTagPool::tagSessionPrivateKey, &temp_chunk);
 						sess_pack.Pool.Put(SSecretTagPool::tagSessionPrivateKey, temp_chunk);
 					}
-					sess_pack.Pool.Put(SSecretTagPool::tagSessionPublicKeyOther, other_public);
+					sess_pack.Pool.Put(SSecretTagPool::tagSessionPublicKeyOther, rOtherPublic);
 					sess_pack.Pool.Put(SSecretTagPool::tagSessionSecret, _sess_secret);
 					sess_pack.Pool.Put(SSecretTagPool::tagClientIdent, CliIdent);
 					// @v11.2.2 {
@@ -8695,19 +8825,20 @@ public:
 		delete p_srp_vrf;
 		return ok;
 	}
-	int Acquaintance()
+	int Acquaintance(const SBinaryChunk & rOtherPublic)
 	{
 		int    ok = 1;
 		PPMqbClient * p_mqbc = 0;
-		SBinaryChunk other_public;
+		//SBinaryChunk other_public;
 		SBinaryChunk my_public;
 		//SBinaryChunk sess_secret; // @debug
 		StyloQProtocol reply_tp;
 		PPMqbClient::RoutingParamEntry rpe;
 		PPMqbClient::MessageProperties props;
 		THROW_PP(CliIdent.Len(), PPERR_SQ_UNDEFCLIID);
-		THROW_PP(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_UNDEFSESSPUBKEY);
-		assert(other_public.Len());
+		// @v11.3.10 THROW_PP(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_UNDEFSESSPUBKEY);
+		assert(rOtherPublic.Len());
+		THROW_PP(rOtherPublic.Len(), PPERR_SQ_UNDEFSESSPUBKEY); // @v11.3.10
 		THROW(Login());
 		assert(P_Ic == 0);
 		THROW_SL(P_Ic = new PPStyloQInterchange);
@@ -8724,7 +8855,7 @@ public:
 			reply_tp.P.Put(SSecretTagPool::tagSessionPublicKey, my_public);
 			props.Z();
 			assert(StartUp_Param.MqbInitParam.ConsumeParamList.getCount() == 0);
-			THROW(rpe.SetupStyloQRpc(my_public, other_public, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
+			THROW(rpe.SetupStyloQRpc(my_public, rOtherPublic, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
 			THROW(reply_tp.FinishWriting(0));
 			THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
 			PPStyloQInterchange::SetupMqbReplyProps(B, props); // @v11.3.1 
@@ -8737,12 +8868,12 @@ public:
 		delete p_mqbc;
 		return ok;
 	}
-	int Session()
+	int Session(const SBinaryChunk & rOtherPublic)
 	{
 		int    ok = 1;
 		PPMqbClient * p_mqbc = 0;
 		SBinaryChunk temp_chunk;
-		SBinaryChunk other_public;
+		//@v11.3.10 SBinaryChunk other_public;
 		SBinaryChunk my_public;
 		//SBinaryChunk cli_ident;
 		SBinaryChunk sess_secret;
@@ -8751,25 +8882,26 @@ public:
 		PPMqbClient::RoutingParamEntry rpe;
 		PPMqbClient::MessageProperties props;
 		StyloQCore::StoragePacket pack;
-		THROW_PP(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_INPHASNTSESSPUBKEY); // PPERR_SQ_INPHASNTSESSPUBKEY Входящий запрос сессии не содержит публичного ключа
+		//@v11.3.10 THROW_PP(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_INPHASNTSESSPUBKEY); // PPERR_SQ_INPHASNTSESSPUBKEY Входящий запрос сессии не содержит публичного ключа
 		//THROW_PP(TPack.P.Get(SSecretTagPool::tagClientIdent, &cli_ident), PPERR_SQ_INPHASNTCLIIDENT); 
 		THROW_PP(CliIdent.Len(), PPERR_SQ_INPHASNTCLIIDENT); // PPERR_SQ_INPHASNTCLIIDENT   Входящий запрос сессии не содержит идентификатора контрагента
-		assert(other_public.Len());
+		assert(rOtherPublic.Len());
+		THROW_PP(rOtherPublic.Len(), PPERR_SQ_INPHASNTSESSPUBKEY);
 		//assert(cli_ident.Len());
 		THROW(Login());
 		assert(P_Ic == 0);
 		THROW_SL(P_Ic = new PPStyloQInterchange);
-		THROW(P_Ic->SearchSession(other_public, &pack) > 0); 
+		THROW(P_Ic->SearchSession(rOtherPublic, &pack) > 0); 
 		THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionPublicKey, &my_public), PPERR_SQ_INRSESSHASNTPUBKEY); // PPERR_SQ_INRSESSHASNTPUBKEY      Сохраненная сессия не содержит публичного ключа
 		THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionPublicKeyOther, &temp_chunk), PPERR_SQ_INRSESSHASNTOTHERPUBKEY); // PPERR_SQ_INRSESSHASNTOTHERPUBKEY Сохраненная сессия не содержит публичного ключа контрагента
-		THROW_PP(temp_chunk == other_public, PPERR_SQ_INRSESPUBKEYNEQTOOTR); // PPERR_SQ_INRSESPUBKEYNEQTOOTR   Публичный ключ сохраненной сессии не равен полученному от контрагента
+		THROW_PP(temp_chunk == rOtherPublic, PPERR_SQ_INRSESPUBKEYNEQTOOTR); // PPERR_SQ_INRSESPUBKEYNEQTOOTR   Публичный ключ сохраненной сессии не равен полученному от контрагента
 		THROW_PP(pack.Pool.Get(SSecretTagPool::tagClientIdent, &temp_chunk), PPERR_SQ_INRSESSHASNTCLIIDENT); // PPERR_SQ_INRSESSHASNTCLIIDENT   Сохраненная сессия не содержит идентификатора контрагента
 		THROW_PP(temp_chunk == CliIdent, PPERR_SQ_INRSESCLIIDENTNEQTOOTR); // PPERR_SQ_INRSESCLIIDENTNEQTOOTR Идентификатора контрагента сохраненной сессии не равен полученному от контрагента
 		THROW_PP(pack.Pool.Get(SSecretTagPool::tagSessionSecret, &sess_secret), PPERR_SQ_INRSESSHASNTSECRET); // PPERR_SQ_INRSESSHASNTSECRET     Сохраненная сессия не содержит секрета 
 		B.Sess.Put(SSecretTagPool::tagSessionSecret, sess_secret);
 		p_sess_secret = &sess_secret;
 		B.Other.Put(SSecretTagPool::tagClientIdent, CliIdent);
-		THROW(rpe.SetupStyloQRpc(my_public, other_public, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
+		THROW(rpe.SetupStyloQRpc(my_public, rOtherPublic, StartUp_Param.MqbInitParam.ConsumeParamList.CreateNewItem()));
 		reply_tp.StartWriting(PPSCMD_SQ_SESSION, StyloQProtocol::psubtypeReplyOk);
 		THROW(reply_tp.FinishWriting(0));
 		THROW(p_mqbc = PPMqbClient::CreateInstance(StartUp_Param.MqbInitParam));
@@ -8784,13 +8916,14 @@ public:
 	}
 	virtual void Run()
 	{
-		//PPMqbClient * p_mqbc = 0;
 		bool do_process_loop = false;
 		SString temp_buf;
 		SString log_buf;
 		StyloQProtocol tp;
 		StyloQProtocol reply_tp;
+		SBinaryChunk other_public;
 		PPMqbClient::MessageProperties props;
+		THROW_PP(TPack.P.Get(SSecretTagPool::tagSessionPublicKey, &other_public), PPERR_SQ_INPHASNTSESSPUBKEY); // PPERR_SQ_INPHASNTSESSPUBKEY Входящий запрос сессии не содержит публичного ключа
 		// @v11.3.1 {
 		{
 			SBinaryChunk bc_rti;
@@ -8814,7 +8947,7 @@ public:
 		//
 		switch(TPack.GetH().Type) {
 			case PPSCMD_SQ_ACQUAINTANCE:
-				if(Acquaintance()) {
+				if(Acquaintance(other_public)) {
 					assert(B.Sess.Get(SSecretTagPool::tagSessionSecret, 0));
 					do_process_loop = true; // OK
 				}
@@ -8823,7 +8956,7 @@ public:
 				}
 				break;
 			case PPSCMD_SQ_SESSION: // Команда инициации соединения по значению сессии, которая была установлена на предыдущем сеансе обмена
-				if(Session()) {
+				if(Session(other_public)) {
 					assert(B.Sess.Get(SSecretTagPool::tagSessionSecret, 0));
 					do_process_loop = true; // OK
 				}
@@ -8832,7 +8965,7 @@ public:
 				}
 				break;
 			case PPSCMD_SQ_SRPAUTH: // Команда инициации соединения методом SRP-авторизации по параметрам, установленным ранее 
-				if(SrpAuth()) {
+				if(SrpAuth(other_public)) {
 					assert(B.Sess.Get(SSecretTagPool::tagSessionSecret, 0));
 					do_process_loop = true; // OK
 				}
@@ -8989,6 +9122,16 @@ public:
 				}
 			}
 		}
+		CATCH
+			;
+		ENDCATCH
+		// @v11.3.10 {
+		if(B.P_Mqbc) {
+			//B.P_Mqbc->QueueUnbind();
+			B.P_Mqbc->Disconnect();
+			ZDELETE(B.P_Mqbc);
+		}
+		// } @v11.3.10 
 		ZDELETE(P_Ic);
 		Logout();
 	}
@@ -9354,8 +9497,11 @@ void RunStyloQMqbServer()
 														p_new_ll_entry->P.SvcIdent.Mime64(temp_buf);
 														SBinaryChunk * p_reckoned_svc_id = reckoned_svc_id_list.CreateNewItem();
 														ASSIGN_PTR(p_reckoned_svc_id, p_new_ll_entry->P.SvcIdent);
-														(msg_buf = "Stylo-Q MQB server's entry-point was created").CatDiv(':', 2).CatEq("db", p_map_entry->DbSymb).Space().
-															CatEq("host", p_new_ll_entry->P.MqbInitParam.Host).Space().CatEq("svcid", temp_buf);
+														// @v11.3.10 (msg_buf = "Stylo-Q MQB server's entry-point was created").CatDiv(':', 2).CatEq("db", p_map_entry->DbSymb).Space().
+														// @v11.3.10 	CatEq("host", p_new_ll_entry->P.MqbInitParam.Host).Space().CatEq("svcid", temp_buf);
+														PPLoadText(PPTXT_LOG_STQENTRYPOINTCREATED, msg_buf); // @v11.3.10 
+														msg_buf.CatDiv(':', 2).CatEq("db", p_map_entry->DbSymb).Space().
+															CatEq("host", p_new_ll_entry->P.MqbInitParam.Host).Space().CatEq("svcid", temp_buf); // @v11.3.10
 														PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
 													}
 												}
@@ -9374,8 +9520,8 @@ void RunStyloQMqbServer()
 			CALLPTRMEMB(p_srv, Start(0));
 		}
 		else {
-			msg_buf = "No Stylo-Q MQB server's entry-points were found";
-			PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
+			// @v11.3.10 msg_buf = "No Stylo-Q MQB server's entry-points were found";
+			PPLogMessage(PPFILNAM_SERVER_LOG, PPLoadTextS(PPTXT_LOG_STQMQBSVRENTPTNOTFOUND, msg_buf), LOGMSGF_TIME);
 		}
 	}
 	CATCHZOK

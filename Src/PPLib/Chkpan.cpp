@@ -6797,12 +6797,12 @@ IMPL_HANDLE_EVENT(CheckPaneDialog)
 							SString msg_buf;
 							//PPChZnPrcssr::ReconstructOriginalChZnCode(const GtinStruc & rS, SString & rBuf)
 							int r = P_CM->SyncPreprocessChZnCode(0, /*mark*/reconstructed_original, 1.0, 0, chzn_result);
-							msg_buf.CatEq("SyncPreprocessChZnCode-result", (long)r).CR();
-							msg_buf.CatEq("check-result", (long)chzn_result.CheckResult).CR();
-							msg_buf.CatEq("reason", (long)chzn_result.Reason).CR();
-							msg_buf.CatEq("processing-result", (long)chzn_result.ProcessingResult).CR();
-							msg_buf.CatEq("processing-code", (long)chzn_result.ProcessingCode).CR();
-							msg_buf.CatEq("status", (long)chzn_result.Status).CR();
+							msg_buf.CatEq("SyncPreprocessChZnCode-result", r).CR();
+							msg_buf.CatEq("check-result", chzn_result.CheckResult).CR();
+							msg_buf.CatEq("reason", chzn_result.Reason).CR();
+							msg_buf.CatEq("processing-result", chzn_result.ProcessingResult).CR();
+							msg_buf.CatEq("processing-code", chzn_result.ProcessingCode).CR();
+							msg_buf.CatEq("status", chzn_result.Status).CR();
 							PPChZnPrcssr::InputMark(mark, &reconstructed_original, msg_buf);
 						}						
 					}

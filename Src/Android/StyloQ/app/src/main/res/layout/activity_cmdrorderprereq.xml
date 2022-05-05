@@ -24,35 +24,41 @@
             android:orientation="vertical"
             android:padding="4dp"
             >
-            <LinearLayout
-                android:id="@+id/CTL_ACTIVITYHEAD_ROOT"
+            <LinearLayout style="@style/PageHeaderRegular"
+                android:id="@+id/CTL_PAGEHEADER_ROOT"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:background="@color/Primary"
-                android:layout_marginBottom="4dp"
-                android:padding="4dp"
+                android:layout_marginBottom="2dp"
                 >
+                <ImageView
+                    android:id="@+id/CTLIMG_PAGEHEADER_SVC"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:padding="2dp"
+                    android:layout_margin="2dp"
+                    android:layout_gravity="center_vertical">
+                </ImageView>
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:orientation="vertical"
                     >
-                    <TextView
-                        android:id="@+id/CTL_ACTIVITYHEAD_SVCNAME"
+                    <TextView style="@style/PageHeaderTitleText"
+                        android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:ems="16"
-                        android:textStyle="bold"
-                        android:textColor="@color/TextIcons"/>
-                    <TextView
-                        android:id="@+id/CTL_ACTIVITYHEAD_TITLE"
+                        android:textColor="@color/PrimaryText"/>
+                    <TextView style="@style/PageHeaderTopicText"
+                        android:id="@+id/CTL_PAGEHEADER_TOPIC"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:ems="12"
-                        android:textColor="@color/TextIcons"/>
+                        android:textColor="@color/PrimaryText"/>
                 </LinearLayout>
+                <!--
                 <View style="@style/FakeView"/>
+                -->
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

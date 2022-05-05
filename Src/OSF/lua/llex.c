@@ -208,7 +208,8 @@ static int read_numeral(LexState * ls, SemInfo * seminfo) {
 			save_and_next(ls);
 		else if(ls->current == '.')
 			save_and_next(ls);
-		else break;
+		else
+			break;
 	}
 	save(ls, '\0');
 	if(luaO_str2num(luaZ_buffer(ls->buff), &obj) == 0) /* format error? */
@@ -223,13 +224,13 @@ static int read_numeral(LexState * ls, SemInfo * seminfo) {
 		return TK_FLT;
 	}
 }
-
 /*
 ** skip a sequence '[=*[' or ']=*]'; if sequence is well formed, return
 ** its number of '='s; otherwise, return a negative number (-1 iff there
 ** are no '='s after initial bracket)
 */
-static int skip_sep(LexState * ls) {
+static int skip_sep(LexState * ls) 
+{
 	int count = 0;
 	int s = ls->current;
 	lua_assert(s == '[' || s == ']');
@@ -283,7 +284,8 @@ endloop:
 			luaZ_bufflen(ls->buff) - 2*(2 + sep));
 }
 
-static void esccheck(LexState * ls, int c, const char * msg) {
+static void esccheck(LexState * ls, int c, const char * msg) 
+{
 	if(!c) {
 		if(ls->current != EOZ)
 			save_and_next(ls); /* add current to buffer for error message */
@@ -291,13 +293,15 @@ static void esccheck(LexState * ls, int c, const char * msg) {
 	}
 }
 
-static int gethexa(LexState * ls) {
+static int gethexa(LexState * ls) 
+{
 	save_and_next(ls);
 	esccheck(ls, lisxdigit(ls->current), "hexadecimal digit expected");
 	return luaO_hexavalue(ls->current);
 }
 
-static int readhexaesc(LexState * ls) {
+static int readhexaesc(LexState * ls) 
+{
 	int r = gethexa(ls);
 	r = (r << 4) + gethexa(ls);
 	luaZ_buffremove(ls->buff, 2); /* remove saved chars from buffer */
@@ -321,7 +325,8 @@ static unsigned long readutf8esc(LexState * ls) {
 	return r;
 }
 
-static void utf8esc(LexState * ls) {
+static void utf8esc(LexState * ls) 
+{
 	char buff[UTF8BUFFSZ];
 	int n = luaO_utf8esc(buff, readutf8esc(ls));
 	for(; n > 0; n--) /* add 'buff' to string */

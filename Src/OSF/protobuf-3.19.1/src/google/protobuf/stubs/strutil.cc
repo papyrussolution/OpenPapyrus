@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -20,7 +19,6 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/stubs/stl_util.h>
 
 #ifdef _WIN32
 // MSVC has only _snprintf, not snprintf.
@@ -1122,18 +1120,16 @@ std::string SimpleItoa(unsigned long i) {
 		   : FastUInt64ToBufferLeft(i, buffer));
 }
 
-std::string SimpleItoa(long long i) {
+std::string SimpleItoa(long long i) 
+{
 	char buffer[kFastToBufferSize];
-	return (sizeof(i) == 4) ?
-	       FastInt32ToBuffer(i, buffer) :
-	       FastInt64ToBuffer(i, buffer);
+	return (sizeof(i) == 4) ? FastInt32ToBuffer(i, buffer) : FastInt64ToBuffer(i, buffer);
 }
 
-std::string SimpleItoa(unsigned long long i) {
+std::string SimpleItoa(unsigned long long i) 
+{
 	char buffer[kFastToBufferSize];
-	return std::string(buffer, (sizeof(i) == 4)
-		   ? FastUInt32ToBufferLeft(i, buffer)
-		   : FastUInt64ToBufferLeft(i, buffer));
+	return std::string(buffer, (sizeof(i) == 4) ? FastUInt32ToBufferLeft(i, buffer) : FastUInt64ToBufferLeft(i, buffer));
 }
 
 // ----------------------------------------------------------------------
@@ -1157,9 +1153,8 @@ std::string SimpleItoa(unsigned long long i) {
 //    give a precise result, but may use more digits than necessary.
 //
 //    An arguably better strategy would be to use the algorithm described
-//    in "How to Print Floating-Point Numbers Accurately" by Steele &
-//    White, e.g. as implemented by David M. Gay's dtoa().  It turns out,
-//    however, that the following implementation is about as fast as
+//    in "How to Print Floating-Point Numbers Accurately" by Steele & White, e.g. as implemented by David M. Gay's dtoa().  
+//    It turns out, however, that the following implementation is about as fast as
 //    DMG's code.  Furthermore, DMG's code locks mutexes, which means it
 //    will not scale well on multi-core machines.  DMG's code is slightly
 //    more accurate (in that it will never use more digits than
@@ -1173,27 +1168,24 @@ std::string SimpleItoa(unsigned long long i) {
 //    thus avoiding format string parsing overhead.  However, this makes
 //    it considerably more complicated than the following implementation,
 //    and it is embedded in a larger library.  If speed turns out to be
-//    an issue, we could re-implement this in terms of their
-//    implementation.
-// ----------------------------------------------------------------------
-
-std::string SimpleDtoa(double value) {
+//    an issue, we could re-implement this in terms of their implementation.
+//
+std::string SimpleDtoa(double value) 
+{
 	char buffer[kDoubleToBufferSize];
 	return DoubleToBuffer(value, buffer);
 }
 
-std::string SimpleFtoa(float value) {
+std::string SimpleFtoa(float value) 
+{
 	char buffer[kFloatToBufferSize];
 	return FloatToBuffer(value, buffer);
 }
 
-static inline bool IsValidFloatChar(char c) {
-	return ('0' <= c && c <= '9') ||
-	       c == 'e' || c == 'E' ||
-	       c == '+' || c == '-';
-}
+static inline bool IsValidFloatChar(char c) { return ('0' <= c && c <= '9') || c == 'e' || c == 'E' || c == '+' || c == '-'; }
 
-void DelocalizeRadix(char* buffer) {
+void DelocalizeRadix(char* buffer) 
+{
 	// Fast check:  if the buffer has a normal decimal point, assume no
 	// translation is needed.
 	if(strchr(buffer, '.') != nullptr) return;
@@ -1210,7 +1202,6 @@ void DelocalizeRadix(char* buffer) {
 	// with '.'.
 	*buffer = '.';
 	++buffer;
-
 	if(!IsValidFloatChar(*buffer) && *buffer != '\0') {
 		// It appears the radix was a multi-byte character.  We need to remove the
 		// extra bytes.
@@ -1222,7 +1213,8 @@ void DelocalizeRadix(char* buffer) {
 	}
 }
 
-char* DoubleToBuffer(double value, char* buffer) {
+char* DoubleToBuffer(double value, char* buffer) 
+{
 	// DBL_DIG is 15 for IEEE-754 doubles, which are used on almost all
 	// platforms these days.  Just in case some system exists where DBL_DIG
 	// is significantly larger -- and risks overflowing our buffer -- we have

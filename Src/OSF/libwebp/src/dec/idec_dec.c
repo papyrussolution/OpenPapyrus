@@ -742,7 +742,7 @@ WebPIDecoder* WebPINewYUVA(uint8* luma, size_t luma_size, int luma_stride,
 		if(u == NULL || v == NULL) return NULL;
 		if(luma_size == 0 || u_size == 0 || v_size == 0) return NULL;
 		if(luma_stride == 0 || u_stride == 0 || v_stride == 0) return NULL;
-		if(a != NULL) {
+		if(a) {
 			if(a_size == 0 || a_stride == 0) return NULL;
 		}
 		colorspace = (a == NULL) ? MODE_YUV : MODE_YUVA;
@@ -893,7 +893,7 @@ uint8* WebPIDecGetYUVA(const WebPIDecoder* idec, int* last_y,
 	if(last_y != NULL) *last_y = idec->params_.last_y;
 	if(u != NULL) *u = src->u.YUVA.u;
 	if(v != NULL) *v = src->u.YUVA.v;
-	if(a != NULL) *a = src->u.YUVA.a;
+	if(a) *a = src->u.YUVA.a;
 	if(width != NULL) *width = src->width;
 	if(height != NULL) *height = src->height;
 	if(stride != NULL) *stride = src->u.YUVA.y_stride;

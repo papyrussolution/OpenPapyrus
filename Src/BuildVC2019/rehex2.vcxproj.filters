@@ -1,0 +1,179 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\rehex\src\AboutDialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\app.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\ArtProvider.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\BasicDataTypes.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\buffer.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\ByteRangeSet.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\BytesPerLineDialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\ClickText.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\CodeCtrl.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\CommentTree.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\DataType.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\decodepanel.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\DiffWindow.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\disassemble.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\document.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\DocumentCtrl.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\EditCommentDialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\Events.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\FillRangeDialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\LicenseDialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\mainwindow.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\Palette.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\rehex-pch.cpp" />
+    <ClCompile Include="..\OSF\rehex\res\rehex-resource.c" />
+    <ClCompile Include="..\OSF\rehex\src\search.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\SelectRangeDialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\StringPanel.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\Tab.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\textentrydialog.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\ToolPanel.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\util.cpp" />
+    <ClCompile Include="..\OSF\rehex\res\version.cpp" />
+    <ClCompile Include="..\OSF\rehex\src\win32lib.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\rehex\src\AboutDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\app.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\ArtProvider.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\BasicDataTypes.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\buffer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\ByteRangeMap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\ByteRangeSet.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\BytesPerLineDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\ClickText.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\CodeCtrl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\CommentTree.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\DataType.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\decodepanel.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\DiffWindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\disassemble.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\document.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\DocumentCtrl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\EditCommentDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\Events.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\FillRangeDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\LicenseDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\mainwindow.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\NestedOffsetLengthMap.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\NumericEntryDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\NumericTextCtrl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\Palette.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\platform.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\SafeWindowPointer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\search.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\SelectRangeDialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\SharedDocumentPointer.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\StringPanel.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\Tab.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\textentrydialog.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\ToolPanel.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\util.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\win32lib.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\res\rehex-resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\res\version.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\res\version_msvc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\res\winres.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\include\portable_endian.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\rehex\src\rehex-internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

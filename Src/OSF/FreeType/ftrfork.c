@@ -352,47 +352,23 @@ CONST_FT_RFORK_RULE_ARRAY_END
 /****                       Helper functions      */
 /****                          */
 // 
+static FT_Error raccess_guess_apple_generic(FT_Library library, FT_Stream stream, char * base_file_name, FT_Int32 magic, FT_Long    * result_offset);
+static FT_Error raccess_guess_linux_double_from_file_name(FT_Library library, char *       file_name, FT_Long    * result_offset);
+static char * raccess_make_file_name(FT_Memory memory, const char  * original_name, const char  * insertion);
 
-static FT_Error raccess_guess_apple_generic(FT_Library library,
-    FT_Stream stream,
-    char * base_file_name,
-    FT_Int32 magic,
-    FT_Long    * result_offset);
-
-static FT_Error raccess_guess_linux_double_from_file_name(FT_Library library,
-    char *       file_name,
-    FT_Long    * result_offset);
-
-static char * raccess_make_file_name(FT_Memory memory,
-    const char  * original_name,
-    const char  * insertion);
-
-FT_BASE_DEF(void)
-FT_Raccess_Guess(FT_Library library,
-    FT_Stream stream,
-    char *       base_name,
-    char   ** new_names,
-    FT_Long    *offsets,
-    FT_Error   *errors)
+FT_BASE_DEF(void) FT_Raccess_Guess(FT_Library library, FT_Stream stream, char *       base_name, char   ** new_names, FT_Long    *offsets, FT_Error   *errors)
 {
 	FT_Int i;
-
 	for(i = 0; i < FT_RACCESS_N_RULES; i++) {
 		new_names[i] = NULL;
 		if(NULL != stream)
 			errors[i] = FT_Stream_Seek(stream, 0);
 		else
 			errors[i] = FT_Err_Ok;
-
 		if(errors[i])
 			continue;
-
-		errors[i] = ft_raccess_guess_table[i].func(library,
-			stream, base_name,
-			&(new_names[i]),
-			&(offsets[i]));
+		errors[i] = ft_raccess_guess_table[i].func(library, stream, base_name, &(new_names[i]), &(offsets[i]));
 	}
-
 	return;
 }
 

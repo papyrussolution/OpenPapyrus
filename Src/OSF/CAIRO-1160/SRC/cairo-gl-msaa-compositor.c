@@ -372,29 +372,21 @@ static cairo_int_status_t _cairo_gl_msaa_compositor_mask(const cairo_compositor_
 	   using the SOURCE compositing operator in one pass. This only matters if
 	   there actually is a mask (there isn't in a paint operation) and if the
 	   mask isn't totally opaque. */
-	if(op == CAIRO_OPERATOR_SOURCE &&
-	    composite->original_mask_pattern != NULL &&
-	    !_cairo_pattern_is_opaque(&composite->mask_pattern.base,
-	    &composite->mask_sample_area)) {
-		if(!_cairo_pattern_is_opaque(&composite->source_pattern.base,
-		    &composite->source_sample_area)) {
+	if(op == CAIRO_OPERATOR_SOURCE && composite->original_mask_pattern != NULL &&
+	    !_cairo_pattern_is_opaque(&composite->mask_pattern.base, &composite->mask_sample_area)) {
+		if(!_cairo_pattern_is_opaque(&composite->source_pattern.base, &composite->source_sample_area)) {
 			return _cairo_gl_msaa_compositor_mask_source_operator(compositor, composite);
 		}
-
 		/* If the source is opaque the operation reduces to OVER. */
 		op = CAIRO_OPERATOR_OVER;
 	}
-
 	if(_should_use_unbounded_surface(composite)) {
 		cairo_surface_t* surface = _prepare_unbounded_surface(dst);
-
 		if(UNLIKELY(surface == NULL))
 			return CAIRO_INT_STATUS_UNSUPPORTED;
-
 		/* This may be a paint operation. */
 		if(composite->original_mask_pattern == NULL) {
-			status = _cairo_compositor_paint(compositor, surface,
-				CAIRO_OPERATOR_SOURCE,
+			status = _cairo_compositor_paint(compositor, surface, CAIRO_OPERATOR_SOURCE,
 				&composite->source_pattern.base,
 				NULL);
 		}

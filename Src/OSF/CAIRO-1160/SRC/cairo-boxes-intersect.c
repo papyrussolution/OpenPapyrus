@@ -83,7 +83,7 @@ static void dump_traps(cairo_traps_t * traps, const char * filename)
 	if(getenv("CAIRO_DEBUG_TRAPS") == NULL)
 		return;
 	file = fopen(filename, "a");
-	if(file != NULL) {
+	if(file) {
 		for(n = 0; n < traps->num_traps; n++) {
 			fprintf(file, "%d %d L:(%d, %d), (%d, %d) R:(%d, %d), (%d, %d)\n",
 			    traps->traps[n].top,
@@ -424,7 +424,7 @@ static cairo_status_t _cairo_boxes_intersect_with_box(const cairo_boxes_t * boxe
 	if(out == boxes) { /* inplace update */
 		struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 		out->num_boxes = 0;
-		for(chunk = &out->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &out->chunks; chunk; chunk = chunk->next) {
 			for(i = j = 0; i < chunk->count; i++) {
 				cairo_box_t * b = &chunk->base[i];
 				b->p1.x = MAX(b->p1.x, box->p1.x);
@@ -446,7 +446,7 @@ static cairo_status_t _cairo_boxes_intersect_with_box(const cairo_boxes_t * boxe
 		const struct _cairo_boxes_t::_cairo_boxes_chunk * chunk;
 		_cairo_boxes_clear(out);
 		_cairo_boxes_limit(out, box, 1);
-		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 			for(i = 0; i < chunk->count; i++) {
 				status = _cairo_boxes_add(out, CAIRO_ANTIALIAS_DEFAULT, &chunk->base[i]);
 				if(UNLIKELY(status))
@@ -488,7 +488,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 		rectangles_ptrs = (rectangle_t**)(rectangles + count);
 	}
 	j = 0;
-	for(chunk = &a->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &a->chunks; chunk; chunk = chunk->next) {
 		const cairo_box_t * box = chunk->base;
 		for(i = 0; i < chunk->count; i++) {
 			if(box[i].p1.x < box[i].p2.x) {
@@ -513,7 +513,7 @@ cairo_status_t _cairo_boxes_intersect(const cairo_boxes_t * a, const cairo_boxes
 			j++;
 		}
 	}
-	for(chunk = &b->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &b->chunks; chunk; chunk = chunk->next) {
 		const cairo_box_t * box = chunk->base;
 		for(i = 0; i < chunk->count; i++) {
 			if(box[i].p1.x < box[i].p2.x) {

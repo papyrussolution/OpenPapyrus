@@ -550,7 +550,7 @@ static cairo_status_t _cairo_rectangular_scan_converter_generate(void * converte
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
 	}
 	j = 0;
-	for(chunk = &self->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &self->chunks; chunk; chunk = chunk->next) {
 		rectangle_t * rectangle = static_cast<rectangle_t *>(chunk->base);
 		for(i = 0; i < chunk->count; i++)
 			rectangles[j++] = &rectangle[i];

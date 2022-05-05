@@ -708,7 +708,8 @@ vk:
 		    e->k = VK;
 		    if(e->u.info <= MAXINDEXRK) /* constant fits in 'argC'? */
 			    return RKASK(e->u.info);
-		    else break;
+		    else 
+				break;
 		default: break;
 	}
 	/* not a constant in the right range: put it in a register */

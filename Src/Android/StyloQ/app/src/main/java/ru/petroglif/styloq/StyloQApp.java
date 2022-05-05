@@ -206,6 +206,10 @@ public class StyloQApp extends SLib.App {
 	{
 		return _StrStor.GetString(GetCurrentLang(), signature);
 	}
+	public String GetString(int strGroup, int strIdent)
+	{
+		return _StrStor.GetString(GetCurrentLang(), strGroup, strIdent);
+	}
 	public void DisplayMessage(Context anchorView, String msg, int duration)
 	{
 		Toast window = Toast.makeText(this, msg, duration);
@@ -361,20 +365,75 @@ public class StyloQApp extends SLib.App {
 		}
 		return result;
 	}
-	public static class SvcReplySubject {
-		public SvcReplySubject(byte [] svcIdent, String textSubj, StyloQCommand.Item cmdItem, String errorMessage)
+	public static class InterchangeResult {
+		InterchangeResult(SvcQueryResult tag, byte [] svcIdent, String textSubj, Object reply)
+		{
+			SvcIdent = svcIdent;
+			SvcReply = null;
+			ResultTag = tag;
+			InfoReply = reply;
+			OriginalCmdItem = null;
+			TextSubj = textSubj;
+			RetrActivity = null;
+		}
+		/*InterchangeResult(SvcQueryResult tag, byte [] svcIdent, StyloQCommand.Item cmdItem, Object reply)
+		{
+			SvcIdent = svcIdent;
+			SvcReply = null;
+			ResultTag = tag;
+			InfoReply = reply;
+			OriginalCmdItem = cmdItem;
+			TextSubj = null;
+			RetrActivity = null;
+		}*/
+		InterchangeResult(SvcQueryResult tag, @NotNull StyloQInterchange.DoInterchangeParam param, Object reply)
+		{
+			ResultTag = tag;
+			SvcIdent = param.SvcIdent;
+			RetrActivity = param.RetrActivity_;
+			OriginalCmdItem = param.OriginalCmdItem;
+			SvcReply = null;
+			InfoReply = reply;
+			TextSubj = null;
+		}
+		/*InterchangeResult(SvcQueryResult tag, byte [] svcIdent, SLib.SlActivity retrActivity, StyloQCommand.Item cmdItem, Object reply)
+		{
+			SvcIdent = svcIdent;
+			SvcReply = null;
+			ResultTag = tag;
+			InfoReply = reply;
+			OriginalCmdItem = cmdItem;
+			TextSubj = null;
+			RetrActivity = retrActivity;
+		}*/
+		String GetErrMsg()
+		{
+			return (InfoReply != null && InfoReply instanceof String) ? (String)InfoReply : null;
+		}
+		byte [] SvcIdent;
+		SecretTagPool SvcReply;
+		SvcQueryResult ResultTag;
+		Object InfoReply;
+		StyloQCommand.Item OriginalCmdItem;
+		SLib.SlActivity RetrActivity; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
+		String TextSubj;
+	}
+	/*public static class SvcReplySubject {
+		public SvcReplySubject(byte [] svcIdent, String textSubj, StyloQCommand.Item cmdItem, SLib.SlActivity retrActivity, String errorMessage)
 		{
 			SvcIdent = svcIdent;
 			OriginalCmdItem = cmdItem;
+			RetrActivity = retrActivity;
 			TextSubj = textSubj;
 			ErrorMessage = errorMessage;
 		}
 		byte [] SvcIdent;
 		StyloQCommand.Item OriginalCmdItem;
+		SLib.SlActivity RetrActivity; // @v11.3.10 activity в которую необходимо вернуть результат исполнения команды
 		String TextSubj;
 		String ErrorMessage;
-	}
-	void SendSvcReplyToMainThread(StyloQApp.SvcQueryResult resultTag, SvcReplySubject subj, Object reply)
+	}*/
+	void SendSvcReplyToMainThread(@NotNull InterchangeResult subj, Object reply)
 	{
 		class SendSvcReplyToMainThreadEngine implements Runnable {
 			private StyloQApp Ctx;
@@ -382,7 +441,7 @@ public class StyloQApp extends SLib.App {
 			{
 				Ctx = ctx;
 			}
-			@Override public void run() { Ctx.OnSvcQueryResult(resultTag, subj, reply); }
+			@Override public void run() { Ctx.OnSvcQueryResult(subj, reply); }
 		}
 		Looper lpr = Looper.getMainLooper();
 		if(lpr != null) {
@@ -398,7 +457,7 @@ public class StyloQApp extends SLib.App {
 		long   DocID;
 		boolean PostResult;
 	}
-	@NotNull public PostDocumentResult RunSvcPostDocumentCommand(byte [] svcIdent, Document doc)
+	@NotNull public PostDocumentResult RunSvcPostDocumentCommand(byte [] svcIdent, Document doc, SLib.SlActivity retrActivity)
 	{
 		PostDocumentResult result = new PostDocumentResult();
 		if(doc != null && doc.H != null && (doc.TiList != null && doc.TiList.size() > 0) || (doc.BkList != null && doc.BkList.size() > 0)) {
@@ -409,14 +468,17 @@ public class StyloQApp extends SLib.App {
 						long svc_id = svc_pack.Rec.ID;
 						JSONObject jsobj = doc.ToJsonObj();
 						if(jsobj != null) {
+							StyloQCommand.Item org_cmd_item = new StyloQCommand.Item();
+							org_cmd_item.Name = "PostDocument";
+							//
 							SecretTagPool doc_pool = new SecretTagPool();
 							JSONObject js_query = new JSONObject();
 							UUID doc_uuid = null;
 							String doc_uuid_text = jsobj.optString("uuid", null);
-							if(doc_uuid_text != null) {
+							if(SLib.GetLen(doc_uuid_text) > 0) {
 								doc_uuid = UUID.fromString(doc_uuid_text);
 							}
-							js_query.put("cmd", "PostDocument");
+							js_query.put("cmd", org_cmd_item.Name);
 							js_query.put("document", jsobj);
 
 							String js_text_doc = jsobj.toString();
@@ -441,7 +503,7 @@ public class StyloQApp extends SLib.App {
 								byte [] doc_ident = Db.MakeDocumentStorageIdent(svcIdent, doc_uuid);
 								result.DocID = Db.PutDocument(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, doc_ident, svc_id, doc_pool);
 								if(result.DocID > 0) {
-									if(DoSvcRequest(svc_pack, js_query.toString(), null)) {
+									if(DoSvcRequest(svc_pack, js_query.toString(), org_cmd_item, retrActivity)) {
 										result.PostResult = true;
 									}
 								}
@@ -529,8 +591,11 @@ public class StyloQApp extends SLib.App {
 						}
 						__pack = null;
 						StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
-						SvcReplySubject srsub = new SvcReplySubject(svcIdent, null, cmdItem, null);
-						this.SendSvcReplyToMainThread(StyloQApp.SvcQueryResult.SUCCESS, srsub, doc_ref);
+						//SvcReplySubject srsub = new SvcReplySubject(svcIdent, null, cmdItem, null, null);
+						StyloQInterchange.DoInterchangeParam fake_param = new StyloQInterchange.DoInterchangeParam(svcIdent);
+						fake_param.OriginalCmdItem = cmdItem;
+						InterchangeResult ir = new InterchangeResult(SvcQueryResult.SUCCESS, fake_param, null);
+						this.SendSvcReplyToMainThread(ir, doc_ref);
 						ok = true; // Запрос отправлять будет не нужно!
 					}
 					else { // Мы не обнаружили ранее сохраненного результата команды (или срок годности такового истек) - отправляем запрос.
@@ -538,7 +603,7 @@ public class StyloQApp extends SLib.App {
 						String cmd_text = cmdItem.Uuid.toString();
 						js_query.put("cmd", cmd_text);
 						js_query.put("time", System.currentTimeMillis());
-						if(DoSvcRequest(svc_pack, js_query.toString(), cmdItem)) {
+						if(DoSvcRequest(svc_pack, js_query.toString(), cmdItem, null)) {
 							StyloQCommand.StartPendingCommand(svcIdent, cmdItem);
 							ok = true;
 						}
@@ -553,7 +618,7 @@ public class StyloQApp extends SLib.App {
 		}
 		return ok;
 	}
-	private boolean DoSvcRequest(StyloQDatabase.SecStoragePacket svcPack, String cmdJson, StyloQCommand.Item orgCmdItem)
+	private boolean DoSvcRequest(StyloQDatabase.SecStoragePacket svcPack, String cmdJson, StyloQCommand.Item orgCmdItem, SLib.SlActivity retrActivity)
 	{
 		boolean ok = false;
 		String acspt_url = null;
@@ -593,8 +658,7 @@ public class StyloQApp extends SLib.App {
 						uriprot = SLib.GetUriSchemeId(uri.getScheme());
 					}
 				}
-				if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps ||
-					uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) {
+				if(uriprot == SLib.uripprotHttp || uriprot == SLib.uripprotHttps || uriprot == SLib.uripprotAMQP || uriprot == SLib.uripprotAMQPS) {
 					StyloQInterchange.DoInterchangeParam param = new StyloQInterchange.DoInterchangeParam(svc_ident);
 					param.AccsPoint = acspt_url;
 					param.MqbAuth = acspt_mqbauth;
@@ -602,6 +666,7 @@ public class StyloQApp extends SLib.App {
 					//param.AccsPoint = new String(accs_point_raw);
 					param.OriginalCmdItem = orgCmdItem;
 					param.CommandJson = cmdJson;
+					param.RetrActivity_ = retrActivity; // @v11.3.10
 					StyloQInterchange.RunClientInterchange(this, param);
 					ok = true;
 				}
@@ -640,7 +705,7 @@ public class StyloQApp extends SLib.App {
 					try {
 						JSONObject js_query = new JSONObject();
 						js_query.put("cmd", "GetCommandList");
-						if(DoSvcRequest(svcPack, js_query.toString(), null))
+						if(DoSvcRequest(svcPack, js_query.toString(), null, null))
 							ok = true;
 					} catch(JSONException exn){
 						ok = false;
@@ -696,163 +761,190 @@ public class StyloQApp extends SLib.App {
 	//
 	// Descr: Функция вызывается для обработки результата обращения к сервису.
 	//
-	public void OnSvcQueryResult(StyloQApp.SvcQueryResult resultTag, SvcReplySubject subj, Object reply)
+	public void OnSvcQueryResult(/*StyloQApp.SvcQueryResult resultTag,*/@NotNull InterchangeResult subj, Object reply)
 	{
-		String msg_text;
-		String subj_text = (subj != null) ? subj.TextSubj : "";
-		if(SLib.GetLen(subj_text) == 0 && reply != null && reply instanceof String)
-			subj_text = (String)reply;
-		StyloQCommand.Item original_cmd_item = (subj != null) ? subj.OriginalCmdItem : null;
-		if(subj.SvcIdent != null && original_cmd_item != null) {
-			StyloQCommand.StopPendingCommand(subj.SvcIdent, original_cmd_item);
-		}
-		if(resultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
-			if(SLib.GetLen(subj_text) > 0) {
-				msg_text = "Exception: " + subj_text;
-				DisplayMessage(null, msg_text, 5000);
+		if(subj != null) {
+			String msg_text;
+			String subj_text = subj.TextSubj;
+			if(SLib.GetLen(subj_text) == 0 && reply != null && reply instanceof String)
+				subj_text = (String) reply;
+			StyloQCommand.Item original_cmd_item = subj.OriginalCmdItem;
+			SLib.SlActivity retr_activity = subj.RetrActivity;
+			if(subj.SvcIdent != null && original_cmd_item != null) {
+				StyloQCommand.StopPendingCommand(subj.SvcIdent, original_cmd_item);
 			}
-			else
-				DisplayMessage(null, "Unknown exception", 5000);
-		}
-		else if(resultTag != StyloQApp.SvcQueryResult.ERROR && resultTag != SvcQueryResult.SUCCESS) {
-			if(SLib.GetLen(subj_text) > 0) {
-				msg_text = "UNKN result tag: " + subj_text;
-				DisplayMessage(null, msg_text, 5000);
-			}
-			else
-				DisplayMessage(null, "Unknown result", 5000);
-		}
-		else {
-			MainActivity main_activity = FindMainActivity();
-			byte [] rawdata = null;
-			if(original_cmd_item != null || subj_text.equalsIgnoreCase("Command")) {
-				Class intent_cls = null;
-				String svc_doc_json = null;
-				GlobalSearchActivity gs_activity = null; // Если мы получили ответ на поисковый запрос, то результат надо будет передать в
-					// существующию GlobalSearchActivity. Если таковая отсутствует,
-				StyloQCommand.DocReference doc_ref = null;
-				Intent intent = null;
-				if(reply != null) {
-					StyloQCommand.DocDeclaration doc_decl = null;
-					if(reply instanceof SecretTagPool) {
-						SecretTagPool stp_reply = (SecretTagPool) reply;
-						rawdata = stp_reply.Get(SecretTagPool.tagRawData);
-						byte[] raw_doc_decl = stp_reply.Get(SecretTagPool.tagDocDeclaration);
-						if(SLib.GetLen(raw_doc_decl) > 0) {
-							doc_decl = new StyloQCommand.DocDeclaration();
-							if(doc_decl.FromJson(new String(raw_doc_decl))) {
-								if(doc_decl.DisplayMethod.equalsIgnoreCase("grid"))
-									intent_cls = CmdRGridActivity.class;
-								else if(doc_decl.DisplayMethod.equalsIgnoreCase("orderprereq"))
-									intent_cls = CmdROrderPrereqActivity.class;
-								else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
-									intent_cls = CmdRAttendancePrereqActivity.class;
-								else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
-									//intent_cls = CmdRAttendancePrereqActivity.class;
-									//public MainActivity FindMainActivity()
-									{
-										List<Activity> al = ActivityUtils.getActivityList();
-										if(al != null) {
-											for(int i = 0; gs_activity == null && i < al.size(); i++) {
-												Activity a = al.get(i);
-												if(a != null && a instanceof GlobalSearchActivity)
-													gs_activity = (GlobalSearchActivity)a;
-											}
-										}
-									}
-									if(gs_activity == null)
-										intent_cls = GlobalSearchActivity.class;
-								}
-								if(doc_decl.Format.equalsIgnoreCase("json"))
-									svc_doc_json = new String(stp_reply.Get(SecretTagPool.tagRawData));
-							}
-						}
-						if(intent_cls == null && gs_activity == null)
-							intent_cls = CmdRSimpleActivity.class;
-					}
-					else if(reply instanceof StyloQCommand.DocReference) { // В качестве ответа передана ссылка на сохраненный документ
-						doc_ref = (StyloQCommand.DocReference)reply;
-						doc_decl = doc_ref.Decl;
-						if(doc_decl.DisplayMethod.equalsIgnoreCase("grid"))
-							intent_cls = CmdRGridActivity.class;
-						else if(doc_decl.DisplayMethod.equalsIgnoreCase("orderprereq"))
-							intent_cls = CmdROrderPrereqActivity.class;
-						else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
-							intent_cls = CmdRAttendancePrereqActivity.class;
-						if(intent_cls == null)
-							intent_cls = CmdRSimpleActivity.class;
-					}
-				}
-				if(gs_activity != null) {
-					class SendSearchResultToActivity implements Runnable {
-						private GlobalSearchActivity A;
-						private String Result;
-						SendSearchResultToActivity(GlobalSearchActivity ctx, String result)
-						{
-							A = ctx;
-							Result = result;
-						}
-						@Override public void run() { A.SetQueryResult(Result); }
-					}
-					Looper lpr = gs_activity.getMainLooper();
-					if(lpr != null) {
-						new Handler(lpr).post(new SendSearchResultToActivity(gs_activity, svc_doc_json));
-					}
-					//gs_activity.SetQueryResult(svc_doc_json);
-				}
-				else if(intent_cls != null) {
-					intent = new Intent(main_activity, intent_cls);
-					if(SLib.GetLen(subj.SvcIdent) > 0)
-						intent.putExtra("SvcIdent", subj.SvcIdent);
-					if(subj.OriginalCmdItem != null) {
-						if(SLib.GetLen(subj.OriginalCmdItem.Name) > 0)
-							intent.putExtra("CmdName", subj.OriginalCmdItem.Name);
-						if(SLib.GetLen(subj.OriginalCmdItem.Description) > 0)
-							intent.putExtra("CmdDescr", subj.OriginalCmdItem.Description);
-					}
-					if(doc_ref != null) {
-						intent.putExtra("SvcReplyDocID", doc_ref.ID);
-					}
-					else if(SLib.GetLen(svc_doc_json) > 0) {
-						intent.putExtra("SvcReplyDocJson", svc_doc_json);
-					}
-					else if(rawdata != null) {
-						String svc_reply_text = new String(rawdata);
-						intent.putExtra("SvcReplyText", svc_reply_text);
-					}
-					main_activity.startActivity(intent);
-				}
-			}
-			else if(resultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-				msg_text = "Success";
-				if(main_activity != null) {
-					if(subj_text.equalsIgnoreCase("UpdateCommandList")) {
-						if(reply instanceof byte[]) {
-							byte[] svc_ident = (byte[]) reply;
-							CommandListActivity cmdl_activity = FindCommandListActivityBySvcIdent(svc_ident);
-							if(cmdl_activity == null) {
-								Intent intent = new Intent(main_activity, CommandListActivity.class);
-								intent.putExtra("SvcIdent", svc_ident);
-								main_activity.startActivity(intent);
-							}
-						}
-					}
-					else if(subj_text.equalsIgnoreCase("RegistrationClientRequest")) {
-						if(reply instanceof Long) {
-							long new_svc_id = (Long)reply;
-							if(new_svc_id > 0)
-								main_activity.ReckonServiceEntryCreatedOrUpdated(new_svc_id);
-						}
-					}
-				}
-			}
-			else if(resultTag == StyloQApp.SvcQueryResult.ERROR) {
-				if(SLib.GetLen(subj_text) > 0) {
-					msg_text = "Error: " + subj_text;
+			if(subj.ResultTag == StyloQApp.SvcQueryResult.EXCEPTION) {
+				if(retr_activity != null)
+					retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+				else if(SLib.GetLen(subj_text) > 0) {
+					msg_text = "Exception: " + subj_text;
 					DisplayMessage(null, msg_text, 5000);
 				}
 				else
-					DisplayMessage(null, "Unknown error", 5000);
+					DisplayMessage(null, "Unknown exception", 5000);
+			}
+			else if(subj.ResultTag != StyloQApp.SvcQueryResult.ERROR && subj.ResultTag != SvcQueryResult.SUCCESS) {
+				if(retr_activity != null)
+					retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+				else if(SLib.GetLen(subj_text) > 0) {
+					msg_text = "UNKN result tag: " + subj_text;
+					DisplayMessage(null, msg_text, 5000);
+				}
+				else
+					DisplayMessage(null, "Unknown result", 5000);
+			}
+			else {
+				MainActivity main_activity = FindMainActivity();
+				byte[] rawdata = null;
+				if(original_cmd_item != null || retr_activity != null || subj_text.equalsIgnoreCase("Command")) {
+					Class intent_cls = null;
+					String svc_doc_json = null;
+					GlobalSearchActivity gs_activity = null; // Если мы получили ответ на поисковый запрос, то результат надо будет передать в
+					// существующию GlobalSearchActivity. Если таковая отсутствует,
+					StyloQCommand.DocReference doc_ref = null;
+					Intent intent = null;
+					if(reply != null) {
+						StyloQCommand.DocDeclaration doc_decl = null;
+						if(reply instanceof SecretTagPool) {
+							SecretTagPool stp_reply = (SecretTagPool) reply;
+							rawdata = stp_reply.Get(SecretTagPool.tagRawData);
+							byte[] raw_doc_decl = stp_reply.Get(SecretTagPool.tagDocDeclaration);
+							List<Activity> current_activity_list = ActivityUtils.getActivityList();
+							if(retr_activity != null) {
+								boolean ra_found = false;
+								if(current_activity_list != null) {
+									for(int i = 0; !ra_found && i < current_activity_list.size(); i++) {
+										Activity a = current_activity_list.get(i);
+										if(a != null && a instanceof SLib.SlActivity && a == retr_activity)
+											ra_found = true;
+									}
+								}
+								if(!ra_found)
+									retr_activity = null;
+							}
+							if(retr_activity == null) { // Если было изначально указано в какую Activity отправлять результат, то не надо создавать что-то еще
+								if(SLib.GetLen(raw_doc_decl) > 0) {
+									doc_decl = new StyloQCommand.DocDeclaration();
+									if(doc_decl.FromJson(new String(raw_doc_decl))) {
+										if(doc_decl.DisplayMethod.equalsIgnoreCase("grid"))
+											intent_cls = CmdRGridActivity.class;
+										else if(doc_decl.DisplayMethod.equalsIgnoreCase("orderprereq"))
+											intent_cls = CmdROrderPrereqActivity.class;
+										else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
+											intent_cls = CmdRAttendancePrereqActivity.class;
+										else if(doc_decl.DisplayMethod.equalsIgnoreCase("search")) {
+											//intent_cls = CmdRAttendancePrereqActivity.class;
+											//public MainActivity FindMainActivity()
+											if(current_activity_list != null) {
+												for(int i = 0; gs_activity == null && i < current_activity_list.size(); i++) {
+													Activity a = current_activity_list.get(i);
+													if(a != null && a instanceof GlobalSearchActivity)
+														gs_activity = (GlobalSearchActivity) a;
+												}
+											}
+											if(gs_activity == null)
+												intent_cls = GlobalSearchActivity.class;
+										}
+										if(doc_decl.Format.equalsIgnoreCase("json"))
+											svc_doc_json = new String(stp_reply.Get(SecretTagPool.tagRawData));
+									}
+								}
+								if(intent_cls == null && gs_activity == null)
+									intent_cls = CmdRSimpleActivity.class;
+							}
+						}
+						else if(reply instanceof StyloQCommand.DocReference) { // В качестве ответа передана ссылка на сохраненный документ
+							doc_ref = (StyloQCommand.DocReference) reply;
+							doc_decl = doc_ref.Decl;
+							if(doc_decl.DisplayMethod.equalsIgnoreCase("grid"))
+								intent_cls = CmdRGridActivity.class;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("orderprereq"))
+								intent_cls = CmdROrderPrereqActivity.class;
+							else if(doc_decl.DisplayMethod.equalsIgnoreCase("attendanceprereq"))
+								intent_cls = CmdRAttendancePrereqActivity.class;
+							if(intent_cls == null)
+								intent_cls = CmdRSimpleActivity.class;
+						}
+					}
+					if(retr_activity != null)
+						retr_activity.HandleEvent(SLib.EV_SVCQUERYRESULT, null, subj);
+					else if(gs_activity != null) {
+						class SendSearchResultToActivity implements Runnable {
+							private GlobalSearchActivity A;
+							private String Result;
+							SendSearchResultToActivity(GlobalSearchActivity ctx, String result)
+							{
+								A = ctx;
+								Result = result;
+							}
+							@Override
+							public void run()
+							{
+								A.SetQueryResult(Result);
+							}
+						}
+						Looper lpr = gs_activity.getMainLooper();
+						if(lpr != null) {
+							new Handler(lpr).post(new SendSearchResultToActivity(gs_activity, svc_doc_json));
+						}
+						//gs_activity.SetQueryResult(svc_doc_json);
+					}
+					else if(intent_cls != null) {
+						intent = new Intent(main_activity, intent_cls);
+						if(SLib.GetLen(subj.SvcIdent) > 0)
+							intent.putExtra("SvcIdent", subj.SvcIdent);
+						if(subj.OriginalCmdItem != null) {
+							if(subj.OriginalCmdItem.Uuid != null)
+								intent.putExtra("CmdUuid", subj.OriginalCmdItem.Uuid.toString());
+							if(SLib.GetLen(subj.OriginalCmdItem.Name) > 0)
+								intent.putExtra("CmdName", subj.OriginalCmdItem.Name);
+							if(SLib.GetLen(subj.OriginalCmdItem.Description) > 0)
+								intent.putExtra("CmdDescr", subj.OriginalCmdItem.Description);
+						}
+						if(doc_ref != null) {
+							intent.putExtra("SvcReplyDocID", doc_ref.ID);
+						}
+						else if(SLib.GetLen(svc_doc_json) > 0) {
+							intent.putExtra("SvcReplyDocJson", svc_doc_json);
+						}
+						else if(rawdata != null) {
+							String svc_reply_text = new String(rawdata);
+							intent.putExtra("SvcReplyText", svc_reply_text);
+						}
+						main_activity.startActivity(intent);
+					}
+				}
+				else if(subj.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+					msg_text = "Success";
+					if(main_activity != null) {
+						if(subj_text.equalsIgnoreCase("UpdateCommandList")) {
+							if(reply instanceof byte[]) {
+								byte[] svc_ident = (byte[]) reply;
+								CommandListActivity cmdl_activity = FindCommandListActivityBySvcIdent(svc_ident);
+								if(cmdl_activity == null) {
+									Intent intent = new Intent(main_activity, CommandListActivity.class);
+									intent.putExtra("SvcIdent", svc_ident);
+									main_activity.startActivity(intent);
+								}
+							}
+						}
+						else if(subj_text.equalsIgnoreCase("RegistrationClientRequest")) {
+							if(reply instanceof Long) {
+								long new_svc_id = (Long) reply;
+								if(new_svc_id > 0)
+									main_activity.ReckonServiceEntryCreatedOrUpdated(new_svc_id);
+							}
+						}
+					}
+				}
+				else if(subj.ResultTag == StyloQApp.SvcQueryResult.ERROR) {
+					if(SLib.GetLen(subj_text) > 0) {
+						msg_text = "Error: " + subj_text;
+						DisplayMessage(null, msg_text, 5000);
+					}
+					else
+						DisplayMessage(null, "Unknown error", 5000);
+				}
 			}
 		}
 	}

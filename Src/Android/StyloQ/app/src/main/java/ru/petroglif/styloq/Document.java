@@ -41,7 +41,10 @@ public class Document {
 			Qtty = 0.0;
 			Cost = 0.0;
 			Price = 0.0;
+			Discount = 0.0;
 		}
+		public double GetAmount_Cost() { return (Qtty * Cost); }
+		public double GetAmount_Price() { return (Qtty * (Price-Discount)); }
 		public final boolean IsEmpty()
 		{
 			return !(Qtty > 0.0 || Cost > 0.0 || Price > 0.0);
@@ -49,6 +52,7 @@ public class Document {
 		double Qtty;
 		double Cost;
 		double Price;
+		double Discount;
 	}
 	public static class TransferItem {
 		public boolean CanMerge(final TransferItem testItem)
@@ -94,6 +98,8 @@ public class Document {
 			Set = new ValuSet();
 			XcL = null;
 		}
+		double GetAmount_Cost() { return (Set != null) ? Set.GetAmount_Cost() : 0.0; }
+		double GetAmount_Price() { return (Set != null) ? Set.GetAmount_Price() : 0.0; }
 		int    RowIdx;  // [1..]
 		int    GoodsID; // service-domain-id
 		int    UnitID;  // service-domain-id
@@ -154,6 +160,34 @@ public class Document {
 		VXcL = null;
 		return this;
 	}
+	double GetNominalAmount()
+	{
+		return (H != null) ? H.Amount : 0.0;
+	}
+	double CalcNominalAmount()
+	{
+		double amount = 0.0;
+		if(TiList != null) {
+			for(int i = 0; i < TiList.size(); i++) {
+				TransferItem ti = TiList.get(i);
+				if(ti != null)
+					amount += ti.GetAmount_Price();
+			}
+		}
+		return amount;
+	}
+	//
+	// Descr: Выполняет завершающие операции над документом, включающие
+	//   внутрениие расчеты и проверку инвариантов.
+	//
+	boolean Finalize()
+	{
+		boolean ok = true;
+		if(H != null) {
+			H.Amount = CalcNominalAmount();
+		}
+		return ok;
+	}
 	JSONObject ToJsonObj()
 	{
 		JSONObject result = new JSONObject();
@@ -193,26 +227,50 @@ public class Document {
 					result.put("memo", H.Memo);
 				if(TiList != null && TiList.size() > 0) {
 					JSONArray js_list = new JSONArray();
+					boolean is_list_empty = true;
 					for(int i = 0; i < TiList.size(); i++) {
 						TransferItem ti = TiList.get(i);
 						if(ti != null) {
 							JSONObject js_item = new JSONObject();
 							js_item.put("rowidx", ti.RowIdx);
-							js_item.put("goodsid", ti.GoodsID);
-							if(ti.UnitID > 0)
-								js_item.put("unitid", ti.UnitID);
-							js_item.put("flags", ti.Flags);
-							if(ti.Set != null) {
-								JSONObject js_ti_set = new JSONObject();
-								js_ti_set.put("qtty", ti.Set.Qtty);
-								js_ti_set.put("cost", ti.Set.Cost);
-								js_ti_set.put("price", ti.Set.Price);
-								js_item.put("set", js_ti_set);
+							if(ti.GoodsID > 0) {
+								js_item.put("goodsid", ti.GoodsID);
+								if(ti.UnitID > 0)
+									js_item.put("unitid", ti.UnitID);
+								js_item.put("flags", ti.Flags);
+								if(ti.Set != null) {
+									JSONObject js_ti_set = new JSONObject();
+									boolean is_empty = true;
+									if(ti.Set.Qtty != 0.0) {
+										js_ti_set.put("qtty", ti.Set.Qtty);
+										is_empty = false;
+									}
+									if(ti.Set.Cost != 0.0) {
+										js_ti_set.put("cost", ti.Set.Cost);
+										is_empty = false;
+									}
+									if(ti.Set.Price != 0.0) {
+										js_ti_set.put("price", ti.Set.Price);
+										is_empty = false;
+									}
+									if(ti.Set.Discount != 0.0) {
+										js_ti_set.put("discount", ti.Set.Discount);
+										is_empty = false;
+									}
+									if(is_empty)
+										js_ti_set = null;
+									else
+										js_item.put("set", js_ti_set);
+								}
+								js_list.put(js_item);
+								is_list_empty = false;
 							}
-							js_list.put(js_item);
 						}
 					}
-					result.put("ti_list", js_list);
+					if(is_list_empty)
+						js_list = null;
+					else
+						result.put("ti_list", js_list);
 				}
 				if(BkList != null && BkList.size() > 0) {
 					JSONArray js_list = new JSONArray();
@@ -321,6 +379,7 @@ public class Document {
 								ti.Set.Qtty = js_set.optDouble("qtty", 0.0);
 								ti.Set.Cost = js_set.optDouble("cost", 0.0);
 								ti.Set.Price = js_set.optDouble("price", 0.0);
+								ti.Set.Discount = js_set.optDouble("discount", 0.0);
 							}
 							if(TiList == null)
 								TiList = new ArrayList<TransferItem>();

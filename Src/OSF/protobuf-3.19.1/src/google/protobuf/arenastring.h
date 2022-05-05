@@ -19,15 +19,13 @@
 #ifndef GOOGLE_PROTOBUF_ARENASTRING_H__
 #define GOOGLE_PROTOBUF_ARENASTRING_H__
 
-#include <string>
-#include <type_traits>
-#include <utility>
-
+//#include <string>
+//#include <type_traits>
+//#include <utility>
 #include <google/protobuf/stubs/logging.h>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/arena.h>
 #include <google/protobuf/port.h>
-
 #include <google/protobuf/port_def.inc>
 
 #ifdef SWIG

@@ -1628,7 +1628,7 @@ static cairo_status_t _cairo_botor_scan_converter_generate(void * converter, cai
 		event_ptrs = (event_t**)(events + num_events);
 	}
 	j = 0;
-	for(chunk = &self->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &self->chunks; chunk; chunk = chunk->next) {
 		edge_t * edge = (edge_t *)chunk->base;
 		for(i = 0; i < chunk->count; i++) {
 			event_ptrs[j] = (event_t*)&events[j];

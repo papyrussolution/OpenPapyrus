@@ -16,18 +16,6 @@
 // contributors may be used to endorse or promote products derived from
 // this software without specific prior written permission.
 //
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 // Author: kenton@google.com (Kenton Varda)
 //  Based on original Protocol Buffers design by
 //  Sanjay Ghemawat, Jeff Dean, and others.
@@ -160,27 +148,11 @@ protected:
 	// generate given these inputs.  message_name is the name of the first
 	// message that appeared in the proto file; this is just to make extra
 	// sure that the correct file was parsed.
-	void ExpectGenerated(const std::string& generator_name,
-	    const std::string& parameter,
-	    const std::string& proto_name,
-	    const std::string& message_name);
-	void ExpectGenerated(const std::string& generator_name,
-	    const std::string& parameter,
-	    const std::string& proto_name,
-	    const std::string& message_name,
-	    const std::string& output_directory);
-	void ExpectGeneratedWithMultipleInputs(const std::string& generator_name,
-	    const std::string& all_proto_names,
-	    const std::string& proto_name,
-	    const std::string& message_name);
-	void ExpectGeneratedWithInsertions(const std::string& generator_name,
-	    const std::string& parameter,
-	    const std::string& insertions,
-	    const std::string& proto_name,
-	    const std::string& message_name);
-	void CheckGeneratedAnnotations(const std::string& name,
-	    const std::string& file);
-
+	void ExpectGenerated(const std::string& generator_name, const std::string& parameter, const std::string& proto_name, const std::string& message_name);
+	void ExpectGenerated(const std::string& generator_name, const std::string& parameter, const std::string& proto_name, const std::string& message_name, const std::string& output_directory);
+	void ExpectGeneratedWithMultipleInputs(const std::string& generator_name, const std::string& all_proto_names, const std::string& proto_name, const std::string& message_name);
+	void ExpectGeneratedWithInsertions(const std::string& generator_name, const std::string& parameter, const std::string& insertions, const std::string& proto_name, const std::string& message_name);
+	void CheckGeneratedAnnotations(const std::string& name, const std::string& file);
 #if defined(_WIN32)
 	void ExpectNullCodeGeneratorCalled(const std::string& parameter);
 #endif  // _WIN32
@@ -426,45 +398,42 @@ void CommandLineInterfaceTest::ExpectGenerated(const std::string& generator_name
 }
 
 void CommandLineInterfaceTest::ExpectGenerated(const std::string& generator_name, const std::string& parameter,
-    const std::string& proto_name, const std::string& message_name,
-    const std::string& output_directory) {
-	MockCodeGenerator::ExpectGenerated(generator_name, parameter, "", proto_name,
-	    message_name, proto_name,
-	    temp_directory_ + "/" + output_directory);
+    const std::string& proto_name, const std::string& message_name, const std::string& output_directory) 
+{
+	MockCodeGenerator::ExpectGenerated(generator_name, parameter, "", proto_name, message_name, proto_name, temp_directory_ + "/" + output_directory);
 }
 
 void CommandLineInterfaceTest::ExpectGeneratedWithMultipleInputs(const std::string& generator_name, const std::string& all_proto_names,
-    const std::string& proto_name, const std::string& message_name) {
-	MockCodeGenerator::ExpectGenerated(generator_name, "", "", proto_name,
-	    message_name, all_proto_names,
-	    temp_directory_);
+    const std::string& proto_name, const std::string& message_name) 
+{
+	MockCodeGenerator::ExpectGenerated(generator_name, "", "", proto_name, message_name, all_proto_names, temp_directory_);
 }
 
 void CommandLineInterfaceTest::ExpectGeneratedWithInsertions(const std::string& generator_name, const std::string& parameter,
-    const std::string& insertions, const std::string& proto_name,
-    const std::string& message_name) {
-	MockCodeGenerator::ExpectGenerated(generator_name, parameter, insertions,
-	    proto_name, message_name, proto_name,
-	    temp_directory_);
+    const std::string& insertions, const std::string& proto_name, const std::string& message_name) 
+{
+	MockCodeGenerator::ExpectGenerated(generator_name, parameter, insertions, proto_name, message_name, proto_name, temp_directory_);
 }
 
-void CommandLineInterfaceTest::CheckGeneratedAnnotations(const std::string& name, const std::string& file) {
+void CommandLineInterfaceTest::CheckGeneratedAnnotations(const std::string& name, const std::string& file) 
+{
 	MockCodeGenerator::CheckGeneratedAnnotations(name, file, temp_directory_);
 }
 
 #if defined(_WIN32)
-void CommandLineInterfaceTest::ExpectNullCodeGeneratorCalled(const std::string& parameter) {
+void CommandLineInterfaceTest::ExpectNullCodeGeneratorCalled(const std::string& parameter) 
+{
 	EXPECT_TRUE(null_generator_->called_);
 	EXPECT_EQ(parameter, null_generator_->parameter_);
 }
 
 #endif  // _WIN32
 
-void CommandLineInterfaceTest::ReadDescriptorSet(const std::string& filename, FileDescriptorSet* descriptor_set) {
+void CommandLineInterfaceTest::ReadDescriptorSet(const std::string& filename, FileDescriptorSet* descriptor_set) 
+{
 	std::string path = temp_directory_ + "/" + filename;
 	std::string file_contents;
 	GOOGLE_CHECK_OK(File::GetContents(path, &file_contents, true));
-
 	if(!descriptor_set->ParseFromString(file_contents)) {
 		FAIL() << "Could not parse file contents: " << path;
 	}
@@ -491,17 +460,13 @@ void CommandLineInterfaceTest::ExpectCapturedStderrSubstringWithZeroReturnCode(c
 	EXPECT_PRED_FORMAT2(testing::IsSubstring, expected_substring, error_text_);
 }
 
-void CommandLineInterfaceTest::ExpectFileContent(const std::string& filename,
-    const std::string& content) {
+void CommandLineInterfaceTest::ExpectFileContent(const std::string& filename, const std::string& content) 
+{
 	std::string path = temp_directory_ + "/" + filename;
 	std::string file_contents;
 	GOOGLE_CHECK_OK(File::GetContents(path, &file_contents, true));
-
-	EXPECT_EQ(StringReplace(content, "$tmpdir", temp_directory_, true),
-	    file_contents);
+	EXPECT_EQ(StringReplace(content, "$tmpdir", temp_directory_, true), file_contents);
 }
-
-// ===================================================================
 
 TEST_F(CommandLineInterfaceTest, BasicOutput) 
 {
@@ -2551,30 +2516,25 @@ TEST_P(EncodeDecodeTest, ProtoParseError) {
 		"net/proto2/internal/no_such_file.proto: No such file or directory\n");
 }
 
-TEST_P(EncodeDecodeTest, EncodeDeterministicOutput) {
+TEST_P(EncodeDecodeTest, EncodeDeterministicOutput) 
+{
 	RedirectStdinFromFile(TestUtil::GetTestDataPath(
 		    "net/proto2/internal/"
 		    "testdata/text_format_unittest_data_oneof_implemented.txt"));
 	std::string args;
 	if(GetParam() != DESCRIPTOR_SET_IN) {
-		args.append(
-			TestUtil::MaybeTranslatePath("net/proto2/internal/unittest.proto"));
+		args.append(TestUtil::MaybeTranslatePath("net/proto2/internal/unittest.proto"));
 	}
-	EXPECT_TRUE(Run(
-		    args + " --encode=protobuf_unittest.TestAllTypes --deterministic_output"));
-	ExpectStdoutMatchesBinaryFile(TestUtil::GetTestDataPath(
-		    "net/proto2/internal/testdata/golden_message_oneof_implemented"));
+	EXPECT_TRUE(Run(args + " --encode=protobuf_unittest.TestAllTypes --deterministic_output"));
+	ExpectStdoutMatchesBinaryFile(TestUtil::GetTestDataPath("net/proto2/internal/testdata/golden_message_oneof_implemented"));
 	ExpectStderrMatchesText("");
 }
 
-TEST_P(EncodeDecodeTest, DecodeDeterministicOutput) {
-	RedirectStdinFromFile(TestUtil::GetTestDataPath(
-		    "net/proto2/internal/testdata/golden_message_oneof_implemented"));
-	EXPECT_FALSE(
-		Run(TestUtil::MaybeTranslatePath("net/proto2/internal/unittest.proto") +
-		" --decode=protobuf_unittest.TestAllTypes --deterministic_output"));
-	ExpectStderrMatchesText(
-		"Can only use --deterministic_output with --encode.\n");
+TEST_P(EncodeDecodeTest, DecodeDeterministicOutput) 
+{
+	RedirectStdinFromFile(TestUtil::GetTestDataPath("net/proto2/internal/testdata/golden_message_oneof_implemented"));
+	EXPECT_FALSE(Run(TestUtil::MaybeTranslatePath("net/proto2/internal/unittest.proto") + " --decode=protobuf_unittest.TestAllTypes --deterministic_output"));
+	ExpectStderrMatchesText("Can only use --deterministic_output with --encode.\n");
 }
 
 INSTANTIATE_TEST_SUITE_P(FileDescriptorSetSource, EncodeDecodeTest,

@@ -184,6 +184,13 @@ public class MqbClient {
 		boolean is_autodel = (queueFlags & mqofAutoDelete) != 0;
 		try {
 			r = Chnnl.queueDeclare(queueName, is_durable, is_exclusive, is_autodel, null);
+			// @v11.3.10 {
+			if(is_autodel) {
+				if(AutoDeleteDeclaredQueues == null)
+					AutoDeleteDeclaredQueues = new ArrayList<String>();
+				AutoDeleteDeclaredQueues.add(queueName);
+			}
+			// } @v11.3.10
 		} catch(IOException exn) {
 			ok = false;
 			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
@@ -198,6 +205,36 @@ public class MqbClient {
 		THROW(Chnnl != null, ppstr2.PPERR_MQBC_NOTINITED);
 		try {
 			r = Chnnl.queueBind(queueName, exchangeName, routingKey);
+			ok = true;
+		} catch(IOException exn) {
+			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+		}
+		return ok;
+	}
+	boolean QueueUnbind(final String queueName, final String exchangeName, final String routingKey) throws StyloQException
+	{
+		boolean ok = false;
+		AMQP.Queue.UnbindOk r;
+		THROW(SLib.GetLen(queueName) > 0, ppstr2.PPERR_MQBC_EMPTYQUEUENAME);
+		THROW(Chnnl != null, ppstr2.PPERR_MQBC_NOTINITED);
+		try {
+			r = Chnnl.queueUnbind(queueName, exchangeName, routingKey);
+			ok = true;
+		} catch(IOException exn) {
+			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
+		}
+		return ok;
+	}
+	boolean QueueDelete(final String queueName) throws StyloQException
+	{
+		boolean ok = false;
+		AMQP.Queue.DeleteOk r;
+		THROW(SLib.GetLen(queueName) > 0, ppstr2.PPERR_MQBC_EMPTYQUEUENAME);
+		THROW(Chnnl != null, ppstr2.PPERR_MQBC_NOTINITED);
+		try {
+			boolean if_unused = false;
+			boolean if_empty = false;
+			r = Chnnl.queueDelete(queueName, if_unused, if_empty);
 			ok = true;
 		} catch(IOException exn) {
 			new StyloQException(ppstr2.PPERR_JEXN_IO, exn.getMessage());
@@ -225,6 +262,7 @@ public class MqbClient {
 	}
 	public MqbClient(final InitParam param) throws StyloQException
 	{
+		AutoDeleteDeclaredQueues = null;
 		ConnFactory = new ConnectionFactory();
 		if(param != null) {
 			Open(param);
@@ -265,6 +303,20 @@ public class MqbClient {
 	public void Close() /*throws StyloQException*/
 	{
 		try {
+			// @v11.3.10 {
+			if(AutoDeleteDeclaredQueues != null) {
+				for(int i = 0; i < AutoDeleteDeclaredQueues.size(); i++) {
+					String queue_name = AutoDeleteDeclaredQueues.get(i);
+					if(SLib.GetLen(queue_name) > 0) {
+						try {
+							QueueDelete(queue_name);
+						} catch(StyloQException exn) {
+							;
+						}
+					}
+				}
+			}
+			// } @v11.3.10
 			if(Chnnl != null) {
 				Chnnl.close();
 				Chnnl = null;
@@ -334,4 +386,5 @@ public class MqbClient {
 	private Connection Conn; //= ConnFactory.newConnection();
 	private Channel Chnnl;
 	private ConnectionFactory ConnFactory;
+	private ArrayList <String> AutoDeleteDeclaredQueues;
 }

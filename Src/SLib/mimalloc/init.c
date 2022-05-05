@@ -220,7 +220,7 @@ static bool _mi_heap_done(mi_heap_t* heap)
 
 	// delete all non-backing heaps in this thread
 	mi_heap_t* curr = heap->tld->heaps;
-	while(curr != NULL) {
+	while(curr) {
 		mi_heap_t* next = curr->next; // save `next` as `curr` will be freed
 		if(curr != heap) {
 			mi_assert_internal(!mi_heap_is_backing(curr));

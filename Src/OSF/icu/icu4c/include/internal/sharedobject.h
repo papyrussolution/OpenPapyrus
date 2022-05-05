@@ -156,7 +156,7 @@ public:
 				dest->removeRef();
 			}
 			dest = src;
-			if(src != NULL) {
+			if(src) {
 				src->addRef();
 			}
 		}
@@ -166,7 +166,7 @@ public:
 	 */
 	template <typename T> static void clearPtr(const T *&ptr) 
 	{
-		if(ptr != NULL) {
+		if(ptr) {
 			ptr->removeRef();
 			ptr = NULL;
 		}

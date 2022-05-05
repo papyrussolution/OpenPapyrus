@@ -22,17 +22,17 @@
 #ifndef ABSL_STRINGS_INTERNAL_STR_SPLIT_INTERNAL_H_
 #define ABSL_STRINGS_INTERNAL_STR_SPLIT_INTERNAL_H_
 
-#include <array>
-#include <initializer_list>
-#include <iterator>
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include <vector>
-#include "absl/base/macros.h"
-#include "absl/base/port.h"
-#include "absl/meta/type_traits.h"
-#include "absl/strings/string_view.h"
+//#include <array>
+//#include <initializer_list>
+//#include <iterator>
+//#include <tuple>
+//#include <type_traits>
+//#include <utility>
+//#include <vector>
+//#include "absl/base/macros.h"
+//#include "absl/base/port.h"
+//#include "absl/meta/type_traits.h"
+//#include "absl/strings/string_view.h"
 #ifdef _GLIBCXX_DEBUG
 	#include "absl/strings/internal/stl_type_traits.h"
 #endif  // _GLIBCXX_DEBUG

@@ -14,16 +14,9 @@
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace str_format_internal {
-
-bool ConvertFloatImpl(float v, const FormatConversionSpecImpl &conv,
-                      FormatSinkImpl *sink);
-
-bool ConvertFloatImpl(double v, const FormatConversionSpecImpl &conv,
-                      FormatSinkImpl *sink);
-
-bool ConvertFloatImpl(long double v, const FormatConversionSpecImpl &conv,
-                      FormatSinkImpl *sink);
-
+bool ConvertFloatImpl(float v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink);
+bool ConvertFloatImpl(double v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink);
+bool ConvertFloatImpl(long double v, const FormatConversionSpecImpl &conv, FormatSinkImpl * sink);
 }  // namespace str_format_internal
 ABSL_NAMESPACE_END
 }  // namespace absl

@@ -334,8 +334,7 @@ long DateRange::GetLength() const
 
 int FASTCALL DateRange::Cmp(const DateRange & rS) const
 {
-	int    r = IsEq(rS);
-	if(r)
+	if(IsEq(rS))
 		return 0;
 	else if(low < rS.low)
 		return -1;

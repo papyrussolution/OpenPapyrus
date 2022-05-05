@@ -729,7 +729,7 @@ int TestGtinStruc()
 						// } @v10.8.2 
 					}
 				}
-				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", static_cast<long>(pr));
+				out_buf.Z().CR().Cat(temp_buf).Space().CatEq("parse-result", pr);
 				gts.Debug_Output(temp_buf);
 				out_buf.CR().Cat(temp_buf);
 				f_out.WriteLine(out_buf);

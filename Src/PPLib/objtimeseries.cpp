@@ -2593,13 +2593,13 @@ int PPObjTimeSeries::Export(PPID id)
 							line_buf.Z().
 								CatEq("ID", r_s.ID).Space().
 								CatEq("InputFrameSize", r_s.InputFrameSize).Space().
-								CatEq("Prec", static_cast<long>(r_s.Prec)).Space().
+								CatEq("Prec", r_s.Prec).Space().
 								//CatEq("TargetQuant", r_s.TargetQuant).Space().
 								CatEq("MaxDuckQuant", r_s.MaxDuckQuant).Space().
-								CatEq("PeakAvgQuant", static_cast<long>(r_s.PeakAvgQuant)).Space().
-								CatEq("PeakMaxQuant", static_cast<long>(r_s.PeakMaxQuant)).Space().
-								CatEq("BottomAvgQuant", static_cast<long>(r_s.BottomAvgQuant)).Space().
-								CatEq("StakeMode", static_cast<long>(r_s.StakeMode)).Space().
+								CatEq("PeakAvgQuant", r_s.PeakAvgQuant).Space().
+								CatEq("PeakMaxQuant", r_s.PeakMaxQuant).Space().
+								CatEq("BottomAvgQuant", r_s.BottomAvgQuant).Space().
+								CatEq("StakeMode", r_s.StakeMode).Space().
 								CatEq("BaseFlags", r_s.BaseFlags).Space().
 								CatEq("Margin", r_s.Margin).Space().
 								CatEq("SpikeQuant", r_s.SpikeQuant_s).Space().
@@ -5690,7 +5690,7 @@ static SString & OutputStategyResultEntry(const PPObjTimeSeries::StrategyResultE
 		CatEq("Result", rEntry.V.Result, MKSFMTD(0, 3, 0)).
 		Space().CatEq("StakeCount", rEntry.StakeCount).Space().
 		Space().CatEq("WinCount", rEntry.WinCount). // @v10.7.1
-		Space().CatEq("LossCount", static_cast<uint>(rEntry.StakeCount-rEntry.WinCount)). // @v10.7.1
+		Space().CatEq("LossCount", rEntry.StakeCount-rEntry.WinCount). // @v10.7.1
 		Space().CatEq("WinCountRate", rEntry.GetWinCountRate(), MKSFMTD(0, 3, 0)).
 		Space().CatEq("TmCount", rEntry.V.TmCount).
 		Space().CatEq("TmSec", rEntry.V.TmSec).
@@ -5703,7 +5703,7 @@ static SString & OutputStategyResultEntry(const PPObjTimeSeries::StrategyResultE
 int PrcssrTsStrategyAnalyze::FindOptimalMaxDuck(const PPTimeSeriesPacket & rTsPack, const PPObjTimeSeries::CommonTsParamBlock & rCtspb, uint flags, uint * pResult)
 {
 	int    ok = 1;
-	const  int is_short = BIN(flags & fomdfShort);
+	const  bool   is_short = LOGIC(flags & fomdfShort);
 	const  uint32 org_opt_max_duck_val = is_short ? rTsPack.Rec.OptMaxDuck_S : rTsPack.Rec.OptMaxDuck;
 	uint32 cur_opt_max_duck_val = org_opt_max_duck_val;
 	PPObjTimeSeries::TrainNnParam tnnp(rTsPack, PPObjTimeSeries::TrainNnParam::afAnalyzeFrame);

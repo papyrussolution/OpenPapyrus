@@ -19,7 +19,7 @@
 #pragma hdrstop
 #include "fann2.h"
 
-int FASTCALL Fann2::IsEq(const Fann2 & rS) const // @construction
+bool FASTCALL Fann2::IsEq(const Fann2 & rS) const // @construction
 {
 	/*
 		num_layers=5
@@ -56,7 +56,7 @@ int FASTCALL Fann2::IsEq(const Fann2 & rS) const // @construction
 		layer_sizes=10 513 257 65 2 
 		scale_included=0
 	*/
-#define FLD(f) if(f != rS.f) return 0;
+#define FLD(f) if(f != rS.f) return false;
 	FLD(learning_rate);
 	FLD(learning_momentum);
 	FLD(connection_rate);
@@ -116,10 +116,10 @@ int FASTCALL Fann2::IsEq(const Fann2 & rS) const // @construction
 	//float * scale_new_min_out;
 	//float * scale_factor_out;
 #undef FLD
-	uint nl = (last_layer - first_layer);
-	uint nl_s = (rS.last_layer - rS.first_layer);
+	const uint nl = (last_layer - first_layer);
+	const uint nl_s = (rS.last_layer - rS.first_layer);
 	if(nl != nl_s)
-		return 0;
+		return false;
 	else {
 		// first_layer..last_layer
 		// weights
@@ -127,7 +127,7 @@ int FASTCALL Fann2::IsEq(const Fann2 & rS) const // @construction
 		// train_errors
 		// output
 	}
-	return 1;
+	return true;
 }
 
 static void fann_seed_rand_2();

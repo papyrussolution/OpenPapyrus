@@ -35,8 +35,8 @@ _cmsInterpPluginChunkType _cmsInterpPluginChunk = { NULL };
 void _cmsAllocInterpPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
 	void * from;
-	_cmsAssert(ctx != NULL);
-	if(src != NULL) {
+	_cmsAssert(ctx);
+	if(src) {
 		from = src->chunks[InterpPlugin];
 	}
 	else {

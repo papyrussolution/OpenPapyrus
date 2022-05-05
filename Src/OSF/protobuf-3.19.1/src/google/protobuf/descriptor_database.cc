@@ -24,8 +24,6 @@
 #pragma hdrstop
 #include <google/protobuf/descriptor_database.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/stubs/map_util.h>
-#include <google/protobuf/stubs/stl_util.h>
 
 namespace google {
 namespace protobuf {

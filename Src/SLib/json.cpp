@@ -148,6 +148,18 @@ static rstring_code FASTCALL rcs_catc(RcString * pre, const char c)
 		return rRawText;
 }
 
+/*static*/int  FASTCALL SJson::GetBoolean(const SJson * pN) 
+{ 
+	int    result = -1;
+	if(pN) {
+		if(pN->Type == SJson::tTRUE)
+			result = 1;
+		else if(pN->Type == SJson::tFALSE)
+			result = 0;
+	}
+	return result;
+}
+
 SJson::SJson(int aType) : Type(aType), P_Next(0), P_Previous(0), P_Parent(0), P_Child(0), P_ChildEnd(0), State(0)
 {
 }

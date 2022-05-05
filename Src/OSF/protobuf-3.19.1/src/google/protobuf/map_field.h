@@ -19,20 +19,20 @@
 #ifndef GOOGLE_PROTOBUF_MAP_FIELD_H__
 #define GOOGLE_PROTOBUF_MAP_FIELD_H__
 
-#include <atomic>
-#include <functional>
-#include <google/protobuf/arena.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/generated_message_reflection.h>
-#include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/map_entry.h>
-#include <google/protobuf/map_field_lite.h>
-#include <google/protobuf/map_type_handler.h>
-#include <google/protobuf/message.h>
-#include <google/protobuf/stubs/mutex.h>
-#include <google/protobuf/port.h>
-#include <google/protobuf/repeated_field.h>
-#include <google/protobuf/unknown_field_set.h>
+//#include <atomic>
+//#include <functional>
+//#include <google/protobuf/arena.h>
+//#include <google/protobuf/descriptor.h>
+//#include <google/protobuf/generated_message_reflection.h>
+//#include <google/protobuf/generated_message_util.h>
+//#include <google/protobuf/map_entry.h>
+//#include <google/protobuf/map_field_lite.h>
+//#include <google/protobuf/map_type_handler.h>
+//#include <google/protobuf/message.h>
+//#include <google/protobuf/stubs/mutex.h>
+//#include <google/protobuf/port.h>
+//#include <google/protobuf/repeated_field.h>
+//#include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/port_def.inc>
 #ifdef SWIG
 	#error "You cannot SWIG proto headers"

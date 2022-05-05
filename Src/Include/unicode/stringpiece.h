@@ -31,9 +31,8 @@
 
 #if U_SHOW_CPLUSPLUS_API
 
-#include <cstddef>
-#include <type_traits>
-
+//#include <cstddef>
+//#include <type_traits>
 #include "unicode/uobject.h"
 #include "unicode/std_string.h"
 

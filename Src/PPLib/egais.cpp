@@ -553,7 +553,7 @@ int PPEgaisProcessor::ReadAck(const SBuffer * pBuf, PPEgaisProcessor::Ack & rAck
 	SString debug_log_buf;
 	{
 		// @debug {
-		debug_log_buf.Cat("UTM reply 3").CatDiv(':', 2).CatEq("size", static_cast<long>(avl_size));
+		debug_log_buf.Cat("UTM reply 3").CatDiv(':', 2).CatEq("size", avl_size);
 		if(avl_size) {
 			debug_log_buf.CatN(pBuf->GetBufC(pBuf->GetRdOffs()), avl_size);
 			PPLogMessage(PPFILNAM_DEBUG_LOG, debug_log_buf, LOGMSGF_DIRECTOUTP);

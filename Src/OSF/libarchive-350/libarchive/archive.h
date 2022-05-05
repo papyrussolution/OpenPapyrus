@@ -138,7 +138,7 @@ extern "C" {
  * header and library are very different, you should expect some
  * strangeness.  Don't do that.
  */
-__LA_DECL int           archive_version_number(void);
+__LA_DECL int archive_version_number(void);
 
 /*
  * Textual name/version of the library, useful for version displays.
@@ -353,7 +353,7 @@ typedef const char * archive_passphrase_callback (struct archive *, void * _clie
  *      data for entries of interest.
  *   5) Call archive_read_free to end processing.
  */
-__LA_DECL struct archive        * archive_read_new(void);
+__LA_DECL struct archive * archive_read_new(void);
 
 /*
  * The archive_read_support_XXX calls enable auto-detect for this
@@ -648,7 +648,7 @@ __LA_DECL int            archive_read_finish(struct archive *) __LA_DEPRECATED;
  *   5) archive_write_close to close the output
  *   6) archive_write_free to cleanup the writer and release resources
  */
-__LA_DECL struct archive        * archive_write_new(void);
+__LA_DECL struct archive * archive_write_new(void);
 __LA_DECL int archive_write_set_bytes_per_block(struct archive *, int bytes_per_block);
 __LA_DECL int archive_write_get_bytes_per_block(struct archive *);
 /* XXX This is badly misnamed; suggestions appreciated. XXX */
@@ -790,13 +790,12 @@ __LA_DECL int archive_write_set_passphrase_callback(struct archive *, void * cli
  * In particular, you can use this in conjunction with archive_read()
  * to pull entries out of an archive and create them on disk.
  */
-__LA_DECL struct archive        * archive_write_disk_new(void);
+__LA_DECL struct archive * archive_write_disk_new(void);
 /* This file will not be overwritten. */
-__LA_DECL int archive_write_disk_set_skip_file(struct archive *,
-    la_int64_t, la_int64_t);
+__LA_DECL int archive_write_disk_set_skip_file(struct archive *, la_int64_t, la_int64_t);
 /* Set flags to control how the next item gets created.
  * This accepts a bitmask of ARCHIVE_EXTRACT_XXX flags defined above. */
-__LA_DECL int            archive_write_disk_set_options(struct archive *,
+__LA_DECL int archive_write_disk_set_options(struct archive *,
     int flags);
 /*
  * The lookup functions are given uname/uid (or gname/gid) pairs and

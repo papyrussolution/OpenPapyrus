@@ -15,13 +15,12 @@
         android:padding="4dp"
         >
         <!-- <androidx.appcompat.widget.Toolbar -->
-        <Toolbar
+        <Toolbar style="@style/PageHeaderRegular"
             android:id="@+id/toolbarMainActivity"
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary"
-            android:minHeight="?attr/actionBarSize">
+            >
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -49,6 +48,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="4dp"
+        android:background="@drawable/shape_pageheader"
+        android:padding="2dp"
         app:layoutManager="LinearLayoutManager" />
 </LinearLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

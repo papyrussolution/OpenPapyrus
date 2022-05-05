@@ -1,5 +1,5 @@
 // RcToUI.CPP
-// Copyright (c) Starodub A. 2007, 2010, 2015, 2016, 2017, 2020
+// Copyright (c) Starodub A. 2007, 2010, 2015, 2016, 2017, 2020, 2022
 //
 #include <slib.h>
 
@@ -234,7 +234,7 @@ int CtrlInfo::ProcessControls()
 		LongArray grpbxs;
 		CtrlInfo ctrl_i;
 		ctrl_i.CtrlT.Type = CtrlType::ctrlGroupBox;
-		for(uint p = 0; P_Controls->lsearch(&ctrl_i, &p, PTR_CMPFUNC(CtrlInfo)) > 0; p++) {
+		for(uint p = 0; P_Controls->lsearch(&ctrl_i, &p, PTR_CMPFUNC(CtrlInfo)); p++) {
 			RECT grpb_r = P_Controls->at(p)->Coord;
 			if(!grpbxs.lsearch(p))
 				grpbxs.add(p);

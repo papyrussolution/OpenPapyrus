@@ -327,7 +327,7 @@ int STDCALL periodfmtex(const DateRange * pPeriod, char * pBuf, size_t bufLen)
 			}
 			r = PRD_ANNUAL;
 		}
-		else if(((m1-1) % 3) == 0 && (m2 % 3) == 0){
+		else if(((m1-1) % 3) == 0 && (m2 % 3) == 0) {
 			if(y1 == y2 && abs(m1-m2) < 3)
 				sprintf(period, "%s/%d", quart[(m1-1)/3], y1);
 			else if(y1 == 0)

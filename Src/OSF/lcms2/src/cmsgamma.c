@@ -80,7 +80,7 @@ static void DupPluginCurvesList(struct _cmsContext_struct* ctx, const struct _cm
 // The allocator have to follow the chain
 void _cmsAllocCurvesPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	_cmsAssert(ctx != NULL);
+	_cmsAssert(ctx);
 	if(src) {
 		DupPluginCurvesList(ctx, src); // Copy all linked list
 	}
@@ -594,13 +594,13 @@ static double EvalSegmentedFn(const cmsToneCurve * g, double R)
 // Access to estimated low-res table
 uint32 CMSEXPORT cmsGetToneCurveEstimatedTableEntries(const cmsToneCurve * t)
 {
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 	return t->nEntries;
 }
 
 const uint16* CMSEXPORT cmsGetToneCurveEstimatedTable(const cmsToneCurve * t)
 {
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 	return t->Table16;
 }
 
@@ -960,7 +960,7 @@ static boolint smooth2(cmsContext ContextID, float w[], float y[], float z[], fl
 	else st = FALSE;
 
 	if(c != NULL) _cmsFree(ContextID, c);
-	if(d != NULL) _cmsFree(ContextID, d);
+	if(d) _cmsFree(ContextID, d);
 	if(e != NULL) _cmsFree(ContextID, e);
 
 	return st;
@@ -1070,7 +1070,7 @@ boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t)
 	int i, last;
 	boolint lDescending;
 
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 
 	// Degenerated curves are monotonic? Ok, let's pass them
 	n = t->nEntries;
@@ -1106,7 +1106,7 @@ boolint CMSEXPORT cmsIsToneCurveMonotonic(const cmsToneCurve * t)
 // Same, but for descending tables
 boolint CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve * t)
 {
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 
 	return t->Table16[0] > t->Table16[t->nEntries-1];
 }
@@ -1114,14 +1114,14 @@ boolint CMSEXPORT cmsIsToneCurveDescending(const cmsToneCurve * t)
 // Another info fn: is out gamma table multisegment?
 boolint CMSEXPORT cmsIsToneCurveMultisegment(const cmsToneCurve * t)
 {
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 
 	return t->nSegments > 1;
 }
 
 int32 CMSEXPORT cmsGetToneCurveParametricType(const cmsToneCurve * t)
 {
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 
 	if(t->nSegments != 1) return 0;
 	return t->Segments[0].Type;
@@ -1171,11 +1171,8 @@ double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision)
 	double gamma, sum, sum2;
 	double n, x, y, Std;
 	uint32 i;
-
-	_cmsAssert(t != NULL);
-
+	_cmsAssert(t);
 	sum = sum2 = n = 0;
-
 	// Excluding endpoints
 	for(i = 1; i < (MAX_NODES_IN_CURVE-1); i++) {
 		x = (double)i / (MAX_NODES_IN_CURVE-1);
@@ -1205,7 +1202,7 @@ double CMSEXPORT cmsEstimateGamma(const cmsToneCurve * t, double Precision)
 
 double * CMSEXPORT cmsGetToneCurveParams(const cmsToneCurve * t)
 {
-	_cmsAssert(t != NULL);
+	_cmsAssert(t);
 
 	if(t->nSegments != 1) return NULL;
 	return t->Segments[0].Params;

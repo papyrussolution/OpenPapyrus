@@ -144,8 +144,8 @@ _cmsMemPluginChunkType _cmsMemPluginChunk = { _cmsMallocDefaultFn, _cmsMallocZer
 // Reset and duplicate memory manager
 void _cmsAllocMemPluginChunk(struct _cmsContext_struct* ctx, const struct _cmsContext_struct* src)
 {
-	_cmsAssert(ctx != NULL);
-	if(src != NULL) {
+	_cmsAssert(ctx);
+	if(src) {
 		// Duplicate
 		ctx->chunks[MemPlugin] = _cmsSubAllocDup(ctx->MemPool, src->chunks[MemPlugin], sizeof(_cmsMemPluginChunkType));
 	}

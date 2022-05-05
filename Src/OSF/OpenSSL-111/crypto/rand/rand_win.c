@@ -60,7 +60,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #ifdef USE_BCRYPTGENRANDOM
 	bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 	buffer = rand_pool_add_begin(pool, bytes_needed);
-	if(buffer != NULL) {
+	if(buffer) {
 		size_t bytes = 0;
 		if(BCryptGenRandom(NULL, buffer, bytes_needed,
 		    BCRYPT_USE_SYSTEM_PREFERRED_RNG) == STATUS_SUCCESS)
@@ -74,7 +74,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 #else
 	bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 	buffer = rand_pool_add_begin(pool, bytes_needed);
-	if(buffer != NULL) {
+	if(buffer) {
 		size_t bytes = 0;
 		/* poll the CryptoAPI PRNG */
 		if(CryptAcquireContextW(&hProvider, NULL, NULL, PROV_RSA_FULL,
@@ -93,7 +93,7 @@ size_t rand_pool_acquire_entropy(RAND_POOL * pool)
 
 	bytes_needed = rand_pool_bytes_needed(pool, 1 /*entropy_factor*/);
 	buffer = rand_pool_add_begin(pool, bytes_needed);
-	if(buffer != NULL) {
+	if(buffer) {
 		size_t bytes = 0;
 		/* poll the Pentium PRG with CryptoAPI */
 		if(CryptAcquireContextW(&hProvider, NULL,

@@ -411,7 +411,7 @@ static int ll_searchpath(lua_State * L) {
 		luaL_checkstring(L, 2),
 		luaL_optstring(L, 3, "."),
 		luaL_optstring(L, 4, LUA_DIRSEP));
-	if(f != NULL) return 1;
+	if(f) return 1;
 	else { /* error message is on top of the stack */
 		lua_pushnil(L);
 		lua_insert(L, -2);

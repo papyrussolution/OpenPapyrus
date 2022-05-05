@@ -87,7 +87,7 @@ RSA * RSA_new_method(ENGINE * engine)
 		goto err;
 	}
 
-	if((ret->meth->init != NULL) && !ret->meth->init(ret)) {
+	if(ret->meth->init && !ret->meth->init(ret)) {
 		RSAerr(RSA_F_RSA_NEW_METHOD, ERR_R_INIT_FAIL);
 		goto err;
 	}
@@ -184,7 +184,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 	   || (r->e == NULL && e == NULL))
 		return 0;
 
-	if(n != NULL) {
+	if(n) {
 		BN_free(r->n);
 		r->n = n;
 	}
@@ -192,7 +192,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 		BN_free(r->e);
 		r->e = e;
 	}
-	if(d != NULL) {
+	if(d) {
 		BN_clear_free(r->d);
 		r->d = d;
 		BN_set_flags(r->d, BN_FLG_CONSTTIME);
@@ -234,7 +234,7 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 	   || (r->iqmp == NULL && iqmp == NULL))
 		return 0;
 
-	if(dmp1 != NULL) {
+	if(dmp1) {
 		BN_clear_free(r->dmp1);
 		r->dmp1 = dmp1;
 		BN_set_flags(r->dmp1, BN_FLG_CONSTTIME);
@@ -325,11 +325,11 @@ err:
 void RSA_get0_key(const RSA * r,
     const BIGNUM ** n, const BIGNUM ** e, const BIGNUM ** d)
 {
-	if(n != NULL)
+	if(n)
 		*n = r->n;
 	if(e != NULL)
 		*e = r->e;
-	if(d != NULL)
+	if(d)
 		*d = r->d;
 }
 
@@ -375,7 +375,7 @@ void RSA_get0_crt_params(const RSA * r,
     const BIGNUM ** dmp1, const BIGNUM ** dmq1,
     const BIGNUM ** iqmp)
 {
-	if(dmp1 != NULL)
+	if(dmp1)
 		*dmp1 = r->dmp1;
 	if(dmq1 != NULL)
 		*dmq1 = r->dmq1;

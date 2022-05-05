@@ -26,9 +26,9 @@
 #ifndef GOOGLE_PROTOBUF_UNKNOWN_FIELD_SET_H__
 #define GOOGLE_PROTOBUF_UNKNOWN_FIELD_SET_H__
 
-#include <assert.h>
-#include <string>
-#include <vector>
+//#include <assert.h>
+//#include <string>
+//#include <vector>
 #include <google/protobuf/stubs/common.h>
 #include <google/protobuf/stubs/logging.h>
 #include <google/protobuf/parse_context.h>
@@ -36,7 +36,6 @@
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <google/protobuf/message_lite.h>
 #include <google/protobuf/port.h>
-
 #include <google/protobuf/port_def.inc>
 
 #ifdef SWIG
@@ -101,17 +100,10 @@ public:
 	// sizeof(*this) in the calculation.
 	size_t SpaceUsedExcludingSelfLong() const;
 
-	int SpaceUsedExcludingSelf() const {
-		return internal::ToIntSize(SpaceUsedExcludingSelfLong());
-	}
-
+	int SpaceUsedExcludingSelf() const { return internal::ToIntSize(SpaceUsedExcludingSelfLong()); }
 	// Version of SpaceUsed() including sizeof(*this).
 	size_t SpaceUsedLong() const;
-
-	int SpaceUsed() const {
-		return internal::ToIntSize(SpaceUsedLong());
-	}
-
+	int SpaceUsed() const { return internal::ToIntSize(SpaceUsedLong()); }
 	// Returns the number of fields present in the UnknownFieldSet.
 	inline int field_count() const;
 	// Get a field in the set, where 0 <= index < field_count().  The fields

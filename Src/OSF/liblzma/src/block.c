@@ -498,17 +498,14 @@ static lzma_ret block_buffer_encode(lzma_block * block, const lzma_allocator * a
 		lzma_check_init(&check, block->check);
 		lzma_check_update(&check, block->check, in, in_size);
 		lzma_check_finish(&check, block->check);
-
 		memcpy(block->raw_check, check.buffer.u8, check_size);
 		memcpy(out + *out_pos, check.buffer.u8, check_size);
 		*out_pos += check_size;
 	}
-
 	return LZMA_OK;
 }
 
-lzma_ret lzma_block_buffer_encode(lzma_block *block, const lzma_allocator *allocator,
-    const uint8_t *in, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
+lzma_ret lzma_block_buffer_encode(lzma_block *block, const lzma_allocator *allocator, const uint8_t *in, size_t in_size, uint8_t *out, size_t *out_pos, size_t out_size)
 {
 	return block_buffer_encode(block, allocator, in, in_size, out, out_pos, out_size, true);
 }
@@ -678,7 +675,6 @@ extern lzma_ret lzma_block_encoder_init(lzma_next_coder * next, const lzma_alloc
 		coder = (lzma_block_encoder_coder *)lzma_alloc(sizeof(lzma_block_encoder_coder), allocator);
 		if(coder == NULL)
 			return LZMA_MEM_ERROR;
-
 		next->coder = coder;
 		next->code = &block_encode;
 		next->end = &block_encoder_end;

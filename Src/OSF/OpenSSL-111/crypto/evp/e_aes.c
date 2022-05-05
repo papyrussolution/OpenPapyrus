@@ -4193,7 +4193,7 @@ static int aes_ocb_cipher(EVP_CIPHER_CTX * ctx, uchar * out,
 			}
 			written_len = AES_BLOCK_SIZE;
 			*buf_len = 0;
-			if(out != NULL)
+			if(out)
 				out += AES_BLOCK_SIZE;
 		}
 

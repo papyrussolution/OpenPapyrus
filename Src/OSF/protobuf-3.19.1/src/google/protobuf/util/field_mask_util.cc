@@ -19,8 +19,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/util/field_mask_util.h>
-#include <google/protobuf/stubs/strutil.h>
-#include <google/protobuf/stubs/map_util.h>
 // Must be included last.
 #include <google/protobuf/port_def.inc>
 

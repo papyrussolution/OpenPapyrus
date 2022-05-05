@@ -1,7 +1,6 @@
 // FLYTECHVFD.CPP
 // Библиотека для работы с дисплеем покупателя FlyTech VFD в режиме Epson
 //
-
 #include <slib.h>
 #include <CustomDisplay.h>
 
@@ -52,15 +51,13 @@ EXPORT int RunCommand(const char * pCmd, const char * pInputData, char * pOutput
 
 int Init() 
 {
-	if(!P_FlyTechVfdDisp)
-		P_FlyTechVfdDisp = new FlyTechfdEquip;
+	SETIFZ(P_FlyTechVfdDisp, new FlyTechfdEquip);
 	return 1;
 }
 
 int Release() 
 {	
-	if(P_FlyTechVfdDisp)
-		ZDELETE(P_FlyTechVfdDisp);
+	ZDELETE(P_FlyTechVfdDisp);
 	return 1;
 }
 
@@ -68,7 +65,7 @@ int FlyTechfdEquip::GetConfig(char * pBuf, size_t bufSize)
 {
 	int ok = 0;
 	SString str;
-	str.CatEq("STRLEN", (long)STRLEN);
+	str.CatEq("STRLEN", STRLEN);
 	if(str.Len() + 1 > bufSize)
 		ok = 2;
 	else

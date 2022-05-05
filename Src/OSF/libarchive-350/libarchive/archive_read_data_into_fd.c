@@ -63,19 +63,14 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 	int can_lseek;
 	char * nulls = NULL;
 	size_t nulls_size = 16384;
-
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_data_into_fd");
-
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_into_fd");
 	can_lseek = (fstat(fd, &st) == 0) && S_ISREG(st.st_mode);
 	if(!can_lseek)
 		nulls = static_cast<char *>(SAlloc::C(1, nulls_size));
-	while((r = archive_read_data_block(a, &buff, &size, &target_offset)) ==
-	    ARCHIVE_OK) {
+	while((r = archive_read_data_block(a, &buff, &size, &target_offset)) == ARCHIVE_OK) {
 		const char * p = static_cast<const char *>(buff);
 		if(target_offset > actual_offset) {
-			r = pad_to(a, fd, can_lseek, nulls_size, nulls,
-				target_offset, actual_offset);
+			r = pad_to(a, fd, can_lseek, nulls_size, nulls, target_offset, actual_offset);
 			if(r != ARCHIVE_OK)
 				break;
 			actual_offset = target_offset;
@@ -95,14 +90,11 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 			size -= bytes_written;
 		}
 	}
-
 	if(r == ARCHIVE_EOF && target_offset > actual_offset) {
-		r2 = pad_to(a, fd, can_lseek, nulls_size, nulls,
-			target_offset, actual_offset);
+		r2 = pad_to(a, fd, can_lseek, nulls_size, nulls, target_offset, actual_offset);
 		if(r2 != ARCHIVE_OK)
 			r = r2;
 	}
-
 cleanup:
 	SAlloc::F(nulls);
 	if(r != ARCHIVE_EOF)

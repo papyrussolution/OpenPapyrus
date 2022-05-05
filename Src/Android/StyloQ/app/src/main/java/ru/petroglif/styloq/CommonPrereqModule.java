@@ -13,8 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,11 +26,13 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.UUID;
 
 public class CommonPrereqModule {
 	public byte[] SvcIdent; // Получает через intent ("SvcIdent")
 	public String CmdName; // Получает через intent ("CmdName")
 	public String CmdDescr; // Получает через intent ("CmdDescr")
+	public UUID CmdUuid;  // Получает через intent ("CmdUuid")
 	public ArrayList<SimpleSearchIndexEntry> SimpleSearchIndex;
 	public SimpleSearchResult SearchResult;
 	public ArrayList<JSONObject> GoodsGroupListData;
@@ -35,6 +40,7 @@ public class CommonPrereqModule {
 	public ArrayList <WareEntry> GoodsListData;
 	public ArrayList <CommonPrereqModule.TabEntry> TabList;
 	protected Document CurrentOrder;
+	protected boolean Locker_CommitCurrentDocument;
 	public enum Tab {
 		tabUndef,
 		tabGoodsGroups,
@@ -129,6 +135,38 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	protected boolean CommitCurrentDocument(SLib.SlActivity activity)
+	{
+		boolean ok = false;
+		if(activity != null) {
+			Context app_ctx = activity.getApplicationContext();
+			if(app_ctx != null && app_ctx instanceof StyloQApp) {
+				if(!Locker_CommitCurrentDocument) {
+					Locker_CommitCurrentDocument = true;
+					if(CurrentOrder != null && CurrentOrder.Finalize()) {
+						StyloQApp.PostDocumentResult result = ((StyloQApp)app_ctx).RunSvcPostDocumentCommand(SvcIdent, CurrentOrder, activity);
+						ok = result.PostResult;
+						if(ok) {
+							;
+						}
+					}
+				}
+			}
+		}
+		return ok;
+	}
+	protected Document.TransferItem SearchGoodsItemInCurrentOrder(int goodsID)
+	{
+		Document.TransferItem result = null;
+		if(CurrentOrder != null && CurrentOrder.TiList != null) {
+			for(int i = 0; result == null && i < CurrentOrder.TiList.size(); i++) {
+				Document.TransferItem ti = CurrentOrder.TiList.get(i);
+				if(ti != null && ti.GoodsID == goodsID)
+					result = ti;
+			}
+		}
+		return result;
+	}
 	protected double GetGoodsQttyInCurrentDocument(int goodsID)
 	{
 		double result = 0.0;
@@ -184,18 +222,25 @@ public class CommonPrereqModule {
 		private int[] ObjTypeList;
 		private int ObjTypeCount;
 		private int SelectedItemIdx;
+		private String SearchResultInfoText;
 
 		SimpleSearchResult()
 		{
 			ObjTypeCount = 0;
 			ObjTypeList = new int[64];
 			SelectedItemIdx = -1;
+			SearchResultInfoText = null;
 		}
 		void Clear()
 		{
 			List = null;
 			ObjTypeCount = 0;
 			SelectedItemIdx = -1;
+			SearchResultInfoText = null;
+		}
+		String GetSearchResultInfoText()
+		{
+			return SearchResultInfoText;
 		}
 		void SetSelectedItemIndex(int idx)
 		{
@@ -282,33 +327,58 @@ public class CommonPrereqModule {
 		//SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 		SimpleSearchIndex.add(new SimpleSearchIndexEntry(objType, objID, attr, text.toLowerCase(), displayText));
 	}
-	public boolean SearchInSimpleIndex(String pattern)
+	public boolean SearchInSimpleIndex(StyloQApp appCtx, String pattern)
 	{
+		final int min_pattern_len = 4;
+		final int min_pattern_len_code = 5;
+		final int min_pattern_len_ruinn = 8;
+		final int min_pattern_len_rukpp = 6;
+		final int max_result_count = 100;
 		boolean result = false;
 		if(SearchResult == null)
 			SearchResult = new CommonPrereqModule.SimpleSearchResult();
 		SearchResult.Clear();
 		SearchResult.Pattern = pattern;
-		if(SimpleSearchIndex != null && SLib.GetLen(pattern) > 3) {
+		if(SimpleSearchIndex != null && SLib.GetLen(pattern) >= min_pattern_len) {
 			pattern = pattern.toLowerCase();
 			for(int i = 0; i < SimpleSearchIndex.size(); i++) {
 				CommonPrereqModule.SimpleSearchIndexEntry entry = SimpleSearchIndex.get(i);
-				if(entry != null && SLib.GetLen(entry.Text) > 0) {
-					if(entry.Text.indexOf(pattern) >= 0) {
-						boolean skip = false;
-						if(entry.Attr == SLib.PPOBJATTR_CODE && pattern.length() < 5)
-							skip = true;
-						else if(entry.Attr == SLib.PPOBJATTR_RUINN && pattern.length() < 8)
-							skip = true;
-						else if(entry.Attr == SLib.PPOBJATTR_RUKPP && pattern.length() < 6)
-							skip = true;
-						if(!skip) {
+				if(entry != null && SLib.GetLen(entry.Text) > 0 && entry.Text.indexOf(pattern) >= 0) {
+					boolean skip = false;
+					if(entry.Attr == SLib.PPOBJATTR_CODE && pattern.length() < min_pattern_len_code)
+						skip = true;
+					else if(entry.Attr == SLib.PPOBJATTR_RUINN && pattern.length() < min_pattern_len_ruinn)
+						skip = true;
+					else if(entry.Attr == SLib.PPOBJATTR_RUKPP && pattern.length() < min_pattern_len_rukpp)
+						skip = true;
+					if(!skip) {
+						if(SearchResult.List != null && SearchResult.List.size() >= max_result_count) {
+							// Если количество результатов превышает некий порог, то считаем поиск безуспешным - пусть
+							// клиент вводит что-то более длинное для релевантности результата
+							SearchResult.Clear();
+							String fmt_buf = appCtx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOMANYRESULTS);
+							if(SLib.GetLen(fmt_buf) > 0)
+								SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(max_result_count));
+							result = false;
+							break;
+						}
+						else {
 							SearchResult.Add(entry);
 							result = true;
 						}
 					}
 				}
 			}
+			if(result) {
+				String fmt_buf = appCtx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_SUCCESS);
+				if(SLib.GetLen(fmt_buf) > 0)
+					SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(SearchResult.List.size()));
+			}
+		}
+		else {
+			String fmt_buf = appCtx.GetString(ppstr2.PPSTR_TEXT, ppstr2.PPTXT_SMPLSRCHRESULT_TOOSHRTPATTERN);
+			if(SLib.GetLen(fmt_buf) > 0)
+				SearchResult.SearchResultInfoText = String.format(fmt_buf, Integer.toString(min_pattern_len_code));
 		}
 		return result;
 	}
@@ -317,10 +387,12 @@ public class CommonPrereqModule {
 		SvcIdent = null;
 		CmdName = null;
 		CmdDescr = null;
+		CmdUuid = null;
 		GoodsGroupListData = null;
 		GoodsListData = null;
 		Gf = null;
 		CurrentOrder = null;
+		Locker_CommitCurrentDocument = false;
 	}
 	public void GetAttributesFromIntent(Intent intent)
 	{
@@ -328,24 +400,49 @@ public class CommonPrereqModule {
 			SvcIdent = intent.getByteArrayExtra("SvcIdent");
 			CmdName = intent.getStringExtra("CmdName");
 			CmdDescr = intent.getStringExtra("CmdDescr");
+			String cmd_uuid_text = intent.getStringExtra("CmdUuid");
+			if(SLib.GetLen(cmd_uuid_text) > 0) {
+				CmdUuid = UUID.fromString(cmd_uuid_text);
+			}
 		}
 	}
 	public void SetupActivityTitles(SLib.SlActivity activity, StyloQDatabase db) throws StyloQException
 	{
 		if(activity != null && db != null) {
 			String title_text = null;
+
+			String blob_signature = null;
 			if(SLib.GetLen(SvcIdent) > 0) {
 				StyloQDatabase.SecStoragePacket svc_packet = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
-				String svc_name = (svc_packet != null) ? svc_packet.GetSvcName(null) : null;
+				String svc_name = null;
+				if(svc_packet != null) {
+					StyloQFace face = svc_packet.GetFace();
+					if(face != null) {
+						blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
+						svc_name = svc_packet.GetSvcName(face);
+					}
+				}
 				if(SLib.GetLen(svc_name) > 0)
-					SLib.SetCtrlString(this, R.id.CTL_ACTIVITYHEAD_SVCNAME, svc_name);
+					SLib.SetCtrlString(activity, R.id.CTL_PAGEHEADER_SVCTITLE, svc_name);
 			}
 			if(SLib.GetLen(CmdName) > 0)
 				title_text = CmdName;
 			if(SLib.GetLen(CmdDescr) > 0)
 				title_text = (SLib.GetLen(title_text) > 0) ? (title_text + "\n" + CmdDescr) : CmdDescr;
 			if(SLib.GetLen(title_text) > 0)
-				SLib.SetCtrlString(this, R.id.CTL_ACTIVITYHEAD_TITLE, title_text);
+				SLib.SetCtrlString(activity, R.id.CTL_PAGEHEADER_TOPIC, title_text);
+			{
+				View imgv_ = activity.findViewById(R.id.CTLIMG_PAGEHEADER_SVC);
+				if(imgv_ != null && imgv_ instanceof ImageView) {
+					ImageView imgv = (ImageView)imgv_;
+					if(SLib.GetLen(blob_signature) > 0) {
+						imgv.setVisibility(View.VISIBLE);
+						Glide.with(activity).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
+					}
+					else
+						imgv.setVisibility(View.GONE);
+				}
+			}
 		}
 	}
 	public static class GoodsFilt {

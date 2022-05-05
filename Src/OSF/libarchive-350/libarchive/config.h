@@ -321,7 +321,7 @@
 /* #undef HAVE_LIBEXPAT */ /* Define to 1 if you have the `expat' library (-lexpat). */
 /* #undef HAVE_LIBGCC */ /* Define to 1 if you have the `gcc' library (-lgcc). */
 #define HAVE_LIBLZ4 /* #undef HAVE_LIBLZ4 */ /* Define to 1 if you have the `lz4' library (-llz4). */
-/* #undef HAVE_LIBLZMA */ /* Define to 1 if you have the `lzma' library (-llzma). */
+#define HAVE_LIBLZMA  1 /* Define to 1 if you have the `lzma' library (-llzma). */ // @v11.3.10
 /* #undef HAVE_LIBLZMADEC */ /* Define to 1 if you have the `lzmadec' library (-llzmadec). */
 /* #undef HAVE_LIBLZO2 */ /* Define to 1 if you have the `lzo2' library (-llzo2). */
 /* #undef HAVE_LIBNETTLE */ /* Define to 1 if you have the `nettle' library (-lnettle). */
@@ -331,7 +331,7 @@
 #define HAVE_LIBXML_XMLREADER_H 1 /* #undef HAVE_LIBXML_XMLREADER_H */ /* Define to 1 if you have the <libxml/xmlreader.h> header file. */
 #define HAVE_LIBXML_XMLWRITER_H 1 /* #undef HAVE_LIBXML_XMLWRITER_H */ /* Define to 1 if you have the <libxml/xmlwriter.h> header file. */
 /* #undef HAVE_LIBZ */ /* Define to 1 if you have the `z' library (-lz). */
-/* #undef HAVE_LIBZSTD */ /* Define to 1 if you have the `zstd' library (-lzstd). */
+#define HAVE_LIBZSTD  1 /* Define to 1 if you have the `zstd' library (-lzstd). */ // @v11.3.10
 #define HAVE_LIMITS_H 1 /* Define to 1 if you have the <limits.h> header file. */
 /* #undef HAVE_LINK */ /* Define to 1 if you have the `link' function. */
 /* #undef HAVE_LINUX_FIEMAP_H */ /* Define to 1 if you have the <linux/fiemap.h> header file. */

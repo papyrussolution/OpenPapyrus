@@ -334,29 +334,23 @@ struct archive_write_disk {
 
 static int la_opendirat(int, const char *);
 static int la_mktemp(struct archive_write_disk *);
-static void     fsobj_error(int *, struct archive_string *, int, const char *,
-    const char *);
-static int check_symlinks_fsobj(char *, int *, struct archive_string *,
-    int);
+static void     fsobj_error(int *, struct archive_string *, int, const char *, const char *);
+static int check_symlinks_fsobj(char *, int *, struct archive_string *, int);
 static int check_symlinks(struct archive_write_disk *);
 static int create_filesystem_object(struct archive_write_disk *);
-static struct fixup_entry * current_fixup(struct archive_write_disk *,
-    const char * pathname);
+static struct fixup_entry * current_fixup(struct archive_write_disk *, const char * pathname);
 #if defined(HAVE_FCHDIR) && defined(PATH_MAX)
 static void     edit_deep_directories(struct archive_write_disk * ad);
 #endif
-static int cleanup_pathname_fsobj(char *, int *, struct archive_string *,
-    int);
+static int cleanup_pathname_fsobj(char *, int *, struct archive_string *, int);
 static int cleanup_pathname(struct archive_write_disk *);
 static int create_dir(struct archive_write_disk *, char *);
 static int create_parent_dir(struct archive_write_disk *, char *);
-static ssize_t  hfs_write_data_block(struct archive_write_disk *,
-    const char *, size_t);
+static ssize_t  hfs_write_data_block(struct archive_write_disk *, const char *, size_t);
 static int fixup_appledouble(struct archive_write_disk *, const char *);
 static int older(struct stat *, struct archive_entry *);
 static int restore_entry(struct archive_write_disk *);
-static int set_mac_metadata(struct archive_write_disk *, const char *,
-    const void *, size_t);
+static int set_mac_metadata(struct archive_write_disk *, const char *, const void *, size_t);
 static int set_xattrs(struct archive_write_disk *);
 static int clear_nochange_fflags(struct archive_write_disk *);
 static int set_fflags(struct archive_write_disk *);
@@ -369,7 +363,6 @@ static int set_times_from_entry(struct archive_write_disk *);
 static struct fixup_entry * sort_dir_list(struct fixup_entry * p);
 static ssize_t  write_data_block(struct archive_write_disk *, const char *, size_t);
 static struct archive_vtable * archive_write_disk_vtable(void);
-
 static int _archive_write_disk_close(struct archive *);
 static int _archive_write_disk_free(struct archive *);
 static int _archive_write_disk_header(struct archive *, struct archive_entry *);
@@ -483,7 +476,6 @@ static int64 _archive_write_disk_filter_bytes(struct archive * _a, int n)
 int archive_write_disk_set_options(struct archive * _a, int flags)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-
 	a->flags = flags;
 	return ARCHIVE_OK;
 }
@@ -505,17 +497,13 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	struct fixup_entry * fe;
 	const char * linkname;
 	int ret, r;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_disk_header");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_disk_header");
 	archive_clear_error(&a->archive);
 	if(a->archive.state & ARCHIVE_STATE_DATA) {
 		r = _archive_write_disk_finish_entry(&a->archive);
 		if(r == ARCHIVE_FATAL)
 			return r;
 	}
-
 	/* Set up for this particular entry. */
 	a->pst = NULL;
 	a->current_fixup = NULL;
@@ -556,7 +544,6 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Skipping hardlink pointing to itself: %s", a->name);
 		return ARCHIVE_WARN;
 	}
-
 	/*
 	 * Query the umask so we get predictable mode settings.
 	 * This gets done on every call to _write_header in case the
@@ -614,10 +601,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		 * we skip extracting libarchive NFSv4 ACLs.
 		 */
 		size_t metadata_size;
-
-		if((a->flags & ARCHIVE_EXTRACT_MAC_METADATA) == 0 ||
-		    archive_entry_mac_metadata(a->entry,
-		    &metadata_size) == NULL || metadata_size == 0)
+		if((a->flags & ARCHIVE_EXTRACT_MAC_METADATA) == 0 || archive_entry_mac_metadata(a->entry, &metadata_size) == NULL || metadata_size == 0)
 #endif
 #if ARCHIVE_ACL_LIBRICHACL
 		/*
@@ -626,19 +610,14 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		 * attribute we skip extracting libarchive NFSv4 ACLs.
 		 */
 		short extract_acls = 1;
-		if(a->flags & ARCHIVE_EXTRACT_XATTR && (
-			    archive_entry_acl_types(a->entry) &
-			    ARCHIVE_ENTRY_ACL_TYPE_NFS4)) {
+		if(a->flags & ARCHIVE_EXTRACT_XATTR && (archive_entry_acl_types(a->entry) & ARCHIVE_ENTRY_ACL_TYPE_NFS4)) {
 			const char * attr_name;
 			const void * attr_value;
 			size_t attr_size;
 			int i = archive_entry_xattr_reset(a->entry);
 			while(i--) {
-				archive_entry_xattr_next(a->entry, &attr_name,
-				    &attr_value, &attr_size);
-				if(attr_name != NULL && attr_value != NULL &&
-				    attr_size > 0 && strcmp(attr_name,
-				    "trusted.richacl") == 0) {
+				archive_entry_xattr_next(a->entry, &attr_name, &attr_value, &attr_size);
+				if(attr_name != NULL && attr_value != NULL && attr_size > 0 && strcmp(attr_name, "trusted.richacl") == 0) {
 					extract_acls = 0;
 					break;
 				}
@@ -2461,7 +2440,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 	while(a != NULL) {
 		/* Step a twice, t once. */
 		a = a->next;
-		if(a != NULL)
+		if(a)
 			a = a->next;
 		t = t->next;
 	}
@@ -2497,26 +2476,22 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 		}
 		t = t->next;
 	}
-
 	/* Only one list is non-empty, so just splice it on. */
-	if(a != NULL)
+	if(a)
 		t->next = a;
-	if(b != NULL)
+	if(b)
 		t->next = b;
-
 	return (p);
 }
-
 /*
  * Returns a new, initialized fixup entry.
  *
  * TODO: Reduce the memory requirements for this list by using a tree
  * structure rather than a simple list of names.
  */
-static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char * pathname)                              {
-	struct fixup_entry * fe;
-
-	fe = (struct fixup_entry *)SAlloc::C(1, sizeof(struct fixup_entry));
+static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char * pathname)                              
+{
+	struct fixup_entry * fe = (struct fixup_entry *)SAlloc::C(1, sizeof(struct fixup_entry));
 	if(fe == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for a fixup");
 		return NULL;
@@ -2531,22 +2506,21 @@ static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char 
 /*
  * Returns a fixup structure for the current entry.
  */
-static struct fixup_entry * current_fixup(struct archive_write_disk * a, const char * pathname)                              {
+static struct fixup_entry * current_fixup(struct archive_write_disk * a, const char * pathname)                              
+{
 	if(a->current_fixup == NULL)
 		a->current_fixup = new_fixup(a, pathname);
 	return (a->current_fixup);
 }
 
 /* Error helper for new *_fsobj functions */
-static void fsobj_error(int * a_eno, struct archive_string * a_estr,
-    int err, const char * errstr, const char * path)
+static void fsobj_error(int * a_eno, struct archive_string * a_estr, int err, const char * errstr, const char * path)
 {
 	if(a_eno)
 		*a_eno = err;
 	if(a_estr)
 		archive_string_sprintf(a_estr, "%s%s", errstr, path);
 }
-
 /*
  * TODO: Someday, integrate this with the deep dir support; they both
  * scan the path and both can be optimized by comparing against other

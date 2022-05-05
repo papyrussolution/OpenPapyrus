@@ -13,10 +13,10 @@
 #ifndef UMUTEX_H
 #define UMUTEX_H
 
-#include <atomic>
-#include <condition_variable>
-#include <mutex>
-#include <type_traits>
+//#include <atomic>
+//#include <condition_variable>
+//#include <mutex>
+//#include <type_traits>
 #include "unicode/utypes.h"
 #include "unicode/uclean.h"
 #include "unicode/uobject.h"

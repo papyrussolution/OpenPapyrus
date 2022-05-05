@@ -443,7 +443,7 @@ static cairo_status_t fixup_unbounded_boxes(const cairo_mask_compositor_t * comp
 		_cairo_boxes_limit(&clear, (cairo_box_t*)pbox, i);
 		status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &box);
 		assert(status == CAIRO_STATUS_SUCCESS);
-		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 			for(i = 0; i < chunk->count; i++) {
 				status = _cairo_boxes_add(&clear, CAIRO_ANTIALIAS_DEFAULT, &chunk->base[i]);
 				if(UNLIKELY(status)) {

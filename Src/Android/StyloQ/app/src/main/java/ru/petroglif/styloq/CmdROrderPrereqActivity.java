@@ -17,23 +17,20 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Locale;
 
 public class CmdROrderPrereqActivity extends SLib.SlActivity {
 	public CmdROrderPrereqActivity()
@@ -394,23 +391,24 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			return result;
 		}
 	}
-	private boolean CommitCurrentDocument()
+	/*private boolean CommitCurrentDocument()
 	{
 		boolean ok = false;
-		StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-		if(app_ctx != null) {
-			StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(CPM.SvcIdent, CPM.CurrentOrder);
-			ok = result.PostResult;
-			if(ok) {
-				NotifyDocListChanged();
-				CPM.CurrentOrder = null;
-				NotifyCurrentOrderChanged();
-				NotifyDocListChanged();
-				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+		if(!Locker_CommitCurrentDocument) {
+			Locker_CommitCurrentDocument = true;
+			StyloQApp app_ctx = (StyloQApp) getApplicationContext();
+			if(app_ctx != null) {
+				if(CPM.CurrentOrder != null && CPM.CurrentOrder.Finalize()) {
+					StyloQApp.PostDocumentResult result = app_ctx.RunSvcPostDocumentCommand(CPM.SvcIdent, CPM.CurrentOrder, this);
+					ok = result.PostResult;
+					if(ok) {
+						;
+					}
+				}
 			}
 		}
 		return ok;
-	}
+	}*/
 	int FindClientItemIndexByID(int id)
 	{
 		int result = -1;
@@ -730,48 +728,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private boolean AddItemToCurrentOrder(JSONObject goodsItem)
-	{
-		boolean result = false;
-		try {
-			if(goodsItem != null) {
-				int goods_id = goodsItem.optInt("id", 0);
-				if(goods_id > 0) {
-					double price = goodsItem.optDouble("price", 0.0);
-					if(CPM.CurrentOrder == null)
-						CPM.CurrentOrder = new Document(SLib.PPEDIOP_ORDER, CPM.SvcIdent, (StyloQApp)getApplicationContext());
-					Document.TransferItem ti = new Document.TransferItem();
-					ti.GoodsID = goods_id;
-					ti.Set = new Document.ValuSet();
-					ti.Set.Qtty = 1.0;
-					ti.Set.Price = price;
-
-					int max_row_idx = 0;
-					boolean merged = false;
-					if(CPM.CurrentOrder.TiList != null) {
-						for(int i = 0; !merged && i < CPM.CurrentOrder.TiList.size(); i++) {
-							Document.TransferItem iter_ti = CPM.CurrentOrder.TiList.get(i);
-							merged = iter_ti.Merge(ti);
-							if(max_row_idx < iter_ti.RowIdx)
-								max_row_idx = iter_ti.RowIdx;
-						}
-					}
-					if(!merged) {
-						ti.RowIdx = max_row_idx + 1;
-						if(CPM.CurrentOrder.TiList == null)
-							CPM.CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
-						CPM.CurrentOrder.TiList.add(ti);
-					}
-					SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
-					NotifyCurrentOrderChanged();
-					result = true;
-				}
-			}
-		} catch(StyloQException exn) {
-			;
-		}
-		return result;
-	}
 	private void MakeCurrentDocList()
 	{
 		if(OrderHList != null)
@@ -797,6 +753,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										if(local_doc.FromJson(json_doc)) {
 											if(OrderHList == null)
 												OrderHList = new ArrayList<Document.Head>();
+											// Эти операторы нужны на начальном этапе разработки поскольку
+											// финализация пакета документа появилась не сразу {
+											if(local_doc.GetNominalAmount() == 0.0)
+												local_doc.H.Amount = local_doc.CalcNominalAmount();
+											// }
 											OrderHList.add(local_doc.H);
 											local_doc.H = null;
 										}
@@ -852,6 +813,28 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		else
 			shaperc = IsObjInSearchResult(objType, objID) ? R.drawable.shape_listitem_found : R.drawable.shape_listitem;
 		iv.setBackground(getResources().getDrawable(shaperc, getTheme()));
+	}
+	private void GetFragmentData(Object entry)
+	{
+		if(entry != null) {
+			ViewGroup vg = null;
+			if(entry instanceof SLib.SlFragmentStatic) {
+				View v = ((SLib.SlFragmentStatic)entry).getView();
+				if(v instanceof ViewGroup)
+					vg = (ViewGroup)v;
+			}
+			else if(entry instanceof ViewGroup)
+				vg = (ViewGroup)entry;
+			if(vg != null) {
+				int vg_id = vg.getId();
+				if(vg_id == R.id.LAYOUT_ORDERPREPREQ_ORDR) {
+					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
+					if(CPM.CurrentOrder != null && CPM.CurrentOrder.H != null) {
+						CPM.CurrentOrder.H.Memo = SLib.GetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO);
+					}
+				}
+			}
+		}
 	}
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
@@ -977,6 +960,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					}
 				}
 				break;
+			case SLib.EV_GETVIEWDATA:
+				if(srcObj != null && srcObj instanceof ViewGroup)
+					GetFragmentData(srcObj);
+				break;
 			case SLib.EV_SETVIEWDATA:
 				if(srcObj != null && srcObj instanceof ViewGroup) {
 					ViewGroup vg = (ViewGroup)srcObj;
@@ -988,6 +975,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CLI, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, "");
 							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, "");
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, "");
 						}
 						else {
 							if(SLib.GetLen(CPM.CurrentOrder.H.Code) > 0)
@@ -1020,6 +1008,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_CLI, cli_name);
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_DLVRLOC, addr);
 							}
+							SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_MEMO, CPM.CurrentOrder.H.Memo);
 							{
 								double amount = CPM.GetAmountOfCurrentDocument();
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_AMOUNT, SLib.formatdouble(amount, 2));
@@ -1178,7 +1167,10 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 												if(d != null)
 													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY));
 											}
-											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, SLib.formatdouble(dh.Amount, 2));
+											{
+												String amount_text = String.format(Locale.US, "%12.2f", dh.Amount);
+												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, amount_text);
+											}
 										}
 									}
 								}
@@ -1312,10 +1304,12 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 																	public void onTextChanged(CharSequence s, int start, int before, int count)
 																	{
 																		String pattern = s.toString();
-																		if(SLib.GetLen(pattern) > 3)
-																			CPM.SearchInSimpleIndex(pattern);
-																		else if(CPM.SearchResult != null)
+																		StyloQApp app_ctx = (StyloQApp)getApplication();
+																		boolean sr = CPM.SearchInSimpleIndex(app_ctx, pattern);
+																		String srit = CPM.SearchResult.GetSearchResultInfoText();
+																		if(!sr && CPM.SearchResult != null)
 																			CPM.SearchResult.Clear();
+																		SLib.SetCtrlString(fv, R.id.CTL_SEARCHPANE_RESULTINFO, srit);
 																		View lv = findViewById(R.id.searchPaneListView);
 																		if(lv != null && lv instanceof RecyclerView) {
 																			RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
@@ -1404,10 +1398,15 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								if(app_ctx != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < CPM.GetGoodsListSize()) {
 									CommonPrereqModule.WareEntry item = CPM.GetGoodsListItemByIdx(ev_subj.ItemIdx);
 									if(item != null && ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.buttonOrder) {
-										{
+										final int goods_id = item.JsItem.optInt("id", 0);
+										Document.TransferItem ex_ti = CPM.SearchGoodsItemInCurrentOrder(goods_id);
+										if(ex_ti != null) {
+											TransferItemDialog dialog = new TransferItemDialog(this, ex_ti);
+											dialog.show();
+										}
+										else {
 											Document.TransferItem ti = new Document.TransferItem();
 											if(ti != null) {
-												int goods_id = item.JsItem.optInt("id", 0);
 												ti.GoodsID = goods_id;
 												ti.Set.Price = item.JsItem.optDouble("price", 0.0);
 												TransferItemDialog dialog = new TransferItemDialog(this, ti);
@@ -1488,14 +1487,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					GotoTab(CommonPrereqModule.Tab.tabGoods, R.id.orderPrereqGoodsListView, -1, -1);
 				}
 				else if(view_id == R.id.STDCTL_COMMITBUTTON) {
-					CommitCurrentDocument();
+					CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabCurrentOrder);
+					if(te != null)
+						GetFragmentData(te.TabView);
+					CPM.CommitCurrentDocument(this);
 				}
 				break;
 			case SLib.EV_IADATAEDITCOMMIT:
 				if(srcObj != null && srcObj instanceof TransferItemDialog && subj != null && subj instanceof Document.TransferItem) {
 					Document.TransferItem _data = (Document.TransferItem)subj;
+					boolean do_notify_goods_list = false;
 					if(_data.RowIdx == 0) {
-						AddItemToCurrentOrder(_data);
+						if(AddItemToCurrentOrder(_data))
+							do_notify_goods_list = true;
 					}
 					else if(CPM.CurrentOrder != null && CPM.CurrentOrder.TiList != null) {
 						for(int i = 0; i < CPM.CurrentOrder.TiList.size(); i++) {
@@ -1506,8 +1510,41 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								else
 									CPM.CurrentOrder.TiList.remove(i);
 								NotifyCurrentOrderChanged();
+								do_notify_goods_list = true;
 								break;
 							}
+						}
+					}
+					if(do_notify_goods_list) {
+						CommonPrereqModule.TabEntry te = SearchTabEntry(CommonPrereqModule.Tab.tabGoods);
+						if(te != null && te.TabView != null) {
+							View v = te.TabView.getView();
+							if(v != null && v instanceof ViewGroup) {
+								View lv = ((ViewGroup)v).findViewById(R.id.orderPrereqGoodsListView);
+								if(lv != null && lv instanceof RecyclerView) {
+									RecyclerView.Adapter gva = ((RecyclerView)lv).getAdapter();
+									if(gva != null)
+										gva.notifyDataSetChanged(); // @todo Здесь надо обновлять только одну строку списка товаров
+								}
+							}
+						}
+					}
+				}
+				break;
+			case SLib.EV_SVCQUERYRESULT:
+				if(subj != null && subj instanceof StyloQApp.InterchangeResult) {
+					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
+					if(ir.OriginalCmdItem != null && ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
+						CPM.Locker_CommitCurrentDocument = false;
+						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
+							MakeCurrentDocList();
+							CPM.CurrentOrder = null;
+							NotifyCurrentOrderChanged();
+							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
+							SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+						}
+						else {
+
 						}
 					}
 				}

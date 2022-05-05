@@ -151,7 +151,7 @@ RBBINode * RBBINode::cloneTree() {
 	else {
 		n = new RBBINode(*this);
 		// Check for null pointer.
-		if(n != NULL) {
+		if(n) {
 			if(fLeftChild != NULL) {
 				n->fLeftChild  = fLeftChild->cloneTree();
 				n->fLeftChild->fParent = n;

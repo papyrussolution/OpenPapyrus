@@ -22,7 +22,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/util/delimited_message_util.h>
-#include <google/protobuf/io/coded_stream.h>
 
 namespace google {
 namespace protobuf {

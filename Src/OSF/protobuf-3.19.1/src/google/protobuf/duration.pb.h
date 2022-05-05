@@ -74,11 +74,11 @@ class Duration final :
     *this = ::std::move(from);
   }
 
-  inline Duration& operator = (const Duration& from) {
+  inline Duration& operator=(const Duration& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Duration& operator = (Duration&& from) noexcept {
+  inline Duration& operator=(Duration&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

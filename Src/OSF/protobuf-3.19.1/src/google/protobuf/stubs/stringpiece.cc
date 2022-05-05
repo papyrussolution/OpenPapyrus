@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -19,7 +18,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/stubs/stringpiece.h>
-#include <google/protobuf/stubs/logging.h>
 
 namespace google {
 namespace protobuf {
@@ -175,12 +173,13 @@ StringPiece::size_type StringPiece::find_first_not_of(char c,
 	return npos;
 }
 
-StringPiece::size_type StringPiece::find_last_of(StringPiece s,
-    size_type pos) const {
-	if(empty() || s.empty()) return npos;
+StringPiece::size_type StringPiece::find_last_of(StringPiece s, size_type pos) const 
+{
+	if(empty() || s.empty()) 
+		return npos;
 	// Avoid the cost of BuildLookupTable() for a single-character search.
-	if(s.length_ == 1) return find_last_of(s.ptr_[0], pos);
-
+	if(s.length_ == 1) 
+		return find_last_of(s.ptr_[0], pos);
 	bool lookup[UCHAR_MAX + 1] = { false };
 	BuildLookupTable(s, lookup);
 	for(size_type i = std::min(pos, length_ - 1);; --i) {
@@ -192,16 +191,16 @@ StringPiece::size_type StringPiece::find_last_of(StringPiece s,
 	return npos;
 }
 
-StringPiece::size_type StringPiece::find_last_not_of(StringPiece s,
-    size_type pos) const {
-	if(empty()) return npos;
-
+StringPiece::size_type StringPiece::find_last_not_of(StringPiece s, size_type pos) const 
+{
+	if(empty()) 
+		return npos;
 	size_type i = std::min(pos, length() - 1);
-	if(s.empty()) return i;
-
+	if(s.empty()) 
+		return i;
 	// Avoid the cost of BuildLookupTable() for a single-character search.
-	if(s.length_ == 1) return find_last_not_of(s.ptr_[0], pos);
-
+	if(s.length_ == 1) 
+		return find_last_not_of(s.ptr_[0], pos);
 	bool lookup[UCHAR_MAX + 1] = { false };
 	BuildLookupTable(s, lookup);
 	for(;; --i) {
@@ -213,9 +212,10 @@ StringPiece::size_type StringPiece::find_last_not_of(StringPiece s,
 	return npos;
 }
 
-StringPiece::size_type StringPiece::find_last_not_of(char c,
-    size_type pos) const {
-	if(empty()) return npos;
+StringPiece::size_type StringPiece::find_last_not_of(char c, size_type pos) const 
+{
+	if(empty()) 
+		return npos;
 	size_type i = std::min(pos, length_ - 1);
 	for(;; --i) {
 		if(ptr_[i] != c) {

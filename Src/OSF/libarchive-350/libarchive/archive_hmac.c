@@ -23,7 +23,8 @@
  * be removed someday if this file gains another always-present
  * symbol definition.
  */
-int __libarchive_hmac_build_hack(void) {
+int __libarchive_hmac_build_hack(void)
+{
 	return 0;
 }
 

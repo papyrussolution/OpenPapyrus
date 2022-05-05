@@ -418,7 +418,7 @@ cairo_status_t _cairo_traps_init_boxes(cairo_traps_t * traps, const cairo_boxes_
 	traps->is_rectangular = TRUE;
 	traps->maybe_region = boxes->is_pixel_aligned;
 	trap = &traps->traps[0];
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		int i;
 		const cairo_box_t * box = chunk->base;
 		for(i = 0; i < chunk->count; i++) {

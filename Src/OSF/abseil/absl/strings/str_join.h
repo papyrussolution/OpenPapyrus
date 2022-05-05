@@ -36,17 +36,17 @@
 #ifndef ABSL_STRINGS_STR_JOIN_H_
 #define ABSL_STRINGS_STR_JOIN_H_
 
-#include <cstdio>
-#include <cstring>
-#include <initializer_list>
-#include <iterator>
-#include <string>
-#include <tuple>
-#include <type_traits>
-#include <utility>
-#include "absl/base/macros.h"
+//#include <cstdio>
+//#include <cstring>
+//#include <initializer_list>
+//#include <iterator>
+//#include <string>
+//#include <tuple>
+//#include <type_traits>
+//#include <utility>
+//#include "absl/base/macros.h"
 #include "absl/strings/internal/str_join_internal.h"
-#include "absl/strings/string_view.h"
+//#include "absl/strings/string_view.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -89,14 +89,14 @@ ABSL_NAMESPACE_BEGIN
 // Default formatter used if none is specified. Uses `absl::AlphaNum` to convert
 // numeric arguments to strings.
 inline strings_internal::AlphaNumFormatterImpl AlphaNumFormatter() {
-  return strings_internal::AlphaNumFormatterImpl();
+	return strings_internal::AlphaNumFormatterImpl();
 }
 
 // StreamFormatter()
 //
 // Formats its argument using the << operator.
 inline strings_internal::StreamFormatterImpl StreamFormatter() {
-  return strings_internal::StreamFormatterImpl();
+	return strings_internal::StreamFormatterImpl();
 }
 
 // Function Template: PairFormatter(Formatter, absl::string_view, Formatter)
@@ -105,19 +105,19 @@ inline strings_internal::StreamFormatterImpl StreamFormatter() {
 // `.first` and `.second` members. This formatter allows you to specify
 // custom Formatters for both the first and second member of each pair.
 template <typename FirstFormatter, typename SecondFormatter>
-inline strings_internal::PairFormatterImpl<FirstFormatter, SecondFormatter>
-PairFormatter(FirstFormatter f1, absl::string_view sep, SecondFormatter f2) {
-  return strings_internal::PairFormatterImpl<FirstFormatter, SecondFormatter>(
-      std::move(f1), sep, std::move(f2));
+inline strings_internal::PairFormatterImpl<FirstFormatter, SecondFormatter>PairFormatter(FirstFormatter f1,
+    absl::string_view sep,
+    SecondFormatter f2) {
+	return strings_internal::PairFormatterImpl<FirstFormatter, SecondFormatter>(
+		std::move(f1), sep, std::move(f2));
 }
 
 // Function overload of PairFormatter() for using a default
 // `AlphaNumFormatter()` for each Formatter in the pair.
 inline strings_internal::PairFormatterImpl<
-    strings_internal::AlphaNumFormatterImpl,
-    strings_internal::AlphaNumFormatterImpl>
-PairFormatter(absl::string_view sep) {
-  return PairFormatter(AlphaNumFormatter(), sep, AlphaNumFormatter());
+	strings_internal::AlphaNumFormatterImpl,
+	strings_internal::AlphaNumFormatterImpl>PairFormatter(absl::string_view sep) {
+	return PairFormatter(AlphaNumFormatter(), sep, AlphaNumFormatter());
 }
 
 // Function Template: DereferenceFormatter(Formatter)
@@ -127,19 +127,17 @@ PairFormatter(absl::string_view sep) {
 // pointer-to-T. This pattern often shows up when joining repeated fields in
 // protocol buffers.
 template <typename Formatter>
-strings_internal::DereferenceFormatterImpl<Formatter> DereferenceFormatter(
-    Formatter&& f) {
-  return strings_internal::DereferenceFormatterImpl<Formatter>(
-      std::forward<Formatter>(f));
+strings_internal::DereferenceFormatterImpl<Formatter> DereferenceFormatter(Formatter&& f) {
+	return strings_internal::DereferenceFormatterImpl<Formatter>(
+		std::forward<Formatter>(f));
 }
 
 // Function overload of `DereferenceFormatter()` for using a default
 // `AlphaNumFormatter()`.
 inline strings_internal::DereferenceFormatterImpl<
-    strings_internal::AlphaNumFormatterImpl>
-DereferenceFormatter() {
-  return strings_internal::DereferenceFormatterImpl<
-      strings_internal::AlphaNumFormatterImpl>(AlphaNumFormatter());
+	strings_internal::AlphaNumFormatterImpl>DereferenceFormatter() {
+	return strings_internal::DereferenceFormatterImpl<
+		strings_internal::AlphaNumFormatterImpl>(AlphaNumFormatter());
 }
 
 // -----------------------------------------------------------------------------
@@ -232,48 +230,48 @@ DereferenceFormatter() {
 
 template <typename Iterator, typename Formatter>
 std::string StrJoin(Iterator start, Iterator end, absl::string_view sep,
-                    Formatter&& fmt) {
-  return strings_internal::JoinAlgorithm(start, end, sep, fmt);
+    Formatter&& fmt) {
+	return strings_internal::JoinAlgorithm(start, end, sep, fmt);
 }
 
 template <typename Range, typename Formatter>
 std::string StrJoin(const Range& range, absl::string_view separator,
-                    Formatter&& fmt) {
-  return strings_internal::JoinRange(range, separator, fmt);
+    Formatter&& fmt) {
+	return strings_internal::JoinRange(range, separator, fmt);
 }
 
 template <typename T, typename Formatter>
 std::string StrJoin(std::initializer_list<T> il, absl::string_view separator,
-                    Formatter&& fmt) {
-  return strings_internal::JoinRange(il, separator, fmt);
+    Formatter&& fmt) {
+	return strings_internal::JoinRange(il, separator, fmt);
 }
 
-template <typename... T, typename Formatter>
-std::string StrJoin(const std::tuple<T...>& value, absl::string_view separator,
-                    Formatter&& fmt) {
-  return strings_internal::JoinAlgorithm(value, separator, fmt);
+template <typename ... T, typename Formatter>
+std::string StrJoin(const std::tuple<T ...>& value, absl::string_view separator,
+    Formatter&& fmt) {
+	return strings_internal::JoinAlgorithm(value, separator, fmt);
 }
 
 template <typename Iterator>
 std::string StrJoin(Iterator start, Iterator end, absl::string_view separator) {
-  return strings_internal::JoinRange(start, end, separator);
+	return strings_internal::JoinRange(start, end, separator);
 }
 
 template <typename Range>
 std::string StrJoin(const Range& range, absl::string_view separator) {
-  return strings_internal::JoinRange(range, separator);
+	return strings_internal::JoinRange(range, separator);
 }
 
 template <typename T>
 std::string StrJoin(std::initializer_list<T> il,
-                    absl::string_view separator) {
-  return strings_internal::JoinRange(il, separator);
+    absl::string_view separator) {
+	return strings_internal::JoinRange(il, separator);
 }
 
-template <typename... T>
-std::string StrJoin(const std::tuple<T...>& value,
-                    absl::string_view separator) {
-  return strings_internal::JoinAlgorithm(value, separator, AlphaNumFormatter());
+template <typename ... T>
+std::string StrJoin(const std::tuple<T ...>& value,
+    absl::string_view separator) {
+	return strings_internal::JoinAlgorithm(value, separator, AlphaNumFormatter());
 }
 
 ABSL_NAMESPACE_END

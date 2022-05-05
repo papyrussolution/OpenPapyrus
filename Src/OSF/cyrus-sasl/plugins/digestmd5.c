@@ -58,7 +58,7 @@
 # ifdef WITH_SSL_DES
 #include <openssl/des.h>
 #include <openssl/opensslv.h>
-#  if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && \
+#if(OPENSSL_VERSION_NUMBER >= 0x0090700f) && \
 	!defined(OPENSSL_ENABLE_OLD_DES_SUPPORT)
 #define des_cblock DES_cblock
 #define des_key_schedule DES_key_schedule
@@ -68,7 +68,7 @@
 	DES_cbc_encrypt((i), (o), (l), &(k), (iv), (e))
 #define des_ede2_cbc_encrypt(i, o, l, k1, k2, iv, e) \
 	DES_ede2_cbc_encrypt((i), (o), (l), &(k1), &(k2), (iv), (e))
-#  endif /* OpenSSL 0.9.7+ w/o old DES support */
+#endif /* OpenSSL 0.9.7+ w/o old DES support */
 # else /* system DES library */
 #ifdef HAVE_DES_H
 #include <des.h>

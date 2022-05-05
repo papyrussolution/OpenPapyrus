@@ -6,8 +6,6 @@
 
 #ifndef ABSL_USES_STD_STRING_VIEW
 
-#include "absl/strings/internal/memutil.h"
-
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 

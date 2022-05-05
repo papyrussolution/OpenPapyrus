@@ -559,7 +559,7 @@ static int chacha20_poly1305_ctrl(EVP_CIPHER_CTX * ctx, int type, int arg, void 
 		case EVP_CTRL_AEAD_SET_TAG:
 		    if(arg <= 0 || arg > POLY1305_BLOCK_SIZE)
 			    return 0;
-		    if(ptr != NULL) {
+		    if(ptr) {
 			    memcpy(actx->tag, ptr, arg);
 			    actx->tag_len = arg;
 		    }

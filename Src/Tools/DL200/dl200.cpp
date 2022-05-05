@@ -1348,7 +1348,7 @@ int DL2_Score::PutToStr(SString & rBuf) const
 		case kDebt: rBuf.Cat("@debt"); break;
 		case kBizScore: rBuf.Cat("@bizscore"); break;
 		case 0: rBuf.Cat("@none"); break;
-		default: rBuf.CatEq("@invalid", (long)Kind); break;
+		default: rBuf.CatEq("@invalid", Kind); break;
 	}
 	if(Sub) {
 		rBuf.Dot();
@@ -1363,7 +1363,7 @@ int DL2_Score::PutToStr(SString & rBuf) const
 			case subPctMargin:      rBuf.Cat("pctmargin"); break;
 			case subCount:          rBuf.Cat("count"); break;
 			case subAverage:        rBuf.Cat("average"); break;
-			default: rBuf.CatEq("ERROR", (long)Sub); break;
+			default: rBuf.CatEq("ERROR", Sub); break;
 		}
 	}
 	rBuf.CatChar('(');

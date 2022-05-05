@@ -3,6 +3,7 @@
 #ifndef PROTOBUF_INTERNAL_H
 #define PROTOBUF_INTERNAL_H
 #define WINDOWS_IGNORE_PACKING_MISMATCH // @v11.3.1
+//#define SLIB_INCLUDE_CPPSTDLIBS
 //#include <slib.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,18 +73,25 @@
 #include <google/protobuf/stubs/bytestream.h>
 #include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/mathutil.h>
+#include <google/protobuf/arena.h>
+#include <google/protobuf/descriptor.h>
+#include <google/protobuf/generated_message_reflection.h>
+#include <google/protobuf/generated_message_util.h>
+#include <google/protobuf/map_entry.h>
+#include <google/protobuf/map_field_lite.h>
+#include <google/protobuf/map_type_handler.h>
+#include <google/protobuf/message.h>
+#include <google/protobuf/port.h>
+#include <google/protobuf/repeated_field.h>
+#include <google/protobuf/unknown_field_set.h>
 #include <google/protobuf/map_field.h>
 #include <google/protobuf/map_field_inl.h>
 #include <google/protobuf/any.h>
 #include <google/protobuf/arenastring.h>
-#include <google/protobuf/descriptor.h>
-#include <google/protobuf/generated_message_util.h>
-#include <google/protobuf/message.h>
 #include <google/protobuf/io/tokenizer.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/arena.h>
 #include <google/protobuf/arena_impl.h>
 #include <google/protobuf/compiler/code_generator.h>
 #include <google/protobuf/compiler/cpp/cpp_enum.h>
@@ -95,16 +103,25 @@
 #include <google/protobuf/extension_set.h>
 #include <google/protobuf/reflection.h>
 #include <google/protobuf/message_lite.h>
-#include <google/protobuf/port.h>
 #include <google/protobuf/repeated_ptr_field.h>
 #include <google/protobuf/explicitly_constructed.h>
 #include <google/protobuf/metadata_lite.h>
 #include <google/protobuf/stubs/once.h>
-#include <google/protobuf/repeated_field.h>
 #include <google/protobuf/dynamic_message.h>
-#include <google/protobuf/generated_message_reflection.h>
 #include <google/protobuf/message.h>
 #include <google/protobuf/util/internal/datapiece.h>
 #include <google/protobuf/util/internal/utility.h>
+#include <google/protobuf/stubs/callback.h>
+#include <google/protobuf/stubs/int128.h>
+#include <google/protobuf/util/field_comparator.h>
+#include <google/protobuf/util/message_differencer.h>
+#include <google/protobuf/io/zero_copy_stream.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
+
+#include <google/protobuf/util/internal/proto_writer.h>
+#include <google/protobuf/util/internal/field_mask_utility.h>
+#include <google/protobuf/util/internal/object_location_tracker.h>
+#include <google/protobuf/util/internal/constants.h>
+#include <google/protobuf/stubs/statusor.h>
 
 #endif // PROTOBUF_INTERNAL_H

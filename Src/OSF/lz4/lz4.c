@@ -462,9 +462,9 @@ int LZ4_decompress_safe_forceExtDict(const char * in, char * out, int inSize, in
 static uint32 FASTCALL LZ4_hash4(uint32 sequence, tableType_t const tableType)
 {
 	if(tableType == byU16)
-		return ((sequence * 2654435761U) >> ((MINMATCH*8)-(LZ4_HASHLOG+1)));
+		return ((sequence * _SlConst.MagicHashPrime32) >> ((MINMATCH*8)-(LZ4_HASHLOG+1)));
 	else
-		return ((sequence * 2654435761U) >> ((MINMATCH*8)-LZ4_HASHLOG));
+		return ((sequence * _SlConst.MagicHashPrime32) >> ((MINMATCH*8)-LZ4_HASHLOG));
 }
 
 static uint32 FASTCALL LZ4_hash5(uint64 sequence, tableType_t const tableType)
@@ -1649,8 +1649,7 @@ LZ4_streamDecode_t* LZ4_createStreamDecode(void)
 
 int LZ4_freeStreamDecode(LZ4_streamDecode_t* LZ4_stream)
 {
-	if(LZ4_stream) 
-		SAlloc::F(LZ4_stream);
+	SAlloc::F(LZ4_stream);
 	return 0;
 }
 // 
@@ -1761,7 +1760,6 @@ LZ4_FORCE_O2_GCC_PPC64LE int LZ4_decompress_fast_continue(LZ4_streamDecode_t* LZ
 		lz4sd->prefixSize = originalSize;
 		lz4sd->prefixEnd  = (uint8 *)dest + originalSize;
 	}
-
 	return result;
 }
 // 

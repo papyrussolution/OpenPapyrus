@@ -2233,7 +2233,7 @@ int PPObjWorkbook::Helper_CreatePacketByUhttList(PPID * pID, ProcessUhttImportBl
 		else {
 			temp_buf = p_item->Symb;
 			if(!temp_buf.NotEmptyS()) {
-				temp_buf.Z().CatEq("UHTTID", (long)p_item->ID);
+				temp_buf.Z().CatEq("UHTTID", p_item->ID);
 			}
 			PPID   ex_id = 0;
 			WorkbookTbl::Rec ex_rec;
@@ -2353,7 +2353,7 @@ int PPObjWorkbook::InterchangeUhtt()
 									const UhttWorkbookItemPacket * p_item = result.at(i);
 									temp_buf = p_item->Symb;
 									if(!temp_buf.NotEmptyS())
-										temp_buf.Z().CatEq("UHTTID", (long)p_item->ID);
+										temp_buf.Z().CatEq("UHTTID", p_item->ID);
 									if(temp_buf == native_symb) {
 										const LDATETIME foreign_mod_dtm = p_item->ModifDtm;
 										const LDATETIME mod_dtm = GetLastModifTime(native_id);

@@ -28,17 +28,10 @@
 	#include <unistd.h>
 #endif
 #include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
 #include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/compiler/parser.h>
 #include <google/protobuf/io/tokenizer.h>
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/stubs/strutil.h>
 #include <google/protobuf/io/io_win32.h>
-#ifdef _WIN32
-	#include <ctype.h>
-#endif
 
 namespace google {
 namespace protobuf {
@@ -53,10 +46,10 @@ using google::protobuf::io::win32::open;
 // Returns true if the text looks like a Windows-style absolute path, starting
 // with a drive letter.  Example:  "C:\foo".  TODO(kenton):  Share this with
 // copy in command_line_interface.cc?
-static bool IsWindowsAbsolutePath(const std::string & text) {
+static bool IsWindowsAbsolutePath(const std::string & text) 
+{
 #if defined(_WIN32) || defined(__CYGWIN__)
-	return text.size() >= 3 && text[1] == ':' && isalpha(text[0]) &&
-	       (text[2] == '/' || text[2] == '\\') && text.find_last_of(':') == 1;
+	return text.size() >= 3 && text[1] == ':' && isalpha(text[0]) && (text[2] == '/' || text[2] == '\\') && text.find_last_of(':') == 1;
 #else
 	return false;
 #endif
@@ -69,77 +62,60 @@ MultiFileErrorCollector::~MultiFileErrorCollector() {
 // - It implements the ErrorCollector interface (used by Tokenizer and Parser)
 //   in terms of MultiFileErrorCollector, using a particular filename.
 // - It lets us check if any errors have occurred.
-class SourceTreeDescriptorDatabase::SingleFileErrorCollector
-	: public io::ErrorCollector {
+class SourceTreeDescriptorDatabase::SingleFileErrorCollector : public io::ErrorCollector {
 public:
-	SingleFileErrorCollector(const std::string & filename,
-	    MultiFileErrorCollector* multi_file_error_collector)
-		: filename_(filename),
-		multi_file_error_collector_(multi_file_error_collector),
-		had_errors_(false) {
+	SingleFileErrorCollector(const std::string & filename, MultiFileErrorCollector* multi_file_error_collector) : 
+		filename_(filename), multi_file_error_collector_(multi_file_error_collector), had_errors_(false) 
+	{
 	}
-
-	~SingleFileErrorCollector() {
+	~SingleFileErrorCollector() 
+	{
 	}
-
-	bool had_errors() {
-		return had_errors_;
-	}
-
+	bool had_errors() const { return had_errors_; }
 	// implements ErrorCollector ---------------------------------------
-	void AddError(int line, int column, const std::string & message) override {
+	void AddError(int line, int column, const std::string & message) override 
+	{
 		if(multi_file_error_collector_ != NULL) {
 			multi_file_error_collector_->AddError(filename_, line, column, message);
 		}
 		had_errors_ = true;
 	}
-
 private:
 	std::string filename_;
 	MultiFileErrorCollector* multi_file_error_collector_;
 	bool had_errors_;
 };
 
-// ===================================================================
-
-SourceTreeDescriptorDatabase::SourceTreeDescriptorDatabase(SourceTree* source_tree)
-	: source_tree_(source_tree),
-	fallback_database_(nullptr),
-	error_collector_(nullptr),
-	using_validation_error_collector_(false),
-	validation_error_collector_(this) {
+SourceTreeDescriptorDatabase::SourceTreeDescriptorDatabase(SourceTree* source_tree) : source_tree_(source_tree),
+	fallback_database_(nullptr), error_collector_(nullptr), using_validation_error_collector_(false), validation_error_collector_(this) 
+{
 }
 
-SourceTreeDescriptorDatabase::SourceTreeDescriptorDatabase(SourceTree* source_tree, DescriptorDatabase* fallback_database)
-	: source_tree_(source_tree),
-	fallback_database_(fallback_database),
-	error_collector_(nullptr),
-	using_validation_error_collector_(false),
-	validation_error_collector_(this) {
+SourceTreeDescriptorDatabase::SourceTreeDescriptorDatabase(SourceTree* source_tree, DescriptorDatabase* fallback_database) : 
+	source_tree_(source_tree), fallback_database_(fallback_database), error_collector_(nullptr), 
+	using_validation_error_collector_(false), validation_error_collector_(this) 
+{
 }
 
-SourceTreeDescriptorDatabase::~SourceTreeDescriptorDatabase() {
+SourceTreeDescriptorDatabase::~SourceTreeDescriptorDatabase() 
+{
 }
 
-bool SourceTreeDescriptorDatabase::FindFileByName(const std::string & filename,
-    FileDescriptorProto* output) {
+bool SourceTreeDescriptorDatabase::FindFileByName(const std::string & filename, FileDescriptorProto* output) 
+{
 	std::unique_ptr<io::ZeroCopyInputStream> input(source_tree_->Open(filename));
 	if(input == NULL) {
-		if(fallback_database_ != nullptr &&
-		    fallback_database_->FindFileByName(filename, output)) {
+		if(fallback_database_ != nullptr && fallback_database_->FindFileByName(filename, output)) {
 			return true;
 		}
 		if(error_collector_ != NULL) {
-			error_collector_->AddError(filename, -1, 0,
-			    source_tree_->GetLastErrorMessage());
+			error_collector_->AddError(filename, -1, 0, source_tree_->GetLastErrorMessage());
 		}
 		return false;
 	}
-
 	// Set up the tokenizer and parser.
 	SingleFileErrorCollector file_error_collector(filename, error_collector_);
 	io::Tokenizer tokenizer(input.get(), &file_error_collector);
-
 	Parser parser;
 	if(error_collector_ != NULL) {
 		parser.RecordErrorsTo(&file_error_collector);
@@ -147,41 +123,37 @@ bool SourceTreeDescriptorDatabase::FindFileByName(const std::string & filename,
 	if(using_validation_error_collector_) {
 		parser.RecordSourceLocationsTo(&source_locations_);
 	}
-
 	// Parse it.
 	output->set_name(filename);
 	return parser.Parse(&tokenizer, output) && !file_error_collector.had_errors();
 }
 
-bool SourceTreeDescriptorDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) {
+bool SourceTreeDescriptorDatabase::FindFileContainingSymbol(const std::string & symbol_name, FileDescriptorProto* output) 
+{
 	return false;
 }
 
-bool SourceTreeDescriptorDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number,
-    FileDescriptorProto* output) {
+bool SourceTreeDescriptorDatabase::FindFileContainingExtension(const std::string & containing_type, int field_number, FileDescriptorProto* output) 
+{
 	return false;
 }
 
-// -------------------------------------------------------------------
-
-SourceTreeDescriptorDatabase::ValidationErrorCollector::
-ValidationErrorCollector(SourceTreeDescriptorDatabase* owner)
-	: owner_(owner) {
+SourceTreeDescriptorDatabase::ValidationErrorCollector::ValidationErrorCollector(SourceTreeDescriptorDatabase* owner) : owner_(owner) 
+{
 }
 
-SourceTreeDescriptorDatabase::ValidationErrorCollector::
-~ValidationErrorCollector() {
+SourceTreeDescriptorDatabase::ValidationErrorCollector::~ValidationErrorCollector() 
+{
 }
 
 void SourceTreeDescriptorDatabase::ValidationErrorCollector::AddError(const std::string & filename, const std::string & element_name,
-    const Message* descriptor, ErrorLocation location,
-    const std::string & message) {
-	if(owner_->error_collector_ == NULL) return;
-
+    const Message* descriptor, ErrorLocation location, const std::string & message) 
+{
+	if(owner_->error_collector_ == NULL) 
+		return;
 	int line, column;
 	if(location == DescriptorPool::ErrorCollector::IMPORT) {
-		owner_->source_locations_.FindImport(descriptor, element_name, &line,
-		    &column);
+		owner_->source_locations_.FindImport(descriptor, element_name, &line, &column);
 	}
 	else {
 		owner_->source_locations_.Find(descriptor, location, &line, &column);

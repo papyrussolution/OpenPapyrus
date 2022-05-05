@@ -482,7 +482,7 @@ cairo_status_t _cairo_xcb_surface_core_copy_boxes(cairo_xcb_surface_t * dst,
 		};
 		xcb_rectangle_t * xcb_rects;
 		_cairo_xcb_connection_change_gc(dst->connection, gc, mask, values);
-		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 			int i;
 			xcb_rects = (xcb_rectangle_t*)chunk->base;
 
@@ -506,7 +506,7 @@ cairo_status_t _cairo_xcb_surface_core_copy_boxes(cairo_xcb_surface_t * dst,
 		_cairo_xcb_connection_change_gc(dst->connection, gc, XCB_GC_FILL_STYLE, values);
 	}
 	else {
-		for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+		for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 			int i;
 			for(i = 0; i < chunk->count; i++) {
 				int x1 = _cairo_fixed_integer_round(chunk->base[i].p1.x);
@@ -545,7 +545,7 @@ cairo_status_t _cairo_xcb_surface_core_fill_boxes(cairo_xcb_surface_t * dst, con
 	XSetTSOrigin(surface->dpy, gc, 0, 0);
 	XSetTile(surface->dpy, gc, source);
 #endif
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		xcb_rectangle_t * xcb_rects;
 		int i;
 		xcb_rects = (xcb_rectangle_t*)chunk->base;

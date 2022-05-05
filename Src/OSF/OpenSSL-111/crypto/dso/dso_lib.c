@@ -46,7 +46,7 @@ static DSO * DSO_new_method(DSO_METHOD * meth)
 		return NULL;
 	}
 
-	if((ret->meth->init != NULL) && !ret->meth->init(ret)) {
+	if(ret->meth->init && !ret->meth->init(ret)) {
 		DSO_free(ret);
 		ret = NULL;
 	}

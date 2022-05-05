@@ -19,7 +19,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/util/json_util.h>
-#include <google/protobuf/io/coded_stream.h>
 #include <google/protobuf/util/internal/default_value_objectwriter.h>
 #include <google/protobuf/util/internal/error_listener.h>
 #include <google/protobuf/util/internal/json_objectwriter.h>
@@ -28,7 +27,6 @@
 #include <google/protobuf/util/internal/protostream_objectwriter.h>
 #include <google/protobuf/util/type_resolver.h>
 #include <google/protobuf/util/type_resolver_util.h>
-#include <google/protobuf/stubs/status.h>
 #include <google/protobuf/stubs/status_macros.h>
 // clang-format off
 #include <google/protobuf/port_def.inc>
@@ -208,35 +206,26 @@ TypeResolver* GetGeneratedTypeResolver() {
 }
 }  // namespace
 
-util::Status MessageToJsonString(const Message& message, std::string* output,
-    const JsonOptions& options) {
+util::Status MessageToJsonString(const Message& message, std::string* output, const JsonOptions& options) 
+{
 	const DescriptorPool* pool = message.GetDescriptor()->file()->pool();
-	TypeResolver* resolver =
-	    pool == DescriptorPool::generated_pool()
-	    ? GetGeneratedTypeResolver()
-	    : NewTypeResolverForDescriptorPool(kTypeUrlPrefix, pool);
-	util::Status result =
-	    BinaryToJsonString(resolver, GetTypeUrl(message),
-		message.SerializeAsString(), output, options);
+	TypeResolver* resolver = pool == DescriptorPool::generated_pool() ? GetGeneratedTypeResolver() : NewTypeResolverForDescriptorPool(kTypeUrlPrefix, pool);
+	util::Status result = BinaryToJsonString(resolver, GetTypeUrl(message), message.SerializeAsString(), output, options);
 	if(pool != DescriptorPool::generated_pool()) {
 		delete resolver;
 	}
 	return result;
 }
 
-util::Status JsonStringToMessage(StringPiece input, Message* message,
-    const JsonParseOptions& options) {
+util::Status JsonStringToMessage(StringPiece input, Message* message, const JsonParseOptions& options) 
+{
 	const DescriptorPool* pool = message->GetDescriptor()->file()->pool();
-	TypeResolver* resolver =
-	    pool == DescriptorPool::generated_pool()
-	    ? GetGeneratedTypeResolver()
-	    : NewTypeResolverForDescriptorPool(kTypeUrlPrefix, pool);
+	TypeResolver* resolver = pool == DescriptorPool::generated_pool() ? GetGeneratedTypeResolver() : NewTypeResolverForDescriptorPool(kTypeUrlPrefix, pool);
 	std::string binary;
 	util::Status result = JsonToBinaryString(resolver, GetTypeUrl(*message),
 		input, &binary, options);
 	if(result.ok() && !message->ParseFromString(binary)) {
-		result = util::InvalidArgumentError(
-			"JSON transcoder produced invalid protobuf output.");
+		result = util::InvalidArgumentError("JSON transcoder produced invalid protobuf output.");
 	}
 	if(pool != DescriptorPool::generated_pool()) {
 		delete resolver;

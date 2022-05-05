@@ -52,18 +52,18 @@
 #ifndef ABSL_TYPES_SPAN_H_
 #define ABSL_TYPES_SPAN_H_
 
-#include <algorithm>
-#include <cassert>
-#include <cstddef>
-#include <initializer_list>
-#include <iterator>
-#include <type_traits>
-#include <utility>
-#include "absl/base/internal/throw_delegate.h"
-#include "absl/base/macros.h"
-#include "absl/base/optimization.h"
-#include "absl/base/port.h"    // TODO(strel): remove this include
-#include "absl/meta/type_traits.h"
+//#include <algorithm>
+//#include <cassert>
+//#include <cstddef>
+//#include <initializer_list>
+//#include <iterator>
+//#include <type_traits>
+//#include <utility>
+//#include "absl/base/internal/throw_delegate.h"
+//#include "absl/base/macros.h"
+//#include "absl/base/optimization.h"
+//#include "absl/base/port.h"    // TODO(strel): remove this include
+//#include "absl/meta/type_traits.h"
 #include "absl/types/internal/span.h"
 
 namespace absl {

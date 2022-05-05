@@ -624,11 +624,8 @@ const X509V3_EXT_METHOD v3_asid = {
  */
 int X509v3_asid_inherits(ASIdentifiers * asid)
 {
-	return (asid != NULL &&
-	       ((asid->asnum != NULL &&
-	       asid->asnum->type == ASIdentifierChoice_inherit) ||
-	       (asid->rdi != NULL &&
-	       asid->rdi->type == ASIdentifierChoice_inherit)));
+	return (asid != NULL && ((asid->asnum != NULL && asid->asnum->type == ASIdentifierChoice_inherit) ||
+	       (asid->rdi != NULL && asid->rdi->type == ASIdentifierChoice_inherit)));
 }
 
 /*

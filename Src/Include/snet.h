@@ -214,7 +214,7 @@ public:
 	~TcpSocket();
 	bool   IsValid() const;
 	operator SOCKET () const { return S; }
-	int    FASTCALL IsEq(const TcpSocket & rS) const { return (S == rS.S); } // @v11.0.9
+	bool   FASTCALL IsEq(const TcpSocket & rS) const { return (S == rS.S); } // @v11.0.9
 	//
 	// Descr:
 	//

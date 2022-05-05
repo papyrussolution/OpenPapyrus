@@ -1,12 +1,10 @@
 /* code.c - Handles Code 11, 39, 39+ and 93 */
-
 /*
     libzint - the open source barcode library
     Copyright (C) 2008-2016 Robin Stuart <rstuart114@gmail.com>
 
     Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions
-    are met:
+    modification, are permitted provided that the following conditions are met:
 
     1. Redistributions of source code must retain the above copyright
        notice, this list of conditions and the following disclaimer.

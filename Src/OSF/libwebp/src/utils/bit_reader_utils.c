@@ -137,8 +137,8 @@ static const uint32_t kBitMask[VP8L_MAX_NUM_BIT_READ + 1] = {
 	0x1fffff, 0x3fffff, 0x7fffff, 0xffffff
 };
 
-void VP8LInitBitReader(VP8LBitReader* const br, const uint8* const start,
-    size_t length) {
+void VP8LInitBitReader(VP8LBitReader* const br, const uint8* const start, size_t length) 
+{
 	size_t i;
 	vp8l_val_t value = 0;
 	assert(br != NULL);

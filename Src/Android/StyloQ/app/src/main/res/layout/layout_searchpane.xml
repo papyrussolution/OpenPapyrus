@@ -30,6 +30,12 @@
             </com.google.android.material.textfield.TextInputLayout>
             <!-- Здесь еще будет кнопка commit -->
         </LinearLayout>
+        <TextView
+            android:id="@+id/CTL_SEARCHPANE_RESULTINFO"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="10sp"
+            />
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/searchPaneListView"
             android:layout_width="match_parent"

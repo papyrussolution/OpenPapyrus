@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -23,10 +22,6 @@
 #include <protobuf-internal.h>
 #pragma hdrstop
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/stubs/common.h>
-#include <google/protobuf/stubs/logging.h>
-#include <google/protobuf/stubs/casts.h>
-#include <google/protobuf/stubs/stl_util.h>
 
 namespace google {
 namespace protobuf {
@@ -106,28 +101,27 @@ bool ArrayOutputStream::Next(void** data, int* size)
 	}
 }
 
-void ArrayOutputStream::BackUp(int count) {
-	GOOGLE_CHECK_GT(last_returned_size_, 0)
-		<< "BackUp() can only be called after a successful Next().";
+void ArrayOutputStream::BackUp(int count) 
+{
+	GOOGLE_CHECK_GT(last_returned_size_, 0) << "BackUp() can only be called after a successful Next().";
 	GOOGLE_CHECK_LE(count, last_returned_size_);
 	GOOGLE_CHECK_GE(count, 0);
 	position_ -= count;
 	last_returned_size_ = 0; // Don't let caller back up further.
 }
 
-int64_t ArrayOutputStream::ByteCount() const {
-	return position_;
-}
+int64_t ArrayOutputStream::ByteCount() const { return position_; }
 
 // ===================================================================
 
-StringOutputStream::StringOutputStream(std::string* target) : target_(target) {
+StringOutputStream::StringOutputStream(std::string* target) : target_(target) 
+{
 }
 
-bool StringOutputStream::Next(void** data, int* size) {
+bool StringOutputStream::Next(void** data, int* size) 
+{
 	GOOGLE_CHECK(target_ != NULL);
 	size_t old_size = target_->size();
-
 	// Grow the string.
 	size_t new_size;
 	if(old_size < target_->capacity()) {
@@ -142,17 +136,14 @@ bool StringOutputStream::Next(void** data, int* size) {
 	// Avoid integer overflow in returned '*size'.
 	new_size = std::min(new_size, old_size + std::numeric_limits<int>::max());
 	// Increase the size, also make sure that it is at least kMinimumSize.
-	STLStringResizeUninitialized(
-		target_,
-		std::max(new_size,
-		kMinimumSize + 0)); // "+ 0" works around GCC4 weirdness.
-
+	STLStringResizeUninitialized(target_, std::max(new_size, kMinimumSize + 0)); // "+ 0" works around GCC4 weirdness.
 	*data = mutable_string_data(target_) + old_size;
 	*size = target_->size() - old_size;
 	return true;
 }
 
-void StringOutputStream::BackUp(int count) {
+void StringOutputStream::BackUp(int count) 
+{
 	GOOGLE_CHECK_GE(count, 0);
 	GOOGLE_CHECK(target_ != NULL);
 	GOOGLE_CHECK_LE(static_cast<size_t>(count), target_->size());

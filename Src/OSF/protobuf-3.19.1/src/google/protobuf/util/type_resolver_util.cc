@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -22,9 +21,7 @@
 #include <google/protobuf/type.pb.h>
 #include <google/protobuf/wrappers.pb.h>
 #include <google/protobuf/descriptor.pb.h>
-#include <google/protobuf/util/internal/utility.h>
 #include <google/protobuf/util/type_resolver.h>
-#include <google/protobuf/stubs/status.h>
 // clang-format off
 #include <google/protobuf/port_def.inc>
 // clang-format on
@@ -249,49 +246,26 @@ private:
 
 		ConvertEnumOptions(descriptor->options(), enum_type->mutable_options());
 	}
-
-	std::string GetTypeUrl(const Descriptor* descriptor) {
-		return url_prefix_ + "/" + descriptor->full_name();
-	}
-
-	std::string GetTypeUrl(const EnumDescriptor* descriptor) {
-		return url_prefix_ + "/" + descriptor->full_name();
-	}
-
-	util::Status ParseTypeUrl(const std::string & type_url,
-	    std::string* type_name) {
+	std::string GetTypeUrl(const Descriptor* descriptor) { return url_prefix_ + "/" + descriptor->full_name(); }
+	std::string GetTypeUrl(const EnumDescriptor* descriptor) { return url_prefix_ + "/" + descriptor->full_name(); }
+	util::Status ParseTypeUrl(const std::string & type_url, std::string* type_name) 
+	{
 		if(type_url.substr(0, url_prefix_.size() + 1) != url_prefix_ + "/") {
-			return util::InvalidArgumentError(
-				StrCat("Invalid type URL, type URLs must be of the form '",
-				url_prefix_, "/<typename>', got: ", type_url));
+			return util::InvalidArgumentError(StrCat("Invalid type URL, type URLs must be of the form '", url_prefix_, "/<typename>', got: ", type_url));
 		}
 		*type_name = type_url.substr(url_prefix_.size() + 1);
 		return util::Status();
 	}
-
-	std::string DefaultValueAsString(const FieldDescriptor* descriptor) {
+	std::string DefaultValueAsString(const FieldDescriptor* descriptor) 
+	{
 		switch(descriptor->cpp_type()) {
-			case FieldDescriptor::CPPTYPE_INT32:
-			    return StrCat(descriptor->default_value_int32());
-			    break;
-			case FieldDescriptor::CPPTYPE_INT64:
-			    return StrCat(descriptor->default_value_int64());
-			    break;
-			case FieldDescriptor::CPPTYPE_UINT32:
-			    return StrCat(descriptor->default_value_uint32());
-			    break;
-			case FieldDescriptor::CPPTYPE_UINT64:
-			    return StrCat(descriptor->default_value_uint64());
-			    break;
-			case FieldDescriptor::CPPTYPE_FLOAT:
-			    return SimpleFtoa(descriptor->default_value_float());
-			    break;
-			case FieldDescriptor::CPPTYPE_DOUBLE:
-			    return SimpleDtoa(descriptor->default_value_double());
-			    break;
-			case FieldDescriptor::CPPTYPE_BOOL:
-			    return descriptor->default_value_bool() ? "true" : "false";
-			    break;
+			case FieldDescriptor::CPPTYPE_INT32: return StrCat(descriptor->default_value_int32());
+			case FieldDescriptor::CPPTYPE_INT64: return StrCat(descriptor->default_value_int64());
+			case FieldDescriptor::CPPTYPE_UINT32: return StrCat(descriptor->default_value_uint32());
+			case FieldDescriptor::CPPTYPE_UINT64: return StrCat(descriptor->default_value_uint64());
+			case FieldDescriptor::CPPTYPE_FLOAT: return SimpleFtoa(descriptor->default_value_float());
+			case FieldDescriptor::CPPTYPE_DOUBLE: return SimpleDtoa(descriptor->default_value_double());
+			case FieldDescriptor::CPPTYPE_BOOL: return descriptor->default_value_bool() ? "true" : "false";
 			case FieldDescriptor::CPPTYPE_STRING:
 			    if(descriptor->type() == FieldDescriptor::TYPE_BYTES) {
 				    return CEscape(descriptor->default_value_string());
@@ -300,23 +274,20 @@ private:
 				    return descriptor->default_value_string();
 			    }
 			    break;
-			case FieldDescriptor::CPPTYPE_ENUM:
-			    return descriptor->default_value_enum()->name();
-			    break;
+			case FieldDescriptor::CPPTYPE_ENUM: return descriptor->default_value_enum()->name();
 			case FieldDescriptor::CPPTYPE_MESSAGE:
 			    GOOGLE_LOG(DFATAL) << "Messages can't have default values!";
 			    break;
 		}
 		return "";
 	}
-
 	std::string url_prefix_;
 	const DescriptorPool* pool_;
 };
 }  // namespace
 
-TypeResolver* NewTypeResolverForDescriptorPool(const std::string & url_prefix,
-    const DescriptorPool* pool) {
+TypeResolver* NewTypeResolverForDescriptorPool(const std::string & url_prefix, const DescriptorPool* pool) 
+{
 	return new DescriptorPoolTypeResolver(url_prefix, pool);
 }
 }  // namespace util

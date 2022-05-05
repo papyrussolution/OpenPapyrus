@@ -2514,12 +2514,3 @@ int TIFFReadRGBATileExt(TIFF * tif, uint32 col, uint32 row, uint32 * raster, int
 	}
 	return (ok);
 }
-
-/* vim: set ts=8 sts=8 sw=8 noet: */
-/*
- * Local Variables:
- * mode: c
- * c-basic-offset: 8
- * fill-column: 78
- * End:
- */

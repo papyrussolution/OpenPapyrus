@@ -1,14 +1,12 @@
-//***************************************************************************/
-// This software is released under the 2-Clause BSD license, included
-// below.
+// ht_dec.c
+// This software is released under the 2-Clause BSD license, included below.
 //
 // Copyright (c) 2021, Aous Naman
 // Copyright (c) 2021, Kakadu Software Pty Ltd, Australia
 // Copyright (c) 2021, The University of New South Wales, Australia
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // 1. Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -21,12 +19,9 @@
 // File: ht_dec.c
 // Author: Aous Naman
 // Date: 01 September 2021
-//***************************************************************************/
-
-//***************************************************************************/
-/** @file ht_dec.c
- *  @brief implements HTJ2K block decoder
- */
+//
+// @brief implements HTJ2K block decoder
+//
 #include "opj_includes.h"
 #pragma hdrstop
 #include "t1_ht_luts.h"

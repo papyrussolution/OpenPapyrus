@@ -53,24 +53,20 @@ struct ar {
 
 static int archive_read_format_ar_bid(struct archive_read * a, int);
 static int archive_read_format_ar_cleanup(struct archive_read * a);
-static int archive_read_format_ar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64 * offset);
+static int archive_read_format_ar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset);
 static int archive_read_format_ar_skip(struct archive_read * a);
-static int archive_read_format_ar_read_header(struct archive_read * a,
-    struct archive_entry * e);
+static int archive_read_format_ar_read_header(struct archive_read * a, struct archive_entry * e);
 static uint64 ar_atol8(const char * p, uint char_cnt);
 static uint64 ar_atol10(const char * p, uint char_cnt);
 static int ar_parse_gnu_filename_table(struct archive_read * a);
-static int ar_parse_common_header(struct ar * ar, struct archive_entry *,
-    const char * h);
+static int ar_parse_common_header(struct ar * ar, struct archive_entry *, const char * h);
 
 int archive_read_support_format_ar(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct ar * ar;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_format_ar");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_ar");
 	ar = (struct ar *)SAlloc::C(1, sizeof(*ar));
 	if(ar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate ar data");

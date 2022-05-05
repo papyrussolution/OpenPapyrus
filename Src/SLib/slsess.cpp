@@ -278,6 +278,15 @@ static void InitTest()
 		STATIC_ASSERT(AGGRFUNC_STDDEV == 6);
 	}
 	{
+		void * ptr = SAlloc::M(0);
+		assert(ptr != 0);
+		SAlloc::F(ptr);
+		//
+		ptr = SAlloc::M(4);
+		assert(ptr != 0);
+		SAlloc::F(ptr);
+	}
+	{
 		//
 		// Тестирование макроса SETIFZ
 		//

@@ -169,14 +169,12 @@ void * OCSP_BASICRESP_get1_ext_d2i(OCSP_BASICRESP * x, int nid, int * crit,
 int OCSP_BASICRESP_add1_ext_i2d(OCSP_BASICRESP * x, int nid, void * value,
     int crit, ulong flags)
 {
-	return X509V3_add1_i2d(&x->tbsResponseData.responseExtensions, nid,
-		   value, crit, flags);
+	return X509V3_add1_i2d(&x->tbsResponseData.responseExtensions, nid, value, crit, flags);
 }
 
 int OCSP_BASICRESP_add_ext(OCSP_BASICRESP * x, X509_EXTENSION * ex, int loc)
 {
-	return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc)
-	       != NULL);
+	return (X509v3_add_ext(&(x->tbsResponseData.responseExtensions), ex, loc) != NULL);
 }
 
 /* OCSP single response extensions */

@@ -335,22 +335,26 @@ PPSCardSerRule & FASTCALL PPSCardSerRule::operator = (const PPSCardSerRule & s)
 	return *this;
 }
 
-int PPSCardSerRule::CheckTrnovrRng(const RealRange & rR, long pos) const
+int PPSCardSerRule::CheckTrnovrRng(const TrnovrRngDis & rItem, long pos) const
 {
-	int    ok = (rR.upp > rR.low && rR.low >= 0.0) ? 1 : PPSetError(PPERR_TRNOVRRNG);
+	int    ok = ((rItem.Flags & TrnovrRngDis::fZeroTurnover) || (rItem.R.upp > rItem.R.low && rItem.R.low >= 0.0)) ? 1 : PPSetError(PPERR_TRNOVRRNG);
 	TrnovrRngDis * p_item = 0;
-	for(uint i = 0; ok == 1 && enumItems(&i, (void **)&p_item) > 0;)
+	for(uint i = 0; ok == 1 && enumItems(&i, (void **)&p_item) > 0;) {
 		if(pos < 0 || pos != i - 1) {
-			if(p_item->R.Check(rR.upp) || p_item->R.Check(rR.low) || (rR.low <= p_item->R.low && rR.upp >= p_item->R.upp))
+			if(rItem.Flags & TrnovrRngDis::fZeroTurnover && (p_item->Flags & TrnovrRngDis::fZeroTurnover)) {
+				ok = PPSetError(PPERR_SCSERRULE_DUPZEROTRNOVR);
+			}
+			else if(p_item->R.Check(rItem.R.upp) || p_item->R.Check(rItem.R.low) || (rItem.R.low <= p_item->R.low && rItem.R.upp >= p_item->R.upp))
 				ok = PPSetError(PPERR_INTRSTRNOVRRNG);
 		}
+	}
 	return ok;
 }
 
 int PPSCardSerRule::ValidateItem(int ruleType, const TrnovrRngDis & rItem, long pos) const
 {
 	int    ok = 1;
-	THROW(CheckTrnovrRng(rItem.R, pos));
+	THROW(CheckTrnovrRng(rItem, pos));
 	THROW_PP(ruleType == rultBonus || !(rItem.Flags & rItem.fBonusAbsoluteValue), PPERR_INVSCSRULEITEMFLAG);
 	if(rItem.Flags & rItem.fBonusAbsoluteValue) {
 		THROW_PP_S(rItem.Value >= -100000 && rItem.Value <= 100000, PPERR_INVSCSRULEITEMABSVAL, "-100000..100000");
@@ -548,7 +552,11 @@ int PPSCardSerPacket::GetDisByRule(double trnovr, TrnovrRngDis & rEntry) const
 	int    ok = -1;
 	TrnovrRngDis * p_item = 0;
 	for(uint i = 0; ok < 0 && Rule.enumItems(&i, (void **)&p_item) > 0;) {
-		if(p_item->R.Check(trnovr)) {
+		if(trnovr == 0.0 && p_item->Flags & TrnovrRngDis::fZeroTurnover) { // @v11.3.10
+			rEntry = *p_item;
+			ok = 1;
+		}
+		else if(p_item->R.Check(trnovr)) {
 			rEntry = *p_item;
 			ok = 1;
 		}
@@ -579,8 +587,7 @@ public:
 		}
 		if(p_title_symb) {
 			SString title_buf;
-			if(PPLoadString(p_title_symb, title_buf) > 0)
-				setTitle(title_buf);
+			setTitle(PPLoadStringS(p_title_symb, title_buf));
 		}
 		showCtrl(CTLSEL_SCARDRULE_PRD, (RuleType != PPSCardSerRule::rultCcAmountDisc));
 		updateList(-1);
@@ -611,57 +618,101 @@ private:
 
 int SCardRuleDlg::EditTrnovrRng(long pos)
 {
-	int    ok = -1, valid_data = 0;
+	class SCardRuleDialog : public TDialog {
+		DECL_DIALOG_DATA(TrnovrRngDis);
+		const int RuleType;
+	public:
+		SCardRuleDialog(uint dlgId, const int ruleType) : TDialog(dlgId), RuleType(ruleType)
+		{
+		}
+		DECL_DIALOG_SETDTS()
+		{
+			int    ok = 1;
+			RVALUEPTR(Data, pData);
+			//
+			SetRealRangeInput(this, CTL_TRNVRRNG_RANGE, &Data.R);
+			setCtrlUInt16(CTL_TRNVRRNG_ZEROTRNOVR, BIN(Data.Flags & Data.fZeroTurnover));
+			setCtrlData(CTL_TRNVRRNG_DIS, &Data.Value);
+			SetupPPObjCombo(this, CTLSEL_TRNVRRNG_SERIES, PPOBJ_SCARDSERIES, ((RuleType == PPSCardSerRule::rultDisc) ? Data.SeriesID : 0), 0, 0);
+			showCtrl(CTLSEL_TRNVRRNG_SERIES, (RuleType == PPSCardSerRule::rultDisc));
+			if(RuleType == PPSCardSerRule::rultBonus) {
+				const long   method = (Data.Flags & Data.fBonusAbsoluteValue) ? 2 : 1;
+				AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
+				AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
+				SetClusterData(CTL_TRNVRRNG_METHOD, method);
+			}
+			else {
+				const long  method = (Data.Flags & Data.fDiscountAddValue) ? 2 : ((Data.Flags & Data.fDiscountMultValue) ? 3 : 1);
+				AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
+				AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
+				AddClusterAssoc(CTL_TRNVRRNG_METHOD, 2, 3);
+				SetClusterData(CTL_TRNVRRNG_METHOD, method);
+			}
+			SetupCtrl();
+			return ok;
+		}
+		DECL_DIALOG_GETDTS()
+		{
+			int    ok = 1;
+			//
+			getCtrlData(CTL_TRNVRRNG_DIS, &Data.Value);
+			getCtrlData(CTLSEL_TRNVRRNG_SERIES, &Data.SeriesID);
+			if(RuleType == PPSCardSerRule::rultBonus) {
+				const long method = GetClusterData(CTL_TRNVRRNG_METHOD);
+				Data.Flags &= ~(Data.fBonusAbsoluteValue|Data.fDiscountAddValue|Data.fDiscountMultValue);
+				SETFLAG(Data.Flags, Data.fBonusAbsoluteValue, method == 2);
+			}
+			else {
+				const long method = GetClusterData(CTL_TRNVRRNG_METHOD);
+				Data.Flags &= ~(Data.fBonusAbsoluteValue|Data.fDiscountAddValue|Data.fDiscountMultValue);
+				if(method == 2)
+					Data.Flags |= Data.fDiscountAddValue;
+				else if(method == 3)
+					Data.Flags |= Data.fDiscountMultValue;
+			}
+			GetRealRangeInput(this, CTL_TRNVRRNG_RANGE, &Data.R);
+			SETFLAG(Data.Flags, Data.fZeroTurnover, getCtrlUInt16(CTL_TRNVRRNG_ZEROTRNOVR));
+			//
+			ASSIGN_PTR(pData, Data);
+			return ok;
+		}
+	private:
+		DECL_HANDLE_EVENT
+		{
+			TDialog::handleEvent(event);
+			if(event.isClusterClk(CTL_TRNVRRNG_ZEROTRNOVR)) {
+				SetupCtrl();
+			}
+			else
+				return;
+			clearEvent(event);
+		}
+		void SetupCtrl()
+		{
+			uint16 zt = getCtrlUInt16(CTL_TRNVRRNG_ZEROTRNOVR);
+			disableCtrl(CTL_TRNVRRNG_RANGE, zt);
+		}
+	};
+	int    ok = -1;
+	int    valid_data = 0;
 	TrnovrRngDis range;
-	TDialog * p_dlg = new TDialog((RuleType == PPSCardSerRule::rultBonus) ? DLG_SCBONUSRULE : DLG_TRNVRRNG);
+	SCardRuleDialog * p_dlg = new SCardRuleDialog((RuleType == PPSCardSerRule::rultBonus) ? DLG_SCBONUSRULE : DLG_TRNVRRNG, RuleType);
 	THROW(CheckDialogPtr(&p_dlg));
 	if(pos >= 0 && pos < Data.getCountI())
 		range = Data.at(static_cast<uint>(pos));
-	else
-		MEMSZERO(range);
-	SetRealRangeInput(p_dlg, CTL_TRNVRRNG_RANGE, &range.R);
-	p_dlg->setCtrlData(CTL_TRNVRRNG_DIS, &range.Value);
-	SetupPPObjCombo(p_dlg, CTLSEL_TRNVRRNG_SERIES, PPOBJ_SCARDSERIES, ((RuleType == PPSCardSerRule::rultDisc) ? range.SeriesID : 0), 0, 0);
-	p_dlg->showCtrl(CTLSEL_TRNVRRNG_SERIES, (RuleType == PPSCardSerRule::rultDisc));
-	if(RuleType == PPSCardSerRule::rultBonus) {
-		const long   method = (range.Flags & range.fBonusAbsoluteValue) ? 2 : 1;
-		p_dlg->AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
-		p_dlg->SetClusterData(CTL_TRNVRRNG_METHOD, method);
-	}
-	else {
-		const long  method = (range.Flags & range.fDiscountAddValue) ? 2 : ((range.Flags & range.fDiscountMultValue) ? 3 : 1);
-		p_dlg->AddClusterAssocDef(CTL_TRNVRRNG_METHOD, 0, 1);
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 1, 2);
-		p_dlg->AddClusterAssoc(CTL_TRNVRRNG_METHOD, 2, 3);
-		p_dlg->SetClusterData(CTL_TRNVRRNG_METHOD, method);
-	}
+	p_dlg->setDTS(&range);
 	while(!valid_data && ExecView(p_dlg) == cmOK) {
-		p_dlg->getCtrlData(CTL_TRNVRRNG_DIS, &range.Value);
-		p_dlg->getCtrlData(CTLSEL_TRNVRRNG_SERIES, &range.SeriesID);
-		if(RuleType == PPSCardSerRule::rultBonus) {
-			const long method = p_dlg->GetClusterData(CTL_TRNVRRNG_METHOD);
-			range.Flags &= ~(range.fBonusAbsoluteValue|range.fDiscountAddValue|range.fDiscountMultValue);
-			SETFLAG(range.Flags, range.fBonusAbsoluteValue, method == 2);
-		}
-		else {
-			const long method = p_dlg->GetClusterData(CTL_TRNVRRNG_METHOD);
-			range.Flags &= ~(range.fBonusAbsoluteValue|range.fDiscountAddValue|range.fDiscountMultValue);
-			if(method == 2)
-				range.Flags |= range.fDiscountAddValue;
-			else if(method == 3)
-				range.Flags |= range.fDiscountMultValue;
-		}
-		GetRealRangeInput(p_dlg, CTL_TRNVRRNG_RANGE, &range.R);
-		if(Data.ValidateItem(RuleType, range, pos)) {
-			if(pos >= 0)
-				Data.at(static_cast<uint>(pos)) = range;
+		if(p_dlg->getDTS(&range)) {
+			if(Data.ValidateItem(RuleType, range, pos)) {
+				if(pos >= 0)
+					Data.at(static_cast<uint>(pos)) = range;
+				else
+					THROW_SL(Data.insert(&range));
+				ok = valid_data = 1;
+			}
 			else
-				THROW_SL(Data.insert(&range));
-			ok = valid_data = 1;
+				PPError();
 		}
-		else
-			PPError();
 	}
 	CATCHZOKPPERR
 	delete p_dlg;
@@ -697,8 +748,11 @@ int SCardRuleDlg::setupList()
 	StringSet ss(SLBColumnDelim);
 	for(uint i = 0; Data.enumItems(&i, (void **)&p_item) > 0;) {
 		ss.clear();
-		buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
-			Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("RUB");
+		if(p_item->Flags & TrnovrRngDis::fZeroTurnover)
+			PPLoadString("trnovrrngdis_zerotrnovr", buf);
+		else
+			buf.Z().Cat(p_item->R.low, MKSFMTD(0, 2, NMBF_NOTRAILZ)).CatCharN('.', 2).
+				Cat(p_item->R.upp, MKSFMTD(0, 2, NMBF_NOTRAILZ)).Space().Cat("RUB");
 		ss.add(buf);
 		if(p_item->Flags & TrnovrRngDis::fBonusAbsoluteValue)
 			buf.Z().CatChar('$').Cat(p_item->Value, MKSFMTD(0, 2, NMBF_NOTRAILZ));

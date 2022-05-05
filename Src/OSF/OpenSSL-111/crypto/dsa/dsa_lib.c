@@ -79,19 +79,14 @@ DSA * DSA_new_method(ENGINE * engine)
 		}
 	}
 #endif
-
 	ret->flags = ret->meth->flags & ~DSA_FLAG_NON_FIPS_ALLOW;
-
 	if(!CRYPTO_new_ex_data(CRYPTO_EX_INDEX_DSA, ret, &ret->ex_data))
 		goto err;
-
-	if((ret->meth->init != NULL) && !ret->meth->init(ret)) {
+	if(ret->meth->init && !ret->meth->init(ret)) {
 		DSAerr(DSA_F_DSA_NEW_METHOD, ERR_R_INIT_FAIL);
 		goto err;
 	}
-
 	return ret;
-
 err:
 	DSA_free(ret);
 	return NULL;
@@ -100,10 +95,8 @@ err:
 void DSA_free(DSA * r)
 {
 	int i;
-
 	if(r == NULL)
 		return;
-
 	CRYPTO_DOWN_REF(&r->references, &i, r->lock);
 	REF_PRINT_COUNT("DSA", r);
 	if(i > 0)

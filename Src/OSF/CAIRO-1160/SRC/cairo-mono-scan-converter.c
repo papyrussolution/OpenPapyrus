@@ -180,16 +180,15 @@ inline static void polygon_add_edge(struct polygon * polygon,
 		e->x.quo += edge->line.p1.x;
 	}
 	e->x.rem -= dy;
-
 	_polygon_insert_edge_into_its_y_bucket(polygon, e, ytop);
 }
 
-static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      {
-	struct edge * head, ** next, * prev;
+static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head_b)                      
+{
+	struct edge * head;
 	int32 x;
-
-	prev = head_a->prev;
-	next = &head;
+	struct edge * prev = head_a->prev;
+	struct edge ** next = &head;
 	if(head_a->x.quo <= head_b->x.quo) {
 		head = head_a;
 	}
@@ -198,7 +197,6 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 		head_b->prev = prev;
 		goto start_with_b;
 	}
-
 	do {
 		x = head_b->x.quo;
 		while(head_a != NULL && head_a->x.quo <= x) {
@@ -206,12 +204,10 @@ static struct edge * merge_sorted_edges(struct edge * head_a, struct edge * head
 			next = &head_a->next;
 			head_a = head_a->next;
 		}
-
 		head_b->prev = prev;
 		*next = head_b;
 		if(head_a == NULL)
 			return head;
-
 start_with_b:
 		x = head_a->x.quo;
 		while(head_b != NULL && head_b->x.quo <= x) {
@@ -227,19 +223,15 @@ start_with_b:
 	} while(1);
 }
 
-static struct edge * sort_edges(struct edge * list,
-    uint level,
-    struct edge ** head_out){
-	struct edge * head_other, * remaining;
+static struct edge * sort_edges(struct edge * list, uint level, struct edge ** head_out)
+{
+	struct edge * remaining;
 	uint i;
-
-	head_other = list->next;
-
+	struct edge * head_other = list->next;
 	if(head_other == NULL) {
 		*head_out = list;
 		return NULL;
 	}
-
 	remaining = head_other->next;
 	if(list->x.quo <= head_other->x.quo) {
 		*head_out = list;
@@ -252,16 +244,15 @@ static struct edge * sort_edges(struct edge * list,
 		list->prev = head_other;
 		list->next = NULL;
 	}
-
 	for(i = 0; i < level && remaining; i++) {
 		remaining = sort_edges(remaining, i, &head_other);
 		*head_out = merge_sorted_edges(*head_out, head_other);
 	}
-
 	return remaining;
 }
 
-static struct edge * merge_unsorted_edges(struct edge * head, struct edge * unsorted)                      {
+static struct edge * merge_unsorted_edges(struct edge * head, struct edge * unsorted)                      
+{
 	sort_edges(unsorted, UINT_MAX, &unsorted);
 	return merge_sorted_edges(head, unsorted);
 }
@@ -269,28 +260,23 @@ static struct edge * merge_unsorted_edges(struct edge * head, struct edge * unso
 inline static void active_list_merge_edges(struct mono_scan_converter * c, struct edge * edges)
 {
 	struct edge * e;
-
 	for(e = edges; c->is_vertical && e; e = e->next)
 		c->is_vertical = e->vertical;
-
 	c->head.next = merge_unsorted_edges(c->head.next, edges);
 }
 
 inline static void add_span(struct mono_scan_converter * c, int x1, int x2)
 {
 	int n;
-
 	if(x1 < c->xmin)
 		x1 = c->xmin;
 	if(x2 > c->xmax)
 		x2 = c->xmax;
 	if(x2 <= x1)
 		return;
-
 	n = c->num_spans++;
 	c->spans[n].x = x1;
 	c->spans[n].coverage = 255;
-
 	n = c->num_spans++;
 	c->spans[n].x = x2;
 	c->spans[n].coverage = 0;
@@ -301,7 +287,6 @@ inline static void row(struct mono_scan_converter * c, uint mask)
 	struct edge * edge = c->head.next;
 	int xstart = INT_MIN, prev_x = INT_MIN;
 	int winding = 0;
-
 	c->num_spans = 0;
 	while(&c->tail != edge) {
 		struct edge * next = edge->next;

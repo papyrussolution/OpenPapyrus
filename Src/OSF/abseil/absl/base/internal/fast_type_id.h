@@ -16,7 +16,7 @@
 #ifndef ABSL_BASE_INTERNAL_FAST_TYPE_ID_H_
 #define ABSL_BASE_INTERNAL_FAST_TYPE_ID_H_
 
-#include "absl/base/config.h"
+//#include "absl/base/config.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

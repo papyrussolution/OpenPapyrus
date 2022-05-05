@@ -146,31 +146,22 @@ int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
 			reason = ERR_R_EC_LIB;
 			goto err;
 		}
-
 		if((seed = EC_GROUP_get0_seed(x)) != NULL)
 			seed_len = EC_GROUP_get_seed_len(x);
-
 		if(!BIO_indent(bp, off, 128))
 			goto err;
-
 		/* print the 'short name' of the field type */
-		if(BIO_printf(bp, "Field Type: %s\n", OBJ_nid2sn(tmp_nid))
-		    <= 0)
+		if(BIO_printf(bp, "Field Type: %s\n", OBJ_nid2sn(tmp_nid)) <= 0)
 			goto err;
-
 		if(is_char_two) {
 			/* print the 'short name' of the base type OID */
 			int basis_type = EC_GROUP_get_basis_type(x);
 			if(basis_type == 0)
 				goto err;
-
 			if(!BIO_indent(bp, off, 128))
 				goto err;
-
-			if(BIO_printf(bp, "Basis Type: %s\n",
-			    OBJ_nid2sn(basis_type)) <= 0)
+			if(BIO_printf(bp, "Basis Type: %s\n", OBJ_nid2sn(basis_type)) <= 0)
 				goto err;
-
 			/* print the polynomial */
 			if((p != NULL) && !ASN1_bn_print(bp, "Polynomial:", p, NULL,
 			    off))
@@ -185,25 +176,20 @@ int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
 		if((b != NULL) && !ASN1_bn_print(bp, "B:   ", b, NULL, off))
 			goto err;
 		if(form == POINT_CONVERSION_COMPRESSED) {
-			if((gen != NULL) && !ASN1_bn_print(bp, gen_compressed, gen,
-			    NULL, off))
+			if((gen != NULL) && !ASN1_bn_print(bp, gen_compressed, gen, NULL, off))
 				goto err;
 		}
 		else if(form == POINT_CONVERSION_UNCOMPRESSED) {
-			if((gen != NULL) && !ASN1_bn_print(bp, gen_uncompressed, gen,
-			    NULL, off))
+			if((gen != NULL) && !ASN1_bn_print(bp, gen_uncompressed, gen, NULL, off))
 				goto err;
 		}
 		else {          /* form == POINT_CONVERSION_HYBRID */
-			if((gen != NULL) && !ASN1_bn_print(bp, gen_hybrid, gen,
-			    NULL, off))
+			if((gen != NULL) && !ASN1_bn_print(bp, gen_hybrid, gen, NULL, off))
 				goto err;
 		}
-		if((order != NULL) && !ASN1_bn_print(bp, "Order: ", order,
-		    NULL, off))
+		if((order != NULL) && !ASN1_bn_print(bp, "Order: ", order, NULL, off))
 			goto err;
-		if((cofactor != NULL) && !ASN1_bn_print(bp, "Cofactor: ", cofactor,
-		    NULL, off))
+		if((cofactor != NULL) && !ASN1_bn_print(bp, "Cofactor: ", cofactor, NULL, off))
 			goto err;
 		if(seed && !print_bin(bp, "Seed:", seed, seed_len, off))
 			goto err;
@@ -245,12 +231,10 @@ static int print_bin(BIO * fp, const char * name, const uchar * buf, size_t len,
 			if(BIO_write(fp, str, off + 1 + 4) <= 0)
 				return 0;
 		}
-		if(BIO_printf(fp, "%02x%s", buf[i], ((i + 1) == len) ? "" : ":") <=
-		    0)
+		if(BIO_printf(fp, "%02x%s", buf[i], ((i + 1) == len) ? "" : ":") <= 0)
 			return 0;
 	}
 	if(BIO_write(fp, "\n", 1) <= 0)
 		return 0;
-
 	return 1;
 }

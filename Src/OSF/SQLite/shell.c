@@ -110,7 +110,7 @@ typedef unsigned char u8;
 #define DIRENT dirent
 #  ifndef S_ISLNK
 #   define S_ISLNK(mode) (0)
-#  endif
+#endif
 #endif
 #else
 #define GETPID (int)GetCurrentProcessId
@@ -162,13 +162,13 @@ typedef unsigned char u8;
 #define isatty(h) _isatty(h)
 #  ifndef access
 #   define access(f, m) _access((f), (m))
-#  endif
+#endif
 #  ifndef unlink
 #   define unlink _unlink
-#  endif
+#endif
 #  ifndef strdup
 #   define strdup _strdup
-#  endif
+#endif
 #undef popen
 #define popen _popen
 #undef pclose
@@ -1146,10 +1146,10 @@ typedef unsigned short ino_t;
 
 #ifndef NAME_MAX
 #  ifdef FILENAME_MAX
-#    define NAME_MAX (FILENAME_MAX)
+#define NAME_MAX (FILENAME_MAX)
 #  else
-#    define NAME_MAX (260)
-#  endif
+#define NAME_MAX (260)
+#endif
 #endif
 
 /*
@@ -2239,11 +2239,11 @@ SQLITE_EXTENSION_INIT1
 /* #include "test_windirent.h" */
 #define dirent DIRENT
 #  ifndef chmod
-#    define chmod _chmod
-#  endif
+#define chmod _chmod
+#endif
 #  ifndef stat
-#    define stat _stat
-#  endif
+#define stat _stat
+#endif
 #define mkdir(path, mode) _mkdir(path)
 #define lstat(path, buf) stat(path, buf)
 #endif
@@ -22245,12 +22245,12 @@ static char * cmdline_option_value(int argc, char ** argv, int i){
 }
 
 #ifndef SQLITE_SHELL_IS_UTF8
-#  if(defined(_WIN32) || defined(WIN32)) \
+#if(defined(_WIN32) || defined(WIN32)) \
 	&& (defined(_MSC_VER) || (defined(UNICODE) && defined(__GNUC__)))
-#    define SQLITE_SHELL_IS_UTF8          (0)
+#define SQLITE_SHELL_IS_UTF8          (0)
 #  else
-#    define SQLITE_SHELL_IS_UTF8          (1)
-#  endif
+#define SQLITE_SHELL_IS_UTF8          (1)
+#endif
 #endif
 
 #if SQLITE_SHELL_IS_UTF8

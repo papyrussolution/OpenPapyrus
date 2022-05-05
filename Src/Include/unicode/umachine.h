@@ -93,16 +93,16 @@
  * @internal
  */
 #if U_GCC_MAJOR_MINOR >= 302
-#    define U_ATTRIBUTE_DEPRECATED __attribute__ ((deprecated))
+#define U_ATTRIBUTE_DEPRECATED __attribute__ ((deprecated))
 /**
  * \def U_ATTRIBUTE_DEPRECATED
  * This is used for Visual C++ specific attributes 
  * @internal
  */
 #elif defined(_MSC_VER) && (_MSC_VER >= 1400)
-#    define U_ATTRIBUTE_DEPRECATED __declspec(deprecated)
+#define U_ATTRIBUTE_DEPRECATED __declspec(deprecated)
 #else
-#    define U_ATTRIBUTE_DEPRECATED
+#define U_ATTRIBUTE_DEPRECATED
 #endif
 #endif
 
@@ -364,7 +364,7 @@ typedef int8 UBool_Removed; // @sobolev _Removed
  */
 #if (U_PLATFORM == U_PF_AIX) && defined(__cplusplus) &&(U_CPLUSPLUS_VERSION < 11)
 // for AIX, uchar.h needs to be included
-# include <uchar.h>
+#include <uchar.h>
 #define U_CHAR16_IS_TYPEDEF 1
 #elif defined(_MSC_VER) && (_MSC_VER < 1900)
 // Versions of Visual Studio/MSVC below 2015 do not support char16_t as a real type,

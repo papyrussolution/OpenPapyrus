@@ -7843,9 +7843,7 @@ int ZEXPORT inflate(z_streamp strm, int flush)
 				    if(copy) {
 					    if(state->head && state->head->extra) {
 						    len = state->head->extra_len - state->length;
-						    memcpy(state->head->extra + len, next,
-						    len + copy > state->head->extra_max ?
-						    state->head->extra_max - len : copy);
+						    memcpy(state->head->extra + len, next, len + copy > state->head->extra_max ? state->head->extra_max - len : copy);
 					    }
 					    if((state->flags & 0x0200) && (state->wrap & 4))
 						    state->check = crc32(state->check, next, copy);

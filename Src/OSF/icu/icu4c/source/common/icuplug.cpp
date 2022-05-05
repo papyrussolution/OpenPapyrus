@@ -747,7 +747,7 @@ U_CAPI void U_EXPORT2 uplug_init(UErrorCode * status) {
 			f = fopen(pluginFile.data(), "r");
 		}
 
-		if(f != NULL) {
+		if(f) {
 			char linebuf[1024];
 			char * p, * libName = NULL, * symName = NULL, * config = NULL;
 			int32_t line = 0;

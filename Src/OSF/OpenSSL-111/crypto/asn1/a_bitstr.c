@@ -128,7 +128,7 @@ ASN1_BIT_STRING * c2i_ASN1_BIT_STRING(ASN1_BIT_STRING ** a,
 	OPENSSL_free(ret->data);
 	ret->data = s;
 	ret->type = V_ASN1_BIT_STRING;
-	if(a != NULL)
+	if(a)
 		(*a) = ret;
 	*pp = p;
 	return ret;

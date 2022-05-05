@@ -8,19 +8,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/cord.h"
-#include "absl/container/fixed_array.h"
-#include "absl/strings/escaping.h"
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_btree.h"
-#include "absl/strings/internal/cord_rep_crc.h"
-#include "absl/strings/internal/cord_rep_flat.h"
-#include "absl/strings/internal/cordz_statistics.h"
-#include "absl/strings/internal/cordz_update_scope.h"
-#include "absl/strings/internal/cordz_update_tracker.h"
-#include "absl/strings/internal/resize_uninitialized.h"
-#include "absl/strings/str_format.h"
-#include "absl/strings/str_join.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

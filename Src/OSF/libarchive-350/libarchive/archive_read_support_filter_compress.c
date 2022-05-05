@@ -80,7 +80,6 @@ struct private_data {
 	int free_ent;                            /* Next dictionary entry. */
 	uchar suffix[65536];
 	uint16 prefix[65536];
-
 	/*
 	 * Scratch area for expanding dictionary entries.  Note:
 	 * "worst" case here comes from compressing /dev/zero: the
@@ -96,10 +95,8 @@ struct private_data {
 static int compress_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
 static int compress_bidder_init(struct archive_read_filter *);
 static int compress_bidder_free(struct archive_read_filter_bidder *);
-
 static ssize_t  compress_filter_read(struct archive_read_filter *, const void **);
 static int compress_filter_close(struct archive_read_filter *);
-
 static int getbits(struct archive_read_filter *, int n);
 static int next_code(struct archive_read_filter *);
 
@@ -109,20 +106,15 @@ int archive_read_support_compression_compress(struct archive * a)
 {
 	return archive_read_support_filter_compress(a);
 }
-
 #endif
 
 int archive_read_support_filter_compress(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_read_support_filter_compress");
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_compress");
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	bidder->data = NULL;
 	bidder->name = "compress (.Z)";
 	bidder->bid = compress_bidder_bid;

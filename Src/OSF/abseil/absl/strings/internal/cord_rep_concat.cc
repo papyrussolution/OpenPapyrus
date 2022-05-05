@@ -8,8 +8,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_flat.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
@@ -26,8 +24,7 @@ CordRepConcat::ExtractResult CordRepConcat::ExtractAppendBuffer(CordRepConcat* t
 		rep = concat->right;
 	}
 	// Validate we ended on a non shared flat.
-	if(concat->refcount.IsOne() && rep->IsFlat() &&
-	    rep->refcount.IsOne()) {
+	if(concat->refcount.IsOne() && rep->IsFlat() && rep->refcount.IsOne()) {
 		// Verify it has at least the requested extra capacity
 		CordRepFlat* flat = rep->flat();
 		size_t remaining = flat->Capacity() - flat->length;

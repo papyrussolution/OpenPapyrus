@@ -13,139 +13,43 @@
         android:textColor="@color/PrimaryText"
         android:textSize="11sp"
         android:textFontWeight="700"
-        android:textAlignment="center"
+        android:gravity="center_horizontal|center_vertical"
         />
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_margin="2dp">
-        <TextView
-            android:id="@+id/LVITEM_MIN00"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN05"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN10"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN00" android:text="00"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN05" android:text="05"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN10" android:text="10"/>
     </LinearLayout>
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_margin="2dp">
-        <TextView
-            android:id="@+id/LVITEM_MIN15"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN20"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN25"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN15" android:text="15"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN20" android:text="20"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN25" android:text="25"/>
     </LinearLayout>
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_margin="2dp">
-        <TextView
-            android:id="@+id/LVITEM_MIN30"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN35"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN40"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN30" android:text="30"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN35" android:text="35"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN40" android:text="40"/>
     </LinearLayout>
     <LinearLayout
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
         android:layout_margin="2dp">
-        <TextView
-            android:id="@+id/LVITEM_MIN45"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN50"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
-        <TextView
-            android:id="@+id/LVITEM_MIN55"
-            android:background="@drawable/shape_viewframe"
-            android:layout_margin="1dp"
-            android:layout_height="match_parent"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
-            />
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN45" android:text="45"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN50" android:text="50"/>
+        <TextView style="@style/AttendanceMinutCell" android:id="@+id/LVITEM_MIN55" android:text="55"/>
     </LinearLayout>
     <TextView
         android:id="@+id/LVITEM_ATTENDANCE_TAIL"

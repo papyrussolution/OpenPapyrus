@@ -3438,7 +3438,7 @@ static int xmlTextReaderLocator(void * ctx, const char ** file, unsigned long * 
 			else
 				ret = -1;
 		}
-		if(file != NULL) {
+		if(file) {
 			xmlDoc * doc = reader->P_Node->doc;
 			if(doc && doc->URL)
 				*file = (const char *)doc->URL;

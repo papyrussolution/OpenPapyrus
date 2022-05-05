@@ -1,5 +1,5 @@
 // DLSCOPE.CPP
-// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2007, 2008, 2009, 2010, 2011, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -79,9 +79,9 @@ int DlScope::Copy(const DlScope & s, int withoutChilds)
 	return 1;
 }
 
-int FASTCALL DlScope::IsEq(const DlScope & rPat) const
+bool FASTCALL DlScope::IsEq(const DlScope & rPat) const
 {
-	int    ok = 1;
+	bool   ok = true;
 	uint   c = 0;
 	THROW(SdRecord::IsEq(rPat));
 	THROW(Kind == rPat.Kind);

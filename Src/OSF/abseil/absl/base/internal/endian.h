@@ -18,18 +18,17 @@
 
 // The following guarantees declaration of the byte swap functions
 #ifdef _MSC_VER
-#include <stdlib.h>  // NOLINT(build/include)
+//#include <stdlib.h>  // NOLINT(build/include)
 #elif defined(__FreeBSD__)
 #include <sys/endian.h>
 #elif defined(__GLIBC__)
 #include <byteswap.h>  // IWYU pragma: export
 #endif
-
-#include <cstdint>
-#include "absl/base/casts.h"
-#include "absl/base/config.h"
-#include "absl/base/internal/unaligned_access.h"
-#include "absl/base/port.h"
+//#include <cstdint>
+//#include "absl/base/casts.h"
+//#include "absl/base/config.h"
+//#include "absl/base/internal/unaligned_access.h"
+//#include "absl/base/port.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

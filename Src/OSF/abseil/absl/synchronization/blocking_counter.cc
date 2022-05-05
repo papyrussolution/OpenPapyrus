@@ -3,7 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/synchronization/blocking_counter.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

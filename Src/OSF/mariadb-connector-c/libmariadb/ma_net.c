@@ -48,17 +48,14 @@ ulong net_buffer_length = 8192; /* Default length. Enlarged if necessary */
 		#include <netinet/tcp.h>
 	#endif
 #endif
-
 /*
 ** Give error if a too big packet is found
 ** The server can change this with the -O switch, but because the client
 ** can't normally do this the client should have a bigger max-buffer.
 */
-
 static int ma_net_write_buff(NET * net, const char * packet, size_t len);
 
 /* Init with packet info */
-
 int ma_net_init(NET * net, MARIADB_PVIO* pvio)
 {
 	if(!(net->buff = (uchar *)SAlloc::M(net_buffer_length)))

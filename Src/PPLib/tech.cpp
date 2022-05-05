@@ -481,7 +481,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 							pPack->Rec.OrderN = 1;
 					}
 				}
-				THROW(UpdateByID(P_Tbl, Obj, *pID, pPack, 0));
+				THROW(UpdateByID(P_Tbl, Obj, *pID, &pPack->Rec, 0)); // @v11.3.10 @fix pPack-->&pPack->Rec
 				THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
 				log_action_id = PPACN_OBJUPD;
 			}
@@ -497,7 +497,7 @@ int PPObjTech::PutPacket(PPID * pID, PPTechPacket * pPack, int use_ta)
 				else
 					pPack->Rec.OrderN = 1;
 			}
-			THROW(AddObjRecByID(P_Tbl, Obj, pID, pPack, 0));
+			THROW(AddObjRecByID(P_Tbl, Obj, pID, &pPack->Rec, 0)); // @v11.3.10 @fix pPack-->&pPack->Rec
 			pPack->Rec.ID = *pID;
 			THROW(p_ref->PutPropVlrString(Obj, *pID, TECPRP_EXTSTR, pPack->ExtString));
 			log_action_id = PPACN_OBJADD;
@@ -753,9 +753,18 @@ private:
 	{
 		SString temp_buf;
 		if(Data.Rec.Flags & TECF_ABSCAPACITYTIME) {
-			temp_buf.CatChar('t');
+			temp_buf.CatChar('t').Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
 		}
-		temp_buf.Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
+		else {
+			ProcessorTbl::Rec prc_rec;
+			PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
+			if(Data.Rec.Capacity > 0.0) {
+				if(prc_rec.Flags & PRCF_TECHCAPACITYREV)
+					temp_buf.Cat(1.0 / Data.Rec.Capacity, MKSFMTD(0, 0, 0));
+				else
+					temp_buf.Cat(Data.Rec.Capacity, MKSFMTD(0, 10, NMBF_NOTRAILZ|NMBF_NOZERO));
+			}
+		}
 		setCtrlString(CTL_TECH_CAPACITY, temp_buf);
 	}
 	void   getCapacity()
@@ -764,13 +773,27 @@ private:
 		SString temp_buf;
 		getCtrlString(CTL_TECH_CAPACITY, temp_buf);
 		temp_buf.Strip();
-		if(temp_buf.C(0) == 't' || temp_buf.C(0) == 'T') {
+		if(oneof2(temp_buf.C(0), 't', 'T')) {
 			absolute = 1;
 			temp_buf.ShiftLeft();
+			Data.Rec.Capacity = temp_buf.ToReal();
 		}
-		Data.Rec.Capacity = temp_buf.ToReal();
+		else {
+			double c = temp_buf.ToReal();
+			if(c > 0.0) {
+				ProcessorTbl::Rec prc_rec;
+				PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
+				if(Data.Rec.Capacity > 0.0) {
+					if(prc_rec.Flags & PRCF_TECHCAPACITYREV)
+						Data.Rec.Capacity = 1.0 / c;
+					else
+						Data.Rec.Capacity = c;
+				}
+			}
+			else
+				Data.Rec.Capacity = 0.0;
+		}
 	}
-
 	PPTechPacket Data;
 	PPObjProcessor PrcObj;
 };
@@ -842,6 +865,7 @@ IMPL_HANDLE_EVENT(TechDialog)
 void TechDialog::SetupCtrls()
 {
 	long   temp_long = 0;
+	SString temp_buf;
 	PrcCtrlGroup::Rec prc_grp_rec;
 	if(GetClusterData(CTL_TECH_SIGN, &temp_long))
 		Data.Rec.Sign = (int16)temp_long;
@@ -850,8 +874,13 @@ void TechDialog::SetupCtrls()
 
 	int    enable_recompl_flag = 0;
 	ProcessorTbl::Rec prc_rec;
-	// @v10.6.4 MEMSZERO(prc_rec);
 	PrcObj.GetRecWithInheritance(Data.Rec.PrcID, &prc_rec, 1);
+	// @v11.3.10 {
+	{
+		const char * p_label_sign = (prc_rec.Flags & PRCF_TECHCAPACITYREV) ? "tech_capacity_secperpc" : "tech_capacity";
+		setLabelText(CTL_TECH_CAPACITY, PPLoadStringS(p_label_sign, temp_buf));
+	}
+	// } @v11.3.10 
 	disableCtrl(CTL_TECH_CIPMAX, !(prc_rec.Flags & PRCF_ALLOWCIP));
 	if(Data.Rec.Sign > 0) {
 		if(prc_rec.ID && GetOpType(prc_rec.WrOffOpID) == PPOPT_GOODSMODIF)
@@ -1746,20 +1775,33 @@ DBQuery * PPViewTech::CreateBrowserQuery(uint * pBrwId, SString * pSubTitle)
 	ReferenceTbl * p_reft = 0;
 	DBQuery * q  = 0;
 	DBQ  * dbq = 0;
-	DBE    dbe_prc, dbe_goods, dbe_prev_goods, dbe_parent;
+	DBE    dbe_prc;
+	DBE    dbe_goods;
+	DBE    dbe_prev_goods;
+	DBE    dbe_parent;
+	DBE    dbe_capacity; // @v11.3.10
 	THROW(CheckTblPtr(p_tect = new TechTbl));
 	THROW(CheckTblPtr(p_reft = new ReferenceTbl));
 	PPDbqFuncPool::InitObjNameFunc(dbe_prc, PPDbqFuncPool::IdObjNamePrc, p_tect->PrcID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_goods, PPDbqFuncPool::IdObjNameGoods, p_tect->GoodsID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_prev_goods, PPDbqFuncPool::IdObjNameGoods, p_tect->PrevGoodsID);
 	PPDbqFuncPool::InitObjNameFunc(dbe_parent, PPDbqFuncPool::IdObjNameTech, p_tect->ParentID);
+	// @v11.3.10 {
+	{
+		dbe_capacity.init();
+		dbe_capacity.push(p_tect->PrcID);
+		dbe_capacity.push(p_tect->Capacity);
+		dbe_capacity.push(static_cast<DBFunc>(PPDbqFuncPool::IdTechCapacity));
+	}
+	// } @v11.3.10 
 	q = & select(p_tect->ID, 0L).from(p_tect, p_reft, 0L); // #0
 	q->addField(p_tect->Code);      // #1
 	q->addField(dbe_prc);           // #2
 	q->addField(dbe_goods);         // #3
 	q->addField(p_reft->ObjName);   // #4
 	q->addField(p_tect->Sign);      // #5
-	q->addField(p_tect->Capacity);  // #6
+	// @v11.3.10 q->addField(p_tect->Capacity);  // #6
+	q->addField(dbe_capacity);      // #6 @v11.3.10
 	q->addField(p_tect->Duration);  // #7
 	q->addField(dbe_prev_goods);    // #8
 	q->addField(p_tect->InitQtty);  // #9
@@ -1865,6 +1907,36 @@ int PPViewTech::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * p
 					PPObjProcessor prc_obj;
 					if(prc_obj.Edit(&tec_rec.PrcID, 0) == cmOK)
 						ok = 1;
+				}
+				break;
+			case PPVCMD_EDITCAPACITY: // @v11.3.10
+				ok = -1;
+				{
+					PPTechPacket pack;
+					if(TecObj.GetPacket(id, &pack) > 0) {
+						CalcCapacity cc;
+						bool is_rev = false;
+						if(pack.Rec.PrcID) {
+							ProcessorTbl::Rec prc_rec;
+							if(PrcObj.GetRecWithInheritance(pack.Rec.PrcID, &prc_rec, 1) > 0 && prc_rec.Flags & PRCF_TECHCAPACITYREV) 
+								is_rev = true;
+						}
+						cc.SetNorma(pack.Rec.Capacity);
+						if(is_rev) {
+							cc.Flags |= CalcCapacity::fReverse;
+							cc.Unit = UNIT_MINUTE;
+						}
+						if(EditCapacity(&cc) > 0) {
+							double nv = cc.Normalyze();
+							if(nv != pack.Rec.Capacity) {
+								pack.Rec.Capacity = nv;
+								if(TecObj.PutPacket(&id, &pack, 1)) 
+									ok = 1;
+								else
+									PPError();
+							}
+						}
+					}
 				}
 				break;
 			case PPVCMD_TRANSMIT:
@@ -2212,7 +2284,7 @@ int ToolingSelector::IsSuited(const Entry * pEntry)
 			if(TecObj.GetToolingCondition(pEntry->ID, formula) > 0) {
 				GdsClsCalcExprContext ctx(GoodsID, PrevGoodsID);
 				double result = 0.0;
-				const int is_cfg_debug = BIN(CConfig.Flags & CCFLG_DEBUG);
+				const  bool is_cfg_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
 				if(PPCalcExpression(formula, &result, &ctx)) {
 					if(is_cfg_debug) {
 						SString msg_buf;
@@ -2234,13 +2306,14 @@ int ToolingSelector::IsSuited(const Entry * pEntry)
 	return BIN(is_suited);
 }
 
-int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->TSVect
+int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList)
 {
 	int    ok = -1;
 	uint   i;
 	Entry * p_entry;
 	SString fmt_buf, msg_buf;
-	if(CConfig.Flags & CCFLG_DEBUG) {
+	const bool is_cc_debug = LOGIC(CConfig.Flags & CCFLG_DEBUG);
+	if(is_cc_debug) {
 		PPLoadText(PPTXT_LOG_TOOLINGSEL_START, fmt_buf);
 		PPFormat(fmt_buf, &msg_buf, PrcID, PrevGoodsID, GoodsID);
 		PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -2253,7 +2326,7 @@ int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->T
 		if(IsSuited(p_entry)) {
 			TechTbl::Rec tec_rec;
 			THROW(TecObj.Fetch(p_entry->ID, &tec_rec) > 0);
-			if(CConfig.Flags & CCFLG_DEBUG) {
+			if(is_cc_debug) {
 				PPLoadText(PPTXT_LOG_TOOLINGSEL_SEL, fmt_buf);
 				PPFormat(fmt_buf, &msg_buf, tec_rec.ID);
 				PPLogMessage(PPFILNAM_DEBUG_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
@@ -2263,7 +2336,7 @@ int ToolingSelector::Run(TSVector <TechTbl::Rec> * pList) // @v9.8.4 TSArray-->T
 			ok = 1;
 		}
 	if(ok < 0) {
-		if(CConfig.Flags & CCFLG_DEBUG)
+		if(is_cc_debug)
 			PPLogMessage(PPFILNAM_DEBUG_LOG, PPSTR_TEXT, PPTXT_LOG_TOOLINGSEL_NOTHING, LOGMSGF_TIME|LOGMSGF_USER);
 	}
 	CATCHZOK

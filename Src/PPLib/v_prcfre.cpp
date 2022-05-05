@@ -1042,25 +1042,24 @@ int PPViewPrcBusy::TimeChunkBrowser()
 		p.ViewType = STimeChunkBrowser::Param::vHourDay;
 	p_brw->SetParam(&p);
 	{
-		PPID   reg_cal_id = SlObj.PsnObj.GetConfig().RegStaffCalID;
+		const PPID reg_cal_id = SlObj.PsnObj.GetConfig().RegStaffCalID;
 		if(reg_cal_id) {
-			STimeChunkArray work_list, collapse_list;
+			STimeChunkArray work_list;
+			STimeChunkArray collapse_list;
 			DateRange period;
 			period.Set(Filt.Period.Start.d, Filt.Period.Finish.d);
-			LDATE curdt = getcurdate_();
+			const LDATE curdt = getcurdate_();
 			SETIFZ(period.low, encodedate(1, curdt.month(), curdt.year()));
 			if(!period.upp || period.upp > encodedate(31, 12, curdt.year()+1))
 				period.upp = encodedate(curdt.dayspermonth(), curdt.month(), curdt.year());
 			ScObjAssoc scoa;
 			ScObj.InitScObjAssoc(reg_cal_id, 0, 0L, &scoa);
-			if(ScObj.CalcPeriod(scoa, period, 0, 0, 0, &work_list)) {
+			if(ScObj.CalcPeriod(scoa, period, 0, 0, 0, &work_list) && work_list.getCount()) {
 				work_list.Sort();
-				if(work_list.getCount()) {
-					work_list.GetFreeList(&collapse_list);
-					collapse_list.Sort();
-					if(collapse_list.getCount())
-						Grid.SetCollapseList(&collapse_list);
-				}
+				work_list.GetFreeList(&collapse_list);
+				collapse_list.Sort();
+				if(collapse_list.getCount())
+					Grid.SetCollapseList(&collapse_list);
 			}
 		}
 	}

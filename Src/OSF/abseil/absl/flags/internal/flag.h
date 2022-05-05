@@ -10,31 +10,31 @@
 #ifndef ABSL_FLAGS_INTERNAL_FLAG_H_
 #define ABSL_FLAGS_INTERNAL_FLAG_H_
 
-#include <stddef.h>
-#include <stdint.h>
-#include <atomic>
-#include <cstring>
-#include <memory>
-#include <new>
-#include <string>
-#include <type_traits>
-#include <typeinfo>
-#include "absl/base/attributes.h"
-#include "absl/base/call_once.h"
-#include "absl/base/casts.h"
-#include "absl/base/config.h"
-#include "absl/base/optimization.h"
-#include "absl/base/thread_annotations.h"
-#include "absl/flags/commandlineflag.h"
-#include "absl/flags/config.h"
-#include "absl/flags/internal/commandlineflag.h"
-#include "absl/flags/internal/registry.h"
-#include "absl/flags/internal/sequence_lock.h"
-#include "absl/flags/marshalling.h"
-#include "absl/meta/type_traits.h"
-#include "absl/strings/string_view.h"
-#include "absl/synchronization/mutex.h"
-#include "absl/utility/utility.h"
+//#include <stddef.h>
+//#include <stdint.h>
+//#include <atomic>
+//#include <cstring>
+//#include <memory>
+//#include <new>
+//#include <string>
+//#include <type_traits>
+//#include <typeinfo>
+//#include "absl/base/attributes.h"
+//#include "absl/base/call_once.h"
+//#include "absl/base/casts.h"
+//#include "absl/base/config.h"
+//#include "absl/base/optimization.h"
+//#include "absl/base/thread_annotations.h"
+//#include "absl/flags/commandlineflag.h"
+//#include "absl/flags/config.h"
+//#include "absl/flags/internal/commandlineflag.h"
+//#include "absl/flags/internal/registry.h"
+//#include "absl/flags/internal/sequence_lock.h"
+//#include "absl/flags/marshalling.h"
+//#include "absl/meta/type_traits.h"
+//#include "absl/strings/string_view.h"
+//#include "absl/synchronization/mutex.h"
+//#include "absl/utility/utility.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

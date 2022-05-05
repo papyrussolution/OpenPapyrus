@@ -36,7 +36,7 @@ static bool mi_heap_visit_pages(mi_heap_t* heap, heap_page_visitor_fun* fn, void
 	for(size_t i = 0; i <= MI_BIN_FULL; i++) {
 		mi_page_queue_t* pq = &heap->pages[i];
 		mi_page_t* page = pq->first;
-		while(page != NULL) {
+		while(page) {
 			mi_page_t* next = page->next; // save next in case the page gets removed from the queue
 			mi_assert_internal(mi_page_heap(page) == heap);
 			count++;

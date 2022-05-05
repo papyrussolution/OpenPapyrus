@@ -3,9 +3,6 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/internal/str_format/float_conversion.h"
-#include "absl/functional/function_ref.h"
-#include "absl/numeric/internal/representation.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN

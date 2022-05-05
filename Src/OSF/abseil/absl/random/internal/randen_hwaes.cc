@@ -15,7 +15,6 @@
 #pragma hdrstop
 #include "absl/random/internal/randen_hwaes.h"
 #include "absl/random/internal/platform.h"
-#include "absl/random/internal/randen_traits.h"
 
 // ABSL_RANDEN_HWAES_IMPL indicates whether this file will contain
 // a hardware accelerated implementation of randen, or whether it

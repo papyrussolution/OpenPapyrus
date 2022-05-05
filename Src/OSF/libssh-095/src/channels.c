@@ -1504,7 +1504,7 @@ static int channel_request(ssh_channel channel, const char * request, ssh_buffer
 		ssh_set_error_oom(session);
 		goto error;
 	}
-	if(buffer != NULL) {
+	if(buffer) {
 		if(ssh_buffer_add_data(session->out_buffer, ssh_buffer_get(buffer), ssh_buffer_get_len(buffer)) < 0) {
 			ssh_set_error_oom(session);
 			goto error;
@@ -2009,7 +2009,7 @@ int ssh_global_request(ssh_session session, const char * request, ssh_buffer buf
 		rc = SSH_ERROR;
 		goto error;
 	}
-	if(buffer != NULL) {
+	if(buffer) {
 		rc = ssh_buffer_add_data(session->out_buffer, ssh_buffer_get(buffer), ssh_buffer_get_len(buffer));
 		if(rc < 0) {
 			ssh_set_error_oom(session);

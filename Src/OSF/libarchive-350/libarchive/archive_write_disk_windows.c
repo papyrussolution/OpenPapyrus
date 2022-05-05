@@ -1797,7 +1797,7 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)
 	while(a != NULL) {
 		/* Step a twice, t once. */
 		a = a->next;
-		if(a != NULL)
+		if(a)
 			a = a->next;
 		t = t->next;
 	}
@@ -1820,7 +1820,6 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)
 		t = p = b;
 		b = b->next;
 	}
-
 	/* Always put the later element on the list first. */
 	while(a != NULL && b != NULL) {
 		if(wcscmp(a->name, b->name) > 0) {
@@ -1833,45 +1832,40 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)
 		}
 		t = t->next;
 	}
-
 	/* Only one list is non-empty, so just splice it on. */
-	if(a != NULL)
+	if(a)
 		t->next = a;
-	if(b != NULL)
+	if(b)
 		t->next = b;
-
 	return (p);
 }
-
 /*
  * Returns a new, initialized fixup entry.
  *
  * TODO: Reduce the memory requirements for this list by using a tree
  * structure rather than a simple list of names.
  */
-static struct fixup_entry * new_fixup(struct archive_write_disk * a, const wchar_t * pathname)                              {
-	struct fixup_entry * fe;
-
-	fe = (struct fixup_entry *)SAlloc::C(1, sizeof(struct fixup_entry));
-	if(fe == NULL)
-		return NULL;
-	fe->next = a->fixup_list;
-	a->fixup_list = fe;
-	fe->fixup = 0;
-	fe->name = _wcsdup(pathname);
-	fe->fflags_set = 0;
+static struct fixup_entry * new_fixup(struct archive_write_disk * a, const wchar_t * pathname)                              
+{
+	struct fixup_entry * fe = (struct fixup_entry *)SAlloc::C(1, sizeof(struct fixup_entry));
+	if(fe) {
+		fe->next = a->fixup_list;
+		a->fixup_list = fe;
+		fe->fixup = 0;
+		fe->name = _wcsdup(pathname);
+		fe->fflags_set = 0;
+	}
 	return (fe);
 }
-
 /*
  * Returns a fixup structure for the current entry.
  */
-static struct fixup_entry * current_fixup(struct archive_write_disk * a, const wchar_t * pathname)                              {
+static struct fixup_entry * current_fixup(struct archive_write_disk * a, const wchar_t * pathname)                              
+{
 	if(a->current_fixup == NULL)
 		a->current_fixup = new_fixup(a, pathname);
 	return (a->current_fixup);
 }
-
 /*
  * TODO: The deep-directory support bypasses this; disable deep directory
  * support if we're doing symlink checks.

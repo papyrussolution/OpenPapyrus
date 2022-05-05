@@ -1617,27 +1617,19 @@ static int tls_early_post_process_client_hello(SSL * s)
 		    SSL_R_NOT_ON_RECORD_BOUNDARY);
 		goto err;
 	}
-
 	if(SSL_IS_DTLS(s)) {
 		/* Empty cookie was already handled above by returning early. */
 		if(SSL_get_options(s) & SSL_OP_COOKIE_EXCHANGE) {
 			if(s->ctx->app_verify_cookie_cb != NULL) {
-				if(s->ctx->app_verify_cookie_cb(s, clienthello->dtls_cookie,
-				    clienthello->dtls_cookie_len) == 0) {
-					SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-					    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-					    SSL_R_COOKIE_MISMATCH);
+				if(s->ctx->app_verify_cookie_cb(s, clienthello->dtls_cookie, clienthello->dtls_cookie_len) == 0) {
+					SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_COOKIE_MISMATCH);
 					goto err;
 					/* else cookie verification succeeded */
 				}
 				/* default verification */
 			}
-			else if(s->d1->cookie_len != clienthello->dtls_cookie_len
-			   || memcmp(clienthello->dtls_cookie, s->d1->cookie,
-			    s->d1->cookie_len) != 0) {
-				SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-				    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-				    SSL_R_COOKIE_MISMATCH);
+			else if(s->d1->cookie_len != clienthello->dtls_cookie_len || memcmp(clienthello->dtls_cookie, s->d1->cookie, s->d1->cookie_len) != 0) {
+				SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_COOKIE_MISMATCH);
 				goto err;
 			}
 			s->d1->cookie_verified = 1;
@@ -1646,23 +1638,16 @@ static int tls_early_post_process_client_hello(SSL * s)
 			protverr = ssl_choose_server_version(s, clienthello, &dgrd);
 			if(protverr != 0) {
 				s->version = s->client_version;
-				SSLfatal(s, SSL_AD_PROTOCOL_VERSION,
-				    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, protverr);
+				SSLfatal(s, SSL_AD_PROTOCOL_VERSION, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, protverr);
 				goto err;
 			}
 		}
 	}
-
 	s->hit = 0;
-
-	if(!ssl_cache_cipherlist(s, &clienthello->ciphersuites,
-	    clienthello->isv2) ||
-	    !bytes_to_cipher_list(s, &clienthello->ciphersuites, &ciphers, &scsvs,
-	    clienthello->isv2, 1)) {
+	if(!ssl_cache_cipherlist(s, &clienthello->ciphersuites, clienthello->isv2) || !bytes_to_cipher_list(s, &clienthello->ciphersuites, &ciphers, &scsvs, clienthello->isv2, 1)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
-
 	s->s3->send_connection_binding = 0;
 	/* Check what signalling cipher-suite values were received. */
 	if(scsvs != NULL) {
@@ -1671,15 +1656,12 @@ static int tls_early_post_process_client_hello(SSL * s)
 			if(SSL_CIPHER_get_id(c) == SSL3_CK_SCSV) {
 				if(s->renegotiate) {
 					/* SCSV is fatal if renegotiating */
-					SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-					    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-					    SSL_R_SCSV_RECEIVED_WHEN_RENEGOTIATING);
+					SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_SCSV_RECEIVED_WHEN_RENEGOTIATING);
 					goto err;
 				}
 				s->s3->send_connection_binding = 1;
 			}
-			else if(SSL_CIPHER_get_id(c) == SSL3_CK_FALLBACK_SCSV &&
-			    !ssl_check_version_downgrade(s)) {
+			else if(SSL_CIPHER_get_id(c) == SSL3_CK_FALLBACK_SCSV && !ssl_check_version_downgrade(s)) {
 				/*
 				 * This SCSV indicates that the client previously tried
 				 * a higher version.  We should fail if the current version
@@ -1687,46 +1669,32 @@ static int tls_early_post_process_client_hello(SSL * s)
 				 * connection may have been tampered with in order to trigger
 				 * an insecure downgrade.
 				 */
-				SSLfatal(s, SSL_AD_INAPPROPRIATE_FALLBACK,
-				    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-				    SSL_R_INAPPROPRIATE_FALLBACK);
+				SSLfatal(s, SSL_AD_INAPPROPRIATE_FALLBACK, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_INAPPROPRIATE_FALLBACK);
 				goto err;
 			}
 		}
 	}
-
 	/* For TLSv1.3 we must select the ciphersuite *before* session resumption */
 	if(SSL_IS_TLS13(s)) {
-		const SSL_CIPHER * cipher =
-		    ssl3_choose_cipher(s, ciphers, SSL_get_ciphers(s));
-
+		const SSL_CIPHER * cipher = ssl3_choose_cipher(s, ciphers, SSL_get_ciphers(s));
 		if(cipher == NULL) {
-			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE,
-			    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-			    SSL_R_NO_SHARED_CIPHER);
+			SSLfatal(s, SSL_AD_HANDSHAKE_FAILURE, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_NO_SHARED_CIPHER);
 			goto err;
 		}
 		if(s->hello_retry_request == ssl_st::SSL_HRR_PENDING && (s->s3->tmp.new_cipher == NULL || s->s3->tmp.new_cipher->id != cipher->id)) {
 			/*
-			 * A previous HRR picked a different ciphersuite to the one we
-			 * just selected. Something must have changed.
+			 * A previous HRR picked a different ciphersuite to the one we just selected. Something must have changed.
 			 */
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER,
-			    SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO,
-			    SSL_R_BAD_CIPHER);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_EARLY_POST_PROCESS_CLIENT_HELLO, SSL_R_BAD_CIPHER);
 			goto err;
 		}
 		s->s3->tmp.new_cipher = cipher;
 	}
-
 	/* We need to do this before getting the session */
-	if(!tls_parse_extension(s, TLSEXT_IDX_extended_master_secret,
-	    SSL_EXT_CLIENT_HELLO,
-	    clienthello->pre_proc_exts, NULL, 0)) {
+	if(!tls_parse_extension(s, TLSEXT_IDX_extended_master_secret, SSL_EXT_CLIENT_HELLO, clienthello->pre_proc_exts, NULL, 0)) {
 		/* SSLfatal() already called */
 		goto err;
 	}
-
 	/*
 	 * We don't allow resumption in a backwards compatible ClientHello.
 	 * TODO(openssl-team): in TLS1.1+, session_id MUST be empty.
@@ -1743,9 +1711,7 @@ static int tls_early_post_process_client_hello(SSL * s)
 	 * SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION setting will be
 	 * ignored.
 	 */
-	if(clienthello->isv2 ||
-	    (s->new_session &&
-	    (s->options & SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION))) {
+	if(clienthello->isv2 || (s->new_session && (s->options & SSL_OP_NO_SESSION_RESUMPTION_ON_RENEGOTIATION))) {
 		if(!ssl_get_new_session(s, 1)) {
 			/* SSLfatal() already called */
 			goto err;
@@ -1769,13 +1735,10 @@ static int tls_early_post_process_client_hello(SSL * s)
 			}
 		}
 	}
-
 	if(SSL_IS_TLS13(s)) {
-		memcpy(s->tmp_session_id, s->clienthello->session_id,
-		    s->clienthello->session_id_len);
+		memcpy(s->tmp_session_id, s->clienthello->session_id, s->clienthello->session_id_len);
 		s->tmp_session_id_len = s->clienthello->session_id_len;
 	}
-
 	/*
 	 * If it is a hit, check that the cipher is in the list. In TLSv1.3 we check
 	 * ciphersuite compatibility with the session as part of resumption.
@@ -2083,10 +2046,8 @@ static int tls_handle_status_request(SSL * s)
 			}
 		}
 	}
-
 	return 1;
 }
-
 /*
  * Call the alpn_select callback if needed. Upon success, returns 1.
  * Upon failure, returns 0.
@@ -2095,19 +2056,13 @@ int tls_handle_alpn(SSL * s)
 {
 	const uchar * selected = NULL;
 	uchar selected_len = 0;
-
 	if(s->ctx->ext.alpn_select_cb != NULL && s->s3->alpn_proposed != NULL) {
-		int r = s->ctx->ext.alpn_select_cb(s, &selected, &selected_len,
-			s->s3->alpn_proposed,
-			(uint)s->s3->alpn_proposed_len,
-			s->ctx->ext.alpn_select_cb_arg);
-
+		int r = s->ctx->ext.alpn_select_cb(s, &selected, &selected_len, s->s3->alpn_proposed, (uint)s->s3->alpn_proposed_len, s->ctx->ext.alpn_select_cb_arg);
 		if(r == SSL_TLSEXT_ERR_OK) {
 			OPENSSL_free(s->s3->alpn_selected);
 			s->s3->alpn_selected = static_cast<uchar *>(OPENSSL_memdup(selected, selected_len));
 			if(s->s3->alpn_selected == NULL) {
-				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_HANDLE_ALPN,
-				    ERR_R_INTERNAL_ERROR);
+				SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_HANDLE_ALPN, ERR_R_INTERNAL_ERROR);
 				return 0;
 			}
 			s->s3->alpn_selected_len = selected_len;
@@ -2117,13 +2072,9 @@ int tls_handle_alpn(SSL * s)
 #endif
 
 			/* Check ALPN is consistent with session */
-			if(s->session->ext.alpn_selected == NULL
-			   || selected_len != s->session->ext.alpn_selected_len
-			   || memcmp(selected, s->session->ext.alpn_selected,
-			    selected_len) != 0) {
+			if(s->session->ext.alpn_selected == NULL || selected_len != s->session->ext.alpn_selected_len || memcmp(selected, s->session->ext.alpn_selected, selected_len) != 0) {
 				/* Not consistent so can't be used for early_data */
 				s->ext.early_data_ok = 0;
-
 				if(!s->hit) {
 					/*
 					 * This is a new session and so alpn_selected should have
@@ -2131,16 +2082,12 @@ int tls_handle_alpn(SSL * s)
 					 * selected ALPN.
 					 */
 					if(!ossl_assert(s->session->ext.alpn_selected == NULL)) {
-						SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-						    SSL_F_TLS_HANDLE_ALPN,
-						    ERR_R_INTERNAL_ERROR);
+						SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_HANDLE_ALPN, ERR_R_INTERNAL_ERROR);
 						return 0;
 					}
 					s->session->ext.alpn_selected = static_cast<uchar *>(OPENSSL_memdup(selected, selected_len));
 					if(s->session->ext.alpn_selected == NULL) {
-						SSLfatal(s, SSL_AD_INTERNAL_ERROR,
-						    SSL_F_TLS_HANDLE_ALPN,
-						    ERR_R_INTERNAL_ERROR);
+						SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_HANDLE_ALPN, ERR_R_INTERNAL_ERROR);
 						return 0;
 					}
 					s->session->ext.alpn_selected_len = selected_len;

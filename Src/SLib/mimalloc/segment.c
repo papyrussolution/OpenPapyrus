@@ -172,7 +172,7 @@ static bool mi_segment_is_valid(const mi_segment_t* segment, mi_segments_tld_t* 
 #endif
 
 static bool mi_page_not_in_queue(const mi_page_t* page, mi_segments_tld_t* tld) {
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	if(page->next != NULL || page->prev != NULL) {
 		mi_assert_internal(mi_pages_reset_contains(page, tld));
 		return false;
@@ -1320,7 +1320,7 @@ static mi_page_t* mi_segment_page_alloc(mi_heap_t* heap,
 	}
 	mi_assert_internal(free_queue->first != NULL);
 	mi_page_t* const page = mi_segment_page_alloc_in(free_queue->first, tld);
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 #if MI_DEBUG>=2
 	// verify it is committed
 	_mi_segment_page_start(_mi_page_segment(page), page, sizeof(void *), NULL, NULL)[0] = 0;
@@ -1344,7 +1344,7 @@ static mi_page_t* mi_segment_large_page_alloc(mi_heap_t* heap, size_t block_size
 	mi_segment_t* segment = mi_segment_reclaim_or_alloc(heap, block_size, MI_PAGE_LARGE, MI_LARGE_PAGE_SHIFT, tld, os_tld);
 	if(segment == NULL) return NULL;
 	mi_page_t* page = mi_segment_find_free(segment, tld);
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 #if MI_DEBUG>=2
 	_mi_segment_page_start(segment, page, sizeof(void *), NULL, NULL)[0] = 0;
 #endif
@@ -1360,7 +1360,7 @@ static mi_page_t* mi_segment_huge_page_alloc(size_t size, mi_segments_tld_t* tld
 	segment->thread_id = 0; // huge pages are immediately abandoned
 	mi_segments_track_size(-(long)segment->segment_size, tld);
 	mi_page_t* page = mi_segment_find_free(segment, tld);
-	mi_assert_internal(page != NULL);
+	mi_assert_internal(page);
 	return page;
 }
 

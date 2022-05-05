@@ -28,13 +28,8 @@
 
 #include <protobuf-internal.h>
 #pragma hdrstop
-#include <google/protobuf/io/coded_stream.h>
-#include <google/protobuf/stubs/logging.h>
-#include <google/protobuf/stubs/common.h>
-#include <google/protobuf/arena.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 #include <google/protobuf/io/zero_copy_stream_impl_lite.h>
-#include <google/protobuf/stubs/stl_util.h>
 #include <google/protobuf/port_def.inc>
 
 namespace google {
@@ -801,7 +796,7 @@ uint8_t* EpsCopyOutputStream::Next()
 		else {
 			GOOGLE_DCHECK(size > 0); // NOLINT
 			// Buffer to small
-			std::memmove(buffer_, end_, kSlopBytes);
+			memmove(buffer_, end_, kSlopBytes);
 			buffer_end_ = ptr;
 			end_ = buffer_ + size;
 			return buffer_;

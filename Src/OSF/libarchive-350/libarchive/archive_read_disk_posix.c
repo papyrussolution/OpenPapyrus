@@ -1142,17 +1142,14 @@ static int setup_sparse(struct archive_read_disk * a, struct archive_entry * ent
 		t->sparse_list[i].length = 0;
 	}
 	t->current_sparse = t->sparse_list;
-
 	return ARCHIVE_OK;
 }
 
 int archive_read_disk_set_matching(struct archive * _a, struct archive * _ma,
-    void (*_excluded_func)(struct archive *, void *, struct archive_entry *),
-    void * _client_data)
+    void (*_excluded_func)(struct archive *, void *, struct archive_entry *), void * _client_data)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_read_disk_set_matching");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_matching");
 	a->matching = _ma;
 	a->excluded_cb_func = _excluded_func;
 	a->excluded_cb_data = _client_data;
@@ -1160,14 +1157,10 @@ int archive_read_disk_set_matching(struct archive * _a, struct archive * _ma,
 }
 
 int archive_read_disk_set_metadata_filter_callback(struct archive * _a,
-    int (*_metadata_filter_func)(struct archive *, void *,
-    struct archive_entry *), void * _client_data)
+    int (*_metadata_filter_func)(struct archive *, void *, struct archive_entry *), void * _client_data)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY,
-	    "archive_read_disk_set_metadata_filter_callback");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_set_metadata_filter_callback");
 	a->metadata_filter_func = _metadata_filter_func;
 	a->metadata_filter_data = _client_data;
 	return ARCHIVE_OK;
@@ -1177,11 +1170,7 @@ int archive_read_disk_can_descend(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_read_disk_can_descend");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_read_disk_can_descend");
 	return (t->visit_type == TREE_REGULAR && t->descend);
 }
 
@@ -1193,14 +1182,9 @@ int archive_read_disk_descend(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct tree * t = a->tree;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_read_disk_descend");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_read_disk_descend");
 	if(t->visit_type != TREE_REGULAR || !t->descend)
 		return ARCHIVE_OK;
-
 	/*
 	 * We must not treat the initial specified path as a physical dir,
 	 * because if we do then we will try and ascend out of it by opening
@@ -1231,12 +1215,8 @@ int archive_read_disk_descend(struct archive * _a)
 int archive_read_disk_open(struct archive * _a, const char * pathname)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_NEW | ARCHIVE_STATE_CLOSED,
-	    "archive_read_disk_open");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_CLOSED, "archive_read_disk_open");
 	archive_clear_error(&a->archive);
-
 	return (_archive_read_disk_open(_a, pathname));
 }
 
@@ -1245,12 +1225,8 @@ int archive_read_disk_open_w(struct archive * _a, const wchar_t * pathname)
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	struct archive_string path;
 	int ret;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC,
-	    ARCHIVE_STATE_NEW | ARCHIVE_STATE_CLOSED,
-	    "archive_read_disk_open_w");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_NEW | ARCHIVE_STATE_CLOSED, "archive_read_disk_open_w");
 	archive_clear_error(&a->archive);
-
 	/* Make a char string from a wchar_t string. */
 	archive_string_init(&path);
 	if(archive_string_append_from_wcs(&path, pathname,
@@ -1296,10 +1272,7 @@ static int _archive_read_disk_open(struct archive * _a, const char * pathname)
 int archive_read_disk_current_filesystem(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_disk_current_filesystem");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_read_disk_current_filesystem");
 	return (a->tree->current_filesystem_id);
 }
 
@@ -1307,11 +1280,8 @@ static int update_current_filesystem(struct archive_read_disk * a, int64 dev)
 {
 	struct tree * t = a->tree;
 	int i, fid;
-
-	if(t->current_filesystem != NULL &&
-	    t->current_filesystem->dev == dev)
+	if(t->current_filesystem != NULL && t->current_filesystem->dev == dev)
 		return ARCHIVE_OK;
-
 	for(i = 0; i < t->max_filesystem_id; i++) {
 		if(t->filesystem_table[i].dev == dev) {
 			/* There is the filesystem ID we've already generated. */
@@ -1357,13 +1327,9 @@ static int update_current_filesystem(struct archive_read_disk * a, int64 dev)
 int archive_read_disk_current_filesystem_is_synthetic(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_disk_current_filesystem");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_read_disk_current_filesystem");
 	return (a->tree->current_filesystem->synthetic);
 }
-
 /*
  * Returns 1 if current filesystem is remote filesystem, 0 if it is not
  * or -1 if it is unknown.
@@ -1371,38 +1337,26 @@ int archive_read_disk_current_filesystem_is_synthetic(struct archive * _a)
 int archive_read_disk_current_filesystem_is_remote(struct archive * _a)
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
-
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA,
-	    "archive_read_disk_current_filesystem");
-
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_read_disk_current_filesystem");
 	return (a->tree->current_filesystem->remote);
 }
 
-#if defined(_PC_REC_INCR_XFER_SIZE) && defined(_PC_REC_MAX_XFER_SIZE) && \
-	defined(_PC_REC_MIN_XFER_SIZE) && defined(_PC_REC_XFER_ALIGN)
+#if defined(_PC_REC_INCR_XFER_SIZE) && defined(_PC_REC_MAX_XFER_SIZE) && defined(_PC_REC_MIN_XFER_SIZE) && defined(_PC_REC_XFER_ALIGN)
 static int get_xfer_size(struct tree * t, int fd, const char * path)
 {
 	t->current_filesystem->xfer_align = -1;
 	errno = 0;
 	if(fd >= 0) {
-		t->current_filesystem->incr_xfer_size =
-		    fpathconf(fd, _PC_REC_INCR_XFER_SIZE);
-		t->current_filesystem->max_xfer_size =
-		    fpathconf(fd, _PC_REC_MAX_XFER_SIZE);
-		t->current_filesystem->min_xfer_size =
-		    fpathconf(fd, _PC_REC_MIN_XFER_SIZE);
-		t->current_filesystem->xfer_align =
-		    fpathconf(fd, _PC_REC_XFER_ALIGN);
+		t->current_filesystem->incr_xfer_size = fpathconf(fd, _PC_REC_INCR_XFER_SIZE);
+		t->current_filesystem->max_xfer_size = fpathconf(fd, _PC_REC_MAX_XFER_SIZE);
+		t->current_filesystem->min_xfer_size = fpathconf(fd, _PC_REC_MIN_XFER_SIZE);
+		t->current_filesystem->xfer_align = fpathconf(fd, _PC_REC_XFER_ALIGN);
 	}
 	else if(path != NULL) {
-		t->current_filesystem->incr_xfer_size =
-		    pathconf(path, _PC_REC_INCR_XFER_SIZE);
-		t->current_filesystem->max_xfer_size =
-		    pathconf(path, _PC_REC_MAX_XFER_SIZE);
-		t->current_filesystem->min_xfer_size =
-		    pathconf(path, _PC_REC_MIN_XFER_SIZE);
-		t->current_filesystem->xfer_align =
-		    pathconf(path, _PC_REC_XFER_ALIGN);
+		t->current_filesystem->incr_xfer_size = pathconf(path, _PC_REC_INCR_XFER_SIZE);
+		t->current_filesystem->max_xfer_size = pathconf(path, _PC_REC_MAX_XFER_SIZE);
+		t->current_filesystem->min_xfer_size = pathconf(path, _PC_REC_MIN_XFER_SIZE);
+		t->current_filesystem->xfer_align = pathconf(path, _PC_REC_XFER_ALIGN);
 	}
 	/* At least we need an alignment size. */
 	if(t->current_filesystem->xfer_align == -1)
@@ -1419,7 +1373,6 @@ static int get_xfer_size(struct tree * t, int fd, const char * path)
 	(void)path; /* UNUSED */
 	return 1; /* Not supported */
 }
-
 #endif
 
 #if defined(HAVE_STATFS) && defined(HAVE_FSTATFS) && defined(MNT_LOCAL) \
@@ -2041,9 +1994,9 @@ static void tree_append(struct tree * t, const char * name, size_t name_length)
 /*
  * Open a directory tree for traversal.
  */
-static struct tree * tree_open(const char * path, int symlink_mode, int restore_time)                      {
+static struct tree * tree_open(const char * path, int symlink_mode, int restore_time)                      
+{
 	struct tree * t;
-
 	if((t = SAlloc::C(1, sizeof(*t))) == NULL)
 		return NULL;
 	archive_string_init(&t->path);
@@ -2052,7 +2005,8 @@ static struct tree * tree_open(const char * path, int symlink_mode, int restore_
 	return (tree_reopen(t, path, restore_time));
 }
 
-static struct tree * tree_reopen(struct tree * t, const char * path, int restore_time)                       {
+static struct tree * tree_reopen(struct tree * t, const char * path, int restore_time)                       
+{
 #if defined(O_PATH)
 	/* Linux */
 	const int o_flag = O_PATH;
@@ -2063,7 +2017,6 @@ static struct tree * tree_reopen(struct tree * t, const char * path, int restore
 	/* FreeBSD */
 	const int o_flag = O_EXEC;
 #endif
-
 	t->flags = (restore_time != 0) ? needsRestoreTimes : 0;
 	t->flags |= onInitialDir;
 	t->visit_type = 0;

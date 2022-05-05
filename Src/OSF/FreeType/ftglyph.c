@@ -134,8 +134,7 @@ Exit:
 	return error;
 }
 
-FT_CALLBACK_DEF(void)
-ft_outline_glyph_done(FT_Glyph outline_glyph)
+FT_CALLBACK_DEF(void) ft_outline_glyph_done(FT_Glyph outline_glyph)
 {
 	FT_OutlineGlyph glyph = (FT_OutlineGlyph)outline_glyph;
 	FT_Outline_Done(FT_GLYPH(glyph)->library, &glyph->outline);

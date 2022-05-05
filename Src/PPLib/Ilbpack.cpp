@@ -1738,7 +1738,7 @@ int ILBillPacket::ConvertToBillPacket(PPBillPacket & rPack, int * pWarnLevel, Ob
 						r_ti.SrcIltiPos = i; // Сохраним соответствие номера строки в this со строками в rPack
 						/* @debug
 						{
-							msg_buf.Z().CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos);
+							msg_buf.Z().CatEq("r_ti.SrcIltiPos", r_ti.SrcIltiPos);
 							__LogDebugMessage(pCtx, msg_buf);
 						}
 						*/
@@ -2537,7 +2537,7 @@ int PPObjBill::AcceptLotSync(const PPBillPacket & rBp, const ILBillPacket & rIBp
 			else {
 				// @debug {
 				SString msg_buf;
-				msg_buf.Z().CatEq("r_ti.SrcIltiPos", (long)r_ti.SrcIltiPos).Space().Cat("out of packet.TI");
+				msg_buf.Z().CatEq("r_ti.SrcIltiPos", r_ti.SrcIltiPos).Space().Cat("out of packet.TI");
 				__LogDebugMessage(pCtx, msg_buf); // !!!!!!!!!!!!!!
 				// } @debug
 			}

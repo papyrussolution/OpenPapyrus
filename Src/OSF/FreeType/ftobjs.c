@@ -246,12 +246,10 @@ Exit:
 	return error;
 }
 
-FT_BASE_DEF(void)
-ft_glyphslot_free_bitmap(FT_GlyphSlot slot)
+FT_BASE_DEF(void) ft_glyphslot_free_bitmap(FT_GlyphSlot slot)
 {
 	if(slot->internal && ( slot->internal->flags & FT_GLYPH_OWN_BITMAP )) {
 		FT_Memory memory = FT_FACE_MEMORY(slot->face);
-
 		FT_FREE(slot->bitmap.buffer);
 		slot->internal->flags &= ~FT_GLYPH_OWN_BITMAP;
 	}
@@ -264,40 +262,30 @@ ft_glyphslot_free_bitmap(FT_GlyphSlot slot)
 
 /* overflow-resistant presetting of bitmap position and dimensions; */
 /* also check whether the size is too large for rendering     */
-FT_BASE_DEF(FT_Bool)
-ft_glyphslot_preset_bitmap(FT_GlyphSlot slot,
-    FT_Render_Mode mode,
-    const FT_Vector*  origin)
+FT_BASE_DEF(FT_Bool) ft_glyphslot_preset_bitmap(FT_GlyphSlot slot, FT_Render_Mode mode, const FT_Vector*  origin)
 {
 	FT_Outline*  outline = &slot->outline;
 	FT_Bitmap*   bitmap  = &slot->bitmap;
-
 	FT_Pixel_Mode pixel_mode;
-
 	FT_BBox cbox, pbox;
 	FT_Pos x_shift = 0;
 	FT_Pos y_shift = 0;
 	FT_Pos x_left, y_top;
 	FT_Pos width, height, pitch;
-
 	if(slot->format != FT_GLYPH_FORMAT_OUTLINE)
 		return 1;
-
 	if(origin) {
 		x_shift = origin->x;
 		y_shift = origin->y;
 	}
-
 	/* compute the control box, and grid-fit it, */
 	/* taking into account the origin shift      */
 	FT_Outline_Get_CBox(outline, &cbox);
-
 	/* rough estimate of pixel box */
 	pbox.xMin = ( cbox.xMin >> 6 ) + ( x_shift >> 6 );
 	pbox.yMin = ( cbox.yMin >> 6 ) + ( y_shift >> 6 );
 	pbox.xMax = ( cbox.xMax >> 6 ) + ( x_shift >> 6 );
 	pbox.yMax = ( cbox.yMax >> 6 ) + ( y_shift >> 6 );
-
 	/* tiny remainder box */
 	cbox.xMin = ( cbox.xMin & 63 ) + ( x_shift & 63 );
 	cbox.yMin = ( cbox.yMin & 63 ) + ( y_shift & 63 );
@@ -413,29 +401,21 @@ Adjust:
 	return 0;
 }
 
-FT_BASE_DEF(void)
-ft_glyphslot_set_bitmap(FT_GlyphSlot slot,
-    FT_Byte*      buffer)
+FT_BASE_DEF(void) ft_glyphslot_set_bitmap(FT_GlyphSlot slot, FT_Byte*      buffer)
 {
 	ft_glyphslot_free_bitmap(slot);
-
 	slot->bitmap.buffer = buffer;
-
 	FT_ASSERT((slot->internal->flags & FT_GLYPH_OWN_BITMAP) == 0);
 }
 
-FT_BASE_DEF(FT_Error)
-ft_glyphslot_alloc_bitmap(FT_GlyphSlot slot,
-    FT_ULong size)
+FT_BASE_DEF(FT_Error) ft_glyphslot_alloc_bitmap(FT_GlyphSlot slot, FT_ULong size)
 {
 	FT_Memory memory = FT_FACE_MEMORY(slot->face);
 	FT_Error error;
-
 	if(slot->internal->flags & FT_GLYPH_OWN_BITMAP)
 		FT_FREE(slot->bitmap.buffer);
 	else
 		slot->internal->flags |= FT_GLYPH_OWN_BITMAP;
-
 	(void)FT_ALLOC(slot->bitmap.buffer, size);
 	return error;
 }
@@ -444,7 +424,6 @@ static void ft_glyphslot_clear(FT_GlyphSlot slot)
 {
 	/* free bitmap if needed */
 	ft_glyphslot_free_bitmap(slot);
-
 	/* clear all public fields in the glyph slot */
 	FT_ZERO(&slot->metrics);
 	FT_ZERO(&slot->outline);
@@ -515,48 +494,38 @@ FT_New_GlyphSlot(FT_Face face,
 	driver = face->driver;
 	clazz  = driver->clazz;
 	memory = driver->root.memory;
-
 	FT_TRACE4(( "FT_New_GlyphSlot: Creating new slot object\n" ));
 	if(!FT_ALLOC(slot, clazz->slot_object_size)) {
 		slot->face = face;
-
 		error = ft_glyphslot_init(slot);
 		if(error) {
 			ft_glyphslot_done(slot);
 			FT_FREE(slot);
 			goto Exit;
 		}
-
 		slot->next  = face->glyph;
 		face->glyph = slot;
-
 		if(aslot)
 			*aslot = slot;
 	}
 	else if(aslot)
 		*aslot = NULL;
-
 Exit:
 	FT_TRACE4(( "FT_New_GlyphSlot: Return 0x%x\n", error ));
-
 	return error;
 }
 
 /* documentation is in ftobjs.h */
-
-FT_BASE_DEF(void)
-FT_Done_GlyphSlot(FT_GlyphSlot slot)
+FT_BASE_DEF(void) FT_Done_GlyphSlot(FT_GlyphSlot slot)
 {
 	if(slot) {
 		FT_Driver driver = slot->face->driver;
 		FT_Memory memory = driver->root.memory;
 		FT_GlyphSlot prev;
 		FT_GlyphSlot cur;
-
 		/* Remove slot from its parent face's list */
 		prev = NULL;
 		cur  = slot->face->glyph;
-
 		while(cur) {
 			if(cur == slot) {
 				if(!prev)
@@ -580,44 +549,32 @@ FT_Done_GlyphSlot(FT_GlyphSlot slot)
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(void)
-FT_Set_Transform(FT_Face face,
-    FT_Matrix*  matrix,
-    FT_Vector*  delta)
+FT_EXPORT_DEF(void) FT_Set_Transform(FT_Face face, FT_Matrix*  matrix, FT_Vector*  delta)
 {
 	FT_Face_Internal internal;
-
 	if(!face)
 		return;
-
 	internal = face->internal;
-
 	internal->transform_flags = 0;
-
 	if(!matrix) {
 		internal->transform_matrix.xx = 0x10000L;
 		internal->transform_matrix.xy = 0;
 		internal->transform_matrix.yx = 0;
 		internal->transform_matrix.yy = 0x10000L;
-
 		matrix = &internal->transform_matrix;
 	}
 	else
 		internal->transform_matrix = *matrix;
-
 	/* set transform_flags bit flag 0 if `matrix' isn't the identity */
 	if(( matrix->xy | matrix->yx ) || matrix->xx != 0x10000L || matrix->yy != 0x10000L)
 		internal->transform_flags |= 1;
-
 	if(!delta) {
 		internal->transform_delta.x = 0;
 		internal->transform_delta.y = 0;
-
 		delta = &internal->transform_delta;
 	}
 	else
 		internal->transform_delta = *delta;
-
 	/* set transform_flags bit flag 1 if `delta' isn't the null vector */
 	if(delta->x | delta->y)
 		internal->transform_flags |= 2;
@@ -2648,12 +2605,9 @@ FT_Match_Size(FT_Face face,
 
 /* documentation is in ftobjs.h */
 
-FT_BASE_DEF(void)
-ft_synthesize_vertical_metrics(FT_Glyph_Metrics*  metrics,
-    FT_Pos advance)
+FT_BASE_DEF(void) ft_synthesize_vertical_metrics(FT_Glyph_Metrics*  metrics, FT_Pos advance)
 {
 	FT_Pos height = metrics->height;
-
 	/* compensate for glyph with bbox above/below the baseline */
 	if(metrics->horiBearingY < 0) {
 		if(height < metrics->horiBearingY)
@@ -2661,18 +2615,15 @@ ft_synthesize_vertical_metrics(FT_Glyph_Metrics*  metrics,
 	}
 	else if(metrics->horiBearingY > 0)
 		height -= metrics->horiBearingY;
-
 	/* the factor 1.2 is a heuristical value */
 	if(!advance)
 		advance = height * 12 / 10;
-
 	metrics->vertBearingX = metrics->horiBearingX - metrics->horiAdvance / 2;
 	metrics->vertBearingY = ( advance - height ) / 2;
 	metrics->vertAdvance  = advance;
 }
 
-static void ft_recompute_scaled_metrics(FT_Face face,
-    FT_Size_Metrics*  metrics)
+static void ft_recompute_scaled_metrics(FT_Face face, FT_Size_Metrics*  metrics)
 {
 	/* Compute root ascender, descender, test height, and max_advance */
 
@@ -2685,43 +2636,26 @@ static void ft_recompute_scaled_metrics(FT_Face face,
 
 	metrics->height = FT_PIX_ROUND(FT_MulFix(face->height,
 		metrics->y_scale));
-
-	metrics->max_advance = FT_PIX_ROUND(FT_MulFix(face->max_advance_width,
-		metrics->x_scale));
+	metrics->max_advance = FT_PIX_ROUND(FT_MulFix(face->max_advance_width, metrics->x_scale));
 #else /* !GRID_FIT_METRICS */
-	metrics->ascender = FT_MulFix(face->ascender,
-		metrics->y_scale);
-
-	metrics->descender = FT_MulFix(face->descender,
-		metrics->y_scale);
-
-	metrics->height = FT_MulFix(face->height,
-		metrics->y_scale);
-
-	metrics->max_advance = FT_MulFix(face->max_advance_width,
-		metrics->x_scale);
+	metrics->ascender = FT_MulFix(face->ascender, metrics->y_scale);
+	metrics->descender = FT_MulFix(face->descender, metrics->y_scale);
+	metrics->height = FT_MulFix(face->height, metrics->y_scale);
+	metrics->max_advance = FT_MulFix(face->max_advance_width, metrics->x_scale);
 #endif /* !GRID_FIT_METRICS */
 }
 
-FT_BASE_DEF(void)
-FT_Select_Metrics(FT_Face face,
-    FT_ULong strike_index)
+FT_BASE_DEF(void) FT_Select_Metrics(FT_Face face, FT_ULong strike_index)
 {
 	FT_Size_Metrics*  metrics;
 	FT_Bitmap_Size*   bsize;
-
 	metrics = &face->size->metrics;
 	bsize = face->available_sizes + strike_index;
-
 	metrics->x_ppem = (FT_UShort)((bsize->x_ppem + 32 ) >> 6 );
 	metrics->y_ppem = (FT_UShort)((bsize->y_ppem + 32 ) >> 6 );
-
 	if(FT_IS_SCALABLE(face)) {
-		metrics->x_scale = FT_DivFix(bsize->x_ppem,
-			face->units_per_EM);
-		metrics->y_scale = FT_DivFix(bsize->y_ppem,
-			face->units_per_EM);
-
+		metrics->x_scale = FT_DivFix(bsize->x_ppem, face->units_per_EM);
+		metrics->y_scale = FT_DivFix(bsize->y_ppem, face->units_per_EM);
 		ft_recompute_scaled_metrics(face, metrics);
 	}
 	else {
@@ -2734,14 +2668,10 @@ FT_Select_Metrics(FT_Face face,
 	}
 }
 
-FT_BASE_DEF(void)
-FT_Request_Metrics(FT_Face face,
-    FT_Size_Request req)
+FT_BASE_DEF(void) FT_Request_Metrics(FT_Face face, FT_Size_Request req)
 {
 	FT_Size_Metrics*  metrics;
-
 	metrics = &face->size->metrics;
-
 	if(FT_IS_SCALABLE(face)) {
 		FT_Long w = 0, h = 0, scaled_w = 0, scaled_h = 0;
 
@@ -3208,7 +3138,6 @@ FT_Get_Charmap_Index(FT_CharMap charmap)
 			break;
 
 	FT_ASSERT(i < charmap->face->num_charmaps);
-
 	return i;
 }
 
@@ -3217,22 +3146,18 @@ static void ft_cmap_done_internal(FT_CMap cmap)
 	FT_CMap_Class clazz  = cmap->clazz;
 	FT_Face face = cmap->charmap.face;
 	FT_Memory memory = FT_FACE_MEMORY(face);
-
 	if(clazz->done)
 		clazz->done(cmap);
-
 	FT_FREE(cmap);
 }
 
-FT_BASE_DEF(void)
-FT_CMap_Done(FT_CMap cmap)
+FT_BASE_DEF(void) FT_CMap_Done(FT_CMap cmap)
 {
 	if(cmap) {
 		FT_Face face = cmap->charmap.face;
 		FT_Memory memory = FT_FACE_MEMORY(face);
 		FT_Error error;
 		FT_Int i, j;
-
 		for(i = 0; i < face->num_charmaps; i++) {
 			if((FT_CMap)face->charmaps[i] == cmap) {
 				FT_CharMap last_charmap = face->charmaps[face->num_charmaps - 1];
@@ -4652,16 +4577,11 @@ FT_EXPORT_DEF(FT_Error) FT_New_Library(FT_Memory memory, FT_Library  *alibrary)
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(void)
-FT_Library_Version(FT_Library library,
-    FT_Int      *amajor,
-    FT_Int      *aminor,
-    FT_Int      *apatch)
+FT_EXPORT_DEF(void) FT_Library_Version(FT_Library library, FT_Int      *amajor, FT_Int      *aminor, FT_Int      *apatch)
 {
 	FT_Int major = 0;
 	FT_Int minor = 0;
 	FT_Int patch = 0;
-
 	if(library) {
 		major = library->version_major;
 		minor = library->version_minor;

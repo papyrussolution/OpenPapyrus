@@ -320,7 +320,8 @@ LIBSSH2_API int libssh2_trace_sethandler(LIBSSH2_SESSION * session, void * handl
 void _libssh2_debug(LIBSSH2_SESSION * session, int context, const char * format, ...)
 {
 	char buffer[1536];
-	int len, msglen, buflen = sizeof(buffer);
+	int len, msglen;
+	int buflen = sizeof(buffer);
 	va_list vargs;
 	struct timeval now;
 	static int firstsec;
@@ -518,4 +519,3 @@ void * _libssh2_calloc(LIBSSH2_SESSION* session, size_t size)
 	memzero(p, size);
 	return p;
 }
-

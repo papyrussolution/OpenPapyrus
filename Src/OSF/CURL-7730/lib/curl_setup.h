@@ -29,6 +29,11 @@
 // #define USE_LIBSSH // @v11.0.9
 #define HAVE_LIBSSH2_H
 // } @sobolev
+// @v11.3.10 {
+#if _MSC_VER >= 1910
+	#define HAVE_ZSTD 
+#endif
+// } @v11.3.10 
 #if defined(BUILDING_LIBCURL) && !defined(CURL_NO_OLDIES)
 	#define CURL_NO_OLDIES
 #endif

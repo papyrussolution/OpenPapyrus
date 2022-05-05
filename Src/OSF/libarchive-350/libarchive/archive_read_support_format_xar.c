@@ -1486,7 +1486,7 @@ static int decompress(struct archive_read * a, const void ** buff, size_t * outb
 #if defined(HAVE_LZMA_H) && defined(HAVE_LIBLZMA)
 		case LZMA:
 		case XZ:
-		    xar->lzstream.next_in = b;
+		    xar->lzstream.next_in = (const uint8 *)b;
 		    xar->lzstream.avail_in = avail_in;
 		    xar->lzstream.next_out = (uchar *)outbuff;
 		    xar->lzstream.avail_out = avail_out;

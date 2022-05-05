@@ -10,7 +10,6 @@
 #pragma hdrstop
 #include "absl/random/internal/randen_slow.h"
 #include "absl/random/internal/platform.h"
-#include "absl/random/internal/randen_traits.h"
 
 #if ABSL_HAVE_ATTRIBUTE(always_inline) || (defined(__GNUC__) && !defined(__clang__))
 #define ABSL_RANDOM_INTERNAL_ATTRIBUTE_ALWAYS_INLINE __attribute__((always_inline))

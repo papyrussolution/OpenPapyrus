@@ -1,5 +1,5 @@
 // C_ATURN.CPP
-// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2016, 2019
+// Copyright (c) A.Sobolev 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2005, 2006, 2007, 2016, 2019, 2022
 // @codepage UTF-8
 // Процедуры корректировки бухгалтерских проводок
 //
@@ -55,7 +55,7 @@ int CorrectAccTurnRest()
 		if(p_arel->search(0, &acc, spFirst))
 			do {
 				count++;
-				PPWaitMsg(((const Acct *)&p_arel->data.Ac)->ToStr(ACCF_DEFAULT, acc_buf));
+				PPWaitMsg(reinterpret_cast<const Acct *>(&p_arel->data.Ac)->ToStr(ACCF_DEFAULT, acc_buf));
 				THROW(atobj.P_Tbl->RecalcRest(acc, ZERODATE, ReplyProc, &param, 1));
 			} while(p_arel->search(&acc, spNext));
 		THROW_DB(BTROKORNFOUND);
@@ -90,10 +90,12 @@ static int CorrectAccturnMsgProc(int msgCode, PPID accID, PPID billID, LDATE dt,
 	if(PPCheckUserBreak()) {
 		CorrectAccturnParam * p = static_cast<CorrectAccturnParam *>(paramPtr);
 		if(p) {
-			SString buf, buf1, buf2;
-			PPLoadString(PPMSG_ERROR, msgCode, buf1);
-			buf2.Cat(dt).Space().CatEq("OprNo", oprno).Space().CatEq("Acc", accID).Space().CatEq("BillID", billID);
-			p->Logger.Log(buf.Printf(buf1, buf2.cptr()));
+			SString temp_buf;
+			SString msg_buf;
+			SString fmt_buf;
+			PPLoadString(PPMSG_ERROR, msgCode, fmt_buf);
+			temp_buf.Cat(dt).Space().CatEq("OprNo", oprno).Space().CatEq("Acc", accID).Space().CatEq("BillID", billID);
+			p->Logger.Log(msg_buf.Printf(fmt_buf, temp_buf.cptr()));
 		}
 	}
 	else

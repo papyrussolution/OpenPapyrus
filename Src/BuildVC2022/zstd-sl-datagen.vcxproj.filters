@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\osf\zstd\lib\zstd-pch.cpp" />
+    <ClCompile Include="..\osf\zstd\programs\util.c" />
+    <ClCompile Include="..\osf\zstd\programs\datagen.c" />
+    <ClCompile Include="..\osf\zstd\tests\datagencli.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\osf\zstd\programs\datagen.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

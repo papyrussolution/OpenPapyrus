@@ -461,9 +461,9 @@ int PPTransferItem::SetupLot(PPID lotID, const ReceiptTbl::Rec * pLotRec, uint f
 	return ok;
 }
 
-int FASTCALL PPTransferItem::IsEq(const PPTransferItem & rS) const
+bool FASTCALL PPTransferItem::IsEq(const PPTransferItem & rS) const
 {
-#define RETIFNEQ(f) if((f)!=rS.f) return 0
+#define RETIFNEQ(f) if((f)!=rS.f) return false
 	RETIFNEQ(Date);
 	RETIFNEQ(BillID);
 	RETIFNEQ(RByBill);
@@ -482,7 +482,7 @@ int FASTCALL PPTransferItem::IsEq(const PPTransferItem & rS) const
 	RETIFNEQ(Expiry);
 	RETIFNEQ(LocTransfTm);
 	if((Flags & ~PPTFR_UNITEINTR) != (rS.Flags & ~PPTFR_UNITEINTR))
-		return 0;
+		return false;
 	if(Flags & PPTFR_REVAL) {
 		RETIFNEQ(Rest_);
 		RETIFNEQ(RevalCost);
@@ -495,9 +495,9 @@ int FASTCALL PPTransferItem::IsEq(const PPTransferItem & rS) const
 #undef  RETIFNEQ
 	// @v10.5.8 {
 	if((TFlags & (tfQrSeqAccepted|tfQrSeqRejected)) != (rS.TFlags & (tfQrSeqAccepted|tfQrSeqRejected)))
-		return 0;
+		return false;
 	// } @v10.5.8 
-	return 1;
+	return true;
 }
 
 double FASTCALL PPTransferItem::CalcAmount(int zeroCost) const

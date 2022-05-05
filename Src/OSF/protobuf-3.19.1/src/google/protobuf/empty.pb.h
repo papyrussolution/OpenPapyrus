@@ -74,11 +74,11 @@ class Empty final :
     *this = ::std::move(from);
   }
 
-  inline Empty& operator = (const Empty& from) {
+  inline Empty& operator=(const Empty& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Empty& operator = (Empty&& from) noexcept {
+  inline Empty& operator=(Empty&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

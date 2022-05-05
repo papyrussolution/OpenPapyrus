@@ -97,20 +97,18 @@ static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
 	PKCS5_PBKDF2_HMAC_SHA1(pw, pw_len, salt, salt_len, rounds, derived_key_len, derived_key);
 	return 0;
 }
-
 #else
 
 /* Stub */
-static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt,
-    size_t salt_len, unsigned rounds, uint8 * derived_key,
-    size_t derived_key_len) {
-	(void)pw; /* UNUSED */
-	(void)pw_len; /* UNUSED */
-	(void)salt; /* UNUSED */
-	(void)salt_len; /* UNUSED */
-	(void)rounds; /* UNUSED */
-	(void)derived_key; /* UNUSED */
-	(void)derived_key_len; /* UNUSED */
+static int pbkdf2_sha1(const char * pw, size_t pw_len, const uint8 * salt, size_t salt_len, unsigned rounds, uint8 * derived_key, size_t derived_key_len) 
+{
+	CXX_UNUSED(pw);
+	CXX_UNUSED(pw_len);
+	CXX_UNUSED(salt);
+	CXX_UNUSED(salt_len);
+	CXX_UNUSED(rounds);
+	CXX_UNUSED(derived_key);
+	CXX_UNUSED(derived_key_len);
 	return -1; /* UNSUPPORTED */
 }
 
@@ -128,8 +126,7 @@ static int aes_ctr_init(archive_crypto_ctx * ctx, const uint8 * key, size_t key_
 	memcpy(ctx->key, key, key_len);
 	memzero(ctx->nonce, sizeof(ctx->nonce));
 	ctx->encr_pos = AES_BLOCK_SIZE;
-	r = CCCryptorCreateWithMode(kCCEncrypt, kCCModeECB, kCCAlgorithmAES,
-		ccNoPadding, NULL, key, key_len, NULL, 0, 0, 0, &ctx->ctx);
+	r = CCCryptorCreateWithMode(kCCEncrypt, kCCModeECB, kCCAlgorithmAES, ccNoPadding, NULL, key, key_len, NULL, 0, 0, 0, &ctx->ctx);
 	return (r == kCCSuccess) ? 0 : -1;
 }
 

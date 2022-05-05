@@ -29,69 +29,54 @@
 #include "vssh/ssh.h"
 #include "quic.h"
 #include "curl_printf.h"
-
 #ifdef USE_ARES
-#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) &&   \
-	defined(WIN32)
-#define CARES_STATICLIB
+	#if defined(CURL_STATICLIB) && !defined(CARES_STATICLIB) && defined(WIN32)
+		#define CARES_STATICLIB
+	#endif
+	#include <ares.h>
 #endif
-#include <ares.h>
-#endif
-
 #ifdef USE_LIBIDN2
-#include <idn2.h>
+	#include <idn2.h>
 #endif
-
 #ifdef USE_LIBPSL
-#include <libpsl.h>
+	#include <libpsl.h>
 #endif
-
 #if defined(HAVE_ICONV) && defined(CURL_DOES_CONVERSIONS)
-#include <iconv.h>
+	#include <iconv.h>
 #endif
-
 #ifdef USE_LIBRTMP
-#include <librtmp/rtmp.h>
+	#include <librtmp/rtmp.h>
 #endif
-
 #ifdef HAVE_ZLIB_H
-#include <zlib.h>
+	#include <zlib.h>
 #endif
-
 #ifdef HAVE_BROTLI
-#include <brotli/decode.h>
+	#include <brotli/decode.h>
 #endif
-
 #ifdef HAVE_ZSTD
-#include <zstd.h>
+	#include <..\OSF\zstd\lib\include\zstd.h>
 #endif
 
 #ifdef HAVE_BROTLI
 static size_t brotli_version(char * buf, size_t bufsz)
 {
 	uint32_t brotli_version = BrotliDecoderVersion();
-	unsigned int major = brotli_version >> 24;
-	unsigned int minor = (brotli_version & 0x00FFFFFF) >> 12;
-	unsigned int patch = brotli_version & 0x00000FFF;
-
+	uint major = brotli_version >> 24;
+	uint minor = (brotli_version & 0x00FFFFFF) >> 12;
+	uint patch = brotli_version & 0x00000FFF;
 	return msnprintf(buf, bufsz, "%u.%u.%u", major, minor, patch);
 }
-
 #endif
 
 #ifdef HAVE_ZSTD
 static size_t zstd_version(char * buf, size_t bufsz)
 {
 	ulong zstd_version = (ulong)ZSTD_versionNumber();
-	unsigned int major = (uint)(zstd_version / (100 * 100));
-	unsigned int minor = (uint)((zstd_version -
-	    (major * 100 * 100)) / 100);
-	unsigned int patch = (uint)(zstd_version -
-	    (major * 100 * 100) - (minor * 100));
-
+	uint major = (uint)(zstd_version / (100 * 100));
+	uint minor = (uint)((zstd_version - (major * 100 * 100)) / 100);
+	uint patch = (uint)(zstd_version - (major * 100 * 100) - (minor * 100));
 	return msnprintf(buf, bufsz, "%u.%u.%u", major, minor, patch);
 }
-
 #endif
 
 /*

@@ -783,7 +783,6 @@ protected:
 						    break;
 					    }
 					    HB_FALLTHROUGH;
-
 					case OpCode_hstemhm:
 					case OpCode_vstemhm:
 					case OpCode_hstem:
@@ -793,7 +792,6 @@ protected:
 					    if(str.at_end(pos))
 						    drop.ends_in_hint = true;
 					    break;
-
 					case OpCode_dotsection:
 					    str.values[pos].set_drop();
 					    break;

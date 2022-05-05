@@ -45,9 +45,9 @@
 /* Same as above, but used during a variable declaration. */
 #ifdef WIN32
 # ifdef LIBSASL_EXPORTS
-#  define LIBSASL_VAR  extern /*__declspec(dllexport)*/
+#define LIBSASL_VAR  extern /*__declspec(dllexport)*/
 # else /* LIBSASL_EXPORTS */
-#  define LIBSASL_VAR  extern /*__declspec(dllimport)*/
+#define LIBSASL_VAR  extern /*__declspec(dllimport)*/
 # endif /* LIBSASL_EXPORTS */
 #else /* WIN32 */
 #define LIBSASL_VAR extern

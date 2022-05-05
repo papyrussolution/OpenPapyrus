@@ -401,16 +401,14 @@ bool GregorianCalendar::isLeapYear(int32_t year) const
 	// MSVC complains bitterly if we try to use Grego::isLeapYear here
 	// NOTE: year&0x3 == year%4
 	return (year >= fGregorianCutoverYear ?
-	       (((year&0x3) == 0) && ((year%100 != 0) || (year%400 == 0))) : // Gregorian
+	       (((year & 0x3) == 0) && ((year % 100 != 0) || (year % 400 == 0))) : // Gregorian
 	       ((year&0x3) == 0)); // Julian
 }
 
 int32_t GregorianCalendar::handleComputeJulianDay(UCalendarDateFields bestField)
 {
 	fInvertGregorian = FALSE;
-
 	int32_t jd = Calendar::handleComputeJulianDay(bestField);
-
 	if((bestField == UCAL_WEEK_OF_YEAR) && // if we are doing WOY calculations, we are counting relative to Jan 1
 	                                       // *julian*
 	    (internalGet(UCAL_EXTENDED_YEAR)==fGregorianCutoverYear) &&
@@ -479,7 +477,7 @@ int32_t GregorianCalendar::handleComputeMonthStart(int32_t eyear, int32_t month,
 		nonConstThis->fIsGregorian = !fIsGregorian;
 	}
 	if(fIsGregorian) {
-		isLeap = isLeap && ((eyear%100 != 0) || (eyear%400 == 0));
+		isLeap = isLeap && ((eyear % 100 != 0) || (eyear % 400 == 0));
 		// Add 2 because Gregorian calendar starts 2 days after
 		// Julian calendar
 		int32_t gregShift = Grego::gregorianShift(eyear);
@@ -604,19 +602,16 @@ UDate GregorianCalendar::getEpochDay(UErrorCode & status)
  * specifies (Jan. 1, 1) - 1, in whatever calendar we are using (Julian
  * or Gregorian).
  */
-double GregorianCalendar::computeJulianDayOfYear(bool isGregorian,
-    int32_t year, bool& isLeap)
+double GregorianCalendar::computeJulianDayOfYear(bool isGregorian, int32_t year, bool& isLeap)
 {
 	isLeap = year%4 == 0;
 	int32_t y = year - 1;
 	double julianDay = 365.0*y + ClockMath::floorDivide(y, 4) + (kJan1_1JulianDay - 3);
-
 	if(isGregorian) {
-		isLeap = isLeap && ((year%100 != 0) || (year%400 == 0));
+		isLeap = isLeap && ((year % 100 != 0) || (year % 400 == 0));
 		// Add 2 because Gregorian calendar starts 2 days after Julian calendar
 		julianDay += Grego::gregorianShift(year);
 	}
-
 	return julianDay;
 }
 

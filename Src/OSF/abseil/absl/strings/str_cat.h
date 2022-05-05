@@ -59,12 +59,10 @@ namespace strings_internal {
 // AlphaNumBuffer allows a way to pass a string to StrCat without having to do
 // memory allocation.  It is simply a pair of a fixed-size character array, and
 // a size.  Please don't use outside of absl, yet.
-template <size_t max_size>
-struct AlphaNumBuffer {
-  std::array<char, max_size> data;
-  size_t size;
+template <size_t max_size> struct AlphaNumBuffer {
+	std::array<char, max_size> data;
+	size_t size;
 };
-
 }  // namespace strings_internal
 
 // Enum that specifies the number of significant digits to return in a `Hex` or
@@ -72,46 +70,46 @@ struct AlphaNumBuffer {
 // would produce hexadecimal strings such as "0a","0f" and a 'kSpacePad5' value
 // would produce hexadecimal strings such as "    a","    f".
 enum PadSpec : uint8_t {
-  kNoPad = 1,
-  kZeroPad2,
-  kZeroPad3,
-  kZeroPad4,
-  kZeroPad5,
-  kZeroPad6,
-  kZeroPad7,
-  kZeroPad8,
-  kZeroPad9,
-  kZeroPad10,
-  kZeroPad11,
-  kZeroPad12,
-  kZeroPad13,
-  kZeroPad14,
-  kZeroPad15,
-  kZeroPad16,
-  kZeroPad17,
-  kZeroPad18,
-  kZeroPad19,
-  kZeroPad20,
+	kNoPad = 1,
+	kZeroPad2,
+	kZeroPad3,
+	kZeroPad4,
+	kZeroPad5,
+	kZeroPad6,
+	kZeroPad7,
+	kZeroPad8,
+	kZeroPad9,
+	kZeroPad10,
+	kZeroPad11,
+	kZeroPad12,
+	kZeroPad13,
+	kZeroPad14,
+	kZeroPad15,
+	kZeroPad16,
+	kZeroPad17,
+	kZeroPad18,
+	kZeroPad19,
+	kZeroPad20,
 
-  kSpacePad2 = kZeroPad2 + 64,
-  kSpacePad3,
-  kSpacePad4,
-  kSpacePad5,
-  kSpacePad6,
-  kSpacePad7,
-  kSpacePad8,
-  kSpacePad9,
-  kSpacePad10,
-  kSpacePad11,
-  kSpacePad12,
-  kSpacePad13,
-  kSpacePad14,
-  kSpacePad15,
-  kSpacePad16,
-  kSpacePad17,
-  kSpacePad18,
-  kSpacePad19,
-  kSpacePad20,
+	kSpacePad2 = kZeroPad2 + 64,
+	kSpacePad3,
+	kSpacePad4,
+	kSpacePad5,
+	kSpacePad6,
+	kSpacePad7,
+	kSpacePad8,
+	kSpacePad9,
+	kSpacePad10,
+	kSpacePad11,
+	kSpacePad12,
+	kSpacePad13,
+	kSpacePad14,
+	kSpacePad15,
+	kSpacePad16,
+	kSpacePad17,
+	kSpacePad18,
+	kSpacePad19,
+	kSpacePad20,
 };
 
 // -----------------------------------------------------------------------------
@@ -121,46 +119,52 @@ enum PadSpec : uint8_t {
 // `Hex` stores a set of hexadecimal string conversion parameters for use
 // within `AlphaNum` string conversions.
 struct Hex {
-  uint64_t value;
-  uint8_t width;
-  char fill;
+	uint64_t value;
+	uint8_t width;
+	char fill;
 
-  template <typename Int>
-  explicit Hex(
-      Int v, PadSpec spec = absl::kNoPad,
-      typename std::enable_if<sizeof(Int) == 1 &&
-                              !std::is_pointer<Int>::value>::type* = nullptr)
-      : Hex(spec, static_cast<uint8_t>(v)) {}
-  template <typename Int>
-  explicit Hex(
-      Int v, PadSpec spec = absl::kNoPad,
-      typename std::enable_if<sizeof(Int) == 2 &&
-                              !std::is_pointer<Int>::value>::type* = nullptr)
-      : Hex(spec, static_cast<uint16_t>(v)) {}
-  template <typename Int>
-  explicit Hex(
-      Int v, PadSpec spec = absl::kNoPad,
-      typename std::enable_if<sizeof(Int) == 4 &&
-                              !std::is_pointer<Int>::value>::type* = nullptr)
-      : Hex(spec, static_cast<uint32_t>(v)) {}
-  template <typename Int>
-  explicit Hex(
-      Int v, PadSpec spec = absl::kNoPad,
-      typename std::enable_if<sizeof(Int) == 8 &&
-                              !std::is_pointer<Int>::value>::type* = nullptr)
-      : Hex(spec, static_cast<uint64_t>(v)) {}
-  template <typename Pointee>
-  explicit Hex(Pointee* v, PadSpec spec = absl::kNoPad)
-      : Hex(spec, reinterpret_cast<uintptr_t>(v)) {}
+	template <typename Int>
+	explicit Hex(Int v, PadSpec spec = absl::kNoPad,
+	    typename std::enable_if<sizeof(Int) == 1 &&
+	    !std::is_pointer<Int>::value>::type* = nullptr)
+		: Hex(spec, static_cast<uint8_t>(v)) {
+	}
 
- private:
-  Hex(PadSpec spec, uint64_t v)
-      : value(v),
-        width(spec == absl::kNoPad
-                  ? 1
-                  : spec >= absl::kSpacePad2 ? spec - absl::kSpacePad2 + 2
-                                             : spec - absl::kZeroPad2 + 2),
-        fill(spec >= absl::kSpacePad2 ? ' ' : '0') {}
+	template <typename Int>
+	explicit Hex(Int v, PadSpec spec = absl::kNoPad,
+	    typename std::enable_if<sizeof(Int) == 2 &&
+	    !std::is_pointer<Int>::value>::type* = nullptr)
+		: Hex(spec, static_cast<uint16_t>(v)) {
+	}
+
+	template <typename Int>
+	explicit Hex(Int v, PadSpec spec = absl::kNoPad,
+	    typename std::enable_if<sizeof(Int) == 4 &&
+	    !std::is_pointer<Int>::value>::type* = nullptr)
+		: Hex(spec, static_cast<uint32_t>(v)) {
+	}
+
+	template <typename Int>
+	explicit Hex(Int v, PadSpec spec = absl::kNoPad,
+	    typename std::enable_if<sizeof(Int) == 8 &&
+	    !std::is_pointer<Int>::value>::type* = nullptr)
+		: Hex(spec, static_cast<uint64_t>(v)) {
+	}
+
+	template <typename Pointee>
+	explicit Hex(Pointee* v, PadSpec spec = absl::kNoPad)
+		: Hex(spec, reinterpret_cast<uintptr_t>(v)) {
+	}
+
+private:
+	Hex(PadSpec spec, uint64_t v)
+		: value(v),
+		width(spec == absl::kNoPad
+		    ? 1
+		    : spec >= absl::kSpacePad2 ? spec - absl::kSpacePad2 + 2
+		    : spec - absl::kZeroPad2 + 2),
+		fill(spec >= absl::kSpacePad2 ? ' ' : '0') {
+	}
 };
 
 // -----------------------------------------------------------------------------
@@ -171,22 +175,27 @@ struct Hex {
 // within `AlphaNum` string conversions.  Dec is slower than the default
 // integer conversion, so use it only if you need padding.
 struct Dec {
-  uint64_t value;
-  uint8_t width;
-  char fill;
-  bool neg;
+	uint64_t value;
+	uint8_t width;
+	char fill;
+	bool neg;
 
-  template <typename Int>
-  explicit Dec(Int v, PadSpec spec = absl::kNoPad,
-               typename std::enable_if<(sizeof(Int) <= 8)>::type* = nullptr)
-      : value(v >= 0 ? static_cast<uint64_t>(v)
-                     : uint64_t{0} - static_cast<uint64_t>(v)),
-        width(spec == absl::kNoPad
-                  ? 1
-                  : spec >= absl::kSpacePad2 ? spec - absl::kSpacePad2 + 2
-                                             : spec - absl::kZeroPad2 + 2),
-        fill(spec >= absl::kSpacePad2 ? ' ' : '0'),
-        neg(v < 0) {}
+	template <typename Int>
+	explicit Dec(Int v, PadSpec spec = absl::kNoPad,
+	    typename std::enable_if<(sizeof(Int) <= 8)>::type* = nullptr)
+		: value(v >= 0 ? static_cast<uint64_t>(v)
+		    : uint64_t {
+			0
+		}
+
+		    -static_cast<uint64_t>(v)),
+		width(spec == absl::kNoPad
+		    ? 1
+		    : spec >= absl::kSpacePad2 ? spec - absl::kSpacePad2 + 2
+		    : spec - absl::kZeroPad2 + 2),
+		fill(spec >= absl::kSpacePad2 ? ' ' : '0'),
+		neg(v < 0) {
+	}
 };
 
 // -----------------------------------------------------------------------------
@@ -198,88 +207,117 @@ struct Dec {
 // hexadecimal values (through the `Hex` type) into strings.
 
 class AlphaNum {
- public:
-  // No bool ctor -- bools convert to an integral type.
-  // A bool ctor would also convert incoming pointers (bletch).
+public:
+	// No bool ctor -- bools convert to an integral type.
+	// A bool ctor would also convert incoming pointers (bletch).
 
-  AlphaNum(int x)  // NOLINT(runtime/explicit)
-      : piece_(digits_, static_cast<size_t>(
-                            numbers_internal::FastIntToBuffer(x, digits_) -
-                            &digits_[0])) {}
-  AlphaNum(unsigned int x)  // NOLINT(runtime/explicit)
-      : piece_(digits_, static_cast<size_t>(
-                            numbers_internal::FastIntToBuffer(x, digits_) -
-                            &digits_[0])) {}
-  AlphaNum(long x)  // NOLINT(*)
-      : piece_(digits_, static_cast<size_t>(
-                            numbers_internal::FastIntToBuffer(x, digits_) -
-                            &digits_[0])) {}
-  AlphaNum(unsigned long x)  // NOLINT(*)
-      : piece_(digits_, static_cast<size_t>(
-                            numbers_internal::FastIntToBuffer(x, digits_) -
-                            &digits_[0])) {}
-  AlphaNum(long long x)  // NOLINT(*)
-      : piece_(digits_, static_cast<size_t>(
-                            numbers_internal::FastIntToBuffer(x, digits_) -
-                            &digits_[0])) {}
-  AlphaNum(unsigned long long x)  // NOLINT(*)
-      : piece_(digits_, static_cast<size_t>(
-                            numbers_internal::FastIntToBuffer(x, digits_) -
-                            &digits_[0])) {}
+	AlphaNum(int x) // NOLINT(runtime/explicit)
+		: piece_(digits_, static_cast<size_t>(
+			    numbers_internal::FastIntToBuffer(x, digits_) -
+			    &digits_[0])) {
+	}
 
-  AlphaNum(float f)  // NOLINT(runtime/explicit)
-      : piece_(digits_, numbers_internal::SixDigitsToBuffer(f, digits_)) {}
-  AlphaNum(double f)  // NOLINT(runtime/explicit)
-      : piece_(digits_, numbers_internal::SixDigitsToBuffer(f, digits_)) {}
+	AlphaNum(unsigned int x) // NOLINT(runtime/explicit)
+		: piece_(digits_, static_cast<size_t>(
+			    numbers_internal::FastIntToBuffer(x, digits_) -
+			    &digits_[0])) {
+	}
 
-  AlphaNum(Hex hex);  // NOLINT(runtime/explicit)
-  AlphaNum(Dec dec);  // NOLINT(runtime/explicit)
+	AlphaNum(long x) // NOLINT(*)
+		: piece_(digits_, static_cast<size_t>(
+			    numbers_internal::FastIntToBuffer(x, digits_) -
+			    &digits_[0])) {
+	}
 
-  template <size_t size>
-  AlphaNum(  // NOLINT(runtime/explicit)
-      const strings_internal::AlphaNumBuffer<size>& buf)
-      : piece_(&buf.data[0], buf.size) {}
+	AlphaNum(unsigned long x) // NOLINT(*)
+		: piece_(digits_, static_cast<size_t>(
+			    numbers_internal::FastIntToBuffer(x, digits_) -
+			    &digits_[0])) {
+	}
 
-  AlphaNum(const char* c_str) : piece_(c_str) {}  // NOLINT(runtime/explicit)
-  AlphaNum(absl::string_view pc) : piece_(pc) {}  // NOLINT(runtime/explicit)
+	AlphaNum(long long x) // NOLINT(*)
+		: piece_(digits_, static_cast<size_t>(
+			    numbers_internal::FastIntToBuffer(x, digits_) -
+			    &digits_[0])) {
+	}
 
-  template <typename Allocator>
-  AlphaNum(  // NOLINT(runtime/explicit)
-      const std::basic_string<char, std::char_traits<char>, Allocator>& str)
-      : piece_(str) {}
+	AlphaNum(unsigned long long x) // NOLINT(*)
+		: piece_(digits_, static_cast<size_t>(
+			    numbers_internal::FastIntToBuffer(x, digits_) -
+			    &digits_[0])) {
+	}
 
-  // Use string literals ":" instead of character literals ':'.
-  AlphaNum(char c) = delete;  // NOLINT(runtime/explicit)
+	AlphaNum(float f) // NOLINT(runtime/explicit)
+		: piece_(digits_, numbers_internal::SixDigitsToBuffer(f, digits_)) {
+	}
 
-  AlphaNum(const AlphaNum&) = delete;
-  AlphaNum& operator = (const AlphaNum&) = delete;
+	AlphaNum(double f) // NOLINT(runtime/explicit)
+		: piece_(digits_, numbers_internal::SixDigitsToBuffer(f, digits_)) {
+	}
 
-  absl::string_view::size_type size() const { return piece_.size(); }
-  const char* data() const { return piece_.data(); }
-  absl::string_view Piece() const { return piece_; }
+	AlphaNum(Hex hex); // NOLINT(runtime/explicit)
+	AlphaNum(Dec dec); // NOLINT(runtime/explicit)
 
-  // Normal enums are already handled by the integer formatters.
-  // This overload matches only scoped enums.
-  template <typename T,
-            typename = typename std::enable_if<
-                std::is_enum<T>{} && !std::is_convertible<T, int>{}>::type>
-  AlphaNum(T e)  // NOLINT(runtime/explicit)
-      : AlphaNum(static_cast<typename std::underlying_type<T>::type>(e)) {}
+	template <size_t size>
+	AlphaNum( // NOLINT(runtime/explicit)
+		const strings_internal::AlphaNumBuffer<size>& buf)
+		: piece_(&buf.data[0], buf.size) {
+	}
 
-  // vector <bool>::reference and const_reference require special help to
-  // convert to `AlphaNum` because it requires two user defined conversions.
-  template <
-      typename T,
-      typename std::enable_if<
-          std::is_class<T>::value &&
-          (std::is_same<T, std::vector <bool>::reference>::value ||
-           std::is_same<T, std::vector <bool>::const_reference>::value)>::type* =
-          nullptr>
-  AlphaNum(T e) : AlphaNum(static_cast<bool>(e)) {}  // NOLINT(runtime/explicit)
+	AlphaNum(const char* c_str) : piece_(c_str) {
+	}                                         // NOLINT(runtime/explicit)
 
- private:
-  absl::string_view piece_;
-  char digits_[numbers_internal::kFastToBufferSize];
+	AlphaNum(absl::string_view pc) : piece_(pc) {
+	}                                         // NOLINT(runtime/explicit)
+
+	template <typename Allocator>
+	AlphaNum( // NOLINT(runtime/explicit)
+		const std::basic_string<char, std::char_traits<char>, Allocator>& str)
+		: piece_(str) {
+	}
+
+	// Use string literals ":" instead of character literals ':'.
+	AlphaNum(char c) = delete; // NOLINT(runtime/explicit)
+
+	AlphaNum(const AlphaNum&) = delete;
+	AlphaNum& operator =(const AlphaNum&) = delete;
+
+	absl::string_view::size_type size() const {
+		return piece_.size();
+	}
+
+	const char* data() const {
+		return piece_.data();
+	}
+
+	absl::string_view Piece() const {
+		return piece_;
+	}
+
+	// Normal enums are already handled by the integer formatters.
+	// This overload matches only scoped enums.
+	template <typename T,
+	    typename = typename std::enable_if<
+	    std::is_enum<T>{} && !std::is_convertible<T, int>{}>::type>
+	AlphaNum(T e) // NOLINT(runtime/explicit)
+		: AlphaNum(static_cast<typename std::underlying_type<T>::type>(e)) {
+	}
+
+	// vector <bool>::reference and const_reference require special help to
+	// convert to `AlphaNum` because it requires two user defined conversions.
+	template <
+		typename T,
+		typename std::enable_if<
+			std::is_class<T>::value &&
+			(std::is_same<T, std::vector <bool>::reference>::value ||
+			std::is_same<T, std::vector <bool>::const_reference>::value)>::type* =
+		nullptr>
+	AlphaNum(T e) : AlphaNum(static_cast<bool>(e)) {
+	}                                            // NOLINT(runtime/explicit)
+
+private:
+	absl::string_view piece_;
+	char digits_[numbers_internal::kFastToBufferSize];
 };
 
 // -----------------------------------------------------------------------------
@@ -311,34 +349,33 @@ class AlphaNum {
 // See `StrAppend()` below for more information.
 
 namespace strings_internal {
-
 // Do not call directly - this is not part of the public API.
 std::string CatPieces(std::initializer_list<absl::string_view> pieces);
 void AppendPieces(std::string* dest,
-                  std::initializer_list<absl::string_view> pieces);
-
+    std::initializer_list<absl::string_view> pieces);
 }  // namespace strings_internal
 
-ABSL_MUST_USE_RESULT inline std::string StrCat() { return std::string(); }
+ABSL_MUST_USE_RESULT inline std::string StrCat() {
+	return std::string();
+}
 
 ABSL_MUST_USE_RESULT inline std::string StrCat(const AlphaNum& a) {
-  return std::string(a.data(), a.size());
+	return std::string(a.data(), a.size());
 }
 
 ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum& a, const AlphaNum& b);
 ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum& a, const AlphaNum& b,
-                                        const AlphaNum& c);
+    const AlphaNum& c);
 ABSL_MUST_USE_RESULT std::string StrCat(const AlphaNum& a, const AlphaNum& b,
-                                        const AlphaNum& c, const AlphaNum& d);
+    const AlphaNum& c, const AlphaNum& d);
 
 // Support 5 or more arguments
-template <typename... AV>
-ABSL_MUST_USE_RESULT inline std::string StrCat(
-    const AlphaNum& a, const AlphaNum& b, const AlphaNum& c, const AlphaNum& d,
-    const AlphaNum& e, const AV&... args) {
-  return strings_internal::CatPieces(
-      {a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),
-       static_cast<const AlphaNum&>(args).Piece()...});
+template <typename ... AV>
+ABSL_MUST_USE_RESULT inline std::string StrCat(const AlphaNum& a, const AlphaNum& b, const AlphaNum& c, const AlphaNum& d,
+    const AlphaNum& e, const AV& ... args) {
+	return strings_internal::CatPieces(
+		{a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),
+		 static_cast<const AlphaNum&>(args).Piece() ...});
 }
 
 // -----------------------------------------------------------------------------
@@ -368,33 +405,34 @@ ABSL_MUST_USE_RESULT inline std::string StrCat(
 //   absl::string_view p = s;
 //   StrAppend(&s, p);
 
-inline void StrAppend(std::string*) {}
+inline void StrAppend(std::string*) {
+}
+
 void StrAppend(std::string* dest, const AlphaNum& a);
 void StrAppend(std::string* dest, const AlphaNum& a, const AlphaNum& b);
 void StrAppend(std::string* dest, const AlphaNum& a, const AlphaNum& b,
-               const AlphaNum& c);
+    const AlphaNum& c);
 void StrAppend(std::string* dest, const AlphaNum& a, const AlphaNum& b,
-               const AlphaNum& c, const AlphaNum& d);
+    const AlphaNum& c, const AlphaNum& d);
 
 // Support 5 or more arguments
-template <typename... AV>
+template <typename ... AV>
 inline void StrAppend(std::string* dest, const AlphaNum& a, const AlphaNum& b,
-                      const AlphaNum& c, const AlphaNum& d, const AlphaNum& e,
-                      const AV&... args) {
-  strings_internal::AppendPieces(
-      dest, {a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),
-             static_cast<const AlphaNum&>(args).Piece()...});
+    const AlphaNum& c, const AlphaNum& d, const AlphaNum& e,
+    const AV& ... args) {
+	strings_internal::AppendPieces(
+		dest, {a.Piece(), b.Piece(), c.Piece(), d.Piece(), e.Piece(),
+		       static_cast<const AlphaNum&>(args).Piece() ...});
 }
 
 // Helper function for the future StrCat default floating-point format, %.6g
 // This is fast.
 inline strings_internal::AlphaNumBuffer<
-    numbers_internal::kSixDigitsToBufferSize>
-SixDigits(double d) {
-  strings_internal::AlphaNumBuffer<numbers_internal::kSixDigitsToBufferSize>
-      result;
-  result.size = numbers_internal::SixDigitsToBuffer(d, &result.data[0]);
-  return result;
+	numbers_internal::kSixDigitsToBufferSize>SixDigits(double d) {
+	strings_internal::AlphaNumBuffer<numbers_internal::kSixDigitsToBufferSize>
+	result;
+	result.size = numbers_internal::SixDigitsToBuffer(d, &result.data[0]);
+	return result;
 }
 
 ABSL_NAMESPACE_END

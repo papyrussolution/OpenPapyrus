@@ -34,16 +34,9 @@ static cairo_status_t _cairo_gstate_init_copy(cairo_gstate_t * gstate, cairo_gst
 static cairo_status_t _cairo_gstate_ensure_font_face(cairo_gstate_t * gstate);
 static cairo_status_t _cairo_gstate_ensure_scaled_font(cairo_gstate_t * gstate);
 static void FASTCALL _cairo_gstate_unset_scaled_font(cairo_gstate_t * gstate);
-
-static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate,
-    const cairo_glyph_t * glyphs,
-    int num_glyphs,
-    const cairo_text_cluster_t * clusters,
-    int num_clusters,
-    cairo_text_cluster_flags_t cluster_flags,
-    cairo_glyph_t * transformed_glyphs,
-    int * num_transformed_glyphs,
-    cairo_text_cluster_t * transformed_clusters);
+static void _cairo_gstate_transform_glyphs_to_backend(cairo_gstate_t * gstate, const cairo_glyph_t * glyphs, int num_glyphs,
+    const cairo_text_cluster_t * clusters, int num_clusters, cairo_text_cluster_flags_t cluster_flags, cairo_glyph_t * transformed_glyphs,
+    int * num_transformed_glyphs, cairo_text_cluster_t * transformed_clusters);
 
 static void _cairo_gstate_update_device_transform(cairo_observer_t * observer, void * arg)
 {
@@ -82,7 +75,6 @@ cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate, cairo_surface_t * tar
 	 * the resource deallocation). */
 	return target->status;
 }
-
 /**
  * _cairo_gstate_init_copy:
  *
@@ -93,50 +85,33 @@ cairo_status_t _cairo_gstate_init(cairo_gstate_t * gstate, cairo_surface_t * tar
 static cairo_status_t _cairo_gstate_init_copy(cairo_gstate_t * gstate, cairo_gstate_t * other)
 {
 	cairo_status_t status;
-
 	VG(VALGRIND_MAKE_MEM_UNDEFINED(gstate, sizeof(cairo_gstate_t)));
-
 	gstate->op = other->op;
 	gstate->opacity = other->opacity;
-
 	gstate->tolerance = other->tolerance;
 	gstate->antialias = other->antialias;
-
-	status = _cairo_stroke_style_init_copy(&gstate->stroke_style,
-		&other->stroke_style);
+	status = _cairo_stroke_style_init_copy(&gstate->stroke_style, &other->stroke_style);
 	if(UNLIKELY(status))
 		return status;
-
 	gstate->fill_rule = other->fill_rule;
-
 	gstate->font_face = cairo_font_face_reference(other->font_face);
 	gstate->scaled_font = cairo_scaled_font_reference(other->scaled_font);
 	gstate->previous_scaled_font = cairo_scaled_font_reference(other->previous_scaled_font);
-
 	gstate->font_matrix = other->font_matrix;
-
 	_cairo_font_options_init_copy(&gstate->font_options, &other->font_options);
-
 	gstate->clip = _cairo_clip_copy(other->clip);
-
 	gstate->target = cairo_surface_reference(other->target);
 	/* parent_target is always set to NULL; it's only ever set by redirect_target */
 	gstate->parent_target = NULL;
 	gstate->original_target = cairo_surface_reference(other->original_target);
-
 	gstate->device_transform_observer.callback = _cairo_gstate_update_device_transform;
-	cairo_list_add(&gstate->device_transform_observer.link,
-	    &gstate->target->device_transform_observers);
-
+	cairo_list_add(&gstate->device_transform_observer.link, &gstate->target->device_transform_observers);
 	gstate->is_identity = other->is_identity;
 	gstate->ctm = other->ctm;
 	gstate->ctm_inverse = other->ctm_inverse;
 	gstate->source_ctm_inverse = other->source_ctm_inverse;
-
 	gstate->source = cairo_pattern_reference(other->source);
-
 	gstate->next = NULL;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -213,7 +188,6 @@ cairo_status_t _cairo_gstate_restore(cairo_gstate_t ** gstate, cairo_gstate_t **
 	*freelist = top;
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /**
  * _cairo_gstate_redirect_target:
  * @gstate: a #cairo_gstate_t
@@ -244,7 +218,6 @@ cairo_status_t _cairo_gstate_redirect_target(cairo_gstate_t * gstate, cairo_surf
 		static_cast<int>(child->device_transform.y0 - gstate->parent_target->device_transform.y0));
 	return CAIRO_STATUS_SUCCESS;
 }
-
 /**
  * _cairo_gstate_is_group:
  * @gstate: a #cairo_gstate_t
@@ -255,11 +228,10 @@ cairo_status_t _cairo_gstate_redirect_target(cairo_gstate_t * gstate, cairo_surf
  * Return value: %TRUE if @gstate is redirected to a target different
  * than the previous state in the stack, %FALSE otherwise.
  **/
-boolint _cairo_gstate_is_group(cairo_gstate_t * gstate)
+boolint FASTCALL _cairo_gstate_is_group(const cairo_gstate_t * gstate)
 {
-	return gstate->parent_target != NULL;
+	return (gstate->parent_target != NULL);
 }
-
 /**
  * _cairo_gstate_get_target:
  * @gstate: a #cairo_gstate_t
@@ -273,7 +245,6 @@ cairo_surface_t * _cairo_gstate_get_target(cairo_gstate_t * gstate)
 {
 	return gstate->target;
 }
-
 /**
  * _cairo_gstate_get_original_target:
  * @gstate: a #cairo_gstate_t
@@ -289,7 +260,6 @@ cairo_surface_t * _cairo_gstate_get_original_target(cairo_gstate_t * gstate)
 {
 	return gstate->original_target;
 }
-
 /**
  * _cairo_gstate_get_clip:
  * @gstate: a #cairo_gstate_t
@@ -303,17 +273,14 @@ cairo_clip_t * _cairo_gstate_get_clip(cairo_gstate_t * gstate)
 	return gstate->clip;
 }
 
-cairo_status_t _cairo_gstate_set_source(cairo_gstate_t * gstate,
-    cairo_pattern_t * source)
+cairo_status_t _cairo_gstate_set_source(cairo_gstate_t * gstate, cairo_pattern_t * source)
 {
 	if(source->status)
 		return source->status;
-
 	source = cairo_pattern_reference(source);
 	cairo_pattern_destroy(gstate->source);
 	gstate->source = source;
 	gstate->source_ctm_inverse = gstate->ctm_inverse;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -329,7 +296,6 @@ cairo_pattern_t * _cairo_gstate_get_source(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_operator(cairo_gstate_t * gstate, cairo_operator_t op)
 {
 	gstate->op = op;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -341,7 +307,6 @@ cairo_operator_t _cairo_gstate_get_operator(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_opacity(cairo_gstate_t * gstate, double op)
 {
 	gstate->opacity = op;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -353,7 +318,6 @@ double _cairo_gstate_get_opacity(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_tolerance(cairo_gstate_t * gstate, double tolerance)
 {
 	gstate->tolerance = tolerance;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -365,7 +329,6 @@ double _cairo_gstate_get_tolerance(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_fill_rule(cairo_gstate_t * gstate, cairo_fill_rule_t fill_rule)
 {
 	gstate->fill_rule = fill_rule;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -377,7 +340,6 @@ cairo_fill_rule_t _cairo_gstate_get_fill_rule(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_line_width(cairo_gstate_t * gstate, double width)
 {
 	gstate->stroke_style.line_width = width;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -389,7 +351,6 @@ double _cairo_gstate_get_line_width(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_line_cap(cairo_gstate_t * gstate, cairo_line_cap_t line_cap)
 {
 	gstate->stroke_style.line_cap = line_cap;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -401,7 +362,6 @@ cairo_line_cap_t _cairo_gstate_get_line_cap(cairo_gstate_t * gstate)
 cairo_status_t _cairo_gstate_set_line_join(cairo_gstate_t * gstate, cairo_line_join_t line_join)
 {
 	gstate->stroke_style.line_join = line_join;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -438,7 +398,6 @@ cairo_status_t _cairo_gstate_set_dash(cairo_gstate_t * gstate, const double * da
 		}
 		else
 			gstate->stroke_style.dash[j++] = dash[i];
-
 		if(dash[i]) {
 			dash_total += dash[i];
 			if((i & 1) == 0)
@@ -447,26 +406,20 @@ cairo_status_t _cairo_gstate_set_dash(cairo_gstate_t * gstate, const double * da
 				off_total += dash[i];
 		}
 	}
-
 	if(dash_total == 0.0)
 		return _cairo_error(CAIRO_STATUS_INVALID_DASH);
-
-	/* An odd dash value indicate symmetric repeating, so the total
-	 * is twice as long. */
+	/* An odd dash value indicate symmetric repeating, so the total is twice as long. */
 	if(gstate->stroke_style.num_dashes & 1) {
 		dash_total *= 2;
 		on_total += off_total;
 	}
-
 	if(dash_total - on_total < CAIRO_FIXED_ERROR_DOUBLE) {
 		/* Degenerate dash -> solid line */
-		SAlloc::F(gstate->stroke_style.dash);
-		gstate->stroke_style.dash = NULL;
+		ZFREE(gstate->stroke_style.dash);
 		gstate->stroke_style.num_dashes = 0;
 		gstate->stroke_style.dash_offset = 0.0;
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	/* The dashing code doesn't like a negative offset or a big positive
 	 * offset, so we compute an equivalent offset which is guaranteed to be
 	 * positive and less than twice the pattern length. */
@@ -476,32 +429,21 @@ cairo_status_t _cairo_gstate_set_dash(cairo_gstate_t * gstate, const double * da
 	if(offset <= 0.0)       /* Take care of -0 */
 		offset = 0.0;
 	gstate->stroke_style.dash_offset = offset;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
-void _cairo_gstate_get_dash(cairo_gstate_t * gstate,
-    double * dashes,
-    int * num_dashes,
-    double * offset)
+void _cairo_gstate_get_dash(cairo_gstate_t * gstate, double * dashes, int * num_dashes, double * offset)
 {
 	if(dashes) {
-		memcpy(dashes,
-		    gstate->stroke_style.dash,
-		    sizeof(double) * gstate->stroke_style.num_dashes);
+		memcpy(dashes, gstate->stroke_style.dash, sizeof(double) * gstate->stroke_style.num_dashes);
 	}
-
-	if(num_dashes)
-		*num_dashes = gstate->stroke_style.num_dashes;
-
-	if(offset)
-		*offset = gstate->stroke_style.dash_offset;
+	ASSIGN_PTR(num_dashes, gstate->stroke_style.num_dashes);
+	ASSIGN_PTR(offset, gstate->stroke_style.dash_offset);
 }
 
 cairo_status_t _cairo_gstate_set_miter_limit(cairo_gstate_t * gstate, double limit)
 {
 	gstate->stroke_style.miter_limit = limit;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -1612,7 +1554,7 @@ cairo_status_t _cairo_gstate_set_antialias(cairo_gstate_t * gstate, cairo_antial
 	return CAIRO_STATUS_SUCCESS;
 }
 
-cairo_antialias_t _cairo_gstate_get_antialias(cairo_gstate_t * gstate)
+cairo_antialias_t FASTCALL _cairo_gstate_get_antialias(const cairo_gstate_t * gstate)
 {
 	return gstate->antialias;
 }

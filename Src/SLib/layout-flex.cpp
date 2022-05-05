@@ -54,8 +54,8 @@ SUiLayoutParam & SUiLayoutParam::SetDefault()
 	return *this;
 }
 
-int FASTCALL SUiLayoutParam::operator == (const SUiLayoutParam & rS) const { return IsEq(rS); }
-int FASTCALL SUiLayoutParam::operator != (const SUiLayoutParam & rS) const { return !IsEq(rS); }
+bool FASTCALL SUiLayoutParam::operator == (const SUiLayoutParam & rS) const { return IsEq(rS); }
+bool FASTCALL SUiLayoutParam::operator != (const SUiLayoutParam & rS) const { return !IsEq(rS); }
 
 bool FASTCALL SUiLayoutParam::IsEq(const SUiLayoutParam & rS) const
 {

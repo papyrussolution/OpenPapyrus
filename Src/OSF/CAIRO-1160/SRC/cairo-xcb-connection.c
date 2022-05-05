@@ -406,18 +406,14 @@ static boolint can_use_shm(cairo_xcb_connection_t * connection)
 	cookie[0] = xcb_shm_attach_checked(c, shmseg, shmid, FALSE);
 	cookie[1] = xcb_shm_detach_checked(c, shmseg);
 	_cairo_xcb_connection_put_xid(connection, shmseg);
-
 	error = xcb_request_check(c, cookie[0]);
-	if(error != NULL)
+	if(error)
 		success = FALSE;
-
 	error = xcb_request_check(c, cookie[1]);
-	if(error != NULL)
+	if(error)
 		success = FALSE;
-
 	shmctl(shmid, IPC_RMID, NULL);
 	shmdt(ptr);
-
 	return success;
 }
 
@@ -425,13 +421,10 @@ static void _cairo_xcb_connection_query_shm(cairo_xcb_connection_t * connection)
 {
 	xcb_connection_t * c = connection->xcb_connection;
 	xcb_shm_query_version_reply_t * version;
-
 	version = xcb_shm_query_version_reply(c, xcb_shm_query_version(c), 0);
 	if(version == NULL)
 		return;
-
 	SAlloc::F(version);
-
 	if(can_use_shm(connection))
 		connection->flags |= CAIRO_XCB_HAS_SHM;
 }

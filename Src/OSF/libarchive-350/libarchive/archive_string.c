@@ -185,20 +185,24 @@ void archive_wstring_concat(struct archive_wstring * dest,
 		__archive_errx(1, "Out of memory");
 }
 
-void archive_string_free(struct archive_string * as)
+void FASTCALL archive_string_free(struct archive_string * as)
 {
-	as->length = 0;
-	as->buffer_length = 0;
-	SAlloc::F(as->s);
-	as->s = NULL;
+	if(as) {
+		as->length = 0;
+		as->buffer_length = 0;
+		SAlloc::F(as->s);
+		as->s = NULL;
+	}
 }
 
-void archive_wstring_free(struct archive_wstring * as)
+void FASTCALL archive_wstring_free(struct archive_wstring * as)
 {
-	as->length = 0;
-	as->buffer_length = 0;
-	SAlloc::F(as->s);
-	as->s = NULL;
+	if(as) {
+		as->length = 0;
+		as->buffer_length = 0;
+		SAlloc::F(as->s);
+		as->s = NULL;
+	}
 }
 
 struct archive_wstring * archive_wstring_ensure(struct archive_wstring * as, size_t s) {
@@ -267,15 +271,12 @@ struct archive_string * archive_string_ensure(struct archive_string * as, size_t
  * always called with pretty short arguments, so
  * such an optimization might not help).
  */
-struct archive_string * archive_strncat(struct archive_string * as, const void * _p, size_t n) {
-	size_t s;
-	const char * p, * pp;
-
-	p = (const char *)_p;
-
+struct archive_string * archive_strncat(struct archive_string * as, const void * _p, size_t n) 
+{
+	const char * p = (const char *)_p;
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
-	s = 0;
-	pp = p;
+	size_t s = 0;
+	const char * pp = p;
 	while(s < n && *pp) {
 		pp++;
 		s++;
@@ -285,13 +286,11 @@ struct archive_string * archive_strncat(struct archive_string * as, const void *
 	return (as);
 }
 
-struct archive_wstring * archive_wstrncat(struct archive_wstring * as, const wchar_t * p, size_t n) {
-	size_t s;
-	const wchar_t * pp;
-
+struct archive_wstring * archive_wstrncat(struct archive_wstring * as, const wchar_t * p, size_t n) 
+{
 	/* Like strlen(p), except won't examine positions beyond p[n]. */
-	s = 0;
-	pp = p;
+	size_t s = 0;
+	const wchar_t * pp = p;
 	while(s < n && *pp) {
 		pp++;
 		s++;
@@ -322,7 +321,8 @@ struct archive_string * archive_strappend_char(struct archive_string * as, char 
 	return (as);
 }
 
-struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, wchar_t c) {
+struct archive_wstring * archive_wstrappend_wchar(struct archive_wstring * as, wchar_t c) 
+{
 	if((as = archive_wstring_append(as, &c, 1)) == NULL)
 		__archive_errx(1, "Out of memory");
 	return (as);
@@ -361,34 +361,23 @@ static const char * default_iconv_charset(const char * charset)
  * Convert MBS to WCS.
  * Note: returns -1 if conversion fails.
  */
-int archive_wstring_append_from_mbs(struct archive_wstring * dest,
-    const char * p, size_t len)
+int archive_wstring_append_from_mbs(struct archive_wstring * dest, const char * p, size_t len)
 {
 	return archive_wstring_append_from_mbs_in_codepage(dest, p, len, NULL);
 }
 
-static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * dest,
-    const char * s, size_t length, struct archive_string_conv * sc)
+static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * dest, const char * s, size_t length, struct archive_string_conv * sc)
 {
 	int count, ret = 0;
-	UINT from_cp;
-
-	if(sc != NULL)
-		from_cp = sc->from_cp;
-	else
-		from_cp = get_current_codepage();
-
+	UINT from_cp = sc ? sc->from_cp : get_current_codepage();
 	if(from_cp == CP_C_LOCALE) {
 		/*
 		 * "C" locale special processing.
 		 */
 		wchar_t * ws;
 		const uchar * mp;
-
-		if(NULL == archive_wstring_ensure(dest,
-		    dest->length + length + 1))
+		if(NULL == archive_wstring_ensure(dest, dest->length + length + 1))
 			return -1;
-
 		ws = dest->s + dest->length;
 		mp = (const uchar *)s;
 		count = 0;
@@ -397,20 +386,17 @@ static int archive_wstring_append_from_mbs_in_codepage(struct archive_wstring * 
 			count++;
 		}
 	}
-	else if(sc != NULL &&
-	    (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
+	else if(sc != NULL && (sc->flag & (SCONV_NORMALIZATION_C | SCONV_NORMALIZATION_D))) {
 		/*
 		 * Normalize UTF-8 and UTF-16BE and convert it directly
 		 * to UTF-16 as wchar_t.
 		 */
 		struct archive_string u16;
 		int saved_flag = sc->flag; /* save current flag. */
-
 		if(is_big_endian())
 			sc->flag |= SCONV_TO_UTF16BE;
 		else
 			sc->flag |= SCONV_TO_UTF16LE;
-
 		if(sc->flag & SCONV_FROM_UTF16) {
 			/*
 			 *  UTF-16BE/LE NFD ===> UTF-16 NFC
@@ -1551,7 +1537,7 @@ static struct archive_string_conv * get_sconv_object(struct archive * a, const c
 		current_codepage = a->current_codepage;
 	sc = create_sconv_object(canonical_charset_name(fc), canonical_charset_name(tc), current_codepage, flag);
 	if(sc == NULL) {
-		if(a != NULL)
+		if(a)
 			archive_set_error(a, ENOMEM, "Could not allocate memory for a string conversion object");
 		return NULL;
 	}
@@ -1561,7 +1547,7 @@ static struct archive_string_conv * get_sconv_object(struct archive * a, const c
 	 * we cannot handle this conversion.
 	 */
 	if(sc->nconverter == 0) {
-		if(a != NULL) {
+		if(a) {
 #if HAVE_ICONV
 			archive_set_error(a, ARCHIVE_ERRNO_MISC, "iconv_open failed : Cannot handle ``%s''", (flag & SCONV_TO_CHARSET) ? tc : fc);
 #else
@@ -1575,7 +1561,7 @@ static struct archive_string_conv * get_sconv_object(struct archive * a, const c
 	/*
 	 * Success!
 	 */
-	if(a != NULL)
+	if(a)
 		add_sconv_object(a, sc);
 	return (sc);
 }
@@ -1640,39 +1626,32 @@ struct archive_string_conv * archive_string_default_conversion_for_read(struct a
 	/* NOTE: a check of cur_charset is unneeded but we need
 	 * that get_current_charset() has been surely called at
 	 * this time whatever C compiler optimized. */
-	if(cur_charset != NULL &&
-	    (a->current_codepage == CP_C_LOCALE ||
-	    a->current_codepage == a->current_oemcp))
+	if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
 		return NULL; /* no conversion. */
-
 	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
 	/* Make sure a null termination must be set. */
 	oemcp[sizeof(oemcp)-1] = '\0';
-	return (get_sconv_object(a, oemcp, cur_charset,
-	       SCONV_FROM_CHARSET));
+	return (get_sconv_object(a, oemcp, cur_charset, SCONV_FROM_CHARSET));
 }
 
-struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) {
+struct archive_string_conv * archive_string_default_conversion_for_write(struct archive * a) 
+{
 	const char * cur_charset = get_current_charset(a);
 	char oemcp[16];
-
 	/* NOTE: a check of cur_charset is unneeded but we need
 	 * that get_current_charset() has been surely called at
 	 * this time whatever C compiler optimized. */
-	if(cur_charset != NULL &&
-	    (a->current_codepage == CP_C_LOCALE ||
-	    a->current_codepage == a->current_oemcp))
+	if(cur_charset != NULL && (a->current_codepage == CP_C_LOCALE || a->current_codepage == a->current_oemcp))
 		return NULL; /* no conversion. */
-
 	_snprintf(oemcp, sizeof(oemcp)-1, "CP%d", a->current_oemcp);
 	/* Make sure a null termination must be set. */
 	oemcp[sizeof(oemcp)-1] = '\0';
-	return (get_sconv_object(a, cur_charset, oemcp,
-	       SCONV_TO_CHARSET));
+	return (get_sconv_object(a, cur_charset, oemcp, SCONV_TO_CHARSET));
 }
 
 #else
-struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) {
+struct archive_string_conv * archive_string_default_conversion_for_read(struct archive * a) 
+{
 	CXX_UNUSED(a);
 	return NULL;
 }
@@ -1988,14 +1967,12 @@ static int iconv_strncat_in_locale(struct archive_string * as, const void * _p,
  * Translate a string from a some CodePage to an another CodePage by
  * Windows APIs, and copy the result. Return -1 if conversion fails.
  */
-static int strncat_in_codepage(struct archive_string * as,
-    const void * _p, size_t length, struct archive_string_conv * sc)
+static int strncat_in_codepage(struct archive_string * as, const void * _p, size_t length, struct archive_string_conv * sc)
 {
 	const char * s = (const char *)_p;
 	struct archive_wstring aws;
 	size_t l;
 	int r, saved_flag;
-
 	archive_string_init(&aws);
 	saved_flag = sc->flag;
 	sc->flag &= ~(SCONV_NORMALIZATION_D | SCONV_NORMALIZATION_C);
@@ -2009,8 +1986,7 @@ static int strncat_in_codepage(struct archive_string * as,
 	}
 
 	l = as->length;
-	r = archive_string_append_from_wcs_in_codepage(
-		as, aws.s, aws.length, sc);
+	r = archive_string_append_from_wcs_in_codepage(as, aws.s, aws.length, sc);
 	if(r != 0 && errno != ENOMEM && l == as->length)
 		archive_string_append(as, s, length);
 	archive_wstring_free(&aws);

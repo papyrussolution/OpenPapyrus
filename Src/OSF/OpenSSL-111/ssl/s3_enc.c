@@ -142,7 +142,7 @@ int ssl3_change_cipher_state(SSL * s, int which)
 		/* COMPRESS */
 		COMP_CTX_free(s->expand);
 		s->expand = NULL;
-		if(comp != NULL) {
+		if(comp) {
 			s->expand = COMP_CTX_new(comp);
 			if(s->expand == NULL) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR,
@@ -181,7 +181,7 @@ int ssl3_change_cipher_state(SSL * s, int which)
 		/* COMPRESS */
 		COMP_CTX_free(s->compress);
 		s->compress = NULL;
-		if(comp != NULL) {
+		if(comp) {
 			s->compress = COMP_CTX_new(comp);
 			if(s->compress == NULL) {
 				SSLfatal(s, SSL_AD_INTERNAL_ERROR,

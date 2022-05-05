@@ -46,6 +46,16 @@ public class StyloQCommand {
 	// Полный вариант определен в Papyrus class StyloQCommandList
 	//
 	public static class Item {
+		Item()
+		{
+			Uuid = null;
+			ResultExpiryTimeSec = 0;
+			BaseCmdId = 0;
+			Name = null;
+			Description = null;
+			Image = null;
+			Vd = null;
+		}
 		UUID  Uuid;                //
 		int   ResultExpiryTimeSec; // @v11.2.5 Период истечения срока действия результата в секундах. (<=0 - undefined)
 			// Если ResultExpiryPeriodSec то клиент может пользоваться результатом запроса в течении этого времени без

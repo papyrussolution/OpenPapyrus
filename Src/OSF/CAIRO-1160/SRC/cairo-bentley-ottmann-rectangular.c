@@ -79,7 +79,7 @@ static void dump_traps(cairo_traps_t * traps, const char * filename)
 	if(getenv("CAIRO_DEBUG_TRAPS") == NULL)
 		return;
 	file = fopen(filename, "a");
-	if(file != NULL) {
+	if(file) {
 		for(n = 0; n < traps->num_traps; n++) {
 			fprintf(file, "%d %d L:(%d, %d), (%d, %d) R:(%d, %d), (%d, %d)\n",
 			    traps->traps[n].top,
@@ -687,7 +687,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 		return CAIRO_STATUS_SUCCESS;
 	}
 	y_min = INT_MAX; y_max = INT_MIN;
-	for(chunk = &in->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &in->chunks; chunk; chunk = chunk->next) {
 		const cairo_box_t * box = chunk->base;
 		for(i = 0; i < chunk->count; i++) {
 			if(box[i].p1.y < y_min)
@@ -720,7 +720,7 @@ cairo_status_t _cairo_bentley_ottmann_tessellate_boxes(const cairo_boxes_t * in,
 		rectangles_ptrs = (rectangle_t**)(rectangles + in->num_boxes);
 	}
 	j = 0;
-	for(chunk = &in->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &in->chunks; chunk; chunk = chunk->next) {
 		const cairo_box_t * box = chunk->base;
 		for(i = 0; i < chunk->count; i++) {
 			int h;

@@ -73,13 +73,11 @@ void OPENSSL_LH_free(OPENSSL_LHASH * lh)
 {
 	uint i;
 	OPENSSL_LH_NODE * n, * nn;
-
 	if(lh == NULL)
 		return;
-
 	for(i = 0; i < lh->num_nodes; i++) {
 		n = lh->b[i];
-		while(n != NULL) {
+		while(n) {
 			nn = n->next;
 			OPENSSL_free(n);
 			n = nn;

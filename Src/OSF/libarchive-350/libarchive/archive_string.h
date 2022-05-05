@@ -133,9 +133,8 @@ struct archive_wstring * archive_wstrcat(struct archive_wstring *, const wchar_t
 #define	archive_wstring_empty(a) ((a)->length = 0)
 
 /* Release any allocated storage resources. */
-void	archive_string_free(struct archive_string *);
-void	archive_wstring_free(struct archive_wstring *);
-
+void	FASTCALL archive_string_free(struct archive_string *);
+void	FASTCALL archive_wstring_free(struct archive_wstring *);
 /* Like 'vsprintf', but resizes the underlying string as necessary. */
 /* Note: This only implements a small subset of standard printf functionality. */
 void	archive_string_vsprintf(struct archive_string *, const char *, va_list) __LA_PRINTF(2, 0);

@@ -30,7 +30,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 	 */
 	if((r->n == NULL && n == NULL) || (r->e == NULL && e == NULL))
 		return 0;
-	if(n != NULL) {
+	if(n) {
 		BN_free(r->n);
 		r->n = n;
 	}
@@ -38,7 +38,7 @@ int RSA_set0_key(RSA * r, BIGNUM * n, BIGNUM * e, BIGNUM * d)
 		BN_free(r->e);
 		r->e = e;
 	}
-	if(d != NULL) {
+	if(d) {
 		BN_free(r->d);
 		r->d = d;
 	}
@@ -71,7 +71,7 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 	 */
 	if((r->dmp1 == NULL && dmp1 == NULL) || (r->dmq1 == NULL && dmq1 == NULL) || (r->iqmp == NULL && iqmp == NULL))
 		return 0;
-	if(dmp1 != NULL) {
+	if(dmp1) {
 		BN_free(r->dmp1);
 		r->dmp1 = dmp1;
 	}
@@ -88,11 +88,11 @@ int RSA_set0_crt_params(RSA * r, BIGNUM * dmp1, BIGNUM * dmq1, BIGNUM * iqmp)
 
 void RSA_get0_key(const RSA * r, const BIGNUM ** n, const BIGNUM ** e, const BIGNUM ** d)
 {
-	if(n != NULL)
+	if(n)
 		*n = r->n;
 	if(e != NULL)
 		*e = r->e;
-	if(d != NULL)
+	if(d)
 		*d = r->d;
 }
 
@@ -106,7 +106,7 @@ void RSA_get0_factors(const RSA * r, const BIGNUM ** p, const BIGNUM ** q)
 
 void RSA_get0_crt_params(const RSA * r, const BIGNUM ** dmp1, const BIGNUM ** dmq1, const BIGNUM ** iqmp)
 {
-	if(dmp1 != NULL)
+	if(dmp1)
 		*dmp1 = r->dmp1;
 	if(dmq1 != NULL)
 		*dmq1 = r->dmq1;

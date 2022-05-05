@@ -444,37 +444,31 @@ struct connectdata * Curl_conncache_extract_bundle(struct Curl_easy * data,
 		/* remove it to prevent another thread from nicking it */
 		bundle_remove_conn(bundle, conn_candidate);
 		data->state.conn_cache->num_conn--;
-		DEBUGF(infof(data, "The cache now contains %zu members\n",
-		    data->state.conn_cache->num_conn));
+		DEBUGF(infof(data, "The cache now contains %zu members\n", data->state.conn_cache->num_conn));
 		conn_candidate->data = data; /* associate! */
 	}
-
 	return conn_candidate;
 }
-
 /*
  * This function finds the connection in the connection cache that has been
  * unused for the longest time and extracts that from the bundle.
  *
  * Returns the pointer to the connection, or NULL if none was found.
  */
-struct connectdata * Curl_conncache_extract_oldest(struct Curl_easy * data)                      {
+struct connectdata * Curl_conncache_extract_oldest(struct Curl_easy * data)                      
+{
 	struct conncache * connc = data->state.conn_cache;
 	struct Curl_hash_iterator iter;
 	struct Curl_llist_element * curr;
 	struct Curl_hash_element * he;
 	timediff_t highscore = -1;
 	timediff_t score;
-	struct curltime now;
 	struct connectdata * conn_candidate = NULL;
 	struct connectbundle * bundle;
 	struct connectbundle * bundle_candidate = NULL;
-
-	now = Curl_now();
-
+	struct curltime now = Curl_now();
 	CONNCACHE_LOCK(data);
 	Curl_hash_start_iterate(&connc->hash, &iter);
-
 	he = Curl_hash_next_element(&iter);
 	while(he) {
 		struct connectdata * conn;
@@ -482,11 +476,9 @@ struct connectdata * Curl_conncache_extract_oldest(struct Curl_easy * data)     
 		curr = bundle->conn_list.head;
 		while(curr) {
 			conn = (struct connectdata *)curr->ptr;
-			if(!CONN_INUSE(conn) && !conn->data && !conn->bits.close &&
-			    !conn->bits.connect_only) {
+			if(!CONN_INUSE(conn) && !conn->data && !conn->bits.close && !conn->bits.connect_only) {
 				/* Set higher score for the age passed since the connection was used */
 				score = Curl_timediff(now, conn->lastused);
-
 				if(score > highscore) {
 					highscore = score;
 					conn_candidate = conn;
@@ -495,15 +487,13 @@ struct connectdata * Curl_conncache_extract_oldest(struct Curl_easy * data)     
 			}
 			curr = curr->next;
 		}
-
 		he = Curl_hash_next_element(&iter);
 	}
 	if(conn_candidate) {
 		/* remove it to prevent another thread from nicking it */
 		bundle_remove_conn(bundle_candidate, conn_candidate);
 		connc->num_conn--;
-		DEBUGF(infof(data, "The cache now contains %zu members\n",
-		    connc->num_conn));
+		DEBUGF(infof(data, "The cache now contains %zu members\n", connc->num_conn));
 		conn_candidate->data = data; /* associate! */
 	}
 	CONNCACHE_UNLOCK(data);

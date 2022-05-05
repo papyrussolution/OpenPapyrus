@@ -88,7 +88,7 @@ static int dl_load(DSO * dso)
 err:
 	/* Cleanup! */
 	OPENSSL_free(filename);
-	if(ptr != NULL)
+	if(ptr)
 		shl_unload(ptr);
 	return 0;
 }

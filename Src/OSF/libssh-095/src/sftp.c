@@ -982,7 +982,7 @@ sftp_dir sftp_opendir(sftp_session sftp, const char * path)
 		case SSH_FXP_HANDLE:
 		    file = parse_handle_msg(msg);
 		    sftp_message_free(msg);
-		    if(file != NULL) {
+		    if(file) {
 			    dir = (sftp_dir)SAlloc::C(1, sizeof(struct sftp_dir_struct));
 			    if(dir == NULL) {
 				    ssh_set_error_oom(sftp->session);

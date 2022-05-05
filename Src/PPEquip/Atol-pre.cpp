@@ -375,8 +375,8 @@ int ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 		const  char * p_format = "%s\n";
 		SString f_str, temp;
 		PPObjSCardSeries scs_obj;
-		PPSCardSeries    ser_rec;
-		PPObjSCard       s_crd_obj;
+		PPSCardSeries ser_rec;
+		PPObjSCard s_crd_obj;
 		THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_DELETEALLDSCNTS, f_str));
 		THROW_PP(fprintf(pFile, p_format, (const char *)f_str) > 0, PPERR_EXPFILEWRITEFAULT);
 		if(!updOnly) {
@@ -385,8 +385,7 @@ int ACS_ATOLWOATOLCARD::ExportSCard(FILE * pFile, int updOnly)
 			THROW(PPGetSubStr(PPTXT_ATOL_CMDSTRINGS, PPATOLCS_ADDINNERSCHEMES, f_str));
 			THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
 			f_str.Z().Cat(ATOL_INNER_SCHEME).Semicol();             // #1 - код схемы внутренней авт.скидки
-			// @v9.0.2 PPGetWord(PPWORD_CARD, 0, temp);
-			PPLoadString("card", temp); // @9.0.2
+			PPLoadString("card", temp);
 			f_str.Cat(temp.Transf(CTRANSF_INNER_TO_OUTER)).CatCharN(';', 2); // #2 - наименование схемы, #3 - не используется //
 			f_str.CatChar('0').Semicol(); // #4 - тип операции объединения (0 - не объединять)
 			THROW_PP(fprintf(pFile, p_format, f_str.cptr()) > 0, PPERR_EXPFILEWRITEFAULT);
@@ -447,16 +446,19 @@ int ACS_ATOL::ExportSCard(FILE *, int)
 	PPWaitStart();
 	THROW(r = ac_intrf.InitIntrf());
 	if(r > 0) {
-		uint     c;
-		long     owner_code = 0;
-		PPID     ser_id = 0, last_cat_id = 0, last_cat_code = 0;
-		SString  buf, card_tbl_name, cat_tbl_name, card_n_cat_tbl_name;
+		uint   c;
+		long   owner_code = 0;
+		PPID   ser_id = 0, last_cat_id = 0, last_cat_code = 0;
+		SString  buf;
+		SString  card_tbl_name;
+		SString  cat_tbl_name;
+		SString  card_n_cat_tbl_name;
 		PPObjSCardSeries scs_obj;
 		PPSCardSeries ser_rec;
-		PPObjSCard   s_crd_obj;
-		PPObjPerson  psn_obj;
-		LAssocArray  cat_code_ary;
-		LAssocArray  card_n_cat_ary;
+		PPObjSCard s_crd_obj;
+		PPObjPerson psn_obj;
+		LAssocArray cat_code_ary;
+		LAssocArray card_n_cat_ary;
 		SString scardcat_fmt_buf;
 		PPLoadText(PPTXT_ATOL_SCARDCAT, scardcat_fmt_buf);
 		scardcat_fmt_buf.Transf(CTRANSF_INNER_TO_OUTER);

@@ -81,7 +81,7 @@
 
 #ifndef PATH_MAX
 # ifdef WIN32
-#  define PATH_MAX MAX_PATH
+#define PATH_MAX MAX_PATH
 # else
 #  ifdef _POSIX_PATH_MAX
 #define PATH_MAX _POSIX_PATH_MAX
@@ -89,7 +89,7 @@
 #define PATH_MAX 1024         /* arbitrary; probably big enough.
 	                          * will probably only be 256+64 on
 	                          * pre-posix machines */
-#  endif /* _POSIX_PATH_MAX */
+#endif /* _POSIX_PATH_MAX */
 # endif /* WIN32 */
 #endif
 

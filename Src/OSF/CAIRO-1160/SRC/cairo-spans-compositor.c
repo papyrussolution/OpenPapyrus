@@ -652,7 +652,7 @@ static cairo_int_status_t composite_boxes(const cairo_spans_compositor_t * compo
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
 	_cairo_rectangular_scan_converter_init(&converter, &extents->unbounded);
-	for(chunk = &boxes->chunks; chunk != NULL; chunk = chunk->next) {
+	for(chunk = &boxes->chunks; chunk; chunk = chunk->next) {
 		const cairo_box_t * box = chunk->base;
 		int i;
 		for(i = 0; i < chunk->count; i++) {

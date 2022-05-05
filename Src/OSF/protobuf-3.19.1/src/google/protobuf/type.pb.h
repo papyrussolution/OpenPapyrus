@@ -187,11 +187,11 @@ class Type final :
     *this = ::std::move(from);
   }
 
-  inline Type& operator = (const Type& from) {
+  inline Type& operator=(const Type& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Type& operator = (Type&& from) noexcept {
+  inline Type& operator=(Type&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -416,11 +416,11 @@ class Field final :
     *this = ::std::move(from);
   }
 
-  inline Field& operator = (const Field& from) {
+  inline Field& operator=(const Field& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Field& operator = (Field&& from) noexcept {
+  inline Field& operator=(Field&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -769,11 +769,11 @@ class Enum final :
     *this = ::std::move(from);
   }
 
-  inline Enum& operator = (const Enum& from) {
+  inline Enum& operator=(const Enum& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Enum& operator = (Enum&& from) noexcept {
+  inline Enum& operator=(Enum&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -972,11 +972,11 @@ class EnumValue final :
     *this = ::std::move(from);
   }
 
-  inline EnumValue& operator = (const EnumValue& from) {
+  inline EnumValue& operator=(const EnumValue& from) {
     CopyFrom(from);
     return *this;
   }
-  inline EnumValue& operator = (EnumValue&& from) noexcept {
+  inline EnumValue& operator=(EnumValue&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1135,11 +1135,11 @@ class Option final :
     *this = ::std::move(from);
   }
 
-  inline Option& operator = (const Option& from) {
+  inline Option& operator=(const Option& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Option& operator = (Option&& from) noexcept {
+  inline Option& operator=(Option&& from) noexcept {
     if(this == &from) return *this;
     if(GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE

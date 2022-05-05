@@ -8,25 +8,18 @@
 //
 #include "absl/absl-internal.h"
 #pragma hdrstop
-#include "absl/strings/internal/cord_internal.h"
-#include "absl/strings/internal/cord_rep_btree.h"
-#include "absl/strings/internal/cord_rep_crc.h"
-#include "absl/strings/internal/cord_rep_flat.h"
-#include "absl/strings/internal/cord_rep_ring.h"
 
 namespace absl {
 ABSL_NAMESPACE_BEGIN
 namespace cord_internal {
 ABSL_CONST_INIT std::atomic<bool> cord_btree_enabled(kCordEnableBtreeDefault);
-ABSL_CONST_INIT std::atomic<bool> cord_ring_buffer_enabled(
-	kCordEnableRingBufferDefault);
-ABSL_CONST_INIT std::atomic<bool> shallow_subcords_enabled(
-	kCordShallowSubcordsDefault);
+ABSL_CONST_INIT std::atomic<bool> cord_ring_buffer_enabled(kCordEnableRingBufferDefault);
+ABSL_CONST_INIT std::atomic<bool> shallow_subcords_enabled(kCordShallowSubcordsDefault);
 ABSL_CONST_INIT std::atomic<bool> cord_btree_exhaustive_validation(false);
 
-void CordRep::Destroy(CordRep* rep) {
+void CordRep::Destroy(CordRep* rep) 
+{
 	assert(rep != nullptr);
-
 	absl::InlinedVector<CordRep*, Constants::kInlinedVectorSize> pending;
 	while(true) {
 		assert(!rep->refcount.IsImmortal());

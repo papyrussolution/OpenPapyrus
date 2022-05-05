@@ -34,12 +34,12 @@
  */
 
 #ifdef HAVE_WINDOWS_H
-#  if defined(UNICODE) && !defined(_UNICODE)
-#    define _UNICODE
-#  endif
-#  if defined(_UNICODE) && !defined(UNICODE)
-#    define UNICODE
-#  endif
+#if defined(UNICODE) && !defined(_UNICODE)
+#define _UNICODE
+#endif
+#if defined(_UNICODE) && !defined(UNICODE)
+#define UNICODE
+#endif
 #include <winerror.h>
 //#include <windows.h>
 #  ifdef HAVE_WINSOCK2_H
@@ -51,11 +51,11 @@
 //#    ifdef HAVE_WINSOCK_H
 //#      include <winsock.h>
 //#    endif
-#  endif
+#endif
 #include <tchar.h>
 #  ifdef UNICODE
      typedef wchar_t *(*curl_wcsdup_callback)(const wchar_t *str);
-#  endif
+#endif
 #endif
 
 /*
@@ -70,7 +70,7 @@
 #else
 #  ifdef HAVE_WINSOCK_H
 #    error "WinSock version 1 is no longer supported, version 2 is required!"
-#  endif
+#endif
 #endif
 
 /*
