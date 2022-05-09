@@ -88,17 +88,17 @@ static clock_t g_time = 0;
  * The map implements linear probing and keeps its load less than 0.5.
  */
 
-#define MAP_EMPTY_VALUE ((U32)-1)
+#define MAP_EMPTY_VALUE ((uint32)-1)
 typedef struct COVER_map_pair_t_s {
-	U32 key;
-	U32 value;
+	uint32 key;
+	uint32 value;
 } COVER_map_pair_t;
 
 typedef struct COVER_map_s {
 	COVER_map_pair_t * data;
-	U32 sizeLog;
-	U32 size;
-	U32 sizeMask;
+	uint32 sizeLog;
+	uint32 size;
+	uint32 sizeMask;
 } COVER_map_t;
 
 /**
@@ -114,10 +114,10 @@ static void COVER_map_clear(COVER_map_t * map)
  * The map must be destroyed with COVER_map_destroy().
  * The map is only guaranteed to be large enough to hold size elements.
  */
-static int COVER_map_init(COVER_map_t * map, U32 size) 
+static int COVER_map_init(COVER_map_t * map, uint32 size) 
 {
 	map->sizeLog = ZSTD_highbit32(size) + 2;
-	map->size = (U32)1 << map->sizeLog;
+	map->size = (uint32)1 << map->sizeLog;
 	map->sizeMask = map->size - 1;
 	map->data = (COVER_map_pair_t*)SAlloc::M(map->size * sizeof(COVER_map_pair_t));
 	if(!map->data) {
@@ -132,15 +132,15 @@ static int COVER_map_init(COVER_map_t * map, U32 size)
 /**
  * Internal hash function
  */
-static const U32 COVER_prime4bytes = 2654435761U;
-static U32 FASTCALL COVER_map_hash(const COVER_map_t * map, U32 key) { return (key * COVER_prime4bytes) >> (32 - map->sizeLog); }
+static const uint32 COVER_prime4bytes = 2654435761U;
+static uint32 FASTCALL COVER_map_hash(const COVER_map_t * map, uint32 key) { return (key * COVER_prime4bytes) >> (32 - map->sizeLog); }
 /**
  * Helper function that returns the index that a key should be placed into.
  */
-static U32 FASTCALL COVER_map_index(const COVER_map_t * map, U32 key) 
+static uint32 FASTCALL COVER_map_index(const COVER_map_t * map, uint32 key) 
 {
-	const U32 hash = COVER_map_hash(map, key);
-	for(U32 i = hash;; i = (i + 1) & map->sizeMask) {
+	const uint32 hash = COVER_map_hash(map, key);
+	for(uint32 i = hash;; i = (i + 1) & map->sizeMask) {
 		const COVER_map_pair_t * pos = &map->data[i];
 		if(pos->value == MAP_EMPTY_VALUE) {
 			return i;
@@ -155,7 +155,7 @@ static U32 FASTCALL COVER_map_index(const COVER_map_t * map, U32 key)
  * If key is not in the map, it is inserted and the value is set to 0.
  * The map must not be full.
  */
-static U32 * FASTCALL COVER_map_at(COVER_map_t * map, U32 key) 
+static uint32 * FASTCALL COVER_map_at(COVER_map_t * map, uint32 key) 
 {
 	COVER_map_pair_t * pos = &map->data[COVER_map_index(map, key)];
 	if(pos->value == MAP_EMPTY_VALUE) {
@@ -167,11 +167,11 @@ static U32 * FASTCALL COVER_map_at(COVER_map_t * map, U32 key)
 /**
  * Deletes key from the map if present.
  */
-static void COVER_map_remove(COVER_map_t * map, U32 key) 
+static void COVER_map_remove(COVER_map_t * map, uint32 key) 
 {
-	U32 i = COVER_map_index(map, key);
+	uint32 i = COVER_map_index(map, key);
 	COVER_map_pair_t * del = &map->data[i];
-	U32 shift = 1;
+	uint32 shift = 1;
 	if(del->value == MAP_EMPTY_VALUE) {
 		return;
 	}
@@ -214,10 +214,10 @@ typedef struct {
 	size_t nbSamples;
 	size_t nbTrainSamples;
 	size_t nbTestSamples;
-	U32  * suffix;
+	uint32  * suffix;
 	size_t suffixSize;
-	U32  * freqs;
-	U32  * dmerAt;
+	uint32  * freqs;
+	uint32  * dmerAt;
 	uint   d;
 } COVER_ctx_t;
 
@@ -243,8 +243,8 @@ size_t FASTCALL COVER_sum(const size_t * samplesSizes, uint nbSamples)
  */
 static int COVER_cmp(COVER_ctx_t * ctx, const void * lp, const void * rp) 
 {
-	U32 const lhs = *(U32 const*)lp;
-	U32 const rhs = *(U32 const*)rp;
+	const uint32 lhs = *(const uint32*)lp;
+	const uint32 rhs = *(const uint32*)rp;
 	return memcmp(ctx->samples + lhs, ctx->samples + rhs, ctx->d);
 }
 /**
@@ -252,9 +252,9 @@ static int COVER_cmp(COVER_ctx_t * ctx, const void * lp, const void * rp)
  */
 static int COVER_cmp8(COVER_ctx_t * ctx, const void * lp, const void * rp) 
 {
-	U64 const mask = (ctx->d == 8) ? (U64)-1 : (((U64)1 << (8 * ctx->d)) - 1);
-	U64 const lhs = MEM_readLE64(ctx->samples + *(U32 const*)lp) & mask;
-	U64 const rhs = MEM_readLE64(ctx->samples + *(U32 const*)rp) & mask;
+	uint64 const mask = (ctx->d == 8) ? (uint64)-1 : (((uint64)1 << (8 * ctx->d)) - 1);
+	uint64 const lhs = MEM_readLE64(ctx->samples + *(const uint32*)lp) & mask;
+	uint64 const rhs = MEM_readLE64(ctx->samples + *(const uint32*)rp) & mask;
 	if(lhs < rhs) {
 		return -1;
 	}
@@ -341,15 +341,15 @@ static void COVER_groupBy(const void * data, size_t count, size_t size, COVER_ct
 static void COVER_group(COVER_ctx_t * ctx, const void * group,
     const void * groupEnd) {
 	/* The group consists of all the positions with the same first d bytes. */
-	const U32 * grpPtr = (const U32*)group;
-	const U32 * grpEnd = (const U32*)groupEnd;
+	const uint32 * grpPtr = (const uint32*)group;
+	const uint32 * grpEnd = (const uint32*)groupEnd;
 	/* The dmerId is how we will reference this dmer.
 	 * This allows us to map the whole dmer space to a much smaller space, the
 	 * size of the suffix array.
 	 */
-	const U32 dmerId = (U32)(grpPtr - ctx->suffix);
+	const uint32 dmerId = (uint32)(grpPtr - ctx->suffix);
 	/* Count the number of samples this dmer shows up in */
-	U32 freq = 0;
+	uint32 freq = 0;
 	/* Details */
 	const size_t * curOffsetPtr = ctx->offsets;
 	const size_t * offsetsEnd = ctx->offsets + ctx->nbSamples;
@@ -398,14 +398,14 @@ static void COVER_group(COVER_ctx_t * ctx, const void * group,
  *
  * Once the dmer d is in the dictionary we set F(d) = 0.
  */
-static COVER_segment_t COVER_selectSegment(const COVER_ctx_t * ctx, U32 * freqs,
-    COVER_map_t * activeDmers, U32 begin,
-    U32 end,
+static COVER_segment_t COVER_selectSegment(const COVER_ctx_t * ctx, uint32 * freqs,
+    COVER_map_t * activeDmers, uint32 begin,
+    uint32 end,
     ZDICT_cover_params_t parameters) {
 	/* Constants */
-	const U32 k = parameters.k;
-	const U32 d = parameters.d;
-	const U32 dmersInK = k - d + 1;
+	const uint32 k = parameters.k;
+	const uint32 d = parameters.d;
+	const uint32 dmersInK = k - d + 1;
 	/* Try each segment (activeSegment) and save the best (bestSegment) */
 	COVER_segment_t bestSegment = {0, 0, 0};
 	COVER_segment_t activeSegment;
@@ -420,9 +420,9 @@ static COVER_segment_t COVER_selectSegment(const COVER_ctx_t * ctx, U32 * freqs,
 	 */
 	while(activeSegment.end < end) {
 		/* The dmerId for the dmer at the next position */
-		U32 newDmer = ctx->dmerAt[activeSegment.end];
+		uint32 newDmer = ctx->dmerAt[activeSegment.end];
 		/* The entry in activeDmers for this dmerId */
-		U32 * newDmerOcc = COVER_map_at(activeDmers, newDmer);
+		uint32 * newDmerOcc = COVER_map_at(activeDmers, newDmer);
 		/* If the dmer isn't already present in the segment add its score. */
 		if(*newDmerOcc == 0) {
 			/* The paper suggest using the L-0.5 norm, but experiments show that it
@@ -436,8 +436,8 @@ static COVER_segment_t COVER_selectSegment(const COVER_ctx_t * ctx, U32 * freqs,
 
 		/* If the window is now too large, drop the first position */
 		if(activeSegment.end - activeSegment.begin == dmersInK + 1) {
-			U32 delDmer = ctx->dmerAt[activeSegment.begin];
-			U32 * delDmerOcc = COVER_map_at(activeDmers, delDmer);
+			uint32 delDmer = ctx->dmerAt[activeSegment.begin];
+			uint32 * delDmerOcc = COVER_map_at(activeDmers, delDmer);
 			activeSegment.begin += 1;
 			*delDmerOcc -= 1;
 			/* If this is the last occurrence of the dmer, subtract its score */
@@ -454,11 +454,11 @@ static COVER_segment_t COVER_selectSegment(const COVER_ctx_t * ctx, U32 * freqs,
 	}
 	{
 		/* Trim off the zero frequency head and tail from the segment. */
-		U32 newBegin = bestSegment.end;
-		U32 newEnd = bestSegment.begin;
-		U32 pos;
+		uint32 newBegin = bestSegment.end;
+		uint32 newEnd = bestSegment.begin;
+		uint32 pos;
 		for(pos = bestSegment.begin; pos != bestSegment.end; ++pos) {
-			U32 freq = freqs[ctx->dmerAt[pos]];
+			uint32 freq = freqs[ctx->dmerAt[pos]];
 			if(freq != 0) {
 				newBegin = MIN(newBegin, pos);
 				newEnd = pos + 1;
@@ -469,7 +469,7 @@ static COVER_segment_t COVER_selectSegment(const COVER_ctx_t * ctx, U32 * freqs,
 	}
 	{
 		/* Zero out the frequency of each dmer covered by the chosen segment. */
-		U32 pos;
+		uint32 pos;
 		for(pos = bestSegment.begin; pos != bestSegment.end; ++pos) {
 			freqs[ctx->dmerAt[pos]] = 0;
 		}
@@ -533,7 +533,7 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
 	const size_t trainingSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes, nbTrainSamples) : totalSamplesSize;
 	const size_t testSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes + nbTrainSamples, nbTestSamples) : totalSamplesSize;
 	/* Checks */
-	if(totalSamplesSize < MAX(d, sizeof(U64)) ||
+	if(totalSamplesSize < MAX(d, sizeof(uint64)) ||
 	    totalSamplesSize >= (size_t)COVER_MAX_SAMPLES_SIZE) {
 		DISPLAYLEVEL(1, "Total samples size is too large (%u MB), maximum size is %u MB\n", (uint)(totalSamplesSize>>20), (COVER_MAX_SAMPLES_SIZE >> 20));
 		return ERROR(srcSize_wrong);
@@ -558,10 +558,10 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
 	ctx->nbTrainSamples = nbTrainSamples;
 	ctx->nbTestSamples = nbTestSamples;
 	/* Partial suffix array */
-	ctx->suffixSize = trainingSamplesSize - MAX(d, sizeof(U64)) + 1;
-	ctx->suffix = (U32*)SAlloc::M(ctx->suffixSize * sizeof(U32));
+	ctx->suffixSize = trainingSamplesSize - MAX(d, sizeof(uint64)) + 1;
+	ctx->suffix = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	/* Maps index to the dmerID */
-	ctx->dmerAt = (U32*)SAlloc::M(ctx->suffixSize * sizeof(U32));
+	ctx->dmerAt = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	/* The offsets of each file */
 	ctx->offsets = (size_t*)SAlloc::M((nbSamples + 1) * sizeof(size_t));
 	if(!ctx->suffix || !ctx->dmerAt || !ctx->offsets) {
@@ -574,7 +574,7 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
 
 	/* Fill offsets from the samplesSizes */
 	{
-		U32 i;
+		uint32 i;
 		ctx->offsets[0] = 0;
 		for(i = 1; i <= nbSamples; ++i) {
 			ctx->offsets[i] = ctx->offsets[i - 1] + samplesSizes[i - 1];
@@ -586,7 +586,7 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
 		 * It only sorts suffixes by their first parameters.d bytes.
 		 * The sort is stable, so each dmer group is sorted by position in input.
 		 */
-		U32 i;
+		uint32 i;
 		for(i = 0; i < ctx->suffixSize; ++i) {
 			ctx->suffix[i] = i;
 		}
@@ -595,10 +595,10 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
 		 */
 		g_coverCtx = ctx;
 #if defined(__OpenBSD__)
-		mergesort(ctx->suffix, ctx->suffixSize, sizeof(U32),
+		mergesort(ctx->suffix, ctx->suffixSize, sizeof(uint32),
 		    (ctx->d <= 8 ? &COVER_strict_cmp8 : &COVER_strict_cmp));
 #else
-		qsort(ctx->suffix, ctx->suffixSize, sizeof(U32),
+		qsort(ctx->suffix, ctx->suffixSize, sizeof(uint32),
 		    (ctx->d <= 8 ? &COVER_strict_cmp8 : &COVER_strict_cmp));
 #endif
 	}
@@ -610,7 +610,7 @@ static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
 	 * 2. We calculate how many samples the dmer occurs in and save it in
 	 *    freqs[dmerId].
 	 */
-	COVER_groupBy(ctx->suffix, ctx->suffixSize, sizeof(U32), ctx,
+	COVER_groupBy(ctx->suffix, ctx->suffixSize, sizeof(uint32), ctx,
 	    (ctx->d <= 8 ? &COVER_cmp8 : &COVER_cmp), &COVER_group);
 	ctx->freqs = ctx->suffix;
 	ctx->suffix = NULL;
@@ -629,14 +629,14 @@ void COVER_warnOnSmallCorpus(size_t maxDictSize, size_t nbDmers, int displayLeve
 	    "size(source)/size(dictionary) = %f, but it should be >= "
 	    "10! This may lead to a subpar dictionary! We recommend "
 	    "training on sources at least 10x, and preferably 100x "
-	    "the size of the dictionary! \n", (U32)maxDictSize,
-	    (U32)nbDmers, ratio);
+	    "the size of the dictionary! \n", (uint32)maxDictSize,
+	    (uint32)nbDmers, ratio);
 }
 
-COVER_epoch_info_t COVER_computeEpochs(U32 maxDictSize,
-    U32 nbDmers, U32 k, U32 passes)
+COVER_epoch_info_t COVER_computeEpochs(uint32 maxDictSize,
+    uint32 nbDmers, uint32 k, uint32 passes)
 {
-	const U32 minEpochSize = k * 10;
+	const uint32 minEpochSize = k * 10;
 	COVER_epoch_info_t epochs;
 	epochs.num = MAX(1, maxDictSize / k / passes);
 	epochs.size = nbDmers / epochs.num;
@@ -653,7 +653,7 @@ COVER_epoch_info_t COVER_computeEpochs(U32 maxDictSize,
 /**
  * Given the prepared context build the dictionary.
  */
-static size_t COVER_buildDictionary(const COVER_ctx_t * ctx, U32 * freqs,
+static size_t COVER_buildDictionary(const COVER_ctx_t * ctx, uint32 * freqs,
     COVER_map_t * activeDmers, void * dictBuffer,
     size_t dictBufferCapacity,
     ZDICT_cover_params_t parameters) {
@@ -661,18 +661,18 @@ static size_t COVER_buildDictionary(const COVER_ctx_t * ctx, U32 * freqs,
 	size_t tail = dictBufferCapacity;
 	/* Divide the data into epochs. We will select one segment from each epoch. */
 	const COVER_epoch_info_t epochs = COVER_computeEpochs(
-		(U32)dictBufferCapacity, (U32)ctx->suffixSize, parameters.k, 4);
+		(uint32)dictBufferCapacity, (uint32)ctx->suffixSize, parameters.k, 4);
 	const size_t maxZeroScoreRun = MAX(10, MIN(100, epochs.num >> 3));
 	size_t zeroScoreRun = 0;
 	size_t epoch;
 	DISPLAYLEVEL(2, "Breaking content into %u epochs of size %u\n",
-	    (U32)epochs.num, (U32)epochs.size);
+	    (uint32)epochs.num, (uint32)epochs.size);
 	/* Loop through the epochs until there are no more segments or the dictionary
 	 * is full.
 	 */
 	for(epoch = 0; tail > 0; epoch = (epoch + 1) % epochs.num) {
-		const U32 epochBegin = (U32)(epoch * epochs.size);
-		const U32 epochEnd = epochBegin + epochs.size;
+		const uint32 epochBegin = (uint32)(epoch * epochs.size);
+		const uint32 epochEnd = epochBegin + epochs.size;
 		size_t segmentSize;
 		/* Select a segment */
 		COVER_segment_t segment = COVER_selectSegment(
@@ -872,7 +872,7 @@ void COVER_best_start(COVER_best_t * best) {
  */
 void COVER_best_finish(COVER_best_t * best, ZDICT_cover_params_t parameters,
     COVER_dictSelection_t selection) {
-	void* dict = selection.dictContent;
+	void * dict = selection.dictContent;
 	size_t compressedSize = selection.totalCompressedSize;
 	size_t dictSize = selection.dictSize;
 	if(!best) {
@@ -1026,7 +1026,7 @@ static void COVER_tryParameters(void * opaque)
 	COVER_map_t activeDmers;
 	BYTE* const dict = (BYTE*)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
-	U32* const freqs = (U32*)SAlloc::M(ctx->suffixSize * sizeof(U32));
+	uint32* const freqs = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	if(!COVER_map_init(&activeDmers, parameters.k - parameters.d + 1)) {
 		DISPLAYLEVEL(1, "Failed to allocate dmer map: out of memory\n");
 		goto _cleanup;
@@ -1036,7 +1036,7 @@ static void COVER_tryParameters(void * opaque)
 		goto _cleanup;
 	}
 	/* Copy the frequencies because we need to modify them */
-	memcpy(freqs, ctx->freqs, ctx->suffixSize * sizeof(U32));
+	memcpy(freqs, ctx->freqs, ctx->suffixSize * sizeof(uint32));
 	/* Build the dictionary */
 	{
 		const size_t tail = COVER_buildDictionary(ctx, freqs, &activeDmers, dict, dictBufferCapacity, parameters);
@@ -1057,7 +1057,7 @@ _cleanup:
 	SAlloc::F(freqs);
 }
 
-ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_cover(void* dictBuffer, size_t dictBufferCapacity, const void* samplesBuffer,
+ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_cover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer,
     const size_t* samplesSizes, unsigned nbSamples, ZDICT_cover_params_t* parameters)
 {
 	/* constants */

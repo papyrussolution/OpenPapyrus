@@ -773,8 +773,8 @@ SCS_ATOLDRV::SCS_ATOLDRV(PPID n, char * name, char * port) :
 				PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_COMP);
 			}
 			{
-				SJson * p_json_doc = 0;
-				if(json_parse_document(&p_json_doc, settings_buf.cptr()) == JSON_OK) {
+				SJson * p_json_doc = SJson::Parse(settings_buf);
+				if(p_json_doc) {
 					SJson * p_next = 0;
 					for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
@@ -987,6 +987,7 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 						if(mcv_status > 0) {
 							
 						}
+						ZDELETE(p_js_reply);
 					}
 				}
 				try_no++;

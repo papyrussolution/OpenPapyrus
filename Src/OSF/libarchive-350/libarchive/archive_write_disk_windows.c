@@ -711,17 +711,13 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	struct fixup_entry * fe;
 	int ret, r;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_disk_header");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	archive_clear_error(&a->archive);
 	if(a->archive.state & ARCHIVE_STATE_DATA) {
 		r = _archive_write_disk_finish_entry(&a->archive);
 		if(r == ARCHIVE_FATAL)
 			return r;
 	}
-
 	/* Set up for this particular entry. */
 	a->pst = NULL;
 	a->current_fixup = NULL;
@@ -940,8 +936,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_skip_file");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
 	a->skip_file_ino = i;
@@ -954,25 +949,20 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	uint64 start_size = size;
 	DWORD bytes_written = 0;
 	ssize_t block_size = 0, bytes_to_write;
-
 	if(size == 0)
 		return ARCHIVE_OK;
-
 	if(a->filesize == 0 || a->fh == INVALID_HANDLE_VALUE) {
 		archive_set_error(&a->archive, 0, "Attempt to write to an empty file");
 		return ARCHIVE_WARN;
 	}
-
 	if(a->flags & ARCHIVE_EXTRACT_SPARSE) {
 		/* XXX TODO XXX Is there a more appropriate choice here ? */
 		/* This needn't match the filesystem allocation size. */
 		block_size = 16*1024;
 	}
-
 	/* If this write would run beyond the file size, truncate it. */
 	if(a->filesize >= 0 && (int64)(a->offset + size) > a->filesize)
 		start_size = size = (size_t)(a->filesize - a->offset);
-
 	/* Write the data. */
 	while(size > 0) {
 		if(block_size == 0) {
@@ -982,7 +972,6 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 			/* We're sparsifying the file. */
 			const char * p, * end;
 			int64 block_end;
-
 			/* Skip leading zero bytes. */
 			for(p = buff, end = buff + size; p < end; ++p) {
 				if(*p != '\0')
@@ -1022,12 +1011,11 @@ static ssize_t write_data_block(struct archive_write_disk * a, const char * buff
 	return ((ssize_t)(start_size - size));
 }
 
-static ssize_t _archive_write_disk_data_block(struct archive * _a,
-    const void * buff, size_t size, int64 offset)
+static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * buff, size_t size, int64 offset)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	ssize_t r;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data_block");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	a->offset = offset;
 	r = write_data_block(a, static_cast<const char *>(buff), size);
 	if(r < ARCHIVE_OK)
@@ -1046,7 +1034,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a,
 static ssize_t _archive_write_disk_data(struct archive * _a, const void * buff, size_t size)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, "archive_write_data");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	return (write_data_block(a, static_cast<const char *>(buff), size));
 }
 
@@ -1054,7 +1042,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	int ret = ARCHIVE_OK;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_finish_entry");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->archive.state & ARCHIVE_STATE_HEADER)
 		return ARCHIVE_OK;
 	archive_clear_error(&a->archive);
@@ -1178,10 +1166,9 @@ int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data
     void (*cleanup_gid)(void * pPrivate))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_write_disk_set_group_lookup");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->cleanup_gid != NULL && a->lookup_gid_data != NULL)
 		(a->cleanup_gid)(a->lookup_gid_data);
-
 	a->lookup_gid = lookup_gid;
 	a->cleanup_gid = cleanup_gid;
 	a->lookup_gid_data = private_data;
@@ -1189,15 +1176,12 @@ int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data
 }
 
 int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
-    int64 (*lookup_uid)(void * pPrivate, const char * uname, int64 uid),
-    void (*cleanup_uid)(void * pPrivate))
+    int64 (*lookup_uid)(void * pPrivate, const char * uname, int64 uid), void (*cleanup_uid)(void * pPrivate))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_user_lookup");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->cleanup_uid != NULL && a->lookup_uid_data != NULL)
 		(a->cleanup_uid)(a->lookup_uid_data);
-
 	a->lookup_uid = lookup_uid;
 	a->cleanup_uid = cleanup_uid;
 	a->lookup_uid_data = private_data;
@@ -1207,8 +1191,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
 int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_gid");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->lookup_gid)
 		return (a->lookup_gid)(a->lookup_gid_data, name, id);
 	return (id);
@@ -1217,8 +1200,7 @@ int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t 
 int64 archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_uid");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->lookup_uid)
 		return (a->lookup_uid)(a->lookup_uid_data, name, id);
 	return (id);
@@ -1731,7 +1713,7 @@ static int _archive_write_disk_close(struct archive * _a)
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	struct fixup_entry * next, * p;
 	int ret;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_disk_close");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	ret = _archive_write_disk_finish_entry(&a->archive);
 	/* Sort dir list so directories are fixed up in depth-first order. */
 	p = sort_dir_list(a->fixup_list);
@@ -1763,7 +1745,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	int ret;
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_disk_free");
+	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
 	a = (struct archive_write_disk *)_a;
 	ret = _archive_write_disk_close(&a->archive);
 	archive_write_disk_set_group_lookup(&a->archive, NULL, NULL, NULL);
@@ -2444,7 +2426,6 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		}
 		a->todo &= ~TODO_SUID_CHECK;
 	}
-
 	if(S_ISLNK(a->mode)) {
 #ifdef HAVE_LCHMOD
 		/*
@@ -2456,8 +2437,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 		 * impact.
 		 */
 		if(lchmod(a->name, mode) != 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't set permissions to 0%o", (int)mode);
+			archive_set_error(&a->archive, errno, "Can't set permissions to 0%o", (int)mode);
 			r = ARCHIVE_WARN;
 		}
 #endif
@@ -2472,8 +2452,7 @@ static int set_mode(struct archive_write_disk * a, int mode)
 #ifdef HAVE_FCHMOD
 		if(a->fd >= 0) {
 			if(fchmod(a->fd, mode) != 0) {
-				archive_set_error(&a->archive, errno,
-				    "Can't set permissions to 0%o", (int)mode);
+				archive_set_error(&a->archive, errno, "Can't set permissions to 0%o", (int)mode);
 				r = ARCHIVE_WARN;
 			}
 		}
@@ -2553,13 +2532,11 @@ static int set_acls(struct archive_write_disk * a, HANDLE h, const wchar_t * nam
 static int set_xattrs(struct archive_write_disk * a)
 {
 	static int warning_done = 0;
-
 	/* If there aren't any extended attributes, then it's okay not
 	 * to extract them, otherwise, issue a single warning. */
 	if(archive_entry_xattr_count(a->entry) != 0 && !warning_done) {
 		warning_done = 1;
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Cannot restore extended attributes on this system");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Cannot restore extended attributes on this system");
 		return ARCHIVE_WARN;
 	}
 	/* Warning was already emitted; suppress further warnings. */

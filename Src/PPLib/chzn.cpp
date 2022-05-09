@@ -886,8 +886,8 @@ int ChZnInterface::ParseDocument(const SJson * pJsonObj, Document & rItem)
 int  ChZnInterface::ParseDocumentList(const char * pJsonInput, TSCollection <Document> & rList)
 {
 	int    ok = -1;
-	SJson * p_json_doc = 0;
-	if(json_parse_document(&p_json_doc, pJsonInput) == JSON_OK) {
+	SJson * p_json_doc = SJson::Parse(pJsonInput);
+	if(p_json_doc) {
 		SString temp_buf;
 		SJson * p_next = 0;
 		SJson * p_fld_next = 0;
@@ -2477,8 +2477,8 @@ int ChZnInterface::ReadJsonReplyForSingleItem(const char * pReply, const char * 
 {
 	rResult.Z();
 	int    ok = -1;
-	SJson * p_json_doc = 0;
-	if(json_parse_document(&p_json_doc, pReply) == JSON_OK) {
+	SJson * p_json_doc = SJson::Parse(pReply);
+	if(p_json_doc) {
 		SString temp_buf;
 		const SJson * p_next = 0;
 		for(const SJson * p_cur = p_json_doc; rResult.IsEmpty() && p_cur; p_cur = p_next) {
@@ -2534,10 +2534,9 @@ int ChZnInterface::GetDocument(const InitBlock & rIb, const S_GUID * pUuid, cons
 				if(p_ack_buf) {
 					reply_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					Lth.Log("rep", 0, reply_buf);
-					if(json_parse_document(&p_json_doc, reply_buf) == JSON_OK) {
-						if(ParseDocument(p_json_doc, rDoc) > 0)
-							ok = 1;
-					}
+					p_json_doc = SJson::Parse(reply_buf);
+					if(p_json_doc && ParseDocument(p_json_doc, rDoc) > 0)
+						ok = 1;
 				}
 			}
 		}
@@ -2867,8 +2866,8 @@ int ChZnInterface::Connect(InitBlock & rIb)
 							temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 							Lth.Log("rep", 0, temp_buf);
 							{
-								SJson * p_json_doc = 0;
-								if(json_parse_document(&p_json_doc, temp_buf) == JSON_OK) {
+								SJson * p_json_doc = SJson::Parse(temp_buf);
+								if(p_json_doc) {
 									SString temp_buf;
 									const SJson * p_next = 0;
 									for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {

@@ -17,7 +17,7 @@ __FBSDID("$FreeBSD$");
 
 int archive_read_support_format_by_code(struct archive * a, int format_code)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_by_code");
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	switch(format_code & ARCHIVE_FORMAT_BASE_MASK) {
 		case ARCHIVE_FORMAT_7ZIP: return archive_read_support_format_7zip(a); break;
 		case ARCHIVE_FORMAT_AR: return archive_read_support_format_ar(a); break;

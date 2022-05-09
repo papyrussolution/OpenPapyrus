@@ -342,7 +342,7 @@ int archive_read_support_format_7zip(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct _7zip * zip;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_7zip");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	zip = static_cast<struct _7zip *>(SAlloc::C(1, sizeof(*zip)));
 	if(zip == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate 7zip data");

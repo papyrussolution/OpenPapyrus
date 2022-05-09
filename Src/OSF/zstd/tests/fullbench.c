@@ -56,18 +56,18 @@ static unsigned g_nbIterations = NBLOOPS;
 // 
 // Private functions
 // 
-static size_t BMK_findMaxMem(U64 requiredMem)
+static size_t BMK_findMaxMem(uint64 requiredMem)
 {
 	size_t const step = 64 MB;
 	void* testmem = NULL;
 	requiredMem = (((requiredMem >> 26) + 1) << 26);
-	if(requiredMem > MAX_MEM) requiredMem = MAX_MEM;
+	SETMIN(requiredMem, MAX_MEM);
 	requiredMem += step;
 	do {
-		testmem = malloc((size_t)requiredMem);
+		testmem = SAlloc::M((size_t)requiredMem);
 		requiredMem -= step;
 	} while(!testmem);
-	free(testmem);
+	SAlloc::F(testmem);
 	return (size_t)requiredMem;
 }
 // 
@@ -93,16 +93,16 @@ static size_t local_ZSTD_compress_freshCCtx(const void* src, size_t srcSize, voi
 	if(g_zcc != NULL) ZSTD_freeCCtx(g_zcc);
 	g_zcc = ZSTD_createCCtx();
 	assert(g_zcc != NULL);
-	{   size_t const r = ZSTD_compress_advanced(g_zcc, dst, dstSize, src, srcSize, NULL, 0, p);
+	{   
+		size_t const r = ZSTD_compress_advanced(g_zcc, dst, dstSize, src, srcSize, NULL, 0, p);
 	    ZSTD_freeCCtx(g_zcc);
 	    g_zcc = NULL;
-	    return r;}
+	    return r;
+	}
 }
 
 static size_t g_cSize = 0;
-static size_t local_ZSTD_decompress(const void* src, size_t srcSize,
-    void* dst, size_t dstSize,
-    void* buff2)
+static size_t local_ZSTD_decompress(const void* src, size_t srcSize, void* dst, size_t dstSize, void* buff2)
 {
 	(void)src; (void)srcSize;
 	return ZSTD_decompress(dst, dstSize, buff2, g_cSize);
@@ -115,12 +115,7 @@ typedef enum {
 	not_streaming = 0,
 	is_streaming = 1
 } streaming_operation;
-extern size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* ctx,
-    const void* src,
-    size_t srcSize,
-    void* dst,
-    size_t dstCapacity,
-    const streaming_operation streaming);
+extern size_t ZSTD_decodeLiteralsBlock(ZSTD_DCtx* ctx, const void* src, size_t srcSize, void* dst, size_t dstCapacity, const streaming_operation streaming);
 static size_t local_ZSTD_decodeLiteralsBlock(const void* src, size_t srcSize, void* dst, size_t dstSize, void* buff2)
 {
 	(void)src; (void)srcSize; (void)dst; (void)dstSize;
@@ -145,8 +140,8 @@ FORCE_NOINLINE size_t ZSTD_decodeLiteralsHeader(ZSTD_DCtx* dctx, void const* src
 			    "srcSize >= MIN_CBLOCK_SIZE == 3; here we need up to 5 for case 3");
 			{
 				size_t lhSize, litSize, litCSize;
-				U32 const lhlCode = (istart[0] >> 2) & 3;
-				U32 const lhc = MEM_readLE32(istart);
+				const uint32 lhlCode = (istart[0] >> 2) & 3;
+				const uint32 lhc = MEM_readLE32(istart);
 				switch(lhlCode)
 				{
 					case 0: case 1: default: /* note : default is impossible, since lhlCode into
@@ -220,18 +215,18 @@ static size_t local_ZSTD_compressStream(const void* src, size_t srcSize,
 	return buffOut.pos;
 }
 
-static size_t local_ZSTD_compressStream_freshCCtx(const void* src, size_t srcSize,
-    void* dst, size_t dstCapacity,
-    void* payload)
+static size_t local_ZSTD_compressStream_freshCCtx(const void* src, size_t srcSize, void* dst, size_t dstCapacity, void* payload)
 {
-	if(g_cstream != NULL) ZSTD_freeCCtx(g_cstream);
+	if(g_cstream != NULL) 
+		ZSTD_freeCCtx(g_cstream);
 	g_cstream = ZSTD_createCCtx();
 	assert(g_cstream != NULL);
-
-	{   size_t const r = local_ZSTD_compressStream(src, srcSize, dst, dstCapacity, payload);
+	{   
+		size_t const r = local_ZSTD_compressStream(src, srcSize, dst, dstCapacity, payload);
 	    ZSTD_freeCCtx(g_cstream);
 	    g_cstream = NULL;
-	    return r;}
+	    return r;
+	}
 }
 
 static size_t local_ZSTD_compress2(const void* src, size_t srcSize,
@@ -339,32 +334,26 @@ static size_t local_ZSTD_compressContinue(const void* src, size_t srcSize,
 }
 
 #define FIRST_BLOCK_SIZE 8
-static size_t local_ZSTD_compressContinue_extDict(const void* src, size_t srcSize,
-    void* dst, size_t dstCapacity,
-    void* payload)
+static size_t local_ZSTD_compressContinue_extDict(const void* src, size_t srcSize, void* dst, size_t dstCapacity, void* payload)
 {
 	BYTE firstBlockBuf[FIRST_BLOCK_SIZE];
-
 	ZSTD_parameters p;
 	ZSTD_frameParameters const f = { 1, 0, 0 };
 	p.fParams = f;
 	p.cParams = *(ZSTD_compressionParameters*)payload;
 	ZSTD_compressBegin_advanced(g_zcc, NULL, 0, p, srcSize);
 	memcpy(firstBlockBuf, src, FIRST_BLOCK_SIZE);
-
-	{   size_t const compressResult = ZSTD_compressContinue(g_zcc,
-		    dst, dstCapacity,
-		    firstBlockBuf, FIRST_BLOCK_SIZE);
+	{   
+		size_t const compressResult = ZSTD_compressContinue(g_zcc, dst, dstCapacity, firstBlockBuf, FIRST_BLOCK_SIZE);
 	    if(ZSTD_isError(compressResult)) {
 		    DISPLAY("local_ZSTD_compressContinue_extDict error : %s\n",
 			ZSTD_getErrorName(compressResult));
 		    return compressResult;
 	    }
 	    dst = (BYTE*)dst + compressResult;
-	    dstCapacity -= compressResult;}
-	return ZSTD_compressEnd(g_zcc, dst, dstCapacity,
-		   (const BYTE*)src + FIRST_BLOCK_SIZE,
-		   srcSize - FIRST_BLOCK_SIZE);
+	    dstCapacity -= compressResult;
+	}
+	return ZSTD_compressEnd(g_zcc, dst, dstCapacity, (const BYTE*)src + FIRST_BLOCK_SIZE, srcSize - FIRST_BLOCK_SIZE);
 }
 
 static size_t local_ZSTD_decompressContinue(const void* src, size_t srcSize,
@@ -465,11 +454,11 @@ static int benchMem(unsigned benchNb, const void* src, size_t srcSize, int cLeve
 	}
 
 	/* Allocation */
-	dstBuff = (BYTE*)malloc(dstBuffSize);
-	dstBuff2 = malloc(dstBuffSize);
+	dstBuff = (BYTE*)SAlloc::M(dstBuffSize);
+	dstBuff2 = SAlloc::M(dstBuffSize);
 	if((!dstBuff) || (!dstBuff2)) {
 		DISPLAY("\nError: not enough memory!\n");
-		free(dstBuff); free(dstBuff2);
+		SAlloc::F(dstBuff); SAlloc::F(dstBuff2);
 		return 12;
 	}
 	payload = dstBuff2;
@@ -525,53 +514,60 @@ static int benchMem(unsigned benchNb, const void* src, size_t srcSize, int cLeve
 		case 30: /* ZSTD_decodeLiteralsHeader */
 		/* fall-through */
 		case 31: /* ZSTD_decodeLiteralsBlock : starts literals block in dstBuff2 */
-	    {   size_t frameHeaderSize;
-		g_cSize = ZSTD_compress(dstBuff, dstBuffSize, src, srcSize, cLevel);
-		frameHeaderSize = ZSTD_frameHeaderSize(dstBuff, ZSTD_FRAMEHEADERSIZE_PREFIX(ZSTD_f_zstd1));
-		CONTROL(!ZSTD_isError(frameHeaderSize));
-		/* check block is compressible, hence contains a literals section */
-		{   blockProperties_t bp;
-		    ZSTD_getcBlockSize(dstBuff+frameHeaderSize, dstBuffSize, &bp); /* Get 1st block type */
-		    if(bp.blockType != bt_compressed) {
-			    DISPLAY("ZSTD_decodeLiteralsBlock : impossible to test on this sample (not compressible)\n");
-			    goto _cleanOut;
-		    }
+	    {   
+			size_t frameHeaderSize;
+			g_cSize = ZSTD_compress(dstBuff, dstBuffSize, src, srcSize, cLevel);
+			frameHeaderSize = ZSTD_frameHeaderSize(dstBuff, ZSTD_FRAMEHEADERSIZE_PREFIX(ZSTD_f_zstd1));
+			CONTROL(!ZSTD_isError(frameHeaderSize));
+			/* check block is compressible, hence contains a literals section */
+			{   blockProperties_t bp;
+				ZSTD_getcBlockSize(dstBuff+frameHeaderSize, dstBuffSize, &bp); /* Get 1st block type */
+				if(bp.blockType != bt_compressed) {
+					DISPLAY("ZSTD_decodeLiteralsBlock : impossible to test on this sample (not compressible)\n");
+					goto _cleanOut;
+				}
+			}
+			{   
+				size_t const skippedSize = frameHeaderSize + ZSTD_blockHeaderSize;
+				memcpy(dstBuff2, dstBuff+skippedSize, g_cSize-skippedSize);
+			}
+			srcSize = srcSize > 128 KB ? 128 KB : srcSize; /* speed relative to block */
+			ZSTD_decompressBegin(g_zdc);
+			break;
 		}
-		{   size_t const skippedSize = frameHeaderSize + ZSTD_blockHeaderSize;
-		    memcpy(dstBuff2, dstBuff+skippedSize, g_cSize-skippedSize);}
-		srcSize = srcSize > 128 KB ? 128 KB : srcSize; /* speed relative to block */
-		ZSTD_decompressBegin(g_zdc);
-		break;}
 		case 32: /* ZSTD_decodeSeqHeaders */
-	    {   blockProperties_t bp;
-		const BYTE* ip = dstBuff;
-		const BYTE* iend;
-		{   size_t const cSize = ZSTD_compress(dstBuff, dstBuffSize, src, srcSize, cLevel);
-		    CONTROL(cSize > ZSTD_FRAMEHEADERSIZE_PREFIX(ZSTD_f_zstd1));}
-		/* Skip frame Header */
-		{   size_t const frameHeaderSize = ZSTD_frameHeaderSize(dstBuff, ZSTD_FRAMEHEADERSIZE_PREFIX(ZSTD_f_zstd1));
-		    CONTROL(!ZSTD_isError(frameHeaderSize));
-		    ip += frameHeaderSize;}
-		/* Find end of block */
-		{   size_t const cBlockSize = ZSTD_getcBlockSize(ip, dstBuffSize, &bp);/* Get 1st block type */
-		    if(bp.blockType != bt_compressed) {
-			    DISPLAY("ZSTD_decodeSeqHeaders : impossible to test on this sample (not compressible)\n");
-			    goto _cleanOut;
-		    }
-		    iend = ip + ZSTD_blockHeaderSize + cBlockSize; /* End of first block */
+	    {   
+			blockProperties_t bp;
+			const BYTE* ip = dstBuff;
+			const BYTE* iend;
+			{   
+				size_t const cSize = ZSTD_compress(dstBuff, dstBuffSize, src, srcSize, cLevel);
+				CONTROL(cSize > ZSTD_FRAMEHEADERSIZE_PREFIX(ZSTD_f_zstd1));
+			}
+			/* Skip frame Header */
+			{   
+				size_t const frameHeaderSize = ZSTD_frameHeaderSize(dstBuff, ZSTD_FRAMEHEADERSIZE_PREFIX(ZSTD_f_zstd1));
+				CONTROL(!ZSTD_isError(frameHeaderSize));
+				ip += frameHeaderSize;
+			}
+			/* Find end of block */
+			{   
+				size_t const cBlockSize = ZSTD_getcBlockSize(ip, dstBuffSize, &bp);/* Get 1st block type */
+				if(bp.blockType != bt_compressed) {
+					DISPLAY("ZSTD_decodeSeqHeaders : impossible to test on this sample (not compressible)\n");
+					goto _cleanOut;
+				}
+				iend = ip + ZSTD_blockHeaderSize + cBlockSize; /* End of first block */
+			}
+			ip += ZSTD_blockHeaderSize; /* skip block header */
+			ZSTD_decompressBegin(g_zdc);
+			CONTROL(iend > ip);
+			ip += ZSTD_decodeLiteralsBlock(g_zdc, ip, (size_t)(iend-ip), dstBuff, dstBuffSize, not_streaming); // skip literal segment 
+			g_cSize = (size_t)(iend-ip);
+			memcpy(dstBuff2, ip, g_cSize); /* copy rest of block (it starts by SeqHeader) */
+			srcSize = srcSize > 128 KB ? 128 KB : srcSize; /* speed relative to block */
+			break;
 		}
-		ip += ZSTD_blockHeaderSize; /* skip block header */
-		ZSTD_decompressBegin(g_zdc);
-		CONTROL(iend > ip);
-		ip += ZSTD_decodeLiteralsBlock(g_zdc, ip, (size_t)(iend-ip), dstBuff, dstBuffSize, not_streaming); /*
-			                                                                                              skip
-			                                                                                              literal
-			                                                                                              segment
-			                                                                                              */
-		g_cSize = (size_t)(iend-ip);
-		memcpy(dstBuff2, ip, g_cSize); /* copy rest of block (it starts by SeqHeader) */
-		srcSize = srcSize > 128 KB ? 128 KB : srcSize; /* speed relative to block */
-		break;}
 #else
 		case 31:
 		    goto _cleanOut;
@@ -590,26 +586,24 @@ static int benchMem(unsigned benchNb, const void* src, size_t srcSize, int cLeve
 		    /* compressStream2, short dstCapacity */
 		    dstBuffSize--;
 		    break;
-
 		/* test functions */
 		/* convention: test functions have ID > 100 */
-
 		default:;
 	}
-
 	/* warming up dstBuff */
-	{ size_t i; for(i = 0; i<dstBuffSize; i++) dstBuff[i] = (BYTE)i; }
-
+	{ 
+		for(size_t i = 0; i<dstBuffSize; i++) 
+			dstBuff[i] = (BYTE)i; 
+	}
 	/* benchmark loop */
-	{   BMK_timedFnState_t* const tfs = BMK_createTimedFnState(g_nbIterations * 1000, 1000);
+	{   
+		BMK_timedFnState_t* const tfs = BMK_createTimedFnState(g_nbIterations * 1000, 1000);
 	    void* const avoidStrictAliasingPtr = &dstBuff;
 	    BMK_benchParams_t bp;
 	    BMK_runTime_t bestResult;
 	    bestResult.sumOfReturn = 0;
-	    bestResult.nanoSecPerRun = (double)TIMELOOP_NANOSEC * 2000000000; /* hopefully large enough : must be larger
-		                                                                 than any potential measurement */
+	    bestResult.nanoSecPerRun = (double)TIMELOOP_NANOSEC * 2000000000; // hopefully large enough : must be larger than any potential measurement
 	    CONTROL(tfs != NULL);
-
 	    bp.benchFn = benchFunction;
 	    bp.benchPayload = payload;
 	    bp.initFn = NULL;
@@ -618,37 +612,31 @@ static int benchMem(unsigned benchNb, const void* src, size_t srcSize, int cLeve
 	    bp.blockCount = 1;
 	    bp.srcBuffers = &src;
 	    bp.srcSizes = &srcSize;
-	    bp.dstBuffers = (void* const*)avoidStrictAliasingPtr; /* circumvent strict aliasing warning on gcc-8,
-		                                                   * because gcc considers that `void* const *`  and
-		                                                   *`void**` are 2 different types */
+	    bp.dstBuffers = (void* const*)avoidStrictAliasingPtr; // circumvent strict aliasing warning on gcc-8, because gcc considers that `void* const *`  and void**` are 2 different types
 	    bp.dstCapacities = &dstBuffSize;
 	    bp.blockResults = NULL;
-
 	    for(;;) {
 		    BMK_runOutcome_t const bOutcome = BMK_benchTimedFn(tfs, bp);
-
 		    if(!BMK_isSuccessful_runOutcome(bOutcome)) {
 			    DISPLAY("ERROR benchmarking function ! ! \n");
 			    errorcode = 1;
 			    goto _cleanOut;
 		    }
-
-		    {   BMK_runTime_t const newResult = BMK_extract_runTime(bOutcome);
-			if(newResult.nanoSecPerRun < bestResult.nanoSecPerRun)
-				bestResult.nanoSecPerRun = newResult.nanoSecPerRun;
-			DISPLAY("\r%2u#%-29.29s:%8.1f MB/s  (%8u) ",
-			    benchNb, benchName,
-			    (double)srcSize * TIMELOOP_NANOSEC / bestResult.nanoSecPerRun / MB_UNIT,
-			    (unsigned)newResult.sumOfReturn);}
-
-		    if(BMK_isCompleted_TimedFn(tfs) ) break;
+		    {   
+				BMK_runTime_t const newResult = BMK_extract_runTime(bOutcome);
+				if(newResult.nanoSecPerRun < bestResult.nanoSecPerRun)
+					bestResult.nanoSecPerRun = newResult.nanoSecPerRun;
+				DISPLAY("\r%2u#%-29.29s:%8.1f MB/s  (%8u) ", benchNb, benchName, (double)srcSize * TIMELOOP_NANOSEC / bestResult.nanoSecPerRun / MB_UNIT, (uint)newResult.sumOfReturn);
+			}
+		    if(BMK_isCompleted_TimedFn(tfs)) 
+				break;
 	    }
-	    BMK_freeTimedFnState(tfs);}
+	    BMK_freeTimedFnState(tfs);
+	}
 	DISPLAY("\n");
-
 _cleanOut:
-	free(dstBuff);
-	free(dstBuff2);
+	SAlloc::F(dstBuff);
+	SAlloc::F(dstBuff2);
 	ZSTD_freeCCtx(g_zcc); g_zcc = NULL;
 	ZSTD_freeDCtx(g_zdc); g_zdc = NULL;
 	ZSTD_freeCStream(g_cstream); g_cstream = NULL;
@@ -656,19 +644,15 @@ _cleanOut:
 	return errorcode;
 }
 
-static int benchSample(U32 benchNb,
-    size_t benchedSize, double compressibility,
-    int cLevel, ZSTD_compressionParameters cparams)
+static int benchSample(uint32 benchNb, size_t benchedSize, double compressibility, int cLevel, ZSTD_compressionParameters cparams)
 {
 	/* Allocation */
-	void* const origBuff = malloc(benchedSize);
+	void* const origBuff = SAlloc::M(benchedSize);
 	if(!origBuff) {
 		DISPLAY("\nError: not enough memory!\n"); return 12;
 	}
-
 	/* Fill buffer */
 	RDG_genBuffer(origBuff, benchedSize, compressibility, 0.0, 0);
-
 	/* bench */
 	DISPLAY("\r%70s\r", "");
 	DISPLAY(" Sample %u bytes : \n", (unsigned)benchedSize);
@@ -680,14 +664,11 @@ static int benchSample(U32 benchNb,
 			benchMem(benchNb, origBuff, benchedSize, cLevel, cparams);
 		}
 	}
-
-	free(origBuff);
+	SAlloc::F(origBuff);
 	return 0;
 }
 
-static int benchFiles(U32 benchNb,
-    const char** fileNamesTable, const int nbFiles,
-    int cLevel, ZSTD_compressionParameters cparams)
+static int benchFiles(uint32 benchNb, const char** fileNamesTable, const int nbFiles, int cLevel, ZSTD_compressionParameters cparams)
 {
 	/* Loop for each file */
 	int fileIdx;
@@ -695,30 +676,29 @@ static int benchFiles(U32 benchNb,
 		const char* const inFileName = fileNamesTable[fileIdx];
 		FILE* const inFile = fopen(inFileName, "rb");
 		size_t benchedSize;
-
 		/* Check file existence */
 		if(inFile==NULL) {
 			DISPLAY("Pb opening %s\n", inFileName); return 11;
 		}
-
 		/* Memory allocation & restrictions */
-		{   U64 const inFileSize = UTIL_getFileSize(inFileName);
+		{   
+			uint64 const inFileSize = UTIL_getFileSize(inFileName);
 		    if(inFileSize == UTIL_FILESIZE_UNKNOWN) {
 			    DISPLAY("Cannot measure size of %s\n", inFileName);
 			    fclose(inFile);
 			    return 11;
 		    }
 		    benchedSize = BMK_findMaxMem(inFileSize*3) / 3;
-		    if((U64)benchedSize > inFileSize)
+		    if((uint64)benchedSize > inFileSize)
 			    benchedSize = (size_t)inFileSize;
-		    if((U64)benchedSize < inFileSize) {
+		    if((uint64)benchedSize < inFileSize) {
 			    DISPLAY("Not enough memory for '%s' full size; testing %u MB only... \n",
 				inFileName, (unsigned)(benchedSize>>20));
 		    }
 		}
-
 		/* Alloc */
-		{   void* const origBuff = malloc(benchedSize);
+		{   
+			void* const origBuff = SAlloc::M(benchedSize);
 		    if(!origBuff) {
 			    DISPLAY("\nError: not enough memory!\n"); fclose(inFile); return 12;
 		    }
@@ -729,11 +709,10 @@ static int benchFiles(U32 benchNb,
 			fclose(inFile);
 			if(readSize != benchedSize) {
 				DISPLAY("\nError: problem reading file '%s' !!    \n", inFileName);
-				free(origBuff);
+				SAlloc::F(origBuff);
 				return 13;
 			}
 		    }
-
 			/* bench */
 		    DISPLAY("\r%70s\r", ""); /* blank line */
 		    DISPLAY(" %s : \n", inFileName);
@@ -745,10 +724,9 @@ static int benchFiles(U32 benchNb,
 				    benchMem(benchNb, origBuff, benchedSize, cLevel, cparams);
 			    }
 		    }
-
-		    free(origBuff);}
+		    SAlloc::F(origBuff);
+		}
 	}
-
 	return 0;
 }
 // 
@@ -826,7 +804,7 @@ int main(int argc, const char** argv)
 	int argNb, filenamesStart = 0, result;
 	const char* const exename = argv[0];
 	const char* input_filename = NULL;
-	U32 benchNb = 0, main_pause = 0;
+	uint32 benchNb = 0, main_pause = 0;
 	int cLevel = DEFAULT_CLEVEL;
 	ZSTD_compressionParameters cparams = ZSTD_getCParams(cLevel, 0, 0);
 	size_t sampleSize = kSampleSizeDefault;

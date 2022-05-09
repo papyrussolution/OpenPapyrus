@@ -75,7 +75,7 @@ int archive_write_set_format_pax_restricted(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_pax_restricted");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	r = archive_write_set_format_pax(&a->archive);
 	a->archive.archive_format = ARCHIVE_FORMAT_TAR_PAX_RESTRICTED;
 	a->archive.archive_format_name = "restricted POSIX pax interchange";
@@ -88,7 +88,7 @@ int archive_write_set_format_pax(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct pax * pax;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_pax");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(a->format_free != NULL)
 		(a->format_free)(a);
 	pax = (struct pax *)SAlloc::C(1, sizeof(*pax));
@@ -121,8 +121,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 		 * IEEE Std 1003.1-2001
 		 */
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "pax: hdrcharset option needs a character-set name");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: hdrcharset option needs a character-set name");
 		else if(strcmp(val, "BINARY") == 0 ||
 		    strcmp(val, "binary") == 0) {
 			/*
@@ -140,8 +139,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 			 * Especially libarchive_test needs this trick for
 			 * its test.
 			 */
-			pax->sconv_utf8 = archive_string_conversion_to_charset(
-				&(a->archive), "UTF-8", 0);
+			pax->sconv_utf8 = archive_string_conversion_to_charset(&(a->archive), "UTF-8", 0);
 			if(pax->sconv_utf8 == NULL)
 				ret = ARCHIVE_FATAL;
 			else
@@ -342,34 +340,26 @@ static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax 
 		url_encoded_name = url_encode(name);
 		if(url_encoded_name != NULL) {
 			/* Convert narrow-character to UTF-8. */
-			r = archive_strcpy_l(&(pax->l_url_encoded_name),
-				url_encoded_name, pax->sconv_utf8);
+			r = archive_strcpy_l(&(pax->l_url_encoded_name), url_encoded_name, pax->sconv_utf8);
 			SAlloc::F(url_encoded_name); /* Done with this. */
 			if(r == 0)
 				encoded_name = pax->l_url_encoded_name.s;
 			else if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for Linkname");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return ARCHIVE_FATAL;
 			}
 		}
-
-		archive_write_pax_header_xattr(pax, encoded_name,
-		    value, size);
+		archive_write_pax_header_xattr(pax, encoded_name, value, size);
 	}
 	return ARCHIVE_OK;
 }
 
-static int get_entry_hardlink(struct archive_write * a, struct archive_entry * entry,
-    const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_hardlink(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
-	int r;
-
-	r = archive_entry_hardlink_l(entry, name, length, sc);
+	int r = archive_entry_hardlink_l(entry, name, length, sc);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Linkname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			return ARCHIVE_FATAL;
 		}
 		return ARCHIVE_WARN;
@@ -403,8 +393,7 @@ static int get_entry_uname(struct archive_write * a, struct archive_entry * entr
 	return ARCHIVE_OK;
 }
 
-static int get_entry_gname(struct archive_write * a, struct archive_entry * entry,
-    const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_gname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_gname_l(entry, name, length, sc);
 	if(r != 0) {
@@ -417,8 +406,7 @@ static int get_entry_gname(struct archive_write * a, struct archive_entry * entr
 	return ARCHIVE_OK;
 }
 
-static int get_entry_symlink(struct archive_write * a, struct archive_entry * entry,
-    const char ** name, size_t * length, struct archive_string_conv * sc)
+static int get_entry_symlink(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_symlink_l(entry, name, length, sc);
 	if(r != 0) {
@@ -496,7 +484,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	ret = ARCHIVE_OK;
 	need_extension = 0;
 	pax = (struct pax *)a->format_data;
-
 	/* Sanity check. */
 	if(archive_entry_pathname(entry_original) == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't record entry in tar file without pathname");
@@ -1128,7 +1115,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 				archive_string_sprintf(&(pax->sparse_map), "%jd\n%jd\n", (intmax_t)soffset, (intmax_t)slength);
 				sparse_total += slength;
 				if(sparse_list_add(pax, soffset, slength) != ARCHIVE_OK) {
-					archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+					archive_set_error(&a->archive, ENOMEM, "Out of memory");
 					archive_entry_free(entry_main);
 					archive_string_free(&entry_name);
 					return ARCHIVE_FATAL;

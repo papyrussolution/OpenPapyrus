@@ -1977,7 +1977,7 @@ JBDATA * jbDataRead(const char * rootname)
 		return (JBDATA*)ERROR_PTR("data not read", procName, NULL);
 	}
 
-	if((sa = sarrayCreateLinesFromString((char*)data, 0)) == NULL) {
+	if((sa = sarrayCreateLinesFromString((char *)data, 0)) == NULL) {
 		pixDestroy(&pixs);
 		SAlloc::F(data);
 		return (JBDATA*)ERROR_PTR("sa not made", procName, NULL);

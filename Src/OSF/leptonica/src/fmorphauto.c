@@ -291,7 +291,7 @@ l_ok fmorphautogen1(SELA        * sela,
 		return ERROR_INT("no sels in sela", procName, 1);
 
 	/* Make array of textlines from morphtemplate1.txt */
-	if((filestr = (char*)l_binaryRead(TEMPLATE1, &size)) == NULL)
+	if((filestr = (char *)l_binaryRead(TEMPLATE1, &size)) == NULL)
 		return ERROR_INT("filestr not made", procName, 1);
 	sa2 = sarrayCreateLinesFromString(filestr, 1);
 	SAlloc::F(filestr);
@@ -496,7 +496,7 @@ l_int32 fmorphautogen2(SELA        * sela,
 		return ERROR_INT("no sels in sela", procName, 1);
 
 	/* Make the array of textlines from morphtemplate2.txt */
-	if((filestr = (char*)l_binaryRead(TEMPLATE2, &size)) == NULL)
+	if((filestr = (char *)l_binaryRead(TEMPLATE2, &size)) == NULL)
 		return ERROR_INT("filestr not made", procName, 1);
 	sa1 = sarrayCreateLinesFromString(filestr, 1);
 	SAlloc::F(filestr);
@@ -819,9 +819,9 @@ static char * makeBarrelshiftString(l_int32 delx,    /* j - cx */
 	PROCNAME(__FUNCTION__);
 
 	if(delx < -31 || delx > 31)
-		return (char*)ERROR_PTR("delx out of bounds", procName, NULL);
+		return (char *)ERROR_PTR("delx out of bounds", procName, NULL);
 	if(dely < -31 || dely > 31)
-		return (char*)ERROR_PTR("dely out of bounds", procName, NULL);
+		return (char *)ERROR_PTR("dely out of bounds", procName, NULL);
 	absx = L_ABS(delx);
 	absy = L_ABS(dely);
 

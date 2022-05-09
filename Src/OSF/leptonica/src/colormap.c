@@ -2164,12 +2164,12 @@ char * pixcmapConvertToHex(uint8 * data,
 	PROCNAME(__FUNCTION__);
 
 	if(!data)
-		return (char*)ERROR_PTR("data not defined", procName, NULL);
+		return (char *)ERROR_PTR("data not defined", procName, NULL);
 	if(ncolors < 1)
-		return (char*)ERROR_PTR("no colors", procName, NULL);
+		return (char *)ERROR_PTR("no colors", procName, NULL);
 
 	hexbytes = 2 + (2 * 3 + 1) * ncolors + 2;
-	hexdata = (char*)SAlloc::C(hexbytes, sizeof(char));
+	hexdata = (char *)SAlloc::C(hexbytes, sizeof(char));
 	hexdata[0] = '<';
 	hexdata[1] = ' ';
 

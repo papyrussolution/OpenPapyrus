@@ -7,12 +7,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.view.View;
 import android.view.Window;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.google.zxing.client.android.Intents;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -475,18 +473,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 													//holder.flagView.setImageResource(state.getFlagResource());
 												}
 												String blob_signature = face.Get(StyloQFace.tagImageBlobSignature, 0);
-												{
-													View imgv_ = iv.findViewById(R.id.LVITEM_IMG);
-													if(imgv_ != null && imgv_ instanceof ImageView) {
-														ImageView imgv = (ImageView)imgv_;
-														if(SLib.GetLen(blob_signature) > 0) {
-															imgv.setVisibility(View.VISIBLE);
-															Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
-														}
-														else
-															imgv.setVisibility(View.GONE);
-													}
-												}
+												SLib.SetupImage(this, iv.findViewById(R.id.LVITEM_IMG), blob_signature);
 											}
 										}
 									} catch(StyloQException exn) {

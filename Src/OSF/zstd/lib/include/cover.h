@@ -42,17 +42,17 @@ typedef struct COVER_best_s {
  * A segment is a range in the source as well as the score of the segment.
  */
 typedef struct {
-	U32 begin;
-	U32 end;
-	U32 score;
+	uint32 begin;
+	uint32 end;
+	uint32 score;
 } COVER_segment_t;
 
 /**
  * Number of epochs and size of each epoch.
  */
 typedef struct {
-	U32 num;
-	U32 size;
+	uint32 num;
+	uint32 size;
 } COVER_epoch_info_t;
 
 /**
@@ -77,7 +77,7 @@ typedef struct COVER_dictSelection {
  * @param passes      The target number of passes over the dmer corpus.
  *                    More passes means a better dictionary.
  */
-COVER_epoch_info_t COVER_computeEpochs(U32 maxDictSize, U32 nbDmers, U32 k, U32 passes);
+COVER_epoch_info_t COVER_computeEpochs(uint32 maxDictSize, uint32 nbDmers, uint32 k, uint32 passes);
 /**
  * Warns the user when their corpus is too small.
  */
@@ -117,7 +117,7 @@ void COVER_best_finish(COVER_best_t * best, ZDICT_cover_params_t parameters, COV
  * Error function for COVER_selectDict function. Checks if the return
  * value is an error.
  */
-unsigned COVER_dictSelectionIsError(COVER_dictSelection_t selection);
+uint COVER_dictSelectionIsError(COVER_dictSelection_t selection);
 /**
  * Error function for COVER_selectDict function. Returns a struct where
  * return.totalCompressedSize is a ZSTD error.

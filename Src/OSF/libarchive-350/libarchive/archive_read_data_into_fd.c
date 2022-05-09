@@ -63,7 +63,7 @@ int archive_read_data_into_fd(struct archive * a, int fd)
 	int can_lseek;
 	char * nulls = NULL;
 	size_t nulls_size = 16384;
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_into_fd");
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	can_lseek = (fstat(fd, &st) == 0) && S_ISREG(st.st_mode);
 	if(!can_lseek)
 		nulls = static_cast<char *>(SAlloc::C(1, nulls_size));

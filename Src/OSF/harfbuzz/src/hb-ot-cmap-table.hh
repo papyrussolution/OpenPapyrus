@@ -131,7 +131,7 @@ public:
 			hb_codepoint_t last_gid = 0, start_gid = 0, last_cp = 0xFFFF;
 			bool use_delta = true;
 			HBINT16 * idDelta = c->start_embed<HBINT16> ();
-			if((char*)idDelta - (char*)startCode != (int)segcount * (int)HBINT16::static_size)
+			if((char *)idDelta - (char *)startCode != (int)segcount * (int)HBINT16::static_size)
 				return nullptr;
 			for(const hb_item_type<Iterator> _ : +it) {
 				if(_.first == startCode[i]) {
@@ -168,7 +168,7 @@ public:
 		{
 			HBUINT16 * idRangeOffset = c->allocate_size<HBUINT16> (HBUINT16::static_size * segcount);
 			if(UNLIKELY(!c->check_success(idRangeOffset))) return nullptr;
-			if(UNLIKELY((char*)idRangeOffset - (char*)idDelta != (int)segcount * (int)HBINT16::static_size)) return nullptr;
+			if(UNLIKELY((char *)idRangeOffset - (char *)idDelta != (int)segcount * (int)HBINT16::static_size)) return nullptr;
 
 			+hb_range(segcount)
 			| hb_filter([&] (const uint _) { return idDelta[_] == 0; })
@@ -389,7 +389,7 @@ public:
 				 * the subtable at the end of the blob. */
 				uint16_t new_length = (uint16_t)hb_min((uintptr_t)65535,
 					(uintptr_t)(c->end -
-					(char*)this));
+					(char *)this));
 				if(!c->try_set(&length, new_length))
 					return_trace(false);
 			}

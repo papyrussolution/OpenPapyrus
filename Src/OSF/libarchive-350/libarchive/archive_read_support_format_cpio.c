@@ -186,7 +186,7 @@ int archive_read_support_format_cpio(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct cpio * cpio;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_cpio");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	cpio = (struct cpio *)SAlloc::C(1, sizeof(*cpio));
 	if(cpio == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate cpio data");

@@ -73,7 +73,7 @@ static clock_t g_time = 0;
 /**
  * Hash the d-byte value pointed to by p and mod 2^f into the frequency vector
  */
-static size_t FASTCOVER_hashPtrToIndex(const void* p, U32 f, unsigned d) 
+static size_t FASTCOVER_hashPtrToIndex(const void * p, uint32 f, unsigned d) 
 {
 	if(d == 6) {
 		return ZSTD_hash6Ptr(p, f);
@@ -114,7 +114,7 @@ typedef struct {
 	size_t nbTrainSamples;
 	size_t nbTestSamples;
 	size_t nbDmers;
-	U32 * freqs;
+	uint32 * freqs;
 	unsigned d;
 	unsigned f;
 	FASTCOVER_accel_t accelParams;
@@ -134,13 +134,13 @@ typedef struct {
  *
  * Once the dmer with hash value d is in the dictionary we set F(d) = 0.
  */
-static COVER_segment_t FASTCOVER_selectSegment(const FASTCOVER_ctx_t * ctx, U32 * freqs, U32 begin, U32 end, ZDICT_cover_params_t parameters, U16* segmentFreqs) 
+static COVER_segment_t FASTCOVER_selectSegment(const FASTCOVER_ctx_t * ctx, uint32 * freqs, uint32 begin, uint32 end, ZDICT_cover_params_t parameters, uint16* segmentFreqs) 
 {
 	/* Constants */
-	const U32 k = parameters.k;
-	const U32 d = parameters.d;
-	const U32 f = ctx->f;
-	const U32 dmersInK = k - d + 1;
+	const uint32 k = parameters.k;
+	const uint32 d = parameters.d;
+	const uint32 f = ctx->f;
+	const uint32 dmersInK = k - d + 1;
 	/* Try each segment (activeSegment) and save the best (bestSegment) */
 	COVER_segment_t bestSegment = {0, 0, 0};
 	COVER_segment_t activeSegment;
@@ -188,7 +188,7 @@ static COVER_segment_t FASTCOVER_selectSegment(const FASTCOVER_ctx_t * ctx, U32 
 	}
 	{
 		/*  Zero the frequency of hash value of each dmer covered by the chosen segment. */
-		for(U32 pos = bestSegment.begin; pos != bestSegment.end; ++pos) {
+		for(uint32 pos = bestSegment.begin; pos != bestSegment.end; ++pos) {
 			const size_t i = FASTCOVER_hashPtrToIndex(ctx->samples + pos, f, d);
 			freqs[i] = 0;
 		}
@@ -243,7 +243,7 @@ static void FASTCOVER_ctx_destroy(FASTCOVER_ctx_t* ctx)
 /**
  * Calculate for frequency of hash value of each dmer in ctx->samples
  */
-static void FASTCOVER_computeFrequency(U32* freqs, const FASTCOVER_ctx_t* ctx)
+static void FASTCOVER_computeFrequency(uint32* freqs, const FASTCOVER_ctx_t* ctx)
 {
 	const unsigned f = ctx->f;
 	const unsigned d = ctx->d;
@@ -271,7 +271,7 @@ static void FASTCOVER_computeFrequency(U32* freqs, const FASTCOVER_ctx_t* ctx)
  * The context must be destroyed with `FASTCOVER_ctx_destroy()`.
  */
 static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
-    const void* samplesBuffer,
+    const void * samplesBuffer,
     const size_t* samplesSizes, unsigned nbSamples,
     unsigned d, double splitPoint, unsigned f,
     FASTCOVER_accel_t accelParams)
@@ -285,7 +285,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
 	const size_t testSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes + nbTrainSamples, nbTestSamples) : totalSamplesSize;
 
 	/* Checks */
-	if(totalSamplesSize < MAX(d, sizeof(U64)) ||
+	if(totalSamplesSize < MAX(d, sizeof(uint64)) ||
 	    totalSamplesSize >= (size_t)FASTCOVER_MAX_SAMPLES_SIZE) {
 		DISPLAYLEVEL(1, "Total samples size is too large (%u MB), maximum size is %u MB\n",
 		    (uint)(totalSamplesSize >> 20), (FASTCOVER_MAX_SAMPLES_SIZE >> 20));
@@ -312,7 +312,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
 	ctx->nbSamples = nbSamples;
 	ctx->nbTrainSamples = nbTrainSamples;
 	ctx->nbTestSamples = nbTestSamples;
-	ctx->nbDmers = trainingSamplesSize - MAX(d, sizeof(U64)) + 1;
+	ctx->nbDmers = trainingSamplesSize - MAX(d, sizeof(uint64)) + 1;
 	ctx->d = d;
 	ctx->f = f;
 	ctx->accelParams = accelParams;
@@ -326,7 +326,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
 	}
 
 	/* Fill offsets from the samplesSizes */
-	{   U32 i;
+	{   uint32 i;
 	    ctx->offsets[0] = 0;
 	    assert(nbSamples >= 5);
 	    for(i = 1; i <= nbSamples; ++i) {
@@ -334,7 +334,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
 	    }
 	}
 	/* Initialize frequency array of size 2^f */
-	ctx->freqs = (U32*)SAlloc::C(((U64)1 << f), sizeof(U32));
+	ctx->freqs = (uint32*)SAlloc::C(((uint64)1 << f), sizeof(uint32));
 	if(ctx->freqs == NULL) {
 		DISPLAYLEVEL(1, "Failed to allocate frequency table \n");
 		FASTCOVER_ctx_destroy(ctx);
@@ -347,22 +347,22 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
 /**
  * Given the prepared context build the dictionary.
  */
-static size_t FASTCOVER_buildDictionary(const FASTCOVER_ctx_t* ctx, U32* freqs, void* dictBuffer, size_t dictBufferCapacity, ZDICT_cover_params_t parameters, U16* segmentFreqs)
+static size_t FASTCOVER_buildDictionary(const FASTCOVER_ctx_t* ctx, uint32* freqs, void * dictBuffer, size_t dictBufferCapacity, ZDICT_cover_params_t parameters, uint16* segmentFreqs)
 {
 	BYTE * const dict = (BYTE*)dictBuffer;
 	size_t tail = dictBufferCapacity;
 	/* Divide the data into epochs. We will select one segment from each epoch. */
-	const COVER_epoch_info_t epochs = COVER_computeEpochs((U32)dictBufferCapacity, (U32)ctx->nbDmers, parameters.k, 1);
+	const COVER_epoch_info_t epochs = COVER_computeEpochs((uint32)dictBufferCapacity, (uint32)ctx->nbDmers, parameters.k, 1);
 	const size_t maxZeroScoreRun = 10;
 	size_t zeroScoreRun = 0;
 	size_t epoch;
-	DISPLAYLEVEL(2, "Breaking content into %u epochs of size %u\n", (U32)epochs.num, (U32)epochs.size);
+	DISPLAYLEVEL(2, "Breaking content into %u epochs of size %u\n", (uint32)epochs.num, (uint32)epochs.size);
 	/* Loop through the epochs until there are no more segments or the dictionary
 	 * is full.
 	 */
 	for(epoch = 0; tail > 0; epoch = (epoch + 1) % epochs.num) {
-		const U32 epochBegin = (U32)(epoch * epochs.size);
-		const U32 epochEnd = epochBegin + epochs.size;
+		const uint32 epochBegin = (uint32)(epoch * epochs.size);
+		const uint32 epochEnd = epochBegin + epochs.size;
 		size_t segmentSize;
 		/* Select a segment */
 		COVER_segment_t segment = FASTCOVER_selectSegment(ctx, freqs, epochBegin, epochEnd, parameters, segmentFreqs);
@@ -408,7 +408,7 @@ typedef struct FASTCOVER_tryParameters_data_s {
  * This function is thread safe if zstd is compiled with multithreaded support.
  * It takes its parameters as an *OWNING* opaque pointer to support threading.
  */
-static void FASTCOVER_tryParameters(void* opaque)
+static void FASTCOVER_tryParameters(void * opaque)
 {
 	/* Save parameters as local variables */
 	FASTCOVER_tryParameters_data_t * const data = (FASTCOVER_tryParameters_data_t*)opaque;
@@ -417,17 +417,17 @@ static void FASTCOVER_tryParameters(void* opaque)
 	size_t dictBufferCapacity = data->dictBufferCapacity;
 	size_t totalCompressedSize = ERROR(GENERIC);
 	/* Initialize array to keep track of frequency of dmer within activeSegment */
-	U16* segmentFreqs = (U16*)SAlloc::C(((U64)1 << ctx->f), sizeof(U16));
+	uint16* segmentFreqs = (uint16*)SAlloc::C(((uint64)1 << ctx->f), sizeof(uint16));
 	/* Allocate space for hash table, dict, and freqs */
 	BYTE * const dict = (BYTE*)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
-	U32* freqs = (U32*)SAlloc::M(((U64)1 << ctx->f) * sizeof(U32));
+	uint32* freqs = (uint32*)SAlloc::M(((uint64)1 << ctx->f) * sizeof(uint32));
 	if(!segmentFreqs || !dict || !freqs) {
 		DISPLAYLEVEL(1, "Failed to allocate buffers: out of memory\n");
 		goto _cleanup;
 	}
 	/* Copy the frequencies because we need to modify them */
-	memcpy(freqs, ctx->freqs, ((U64)1 << ctx->f) * sizeof(U32));
+	memcpy(freqs, ctx->freqs, ((uint64)1 << ctx->f) * sizeof(uint32));
 	/* Build the dictionary */
 	{ 
 		const size_t tail = FASTCOVER_buildDictionary(ctx, freqs, dict, dictBufferCapacity, parameters, segmentFreqs);
@@ -473,7 +473,7 @@ static void FASTCOVER_convertToFastCoverParams(ZDICT_cover_params_t coverParams,
 	fastCoverParams->shrinkDict = coverParams.shrinkDict;
 }
 
-ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void* dictBuffer, size_t dictBufferCapacity, const void* samplesBuffer, 
+ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer, 
 	const size_t* samplesSizes, unsigned nbSamples, ZDICT_fastCover_params_t parameters)
 {
 	BYTE* const dict = (BYTE*)dictBuffer;
@@ -518,7 +518,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void* dictBuffer, size_t dic
 	DISPLAYLEVEL(2, "Building dictionary\n");
 	{
 		/* Initialize array to keep track of frequency of dmer within activeSegment */
-		U16* segmentFreqs = (U16*)SAlloc::C(((U64)1 << parameters.f), sizeof(U16));
+		uint16* segmentFreqs = (uint16*)SAlloc::C(((uint64)1 << parameters.f), sizeof(uint16));
 		const size_t tail = FASTCOVER_buildDictionary(&ctx, ctx.freqs, dictBuffer, dictBufferCapacity, coverParams, segmentFreqs);
 		const unsigned nbFinalizeSamples = (uint)(ctx.nbTrainSamples * ctx.accelParams.finalize / 100);
 		const size_t dictionarySize = ZDICT_finalizeDictionary(dict, dictBufferCapacity, dict + tail, dictBufferCapacity - tail,
@@ -532,7 +532,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void* dictBuffer, size_t dic
 	}
 }
 
-ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_fastCover(void* dictBuffer, size_t dictBufferCapacity, const void* samplesBuffer,
+ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_fastCover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer,
     const size_t* samplesSizes, unsigned nbSamples, ZDICT_fastCover_params_t* parameters)
 {
 	ZDICT_cover_params_t coverParams;

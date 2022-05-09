@@ -41,7 +41,7 @@ int archive_read_open_FILE(struct archive * a, FILE * f)
 	mine = (struct read_FILE_data *)SAlloc::M(sizeof(*mine));
 	b = SAlloc::M(block_size);
 	if(mine == NULL || b == NULL) {
-		archive_set_error(a, ENOMEM, "No memory");
+		archive_set_error(a, ENOMEM, "Out of memory");
 		SAlloc::F(mine);
 		SAlloc::F(b);
 		return ARCHIVE_FATAL;

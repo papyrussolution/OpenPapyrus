@@ -9,9 +9,6 @@
  */
 #include <zstd-internal.h>
 #pragma hdrstop
-/*-************************************
-*  Dependencies
-**************************************/
 #include "util.h"      /* Compiler options */
 #include "datagen.h"   /* RDG_generate */
 // 
@@ -30,7 +27,7 @@
 **************************************/
 #define DISPLAY(...)         fprintf(stderr, __VA_ARGS__)
 #define DISPLAYLEVEL(l, ...) if(displayLevel>=l) { DISPLAY(__VA_ARGS__); }
-static unsigned displayLevel = 2;
+static uint displayLevel = 2;
 
 /*-*******************************************************
 *  Command line
@@ -44,8 +41,7 @@ static int usage(const char* programName)
 	DISPLAY("Arguments :\n");
 	DISPLAY(" -g#    : generate # data (default:%i)\n", SIZE_DEFAULT);
 	DISPLAY(" -s#    : Select seed (default:%i)\n", SEED_DEFAULT);
-	DISPLAY(" -P#    : Select compressibility in %% (default:%i%%)\n",
-	    COMPRESSIBILITY_DEFAULT);
+	DISPLAY(" -P#    : Select compressibility in %% (default:%i%%)\n", COMPRESSIBILITY_DEFAULT);
 	DISPLAY(" -h     : display help and exit\n");
 	return 0;
 }
@@ -54,13 +50,14 @@ int main(int argc, const char** argv)
 {
 	unsigned probaU32 = COMPRESSIBILITY_DEFAULT;
 	double litProba = 0.0;
-	U64 size = SIZE_DEFAULT;
-	U32 seed = SEED_DEFAULT;
+	uint64 size = SIZE_DEFAULT;
+	uint32 seed = SEED_DEFAULT;
 	const char* const programName = argv[0];
 	int argNb;
 	for(argNb = 1; argNb<argc; argNb++) {
 		const char* argument = argv[argNb];
-		if(!argument) continue; /* Protection if argument empty */
+		if(!argument) 
+			continue; /* Protection if argument empty */
 		/* Handle commands. Aggregated commands are allowed */
 		if(*argument=='-') {
 			argument++;
@@ -74,10 +71,12 @@ int main(int argc, const char** argv)
 					    while((*argument>='0') && (*argument<='9'))
 						    size *= 10, size += *argument++ - '0';
 					    if(*argument=='K') {
-						    size <<= 10; argument++;
+						    size <<= 10; 
+							argument++;
 					    }
 					    if(*argument=='M') {
-						    size <<= 20; argument++;
+						    size <<= 20; 
+							argument++;
 					    }
 					    if(*argument=='G') {
 						    size <<= 30; argument++;

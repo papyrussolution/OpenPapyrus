@@ -147,7 +147,7 @@ BMK_timedFnState_t* BMK_createTimedFnState(unsigned total_ms, unsigned run_ms)
 {
 	BMK_timedFnState_t* const r = (BMK_timedFnState_t*)SAlloc::M(sizeof(*r));
 	if(r == NULL) 
-		return NULL; /* malloc() error */
+		return NULL; /* SAlloc::M() error */
 	BMK_resetTimedFnState(r, total_ms, run_ms);
 	return r;
 }
@@ -194,31 +194,25 @@ int BMK_isCompleted_TimedFn(const BMK_timedFnState_t* timedFnState)
 	return (timedFnState->timeSpent_ns >= timedFnState->timeBudget_ns);
 }
 
-#undef MIN
-#define MIN(a, b)   ( (a) < (b) ? (a) : (b) )
-
+//#undef MIN
+//#define MIN(a, b)   ( (a) < (b) ? (a) : (b) )
 #define MINUSABLETIME  (TIMELOOP_NANOSEC / 2)  /* 0.5 seconds */
 
-BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont,
-    BMK_benchParams_t p)
+BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont, BMK_benchParams_t p)
 {
 	PTime const runBudget_ns = cont->runBudget_ns;
 	PTime const runTimeMin_ns = runBudget_ns / 2;
 	int completed = 0;
 	BMK_runTime_t bestRunTime = cont->fastestRun;
-
 	while(!completed) {
 		BMK_runOutcome_t const runResult = BMK_benchFunction(p, cont->nbLoops);
-
 		if(!BMK_isSuccessful_runOutcome(runResult)) { /* error : move out */
 			return runResult;
 		}
-
-		{   BMK_runTime_t const newRunTime = BMK_extract_runTime(runResult);
+		{   
+			BMK_runTime_t const newRunTime = BMK_extract_runTime(runResult);
 		    double const loopDuration_ns = newRunTime.nanoSecPerRun * cont->nbLoops;
-
 		    cont->timeSpent_ns += (unsigned long long)loopDuration_ns;
-
 			/* estimate nbLoops for next run to last approximately 1 second */
 		    if(loopDuration_ns > (runBudget_ns / 50)) {
 			    double const fastestRun_ns = MIN(bestRunTime.nanoSecPerRun, newRunTime.nanoSecPerRun);

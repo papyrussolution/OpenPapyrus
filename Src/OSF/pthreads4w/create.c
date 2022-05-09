@@ -80,7 +80,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	int result = EAGAIN;
 	int run =  TRUE;
 	ThreadParms * parms = NULL;
-	unsigned int stackSize;
+	uint stackSize;
 	int priority;
 	/*
 	 * Before doing anything, check that tid can be stored through
@@ -180,7 +180,7 @@ int pthread_create(pthread_t * tid, const pthread_attr_t * attr, void * (__PTW32
 	 */
 #if !defined (__MINGW32__) || defined (__MSVCRT__) || defined (__DMC__)
 	tp->threadH = threadH = (HANDLE)_beginthreadex((void *)NULL/* No security info */,
-		    stackSize/* default stack size */, __ptw32_threadStart, parms, (uint)CREATE_SUSPENDED, (unsigned*)&(tp->thread));
+		    stackSize/* default stack size */, __ptw32_threadStart, parms, (uint)CREATE_SUSPENDED, (uint *)&(tp->thread));
 	if(threadH != 0) {
 		if(a) {
 			(void)__ptw32_setthreadpriority(thread, SCHED_OTHER, priority);

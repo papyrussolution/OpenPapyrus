@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#include <zstd_mem.h> // U32, U64
+#include <zstd_mem.h> // uint32, uint64
 #include "fileio_types.h"
 #include "platform.h"
 #include "timefn.h"     /* UTIL_getTime, UTIL_clockSpanMicro */
@@ -37,7 +37,7 @@ extern FIO_display_prefs_t g_display_prefs;
 
 extern UTIL_time_t g_displayClock;
 
-#define REFRESH_RATE  ((U64)(SEC_TO_MICRO / 6))
+#define REFRESH_RATE  ((uint64)(SEC_TO_MICRO / 6))
 #define READY_FOR_UPDATE() ((g_display_prefs.progressSetting != FIO_ps_never) && UTIL_clockSpanMicro(g_displayClock) > REFRESH_RATE)
 #define DELAY_NEXT_UPDATE() { g_displayClock = UTIL_getTime(); }
 #define DISPLAYUPDATE(l, ...) {                              \
@@ -48,8 +48,8 @@ extern UTIL_time_t g_displayClock;
 				if(g_display_prefs.displayLevel>=4) fflush(stderr);       \
 			}   }   }
 
-#undef MIN  /* in case it would be already defined */
-#define MIN(a, b)    ((a) < (b) ? (a) : (b))
+//#undef MIN  /* in case it would be already defined */
+//#define MIN(a, b)    ((a) < (b) ? (a) : (b))
 
 #define EXM_THROW(error, ...)                                             \
 	{                                                                         \

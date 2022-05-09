@@ -153,7 +153,7 @@ static const SIntToSymbTabEntry P_HashFuncDeclList[] = {
 uint8  * SlHash::State::P_Tab_Crc8 = 0;
 uint16 * SlHash::State::P_Tab_Crc16 = 0;
 uint32 * SlHash::State::P_Tab_Crc32 = 0;
-uint64 * SlHash::State::P_Tab_Crc64 = 0;
+uint64 * SlHash::State::P_Tab_Crc64[8];
 
 struct BdtTestItem {
 	BdtTestItem() : Flags(0), OutLen(0), Iterations(0), Seek(0)
@@ -715,7 +715,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 	uint32 b = a;
 	uint32 c = a;
 	u.ptr = key;
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian) && ((u.i & 0x3) == 0)) {
+	if(!SLS.SSys.IsBigEndian && ((u.i & 0x3) == 0)) {
 		const uint32 * k = static_cast<const uint32 *>(key); // read 32-bit chunks
 		//
 		// all but last block: aligned reads and affect 32 bits of (a,b,c)
@@ -755,7 +755,7 @@ static uint32 BobJencHash_Little(const void * key, size_t length, uint32 initval
 			case 0: return c; /* zero length strings require no mixing */
 		}
 	}
-	else if(!(SLS.GetSSys().Flags & SSystem::fBigEndian) && ((u.i & 0x1) == 0)) {
+	else if(!SLS.SSys.IsBigEndian && ((u.i & 0x1) == 0)) {
 		const uint16 * k = static_cast<const uint16 *>(key); /* read 16-bit chunks */
 		const uint8  * k8;
 		//
@@ -884,7 +884,7 @@ static void BobJencHash_Little2(const void * key, size_t length, uint32 * pc, ui
 	uint32 b = a;
 	uint32 c = a + *pb;
 	u.ptr = key;
-	if(((u.i & 0x3) == 0) && !(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(((u.i & 0x3) == 0) && !SLS.SSys.IsBigEndian) {
 		const uint32 * k = static_cast<const uint32 *>(key); /* read 32-bit chunks */
 		//
 		// all but last block: aligned reads and affect 32 bits of (a,b,c)
@@ -923,11 +923,10 @@ static void BobJencHash_Little2(const void * key, size_t length, uint32 * pc, ui
 			case 0: *pc = c; *pb = b; return; /* zero length strings require no mixing */
 		}
 	}
-	else if(((u.i & 0x1) == 0) && !(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	else if(((u.i & 0x1) == 0) && !SLS.SSys.IsBigEndian) {
 		const uint16 * k = static_cast<const uint16 *>(key); /* read 16-bit chunks */
 		const uint8  * k8;
-
-		/*--------------- all but last block: aligned reads and different mixing */
+		// all but last block: aligned reads and different mixing 
 		while(length > 12) {
 			a += k[0] + (((uint32)k[1])<<16);
 			b += k[2] + (((uint32)k[3])<<16);
@@ -1023,9 +1022,9 @@ static uint32 BobJencHash_Big(const void * key, size_t length, uint32 initval)
 	uint32 b = a;
 	uint32 c = a;
 	u.ptr = key;
-	if(((u.i & 0x3) == 0) && (SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(((u.i & 0x3) == 0) && SLS.SSys.IsBigEndian) {
 		const uint32 * k = static_cast<const uint32 *>(key); /* read 32-bit chunks */
-		/*------ all but last block: aligned reads and affect 32 bits of (a,b,c) */
+		// all but last block: aligned reads and affect 32 bits of (a,b,c)
 		while(length > 12) {
 			a += k[0];
 			b += k[1];
@@ -1034,16 +1033,16 @@ static uint32 BobJencHash_Big(const void * key, size_t length, uint32 initval)
 			length -= 12;
 			k += 3;
 		}
-		/*----------------------------- handle the last (probably partial) block */
-		/*
-		 * "k[2]<<8" actually reads beyond the end of the string, but
-		 * then shifts out the part it's not allowed to read.  Because the
-		 * string is aligned, the illegal read is in the same word as the
-		 * rest of the string.  Every machine with memory protection I've seen
-		 * does it on word boundaries, so is OK with this.  But VALGRIND will
-		 * still catch it and complain.  The masking trick does make the hash
-		 * noticably faster for short strings (like English words).
-		 */
+		// handle the last (probably partial) block 
+		// 
+		// "k[2]<<8" actually reads beyond the end of the string, but
+		// then shifts out the part it's not allowed to read.  Because the
+		// string is aligned, the illegal read is in the same word as the
+		// rest of the string.  Every machine with memory protection I've seen
+		// does it on word boundaries, so is OK with this.  But VALGRIND will
+		// still catch it and complain.  The masking trick does make the hash
+		// noticably faster for short strings (like English words).
+		// 
 		switch(length) {
 			case 12: c += k[2]; b += k[1]; a += k[0]; break;
 			case 11: c += k[2]&0xffffff00; b += k[1]; a += k[0]; break;
@@ -1955,14 +1954,313 @@ SCRC32::~SCRC32()
 	}
 	return result;
 }
+//
+// @construction CRC64 {
+//
+typedef uint64 (* crcfn64)(uint64, const void *, const uint64);
+
+// Fill in a CRC constants table. 
+static void crcspeed64le_init(crcfn64 crcfn, uint64 table[8][256]) 
+{
+	uint64 crc;
+	// generate CRCs for all single byte sequences 
+	for(int n = 0; n < 256; n++) {
+		table[0][n] = crcfn(0, &n, 1);
+	}
+	// generate nested CRC table for future slice-by-8 lookup 
+	for(int n = 0; n < 256; n++) {
+		crc = table[0][n];
+		for(int k = 1; k < 8; k++) {
+			crc = table[0][crc & 0xff] ^ (crc >> 8);
+			table[k][n] = crc;
+		}
+	}
+}
+//
+// Reverse the bytes in a 64-bit word. 
+//
+/*static inline uint64 rev8(uint64 a) 
+{
+#if defined(__GNUC__) || defined(__clang__)
+    return __builtin_bswap64(a);
+#else
+    uint64_t m;
+    m = UINT64_C(0xff00ff00ff00ff);
+    a = ((a >> 8) & m) | (a & m) << 8;
+    m = UINT64_C(0xffff0000ffff);
+    a = ((a >> 16) & m) | (a & m) << 16;
+    return a >> 32 | a << 32;
+#endif
+}*/
+// 
+// This function is called once to initialize the CRC table for use on a
+// big-endian architecture. 
+// 
+static void crcspeed64be_init(crcfn64 fn, uint64 big_table[8][256]) 
+{
+	// Create the little endian table then reverse all the entires
+	crcspeed64le_init(fn, big_table);
+	for(int k = 0; k < 8; k++) {
+		for(int n = 0; n < 256; n++) {
+			big_table[k][n] = sbswap64(big_table[k][n]);
+		}
+	}
+}
+// 
+// Calculate a non-inverted CRC multiple bytes at a time on a little-endian
+// architecture. If you need inverted CRC, invert *before* calling and invert *after* calling.
+// 64 bit crc = process 8 bytes at once;
+// 
+static uint64 crcspeed64le(const uint64 pTableLE[8][256], uint64 crc, const void * buf, size_t len) 
+{
+	const uchar * next = static_cast<const uchar *>(buf);
+	// process individual bytes until we reach an 8-byte aligned pointer 
+	while(len && ((uintptr_t)next & 7) != 0) {
+		crc = pTableLE[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
+		len--;
+	}
+	// fast middle processing, 8 bytes (aligned!) per loop 
+	while(len >= 8) {
+		crc ^= *(uint64_t *)next;
+		crc = pTableLE[7][crc & 0xff] ^ pTableLE[6][(crc >> 8) & 0xff] ^ pTableLE[5][(crc >> 16) & 0xff] ^
+			pTableLE[4][(crc >> 24) & 0xff] ^ pTableLE[3][(crc >> 32) & 0xff] ^ pTableLE[2][(crc >> 40) & 0xff] ^
+			pTableLE[1][(crc >> 48) & 0xff] ^ pTableLE[0][crc >> 56];
+		next += 8;
+		len -= 8;
+	}
+	// process remaining bytes (can't be larger than 8) 
+	while(len) {
+		crc = pTableLE[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
+		len--;
+	}
+	return crc;
+}
+// 
+// Calculate a non-inverted CRC eight bytes at a time on a big-endian architecture.
+// 
+static uint64 crcspeed64be(const uint64 pTableBE[8][256], uint64 crc, const void * buf, size_t len) 
+{
+	const uchar * next = static_cast<const uchar *>(buf);
+	crc = sbswap64(crc);
+	while(len && ((uintptr_t)next & 7) != 0) {
+		crc = pTableBE[0][(crc >> 56) ^ *next++] ^ (crc << 8);
+		len--;
+	}
+	while(len >= 8) {
+		crc ^= *(uint64_t *)next;
+		crc = pTableBE[0][crc & 0xff] ^ pTableBE[1][(crc >> 8) & 0xff] ^ pTableBE[2][(crc >> 16) & 0xff] ^
+			pTableBE[3][(crc >> 24) & 0xff] ^ pTableBE[4][(crc >> 32) & 0xff] ^ pTableBE[5][(crc >> 40) & 0xff] ^
+			pTableBE[6][(crc >> 48) & 0xff] ^ pTableBE[7][crc >> 56];
+		next += 8;
+		len -= 8;
+	}
+	while(len) {
+		crc = pTableBE[0][(crc >> 56) ^ *next++] ^ (crc << 8);
+		len--;
+	}
+	return sbswap64(crc);
+}
+// 
+// Return the CRC of buf[0..len-1] with initial crc, processing eight bytes
+// at a time using passed-in lookup table.
+// This selects one of two routines depending on the endianess of
+// the architecture.
+// 
+uint64 crcspeed64native(uint64 table[8][256], uint64 crc, void * buf, size_t len) 
+{
+	uint64 n = 1;
+	return *(char *)&n ? crcspeed64le(table, crc, buf, len) : crcspeed64be(table, crc, buf, len);
+}
+//
+// Initialize CRC lookup table in architecture-dependent manner. 
+//
+void crcspeed64native_init(crcfn64 fn, uint64 table[8][256]) 
+{
+	if(SLS.SSys.IsBigEndian) {
+		crcspeed64be_init(fn, table);
+	}
+	else {
+		crcspeed64le_init(fn, table);
+	}
+	//uint64 n = 1;
+	//*(char *)&n ? crcspeed64le_init(fn, table) : crcspeed64be_init(fn, table);
+}
+
+#define POLY_CRC64 0xad93d23594c935a9ULL
+/******************** BEGIN GENERATED PYCRC FUNCTIONS ********************/
+/**
+ * Generated on Sun Dec 21 14:14:07 2014,
+ * by pycrc v0.8.2, https://www.tty1.net/pycrc/
+ *
+ * LICENSE ON GENERATED CODE:
+ * ==========================
+ * As of version 0.6, pycrc is released under the terms of the MIT licence.
+ * The code generated by pycrc is not considered a substantial portion of the
+ * software, therefore the author of pycrc will not claim any copyright on
+ * the generated code.
+ * ==========================
+ *
+ * CRC configuration:
+ *    Width        = 64
+ *    Poly         = 0xad93d23594c935a9
+ *    XorIn        = 0xffffffffffffffff
+ *    ReflectIn    = True
+ *    XorOut       = 0x0000000000000000
+ *    ReflectOut   = True
+ *    Algorithm    = bit-by-bit-fast
+ *
+ * Modifications after generation (by matt):
+ *   - included finalize step in-line with update for single-call generation
+ *   - re-worked some inner variable architectures
+ *   - adjusted function parameters to match expected prototypes.
+ *****************************************************************************/
+// 
+// Reflect all bits of a \a data word of \a data_len bytes.
+// 
+// \param data         The data word to be reflected.
+// \param data_len     The width of \a data expressed in number of bits.
+// \return             The reflected data.
+// 
+/*static inline uint64 crc_reflect(uint64 data, size_t data_len) 
+{
+	uint64 ret = data & 0x01;
+	for(size_t i = 1; i < data_len; i++) {
+		data >>= 1;
+		ret = (ret << 1) | (data & 0x01);
+	}
+	return ret;
+}*/
+// 
+// Update the crc value with new data.
+// 
+// \param crc      The current crc value.
+// \param data     Pointer to a buffer of \a data_len bytes.
+// \param data_len Number of bytes in the \a data buffer.
+// \return         The updated crc value.
+// 
+uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len) 
+{
+	const uint8 * data = static_cast<const uint8 *>(in_data);
+	uint64 bit;
+	for(uint64 offset = 0; offset < len; offset++) {
+		uint8 c = data[offset];
+		for(uint8 i = 0x01; i & 0xff; i <<= 1) {
+			bit = crc & 0x8000000000000000;
+			if(c & i) {
+				bit = !bit;
+			}
+			crc <<= 1;
+			if(bit) {
+				crc ^= POLY_CRC64;
+			}
+		}
+		crc &= 0xffffffffffffffff;
+	}
+	crc = crc & 0xffffffffffffffff;
+	// 
+	// Reflect all bits of a \a data word of \a data_len bytes.
+	// 
+	// \param data         The data word to be reflected.
+	// \param data_len     The width of \a data expressed in number of bits.
+	// \return             The reflected data.
+	// 
+	//static inline uint64 crc_reflect(uint64 data, size_t data_len) 
+	{
+		uint64 ret = crc & 0x01;
+		for(size_t i = 1; i < 64; i++) {
+			crc >>= 1;
+			ret = (ret << 1) | (crc & 0x01);
+		}
+		return ret ^ 0x0000000000000000;
+	}
+	//return crc_reflect(crc, 64) ^ 0x0000000000000000;
+}
+
+/******************** END GENERATED PYCRC FUNCTIONS ********************/
+
+//static uint64 crc64_table[8][256] = {{0}};
+// Initializes the 16KB lookup tables
+//void crc64_init() { crcspeed64native_init(_crc64_proc, crc64_table); }
+// Compute crc64 
+//uint64 crc64(uint64 crc, const uchar * s, size_t l) { return crcspeed64native(crc64_table, crc, (void *)s, l); }
+
+/* Test main */
+#ifdef REDIS_TEST
+
+#define UNUSED(x) (void)(x)
+int crc64Test(int argc, char *argv[]) {
+    UNUSED(argc);
+    UNUSED(argv);
+    crc64_init();
+    printf("[calcula]: e9c6d914c4b8d9ca == %016" PRIx64 "\n", (uint64)_crc64_proc(0, "123456789", 9));
+    printf("[64speed]: e9c6d914c4b8d9ca == %016" PRIx64 "\n", (uint64)crc64(0, "123456789", 9));
+    char li[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed "
+                "do eiusmod tempor incididunt ut labore et dolore magna "
+                "aliqua. Ut enim ad minim veniam, quis nostrud exercitation "
+                "ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis "
+                "aute irure dolor in reprehenderit in voluptate velit esse "
+                "cillum dolore eu fugiat nulla pariatur. Excepteur sint "
+                "occaecat cupidatat non proident, sunt in culpa qui officia "
+                "deserunt mollit anim id est laborum.";
+    printf("[calcula]: c7794709e69683b3 == %016" PRIx64 "\n", (uint64_t)_crc64_proc(0, li, sizeof(li)));
+    printf("[64speed]: c7794709e69683b3 == %016" PRIx64 "\n", (uint64_t)crc64(0, li, sizeof(li)));
+    return 0;
+}
+
+#endif
+
+// } @construction CRC64
+
+/*static*/uint64 STDCALL SlHash::CRC64(State * pS, const void * pData, size_t dataLen) // @construction
+{
+	uint64 result = 0;
+	if(!pS) {
+		State st;
+		CRC64(&st, pData, dataLen); // @recursion
+		result = CRC64(&st, 0, 0); // @recursion
+	}
+	else {
+		if(!State::P_Tab_Crc64[0]) {
+			for(uint i = 0; i < SIZEOFARRAY(State::P_Tab_Crc64); i++) {
+				State::P_Tab_Crc64[i] = static_cast<uint64 *>(SAlloc::M(sizeof(uint64) * 256));
+			}
+			if(SLS.SSys.IsBigEndian) {
+				crcspeed64be_init(_crc64_proc, reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64));
+			}
+			else {
+				crcspeed64le_init(_crc64_proc, reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64));
+			}
+		}
+		//const uint64 * p_tab = State::P_Tab_Crc64;
+		if(pS->Flags & pS->fEmpty) {
+			pS->Result.R64 = 0ULL;
+			pS->Flags &= ~pS->fEmpty;
+		}
+		result = pS->Result.R64;
+		if(pData && dataLen) {
+			const uint8 * p_buf = PTR8C(pData);
+			if(SLS.SSys.IsBigEndian) {
+				result = crcspeed64be(reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64), result, pData, dataLen);
+			}
+			else {
+				result = crcspeed64le(reinterpret_cast<uint64 (*)[256]>(State::P_Tab_Crc64), result, pData, dataLen);
+			}
+		}
+		else {
+			//result = (result & 0x00ffffffU);
+		}
+		pS->Result.R64 = result;
+	}
+	return result;
+}
 
 /*static*/uint32 STDCALL SlHash::CRC24(State * pS, const void * pData, size_t dataLen)
 {
 	uint32 result = 0;
 	if(!pS) {
 		State st;
-		CRC24(&st, pData, dataLen);
-		result = CRC24(&st, 0, 0);
+		CRC24(&st, pData, dataLen); // @recursion
+		result = CRC24(&st, 0, 0); // @recursion
 	}
 	else {
 		static const uint32 CRC24_T0[256] = {
@@ -2277,7 +2575,7 @@ SCRC32::~SCRC32()
 
 static inline void sl_cpu_to_le32_array(uint32 * buf, uint words)
 {
-	if(SSystem::BigEndian()) {
+	if(SLS.SSys.IsBigEndian) {
 		while(words--) {
 			*buf = _byteswap_ulong(*buf);
 			buf++;
@@ -2287,7 +2585,7 @@ static inline void sl_cpu_to_le32_array(uint32 * buf, uint words)
 
 static inline void sl_le32_to_cpu_array(uint32 * buf, uint words)
 {
-	if(SSystem::BigEndian()) {
+	if(SLS.SSys.IsBigEndian) {
 		while(words--) {
 			*buf = _byteswap_ulong(*buf);
 			buf++;

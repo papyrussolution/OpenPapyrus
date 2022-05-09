@@ -151,11 +151,11 @@ char * parseForProtos(const char * filein,
 	PROCNAME(__FUNCTION__);
 
 	if(!filein)
-		return (char*)ERROR_PTR("filein not defined", procName, NULL);
+		return (char *)ERROR_PTR("filein not defined", procName, NULL);
 
 	/* Read in the cpp output into memory, one string for each
 	 * line in the file, omitting blank lines.  */
-	strdata = (char*)l_binaryRead(filein, &nbytes);
+	strdata = (char *)l_binaryRead(filein, &nbytes);
 	sa = sarrayCreateLinesFromString(strdata, 0);
 
 	saout = sarrayCreate(0);
@@ -518,7 +518,7 @@ static char * captureProtoSignature(SARRAY * sa,
 	PROCNAME(__FUNCTION__);
 
 	if(!sa)
-		return (char*)ERROR_PTR("sa not defined", procName, NULL);
+		return (char *)ERROR_PTR("sa not defined", procName, NULL);
 
 	sap = sarrayCreate(0);
 	for(i = start; i < stop; i++) {
@@ -561,7 +561,7 @@ static char * cleanProtoSignature(char * instr)
 	PROCNAME(__FUNCTION__);
 
 	if(!instr)
-		return (char*)ERROR_PTR("instr not defined", procName, NULL);
+		return (char *)ERROR_PTR("instr not defined", procName, NULL);
 
 	sa = sarrayCreateWordsFromString(instr);
 	nwords = sarrayGetCount(sa);
@@ -575,7 +575,7 @@ static char * cleanProtoSignature(char * instr)
 			if(index > L_BUF_SIZE - 6) {
 				sarrayDestroy(&sa);
 				sarrayDestroy(&saout);
-				return (char*)ERROR_PTR("token too large", procName, NULL);
+				return (char *)ERROR_PTR("token too large", procName, NULL);
 			}
 			if(str[j] == '(') {
 				buf[index++] = ' ';

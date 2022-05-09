@@ -190,5 +190,8 @@
     <ClInclude Include="..\OSF\zstd\lib\include\zstdmt_compress.h">
       <Filter>Header</Filter>
     </ClInclude>
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_mem.h">
+      <Filter>Header</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

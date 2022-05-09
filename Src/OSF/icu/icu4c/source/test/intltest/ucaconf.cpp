@@ -216,7 +216,7 @@ void UCAConformanceTest::testConformance(const Collator * coll)
 
 		if(oldSk != NULL) {
 			bool ok = TRUE;
-			int32_t skres = withSortKeys ? strcmp((char*)oldSk, (char*)newSk) : 0;
+			int32_t skres = withSortKeys ? strcmp((char *)oldSk, (char *)newSk) : 0;
 			int32_t cmpres = coll->compare(oldB, oldBlen, buffer, buflen, status);
 			int32_t cmpres2 = coll->compare(buffer, buflen, oldB, oldBlen, status);
 

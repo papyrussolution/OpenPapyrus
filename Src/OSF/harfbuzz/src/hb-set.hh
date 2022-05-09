@@ -85,7 +85,7 @@ struct hb_set_t {
 				* la |= ~(mask(a) - 1);
 				la++;
 
-				memset(la, 0xff, (char*)lb - (char*)la);
+				memset(la, 0xff, (char *)lb - (char *)la);
 
 				* lb |= ((mask(b) << 1) - 1);
 			}
@@ -100,7 +100,7 @@ struct hb_set_t {
 			else {
 				* la &= mask(a) - 1;
 				la++;
-				memzero(la, (char*)lb - (char*)la);
+				memzero(la, (char *)lb - (char *)la);
 				* lb &= ~((mask(b) << 1) - 1);
 			}
 		}

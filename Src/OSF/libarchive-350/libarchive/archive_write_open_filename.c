@@ -57,7 +57,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 	int r;
 	struct write_file_data * mine = (struct write_file_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
-		archive_set_error(a, ENOMEM, "No memory");
+		archive_set_error(a, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	if(mbs_fn)
@@ -66,7 +66,7 @@ static int open_filename(struct archive * a, int mbs_fn, const void * filename)
 		r = archive_mstring_copy_wcs(&mine->filename, static_cast<const wchar_t *>(filename));
 	if(r < 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(a, ENOMEM, "No memory");
+			archive_set_error(a, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		if(mbs_fn)
@@ -103,8 +103,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "No memory");
 		else {
 			archive_mstring_get_mbs(a, &mine->filename, &mbs);
-			archive_set_error(a, errno,
-			    "Can't convert '%s' to WCS", mbs);
+			archive_set_error(a, errno, "Can't convert '%s' to WCS", mbs);
 		}
 		return ARCHIVE_FATAL;
 	}
@@ -121,8 +120,7 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "No memory");
 		else {
 			archive_mstring_get_wcs(a, &mine->filename, &wcs);
-			archive_set_error(a, errno,
-			    "Can't convert '%S' to MBS", wcs);
+			archive_set_error(a, errno, "Can't convert '%S' to MBS", wcs);
 		}
 		return ARCHIVE_FATAL;
 	}
@@ -136,7 +134,6 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "Failed to open '%S'", wcs);
 		return ARCHIVE_FATAL;
 	}
-
 	if(fstat(mine->fd, &st) != 0) {
 		if(mbs != NULL)
 			archive_set_error(a, errno, "Couldn't stat '%s'", mbs);
@@ -144,7 +141,6 @@ static int file_open(struct archive * a, void * client_data)
 			archive_set_error(a, errno, "Couldn't stat '%S'", wcs);
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Set up default last block handling.
 	 */
@@ -191,27 +187,20 @@ static ssize_t file_write(struct archive * a, void * client_data, const void * b
 static int file_close(struct archive * a, void * client_data)
 {
 	struct write_file_data  * mine = (struct write_file_data *)client_data;
-
 	CXX_UNUSED(a);
-
 	if(mine == NULL)
 		return ARCHIVE_FATAL;
-
 	if(mine->fd >= 0)
 		close(mine->fd);
-
 	return ARCHIVE_OK;
 }
 
 static int file_free(struct archive * a, void * client_data)
 {
 	struct write_file_data  * mine = (struct write_file_data *)client_data;
-
 	CXX_UNUSED(a);
-
 	if(mine == NULL)
 		return ARCHIVE_OK;
-
 	archive_mstring_clean(&mine->filename);
 	SAlloc::F(mine);
 	return ARCHIVE_OK;

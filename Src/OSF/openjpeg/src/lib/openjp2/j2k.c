@@ -6721,7 +6721,7 @@ boolint opj_j2k_setup_encoder(opj_j2k_t * p_j2k,
 
 	/* comment string */
 	if(parameters->cp_comment) {
-		cp->comment = (char*)opj_malloc(strlen(parameters->cp_comment) + 1U);
+		cp->comment = (char *)opj_malloc(strlen(parameters->cp_comment) + 1U);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to allocate copy of comment string\n");
 			return FALSE;
@@ -6736,14 +6736,14 @@ boolint opj_j2k_setup_encoder(opj_j2k_t * p_j2k,
 
 		/* UniPG>> */
 #ifdef USE_JPWL
-		cp->comment = (char*)opj_malloc(clen + strlen(version) + 11);
+		cp->comment = (char *)opj_malloc(clen + strlen(version) + 11);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to allocate comment string\n");
 			return FALSE;
 		}
 		sprintf(cp->comment, "%s%s with JPWL", comment, version);
 #else
-		cp->comment = (char*)opj_malloc(clen + strlen(version) + 1);
+		cp->comment = (char *)opj_malloc(clen + strlen(version) + 1);
 		if(!cp->comment) {
 			opj_event_msg(p_manager, EVT_ERROR, "Not enough memory to allocate comment string\n");
 			return FALSE;
@@ -10825,7 +10825,7 @@ static void opj_j2k_get_tile_data(opj_tcd_t * p_tcd, uint8 * p_data)
 
 		switch(l_size_comp) {
 			case 1: {
-			    char * l_dest_ptr = (char*)p_data;
+			    char * l_dest_ptr = (char *)p_data;
 			    if(l_img_comp->sgnd) {
 				    for(j = 0; j < l_height; ++j) {
 					    for(k = 0; k < l_width; ++k) {

@@ -17,7 +17,7 @@ __FBSDID("$FreeBSD$");
 
 int archive_read_support_filter_by_code(struct archive * a, int filter_code)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_by_code");
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	switch(filter_code) {
 		case ARCHIVE_FILTER_NONE: return archive_read_support_filter_none(a);
 		case ARCHIVE_FILTER_GZIP: return archive_read_support_filter_gzip(a);

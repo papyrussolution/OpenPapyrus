@@ -90,13 +90,13 @@
         <item name="android:minHeight">48dp</item>
     </style>
     <style name="PageHeaderTitleText">
-        <item name="android:fontFamily">@font/bagnard_sans</item>
+        <!-- <item name="android:fontFamily">@font/bagnard_sans</item> -->
         <item name="android:textSize">12sp</item>
         <item name="android:textFontWeight">500</item>
         <item name="android:layout_margin">4dp</item>
     </style>
     <style name="PageHeaderTopicText">
-        <item name="android:fontFamily">@font/bagnard_sans</item>
+        <!-- <item name="android:fontFamily">@font/bagnard_sans</item> -->
         <item name="android:textSize">12sp</item>
         <item name="android:layout_margin">4dp</item>
     </style>
@@ -112,5 +112,17 @@
         <item name="android:textColor">@color/PrimaryText</item>
         <item name="android:textSize">10sp</item>
         <item name="android:gravity">center_horizontal|center_vertical</item>
+    </style>
+    <style name="TSessDurationText">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/PrimaryText</item>
+        <item name="android:layout_gravity">center_horizontal|center_vertical</item>
+    </style>
+    <style name="OrderedQtyText">
+        <item name="android:textSize">10sp</item>
+        <item name="android:textFontWeight">600</item>
+        <item name="android:textColor">@color/PrimaryDark</item>
+        <item name="android:layout_gravity">center_horizontal|center_vertical</item>
     </style>
 </resources>

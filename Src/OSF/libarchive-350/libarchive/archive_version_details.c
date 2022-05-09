@@ -19,7 +19,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_util.c 201098 2009-12-28 02:58:1
 	#include <lz4.h>
 #endif
 #ifdef HAVE_ZSTD_H
-	#include <zstd.h>
+	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
 
 const char * archive_version_details(void)

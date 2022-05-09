@@ -224,7 +224,7 @@ int archive_write_set_format_7zip(struct archive * _a)
 	};
 	struct archive_write * a = (struct archive_write *)_a;
 	struct _7zip * zip;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_7zip");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
@@ -401,12 +401,9 @@ static int _7z_write_header(struct archive_write * a, struct archive_entry * ent
  */
 static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 {
-	struct _7zip * zip;
 	const uchar * p;
 	ssize_t ws;
-
-	zip = (struct _7zip *)a->format_data;
-
+	struct _7zip * zip = (struct _7zip *)a->format_data;
 	/*
 	 * Open a temporary file.
 	 */
@@ -414,18 +411,15 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 		zip->temp_offset = 0;
 		zip->temp_fd = __archive_mktemp(NULL);
 		if(zip->temp_fd < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Couldn't create temporary file");
+			archive_set_error(&a->archive, errno, "Couldn't create temporary file");
 			return ARCHIVE_FATAL;
 		}
 	}
-
 	p = (const uchar *)buff;
 	while(s) {
 		ws = write(zip->temp_fd, p, s);
 		if(ws < 0) {
-			archive_set_error(&(a->archive), errno,
-			    "fwrite function failed");
+			archive_set_error(&(a->archive), errno, "fwrite function failed");
 			return ARCHIVE_FATAL;
 		}
 		s -= ws;
@@ -1311,7 +1305,7 @@ static int file_new(struct archive_write * a, struct archive_entry * entry, stru
 	*newfile = NULL;
 	file = static_cast<struct file *>(SAlloc::C(1, sizeof(*file)));
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	if(0 > archive_entry_pathname_l(entry, &u16, &u16len, zip->sconv)) {
@@ -1320,16 +1314,13 @@ static int file_new(struct archive_write * a, struct archive_entry * entry, stru
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for UTF-16LE");
 			return ARCHIVE_FATAL;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "A filename cannot be converted to UTF-16LE;"
-		    "You should disable making Joliet extension");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A filename cannot be converted to UTF-16LE;You should disable making Joliet extension");
 		ret = ARCHIVE_WARN;
 	}
 	file->utf16name = static_cast<uint8 *>(SAlloc::M(u16len + 2));
 	if(file->utf16name == NULL) {
 		SAlloc::F(file);
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory for Name");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Name");
 		return ARCHIVE_FATAL;
 	}
 	memcpy(file->utf16name, u16, u16len);
@@ -1409,20 +1400,15 @@ static void file_init_register_empty(struct _7zip * zip)
 	zip->empty_list.last = &(zip->empty_list.first);
 }
 
-#if !defined(HAVE_ZLIB_H) || !defined(HAVE_BZLIB_H) || \
-	!defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
-static int compression_unsupported_encoder(struct archive * a,
-    struct la_zstream * lastrm, const char * name)
+#if !defined(HAVE_ZLIB_H) || !defined(HAVE_BZLIB_H) || !defined(BZ_CONFIG_ERROR) || !defined(HAVE_LZMA_H)
+static int compression_unsupported_encoder(struct archive * a, struct la_zstream * lastrm, const char * name)
 {
-	archive_set_error(a, ARCHIVE_ERRNO_MISC,
-	    "%s compression not supported on this platform", name);
+	archive_set_error(a, ARCHIVE_ERRNO_MISC, "%s compression not supported on this platform", name);
 	lastrm->valid = 0;
 	lastrm->real_stream = NULL;
 	return ARCHIVE_FAILED;
 }
-
 #endif
-
 /*
  * _7_COPY compressor.
  */
@@ -1490,13 +1476,10 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
 	strm->next_out = lastrm->next_out;
 	strm->avail_out = (uInt)lastrm->avail_out;
 	strm->total_out = (uLong)lastrm->total_out;
-	if(deflateInit2(strm, level, Z_DEFLATED,
-	    (withheader) ? 15 : -15,
-	    8, Z_DEFAULT_STRATEGY) != Z_OK) {
+	if(deflateInit2(strm, level, Z_DEFLATED, (withheader) ? 15 : -15, 8, Z_DEFAULT_STRATEGY) != Z_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing compression library");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lastrm->real_stream = strm;
@@ -1506,13 +1489,10 @@ static int compression_init_encoder_deflate(struct archive * a, struct la_zstrea
 	return ARCHIVE_OK;
 }
 
-static int compression_code_deflate(struct archive * a,
-    struct la_zstream * lastrm, enum la_zaction action)
+static int compression_code_deflate(struct archive * a, struct la_zstream * lastrm, enum la_zaction action)
 {
-	z_stream * strm;
 	int r;
-
-	strm = (z_stream*)lastrm->real_stream;
+	z_stream * strm = (z_stream*)lastrm->real_stream;
 	/* zlib.h is not const-correct, so we need this one bit
 	 * of ugly hackery to convert a const * pointer to
 	 * a non-const pointer. */
@@ -1522,8 +1502,7 @@ static int compression_code_deflate(struct archive * a,
 	strm->next_out = lastrm->next_out;
 	strm->avail_out = (uInt)lastrm->avail_out;
 	strm->total_out = (uLong)lastrm->total_out;
-	r = deflate(strm,
-		(action == ARCHIVE_Z_FINISH) ? Z_FINISH : Z_NO_FLUSH);
+	r = deflate(strm, (action == ARCHIVE_Z_FINISH) ? Z_FINISH : Z_NO_FLUSH);
 	lastrm->next_in = strm->next_in;
 	lastrm->avail_in = strm->avail_in;
 	lastrm->total_in = strm->total_in;
@@ -1536,34 +1515,27 @@ static int compression_code_deflate(struct archive * a,
 		case Z_STREAM_END:
 		    return (ARCHIVE_EOF);
 		default:
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"GZip compression failed:"
-			" deflate() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "GZip compression failed: deflate() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
 
 static int compression_end_deflate(struct archive * a, struct la_zstream * lastrm)
 {
-	z_stream * strm;
-	int r;
-
-	strm = (z_stream*)lastrm->real_stream;
-	r = deflateEnd(strm);
+	z_stream * strm = (z_stream*)lastrm->real_stream;
+	int r = deflateEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != Z_OK) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
 }
 
 #else
-static int compression_init_encoder_deflate(struct archive * a,
-    struct la_zstream * lastrm, int level, int withheader)
+static int compression_init_encoder_deflate(struct archive * a, struct la_zstream * lastrm, int level, int withheader)
 {
 	CXX_UNUSED(level);
 	(void)withheader; /* UNUSED */
@@ -1600,8 +1572,7 @@ static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream 
 	if(BZ2_bzCompressInit(strm, level, 0, 30) != BZ_OK) {
 		SAlloc::F(strm);
 		lastrm->real_stream = NULL;
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Internal error initializing compression library");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		return ARCHIVE_FATAL;
 	}
 	lastrm->real_stream = strm;
@@ -1650,41 +1621,33 @@ static int compression_code_bzip2(struct archive * a,
 		    return (ARCHIVE_EOF);
 		default:
 		    /* Any other return value indicates an error */
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"Bzip2 compression failed:"
-			" BZ2_bzCompress() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "Bzip2 compression failed: BZ2_bzCompress() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
 
 static int compression_end_bzip2(struct archive * a, struct la_zstream * lastrm)
 {
-	bz_stream * strm;
-	int r;
-
-	strm = (bz_stream*)lastrm->real_stream;
-	r = BZ2_bzCompressEnd(strm);
+	bz_stream * strm = (bz_stream*)lastrm->real_stream;
+	int r = BZ2_bzCompressEnd(strm);
 	SAlloc::F(strm);
 	lastrm->real_stream = NULL;
 	lastrm->valid = 0;
 	if(r != BZ_OK) {
-		archive_set_error(a, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(a, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
 }
 
 #else
-static int compression_init_encoder_bzip2(struct archive * a,
-    struct la_zstream * lastrm, int level)
+static int compression_init_encoder_bzip2(struct archive * a, struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
 	if(lastrm->valid)
 		compression_end(a, lastrm);
 	return (compression_unsupported_encoder(a, lastrm, "bzip2"));
 }
-
 #endif
 
 /*
@@ -1803,17 +1766,11 @@ static int compression_code_lzma(struct archive * a, struct la_zstream * lastrm,
 		    /* This return can only occur in finishing case. */
 		    return (ARCHIVE_EOF);
 		case LZMA_MEMLIMIT_ERROR:
-		    archive_set_error(a, ENOMEM,
-			"lzma compression error:"
-			" %ju MiB would have been needed",
-			(uintmax_t)((lzma_memusage(strm) + 1024 * 1024 -1)
-			/ (1024 * 1024)));
+		    archive_set_error(a, ENOMEM, "lzma compression error: %ju MiB would have been needed", (uintmax_t)((lzma_memusage(strm) + 1024 * 1024 -1) / (1024 * 1024)));
 		    return ARCHIVE_FATAL;
 		default:
 		    /* Any other return value indicates an error */
-		    archive_set_error(a, ARCHIVE_ERRNO_MISC,
-			"lzma compression failed:"
-			" lzma_code() call returned status %d", r);
+		    archive_set_error(a, ARCHIVE_ERRNO_MISC, "lzma compression failed: lzma_code() call returned status %d", r);
 		    return ARCHIVE_FATAL;
 	}
 }
@@ -1821,7 +1778,6 @@ static int compression_code_lzma(struct archive * a, struct la_zstream * lastrm,
 static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 {
 	lzma_stream * strm;
-
 	CXX_UNUSED(a);
 	strm = (lzma_stream*)lastrm->real_stream;
 	lzma_end(strm);
@@ -1832,8 +1788,7 @@ static int compression_end_lzma(struct archive * a, struct la_zstream * lastrm)
 }
 
 #else
-static int compression_init_encoder_lzma1(struct archive * a,
-    struct la_zstream * lastrm, int level)
+static int compression_init_encoder_lzma1(struct archive * a, struct la_zstream * lastrm, int level)
 {
 	CXX_UNUSED(level);
 	if(lastrm->valid)
@@ -1890,8 +1845,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 	strm->buff = static_cast<uint8 *>(SAlloc::M(32));
 	if(strm->buff == NULL) {
 		SAlloc::F(strm);
-		archive_set_error(a, ENOMEM,
-		    "Can't allocate memory for PPMd");
+		archive_set_error(a, ENOMEM, "Can't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
 	}
 	strm->buff_ptr = strm->buff;
@@ -1911,8 +1865,7 @@ static int compression_init_encoder_ppmd(struct archive * a, struct la_zstream *
 		SAlloc::F(strm->buff);
 		SAlloc::F(strm);
 		SAlloc::F(props);
-		archive_set_error(a, ENOMEM,
-		    "Coludn't allocate memory for PPMd");
+		archive_set_error(a, ENOMEM, "Coludn't allocate memory for PPMd");
 		return ARCHIVE_FATAL;
 	}
 	__archive_ppmd7_functions.Ppmd7_Init(&(strm->ppmd7_context), maxOrder);

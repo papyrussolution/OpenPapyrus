@@ -427,13 +427,13 @@ public:
 				uint shared_tuple_size = F2DOT14::static_size * axisCount * sharedTupleCount;
 				F2DOT14 * tuples = c->serializer->allocate_size<F2DOT14> (shared_tuple_size);
 				if(!tuples) return_trace(false);
-				out->sharedTuples = (char*)tuples - (char*)out;
+				out->sharedTuples = (char *)tuples - (char *)out;
 				memcpy(tuples, this+sharedTuples, shared_tuple_size);
 			}
 
 			char * subset_data = c->serializer->allocate_size<char> (subset_data_size);
 			if(!subset_data) return_trace(false);
-			out->dataZ = subset_data - (char*)out;
+			out->dataZ = subset_data - (char *)out;
 
 			uint glyph_offset = 0;
 			for(hb_codepoint_t gid = 0; gid < num_glyphs; gid++) {

@@ -5000,9 +5000,11 @@ struct Sdr_FiasRawAddrObj {
 #define PPDV_FACEARBITRARY01                 32980
 #define PPDV_FACEVERIFIABLE01                32981
 #define PPDV_FILTERRMV01                     32982
-#define PPDV_LOGOPAPYRUS                     32983
-#define PPDV_LOGOUDS                         32984
-#define PPDV_LOGOVK                          32985
-#define PPDV_LOGOVETIS                       32986
-#define PPDV_LOGOCHZN                        32987
+#define PPDV_SHOPPINGCARTINTO01              32983
+#define PPDV_SHOPPINGCARTINTO02              32984
+#define PPDV_LOGOPAPYRUS                     32985
+#define PPDV_LOGOUDS                         32986
+#define PPDV_LOGOVK                          32987
+#define PPDV_LOGOVETIS                       32988
+#define PPDV_LOGOCHZN                        32989
 

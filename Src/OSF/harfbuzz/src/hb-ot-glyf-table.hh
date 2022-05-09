@@ -622,7 +622,7 @@ public:
 					if(UNLIKELY(!last)) return 0;
 
 					if(last->has_instructions())
-						start = (char*)last - &bytes + last->get_size();
+						start = (char *)last - &bytes + last->get_size();
 					if(UNLIKELY(start > end)) return 0;
 					return end - start;
 				}

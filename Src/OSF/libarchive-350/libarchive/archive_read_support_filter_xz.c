@@ -83,7 +83,7 @@ int archive_read_support_filter_xz(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_xz");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -112,7 +112,7 @@ int archive_read_support_filter_lzma(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lzma");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -141,7 +141,7 @@ int archive_read_support_filter_lzip(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lzip");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -386,18 +386,15 @@ static void set_error(struct archive_read_filter * self, int ret)
 		    break;
 	}
 }
-
 /*
  * Setup the callbacks.
  */
 static int xz_lzma_bidder_init(struct archive_read_filter * self)
 {
 	static const size_t out_block_size = 64 * 1024;
-	void * out_block;
-	struct private_data * state;
 	int ret;
-	state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
-	out_block = (uchar *)SAlloc::M(out_block_size);
+	struct private_data * state = (struct private_data *)SAlloc::C(sizeof(*state), 1);
+	void * out_block = (uchar *)SAlloc::M(out_block_size);
 	if(state == NULL || out_block == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for xz decompression");
 		SAlloc::F(out_block);
@@ -407,9 +404,9 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	self->data = state;
 	state->out_block_size = out_block_size;
 	state->out_block = (uchar *)out_block;
-	self->read = xz_filter_read;
+	self->FnRead = xz_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = xz_filter_close;
+	self->FnClose = xz_filter_close;
 	state->stream.avail_in = 0;
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = state->out_block_size;
@@ -425,22 +422,15 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 	}
 	else
 		state->in_stream = 1;
-
 	/* Initialize compression library. */
 	if(self->code == ARCHIVE_FILTER_XZ)
-		ret = lzma_stream_decoder(&(state->stream),
-			LZMA_MEMLIMIT,/* memlimit */
-			LZMA_CONCATENATED);
+		ret = lzma_stream_decoder(&(state->stream), LZMA_MEMLIMIT,/* memlimit */ LZMA_CONCATENATED);
 	else
-		ret = lzma_alone_decoder(&(state->stream),
-			LZMA_MEMLIMIT); /* memlimit */
-
+		ret = lzma_alone_decoder(&(state->stream), LZMA_MEMLIMIT); /* memlimit */
 	if(ret == LZMA_OK)
 		return ARCHIVE_OK;
-
 	/* Library setup failed: Choose an error message and clean up. */
 	set_error(self, ret);
-
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
 	self->data = NULL;
@@ -449,15 +439,13 @@ static int xz_lzma_bidder_init(struct archive_read_filter * self)
 
 static int lzip_init(struct archive_read_filter * self)
 {
-	struct private_data * state;
-	const uchar * h;
 	lzma_filter filters[2];
 	uchar props[5];
 	ssize_t avail_in;
 	uint32 dicsize;
 	int log2dic, ret;
-	state = (struct private_data *)self->data;
-	h = (const uchar *)__archive_read_filter_ahead(self->upstream, 6, &avail_in);
+	struct private_data * state = (struct private_data *)self->data;
+	const uchar * h = (const uchar *)__archive_read_filter_ahead(self->upstream, 6, &avail_in);
 	if(h == NULL)
 		return ARCHIVE_FATAL;
 	/* Get a version number. */
@@ -500,11 +488,10 @@ static int lzip_init(struct archive_read_filter * self)
 
 static int lzip_tail(struct archive_read_filter * self)
 {
-	struct private_data * state;
 	const uchar * f;
 	ssize_t avail_in;
 	int tail;
-	state = (struct private_data *)self->data;
+	struct private_data * state = (struct private_data *)self->data;
 	if(state->lzip_ver == 0)
 		tail = 12;
 	else
@@ -552,17 +539,13 @@ static int lzip_tail(struct archive_read_filter * self)
  */
 static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state;
 	size_t decompressed;
 	ssize_t avail_in;
 	int ret;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = (struct private_data *)self->data;
 	/* Empty our output buffer. */
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = state->out_block_size;
-
 	/* Try to fill the output buffer. */
 	while(state->stream.avail_out > 0 && !state->eof) {
 		if(!state->in_stream) {
@@ -580,17 +563,14 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
 			return ARCHIVE_FATAL;
 		}
 		state->stream.avail_in = avail_in;
-
 		/* Decompress as much as we can in one pass. */
-		ret = lzma_code(&(state->stream),
-			(state->stream.avail_in == 0) ? LZMA_FINISH : LZMA_RUN);
+		ret = lzma_code(&(state->stream), (state->stream.avail_in == 0) ? LZMA_FINISH : LZMA_RUN);
 		switch(ret) {
 			case LZMA_STREAM_END: /* Found end of stream. */
 			    state->eof = 1;
 			// @fallthrough
 			case LZMA_OK: /* Decompressor made some progress. */
-			    __archive_read_filter_consume(self->upstream,
-				avail_in - state->stream.avail_in);
+			    __archive_read_filter_consume(self->upstream, avail_in - state->stream.avail_in);
 			    state->member_in +=
 				avail_in - state->stream.avail_in;
 			    break;
@@ -599,7 +579,6 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
 			    return ARCHIVE_FATAL;
 		}
 	}
-
 	decompressed = state->stream.next_out - state->out_block;
 	state->total_out += decompressed;
 	state->member_out += decompressed;
@@ -625,15 +604,12 @@ static ssize_t xz_filter_read(struct archive_read_filter * self, const void ** p
  */
 static int xz_filter_close(struct archive_read_filter * self)
 {
-	struct private_data * state;
-
-	state = (struct private_data *)self->data;
+	struct private_data * state = (struct private_data *)self->data;
 	lzma_end(&(state->stream));
 	SAlloc::F(state->out_block);
 	SAlloc::F(state);
 	return ARCHIVE_OK;
 }
-
 #else
 
 /*

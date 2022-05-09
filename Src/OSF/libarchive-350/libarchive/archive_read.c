@@ -116,8 +116,7 @@ int archive_read_open2(struct archive * a, void * client_data, archive_open_call
 
 static ssize_t client_read_proxy(struct archive_read_filter * self, const void ** buff)
 {
-	ssize_t r;
-	r = (self->archive->client.reader)(&self->archive->archive, self->data, buff);
+	ssize_t r = (self->archive->client.reader)(&self->archive->archive, self->data, buff);
 	return r;
 }
 
@@ -231,7 +230,7 @@ static int client_switch_proxy(struct archive_read_filter * self, uint iindex)
 int archive_read_set_open_callback(struct archive * _a, archive_open_callback * client_opener)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_open_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.opener = client_opener;
 	return ARCHIVE_OK;
 }
@@ -239,7 +238,7 @@ int archive_read_set_open_callback(struct archive * _a, archive_open_callback * 
 int archive_read_set_read_callback(struct archive * _a, archive_read_callback * client_reader)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_read_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.reader = client_reader;
 	return ARCHIVE_OK;
 }
@@ -247,7 +246,7 @@ int archive_read_set_read_callback(struct archive * _a, archive_read_callback * 
 int archive_read_set_skip_callback(struct archive * _a, archive_skip_callback * client_skipper)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_skip_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.skipper = client_skipper;
 	return ARCHIVE_OK;
 }
@@ -255,7 +254,7 @@ int archive_read_set_skip_callback(struct archive * _a, archive_skip_callback * 
 int archive_read_set_seek_callback(struct archive * _a, archive_seek_callback * client_seeker)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_seek_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.seeker = client_seeker;
 	return ARCHIVE_OK;
 }
@@ -263,7 +262,7 @@ int archive_read_set_seek_callback(struct archive * _a, archive_seek_callback * 
 int archive_read_set_close_callback(struct archive * _a, archive_close_callback * client_closer)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_close_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.closer = client_closer;
 	return ARCHIVE_OK;
 }
@@ -271,7 +270,7 @@ int archive_read_set_close_callback(struct archive * _a, archive_close_callback 
 int archive_read_set_switch_callback(struct archive * _a, archive_switch_callback * client_switcher)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_switch_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->client.switcher = client_switcher;
 	return ARCHIVE_OK;
 }
@@ -284,11 +283,11 @@ int archive_read_set_callback_data(struct archive * _a, void * client_data)
 int archive_read_set_callback_data2(struct archive * _a, void * client_data, uint iindex)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_callback_data2");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(a->client.nodes == 0) {
 		a->client.dataset = (struct archive_read_data_node *)SAlloc::C(1, sizeof(*a->client.dataset));
 		if(a->client.dataset == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "No memory.");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		a->client.nodes = 1;
@@ -308,14 +307,14 @@ int archive_read_add_callback_data(struct archive * _a, void * client_data, uint
 	struct archive_read * a = (struct archive_read *)_a;
 	void * p;
 	uint i;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_add_callback_data");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(iindex > a->client.nodes) {
 		archive_set_error(&a->archive, EINVAL, "Invalid index specified.");
 		return ARCHIVE_FATAL;
 	}
 	p = SAlloc::R(a->client.dataset, sizeof(*a->client.dataset) * (++(a->client.nodes)));
 	if(!p) {
-		archive_set_error(&a->archive, ENOMEM, "No memory.");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	a->client.dataset = (struct archive_read_data_node *)p;
@@ -347,7 +346,7 @@ int archive_read_open1(struct archive * _a)
 	struct archive_read_filter * filter, * tmp;
 	int slot, e = ARCHIVE_OK;
 	uint i;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_open");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	archive_clear_error(&a->archive);
 	if(a->client.reader == NULL) {
 		archive_set_error(&a->archive, EINVAL, "No reader function provided to archive_read_open");
@@ -374,15 +373,14 @@ int archive_read_open1(struct archive * _a)
 	filter->upstream = NULL;
 	filter->archive = a;
 	filter->data = a->client.dataset[0].data;
-	filter->open = client_open_proxy;
-	filter->read = client_read_proxy;
+	filter->FnOpen = client_open_proxy;
+	filter->FnRead = client_read_proxy;
 	filter->skip = client_skip_proxy;
 	filter->seek = client_seek_proxy;
-	filter->close = client_close_proxy;
+	filter->FnClose = client_close_proxy;
 	filter->sswitch = client_switch_proxy;
 	filter->name = "none";
 	filter->code = ARCHIVE_FILTER_NONE;
-
 	a->client.dataset[0].begin_position = 0;
 	if(!a->filter || !a->bypass_filter_bidding) {
 		a->filter = filter;
@@ -400,7 +398,6 @@ int archive_read_open1(struct archive * _a)
 			tmp = tmp->upstream;
 		tmp->upstream = filter;
 	}
-
 	if(!a->format) {
 		slot = choose_format(a);
 		if(slot < 0) {
@@ -410,9 +407,7 @@ int archive_read_open1(struct archive * _a)
 		}
 		a->format = &(a->formats[slot]);
 	}
-
 	a->archive.state = ARCHIVE_STATE_HEADER;
-
 	/* Ensure libarchive starts from the first node in a multivolume set */
 	client_switch_proxy(a->filter, 0);
 	return (e);
@@ -491,7 +486,7 @@ static int _archive_read_next_header2(struct archive * _a, struct archive_entry 
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r1 = ARCHIVE_OK, r2;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_read_next_header");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	archive_entry_clear(entry);
 	archive_clear_error(&a->archive);
 	/*
@@ -599,7 +594,7 @@ static int choose_format(struct archive_read * a)
 la_int64_t archive_read_header_position(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, "archive_read_header_position");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	return (a->header_position);
 }
 /*
@@ -748,7 +743,7 @@ int archive_read_data_skip(struct archive * _a)
 	const void * buff;
 	size_t size;
 	int64 offset;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_skip");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->format->read_data_skip != NULL)
 		r = (a->format->read_data_skip)(a);
 	else {
@@ -764,7 +759,7 @@ int archive_read_data_skip(struct archive * _a)
 la_int64_t archive_seek_data(struct archive * _a, int64 offset, int whence)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_seek_data_block");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->format->seek_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format_seek_data_block function registered");
 		return ARCHIVE_FATAL;
@@ -782,7 +777,7 @@ la_int64_t archive_seek_data(struct archive * _a, int64 offset, int whence)
 static int _archive_read_data_block(struct archive * _a, const void ** buff, size_t * size, int64 * offset)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, "archive_read_data_block");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->format->read_data == NULL) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_PROGRAMMER, "Internal error: No format->read_data function registered");
 		return ARCHIVE_FATAL;
@@ -794,17 +789,16 @@ static int close_filters(struct archive_read * a)
 {
 	struct archive_read_filter * f = a->filter;
 	int r = ARCHIVE_OK;
-	/* Close each filter in the pipeline. */
-	while(f != NULL) {
+	// Close each filter in the pipeline
+	while(f) {
 		struct archive_read_filter * t = f->upstream;
-		if(!f->closed && f->close != NULL) {
-			int r1 = (f->close)(f);
+		if(!f->closed && f->FnClose != NULL) {
+			int r1 = (f->FnClose)(f);
 			f->closed = 1;
 			if(r1 < r)
 				r = r1;
 		}
-		SAlloc::F(f->buffer);
-		f->buffer = NULL;
+		ZFREE(f->buffer);
 		f = t;
 	}
 	return r;
@@ -841,7 +835,7 @@ static int _archive_read_close(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
-	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_close");
+	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
 	if(a->archive.state == ARCHIVE_STATE_CLOSED)
 		return ARCHIVE_OK;
 	archive_clear_error(&a->archive);
@@ -865,7 +859,7 @@ static int _archive_read_free(struct archive * _a)
 	int r = ARCHIVE_OK;
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_read_free");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
 	if(a->archive.state != ARCHIVE_STATE_CLOSED && a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_read_close(&a->archive);
 	/* Call cleanup functions registered by optional components. */
@@ -959,7 +953,7 @@ int __archive_read_register_format(struct archive_read * a, void * format_data, 
     int (*cleanup)(struct archive_read *), int (* format_capabilities)(struct archive_read *), int (* has_encrypted_entries)(struct archive_read *))
 {
 	int i, number_slots;
-	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "__archive_read_register_format");
+	archive_check_magic(&a->archive, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	number_slots = sizeof(a->formats) / sizeof(a->formats[0]);
 	for(i = 0; i < number_slots; i++) {
 		if(a->formats[i].bid == bid)
@@ -1104,7 +1098,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter, si
 				ASSIGN_PTR(avail, 0);
 				return NULL;
 			}
-			bytes_read = (filter->read)(filter, &filter->client_buff);
+			bytes_read = (filter->FnRead)(filter, &filter->client_buff);
 			if(bytes_read < 0) { /* Read error. */
 				filter->client_total = filter->client_avail = 0;
 				filter->client_next = static_cast<const char *>(filter->client_buff = NULL);
@@ -1113,7 +1107,7 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter, si
 				return NULL;
 			}
 			if(bytes_read == 0) {
-				/* Check for another client object first */
+				// Check for another client object first 
 				if(filter->archive->client.cursor != filter->archive->client.nodes - 1) {
 					if(client_switch_proxy(filter, filter->archive->client.cursor + 1) == ARCHIVE_OK)
 						continue;
@@ -1260,7 +1254,7 @@ static int64 advance_file_pointer(struct archive_read_filter * filter, int64 req
 	}
 	// Use ordinary reads as necessary to complete the request
 	for(;;) {
-		bytes_read = (filter->read)(filter, &filter->client_buff);
+		bytes_read = (filter->FnRead)(filter, &filter->client_buff);
 		if(bytes_read < 0) {
 			filter->client_buff = NULL;
 			filter->fatal = 1;

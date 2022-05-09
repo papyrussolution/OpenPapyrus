@@ -199,10 +199,10 @@ static XXH128_hash_t XXH3_mul128(uint64 ll1, uint64 ll2)
 	return r128;
 #else /* Portable scalar version */
 	/* emulate 64x64->128b multiplication, using four 32x32->64 */
-	uint32 const h1 = (uint32)(ll1 >> 32);
-	uint32 const h2 = (uint32)(ll2 >> 32);
-	uint32 const l1 = (uint32)ll1;
-	uint32 const l2 = (uint32)ll2;
+	const uint32 h1 = (uint32)(ll1 >> 32);
+	const uint32 h2 = (uint32)(ll2 >> 32);
+	const uint32 l1 = (uint32)ll1;
+	const uint32 l2 = (uint32)ll2;
 
 	uint64 const llh  = XXH_mult32to64(h1, h2);
 	uint64 const llm1 = XXH_mult32to64(l1, h2);
@@ -323,10 +323,10 @@ static uint64 XXH3_mul128_fold64(uint64 ll1, uint64 ll2)
 
 #else /* Portable scalar version */
 	/* emulate 64x64->128b multiplication, using four 32x32->64 */
-	uint32 const h1 = (uint32)(ll1 >> 32);
-	uint32 const h2 = (uint32)(ll2 >> 32);
-	uint32 const l1 = (uint32)ll1;
-	uint32 const l2 = (uint32)ll2;
+	const uint32 h1 = (uint32)(ll1 >> 32);
+	const uint32 h2 = (uint32)(ll2 >> 32);
+	const uint32 l1 = (uint32)ll1;
+	const uint32 l2 = (uint32)ll2;
 
 	uint64 const llh  = XXH_mult32to64(h1, h2);
 	uint64 const llm1 = XXH_mult32to64(l1, h2);
@@ -363,7 +363,7 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_1to3_64b(const void * data, size_t len, c
 		BYTE const c1 = ((const BYTE *)data)[0];
 	    BYTE const c2 = ((const BYTE *)data)[len >> 1];
 	    BYTE const c3 = ((const BYTE *)data)[len - 1];
-	    uint32 const combined = ((uint32)c1) + (((uint32)c2) << 8) + (((uint32)c3) << 16) + (((uint32)len) << 24);
+	    const uint32 combined = ((uint32)c1) + (((uint32)c2) << 8) + (((uint32)c3) << 16) + (((uint32)len) << 24);
 	    uint64 const keyed = (uint64)combined ^ (XXH_readLE32(keyPtr) + seed);
 	    uint64 const mixed = keyed * PRIME64_1;
 	    return XXH3_avalanche(mixed);
@@ -376,8 +376,8 @@ XXH_FORCE_INLINE XXH64_hash_t XXH3_len_4to8_64b(const void * data, size_t len, c
 	assert(keyPtr);
 	assert(checkirange(len, 4, 8));
 	{   
-		uint32 const in1 = XXH_readLE32(data);
-	    uint32 const in2 = XXH_readLE32((const BYTE *)data + len - 4);
+		const uint32 in1 = XXH_readLE32(data);
+	    const uint32 in2 = XXH_readLE32((const BYTE *)data + len - 4);
 	    uint64 const in64 = in1 + ((uint64)in2 << 32);
 	    uint64 const keyed = in64 ^ (XXH_readLE64(keyPtr) + seed);
 	    uint64 const mix64 = len + ((keyed ^ (keyed >> 51)) * PRIME32_1);
@@ -1145,8 +1145,8 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_1to3_128b(const void * data, size_t len,
 	    BYTE const c1 = ((const BYTE *)data)[0];
 	    BYTE const c2 = ((const BYTE *)data)[len >> 1];
 	    BYTE const c3 = ((const BYTE *)data)[len - 1];
-	    uint32 const combinedl = ((uint32)c1) + (((uint32)c2) << 8) + (((uint32)c3) << 16) + (((uint32)len) << 24);
-	    uint32 const combinedh = XXH_swap32(combinedl);
+	    const uint32 combinedl = ((uint32)c1) + (((uint32)c2) << 8) + (((uint32)c3) << 16) + (((uint32)len) << 24);
+	    const uint32 combinedh = XXH_swap32(combinedl);
 	    uint64 const keyedl = (uint64)combinedl ^ (XXH_readLE32(key32)   + seed);
 	    uint64 const keyedh = (uint64)combinedh ^ (XXH_readLE32(key32+1) - seed);
 	    uint64 const mixedl = keyedl * PRIME64_1;
@@ -1161,8 +1161,8 @@ XXH_FORCE_INLINE XXH128_hash_t XXH3_len_4to8_128b(const void * data, size_t len,
 	assert(keyPtr);
 	assert(checkirange(len, 4, 8));
 	{   
-		uint32 const in1 = XXH_readLE32(data);
-	    uint32 const in2 = XXH_readLE32((const BYTE *)data + len - 4);
+		const uint32 in1 = XXH_readLE32(data);
+	    const uint32 in2 = XXH_readLE32((const BYTE *)data + len - 4);
 	    uint64 const in64l = in1 + ((uint64)in2 << 32);
 	    uint64 const in64h = XXH_swap64(in64l);
 	    uint64 const keyedl = in64l ^ (XXH_readLE64(keyPtr) + seed);

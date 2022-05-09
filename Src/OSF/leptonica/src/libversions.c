@@ -127,7 +127,7 @@ char * getImagelibVersions(void)
 	if(!first) stringJoinIP(&versionStrP, " : ");
 	first = FALSE;
 	stringJoinIP(&versionStrP, "libtiff ");
-	versionNumP = strtokSafe((char*)TIFFGetVersion(), " \n", &nextTokenP);
+	versionNumP = strtokSafe((char *)TIFFGetVersion(), " \n", &nextTokenP);
 	SAlloc::F(versionNumP);
 	versionNumP = strtokSafe(NULL, " \n", &nextTokenP);
 	SAlloc::F(versionNumP);

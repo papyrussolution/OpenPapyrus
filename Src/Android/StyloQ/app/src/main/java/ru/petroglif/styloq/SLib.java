@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -39,8 +40,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputLayout;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigInteger;
@@ -2730,6 +2734,39 @@ public class SLib {
 		}
 		return result;
 	}
+	public static String durationfmt(int seconds)
+	{
+		String result = "";
+		if(seconds > 0) {
+			int days = seconds / (24 * 3600);
+			seconds = seconds % (24 * 3600);
+			int h = seconds / 3600;
+			seconds = seconds % 3600;
+			int m = seconds / 60;
+			seconds = seconds % 60;
+			if(days > 0) {
+				if(GetLen(result) > 0)
+					result += " ";
+				result += Integer.toString(days) + "days";
+			}
+			if(h > 0) {
+				if(GetLen(result) > 0)
+					result += " ";
+				result += Integer.toString(h) + "h";
+			}
+			if(m > 0) {
+				if(GetLen(result) > 0)
+					result += " ";
+				result += Integer.toString(m) + "min";
+			}
+			if(seconds > 0) {
+				if(GetLen(result) > 0)
+					result += " ";
+				result += Integer.toString(seconds) + "sec";
+			}
+		}
+		return result;
+	}
 	public static String timefmt(LTIME t, int fmt)
 	{
 		//char   fs[64];
@@ -4609,6 +4646,19 @@ public class SLib {
 			}
 		}
 		return result;
+	}
+	public static void SetupImage(Activity activity, View imgView, String blobSignature)
+	{
+		if(imgView != null && imgView instanceof ImageView) {
+			ImageView imgv = (ImageView)imgView;
+			if(SLib.GetLen(blobSignature) > 0) {
+				imgv.setVisibility(View.VISIBLE);
+				Glide.with(activity).load(GlideSupport.ModelPrefix + blobSignature).
+					/*signature(new ObjectKey(blobSignature)).*/into(imgv);
+			}
+			else
+				imgv.setVisibility(View.GONE);
+		}
 	}
 	public static String GetObjectTitle(StyloQApp ctx, int objType)
 	{

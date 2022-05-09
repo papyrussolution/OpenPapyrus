@@ -135,7 +135,7 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 	struct stat s;
 	int initial_fd = fd;
 	int r, r1;
-	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, "archive_read_disk_entry_from_file");
+	archive_check_magic(_a, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	archive_clear_error(_a);
 	path = archive_entry_sourcepath(entry);
 	if(!path)

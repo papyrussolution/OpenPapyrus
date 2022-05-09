@@ -34,7 +34,7 @@ int archive_write_open_memory(struct archive * a, void * buff, size_t buffSize, 
 {
 	struct write_memory_data * mine = (struct write_memory_data *)SAlloc::C(1, sizeof(*mine));
 	if(mine == NULL) {
-		archive_set_error(a, ENOMEM, "No memory");
+		archive_set_error(a, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	mine->buff = static_cast<uchar *>(buff);

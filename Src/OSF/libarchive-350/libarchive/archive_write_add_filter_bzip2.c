@@ -54,7 +54,7 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_bzip2");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
@@ -62,10 +62,10 @@ int archive_write_add_filter_bzip2(struct archive * _a)
 	}
 	data->compression_level = 9; /* default */
 	f->data = data;
-	f->options = &archive_compressor_bzip2_options;
-	f->close = &archive_compressor_bzip2_close;
-	f->free = &archive_compressor_bzip2_free;
-	f->open = &archive_compressor_bzip2_open;
+	f->FnOptions = &archive_compressor_bzip2_options;
+	f->FnClose = &archive_compressor_bzip2_close;
+	f->FnFree = &archive_compressor_bzip2_free;
+	f->FnOpen = &archive_compressor_bzip2_open;
 	f->code = ARCHIVE_FILTER_BZIP2;
 	f->name = "bzip2";
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
@@ -151,16 +151,16 @@ static int archive_compressor_bzip2_open(struct archive_write_filter * f)
 	memzero(&data->stream, sizeof(data->stream));
 	data->stream.next_out = data->compressed;
 	data->stream.avail_out = data->compressed_buffer_size;
-	f->write = archive_compressor_bzip2_write;
-	/* Initialize compression library */
+	f->FnWrite = archive_compressor_bzip2_write;
+	// Initialize compression library 
 	ret = BZ2_bzCompressInit(&(data->stream), data->compression_level, 0, 30);
 	if(ret == BZ_OK) {
 		f->data = data;
 		return ARCHIVE_OK;
 	}
-	/* Library setup failed: clean up. */
+	// Library setup failed: clean up.
 	archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
-	/* Override the error message if we know what really went wrong. */
+	// Override the error message if we know what really went wrong.
 	switch(ret) {
 		case BZ_PARAM_ERROR:
 		    archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid setup parameter");

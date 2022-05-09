@@ -47,7 +47,7 @@ const char* kKeyword[] = {
     "volatile",   "while",        "with",
 };
 
-static const int kNumKeyword = sizeof(kKeyword) / sizeof(char*);
+static const int kNumKeyword = sizeof(kKeyword) / sizeof(char *);
 
 namespace {
 

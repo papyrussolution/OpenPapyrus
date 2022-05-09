@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2003-2010 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2010 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -21,16 +19,14 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write.c 201099 2009-12-28 03:03:
  * far as possible, separated out into separate files to reduce
  * needlessly bloating statically-linked clients.
  */
-
 #ifdef HAVE_SYS_WAIT_H
-#include <sys/wait.h>
+	#include <sys/wait.h>
 #endif
 #ifdef HAVE_UNISTD_H
-#include <unistd.h>
+	#include <unistd.h>
 #endif
 
 static struct archive_vtable * archive_write_vtable(void);
-
 static int _archive_filter_code(struct archive *, int);
 static const char * _archive_filter_name(struct archive *, int);
 static int64  _archive_filter_bytes(struct archive *, int);
@@ -48,10 +44,10 @@ struct archive_none {
 	char * next;
 };
 
-static struct archive_vtable * archive_write_vtable(void)                               {
+static struct archive_vtable * archive_write_vtable(void)
+{
 	static struct archive_vtable av;
 	static int inited = 0;
-
 	if(!inited) {
 		av.archive_close = _archive_write_close;
 		av.archive_filter_bytes = _archive_filter_bytes;
@@ -105,8 +101,7 @@ struct archive * archive_write_new(void)                 {
 int archive_write_set_bytes_per_block(struct archive * _a, int bytes_per_block)
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_bytes_per_block");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->bytes_per_block = bytes_per_block;
 	return ARCHIVE_OK;
 }
@@ -117,8 +112,7 @@ int archive_write_set_bytes_per_block(struct archive * _a, int bytes_per_block)
 int archive_write_get_bytes_per_block(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_get_bytes_per_block");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	return (a->bytes_per_block);
 }
 
@@ -129,8 +123,7 @@ int archive_write_get_bytes_per_block(struct archive * _a)
 int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_set_bytes_in_last_block");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	a->bytes_in_last_block = bytes;
 	return ARCHIVE_OK;
 }
@@ -141,8 +134,7 @@ int archive_write_set_bytes_in_last_block(struct archive * _a, int bytes)
 int archive_write_get_bytes_in_last_block(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_get_bytes_in_last_block");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	return (a->bytes_in_last_block);
 }
 
@@ -153,8 +145,7 @@ int archive_write_get_bytes_in_last_block(struct archive * _a)
 int archive_write_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_set_skip_file");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
 	a->skip_file_ino = i;
@@ -177,12 +168,10 @@ struct archive_write_filter * __archive_write_allocate_filter(struct archive * _
 	a->filter_last = f;
 	return f;
 }
-
 /*
  * Write data to a particular filter.
  */
-int __archive_write_filter(struct archive_write_filter * f,
-    const void * buff, size_t length)
+int __archive_write_filter(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	int r;
 	/* Never write to non-open filters */
@@ -190,42 +179,36 @@ int __archive_write_filter(struct archive_write_filter * f,
 		return(ARCHIVE_FATAL);
 	if(length == 0)
 		return(ARCHIVE_OK);
-	if(f->write == NULL)
-		/* If unset, a fatal error has already occurred, so this filter
-		 * didn't open. We cannot write anything. */
-		return(ARCHIVE_FATAL);
-	r = (f->write)(f, buff, length);
+	if(f->FnWrite == NULL)
+		return(ARCHIVE_FATAL); // If unset, a fatal error has already occurred, so this filter didn't open. We cannot write anything.
+	r = (f->FnWrite)(f, buff, length);
 	f->bytes_written += length;
 	return r;
 }
-
 /*
  * Recursive function for opening the filter chain
  * Last filter is opened first
  */
 static int __archive_write_open_filter(struct archive_write_filter * f)
 {
-	int ret;
-
-	ret = ARCHIVE_OK;
+	int ret = ARCHIVE_OK;
 	if(f->next_filter != NULL)
 		ret = __archive_write_open_filter(f->next_filter);
 	if(ret != ARCHIVE_OK)
 		return ret;
 	if(f->state != ARCHIVE_WRITE_FILTER_STATE_NEW)
 		return ARCHIVE_FATAL;
-	if(f->open == NULL) {
+	if(!f->FnOpen) {
 		f->state = ARCHIVE_WRITE_FILTER_STATE_OPEN;
 		return ARCHIVE_OK;
 	}
-	ret = (f->open)(f);
+	ret = (f->FnOpen)(f);
 	if(ret == ARCHIVE_OK)
 		f->state = ARCHIVE_WRITE_FILTER_STATE_OPEN;
 	else
 		f->state = ARCHIVE_WRITE_FILTER_STATE_FATAL;
 	return ret;
 }
-
 /*
  * Open all filters
  */
@@ -239,23 +222,20 @@ static int __archive_write_filters_open(struct archive_write * a)
  */
 static int __archive_write_filters_close(struct archive_write * a)
 {
-	struct archive_write_filter * f;
-	int ret, ret1;
-	ret = ARCHIVE_OK;
-	for(f = a->filter_first; f != NULL; f = f->next_filter) {
+	int ret1;
+	int ret = ARCHIVE_OK;
+	for(struct archive_write_filter * f = a->filter_first; f; f = f->next_filter) {
 		/* Do not close filters that are not open */
 		if(f->state == ARCHIVE_WRITE_FILTER_STATE_OPEN) {
-			if(f->close != NULL) {
-				ret1 = (f->close)(f);
+			if(f->FnClose) {
+				ret1 = (f->FnClose)(f);
 				if(ret1 < ret)
 					ret = ret1;
 				if(ret1 == ARCHIVE_OK) {
-					f->state =
-					    ARCHIVE_WRITE_FILTER_STATE_CLOSED;
+					f->state = ARCHIVE_WRITE_FILTER_STATE_CLOSED;
 				}
 				else {
-					f->state =
-					    ARCHIVE_WRITE_FILTER_STATE_FATAL;
+					f->state = ARCHIVE_WRITE_FILTER_STATE_FATAL;
 				}
 			}
 			else
@@ -468,30 +448,24 @@ int archive_write_open2(struct archive * _a, void * client_data,
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * client_filter;
 	int ret, r1;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_open");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	archive_clear_error(&a->archive);
-
 	a->client_writer = writer;
 	a->client_opener = opener;
 	a->client_closer = closer;
 	a->client_freer = freer;
 	a->client_data = client_data;
-
 	client_filter = __archive_write_allocate_filter(_a);
-	client_filter->open = archive_write_client_open;
-	client_filter->write = archive_write_client_write;
-	client_filter->close = archive_write_client_close;
-	client_filter->free = archive_write_client_free;
-
+	client_filter->FnOpen = archive_write_client_open;
+	client_filter->FnWrite = archive_write_client_write;
+	client_filter->FnClose = archive_write_client_close;
+	client_filter->FnFree = archive_write_client_free;
 	ret = __archive_write_filters_open(a);
 	if(ret < ARCHIVE_WARN) {
 		r1 = __archive_write_filters_close(a);
 		__archive_write_filters_free(_a);
 		return (r1 < ret ? r1 : ret);
 	}
-
 	a->archive.state = ARCHIVE_STATE_HEADER;
 	if(a->format_init)
 		ret = (a->format_init)(a);
@@ -513,21 +487,13 @@ static int _archive_write_close(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r = ARCHIVE_OK, r1 = ARCHIVE_OK;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL,
-	    "archive_write_close");
-	if(a->archive.state == ARCHIVE_STATE_NEW
-	   || a->archive.state == ARCHIVE_STATE_CLOSED)
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
+	if(a->archive.state == ARCHIVE_STATE_NEW || a->archive.state == ARCHIVE_STATE_CLOSED)
 		return ARCHIVE_OK; /* Okay to close() when not open. */
-
 	archive_clear_error(&a->archive);
-
 	/* Finish the last entry if a finish callback is specified */
-	if(a->archive.state == ARCHIVE_STATE_DATA
-	    && a->format_finish_entry != NULL)
+	if(a->archive.state == ARCHIVE_STATE_DATA && a->format_finish_entry != NULL)
 		r = ((a->format_finish_entry)(a));
-
 	/* Finish off the archive. */
 	/* TODO: have format closers invoke compression close. */
 	if(a->format_close != NULL) {
@@ -564,8 +530,8 @@ void __archive_write_filters_free(struct archive * _a)
 	int r = ARCHIVE_OK, r1;
 	while(a->filter_first != NULL) {
 		struct archive_write_filter * next = a->filter_first->next_filter;
-		if(a->filter_first->free != NULL) {
-			r1 = (*a->filter_first->free)(a->filter_first);
+		if(a->filter_first->FnFree) {
+			r1 = (*a->filter_first->FnFree)(a->filter_first);
 			if(r > r1)
 				r = r1;
 		}
@@ -588,7 +554,7 @@ static int _archive_write_free(struct archive * _a)
 	if(_a == NULL)
 		return ARCHIVE_OK;
 	/* It is okay to call SAlloc::F() in state FATAL. */
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_free");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
 	if(a->archive.state != ARCHIVE_STATE_FATAL)
 		r = archive_write_close(&a->archive);
 	/* Release format resources. */
@@ -619,7 +585,7 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret, r2;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_DATA | ARCHIVE_STATE_HEADER, "archive_write_header");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_DATA | ARCHIVE_STATE_HEADER, __FUNCTION__);
 	archive_clear_error(&a->archive);
 	if(a->format_write_header == NULL) {
 		archive_set_error(&(a->archive), -1, "Format must be set before you can write to an archive.");
@@ -650,7 +616,6 @@ static int _archive_write_header(struct archive * _a, struct archive_entry * ent
 	}
 	if(r2 < ret)
 		ret = r2;
-
 	a->archive.state = ARCHIVE_STATE_DATA;
 	return ret;
 }
@@ -659,17 +624,12 @@ static int _archive_write_finish_entry(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int ret = ARCHIVE_OK;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_finish_entry");
-	if(a->archive.state & ARCHIVE_STATE_DATA
-	    && a->format_finish_entry != NULL)
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
+	if(a->archive.state & ARCHIVE_STATE_DATA && a->format_finish_entry != NULL)
 		ret = (a->format_finish_entry)(a);
 	a->archive.state = ARCHIVE_STATE_HEADER;
 	return ret;
 }
-
 /*
  * Note that the compressor is responsible for blocking.
  */
@@ -677,9 +637,7 @@ static ssize_t _archive_write_data(struct archive * _a, const void * buff, size_
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	const size_t max_write = INT_MAX;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_DATA, "archive_write_data");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	/* In particular, this catches attempts to pass negative values. */
 	if(s > max_write)
 		s = max_write;

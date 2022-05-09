@@ -7110,7 +7110,7 @@ static int zipfileConnect(sqlite3 * db,
 		pNew->db = db;
 		pNew->aBuffer = (u8*)&pNew[1];
 		if(zFile) {
-			pNew->zFile = (char*)&pNew->aBuffer[ZIPFILE_BUFFER_SIZE];
+			pNew->zFile = (char *)&pNew->aBuffer[ZIPFILE_BUFFER_SIZE];
 			memcpy(pNew->zFile, zFile, nFile);
 			zipfileDequote(pNew->zFile);
 		}
@@ -8744,7 +8744,7 @@ void zipfileStep(sqlite3_context * pCtx, int nVal, sqlite3_value ** apVal){
 	}
 
 	/* Check that the 'name' parameter looks ok. */
-	zName = (char*)sqlite3_value_text(pName);
+	zName = (char *)sqlite3_value_text(pName);
 	nName = sqlite3_value_bytes(pName);
 	if(zName==0) {
 		zErr = sqlite3_mprintf("first argument to zipfile() must be non-NULL");
@@ -9493,7 +9493,7 @@ static int idxHashAdd(int * pRc,
 	}
 	pEntry = idxMalloc(pRc, sizeof(IdxHashEntry) + nKey+1 + nVal+1);
 	if(pEntry) {
-		pEntry->zKey = (char*)&pEntry[1];
+		pEntry->zKey = (char *)&pEntry[1];
 		memcpy(pEntry->zKey, zKey, nKey);
 		if(zVal) {
 			pEntry->zVal = &pEntry->zKey[nKey+1];
@@ -9549,7 +9549,7 @@ static IdxConstraint * idxNewConstraint(int * pRc, const char * zColl){
 	assert(*pRc==SQLITE_OK);
 	pNew = (IdxConstraint*)idxMalloc(pRc, sizeof(IdxConstraint) * nColl + 1);
 	if(pNew) {
-		pNew->zColl = (char*)&pNew[1];
+		pNew->zColl = (char *)&pNew[1];
 		memcpy(pNew->zColl, zColl, nColl+1);
 	}
 	return pNew;
@@ -9970,7 +9970,7 @@ static int idxGetTableInfo(sqlite3 * db,                    /* Database connecti
 	if(rc==SQLITE_OK) {
 		pNew->aCol = (IdxColumn*)&pNew[1];
 		pNew->nCol = nCol;
-		pCsr = (char*)&pNew->aCol[nCol];
+		pCsr = (char *)&pNew->aCol[nCol];
 	}
 
 	nCol = 0;
@@ -10029,7 +10029,7 @@ static char * idxAppendText(int * pRc, char * zIn, const char * zFmt, ...){
 		zAppend = sqlite3_vmprintf(zFmt, ap);
 		if(zAppend) {
 			nAppend = STRLEN(zAppend);
-			zRet = (char*)sqlite3_malloc(nIn + nAppend + 1);
+			zRet = (char *)sqlite3_malloc(nIn + nAppend + 1);
 		}
 		if(zAppend && zRet) {
 			if(nIn) memcpy(zRet, zIn, nIn);
@@ -10727,7 +10727,7 @@ static void idxRemFunc(sqlite3_context * pCtx, int argc, sqlite3_value ** argv)
 		case SQLITE_TEXT: {
 		    int nByte = sqlite3_value_bytes(argv[1]);
 		    if(nByte>pSlot->nByte) {
-			    char * zNew = (char*)sqlite3_realloc(pSlot->z, nByte*2);
+			    char * zNew = (char *)sqlite3_realloc(pSlot->z, nByte*2);
 			    if(zNew==0) {
 				    sqlite3_result_error_nomem(pCtx);
 				    return;
@@ -11096,7 +11096,7 @@ int sqlite3_expert_sql(sqlite3expert * p,               /* From sqlite3_expert_n
 				int n = STRLEN(z);
 				pNew = (IdxStatement*)idxMalloc(&rc, sizeof(IdxStatement) + n+1);
 				if(rc==SQLITE_OK) {
-					pNew->zSql = (char*)&pNew[1];
+					pNew->zSql = (char *)&pNew[1];
 					memcpy(pNew->zSql, z, n+1);
 					pNew->pNext = p->pStatement;
 					if(p->pStatement) pNew->iId = p->pStatement->iId+1;
@@ -12496,7 +12496,7 @@ static void outputModePop(ShellState * p){
 */
 static void output_hex_blob(FILE * out, const void * pBlob, int nBlob){
 	int i;
-	char * zBlob = (char*)pBlob;
+	char * zBlob = (char *)pBlob;
 	raw_printf(out, "X'");
 	for(i = 0; i<nBlob; i++) {
 		raw_printf(out, "%02x", zBlob[i]&0xff);
@@ -14182,7 +14182,7 @@ static void exec_prepared_stmt_columnar(ShellState * p,                        /
 	nColumn = sqlite3_column_count(pStmt);
 	nAlloc = nColumn*4;
 	if(nAlloc<=0) nAlloc = 1;
-	azData = (char **)sqlite3_malloc64(nAlloc*sizeof(char*) );
+	azData = (char **)sqlite3_malloc64(nAlloc*sizeof(char *) );
 	if(azData==0) shell_out_of_memory();
 	for(i = 0; i<nColumn; i++) {
 		azData[i] = strdup(sqlite3_column_name(pStmt, i));
@@ -14190,7 +14190,7 @@ static void exec_prepared_stmt_columnar(ShellState * p,                        /
 	do {
 		if((nRow+2)*nColumn >= nAlloc) {
 			nAlloc *= 2;
-			azData = (char **)sqlite3_realloc64(azData, nAlloc*sizeof(char*));
+			azData = (char **)sqlite3_realloc64(azData, nAlloc*sizeof(char *));
 			if(azData==0) shell_out_of_memory();
 		}
 		nRow++;
@@ -14353,7 +14353,7 @@ static void exec_prepared_stmt(ShellState * pArg,                               
 			assert(sizeof(int) <= sizeof(char *));
 			/* save off ptrs to column names */
 			for(i = 0; i<nCol; i++) {
-				azCols[i] = (char*)sqlite3_column_name(pStmt, i);
+				azCols[i] = (char *)sqlite3_column_name(pStmt, i);
 			}
 			do {
 				/* extract the data and data types */
@@ -14363,7 +14363,7 @@ static void exec_prepared_stmt(ShellState * pArg,                               
 						azVals[i] = "";
 					}
 					else {
-						azVals[i] = (char*)sqlite3_column_text(pStmt, i);
+						azVals[i] = (char *)sqlite3_column_text(pStmt, i);
 					}
 					if(!azVals[i] && (aiTypes[i]!=SQLITE_NULL)) {
 						rc = SQLITE_NOMEM;
@@ -15636,7 +15636,7 @@ static void shellEscapeCrnl(sqlite3_context * context,
 			int iOut = 0;
 			i64 nMax = (nNL > nCR) ? nNL : nCR;
 			i64 nAlloc = nMax * nText + (nMax+64)*2;
-			char * zOut = (char*)sqlite3_malloc64(nAlloc);
+			char * zOut = (char *)sqlite3_malloc64(nAlloc);
 			if(zOut==0) {
 				sqlite3_result_error_nomem(context);
 				return;
@@ -18099,7 +18099,7 @@ static RecoverTable * recoverNewTable(int * pRc,                       /* IN/OUT
 			}
 
 			pTab->zQuoted = shellMPrintf(&rc, "\"%w\"", zName);
-			pTab->azlCol = (char**)shellMalloc(&rc, sizeof(char*) * (nSqlCol+1));
+			pTab->azlCol = (char**)shellMalloc(&rc, sizeof(char *) * (nSqlCol+1));
 			pTab->nCol = nSqlCol;
 
 			if(bIntkey) {
@@ -18226,7 +18226,7 @@ static RecoverTable * recoverOrphanTable(ShellState * pState,             /* She
 			pTab->nCol = nCol;
 			pTab->iPk = -2;
 			if(nCol>0) {
-				pTab->azlCol = (char**)shellMalloc(pRc, sizeof(char*) * (nCol+1));
+				pTab->azlCol = (char**)shellMalloc(pRc, sizeof(char *) * (nCol+1));
 				if(pTab->azlCol) {
 					pTab->azlCol[nCol] = shellMPrintf(pRc, "");
 					for(i = nCol-1; i>=0; i--) {
@@ -18843,7 +18843,7 @@ static int do_meta_command(char * zLine, ShellState * p){
 			while(sqlite3_step(pStmt)==SQLITE_ROW) {
 				const char * zSchema = (const char*)sqlite3_column_text(pStmt, 1);
 				const char * zFile = (const char*)sqlite3_column_text(pStmt, 2);
-				azName = (char **)sqlite3_realloc(azName, (nName+1)*2*sizeof(char*));
+				azName = (char **)sqlite3_realloc(azName, (nName+1)*2*sizeof(char *));
 				if(azName==0) {
 					shell_out_of_memory(); /* Does not return */
 				}

@@ -34,7 +34,7 @@
 
 #define ZSTDv07_WINDOWLOG_MAX_32  25
 #define ZSTDv07_WINDOWLOG_MAX_64  27
-#define ZSTDv07_WINDOWLOG_MAX    ((U32)(MEM_32bits() ? ZSTDv07_WINDOWLOG_MAX_32 : ZSTDv07_WINDOWLOG_MAX_64))
+#define ZSTDv07_WINDOWLOG_MAX    ((uint32)(MEM_32bits() ? ZSTDv07_WINDOWLOG_MAX_32 : ZSTDv07_WINDOWLOG_MAX_64))
 #define ZSTDv07_WINDOWLOG_MIN     18
 #define ZSTDv07_CHAINLOG_MAX     (ZSTDv07_WINDOWLOG_MAX+1)
 #define ZSTDv07_CHAINLOG_MIN       4
@@ -199,10 +199,9 @@ ZSTDLIBv07_API size_t ZSTDv07_insertBlock(ZSTDv07_DCtx* dctx, const void* blockS
 #if defined (__cplusplus)
 extern "C" {
 #endif
-
-/*-****************************************
-*  Compiler specifics
-******************************************/
+//
+// Compiler specifics
+//
 #if defined(__GNUC__)
 	#define MEM_STATIC static __attribute__((unused))
 #elif defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
@@ -212,37 +211,34 @@ extern "C" {
 #else
 	#define MEM_STATIC static  /* this version may generate warnings for unused static functions; disable the relevant warning */
 #endif
-
-/*-**************************************************************
- *  Basic Types
- *****************************************************************/
-#if  !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99
-                                                                                                                   */    ) )
+//
+// Basic Types
+//
+#if  !defined (__VMS) && (defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99*/))
 #if defined(_AIX)
 	#include <inttypes.h>
 #else
 	#include <stdint.h> /* intptr_t */
 #endif
 typedef  uint8_t BYTE;
-typedef uint16_t U16;
-typedef  int16_t S16;
-typedef uint32_t U32;
-typedef  int32_t S32;
-typedef uint64_t U64;
-typedef  int64_t S64;
+//typedef uint16_t U16_Removed;
+//typedef  int16_t S16_Removed;
+//typedef uint32_t U32_Removed;
+//typedef  int32_t S32_Removed;
+//typedef uint64_t U64_Removed;
+//typedef  int64_t S64_Removed;
 #else
 typedef unsigned char BYTE;
-typedef unsigned short U16;
-typedef   signed short S16;
-typedef unsigned int U32;
-typedef   signed int S32;
-typedef unsigned long long U64;
-typedef   signed long long S64;
+//typedef unsigned short U16_Removed;
+//typedef signed short   S16_Removed;
+//typedef unsigned int   U32_Removed;
+//typedef signed int     S32_Removed;
+//typedef unsigned long long U64_Removed;
+//typedef signed long long S64_Removed;
 #endif
-
-/*-**************************************************************
- *  Memory I/O
- *****************************************************************/
+//
+// Memory I/O
+//
 /* MEM_FORCE_MEMORY_ACCESS :
  * By default, access to unaligned memory is controlled by `memcpy()`, which is safe and portable.
  * Unfortunately, on some target/compiler combinations, the generated assembly is sub-optimal.
@@ -267,7 +263,7 @@ MEM_STATIC unsigned MEM_64bits() { return sizeof(size_t)==8; }
 
 MEM_STATIC unsigned MEM_isLittleEndian()
 {
-	const union { U32 u; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
+	const union { uint32 u; BYTE c[4]; } one = { 1 }; /* don't use static : performance detrimental  */
 	return one.c[0];
 }
 
@@ -275,61 +271,50 @@ MEM_STATIC unsigned MEM_isLittleEndian()
 
 /* violates C standard, by lying on structure alignment.
    Only use if no other choice to achieve best performance on target platform */
-MEM_STATIC U16 MEM_read16(const void* memPtr) { return *(const U16*)memPtr; }
-MEM_STATIC U32 MEM_read32(const void* memPtr) { return *(const U32*)memPtr; }
-MEM_STATIC U64 MEM_read64(const void* memPtr) { return *(const U64*)memPtr; }
-MEM_STATIC void MEM_write16(void* memPtr, U16 value) { *(U16*)memPtr = value; }
+MEM_STATIC uint16 MEM_read16(const void* memPtr) { return *(const uint16*)memPtr; }
+MEM_STATIC uint32 MEM_read32(const void* memPtr) { return *(const uint32*)memPtr; }
+MEM_STATIC uint64 MEM_read64(const void* memPtr) { return *(const uint64*)memPtr; }
+MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { *(uint16*)memPtr = value; }
 
 #elif defined(MEM_FORCE_MEMORY_ACCESS) && (MEM_FORCE_MEMORY_ACCESS==1)
 
 /* __pack instructions are safer, but compiler specific, hence potentially problematic for some compilers */
 /* currently only defined for gcc and icc */
-typedef union { U16 u16; U32 u32; U64 u64; size_t st; } __attribute__((packed)) unalign;
+typedef union { uint16 u16; uint32 u32; uint64 u64; size_t st; } __attribute__((packed)) unalign;
 
-MEM_STATIC U16 MEM_read16(const void* ptr) {
-	return ((const unalign*)ptr)->u16;
-}
-
-MEM_STATIC U32 MEM_read32(const void* ptr) {
-	return ((const unalign*)ptr)->u32;
-}
-
-MEM_STATIC U64 MEM_read64(const void* ptr) {
-	return ((const unalign*)ptr)->u64;
-}
-
-MEM_STATIC void MEM_write16(void* memPtr, U16 value) {
-	((unalign*)memPtr)->u16 = value;
-}
+MEM_STATIC uint16 MEM_read16(const void* ptr) { return ((const unalign*)ptr)->u16; }
+MEM_STATIC uint32 MEM_read32(const void* ptr) { return ((const unalign*)ptr)->u32; }
+MEM_STATIC uint64 MEM_read64(const void* ptr) { return ((const unalign*)ptr)->u64; }
+MEM_STATIC void MEM_write16(void* memPtr, uint16 value) { ((unalign*)memPtr)->u16 = value; }
 
 #else
 
 /* default method, safe and standard.
    can sometimes prove slower */
 
-MEM_STATIC U16 MEM_read16(const void* memPtr)
+MEM_STATIC uint16 MEM_read16(const void* memPtr)
 {
-	U16 val; memcpy(&val, memPtr, sizeof(val)); return val;
+	uint16 val; memcpy(&val, memPtr, sizeof(val)); return val;
 }
 
-MEM_STATIC U32 MEM_read32(const void* memPtr)
+MEM_STATIC uint32 MEM_read32(const void* memPtr)
 {
-	U32 val; memcpy(&val, memPtr, sizeof(val)); return val;
+	uint32 val; memcpy(&val, memPtr, sizeof(val)); return val;
 }
 
-MEM_STATIC U64 MEM_read64(const void* memPtr)
+MEM_STATIC uint64 MEM_read64(const void* memPtr)
 {
-	U64 val; memcpy(&val, memPtr, sizeof(val)); return val;
+	uint64 val; memcpy(&val, memPtr, sizeof(val)); return val;
 }
 
-MEM_STATIC void MEM_write16(void* memPtr, U16 value)
+MEM_STATIC void MEM_write16(void* memPtr, uint16 value)
 {
 	memcpy(memPtr, &value, sizeof(value));
 }
 
 #endif /* MEM_FORCE_MEMORY_ACCESS */
 
-MEM_STATIC U32 MEM_swap32(U32 in)
+MEM_STATIC uint32 MEM_swap32(uint32 in)
 {
 #if defined(_MSC_VER)     /* Visual Studio */
 	return _byteswap_ulong(in);
@@ -343,7 +328,7 @@ MEM_STATIC U32 MEM_swap32(U32 in)
 #endif
 }
 
-MEM_STATIC U64 MEM_swap64(U64 in)
+MEM_STATIC uint64 MEM_swap64(uint64 in)
 {
 #if defined(_MSC_VER)     /* Visual Studio */
 	return _byteswap_uint64(in);
@@ -363,17 +348,17 @@ MEM_STATIC U64 MEM_swap64(U64 in)
 
 /*=== Little endian r/w ===*/
 
-MEM_STATIC U16 MEM_readLE16(const void* memPtr)
+MEM_STATIC uint16 MEM_readLE16(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
 		return MEM_read16(memPtr);
 	else {
 		const BYTE* p = (const BYTE*)memPtr;
-		return (U16)(p[0] + (p[1]<<8));
+		return (uint16)(p[0] + (p[1]<<8));
 	}
 }
 
-MEM_STATIC void MEM_writeLE16(void* memPtr, U16 val)
+MEM_STATIC void MEM_writeLE16(void* memPtr, uint16 val)
 {
 	if(MEM_isLittleEndian()) {
 		MEM_write16(memPtr, val);
@@ -385,7 +370,7 @@ MEM_STATIC void MEM_writeLE16(void* memPtr, U16 val)
 	}
 }
 
-MEM_STATIC U32 MEM_readLE32(const void* memPtr)
+MEM_STATIC uint32 MEM_readLE32(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
 		return MEM_read32(memPtr);
@@ -393,7 +378,7 @@ MEM_STATIC U32 MEM_readLE32(const void* memPtr)
 		return MEM_swap32(MEM_read32(memPtr));
 }
 
-MEM_STATIC U64 MEM_readLE64(const void* memPtr)
+MEM_STATIC uint64 MEM_readLE64(const void* memPtr)
 {
 	if(MEM_isLittleEndian())
 		return MEM_read64(memPtr);
@@ -461,9 +446,9 @@ extern "C" {
 **********************************************/
 typedef struct {
 	size_t bitContainer;
-	unsigned bitsConsumed;
-	const char* ptr;
-	const char* start;
+	uint   bitsConsumed;
+	const char * ptr;
+	const char * start;
 } BITv07_DStream_t;
 
 typedef enum { BITv07_DStream_unfinished = 0,
@@ -473,20 +458,20 @@ typedef enum { BITv07_DStream_unfinished = 0,
 /* 1,2,4,8 would be better for bitmap combinations, but slows down performance a bit ... :( */
 
 MEM_STATIC size_t   BITv07_initDStream(BITv07_DStream_t* bitD, const void* srcBuffer, size_t srcSize);
-MEM_STATIC size_t   BITv07_readBits(BITv07_DStream_t* bitD, unsigned nbBits);
+MEM_STATIC size_t   BITv07_readBits(BITv07_DStream_t* bitD, uint nbBits);
 MEM_STATIC BITv07_DStream_status BITv07_reloadDStream(BITv07_DStream_t* bitD);
 MEM_STATIC unsigned BITv07_endOfDStream(const BITv07_DStream_t* bitD);
 
 /*-****************************************
 *  unsafe API
 ******************************************/
-MEM_STATIC size_t BITv07_readBitsFast(BITv07_DStream_t* bitD, unsigned nbBits);
+MEM_STATIC size_t BITv07_readBitsFast(BITv07_DStream_t* bitD, uint nbBits);
 /* faster, but works only if nbBits >= 1 */
 
 /*-**************************************************************
 *  Internal functions
 ****************************************************************/
-MEM_STATIC unsigned BITv07_highbit32(U32 val)
+MEM_STATIC unsigned BITv07_highbit32(uint32 val)
 {
 #   if defined(_MSC_VER)   /* Visual */
 	unsigned long r;
@@ -496,13 +481,13 @@ MEM_STATIC unsigned BITv07_highbit32(U32 val)
 #   else   /* Software version */
 	static const unsigned DeBruijnClz[32] =
 	{ 0, 9, 1, 10, 13, 21, 2, 29, 11, 14, 16, 18, 22, 25, 3, 30, 8, 12, 20, 28, 15, 17, 24, 7, 19, 27, 23, 6, 26, 5, 4, 31 };
-	U32 v = val;
+	uint32 v = val;
 	v |= v >> 1;
 	v |= v >> 2;
 	v |= v >> 4;
 	v |= v >> 8;
 	v |= v >> 16;
-	return DeBruijnClz[ (U32)(v * 0x07C4ACDDU) >> 27];
+	return DeBruijnClz[ (uint32)(v * 0x07C4ACDDU) >> 27];
 #   endif
 }
 
@@ -525,59 +510,57 @@ MEM_STATIC size_t BITv07_initDStream(BITv07_DStream_t* bitD, const void* srcBuff
 		bitD->start = (const char*)srcBuffer;
 		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(bitD->bitContainer);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
-		{ BYTE const lastByte = ((const BYTE*)srcBuffer)[srcSize-1];
-		  bitD->bitsConsumed = lastByte ? 8 - BITv07_highbit32(lastByte) : 0;
-		  if(lastByte == 0) return ERROR(GENERIC); /* endMark not present */ }
+		{ 
+			BYTE const lastByte = ((const BYTE*)srcBuffer)[srcSize-1];
+			bitD->bitsConsumed = lastByte ? 8 - BITv07_highbit32(lastByte) : 0;
+			if(lastByte == 0) 
+				return ERROR(GENERIC); /* endMark not present */ 
+		}
 	}
 	else {
 		bitD->start = (const char*)srcBuffer;
 		bitD->ptr   = bitD->start;
 		bitD->bitContainer = *(const BYTE*)(bitD->start);
-		switch(srcSize)
-		{
-			case 7: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16);/*
-			                                                                                                                fall-through
-			                                                                                                                */
-			case 6: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24);/*
-			                                                                                                                fall-through
-			                                                                                                                */
-			case 5: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32);/*
-			                                                                                                                fall-through
-			                                                                                                                */
+		switch(srcSize) {
+			case 7: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16); /* fall-through */
+			case 6: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24); /* fall-through */
+			case 5: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32); /* fall-through */
 			case 4: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[3]) << 24; /* fall-through */
 			case 3: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[2]) << 16; /* fall-through */
-			case 2: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[1]) <<  8;/* fall-through */
+			case 2: bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[1]) <<  8; /* fall-through */
 			default: break;
 		}
-		{ BYTE const lastByte = ((const BYTE*)srcBuffer)[srcSize-1];
-		  bitD->bitsConsumed = lastByte ? 8 - BITv07_highbit32(lastByte) : 0;
-		  if(lastByte == 0) return ERROR(GENERIC); /* endMark not present */ }
-		bitD->bitsConsumed += (U32)(sizeof(bitD->bitContainer) - srcSize)*8;
+		{ 
+			BYTE const lastByte = ((const BYTE*)srcBuffer)[srcSize-1];
+			bitD->bitsConsumed = lastByte ? 8 - BITv07_highbit32(lastByte) : 0;
+			if(lastByte == 0) 
+				return ERROR(GENERIC); /* endMark not present */ 
+		}
+		bitD->bitsConsumed += (uint32)(sizeof(bitD->bitContainer) - srcSize)*8;
 	}
-
 	return srcSize;
 }
 
-MEM_STATIC size_t BITv07_lookBits(const BITv07_DStream_t* bitD, U32 nbBits)
+MEM_STATIC size_t BITv07_lookBits(const BITv07_DStream_t* bitD, uint nbBits)
 {
-	U32 const bitMask = sizeof(bitD->bitContainer)*8 - 1;
+	const uint32 bitMask = sizeof(bitD->bitContainer)*8 - 1;
 	return ((bitD->bitContainer << (bitD->bitsConsumed & bitMask)) >> 1) >> ((bitMask-nbBits) & bitMask);
 }
 
 /*! BITv07_lookBitsFast() :
  *   unsafe version; only works if nbBits >= 1 */
-MEM_STATIC size_t BITv07_lookBitsFast(const BITv07_DStream_t* bitD, U32 nbBits)
+MEM_STATIC size_t BITv07_lookBitsFast(const BITv07_DStream_t* bitD, uint32 nbBits)
 {
-	U32 const bitMask = sizeof(bitD->bitContainer)*8 - 1;
+	const uint32 bitMask = sizeof(bitD->bitContainer)*8 - 1;
 	return (bitD->bitContainer << (bitD->bitsConsumed & bitMask)) >> (((bitMask+1)-nbBits) & bitMask);
 }
 
-MEM_STATIC void BITv07_skipBits(BITv07_DStream_t* bitD, U32 nbBits)
+MEM_STATIC void BITv07_skipBits(BITv07_DStream_t* bitD, uint nbBits)
 {
 	bitD->bitsConsumed += nbBits;
 }
 
-MEM_STATIC size_t BITv07_readBits(BITv07_DStream_t* bitD, U32 nbBits)
+MEM_STATIC size_t BITv07_readBits(BITv07_DStream_t* bitD, uint nbBits)
 {
 	const size_t value = BITv07_lookBits(bitD, nbBits);
 	BITv07_skipBits(bitD, nbBits);
@@ -586,7 +569,7 @@ MEM_STATIC size_t BITv07_readBits(BITv07_DStream_t* bitD, U32 nbBits)
 
 /*! BITv07_readBitsFast() :
  *   unsafe version; only works if nbBits >= 1 */
-MEM_STATIC size_t BITv07_readBitsFast(BITv07_DStream_t* bitD, U32 nbBits)
+MEM_STATIC size_t BITv07_readBitsFast(BITv07_DStream_t* bitD, uint nbBits)
 {
 	const size_t value = BITv07_lookBitsFast(bitD, nbBits);
 	BITv07_skipBits(bitD, nbBits);
@@ -597,7 +580,6 @@ MEM_STATIC BITv07_DStream_status BITv07_reloadDStream(BITv07_DStream_t* bitD)
 {
 	if(bitD->bitsConsumed > (sizeof(bitD->bitContainer)*8)) /* should not happen => corruption detected */
 		return BITv07_DStream_overflow;
-
 	if(bitD->ptr >= bitD->start + sizeof(bitD->bitContainer)) {
 		bitD->ptr -= bitD->bitsConsumed >> 3;
 		bitD->bitsConsumed &= 7;
@@ -608,10 +590,10 @@ MEM_STATIC BITv07_DStream_status BITv07_reloadDStream(BITv07_DStream_t* bitD)
 		if(bitD->bitsConsumed < sizeof(bitD->bitContainer)*8) return BITv07_DStream_endOfBuffer;
 		return BITv07_DStream_completed;
 	}
-	{   U32 nbBytes = bitD->bitsConsumed >> 3;
+	{   uint32 nbBytes = bitD->bitsConsumed >> 3;
 	    BITv07_DStream_status result = BITv07_DStream_unfinished;
 	    if(bitD->ptr - nbBytes < bitD->start) {
-		    nbBytes = (U32)(bitD->ptr - bitD->start); /* ptr > start */
+		    nbBytes = (uint32)(bitD->ptr - bitD->start); /* ptr > start */
 		    result = BITv07_DStream_endOfBuffer;
 	    }
 	    bitD->ptr -= nbBytes;
@@ -675,11 +657,11 @@ extern "C" {
     Why ? : making this distinction requires a header.
     Header management is intentionally delegated to the user layer, which can better manage special cases.
  */
-size_t FSEv07_decompress(void* dst,  size_t dstCapacity,
-    const void* cSrc, size_t cSrcSize);
-
-/* Error Management */
-unsigned    FSEv07_isError(size_t code);        /* tells if a return value is an error code */
+size_t FSEv07_decompress(void* dst,  size_t dstCapacity, const void* cSrc, size_t cSrcSize);
+//
+// Error Management
+//
+uint FSEv07_isError(size_t code); /* tells if a return value is an error code */
 const char* FSEv07_getErrorName(size_t code);   /* provides error code string (useful for debugging) */
 
 /*-*****************************************
@@ -703,19 +685,17 @@ const char* FSEv07_getErrorName(size_t code);   /* provides error code string (u
     @return : size read from 'rBuffer',
               or an errorCode, which can be tested using FSEv07_isError().
               maxSymbolValuePtr[0] and tableLogPtr[0] will also be updated with their respective values */
-size_t FSEv07_readNCount(short* normalizedCounter, unsigned* maxSymbolValuePtr, unsigned* tableLogPtr, const void* rBuffer,
-    size_t rBuffSize);
+size_t FSEv07_readNCount(short * normalizedCounter, uint * maxSymbolValuePtr, uint * tableLogPtr, const void * rBuffer, size_t rBuffSize);
 
-/*! Constructor and Destructor of FSEv07_DTable.
-    Note that its size depends on 'tableLog' */
-typedef unsigned FSEv07_DTable;   /* don't allocate that. It's just a way to be more restrictive than void* */
-FSEv07_DTable* FSEv07_createDTable(unsigned tableLog);
-void        FSEv07_freeDTable(FSEv07_DTable* dt);
+/*! Constructor and Destructor of FSEv07_DTable. Note that its size depends on 'tableLog' */
+typedef uint FSEv07_DTable;   /* don't allocate that. It's just a way to be more restrictive than void* */
+FSEv07_DTable * FSEv07_createDTable(uint tableLog);
+void FSEv07_freeDTable(FSEv07_DTable * dt);
 
 /*! FSEv07_buildDTable():
     Builds 'dt', which must be already allocated, using FSEv07_createDTable().
     return : 0, or an errorCode, which can be tested using FSEv07_isError() */
-size_t FSEv07_buildDTable(FSEv07_DTable* dt, const short* normalizedCounter, unsigned maxSymbolValue, unsigned tableLog);
+size_t FSEv07_buildDTable(FSEv07_DTable* dt, const short * normalizedCounter, uint maxSymbolValue, uint tableLog);
 
 /*! FSEv07_decompress_usingDTable():
     Decompress compressed source `cSrc` of size `cSrcSize` using `dt`
@@ -785,31 +765,29 @@ size_t FSEv07_buildDTable_rle(FSEv07_DTable* dt, unsigned char symbolValue);
 *******************************************/
 typedef struct {
 	size_t state;
-	const void* table; /* precise table may vary, depending on U16 */
+	const void* table; /* precise table may vary, depending on uint16 */
 } FSEv07_DState_t;
 
-static void     FSEv07_initDState(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD, const FSEv07_DTable* dt);
-
-static unsigned char FSEv07_decodeSymbol(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD);
-
-/* *****************************************
-*  FSE unsafe API
-*******************************************/
-static unsigned char FSEv07_decodeSymbolFast(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD);
+static void FSEv07_initDState(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD, const FSEv07_DTable* dt);
+static BYTE FSEv07_decodeSymbol(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD);
+//
+// FSE unsafe API
+//
+static BYTE FSEv07_decodeSymbolFast(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD);
 /* faster, but works only if nbBits is always >= 1 (otherwise, result will be corrupted) */
 
 /* ======    Decompression    ====== */
 
 typedef struct {
-	U16 tableLog;
-	U16 fastMode;
-} FSEv07_DTableHeader;   /* sizeof U32 */
+	uint16 tableLog;
+	uint16 fastMode;
+} FSEv07_DTableHeader;   /* sizeof uint32 */
 
 typedef struct {
-	unsigned short newState;
-	unsigned char symbol;
-	unsigned char nbBits;
-} FSEv07_decode_t;   /* size == U32 */
+	ushort newState;
+	uchar symbol;
+	uchar nbBits;
+} FSEv07_decode_t;   /* size == uint32 */
 
 MEM_STATIC void FSEv07_initDState(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD, const FSEv07_DTable* dt)
 {
@@ -829,7 +807,7 @@ MEM_STATIC BYTE FSEv07_peekSymbol(const FSEv07_DState_t* DStatePtr)
 MEM_STATIC void FSEv07_updateState(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD)
 {
 	FSEv07_decode_t const DInfo = ((const FSEv07_decode_t*)(DStatePtr->table))[DStatePtr->state];
-	U32 const nbBits = DInfo.nbBits;
+	const uint32 nbBits = DInfo.nbBits;
 	const size_t lowBits = BITv07_readBits(bitD, nbBits);
 	DStatePtr->state = DInfo.newState + lowBits;
 }
@@ -837,10 +815,9 @@ MEM_STATIC void FSEv07_updateState(FSEv07_DState_t* DStatePtr, BITv07_DStream_t*
 MEM_STATIC BYTE FSEv07_decodeSymbol(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD)
 {
 	FSEv07_decode_t const DInfo = ((const FSEv07_decode_t*)(DStatePtr->table))[DStatePtr->state];
-	U32 const nbBits = DInfo.nbBits;
+	const uint32 nbBits = DInfo.nbBits;
 	BYTE const symbol = DInfo.symbol;
 	const size_t lowBits = BITv07_readBits(bitD, nbBits);
-
 	DStatePtr->state = DInfo.newState + lowBits;
 	return symbol;
 }
@@ -850,19 +827,17 @@ MEM_STATIC BYTE FSEv07_decodeSymbol(FSEv07_DState_t* DStatePtr, BITv07_DStream_t
 MEM_STATIC BYTE FSEv07_decodeSymbolFast(FSEv07_DState_t* DStatePtr, BITv07_DStream_t* bitD)
 {
 	FSEv07_decode_t const DInfo = ((const FSEv07_decode_t*)(DStatePtr->table))[DStatePtr->state];
-	U32 const nbBits = DInfo.nbBits;
-	BYTE const symbol = DInfo.symbol;
+	const uint32 nbBits = DInfo.nbBits;
+	const BYTE symbol = DInfo.symbol;
 	const size_t lowBits = BITv07_readBitsFast(bitD, nbBits);
-
 	DStatePtr->state = DInfo.newState + lowBits;
 	return symbol;
 }
 
 #ifndef FSEv07_COMMONDEFS_ONLY
-
-/* **************************************************************
-*  Tuning parameters
-****************************************************************/
+//
+// Tuning parameters
+//
 /*!MEMORY_USAGE :
  *  Memory usage formula : N->2^N Bytes (examples : 10 -> 1KB; 12 -> 4KB ; 16 -> 64KB; 20 -> 1MB; etc.)
  *  Increasing memory usage improves compression ratio
@@ -875,10 +850,9 @@ MEM_STATIC BYTE FSEv07_decodeSymbolFast(FSEv07_DState_t* DStatePtr, BITv07_DStre
  *  Maximum symbol value authorized.
  *  Required for proper stack allocation */
 #define FSEv07_MAX_SYMBOL_VALUE 255
-
-/* **************************************************************
-*  template functions type & suffix
-****************************************************************/
+//
+// template functions type & suffix
+//
 #define FSEv07_FUNCTION_TYPE BYTE
 #define FSEv07_FUNCTION_EXTENSION
 #define FSEv07_DECODE_TYPE FSEv07_decode_t
@@ -952,9 +926,10 @@ size_t HUFv07_decompress(void* dst,  size_t dstSize, const void* cSrc, size_t cS
 // Tool functions
 //
 #define HUFv07_BLOCKSIZE_MAX (128 * 1024)
-
-/* Error Management */
-unsigned    HUFv07_isError(size_t code);        /**< tells if a return value is an error code */
+//
+// Error Management
+//
+uint HUFv07_isError(size_t code); /**< tells if a return value is an error code */
 const char* HUFv07_getErrorName(size_t code);   /**< provides error code string (useful for debugging) */
 
 /* *** Advanced function *** */
@@ -962,14 +937,12 @@ const char* HUFv07_getErrorName(size_t code);   /**< provides error code string 
 #ifdef HUFv07_STATIC_LINKING_ONLY
 
 /* *** Constants *** */
-#define HUFv07_TABLELOG_ABSOLUTEMAX  16   /* absolute limit of HUFv07_MAX_TABLELOG. Beyond that value, code does not
-	                                     work */
-#define HUFv07_TABLELOG_MAX  12           /* max configured tableLog (for static allocation); can be modified up to
-	                                     HUFv07_ABSOLUTEMAX_TABLELOG */
-#define HUFv07_TABLELOG_DEFAULT  11       /* tableLog by default, when not specified */
+#define HUFv07_TABLELOG_ABSOLUTEMAX  16 // absolute limit of HUFv07_MAX_TABLELOG. Beyond that value, code does not work
+#define HUFv07_TABLELOG_MAX  12 // max configured tableLog (for static allocation); can be modified up to HUFv07_ABSOLUTEMAX_TABLELOG
+#define HUFv07_TABLELOG_DEFAULT  11 // tableLog by default, when not specified 
 #define HUFv07_SYMBOLVALUE_MAX 255
 #if (HUFv07_TABLELOG_MAX > HUFv07_TABLELOG_ABSOLUTEMAX)
-#error "HUFv07_TABLELOG_MAX is too large !"
+	#error "HUFv07_TABLELOG_MAX is too large !"
 #endif
 
 /* ****************************************
@@ -980,53 +953,23 @@ const char* HUFv07_getErrorName(size_t code);   /**< provides error code string 
 	                                                    */
 
 /* static allocation of HUF's DTable */
-typedef U32 HUFv07_DTable;
+typedef uint32 HUFv07_DTable;
 #define HUFv07_DTABLE_SIZE(maxTableLog)   (1 + (1<<(maxTableLog)))
-#define HUFv07_CREATE_STATIC_DTABLEX2(DTable, maxTableLog) \
-	HUFv07_DTable DTable[HUFv07_DTABLE_SIZE((maxTableLog)-1)] = { ((U32)((maxTableLog)-1)*0x1000001) }
-#define HUFv07_CREATE_STATIC_DTABLEX4(DTable, maxTableLog) \
-	HUFv07_DTable DTable[HUFv07_DTABLE_SIZE(maxTableLog)] = { ((U32)(maxTableLog)*0x1000001) }
+#define HUFv07_CREATE_STATIC_DTABLEX2(DTable, maxTableLog) HUFv07_DTable DTable[HUFv07_DTABLE_SIZE((maxTableLog)-1)] = { ((uint32)((maxTableLog)-1)*0x1000001) }
+#define HUFv07_CREATE_STATIC_DTABLEX4(DTable, maxTableLog) HUFv07_DTable DTable[HUFv07_DTABLE_SIZE(maxTableLog)] = { ((uint32)(maxTableLog)*0x1000001) }
 
 /* ****************************************
 *  Advanced decompression functions
 ******************************************/
-size_t HUFv07_decompress4X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);    /**< single-symbol decoder
-                                                                                                 */
-size_t HUFv07_decompress4X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);    /**< double-symbols
-                                                                                                 decoder */
-
-size_t HUFv07_decompress4X_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);    /**<
-                                                                                                                          decodes
-                                                                                                                          RLE
-                                                                                                                          and
-                                                                                                                          uncompressed
-                                                                                                                          */
-size_t HUFv07_decompress4X_hufOnly(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /**<
-                                                                                                                          considers
-                                                                                                                          RLE
-                                                                                                                          and
-                                                                                                                          uncompressed
-                                                                                                                          as
-                                                                                                                          errors
-                                                                                                                          */
-size_t HUFv07_decompress4X2_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);   /**<
-                                                                                                                          single-symbol
-                                                                                                                          decoder
-                                                                                                                          */
-size_t HUFv07_decompress4X4_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);   /**<
-                                                                                                                          double-symbols
-                                                                                                                          decoder
-                                                                                                                          */
-
+size_t HUFv07_decompress4X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// single-symbol decoder
+size_t HUFv07_decompress4X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// double-symbols decoder
+size_t HUFv07_decompress4X_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// decodes RLE and uncompressed
+size_t HUFv07_decompress4X_hufOnly(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// considers RLE and uncompressed as errors
+size_t HUFv07_decompress4X2_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// single-symbol decoder
+size_t HUFv07_decompress4X4_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// double-symbols decoder
 size_t HUFv07_decompress1X_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);
-size_t HUFv07_decompress1X2_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);   /**<
-                                                                                                                          single-symbol
-                                                                                                                          decoder
-                                                                                                                          */
-size_t HUFv07_decompress1X4_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);   /**<
-                                                                                                                          double-symbols
-                                                                                                                          decoder
-                                                                                                                          */
+size_t HUFv07_decompress1X2_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// single-symbol decoder
+size_t HUFv07_decompress1X4_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); /// double-symbols decoder
 
 /* ****************************************
 *  HUF detailed API
@@ -1043,9 +986,7 @@ size_t HUFv07_decompress1X4_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize,
     `huffWeight` is destination buffer.
     @return : size read from `src` , or an error Code .
     Note : Needed by HUFv07_readCTable() and HUFv07_readDTableXn() . */
-size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
-    U32* nbSymbolsPtr, U32* tableLogPtr,
-    const void* src, size_t srcSize);
+size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, uint32* rankStats, uint32* nbSymbolsPtr, uint32* tableLogPtr, const void* src, size_t srcSize);
 
 /*
    HUFv07_decompress() does the following:
@@ -1059,21 +1000,15 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
  *   based on a set of pre-determined metrics.
  *   @return : 0==HUFv07_decompress4X2, 1==HUFv07_decompress4X4 .
  *   Assumption : 0 < cSrcSize < dstSize <= 128 KB */
-U32 HUFv07_selectDecoder(size_t dstSize, size_t cSrcSize);
-
+uint32 HUFv07_selectDecoder(size_t dstSize, size_t cSrcSize);
 size_t HUFv07_readDTableX2(HUFv07_DTable* DTable, const void* src, size_t srcSize);
 size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSize);
-
 size_t HUFv07_decompress4X_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable);
 size_t HUFv07_decompress4X2_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable);
 size_t HUFv07_decompress4X4_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable);
-
 /* single stream variants */
-size_t HUFv07_decompress1X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);    /* single-symbol decoder
-                                                                                                 */
-size_t HUFv07_decompress1X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize);    /* double-symbol decoder
-                                                                                                 */
-
+size_t HUFv07_decompress1X2(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); // single-symbol decoder 
+size_t HUFv07_decompress1X4(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize); // double-symbol decoder
 size_t HUFv07_decompress1X_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable);
 size_t HUFv07_decompress1X2_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable);
 size_t HUFv07_decompress1X4_usingDTable(void* dst, size_t maxDstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable);
@@ -1106,50 +1041,34 @@ size_t HUFv07_decompress1X4_usingDTable(void* dst, size_t maxDstSize, const void
     - FSE+HUF source repository : https://github.com/Cyan4973/FiniteStateEntropy
     - Public forum : https://groups.google.com/forum/#!forum/lz4c
  *************************************************************************** */
-
-/*-****************************************
-*  FSE Error Management
-******************************************/
-unsigned FSEv07_isError(size_t code) {
-	return ERR_isError(code);
-}
-
-const char* FSEv07_getErrorName(size_t code) {
-	return ERR_getErrorName(code);
-}
-
-/* **************************************************************
-*  HUF Error Management
-****************************************************************/
-unsigned HUFv07_isError(size_t code) {
-	return ERR_isError(code);
-}
-
-const char* HUFv07_getErrorName(size_t code) {
-	return ERR_getErrorName(code);
-}
+//
+// FSE Error Management
+//
+uint FSEv07_isError(size_t code) { return ERR_isError(code); }
+const char* FSEv07_getErrorName(size_t code) { return ERR_getErrorName(code); }
+//
+// HUF Error Management
+//
+uint HUFv07_isError(size_t code) { return ERR_isError(code); }
+const char* HUFv07_getErrorName(size_t code) { return ERR_getErrorName(code); }
 
 /*-**************************************************************
 *  FSE NCount encoding-decoding
 ****************************************************************/
-static short FSEv07_abs(short a) {
-	return (short)(a<0 ? -a : a);
-}
+static short FSEv07_abs(short a) { return (short)(a<0 ? -a : a); }
 
-size_t FSEv07_readNCount(short* normalizedCounter, unsigned* maxSVPtr, unsigned* tableLogPtr,
-    const void* headerBuffer, size_t hbSize)
+size_t FSEv07_readNCount(short * normalizedCounter, uint * maxSVPtr, uint * tableLogPtr, const void* headerBuffer, size_t hbSize)
 {
-	const BYTE* const istart = (const BYTE*)headerBuffer;
-	const BYTE* const iend = istart + hbSize;
-	const BYTE* ip = istart;
+	const BYTE * const istart = (const BYTE*)headerBuffer;
+	const BYTE * const iend = istart + hbSize;
+	const BYTE * ip = istart;
 	int nbBits;
 	int remaining;
 	int threshold;
-	U32 bitStream;
+	uint32 bitStream;
 	int bitCount;
-	unsigned charnum = 0;
+	uint charnum = 0;
 	int previous0 = 0;
-
 	if(hbSize < 4) return ERROR(srcSize_wrong);
 	bitStream = MEM_readLE32(ip);
 	nbBits = (bitStream & 0xF) + FSEv07_MIN_TABLELOG; /* extract tableLog */
@@ -1195,7 +1114,7 @@ size_t FSEv07_readNCount(short* normalizedCounter, unsigned* maxSVPtr, unsigned*
 		{   short const max = (short)((2*threshold-1)-remaining);
 		    short count;
 
-		    if((bitStream & (threshold-1)) < (U32)max) {
+		    if((bitStream & (threshold-1)) < (uint32)max) {
 			    count = (short)(bitStream & (threshold-1));
 			    bitCount   += nbBits-1;
 		    }
@@ -1238,11 +1157,11 @@ size_t FSEv07_readNCount(short* normalizedCounter, unsigned* maxSVPtr, unsigned*
     @return : size read from `src` , or an error Code .
     Note : Needed by HUFv07_readCTable() and HUFv07_readDTableXn() .
  */
-size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
-    U32* nbSymbolsPtr, U32* tableLogPtr,
+size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, uint32* rankStats,
+    uint32* nbSymbolsPtr, uint32* tableLogPtr,
     const void* src, size_t srcSize)
 {
-	U32 weightTotal;
+	uint32 weightTotal;
 	const BYTE* ip = (const BYTE*)src;
 	size_t iSize;
 	size_t oSize;
@@ -1253,7 +1172,7 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
 
 	if(iSize >= 128) { /* special header */
 		if(iSize >= (242)) { /* RLE */
-			static U32 l[14] = { 1, 2, 3, 4, 7, 8, 15, 16, 31, 32, 63, 64, 127, 128 };
+			static uint32 l[14] = { 1, 2, 3, 4, 7, 8, 15, 16, 31, 32, 63, 64, 127, 128 };
 			oSize = l[iSize-242];
 			memset(huffWeight, 1, hwSize);
 			iSize = 0;
@@ -1264,7 +1183,7 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
 			if(iSize+1 > srcSize) return ERROR(srcSize_wrong);
 			if(oSize >= hwSize) return ERROR(corruption_detected);
 			ip += 1;
-			{   U32 n;
+			{   uint32 n;
 			    for(n = 0; n<oSize; n += 2) {
 				    huffWeight[n]   = ip[n/2] >> 4;
 				    huffWeight[n+1] = ip[n/2] & 15;
@@ -1280,9 +1199,9 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
 	}
 
 	/* collect weight stats */
-	memset(rankStats, 0, (HUFv07_TABLELOG_ABSOLUTEMAX + 1) * sizeof(U32));
+	memset(rankStats, 0, (HUFv07_TABLELOG_ABSOLUTEMAX + 1) * sizeof(uint32));
 	weightTotal = 0;
-	{   U32 n; for(n = 0; n<oSize; n++) {
+	{   uint32 n; for(n = 0; n<oSize; n++) {
 		    if(huffWeight[n] >= HUFv07_TABLELOG_ABSOLUTEMAX) return ERROR(corruption_detected);
 		    rankStats[huffWeight[n]]++;
 		    weightTotal += (1 << huffWeight[n]) >> 1;
@@ -1291,14 +1210,14 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
 	if(weightTotal == 0) return ERROR(corruption_detected);
 
 	/* get last non-null symbol weight (implied, total must be 2^n) */
-	{   U32 const tableLog = BITv07_highbit32(weightTotal) + 1;
+	{   const uint32 tableLog = BITv07_highbit32(weightTotal) + 1;
 	    if(tableLog > HUFv07_TABLELOG_ABSOLUTEMAX) return ERROR(corruption_detected);
 	    *tableLogPtr = tableLog;
 		/* determine last weight */
-	    {   U32 const total = 1 << tableLog;
-		U32 const rest = total - weightTotal;
-		U32 const verif = 1 << BITv07_highbit32(rest);
-		U32 const lastWeight = BITv07_highbit32(rest) + 1;
+	    {   const uint32 total = 1 << tableLog;
+		const uint32 rest = total - weightTotal;
+		const uint32 verif = 1 << BITv07_highbit32(rest);
+		const uint32 lastWeight = BITv07_highbit32(rest) + 1;
 		if(verif != rest) return ERROR(corruption_detected); /* last value must be a clean power of 2 */
 		huffWeight[oSize] = (BYTE)lastWeight;
 		rankStats[lastWeight]++;}   }
@@ -1309,7 +1228,7 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
 	                                                                                   */
 
 	/* results */
-	*nbSymbolsPtr = (U32)(oSize+1);
+	*nbSymbolsPtr = (uint32)(oSize+1);
 	return iSize+1;
 }
 
@@ -1334,10 +1253,9 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
     - FSE source repository : https://github.com/Cyan4973/FiniteStateEntropy
     - Public forum : https://groups.google.com/forum/#!forum/lz4c
 ****************************************************************** */
-
-/* **************************************************************
-*  Compiler specifics
-****************************************************************/
+//
+// Compiler specifics
+//
 #ifdef _MSC_VER    /* Visual Studio */
 	#define FORCE_INLINE static __forceinline
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
@@ -1353,22 +1271,18 @@ size_t HUFv07_readStats(BYTE* huffWeight, size_t hwSize, U32* rankStats,
 #define FORCE_INLINE static
 #endif /* __STDC_VERSION__ */
 #endif
-
-/* **************************************************************
-*  Error Management
-****************************************************************/
+//
+// Error Management
+//
 #define FSEv07_isError ERR_isError
-#define FSEv07_STATIC_ASSERT(c) { enum { FSEv07_static_assert = 1/(int)(!!(c)) }; }   /* use only *after* variable
-	                                                                                 declarations */
-
-/* **************************************************************
-*  Complex types
-****************************************************************/
-typedef U32 DTable_max_t[FSEv07_DTABLE_SIZE_U32(FSEv07_MAX_TABLELOG)];
-
-/* **************************************************************
-*  Templates
-****************************************************************/
+#define FSEv07_STATIC_ASSERT(c) { enum { FSEv07_static_assert = 1/(int)(!!(c)) }; }   /* use only *after* variable declarations */
+//
+// Complex types
+//
+typedef uint DTable_max_t[FSEv07_DTABLE_SIZE_U32(FSEv07_MAX_TABLELOG)]; // @sobolev uint32-->uint
+//
+// Templates
+//
 /*
    designed to be included
    for type-specific functions (template emulation in C)
@@ -1377,86 +1291,84 @@ typedef U32 DTable_max_t[FSEv07_DTABLE_SIZE_U32(FSEv07_MAX_TABLELOG)];
 
 /* safety checks */
 #ifndef FSEv07_FUNCTION_EXTENSION
-#error "FSEv07_FUNCTION_EXTENSION must be defined"
+	#error "FSEv07_FUNCTION_EXTENSION must be defined"
 #endif
 #ifndef FSEv07_FUNCTION_TYPE
-#error "FSEv07_FUNCTION_TYPE must be defined"
+	#error "FSEv07_FUNCTION_TYPE must be defined"
 #endif
-
 /* Function names */
 #define FSEv07_CAT(X, Y) X ## Y
 #define FSEv07_FUNCTION_NAME(X, Y) FSEv07_CAT(X, Y)
 #define FSEv07_TYPE_NAME(X, Y) FSEv07_CAT(X, Y)
 
 /* Function templates */
-FSEv07_DTable* FSEv07_createDTable(unsigned tableLog)
+FSEv07_DTable* FSEv07_createDTable(uint tableLog)
 {
-	if(tableLog > FSEv07_TABLELOG_ABSOLUTE_MAX) tableLog = FSEv07_TABLELOG_ABSOLUTE_MAX;
-	return (FSEv07_DTable*)SAlloc::M(FSEv07_DTABLE_SIZE_U32(tableLog) * sizeof(U32) );
+	SETMIN(tableLog, FSEv07_TABLELOG_ABSOLUTE_MAX);
+	return (FSEv07_DTable *)SAlloc::M(FSEv07_DTABLE_SIZE_U32(tableLog) * sizeof(/*uint32*/FSEv07_DTable));
 }
 
 void FSEv07_freeDTable(FSEv07_DTable* dt) { SAlloc::F(dt); }
 
-size_t FSEv07_buildDTable(FSEv07_DTable* dt, const short* normalizedCounter, unsigned maxSymbolValue, unsigned tableLog)
+size_t FSEv07_buildDTable(FSEv07_DTable* dt, const short * normalizedCounter, uint maxSymbolValue, uint tableLog)
 {
 	void* const tdPtr = dt+1; /* because *dt is unsigned, 32-bits aligned on 32-bits */
 	FSEv07_DECODE_TYPE* const tableDecode = (FSEv07_DECODE_TYPE*)(tdPtr);
-	U16 symbolNext[FSEv07_MAX_SYMBOL_VALUE+1];
-
-	U32 const maxSV1 = maxSymbolValue + 1;
-	U32 const tableSize = 1 << tableLog;
-	U32 highThreshold = tableSize-1;
-
+	uint16 symbolNext[FSEv07_MAX_SYMBOL_VALUE+1];
+	const uint32 maxSV1 = maxSymbolValue + 1;
+	const uint32 tableSize = 1 << tableLog;
+	uint32 highThreshold = tableSize-1;
 	/* Sanity Checks */
-	if(maxSymbolValue > FSEv07_MAX_SYMBOL_VALUE) return ERROR(maxSymbolValue_tooLarge);
-	if(tableLog > FSEv07_MAX_TABLELOG) return ERROR(tableLog_tooLarge);
-
+	if(maxSymbolValue > FSEv07_MAX_SYMBOL_VALUE) 
+		return ERROR(maxSymbolValue_tooLarge);
+	if(tableLog > FSEv07_MAX_TABLELOG) 
+		return ERROR(tableLog_tooLarge);
 	/* Init, lay down lowprob symbols */
-	{   FSEv07_DTableHeader DTableH;
-	    DTableH.tableLog = (U16)tableLog;
+	{   
+		FSEv07_DTableHeader DTableH;
+	    DTableH.tableLog = (uint16)tableLog;
 	    DTableH.fastMode = 1;
-	    {   S16 const largeLimit = (S16)(1 << (tableLog-1));
-		U32 s;
-		for(s = 0; s<maxSV1; s++) {
-			if(normalizedCounter[s]==-1) {
-				tableDecode[highThreshold--].symbol = (FSEv07_FUNCTION_TYPE)s;
-				symbolNext[s] = 1;
-			}
-			else {
-				if(normalizedCounter[s] >= largeLimit) DTableH.fastMode = 0;
-				symbolNext[s] = normalizedCounter[s];
+	    {   
+			const int16 largeLimit = (int16)(1 << (tableLog-1));
+			for(uint32 s = 0; s < maxSV1; s++) {
+				if(normalizedCounter[s]==-1) {
+					tableDecode[highThreshold--].symbol = (FSEv07_FUNCTION_TYPE)s;
+					symbolNext[s] = 1;
+				}
+				else {
+					if(normalizedCounter[s] >= largeLimit) 
+						DTableH.fastMode = 0;
+					symbolNext[s] = normalizedCounter[s];
+				}
 			}
 		}
-	    }
-	    memcpy(dt, &DTableH, sizeof(DTableH));}
-
+		memcpy(dt, &DTableH, sizeof(DTableH));
+	}
 	/* Spread symbols */
-	{   U32 const tableMask = tableSize-1;
-	    U32 const step = FSEv07_TABLESTEP(tableSize);
-	    U32 s, position = 0;
-	    for(s = 0; s<maxSV1; s++) {
-		    int i;
-		    for(i = 0; i<normalizedCounter[s]; i++) {
+	{   
+		const uint32 tableMask = tableSize-1;
+	    const uint32 step = FSEv07_TABLESTEP(tableSize);
+	    uint32 position = 0;
+	    for(uint32 s = 0; s<maxSV1; s++) {
+		    for(int i = 0; i<normalizedCounter[s]; i++) {
 			    tableDecode[position].symbol = (FSEv07_FUNCTION_TYPE)s;
 			    position = (position + step) & tableMask;
-			    while(position > highThreshold) position = (position + step) & tableMask; /* lowprob area */
+			    while(position > highThreshold) 
+					position = (position + step) & tableMask; // lowprob area
 		    }
 	    }
-
-	    if(position!=0) return ERROR(GENERIC); /* position must reach all cells once, otherwise normalizedCounter is
-		                                      incorrect */
+	    if(position!=0) 
+			return ERROR(GENERIC); // position must reach all cells once, otherwise normalizedCounter is incorrect 
 	}
-
 	/* Build Decoding table */
-	{   U32 u;
-	    for(u = 0; u<tableSize; u++) {
+	{   
+	    for(uint32 u = 0; u<tableSize; u++) {
 		    FSEv07_FUNCTION_TYPE const symbol = (FSEv07_FUNCTION_TYPE)(tableDecode[u].symbol);
-		    U16 nextState = symbolNext[symbol]++;
-		    tableDecode[u].nbBits = (BYTE)(tableLog - BITv07_highbit32((U32)nextState) );
-		    tableDecode[u].newState = (U16)( (nextState << tableDecode[u].nbBits) - tableSize);
+		    uint16 nextState = symbolNext[symbol]++;
+		    tableDecode[u].nbBits = (BYTE)(tableLog - BITv07_highbit32((uint32)nextState) );
+		    tableDecode[u].newState = (uint16)( (nextState << tableDecode[u].nbBits) - tableSize);
 	    }
 	}
-
 	return 0;
 }
 
@@ -1497,7 +1409,7 @@ size_t FSEv07_buildDTable_raw(FSEv07_DTable* dt, unsigned nbBits)
 	if(nbBits < 1) return ERROR(GENERIC);      /* min size */
 
 	/* Build Decoding Table */
-	DTableH->tableLog = (U16)nbBits;
+	DTableH->tableLog = (uint16)nbBits;
 	DTableH->fastMode = 1;
 	for(s = 0; s<maxSV1; s++) {
 		dinfo[s].newState = 0;
@@ -1561,16 +1473,13 @@ FORCE_INLINE size_t FSEv07_decompress_usingDTable_generic(void* dst, size_t maxD
 		if(op>(omax-2)) return ERROR(dstSize_tooSmall);
 
 		*op++ = FSEv07_GETSYMBOL(&state1);
-
 		if(BITv07_reloadDStream(&bitD)==BITv07_DStream_overflow) {
 			*op++ = FSEv07_GETSYMBOL(&state2);
 			break;
 		}
-
-		if(op>(omax-2)) return ERROR(dstSize_tooSmall);
-
+		if(op>(omax-2)) 
+			return ERROR(dstSize_tooSmall);
 		*op++ = FSEv07_GETSYMBOL(&state2);
-
 		if(BITv07_reloadDStream(&bitD)==BITv07_DStream_overflow) {
 			*op++ = FSEv07_GETSYMBOL(&state1);
 			break;
@@ -1580,16 +1489,14 @@ FORCE_INLINE size_t FSEv07_decompress_usingDTable_generic(void* dst, size_t maxD
 	return op-ostart;
 }
 
-size_t FSEv07_decompress_usingDTable(void* dst, size_t originalSize,
-    const void* cSrc, size_t cSrcSize,
-    const FSEv07_DTable* dt)
+size_t FSEv07_decompress_usingDTable(void* dst, size_t originalSize, const void* cSrc, size_t cSrcSize, const FSEv07_DTable* dt)
 {
 	const void* ptr = dt;
 	const FSEv07_DTableHeader* DTableH = (const FSEv07_DTableHeader*)ptr;
-	const U32 fastMode = DTableH->fastMode;
-
+	const uint32 fastMode = DTableH->fastMode;
 	/* select fast mode (static) */
-	if(fastMode) return FSEv07_decompress_usingDTable_generic(dst, originalSize, cSrc, cSrcSize, dt, 1);
+	if(fastMode) 
+		return FSEv07_decompress_usingDTable_generic(dst, originalSize, cSrc, cSrcSize, dt, 1);
 	return FSEv07_decompress_usingDTable_generic(dst, originalSize, cSrc, cSrcSize, dt, 0);
 }
 
@@ -1599,23 +1506,24 @@ size_t FSEv07_decompress(void* dst, size_t maxDstSize, const void* cSrc, size_t 
 	const BYTE* ip = istart;
 	short counting[FSEv07_MAX_SYMBOL_VALUE+1];
 	DTable_max_t dt; /* Static analyzer seems unable to understand this table will be properly initialized later */
-	unsigned tableLog;
-	unsigned maxSymbolValue = FSEv07_MAX_SYMBOL_VALUE;
-
-	if(cSrcSize<2) return ERROR(srcSize_wrong); /* too small input size */
-
+	uint tableLog;
+	uint maxSymbolValue = FSEv07_MAX_SYMBOL_VALUE;
+	if(cSrcSize<2) 
+		return ERROR(srcSize_wrong); /* too small input size */
 	/* normal FSE decoding mode */
-	{   const size_t NCountLength = FSEv07_readNCount(counting, &maxSymbolValue, &tableLog, istart, cSrcSize);
+	{   
+		const size_t NCountLength = FSEv07_readNCount(counting, &maxSymbolValue, &tableLog, istart, cSrcSize);
 	    if(FSEv07_isError(NCountLength)) return NCountLength;
 	    if(NCountLength >= cSrcSize) return ERROR(srcSize_wrong); /* too small input size */
 	    ip += NCountLength;
 	    cSrcSize -= NCountLength;}
 
-	{ const size_t errorCode = FSEv07_buildDTable(dt, counting, maxSymbolValue, tableLog);
-	  if(FSEv07_isError(errorCode)) return errorCode; }
-
-	return FSEv07_decompress_usingDTable(dst, maxDstSize, ip, cSrcSize, dt); /* always return, even if it is an
-	                                                                            error code */
+	{ 
+		const size_t errorCode = FSEv07_buildDTable(dt, counting, maxSymbolValue, tableLog);
+		if(FSEv07_isError(errorCode)) 
+			return errorCode; 
+	}
+	return FSEv07_decompress_usingDTable(dst, maxDstSize, ip, cSrcSize, dt); /* always return, even if it is an error code */
 }
 
 #endif   /* FSEv07_COMMONDEFS_ONLY */
@@ -1641,10 +1549,9 @@ size_t FSEv07_decompress(void* dst, size_t maxDstSize, const void* cSrc, size_t 
     - FSE+HUF source repository : https://github.com/Cyan4973/FiniteStateEntropy
     - Public forum : https://groups.google.com/forum/#!forum/lz4c
 ****************************************************************** */
-
-/* **************************************************************
-*  Compiler specifics
-****************************************************************/
+//
+// Compiler specifics
+//
 #if defined (__cplusplus) || (defined (__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) /* C99 */)
 /* inline is defined */
 #elif defined(_MSC_VER)
@@ -1656,18 +1563,21 @@ size_t FSEv07_decompress(void* dst, size_t maxDstSize, const void* cSrc, size_t 
 #ifdef _MSC_VER    /* Visual Studio */
 #  pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
 #endif
-
-/* **************************************************************
-*  Error Management
-****************************************************************/
-#define HUFv07_STATIC_ASSERT(c) { enum { HUFv07_static_assert = 1/(int)(!!(c)) }; }   /* use only *after* variable
-	                                                                                 declarations */
+//
+// Error Management
+//
+#define HUFv07_STATIC_ASSERT(c) { enum { HUFv07_static_assert = 1/(int)(!!(c)) }; }   /* use only *after* variable declarations */
 
 /*-***************************/
 /*  generic DTableDesc       */
 /*-***************************/
 
-typedef struct { BYTE maxTableLog; BYTE tableType; BYTE tableLog; BYTE reserved; } DTableDesc;
+typedef struct { 
+	BYTE maxTableLog; 
+	BYTE tableType; 
+	BYTE tableLog; 
+	BYTE reserved; 
+} DTableDesc;
 
 static DTableDesc HUFv07_getDTableDesc(const HUFv07_DTable* table)
 {
@@ -1685,9 +1595,9 @@ typedef struct { BYTE byte; BYTE nbBits; } HUFv07_DEltX2;   /* single-symbol dec
 size_t HUFv07_readDTableX2(HUFv07_DTable* DTable, const void* src, size_t srcSize)
 {
 	BYTE huffWeight[HUFv07_SYMBOLVALUE_MAX + 1];
-	U32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1]; /* large enough for values from 0 to 16 */
-	U32 tableLog = 0;
-	U32 nbSymbols = 0;
+	uint32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1]; /* large enough for values from 0 to 16 */
+	uint32 tableLog = 0;
+	uint32 nbSymbols = 0;
 	size_t iSize;
 	void* const dtPtr = DTable + 1;
 	HUFv07_DEltX2* const dt = (HUFv07_DEltX2*)dtPtr;
@@ -1701,27 +1611,27 @@ size_t HUFv07_readDTableX2(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 
 	/* Table header */
 	{   DTableDesc dtd = HUFv07_getDTableDesc(DTable);
-	    if(tableLog > (U32)(dtd.maxTableLog+1)) return ERROR(tableLog_tooLarge); /* DTable too small, huffman tree
+	    if(tableLog > (uint32)(dtd.maxTableLog+1)) return ERROR(tableLog_tooLarge); /* DTable too small, huffman tree
 		                                                                        cannot fit in */
 	    dtd.tableType = 0;
 	    dtd.tableLog = (BYTE)tableLog;
 	    memcpy(DTable, &dtd, sizeof(dtd));}
 
 	/* Prepare ranks */
-	{   U32 n, nextRankStart = 0;
+	{   uint32 n, nextRankStart = 0;
 	    for(n = 1; n<tableLog+1; n++) {
-		    U32 current = nextRankStart;
+		    uint32 current = nextRankStart;
 		    nextRankStart += (rankVal[n] << (n-1));
 		    rankVal[n] = current;
 	    }
 	}
 
 	/* fill DTable */
-	{   U32 n;
+	{   uint32 n;
 	    for(n = 0; n<nbSymbols; n++) {
-		    U32 const w = huffWeight[n];
-		    U32 const length = (1 << w) >> 1;
-		    U32 i;
+		    const uint32 w = huffWeight[n];
+		    const uint32 length = (1 << w) >> 1;
+		    uint32 i;
 		    HUFv07_DEltX2 D;
 		    D.byte = (BYTE)n; D.nbBits = (BYTE)(tableLog + 1 - w);
 		    for(i = rankVal[w]; i < rankVal[w] + length; i++)
@@ -1733,7 +1643,7 @@ size_t HUFv07_readDTableX2(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	return iSize;
 }
 
-static BYTE HUFv07_decodeSymbolX2(BITv07_DStream_t* Dstream, const HUFv07_DEltX2* dt, const U32 dtLog)
+static BYTE HUFv07_decodeSymbolX2(BITv07_DStream_t* Dstream, const HUFv07_DEltX2* dt, const uint32 dtLog)
 {
 	const size_t val = BITv07_lookBitsFast(Dstream, dtLog); /* note : dtLog >= 1 */
 	BYTE const c = dt[val].byte;
@@ -1756,7 +1666,7 @@ static inline size_t HUFv07_decodeStreamX2(BYTE* p,
     BITv07_DStream_t* const bitDPtr,
     BYTE* const pEnd,
     const HUFv07_DEltX2* const dt,
-    const U32 dtLog)
+    const uint32 dtLog)
 {
 	BYTE* const pStart = p;
 
@@ -1789,7 +1699,7 @@ static size_t HUFv07_decompress1X2_usingDTable_internal(void* dst,  size_t dstSi
 	const HUFv07_DEltX2* const dt = (const HUFv07_DEltX2*)dtPtr;
 	BITv07_DStream_t bitD;
 	DTableDesc const dtd = HUFv07_getDTableDesc(DTable);
-	U32 const dtLog = dtd.tableLog;
+	const uint32 dtLog = dtd.tableLog;
 
 	{ const size_t errorCode = BITv07_initDStream(&bitD, cSrc, cSrcSize);
 	  if(HUFv07_isError(errorCode)) return errorCode; }
@@ -1863,9 +1773,9 @@ static size_t HUFv07_decompress4X2_usingDTable_internal(void* dst,  size_t dstSi
 	    BYTE* op2 = opStart2;
 	    BYTE* op3 = opStart3;
 	    BYTE* op4 = opStart4;
-	    U32 endSignal;
+	    uint32 endSignal;
 	    DTableDesc const dtd = HUFv07_getDTableDesc(DTable);
-	    U32 const dtLog = dtd.tableLog;
+	    const uint32 dtLog = dtd.tableLog;
 
 	    if(length4 > cSrcSize) return ERROR(corruption_detected); /* overflow */
 	    { const size_t errorCode = BITv07_initDStream(&bitD1, istart1, length1);
@@ -1952,24 +1862,24 @@ size_t HUFv07_decompress4X2(void* dst, size_t dstSize, const void* cSrc, size_t 
 /* *************************/
 /* double-symbols decoding */
 /* *************************/
-typedef struct { U16 sequence; BYTE nbBits; BYTE length; } HUFv07_DEltX4;  /* double-symbols decoding */
+typedef struct { uint16 sequence; BYTE nbBits; BYTE length; } HUFv07_DEltX4;  /* double-symbols decoding */
 
 typedef struct { BYTE symbol; BYTE weight; } sortedSymbol_t;
 
-static void HUFv07_fillDTableX4Level2(HUFv07_DEltX4* DTable, U32 sizeLog, const U32 consumed,
-    const U32* rankValOrigin, const int minWeight,
-    const sortedSymbol_t* sortedSymbols, const U32 sortedListSize,
-    U32 nbBitsBaseline, U16 baseSeq)
+static void HUFv07_fillDTableX4Level2(HUFv07_DEltX4* DTable, uint32 sizeLog, const uint32 consumed,
+    const uint32* rankValOrigin, const int minWeight,
+    const sortedSymbol_t* sortedSymbols, const uint32 sortedListSize,
+    uint32 nbBitsBaseline, uint16 baseSeq)
 {
 	HUFv07_DEltX4 DElt;
-	U32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1];
+	uint32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1];
 
 	/* get pre-calculated rankVal */
 	memcpy(rankVal, rankValOrigin, sizeof(rankVal));
 
 	/* fill skipped values */
 	if(minWeight>1) {
-		U32 i, skipSize = rankVal[minWeight];
+		uint32 i, skipSize = rankVal[minWeight];
 		MEM_writeLE16(&(DElt.sequence), baseSeq);
 		DElt.nbBits   = (BYTE)(consumed);
 		DElt.length   = 1;
@@ -1978,16 +1888,16 @@ static void HUFv07_fillDTableX4Level2(HUFv07_DEltX4* DTable, U32 sizeLog, const 
 	}
 
 	/* fill DTable */
-	{ U32 s; for(s = 0; s<sortedListSize; s++) { /* note : sortedSymbols already skipped */
-		  const U32 symbol = sortedSymbols[s].symbol;
-		  const U32 weight = sortedSymbols[s].weight;
-		  const U32 nbBits = nbBitsBaseline - weight;
-		  const U32 length = 1 << (sizeLog-nbBits);
-		  const U32 start = rankVal[weight];
-		  U32 i = start;
-		  const U32 end = start + length;
+	{ uint32 s; for(s = 0; s<sortedListSize; s++) { /* note : sortedSymbols already skipped */
+		  const uint32 symbol = sortedSymbols[s].symbol;
+		  const uint32 weight = sortedSymbols[s].weight;
+		  const uint32 nbBits = nbBitsBaseline - weight;
+		  const uint32 length = 1 << (sizeLog-nbBits);
+		  const uint32 start = rankVal[weight];
+		  uint32 i = start;
+		  const uint32 end = start + length;
 
-		  MEM_writeLE16(&(DElt.sequence), (U16)(baseSeq + (symbol << 8)));
+		  MEM_writeLE16(&(DElt.sequence), (uint16)(baseSeq + (symbol << 8)));
 		  DElt.nbBits = (BYTE)(nbBits + consumed);
 		  DElt.length = 2;
 		  do {
@@ -1999,30 +1909,30 @@ static void HUFv07_fillDTableX4Level2(HUFv07_DEltX4* DTable, U32 sizeLog, const 
 	}
 }
 
-typedef U32 rankVal_t[HUFv07_TABLELOG_ABSOLUTEMAX][HUFv07_TABLELOG_ABSOLUTEMAX + 1];
+typedef uint32 rankVal_t[HUFv07_TABLELOG_ABSOLUTEMAX][HUFv07_TABLELOG_ABSOLUTEMAX + 1];
 
-static void HUFv07_fillDTableX4(HUFv07_DEltX4* DTable, const U32 targetLog,
-    const sortedSymbol_t* sortedList, const U32 sortedListSize,
-    const U32* rankStart, rankVal_t rankValOrigin, const U32 maxWeight,
-    const U32 nbBitsBaseline)
+static void HUFv07_fillDTableX4(HUFv07_DEltX4* DTable, const uint32 targetLog,
+    const sortedSymbol_t* sortedList, const uint32 sortedListSize,
+    const uint32* rankStart, rankVal_t rankValOrigin, const uint32 maxWeight,
+    const uint32 nbBitsBaseline)
 {
-	U32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1];
+	uint32 rankVal[HUFv07_TABLELOG_ABSOLUTEMAX + 1];
 	const int scaleLog = nbBitsBaseline - targetLog; /* note : targetLog >= srcLog, hence scaleLog <= 1 */
-	const U32 minBits  = nbBitsBaseline - maxWeight;
-	U32 s;
+	const uint32 minBits  = nbBitsBaseline - maxWeight;
+	uint32 s;
 
 	memcpy(rankVal, rankValOrigin, sizeof(rankVal));
 
 	/* fill DTable */
 	for(s = 0; s<sortedListSize; s++) {
-		const U16 symbol = sortedList[s].symbol;
-		const U32 weight = sortedList[s].weight;
-		const U32 nbBits = nbBitsBaseline - weight;
-		const U32 start = rankVal[weight];
-		const U32 length = 1 << (targetLog-nbBits);
+		const uint16 symbol = sortedList[s].symbol;
+		const uint32 weight = sortedList[s].weight;
+		const uint32 nbBits = nbBitsBaseline - weight;
+		const uint32 start = rankVal[weight];
+		const uint32 length = 1 << (targetLog-nbBits);
 
 		if(targetLog-nbBits >= minBits) { /* enough room for a second symbol */
-			U32 sortedRank;
+			uint32 sortedRank;
 			int minWeight = nbBits + scaleLog;
 			if(minWeight < 1) minWeight = 1;
 			sortedRank = rankStart[minWeight];
@@ -2036,8 +1946,8 @@ static void HUFv07_fillDTableX4(HUFv07_DEltX4* DTable, const U32 targetLog,
 			MEM_writeLE16(&(DElt.sequence), symbol);
 			DElt.nbBits = (BYTE)(nbBits);
 			DElt.length = 1;
-			{   U32 u;
-			    const U32 end = start + length;
+			{   uint32 u;
+			    const uint32 end = start + length;
 			    for(u = start; u < end; u++) DTable[u] = DElt; }
 		}
 		rankVal[weight] += length;
@@ -2048,13 +1958,13 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 {
 	BYTE weightList[HUFv07_SYMBOLVALUE_MAX + 1];
 	sortedSymbol_t sortedSymbol[HUFv07_SYMBOLVALUE_MAX + 1];
-	U32 rankStats[HUFv07_TABLELOG_ABSOLUTEMAX + 1] = { 0 };
-	U32 rankStart0[HUFv07_TABLELOG_ABSOLUTEMAX + 2] = { 0 };
-	U32* const rankStart = rankStart0+1;
+	uint32 rankStats[HUFv07_TABLELOG_ABSOLUTEMAX + 1] = { 0 };
+	uint32 rankStart0[HUFv07_TABLELOG_ABSOLUTEMAX + 2] = { 0 };
+	uint32* const rankStart = rankStart0+1;
 	rankVal_t rankVal;
-	U32 tableLog, maxW, sizeOfSort, nbSymbols;
+	uint32 tableLog, maxW, sizeOfSort, nbSymbols;
 	DTableDesc dtd = HUFv07_getDTableDesc(DTable);
-	U32 const maxTableLog = dtd.maxTableLog;
+	const uint32 maxTableLog = dtd.maxTableLog;
 	size_t iSize;
 	void* dtPtr = DTable+1; /* force compiler to avoid strict-aliasing */
 	HUFv07_DEltX4* const dt = (HUFv07_DEltX4*)dtPtr;
@@ -2076,9 +1986,9 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	}                                                 /* necessarily finds a solution before 0 */
 
 	/* Get start index of each weight */
-	{   U32 w, nextRankStart = 0;
+	{   uint32 w, nextRankStart = 0;
 	    for(w = 1; w<maxW+1; w++) {
-		    U32 current = nextRankStart;
+		    uint32 current = nextRankStart;
 		    nextRankStart += rankStats[w];
 		    rankStart[w] = current;
 	    }
@@ -2086,10 +1996,10 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	    sizeOfSort = nextRankStart;}
 
 	/* sort symbols by weight */
-	{   U32 s;
+	{   uint32 s;
 	    for(s = 0; s<nbSymbols; s++) {
-		    U32 const w = weightList[s];
-		    U32 const r = rankStart[w]++;
+		    const uint32 w = weightList[s];
+		    const uint32 r = rankStart[w]++;
 		    sortedSymbol[r].symbol = (BYTE)s;
 		    sortedSymbol[r].weight = (BYTE)w;
 	    }
@@ -2097,21 +2007,21 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	}
 	/* Build rankVal */
 	{   
-		U32* const rankVal0 = rankVal[0];
+		uint32* const rankVal0 = rankVal[0];
 	    {   
 			int const rescale = (maxTableLog-tableLog) - 1;/* tableLog <= maxTableLog */
-			U32 nextRankVal = 0;
-			for(U32 w = 1; w<maxW+1; w++) {
-				U32 current = nextRankVal;
+			uint32 nextRankVal = 0;
+			for(uint32 w = 1; w<maxW+1; w++) {
+				uint32 current = nextRankVal;
 				nextRankVal += rankStats[w] << (w+rescale);
 				rankVal0[w] = current;
 			}
 	    }
 	    {
-			U32 const minBits = tableLog+1 - maxW;
-			for(U32 consumed = minBits; consumed < maxTableLog - minBits + 1; consumed++) {
-				U32* const rankValPtr = rankVal[consumed];
-				for(U32 w = 1; w < maxW+1; w++) {
+			const uint32 minBits = tableLog+1 - maxW;
+			for(uint32 consumed = minBits; consumed < maxTableLog - minBits + 1; consumed++) {
+				uint32* const rankValPtr = rankVal[consumed];
+				for(uint32 w = 1; w < maxW+1; w++) {
 					rankValPtr[w] = rankVal0[w] >> consumed;
 				}
 			}
@@ -2124,7 +2034,7 @@ size_t HUFv07_readDTableX4(HUFv07_DTable* DTable, const void* src, size_t srcSiz
 	return iSize;
 }
 
-static U32 HUFv07_decodeSymbolX4(void* op, BITv07_DStream_t* DStream, const HUFv07_DEltX4* dt, const U32 dtLog)
+static uint32 HUFv07_decodeSymbolX4(void* op, BITv07_DStream_t* DStream, const HUFv07_DEltX4* dt, const uint32 dtLog)
 {
 	const size_t val = BITv07_lookBitsFast(DStream, dtLog); /* note : dtLog >= 1 */
 	memcpy(op, dt+val, 2);
@@ -2132,7 +2042,7 @@ static U32 HUFv07_decodeSymbolX4(void* op, BITv07_DStream_t* DStream, const HUFv
 	return dt[val].length;
 }
 
-static U32 HUFv07_decodeLastSymbolX4(void* op, BITv07_DStream_t* DStream, const HUFv07_DEltX4* dt, const U32 dtLog)
+static uint32 HUFv07_decodeLastSymbolX4(void* op, BITv07_DStream_t* DStream, const HUFv07_DEltX4* dt, const uint32 dtLog)
 {
 	const size_t val = BITv07_lookBitsFast(DStream, dtLog); /* note : dtLog >= 1 */
 	memcpy(op, dt+val, 1);
@@ -2166,7 +2076,7 @@ static inline size_t HUFv07_decodeStreamX4(BYTE* p,
     BITv07_DStream_t* bitDPtr,
     BYTE* const pEnd,
     const HUFv07_DEltX4* const dt,
-    const U32 dtLog)
+    const uint32 dtLog)
 {
 	BYTE* const pStart = p;
 
@@ -2243,18 +2153,16 @@ size_t HUFv07_decompress1X4(void* dst, size_t dstSize, const void* cSrc, size_t 
 	return HUFv07_decompress1X4_DCtx(DTable, dst, dstSize, cSrc, cSrcSize);
 }
 
-static size_t HUFv07_decompress4X4_usingDTable_internal(void* dst,  size_t dstSize,
-    const void* cSrc, size_t cSrcSize,
-    const HUFv07_DTable* DTable)
+static size_t HUFv07_decompress4X4_usingDTable_internal(void* dst,  size_t dstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable)
 {
-	if(cSrcSize < 10) return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
-
-	{   const BYTE* const istart = (const BYTE*)cSrc;
+	if(cSrcSize < 10) 
+		return ERROR(corruption_detected); /* strict minimum : jump table + 1 byte per stream */
+	{   
+		const BYTE* const istart = (const BYTE*)cSrc;
 	    BYTE* const ostart = (BYTE*)dst;
 	    BYTE* const oend = ostart + dstSize;
 	    const void* const dtPtr = DTable+1;
 	    const HUFv07_DEltX4* const dt = (const HUFv07_DEltX4*)dtPtr;
-
 		/* Init */
 	    BITv07_DStream_t bitD1;
 	    BITv07_DStream_t bitD2;
@@ -2276,23 +2184,33 @@ static size_t HUFv07_decompress4X4_usingDTable_internal(void* dst,  size_t dstSi
 	    BYTE* op2 = opStart2;
 	    BYTE* op3 = opStart3;
 	    BYTE* op4 = opStart4;
-	    U32 endSignal;
+	    uint32 endSignal;
 	    DTableDesc const dtd = HUFv07_getDTableDesc(DTable);
-	    U32 const dtLog = dtd.tableLog;
-
-	    if(length4 > cSrcSize) return ERROR(corruption_detected); /* overflow */
-	    { const size_t errorCode = BITv07_initDStream(&bitD1, istart1, length1);
-	      if(HUFv07_isError(errorCode)) return errorCode; }
-	    { const size_t errorCode = BITv07_initDStream(&bitD2, istart2, length2);
-	      if(HUFv07_isError(errorCode)) return errorCode; }
-	    { const size_t errorCode = BITv07_initDStream(&bitD3, istart3, length3);
-	      if(HUFv07_isError(errorCode)) return errorCode; }
-	    { const size_t errorCode = BITv07_initDStream(&bitD4, istart4, length4);
-	      if(HUFv07_isError(errorCode)) return errorCode; }
-
+	    const uint32 dtLog = dtd.tableLog;
+	    if(length4 > cSrcSize) 
+			return ERROR(corruption_detected); /* overflow */
+	    { 
+			const size_t errorCode = BITv07_initDStream(&bitD1, istart1, length1);
+			if(HUFv07_isError(errorCode)) 
+				return errorCode; 
+		}
+	    { 
+			const size_t errorCode = BITv07_initDStream(&bitD2, istart2, length2);
+			if(HUFv07_isError(errorCode)) 
+				return errorCode; 
+		}
+	    { 
+			const size_t errorCode = BITv07_initDStream(&bitD3, istart3, length3);
+			if(HUFv07_isError(errorCode)) 
+				return errorCode; 
+		}
+	    { 
+			const size_t errorCode = BITv07_initDStream(&bitD4, istart4, length4);
+			if(HUFv07_isError(errorCode)) 
+				return errorCode; 
+		}
 		/* 16-32 symbols per loop (4-8 symbols per stream) */
-	    endSignal = BITv07_reloadDStream(&bitD1) | BITv07_reloadDStream(&bitD2) | BITv07_reloadDStream(&bitD3) | BITv07_reloadDStream(
-		    &bitD4);
+	    endSignal = BITv07_reloadDStream(&bitD1) | BITv07_reloadDStream(&bitD2) | BITv07_reloadDStream(&bitD3) | BITv07_reloadDStream(&bitD4);
 	    for(; (endSignal==BITv07_DStream_unfinished) && (op4<(oend-7));) {
 		    HUFv07_DECODE_SYMBOLX4_2(op1, &bitD1);
 		    HUFv07_DECODE_SYMBOLX4_2(op2, &bitD2);
@@ -2310,38 +2228,39 @@ static size_t HUFv07_decompress4X4_usingDTable_internal(void* dst,  size_t dstSi
 		    HUFv07_DECODE_SYMBOLX4_0(op2, &bitD2);
 		    HUFv07_DECODE_SYMBOLX4_0(op3, &bitD3);
 		    HUFv07_DECODE_SYMBOLX4_0(op4, &bitD4);
-
 		    endSignal = BITv07_reloadDStream(&bitD1) | BITv07_reloadDStream(&bitD2) | BITv07_reloadDStream(&bitD3) |
 			BITv07_reloadDStream(&bitD4);
 	    }
-
 		/* check corruption */
-	    if(op1 > opStart2) return ERROR(corruption_detected);
-	    if(op2 > opStart3) return ERROR(corruption_detected);
-	    if(op3 > opStart4) return ERROR(corruption_detected);
+	    if(op1 > opStart2) 
+			return ERROR(corruption_detected);
+	    if(op2 > opStart3) 
+			return ERROR(corruption_detected);
+	    if(op3 > opStart4) 
+			return ERROR(corruption_detected);
 		/* note : op4 supposed already verified within main loop */
-
 		/* finish bitStreams one by one */
 	    HUFv07_decodeStreamX4(op1, &bitD1, opStart2, dt, dtLog);
 	    HUFv07_decodeStreamX4(op2, &bitD2, opStart3, dt, dtLog);
 	    HUFv07_decodeStreamX4(op3, &bitD3, opStart4, dt, dtLog);
 	    HUFv07_decodeStreamX4(op4, &bitD4, oend,     dt, dtLog);
-
 		/* check */
-	    { U32 const endCheck = BITv07_endOfDStream(&bitD1) & BITv07_endOfDStream(&bitD2) & BITv07_endOfDStream(&bitD3) &
-		  BITv07_endOfDStream(&bitD4);
-	      if(!endCheck) return ERROR(corruption_detected); }
-
+	    { 
+			const uint32 endCheck = BITv07_endOfDStream(&bitD1) & BITv07_endOfDStream(&bitD2) & BITv07_endOfDStream(&bitD3) &
+			BITv07_endOfDStream(&bitD4);
+			if(!endCheck) 
+				return ERROR(corruption_detected); 
+		}
 		/* decoded size */
-	    return dstSize;}
+	    return dstSize;
+	}
 }
 
-size_t HUFv07_decompress4X4_usingDTable(void* dst,  size_t dstSize,
-    const void* cSrc, size_t cSrcSize,
-    const HUFv07_DTable* DTable)
+size_t HUFv07_decompress4X4_usingDTable(void* dst,  size_t dstSize, const void* cSrc, size_t cSrcSize, const HUFv07_DTable* DTable)
 {
 	DTableDesc dtd = HUFv07_getDTableDesc(DTable);
-	if(dtd.tableType != 1) return ERROR(GENERIC);
+	if(dtd.tableType != 1) 
+		return ERROR(GENERIC);
 	return HUFv07_decompress4X4_usingDTable_internal(dst, dstSize, cSrc, cSrcSize, DTable);
 }
 
@@ -2385,7 +2304,7 @@ size_t HUFv07_decompress4X_usingDTable(void* dst, size_t maxDstSize,
 	       HUFv07_decompress4X2_usingDTable_internal(dst, maxDstSize, cSrc, cSrcSize, DTable);
 }
 
-typedef struct { U32 tableTime; U32 decode256Time; } algo_time_t;
+typedef struct { uint32 tableTime; uint32 decode256Time; } algo_time_t;
 static const algo_time_t algoTime[16 /* Quantization */][3 /* single, double, quad */] =
 {
 	/* single, double, quad */
@@ -2412,13 +2331,13 @@ static const algo_time_t algoTime[16 /* Quantization */][3 /* single, double, qu
  *   based on a set of pre-determined metrics.
  *   @return : 0==HUFv07_decompress4X2, 1==HUFv07_decompress4X4 .
  *   Assumption : 0 < cSrcSize < dstSize <= 128 KB */
-U32 HUFv07_selectDecoder(size_t dstSize, size_t cSrcSize)
+uint32 HUFv07_selectDecoder(size_t dstSize, size_t cSrcSize)
 {
 	/* decoder timing evaluation */
-	U32 const Q = (U32)(cSrcSize * 16 / dstSize); /* Q < 16 since dstSize > cSrcSize */
-	U32 const D256 = (U32)(dstSize >> 8);
-	U32 const DTime0 = algoTime[Q][0].tableTime + (algoTime[Q][0].decode256Time * D256);
-	U32 DTime1 = algoTime[Q][1].tableTime + (algoTime[Q][1].decode256Time * D256);
+	const uint32 Q = (uint32)(cSrcSize * 16 / dstSize); /* Q < 16 since dstSize > cSrcSize */
+	const uint32 D256 = (uint32)(dstSize >> 8);
+	const uint32 DTime0 = algoTime[Q][0].tableTime + (algoTime[Q][0].decode256Time * D256);
+	uint32 DTime1 = algoTime[Q][1].tableTime + (algoTime[Q][1].decode256Time * D256);
 	DTime1 += DTime1 >> 3; /* advantage to algorithm using less memory, for cache eviction */
 
 	return DTime1 < DTime0;
@@ -2429,20 +2348,21 @@ typedef size_t (* decompressionAlgo)(void* dst, size_t dstSize, const void* cSrc
 size_t HUFv07_decompress(void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	static const decompressionAlgo decompress[2] = { HUFv07_decompress4X2, HUFv07_decompress4X4 };
-
 	/* validation checks */
-	if(dstSize == 0) return ERROR(dstSize_tooSmall);
-	if(cSrcSize > dstSize) return ERROR(corruption_detected); /* invalid */
+	if(dstSize == 0) 
+		return ERROR(dstSize_tooSmall);
+	if(cSrcSize > dstSize) 
+		return ERROR(corruption_detected); /* invalid */
 	if(cSrcSize == dstSize) {
 		memcpy(dst, cSrc, dstSize); return dstSize;
-	}                                                                      /* not compressed */
+	} /* not compressed */
 	if(cSrcSize == 1) {
 		memset(dst, *(const BYTE*)cSrc, dstSize); return dstSize;
-	}                                                                              /* RLE */
-
-	{   U32 const algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
-	    return decompress[algoNb](dst, dstSize, cSrc, cSrcSize);}
-
+	} /* RLE */
+	{   
+		const uint32 algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
+	    return decompress[algoNb](dst, dstSize, cSrc, cSrcSize);
+	}
 	/* return HUFv07_decompress4X2(dst, dstSize, cSrc, cSrcSize); */   /* multi-streams single-symbol decoding */
 	/* return HUFv07_decompress4X4(dst, dstSize, cSrc, cSrcSize); */   /* multi-streams double-symbols decoding */
 }
@@ -2450,48 +2370,53 @@ size_t HUFv07_decompress(void* dst, size_t dstSize, const void* cSrc, size_t cSr
 size_t HUFv07_decompress4X_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	/* validation checks */
-	if(dstSize == 0) return ERROR(dstSize_tooSmall);
-	if(cSrcSize > dstSize) return ERROR(corruption_detected); /* invalid */
+	if(dstSize == 0) 
+		return ERROR(dstSize_tooSmall);
+	if(cSrcSize > dstSize) 
+		return ERROR(corruption_detected); /* invalid */
 	if(cSrcSize == dstSize) {
 		memcpy(dst, cSrc, dstSize); return dstSize;
-	}                                                                      /* not compressed */
+	} /* not compressed */
 	if(cSrcSize == 1) {
 		memset(dst, *(const BYTE*)cSrc, dstSize); return dstSize;
-	}                                                                              /* RLE */
-
-	{   U32 const algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
-	    return algoNb ? HUFv07_decompress4X4_DCtx(dctx, dst, dstSize, cSrc, cSrcSize) :
-		   HUFv07_decompress4X2_DCtx(dctx, dst, dstSize, cSrc, cSrcSize);}
+	} /* RLE */
+	{   
+		const uint32 algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
+	    return algoNb ? HUFv07_decompress4X4_DCtx(dctx, dst, dstSize, cSrc, cSrcSize) : HUFv07_decompress4X2_DCtx(dctx, dst, dstSize, cSrc, cSrcSize);
+	}
 }
 
 size_t HUFv07_decompress4X_hufOnly(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	/* validation checks */
-	if(dstSize == 0) return ERROR(dstSize_tooSmall);
-	if((cSrcSize >= dstSize) || (cSrcSize <= 1)) return ERROR(corruption_detected); /* invalid */
-
-	{   U32 const algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
-	    return algoNb ? HUFv07_decompress4X4_DCtx(dctx, dst, dstSize, cSrc, cSrcSize) :
-		   HUFv07_decompress4X2_DCtx(dctx, dst, dstSize, cSrc, cSrcSize);}
+	if(dstSize == 0) 
+		return ERROR(dstSize_tooSmall);
+	if((cSrcSize >= dstSize) || (cSrcSize <= 1)) 
+		return ERROR(corruption_detected); /* invalid */
+	{   
+		const uint32 algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
+	    return algoNb ? HUFv07_decompress4X4_DCtx(dctx, dst, dstSize, cSrc, cSrcSize) : HUFv07_decompress4X2_DCtx(dctx, dst, dstSize, cSrc, cSrcSize);
+	}
 }
 
 size_t HUFv07_decompress1X_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, const void* cSrc, size_t cSrcSize)
 {
 	/* validation checks */
-	if(dstSize == 0) return ERROR(dstSize_tooSmall);
-	if(cSrcSize > dstSize) return ERROR(corruption_detected); /* invalid */
+	if(dstSize == 0) 
+		return ERROR(dstSize_tooSmall);
+	if(cSrcSize > dstSize) 
+		return ERROR(corruption_detected); /* invalid */
 	if(cSrcSize == dstSize) {
 		memcpy(dst, cSrc, dstSize); return dstSize;
-	}                                                                      /* not compressed */
+	} /* not compressed */
 	if(cSrcSize == 1) {
 		memset(dst, *(const BYTE*)cSrc, dstSize); return dstSize;
-	}                                                                              /* RLE */
-
-	{   U32 const algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
-	    return algoNb ? HUFv07_decompress1X4_DCtx(dctx, dst, dstSize, cSrc, cSrcSize) :
-		   HUFv07_decompress1X2_DCtx(dctx, dst, dstSize, cSrc, cSrcSize);}
+	} /* RLE */
+	{   
+		const uint32 algoNb = HUFv07_selectDecoder(dstSize, cSrcSize);
+	    return algoNb ? HUFv07_decompress1X4_DCtx(dctx, dst, dstSize, cSrc, cSrcSize) : HUFv07_decompress1X2_DCtx(dctx, dst, dstSize, cSrc, cSrcSize);
+	}
 }
-
 /*
     Common functions of Zstd compression library
     Copyright (C) 2015-2016, Yann Collet.
@@ -2517,26 +2442,17 @@ size_t HUFv07_decompress1X_DCtx(HUFv07_DTable* dctx, void* dst, size_t dstSize, 
 ******************************************/
 /*! ZSTDv07_isError() :
  *   tells if a return value is an error code */
-unsigned ZSTDv07_isError(size_t code) {
-	return ERR_isError(code);
-}
+uint ZSTDv07_isError(size_t code) { return ERR_isError(code); }
 
 /*! ZSTDv07_getErrorName() :
  *   provides error code string from function result (useful for debugging) */
-const char* ZSTDv07_getErrorName(size_t code) {
-	return ERR_getErrorName(code);
-}
+const char* ZSTDv07_getErrorName(size_t code) { return ERR_getErrorName(code); }
 
 /* **************************************************************
 *  ZBUFF Error Management
 ****************************************************************/
-unsigned ZBUFFv07_isError(size_t errorCode) {
-	return ERR_isError(errorCode);
-}
-
-const char* ZBUFFv07_getErrorName(size_t errorCode) {
-	return ERR_getErrorName(errorCode);
-}
+uint ZBUFFv07_isError(size_t errorCode) { return ERR_isError(errorCode); }
+const char* ZBUFFv07_getErrorName(size_t errorCode) { return ERR_getErrorName(errorCode); }
 
 static void* ZSTDv07_defaultAllocFunction(void* opaque, size_t size)
 {
@@ -2591,7 +2507,7 @@ static void ZSTDv07_defaultFreeFunction(void* opaque, void* address)
 #define ZSTDv07_REP_NUM    3
 #define ZSTDv07_REP_INIT   ZSTDv07_REP_NUM
 #define ZSTDv07_REP_MOVE   (ZSTDv07_REP_NUM-1)
-static const U32 repStartValue[ZSTDv07_REP_NUM] = { 1, 4, 8 };
+static const uint32 repStartValue[ZSTDv07_REP_NUM] = { 1, 4, 8 };
 
 #define KB *(1 <<10)
 #define MB *(1 <<20)
@@ -2642,27 +2558,27 @@ typedef enum { lbt_huffman, lbt_repeat, lbt_raw, lbt_rle } litBlockType_t;
 
 #define ZSTD_CONTENTSIZE_ERROR   (0ULL - 2)
 
-static const U32 LL_bits[MaxLL+1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const uint32 LL_bits[MaxLL+1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				      1, 1, 1, 1, 2, 2, 3, 3, 4, 6, 7, 8, 9, 10, 11, 12,
 				      13, 14, 15, 16 };
-static const S16 LL_defaultNorm[MaxLL+1] = { 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
+static const int16 LL_defaultNorm[MaxLL+1] = { 4, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1,
 					     2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 2, 1, 1, 1, 1, 1,
 					     -1, -1, -1, -1 };
-static const U32 LL_defaultNormLog = 6;
+static const uint32 LL_defaultNormLog = 6;
 
-static const U32 ML_bits[MaxML+1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+static const uint32 ML_bits[MaxML+1] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 				      1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 5, 7, 8, 9, 10, 11,
 				      12, 13, 14, 15, 16 };
-static const S16 ML_defaultNorm[MaxML+1] = { 1, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
+static const int16 ML_defaultNorm[MaxML+1] = { 1, 4, 3, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
 					     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 					     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1,
 					     -1, -1, -1, -1, -1 };
-static const U32 ML_defaultNormLog = 6;
+static const uint32 ML_defaultNormLog = 6;
 
-static const S16 OF_defaultNorm[MaxOff+1] = { 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
+static const int16 OF_defaultNorm[MaxOff+1] = { 1, 1, 1, 1, 1, 1, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1,
 					      1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1 };
-static const U32 OF_defaultNormLog = 5;
+static const uint32 OF_defaultNormLog = 5;
 
 /*-*******************************************
 *  Shared functions to include for inlining
@@ -2692,55 +2608,55 @@ MEM_STATIC void ZSTDv07_wildcopy(void* dst, const void* src, ptrdiff_t length)
 typedef struct ZSTDv07_stats_s ZSTDv07_stats_t;
 
 typedef struct {
-	U32 off;
-	U32 len;
+	uint32 off;
+	uint32 len;
 } ZSTDv07_match_t;
 
 typedef struct {
-	U32 price;
-	U32 off;
-	U32 mlen;
-	U32 litlen;
-	U32 rep[ZSTDv07_REP_INIT];
+	uint32 price;
+	uint32 off;
+	uint32 mlen;
+	uint32 litlen;
+	uint32 rep[ZSTDv07_REP_INIT];
 } ZSTDv07_optimal_t;
 
-struct ZSTDv07_stats_s { U32 unused; };
+struct ZSTDv07_stats_s { uint32 unused; };
 
 typedef struct {
 	void* buffer;
-	U32*  offsetStart;
-	U32*  offset;
+	uint32*  offsetStart;
+	uint32*  offset;
 	BYTE* offCodeStart;
 	BYTE* litStart;
 	BYTE* lit;
-	U16*  litLengthStart;
-	U16*  litLength;
+	uint16*  litLengthStart;
+	uint16*  litLength;
 	BYTE* llCodeStart;
-	U16*  matchLengthStart;
-	U16*  matchLength;
+	uint16*  matchLengthStart;
+	uint16*  matchLength;
 	BYTE* mlCodeStart;
-	U32 longLengthID; /* 0 == no longLength; 1 == Lit.longLength; 2 == Match.longLength; */
-	U32 longLengthPos;
+	uint32 longLengthID; /* 0 == no longLength; 1 == Lit.longLength; 2 == Match.longLength; */
+	uint32 longLengthPos;
 	/* opt */
 	ZSTDv07_optimal_t* priceTable;
 	ZSTDv07_match_t* matchTable;
-	U32* matchLengthFreq;
-	U32* litLengthFreq;
-	U32* litFreq;
-	U32* offCodeFreq;
-	U32 matchLengthSum;
-	U32 matchSum;
-	U32 litLengthSum;
-	U32 litSum;
-	U32 offCodeSum;
-	U32 log2matchLengthSum;
-	U32 log2matchSum;
-	U32 log2litLengthSum;
-	U32 log2litSum;
-	U32 log2offCodeSum;
-	U32 factor;
-	U32 cachedPrice;
-	U32 cachedLitLength;
+	uint32* matchLengthFreq;
+	uint32* litLengthFreq;
+	uint32* litFreq;
+	uint32* offCodeFreq;
+	uint32 matchLengthSum;
+	uint32 matchSum;
+	uint32 litLengthSum;
+	uint32 litSum;
+	uint32 offCodeSum;
+	uint32 log2matchLengthSum;
+	uint32 log2matchSum;
+	uint32 log2litLengthSum;
+	uint32 log2litSum;
+	uint32 log2offCodeSum;
+	uint32 factor;
+	uint32 cachedPrice;
+	uint32 cachedLitLength;
 	const BYTE* cachedLiterals;
 	ZSTDv07_stats_t stats;
 } seqStore_t;
@@ -2770,10 +2686,9 @@ static const ZSTDv07_customMem defaultCustomMem = { ZSTDv07_defaultAllocFunction
     You can contact the author at :
     - zstd homepage : http://www.zstd.net
  */
-
-/* ***************************************************************
-*  Tuning parameters
-*****************************************************************/
+//
+// Tuning parameters
+//
 /*!
  * HEAPMODE :
  * Select how default decompression function ZSTDv07_decompress() will allocate memory,
@@ -2782,10 +2697,9 @@ static const ZSTDv07_customMem defaultCustomMem = { ZSTDv07_defaultAllocFunction
 #ifndef ZSTDv07_HEAPMODE
 #define ZSTDv07_HEAPMODE 1
 #endif
-
-/*-*******************************************************
-*  Compiler specifics
-*********************************************************/
+//
+// Compiler specifics
+//
 #ifdef _MSC_VER    /* Visual Studio */
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
 	#pragma warning(disable : 4324)        /* disable: C4324: padded structure */
@@ -2824,15 +2738,15 @@ struct ZSTDv07_DCtx_s {
 	const void* vBase;
 	const void* dictEnd;
 	size_t expected;
-	U32 rep[3];
+	uint32 rep[3];
 	ZSTDv07_frameParams fParams;
 	blockType_t bType; // used in ZSTDv07_decompressContinue(), to transfer blockType between header decoding and block decoding stages 
 	ZSTDv07_dStage stage;
-	U32 litEntropy;
-	U32 fseEntropy;
+	uint32 litEntropy;
+	uint32 fseEntropy;
 	XXH64_state_t xxhState;
 	size_t headerSize;
-	U32 dictID;
+	uint32 dictID;
 	const BYTE* litPtr;
 	ZSTDv07_customMem customMem;
 	size_t litSize;
@@ -3013,9 +2927,9 @@ static size_t ZSTDv07_frameHeaderSize(const void* src, size_t srcSize)
 {
 	if(srcSize < ZSTDv07_frameHeaderSize_min) return ERROR(srcSize_wrong);
 	{   BYTE const fhd = ((const BYTE*)src)[4];
-	    U32 const dictID = fhd & 3;
-	    U32 const directMode = (fhd >> 5) & 1;
-	    U32 const fcsId = fhd >> 6;
+	    const uint32 dictID = fhd & 3;
+	    const uint32 directMode = (fhd >> 5) & 1;
+	    const uint32 fcsId = fhd >> 6;
 	    return ZSTDv07_frameHeaderSize_min + !directMode + ZSTDv07_did_fieldSize[dictID] + ZSTDv07_fcs_fieldSize[fcsId]
 		   + (directMode && !ZSTDv07_fcs_fieldSize[fcsId]);}
 }
@@ -3049,19 +2963,19 @@ size_t ZSTDv07_getFrameParams(ZSTDv07_frameParams* fparamsPtr, const void* src, 
 
 	{   BYTE const fhdByte = ip[4];
 	    size_t pos = 5;
-	    U32 const dictIDSizeCode = fhdByte&3;
-	    U32 const checksumFlag = (fhdByte>>2)&1;
-	    U32 const directMode = (fhdByte>>5)&1;
-	    U32 const fcsID = fhdByte>>6;
-	    U32 const windowSizeMax = 1U << ZSTDv07_WINDOWLOG_MAX;
-	    U32 windowSize = 0;
-	    U32 dictID = 0;
-	    U64 frameContentSize = 0;
+	    const uint32 dictIDSizeCode = fhdByte&3;
+	    const uint32 checksumFlag = (fhdByte>>2)&1;
+	    const uint32 directMode = (fhdByte>>5)&1;
+	    const uint32 fcsID = fhdByte>>6;
+	    const uint32 windowSizeMax = 1U << ZSTDv07_WINDOWLOG_MAX;
+	    uint32 windowSize = 0;
+	    uint32 dictID = 0;
+	    uint64 frameContentSize = 0;
 	    if((fhdByte & 0x08) != 0) /* reserved bits, which must be zero */
 		    return ERROR(frameParameter_unsupported);
 	    if(!directMode) {
 		    BYTE const wlByte = ip[pos++];
-		    U32 const windowLog = (wlByte >> 3) + ZSTDv07_WINDOWLOG_ABSOLUTEMIN;
+		    const uint32 windowLog = (wlByte >> 3) + ZSTDv07_WINDOWLOG_ABSOLUTEMIN;
 		    if(windowLog > ZSTDv07_WINDOWLOG_MAX)
 			    return ERROR(frameParameter_unsupported);
 		    windowSize = (1U << windowLog);
@@ -3084,7 +2998,7 @@ size_t ZSTDv07_getFrameParams(ZSTDv07_frameParams* fparamsPtr, const void* src, 
 		    case 2: frameContentSize = MEM_readLE32(ip+pos); break;
 		    case 3: frameContentSize = MEM_readLE64(ip+pos); break;
 	    }
-	    if(!windowSize) windowSize = (U32)frameContentSize;
+	    if(!windowSize) windowSize = (uint32)frameContentSize;
 	    if(windowSize > windowSizeMax)
 		    return ERROR(frameParameter_unsupported);
 	    fparamsPtr->frameContentSize = frameContentSize;
@@ -3122,7 +3036,7 @@ static size_t ZSTDv07_decodeFrameHeader(ZSTDv07_DCtx* dctx, const void* src, siz
 
 typedef struct {
 	blockType_t blockType;
-	U32 origSize;
+	uint32 origSize;
 } blockProperties_t;
 
 /*! ZSTDv07_getcBlockSize() :
@@ -3130,7 +3044,7 @@ typedef struct {
 static size_t ZSTDv07_getcBlockSize(const void* src, size_t srcSize, blockProperties_t* bpPtr)
 {
 	const BYTE* const in = (const BYTE*)src;
-	U32 cSize;
+	uint32 cSize;
 
 	if(srcSize < ZSTDv07_blockHeaderSize) return ERROR(srcSize_wrong);
 
@@ -3165,7 +3079,7 @@ static size_t ZSTDv07_decodeLiteralsBlock(ZSTDv07_DCtx* dctx,
 	{
 		case lbt_huffman:
 	    {   size_t litSize, litCSize, singleStream = 0;
-		U32 lhSize = (istart[0] >> 4) & 3;
+		uint32 lhSize = (istart[0] >> 4) & 3;
 		if(srcSize < 5) return ERROR(corruption_detected); /* srcSize >= MIN_CBLOCK_SIZE == 3; here we need up
 			                                              to 5 for lhSize, + cSize (+nbSeq) */
 		switch(lhSize)
@@ -3205,7 +3119,7 @@ static size_t ZSTDv07_decodeLiteralsBlock(ZSTDv07_DCtx* dctx,
 		return litCSize + lhSize;}
 		case lbt_repeat:
 	    {   size_t litSize, litCSize;
-		U32 lhSize = ((istart[0]) >> 4) & 3;
+		uint32 lhSize = ((istart[0]) >> 4) & 3;
 		if(lhSize != 1) /* only case supported for now : small litSize, single stream */
 			return ERROR(corruption_detected);
 		if(dctx->litEntropy==0)
@@ -3229,7 +3143,7 @@ static size_t ZSTDv07_decodeLiteralsBlock(ZSTDv07_DCtx* dctx,
 		return litCSize + lhSize;}
 		case lbt_raw:
 	    {   size_t litSize;
-		U32 lhSize = ((istart[0]) >> 4) & 3;
+		uint32 lhSize = ((istart[0]) >> 4) & 3;
 		switch(lhSize)
 		{
 			case 0: case 1: default: /* note : default is impossible, since lhSize into [0..3] */
@@ -3258,7 +3172,7 @@ static size_t ZSTDv07_decodeLiteralsBlock(ZSTDv07_DCtx* dctx,
 		return lhSize+litSize;}
 		case lbt_rle:
 	    {   size_t litSize;
-		U32 lhSize = ((istart[0]) >> 4) & 3;
+		uint32 lhSize = ((istart[0]) >> 4) & 3;
 		switch(lhSize)
 		{
 			case 0: case 1: default: /* note : default is impossible, since lhSize into [0..3] */
@@ -3288,106 +3202,97 @@ static size_t ZSTDv07_decodeLiteralsBlock(ZSTDv07_DCtx* dctx,
     @return : nb bytes read from src,
               or an error code if it fails, testable with ZSTDv07_isError()
  */
-static size_t ZSTDv07_buildSeqTable(FSEv07_DTable* DTable, U32 type, U32 max, U32 maxLog,
-    const void* src, size_t srcSize,
-    const S16* defaultNorm, U32 defaultLog, U32 flagRepeatTable)
+static size_t ZSTDv07_buildSeqTable(FSEv07_DTable * DTable, uint type, uint max, uint32 maxLog,
+    const void* src, size_t srcSize, const int16* defaultNorm, uint32 defaultLog, uint32 flagRepeatTable)
 {
-	switch(type)
-	{
+	switch(type) {
 		case FSEv07_ENCODING_RLE:
-		    if(!srcSize) return ERROR(srcSize_wrong);
-		    if( (*(const BYTE*)src) > max) return ERROR(corruption_detected);
+		    if(!srcSize) 
+				return ERROR(srcSize_wrong);
+		    if((*(const BYTE*)src) > max) 
+				return ERROR(corruption_detected);
 		    FSEv07_buildDTable_rle(DTable, *(const BYTE*)src); /* if *src > max, data is corrupted */
 		    return 1;
 		case FSEv07_ENCODING_RAW:
 		    FSEv07_buildDTable(DTable, defaultNorm, max, defaultLog);
 		    return 0;
 		case FSEv07_ENCODING_STATIC:
-		    if(!flagRepeatTable) return ERROR(corruption_detected);
+		    if(!flagRepeatTable) 
+				return ERROR(corruption_detected);
 		    return 0;
 		default: /* impossible */
 		case FSEv07_ENCODING_DYNAMIC:
-	    {   U32 tableLog;
-		S16 norm[MaxSeq+1];
-		const size_t headerSize = FSEv07_readNCount(norm, &max, &tableLog, src, srcSize);
-		if(FSEv07_isError(headerSize)) return ERROR(corruption_detected);
-		if(tableLog > maxLog) return ERROR(corruption_detected);
-		FSEv07_buildDTable(DTable, norm, max, tableLog);
-		return headerSize;}
+	    {   
+			uint tableLog;
+			int16  norm[MaxSeq+1];
+			const size_t headerSize = FSEv07_readNCount(norm, &max, &tableLog, src, srcSize);
+			if(FSEv07_isError(headerSize)) 
+				return ERROR(corruption_detected);
+			if(tableLog > maxLog) 
+				return ERROR(corruption_detected);
+			FSEv07_buildDTable(DTable, norm, max, tableLog);
+			return headerSize;
+		}
 	}
 }
 
 static size_t ZSTDv07_decodeSeqHeaders(int* nbSeqPtr,
-    FSEv07_DTable* DTableLL, FSEv07_DTable* DTableML, FSEv07_DTable* DTableOffb, U32 flagRepeatTable,
-    const void* src, size_t srcSize)
+    FSEv07_DTable* DTableLL, FSEv07_DTable* DTableML, FSEv07_DTable* DTableOffb, uint32 flagRepeatTable, const void* src, size_t srcSize)
 {
 	const BYTE* const istart = (const BYTE*)src;
 	const BYTE* const iend = istart + srcSize;
 	const BYTE* ip = istart;
-
 	/* check */
-	if(srcSize < MIN_SEQUENCES_SIZE) return ERROR(srcSize_wrong);
-
+	if(srcSize < MIN_SEQUENCES_SIZE) 
+		return ERROR(srcSize_wrong);
 	/* SeqHead */
-	{   int nbSeq = *ip++;
+	{   
+		int nbSeq = *ip++;
 	    if(!nbSeq) {
 		    *nbSeqPtr = 0; return 1;
 	    }
 	    if(nbSeq > 0x7F) {
 		    if(nbSeq == 0xFF) {
-			    if(ip+2 > iend) return ERROR(srcSize_wrong);
+			    if(ip+2 > iend) 
+					return ERROR(srcSize_wrong);
 			    nbSeq = MEM_readLE16(ip) + LONGNBSEQ, ip += 2;
 		    }
 		    else {
-			    if(ip >= iend) return ERROR(srcSize_wrong);
+			    if(ip >= iend) 
+					return ERROR(srcSize_wrong);
 			    nbSeq = ((nbSeq-0x80)<<8) + *ip++;
 		    }
 	    }
-	    *nbSeqPtr = nbSeq;}
-
+	    *nbSeqPtr = nbSeq;
+	}
 	/* FSE table descriptors */
-	if(ip + 4 > iend) return ERROR(srcSize_wrong); /* min : header byte + all 3 are "raw", hence no header, but at
-	                                                  least xxLog bits per type */
-	{   U32 const LLtype  = *ip >> 6;
-	    U32 const OFtype = (*ip >> 4) & 3;
-	    U32 const MLtype  = (*ip >> 2) & 3;
+	if(ip + 4 > iend) 
+		return ERROR(srcSize_wrong); /* min : header byte + all 3 are "raw", hence no header, but at least xxLog bits per type */
+	{   
+		const uint32 LLtype  = *ip >> 6;
+	    const uint32 OFtype = (*ip >> 4) & 3;
+	    const uint32 MLtype  = (*ip >> 2) & 3;
 	    ip++;
-
 		/* Build DTables */
-	    {   const size_t llhSize = ZSTDv07_buildSeqTable(DTableLL,
-			LLtype,
-			MaxLL,
-			LLFSELog,
-			ip,
-			iend-ip,
-			LL_defaultNorm,
-			LL_defaultNormLog,
-			flagRepeatTable);
-		if(ZSTDv07_isError(llhSize)) return ERROR(corruption_detected);
-		ip += llhSize;}
-	    {   const size_t ofhSize = ZSTDv07_buildSeqTable(DTableOffb,
-			OFtype,
-			MaxOff,
-			OffFSELog,
-			ip,
-			iend-ip,
-			OF_defaultNorm,
-			OF_defaultNormLog,
-			flagRepeatTable);
-		if(ZSTDv07_isError(ofhSize)) return ERROR(corruption_detected);
-		ip += ofhSize;}
-	    {   const size_t mlhSize = ZSTDv07_buildSeqTable(DTableML,
-			MLtype,
-			MaxML,
-			MLFSELog,
-			ip,
-			iend-ip,
-			ML_defaultNorm,
-			ML_defaultNormLog,
-			flagRepeatTable);
-		if(ZSTDv07_isError(mlhSize)) return ERROR(corruption_detected);
-		ip += mlhSize;}   }
-
+	    {   
+			const size_t llhSize = ZSTDv07_buildSeqTable(DTableLL, LLtype, MaxLL, LLFSELog, ip, iend-ip, LL_defaultNorm, LL_defaultNormLog, flagRepeatTable);
+			if(ZSTDv07_isError(llhSize)) 
+				return ERROR(corruption_detected);
+			ip += llhSize;
+		}
+	    {   
+			const size_t ofhSize = ZSTDv07_buildSeqTable(DTableOffb, OFtype, MaxOff, OffFSELog, ip, iend-ip, OF_defaultNorm, OF_defaultNormLog, flagRepeatTable);
+			if(ZSTDv07_isError(ofhSize)) 
+				return ERROR(corruption_detected);
+			ip += ofhSize;
+		}
+	    {   
+			const size_t mlhSize = ZSTDv07_buildSeqTable(DTableML, MLtype, MaxML, MLFSELog, ip, iend-ip, ML_defaultNorm, ML_defaultNormLog, flagRepeatTable);
+			if(ZSTDv07_isError(mlhSize)) 
+				return ERROR(corruption_detected);
+			ip += mlhSize;
+		}
+	}
 	return ip-istart;
 }
 
@@ -3409,29 +3314,29 @@ static seq_t ZSTDv07_decodeSequence(seqState_t* seqState)
 {
 	seq_t seq;
 
-	U32 const llCode = FSEv07_peekSymbol(&(seqState->stateLL));
-	U32 const mlCode = FSEv07_peekSymbol(&(seqState->stateML));
-	U32 const ofCode = FSEv07_peekSymbol(&(seqState->stateOffb)); /* <= maxOff, by table construction */
+	const uint32 llCode = FSEv07_peekSymbol(&(seqState->stateLL));
+	const uint32 mlCode = FSEv07_peekSymbol(&(seqState->stateML));
+	const uint32 ofCode = FSEv07_peekSymbol(&(seqState->stateOffb)); /* <= maxOff, by table construction */
 
-	U32 const llBits = LL_bits[llCode];
-	U32 const mlBits = ML_bits[mlCode];
-	U32 const ofBits = ofCode;
-	U32 const totalBits = llBits+mlBits+ofBits;
+	const uint32 llBits = LL_bits[llCode];
+	const uint32 mlBits = ML_bits[mlCode];
+	const uint32 ofBits = ofCode;
+	const uint32 totalBits = llBits+mlBits+ofBits;
 
-	static const U32 LL_base[MaxLL+1] = {
+	static const uint32 LL_base[MaxLL+1] = {
 		0,  1,  2,  3,  4,  5,  6,  7,  8,  9,   10,    11,    12,    13,    14,     15,
 		16, 18, 20, 22, 24, 28, 32, 40, 48, 64, 0x80, 0x100, 0x200, 0x400, 0x800, 0x1000,
 		0x2000, 0x4000, 0x8000, 0x10000
 	};
 
-	static const U32 ML_base[MaxML+1] = {
+	static const uint32 ML_base[MaxML+1] = {
 		3,  4,  5,  6,  7,  8,  9, 10, 11, 12, 13,   14,    15,    16,    17,    18,
 		19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29,   30,    31,    32,    33,    34,
 		35, 37, 39, 41, 43, 47, 51, 59, 67, 83, 99, 0x83, 0x103, 0x203, 0x403, 0x803,
 		0x1003, 0x2003, 0x4003, 0x8003, 0x10003
 	};
 
-	static const U32 OF_base[MaxOff+1] = {
+	static const uint32 OF_base[MaxOff+1] = {
 		0,        1,       1,       5,     0xD,     0x1D,     0x3D,     0x7D,
 		0xFD,   0x1FD,   0x3FD,   0x7FD,   0xFFD,   0x1FFD,   0x3FFD,   0x7FFD,
 		0xFFFD, 0x1FFFD, 0x3FFFD, 0x7FFFD, 0xFFFFD, 0x1FFFFD, 0x3FFFFD, 0x7FFFFD,
@@ -3538,7 +3443,7 @@ size_t ZSTDv07_execSequence(BYTE* op,
 	/* match within prefix */
 	if(sequence.offset < 8) {
 		/* close range match, overlap */
-		static const U32 dec32table[] = { 0, 1, 2, 1, 4, 4, 4, 4 }; /* added */
+		static const uint32 dec32table[] = { 0, 1, 2, 1, 4, 4, 4, 4 }; /* added */
 		static const int dec64table[] = { 8, 8, 8, 7, 8, 9, 10, 11 }; /* subtracted */
 		int const sub2 = dec64table[sequence.offset];
 		op[0] = match[0];
@@ -3596,7 +3501,7 @@ static size_t ZSTDv07_decompressSequences(ZSTDv07_DCtx* dctx,
 	if(nbSeq) {
 		seqState_t seqState;
 		dctx->fseEntropy = 1;
-		{ U32 i; for(i = 0; i<ZSTDv07_REP_INIT; i++) seqState.prevOffset[i] = dctx->rep[i]; }
+		{ uint32 i; for(i = 0; i<ZSTDv07_REP_INIT; i++) seqState.prevOffset[i] = dctx->rep[i]; }
 		{ const size_t errorCode = BITv07_initDStream(&(seqState.DStream), ip, iend-ip);
 		  if(ERR_isError(errorCode)) return ERROR(corruption_detected); }
 		FSEv07_initDState(&(seqState.stateLL), &(seqState.DStream), DTableLL);
@@ -3614,7 +3519,7 @@ static size_t ZSTDv07_decompressSequences(ZSTDv07_DCtx* dctx,
 		/* check if reached exact end */
 		if(nbSeq) return ERROR(corruption_detected);
 		/* save reps for next block */
-		{ U32 i; for(i = 0; i<ZSTDv07_REP_INIT; i++) dctx->rep[i] = (U32)(seqState.prevOffset[i]); }
+		{ uint32 i; for(i = 0; i<ZSTDv07_REP_INIT; i++) dctx->rep[i] = (uint32)(seqState.prevOffset[i]); }
 	}
 
 	/* last literal segment */
@@ -3663,7 +3568,7 @@ size_t ZSTDv07_decompressBlock(ZSTDv07_DCtx* dctx,
 	size_t dSize;
 	ZSTDv07_checkContinuity(dctx, dst);
 	dSize = ZSTDv07_decompressBlock_internal(dctx, dst, dstCapacity, src, srcSize);
-	dctx->previousDstEnd = (char*)dst + dSize;
+	dctx->previousDstEnd = (char *)dst + dSize;
 	return dSize;
 }
 
@@ -3757,19 +3662,14 @@ static size_t ZSTDv07_decompressFrame(ZSTDv07_DCtx* dctx,
  *   `preparedDCtx` must have been properly initialized using ZSTDv07_decompressBegin_usingDict().
  *   Requires 2 contexts : 1 for reference (preparedDCtx), which will not be modified, and 1 to run the decompression
  *operation (dctx) */
-static size_t ZSTDv07_decompress_usingPreparedDCtx(ZSTDv07_DCtx* dctx, const ZSTDv07_DCtx* refDCtx,
-    void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize)
+static size_t ZSTDv07_decompress_usingPreparedDCtx(ZSTDv07_DCtx* dctx, const ZSTDv07_DCtx* refDCtx, void* dst, size_t dstCapacity, const void* src, size_t srcSize)
 {
 	ZSTDv07_copyDCtx(dctx, refDCtx);
 	ZSTDv07_checkContinuity(dctx, dst);
 	return ZSTDv07_decompressFrame(dctx, dst, dstCapacity, src, srcSize);
 }
 
-size_t ZSTDv07_decompress_usingDict(ZSTDv07_DCtx* dctx,
-    void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize,
-    const void* dict, size_t dictSize)
+size_t ZSTDv07_decompress_usingDict(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize, const void* dict, size_t dictSize)
 {
 	ZSTDv07_decompressBegin_usingDict(dctx, dict, dictSize);
 	ZSTDv07_checkContinuity(dctx, dst);
@@ -3810,15 +3710,14 @@ void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 	const BYTE* ip = (const BYTE*)src;
 	size_t remainingSize = srcSize;
 	size_t nbBlocks = 0;
-
 	/* check */
 	if(srcSize < ZSTDv07_frameHeaderSize_min+ZSTDv07_blockHeaderSize) {
 		ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, ERROR(srcSize_wrong));
 		return;
 	}
-
 	/* Frame Header */
-	{   const size_t frameHeaderSize = ZSTDv07_frameHeaderSize(src, srcSize);
+	{   
+		const size_t frameHeaderSize = ZSTDv07_frameHeaderSize(src, srcSize);
 	    if(ZSTDv07_isError(frameHeaderSize)) {
 		    ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, frameHeaderSize);
 		    return;
@@ -3831,8 +3730,8 @@ void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 		    ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, ERROR(srcSize_wrong));
 		    return;
 	    }
-	    ip += frameHeaderSize; remainingSize -= frameHeaderSize;}
-
+	    ip += frameHeaderSize; remainingSize -= frameHeaderSize;
+	}
 	/* Loop on each block */
 	while(1) {
 		blockProperties_t blockProperties;
@@ -3841,12 +3740,10 @@ void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 			ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, cBlockSize);
 			return;
 		}
-
 		ip += ZSTDv07_blockHeaderSize;
 		remainingSize -= ZSTDv07_blockHeaderSize;
-
-		if(blockProperties.blockType == bt_end) break;
-
+		if(blockProperties.blockType == bt_end) 
+			break;
 		if(cBlockSize > remainingSize) {
 			ZSTD_errorFrameSizeInfoLegacy(cSize, dBound, ERROR(srcSize_wrong));
 			return;
@@ -3873,11 +3770,10 @@ size_t ZSTDv07_decompressContinue(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapac
 	/* Sanity check */
 	if(srcSize != dctx->expected) return ERROR(srcSize_wrong);
 	if(dstCapacity) ZSTDv07_checkContinuity(dctx, dst);
-
-	switch(dctx->stage)
-	{
+	switch(dctx->stage) {
 		case ZSTDds_getFrameHeaderSize:
-		    if(srcSize != ZSTDv07_frameHeaderSize_min) return ERROR(srcSize_wrong); /* impossible */
+		    if(srcSize != ZSTDv07_frameHeaderSize_min) 
+				return ERROR(srcSize_wrong); /* impossible */
 		    if((MEM_readLE32(src) & 0xFFFFFFF0U) == ZSTDv07_MAGIC_SKIPPABLE_START) {
 			    memcpy(dctx->headerBuffer, src, ZSTDv07_frameHeaderSize_min);
 			    dctx->expected = ZSTDv07_skippableHeaderSize - ZSTDv07_frameHeaderSize_min; // magic number + skippable frame length 
@@ -3908,10 +3804,10 @@ size_t ZSTDv07_decompressContinue(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapac
 		if(ZSTDv07_isError(cBlockSize)) return cBlockSize;
 		if(bp.blockType == bt_end) {
 			if(dctx->fParams.checksumFlag) {
-				U64 const h64 = XXH64_digest(&dctx->xxhState);
-				U32 const h32 = (U32)(h64>>11) & ((1<<22)-1);
+				uint64 const h64 = XXH64_digest(&dctx->xxhState);
+				const uint32 h32 = (uint32)(h64>>11) & ((1<<22)-1);
 				const BYTE* const ip = (const BYTE*)src;
-				U32 const check32 = ip[2] + (ip[1] << 8) + ((ip[0] & 0x3F) << 16);
+				const uint32 check32 = ip[2] + (ip[1] << 8) + ((ip[0] & 0x3F) << 16);
 				if(check32 != h32) return ERROR(checksum_wrong);
 			}
 			dctx->expected = 0;
@@ -3943,7 +3839,7 @@ size_t ZSTDv07_decompressContinue(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapac
 		}
 		dctx->stage = ZSTDds_decodeBlockHeader;
 		dctx->expected = ZSTDv07_blockHeaderSize;
-		dctx->previousDstEnd = (char*)dst + rSize;
+		dctx->previousDstEnd = (char *)dst + rSize;
 		if(ZSTDv07_isError(rSize)) return rSize;
 		if(dctx->fParams.checksumFlag) XXH64_update(&dctx->xxhState, dst, rSize);
 		return rSize;}
@@ -3970,23 +3866,32 @@ static size_t ZSTDv07_refDictContent(ZSTDv07_DCtx* dctx, const void* dict, size_
 	return 0;
 }
 
-static size_t ZSTDv07_loadEntropy(ZSTDv07_DCtx* dctx, const void* const dict, const size_t dictSize)
+static size_t ZSTDv07_loadEntropy(ZSTDv07_DCtx * dctx, const void * const dict, const size_t dictSize)
 {
 	const BYTE* dictPtr = (const BYTE*)dict;
 	const BYTE* const dictEnd = dictPtr + dictSize;
-
-	{   const size_t hSize = HUFv07_readDTableX4(dctx->hufTable, dict, dictSize);
-	    if(HUFv07_isError(hSize)) return ERROR(dictionary_corrupted);
-	    dictPtr += hSize;}
-
-	{   short offcodeNCount[MaxOff+1];
-	    U32 offcodeMaxValue = MaxOff, offcodeLog;
+	{   
+		const size_t hSize = HUFv07_readDTableX4(dctx->hufTable, dict, dictSize);
+	    if(HUFv07_isError(hSize)) 
+			return ERROR(dictionary_corrupted);
+	    dictPtr += hSize;
+	}
+	{   
+		short  offcodeNCount[MaxOff+1];
+	    uint   offcodeMaxValue = MaxOff;
+		uint   offcodeLog;
 	    const size_t offcodeHeaderSize = FSEv07_readNCount(offcodeNCount, &offcodeMaxValue, &offcodeLog, dictPtr, dictEnd-dictPtr);
-	    if(FSEv07_isError(offcodeHeaderSize)) return ERROR(dictionary_corrupted);
-	    if(offcodeLog > OffFSELog) return ERROR(dictionary_corrupted);
-	    { const size_t errorCode = FSEv07_buildDTable(dctx->OffTable, offcodeNCount, offcodeMaxValue, offcodeLog);
-	      if(FSEv07_isError(errorCode)) return ERROR(dictionary_corrupted); }
-	    dictPtr += offcodeHeaderSize;}
+	    if(FSEv07_isError(offcodeHeaderSize)) 
+			return ERROR(dictionary_corrupted);
+	    if(offcodeLog > OffFSELog) 
+			return ERROR(dictionary_corrupted);
+	    { 
+			const size_t errorCode = FSEv07_buildDTable(dctx->OffTable, offcodeNCount, offcodeMaxValue, offcodeLog);
+			if(FSEv07_isError(errorCode)) 
+				return ERROR(dictionary_corrupted); 
+		}
+	    dictPtr += offcodeHeaderSize;
+	}
 
 	{   short matchlengthNCount[MaxML+1];
 	    unsigned matchlengthMaxValue = MaxML, matchlengthLog;
@@ -4026,22 +3931,25 @@ static size_t ZSTDv07_loadEntropy(ZSTDv07_DCtx* dctx, const void* const dict, co
 
 static size_t ZSTDv07_decompress_insertDictionary(ZSTDv07_DCtx* dctx, const void* dict, size_t dictSize)
 {
-	if(dictSize < 8) return ZSTDv07_refDictContent(dctx, dict, dictSize);
-	{   U32 const magic = MEM_readLE32(dict);
+	if(dictSize < 8) 
+		return ZSTDv07_refDictContent(dctx, dict, dictSize);
+	{   
+		const uint32 magic = MEM_readLE32(dict);
 	    if(magic != ZSTDv07_DICT_MAGIC) {
 		    return ZSTDv07_refDictContent(dctx, dict, dictSize); /* pure content mode */
 	    }
 	}
 	dctx->dictID = MEM_readLE32((const char*)dict + 4);
-
 	/* load entropy tables */
 	dict = (const char*)dict + 8;
 	dictSize -= 8;
-	{   const size_t eSize = ZSTDv07_loadEntropy(dctx, dict, dictSize);
-	    if(ZSTDv07_isError(eSize)) return ERROR(dictionary_corrupted);
+	{   
+		const size_t eSize = ZSTDv07_loadEntropy(dctx, dict, dictSize);
+	    if(ZSTDv07_isError(eSize)) 
+			return ERROR(dictionary_corrupted);
 	    dict = (const char*)dict + eSize;
-	    dictSize -= eSize;}
-
+	    dictSize -= eSize;
+	}
 	/* reference dictionary content */
 	return ZSTDv07_refDictContent(dctx, dict, dictSize);
 }
@@ -4173,8 +4081,13 @@ ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDDict(ZSTDv07_DCtx* dctx, void* ds
  *KB + 3 .
  * *******************************************************************************/
 
-typedef enum { ZBUFFds_init, ZBUFFds_loadHeader,
-	       ZBUFFds_read, ZBUFFds_load, ZBUFFds_flush } ZBUFFv07_dStage;
+typedef enum { 
+	ZBUFFds_init, 
+	ZBUFFds_loadHeader,
+	ZBUFFds_read, 
+	ZBUFFds_load, 
+	ZBUFFds_flush 
+} ZBUFFv07_dStage;
 
 /* *** Resource management *** */
 struct ZBUFFv07_DCtx_s {
@@ -4260,10 +4173,10 @@ size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* zbd, void* dst, size_t* dstCap
 	const char* const istart = (const char*)src;
 	const char* const iend = istart + *srcSizePtr;
 	const char* ip = istart;
-	char* const ostart = (char*)dst;
+	char* const ostart = (char *)dst;
 	char* const oend = ostart + *dstCapacityPtr;
 	char* op = ostart;
-	U32 notDone = 1;
+	uint32 notDone = 1;
 	while(notDone) {
 		switch(zbd->stage) {
 			case ZBUFFds_init:
@@ -4305,14 +4218,14 @@ size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* zbd, void* dst, size_t* dstCap
 				if(zbd->inBuffSize < blockSize) {
 					zbd->customMem.customFree(zbd->customMem.opaque, zbd->inBuff);
 					zbd->inBuffSize = blockSize;
-					zbd->inBuff = (char*)zbd->customMem.customAlloc(zbd->customMem.opaque, blockSize);
+					zbd->inBuff = (char *)zbd->customMem.customAlloc(zbd->customMem.opaque, blockSize);
 					if(zbd->inBuff == NULL) return ERROR(memory_allocation);
 				}
 				{   const size_t neededOutSize = zbd->fParams.windowSize + blockSize + WILDCOPY_OVERLENGTH * 2;
 				    if(zbd->outBuffSize < neededOutSize) {
 					    zbd->customMem.customFree(zbd->customMem.opaque, zbd->outBuff);
 					    zbd->outBuffSize = neededOutSize;
-					    zbd->outBuff = (char*)zbd->customMem.customAlloc(zbd->customMem.opaque, neededOutSize);
+					    zbd->outBuff = (char *)zbd->customMem.customAlloc(zbd->customMem.opaque, neededOutSize);
 					    if(zbd->outBuff == NULL) return ERROR(memory_allocation);
 				    }
 				}   }
@@ -4340,7 +4253,7 @@ size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* zbd, void* dst, size_t* dstCap
 			}
 			if(ip==iend) {
 				notDone = 0; break;
-			}                               /* no more input */
+			} /* no more input */
 			zbd->stage = ZBUFFds_load;}
 			/* fall-through */
 			case ZBUFFds_load:

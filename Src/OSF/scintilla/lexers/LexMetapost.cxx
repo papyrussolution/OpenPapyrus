@@ -49,61 +49,40 @@ using namespace Scintilla;
 
 // Auxiliary functions:
 
-static bool FASTCALL endOfLine(Accessor & styler, Sci_PositionU i) {
-	return
-		(styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
+static bool FASTCALL endOfLine(Accessor & styler, Sci_PositionU i) 
+{
+	return (styler[i] == '\n') || ((styler[i] == '\r') && (styler.SafeGetCharAt(i + 1) != '\n'));
 }
 
-static bool FASTCALL isMETAPOSTcomment(int ch) {
-	return
-		(ch == '%');
+static bool FASTCALL isMETAPOSTcomment(int ch) 
+{
+	return (ch == '%');
 }
 
-static bool FASTCALL isMETAPOSTone(int ch) {
-	return
-		(ch == '[') || (ch == ']') || (ch == '(') || (ch == ')') ||
-		(ch == ':') || (ch == '=') || (ch == '<') || (ch == '>') ||
-		(ch == '{') || (ch == '}') || (ch == '\'') || (ch == '\"');
+static bool FASTCALL isMETAPOSTone(int ch) 
+{
+	return oneof12(ch, '[', ']', '(', ')', ':', '=', '<', '>', '{', '}', '\'', '\"');
 }
 
-static bool FASTCALL isMETAPOSTtwo(int ch) {
-	return
-		(ch == ';') || (ch == '$') || (ch == '@') || (ch == '#');
+static bool FASTCALL isMETAPOSTtwo(int ch) 
+{
+	return oneof4(ch, ';', '$', '@', '#');
 }
 
-static bool FASTCALL isMETAPOSTthree(int ch) {
-	return
-		(ch == '.') || (ch == '-') || (ch == '+') || (ch == '/') ||
-		(ch == '*') || (ch == ',') || (ch == '|') || (ch == '`') ||
-		(ch == '!') || (ch == '?') || (ch == '^') || (ch == '&') ||
-		(ch == '%');
+static bool FASTCALL isMETAPOSTthree(int ch) 
+{
+	return oneof13(ch, '.', '-', '+', '/', '*', ',', '|', '`', '!', '?', '^', '&', '%');
 }
 
-static bool FASTCALL isMETAPOSTidentifier(int ch) {
-	return
-		((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) ||
-		(ch == '_');
+static bool FASTCALL isMETAPOSTidentifier(int ch) 
+{
+	return ((ch >= 'a') && (ch <= 'z')) || ((ch >= 'A') && (ch <= 'Z')) || (ch == '_');
 }
 
-static bool FASTCALL isMETAPOSTnumber(int ch) {
-	return
-		(ch >= '0') && (ch <= '9');
-}
-
-static bool FASTCALL isMETAPOSTstring(int ch) {
-	return
-		(ch == '\"');
-}
-
-static bool FASTCALL isMETAPOSTcolon(int ch) {
-	return
-		(ch == ':');
-}
-
-static bool FASTCALL isMETAPOSTequal(int ch) {
-	return
-		(ch == '=');
-}
+static bool FASTCALL isMETAPOSTnumber(int ch) { return (ch >= '0') && (ch <= '9'); }
+static bool FASTCALL isMETAPOSTstring(int ch) { return (ch == '\"'); }
+static bool FASTCALL isMETAPOSTcolon(int ch) { return (ch == ':'); }
+static bool FASTCALL isMETAPOSTequal(int ch) { return (ch == '='); }
 
 static int CheckMETAPOSTInterface(Sci_PositionU startPos,
     Sci_Position length,

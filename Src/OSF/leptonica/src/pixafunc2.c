@@ -849,7 +849,7 @@ PIX * pixaDisplayTiledInRows(PIXA      * pixa,
 		y += maxh + spacing;
 	}
 	if(boxaWriteMem(&data, &size, boxa) == 0)
-		pixSetText(pixd, (char*)data); /* data is ascii */
+		pixSetText(pixd, (char *)data); /* data is ascii */
 	SAlloc::F(data);
 	boxaDestroy(&boxa);
 
@@ -974,7 +974,7 @@ PIX * pixaDisplayTiledInColumns(PIXA      * pixas,
 
 	/* Save the boxa in the text field of the output pix */
 	if(boxaWriteMem(&data, &size, boxa) == 0)
-		pixSetText(pixd, (char*)data); /* data is ascii */
+		pixSetText(pixd, (char *)data); /* data is ascii */
 	SAlloc::F(data);
 
 	pixaDestroy(&pixa2);

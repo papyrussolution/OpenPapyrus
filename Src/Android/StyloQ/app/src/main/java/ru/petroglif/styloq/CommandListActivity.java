@@ -8,9 +8,11 @@ import android.content.Intent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
+
 import org.jetbrains.annotations.NotNull;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -124,18 +126,7 @@ public class CommandListActivity extends SLib.SlActivity {
 									if(ListData == null)
 										ListData = new StyloQCommand.List();
 								}
-								{
-									View imgv_ = findViewById(R.id.CTLIMG_PAGEHEADER_SVC);
-									if(imgv_ != null && imgv_ instanceof ImageView) {
-										ImageView imgv = (ImageView)imgv_;
-										if(SLib.GetLen(blob_signature) > 0) {
-											imgv.setVisibility(View.VISIBLE);
-											Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
-										}
-										else
-											imgv.setVisibility(View.GONE);
-									}
-								}
+								SLib.SetupImage(this, findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
 							}
 						}
 						if(ListData == null)

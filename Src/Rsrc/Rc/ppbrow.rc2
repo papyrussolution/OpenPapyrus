@@ -52,6 +52,7 @@
 // @v11.0.0  TBBM_PERCENT-->PPDV_PERCENT
 // @v11.0.0  TBBM_GOODS-->PPDV_WARESINGLE01
 // @v11.0.0  TBBM_GOODSVIEW2-->PPDV_WAREMULTI01
+// @v11.3.11 TBBM_ADDTISTOBASKET-->PPDV_SHOPPINGCARTINTO01
 //
 declare command DEFAULT     // kbEnter
 declare command ADDITEM     // kbInsert
@@ -674,7 +675,7 @@ toolbar export LOTS TB_FIRST_TOOLBAR {
 	MOVLOTOP      : kbCtrlM,  TBBM_OPERMOVE,        "@{domoveops}\tCtrl-M"
 	EXTUPDATE     : kbCtrlC,  TBBM_CHNGPRICE,       "Изменение цен\tCtrl-C"
 	PUTTOBASKET   : kbCtrlF4, PPDV_SHOPPINGCART01,  "@{doputtobasket}\tCtrl-F4"
-	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
+	PUTTOBASKETALL: kbShiftF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tShift-F4"
 	PRINTLABEL    : kbCtrlL,  TBBM_PRNLABELS,       "@{printlabel}\tCtrl-L"
 	EDITPERSON    : kbCtrlS,  TBBM_PERSONS,         "@{supplier}\tCtrl-S"
 	separator
@@ -701,7 +702,7 @@ toolbar export ORDLOTS TB_FIRST_TOOLBAR {
 	DETAIL        : kbF3,      TBBM_LOTSOPER,       "@{view_lotop}\tF3"
 	SYSTEMINFO    : kbCtrlF3,  TBBM_SYSTEMINFO,     "@{sysinfo}\tCtrl-F3"
 	PUTTOBASKET   : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
-	PUTTOBASKETALL: kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
+	PUTTOBASKETALL: kbShiftF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tShift-F4"
 	separator
 	TAGS          : kbCtrlF6,  PPDV_TAGS01,         "@{tags}\tCtrl-F6"
 	TAGSALL       : kbShiftF6, TBBM_TAGSALL,        "@{doupdatetags}\tShift-F6"
@@ -720,7 +721,7 @@ toolbar export GOODSREST TB_FIRST_TOOLBAR {
 	EDITGOODS         : kbF2,     PPDV_WARESINGLE01,      "@{ware}\tF2"
 	//PUTTOBASKET     : kbCtrlF4, PPDV_SHOPPINGCART01,    "@{doputtobasket}\tCtrl-F4"
 	PUTTOBASKET       : kbSpace,  PPDV_SHOPPINGCART01,    "@{doputtobasket}\t@{keyboard_k_space}"
-	PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET,    "@{doputtobasketall}\tCtrl-F8"
+	PUTTOBASKETALL    : kbCtrlF8, PPDV_SHOPPINGCARTINTO01,    "@{doputtobasketall}\tCtrl-F8"
 	VIEWOPGRPNG       : kbF5,     TBBM_OPGRPNG,           "@{opgrouping_bygoods}\tF5"
 	VIEWFORECAST      : kbCtrlF9, TBBM_PROGNOSIS,         "@{cmd_getprognosis}\tCtrl-F9"
 	VIEWSELLTAB       : kbCtrlS,  TBBM_SELLTAB,           "@{waresalestable}\tCtrl-S"
@@ -810,7 +811,7 @@ toolbar export GOODSBILLITEM TB_FIRST_TOOLBAR {
 	kbF5,      "@{doselectgoodsbyprice}\tF5",           TBBM_PRICE
 	kbF6,      "Добавить из заказа\tF6",                TBBM_ADDTIFROMORD
 	kbF8,      "@{dogetfrombasket}\tF8",                TBBM_ADDTISFROMBASKET
-	kbCtrlF8,  "@{doputtobasket}\tCtrl-F8",             TBBM_ADDTISTOBASKET
+	kbCtrlF8,  "@{doputtobasket}\tCtrl-F8",             PPDV_SHOPPINGCARTINTO01
 	separator
 	kbCtrlL,   "@{printlabel}\tCtrl-L",                 TBBM_BARLABEL
 	kbCtrlS,   "Генерировать серийные номера\tCtrl-S",  TBBM_SERIALGEN
@@ -878,7 +879,7 @@ toolbar export GOODSOPER TB_FIRST_TOOLBAR {
 	TRFRANLZ       : kbF3,      PPDV_TRFRANLZ,       "@{view_trfranlz}\tF3"
 	OPGRPNG        : kbF5,      TBBM_OPGRPNG,        "@{opgrouping}\tF5"
 	ADDTOBASKET    : kbSpace,   PPDV_SHOPPINGCART01, "@{doputtobasket}\t@{keyboard_k_space}" // kbCtrlF4
-	ADDALLTOBASKET : kbCtrlF8,  TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
+	ADDALLTOBASKET : kbCtrlF8,  PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F8"
 	separator
 	SORT           : kbCtrlO,   TBBM_SORT,           "@{sorting}\tCtrl-O"
 	PRINT          : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
@@ -1921,7 +1922,7 @@ browser INVNTRYLINES north(100), 1, 1, "@{view_inventory} {%s}", OWNER|GRID, 0
 		PRINT         : kbF7,      PPDV_PRINTER01,        "@{print}\tF7"
 		EDITGOODS     : kbShiftF2, PPDV_WARESINGLE01,     "@{ware}\tShift-F2"
 		ADDFROMBASKET : kbAltF8,   TBBM_ADDTISFROMBASKET, "@{dogetfrombasket}\tAlt-F8"
-		ADDTOBASKET   : kbCtrlF8,  TBBM_ADDTISTOBASKET,   "@{doputtobasket}\tCtrl-F8"
+		ADDTOBASKET   : kbCtrlF8,  PPDV_SHOPPINGCARTINTO01, "@{doputtobasket}\tCtrl-F8"
 		separator
 		BUILD         : kbF8,      TBBM_REFRESH,      "@{doinventoryautofill}\tF8"
 		RECALCREST    : kbCtrlR,   PPDV_REPAIR02,     "@{doinventoryrecalcstock}\tCtrl-R"
@@ -2569,7 +2570,7 @@ browser TRFRGR_G north(100), 1, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID,
 		separator
 		EDITGOODS      : kbF2,      PPDV_WARESINGLE01,    "@{ware}\tF2"
 		PUTTOBASKET    : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4" // @v10.7.0
-		PUTTOBASKETALL : kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4" // @v10.7.0
+		PUTTOBASKETALL : kbShiftF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tShift-F4" // @v10.7.0
 		TAGS           : kbF6,      PPDV_TAGS01,    "@{tags}\tF6"
 		TAGSALL        : kbShiftF6, TBBM_TAGSALL,   "@{doupdatetags}\tShift-F6"
 		separator
@@ -2642,7 +2643,7 @@ browser TRFRGR_GS north(100), 3, 1, "@{view_opgrouping} @{_bygoods}", OWNER|GRID
 		separator
 		EDITGOODS      : kbF2,      PPDV_WARESINGLE01,    "@{ware}\tF2"
 		PUTTOBASKET    : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4" // @v10.7.0
-		PUTTOBASKETALL : kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4" // @v10.7.0
+		PUTTOBASKETALL : kbShiftF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tShift-F4" // @v10.7.0
 		TAGS           : kbF6,      PPDV_TAGS01,  "@{tags}\tF6"
 		TAGSALL        : kbShiftF6, TBBM_TAGSALL, "@{doupdatetags}\tShift-F6"
 		separator
@@ -3305,7 +3306,7 @@ browser GOODSOPER_PRICEDEV north(100), 3, 1, "Товарный отчет с отклонением цен {
 		GOODS          : kbF2,      PPDV_WARESINGLE01,   "@{ware}\tF2"
 		OPGRPNG        : kbF5,      TBBM_OPGRPNG,        "@{opgrouping}\tF5"
 		ADDTOBASKET    : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
-		ADDALLTOBASKET : kbCtrlF8,  TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
+		ADDALLTOBASKET : kbCtrlF8,  PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F8"
 		separator
 		SORT           : kbCtrlO,   TBBM_SORT,           "@{sorting}\tCtrl-O"
 		PRINT          : kbF7,      PPDV_PRINTER01,      "@{print}\tF7"
@@ -3488,7 +3489,7 @@ browser PLINES north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		VIEWLOTS         : kbF3,       PPDV_LOTS,             "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,   "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET, "@{doextractpricelistfromcart}\tCtrl-F5"
-		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,   "@{doputtobasketall}\tCtrl-F9"
+		PUTTOBASKETALL   : kbCtrlF9,   PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F9"
 		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "Опубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,       "@{exporttouhtt}\tAlt-U" // @v7.6.0
 		// @v9.3.2 EXPORT           : kbCtrlL,    PPDV_EXPORT01,           "Экспорт в формате EXCEL\tCtrl-L"
@@ -3518,7 +3519,7 @@ browser PLINES_BYALLQUOTS north(100), 1, 1, "@{pricelist} {%s}", OWNER|GRID, 0
 		VIEWLOTS         : kbF3,       PPDV_LOTS,                "@{lots}\tF3"
 		ADDTOBASKET      : kbCtrlF4,   PPDV_SHOPPINGCART01,      "@{doputtobasket}\tCtrl-F4"
 		ADDFROMBASKET    : kbCtrlF5,   TBBM_ADDTISFROMBASKET,    "@{doextractpricelistfromcart}\tCtrl-F5"
-		PUTTOBASKETALL   : kbCtrlF9,   TBBM_ADDTISTOBASKET,      "@{doputtobasketall}\tCtrl-F9"
+		PUTTOBASKETALL   : kbCtrlF9,   PPDV_SHOPPINGCARTINTO01,  "@{doputtobasketall}\tCtrl-F9"
 		// @v7.6.0 POSTALBATROS     : kbF6,       TBBM_POSTALBATROS,     "Опубликовать прайс-лист в Albatros\tF6"
 		EXPORTUHTT       : kbAltU,     TBBM_EXPORTUHTT,          "@{exporttouhtt}\tAlt-U" // @v7.6.0
 		// @v9.3.2 EXPORT           : kbCtrlL,    PPDV_EXPORT01, "Экспорт в формате EXCEL\tCtrl-L"
@@ -3903,7 +3904,7 @@ browser CCHECKGRP_GOODS north(100), 1, 1, "@{view_ccheck} @{_groupedbygoods}", O
 	"@{fraction},%",  7, notype, 0, 6.4
 	toolbar TB_FIRST_TOOLBAR {
 		DETAIL         : kbEnter,  PPDV_LINS01,         "@{detail}\tEnter"
-		ADDALLTOBASKET : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
+		ADDALLTOBASKET : kbCtrlF8, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F8"
 		TOTAL          : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		PRINT          : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
 		CHANGEFILT     : kbCtrlV,  PPDV_FILTER01,       "@{filter}\tCtrl-V"
@@ -4344,7 +4345,7 @@ browser CSESSEXC north(100), 3, 1, "@{view_csessexc}", OWNER|GRID, 0
 		VIEWLOTS      : kbF3,     PPDV_LOTS,           "@{lots}\tF3"
 		SETALTGOODS   : kbF4,     TBBM_CSEXCAG,        "@{csessexcaltgoodsparam_s}\tF4"
 		separator
-		PUTTOBASKETALL: kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
+		PUTTOBASKETALL: kbCtrlF8, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F8"
 		PRINT         : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
 		TOTAL         : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
@@ -4600,7 +4601,7 @@ browser SYNCCMP north(100), 3, 1, "Сравнение синхронизации объектов", OWNER|GRID
 		EDITOBJ     : kbEnter,  PPDV_EDITFILE02,     "@{viewobject}\tEnter"
 		DELETEITEM  : kbDel,    PPDV_DELETEFILE02,   "Удалить информацию о синхронизации объекта (по общему ид-ру)\tDelete"
 		DELETEALL   : kbCtrlF8, PPDV_DELETEALL02,    "Удалить информацию о синхронизации по всей выборке\tCtrl-F8"
-		PUTTOBASKET : kbCtrlF4, TBBM_ADDTISTOBASKET, "@{doputtobasket_goods}\tCtrl-F4"
+		PUTTOBASKET : kbCtrlF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasket_goods}\tCtrl-F4"
 		separator
 		PRINT       : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
 		TOTAL       : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
@@ -4754,7 +4755,7 @@ browser SSTAT_SORD north(100), 2, 1, "@{ordertosuppliercalculation} {%s}", OWNER
 		VIEWLOTS          : kbF3,     PPDV_LOTS,           "@{dobrowselotsbycurware}\tF3"
 		EDITVAL           : kbF8,     PPDV_NOICON,         "@{doeditqtty}\tF8"
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
-		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasket_goodsfororder}\tCtrl-F8"
+		PUTTOBASKETALL    : kbCtrlF8, PPDV_SHOPPINGCARTINTO01, "@{doputtobasket_goodsfororder}\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,         "@{domakepurchasebill}\tCtrl-P"
 		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,  "@{doviewcreatedbuyersorder}\tAlt-P"
 		separator
@@ -4783,7 +4784,7 @@ browser SSTAT_SORD_CT north(100), 3, 1, "@{ordertosuppliercalculation} {%s}", OW
 		VIEWLOTS          : kbF3,     PPDV_LOTS,            "@{dobrowselotsbycurware}\tF3"
 		EDITVAL           : kbF8,     PPDV_NOICON,          "@{doeditqtty}\tF8"
 		PUTTOBASKET       : kbCtrlF4, PPDV_SHOPPINGCART01,  "@{doputtobasket}\tCtrl-F4"
-		PUTTOBASKETALL    : kbCtrlF8, TBBM_ADDTISTOBASKET,  "@{doputtobasket_goodsfororder}\tCtrl-F8"
+		PUTTOBASKETALL    : kbCtrlF8, PPDV_SHOPPINGCARTINTO01, "@{doputtobasket_goodsfororder}\tCtrl-F8"
 		MAKEPURCHASEBILL  : kbCtrlP,  PPDV_NOICON,          "@{domakepurchasebill}\tCtrl-P"
 		VIEWBILLS         : kbAltP,   PPDV_DOCUMENT_PL02,   "@{doviewcreatedbuyersorder}\tAlt-P"
 		separator
@@ -5092,7 +5093,7 @@ browser GBILLCMP north(100), 3, 1, "@{docomparedocuments} %s", OWNER|GRID, 0
 	toolbar TB_FIRST_TOOLBAR {
 		EDITGOODS      : kbF2,     PPDV_WARESINGLE01,   "@{ware}\tF2"
 		PUTTOBASKET    : kbSpace,  PPDV_SHOPPINGCART01, "@{doputtobasket}\t@{keyboard_k_space}"
-		PUTTOBASKETALL : kbCtrlF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F4"
+		PUTTOBASKETALL : kbCtrlF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F4"
 		PRINT          : kbF7,     PPDV_PRINTER01,      "@{print}\tF7"
 		TOTAL          : kbF9,     PPDV_SIGMA02,        "@{totals}\tF9"
 		separator
@@ -5187,7 +5188,7 @@ browser MRPLINE north(100), 1, 1, "@{view_mrpline} [%s]", OWNER|GRID, 0
 		VIEWLOTS       : kbF3,    PPDV_LOTS,            "@{lots}\tF3"
 		REPLACEMENT    : kbF4,    TBBM_REPLACE,         "@{view_mrpline_subst}\tF4"
 		PUTTOBASKET    : kbCtrlF4, PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
-		PUTTOBASKETALL : kbCtrlF8, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tCtrl-F8"
+		PUTTOBASKETALL : kbCtrlF8, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tCtrl-F8"
 		TOTAL          : kbF9,    PPDV_SIGMA02,         "@{totals}\tF9"
 		PRINT          : kbF7,    PPDV_PRINTER01,       "@{print}\tF7"
 		separator
@@ -5596,7 +5597,7 @@ browser DLS_GOODS north(100), 2, 1, "Статистика по загрузке товаров: %s", OWNER|
 	toolbar TB_FIRST_TOOLBAR {
 		EDITITEM       : kbEnter,   PPDV_EDITFILE02,     "@{edit}\tEnter"
 		PUTTOBASKET    : kbCtrlF4,  PPDV_SHOPPINGCART01, "@{doputtobasket}\tCtrl-F4"
-		PUTTOBASKETALL : kbShiftF4, TBBM_ADDTISTOBASKET, "@{doputtobasketall}\tShift-F4"
+		PUTTOBASKETALL : kbShiftF4, PPDV_SHOPPINGCARTINTO01, "@{doputtobasketall}\tShift-F4"
 		VIEWLOTS       : kbF3,      PPDV_LOTS,           "@{lots}\tF3"
 		VIEWQUOT       : kbCtrlQ,   TBBM_QUOTATION,      "@{quotes}\tCtrl-Q"
 		SYSJ           : kbCtrlJ,   PPDV_SYSJOURNAL,     "@{view_sysjournal}\tCtrl-J"
@@ -9152,6 +9153,8 @@ drawvector "..\rsrc\svg" #000000 {
 	PPDV_FACEARBITRARY01
 	PPDV_FACEVERIFIABLE01
 	PPDV_FILTERRMV01
+	PPDV_SHOPPINGCARTINTO01
+	PPDV_SHOPPINGCARTINTO02
 }
 //
 // Следующие изображения используются без замещения цвета

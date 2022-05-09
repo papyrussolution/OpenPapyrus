@@ -1638,7 +1638,7 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 				PPObjProcessor prc_obj;
 				PPCheckInPersonMngr ci_mgr;
 				ProcessorPlaceCodeTemplate ppct;
-				SJson * p_jpack = new SJson(SJson::tOBJECT);
+				SJson _jpack(SJson::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				CALLPTRMEMB(p_view, GetSelectorListInfo(selector_list));
 				//
@@ -1662,10 +1662,10 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					SJson * p_jhdr = new SJson(SJson::tOBJECT);
 					SJson * p_jsel_ary = new SJson(SJson::tARRAY);
 					SJson * p_jitem_list = new SJson(SJson::tARRAY);
-					p_jpack->Insert("Header", p_jhdr);
+					_jpack.Insert("Header", p_jhdr);
 					p_jhdr->InsertString("Class", temp_buf.Z().Cat(0L));
 					p_jhdr->Insert("Selectors", p_jsel_ary);
-					p_jpack->Insert("Items", p_jitem_list);
+					_jpack.Insert("Items", p_jitem_list);
 					if(Separate == 1) {
 						uint pos = 0;
 						PPViewTSession::UhttStoreExt iter_ext;
@@ -1784,10 +1784,9 @@ int Backend_SelectObjectBlock::ProcessSelection_TSession(int _Op, const SCodepag
 					}
 				}
 				{
-					THROW_SL(p_jpack->ToStr(ResultText));
+					THROW_SL(_jpack.ToStr(ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
-					json_free_value(&p_jpack);
 					ok = 1;
 				}
 			}
@@ -1880,7 +1879,7 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 			GoodsIterator iter(P_GoodsF, GoodsIterator::ordByName);
 			if(iter.GetSelectorListInfo(&cls_id, selector_list) && selector_list.getCount()) {
 				// StrAssocArray CritList;
-				SJson * p_jpack = new SJson(SJson::tOBJECT);
+				SJson _jpack(SJson::tOBJECT);
 				TSCollection <LocalSelectorDescr> sdescr_list;
 				//
 				// Формирование списка селекторов
@@ -1904,10 +1903,10 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					SJson * p_jsel_ary = new SJson(SJson::tARRAY);
 					SJson * p_jitem_list = new SJson(SJson::tARRAY);
 					//
-					p_jpack->Insert("Header", p_jhdr);
+					_jpack.Insert("Header", p_jhdr);
 					p_jhdr->InsertString("Class", temp_buf.Z().Cat(cls_id));
 					p_jhdr->Insert("Selectors", p_jsel_ary);
-					p_jpack->Insert("Items", p_jitem_list);
+					_jpack.Insert("Items", p_jitem_list);
 					//
 					if(Separate == 1) {
 						GoodsIterator::Ext iter_ext;
@@ -1989,10 +1988,9 @@ int Backend_SelectObjectBlock::ProcessSelection_Goods(PPJobSrvReply & rResult)
 					}
 				}
 				{
-					THROW_SL(p_jpack->ToStr(ResultText));
+					THROW_SL(_jpack.ToStr(ResultText));
 					THROW(rResult.WriteString(ResultText));
 					rResult.SetDataType(PPJobSrvReply::htGenericText, 0);
-					json_free_value(&p_jpack);
 					ok = 1;
 				}
 			}
@@ -2089,17 +2087,28 @@ int Backend_SelectObjectBlock::Execute(PPJobSrvReply & rResult)
 		case PPOBJ_DL600DATA:
 			if(Operator == oSet) {
 				// @Muxa {
-				SJson * p_json_doc = NULL;
-				if(json_parse_document(&p_json_doc, JSONString.cptr()) == JSON_OK) {
-					DlContext * p_ctx = NULL;
-					DlRtm * p_rtm = NULL;
-					THROW(p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData));
-					THROW(p_rtm = p_ctx->GetRtm(DL600StrucName.cptr()));
-					long id = 0;
-					int  r = p_rtm->SetByJSON(p_json_doc, id);
-					json_free_value(&p_json_doc);
-					THROW(r);
-					rResult.SetString(temp_buf.Z().Cat(id));
+				SJson * p_json_doc = SJson::Parse(JSONString);
+				THROW_SL(p_json_doc);
+				{
+					// is_local_err нужна для того, чтоб аккуратно разрушить p_json_doc до перескока на CATCH
+					bool   is_local_err = false;
+					DlContext * p_ctx = DS.GetInterfaceContext(PPSession::ctxtExportData);
+					if(p_ctx) {
+						DlRtm * p_rtm = p_ctx->GetRtm(DL600StrucName.cptr());
+						if(p_rtm) {
+							long id = 0;
+							if(p_rtm->SetByJSON(p_json_doc, id))
+								rResult.SetString(temp_buf.Z().Cat(id));
+							else
+								is_local_err = true;
+						}
+						else
+							is_local_err = true;
+					}
+					else
+						is_local_err = true;
+					ZDELETE(p_json_doc);
+					THROW(is_local_err);
 				}
 				// } @Muxa
 			}

@@ -383,7 +383,7 @@ int archive_read_support_format_cab(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct cab * cab;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_cab");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	cab = (struct cab *)SAlloc::C(1, sizeof(*cab));
 	if(cab == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate CAB data");

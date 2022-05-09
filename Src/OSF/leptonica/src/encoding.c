@@ -109,20 +109,20 @@ char * encodeBase64(const uint8 * inarray,
 	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
-		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
+		return (char *)ERROR_PTR("&outsize not defined", procName, NULL);
 	*poutsize = 0;
 	if(!inarray)
-		return (char*)ERROR_PTR("inarray not defined", procName, NULL);
+		return (char *)ERROR_PTR("inarray not defined", procName, NULL);
 	if(insize <= 0)
-		return (char*)ERROR_PTR("insize not > 0", procName, NULL);
+		return (char *)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* The output array is padded to a multiple of 4 bytes, not
 	 * counting the newlines.  We just need to allocate a large
 	 * enough array, and add 4 bytes to make sure it is big enough. */
 	outsize = 4 * ((insize + 2) / 3); /* without newlines */
 	outsize += outsize / MAX_BASE64_LINE + 4; /* with the newlines */
-	if((chara = (char*)SAlloc::C(outsize, sizeof(char))) == NULL)
-		return (char*)ERROR_PTR("chara not made", procName, NULL);
+	if((chara = (char *)SAlloc::C(outsize, sizeof(char))) == NULL)
+		return (char *)ERROR_PTR("chara not made", procName, NULL);
 
 	/* Read all the input data, and convert in sets of 3 input
 	 * bytes --> 4 output bytes. */
@@ -340,18 +340,18 @@ char * encodeAscii85(const uint8  * inarray,
 	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
-		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
+		return (char *)ERROR_PTR("&outsize not defined", procName, NULL);
 	*poutsize = 0;
 	if(!inarray)
-		return (char*)ERROR_PTR("inarray not defined", procName, NULL);
+		return (char *)ERROR_PTR("inarray not defined", procName, NULL);
 	if(insize <= 0)
-		return (char*)ERROR_PTR("insize not > 0", procName, NULL);
+		return (char *)ERROR_PTR("insize not > 0", procName, NULL);
 
 	/* Accumulate results in char array */
 	maxsize = (l_int32)(80. + (insize * 5. / 4.) *
 	    (1. + 2. / MAX_ASCII85_LINE));
-	if((chara = (char*)SAlloc::C(maxsize, sizeof(char))) == NULL)
-		return (char*)ERROR_PTR("chara not made", procName, NULL);
+	if((chara = (char *)SAlloc::C(maxsize, sizeof(char))) == NULL)
+		return (char *)ERROR_PTR("chara not made", procName, NULL);
 
 	linecount = 0;
 	index = 0;
@@ -577,13 +577,13 @@ char * encodeAscii85WithComp(const uint8  * indata,
 	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
-		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
+		return (char *)ERROR_PTR("&outsize not defined", procName, NULL);
 	*poutsize = 0;
 	if(!indata)
-		return (char*)ERROR_PTR("indata not defined", procName, NULL);
+		return (char *)ERROR_PTR("indata not defined", procName, NULL);
 
 	if((data1 = zlibCompress(indata, insize, &size1)) == NULL)
-		return (char*)ERROR_PTR("data1 not made", procName, NULL);
+		return (char *)ERROR_PTR("data1 not made", procName, NULL);
 	outstr = encodeAscii85(data1, size1, poutsize);
 	SAlloc::F(data1);
 	return outstr;
@@ -665,20 +665,20 @@ char * reformatPacked64(const char * inarray,
 	PROCNAME(__FUNCTION__);
 
 	if(!poutsize)
-		return (char*)ERROR_PTR("&outsize not defined", procName, NULL);
+		return (char *)ERROR_PTR("&outsize not defined", procName, NULL);
 	*poutsize = 0;
 	if(!inarray)
-		return (char*)ERROR_PTR("inarray not defined", procName, NULL);
+		return (char *)ERROR_PTR("inarray not defined", procName, NULL);
 	if(insize <= 0)
-		return (char*)ERROR_PTR("insize not > 0", procName, NULL);
+		return (char *)ERROR_PTR("insize not > 0", procName, NULL);
 	if(leadspace < 0)
-		return (char*)ERROR_PTR("leadspace must be >= 0", procName, NULL);
+		return (char *)ERROR_PTR("leadspace must be >= 0", procName, NULL);
 	if(linechars % 4)
-		return (char*)ERROR_PTR("linechars % 4 must be 0", procName, NULL);
+		return (char *)ERROR_PTR("linechars % 4 must be 0", procName, NULL);
 
 	/* Remove all white space */
-	if((flata = (char*)SAlloc::C(insize, sizeof(char))) == NULL)
-		return (char*)ERROR_PTR("flata not made", procName, NULL);
+	if((flata = (char *)SAlloc::C(insize, sizeof(char))) == NULL)
+		return (char *)ERROR_PTR("flata not made", procName, NULL);
 	for(i = 0, flatindex = 0; i < insize; i++) {
 		if(isBase64(inarray[i]) || inarray[i] == '=')
 			flata[flatindex++] = inarray[i];
@@ -689,10 +689,10 @@ char * reformatPacked64(const char * inarray,
 	nlines = (flatsize + linechars - 1) / linechars;
 	linewithpad = leadspace + linechars + 1; /* including newline */
 	if(addquotes) linewithpad += 2;
-	if((outa = (char*)SAlloc::C((size_t)nlines * linewithpad,
+	if((outa = (char *)SAlloc::C((size_t)nlines * linewithpad,
 	    sizeof(char))) == NULL) {
 		SAlloc::F(flata);
-		return (char*)ERROR_PTR("outa not made", procName, NULL);
+		return (char *)ERROR_PTR("outa not made", procName, NULL);
 	}
 	for(j = 0, outindex = 0; j < leadspace; j++)
 		outa[outindex++] = ' ';

@@ -42,7 +42,7 @@ static void * decompress_zlib(const void * buf, const int buf_len, const char * 
 	/* Explicitly cast away the const-ness of buf */
 	stream.next_in = (Bytef*)buf;
 	// @sobolev pagesize = getpagesize();
-	pagesize = SLS.GetSSys().PageSize; // @sobolev
+	pagesize = SLS.SSys.PageSize; // @sobolev
 	result_size = ((buf_len + pagesize - 1) & ~(pagesize - 1));
 	do {
 		do {
@@ -122,7 +122,7 @@ static void * decompress_lzma(const void * buf, const int buf_len, const char * 
 		goto error_out;
 	}
 	// @sobolev pagesize = getpagesize();
-	pagesize = SLS.GetSSys().PageSize; // @sobolev
+	pagesize = SLS.SSys.PageSize; // @sobolev
 	result_size = ((buf_len + pagesize - 1) & ~(pagesize - 1));
 	do {
 		do {

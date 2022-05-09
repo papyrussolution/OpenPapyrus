@@ -280,7 +280,7 @@ int archive_write_set_format_xar(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct xar * xar;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_xar");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
@@ -1001,7 +1001,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	l = ll = archive_strlen(&(file->basename));
 	tmp = static_cast<uchar *>(SAlloc::M(l));
 	if(tmp == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	r = UTF8Toisolat1(tmp, &l, BAD_CAST(file->basename.s), &ll);
@@ -1977,7 +1977,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 			vp = file_create_virtual_dir(a, xar, as.s);
 			if(vp == NULL) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				file_free(file);
 				*filepp = NULL;
 				return ARCHIVE_FATAL;
@@ -2080,7 +2080,7 @@ static int file_register_hardlink(struct archive_write * a, struct file * file)
 		/* This `file` is a hardlink target. */
 		hl = static_cast<struct hardlink *>(SAlloc::M(sizeof(*hl)));
 		if(hl == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		hl->nlink = 1;

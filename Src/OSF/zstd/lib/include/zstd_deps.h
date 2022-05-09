@@ -15,9 +15,9 @@
  * NULL
  * INT_MAX
  * UINT_MAX
- * ZSTD_memcpy()
- * ZSTD_memset()
- * ZSTD_memmove()
+ * memcpy()
+ * memset()
+ * memmove()
  */
 #ifndef ZSTD_DEPS_COMMON
 #define ZSTD_DEPS_COMMON
@@ -26,15 +26,15 @@
 //#include <stddef.h>
 //#include <string.h>
 
-#if defined(__GNUC__) && __GNUC__ >= 4
-	#define ZSTD_memcpy(d,s,l) __builtin_memcpy((d),(s),(l))
-	#define ZSTD_memmove(d,s,l) __builtin_memmove((d),(s),(l))
-	#define ZSTD_memset(p,v,l) __builtin_memset((p),(v),(l))
-#else
-	#define ZSTD_memcpy(d,s,l) memcpy((d),(s),(l))
-	#define ZSTD_memmove(d,s,l) memmove((d),(s),(l))
-	#define ZSTD_memset(p,v,l) memset((p),(v),(l))
-#endif
+//#if defined(__GNUC__) && __GNUC__ >= 4
+	//#define ZSTD_memcpy_Removed(d,s,l) __builtin_memcpy((d),(s),(l))
+	//#define ZSTD_memmove_Removed(d,s,l) __builtin_memmove((d),(s),(l))
+	//#define ZSTD_memset_Removed(p,v,l) __builtin_memset((p),(v),(l))
+//#else
+	//#define ZSTD_memcpy_Removed(d,s,l) memcpy((d),(s),(l))
+	//#define ZSTD_memmove_Removed(d,s,l) memmove((d),(s),(l))
+	//#define ZSTD_memset_Removed(p,v,l) memset((p),(v),(l))
+//#endif
 #endif /* ZSTD_DEPS_COMMON */
 /* Need:
  * ZSTD_malloc()
@@ -53,7 +53,7 @@
 /*
  * Provides 64-bit math support.
  * Need:
- * U64 ZSTD_div64(U64 dividend, U32 divisor)
+ * uint64 ZSTD_div64(uint64 dividend, uint32 divisor)
  */
 #ifdef ZSTD_DEPS_NEED_MATH64
 	#ifndef ZSTD_DEPS_MATH64

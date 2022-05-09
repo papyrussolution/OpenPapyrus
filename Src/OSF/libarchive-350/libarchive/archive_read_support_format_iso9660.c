@@ -418,7 +418,7 @@ int archive_read_support_format_iso9660(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct iso9660 * iso9660;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_iso9660");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	iso9660 = (struct iso9660 *)SAlloc::C(1, sizeof(*iso9660));
 	if(iso9660 == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate iso9660 data");
@@ -1097,14 +1097,14 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 		if(iso9660->utf16be_path == NULL) {
 			iso9660->utf16be_path = static_cast<uchar *>(SAlloc::M(UTF16_NAME_MAX));
 			if(iso9660->utf16be_path == NULL) {
-				archive_set_error(&a->archive, ENOMEM, "No memory");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				return ARCHIVE_FATAL;
 			}
 		}
 		if(iso9660->utf16be_previous_path == NULL) {
 			iso9660->utf16be_previous_path = static_cast<uchar *>(SAlloc::M(UTF16_NAME_MAX));
 			if(iso9660->utf16be_previous_path == NULL) {
-				archive_set_error(&a->archive, ENOMEM, "No memory");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -2764,17 +2764,14 @@ static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)      
 	return (file);
 }
 
-static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
-    struct file_info * file, uint64 key)
+static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, struct file_info * file, uint64 key)
 {
 	uint64 file_key, parent_key;
 	int hole, parent;
-
 	/* Expand our pending files list as necessary. */
 	if(heap->used >= heap->allocated) {
 		struct file_info ** new_pending_files;
 		int new_size = heap->allocated * 2;
-
 		if(heap->allocated < 1024)
 			new_size = 1024;
 		/* Overflow might keep us from growing the list. */
@@ -2782,15 +2779,13 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap,
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
-		new_pending_files = (struct file_info **)
-		    SAlloc::M(new_size * sizeof(new_pending_files[0]));
+		new_pending_files = (struct file_info **)SAlloc::M(new_size * sizeof(new_pending_files[0]));
 		if(new_pending_files == NULL) {
 			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		if(heap->allocated)
-			memcpy(new_pending_files, heap->files,
-			    heap->allocated * sizeof(new_pending_files[0]));
+			memcpy(new_pending_files, heap->files, heap->allocated * sizeof(new_pending_files[0]));
 		SAlloc::F(heap->files);
 		heap->files = new_pending_files;
 		heap->allocated = new_size;

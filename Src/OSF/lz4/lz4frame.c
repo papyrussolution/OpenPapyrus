@@ -230,7 +230,7 @@ static size_t LZ4F_getBlockSize(uint blockSizeID)
 
 static uint8 LZ4F_headerChecksum(const void * header, size_t length)
 {
-    uint32 const xxh = XXH32(header, length, 0);
+    const uint32 xxh = XXH32(header, length, 0);
     return (uint8)(xxh >> 8);
 }
 // 
@@ -262,7 +262,7 @@ static size_t LZ4F_compressBound_internal(size_t srcSize, const LZ4F_preferences
     prefsNull.frameInfo.contentChecksumFlag = LZ4F_contentChecksumEnabled; /* worst case */
     {   
 		const LZ4F_preferences_t* const prefsPtr = (preferencesPtr==NULL) ? &prefsNull : preferencesPtr;
-        uint32 const flush = prefsPtr->autoFlush | (srcSize==0);
+        const uint32 flush = prefsPtr->autoFlush | (srcSize==0);
         LZ4F_blockSizeID_t const blockID = prefsPtr->frameInfo.blockSizeID;
         const size_t blockSize = LZ4F_getBlockSize(blockID);
         const size_t maxBuffered = blockSize - 1;
@@ -634,7 +634,7 @@ static size_t LZ4F_makeBlock(void * dst, const void * src, size_t srcSize, compr
         memcpy(cSizePtr+4, src, srcSize);
     }
     if(crcFlag) {
-        uint32 const crc32 = XXH32(cSizePtr+4, cSize, 0); /* checksum of compressed data */
+        const uint32 crc32 = XXH32(cSizePtr+4, cSize, 0); /* checksum of compressed data */
         LZ4F_writeLE32(cSizePtr+4+cSize, crc32);
     }
     return 4 + cSize + ((uint32)crcFlag)*4;
@@ -844,7 +844,7 @@ size_t LZ4F_compressEnd(LZ4F_cctx* cctxPtr, void * dstBuffer, size_t dstCapacity
     LZ4F_writeLE32(dstPtr, 0);
     dstPtr += 4; /* endMark */
     if(cctxPtr->prefs.frameInfo.contentChecksumFlag == LZ4F_contentChecksumEnabled) {
-        uint32 const xxh = XXH32_digest(&(cctxPtr->xxh));
+        const uint32 xxh = XXH32_digest(&(cctxPtr->xxh));
         if(dstCapacity < 8) return err0r(LZ4F_ERROR_dstMaxSize_tooSmall);
         LZ4F_writeLE32(dstPtr, xxh);
         dstPtr+=4; /* content Checksum */
@@ -959,8 +959,8 @@ static size_t LZ4F_headerSize(const void * src, size_t srcSize)
     /* Frame Header Size */
     {   
 		uint8 const FLG = ((const uint8 *)src)[4];
-        uint32 const contentSizeFlag = (FLG>>3) & _1BIT;
-        uint32 const dictIDFlag = FLG & _1BIT;
+        const uint32 contentSizeFlag = (FLG>>3) & _1BIT;
+        const uint32 dictIDFlag = FLG & _1BIT;
         return minFHSize + (contentSizeFlag*8) + (dictIDFlag*4);
     }
 }
@@ -1006,8 +1006,8 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void * src, size_t srcSiz
     dctx->frameInfo.frameType = LZ4F_frame;
     /* Flags */
     {   
-		uint32 const FLG = srcPtr[4];
-        uint32 const version = (FLG>>6) & _2BITS;
+		const uint32 FLG = srcPtr[4];
+        const uint32 version = (FLG>>6) & _2BITS;
         blockChecksumFlag = (FLG>>4) & _1BIT;
         blockMode = (FLG>>5) & _1BIT;
         contentSizeFlag = (FLG>>3) & _1BIT;
@@ -1029,7 +1029,7 @@ static size_t LZ4F_decodeHeader(LZ4F_dctx* dctx, const void * src, size_t srcSiz
         return srcSize;
     }
     {   
-		uint32 const BD = srcPtr[5];
+		const uint32 BD = srcPtr[5];
         blockSizeID = (BD>>4) & _3BITS;
         /* validate */
         if(((BD>>7)&_1BIT) != 0) return err0r(LZ4F_ERROR_reservedFlag_set); /* Reserved bit */
@@ -1374,14 +1374,15 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
                     }
                     crcSrc = dctx->header;
                 }
-                {   uint32 const readCRC = LZ4F_readLE32(crcSrc);
-                    uint32 const calcCRC = XXH32_digest(&dctx->blockChecksum);
+                {   
+					const uint32 readCRC = LZ4F_readLE32(crcSrc);
+                    const uint32 calcCRC = XXH32_digest(&dctx->blockChecksum);
                     if(readCRC != calcCRC)
                         return err0r(LZ4F_ERROR_blockChecksum_invalid);
-            }   }
+				}   
+			}
             dctx->dStage = dstage_getBlockHeader; /* new block */
             break;
-
         case dstage_getCBlock:
             if((size_t)(srcEnd-srcPtr) < dctx->tmpInTarget) {
                 dctx->tmpInSize = 0;
@@ -1416,8 +1417,8 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
                 dctx->tmpInTarget -= 4;
                 assert(selectedIn != NULL); /* selectedIn is defined at this stage (either srcPtr, or dctx->tmpIn) */
                 {   
-					uint32 const readBlockCrc = LZ4F_readLE32(selectedIn + dctx->tmpInTarget);
-                    uint32 const calcBlockCrc = XXH32(selectedIn, dctx->tmpInTarget, 0);
+					const uint32 readBlockCrc = LZ4F_readLE32(selectedIn + dctx->tmpInTarget);
+                    const uint32 calcBlockCrc = XXH32(selectedIn, dctx->tmpInTarget, 0);
                     if(readBlockCrc != calcBlockCrc)
                         return err0r(LZ4F_ERROR_blockChecksum_invalid);
             }   }
@@ -1545,10 +1546,10 @@ size_t LZ4F_decompress(LZ4F_dctx* dctx, void * dstBuffer, size_t* dstSizePtr,
                 }
                 selectedIn = dctx->tmpIn;
             }   /* if(dctx->dStage == dstage_storeSuffix) */
-
         /* case dstage_checkSuffix: */   /* no direct entry, avoid initialization risks */
-            {   uint32 const readCRC = LZ4F_readLE32(selectedIn);
-                uint32 const resultCRC = XXH32_digest(&(dctx->xxh));
+            {   
+				const uint32 readCRC = LZ4F_readLE32(selectedIn);
+                const uint32 resultCRC = XXH32_digest(&(dctx->xxh));
                 if(readCRC != resultCRC)
                     return err0r(LZ4F_ERROR_contentChecksum_invalid);
                 nextSrcSizeHint = 0;

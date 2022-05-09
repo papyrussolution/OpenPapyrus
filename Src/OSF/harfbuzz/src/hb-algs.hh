@@ -604,7 +604,7 @@ static inline void sort_r_simple(void * base, size_t nel, size_t w,
     Ts ... _ds),
     Ts ... ds)
 {
-	char * b = (char*)base, * end = b + nel*w;
+	char * b = (char *)base, * end = b + nel*w;
 
 	/* for(size_t i=0; i<nel; i++) {printf("%4i", *(int*)(b + i*sizeof(int)));}
 	   printf("\n"); */

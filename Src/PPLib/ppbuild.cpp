@@ -1,5 +1,5 @@
 // PPBUILD.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -22,93 +22,41 @@ int SelfbuildStaffForManual()
 	return ok;
 }
 
-class PrcssrBuild {
-public:
-	struct BuildVer {
-		BuildVer() : Major(0), Minor(0), Revision(0), Asm(0)
-		{
-		}
-		int    Major; // MajorVer
-		int    Minor; // MinorVer
-		int    Revision; // Revision
-		int    Asm; // AssemblyVer
-	};
-	struct Param {
-		enum {
-			fBuildClient       = 0x0001,
-			fBuildServer       = 0x0002,
-			fBuildMtdll        = 0x0004,
-			fBuildDrv  = 0x0008,
-			fBuildSoap = 0x0010,
-			fBuildDistrib      = 0x0020,
-			fCopyToUhtt        = 0x0040,
-			fOpenSource        = 0x0080, // OpenSource-вариант сборки
-			fSupplementalBuild = 0x0100  // @v10.6.1 дополнительная сборка XP-совместимых исполняемых файлов
-		};
-		Param() : Flags(0), ConfigEntryIdx(0), XpConfigEntryIdx(0)
-		{
-			//PrefMsvsVerMajor = 0;
-		}
-		Param(const Param & rS)
-		{
-			Copy(rS);
-		}
-		Param & FASTCALL operator = (const Param & rS)
-		{
-			return Copy(rS);
-		}
-		Param & FASTCALL Copy(const Param & rS)
-		{
-			Ver = rS.Ver;
-			Flags = rS.Flags;
-			ConfigEntryIdx = rS.ConfigEntryIdx;
-			XpConfigEntryIdx = rS.XpConfigEntryIdx; // @v10.6.1
-			VerSuffix = rS.VerSuffix;
-			TSCollection_Copy(ConfigList, rS.ConfigList);
-			return *this;
-		}
-		SString & GetVerLabel(SString & rBuf) const
-		{
-			rBuf.Z().Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).CatChar('(').Cat(Ver.Asm).CatChar(')');
-			return rBuf;
-		}
-		BuildVer Ver;            // Собираемая версия //
-		long   Flags;
-		uint   ConfigEntryIdx;   // Индекс выбранной конфигурации сборки. 0 - undef
-		uint   XpConfigEntryIdx; // @v10.6.1 Индекс дополнительной конфигурации сборки для Windows-XP. 0 - undef
-		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
-		struct ConfigEntry {
-			ConfigEntry() : PrefMsvsVerMajor(0)
-			{
-			}
-			SString Name;            // Наименование элемента конфигурации сборки
-			int    PrefMsvsVerMajor; // PPINIPARAM_PREFMSVSVER
-			SString RootPath;        // PPINIPARAM_BUILDROOT     Корневой каталог проекта
-			SString SrcPath;         // PPINIPARAM_BUILDSRC      Каталог исходных кодов
-			SString SlnPath;         // PPINIPARAM_BUILDSOLUTION Каталог, содержащий файлы проектов
-			SString TargetRootPath;  // PPINIPARAM_BUILDTARGET   Корневой каталог, в котором должна собираться версия (C:\PPY)
-			SString NsisPath;        // PPINIPARAM_BUILDNSIS     Путь к исполняемому файлу NSIS (сборщик дистрибутива)
-			SString DistribPath;     // PPINIPARAM_BUILDDISTRIB  Корневой каталог, хранящий дистрибутивы
-		};
-		TSCollection <ConfigEntry> ConfigList;
-	};
+PrcssrBuild::BuildVer::BuildVer() : Major(0), Minor(0), Revision(0), Asm(0)
+{
+}
 
-	static int FindMsvs(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
-	int	   InitParam(Param *);
-	int	   EditParam(Param *);
-	int	   Init(const Param *);
-	int	   Run();
-	int    Build();
-	int    BuildLocalDl600(const char * pPath);
-	Param::ConfigEntry * SetupParamByEntryIdx(Param * pParam, int supplementalConfig);
-private:
-	static int CopyProgressProc(const SDataMoveProgressInfo * scfd); // SDataMoveProgressProc
-	int	   UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
-	int	   InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
-	int    Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
+PrcssrBuild::Param::Param() : Flags(0), ConfigEntryIdx(0), XpConfigEntryIdx(0)
+{
+	//PrefMsvsVerMajor = 0;
+}
 
-	Param  P;
-};
+PrcssrBuild::Param::Param(const Param & rS)
+{
+	Copy(rS);
+}
+
+PrcssrBuild::Param & FASTCALL PrcssrBuild::Param::operator = (const Param & rS)
+{
+	return Copy(rS);
+}
+
+PrcssrBuild::Param & FASTCALL PrcssrBuild::Param::Copy(const Param & rS)
+{
+	Ver = rS.Ver;
+	Flags = rS.Flags;
+	ConfigEntryIdx = rS.ConfigEntryIdx;
+	XpConfigEntryIdx = rS.XpConfigEntryIdx; // @v10.6.1
+	VerSuffix = rS.VerSuffix;
+	TSCollection_Copy(ConfigList, rS.ConfigList);
+	return *this;
+}
+
+SString & PrcssrBuild::Param::GetVerLabel(SString & rBuf) const
+{
+	rBuf.Z().Cat(Ver.Major).Dot().Cat(Ver.Minor).Dot().CatLongZ(Ver.Revision, 2).CatChar('(').Cat(Ver.Asm).CatChar(')');
+	return rBuf;
+}
 
 int	PrcssrBuild::InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry)
 {

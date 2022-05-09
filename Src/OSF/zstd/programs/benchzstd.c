@@ -9,13 +9,12 @@
  */
 #include <zstd-internal.h>
 #pragma hdrstop
-/* **************************************
-*  Tuning parameters
-****************************************/
+//
+// Tuning parameters
+//
 #ifndef BMK_TIMETEST_DEFAULT_S   /* default minimum time per test */
-#define BMK_TIMETEST_DEFAULT_S 3
+	#define BMK_TIMETEST_DEFAULT_S 3
 #endif
-
 /* *************************************
 *  Includes
 ***************************************/
@@ -138,16 +137,12 @@ typedef struct {
 	size_t resSize;
 } blockParam_t;
 
-#undef MIN
-#undef MAX
-#define MIN(a, b)    ((a) < (b) ? (a) : (b))
-#define MAX(a, b)    ((a) > (b) ? (a) : (b))
+//#undef MIN
+//#undef MAX
+//#define MIN(a, b)    ((a) < (b) ? (a) : (b))
+//#define MAX(a, b)    ((a) > (b) ? (a) : (b))
 
-static void BMK_initCCtx(ZSTD_CCtx* ctx,
-    const void* dictBuffer, size_t dictBufferSize,
-    int cLevel,
-    const ZSTD_compressionParameters* comprParams,
-    const BMK_advancedParams_t* adv)
+static void BMK_initCCtx(ZSTD_CCtx* ctx, const void* dictBuffer, size_t dictBufferSize, int cLevel, const ZSTD_compressionParameters* comprParams, const BMK_advancedParams_t* adv)
 {
 	ZSTD_CCtx_reset(ctx, ZSTD_reset_session_and_parameters);
 	if(adv->nbWorkers==1) {
@@ -293,24 +288,24 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 	size_t const loadedCompressedSize = srcSize;
 	size_t cSize = 0;
 	double ratio = 0.;
-	U32 nbBlocks;
+	uint32 nbBlocks;
 	assert(cctx); assert(dctx != NULL);
 	/* init */
 	memzero(&benchResult, sizeof(benchResult));
 	if(strlen(displayName)>17) displayName += strlen(displayName) - 17; /* display last 17 characters */
 	if(adv->mode == BMK_decodeOnly) { /* benchmark only decompression : source must be already compressed */
 		const char* srcPtr = (const char*)srcBuffer;
-		U64 totalDSize64 = 0;
-		U32 fileNb;
+		uint64 totalDSize64 = 0;
+		uint32 fileNb;
 		for(fileNb = 0; fileNb<nbFiles; fileNb++) {
-			U64 const fSize64 = ZSTD_findDecompressedSize(srcPtr, fileSizes[fileNb]);
+			uint64 const fSize64 = ZSTD_findDecompressedSize(srcPtr, fileSizes[fileNb]);
 			if(fSize64==0) RETURN_ERROR(32, BMK_benchOutcome_t, "Impossible to determine original size ");
 			totalDSize64 += fSize64;
 			srcPtr += fileSizes[fileNb];
 		}
 		{   
 			size_t const decodedSize = (size_t)totalDSize64;
-		    assert((U64)decodedSize == totalDSize64); /* check overflow */
+		    assert((uint64)decodedSize == totalDSize64); /* check overflow */
 		    SAlloc::F(*resultBufferPtr);
 		    *resultBufferPtr = SAlloc::M(decodedSize);
 		    if(!(*resultBufferPtr)) {
@@ -326,14 +321,15 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 		}
 	}
 	/* Init data blocks  */
-	{   const char* srcPtr = (const char*)srcBuffer;
-	    char* cPtr = (char*)compressedBuffer;
-	    char* resPtr = (char*)(*resultBufferPtr);
-	    U32 fileNb;
+	{   
+		const char* srcPtr = (const char*)srcBuffer;
+	    char* cPtr = (char *)compressedBuffer;
+	    char* resPtr = (char *)(*resultBufferPtr);
+	    uint32 fileNb;
 	    for(nbBlocks = 0, fileNb = 0; fileNb<nbFiles; fileNb++) {
 		    size_t remaining = fileSizes[fileNb];
-		    U32 const nbBlocksforThisFile = (adv->mode == BMK_decodeOnly) ? 1 : (U32)((remaining + (blockSize-1)) / blockSize);
-		    U32 const blockEnd = nbBlocks + nbBlocksforThisFile;
+		    const uint32 nbBlocksforThisFile = (adv->mode == BMK_decodeOnly) ? 1 : (uint32)((remaining + (blockSize-1)) / blockSize);
+		    const uint32 blockEnd = nbBlocks + nbBlocksforThisFile;
 		    for(; nbBlocks<blockEnd; nbBlocks++) {
 			    size_t const thisBlockSize = MIN(remaining, blockSize);
 			    srcPtrs[nbBlocks] = srcPtr;
@@ -363,12 +359,12 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 	else {
 		RDG_genBuffer(compressedBuffer, maxCompressedSize, 0.10, 0.50, 1);
 	}
-
 	/* Bench */
-	{   U64 const crcOrig = (adv->mode == BMK_decodeOnly) ? 0 : XXH64(srcBuffer, srcSize, 0);
-#       define NB_MARKS 4
+	{   
+		uint64 const crcOrig = (adv->mode == BMK_decodeOnly) ? 0 : XXH64(srcBuffer, srcSize, 0);
+#define NB_MARKS 4
 	    const char* marks[NB_MARKS] = { " |", " /", " =", " \\" };
-	    U32 markNb = 0;
+	    uint32 markNb = 0;
 	    int compressionCompleted = (adv->mode == BMK_decodeOnly);
 	    int decompressionCompleted = (adv->mode == BMK_compressOnly);
 	    BMK_benchParams_t cbp, dbp;
@@ -427,7 +423,7 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 					ratio = (double)srcSize / (double)cSize;
 					{   
 						BMK_benchResult_t newResult;
-						newResult.cSpeed = (U64)((double)srcSize * TIMELOOP_NANOSEC / cResult.nanoSecPerRun);
+						newResult.cSpeed = (uint64)((double)srcSize * TIMELOOP_NANOSEC / cResult.nanoSecPerRun);
 						benchResult.cSize = cSize;
 						if(newResult.cSpeed > benchResult.cSpeed)
 							benchResult.cSpeed = newResult.cSpeed; 
@@ -449,7 +445,7 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 			    }
 			    {   
 					BMK_runTime_t const dResult = BMK_extract_runTime(dOutcome);
-					U64 const newDSpeed = (U64)((double)srcSize * TIMELOOP_NANOSEC / dResult.nanoSecPerRun);
+					uint64 const newDSpeed = (uint64)((double)srcSize * TIMELOOP_NANOSEC / dResult.nanoSecPerRun);
 					if(newDSpeed > benchResult.dSpeed)
 						benchResult.dSpeed = newDSpeed; 
 				}
@@ -466,7 +462,7 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 
 		/* CRC Checking */
 	    {   const BYTE* resultBuffer = (const BYTE*)(*resultBufferPtr);
-		U64 const crcCheck = XXH64(resultBuffer, srcSize, 0);
+		uint64 const crcCheck = XXH64(resultBuffer, srcSize, 0);
 		if((adv->mode == BMK_both) && (crcOrig!=crcCheck)) {
 			size_t u;
 			DISPLAY("!!! WARNING !!! %14s : Invalid Checksum : %x != %x   \n", displayName, (unsigned)crcOrig, (unsigned)crcCheck);
@@ -479,26 +475,27 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 						if(bacc + srcSizes[segNb] > u) break;
 						bacc += srcSizes[segNb];
 					}
-					pos = (U32)(u - bacc);
+					pos = (uint32)(u - bacc);
 					bNb = pos / (128 KB);
 					DISPLAY("(sample %u, block %u, pos %u) \n", segNb, bNb, pos);
 					{   
-						size_t const lowest = (u>5) ? 5 : u;
-					size_t n;
-					DISPLAY("origin: ");
-					for(n = lowest; n>0; n--)
-						DISPLAY("%02X ", ((const BYTE*)srcBuffer)[u-n]);
-					DISPLAY(" :%02X:  ", ((const BYTE*)srcBuffer)[u]);
-					for(n = 1; n<3; n++)
-						DISPLAY("%02X ", ((const BYTE*)srcBuffer)[u+n]);
-					DISPLAY(" \n");
-					DISPLAY("decode: ");
-					for(n = lowest; n>0; n--)
-						DISPLAY("%02X ", resultBuffer[u-n]);
-					DISPLAY(" :%02X:  ", resultBuffer[u]);
-					for(n = 1; n<3; n++)
-						DISPLAY("%02X ", resultBuffer[u+n]);
-					DISPLAY(" \n");}
+						const size_t lowest = (u>5) ? 5 : u;
+						size_t n;
+						DISPLAY("origin: ");
+						for(n = lowest; n>0; n--)
+							DISPLAY("%02X ", ((const BYTE*)srcBuffer)[u-n]);
+						DISPLAY(" :%02X:  ", ((const BYTE*)srcBuffer)[u]);
+						for(n = 1; n<3; n++)
+							DISPLAY("%02X ", ((const BYTE*)srcBuffer)[u+n]);
+						DISPLAY(" \n");
+						DISPLAY("decode: ");
+						for(n = lowest; n>0; n--)
+							DISPLAY("%02X ", resultBuffer[u-n]);
+						DISPLAY(" :%02X:  ", resultBuffer[u]);
+						for(n = 1; n<3; n++)
+							DISPLAY("%02X ", resultBuffer[u+n]);
+						DISPLAY(" \n");
+					}
 					break;
 				}
 				if(u==srcSize-1) { /* should never happen */
@@ -507,42 +504,29 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 			} /* for (u=0; u<srcSize; u++) */
 		} /* if ((adv->mode == BMK_both) && (crcOrig!=crcCheck)) */
 	    } /* CRC Checking */
-
 	    if(displayLevel == 1) { /* hidden display mode -q, used by python speed benchmark */
 		    double const cSpeed = (double)benchResult.cSpeed / MB_UNIT;
 		    double const dSpeed = (double)benchResult.dSpeed / MB_UNIT;
 		    if(adv->additionalParam) {
-			    OUTPUT("-%-3i%11i (%5.3f) %6.2f MB/s %6.1f MB/s  %s (param=%d)\n",
-				cLevel,
-				(int)cSize,
-				ratio,
-				cSpeed,
-				dSpeed,
-				displayName,
-				adv->additionalParam);
+			    OUTPUT("-%-3i%11i (%5.3f) %6.2f MB/s %6.1f MB/s  %s (param=%d)\n", cLevel, (int)cSize, ratio, cSpeed, dSpeed, displayName, adv->additionalParam);
 		    }
 		    else {
 			    OUTPUT("-%-3i%11i (%5.3f) %6.2f MB/s %6.1f MB/s  %s\n", cLevel, (int)cSize, ratio, cSpeed, dSpeed, displayName);
 		    }
 	    }
-
-	    OUTPUTLEVEL(2, "%2i#\n", cLevel);} /* Bench */
-
+	    OUTPUTLEVEL(2, "%2i#\n", cLevel);
+	} /* Bench */
 	benchResult.cMem = (1ULL << (comprParams->windowLog)) + ZSTD_sizeof_CCtx(cctx);
 	return BMK_benchOutcome_setValidResult(benchResult);
 }
 
-BMK_benchOutcome_t BMK_benchMemAdvanced(const void* srcBuffer, size_t srcSize,
-    void* dstBuffer, size_t dstCapacity,
-    const size_t* fileSizes, unsigned nbFiles,
-    int cLevel, const ZSTD_compressionParameters* comprParams,
-    const void* dictBuffer, size_t dictBufferSize,
-    int displayLevel, const char* displayName, const BMK_advancedParams_t* adv)
-
+BMK_benchOutcome_t BMK_benchMemAdvanced(const void* srcBuffer, size_t srcSize, void* dstBuffer, size_t dstCapacity,
+    const size_t* fileSizes, unsigned nbFiles, int cLevel, const ZSTD_compressionParameters* comprParams,
+    const void* dictBuffer, size_t dictBufferSize, int displayLevel, const char* displayName, const BMK_advancedParams_t* adv)
 {
 	int const dstParamsError = !dstBuffer ^ !dstCapacity; /* must be both NULL or none */
 	size_t const blockSize = ((adv->blockSize>=32 && (adv->mode != BMK_decodeOnly)) ? adv->blockSize : srcSize) + (!srcSize) /* avoid div by 0 */;
-	U32 const maxNbBlocks = (U32)((srcSize + (blockSize-1)) / blockSize) + nbFiles;
+	const uint32 maxNbBlocks = (uint32)((srcSize + (blockSize-1)) / blockSize) + nbFiles;
 	/* these are the blockTable parameters, just split up */
 	const void ** const srcPtrs = (const void**)SAlloc::M(maxNbBlocks * sizeof(void*));
 	size_t* const srcSizes = (size_t*)SAlloc::M(maxNbBlocks * sizeof(size_t));
@@ -675,7 +659,7 @@ BMK_benchOutcome_t BMK_syntheticTest(int cLevel, double compressibility,
 	return res;
 }
 
-static size_t BMK_findMaxMem(U64 requiredMem)
+static size_t BMK_findMaxMem(uint64 requiredMem)
 {
 	size_t const step = 64 MB;
 	BYTE* testmem = NULL;
@@ -700,7 +684,7 @@ static int BMK_loadFiles(void* buffer, size_t bufferSize, size_t* fileSizes, con
 	size_t pos = 0, totalSize = 0;
 	unsigned n;
 	for(n = 0; n<nbFiles; n++) {
-		U64 fileSize = UTIL_getFileSize(fileNamesTable[n]); /* last file may be shortened */
+		uint64 fileSize = UTIL_getFileSize(fileNamesTable[n]); /* last file may be shortened */
 		if(UTIL_isDirectory(fileNamesTable[n])) {
 			DISPLAYLEVEL(2, "Ignoring %s directory...       \n", fileNamesTable[n]);
 			fileSizes[n] = 0;
@@ -719,7 +703,7 @@ static int BMK_loadFiles(void* buffer, size_t bufferSize, size_t* fileSizes, con
 				nbFiles = n; // buffer too small - stop after this file 
 			}
 		    {   
-				size_t const readSize = fread(((char*)buffer)+pos, 1, (size_t)fileSize, f);
+				size_t const readSize = fread(((char *)buffer)+pos, 1, (size_t)fileSize, f);
 				if(readSize != (size_t)fileSize) 
 					RETURN_ERROR_INT(11, "could not read %s", fileNamesTable[n]);
 				pos += readSize;
@@ -743,7 +727,7 @@ BMK_benchOutcome_t BMK_benchFilesAdvanced(const char* const * fileNamesTable, un
 	size_t dictBufferSize = 0;
 	size_t* fileSizes = NULL;
 	BMK_benchOutcome_t res;
-	U64 const totalSizeToLoad = UTIL_getTotalFileSize(fileNamesTable, nbFiles);
+	uint64 const totalSizeToLoad = UTIL_getTotalFileSize(fileNamesTable, nbFiles);
 	if(!nbFiles) {
 		RETURN_ERROR(14, BMK_benchOutcome_t, "No Files to Benchmark");
 	}
@@ -753,12 +737,12 @@ BMK_benchOutcome_t BMK_benchFilesAdvanced(const char* const * fileNamesTable, un
 	if(totalSizeToLoad == UTIL_FILESIZE_UNKNOWN) {
 		RETURN_ERROR(9, BMK_benchOutcome_t, "Error loading files");
 	}
-	fileSizes = (size_t*)calloc(nbFiles, sizeof(size_t));
-	if(!fileSizes) RETURN_ERROR(12, BMK_benchOutcome_t, "not enough memory for fileSizes");
-
+	fileSizes = (size_t*)SAlloc::C(nbFiles, sizeof(size_t));
+	if(!fileSizes) 
+		RETURN_ERROR(12, BMK_benchOutcome_t, "not enough memory for fileSizes");
 	/* Load dictionary */
 	if(dictFileName != NULL) {
-		U64 const dictFileSize = UTIL_getFileSize(dictFileName);
+		uint64 const dictFileSize = UTIL_getFileSize(dictFileName);
 		if(dictFileSize == UTIL_FILESIZE_UNKNOWN) {
 			DISPLAYLEVEL(1, "error loading %s : %s \n", dictFileName, strerror(errno));
 			SAlloc::F(fileSizes);
@@ -785,7 +769,7 @@ BMK_benchOutcome_t BMK_benchFilesAdvanced(const char* const * fileNamesTable, un
 
 	/* Memory allocation & restrictions */
 	benchedSize = BMK_findMaxMem(totalSizeToLoad * 3) / 3;
-	if((U64)benchedSize > totalSizeToLoad) benchedSize = (size_t)totalSizeToLoad;
+	if((uint64)benchedSize > totalSizeToLoad) benchedSize = (size_t)totalSizeToLoad;
 	if(benchedSize < totalSizeToLoad)
 		DISPLAY("Not enough memory; testing %u MB only...\n", (unsigned)(benchedSize >> 20));
 	srcBuffer = benchedSize ? SAlloc::M(benchedSize) : NULL;

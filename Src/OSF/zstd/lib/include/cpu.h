@@ -19,17 +19,17 @@
 #endif
 
 typedef struct {
-	U32 f1c;
-	U32 f1d;
-	U32 f7b;
-	U32 f7c;
+	uint32 f1c;
+	uint32 f1d;
+	uint32 f7b;
+	uint32 f7c;
 } ZSTD_cpuid_t;
 
 MEM_STATIC ZSTD_cpuid_t ZSTD_cpuid(void) {
-	U32 f1c = 0;
-	U32 f1d = 0;
-	U32 f7b = 0;
-	U32 f7c = 0;
+	uint32 f1c = 0;
+	uint32 f1d = 0;
+	uint32 f7b = 0;
+	uint32 f7c = 0;
 #if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86))
 	int reg[4];
 	__cpuid((int*)reg, 0);
@@ -37,13 +37,13 @@ MEM_STATIC ZSTD_cpuid_t ZSTD_cpuid(void) {
 		int const n = reg[0];
 		if(n >= 1) {
 			__cpuid((int*)reg, 1);
-			f1c = (U32)reg[2];
-			f1d = (U32)reg[3];
+			f1c = (uint32)reg[2];
+			f1d = (uint32)reg[3];
 		}
 		if(n >= 7) {
 			__cpuidex((int*)reg, 7, 0);
-			f7b = (U32)reg[1];
-			f7c = (U32)reg[2];
+			f7b = (uint32)reg[1];
+			f7c = (uint32)reg[2];
 		}
 	}
 #elif defined(__i386__) && defined(__PIC__) && !defined(__clang__) && defined(__GNUC__)
@@ -51,7 +51,7 @@ MEM_STATIC ZSTD_cpuid_t ZSTD_cpuid(void) {
 	 * reserves ebx for use of its pic register so we must specially
 	 * handle the save and restore to avoid clobbering the register
 	 */
-	U32 n;
+	uint32 n;
 	__asm__ (
 		"pushl %%ebx\n\t"
 		"cpuid\n\t"
@@ -60,7 +60,7 @@ MEM_STATIC ZSTD_cpuid_t ZSTD_cpuid(void) {
 		: "a" (0)
 		: "ecx", "edx");
 	if(n >= 1) {
-		U32 f1a;
+		uint32 f1a;
 		__asm__ (
 			"pushl %%ebx\n\t"
 			"cpuid\n\t"
@@ -79,14 +79,14 @@ MEM_STATIC ZSTD_cpuid_t ZSTD_cpuid(void) {
 			: "edx");
 	}
 #elif defined(__x86_64__) || defined(_M_X64) || defined(__i386__)
-	U32 n;
+	uint32 n;
 	__asm__ ("cpuid" : "=a" (n) : "a" (0) : "ebx", "ecx", "edx");
 	if(n >= 1) {
-		U32 f1a;
+		uint32 f1a;
 		__asm__ ("cpuid" : "=a" (f1a), "=c" (f1c), "=d" (f1d) : "a" (1) : "ebx");
 	}
 	if(n >= 7) {
-		U32 f7a;
+		uint32 f7a;
 		__asm__ ("cpuid"
 		: "=a" (f7a), "=b" (f7b), "=c" (f7c)
 		: "a" (7), "c" (0)

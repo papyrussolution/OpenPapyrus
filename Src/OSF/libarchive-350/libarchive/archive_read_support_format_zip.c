@@ -2729,7 +2729,7 @@ static int archive_read_format_zip_streamable_read_header(struct archive_read * 
 	if(zip->zip_entries == NULL) {
 		zip->zip_entries = static_cast<struct zip_entry *>(SAlloc::M(sizeof(struct zip_entry)));
 		if(zip->zip_entries == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Out  of memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 	}
@@ -2881,7 +2881,7 @@ int archive_read_support_format_zip_streamable(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct zip * zip;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_zip");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	zip = (struct zip *)SAlloc::C(1, sizeof(*zip));
 	if(zip == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");
@@ -3576,7 +3576,7 @@ int archive_read_support_format_zip_seekable(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct zip * zip;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_zip_seekable");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	zip = (struct zip *)SAlloc::C(1, sizeof(*zip));
 	if(zip == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate zip data");

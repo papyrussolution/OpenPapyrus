@@ -27,6 +27,6 @@ int archive_read_support_compression_none(struct archive * a)
  */
 int archive_read_support_filter_none(struct archive * a)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_none");
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	return ARCHIVE_OK;
 }

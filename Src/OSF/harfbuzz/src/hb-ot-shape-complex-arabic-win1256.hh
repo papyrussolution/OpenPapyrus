@@ -45,8 +45,8 @@
 	/ (uint)(ItemSize) \
 	/* OT_ASSERT it's divisible (and positive). */)
 #define OT_DISTANCE(From, To)            ((uint) \
-	((char*)(&((struct TABLE_NAME*)0)->To) - \
-	(char*)(&((struct TABLE_NAME*)0)->From)) \
+	((char *)(&((struct TABLE_NAME*)0)->To) - \
+	(char *)(&((struct TABLE_NAME*)0)->From)) \
 	/* OT_ASSERT it's positive. */)
 #endif
 

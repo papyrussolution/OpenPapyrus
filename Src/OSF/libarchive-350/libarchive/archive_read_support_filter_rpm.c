@@ -50,7 +50,7 @@ int archive_read_support_filter_rpm(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_rpm");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -93,18 +93,17 @@ static int rpm_bidder_bid(struct archive_read_filter_bidder * self, struct archi
 	if(b[7] != 0 && b[7] != 1)
 		return 0;
 	bits_checked += 8;
-
 	return (bits_checked);
 }
 
 static int rpm_bidder_init(struct archive_read_filter * self)
 {
-	struct rpm   * rpm;
+	struct rpm * rpm;
 	self->code = ARCHIVE_FILTER_RPM;
 	self->name = "rpm";
-	self->read = rpm_filter_read;
+	self->FnRead = rpm_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = rpm_filter_close;
+	self->FnClose = rpm_filter_close;
 	rpm = (struct rpm *)SAlloc::C(sizeof(*rpm), 1);
 	if(rpm == NULL) {
 		archive_set_error(&self->archive->archive, ENOMEM, "Can't allocate data for rpm");
@@ -117,13 +116,12 @@ static int rpm_bidder_init(struct archive_read_filter * self)
 
 static ssize_t rpm_filter_read(struct archive_read_filter * self, const void ** buff)
 {
-	struct rpm * rpm;
 	const uchar * b;
 	ssize_t avail_in, total;
 	size_t used, n;
 	uint32 section;
 	uint32 bytes;
-	rpm = (struct rpm *)self->data;
+	struct rpm * rpm = (struct rpm *)self->data;
 	*buff = NULL;
 	total = avail_in = 0;
 	b = NULL;

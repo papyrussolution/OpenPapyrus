@@ -433,7 +433,7 @@ l_ok sarrayAddString(SARRAY * sa,
 	if(copyflag == L_COPY)
 		sa->array[n] = stringNew(string);
 	else /* L_INSERT or L_NOCOPY */
-		sa->array[n] = (char*)string;
+		sa->array[n] = (char *)string;
 	sa->n++;
 	return 0;
 }
@@ -493,13 +493,13 @@ char * sarrayRemoveString(SARRAY * sa,
 	PROCNAME(__FUNCTION__);
 
 	if(!sa)
-		return (char*)ERROR_PTR("sa not defined", procName, NULL);
+		return (char *)ERROR_PTR("sa not defined", procName, NULL);
 
 	if((array = sarrayGetArray(sa, &nalloc, &n)) == NULL)
-		return (char*)ERROR_PTR("array not returned", procName, NULL);
+		return (char *)ERROR_PTR("array not returned", procName, NULL);
 
 	if(index < 0 || index >= n)
-		return (char*)ERROR_PTR("array index out of bounds", procName, NULL);
+		return (char *)ERROR_PTR("array index out of bounds", procName, NULL);
 
 	string = array[index];
 
@@ -655,11 +655,11 @@ char * sarrayGetString(SARRAY * sa,
 	PROCNAME(__FUNCTION__);
 
 	if(!sa)
-		return (char*)ERROR_PTR("sa not defined", procName, NULL);
+		return (char *)ERROR_PTR("sa not defined", procName, NULL);
 	if(index < 0 || index >= sa->n)
-		return (char*)ERROR_PTR("index not valid", procName, NULL);
+		return (char *)ERROR_PTR("index not valid", procName, NULL);
 	if(copyflag != L_NOCOPY && copyflag != L_COPY)
-		return (char*)ERROR_PTR("invalid copyflag", procName, NULL);
+		return (char *)ERROR_PTR("invalid copyflag", procName, NULL);
 
 	if(copyflag == L_NOCOPY)
 		return sa->array[index];
@@ -730,7 +730,7 @@ char * sarrayToString(SARRAY * sa,
 	PROCNAME(__FUNCTION__);
 
 	if(!sa)
-		return (char*)ERROR_PTR("sa not defined", procName, NULL);
+		return (char *)ERROR_PTR("sa not defined", procName, NULL);
 
 	return sarrayToStringRange(sa, 0, 0, addnlflag);
 }
@@ -768,9 +768,9 @@ char * sarrayToStringRange(SARRAY * sa,
 	PROCNAME(__FUNCTION__);
 
 	if(!sa)
-		return (char*)ERROR_PTR("sa not defined", procName, NULL);
+		return (char *)ERROR_PTR("sa not defined", procName, NULL);
 	if(addnlflag != 0 && addnlflag != 1 && addnlflag != 2 && addnlflag != 3)
-		return (char*)ERROR_PTR("invalid addnlflag", procName, NULL);
+		return (char *)ERROR_PTR("invalid addnlflag", procName, NULL);
 
 	n = sarrayGetCount(sa);
 
@@ -787,13 +787,13 @@ char * sarrayToStringRange(SARRAY * sa,
 				return stringNew(",");
 		}
 		else {
-			return (char*)ERROR_PTR("first not valid", procName, NULL);
+			return (char *)ERROR_PTR("first not valid", procName, NULL);
 		}
 	}
 
 	/* Determine the range of string indices to be used */
 	if(first < 0 || first >= n)
-		return (char*)ERROR_PTR("first not valid", procName, NULL);
+		return (char *)ERROR_PTR("first not valid", procName, NULL);
 	if(nstrings == 0 || (nstrings > n - first))
 		nstrings = n - first; /* no overflow */
 	last = first + nstrings - 1;
@@ -802,11 +802,11 @@ char * sarrayToStringRange(SARRAY * sa,
 	size = 0;
 	for(i = first; i <= last; i++) {
 		if((str = sarrayGetString(sa, i, L_NOCOPY)) == NULL)
-			return (char*)ERROR_PTR("str not found", procName, NULL);
+			return (char *)ERROR_PTR("str not found", procName, NULL);
 		size += strlen(str) + 2;
 	}
-	if((dest = (char*)SAlloc::C(size + 1, sizeof(char))) == NULL)
-		return (char*)ERROR_PTR("dest not made", procName, NULL);
+	if((dest = (char *)SAlloc::C(size + 1, sizeof(char))) == NULL)
+		return (char *)ERROR_PTR("dest not made", procName, NULL);
 
 	/* Construct the output */
 	index = 0;
@@ -1431,7 +1431,7 @@ SARRAY * sarrayReadStream(FILE * fp)
 	if((sa = sarrayCreate(n)) == NULL)
 		return (SARRAY *)ERROR_PTR("sa not made", procName, NULL);
 	bufsize = 512 + 1;
-	stringbuf = (char*)SAlloc::C(bufsize, sizeof(char));
+	stringbuf = (char *)SAlloc::C(bufsize, sizeof(char));
 
 	for(i = 0; i < n; i++) {
 		/* Get the size of the stored string */
@@ -1444,7 +1444,7 @@ SARRAY * sarrayReadStream(FILE * fp)
 		if(size > bufsize - 5) {
 			SAlloc::F(stringbuf);
 			bufsize = (l_int32)(1.5 * size);
-			stringbuf = (char*)SAlloc::C(bufsize, sizeof(char));
+			stringbuf = (char *)SAlloc::C(bufsize, sizeof(char));
 		}
 		/* Read the stored string, plus leading spaces and trailing \n */
 		if(fread(stringbuf, 1, size + 3, fp) != size + 3) {
@@ -1946,7 +1946,7 @@ SARRAY * getFilenamesInDirectory(const char * dirname)
 			L_ERROR("size = %zu too large; skipping\n", procName, size);
 			continue;
 		}
-		stat_path = (char*)SAlloc::C(size, 1);
+		stat_path = (char *)SAlloc::C(size, 1);
 		snprintf(stat_path, size, "%s/%s", realdir, pdirentry->d_name);
 		stat_ret = stat(stat_path, &st);
 		SAlloc::F(stat_path);

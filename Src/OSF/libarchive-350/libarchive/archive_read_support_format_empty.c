@@ -24,20 +24,10 @@ int archive_read_support_format_empty(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_empty");
-	r = __archive_read_register_format(a,
-		NULL,
-		"empty",
-		archive_read_format_empty_bid,
-		NULL,
-		archive_read_format_empty_read_header,
-		archive_read_format_empty_read_data,
-		NULL,
-		NULL,
-		NULL,
-		NULL,
-		NULL);
-
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
+	r = __archive_read_register_format(a, NULL, "empty", archive_read_format_empty_bid,
+		NULL, archive_read_format_empty_read_header, archive_read_format_empty_read_data,
+		NULL, NULL, NULL, NULL, NULL);
 	return r;
 }
 
@@ -48,15 +38,12 @@ static int archive_read_format_empty_bid(struct archive_read * a, int best_bid)
 	return -1;
 }
 
-static int archive_read_format_empty_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_empty_read_header(struct archive_read * a, struct archive_entry * entry)
 {
 	CXX_UNUSED(a);
 	CXX_UNUSED(entry);
-
 	a->archive.archive_format = ARCHIVE_FORMAT_EMPTY;
 	a->archive.archive_format_name = "Empty file";
-
 	return (ARCHIVE_EOF);
 }
 

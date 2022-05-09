@@ -498,7 +498,7 @@ U_CAPI void * U_EXPORT2 uprv_maximumPtr(void * base);
  * Thus, modern compilers optimize away the ">" comparison.
  * (See ICU tickets #7187 and #8096.)
  */
-#define U_MAX_PTR(base) ((void*)(((char*)(base)+0x7fffffffu) > (char*)(base) ? ((char*)(base)+0x7fffffffu) : (char*)-1))
+#define U_MAX_PTR(base) ((void*)(((char *)(base)+0x7fffffffu) > (char *)(base) ? ((char *)(base)+0x7fffffffu) : (char *)-1))
 #  else
 /* Default version. C++ standard compliant for scalar pointers. */
 #define U_MAX_PTR(base) ((void*)(((uintptr_t)(base)+0x7fffffffu) > (uintptr_t)(base) ? ((uintptr_t)(base)+0x7fffffffu) : (uintptr_t)-1))

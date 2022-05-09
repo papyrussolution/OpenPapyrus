@@ -17,7 +17,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_read_support_format_all.c 174991
 
 int archive_read_support_format_all(struct archive * a)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_all");
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* TODO: It would be nice to compute the ordering
 	 * here automatically so that people who enable just
 	 * a few formats can still get the benefits.  That

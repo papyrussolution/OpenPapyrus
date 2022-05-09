@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -44,19 +42,15 @@ struct private_data {
  * Yuck.  zlib.h is not const-correct, so I need this one bit
  * of ugly hackery to convert a const * pointer to a non-const pointer.
  */
-#define SET_NEXT_IN(st, src)                                     \
-	(st)->stream.next_in = (Bytef*)(uintptr_t)(const void*)(src)
+#define SET_NEXT_IN(st, src) (st)->stream.next_in = (Bytef*)(uintptr_t)(const void*)(src)
 
-static int archive_compressor_gzip_options(struct archive_write_filter *,
-    const char *, const char *);
+static int archive_compressor_gzip_options(struct archive_write_filter *, const char *, const char *);
 static int archive_compressor_gzip_open(struct archive_write_filter *);
-static int archive_compressor_gzip_write(struct archive_write_filter *,
-    const void *, size_t);
+static int archive_compressor_gzip_write(struct archive_write_filter *, const void *, size_t);
 static int archive_compressor_gzip_close(struct archive_write_filter *);
 static int archive_compressor_gzip_free(struct archive_write_filter *);
 #ifdef HAVE_ZLIB_H
-static int drive_compressor(struct archive_write_filter *,
-    struct private_data *, int finishing);
+	static int drive_compressor(struct archive_write_filter *, struct private_data *, int finishing);
 #endif
 
 /*
@@ -67,17 +61,17 @@ int archive_write_add_filter_gzip(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_gzip");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	f->data = data;
-	f->open = &archive_compressor_gzip_open;
-	f->options = &archive_compressor_gzip_options;
-	f->close = &archive_compressor_gzip_close;
-	f->free = &archive_compressor_gzip_free;
+	f->FnOpen = &archive_compressor_gzip_open;
+	f->FnOptions = &archive_compressor_gzip_options;
+	f->FnClose = &archive_compressor_gzip_close;
+	f->FnFree = &archive_compressor_gzip_free;
 	f->code = ARCHIVE_FILTER_GZIP;
 	f->name = "gzip";
 #ifdef HAVE_ZLIB_H
@@ -191,22 +185,13 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	data->compressed[9] = 3; /* OS=Unix */
 	data->stream.next_out += 10;
 	data->stream.avail_out -= 10;
-
-	f->write = archive_compressor_gzip_write;
-
+	f->FnWrite = archive_compressor_gzip_write;
 	/* Initialize compression library. */
-	ret = deflateInit2(&(data->stream),
-		data->compression_level,
-		Z_DEFLATED,
-		-15 /* < 0 to suppress zlib header */,
-		8,
-		Z_DEFAULT_STRATEGY);
-
+	ret = deflateInit2(&(data->stream), data->compression_level, Z_DEFLATED, -15 /* < 0 to suppress zlib header */, 8, Z_DEFAULT_STRATEGY);
 	if(ret == Z_OK) {
 		f->data = data;
 		return ARCHIVE_OK;
 	}
-
 	/* Library setup failed: clean up. */
 	archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library");
 		/* Override the error message if we know what really went wrong. */
@@ -223,16 +208,13 @@ static int archive_compressor_gzip_open(struct archive_write_filter * f)
 	}
 	return ARCHIVE_FATAL;
 }
-
 /*
  * Write data to the compressed stream.
  */
-static int archive_compressor_gzip_write(struct archive_write_filter * f, const void * buff,
-    size_t length)
+static int archive_compressor_gzip_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	struct private_data * data = (struct private_data *)f->data;
 	int ret;
-
 	/* Update statistics */
 	data->crc = crc32(data->crc, (const Bytef*)buff, (uInt)length);
 	data->total_in += length;

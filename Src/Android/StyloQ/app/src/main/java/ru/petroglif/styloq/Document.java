@@ -390,7 +390,7 @@ public class Document {
 				JSONArray js_bk_list = jsobj.optJSONArray("bk_list");
 				if(js_bk_list != null && js_bk_list.length() > 0) {
 					for(int i = 0; i < js_bk_list.length(); i++) {
-						JSONObject js_item = js_ti_list.getJSONObject(i);
+						JSONObject js_item = js_bk_list.optJSONObject(i);
 						if(js_item != null) {
 							BookingItem bi = new BookingItem();
 							bi.RowIdx = js_item.optInt("rowid", 0);

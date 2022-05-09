@@ -1,5 +1,5 @@
 // SSYSTEM.CPP
-// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019, 2020
+// Copyright (c) A.Sobolev 2012, 2013, 2016, 2017, 2019, 2020, 2022
 //
 #include <slib-internal.h>
 #pragma hdrstop
@@ -98,13 +98,12 @@ char FASTCALL SSystem::TranslateWmCharToAnsi(uintptr_t wparam)
 	return SFormatMessage(::GetLastError(), rMsg);
 }
 
-SSystem::SSystem(int imm) : Flags(0), CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0), PerfFreq(0LL),
+SSystem::SSystem(int imm) : IsBigEndian(SSystem::BigEndian()), Flags(0), 
+	CpuV(cpuvUnkn), CpuCs(cpucsUnkn), CpuCacheSizeL0(0), CpuCacheSizeL1(0), CpuCacheSizeL2(0), CpuA(0), CpuB(0), CpuC(0), CpuD(0), PerfFreq(0LL),
 	CpuCount(0), PageSize(0)
 {
 	if(imm) {
 		GetCpuInfo();
-		if(SSystem::BigEndian())
-			Flags |= fBigEndian;
 		// @v10.9.11 {
 		{
 			SYSTEM_INFO si;

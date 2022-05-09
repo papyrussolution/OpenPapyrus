@@ -2174,7 +2174,15 @@ static void InitTest()
 			assert(r_nm.NotEmpty());
 		}
 	}
-	// } @v11.2.12 
+	// } @v11.2.12
+	// @v11.3.11 {
+	{
+		// Проверка функции нахождения установки Visua Studio, той, что собрала данный модуль
+		//StrAssocArray msc_ver_list;
+		//SString msc_path;
+		//PrcssrBuild::FindMsvs(_MSC_VER, msc_ver_list, &msc_path);
+	}
+	// } @v11.3.11
 #endif // } _DEBUG
 }
 

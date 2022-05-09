@@ -226,7 +226,7 @@ FILETIME QuadWordToFileTime(__int64 src)
 //
 uint64 SProfile::Helper_GetAbsTimeMicroseconds()
 {
-	const uint64 clock_freq = SLS.GetSSys().PerfFreq;
+	const uint64 clock_freq = SLS.SSys.PerfFreq;
 	//
 	// Compute the number of elapsed clock cycles since the clock was created/reset.
 	// Using 64-bit signed ints, this is valid for 2^63 clock cycles (over 104 years w/ clock

@@ -2082,6 +2082,7 @@ SLTEST_R(SBuffer)
 							temp_buf.Z().CatN(static_cast<const char *>(chunk.PtrC()), chunk.Len());
 							SLTEST_CHECK_EQ(temp_buf, js_text);
 						}
+						ZDELETE(p_js); // @v11.3.11 @fix
 					}
 				}
 			}

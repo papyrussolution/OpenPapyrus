@@ -47,13 +47,13 @@ static struct archive_read_passphrase * new_read_passphrase(struct archive_read 
 {
 	struct archive_read_passphrase * p = static_cast<struct archive_read_passphrase *>(SAlloc::M(sizeof(*p)));
 	if(!p) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return NULL;
 	}
 	p->passphrase = sstrdup(passphrase);
 	if(p->passphrase == NULL) {
 		SAlloc::F(p);
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return NULL;
 	}
 	return (p);
@@ -63,7 +63,7 @@ int archive_read_add_passphrase(struct archive * _a, const char * passphrase)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_passphrase * p;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_add_passphrase");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(isempty(passphrase)) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Empty passphrase is unacceptable");
 		return ARCHIVE_FAILED;
@@ -78,7 +78,7 @@ int archive_read_add_passphrase(struct archive * _a, const char * passphrase)
 int archive_read_set_passphrase_callback(struct archive * _a, void * client_data, archive_passphrase_callback * cb)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_set_passphrase_callback");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	a->passphrases.callback = cb;
 	a->passphrases.client_data = client_data;
 	return ARCHIVE_OK;

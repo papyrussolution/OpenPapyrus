@@ -48,7 +48,7 @@ int main(int argc, char ** argv)
 		// @sobolev SYSTEM_INFO si;
 		// @sobolev GetSystemInfo(&si);
 		// @sobolev num_cores = si.dwNumberOfProcessors;
-		num_cores = SLS.GetSSys().CpuCount; // @sobolev
+		num_cores = SLS.SSys.CpuCount; // @sobolev
 	}
 #else
 	num_cores = (int)sysconf(_SC_NPROCESSORS_ONLN);

@@ -16,7 +16,9 @@
  */
 #include <zstd-internal.h>
 #pragma hdrstop
-/*- Compiler specifics -*/
+//
+// Compiler specifics
+//
 #ifdef __clang__
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
 #endif
@@ -75,14 +77,14 @@
 
 /*- Macros -*/
 #ifndef SWAP
-# define SWAP(_a, _b) do { t = (_a); (_a) = (_b); (_b) = t; } while(0)
+	#define SWAP(_a, _b) do { t = (_a); (_a) = (_b); (_b) = t; } while(0)
 #endif /* SWAP */
-#ifndef MIN
-# define MIN(_a, _b) (((_a) < (_b)) ? (_a) : (_b))
-#endif /* MIN */
-#ifndef MAX
-# define MAX(_a, _b) (((_a) > (_b)) ? (_a) : (_b))
-#endif /* MAX */
+//#ifndef MIN
+//# define MIN(_a, _b) (((_a) < (_b)) ? (_a) : (_b))
+//#endif /* MIN */
+//#ifndef MAX
+//# define MAX(_a, _b) (((_a) > (_b)) ? (_a) : (_b))
+//#endif /* MAX */
 #define STACK_PUSH(_a, _b, _c, _d) \
 	do { \
 		assert(ssize < STACK_SIZE); \
@@ -133,8 +135,8 @@ static const int lg_table[256] = {
 
 #if (SS_BLOCKSIZE == 0) || (SS_INSERTIONSORT_THRESHOLD < SS_BLOCKSIZE)
 
-static INLINE
-int ss_ilg(int n) {
+static INLINE int ss_ilg(int n) 
+{
 #if SS_BLOCKSIZE == 0
 	return (n & 0xffff0000) ? ((n & 0xff000000) ? 24 + lg_table[(n >> 24) & 0xff] : 16 + lg_table[(n >> 16) & 0xff]) :
 	       ((n & 0x0000ff00) ? 8 + lg_table[(n >>  8) & 0xff] : 0 + lg_table[(n >>  0) & 0xff]);
@@ -535,20 +537,18 @@ static void ss_mintrosort(const unsigned char * T, const int * PA, int * first, 
 
 #endif /* (SS_BLOCKSIZE == 0) || (SS_INSERTIONSORT_THRESHOLD < SS_BLOCKSIZE) */
 
-/*---------------------------------------------------------------------------*/
-
 #if SS_BLOCKSIZE != 0
 
-static INLINE
-void ss_blockswap(int * a, int * b, int n) {
+static INLINE void ss_blockswap(int * a, int * b, int n) 
+{
 	int t;
 	for(; 0 < n; --n, ++a, ++b) {
 		t = *a, *a = *b, *b = t;
 	}
 }
 
-static INLINE
-void ss_rotate(int * first, int * middle, int * last) {
+static INLINE void ss_rotate(int * first, int * middle, int * last) 
+{
 	int * a, * b, t;
 	int l, r;
 	l = middle - first, r = last - middle;
@@ -591,12 +591,8 @@ void ss_rotate(int * first, int * middle, int * last) {
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-
-static
-void ss_inplacemerge(const unsigned char * T, const int * PA,
-    int * first, int * middle, int * last,
-    int depth) {
+static void ss_inplacemerge(const unsigned char * T, const int * PA, int * first, int * middle, int * last, int depth) 
+{
 	const int * p;
 	int * a, * b;
 	int len, half;
@@ -645,20 +641,14 @@ void ss_inplacemerge(const unsigned char * T, const int * PA,
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-
 /* Merge-forward with internal buffer. */
-static
-void ss_mergeforward(const unsigned char * T, const int * PA,
-    int * first, int * middle, int * last,
-    int * buf, int depth) {
+static void ss_mergeforward(const unsigned char * T, const int * PA, int * first, int * middle, int * last, int * buf, int depth) 
+{
 	int * a, * b, * c, * bufend;
 	int t;
 	int r;
-
 	bufend = buf + (middle - first) - 1;
 	ss_blockswap(buf, first, middle - first);
-
 	for(t = *(a = first), b = buf, c = middle;;) {
 		r = ss_compare(T, PA + *b, PA + *c, depth);
 		if(r < 0) {
@@ -913,14 +903,9 @@ void ss_swapmerge(const unsigned char * T, const int * PA,
 
 #endif /* SS_BLOCKSIZE != 0 */
 
-/*---------------------------------------------------------------------------*/
-
 /* Substring sort */
-static
-void sssort(const unsigned char * T, const int * PA,
-    int * first, int * last,
-    int * buf, int bufsize,
-    int depth, int n, int lastsuffix) {
+static void sssort(const unsigned char * T, const int * PA, int * first, int * last, int * buf, int bufsize, int depth, int n, int lastsuffix) 
+{
 	int * a;
 #if SS_BLOCKSIZE != 0
 	int * b, * middle, * curbuf;
@@ -994,27 +979,17 @@ void sssort(const unsigned char * T, const int * PA,
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-
-static INLINE
-int tr_ilg(int n) {
-	return (n & 0xffff0000) ?
-	       ((n & 0xff000000) ?
-	       24 + lg_table[(n >> 24) & 0xff] :
-	       16 + lg_table[(n >> 16) & 0xff]) :
-	       ((n & 0x0000ff00) ?
-	       8 + lg_table[(n >>  8) & 0xff] :
-	       0 + lg_table[(n >>  0) & 0xff]);
+static INLINE int tr_ilg(int n) 
+{
+	return (n & 0xffff0000) ? ((n & 0xff000000) ? 24 + lg_table[(n >> 24) & 0xff] : 16 + lg_table[(n >> 16) & 0xff]) : 
+		((n & 0x0000ff00) ? 8 + lg_table[(n >>  8) & 0xff] : 0 + lg_table[(n >>  0) & 0xff]);
 }
 
-/*---------------------------------------------------------------------------*/
-
 /* Simple insertionsort for small size groups. */
-static
-void tr_insertionsort(const int * ISAd, int * first, int * last) {
+static void tr_insertionsort(const int * ISAd, int * first, int * last) 
+{
 	int * a, * b;
 	int t, r;
-
 	for(a = first + 1; a < last; ++a) {
 		for(t = *a, b = a - 1; 0 > (r = ISAd[t] - ISAd[*b]);) {
 			do {
@@ -1031,14 +1006,11 @@ void tr_insertionsort(const int * ISAd, int * first, int * last) {
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-
-static INLINE
-void tr_fixdown(const int * ISAd, int * SA, int i, int size) {
+static INLINE void tr_fixdown(const int * ISAd, int * SA, int i, int size) 
+{
 	int j, k;
 	int v;
 	int c, d, e;
-
 	for(v = SA[i], c = ISAd[v]; (j = 2 * i + 1) < size; SA[i] = SA[k], i = k) {
 		d = ISAd[SA[k = j++]];
 		if(d < (e = ISAd[SA[j]])) {
@@ -1078,11 +1050,9 @@ void tr_heapsort(const int * ISAd, int * SA, int size) {
 	}
 }
 
-/*---------------------------------------------------------------------------*/
-
 /* Returns the median of three elements. */
-static INLINE
-int * tr_median3(const int * ISAd, int * v1, int * v2, int * v3) {
+static INLINE int * tr_median3(const int * ISAd, int * v1, int * v2, int * v3) 
+{
 	int * t;
 	if(ISAd[*v1] > ISAd[*v2]) {
 		SWAP(v1, v2);

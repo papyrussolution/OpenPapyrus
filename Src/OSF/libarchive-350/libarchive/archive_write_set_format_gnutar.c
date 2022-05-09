@@ -146,12 +146,9 @@ static int format_octal(int64, char *, int);
 int archive_write_set_format_gnutar(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
-	struct gnutar * gnutar;
-
-	gnutar = (struct gnutar *)SAlloc::C(1, sizeof(*gnutar));
+	struct gnutar * gnutar = (struct gnutar *)SAlloc::C(1, sizeof(*gnutar));
 	if(gnutar == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate gnutar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate gnutar data");
 		return ARCHIVE_FATAL;
 	}
 	a->format_data = gnutar;
@@ -270,18 +267,13 @@ static int archive_write_gnutar_header(struct archive_write * a,
 		 * the client sees the change.
 		 */
 #if defined(_WIN32) && !defined(__CYGWIN__)
-		const wchar_t * wp;
-
-		wp = archive_entry_pathname_w(entry);
+		const wchar_t * wp = archive_entry_pathname_w(entry);
 		if(wp != NULL && wp[wcslen(wp) -1] != L'/') {
 			struct archive_wstring ws;
-
 			archive_string_init(&ws);
 			path_length = wcslen(wp);
-			if(archive_wstring_ensure(&ws,
-			    path_length + 2) == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate ustar data");
+			if(archive_wstring_ensure(&ws, path_length + 2) == NULL) {
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_wstring_free(&ws);
 				return(ARCHIVE_FATAL);
 			}
@@ -304,13 +296,11 @@ static int archive_write_gnutar_header(struct archive_write * a,
 		 */
 		if(p != NULL && p[0] != '\0' && p[strlen(p) - 1] != '/') {
 			struct archive_string as;
-
 			archive_string_init(&as);
 			path_length = strlen(p);
 			if(archive_string_ensure(&as,
 			    path_length + 2) == NULL) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate ustar data");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_string_free(&as);
 				return(ARCHIVE_FATAL);
 			}
@@ -335,8 +325,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 	 * are all slash '/', not the Windows path separator '\'. */
 	entry_main = __la_win_entry_in_posix_pathseparator(entry);
 	if(entry_main == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate ustar data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 		return(ARCHIVE_FATAL);
 	}
 	if(entry != entry_main)
@@ -350,82 +339,53 @@ static int archive_write_gnutar_header(struct archive_write * a,
 		&(gnutar->pathname_length), sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Pathame");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathame");
 			ret = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate pathname '%s' to %s",
-		    archive_entry_pathname(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate pathname '%s' to %s", archive_entry_pathname(entry), archive_string_conversion_charset_name(sconv));
 		ret2 = ARCHIVE_WARN;
 	}
-	r = archive_entry_uname_l(entry, &(gnutar->uname),
-		&(gnutar->uname_length), sconv);
+	r = archive_entry_uname_l(entry, &(gnutar->uname), &(gnutar->uname_length), sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Uname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			ret = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate uname '%s' to %s",
-		    archive_entry_uname(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate uname '%s' to %s", archive_entry_uname(entry), archive_string_conversion_charset_name(sconv));
 		ret2 = ARCHIVE_WARN;
 	}
-	r = archive_entry_gname_l(entry, &(gnutar->gname),
-		&(gnutar->gname_length), sconv);
+	r = archive_entry_gname_l(entry, &(gnutar->gname), &(gnutar->gname_length), sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Gname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			ret = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate gname '%s' to %s",
-		    archive_entry_gname(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate gname '%s' to %s", archive_entry_gname(entry), archive_string_conversion_charset_name(sconv));
 		ret2 = ARCHIVE_WARN;
 	}
-
 	/* If linkname is longer than 100 chars we need to add a 'K' header. */
-	r = archive_entry_hardlink_l(entry, &(gnutar->linkname),
-		&(gnutar->linkname_length), sconv);
+	r = archive_entry_hardlink_l(entry, &(gnutar->linkname), &(gnutar->linkname_length), sconv);
 	if(r != 0) {
 		if(errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for Linkname");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			ret = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_FILE_FORMAT,
-		    "Can't translate linkname '%s' to %s",
-		    archive_entry_hardlink(entry),
-		    archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", archive_entry_hardlink(entry), archive_string_conversion_charset_name(sconv));
 		ret2 = ARCHIVE_WARN;
 	}
 	if(gnutar->linkname_length == 0) {
-		r = archive_entry_symlink_l(entry, &(gnutar->linkname),
-			&(gnutar->linkname_length), sconv);
+		r = archive_entry_symlink_l(entry, &(gnutar->linkname), &(gnutar->linkname_length), sconv);
 		if(r != 0) {
 			if(errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory for Linkname");
+				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				ret = ARCHIVE_FATAL;
 				goto exit_write_header;
 			}
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Can't translate linkname '%s' to %s",
-			    archive_entry_hardlink(entry),
-			    archive_string_conversion_charset_name(sconv));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", archive_entry_hardlink(entry), archive_string_conversion_charset_name(sconv));
 			ret2 = ARCHIVE_WARN;
 		}
 	}
@@ -606,26 +566,21 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 	/* GNU tar supports base-256 here, so should never overflow. */
 	if(format_number(archive_entry_uid(entry), h + GNUTAR_uid_offset,
 	    GNUTAR_uid_size, GNUTAR_uid_max_size)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Numeric user ID %jd too large",
-		    (intmax_t)archive_entry_uid(entry));
+		archive_set_error(&a->archive, ERANGE, "Numeric user ID %jd too large", (intmax_t)archive_entry_uid(entry));
 		ret = ARCHIVE_FAILED;
 	}
 
 	/* GNU tar supports base-256 here, so should never overflow. */
 	if(format_number(archive_entry_gid(entry), h + GNUTAR_gid_offset,
 	    GNUTAR_gid_size, GNUTAR_gid_max_size)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "Numeric group ID %jd too large",
-		    (intmax_t)archive_entry_gid(entry));
+		archive_set_error(&a->archive, ERANGE, "Numeric group ID %jd too large", (intmax_t)archive_entry_gid(entry));
 		ret = ARCHIVE_FAILED;
 	}
 
 	/* GNU tar supports base-256 here, so should never overflow. */
 	if(format_number(archive_entry_size(entry), h + GNUTAR_size_offset,
 	    GNUTAR_size_size, GNUTAR_size_max_size)) {
-		archive_set_error(&a->archive, ERANGE,
-		    "File size out of range");
+		archive_set_error(&a->archive, ERANGE, "File size out of range");
 		ret = ARCHIVE_FAILED;
 	}
 
@@ -633,27 +588,17 @@ static int archive_format_gnutar_header(struct archive_write * a, char h[512],
 	format_octal(archive_entry_mtime(entry),
 	    h + GNUTAR_mtime_offset, GNUTAR_mtime_size);
 
-	if(archive_entry_filetype(entry) == AE_IFBLK
-	   || archive_entry_filetype(entry) == AE_IFCHR) {
-		if(format_octal(archive_entry_rdevmajor(entry),
-		    h + GNUTAR_rdevmajor_offset,
-		    GNUTAR_rdevmajor_size)) {
-			archive_set_error(&a->archive, ERANGE,
-			    "Major device number too large");
+	if(archive_entry_filetype(entry) == AE_IFBLK || archive_entry_filetype(entry) == AE_IFCHR) {
+		if(format_octal(archive_entry_rdevmajor(entry), h + GNUTAR_rdevmajor_offset, GNUTAR_rdevmajor_size)) {
+			archive_set_error(&a->archive, ERANGE, "Major device number too large");
 			ret = ARCHIVE_FAILED;
 		}
-
-		if(format_octal(archive_entry_rdevminor(entry),
-		    h + GNUTAR_rdevminor_offset,
-		    GNUTAR_rdevminor_size)) {
-			archive_set_error(&a->archive, ERANGE,
-			    "Minor device number too large");
+		if(format_octal(archive_entry_rdevminor(entry), h + GNUTAR_rdevminor_offset, GNUTAR_rdevminor_size)) {
+			archive_set_error(&a->archive, ERANGE, "Minor device number too large");
 			ret = ARCHIVE_FAILED;
 		}
 	}
-
 	h[GNUTAR_typeflag_offset] = tartype;
-
 	checksum = 0;
 	for(i = 0; i < 512; i++)
 		checksum += 255 & (uint)h[i];

@@ -15,7 +15,7 @@
 extern "C" {
 #endif
 
-#include "zstd_compress_internal.h"   /* ldmParams_t, U32 */
+#include "zstd_compress_internal.h"   /* ldmParams_t, uint32 */
 #include <zstd.h>   /* ZSTD_CCtx, size_t */
 
 /*-*************************************
@@ -63,7 +63,7 @@ size_t ZSTD_ldm_generateSequences(ldmState_t* ldms, rawSeqStore_t* sequences,
  * NOTE: This function does not return any errors.
  */
 size_t ZSTD_ldm_blockCompress(rawSeqStore_t* rawSeqStore,
-    ZSTD_matchState_t* ms, seqStore_t* seqStore, U32 rep[ZSTD_REP_NUM],
+    ZSTD_matchState_t* ms, seqStore_t* seqStore, uint32 rep[ZSTD_REP_NUM],
     ZSTD_paramSwitch_e useRowMatchFinder,
     void const* src, size_t srcSize);
 
@@ -75,7 +75,7 @@ size_t ZSTD_ldm_blockCompress(rawSeqStore_t* rawSeqStore,
  * Must be called for data that is not passed to ZSTD_ldm_blockCompress().
  */
 void ZSTD_ldm_skipSequences(rawSeqStore_t* rawSeqStore, size_t srcSize,
-    U32 const minMatch);
+    const uint32 minMatch);
 
 /* ZSTD_ldm_skipRawSeqStoreBytes():
  * Moves forward in rawSeqStore by nbBytes, updating fields 'pos' and 'posInSequence'.

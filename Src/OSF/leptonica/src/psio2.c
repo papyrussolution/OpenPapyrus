@@ -344,10 +344,10 @@ char * pixWriteStringPS(PIX * pixs,
 	PROCNAME(__FUNCTION__);
 
 	if(!pixs)
-		return (char*)ERROR_PTR("pixs not defined", procName, NULL);
+		return (char *)ERROR_PTR("pixs not defined", procName, NULL);
 
 	if((pix = pixConvertForPSWrap(pixs)) == NULL)
-		return (char*)ERROR_PTR("pix not made", procName, NULL);
+		return (char *)ERROR_PTR("pix not made", procName, NULL);
 	pixGetDimensions(pix, &w, &h, &d);
 
 	/* Get the factors by which PS scales and translates, in pts */
@@ -374,8 +374,8 @@ char * pixWriteStringPS(PIX * pixs,
 		psbpl = 3 * w;
 	data = pixGetData(pix);
 	hexbytes = 2 * psbpl * h; /* size of ps hex array */
-	if((hexdata = (char*)SAlloc::C(hexbytes + 1, sizeof(char))) == NULL)
-		return (char*)ERROR_PTR("hexdata not made", procName, NULL);
+	if((hexdata = (char *)SAlloc::C(hexbytes + 1, sizeof(char))) == NULL)
+		return (char *)ERROR_PTR("hexdata not made", procName, NULL);
 	if(d == 1 || d == 8) {
 		for(i = 0, k = 0; i < h; i++) {
 			line = data + i * wpl;
@@ -412,7 +412,7 @@ char * pixWriteStringPS(PIX * pixs,
 		xpt, ypt, wpt, hpt, boxflag);
 	pixDestroy(&pix);
 	if(!outstr)
-		return (char*)ERROR_PTR("outstr not made", procName, NULL);
+		return (char *)ERROR_PTR("outstr not made", procName, NULL);
 	return outstr;
 }
 
@@ -455,7 +455,7 @@ char * generateUncompressedPS(char      * hexdata,
 	PROCNAME(__FUNCTION__);
 
 	if(!hexdata)
-		return (char*)ERROR_PTR("hexdata not defined", procName, NULL);
+		return (char *)ERROR_PTR("hexdata not defined", procName, NULL);
 
 	sa = sarrayCreate(0);
 	sarrayAddString(sa, "%!Adobe-PS", L_COPY);
@@ -944,7 +944,7 @@ static char * generateJpegPS(const char * filein,
 	PROCNAME(__FUNCTION__);
 
 	if(!cid)
-		return (char*)ERROR_PTR("jpeg data not defined", procName, NULL);
+		return (char *)ERROR_PTR("jpeg data not defined", procName, NULL);
 	w = cid->w;
 	h = cid->h;
 	bps = cid->bps;
@@ -1330,7 +1330,7 @@ static char * generateG4PS(const char * filein,
 	PROCNAME(__FUNCTION__);
 
 	if(!cid)
-		return (char*)ERROR_PTR("g4 data not defined", procName, NULL);
+		return (char *)ERROR_PTR("g4 data not defined", procName, NULL);
 	w = cid->w;
 	h = cid->h;
 
@@ -1797,7 +1797,7 @@ static char * generateFlatePS(const char * filein,
 	PROCNAME(__FUNCTION__);
 
 	if(!cid)
-		return (char*)ERROR_PTR("flate data not defined", procName, NULL);
+		return (char *)ERROR_PTR("flate data not defined", procName, NULL);
 	w = cid->w;
 	h = cid->h;
 	bps = cid->bps;
@@ -1938,7 +1938,7 @@ l_ok pixWriteMemPS(uint8  ** pdata,
 		return ERROR_INT("&pix not defined", procName, 1);
 
 	*pdata = (uint8 *)pixWriteStringPS(pix, box, res, scale);
-	*psize = strlen((char*)(*pdata));
+	*psize = strlen((char *)(*pdata));
 	return 0;
 }
 

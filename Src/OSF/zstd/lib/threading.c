@@ -36,8 +36,8 @@ static unsigned __stdcall worker(void * arg)
 	return 0;
 }
 
-int ZSTD_pthread_create(ZSTD_pthread_t* thread, const void* unused,
-    void* (*start_routine)(void*), void* arg)
+int ZSTD_pthread_create(ZSTD_pthread_t* thread, const void * unused,
+    void * (*start_routine)(void *), void * arg)
 {
 	(void)unused;
 	thread->arg = arg;

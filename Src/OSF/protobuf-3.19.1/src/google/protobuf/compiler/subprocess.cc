@@ -35,7 +35,7 @@ namespace compiler {
 
 namespace {
 char* portable_strdup(const char* s) {
-  char* ns = (char*)malloc(strlen(s) + 1);
+  char* ns = (char *)malloc(strlen(s) + 1);
   if (ns != NULL) {
     strcpy(ns, s);
   }

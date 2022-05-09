@@ -57,7 +57,7 @@ int archive_read_support_filter_bzip2(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * reader;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_bzip2");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	reader->data = NULL;
@@ -163,9 +163,9 @@ static int bzip2_reader_init(struct archive_read_filter * self)
 	self->data = state;
 	state->out_block_size = out_block_size;
 	state->out_block = static_cast<char *>(out_block);
-	self->read = bzip2_filter_read;
+	self->FnRead = bzip2_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = bzip2_filter_close;
+	self->FnClose = bzip2_filter_close;
 	return ARCHIVE_OK;
 }
 /*
@@ -173,43 +173,31 @@ static int bzip2_reader_init(struct archive_read_filter * self)
  */
 static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void ** p)
 {
-	struct private_data * state;
 	size_t decompressed;
 	const char * read_buf;
 	ssize_t ret;
-
-	state = (struct private_data *)self->data;
-
+	struct private_data * state = (struct private_data *)self->data;
 	if(state->eof) {
 		*p = NULL;
 		return 0;
 	}
-
 	/* Empty our output buffer. */
 	state->stream.next_out = state->out_block;
 	state->stream.avail_out = state->out_block_size;
-
 	/* Try to fill the output buffer. */
 	for(;;) {
 		if(!state->valid) {
 			if(bzip2_reader_bid(self->bidder, self->upstream) == 0) {
 				state->eof = 1;
 				*p = state->out_block;
-				decompressed = state->stream.next_out
-				    - state->out_block;
+				decompressed = state->stream.next_out - state->out_block;
 				return (decompressed);
 			}
 			/* Initialize compression library. */
-			ret = BZ2_bzDecompressInit(&(state->stream),
-				0 /* library verbosity */,
-				0 /* don't use low-mem algorithm */);
-
+			ret = BZ2_bzDecompressInit(&(state->stream), 0 /* library verbosity */, 0 /* don't use low-mem algorithm */);
 			/* If init fails, try low-memory algorithm instead. */
 			if(ret == BZ_MEM_ERROR)
-				ret = BZ2_bzDecompressInit(&(state->stream),
-					0 /* library verbosity */,
-					1 /* do use low-mem algo */);
-
+				ret = BZ2_bzDecompressInit(&(state->stream), 0 /* library verbosity */, 1 /* do use low-mem algo */);
 			if(ret != BZ_OK) {
 				const char * detail = NULL;
 				int err = ARCHIVE_ERRNO_MISC;
@@ -236,16 +224,12 @@ static ssize_t bzip2_filter_read(struct archive_read_filter * self, const void *
 		if(ret == 0) {
 			state->eof = 1;
 			*p = state->out_block;
-			decompressed = state->stream.next_out
-			    - state->out_block;
+			decompressed = state->stream.next_out - state->out_block;
 			return (decompressed);
 		}
-
 		/* Decompress as much as we can in one pass. */
 		ret = BZ2_bzDecompress(&(state->stream));
-		__archive_read_filter_consume(self->upstream,
-		    state->stream.next_in - read_buf);
-
+		__archive_read_filter_consume(self->upstream, state->stream.next_in - read_buf);
 		switch(ret) {
 			case BZ_STREAM_END: /* Found end of stream. */
 			    switch(BZ2_bzDecompressEnd(&(state->stream))) {

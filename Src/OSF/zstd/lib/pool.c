@@ -14,10 +14,11 @@
 #include "debug.h"     /* assert */
 #include "zstd_internal.h"  /* ZSTD_customMalloc, ZSTD_customFree */
 #include "pool.h"
-
-/* ======   Compiler specifics   ====== */
+//
+// Compiler specifics
+//
 #if defined(_MSC_VER)
-#  pragma warning(disable : 4204)        /* disable: C4204: non-constant aggregate initializer */
+	#pragma warning(disable : 4204)        /* disable: C4204: non-constant aggregate initializer */
 #endif
 
 #ifdef ZSTD_MULTITHREAD
@@ -52,7 +53,7 @@ struct POOL_ctx_s {
  * Waits for jobs and executes them.
  * @returns : NULL on failure else non-null.
  */
-static void* POOL_thread(void* opaque) 
+static void * POOL_thread(void * opaque) 
 {
 	POOL_ctx * ctx = (POOL_ctx *)opaque;
 	if(!ctx) {
@@ -87,7 +88,8 @@ static void* POOL_thread(void* opaque)
 		    ZSTD_pthread_mutex_lock(&ctx->queueMutex);
 		    ctx->numThreadsBusy--;
 		    ZSTD_pthread_cond_signal(&ctx->queuePushCond);
-		    ZSTD_pthread_mutex_unlock(&ctx->queueMutex);}
+		    ZSTD_pthread_mutex_unlock(&ctx->queueMutex);
+		}
 	} /* for (;;) */
 	assert(0); /* Unreachable */
 }
@@ -146,7 +148,8 @@ POOL_ctx* POOL_create_advanced(size_t numThreads, size_t queueSize, ZSTD_customM
 		    }
 	    }
 	    ctx->threadCapacity = numThreads;
-	    ctx->threadLimit = numThreads;}
+	    ctx->threadLimit = numThreads;
+	}
 	return ctx;
 }
 
@@ -216,7 +219,7 @@ static int POOL_resize_internal(POOL_ctx* ctx, size_t numThreads)
 	{   ZSTD_pthread_t* const threadPool = (ZSTD_pthread_t*)ZSTD_customMalloc(numThreads * sizeof(ZSTD_pthread_t), ctx->customMem);
 	    if(!threadPool) return 1;
 		/* replace existing thread pool */
-	    ZSTD_memcpy(threadPool, ctx->threads, ctx->threadCapacity * sizeof(*threadPool));
+	    memcpy(threadPool, ctx->threads, ctx->threadCapacity * sizeof(*threadPool));
 	    ZSTD_customFree(ctx->threads, ctx->customMem);
 	    ctx->threads = threadPool;
 		/* Initialize additional threads */
@@ -276,7 +279,7 @@ static void POOL_add_internal(POOL_ctx* ctx, POOL_function function, void * opaq
 	ZSTD_pthread_cond_signal(&ctx->queuePopCond);
 }
 
-void POOL_add(POOL_ctx* ctx, POOL_function function, void* opaque)
+void POOL_add(POOL_ctx* ctx, POOL_function function, void * opaque)
 {
 	assert(ctx);
 	ZSTD_pthread_mutex_lock(&ctx->queueMutex);
@@ -288,7 +291,7 @@ void POOL_add(POOL_ctx* ctx, POOL_function function, void* opaque)
 	ZSTD_pthread_mutex_unlock(&ctx->queueMutex);
 }
 
-int POOL_tryAdd(POOL_ctx* ctx, POOL_function function, void* opaque)
+int POOL_tryAdd(POOL_ctx* ctx, POOL_function function, void * opaque)
 {
 	assert(ctx);
 	ZSTD_pthread_mutex_lock(&ctx->queueMutex);
@@ -307,7 +310,7 @@ int POOL_tryAdd(POOL_ctx* ctx, POOL_function function, void* opaque)
 /* No multi-threading support */
 /* ========================== */
 
-/* We don't need any data, but if it is empty, malloc() might return NULL. */
+/* We don't need any data, but if it is empty, SAlloc::M() might return NULL. */
 struct POOL_ctx_s {
 	int dummy;
 };
@@ -341,12 +344,12 @@ int POOL_resize(POOL_ctx* ctx, size_t numThreads) {
 	return 0;
 }
 
-void POOL_add(POOL_ctx* ctx, POOL_function function, void* opaque) {
+void POOL_add(POOL_ctx* ctx, POOL_function function, void * opaque) {
 	(void)ctx;
 	function(opaque);
 }
 
-int POOL_tryAdd(POOL_ctx* ctx, POOL_function function, void* opaque) {
+int POOL_tryAdd(POOL_ctx* ctx, POOL_function function, void * opaque) {
 	(void)ctx;
 	function(opaque);
 	return 1;

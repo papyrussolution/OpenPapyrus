@@ -50,7 +50,7 @@
 
 extern symbol * create_b(int n) 
 {
-	symbol * p = (symbol*)(HEAD + (char*)MALLOC(HEAD + (n + 1) * sizeof(symbol)));
+	symbol * p = (symbol*)(HEAD + (char *)MALLOC(HEAD + (n + 1) * sizeof(symbol)));
 	CAPACITY(p) = n;
 	SIZE(p) = 0;
 	return p;
@@ -75,7 +75,7 @@ extern void output_str(FILE * outfile, struct str * str)
 extern void lose_b(symbol * p) 
 {
 	if(p)
-		FREE((char*)p - HEAD);
+		FREE((char *)p - HEAD);
 }
 
 extern symbol * increase_capacity(symbol * p, int n) 

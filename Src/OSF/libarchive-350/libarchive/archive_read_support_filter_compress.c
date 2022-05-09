@@ -112,7 +112,7 @@ int archive_read_support_filter_compress(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_compress");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -172,13 +172,13 @@ static int compress_bidder_init(struct archive_read_filter * self)
 	self->data = state;
 	state->out_block_size = out_block_size;
 	state->out_block = out_block;
-	self->read = compress_filter_read;
+	self->FnRead = compress_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = compress_filter_close;
-	/* XXX MOVE THE FOLLOWING OUT OF INIT() XXX */
-	(void)getbits(self, 8); /* Skip first signature byte. */
-	(void)getbits(self, 8); /* Skip second signature byte. */
-	/* Get compression parameters. */
+	self->FnClose = compress_filter_close;
+	// XXX MOVE THE FOLLOWING OUT OF INIT() XXX 
+	getbits(self, 8); /* Skip first signature byte. */
+	getbits(self, 8); /* Skip second signature byte. */
+	// Get compression parameters.
 	code = getbits(self, 8);
 	if((code & 0x1f) > 16) {
 		archive_set_error(&self->archive->archive, -1, "Invalid compressed data");
@@ -187,8 +187,7 @@ static int compress_bidder_init(struct archive_read_filter * self)
 	state->maxcode_bits = code & 0x1f;
 	state->maxcode = (1 << state->maxcode_bits);
 	state->use_reset_code = code & 0x80;
-
-	/* Initialize decompressor. */
+	// Initialize decompressor.
 	state->free_ent = 256;
 	state->stackp = state->stack;
 	if(state->use_reset_code)
@@ -201,10 +200,8 @@ static int compress_bidder_init(struct archive_read_filter * self)
 		state->suffix[code] = code;
 	}
 	next_code(self);
-
 	return ARCHIVE_OK;
 }
-
 /*
  * Return a block of data from the decompression buffer.  Decompress more
  * as necessary.

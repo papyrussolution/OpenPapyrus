@@ -854,7 +854,7 @@ Exit:
 	while(parser->root.cursor < limit) {
 		FT_Byte*  cur = parser->root.cursor;
 		/* look for `FontDirectory' which causes problems for some fonts */
-		if(*cur == 'F' && cur + 25 < limit && ft_strncmp((char*)cur, "FontDirectory", 13) == 0) {
+		if(*cur == 'F' && cur + 25 < limit && ft_strncmp((char *)cur, "FontDirectory", 13) == 0) {
 			FT_Byte*  cur2;
 			/* skip the `FontDirectory' keyword */
 			T1_Skip_PS_Token(parser);
@@ -862,7 +862,7 @@ Exit:
 			cur = cur2 = parser->root.cursor;
 			/* look up the `known' keyword */
 			while(cur < limit) {
-				if(*cur == 'k' && cur + 5 < limit && ft_strncmp((char*)cur, "known", 5) == 0)
+				if(*cur == 'k' && cur + 5 < limit && ft_strncmp((char *)cur, "known", 5) == 0)
 					break;
 				T1_Skip_PS_Token(parser);
 				if(parser->root.error)

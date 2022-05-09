@@ -173,7 +173,7 @@ l_int32 * sudokuReadFile(const char * filename)
 	if(!filename)
 		return (l_int32*)ERROR_PTR("filename not defined", procName, NULL);
 	data = l_binaryRead(filename, &size);
-	sa1 = sarrayCreateLinesFromString((char*)data, 0);
+	sa1 = sarrayCreateLinesFromString((char *)data, 0);
 	sa2 = sarrayCreate(9);
 
 	/* Filter out the comment lines; verify that there are 9 data lines */

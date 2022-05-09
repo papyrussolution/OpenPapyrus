@@ -19138,6 +19138,7 @@ public:
 #define OPKF_PRT_CASHORD       0x00080000L // Печатать кассовый ордер
 #define OPKF_PRT_SELPRICE      0x00100000L // Печать цен в накладной на выбор
 #define OPKF_PRT_NDISCNT       0x00800000L // Не печатать скидку в накладной
+#define OPKF_PRT_LOCDISP       0x01000000L // @v11.3.11 Печатать наряд на складскую сборку (используется неявно для идентификации варианта выбора)
 #define OPKF_PRT_PAYPLAN       0x02000000L // Печатать план платежей по документу
 #define OPKF_PRT_LADING        0x04000000L // Печатать товарно-транспортную накладную
 #define OPKF_PRT_MERGETI       0x08000000L // Объединять товарные строки
@@ -36740,6 +36741,7 @@ public:
 	int    GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSArray * pList); // @<<PPObjTech::GetGoodsStruc
 	int    GetGoodsListByPrc(PPID prcID, PPIDArray * pList);
 		// @>>PPObjTech::AddItemsToList
+	int    GetListByPrc(PPID prcID, PPIDArray * pList);
 	int    GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList);
 	int    GetListByGoods(PPID goodsID, PPIDArray * pList);
 	int    GetToolingCondition(PPID id, SString & rFormula);
@@ -56691,6 +56693,73 @@ private:
 	uint   StartLoYear;  // Стартовый год в блоке выбора года.
 	long   PeriodTerm;   // PRD_XXX Kind==kPeriod
 	long   PeriodPredef; // Предопределенный период (сегодня, вчера, последняя неделя и т.д.)
+};
+//
+// Descr: Класс, управляющий процессом сборки дистрибутива Papyrus 
+// 
+class PrcssrBuild {
+public:
+	struct BuildVer {
+		BuildVer();
+		int    Major; // MajorVer
+		int    Minor; // MinorVer
+		int    Revision; // Revision
+		int    Asm; // AssemblyVer
+	};
+	struct Param {
+		enum {
+			fBuildClient       = 0x0001,
+			fBuildServer       = 0x0002,
+			fBuildMtdll        = 0x0004,
+			fBuildDrv  = 0x0008,
+			fBuildSoap = 0x0010,
+			fBuildDistrib      = 0x0020,
+			fCopyToUhtt        = 0x0040,
+			fOpenSource        = 0x0080, // OpenSource-вариант сборки
+			fSupplementalBuild = 0x0100  // @v10.6.1 дополнительная сборка XP-совместимых исполняемых файлов
+		};
+		Param();
+		Param(const Param & rS);
+		Param & FASTCALL operator = (const Param & rS);
+		Param & FASTCALL Copy(const Param & rS);
+		SString & GetVerLabel(SString & rBuf) const;
+
+		BuildVer Ver;            // Собираемая версия //
+		long   Flags;
+		uint   ConfigEntryIdx;   // Индекс выбранной конфигурации сборки. 0 - undef
+		uint   XpConfigEntryIdx; // @v10.6.1 Индекс дополнительной конфигурации сборки для Windows-XP. 0 - undef
+		SString VerSuffix;       // Опциональный суффикс версии дистрибутива (например, PRE)
+		struct ConfigEntry {
+			ConfigEntry() : PrefMsvsVerMajor(0)
+			{
+			}
+			SString Name;            // Наименование элемента конфигурации сборки
+			int    PrefMsvsVerMajor; // PPINIPARAM_PREFMSVSVER
+			SString RootPath;        // PPINIPARAM_BUILDROOT     Корневой каталог проекта
+			SString SrcPath;         // PPINIPARAM_BUILDSRC      Каталог исходных кодов
+			SString SlnPath;         // PPINIPARAM_BUILDSOLUTION Каталог, содержащий файлы проектов
+			SString TargetRootPath;  // PPINIPARAM_BUILDTARGET   Корневой каталог, в котором должна собираться версия (C:\PPY)
+			SString NsisPath;        // PPINIPARAM_BUILDNSIS     Путь к исполняемому файлу NSIS (сборщик дистрибутива)
+			SString DistribPath;     // PPINIPARAM_BUILDDISTRIB  Корневой каталог, хранящий дистрибутивы
+		};
+		TSCollection <ConfigEntry> ConfigList;
+	};
+
+	static int FindMsvs(int prefMajor, StrAssocArray & rList, SString * pPrefPath);
+	int	   InitParam(Param *);
+	int	   EditParam(Param *);
+	int	   Init(const Param *);
+	int	   Run();
+	int    Build();
+	int    BuildLocalDl600(const char * pPath);
+	Param::ConfigEntry * SetupParamByEntryIdx(Param * pParam, int supplementalConfig);
+private:
+	static int CopyProgressProc(const SDataMoveProgressInfo * scfd); // SDataMoveProgressProc
+	int	   UploadFileToUhtt(const char * pFileName, const char * pKey, const char * pVerLabel, const char * pMemo);
+	int	   InitConfigEntry(PPIniFile & rIniFile, const char * pSection, Param::ConfigEntry * pEntry);
+	int    Helper_Compile(const Param::ConfigEntry * pCfgEntry, int supplementalConfig, PPLogger & rLogger);
+
+	Param  P;
 };
 //
 // Descr: Возвращает минимальный множитель, цены кратные которому

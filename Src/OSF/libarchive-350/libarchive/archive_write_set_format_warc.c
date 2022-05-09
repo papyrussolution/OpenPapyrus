@@ -88,8 +88,7 @@ int archive_write_set_format_warc(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct warc_s * w;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_warc");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL) {
 		(a->format_free)(a);

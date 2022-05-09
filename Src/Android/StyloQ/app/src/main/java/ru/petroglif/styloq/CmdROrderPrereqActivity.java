@@ -13,26 +13,36 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-import com.bumptech.glide.Glide;
+
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Locale;
 
 public class CmdROrderPrereqActivity extends SLib.SlActivity {
+	private CommonPrereqModule CPM;
+	private JSONArray UomListData;
+	private JSONArray WharehouseListData;
+	private JSONArray QuotKindListData;
+	private ArrayList <JSONObject> BrandListData;
+	private ArrayList <CliEntry> CliListData;
+	//private ArrayList <Document.Head> OrderHList;
+
 	public CmdROrderPrereqActivity()
 	{
 		CPM = new CommonPrereqModule();
@@ -173,14 +183,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
-	private CommonPrereqModule CPM;
-	private JSONArray UomListData;
-	private JSONArray WharehouseListData;
-	private JSONArray QuotKindListData;
-	private ArrayList <JSONObject> BrandListData;
-	private ArrayList <CliEntry> CliListData;
-	private ArrayList <Document.Head> OrderHList;
-
 	static class TransferItemDialog extends SLib.SlDialog {
 		CmdROrderPrereqActivity ActivityCtx;
 		public TransferItemDialog(Context ctx, Object data)
@@ -353,19 +355,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_QTTY, SLib.formatdouble(_data.Set.Qtty, 3));
 					SLib.SetCtrlString(this, R.id.CTL_ORDRTI_AMOUNT, SLib.formatdouble(_data.Set.Qtty * _data.Set.Price, 2));
 					//
-					{
-						View imgv_ = this.findViewById(R.id.CTL_ORDRTI_IMG);
-						if(imgv_ != null && imgv_ instanceof ImageView) {
-							ImageView imgv = (ImageView)imgv_;
-							if(SLib.GetLen(blob_signature) > 0) {
-								imgv.setVisibility(View.VISIBLE);
-								Glide.with(ctx).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
-							}
-							else {
-								imgv.setVisibility(View.GONE);
-							}
-						}
-					}
+					SLib.SetupImage(ActivityCtx, this.findViewById(R.id.CTL_ORDRTI_IMG), blob_signature);
 				}
 			}
 			return ok;
@@ -728,51 +718,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		}
 		return result;
 	}
-	private void MakeCurrentDocList()
-	{
-		if(OrderHList != null)
-			OrderHList.clear();
-		try {
-			if(CPM.SvcIdent != null) {
-				StyloQApp app_ctx = (StyloQApp) getApplication();
-				StyloQDatabase db = (app_ctx != null) ? app_ctx.GetDB() : null;
-				if(db != null) {
-					StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, CPM.SvcIdent);
-					if(svc_pack != null) {
-						long svc_id = svc_pack.Rec.ID;
-						ArrayList<Long> doc_id_list = db.GetDocIdListByType(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, svc_id, null);
-						if(doc_id_list != null) {
-							for(int i = 0; i < doc_id_list.size(); i++) {
-								long local_doc_id = doc_id_list.get(i);
-								StyloQDatabase.SecStoragePacket local_doc_pack = db.GetPeerEntry(local_doc_id);
-								if(local_doc_pack != null) {
-									byte [] raw_doc = local_doc_pack.Pool.Get(SecretTagPool.tagRawData);
-									if(SLib.GetLen(raw_doc) > 0) {
-										String json_doc = new String(raw_doc);
-										Document local_doc = new Document();
-										if(local_doc.FromJson(json_doc)) {
-											if(OrderHList == null)
-												OrderHList = new ArrayList<Document.Head>();
-											// Эти операторы нужны на начальном этапе разработки поскольку
-											// финализация пакета документа появилась не сразу {
-											if(local_doc.GetNominalAmount() == 0.0)
-												local_doc.H.Amount = local_doc.CalcNominalAmount();
-											// }
-											OrderHList.add(local_doc.H);
-											local_doc.H = null;
-										}
-
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		} catch(StyloQException exn) {
-			;
-		}
-	}
 	private static class DlvrLocListAdapter extends ArrayAdapter {
 		private int RcId;
 		DlvrLocListAdapter(Context ctx, int rcId, ArrayList data)
@@ -904,7 +849,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									});
 								}
 							}
-							MakeCurrentDocList();
+							CPM.MakeCurrentDocList(app_ctx);
 							MakeSimpleSearchIndex();
 						}
 						requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -949,7 +894,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						case R.id.orderPrereqGoodsGroupListView: result = new Integer((CPM.GoodsGroupListData != null) ? CPM.GoodsGroupListData.size() : 0); break;
 						case R.id.orderPrereqBrandListView: result = new Integer((BrandListData != null) ? BrandListData.size() : 0); break;
 						case R.id.orderPrereqOrdrListView: result = new Integer((CPM.CurrentOrder != null && CPM.CurrentOrder.TiList != null) ? CPM.CurrentOrder.TiList.size() : 0); break;
-						case R.id.orderPrereqOrderListView: result = new Integer((OrderHList != null) ? OrderHList.size() : 0); break;
+						case R.id.orderPrereqOrderListView: result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0); break;
 						case R.id.orderPrereqClientsListView: result = new Integer((CliListData != null) ? CliListData.size() : 0); break;
 						case R.id.searchPaneListView:
 							{
@@ -1107,30 +1052,11 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
 										}
 										{
-											View ctl = iv.findViewById(R.id.buttonOrder);
-											if(ctl != null && ctl instanceof Button) {
-												Button btn = (Button)ctl;
-												double val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
-												if(val > 0.0)
-													btn.setText(String.format("%.0f", val));
-												else
-													btn.setText("order");
-											}
+											double val = CPM.GetGoodsQttyInCurrentDocument(cur_id);
+											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_ORDEREDQTY, (val > 0.0) ? String.format("%.0f", val) : null);
 										}
 										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
-										{
-											View imgv_ = iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG);
-											if(imgv_ != null && imgv_ instanceof ImageView) {
-												ImageView imgv = (ImageView)imgv_;
-												if(SLib.GetLen(blob_signature) > 0) {
-													imgv.setVisibility(View.VISIBLE);
-													Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
-												}
-												else {
-													imgv.setVisibility(View.GONE);
-												}
-											}
-										}
+										SLib.SetupImage(this, iv.findViewById(R.id.ORDERPREREQ_GOODS_IMG), blob_signature);
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 									}
 								}
@@ -1153,9 +1079,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									}
 								}
 								else if(a.GetListRcId() == R.id.orderPrereqOrderListView) { // Список зафиксированных заказов
-									if(OrderHList != null && ev_subj.ItemIdx < OrderHList.size()) {
+									if(CPM.OrderHList != null && ev_subj.ItemIdx < CPM.OrderHList.size()) {
 										View iv = ev_subj.RvHolder.itemView;
-										Document.Head dh = OrderHList.get(ev_subj.ItemIdx);
+										Document.Head dh = CPM.OrderHList.get(ev_subj.ItemIdx);
 										if(dh != null) {
 											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, (SLib.GetLen(dh.Code) > 0) ? dh.Code : "");
 											{
@@ -1537,7 +1463,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					if(ir.OriginalCmdItem != null && ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
 						CPM.Locker_CommitCurrentDocument = false;
 						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-							MakeCurrentDocList();
+							CPM.MakeCurrentDocList((StyloQApp)getApplication());
 							CPM.CurrentOrder = null;
 							NotifyCurrentOrderChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);

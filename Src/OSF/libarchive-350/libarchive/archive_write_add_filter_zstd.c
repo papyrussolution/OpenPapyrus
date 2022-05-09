@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2017 Sean Purcell
- * All rights reserved.
+ * Copyright (c) 2017 Sean Purcell All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -16,7 +14,7 @@
 __FBSDID("$FreeBSD$");
 
 #ifdef HAVE_ZSTD_H
-	#include <zstd.h>
+	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
 
 /* Don't compile this if we don't have zstd.h */
@@ -42,16 +40,13 @@ struct private_data {
 #define MINVER_NEGCLEVEL 10304
 #define MINVER_MINCLEVEL 10306
 
-static int archive_compressor_zstd_options(struct archive_write_filter *,
-    const char *, const char *);
+static int archive_compressor_zstd_options(struct archive_write_filter *, const char *, const char *);
 static int archive_compressor_zstd_open(struct archive_write_filter *);
-static int archive_compressor_zstd_write(struct archive_write_filter *,
-    const void *, size_t);
+static int archive_compressor_zstd_write(struct archive_write_filter *, const void *, size_t);
 static int archive_compressor_zstd_close(struct archive_write_filter *);
 static int archive_compressor_zstd_free(struct archive_write_filter *);
 #if HAVE_ZSTD_H && HAVE_LIBZSTD
-static int drive_compressor(struct archive_write_filter *,
-    struct private_data *, int, const void *, size_t);
+	static int drive_compressor(struct archive_write_filter *, struct private_data *, int, const void *, size_t);
 #endif
 
 /*
@@ -62,17 +57,17 @@ int archive_write_add_filter_zstd(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_zstd");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = (private_data *)SAlloc::C(1, sizeof(*data));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	f->data = data;
-	f->open = &archive_compressor_zstd_open;
-	f->options = &archive_compressor_zstd_options;
-	f->close = &archive_compressor_zstd_close;
-	f->free = &archive_compressor_zstd_free;
+	f->FnOpen = &archive_compressor_zstd_open;
+	f->FnOptions = &archive_compressor_zstd_options;
+	f->FnClose = &archive_compressor_zstd_close;
+	f->FnFree = &archive_compressor_zstd_free;
 	f->code = ARCHIVE_FILTER_ZSTD;
 	f->name = "zstd";
 	data->compression_level = CLEVEL_DEFAULT;
@@ -80,11 +75,9 @@ int archive_write_add_filter_zstd(struct archive * _a)
 	data->cstream = ZSTD_createCStream();
 	if(data->cstream == NULL) {
 		SAlloc::F(data);
-		archive_set_error(&a->archive, ENOMEM,
-		    "Failed to allocate zstd compressor object");
+		archive_set_error(&a->archive, ENOMEM, "Failed to allocate zstd compressor object");
 		return ARCHIVE_FATAL;
 	}
-
 	return ARCHIVE_OK;
 #else
 	data->pdata = __archive_write_program_allocate("zstd");
@@ -93,8 +86,7 @@ int archive_write_add_filter_zstd(struct archive * _a)
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Using external zstd program");
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Using external zstd program");
 	return ARCHIVE_WARN;
 #endif
 }
@@ -117,7 +109,6 @@ static int string_is_numeric(const char* value)
 {
 	size_t len = strlen(value);
 	size_t i;
-
 	if(len == 0) {
 		return ARCHIVE_WARN;
 	}
@@ -128,13 +119,11 @@ static int string_is_numeric(const char* value)
 	    value[0] != '-' && value[0] != '+') {
 		return ARCHIVE_WARN;
 	}
-
 	for(i = 1; i < len; i++) {
 		if(!(value[i] >= '0' && value[i] <= '9')) {
 			return ARCHIVE_WARN;
 		}
 	}
-
 	return ARCHIVE_OK;
 }
 /*
@@ -169,7 +158,6 @@ static int archive_compressor_zstd_options(struct archive_write_filter * f, cons
 		data->compression_level = level;
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -186,8 +174,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 	if(data->out.dst == NULL) {
 		size_t bs = ZSTD_CStreamOutSize(), bpb;
 		if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
-			/* Buffer size should be a multiple number of
-			 * the of bytes per block for performance. */
+			// Buffer size should be a multiple number of the of bytes per block for performance.
 			bpb = archive_write_get_bytes_per_block(f->archive);
 			if(bpb > bs)
 				bs = bpb;
@@ -202,7 +189,7 @@ static int archive_compressor_zstd_open(struct archive_write_filter * f)
 			return ARCHIVE_FATAL;
 		}
 	}
-	f->write = archive_compressor_zstd_write;
+	f->FnWrite = archive_compressor_zstd_write;
 	if(ZSTD_isError(ZSTD_initCStream(data->cstream, data->compression_level))) {
 		archive_set_error(f->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing zstd compressor object");
 		return ARCHIVE_FATAL;
@@ -233,22 +220,18 @@ static int archive_compressor_zstd_close(struct archive_write_filter * f)
 	/* Finish zstd frame */
 	return drive_compressor(f, data, 1, NULL, 0);
 }
-
 /*
  * Utility function to push input data through compressor,
  * writing full output blocks as necessary.
  *
- * Note that this handles both the regular write case (finishing ==
- * false) and the end-of-archive case (finishing == true).
+ * Note that this handles both the regular write case (finishing == false) and the end-of-archive case (finishing == true).
  */
-static int drive_compressor(struct archive_write_filter * f,
-    struct private_data * data, int finishing, const void * src, size_t length)
+static int drive_compressor(struct archive_write_filter * f, struct private_data * data, int finishing, const void * src, size_t length)
 {
-	ZSTD_inBuffer in = (ZSTD_inBuffer) {src, length, 0 };
+	ZSTD_inBuffer in = {src, length, 0 };
 	for(;;) {
 		if(data->out.pos == data->out.size) {
-			const int ret = __archive_write_filter(f->next_filter,
-				data->out.dst, data->out.size);
+			const int ret = __archive_write_filter(f->next_filter, data->out.dst, data->out.size);
 			if(ret != ARCHIVE_OK)
 				return ARCHIVE_FATAL;
 			data->out.pos = 0;

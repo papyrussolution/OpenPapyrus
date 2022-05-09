@@ -18,22 +18,27 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.bumptech.glide.Glide;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	private CommonPrereqModule CPM;
 	private AttendanceBlock AttdcBlk;
+	private Param P;
+
 	private static class Param {
 		Param()
 		{
@@ -43,8 +48,17 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		String PrcTitle;
 		int MaxScheduleDays;
 	}
-	private Param P;
 	private static class AttendanceBlock {
+		int [] WorkHours;
+		private SLib.LDATE SelectionDate_; // Дата, которая отображается на экране выбора времени посещения //
+		SLib.LDATETIME AttendanceTime; // Выбранное время. null - не выбрано //
+		CommonPrereqModule.WareEntry Ware;
+		CommonPrereqModule.ProcessorEntry Prc;
+		ArrayList <SLib.STimeChunk> BusyList; // Зависит от Prc
+		ArrayList <SLib.STimeChunk> WorktimeList; // Зависит от Prc
+		ArrayList <SLib.STimeChunk> CurrentBookingBusyList;
+		int Duration; // Ожидаемая продолжительность сессии (prcID, goodsID). assert(goodsID || Duration == 0)
+		//
 		AttendanceBlock(final Param param)
 		{
 			Ware = null;
@@ -53,6 +67,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			WorktimeList = null;
 			CurrentBookingBusyList = null;
 			AttendanceTime = null;
+			Duration = 0;
 			SetSelectionDate(SLib.GetCurDate());
 		}
 		boolean IncrementSelectedDate(final Param param)
@@ -183,18 +198,18 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					WorkHours[i] = temp_work_hours[i];
 			}
 		}
+		public int GetGoodsID()
+		{
+			return (Ware != null && Ware.JsItem != null) ? Ware.JsItem.optInt("id", 0) : 0;
+		}
+		public int GetPrcID()
+		{
+			return (Prc != null && Prc.JsItem != null) ? Prc.JsItem.optInt("id", 0) : 0;
+		}
 		int GetWorkhoursCount()
 		{
 			return (WorkHours != null) ? WorkHours.length : 0;
 		}
-		int [] WorkHours;
-		private SLib.LDATE SelectionDate_; // Дата, которая отображается на экране выбора времени посещения //
-		SLib.LDATETIME AttendanceTime; // Выбранное время. null - не выбрано //
-		CommonPrereqModule.WareEntry Ware;
-		CommonPrereqModule.ProcessorEntry Prc;
-		ArrayList <SLib.STimeChunk> BusyList; // Зависит от Prc
-		ArrayList <SLib.STimeChunk> WorktimeList; // Зависит от Prc
-		ArrayList <SLib.STimeChunk> CurrentBookingBusyList;
 	}
 	public CmdRAttendancePrereqActivity()
 	{
@@ -261,10 +276,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			if(AttdcBlk == null)
 				AttdcBlk = new AttendanceBlock(P);
 			AttdcBlk.Prc = entry;
-			if(AttdcBlk.Prc.JsItem != null) {
+			int prc_id = AttdcBlk.GetPrcID();
+			if(prc_id > 0) {
 				AttdcBlk.BusyList = null;
 				AttdcBlk.WorktimeList = null;
-				int prc_id = AttdcBlk.Prc.JsItem.optInt("id", 0);
 				JSONArray js_busy_list = AttdcBlk.Prc.JsItem.optJSONArray("busy_list");
 				if(js_busy_list != null && js_busy_list.length() > 0) {
 					for(int i = 0; i < js_busy_list.length(); i++) {
@@ -309,13 +324,16 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				AttdcBlk.SetSelectionDate(AttdcBlk.GetSelectionDate()); // Пересчитывам календарь в соответствии с процессором
 				AttdcBlk.CurrentBookingBusyList = CPM.GetCurrentDocumentBusyList(prc_id);
 			}
-			else
+			else {
 				AttdcBlk.CurrentBookingBusyList = null;
+			}
+			AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
 		}
 		else if(AttdcBlk != null) {
 			AttdcBlk.Prc = null;
 			AttdcBlk.BusyList = null;
 			AttdcBlk.CurrentBookingBusyList = null;
+			AttdcBlk.Duration = CPM.GetServiceDurationForPrc(0, AttdcBlk.GetGoodsID());
 		}
 		UpdateAttendanceView();
 	}
@@ -329,6 +347,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		else if(AttdcBlk != null) {
 			AttdcBlk.Ware = null;
 		}
+		if(AttdcBlk != null)
+			AttdcBlk.Duration = CPM.GetServiceDurationForPrc(AttdcBlk.GetPrcID(), AttdcBlk.GetGoodsID());
 		UpdateAttendanceView();
 	}
 	private void CreateTabList(boolean force)
@@ -363,6 +383,11 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabBookingDocument;
 				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_booking, tab_layout_rcid);
 				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{orderdocument}"), f));
+			}
+			{
+				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabOrders;
+				SLib.SlFragmentStatic f = SLib.SlFragmentStatic.newInstance(_tab.ordinal(), R.layout.layout_attendanceprereq_orders, tab_layout_rcid);
+				CPM.TabList.add(new CommonPrereqModule.TabEntry(_tab, SLib.ExpandString(app_ctx, "@{booking_pl}"), f));
 			}
 			{
 				final CommonPrereqModule.Tab _tab = CommonPrereqModule.Tab.tabSearch;
@@ -542,16 +567,34 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 			//Context ctx = parent.getContext();
 			if(item != null) {
 				// Check if an existing view is being reused, otherwise inflate the view
-				if(convertView == null) {
-					Context _ctx = getContext();
-					convertView = LayoutInflater.from(_ctx).inflate(RcId, parent, false);
-				}
-				if(convertView != null) {
-					TextView v = convertView.findViewById(R.id.LVITEM_GENERICNAME);
-					if(v != null && item instanceof CommonPrereqModule.WareEntry) {
-						CommonPrereqModule.WareEntry ware_entry = (CommonPrereqModule.WareEntry)item;
-						if(ware_entry.JsItem != null)
-							v.setText(ware_entry.JsItem.optString("nm", ""));
+				Context _ctx = getContext();
+				if(_ctx != null) {
+					if(convertView == null) {
+						convertView = LayoutInflater.from(_ctx).inflate(RcId, parent, false);
+					}
+					if(convertView != null) {
+						TextView v = convertView.findViewById(R.id.LVITEM_GENERICNAME);
+						if(v != null && item instanceof CommonPrereqModule.WareEntry) {
+							CommonPrereqModule.WareEntry ware_entry = (CommonPrereqModule.WareEntry) item;
+							if(ware_entry.JsItem != null) {
+								int goods_id = ware_entry.JsItem.optInt("id", 0);
+								v.setText(ware_entry.JsItem.optString("nm", ""));
+								if(_ctx instanceof CmdRAttendancePrereqActivity) {
+									int duration = ((CmdRAttendancePrereqActivity) _ctx).CPM.GetServiceDurationForPrc(PrcID, goods_id);
+									if(duration > 0) {
+										Context app_ctx = _ctx.getApplicationContext();
+										if(app_ctx != null && app_ctx instanceof StyloQApp) {
+											String text = ((StyloQApp) app_ctx).GetString("duration");
+											if(SLib.GetLen(text) == 0)
+												text = SLib.durationfmt(duration);
+											else
+												text += ": " + SLib.durationfmt(duration);
+											SLib.SetCtrlString(convertView, R.id.CTL_GOODSBYPRC_DURATION, text);
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
@@ -595,6 +638,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						CPM.MakeProcessorListFromCommonJson(js_head);
 						CPM.MakeGoodsListFromCommonJson(js_head);
 					}
+					CPM.MakeCurrentDocList(app_ctx);
 					MakeSimpleSearchIndex();
 					requestWindowFeature(Window.FEATURE_NO_TITLE);
 					setContentView(R.layout.activity_cmdrattendanceprereq);
@@ -634,6 +678,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							result = new Integer(AttdcBlk.GetWorkhoursCount());
 							break;
 						case R.id.attendancePrereqBookingListView: result = new Integer((CPM.CurrentOrder != null && CPM.CurrentOrder.BkList != null) ? CPM.CurrentOrder.BkList.size() : 0); break;
+						case R.id.attendancePrereqOrderListView: result = new Integer((CPM.OrderHList != null) ? CPM.OrderHList.size() : 0); break;
 						case R.id.searchPaneListView:
 						{
 							result = new Integer((CPM.SearchResult != null) ? CPM.SearchResult.GetObjTypeCount() : 0);
@@ -651,6 +696,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						if(AttdcBlk == null) {
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_WARE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, "");
+							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DURATION, "");
+							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRICE, "");
 							SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DATE, "");
 							SLib.SetCtrlVisibility(vg, R.id.CTL_PREV, View.GONE);
 							SLib.SetCtrlVisibility(vg, R.id.CTL_NEXT, View.GONE);
@@ -674,6 +721,19 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							if(AttdcBlk.Prc != null && AttdcBlk.Prc.JsItem != null) {
 								String nm = AttdcBlk.Prc.JsItem.optString("nm", "");
 								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_PRC, nm);
+							}
+							{
+								int duration = AttdcBlk.Duration;
+								String text = "";
+								if(duration > 0) {
+									StyloQApp app_ctx = (StyloQApp) getApplication();
+									text = app_ctx.GetString("duration");
+									if(SLib.GetLen(text) == 0)
+										text = SLib.durationfmt(duration);
+									else
+										text += ": " + SLib.durationfmt(duration);
+								}
+								SLib.SetCtrlString(vg, R.id.CTL_ATTENDANCE_DURATION, text);
 							}
 						}
 					}
@@ -763,19 +823,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											}
 										}
 										String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
-										{
-											View imgv_ = iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_IMG);
-											if(imgv_ != null && imgv_ instanceof ImageView) {
-												ImageView imgv = (ImageView)imgv_;
-												if(SLib.GetLen(blob_signature) > 0) {
-													imgv.setVisibility(View.VISIBLE);
-													Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
-												}
-												else {
-													imgv.setVisibility(View.GONE);
-												}
-											}
-										}
+										SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_IMG), blob_signature);
 										SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_GOODS, cur_id);
 										{
 											ImageView ctl = (ImageView)iv.findViewById(R.id.ATTENDANCEPREREQ_GOODS_EXPANDSTATUS);
@@ -964,19 +1012,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											final int cur_id = cur_entry.JsItem.optInt("id", 0);
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
 											String blob_signature = cur_entry.JsItem.optString("imgblobs", null);
-											{
-												View imgv_ = iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_IMG);
-												if(imgv_ != null && imgv_ instanceof ImageView) {
-													ImageView imgv = (ImageView)imgv_;
-													if(SLib.GetLen(blob_signature) > 0) {
-														imgv.setVisibility(View.VISIBLE);
-														Glide.with(this).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
-													}
-													else {
-														imgv.setVisibility(View.GONE);
-													}
-												}
-											}
+											SLib.SetupImage(this, iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_IMG), blob_signature);
 											SetListBackground(iv, a, ev_subj.ItemIdx, SLib.PPOBJ_PROCESSOR, cur_id);
 											{
 												ImageView ctl = (ImageView)iv.findViewById(R.id.ATTENDANCEPREREQ_PRC_EXPANDSTATUS);
@@ -999,7 +1035,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														ctl.setImageResource(R.drawable.ic_triangledown03);
 														if(goods_lv != null) {
 															goods_lv.setVisibility(View.VISIBLE);
-															GoodsByPrcListAdapter adapter = new GoodsByPrcListAdapter(iv.getContext(), R.layout.simple_list_item, cur_id, goods_list);
+															GoodsByPrcListAdapter adapter = new GoodsByPrcListAdapter(iv.getContext(), R.layout.goods_by_prc_list_item, cur_id, goods_list);
 															goods_lv.setAdapter(adapter);
 															{
 																int total_items_height = SLib.CalcListViewHeight(goods_lv);
@@ -1047,6 +1083,28 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												goods_name = goods.JsItem.optString("nm", "");
 											}
 											SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, goods_name);
+										}
+									}
+								}
+								else if(a.GetListRcId() == R.id.attendancePrereqOrderListView) { // Список зафиксированных заказов
+									if(CPM.OrderHList != null && ev_subj.ItemIdx < CPM.OrderHList.size()) {
+										View iv = ev_subj.RvHolder.itemView;
+										Document.Head dh = CPM.OrderHList.get(ev_subj.ItemIdx);
+										if(dh != null) {
+											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, (SLib.GetLen(dh.Code) > 0) ? dh.Code : "");
+											{
+												SLib.LDATE d = null;
+												if(dh.Time > 0)
+													d = SLib.BuildDateByEpoch(dh.Time);
+												else if(dh.CreationTime > 0)
+													d = SLib.BuildDateByEpoch(dh.CreationTime);
+												if(d != null)
+													SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_DATE, d.Format(SLib.DATF_ISO8601|SLib.DATF_CENTURY));
+											}
+											{
+												String amount_text = String.format(Locale.US, "%12.2f", dh.Amount);
+												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, amount_text);
+											}
 										}
 									}
 								}
@@ -1175,6 +1233,13 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 															}
 														});
 													}
+												}
+											}
+											else {
+												lv = fv.findViewById(R.id.attendancePrereqOrderListView);
+												if(lv != null) {
+													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
+													SetupRecyclerListView(fv, R.id.attendancePrereqOrderListView, R.layout.attendanceprereq_orderlist_item);
 												}
 											}
 										}
@@ -1377,8 +1442,8 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						view_id == R.id.LVITEM_MIN30 || view_id == R.id.LVITEM_MIN35 || view_id == R.id.LVITEM_MIN40 ||
 						view_id == R.id.LVITEM_MIN45 || view_id == R.id.LVITEM_MIN50 || view_id == R.id.LVITEM_MIN55) {
 						if(subj != null && subj instanceof Integer) {
-							int goods_id = (AttdcBlk.Ware != null) ? AttdcBlk.Ware.JsItem.optInt("id", 0) : 0;
-							int prc_id = (AttdcBlk.Prc != null) ? AttdcBlk.Prc.JsItem.optInt("id", 0) : 0;
+							final int goods_id = AttdcBlk.GetGoodsID();
+							final int prc_id = AttdcBlk.GetPrcID();
 							if(prc_id <= 0) {
 								; // @err
 							}
@@ -1417,7 +1482,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										bk_item.PrcID = prc_id;
 										bk_item.RowIdx = 1;
 										bk_item.ReqTime = new SLib.LDATETIME(dt, start_tm);
-										bk_item.EstimatedDurationSec = 3600; // @todo
+										bk_item.EstimatedDurationSec = CPM.GetServiceDurationForPrc(prc_id, goods_id);
+										if(bk_item.EstimatedDurationSec <= 0)
+											bk_item.EstimatedDurationSec = 3600; // default value
 										CPM.CurrentOrder.BkList.add(bk_item);
 										AttdcBlk.CurrentBookingBusyList = CPM.GetCurrentDocumentBusyList(prc_id);
 										UpdateAttendanceView();

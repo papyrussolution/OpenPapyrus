@@ -19,7 +19,7 @@ extern "C" {
 *  Dependencies
 ***************************************/
 #include <stddef.h>   /* size_t */
-#include <zstd_mem.h> // U64, U32 
+#include <zstd_mem.h> // uint64, uint32 
 
 /* *************************************
 *  Simple functions
@@ -47,8 +47,10 @@ void ZSTDv05_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 /* *************************************
 *  Helper functions
 ***************************************/
-/* Error Management */
-unsigned    ZSTDv05_isError(size_t code);          /*!< tells if a `size_t` function result is an error code */
+//
+// Error Management
+//
+uint ZSTDv05_isError(size_t code);          /*!< tells if a `size_t` function result is an error code */
 const char* ZSTDv05_getErrorName(size_t code);     /*!< provides readable string for an error code */
 
 /* *************************************
@@ -70,19 +72,16 @@ size_t ZSTDv05_decompressDCtx(ZSTDv05_DCtx* ctx, void* dst, size_t dstCapacity, 
  *   Decompression using a pre-defined Dictionary content (see dictBuilder).
  *   Dictionary must be identical to the one used during compression, otherwise regenerated data will be corrupted.
  *   Note : dict can be NULL, in which case, it's equivalent to ZSTDv05_decompressDCtx() */
-size_t ZSTDv05_decompress_usingDict(ZSTDv05_DCtx* dctx,
-    void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize,
-    const void* dict, size_t dictSize);
+size_t ZSTDv05_decompress_usingDict(ZSTDv05_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize, const void* dict, size_t dictSize);
 
 /*-************************
  *  Advanced Streaming API
  ***************************/
 typedef enum { ZSTDv05_fast, ZSTDv05_greedy, ZSTDv05_lazy, ZSTDv05_lazy2, ZSTDv05_btlazy2, ZSTDv05_opt, ZSTDv05_btopt } ZSTDv05_strategy;
 typedef struct {
-	U64 srcSize;
-	U32 windowLog; /* the only useful information to retrieve */
-	U32 contentLog; U32 hashLog; U32 searchLog; U32 searchLength; U32 targetLength; ZSTDv05_strategy strategy;
+	uint64 srcSize;
+	uint32 windowLog; /* the only useful information to retrieve */
+	uint32 contentLog; uint32 hashLog; uint32 searchLog; uint32 searchLength; uint32 targetLength; ZSTDv05_strategy strategy;
 } ZSTDv05_parameters;
 size_t ZSTDv05_getFrameParams(ZSTDv05_parameters* params, const void* src, size_t srcSize);
 
@@ -97,13 +96,9 @@ size_t ZSTDv05_decompressContinue(ZSTDv05_DCtx* dctx, void* dst, size_t dstCapac
 typedef struct ZBUFFv05_DCtx_s ZBUFFv05_DCtx;
 ZBUFFv05_DCtx* ZBUFFv05_createDCtx(void);
 size_t         ZBUFFv05_freeDCtx(ZBUFFv05_DCtx* dctx);
-
 size_t ZBUFFv05_decompressInit(ZBUFFv05_DCtx* dctx);
 size_t ZBUFFv05_decompressInitDictionary(ZBUFFv05_DCtx* dctx, const void* dict, size_t dictSize);
-
-size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* dctx,
-    void* dst, size_t* dstCapacityPtr,
-    const void* src, size_t* srcSizePtr);
+size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* dctx, void* dst, size_t* dstCapacityPtr, const void* src, size_t* srcSizePtr);
 
 /*-***************************************************************************
  *  Streaming decompression
@@ -133,7 +128,7 @@ size_t ZBUFFv05_decompressContinue(ZBUFFv05_DCtx* dctx,
 // 
 // Tool functions
 //
-unsigned ZBUFFv05_isError(size_t errorCode);
+uint ZBUFFv05_isError(size_t errorCode);
 const char* ZBUFFv05_getErrorName(size_t errorCode);
 
 /** Functions below provide recommended buffer sizes for Compression or Decompression operations.

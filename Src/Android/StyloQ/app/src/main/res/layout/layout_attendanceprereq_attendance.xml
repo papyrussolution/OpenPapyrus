@@ -10,20 +10,20 @@
         android:orientation="vertical"
         android:padding="4dp"
         >
-        <TextView
-            android:id="@+id/CTL_ATTENDANCE_WARE"
-            android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:minWidth="40dp"
-            android:layout_marginLeft="4dp"
-            android:textColor="@color/PrimaryText"
-            />
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="2dp"
+            android:orientation="vertical"
+            android:padding="4dp"
             >
+            <TextView
+                android:id="@+id/CTL_ATTENDANCE_WARE"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:minWidth="40dp"
+                android:layout_marginLeft="4dp"
+                android:textColor="@color/PrimaryText"
+                />
             <TextView
                 android:id="@+id/CTL_ATTENDANCE_PRC"
                 android:layout_height="wrap_content"
@@ -32,6 +32,34 @@
                 android:layout_marginLeft="4dp"
                 android:textColor="@color/PrimaryText"
                 />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="4dp"
+            >
+            <TextView style="@style/TSessDurationText"
+                android:id="@+id/CTL_ATTENDANCE_DURATION"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="4dp"
+                />
+            <View style="@style/FakeView"/>
+            <TextView
+                android:id="@+id/CTL_ATTENDANCE_PRICE"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_marginLeft="4dp"
+                android:textColor="@color/PrimaryText"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:padding="2dp"
+            >
             <View style="@style/FakeView"/>
             <ImageView
                 android:id="@+id/CTL_PREV"

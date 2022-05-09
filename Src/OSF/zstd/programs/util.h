@@ -14,14 +14,11 @@
 extern "C" {
 #endif
 
-/*-****************************************
-*  Dependencies
-******************************************/
 #include "platform.h"     /* PLATFORM_POSIX_VERSION, ZSTD_NANOSLEEP_SUPPORT, ZSTD_SETPRIORITY_SUPPORT */
 #include <stddef.h>       /* size_t, ptrdiff_t */
 #include <sys/types.h>    /* stat, utime */
 #include <sys/stat.h>     /* stat, chmod */
-#include <zstd_mem.h> // U64 
+#include <zstd_mem.h> // uint64
 
 /*-************************************************************
  * Avoid fseek()'s 2GiB barrier with MSVC, macOS, *BSD, MinGW
@@ -65,10 +62,9 @@ extern "C" {
 #define UTIL_sleepMilli(milli) /* disabled */
 #define SET_REALTIME_PRIORITY  /* disabled */
 #endif
-
-/*-****************************************
-*  Compiler specifics
-******************************************/
+//
+// Compiler specifics
+//
 #if defined(__INTEL_COMPILER)
 #  pragma warning(disable : 177)    /* disable: message #177: function was declared but never referenced, useful with UTIL_STATIC */
 #endif
@@ -146,7 +142,7 @@ int UTIL_isRegularFileStat(const stat_t* statbuf);
 int UTIL_isDirectoryStat(const stat_t* statbuf);
 int UTIL_isFIFOStat(const stat_t* statbuf);
 int UTIL_isBlockDevStat(const stat_t* statbuf);
-U64 UTIL_getFileSizeStat(const stat_t* statbuf);
+uint64 UTIL_getFileSizeStat(const stat_t* statbuf);
 
 /**
  * Like chmod(), but only modifies regular files. Provided statbuf may be NULL,
@@ -168,9 +164,9 @@ int UTIL_isCompressedFile(const char* infilename, const char * extensionList[]);
 int UTIL_isLink(const char* infilename);
 int UTIL_isFIFO(const char* infilename);
 
-#define UTIL_FILESIZE_UNKNOWN  ((U64)(-1))
-U64 UTIL_getFileSize(const char* infilename);
-U64 UTIL_getTotalFileSize(const char* const * fileNamesTable, unsigned nbFiles);
+#define UTIL_FILESIZE_UNKNOWN  ((uint64)(-1))
+uint64 UTIL_getFileSize(const char* infilename);
+uint64 UTIL_getTotalFileSize(const char* const * fileNamesTable, unsigned nbFiles);
 
 /**
  * Take @size in bytes,
@@ -187,7 +183,7 @@ typedef struct {
 	const char* suffix;
 } UTIL_HumanReadableSize_t;
 
-UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(U64 size);
+UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(uint64 size);
 
 int UTIL_compareStr(const void * p1, const void * p2);
 const char* UTIL_getFileExtension(const char* infilename);
@@ -198,11 +194,12 @@ char* UTIL_createMirroredDestDirName(const char* srcFileName, const char* outDir
 *  Lists of Filenames
 ******************************************/
 
-typedef struct
-{   const char** fileNames;
-    char* buf;            /* fileNames are stored in this buffer (or are read-only) */
-    size_t tableSize;     /* nb of fileNames */
-    size_t tableCapacity;} FileNamesTable;
+typedef struct {   
+	const char** fileNames;
+	char* buf;            /* fileNames are stored in this buffer (or are read-only) */
+	size_t tableSize;    /* nb of fileNames */
+	size_t tableCapacity;
+} FileNamesTable;
 
 /*! UTIL_createFileNamesTable_fromFileName() :
  *  read filenames from @inputFileName, and store them into returned object.
@@ -284,17 +281,13 @@ void UTIL_refFilename(FileNamesTable* fnt, const char* filename);
 FileNamesTable* UTIL_createExpandedFNT(const char* const* filenames, size_t nbFilenames, int followLinks);
 
 #if defined(_WIN32) || defined(WIN32)
-DWORD CountSetBits(ULONG_PTR bitMask);
+	DWORD CountSetBits(ULONG_PTR bitMask);
 #endif
-
-/*-****************************************
-*  System
-******************************************/
-
+//
+// System
+//
 int UTIL_countCores(int logical);
-
 int UTIL_countPhysicalCores(void);
-
 int UTIL_countLogicalCores(void);
 
 #if defined (__cplusplus)

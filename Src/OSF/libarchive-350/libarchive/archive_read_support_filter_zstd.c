@@ -19,7 +19,7 @@ __FBSDID("$FreeBSD$");
 	#include <unistd.h>
 #endif
 #if HAVE_ZSTD_H
-	#include <zstd.h>
+	#include <..\osf\zstd\lib\include\zstd.h>
 #endif
 #include "archive_read_private.h"
 
@@ -45,15 +45,14 @@ static int zstd_filter_close(struct archive_read_filter *);
  * messages.)  So the bid framework here gets compiled even if no zstd library
  * is available.
  */
-static int zstd_bidder_bid(struct archive_read_filter_bidder *,
-    struct archive_read_filter *);
+static int zstd_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter *);
 static int zstd_bidder_init(struct archive_read_filter *);
 
 int archive_read_support_filter_zstd(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_zstd");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -76,11 +75,11 @@ static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 {
 	const uchar * buffer;
 	ssize_t avail;
-	unsigned prefix;
+	uint   prefix;
 	/* Zstd frame magic values */
-	const unsigned zstd_magic = 0xFD2FB528U;
-	const unsigned zstd_magic_skippable_start = 0x184D2A50U;
-	const unsigned zstd_magic_skippable_mask = 0xFFFFFFF0;
+	const uint zstd_magic = 0xFD2FB528U;
+	const uint zstd_magic_skippable_start = 0x184D2A50U;
+	const uint zstd_magic_skippable_mask = 0xFFFFFFF0;
 	CXX_UNUSED(self);
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 4, &avail);
 	if(buffer == NULL)
@@ -133,11 +132,11 @@ static int zstd_bidder_init(struct archive_read_filter * self)
 	}
 	self->data = state;
 	state->out_block_size = out_block_size;
-	state->out_block = out_block;
+	state->out_block = (uchar *)out_block;
 	state->dstream = dstream;
-	self->read = zstd_filter_read;
+	self->FnRead = zstd_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = zstd_filter_close;
+	self->FnClose = zstd_filter_close;
 	state->eof = 0;
 	state->in_frame = 0;
 	return ARCHIVE_OK;
@@ -149,7 +148,7 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 	ssize_t avail_in;
 	ZSTD_inBuffer in;
 	struct private_data * state = (struct private_data *)self->data;
-	ZSTD_outBuffer out = (ZSTD_outBuffer) {state->out_block, state->out_block_size, 0 };
+	ZSTD_outBuffer out = { state->out_block, state->out_block_size, 0 };
 	/* Try to fill the output buffer. */
 	while(out.pos < out.size && !state->eof) {
 		if(!state->in_frame) {
@@ -190,10 +189,7 @@ static ssize_t zstd_filter_read(struct archive_read_filter * self, const void **
 	}
 	decompressed = out.pos;
 	state->total_out += decompressed;
-	if(decompressed == 0)
-		*p = NULL;
-	else
-		*p = state->out_block;
+	*p = decompressed ? state->out_block : NULL;
 	return (decompressed);
 }
 /*

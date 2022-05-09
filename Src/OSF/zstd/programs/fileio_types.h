@@ -38,13 +38,13 @@ typedef enum {
 typedef struct FIO_prefs_s {
 	/* Algorithm preferences */
 	FIO_compressionType_t compressionType;
-	U32 sparseFileSupport; /* 0: no sparse allowed; 1: auto (file yes, stdout no); 2: force sparse */
+	uint32 sparseFileSupport; /* 0: no sparse allowed; 1: auto (file yes, stdout no); 2: force sparse */
 	int dictIDFlag;
 	int checksumFlag;
 	int blockSize;
 	int overlapLog;
-	U32 adaptiveMode;
-	U32 useRowMatchFinder;
+	uint32 adaptiveMode;
+	uint32 useRowMatchFinder;
 	int rsyncable;
 	int minAdaptLevel;
 	int maxAdaptLevel;
@@ -59,9 +59,9 @@ typedef struct FIO_prefs_s {
 	int testMode;
 	ZSTD_paramSwitch_e literalCompressionMode;
 	/* IO preferences */
-	U32 removeSrcFile;
-	U32 overwrite;
-	U32 asyncIO;
+	uint32 removeSrcFile;
+	uint32 overwrite;
+	uint32 asyncIO;
 	/* Computation resources preferences */
 	unsigned memLimit;
 	int nbWorkers;

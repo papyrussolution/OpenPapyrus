@@ -61,7 +61,7 @@ void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize,
     size_t* cSize, unsigned long long* dBound);
 
 /*======  Helper functions  ======*/
-ZSTDLIBv07_API unsigned    ZSTDv07_isError(size_t code);          /*!< tells if a `size_t` function result is an error
+ZSTDLIBv07_API uint ZSTDv07_isError(size_t code);          /*!< tells if a `size_t` function result is an error
                                                                      code */
 ZSTDLIBv07_API const char* ZSTDv07_getErrorName(size_t code);     /*!< provides readable string from an error code */
 
@@ -84,10 +84,7 @@ ZSTDLIBv07_API size_t ZSTDv07_decompressDCtx(ZSTDv07_DCtx* ctx, void* dst, size_
  *   Decompression using a pre-defined Dictionary content (see dictBuilder).
  *   Dictionary must be identical to the one used during compression.
  *   Note : This function load the dictionary, resulting in a significant startup time */
-ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDict(ZSTDv07_DCtx* dctx,
-    void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize,
-    const void* dict, size_t dictSize);
+ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDict(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize, const void* dict, size_t dictSize);
 
 /*-**************************
 *  Advanced Dictionary API
@@ -98,14 +95,10 @@ ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDict(ZSTDv07_DCtx* dctx,
 typedef struct ZSTDv07_DDict_s ZSTDv07_DDict;
 ZSTDLIBv07_API ZSTDv07_DDict* ZSTDv07_createDDict(const void* dict, size_t dictSize);
 ZSTDLIBv07_API size_t      ZSTDv07_freeDDict(ZSTDv07_DDict* ddict);
-
 /*! ZSTDv07_decompress_usingDDict() :
  *   Decompression using a pre-digested Dictionary
  *   Faster startup than ZSTDv07_decompress_usingDict(), recommended when same dictionary is used multiple times. */
-ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDDict(ZSTDv07_DCtx* dctx,
-    void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize,
-    const ZSTDv07_DDict* ddict);
+ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDDict(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize, const ZSTDv07_DDict* ddict);
 
 typedef struct {
 	unsigned long long frameContentSize;
@@ -115,20 +108,15 @@ typedef struct {
 } ZSTDv07_frameParams;
 
 ZSTDLIBv07_API size_t ZSTDv07_getFrameParams(ZSTDv07_frameParams* fparamsPtr, const void* src, size_t srcSize);   /**< doesn't consume input */
-
-/* *************************************
-*  Streaming functions
-***************************************/
+// 
+// Streaming functions
+// 
 typedef struct ZBUFFv07_DCtx_s ZBUFFv07_DCtx;
 ZSTDLIBv07_API ZBUFFv07_DCtx* ZBUFFv07_createDCtx(void);
 ZSTDLIBv07_API size_t      ZBUFFv07_freeDCtx(ZBUFFv07_DCtx* dctx);
-
 ZSTDLIBv07_API size_t ZBUFFv07_decompressInit(ZBUFFv07_DCtx* dctx);
 ZSTDLIBv07_API size_t ZBUFFv07_decompressInitDictionary(ZBUFFv07_DCtx* dctx, const void* dict, size_t dictSize);
-
-ZSTDLIBv07_API size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* dctx,
-    void* dst, size_t* dstCapacityPtr,
-    const void* src, size_t* srcSizePtr);
+ZSTDLIBv07_API size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* dctx, void* dst, size_t* dstCapacityPtr, const void* src, size_t* srcSizePtr);
 
 /*-***************************************************************************
  *  Streaming decompression howto
@@ -160,7 +148,7 @@ ZSTDLIBv07_API size_t ZBUFFv07_decompressContinue(ZBUFFv07_DCtx* dctx,
 // 
 // Tool functions
 //
-ZSTDLIBv07_API unsigned ZBUFFv07_isError(size_t errorCode);
+ZSTDLIBv07_API uint ZBUFFv07_isError(size_t errorCode);
 ZSTDLIBv07_API const char* ZBUFFv07_getErrorName(size_t errorCode);
 
 /** Functions below provide recommended buffer sizes for Compression or Decompression operations.

@@ -55,11 +55,11 @@ int archive_write_add_filter_uuencode(struct archive * _a)
 	f->data = state;
 	f->name = "uuencode";
 	f->code = ARCHIVE_FILTER_UU;
-	f->open = archive_filter_uuencode_open;
-	f->options = archive_filter_uuencode_options;
-	f->write = archive_filter_uuencode_write;
-	f->close = archive_filter_uuencode_close;
-	f->free = archive_filter_uuencode_free;
+	f->FnOpen = archive_filter_uuencode_open;
+	f->FnOptions = archive_filter_uuencode_options;
+	f->FnWrite = archive_filter_uuencode_write;
+	f->FnClose = archive_filter_uuencode_close;
+	f->FnFree = archive_filter_uuencode_free;
 	return ARCHIVE_OK;
 }
 /*
@@ -97,7 +97,6 @@ static int archive_filter_uuencode_open(struct archive_write_filter * f)
 {
 	struct private_uuencode * state = (struct private_uuencode *)f->data;
 	size_t bs = 65536, bpb;
-
 	if(f->archive->magic == ARCHIVE_WRITE_MAGIC) {
 		/* Buffer size should be a multiple number of the of bytes
 		 * per block for performance. */
@@ -107,26 +106,19 @@ static int archive_filter_uuencode_open(struct archive_write_filter * f)
 		else if(bpb != 0)
 			bs -= bs % bpb;
 	}
-
 	state->bs = bs;
 	if(archive_string_ensure(&state->encoded_buff, bs + 512) == NULL) {
-		archive_set_error(f->archive, ENOMEM,
-		    "Can't allocate data for uuencode buffer");
+		archive_set_error(f->archive, ENOMEM, "Can't allocate data for uuencode buffer");
 		return ARCHIVE_FATAL;
 	}
-
-	archive_string_sprintf(&state->encoded_buff, "begin %o %s\n",
-	    state->mode, state->name.s);
-
+	archive_string_sprintf(&state->encoded_buff, "begin %o %s\n", state->mode, state->name.s);
 	f->data = state;
 	return 0;
 }
 
 static void uu_encode(struct archive_string * as, const uchar * p, size_t len)
 {
-	int c;
-
-	c = (int)len;
+	int c = (int)len;
 	archive_strappend_char(as, c ? c + 0x20 : '`');
 	for(; len >= 3; p += 3, len -= 3) {
 		c = p[0] >> 2;

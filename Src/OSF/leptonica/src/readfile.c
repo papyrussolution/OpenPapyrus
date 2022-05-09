@@ -329,7 +329,7 @@ PIX * pixReadStream(FILE * fp,
 			    return (PIX *)ERROR_PTR("jpeg: no pix returned", procName, NULL);
 		    ret = fgetJpegComment(fp, &comment);
 		    if(!ret && comment)
-			    pixSetText(pix, (char*)comment);
+			    pixSetText(pix, (char *)comment);
 		    SAlloc::F(comment);
 		    break;
 
@@ -656,8 +656,8 @@ l_ok findFileFormatBuffer(const uint8  * buf,
 		return ERROR_INT("byte buffer not defined", procName, 0);
 
 	/* Check the bmp and tiff 2-byte header ids */
-	((char*)(&twobytepw))[0] = buf[0];
-	((char*)(&twobytepw))[1] = buf[1];
+	((char *)(&twobytepw))[0] = buf[0];
+	((char *)(&twobytepw))[1] = buf[1];
 
 	if(convertOnBigEnd16(twobytepw) == BMP_ID) {
 		*pformat = IFF_BMP;

@@ -79,14 +79,10 @@ int archive_write_set_format_shar(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct shar * shar;
-
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC,
-	    ARCHIVE_STATE_NEW, "archive_write_set_format_shar");
-
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
-
 	shar = (struct shar *)SAlloc::C(1, sizeof(*shar));
 	if(shar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate shar data");
@@ -308,18 +304,14 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void * buff, size_t n)
 {
 	static const size_t ensured = 65533;
-	struct shar * shar;
 	const char * src;
 	char * buf, * buf_end;
 	int ret;
 	size_t written = n;
-
-	shar = (struct shar *)a->format_data;
+	struct shar * shar = (struct shar *)a->format_data;
 	if(!shar->has_data || n == 0)
 		return 0;
-
 	src = (const char *)buff;
-
 	/*
 	 * ensure is the number of bytes in buffer before expanding the
 	 * current character.  Each operation writes the current character
@@ -331,22 +323,18 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-
 	if(shar->work.length > ensured) {
-		ret = __archive_write_output(a, shar->work.s,
-			shar->work.length);
+		ret = __archive_write_output(a, shar->work.s, shar->work.length);
 		if(ret != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 		archive_string_empty(&shar->work);
 	}
 	buf = shar->work.s + shar->work.length;
 	buf_end = shar->work.s + ensured;
-
 	if(shar->end_of_line) {
 		*buf++ = 'X';
 		shar->end_of_line = 0;
 	}
-
 	while(n-- != 0) {
 		if((*buf++ = *src++) == '\n') {
 			if(n == 0)
@@ -354,20 +342,16 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 			else
 				*buf++ = 'X';
 		}
-
 		if(buf >= buf_end) {
 			shar->work.length = buf - shar->work.s;
-			ret = __archive_write_output(a, shar->work.s,
-				shar->work.length);
+			ret = __archive_write_output(a, shar->work.s, shar->work.length);
 			if(ret != ARCHIVE_OK)
 				return ARCHIVE_FATAL;
 			archive_string_empty(&shar->work);
 			buf = shar->work.s;
 		}
 	}
-
 	shar->work.length = buf - shar->work.s;
-
 	return (written);
 }
 
@@ -376,9 +360,7 @@ static ssize_t archive_write_shar_data_sed(struct archive_write * a, const void 
 static void uuencode_group(const char _in[3], char out[4])
 {
 	const uchar * in = (const uchar *)_in;
-	int t;
-
-	t = (in[0] << 16) | (in[1] << 8) | in[2];
+	int    t = (in[0] << 16) | (in[1] << 8) | in[2];
 	out[0] = UUENC(0x3f & (t >> 18) );
 	out[1] = UUENC(0x3f & (t >> 12) );
 	out[2] = UUENC(0x3f & (t >> 6) );
@@ -388,15 +370,12 @@ static void uuencode_group(const char _in[3], char out[4])
 static int _uuencode_line(struct archive_write * a, struct shar * shar, const char * inbuf, size_t len)
 {
 	char * buf;
-	size_t alloc_len;
-
 	/* len <= 45 -> expanded to 60 + len byte + new line */
-	alloc_len = shar->work.length + 62;
+	size_t alloc_len = shar->work.length + 62;
 	if(archive_string_ensure(&shar->work, alloc_len) == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-
 	buf = shar->work.s + shar->work.length;
 	*buf++ = UUENC(len);
 	while(len >= 3) {
@@ -418,8 +397,7 @@ static int _uuencode_line(struct archive_write * a, struct shar * shar, const ch
 	}
 	*buf++ = '\n';
 	if((buf - shar->work.s) > (ptrdiff_t)(shar->work.length + 62)) {
-		archive_set_error(&a->archive,
-		    ARCHIVE_ERRNO_MISC, "Buffer overflow");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Buffer overflow");
 		return ARCHIVE_FATAL;
 	}
 	shar->work.length = buf - shar->work.s;

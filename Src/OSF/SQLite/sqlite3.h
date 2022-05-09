@@ -3730,7 +3730,7 @@ SQLITE_API char * sqlite3_create_filename(const char * zDatabase,
     int nParam,
     const char ** azParam
     );
-SQLITE_API void sqlite3_free_filename(char*);
+SQLITE_API void sqlite3_free_filename(char *);
 
 /*
 ** CAPI3REF: Error Codes And Messages

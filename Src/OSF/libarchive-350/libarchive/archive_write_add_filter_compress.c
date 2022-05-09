@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2008 Joerg Sonnenberger
- * All rights reserved.
+ * Copyright (c) 2008 Joerg Sonnenberger All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -20,8 +18,7 @@
  * work by Spencer Thomas and Joseph Orost.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -38,9 +35,7 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_write_set_compression_compress.c
 #define HSIZE           69001   /* 95% occupancy */
 #define HSHIFT          8       /* 8 - trunc(log2(HSIZE / 65536)) */
 #define CHECK_GAP 10000         /* Ratio check interval. */
-
 #define MAXCODE(bits)   ((1 << (bits)) - 1)
-
 /*
  * the next two codes should not be changed lightly, as they must not
  * lie within the contiguous general code space.
@@ -87,8 +82,8 @@ int archive_write_add_filter_compress(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_compress");
-	f->open = &archive_compressor_compress_open;
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
+	f->FnOpen = &archive_compressor_compress_open;
 	f->code = ARCHIVE_FILTER_COMPRESS;
 	f->name = "compress";
 	return ARCHIVE_OK;
@@ -122,9 +117,9 @@ static int archive_compressor_compress_open(struct archive_write_filter * f)
 		SAlloc::F(state);
 		return ARCHIVE_FATAL;
 	}
-	f->write = archive_compressor_compress_write;
-	f->close = archive_compressor_compress_close;
-	f->free = archive_compressor_compress_free;
+	f->FnWrite = archive_compressor_compress_write;
+	f->FnClose = archive_compressor_compress_close;
+	f->FnFree = archive_compressor_compress_free;
 	state->max_maxcode = 0x10000; /* Should NEVER generate this code. */
 	state->in_count = 0; /* Length of input. */
 	state->bit_buf = 0;
@@ -272,7 +267,6 @@ static int archive_compressor_compress_write(struct archive_write_filter * f, co
 		state->in_count++;
 		state->cur_fcode = (c << 16) + state->cur_code;
 		i = ((c << HSHIFT) ^ state->cur_code); /* Xor hashing. */
-
 		if(state->hashtab[i] == state->cur_fcode) {
 			state->cur_code = state->codetab[i];
 			continue;

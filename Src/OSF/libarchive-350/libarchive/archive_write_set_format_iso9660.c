@@ -988,7 +988,7 @@ int archive_write_set_format_iso9660(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct iso9660 * iso9660;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_iso9660");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If another format was already registered, unregister it. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
@@ -1089,8 +1089,7 @@ int archive_write_set_format_iso9660(struct archive * _a)
 	    isoent_create_virtual_dir(a, iso9660, "");
 	if(iso9660->primary.rootent == NULL) {
 		SAlloc::F(iso9660);
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	iso9660->primary.rootent->parent = iso9660->primary.rootent;
@@ -1111,33 +1110,26 @@ int archive_write_set_format_iso9660(struct archive * _a)
 	a->format_free = iso9660_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_ISO9660;
 	a->archive.archive_format_name = "ISO9660";
-
 	return ARCHIVE_OK;
 }
 
-static int get_str_opt(struct archive_write * a, struct archive_string * s,
-    size_t maxsize, const char * key, const char * value)
+static int get_str_opt(struct archive_write * a, struct archive_string * s, size_t maxsize, const char * key, const char * value)
 {
 	if(strlen(value) > maxsize) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Value is longer than %zu characters "
-		    "for option ``%s''", maxsize, key);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Value is longer than %zu characters for option ``%s''", maxsize, key);
 		return ARCHIVE_FATAL;
 	}
 	archive_strcpy(s, value);
 	return ARCHIVE_OK;
 }
 
-static int get_num_opt(struct archive_write * a, int * num, int high, int low,
-    const char * key, const char * value)
+static int get_num_opt(struct archive_write * a, int * num, int high, int low, const char * key, const char * value)
 {
 	const char * p = value;
 	int data = 0;
 	int neg = 0;
-
 	if(!p) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Invalid value(empty) for option ``%s''", key);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value(empty) for option ``%s''", key);
 		return ARCHIVE_FATAL;
 	}
 	if(*p == '-') {
@@ -1148,20 +1140,15 @@ static int get_num_opt(struct archive_write * a, int * num, int high, int low,
 		if(*p >= '0' && *p <= '9')
 			data = data * 10 + *p - '0';
 		else {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Invalid value for option ``%s''", key);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value for option ``%s''", key);
 			return ARCHIVE_FATAL;
 		}
 		if(data > high) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Invalid value(over %d) for "
-			    "option ``%s''", high, key);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value(over %d) for option ``%s''", high, key);
 			return ARCHIVE_FATAL;
 		}
 		if(data < low) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Invalid value(under %d) for "
-			    "option ``%s''", low, key);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value(under %d) for option ``%s''", low, key);
 			return ARCHIVE_FATAL;
 		}
 		p++;
@@ -1294,17 +1281,12 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    iso9660->opt.compression_level = 1;
 			    return ARCHIVE_OK;
 #else
-			    archive_set_error(&a->archive,
-				ARCHIVE_ERRNO_MISC,
-				"Option ``%s'' "
-				"is not supported on this platform.", key);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Option ``%s'' is not supported on this platform.", key);
 			    return ARCHIVE_FATAL;
 #endif
 		    }
 		    if(strcmp(key, "copyright-file") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->copyright_file_identifier),
-				    COPYRIGHT_FILE_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->copyright_file_identifier), COPYRIGHT_FILE_SIZE, key, value);
 			    iso9660->opt.copyright_file = r == ARCHIVE_OK;
 			    return r;
 		    }
@@ -1415,10 +1397,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 #ifdef HAVE_ZLIB_H
 				    iso9660->opt.zisofs = OPT_ZISOFS_DIRECT;
 #else
-				    archive_set_error(&a->archive,
-					ARCHIVE_ERRNO_MISC,
-					"``zisofs'' "
-					"is not supported on this platform.");
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "``zisofs'' is not supported on this platform.");
 				    return ARCHIVE_FATAL;
 #endif
 			    }
@@ -1426,15 +1405,12 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    break;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
 	return ARCHIVE_WARN;
-
 invalid_value:
-	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-	    "Invalid value for option ``%s''", key);
+	archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Invalid value for option ``%s''", key);
 	return ARCHIVE_FAILED;
 }
 
@@ -1462,8 +1438,7 @@ static int iso9660_write_header(struct archive_write * a, struct archive_entry *
 	}
 	file = isofile_new(a, entry);
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate data");
+		archive_set_error(&a->archive, ENOMEM, "Can't allocate data");
 		return ARCHIVE_FATAL;
 	}
 	r = isofile_gen_utility_names(a, file);
@@ -1473,7 +1448,6 @@ static int iso9660_write_header(struct archive_write * a, struct archive_entry *
 	}
 	else if(r < ret)
 		ret = r;
-
 	/*
 	 * Ignore a path which looks like the top of directory name
 	 * since we have already made the root directory of an ISO image.
@@ -1542,14 +1516,11 @@ static int write_to_temp(struct archive_write * a, const void * buff, size_t s)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	ssize_t written;
-	const uchar * b;
-
-	b = (const uchar *)buff;
+	const uchar * b = (const uchar *)buff;
 	while(s) {
 		written = write(iso9660->temp_fd, b, s);
 		if(written < 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't write to temporary file");
+			archive_set_error(&a->archive, errno, "Can't write to temporary file");
 			return ARCHIVE_FATAL;
 		}
 		s -= written;
@@ -1952,24 +1923,18 @@ static int iso9660_close(struct archive_write * a)
 		if(ret != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 	}
-
 	/* Write File Descriptors */
 	ret = write_file_descriptors(a);
 	if(ret != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/* Write Padding  */
 	if(iso9660->opt.pad) {
 		ret = write_null(a, PADDING_BLOCK * LOGICAL_BLOCK_SIZE);
 		if(ret != ARCHIVE_OK)
 			return ARCHIVE_FATAL;
 	}
-
 	if(iso9660->directories_too_deep != NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "%s: Directories too deep.",
-		    archive_entry_pathname(
-			    iso9660->directories_too_deep->file->entry));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: Directories too deep.", archive_entry_pathname(iso9660->directories_too_deep->file->entry));
 		return ARCHIVE_WARN;
 	}
 	/* Write remaining data out. */
@@ -2101,8 +2066,7 @@ static int set_str_utf16be(struct archive_write * a, uchar * p, const char * s,
 		struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 		if(archive_strncpy_l(&iso9660->utf16be, s, strlen(s),
 		    iso9660->sconv_to_utf16be) != 0 && errno == ENOMEM) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for UTF-16BE");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for UTF-16BE");
 			return ARCHIVE_FATAL;
 		}
 		size = iso9660->utf16be.length;
@@ -2618,9 +2582,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	struct ctl_extr_rec ctl;
 	struct isoent * rr_parent, * pxent;
 	struct isofile * file;
-
 	bp = extra_open_record(bp, dr_len, isoent, &ctl);
-
 	if(t == DIR_REC_PARENT) {
 		rr_parent = isoent->rr_parent;
 		pxent = isoent->parent;
@@ -2634,7 +2596,6 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		pxent = isoent;
 	}
 	file = isoent->file;
-
 	if(t != DIR_REC_NORMAL) {
 		rr_flag = RR_USE_PX | RR_USE_TF;
 		if(rr_parent != NULL)
@@ -2648,8 +2609,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			rr_flag |= RR_USE_RE;
 		if(isoent->rr_child != NULL)
 			rr_flag |= RR_USE_CL;
-		if(archive_entry_filetype(file->entry) == AE_IFCHR ||
-		    archive_entry_filetype(file->entry) == AE_IFBLK)
+		if(archive_entry_filetype(file->entry) == AE_IFCHR || archive_entry_filetype(file->entry) == AE_IFBLK)
 			rr_flag |= RR_USE_PN;
 #ifdef COMPAT_MKISOFS
 		/*
@@ -3289,7 +3249,6 @@ static int set_directory_record(uchar * p, size_t n, struct isoent * isoent, str
 		struct isoent * xisoent;
 		struct isofile * file;
 		uchar flag;
-
 		if(t == DIR_REC_PARENT)
 			xisoent = isoent->parent;
 		else
@@ -3446,13 +3405,9 @@ static int wb_write_out(struct archive_write * a)
 static int wb_consume(struct archive_write * a, size_t size)
 {
 	struct iso9660 * iso9660 = (struct iso9660 *)a->format_data;
-
 	if(size > iso9660->wbuff_remaining ||
 	    iso9660->wbuff_remaining == 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Internal Programming error: iso9660:wb_consume()"
-		    " size=%jd, wbuff_remaining=%jd",
-		    (intmax_t)size, (intmax_t)iso9660->wbuff_remaining);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Internal Programming error: iso9660:wb_consume() size=%jd, wbuff_remaining=%jd", (intmax_t)size, (intmax_t)iso9660->wbuff_remaining);
 		return ARCHIVE_FATAL;
 	}
 	iso9660->wbuff_remaining -= size;
@@ -3587,9 +3542,7 @@ static int set_file_identifier(uchar * bp, int from, int to, enum vdc vdc,
 			ids++;
 		isoent = isoent_find_entry(vdd->rootent, ids);
 		if(isoent == NULL) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Not Found %s `%s'.",
-			    label, ids);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Not Found %s `%s'.", label, ids);
 			return ARCHIVE_FATAL;
 		}
 		len = isoent->ext_off + isoent->ext_len;
@@ -3840,9 +3793,7 @@ static int write_information_block(struct archive_write * a)
 	const char * v;
 	int opt, r;
 	struct archive_string info;
-	size_t info_size = LOGICAL_BLOCK_SIZE *
-	    NON_ISO_FILE_SYSTEM_INFORMATION_BLOCK;
-
+	size_t info_size = LOGICAL_BLOCK_SIZE * NON_ISO_FILE_SYSTEM_INFORMATION_BLOCK;
 	iso9660 = (struct iso9660 *)a->format_data;
 	if(info_size > wb_remaining(a)) {
 		r = wb_write_out(a);
@@ -3851,7 +3802,7 @@ static int write_information_block(struct archive_write * a)
 	}
 	archive_string_init(&info);
 	if(archive_string_ensure(&info, info_size) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	memzero(info.s, info_size);
@@ -4109,9 +4060,7 @@ static int calculate_directory_descriptors(struct iso9660 * iso9660, struct iso9
 	enttbl = isoent->children_sorted;
 	for(i = 0; i < isoent->children.cnt; i++) {
 		struct isoent * np = enttbl[i];
-		struct isofile * file;
-
-		file = np->file;
+		struct isofile * file = np->file;
 		if(file->hardlink_target != NULL)
 			file = file->hardlink_target;
 		file->cur_content = &(file->content);
@@ -4233,22 +4182,16 @@ static int write_file_contents(struct archive_write * a, int64 offset, int64 siz
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	int r;
-
 	lseek(iso9660->temp_fd, offset, SEEK_SET);
-
 	while(size) {
-		size_t rsize;
 		ssize_t rs;
-		uchar * wb;
-
-		wb = wb_buffptr(a);
-		rsize = wb_remaining(a);
+		uchar * wb = wb_buffptr(a);
+		size_t rsize = wb_remaining(a);
 		if(rsize > (size_t)size)
 			rsize = (size_t)size;
 		rs = read(iso9660->temp_fd, wb, rsize);
 		if(rs <= 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't read temporary file(%jd)", (intmax_t)rs);
+			archive_set_error(&a->archive, errno, "Can't read temporary file(%jd)", (intmax_t)rs);
 			return ARCHIVE_FATAL;
 		}
 		size -= rs;
@@ -4263,19 +4206,15 @@ static int write_file_descriptors(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	struct isofile * file;
-	int64 blocks, offset;
 	int r;
-
-	blocks = 0;
-	offset = 0;
-
+	int64 blocks = 0;
+	int64 offset = 0;
 	/* Make the boot catalog contents, and write it. */
 	if(iso9660->el_torito.catalog != NULL) {
 		r = make_boot_catalog(a);
 		if(r < 0)
 			return r;
 	}
-
 	/* Write the boot file contents. */
 	if(iso9660->el_torito.boot != NULL) {
 		file = iso9660->el_torito.boot->file;
@@ -4290,10 +4229,8 @@ static int write_file_descriptors(struct archive_write * a)
 			offset = 0;
 		}
 	}
-
 	/* Write out all file contents. */
-	for(file = iso9660->data_file_list.first;
-	    file != NULL; file = file->datanext) {
+	for(file = iso9660->data_file_list.first; file != NULL; file = file->datanext) {
 		if(!file->write_content)
 			continue;
 
@@ -4528,18 +4465,15 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 		ulen_last <<= 1;
 		if(archive_string_ensure(&(file->basename_utf16),
 		    ulen_last) == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory for UTF-16BE");
+			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for UTF-16BE");
 			return ARCHIVE_FATAL;
 		}
-
 		/*
 		 * Set UTF-16BE basename.
 		 */
 		memcpy(file->basename_utf16.s, ulast, ulen_last);
 		file->basename_utf16.length = ulen_last;
 	}
-
 	archive_strcpy(&(file->parentdir), pathname);
 #if defined(_WIN32) || defined(__CYGWIN__)
 	/*
@@ -4548,28 +4482,23 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 	if(cleanup_backslash_1(file->parentdir.s) != 0) {
 		const wchar_t * wp = archive_entry_pathname_w(file->entry);
 		struct archive_wstring ws;
-
 		if(wp != NULL) {
 			int r;
 			archive_string_init(&ws);
 			archive_wstrcpy(&ws, wp);
 			cleanup_backslash_2(ws.s);
 			archive_string_empty(&(file->parentdir));
-			r = archive_string_append_from_wcs(&(file->parentdir),
-				ws.s, ws.length);
+			r = archive_string_append_from_wcs(&(file->parentdir), ws.s, ws.length);
 			archive_wstring_free(&ws);
 			if(r < 0 && errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				return ARCHIVE_FATAL;
 			}
 		}
 	}
 #endif
-
 	len = file->parentdir.length;
 	p = dirname = file->parentdir.s;
-
 	/*
 	 * Remove leading '/', '../' and './' elements
 	 */
@@ -4674,13 +4603,10 @@ static int isofile_gen_utility_names(struct archive_write * a, struct isofile * 
 				archive_wstrcpy(&ws, wp);
 				cleanup_backslash_2(ws.s);
 				archive_string_empty(&(file->symlink));
-				r = archive_string_append_from_wcs(
-					&(file->symlink),
-					ws.s, ws.length);
+				r = archive_string_append_from_wcs(&(file->symlink), ws.s, ws.length);
 				archive_wstring_free(&ws);
 				if(r < 0 && errno == ENOMEM) {
-					archive_set_error(&a->archive, ENOMEM,
-					    "Can't allocate memory");
+					archive_set_error(&a->archive, ENOMEM, "Out of memory");
 					return ARCHIVE_FATAL;
 				}
 			}
@@ -4731,7 +4657,7 @@ static int isofile_register_hardlink(struct archive_write * a, struct isofile * 
 		/* This `file` is a hardlink target. */
 		hl = static_cast<struct hardlink *>(SAlloc::M(sizeof(*hl)));
 		if(hl == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		hl->nlink = 1;
@@ -4896,9 +4822,8 @@ static void isoent_free_all(struct isoent * isoent)
 
 static struct isoent * isoent_create_virtual_dir(struct archive_write * a, struct iso9660 * iso9660, const char * pathname) 
 {
-	struct isofile * file;
 	struct isoent * isoent;
-	file = isofile_new(a, NULL);
+	struct isofile * file = isofile_new(a, NULL);
 	if(file == NULL)
 		return NULL;
 	archive_entry_set_pathname(file->entry, pathname);
@@ -5004,23 +4929,18 @@ static void isoent_remove_child(struct isoent * parent, struct isoent * child)
 			parent->subdirs.last = &(ent->drnext);
 		parent->subdirs.cnt--;
 	}
-
-	__archive_rb_tree_remove_node(&(parent->rbtree),
-	    (struct archive_rb_node *)child);
+	__archive_rb_tree_remove_node(&(parent->rbtree), (struct archive_rb_node *)child);
 }
 
-static int isoent_clone_tree(struct archive_write * a, struct isoent ** nroot,
-    struct isoent * root)
+static int isoent_clone_tree(struct archive_write * a, struct isoent ** nroot, struct isoent * root)
 {
-	struct isoent * np, * xroot, * newent;
-
-	np = root;
-	xroot = NULL;
+	struct isoent * newent;
+	struct isoent * np = root;
+	struct isoent * xroot = NULL;
 	do {
 		newent = isoent_clone(np);
 		if(newent == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		if(xroot == NULL) {
@@ -5047,7 +4967,6 @@ static int isoent_clone_tree(struct archive_write * a, struct isoent ** nroot,
 			}
 		}
 	} while(np != np->parent);
-
 	return ARCHIVE_OK;
 }
 /*
@@ -5092,21 +5011,16 @@ static void isoent_setup_directory_location(struct iso9660 * iso9660, int locati
 	} while(np != np->parent);
 }
 
-static void _isoent_file_location(struct iso9660 * iso9660, struct isoent * isoent,
-    int * symlocation)
+static void _isoent_file_location(struct iso9660 * iso9660, struct isoent * isoent, int * symlocation)
 {
 	struct isoent ** children;
 	int n;
-
 	if(isoent->children.cnt == 0)
 		return;
-
 	children = isoent->children_sorted;
 	for(n = 0; n < isoent->children.cnt; n++) {
-		struct isoent * np;
 		struct isofile * file;
-
-		np = children[n];
+		struct isoent * np = children[n];
 		if(np->dir)
 			continue;
 		if(np == iso9660->el_torito.boot)
@@ -5123,7 +5037,6 @@ static void _isoent_file_location(struct iso9660 * iso9660, struct isoent * isoe
 			file->content.location = (*symlocation)--;
 			continue;
 		}
-
 		file->write_content = 1;
 	}
 }
@@ -5142,12 +5055,10 @@ static void isoent_setup_file_location(struct iso9660 * iso9660, int location)
 	int joliet;
 	int symlocation;
 	int total_block;
-
 	iso9660->total_file_block = 0;
 	if((isoent = iso9660->el_torito.catalog) != NULL) {
 		isoent->file->content.location = location;
-		block = (int)((archive_entry_size(isoent->file->entry) +
-		    LOGICAL_BLOCK_SIZE -1) >> LOGICAL_BLOCK_BITS);
+		block = (int)((archive_entry_size(isoent->file->entry) + LOGICAL_BLOCK_SIZE -1) >> LOGICAL_BLOCK_BITS);
 		location += block;
 		iso9660->total_file_block += block;
 	}
@@ -5280,25 +5191,17 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 			break;
 		}
 		if(l < 0) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "A name buffer is too small");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A name buffer is too small");
 			_isoent_free(isoent);
 			return ARCHIVE_FATAL;
 		}
-
 		np = isoent_find_child(dent, name);
 		if(np == NULL || fn[0] == '\0')
 			break;
-
 		/* Find next subdirectory. */
 		if(!np->dir) {
 			/* NOT Directory! */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_MISC,
-			    "`%s' is not directory, we cannot insert `%s' ",
-			    archive_entry_pathname(np->file->entry),
-			    archive_entry_pathname(isoent->file->entry));
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "`%s' is not directory, we cannot insert `%s' ", archive_entry_pathname(np->file->entry), archive_entry_pathname(isoent->file->entry));
 			_isoent_free(isoent);
 			*isoentpp = NULL;
 			return ARCHIVE_FAILED;
@@ -5325,8 +5228,7 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 			vp = isoent_create_virtual_dir(a, iso9660, as.s);
 			if(vp == NULL) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				_isoent_free(isoent);
 				*isoentpp = NULL;
 				return ARCHIVE_FATAL;
@@ -5344,9 +5246,7 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 			l = get_path_component(name, sizeof(name), fn);
 			if(l < 0) {
 				archive_string_free(&as);
-				archive_set_error(&a->archive,
-				    ARCHIVE_ERRNO_MISC,
-				    "A name buffer is too small");
+				archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "A name buffer is too small");
 				_isoent_free(isoent);
 				*isoentpp = NULL;
 				return ARCHIVE_FATAL;
@@ -5382,20 +5282,14 @@ same_entry:
 	 */
 	f1 = np->file;
 	f2 = isoent->file;
-
 	/* If the file type of entries is different,
 	 * we cannot handle it. */
-	if(archive_entry_filetype(f1->entry) !=
-	    archive_entry_filetype(f2->entry)) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Found duplicate entries `%s' and its file type is "
-		    "different",
-		    archive_entry_pathname(f1->entry));
+	if(archive_entry_filetype(f1->entry) != archive_entry_filetype(f2->entry)) {
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Found duplicate entries `%s' and its file type is different", archive_entry_pathname(f1->entry));
 		_isoent_free(isoent);
 		*isoentpp = NULL;
 		return ARCHIVE_FAILED;
 	}
-
 	/* Swap file entries. */
 	np->file = f2;
 	isoent->file = f1;
@@ -5502,12 +5396,11 @@ static void idr_cleanup(struct idr * idr)
 static int idr_ensure_poolsize(struct archive_write * a, struct idr * idr, int cnt)
 {
 	if(idr->pool_size < cnt) {
-		void * p;
 		const int bk = (1 << 7) - 1;
 		int psize = (cnt + bk) & ~bk;
-		p = SAlloc::R(idr->idrent_pool, sizeof(struct idr::idrent) * psize);
+		void * p = SAlloc::R(idr->idrent_pool, sizeof(struct idr::idrent) * psize);
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		idr->idrent_pool = (struct idr::idrent *)p;
@@ -5516,13 +5409,10 @@ static int idr_ensure_poolsize(struct archive_write * a, struct idr * idr, int c
 	return ARCHIVE_OK;
 }
 
-static int idr_start(struct archive_write * a, struct idr * idr, int cnt, int ffmax,
-    int num_size, int null_size, const struct archive_rb_tree_ops * rbt_ops)
+static int idr_start(struct archive_write * a, struct idr * idr, int cnt, int ffmax, int num_size, int null_size, const struct archive_rb_tree_ops * rbt_ops)
 {
 	int r;
-
 	(void)ffmax; /* UNUSED */
-
 	r = idr_ensure_poolsize(a, idr, cnt);
 	if(r != ARCHIVE_OK)
 		return r;
@@ -5690,7 +5580,7 @@ static int isoent_gen_iso9660_identifier(struct archive_write * a, struct isoent
 		l = (int)np->file->basename.length;
 		p = static_cast<char *>(SAlloc::M(l+31+2+1));
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		memcpy(p, np->file->basename.s, l);
@@ -5913,7 +5803,7 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 			l = ffmax;
 		p = static_cast<uchar *>(SAlloc::M((l+1)*2));
 		if(!p) {
-			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		memcpy(p, np->file->basename_utf16.s, l);
@@ -5941,12 +5831,8 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 		 * Get a length of MBS of a full-pathname.
 		 */
 		if(np->file->basename_utf16.length > ffmax) {
-			if(archive_strncpy_l(&iso9660->mbs,
-			    (const char *)np->identifier, l,
-			    iso9660->sconv_from_utf16be) != 0 &&
-			    errno == ENOMEM) {
-				archive_set_error(&a->archive, errno,
-				    "No memory");
+			if(archive_strncpy_l(&iso9660->mbs, (const char *)np->identifier, l, iso9660->sconv_from_utf16be) != 0 && errno == ENOMEM) {
+				archive_set_error(&a->archive, errno, "No memory");
 				return ARCHIVE_FATAL;
 			}
 			np->mb_len = (int)iso9660->mbs.length;
@@ -5955,23 +5841,14 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 		}
 		else
 			np->mb_len = (int)np->file->basename.length;
-
 		/* If a length of full-pathname is longer than 240 bytes,
 		 * it violates Joliet extensions regulation. */
-		if(parent_len > 240
-		   || np->mb_len > 240
-		   || parent_len + np->mb_len > 240) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "The regulation of Joliet extensions;"
-			    " A length of a full-pathname of `%s' is "
-			    "longer than 240 bytes, (p=%d, b=%d)",
-			    archive_entry_pathname(np->file->entry),
-			    (int)parent_len, (int)np->mb_len);
+		if(parent_len > 240 || np->mb_len > 240 || parent_len + np->mb_len > 240) {
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "The regulation of Joliet extensions; A length of a full-pathname of `%s' is longer than 240 bytes, (p=%d, b=%d)",
+			    archive_entry_pathname(np->file->entry), (int)parent_len, (int)np->mb_len);
 			return ARCHIVE_FATAL;
 		}
-
-		/* Make an offset of the number which is used to be set
-		 * hexadecimal number to avoid duplicate identifier. */
+		// Make an offset of the number which is used to be set hexadecimal number to avoid duplicate identifier.
 		if(l == ffmax)
 			noff = ext_off - 6;
 		else if(l == ffmax-2)
@@ -5983,10 +5860,8 @@ static int isoent_gen_joliet_identifier(struct archive_write * a, struct isoent 
 		/* Register entry to the identifier resolver. */
 		idr_register(idr, np, weight, noff);
 	}
-
 	/* Resolve duplicate identifier with Joliet Volume. */
 	idr_resolve(idr, idr_set_num_beutf16);
-
 	return ARCHIVE_OK;
 }
 
@@ -6167,7 +6042,7 @@ static int isoent_make_sorted_files(struct archive_write * a, struct isoent * is
 	struct archive_rb_node * rn;
 	struct isoent ** children = (struct isoent **)SAlloc::M(isoent->children.cnt * sizeof(struct isoent *));
 	if(children == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	isoent->children_sorted = children;
@@ -6289,12 +6164,10 @@ static int isoent_collect_dirs(struct iso9660::vdd * vdd, struct isoent * rooten
  * The entry whose number of levels in a directory hierarchy is
  * large than eight relocate to rr_move directory.
  */
-static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_moved,
-    struct isoent * curent, struct isoent ** newent)
+static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_moved, struct isoent * curent, struct isoent ** newent)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	struct isoent * rrmoved, * mvent, * np;
-
 	if((rrmoved = *rr_moved) == NULL) {
 		struct isoent * rootent = iso9660->primary.rootent;
 		/* There isn't rr_move entry.
@@ -6302,8 +6175,7 @@ static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_move
 		 */
 		rrmoved = isoent_create_virtual_dir(a, iso9660, "rr_moved");
 		if(rrmoved == NULL) {
-			archive_set_error(&a->archive, ENOMEM,
-			    "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		/* Add "rr_moved" entry to the root entry. */
@@ -6321,8 +6193,7 @@ static int isoent_rr_move_dir(struct archive_write * a, struct isoent ** rr_move
 	 */
 	mvent = isoent_clone(curent);
 	if(mvent == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	/* linking..  and use for creating "CL", "PL" and "RE" */
@@ -6546,7 +6417,7 @@ static int isoent_make_path_table_2(struct archive_write * a, struct iso9660::vd
 	}
 	enttbl = static_cast<struct isoent **>(SAlloc::M(pt->cnt * sizeof(struct isoent *)));
 	if(enttbl == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	pt->sorted = enttbl;
@@ -6587,7 +6458,7 @@ static int isoent_alloc_path_table(struct archive_write * a, struct iso9660::vdd
 	vdd->max_depth = max_depth;
 	vdd->pathtbl = static_cast<struct iso9660::vdd::path_table *>(SAlloc::M(sizeof(*vdd->pathtbl) * vdd->max_depth));
 	if(vdd->pathtbl == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	for(i = 0; i < vdd->max_depth; i++) {
@@ -6689,30 +6560,23 @@ static int isoent_make_path_table(struct archive_write * a)
 		 * the Path Table.
 		 * See also ISO9660 Standard 9.4.
 		 */
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Too many directories(%d) over 65535.", dir_number);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Too many directories(%d) over 65535.", dir_number);
 		return ARCHIVE_FATAL;
 	}
-
 	/* Get the size of the Path Table. */
 	calculate_path_table_size(&(iso9660->primary));
 	if(iso9660->opt.joliet)
 		calculate_path_table_size(&(iso9660->joliet));
-
 	return ARCHIVE_OK;
 }
 
 static int isoent_find_out_boot_file(struct archive_write * a, struct isoent * rootent)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-
 	/* Find a isoent of the boot file. */
-	iso9660->el_torito.boot = isoent_find_entry(rootent,
-		iso9660->el_torito.boot_filename.s);
+	iso9660->el_torito.boot = isoent_find_entry(rootent, iso9660->el_torito.boot_filename.s);
 	if(iso9660->el_torito.boot == NULL) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Can't find the boot image file ``%s''",
-		    iso9660->el_torito.boot_filename.s);
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't find the boot image file ``%s''", iso9660->el_torito.boot_filename.s);
 		return ARCHIVE_FATAL;
 	}
 	iso9660->el_torito.boot->file->boot = isofile::BOOT_IMAGE;
@@ -6722,22 +6586,18 @@ static int isoent_find_out_boot_file(struct archive_write * a, struct isoent * r
 static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * rootent)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-	struct isofile * file;
 	struct isoent * isoent;
 	struct archive_entry * entry;
-
 	(void)rootent; /* UNUSED */
 	/*
 	 * Create the entry which is the "boot.catalog" file.
 	 */
-	file = isofile_new(a, NULL);
+	struct isofile * file = isofile_new(a, NULL);
 	if(file == NULL) {
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
-	archive_entry_set_pathname(file->entry,
-	    iso9660->el_torito.catalog_filename.s);
+	archive_entry_set_pathname(file->entry, iso9660->el_torito.catalog_filename.s);
 	archive_entry_set_size(file->entry, LOGICAL_BLOCK_SIZE);
 	archive_entry_set_mtime(file->entry, iso9660->birth_time, 0);
 	archive_entry_set_atime(file->entry, iso9660->birth_time, 0);
@@ -6746,7 +6606,6 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	archive_entry_set_gid(file->entry, getgid());
 	archive_entry_set_mode(file->entry, AE_IFREG | 0444);
 	archive_entry_set_nlink(file->entry, 1);
-
 	if(isofile_gen_utility_names(a, file) < ARCHIVE_WARN) {
 		isofile_free(file);
 		return ARCHIVE_FATAL;
@@ -6754,10 +6613,9 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 	file->boot = isofile::BOOT_CATALOG;
 	file->content.size = LOGICAL_BLOCK_SIZE;
 	isofile_add_entry(iso9660, file);
-
 	isoent = isoent_new(file);
 	if(isoent == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	isoent->IsVirtual = 1;
@@ -6774,19 +6632,13 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 		    /* Try detecting a media type of the boot image. */
 		    entry = iso9660->el_torito.boot->file->entry;
 		    if(archive_entry_size(entry) == FD_1_2M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_1_2M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_1_2M_DISKETTE;
 		    else if(archive_entry_size(entry) == FD_1_44M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_1_44M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_1_44M_DISKETTE;
 		    else if(archive_entry_size(entry) == FD_2_88M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_2_88M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_2_88M_DISKETTE;
 		    else
-			    /* We cannot decide whether the boot image is
-			     * hard-disk. */
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_NO_EMULATION;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_NO_EMULATION; // We cannot decide whether the boot image is hard-disk.
 		    break;
 		case OPT_BOOT_TYPE_NO_EMU:
 		    iso9660->el_torito.media_type = BOOT_MEDIA_NO_EMULATION;
@@ -6796,42 +6648,31 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 		    break;
 		case OPT_BOOT_TYPE_FD:
 		    entry = iso9660->el_torito.boot->file->entry;
-		    if(archive_entry_size(entry) <= FD_1_2M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_1_2M_DISKETTE;
+		    if(archive_entry_size(entry) <= FD_1_2M_SIZE) 
+				iso9660->el_torito.media_type = BOOT_MEDIA_1_2M_DISKETTE;
 		    else if(archive_entry_size(entry) <= FD_1_44M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_1_44M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_1_44M_DISKETTE;
 		    else if(archive_entry_size(entry) <= FD_2_88M_SIZE)
-			    iso9660->el_torito.media_type =
-				BOOT_MEDIA_2_88M_DISKETTE;
+			    iso9660->el_torito.media_type = BOOT_MEDIA_2_88M_DISKETTE;
 		    else {
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"Boot image file(``%s'') size is too big "
-				"for fd type.",
-				iso9660->el_torito.boot_filename.s);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Boot image file(``%s'') size is too big for fd type.", iso9660->el_torito.boot_filename.s);
 			    return ARCHIVE_FATAL;
 		    }
 		    break;
 	}
-
 	/*
 	 * Get a system type.
 	 * TODO: `El Torito' specification says "A copy of byte 5 from the
 	 * Partition Table found in the boot image".
 	 */
 	iso9660->el_torito.system_type = 0;
-
 	/*
 	 * Get an ID.
 	 */
 	if(iso9660->opt.publisher)
-		archive_string_copy(&(iso9660->el_torito.id),
-		    &(iso9660->publisher_identifier));
-
+		archive_string_copy(&(iso9660->el_torito.id), &(iso9660->publisher_identifier));
 	return ARCHIVE_OK;
 }
-
 /*
  * If a media type is floppy, return its image size.
  * otherwise return 0.
@@ -6839,17 +6680,12 @@ static int isoent_create_boot_catalog(struct archive_write * a, struct isoent * 
 static size_t fd_boot_image_size(int media_type)
 {
 	switch(media_type) {
-		case BOOT_MEDIA_1_2M_DISKETTE:
-		    return (FD_1_2M_SIZE);
-		case BOOT_MEDIA_1_44M_DISKETTE:
-		    return (FD_1_44M_SIZE);
-		case BOOT_MEDIA_2_88M_DISKETTE:
-		    return (FD_2_88M_SIZE);
-		default:
-		    return 0;
+		case BOOT_MEDIA_1_2M_DISKETTE: return (FD_1_2M_SIZE);
+		case BOOT_MEDIA_1_44M_DISKETTE: return (FD_1_44M_SIZE);
+		case BOOT_MEDIA_2_88M_DISKETTE: return (FD_2_88M_SIZE);
+		default: return 0;
 	}
 }
-
 /*
  * Make a boot catalog image data.
  */
@@ -6879,13 +6715,11 @@ static int make_boot_catalog(struct archive_write * a)
 	/* Key */
 	p[30] = 0x55;
 	p[31] = 0xAA;
-
 	sum = 0;
 	wp = (uint16*)block;
 	while(wp < (uint16*)&block[32])
 		sum += archive_le16dec(wp++);
 	set_num_721(&block[28], (~sum) + 1);
-
 	/*
 	 * Initial/Default Entry
 	 */
@@ -6909,8 +6743,7 @@ static int make_boot_catalog(struct archive_write * a)
 	else
 		set_num_721(&p[6], 1);
 	/* Load RBA */
-	set_num_731(&p[8],
-	    iso9660->el_torito.boot->file->content.location);
+	set_num_731(&p[8], iso9660->el_torito.boot->file->content.location);
 	/* Unused */
 	memzero(&p[12], 20);
 	return (wb_consume(a, LOGICAL_BLOCK_SIZE));
@@ -6919,33 +6752,27 @@ static int make_boot_catalog(struct archive_write * a)
 static int setup_boot_information(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-	struct isoent * np;
 	int64 size;
 	uint32 sum;
 	uchar buff[4096];
-	np = iso9660->el_torito.boot;
+	struct isoent * np = iso9660->el_torito.boot;
 	lseek(iso9660->temp_fd, np->file->content.offset_of_temp + 64, SEEK_SET);
 	size = archive_entry_size(np->file->entry) - 64;
 	if(size <= 0) {
-		archive_set_error(&a->archive, errno,
-		    "Boot file(%jd) is too small", (intmax_t)size + 64);
+		archive_set_error(&a->archive, errno, "Boot file(%jd) is too small", (intmax_t)size + 64);
 		return ARCHIVE_FATAL;
 	}
 	sum = 0;
 	while(size > 0) {
 		size_t rsize;
 		ssize_t i, rs;
-
 		if(size > (int64)sizeof(buff))
 			rsize = sizeof(buff);
 		else
 			rsize = (size_t)size;
-
 		rs = read(iso9660->temp_fd, buff, rsize);
 		if(rs <= 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't read temporary file(%jd)",
-			    (intmax_t)rs);
+			archive_set_error(&a->archive, errno, "Can't read temporary file(%jd)", (intmax_t)rs);
 			return ARCHIVE_FATAL;
 		}
 		for(i = 0; i < rs; i += 4)
@@ -6976,7 +6803,6 @@ static int zisofs_init_zstream(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	int r;
-
 	iso9660->zisofs.stream.next_in = NULL;
 	iso9660->zisofs.stream.avail_in = 0;
 	iso9660->zisofs.stream.total_in = 0;
@@ -6984,8 +6810,7 @@ static int zisofs_init_zstream(struct archive_write * a)
 	if(iso9660->zisofs.stream_valid)
 		r = deflateReset(&(iso9660->zisofs.stream));
 	else {
-		r = deflateInit(&(iso9660->zisofs.stream),
-			iso9660->zisofs.compression_level);
+		r = deflateInit(&(iso9660->zisofs.stream), iso9660->zisofs.compression_level);
 		iso9660->zisofs.stream_valid = 1;
 	}
 	switch(r) {
@@ -6993,19 +6818,13 @@ static int zisofs_init_zstream(struct archive_write * a)
 		    break;
 		default:
 		case Z_STREAM_ERROR:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing "
-			"compression library: invalid setup parameter");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid setup parameter");
 		    return ARCHIVE_FATAL;
 		case Z_MEM_ERROR:
-		    archive_set_error(&a->archive, ENOMEM,
-			"Internal error initializing "
-			"compression library");
+		    archive_set_error(&a->archive, ENOMEM, "Internal error initializing compression library");
 		    return ARCHIVE_FATAL;
 		case Z_VERSION_ERROR:
-		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			"Internal error initializing "
-			"compression library: invalid library version");
+		    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Internal error initializing compression library: invalid library version");
 		    return ARCHIVE_FATAL;
 	}
 	return ARCHIVE_OK;
@@ -7021,22 +6840,17 @@ static int zisofs_init(struct archive_write * a,  struct isofile * file)
 	size_t _ceil, bpsize;
 	int r;
 #endif
-
 	iso9660->zisofs.detect_magic = 0;
 	iso9660->zisofs.making = 0;
-
 	if(!iso9660->opt.rr || !iso9660->opt.zisofs)
 		return ARCHIVE_OK;
-
-	if(archive_entry_size(file->entry) >= 24 &&
-	    archive_entry_size(file->entry) < MULTI_EXTENT_SIZE) {
+	if(archive_entry_size(file->entry) >= 24 && archive_entry_size(file->entry) < MULTI_EXTENT_SIZE) {
 		/* Acceptable file size for zisofs. */
 		iso9660->zisofs.detect_magic = 1;
 		iso9660->zisofs.magic_cnt = 0;
 	}
 	if(!iso9660->zisofs.detect_magic)
 		return ARCHIVE_OK;
-
 #ifdef HAVE_ZLIB_H
 	/* The number of Logical Blocks which uncompressed data
 	 * will use in iso-image file is the same as the number of
@@ -7044,18 +6858,14 @@ static int zisofs_init(struct archive_write * a,  struct isofile * file)
 	 * in ISO-image file. It won't reduce iso-image file size. */
 	if(archive_entry_size(file->entry) <= LOGICAL_BLOCK_SIZE)
 		return ARCHIVE_OK;
-
 	/* Initialize compression library */
 	r = zisofs_init_zstream(a);
 	if(r != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/* Mark file->zisofs to create RRIP 'ZF' Use Entry. */
 	file->zisofs.header_size = ZF_HEADER_SIZE >> 2;
 	file->zisofs.log2_bs = ZF_LOG2_BS;
-	file->zisofs.uncompressed_size =
-	    (uint32)archive_entry_size(file->entry);
-
+	file->zisofs.uncompressed_size = (uint32)archive_entry_size(file->entry);
 	/* Calculate a size of Block Pointers of zisofs. */
 	_ceil = (file->zisofs.uncompressed_size + ZF_BLOCK_SIZE -1) >> file->zisofs.log2_bs;
 	iso9660->zisofs.block_pointers_cnt = (int)_ceil + 1;
@@ -7080,12 +6890,10 @@ static int zisofs_init(struct archive_write * a,  struct isofile * file)
 	tsize = ZF_HEADER_SIZE + bpsize;
 	if(write_null(a, (size_t)tsize) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Initialize some variables to make zisofs.
 	 */
-	archive_le32enc(&(iso9660->zisofs.block_pointers[0]),
-	    (uint32)tsize);
+	archive_le32enc(&(iso9660->zisofs.block_pointers[0]), (uint32)tsize);
 	iso9660->zisofs.remaining = file->zisofs.uncompressed_size;
 	iso9660->zisofs.making = 1;
 	iso9660->zisofs.allzero = 1;
@@ -7093,7 +6901,6 @@ static int zisofs_init(struct archive_write * a,  struct isofile * file)
 	iso9660->zisofs.total_size = tsize;
 	iso9660->cur_file->cur_content->size = tsize;
 #endif
-
 	return ARCHIVE_OK;
 }
 
@@ -7269,23 +7076,16 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 				    zstrm->avail_out = (uInt)wb_remaining(a);
 				    break;
 				default:
-				    archive_set_error(&a->archive,
-					ARCHIVE_ERRNO_MISC,
-					"Compression failed:"
-					" deflate() call returned status %d",
-					r);
+				    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Compression failed: deflate() call returned status %d", r);
 				    return ARCHIVE_FATAL;
 			}
 		}
-
 		if(flush == Z_FINISH) {
 			/*
 			 * Save the information of one zisofs block.
 			 */
 			iso9660->zisofs.block_pointers_idx++;
-			archive_le32enc(&(iso9660->zisofs.block_pointers[
-				    iso9660->zisofs.block_pointers_idx]),
-			    (uint32)iso9660->zisofs.total_size);
+			archive_le32enc(&(iso9660->zisofs.block_pointers[iso9660->zisofs.block_pointers_idx]), (uint32)iso9660->zisofs.total_size);
 			r = zisofs_init_zstream(a);
 			if(r != ARCHIVE_OK)
 				return ARCHIVE_FATAL;
@@ -7293,7 +7093,6 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 			iso9660->zisofs.block_offset = file->cur_content->size;
 		}
 	} while(s);
-
 	return ARCHIVE_OK;
 }
 
@@ -7310,7 +7109,6 @@ static int zisofs_finish_entry(struct archive_write * a)
 	 * Save a file pointer which points the end of current zisofs data.
 	 */
 	tail = wb_offset(a);
-
 	/*
 	 * Make a header.
 	 *
@@ -7343,26 +7141,19 @@ static int zisofs_finish_entry(struct archive_write * a)
 	buff[12] = file->zisofs.header_size;
 	buff[13] = file->zisofs.log2_bs;
 	buff[14] = buff[15] = 0; /* Reserved */
-
 	/* Move to the right position to write the header. */
 	wb_set_offset(a, file->content.offset_of_temp);
-
 	/* Write the header. */
 	if(wb_write_to_temp(a, buff, 16) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/*
 	 * Write zisofs Block Pointers.
 	 */
-	s = iso9660->zisofs.block_pointers_cnt *
-	    sizeof(iso9660->zisofs.block_pointers[0]);
-	if(wb_write_to_temp(a, iso9660->zisofs.block_pointers, s)
-	    != ARCHIVE_OK)
+	s = iso9660->zisofs.block_pointers_cnt * sizeof(iso9660->zisofs.block_pointers[0]);
+	if(wb_write_to_temp(a, iso9660->zisofs.block_pointers, s) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
-
 	/* Set a file pointer back to the end of the temporary file. */
 	wb_set_offset(a, tail);
-
 	return ARCHIVE_OK;
 }
 
@@ -7370,12 +7161,9 @@ static int zisofs_free(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	int ret = ARCHIVE_OK;
-
 	SAlloc::F(iso9660->zisofs.block_pointers);
-	if(iso9660->zisofs.stream_valid &&
-	    deflateEnd(&(iso9660->zisofs.stream)) != Z_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+	if(iso9660->zisofs.stream_valid && deflateEnd(&(iso9660->zisofs.stream)) != Z_OK) {
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		ret = ARCHIVE_FATAL;
 	}
 	iso9660->zisofs.block_pointers = NULL;
@@ -7387,31 +7175,24 @@ struct zisofs_extract {
 	int pz_log2_bs; /* Log2 of block size */
 	uint64 pz_uncompressed_size;
 	size_t uncompressed_buffer_size;
-
 	signed int initialized : 1;
 	signed int header_passed : 1;
-
 	uint32 pz_offset;
 	uchar   * block_pointers;
 	size_t block_pointers_size;
 	size_t block_pointers_avail;
 	size_t block_off;
 	uint32 block_avail;
-
 	z_stream stream;
 	int stream_valid;
 };
 
-static ssize_t zisofs_extract_init(struct archive_write * a, struct zisofs_extract * zisofs,
-    const uchar * p, size_t bytes)
+static ssize_t zisofs_extract_init(struct archive_write * a, struct zisofs_extract * zisofs, const uchar * p, size_t bytes)
 {
 	size_t avail = bytes;
 	size_t _ceil, xsize;
-
 	/* Allocate block pointers buffer. */
-	_ceil = (size_t)((zisofs->pz_uncompressed_size +
-	    (((int64)1) << zisofs->pz_log2_bs) - 1)
-	    >> zisofs->pz_log2_bs);
+	_ceil = (size_t)((zisofs->pz_uncompressed_size + (((int64)1) << zisofs->pz_log2_bs) - 1) >> zisofs->pz_log2_bs);
 	xsize = (_ceil + 1) * 4;
 	if(zisofs->block_pointers == NULL) {
 		size_t alloc = ((xsize >> 10) + 1) << 10;
@@ -7425,19 +7206,15 @@ static ssize_t zisofs_extract_init(struct archive_write * a, struct zisofs_extra
 
 	/* Allocate uncompressed data buffer. */
 	zisofs->uncompressed_buffer_size = (size_t)1UL << zisofs->pz_log2_bs;
-
 	/*
 	 * Read the file header, and check the magic code of zisofs.
 	 */
 	if(!zisofs->header_passed) {
 		int err = 0;
 		if(avail < 16) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs file body");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs file body");
 			return ARCHIVE_FATAL;
 		}
-
 		if(memcmp(p, zisofs_magic, sizeof(zisofs_magic)) != 0)
 			err = 1;
 		else if(archive_le32dec(p + 8) != zisofs->pz_uncompressed_size)
@@ -7445,31 +7222,24 @@ static ssize_t zisofs_extract_init(struct archive_write * a, struct zisofs_extra
 		else if(p[12] != 4 || p[13] != zisofs->pz_log2_bs)
 			err = 1;
 		if(err) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs file body");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs file body");
 			return ARCHIVE_FATAL;
 		}
 		avail -= 16;
 		p += 16;
 		zisofs->header_passed = 1;
 	}
-
 	/*
 	 * Read block pointers.
 	 */
-	if(zisofs->header_passed &&
-	    zisofs->block_pointers_avail < zisofs->block_pointers_size) {
-		xsize = zisofs->block_pointers_size
-		    - zisofs->block_pointers_avail;
+	if(zisofs->header_passed && zisofs->block_pointers_avail < zisofs->block_pointers_size) {
+		xsize = zisofs->block_pointers_size - zisofs->block_pointers_avail;
 		if(avail < xsize)
 			xsize = avail;
-		memcpy(zisofs->block_pointers
-		    + zisofs->block_pointers_avail, p, xsize);
+		memcpy(zisofs->block_pointers + zisofs->block_pointers_avail, p, xsize);
 		zisofs->block_pointers_avail += xsize;
 		avail -= xsize;
-		if(zisofs->block_pointers_avail
-		    == zisofs->block_pointers_size) {
+		if(zisofs->block_pointers_avail == zisofs->block_pointers_size) {
 			/* We've got all block pointers and initialize
 			 * related variables.	*/
 			zisofs->block_off = 0;
@@ -7481,12 +7251,10 @@ static ssize_t zisofs_extract_init(struct archive_write * a, struct zisofs_extra
 	return ((ssize_t)avail);
 }
 
-static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * zisofs,
-    const uchar * p, size_t bytes)
+static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * zisofs, const uchar * p, size_t bytes)
 {
 	size_t avail;
 	int r;
-
 	if(!zisofs->initialized) {
 		ssize_t rs = zisofs_extract_init(a, zisofs, p, bytes);
 		if(rs < 0)
@@ -7501,54 +7269,41 @@ static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * 
 	}
 	else
 		avail = bytes;
-
 	/*
 	 * Get block offsets from block pointers.
 	 */
 	if(zisofs->block_avail == 0) {
 		uint32 bst, bed;
-
 		if(zisofs->block_off + 4 >= zisofs->block_pointers_size) {
 			/* There isn't a pair of offsets. */
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs block pointers");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers");
 			return ARCHIVE_FATAL;
 		}
-		bst = archive_le32dec(
-			zisofs->block_pointers + zisofs->block_off);
+		bst = archive_le32dec(zisofs->block_pointers + zisofs->block_off);
 		if(bst != zisofs->pz_offset + (bytes - avail)) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs block pointers(cannot seek)");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers(cannot seek)");
 			return ARCHIVE_FATAL;
 		}
-		bed = archive_le32dec(
-			zisofs->block_pointers + zisofs->block_off + 4);
+		bed = archive_le32dec(zisofs->block_pointers + zisofs->block_off + 4);
 		if(bed < bst) {
-			archive_set_error(&a->archive,
-			    ARCHIVE_ERRNO_FILE_FORMAT,
-			    "Illegal zisofs block pointers");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Illegal zisofs block pointers");
 			return ARCHIVE_FATAL;
 		}
 		zisofs->block_avail = bed - bst;
 		zisofs->block_off += 4;
-
 		/* Initialize compression library for new block. */
 		if(zisofs->stream_valid)
 			r = inflateReset(&zisofs->stream);
 		else
 			r = inflateInit(&zisofs->stream);
 		if(r != Z_OK) {
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "Can't initialize zisofs decompression.");
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Can't initialize zisofs decompression.");
 			return ARCHIVE_FATAL;
 		}
 		zisofs->stream_valid = 1;
 		zisofs->stream.total_in = 0;
 		zisofs->stream.total_out = 0;
 	}
-
 	/*
 	 * Make uncompressed data.
 	 */
@@ -7557,9 +7312,8 @@ static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * 
 		 * It's basically 32K bytes NUL data.
 		 */
 		uchar * wb;
-		size_t size, wsize;
-
-		size = zisofs->uncompressed_buffer_size;
+		size_t wsize;
+		size_t size = zisofs->uncompressed_buffer_size;
 		while(size) {
 			wb = wb_buffptr(a);
 			if(size > wb_remaining(a))
@@ -7581,15 +7335,13 @@ static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * 
 			zisofs->stream.avail_in = (uInt)avail;
 		zisofs->stream.next_out = wb_buffptr(a);
 		zisofs->stream.avail_out = (uInt)wb_remaining(a);
-
 		r = inflate(&zisofs->stream, 0);
 		switch(r) {
 			case Z_OK: /* Decompressor made some progress.*/
 			case Z_STREAM_END: /* Found end of stream. */
 			    break;
 			default:
-			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-				"zisofs decompression failed (%d)", r);
+			    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "zisofs decompression failed (%d)", r);
 			    return ARCHIVE_FATAL;
 		}
 		avail -= zisofs->stream.next_in - p;
@@ -7605,15 +7357,13 @@ static ssize_t zisofs_extract(struct archive_write * a, struct zisofs_extract * 
 static int zisofs_rewind_boot_file(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-	struct isofile * file;
 	uchar * rbuff;
 	ssize_t r;
 	size_t remaining, rbuff_size;
 	struct zisofs_extract zext;
 	int64 read_offset, write_offset, new_offset;
 	int fd, ret = ARCHIVE_OK;
-
-	file = iso9660->el_torito.boot->file;
+	struct isofile * file = iso9660->el_torito.boot->file;
 	/*
 	 * There is nothing to do if this boot file does not have
 	 * zisofs header.
@@ -7626,7 +7376,6 @@ static int zisofs_rewind_boot_file(struct archive_write * a)
 	memzero(&zext, sizeof(zext));
 	zext.pz_uncompressed_size = file->zisofs.uncompressed_size;
 	zext.pz_log2_bs = file->zisofs.log2_bs;
-
 	fd = iso9660->temp_fd;
 	new_offset = wb_offset(a);
 	read_offset = file->content.offset_of_temp;
@@ -7637,46 +7386,36 @@ static int zisofs_rewind_boot_file(struct archive_write * a)
 		rbuff_size = remaining;
 	rbuff = static_cast<uchar *>(SAlloc::M(rbuff_size));
 	if(rbuff == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	while(remaining) {
 		size_t rsize;
 		ssize_t rs;
-
-		/* Get the current file pointer. */
-		write_offset = lseek(fd, 0, SEEK_CUR);
-
-		/* Change the file pointer to read. */
-		lseek(fd, read_offset, SEEK_SET);
-
+		write_offset = lseek(fd, 0, SEEK_CUR); /* Get the current file pointer. */
+		lseek(fd, read_offset, SEEK_SET); /* Change the file pointer to read. */
 		rsize = rbuff_size;
 		if(rsize > remaining)
 			rsize = remaining;
 		rs = read(iso9660->temp_fd, rbuff, rsize);
 		if(rs <= 0) {
-			archive_set_error(&a->archive, errno,
-			    "Can't read temporary file(%jd)", (intmax_t)rs);
+			archive_set_error(&a->archive, errno, "Can't read temporary file(%jd)", (intmax_t)rs);
 			ret = ARCHIVE_FATAL;
 			break;
 		}
 		remaining -= rs;
 		read_offset += rs;
-
 		/* Put the file pointer back to write. */
 		lseek(fd, write_offset, SEEK_SET);
-
 		r = zisofs_extract(a, &zext, rbuff, rs);
 		if(r < 0) {
 			ret = (int)r;
 			break;
 		}
 	}
-
 	if(ret == ARCHIVE_OK) {
 		/*
-		 * Change the boot file content from zisofs'ed data
-		 * to plain data.
+		 * Change the boot file content from zisofs'ed data to plain data.
 		 */
 		file->content.offset_of_temp = new_offset;
 		file->content.size = file->zisofs.uncompressed_size;
@@ -7689,18 +7428,15 @@ static int zisofs_rewind_boot_file(struct archive_write * a)
 		if(r < 0)
 			ret = ARCHIVE_FATAL;
 	}
-
 	/*
 	 * Free the resource we used in this function only.
 	 */
 	SAlloc::F(rbuff);
 	SAlloc::F(zext.block_pointers);
 	if(zext.stream_valid && inflateEnd(&(zext.stream)) != Z_OK) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "Failed to clean up compressor");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to clean up compressor");
 		ret = ARCHIVE_FATAL;
 	}
-
 	return ret;
 }
 
@@ -7717,11 +7453,8 @@ static int zisofs_write_to_temp(struct archive_write * a, const void * buff, siz
 static int zisofs_rewind_boot_file(struct archive_write * a)
 {
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
-
 	if(iso9660->el_torito.boot->file->zisofs.header_size != 0) {
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-		    "We cannot extract the zisofs imaged boot file;"
-		    " this may not boot in being zisofs imaged");
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "We cannot extract the zisofs imaged boot file; this may not boot in being zisofs imaged");
 		return ARCHIVE_FAILED;
 	}
 	return ARCHIVE_OK;

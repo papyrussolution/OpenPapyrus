@@ -23,6 +23,18 @@
 // Visual Studio 2017 версии 15.7 	1914
 // Visual Studio 2017 версии 15.8 	1915
 // Visual Studio 2017 версии 15.9 	1916
+// Visual Studio 2019 версии 16.11.2 (update 11) 1929
+// Visual Studio 2019 версии 16.9.2  (update  9) 1928
+// Visual Studio 2019 версии 16.8.2  (update  8) 1928
+// Visual Studio 2019 версии 16.8.1  (update  8) 1928
+// Visual Studio 2019 версии 16.7    (update  7) 1927
+// Visual Studio 2019 версии 16.6.2  (update  6) 1926
+// Visual Studio 2019 версии 16.5.1  (update  5) 1925
+// Visual Studio 2019 версии 16.4.0  (update  4) 1924
+// Visual Studio 2019 версии 16.3.2  (update  3) 1923
+// Visual Studio 2019 версии 16.2.3  (update  2) 1922
+// Visual Studio 2019 версии 16.1.2  (update  1) 1921
+// Visual Studio 2019 версии 16.0.0              1920
 //
 // _WIN32_WINNT:
 // _WIN32_WINNT_NT4                    0x0400 // Windows NT 4.0

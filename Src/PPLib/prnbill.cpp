@@ -5,13 +5,8 @@
 #include <pp.h>
 #pragma hdrstop
 
-static const char * BillMultiplePrintCfg      = "BillMultiplePrintCfg";
-static const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
-static const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPriceChanged";
-
 //static const char * BillMultiplePrintCfg2 = "BillMultiplePrintCfg2"; // @v11.2.0
 // _PPConst.WrParam_BillMultiplePrintCfg2
-
 //#define BILL_FORM_COUNT 13
 
 class MultiPrintDialog : public TDialog {
@@ -240,6 +235,9 @@ int BillMultiPrintParam::LocalRestore()
 		//
 		WinRegKey old_key(HKEY_CURRENT_USER, PPRegKeys::SysSettings, 1);
 		{
+			static const char * BillMultiplePrintCfg              = "BillMultiplePrintCfg";
+			static const char * BillMultiplePrintDivByCopies      = "BillMultiplePrintDivByCopies";
+			static const char * BillMultiplePrintOnlyPriceChanged = "BillMultiplePrintOnlyPriceChanged";
 			SString temp_buf;
 			old_key.GetString(BillMultiplePrintCfg, temp_buf);
 			if(temp_buf.NotEmptyS()) {
@@ -277,8 +275,40 @@ int BillMultiPrintParam::LocalRestore()
 {
 	DIALOG_PROC_BODY_P1(MultiPrintDialog, opTypeID, pData);
 }
+//
+// Descr: Структура, устанавливающая соответствие между опцией печати документа, 
+//    индексом элемента в диалогах и приоритетом вывода на печать.
+//
+struct BillPrintFormEntry { // @flat
+	ulong  Flag;            // OPKF_PRT_XXX Флаг опций печати документов. 0 - default-вариант (всегда есть возможность выбора)
+	uint16 DialogEntryIdx;  // Индекс в диалогах выбора форм(ы) [0..]
+	uint8  Priority;        // Приоритет вывода на печать (0 - наивысший, 1 - ниже и т.д.)
+	uint8  NumCopies;       // Значение используется непосредственно при печати. Пользователь выбирает это поле в диалоге. 
+};
 
-static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTypes, LAssocArray & rSelAry, PPID oprType, long * pOutFlags)
+static IMPL_CMPFUNC(BillPrintFormEntry, p1, p2)
+{
+	RET_CMPCASCADE2(static_cast<const BillPrintFormEntry *>(p1), static_cast<const BillPrintFormEntry *>(p2), Priority, DialogEntryIdx);
+}
+
+static const BillPrintFormEntry BillPrintFormList[] = {
+	{ 0L,                  0, 1, 0 }, //    0. Накладная
+	{ OPKF_PRT_QCERT,      1, 1, 0 }, //    1. Сертификаты
+	{ OPKF_PRT_INVOICE,    2, 1, 0 }, //    2. Счет-фактура
+	{ OPKF_PRT_CASHORD,    3, 1, 0 }, //    3. Кассовый ордер
+	{ OPKF_PRT_LADING,     4, 1, 0 }, //    4. Товарно-транспортная накладна
+	{ OPKF_PRT_LADING,     5, 1, 0 }, //    5. Товарно-транспортная накладная (транспортный раздел)
+	{ OPKF_PRT_SRVACT,     6, 1, 0 }, //    6. Акт выполненных работ
+	{ OPKF_PRT_PLABEL,     7, 1, 0 }, //    7. Ценник
+	{ OPKF_PRT_PAYPLAN,    8, 1, 0 }, //    8. План платежей
+	{ OPKF_PRT_TARESALDO,  9, 1, 0 }, //    9. Сальдо по отгруженной таре
+	{ OPKF_PRT_LOCDISP,   10, 1, 0 }, //    10. Наряд на складскую сборку
+	{ OPKF_PRT_LOTTAGIMG, 11, 2, 0 }, //    11. Изображения из тегов лотов
+	{ OPKF_PRT_INVOICE,   12, 0, 0 }, //    12. Универсальный передаточный документ	
+};
+
+static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTypes, 
+	/*LAssocArray & rSelAry*/TSVector <BillPrintFormEntry> & rSelectionList, PPID oprType, long * pOutFlags)
 {
 	class BillPrintDialog : public TDialog {
 	public:
@@ -342,11 +372,15 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 			if(do_restore_local)
 				bmpp.LocalRestore();
 			if(BillMultiPrintParam::EditDialog(oprType, &bmpp) > 0) {
-				rSelAry.clear();
+				//rSelAry.clear();
+				rSelectionList.clear();
 				for(uint i = 0; i < BillMultiPrintParam::pb__Count; i++) {
 					if(bmpp.FormBits & (1 << i)) {
-						long num_copies = inrangeordefault(bmpp.CopyCounter[i], 1, 10, 1);
-						rSelAry.Add(static_cast<PPID>(i+1), num_copies, 0);
+						uint8 num_copies = static_cast<uint8>(inrangeordefault(bmpp.CopyCounter[i], 1, 10, 1));
+						//rSelAry.Add(static_cast<PPID>(i+1), num_copies, 0);
+						BillPrintFormEntry new_entry(BillPrintFormList[i]);
+						new_entry.NumCopies = num_copies;
+						rSelectionList.insert(&new_entry);
 					}
 				}
 				ASSIGN_PTR(pOutFlags, bmpp.Flags);
@@ -359,11 +393,15 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 		}
 		else {
 			if(!agt.Bmpp.IsEmpty() && !(agt.Flags & AGTF_DEFAULT)) {
-				rSelAry.clear();
+				//rSelAry.clear();
+				rSelectionList.clear();
 				for(uint i = 0; i < BillMultiPrintParam::pb__Count; i++) {
 					if(bmpp.FormBits & (1 << i)) {
-						long num_copies = inrangeordefault(bmpp.CopyCounter[i], 1, 10, 1);
-						rSelAry.Add(static_cast<PPID>(i+1), num_copies, 0);
+						uint8 num_copies = static_cast<uint8>(inrangeordefault(bmpp.CopyCounter[i], 1, 10, 1));
+						//rSelAry.Add(static_cast<PPID>(i+1), num_copies, 0);
+						BillPrintFormEntry new_entry(BillPrintFormList[i]);
+						new_entry.NumCopies = num_copies;
+						rSelectionList.insert(&new_entry);
 					}
 				}
 				ASSIGN_PTR(pOutFlags, bmpp.Flags);
@@ -395,6 +433,7 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 		//
 		if(opPrnFlags & OPKF_PRT_EXTFORMFLAGS) {
 			if(clu) {
+				/*
 				const LAssocBase flags_to_cluster_item_list[] = {
 					// { 0, 0 },                //    0. Накладная //
 					{ OPKF_PRT_QCERT,      1 }, //    1. Сертификаты
@@ -415,38 +454,22 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 						clu->disableItem(i+1, flags_to_cluster_item_list[i].Val); // @v11.2.2 @fix i-->i+1
 				}
 				clu->disableItem(10, 0); // @v11.2.2 Наряд на складскую сборку
-				/*
-				#define DELETE_CLUSTER_ITEM(c,i) (c)->disableItem(i, 1)
-				if(!(opPrnFlags & OPKF_PRT_LOTTAGIMG))
-					DELETE_CLUSTER_ITEM(clu, 11);
-				if(!(opPrnFlags & OPKF_PRT_TARESALDO))
-					DELETE_CLUSTER_ITEM(clu, 9);
-				if(!(opPrnFlags & OPKF_PRT_PAYPLAN))
-					DELETE_CLUSTER_ITEM(clu, 8);
-				if(!(opPrnFlags & OPKF_PRT_PLABEL))
-					DELETE_CLUSTER_ITEM(clu, 7);
-				if(!(opPrnFlags & OPKF_PRT_SRVACT))
-					DELETE_CLUSTER_ITEM(clu, 6);
-				if(!(opPrnFlags & OPKF_PRT_LADING)) {
-					DELETE_CLUSTER_ITEM(clu, 5);
-					DELETE_CLUSTER_ITEM(clu, 4);
-				}
-				if(!(opPrnFlags & OPKF_PRT_CASHORD))
-					DELETE_CLUSTER_ITEM(clu, 3);
-				if(!(opPrnFlags & OPKF_PRT_INVOICE)) {
-					DELETE_CLUSTER_ITEM(clu, 2);
-					DELETE_CLUSTER_ITEM(clu, 12);
-				}
-				if(!(opPrnFlags & OPKF_PRT_QCERT))
-					DELETE_CLUSTER_ITEM(clu, 1);
-				#undef DELETE_CLUSTER_ITEM
 				*/
+				for(uint i = 0; i < SIZEOFARRAY(BillPrintFormList); i++) {
+					const BillPrintFormEntry & r_entry = BillPrintFormList[i];
+					if(!oneof2(r_entry.Flag, 0,  OPKF_PRT_LOCDISP) && !(opPrnFlags & r_entry.Flag)) {
+						clu->disableItem(i/*+1*/, r_entry.DialogEntryIdx);
+					}
+				}
 			}
 		}
 		else {
 			v = 1;
 			if(!pAmtTypes) {
-				rSelAry.Add(static_cast<PPID>(v), 1, 0);
+				//rSelAry.Add(static_cast<PPID>(v), 1, 0);
+				BillPrintFormEntry new_entry(BillPrintFormList[0]);
+				new_entry.NumCopies = 1;
+				rSelectionList.insert(&new_entry);
 				do_exit = true;
 			}
 		}
@@ -482,11 +505,19 @@ static int SelectForm(int interactive, long opPrnFlags, PPID arID, uint * pAmtTy
 				SETFLAG(prn_flags, BillMultiPrintParam::fUpdatedPricesOnly, __v);
 				ASSIGN_PTR(pAmtTypes, p+1);
 				if(clu) {
-					v++;
-					rSelAry.Add(static_cast<PPID>(v), 1, 0);
+					//v++;
+					//rSelAry.Add(static_cast<PPID>(v), 1, 0);
+					assert(v >= 0 && v < SIZEOFARRAY(BillPrintFormList));
+					BillPrintFormEntry new_entry(BillPrintFormList[v]);
+					new_entry.NumCopies = 1;
+					rSelectionList.insert(&new_entry);
 				}
-				else
-					rSelAry.Add(0L, 1, 0);
+				else {
+					//rSelAry.Add(0L, 1, 0);
+					BillPrintFormEntry new_entry(BillPrintFormList[v]);
+					new_entry.NumCopies = 1;
+					rSelectionList.insert(&new_entry);
+				}
 				ASSIGN_PTR(pOutFlags, prn_flags);
 				//ASSIGN_PTR(pDivCopiesFlag, /*div_copies*/BIN(prn_flags & BillMultiPrintParam::fMakeOutCopies));
 				//ASSIGN_PTR(pOnlyPriceChangedFlag, /*only_price_chng*/BIN(prn_flags & BillMultiPrintParam::fUpdatedPricesOnly));
@@ -713,22 +744,25 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 			}
 			pPack->OutAmtType = amt_types;
 			if(opk.PrnFlags & (OPKF_PRT_EXTFORMFLAGS|OPKF_PRT_SELPRICE)) {
-				LAssocArray sel_ary;
+				//LAssocArray sel_ary;
+				TSVector <BillPrintFormEntry> selection_list;
 				PPID   ar_id = (interactive < 0) ? 0 : pPack->Rec.Object;
 				uint * p_amt_types = (opk.PrnFlags & OPKF_PRT_SELPRICE) ? &amt_types : 0;
-				THROW(ok = SelectForm(interactive, opk.PrnFlags, ar_id, p_amt_types, sel_ary, pPack->OpTypeID, &out_prn_flags));
+				THROW(ok = SelectForm(interactive, opk.PrnFlags, ar_id, p_amt_types, /*sel_ary*/selection_list, pPack->OpTypeID, &out_prn_flags));
+				selection_list.sort(PTR_CMPFUNC(BillPrintFormEntry));
 				pPack->OutAmtType = amt_types;
 				if(ok > 0) {
-					if(!sel_ary.getCount()) {
+					if(!/*sel_ary*/selection_list.getCount()) {
 						if(interactive > 0)
 							rpt_ids.clear();
 					}
 					else {
 						rpt_ids.clear();
-						for(c = 0; c < sel_ary.getCount(); c++) {
+						for(c = 0; c < /*sel_ary*/selection_list.getCount(); c++) {
 							RptSel temp_rs(0, 0);
 							temp_rs = rs;
-							temp_rs.SelID = sel_ary.at(c).Key;
+							//temp_rs.SelID = sel_ary.at(c).Key;
+							temp_rs.SelID = selection_list.at(c).DialogEntryIdx+1;
 							switch(temp_rs.SelID) {
 								case 2: temp_rs.RptID = CheckOpPrnFlags(pPack->Rec.OpID, OPKF_PRT_QCG) ? REPORT_QCERTLISTG : REPORT_QCERTLIST; break;
 								case 3:
@@ -776,7 +810,8 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 										temp_rs.RptID = REPORT_GOODSBILL;
 									break;
 							}
-							temp_rs.NumCopies = sel_ary.at(c).Val;
+							//temp_rs.NumCopies = sel_ary.at(c).Val;
+							temp_rs.NumCopies = selection_list.at(c).NumCopies;
 							THROW(rpt_ids.insert(&temp_rs));
 						}
 					}
@@ -837,19 +872,11 @@ int STDCALL Helper_PrintGoodsBill(PPBillPacket * pPack, SVector ** ppAry, long *
 }
 
 int STDCALL PrepareBillMultiPrint(PPBillPacket * pFirstPack, SVector ** ppAry, long * pOutPrnFlags)
-{
-	return Helper_PrintGoodsBill(pFirstPack, ppAry, pOutPrnFlags, -1/*prepare for multi-printing*/);
-}
-
+	{ return Helper_PrintGoodsBill(pFirstPack, ppAry, pOutPrnFlags, -1/*prepare for multi-printing*/); }
 int STDCALL MultiPrintGoodsBill(PPBillPacket * pPack, const SVector * pAry, long outPrnFlags)
-{
-	return Helper_PrintGoodsBill(pPack, const_cast<SVector **>(&pAry), &outPrnFlags, 0/*non-interactive*/);
-}
-
+	{ return Helper_PrintGoodsBill(pPack, const_cast<SVector **>(&pAry), &outPrnFlags, 0/*non-interactive*/); }
 int STDCALL PrintGoodsBill(PPBillPacket * pPack)
-{
-	return Helper_PrintGoodsBill(pPack, 0, 0, 1/*interactive*/);
-}
+	{ return Helper_PrintGoodsBill(pPack, 0, 0, 1/*interactive*/); }
 
 int STDCALL PrintCashOrderByGoodsBill(PPBillPacket * pPack, int prnflags)
 {

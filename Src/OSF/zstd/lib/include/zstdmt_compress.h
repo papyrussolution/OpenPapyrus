@@ -50,7 +50,9 @@ typedef struct ZSTDMT_CCtx_s ZSTDMT_CCtx;
 ZSTDMT_CCtx* ZSTDMT_createCCtx_advanced(unsigned nbWorkers, ZSTD_customMem cMem, ZSTD_threadPool * pool);
 size_t ZSTDMT_freeCCtx(ZSTDMT_CCtx* mtctx);
 size_t ZSTDMT_sizeof_CCtx(ZSTDMT_CCtx* mtctx);
-/* ===   Streaming functions   === */
+// 
+// Streaming functions
+// 
 size_t ZSTDMT_nextInputSizeHint(const ZSTDMT_CCtx* mtctx);
 
 /*! ZSTDMT_initCStream_internal() :

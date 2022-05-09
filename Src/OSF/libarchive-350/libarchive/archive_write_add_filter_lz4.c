@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2014 Michihiro NAKAJIMA
- * All rights reserved.
+ * Copyright (c) 2014 Michihiro NAKAJIMA All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -66,7 +64,7 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	struct archive_write * a = (struct archive_write *)_a;
 	struct archive_write_filter * f = __archive_write_allocate_filter(_a);
 	struct private_data * data;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_add_filter_lz4");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	data = static_cast<struct private_data *>(SAlloc::C(1, sizeof(*data)));
 	if(data == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Out of memory");
@@ -83,15 +81,14 @@ int archive_write_add_filter_lz4(struct archive * _a)
 	data->stream_checksum = 1;
 	data->preset_dictionary = 0;
 	data->block_maximum_size = 7;
-
 	/*
 	 * Setup a filter setting.
 	 */
 	f->data = data;
-	f->options = &archive_filter_lz4_options;
-	f->close = &archive_filter_lz4_close;
-	f->free = &archive_filter_lz4_free;
-	f->open = &archive_filter_lz4_open;
+	f->FnOptions = &archive_filter_lz4_options;
+	f->FnClose = &archive_filter_lz4_close;
+	f->FnFree = &archive_filter_lz4_free;
+	f->FnOpen = &archive_filter_lz4_open;
 	f->code = ARCHIVE_FILTER_LZ4;
 	f->name = "lz4";
 #if defined(HAVE_LIBLZ4) && LZ4_VERSION_MAJOR >= 1 && LZ4_VERSION_MINOR >= 2
@@ -216,7 +213,7 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 		archive_set_error(f->archive, ENOMEM, "Can't allocate data for compression buffer");
 		return ARCHIVE_FATAL;
 	}
-	f->write = archive_filter_lz4_write;
+	f->FnWrite = archive_filter_lz4_write;
 	return ARCHIVE_OK;
 }
 /*
@@ -429,8 +426,7 @@ static int drive_compressor_independence(struct archive_write_filter * f, const 
 	}
 	data->out += outsize;
 	if(data->block_checksum) {
-		uint checksum =
-		    __archive_xxhash.XXH32(data->out - outsize, outsize, 0);
+		uint checksum = __archive_xxhash.XXH32(data->out - outsize, outsize, 0);
 		archive_le32enc(data->out, checksum);
 		data->out += 4;
 	}
@@ -525,10 +521,8 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 	struct private_data * data = (struct private_data *)f->data;
 	struct archive_string as;
 	int r;
-
 	archive_string_init(&as);
 	archive_strcpy(&as, "lz4 -z -q -q");
-
 	/* Specify a compression level. */
 	if(data->compression_level > 0) {
 		archive_strcat(&as, " -");
@@ -537,26 +531,21 @@ static int archive_filter_lz4_open(struct archive_write_filter * f)
 	/* Specify a block size. */
 	archive_strcat(&as, " -B");
 	archive_strappend_char(&as, '0' + data->block_maximum_size);
-
 	if(data->block_checksum)
 		archive_strcat(&as, " -BX");
 	if(data->stream_checksum == 0)
 		archive_strcat(&as, " --no-frame-crc");
 	if(data->block_independence == 0)
 		archive_strcat(&as, " -BD");
-
 	f->write = archive_filter_lz4_write;
-
 	r = __archive_write_program_open(f, data->pdata, as.s);
 	archive_string_free(&as);
 	return r;
 }
 
-static int archive_filter_lz4_write(struct archive_write_filter * f, const void * buff,
-    size_t length)
+static int archive_filter_lz4_write(struct archive_write_filter * f, const void * buff, size_t length)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
 	return __archive_write_program_write(f, data->pdata, buff, length);
 }
 

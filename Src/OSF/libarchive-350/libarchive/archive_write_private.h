@@ -1,10 +1,8 @@
 /*-
- * Copyright (c) 2003-2007 Tim Kientzle
- * All rights reserved.
+ * Copyright (c) 2003-2007 Tim Kientzle All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -34,15 +32,14 @@ struct archive_write;
 
 struct archive_write_filter {
 	int64 bytes_written;
-	struct archive *archive; /* Associated archive. */
-	struct archive_write_filter *next_filter; /* Who I write to. */
-	int	(*options)(struct archive_write_filter *,
-	    const char *key, const char *value);
-	int	(*open)(struct archive_write_filter *);
-	int	(*write)(struct archive_write_filter *, const void *, size_t);
-	int	(*close)(struct archive_write_filter *);
-	int	(*free)(struct archive_write_filter *);
-	void	 *data;
+	struct archive * archive; /* Associated archive. */
+	struct archive_write_filter * next_filter; /* Who I write to. */
+	int	(* FnOptions)(struct archive_write_filter *, const char *key, const char *value);
+	int	(* FnOpen)(struct archive_write_filter *);
+	int	(* FnWrite)(struct archive_write_filter *, const void *, size_t);
+	int	(* FnClose)(struct archive_write_filter *);
+	int	(* FnFree)(struct archive_write_filter *);
+	void * data;
 	const char *name;
 	int	  code;
 	int	  bytes_per_block;
@@ -61,38 +58,32 @@ int __archive_write_filter(struct archive_write_filter *, const void *, size_t);
 
 struct archive_write {
 	struct archive	archive;
-
 	/* Dev/ino of the archive being written. */
-	int		  skip_file_set;
-	int64		  skip_file_dev;
-	int64		  skip_file_ino;
-
+	int    skip_file_set;
+	int64  skip_file_dev;
+	int64  skip_file_ino;
 	/* Utility:  Pointer to a block of nulls. */
 	const uchar	*nulls;
-	size_t			 null_length;
-
+	size_t null_length;
 	/* Callbacks to open/read/write/close archive stream. */
 	archive_open_callback	*client_opener;
 	archive_write_callback	*client_writer;
 	archive_close_callback	*client_closer;
 	archive_free_callback	*client_freer;
-	void			*client_data;
-
+	void * client_data;
 	/*
 	 * Blocking information.  Note that bytes_in_last_block is
 	 * misleadingly named; I should find a better name.  These
 	 * control the final output from all compressors, including
 	 * compression_none.
 	 */
-	int		  bytes_per_block;
-	int		  bytes_in_last_block;
-
+	int bytes_per_block;
+	int bytes_in_last_block;
 	/*
 	 * First and last write filters in the pipeline.
 	 */
 	struct archive_write_filter *filter_first;
 	struct archive_write_filter *filter_last;
-
 	/*
 	 * Pointers to format-specific functions for writing.  They're
 	 * initialized by archive_write_set_format_XXX() calls.
@@ -100,25 +91,19 @@ struct archive_write {
 	void	 *format_data;
 	const char *format_name;
 	int	(*format_init)(struct archive_write *);
-	int	(*format_options)(struct archive_write *,
-		    const char *key, const char *value);
+	int	(*format_options)(struct archive_write *, const char *key, const char *value);
 	int	(*format_finish_entry)(struct archive_write *);
-	int 	(*format_write_header)(struct archive_write *,
-		    struct archive_entry *);
-	ssize_t	(*format_write_data)(struct archive_write *,
-		    const void *buff, size_t);
+	int 	(*format_write_header)(struct archive_write *, struct archive_entry *);
+	ssize_t	(*format_write_data)(struct archive_write *, const void *buff, size_t);
 	int	(*format_close)(struct archive_write *);
 	int	(*format_free)(struct archive_write *);
-
-
 	/*
 	 * Encryption passphrase.
 	 */
-	char		*passphrase;
+	char * passphrase;
 	archive_passphrase_callback *passphrase_callback;
-	void		*passphrase_client_data;
+	void * passphrase_client_data;
 };
-
 /*
  * Utility function to format a USTAR header into a buffer.  If
  * "strict" is set, this tries to create the absolutely most portable
@@ -129,21 +114,13 @@ struct archive_write {
  * header; this is a rare example of a function that is shared by
  * two very similar formats (ustar and pax).
  */
-int
-__archive_write_format_header_ustar(struct archive_write *, char buff[512],
-    struct archive_entry *, int tartype, int strict,
-    struct archive_string_conv *);
-
+int __archive_write_format_header_ustar(struct archive_write *, char buff[512], struct archive_entry *, int tartype, int strict, struct archive_string_conv *);
 struct archive_write_program_data;
 struct archive_write_program_data * __archive_write_program_allocate(const char *program_name);
 int	__archive_write_program_free(struct archive_write_program_data *);
-int	__archive_write_program_open(struct archive_write_filter *,
-	    struct archive_write_program_data *, const char *);
-int	__archive_write_program_close(struct archive_write_filter *,
-	    struct archive_write_program_data *);
-int	__archive_write_program_write(struct archive_write_filter *,
-	    struct archive_write_program_data *, const void *, size_t);
-
+int	__archive_write_program_open(struct archive_write_filter *, struct archive_write_program_data *, const char *);
+int	__archive_write_program_close(struct archive_write_filter *, struct archive_write_program_data *);
+int	__archive_write_program_write(struct archive_write_filter *, struct archive_write_program_data *, const void *, size_t);
 /*
  * Get a encryption passphrase.
  */

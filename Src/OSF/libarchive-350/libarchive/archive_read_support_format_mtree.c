@@ -195,7 +195,7 @@ int archive_read_support_format_mtree(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct mtree * mtree;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_mtree");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	mtree = (struct mtree *)SAlloc::C(1, sizeof(*mtree));
 	if(mtree == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate mtree data");
@@ -1650,7 +1650,7 @@ static int read_data(struct archive_read * a, const void ** buff, size_t * size,
 		mtree->buffsize = 64 * 1024;
 		mtree->buff = static_cast<char *>(SAlloc::M(mtree->buffsize));
 		if(mtree->buff == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 	}

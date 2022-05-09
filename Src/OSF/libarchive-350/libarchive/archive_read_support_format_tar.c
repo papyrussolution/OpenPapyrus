@@ -178,7 +178,7 @@ static void     tar_flush_unconsumed(struct archive_read *, size_t *);
 
 int archive_read_support_format_gnutar(struct archive * a)
 {
-	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_gnutar");
+	archive_check_magic(a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	return (archive_read_support_format_tar(a));
 }
 
@@ -187,7 +187,7 @@ int archive_read_support_format_tar(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct tar * tar;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_tar");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	tar = (struct tar *)SAlloc::C(1, sizeof(*tar));
 	if(tar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate tar data");
@@ -987,7 +987,7 @@ static int read_body_to_string(struct archive_read * a, struct tar * tar, struct
 	}
 	/* Fail if we can't make our buffer big enough. */
 	if(archive_string_ensure(as, (size_t)size+1) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "No memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	tar_flush_unconsumed(a, unconsumed);

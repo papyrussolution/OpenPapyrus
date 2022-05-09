@@ -1800,15 +1800,15 @@ static char * generateEscapeString(const char * str)
 	PROCNAME(__FUNCTION__);
 
 	if(!str)
-		return (char*)ERROR_PTR("str not defined", procName, NULL);
+		return (char *)ERROR_PTR("str not defined", procName, NULL);
 	nchar = strlen(str);
 	for(i = 0; i < nchar; i++) {
 		if(str[i] < 0)
-			return (char*)ERROR_PTR("str not all ascii", procName, NULL);
+			return (char *)ERROR_PTR("str not all ascii", procName, NULL);
 	}
 
 	buflen = 4 * nchar + 10;
-	buffer = (char*)SAlloc::C(buflen, sizeof(char));
+	buffer = (char *)SAlloc::C(buflen, sizeof(char));
 	stringCat(buffer, buflen, "<feff");
 	for(i = 0; i < nchar; i++) {
 		snprintf(smallbuf, sizeof(smallbuf), "%04x", str[i]);
@@ -1860,7 +1860,7 @@ static l_int32 generatePageStringPdf(L_PDF_DATA  * lpd)
 	 * 50 bytes for each reference to an image in the
 	 * ProcSet array.  */
 	bufsize = 1000 + 50 * lpd->n;
-	if((buf = (char*)SAlloc::C(bufsize, sizeof(char))) == NULL)
+	if((buf = (char *)SAlloc::C(bufsize, sizeof(char))) == NULL)
 		return ERROR_INT("calloc fail for buf", procName, 1);
 
 	boxGetGeometry(lpd->mediabox, NULL, NULL, &wpt, &hpt);
@@ -1910,7 +1910,7 @@ static l_int32 generateContentStringPdf(L_PDF_DATA  * lpd)
 	PROCNAME(__FUNCTION__);
 
 	bufsize = 1000 + 200 * lpd->n;
-	if((buf = (char*)SAlloc::C(bufsize, sizeof(char))) == NULL)
+	if((buf = (char *)SAlloc::C(bufsize, sizeof(char))) == NULL)
 		return ERROR_INT("calloc fail for buf", procName, 1);
 
 	sa = sarrayCreate(lpd->n);
@@ -2160,7 +2160,7 @@ static char * makeTrailerStringPdf(L_DNA  * daloc)
 	PROCNAME(__FUNCTION__);
 
 	if(!daloc)
-		return (char*)ERROR_PTR("daloc not defined", procName, NULL);
+		return (char *)ERROR_PTR("daloc not defined", procName, NULL);
 	n = l_dnaGetCount(daloc) - 1; /* numbered objects + 1 (yes, +1) */
 
 	sa = sarrayCreate(0);
@@ -2307,11 +2307,11 @@ static l_int32 parseTrailerPdf(L_BYTEA  * bas,
 	    (uint8 *)"startxref\n", 10, &loc, &found);
 	if(!found)
 		return ERROR_INT("startxref not found!", procName, 1);
-	if(sscanf((char*)(data + start + loc + 10), "%d\n", &xrefloc) != 1)
+	if(sscanf((char *)(data + start + loc + 10), "%d\n", &xrefloc) != 1)
 		return ERROR_INT("xrefloc not found!", procName, 1);
 	if(xrefloc < 0 || xrefloc >= size)
 		return ERROR_INT("invalid xrefloc!", procName, 1);
-	sa = sarrayCreateLinesFromString((char*)(data + xrefloc), 0);
+	sa = sarrayCreateLinesFromString((char *)(data + xrefloc), 0);
 	str = sarrayGetString(sa, 1, L_NOCOPY);
 	if((sscanf(str, "0 %d", &nobj)) != 1) {
 		sarrayDestroy(&sa);
@@ -2343,7 +2343,7 @@ static l_int32 parseTrailerPdf(L_BYTEA  * bas,
 	trailer_ok = TRUE;
 	for(i = 1; i < nobj; i++) {
 		l_dnaGetIValue(da, i, &startloc);
-		if((sscanf((char*)(data + startloc), "%d 0 obj", &objno)) != 1) {
+		if((sscanf((char *)(data + startloc), "%d 0 obj", &objno)) != 1) {
 			L_ERROR("bad trailer for object %d\n", procName, i);
 			trailer_ok = FALSE;
 			break;
@@ -2385,11 +2385,11 @@ static char * generatePagesObjStringPdf(NUMA * napage)
 	PROCNAME(__FUNCTION__);
 
 	if(!napage)
-		return (char*)ERROR_PTR("napage not defined", procName, NULL);
+		return (char *)ERROR_PTR("napage not defined", procName, NULL);
 
 	n = numaGetCount(napage);
 	bufsize = 100 + 16 * n; /* large enough to hold the output string */
-	buf = (char*)SAlloc::C(bufsize, sizeof(char));
+	buf = (char *)SAlloc::C(bufsize, sizeof(char));
 	sa = sarrayCreate(n);
 	for(i = 0; i < n; i++) {
 		numaGetIValue(napage, i, &index);
@@ -2450,15 +2450,15 @@ static L_BYTEA * substituteObjectNumbers(L_BYTEA  * bas,
 	nobjs = numaGetCount(na_objs); /* use for sanity checking */
 
 	/* Substitute the object number on the first line */
-	sscanf((char*)datas, "%d", &objin);
+	sscanf((char *)datas, "%d", &objin);
 	if(objin < 0 || objin >= nobjs) {
 		L_ERROR("index %d into array of size %d\n", procName, objin, nobjs);
 		SAlloc::F(objs);
 		return bad;
 	}
 	objout = objs[objin];
-	snprintf((char*)buf, 32, "%d", objout);
-	l_byteaAppendString(bad, (char*)buf);
+	snprintf((char *)buf, 32, "%d", objout);
+	l_byteaAppendString(bad, (char *)buf);
 
 	/* Find the set of matching locations for object references */
 	arrayFindSequence(datas, size, &space, 1, &start, &found);
@@ -2480,7 +2480,7 @@ static L_BYTEA * substituteObjectNumbers(L_BYTEA  * bas,
 		}
 		/* Copy bytes from 'start' up to the object number */
 		l_byteaAppendData(bad, datas + start, j - start + 1);
-		sscanf((char*)(datas + j + 1), "%d", &objin);
+		sscanf((char *)(datas + j + 1), "%d", &objin);
 		if(objin < 0 || objin >= nobjs) {
 			L_ERROR("index %d into array of size %d\n", procName, objin, nobjs);
 			SAlloc::F(objs);
@@ -2489,8 +2489,8 @@ static L_BYTEA * substituteObjectNumbers(L_BYTEA  * bas,
 			return bad;
 		}
 		objout = objs[objin];
-		snprintf((char*)buf, 32, "%d", objout);
-		l_byteaAppendString(bad, (char*)buf);
+		snprintf((char *)buf, 32, "%d", objout);
+		l_byteaAppendString(bad, (char *)buf);
 		start = matches[i];
 	}
 	l_byteaAppendData(bad, datas + start, size - start);

@@ -206,7 +206,7 @@ l_ok sreadHeaderSpix(const l_uint32  * data,
 		return ERROR_INT("size too small", procName, 1);
 
 	/* Check file id */
-	id = (char*)data;
+	id = (char *)data;
 	if(id[0] != 's' || id[1] != 'p' || id[2] != 'i' || id[3] != 'x')
 		return ERROR_INT("not a valid spix file", procName, 1);
 
@@ -354,7 +354,7 @@ l_ok pixSerializeToMemory(PIX        * pixs,
 	}
 	*pdata = data;
 	*pnbytes = nbytes;
-	id = (char*)data;
+	id = (char *)data;
 	id[0] = 's';
 	id[1] = 'p';
 	id[2] = 'i';
@@ -411,7 +411,7 @@ PIX * pixDeserializeFromMemory(const l_uint32  * data,
 		return NULL;
 	}
 
-	id = (char*)data;
+	id = (char *)data;
 	if(id[0] != 's' || id[1] != 'p' || id[2] != 'i' || id[3] != 'x')
 		return (PIX *)ERROR_PTR("invalid id string", procName, NULL);
 	w = data[1];

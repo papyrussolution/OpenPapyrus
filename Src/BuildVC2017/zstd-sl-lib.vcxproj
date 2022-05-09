@@ -284,6 +284,7 @@
     <ClInclude Include="..\OSF\zstd\lib\include\zstd_ldm.h" />
     <ClInclude Include="..\OSF\zstd\lib\include\zstd_ldm_geartab.h" />
     <ClInclude Include="..\OSF\zstd\lib\include\zstd_legacy.h" />
+    <ClInclude Include="..\OSF\zstd\lib\include\zstd_mem.h" />
     <ClInclude Include="..\OSF\zstd\lib\include\zstd_opt.h" />
     <ClInclude Include="..\OSF\zstd\lib\include\zstd_trace.h" />
     <ClInclude Include="..\OSF\zstd\lib\include\zstd_v01.h" />

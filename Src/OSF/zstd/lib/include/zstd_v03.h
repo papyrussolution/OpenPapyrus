@@ -48,21 +48,18 @@ void ZSTDv03_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* c
 /**
    ZSTDv03_isError() : tells if the result of ZSTDv03_decompress() is an error
  */
-unsigned ZSTDv03_isError(size_t code);
-
-/* *************************************
-*  Advanced functions
-***************************************/
+uint ZSTDv03_isError(size_t code);
+// 
+// Advanced functions
+// 
 typedef struct ZSTDv03_Dctx_s ZSTDv03_Dctx;
 ZSTDv03_Dctx* ZSTDv03_createDCtx(void);
 size_t ZSTDv03_freeDCtx(ZSTDv03_Dctx* dctx);
 size_t ZSTDv03_decompressDCtx(void* ctx, void* dst, size_t maxOriginalSize, const void* src, size_t compressedSize);
-
-/* *************************************
-*  Streaming functions
-***************************************/
+// 
+// Streaming functions
+// 
 size_t ZSTDv03_resetDCtx(ZSTDv03_Dctx* dctx);
-
 size_t ZSTDv03_nextSrcSizeToDecompress(ZSTDv03_Dctx* dctx);
 size_t ZSTDv03_decompressContinue(ZSTDv03_Dctx* dctx, void* dst, size_t maxDstSize, const void* src, size_t srcSize);
 /**

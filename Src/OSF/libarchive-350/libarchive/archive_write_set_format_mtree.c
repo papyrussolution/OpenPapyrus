@@ -1025,7 +1025,7 @@ static int write_mtree_entry_tree(struct archive_write * a)
 			ARCHIVE_RB_TREE_FOREACH(n, &(np->dir_info->rbtree)) {
 				struct mtree_entry * e = (struct mtree_entry *)n;
 				if(attr_counter_set_collect(mtree, e) < 0) {
-					archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+					archive_set_error(&a->archive, ENOMEM, "Out of memory");
 					return ARCHIVE_FATAL;
 				}
 			}
@@ -1611,19 +1611,16 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	if(cleanup_backslash_1(file->pathname.s) != 0) {
 		const wchar_t * wp = archive_entry_pathname_w(entry);
 		struct archive_wstring ws;
-
 		if(wp != NULL) {
 			int r;
 			archive_string_init(&ws);
 			archive_wstrcpy(&ws, wp);
 			cleanup_backslash_2(ws.s);
 			archive_string_empty(&(file->pathname));
-			r = archive_string_append_from_wcs(&(file->pathname),
-				ws.s, ws.length);
+			r = archive_string_append_from_wcs(&(file->pathname), ws.s, ws.length);
 			archive_wstring_free(&ws);
 			if(r < 0 && errno == ENOMEM) {
-				archive_set_error(&a->archive, ENOMEM,
-				    "Can't allocate memory");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				return ARCHIVE_FATAL;
 			}
 		}
@@ -1766,18 +1763,14 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	return ret;
 }
 
-static int mtree_entry_create_virtual_dir(struct archive_write * a, const char * pathname,
-    struct mtree_entry ** m_entry)
+static int mtree_entry_create_virtual_dir(struct archive_write * a, const char * pathname, struct mtree_entry ** m_entry)
 {
-	struct archive_entry * entry;
 	struct mtree_entry * file;
 	int r;
-
-	entry = archive_entry_new();
+	struct archive_entry * entry = archive_entry_new();
 	if(entry == NULL) {
 		*m_entry = NULL;
-		archive_set_error(&a->archive, ENOMEM,
-		    "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	archive_entry_copy_pathname(entry, pathname);
@@ -1787,7 +1780,7 @@ static int mtree_entry_create_virtual_dir(struct archive_write * a, const char *
 	archive_entry_free(entry);
 	if(r < ARCHIVE_WARN) {
 		*m_entry = NULL;
-		archive_set_error(&a->archive, ENOMEM, "Can't allocate memory");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	file->dir_info->Virtual = 1;

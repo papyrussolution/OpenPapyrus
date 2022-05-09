@@ -11,10 +11,6 @@
 #ifndef ZSTD_COMPRESS_ADVANCED_H
 #define ZSTD_COMPRESS_ADVANCED_H
 
-/*-*************************************
-*  Dependencies
-***************************************/
-
 #include <zstd.h> /* ZSTD_CCtx */
 
 /*-*************************************
@@ -24,9 +20,6 @@
 /* ZSTD_compressSuperBlock() :
  * Used to compress a super block when targetCBlockSize is being used.
  * The given block will be compressed into multiple sub blocks that are around targetCBlockSize. */
-size_t ZSTD_compressSuperBlock(ZSTD_CCtx* zc,
-    void* dst, size_t dstCapacity,
-    void const* src, size_t srcSize,
-    unsigned lastBlock);
+size_t ZSTD_compressSuperBlock(ZSTD_CCtx* zc, void * dst, size_t dstCapacity, const void * src, size_t srcSize, uint lastBlock);
 
 #endif /* ZSTD_COMPRESS_ADVANCED_H */

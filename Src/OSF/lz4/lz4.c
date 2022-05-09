@@ -508,7 +508,7 @@ static void LZ4_putPositionOnHash(const uint8 * p, uint32 h, void * tableBase, t
 
 LZ4_FORCE_INLINE void LZ4_putPosition(const uint8 * p, void * tableBase, tableType_t tableType, const uint8 * srcBase)
 {
-	uint32 const h = LZ4_hashPosition(p, tableType);
+	const uint32 h = LZ4_hashPosition(p, tableType);
 	LZ4_putPositionOnHash(p, h, tableBase, tableType, srcBase);
 }
 // 
@@ -553,7 +553,7 @@ static const uint8 * LZ4_getPositionOnHash(uint32 h, const void * tableBase, tab
 
 LZ4_FORCE_INLINE const uint8 * LZ4_getPosition(const uint8 * p, const void * tableBase, tableType_t tableType, const uint8 * srcBase)
 {
-	uint32 const h = LZ4_hashPosition(p, tableType);
+	const uint32 h = LZ4_hashPosition(p, tableType);
 	return LZ4_getPositionOnHash(h, tableBase, tableType, srcBase);
 }
 
@@ -606,7 +606,7 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 {
 	int result;
 	const uint8 * ip = (const uint8 *)source;
-	uint32 const startIndex = cctx->currentOffset;
+	const uint32 startIndex = cctx->currentOffset;
 	const uint8 * base = (const uint8 *)source - startIndex;
 	const uint8 * lowLimit;
 	const LZ4_stream_t_internal* dictCtx = (const LZ4_stream_t_internal*)cctx->dictCtx;
@@ -615,7 +615,7 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 	// make indexes in dictCtx comparable with index in current context 
 	const uint32 dictDelta = (dictDirective == usingDictCtx) ? startIndex - dictCtx->currentOffset : 0; 
 	int const maybe_extMem = (dictDirective == usingExtDict) || (dictDirective == usingDictCtx);
-	uint32 const prefixIdxLimit = startIndex - dictSize; /* used when dictDirective == dictSmall */
+	const uint32 prefixIdxLimit = startIndex - dictSize; /* used when dictDirective == dictSmall */
 	const uint8 * const dictEnd = dictionary + dictSize;
 	const uint8 * anchor = (const uint8 *)source;
 	const uint8 * const iend = ip + inputSize;
@@ -668,7 +668,7 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 			uint   step = 1;
 			uint   searchMatchNb = acceleration << LZ4_skipTrigger;
 			do {
-				uint32 const h = forwardH;
+				const uint32 h = forwardH;
 				ip = forwardIp;
 				forwardIp += step;
 				step = (searchMatchNb++ >> LZ4_skipTrigger);
@@ -685,8 +685,8 @@ LZ4_FORCE_INLINE int LZ4_compress_generic(LZ4_stream_t_internal* const cctx, con
 			uint   step = 1;
 			uint   searchMatchNb = acceleration << LZ4_skipTrigger;
 			do {
-				uint32 const h = forwardH;
-				uint32 const current = (uint32)(forwardIp - base);
+				const uint32 h = forwardH;
+				const uint32 current = (uint32)(forwardIp - base);
 				uint32 matchIndex = LZ4_getIndexOnHash(h, cctx->hashTable, tableType);
 				assert(matchIndex <= current);
 				assert(forwardIp - base < (ptrdiff_t)(SGIGABYTE(2) - 1));
@@ -862,8 +862,8 @@ _next_match:
 			}
 		}
 		else { /* byU32, byU16 */
-			uint32 const h = LZ4_hashPosition(ip, tableType);
-			uint32 const current = (uint32)(ip-base);
+			const uint32 h = LZ4_hashPosition(ip, tableType);
+			const uint32 current = (uint32)(ip-base);
 			uint32 matchIndex = LZ4_getIndexOnHash(h, cctx->hashTable, tableType);
 			assert(matchIndex < current);
 			if(dictDirective == usingDictCtx) {
@@ -1192,7 +1192,7 @@ static void LZ4_renormDictT(LZ4_stream_t_internal* LZ4_dict, int nextSize)
 {
 	if(LZ4_dict->currentOffset + nextSize > 0x80000000) { /* potential ptrdiff_t overflow (32-bits mode) */
 		/* rescale hash table */
-		uint32 const delta = LZ4_dict->currentOffset - SKILOBYTE(64);
+		const uint32 delta = LZ4_dict->currentOffset - SKILOBYTE(64);
 		const uint8 * dictEnd = LZ4_dict->dictionary + LZ4_dict->dictSize;
 		int i;
 		//DEBUGLOG(4, "LZ4_renormDictT");

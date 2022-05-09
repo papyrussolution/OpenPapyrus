@@ -136,7 +136,7 @@ int archive_read_support_filter_program_signature(struct archive * _a,
 	return set_bidder_signature(bidder, state, signature, signature_len);
 memerr:
 	free_state(state);
-	archive_set_error(_a, ENOMEM, "Can't allocate memory");
+	archive_set_error(_a, ENOMEM, "Out of memory");
 	return ARCHIVE_FATAL;
 }
 
@@ -352,9 +352,9 @@ int __archive_read_program(struct archive_read_filter * self, const char * cmd)
 		return ARCHIVE_FATAL;
 	}
 	self->data = state;
-	self->read = program_filter_read;
+	self->FnRead = program_filter_read;
 	self->skip = NULL;
-	self->close = program_filter_close;
+	self->FnClose = program_filter_close;
 	/* XXX Check that we can read at least one byte? */
 	return ARCHIVE_OK;
 }

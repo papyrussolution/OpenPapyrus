@@ -572,7 +572,7 @@ int archive_read_support_format_rar(struct archive * _a)
 	struct archive_read * a = (struct archive_read *)_a;
 	struct rar * rar;
 	int r;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_format_rar");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	rar = (struct rar *)SAlloc::C(sizeof(*rar), 1);
 	if(rar == NULL) {
 		archive_set_error(&a->archive, ENOMEM, "Can't allocate rar data");
@@ -1245,7 +1245,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 		size_t newsize = filename_size * 2 + 2;
 		char * newptr = static_cast<char *>(SAlloc::R(rar->filename, newsize));
 		if(newptr == NULL) {
-			archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory.");
+			archive_set_error(&a->archive, ENOMEM, "Out of memory");
 			return ARCHIVE_FATAL;
 		}
 		rar->filename = newptr;
@@ -1372,7 +1372,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 		if(rar->cursor >= rar->nodes) {
 			rar->nodes++;
 			if((rar->dbo = static_cast<struct data_block_offsets *>(SAlloc::R(rar->dbo, sizeof(*rar->dbo) * rar->nodes))) == NULL) {
-				archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory.");
+				archive_set_error(&a->archive, ENOMEM, "Out of memory");
 				return ARCHIVE_FATAL;
 			}
 			rar->dbo[rar->cursor].header_size = header_size;
@@ -1396,7 +1396,7 @@ static int read_header(struct archive_read * a, struct archive_entry * entry, ch
 	/* Set info for seeking */
 	SAlloc::F(rar->dbo);
 	if((rar->dbo = static_cast<struct data_block_offsets *>(SAlloc::C(1, sizeof(*rar->dbo)))) == NULL) {
-		archive_set_error(&a->archive, ENOMEM, "Couldn't allocate memory.");
+		archive_set_error(&a->archive, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	rar->dbo[0].header_size = header_size;

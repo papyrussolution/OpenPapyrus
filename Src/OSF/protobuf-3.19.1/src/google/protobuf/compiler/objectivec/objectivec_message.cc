@@ -507,7 +507,7 @@ void MessageGenerator::GenerateSource(io::Printer* printer) {
 			printer->Print(
 				"    };\n"
 				"    [localDescriptor setupOneofs:oneofs\n"
-				"                           count:(uint32_t)(sizeof(oneofs) / sizeof(char*))\n"
+				"                           count:(uint32_t)(sizeof(oneofs) / sizeof(char *))\n"
 				"                   firstHasIndex:$first_has_index$];\n",
 				"first_has_index", oneof_generators_[0]->HasIndexAsString());
 		}

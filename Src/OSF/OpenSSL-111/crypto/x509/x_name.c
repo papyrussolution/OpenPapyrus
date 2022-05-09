@@ -406,23 +406,18 @@ static int asn1_string_canon(ASN1_STRING * out, const ASN1_STRING * in)
 	 * MSB set and rely on the ossl_isspace() to fail on bad characters without
 	 * needing isascii or range checks as well.
 	 */
-
 	/* Ignore leading spaces */
 	while(len > 0 && ossl_isspace(*from)) {
 		from++;
 		len--;
 	}
-
 	to = from + len;
-
 	/* Ignore trailing spaces */
 	while(len > 0 && ossl_isspace(to[-1])) {
 		to--;
 		len--;
 	}
-
 	to = out->data;
-
 	i = 0;
 	while(i < len) {
 		/* If not ASCII set just copy across */

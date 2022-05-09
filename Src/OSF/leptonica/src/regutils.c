@@ -206,7 +206,7 @@ l_ok regTestCleanup(L_REGPARAMS  * rp)
 
 	/* Compare mode: read back data from temp file */
 	fclose(rp->fp);
-	text = (char*)l_binaryRead(rp->tempfile, &nbytes);
+	text = (char *)l_binaryRead(rp->tempfile, &nbytes);
 	SAlloc::F(rp->tempfile);
 	if(!text) {
 		rp->success = FALSE;
@@ -789,7 +789,7 @@ char * regTestGenLocalFilename(L_REGPARAMS  * rp,
 	PROCNAME(__FUNCTION__);
 
 	if(!rp)
-		return (char*)ERROR_PTR("rp not defined", procName, NULL);
+		return (char *)ERROR_PTR("rp not defined", procName, NULL);
 
 	ind = (index >= 0) ? index : rp->index;
 	snprintf(buf, sizeof(buf), "/tmp/lept/regout/%s.%02d.%s",
@@ -823,7 +823,7 @@ static char * getRootNameFromArgv0(const char * argv0)
 	splitPathAtDirectory(argv0, NULL, &root);
 	if((len = strlen(root)) <= 4) {
 		SAlloc::F(root);
-		return (char*)ERROR_PTR("invalid argv0; too small", procName, NULL);
+		return (char *)ERROR_PTR("invalid argv0; too small", procName, NULL);
 	}
 
 #ifndef _WIN32

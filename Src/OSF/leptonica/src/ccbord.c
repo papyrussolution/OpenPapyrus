@@ -2505,7 +2505,7 @@ char * ccbaWriteSVGString(CCBORDA * ccba)
 	SARRAY * sa;
 	PROCNAME(__FUNCTION__);
 	if(!ccba)
-		return (char*)ERROR_PTR("ccba not defined", procName, NULL);
+		return (char *)ERROR_PTR("ccba not defined", procName, NULL);
 	sa = sarrayCreate(0);
 	sarrayAddString(sa, line0, L_COPY);
 	sarrayAddString(sa, line1, L_COPY);
@@ -2514,12 +2514,12 @@ char * ccbaWriteSVGString(CCBORDA * ccba)
 	for(i = 0; i < ncc; i++) {
 		if((ccb = ccbaGetCcb(ccba, i)) == NULL) {
 			sarrayDestroy(&sa);
-			return (char*)ERROR_PTR("ccb not found", procName, NULL);
+			return (char *)ERROR_PTR("ccb not found", procName, NULL);
 		}
 		if((pta = ccb->spglobal) == NULL) {
 			sarrayDestroy(&sa);
 			ccbDestroy(&ccb);
-			return (char*)ERROR_PTR("spglobal not made", procName, NULL);
+			return (char *)ERROR_PTR("spglobal not made", procName, NULL);
 		}
 		sarrayAddString(sa, line3, L_COPY);
 		npt = ptaGetCount(pta);

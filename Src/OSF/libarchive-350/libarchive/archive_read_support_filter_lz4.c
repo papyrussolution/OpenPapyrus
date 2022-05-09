@@ -82,7 +82,7 @@ int archive_read_support_filter_lz4(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * reader;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_lz4");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &reader) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	reader->data = NULL;
@@ -192,9 +192,9 @@ static int lz4_reader_init(struct archive_read_filter * self)
 	}
 	self->data = state;
 	state->stage = private_data::SELECT_STREAM;
-	self->read = lz4_filter_read;
+	self->FnRead = lz4_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = lz4_filter_close;
+	self->FnClose = lz4_filter_close;
 	return ARCHIVE_OK;
 }
 

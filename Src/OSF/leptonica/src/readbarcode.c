@@ -290,7 +290,7 @@ SARRAY * pixReadBarcodes(PIXA * pixa,
 
 		/* Save the widths as a string */
 		nbars = numaGetCount(na);
-		barstr = (char*)SAlloc::C(nbars + 1, sizeof(char));
+		barstr = (char *)SAlloc::C(nbars + 1, sizeof(char));
 		for(j = 0; j < nbars; j++) {
 			numaGetIValue(na, j, &ival);
 			barstr[j] = 0x30 + ival;

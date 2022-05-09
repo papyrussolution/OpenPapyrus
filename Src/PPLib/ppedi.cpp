@@ -7488,7 +7488,8 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 			if(p_ack_buf) {
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-				if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+				p_reply = SJson::Parse(temp_buf);
+				if(p_reply) {
 					for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 						if(p_cur->Type == SJson::tOBJECT) {
 							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -7532,8 +7533,7 @@ int EdiProviderImplementation_Exite::GetDocumentList(const PPBillIterchangeFilt 
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_reply);
-	//json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 
@@ -7595,7 +7595,8 @@ int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 		if(p_ack_buf) {
 			temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+			p_reply = SJson::Parse(temp_buf);
+			if(p_reply) {
 				for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Type == SJson::tOBJECT) {
 						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -7618,8 +7619,7 @@ int EdiProviderImplementation_Exite::Implement_Auth(SString & rToken)
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_reply);
-	//json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 
@@ -7665,7 +7665,8 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 		if(p_ack_buf) {
 			temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 			PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-			if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+			p_reply = SJson::Parse(temp_buf);
+			if(p_reply) {
 				for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 					if(p_cur->Type == SJson::tOBJECT) {
 						for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -7688,8 +7689,7 @@ int EdiProviderImplementation_Exite::Helper_SendDocument(const char * pDocType, 
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_reply);
-	//json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 
@@ -7943,7 +7943,8 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 	if(p_ack_buf) {
 		temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 		PPLogMessage(PPFILNAM_EDIEXITE_LOG, (log_buf = "R").CatDiv(':', 2).Cat(temp_buf), LOGMSGF_TIME|LOGMSGF_USER);
-		if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+		p_reply = SJson::Parse(temp_buf);
+		if(p_reply) {
 			const  int edi_op = pIdent->EdiOp;
 			for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 				if(p_cur->Type == SJson::tOBJECT) {
@@ -8682,8 +8683,7 @@ int EdiProviderImplementation_Exite::ReceiveDocument(const PPEdiProcessor::Docum
 	}
 	CATCHZOK
 	delete p_pack;
-	json_free_value(&p_reply);
-	//json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 

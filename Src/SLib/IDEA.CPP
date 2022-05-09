@@ -674,7 +674,7 @@ private:
 	// 
 	void   reverse_u32(uint8 * buf, int n_u32)
 	{
-		if(SLS.GetSSys().Flags & SSystem::fBigEndian) {
+		if(SLS.SSys.IsBigEndian) {
 			// change { 4, 3, 2, 1 } => { 1, 2, 3, 4 } 
 			while(n_u32-- > 0) {
 				uint8 tmp    = buf[0];

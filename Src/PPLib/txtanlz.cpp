@@ -3654,7 +3654,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 	{
 		if(result_str.C(0) == '{') {
 			const SJson * p_next = 0;
-			THROW(json_parse_document(&p_json_doc, result_str.cptr()) == JSON_OK);
+			THROW_SL(p_json_doc = SJson::Parse(result_str));
 			for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 				p_next = p_cur->P_Next;
 				switch(p_cur->Type) {
@@ -3709,7 +3709,7 @@ int PPAutoTranslSvc_Microsoft::Auth(const char * pIdent, const char * pSecret)
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_json_doc);
+	delete p_json_doc;
 	return ok;
 }
 

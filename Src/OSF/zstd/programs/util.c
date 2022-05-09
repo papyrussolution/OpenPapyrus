@@ -13,9 +13,6 @@
 extern "C" {
 #endif
 
-/*-****************************************
-*  Dependencies
-******************************************/
 #include "util.h"       /* note : ensure that platform.h is included first ! */
 #if defined(_WIN32)
 #  include <sys/utime.h>  /* utime */
@@ -46,7 +43,7 @@ extern "C" {
 /* CONTROL is almost like an assert(), but is never disabled.
  * It's designed for failures that may happen rarely,
  * but we don't want to maintain a specific error code path for them,
- * such as a malloc() returning NULL for example.
+ * such as a SAlloc::M() returning NULL for example.
  * Since it's always active, this macro can trigger side effects.
  */
 #define CONTROL(c)  {         \
@@ -63,7 +60,7 @@ extern "C" {
 /* A modified version of realloc().
  * If UTIL_realloc() fails the original block is freed.
  */
-UTIL_STATIC void* UTIL_realloc(void * ptr, size_t size)
+UTIL_STATIC void * UTIL_realloc(void * ptr, size_t size)
 {
 	void * newptr = SAlloc::R(ptr, size);
 	if(newptr) 
@@ -216,12 +213,11 @@ int UTIL_isSameFile(const char* fName1, const char* fName2)
 	 *        aka `filename` is considered different from `subdir/../filename` */
 	return sstreq(fName1, fName2);
 #else
-	{   stat_t file1Stat;
+	{   
+		stat_t file1Stat;
 	    stat_t file2Stat;
-	    return UTIL_stat(fName1, &file1Stat)
-		   && UTIL_stat(fName2, &file2Stat)
-		   && (file1Stat.st_dev == file2Stat.st_dev)
-		   && (file1Stat.st_ino == file2Stat.st_ino);}
+	    return UTIL_stat(fName1, &file1Stat) && UTIL_stat(fName2, &file2Stat) && (file1Stat.st_dev == file2Stat.st_dev) && (file1Stat.st_ino == file2Stat.st_ino);
+	}
 #endif
 }
 
@@ -271,14 +267,14 @@ int UTIL_isLink(const char* infilename)
 	return 0;
 }
 
-U64 UTIL_getFileSize(const char* infilename)
+uint64 UTIL_getFileSize(const char* infilename)
 {
 	stat_t statbuf;
 	if(!UTIL_stat(infilename, &statbuf)) return UTIL_FILESIZE_UNKNOWN;
 	return UTIL_getFileSizeStat(&statbuf);
 }
 
-U64 UTIL_getFileSizeStat(const stat_t* statbuf)
+uint64 UTIL_getFileSizeStat(const stat_t* statbuf)
 {
 	if(!UTIL_isRegularFileStat(statbuf)) return UTIL_FILESIZE_UNKNOWN;
 #if defined(_MSC_VER)
@@ -288,10 +284,10 @@ U64 UTIL_getFileSizeStat(const stat_t* statbuf)
 #else
 	if(!S_ISREG(statbuf->st_mode)) return UTIL_FILESIZE_UNKNOWN;
 #endif
-	return (U64)statbuf->st_size;
+	return (uint64)statbuf->st_size;
 }
 
-UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(U64 size)
+UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(uint64 size)
 {
 	UTIL_HumanReadableSize_t hrs;
 	if(g_utilDisplayLevel > 3) {
@@ -340,7 +336,7 @@ UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(U64 size)
 			hrs.value = (double)size;
 			hrs.suffix = " B";
 		}
-		if(hrs.value >= 100 || (U64)hrs.value == size) {
+		if(hrs.value >= 100 || (uint64)hrs.value == size) {
 			hrs.precision = 0;
 		}
 		else if(hrs.value >= 10) {
@@ -356,12 +352,12 @@ UTIL_HumanReadableSize_t UTIL_makeHumanReadableSize(U64 size)
 	return hrs;
 }
 
-U64 UTIL_getTotalFileSize(const char* const * fileNamesTable, unsigned nbFiles)
+uint64 UTIL_getTotalFileSize(const char* const * fileNamesTable, unsigned nbFiles)
 {
-	U64 total = 0;
+	uint64 total = 0;
 	unsigned n;
 	for(n = 0; n<nbFiles; n++) {
-		U64 const size = UTIL_getFileSize(fileNamesTable[n]);
+		uint64 const size = UTIL_getFileSize(fileNamesTable[n]);
 		if(size == UTIL_FILESIZE_UNKNOWN) return UTIL_FILESIZE_UNKNOWN;
 		total += size;
 	}
@@ -374,13 +370,17 @@ U64 UTIL_getTotalFileSize(const char* const * fileNamesTable, unsigned nbFiles)
 static size_t readLineFromFile(char* buf, size_t len, FILE* file)
 {
 	assert(!feof(file));
-	if(fgets(buf, (int)len, file) == NULL) return 0;
+	if(fgets(buf, (int)len, file) == NULL) 
+		return 0;
 	{   
 		size_t linelen = strlen(buf);
-	    if(strlen(buf)==0) return 0;
-	    if(buf[linelen-1] == '\n') linelen--;
+	    if(strlen(buf)==0) 
+			return 0;
+	    if(buf[linelen-1] == '\n') 
+			linelen--;
 	    buf[linelen] = '\0';
-	    return linelen+1;}
+	    return linelen+1;
+	}
 }
 
 /* Conditions :
@@ -389,21 +389,18 @@ static size_t readLineFromFile(char* buf, size_t len, FILE* file)
  * @return : nb of lines
  *       or -1 if there's an error
  */
-static int readLinesFromFile(void* dst, size_t dstCapacity,
-    const char* inputFileName)
+static int readLinesFromFile(void * dst, size_t dstCapacity, const char* inputFileName)
 {
 	int nbFiles = 0;
 	size_t pos = 0;
-	char* const buf = (char*)dst;
+	char* const buf = (char *)dst;
 	FILE* const inputFile = fopen(inputFileName, "r");
-
 	assert(dst != NULL);
-
 	if(!inputFile) {
-		if(g_utilDisplayLevel >= 1) perror("zstd:util:readLinesFromFile");
+		if(g_utilDisplayLevel >= 1) 
+			perror("zstd:util:readLinesFromFile");
 		return -1;
 	}
-
 	while(!feof(inputFile) ) {
 		size_t const lineLength = readLineFromFile(buf+pos, dstCapacity-pos, inputFile);
 		if(lineLength == 0) break;
@@ -428,12 +425,12 @@ FileNamesTable* UTIL_createFileNamesTable_fromFileName(const char* inputFileName
 	if(!UTIL_stat(inputFileName, &statbuf) || !UTIL_isRegularFileStat(&statbuf))
 		return NULL;
 	{   
-		U64 const inputFileSize = UTIL_getFileSizeStat(&statbuf);
+		uint64 const inputFileSize = UTIL_getFileSizeStat(&statbuf);
 	    if(inputFileSize > MAX_FILE_OF_FILE_NAMES_SIZE)
 		    return NULL;
 	    bufSize = (size_t)(inputFileSize + 1); /* (+1) to add '\0' at the end of last filename */
 	}
-	buf = (char*)SAlloc::M(bufSize);
+	buf = (char *)SAlloc::M(bufSize);
 	CONTROL(buf != NULL);
 	{   
 		int const ret_nbFiles = readLinesFromFile(buf, bufSize, inputFileName);
@@ -441,20 +438,20 @@ FileNamesTable* UTIL_createFileNamesTable_fromFileName(const char* inputFileName
 		    SAlloc::F(buf);
 		    return NULL;
 	    }
-	    nbFiles = (size_t)ret_nbFiles;}
+	    nbFiles = (size_t)ret_nbFiles;
+	}
 	{   
 		const char** filenamesTable = (const char**)SAlloc::M(nbFiles * sizeof(*filenamesTable));
 	    CONTROL(filenamesTable != NULL);
 	    {   
-		size_t fnb;
-	    for(fnb = 0, pos = 0; fnb < nbFiles; fnb++) {
-		    filenamesTable[fnb] = buf+pos;
-		    pos += strlen(buf+pos)+1; /* +1 for the finishing `\0` */
-	    }
+			for(size_t fnb = 0, pos = 0; fnb < nbFiles; fnb++) {
+				filenamesTable[fnb] = buf+pos;
+				pos += strlen(buf+pos)+1; /* +1 for the finishing `\0` */
+			}
 	    }
 	    assert(pos <= bufSize);
-
-	    return UTIL_assembleFileNamesTable(filenamesTable, nbFiles, buf);}
+	    return UTIL_assembleFileNamesTable(filenamesTable, nbFiles, buf);
+	}
 }
 
 static FileNamesTable* UTIL_assembleFileNamesTable2(const char** filenames, size_t tableSize, size_t tableCapacity, char* buf)
@@ -476,7 +473,7 @@ FileNamesTable* UTIL_assembleFileNamesTable(const char** filenames, size_t table
 void UTIL_freeFileNamesTable(FileNamesTable* table)
 {
 	if(table) {
-		SAlloc::F((void*)table->fileNames);
+		SAlloc::F((void *)table->fileNames);
 		SAlloc::F(table->buf);
 		SAlloc::F(table);
 	}
@@ -510,22 +507,21 @@ static size_t getTotalTableSize(FileNamesTable* table)
 
 FileNamesTable* UTIL_mergeFileNamesTable(FileNamesTable* table1, FileNamesTable* table2)
 {
-	unsigned newTableIdx = 0;
+	uint   newTableIdx = 0;
 	size_t pos = 0;
 	size_t newTotalTableSize;
-	char* buf;
+	char * buf;
 	FileNamesTable* const newTable = UTIL_assembleFileNamesTable(NULL, 0, NULL);
 	CONTROL(newTable != NULL);
 	newTotalTableSize = getTotalTableSize(table1) + getTotalTableSize(table2);
-	buf = (char*)calloc(newTotalTableSize, sizeof(*buf));
+	buf = (char *)SAlloc::C(newTotalTableSize, sizeof(*buf));
 	CONTROL(buf != NULL);
 	newTable->buf = buf;
 	newTable->tableSize = table1->tableSize + table2->tableSize;
-	newTable->fileNames = (const char**)calloc(newTable->tableSize, sizeof(*(newTable->fileNames)));
+	newTable->fileNames = (const char**)SAlloc::C(newTable->tableSize, sizeof(*(newTable->fileNames)));
 	CONTROL(newTable->fileNames != NULL);
 	{   
-		unsigned idx1;
-	    for(idx1 = 0; (idx1 < table1->tableSize) && table1->fileNames[idx1] && (pos < newTotalTableSize); ++idx1, ++newTableIdx) {
+	    for(uint idx1 = 0; (idx1 < table1->tableSize) && table1->fileNames[idx1] && (pos < newTotalTableSize); ++idx1, ++newTableIdx) {
 		    size_t const curLen = strlen(table1->fileNames[idx1]);
 		    memcpy(buf+pos, table1->fileNames[idx1], curLen);
 		    assert(newTableIdx <= newTable->tableSize);
@@ -534,8 +530,7 @@ FileNamesTable* UTIL_mergeFileNamesTable(FileNamesTable* table1, FileNamesTable*
 	    }
 	}
 	{   
-		unsigned idx2;
-	    for(idx2 = 0; (idx2 < table2->tableSize) && table2->fileNames[idx2] && (pos < newTotalTableSize); ++idx2, ++newTableIdx) {
+	    for(uint idx2 = 0; (idx2 < table2->tableSize) && table2->fileNames[idx2] && (pos < newTotalTableSize); ++idx2, ++newTableIdx) {
 		    size_t const curLen = strlen(table2->fileNames[idx2]);
 		    memcpy(buf+pos, table2->fileNames[idx2], curLen);
 		    assert(newTableIdx <= newTable->tableSize);
@@ -559,7 +554,7 @@ static int UTIL_prepareFileList(const char* dirName, char** bufStart, size_t* po
 	WIN32_FIND_DATAA cFile;
 	HANDLE hFile;
 	dirLength = strlen(dirName);
-	path = (char*)SAlloc::M(dirLength + 3);
+	path = (char *)SAlloc::M(dirLength + 3);
 	if(!path) 
 		return 0;
 	memcpy(path, dirName, dirLength);
@@ -574,7 +569,7 @@ static int UTIL_prepareFileList(const char* dirName, char** bufStart, size_t* po
 	SAlloc::F(path);
 	do {
 		size_t const fnameLength = strlen(cFile.cFileName);
-		path = (char*)SAlloc::M(dirLength + fnameLength + 2);
+		path = (char *)SAlloc::M(dirLength + fnameLength + 2);
 		if(!path) {
 			FindClose(hFile); return 0;
 		}
@@ -596,7 +591,7 @@ static int UTIL_prepareFileList(const char* dirName, char** bufStart, size_t* po
 		else if( (cFile.dwFileAttributes & FILE_ATTRIBUTE_NORMAL) || (cFile.dwFileAttributes & FILE_ATTRIBUTE_ARCHIVE) || (cFile.dwFileAttributes & FILE_ATTRIBUTE_COMPRESSED)) {
 			if(*bufStart + *pos + pathLength >= *bufEnd) {
 				ptrdiff_t const newListSize = (*bufEnd - *bufStart) + LIST_SIZE_INCREASE;
-				*bufStart = (char*)UTIL_realloc(*bufStart, newListSize);
+				*bufStart = (char *)UTIL_realloc(*bufStart, newListSize);
 				if(*bufStart == NULL) {
 					SAlloc::F(path); 
 					FindClose(hFile); return 0;
@@ -635,7 +630,7 @@ static int UTIL_prepareFileList(const char * dirName, char** bufStart, size_t* p
 		if(strcmp(entry->d_name, "..") == 0 || strcmp(entry->d_name, ".") == 0) 
 			continue;
 		fnameLength = strlen(entry->d_name);
-		path = (char*)SAlloc::M(dirLength + fnameLength + 2);
+		path = (char *)SAlloc::M(dirLength + fnameLength + 2);
 		if(!path) {
 			closedir(dir); return 0;
 		}
@@ -659,7 +654,7 @@ static int UTIL_prepareFileList(const char * dirName, char** bufStart, size_t* p
 			if(*bufStart + *pos + pathLength >= *bufEnd) {
 				ptrdiff_t newListSize = (*bufEnd - *bufStart) + LIST_SIZE_INCREASE;
 				assert(newListSize >= 0);
-				*bufStart = (char*)UTIL_realloc(*bufStart, (size_t)newListSize);
+				*bufStart = (char *)UTIL_realloc(*bufStart, (size_t)newListSize);
 				*bufEnd = *bufStart + newListSize;
 				if(*bufStart == NULL) {
 					SAlloc::F(path); 
@@ -848,7 +843,7 @@ static char* mallocAndJoin2Dir(const char * dir1, const char * dir2)
 	const size_t dir2Size = strlen(dir2);
 	char * outDirBuffer, * buffer, trailingChar;
 	assert(dir1 != NULL && dir2 != NULL);
-	outDirBuffer = (char*)SAlloc::M(dir1Size + dir2Size + 2);
+	outDirBuffer = (char *)SAlloc::M(dir1Size + dir2Size + 2);
 	CONTROL(outDirBuffer != NULL);
 	memcpy(outDirBuffer, dir1, dir1Size);
 	outDirBuffer[dir1Size] = '\0';
@@ -924,7 +919,7 @@ static int firstIsParentOrSameDirOfSecond(const char* firstDir, const char* seco
 	return firstDirLen <= secondDirLen && (secondDir[firstDirLen] == PATH_SEP || secondDir[firstDirLen] == '\0') && 0 == strncmp(firstDir, secondDir, firstDirLen);
 }
 
-static int compareDir(const void* pathname1, const void* pathname2) 
+static int compareDir(const void * pathname1, const void * pathname2) 
 {
 	/* sort it after remove the leading '/'  or './'*/
 	const char* s1 = trimPath(*(char* const*)pathname1);
@@ -942,7 +937,7 @@ static void makeUniqueMirroredDestDirs(char** srcDirNames, unsigned nbFile, cons
 	CONTROL(uniqueDirNames != NULL);
 	/* if dirs is "a/b/c" and "a/b/c/d", we only need call:
 	 * we just need "a/b/c/d" */
-	qsort((void*)srcDirNames, nbFile, sizeof(char*), compareDir);
+	qsort((void *)srcDirNames, nbFile, sizeof(char *), compareDir);
 	uniqueDirNr = 1;
 	uniqueDirNames[uniqueDirNr - 1] = srcDirNames[0];
 	for(i = 1; i < nbFile; i++) {
@@ -995,7 +990,7 @@ void UTIL_mirrorSourceFilesDirectories(const char** inFileNames, unsigned int nb
 FileNamesTable* UTIL_createExpandedFNT(const char* const* inputNames, size_t nbIfns, int followLinks)
 {
 	unsigned nbFiles;
-	char* buf = (char*)SAlloc::M(LIST_SIZE_INCREASE);
+	char* buf = (char *)SAlloc::M(LIST_SIZE_INCREASE);
 	char* bufend = buf + LIST_SIZE_INCREASE;
 	if(!buf) 
 		return NULL;
@@ -1007,7 +1002,7 @@ FileNamesTable* UTIL_createExpandedFNT(const char* const* inputNames, size_t nbI
 			    if(buf + pos + len >= bufend) {
 				    ptrdiff_t newListSize = (bufend - buf) + LIST_SIZE_INCREASE;
 				    assert(newListSize >= 0);
-				    buf = (char*)UTIL_realloc(buf, (size_t)newListSize);
+				    buf = (char *)UTIL_realloc(buf, (size_t)newListSize);
 				    if(!buf) return NULL;
 				    bufend = buf + newListSize;
 			    }
@@ -1036,12 +1031,13 @@ FileNamesTable* UTIL_createExpandedFNT(const char* const* inputNames, size_t nbI
 		    fileNamesTable[ifnNb] = buf + pos;
 		    if(buf + pos > bufend) {
 			    SAlloc::F(buf); 
-				SAlloc::F((void*)fileNamesTable); 
+				SAlloc::F((void *)fileNamesTable); 
 				return NULL;
 		    }
 		    pos += strlen(fileNamesTable[ifnNb]) + 1;
 	    }
-	    return UTIL_assembleFileNamesTable2(fileNamesTable, nbFiles, fntCapacity, buf);}
+	    return UTIL_assembleFileNamesTable2(fileNamesTable, nbFiles, fntCapacity, buf);
+	}
 }
 
 void UTIL_expandFNT(FileNamesTable** fnt, int followLinks)
@@ -1057,7 +1053,7 @@ FileNamesTable* UTIL_createFNT_fromROTable(const char** filenames, size_t nbFile
 	size_t const sizeof_FNTable = nbFilenames * sizeof(*filenames);
 	const char** const newFNTable = (const char**)SAlloc::M(sizeof_FNTable);
 	if(newFNTable==NULL) return NULL;
-	memcpy((void*)newFNTable, filenames, sizeof_FNTable); /* void* : mitigate a Visual compiler bug or limitation */
+	memcpy((void *)newFNTable, filenames, sizeof_FNTable); /* void * : mitigate a Visual compiler bug or limitation */
 	return UTIL_assembleFileNamesTable(newFNTable, nbFilenames, NULL);
 }
 
@@ -1103,13 +1099,10 @@ int UTIL_countCores(int logical)
 #   pragma warning( disable : 4054 )  /* conversion from function ptr to data ptr */
 #   pragma warning( disable : 4055 )  /* conversion from data ptr to function ptr */
 #endif
-	    glpi = (LPFN_GLPI)(void*)GetProcAddress(GetModuleHandle(TEXT("kernel32")),
-		    "GetLogicalProcessorInformation");
-
+	    glpi = (LPFN_GLPI)(void *)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
 	    if(glpi == NULL) {
 		    goto failed;
 	    }
-
 	    while(!done) {
 		    DWORD rc = glpi(buffer, &returnLength);
 		    if(FALSE == rc) {
@@ -1142,7 +1135,8 @@ int UTIL_countCores(int logical)
 		    byteOffset += sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION);
 	    }
 	    SAlloc::F(buffer);
-	    return numCores;}
+	    return numCores;
+	}
 failed:
 	/* try to fall back on GetSystemInfo */
 	{   
@@ -1163,11 +1157,11 @@ failed:
  * see: man 3 sysctl */
 int UTIL_countCores(int logical)
 {
-	static S32 numCores = 0; /* apple specifies int32_t */
+	static int32 numCores = 0; /* apple specifies int32_t */
 	if(numCores != 0) 
 		return numCores;
 	{   
-		size_t size = sizeof(S32);
+		size_t size = sizeof(int32);
 	    int const ret = sysctlbyname(logical ? "hw.logicalcpu" : "hw.physicalcpu", &numCores, &size, NULL, 0);
 	    if(ret != 0) {
 		    if(errno == ENOENT) {
@@ -1179,8 +1173,8 @@ int UTIL_countCores(int logical)
 			    exit(1);
 		    }
 	    }
-
-	    return numCores;}
+	    return numCores;
+	}
 }
 
 #elif defined(__linux__)
@@ -1191,29 +1185,25 @@ int UTIL_countCores(int logical)
 int UTIL_countCores(int logical)
 {
 	static int numCores = 0;
-
-	if(numCores != 0) return numCores;
-
+	if(numCores != 0) 
+		return numCores;
 	numCores = (int)sysconf(_SC_NPROCESSORS_ONLN);
 	if(numCores == -1) {
 		/* value not queryable, fall back on 1 */
 		return numCores = 1;
 	}
-
 	/* try to determine if there's hyperthreading */
-	{   FILE* const cpuinfo = fopen("/proc/cpuinfo", "r");
+	{   
+		FILE* const cpuinfo = fopen("/proc/cpuinfo", "r");
 #define BUF_SIZE 80
 	    char buff[BUF_SIZE];
-
 	    int siblings = 0;
 	    int cpu_cores = 0;
 	    int ratio = 1;
-
 	    if(cpuinfo == NULL) {
 		    /* fall back on the sysconf value */
 		    return numCores;
 	    }
-
 		/* assume the cpu cores/siblings values will be constant across all
 		 * present processors */
 	    while(!feof(cpuinfo)) {
@@ -1224,7 +1214,6 @@ int UTIL_countCores(int logical)
 					    /* formatting was broken? */
 					    goto failed;
 				    }
-
 				    siblings = atoi(sep + 1);
 			    }
 			    if(strncmp(buff, "cpu cores", 9) == 0) {
@@ -1233,7 +1222,6 @@ int UTIL_countCores(int logical)
 					    /* formatting was broken? */
 					    goto failed;
 				    }
-
 				    cpu_cores = atoi(sep + 1);
 			    }
 		    }
@@ -1245,14 +1233,13 @@ int UTIL_countCores(int logical)
 	    if(siblings && cpu_cores && siblings > cpu_cores) {
 		    ratio = siblings / cpu_cores;
 	    }
-
 	    if(ratio && numCores > ratio && !logical) {
 		    numCores = numCores / ratio;
 	    }
-
 failed:
 	    fclose(cpuinfo);
-	    return numCores;}
+	    return numCores;
+	}
 }
 
 #elif defined(__FreeBSD__)

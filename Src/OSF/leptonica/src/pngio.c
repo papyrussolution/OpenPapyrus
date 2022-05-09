@@ -1366,13 +1366,13 @@ static void memio_png_write_data(png_structp png_ptr, png_bytep data, size_t len
 	last = (struct MemIOData*)thing->m_Last;
 	if(last->m_Buffer == NULL) {
 		if(len > MEMIO_BUFFER_SIZE) {
-			last->m_Buffer = (char*)SAlloc::M(len);
+			last->m_Buffer = (char *)SAlloc::M(len);
 			memcpy(last->m_Buffer, data, len);
 			last->m_Size = last->m_Count = len;
 			return;
 		}
 
-		last->m_Buffer = (char*)SAlloc::M(MEMIO_BUFFER_SIZE);
+		last->m_Buffer = (char *)SAlloc::M(MEMIO_BUFFER_SIZE);
 		last->m_Size = MEMIO_BUFFER_SIZE;
 	}
 	while(written < len) {
@@ -1385,7 +1385,7 @@ static void memio_png_write_data(png_structp png_ptr, png_bytep data, size_t len
 			last->m_Next = next;
 			last = thing->m_Last = next;
 
-			last->m_Buffer = (char*)SAlloc::M(MEMIO_BUFFER_SIZE);
+			last->m_Buffer = (char *)SAlloc::M(MEMIO_BUFFER_SIZE);
 			last->m_Size = MEMIO_BUFFER_SIZE;
 		}
 
@@ -1435,7 +1435,7 @@ static void memio_png_flush(MEMIODATA  * pthing)
 	}
 
 	/* Copy data to a new buffer. */
-	data = (char*)SAlloc::M(amount);
+	data = (char *)SAlloc::M(amount);
 	memcpy(data, pthing->m_Buffer, pthing->m_Count);
 	copied = pthing->m_Count;
 
@@ -1566,7 +1566,7 @@ PIX * pixReadMemPng(const uint8  * filedata, size_t filesize)
 	state.m_Next = 0;
 	state.m_Count = 0;
 	state.m_Last = &state;
-	state.m_Buffer = (char*)filedata;
+	state.m_Buffer = (char *)filedata;
 	state.m_Size = filesize;
 	pix = NULL;
 

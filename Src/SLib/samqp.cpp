@@ -287,7 +287,7 @@ static inline uint8 amqp_d8(const void * data)
 
 static inline void amqp_e16(uint16 val, void * data) 
 {
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(!SLS.SSys.IsBigEndian) {
 		val = ((val & 0xFF00u) >> 8u) | ((val & 0x00FFu) << 8u);
 	}
 	memcpy(data, &val, sizeof(val));
@@ -297,7 +297,7 @@ static inline uint16 amqp_d16(const void * data)
 {
 	uint16 val;
 	memcpy(&val, data, sizeof(val));
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(!SLS.SSys.IsBigEndian) {
 		val = ((val & 0xFF00u) >> 8u) | ((val & 0x00FFu) << 8u);
 	}
 	return val;
@@ -305,7 +305,7 @@ static inline uint16 amqp_d16(const void * data)
 
 static inline void amqp_e32(uint32 val, void * data) 
 {
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(!SLS.SSys.IsBigEndian) {
 		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) | ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
 	}
 	memcpy(data, &val, sizeof(val));
@@ -315,7 +315,7 @@ static inline uint32 amqp_d32(const void * data)
 {
 	uint32 val;
 	memcpy(&val, data, sizeof(val));
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(!SLS.SSys.IsBigEndian) {
 		val = ((val & 0xFF000000u) >> 24u) | ((val & 0x00FF0000u) >> 8u) | ((val & 0x0000FF00u) << 8u) | ((val & 0x000000FFu) << 24u);
 	}
 	return val;
@@ -323,7 +323,7 @@ static inline uint32 amqp_d32(const void * data)
 
 static inline void amqp_e64(uint64 val, void * data) 
 {
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(!SLS.SSys.IsBigEndian) {
 		val = ((val & 0xFF00000000000000u) >> 56u) | ((val & 0x00FF000000000000u) >> 40u) |
 		    ((val & 0x0000FF0000000000u) >> 24u) | ((val & 0x000000FF00000000u) >> 8u) |
 		    ((val & 0x00000000FF000000u) << 8u) | ((val & 0x0000000000FF0000u) << 24u) |
@@ -336,7 +336,7 @@ static inline uint64 amqp_d64(const void * data)
 {
 	uint64 val;
 	memcpy(&val, data, sizeof(val));
-	if(!(SLS.GetSSys().Flags & SSystem::fBigEndian)) {
+	if(!SLS.SSys.IsBigEndian) {
 		val = ((val & 0xFF00000000000000u) >> 56u) | ((val & 0x00FF000000000000u) >> 40u) |
 		    ((val & 0x0000FF0000000000u) >> 24u) | ((val & 0x000000FF00000000u) >> 8u) |
 		    ((val & 0x00000000FF000000u) << 8u) | ((val & 0x0000000000FF0000u) << 24u) |
@@ -4064,8 +4064,6 @@ static int amqp_decode_field_value(amqp_bytes_t encoded, amqp_pool_t * pool, amq
 out:
 	return res;
 }
-
-/*---------------------------------------------------------------------------*/
 
 static int amqp_encode_array(amqp_bytes_t encoded, amqp_array_t * input, size_t * offset) 
 {

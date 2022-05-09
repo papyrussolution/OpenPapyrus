@@ -1,5 +1,5 @@
 // DREAMKAS.CPP
-// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 // Интерфейс с кассовым порталом DreamKas
 //
@@ -221,7 +221,8 @@ int ACS_DREAMKAS::ImportGoodsList(UUIDAssocArray & rList)
 			if(p_ack_buf) {
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
+				p_json_doc = SJson::Parse(temp_buf);
+				if(p_json_doc) {
 					long   seq_id = 0;
 					S_GUID goods_uuid;
 					const  SJson * p_next = 0;
@@ -602,7 +603,8 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 			if(p_ack_buf) {
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-				if(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK) {
+				p_json_doc = SJson::Parse(temp_buf);
+				if(p_json_doc) {
 					const SJson * p_next = 0;
 					for(const SJson * p_cur = p_json_doc; p_cur; p_cur = p_next) {
 						p_next = p_cur->P_Next;
@@ -912,7 +914,8 @@ int ACS_DREAMKAS::AcceptCheck(const SJson * pJsonObj)
 			if(p_ack_buf) {
 				temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSizeI());
 				f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-				THROW(json_parse_document(&p_json_doc, temp_buf.cptr()) == JSON_OK);
+				p_json_doc = SJson::Parse(temp_buf);
+				THROW(p_json_doc);
 				{
 					const SJson * p_next = 0;
 					PPTransaction tra(1);

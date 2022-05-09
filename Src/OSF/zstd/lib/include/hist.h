@@ -28,8 +28,8 @@
  *           or an error code, which can be tested using HIST_isError().
  *           note : if return == srcSize, there is only one symbol.
  */
-size_t HIST_count(unsigned* count, unsigned* maxSymbolValuePtr, const void* src, size_t srcSize);
-unsigned HIST_isError(size_t code);  /**< tells if a return value is an error code */
+size_t HIST_count(unsigned * count, unsigned * maxSymbolValuePtr, const void* src, size_t srcSize);
+uint HIST_isError(size_t code);  /**< tells if a return value is an error code */
 
 /* --- advanced histogram functions --- */
 

@@ -34,7 +34,7 @@ int archive_write_open_FILE(struct archive * a, FILE * f)
 {
 	struct write_FILE_data * mine = (struct write_FILE_data *)SAlloc::M(sizeof(*mine));
 	if(mine == NULL) {
-		archive_set_error(a, ENOMEM, "No memory");
+		archive_set_error(a, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	mine->f = f;

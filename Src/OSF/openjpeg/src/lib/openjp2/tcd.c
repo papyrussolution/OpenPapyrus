@@ -1679,7 +1679,7 @@ boolint opj_tcd_update_tile_data(opj_tcd_t * p_tcd,
 
 		switch(l_size_comp) {
 			case 1: {
-			    char * l_dest_ptr = (char*)p_dest;
+			    char * l_dest_ptr = (char *)p_dest;
 			    const int32_t * l_src_ptr = l_src_data;
 
 			    if(l_img_comp->sgnd) {
@@ -2563,7 +2563,7 @@ boolint opj_tcd_copy_tile_data(opj_tcd_t * p_tcd,
 
 		switch(l_size_comp) {
 			case 1: {
-			    char * l_src_ptr = (char*)p_src;
+			    char * l_src_ptr = (char *)p_src;
 			    int32_t * l_dest_ptr = l_tilec->data;
 
 			    if(l_img_comp->sgnd) {

@@ -1005,7 +1005,7 @@ public:
 			    closure->tag == HB_TAG('s', 'i', 'z', 'e') &&
 			    closure->list_base && closure->list_base < this) {
 				uint new_offset_int = orig_offset -
-				    (((char*)this) - ((char*)closure->list_base));
+				    (((char *)this) - ((char *)closure->list_base));
 
 				OffsetTo<FeatureParams> new_offset;
 				/* Check that it would not overflow. */

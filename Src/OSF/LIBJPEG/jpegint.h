@@ -238,12 +238,10 @@ struct jpeg_color_quantizer {
 // 
 #define RANGE_BITS     2
 #define RANGE_CENTER   (CENTERJSAMPLE << RANGE_BITS)
-/* @sobolev
-#undef MAX
-#define MAX(a, b)        ((a) > (b) ? (a) : (b))
-#undef MIN
-#define MIN(a, b)        ((a) < (b) ? (a) : (b))
-*/
+// @sobolev #undef MAX
+// @sobolev #define MAX(a, b)        ((a) > (b) ? (a) : (b))
+// @sobolev #undef MIN
+// @sobolev #define MIN(a, b)        ((a) < (b) ? (a) : (b))
 
 /* We assume that right shift corresponds to signed division by 2 with
  * rounding towards minus infinity.  This is correct for typical "arithmetic

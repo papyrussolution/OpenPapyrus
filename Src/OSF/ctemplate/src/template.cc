@@ -1791,7 +1791,7 @@ TemplateToken SectionTemplateNode::GetNextToken(Template * my_template) {
 				// Keep token_start the same; the token includes the leading '='.
 				// But we have to figure token-end specially: it should be "=}}".
 				if(ps->bufend > (token_start + 1))
-					token_end = (char*)memchr(token_start + 1, '=',
+					token_end = (char *)memchr(token_start + 1, '=',
 						ps->bufend - (token_start + 1));
 				if(!token_end ||
 				    token_end + ps->current_delimiters.end_marker_len > ps->bufend ||
@@ -2403,7 +2403,7 @@ void Template::StripBuffer(char ** buffer, size_t* len) {
 
 	const char* next_pos = NULL;
 	for(const char* prev_pos = *buffer; prev_pos < bufend; prev_pos = next_pos) {
-		next_pos = (char*)memchr(prev_pos, '\n', bufend - prev_pos);
+		next_pos = (char *)memchr(prev_pos, '\n', bufend - prev_pos);
 		if(next_pos)
 			next_pos++; // include the newline
 		else

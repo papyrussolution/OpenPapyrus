@@ -259,7 +259,6 @@ inline bool HandleWord(Sci_PositionU & cur, Sci_PositionU one_too_much, Accessor
 			break;
 		}
 	}
-
 	const Sci_Position ide_len = cur - beg + 1;
 	char * ide = new char[ ide_len ];
 	getRange(beg, cur, styler, ide, ide_len);

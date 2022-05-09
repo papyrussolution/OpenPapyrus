@@ -391,6 +391,7 @@ int PPObjTech::GetGoodsStrucList(PPID id, int useSubst, PPGoodsStruc * pGs, TGSA
 	return ok;
 }
 
+int PPObjTech::GetListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, 0); }
 int PPObjTech::GetGoodsListByPrc(PPID prcID, PPIDArray * pList) { return AddItemsToList(0, 0, pList, prcID, 0); }
 int PPObjTech::GetListByPrcGoods(PPID prcID, PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, prcID, goodsID); }
 int PPObjTech::GetListByGoods(PPID goodsID, PPIDArray * pList) { return AddItemsToList(0, pList, 0, 0, goodsID); }

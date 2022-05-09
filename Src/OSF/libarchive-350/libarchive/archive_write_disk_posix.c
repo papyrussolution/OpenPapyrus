@@ -497,7 +497,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	struct fixup_entry * fe;
 	const char * linkname;
 	int ret, r;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, "archive_write_disk_header");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	archive_clear_error(&a->archive);
 	if(a->archive.state & ARCHIVE_STATE_DATA) {
 		r = _archive_write_disk_finish_entry(&a->archive);
@@ -850,8 +850,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 int archive_write_disk_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_skip_file");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
 	a->skip_file_ino = i;
@@ -1516,15 +1515,11 @@ static ssize_t hfs_write_data_block(struct archive_write_disk * a, const char * 
 
 #endif
 
-static ssize_t _archive_write_disk_data_block(struct archive * _a,
-    const void * buff, size_t size, int64 offset)
+static ssize_t _archive_write_disk_data_block(struct archive * _a, const void * buff, size_t size, int64 offset)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	ssize_t r;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_DATA, "archive_write_data_block");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	a->offset = offset;
 	if(a->todo & TODO_HFS_COMPRESSION)
 		r = hfs_write_data_block(a, buff, size);
@@ -1546,10 +1541,7 @@ static ssize_t _archive_write_disk_data_block(struct archive * _a,
 static ssize_t _archive_write_disk_data(struct archive * _a, const void * buff, size_t size)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_DATA, "archive_write_data");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->todo & TODO_HFS_COMPRESSION)
 		return (hfs_write_data_block(a, buff, size));
 	return (write_data_block(a, buff, size));
@@ -1559,10 +1551,7 @@ static int _archive_write_disk_finish_entry(struct archive * _a)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	int ret = ARCHIVE_OK;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_finish_entry");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	if(a->archive.state & ARCHIVE_STATE_HEADER)
 		return ARCHIVE_OK;
 	archive_clear_error(&a->archive);
@@ -1771,36 +1760,26 @@ finish_metadata:
 	return ret;
 }
 
-int archive_write_disk_set_group_lookup(struct archive * _a,
-    void * private_data,
-    la_int64_t (*lookup_gid)(void * private, const char * gname, la_int64_t gid),
-    void (*cleanup_gid)(void * private))
+int archive_write_disk_set_group_lookup(struct archive * _a, void * private_data,
+    la_int64_t (*lookup_gid)(void * private, const char * gname, la_int64_t gid), void (*cleanup_gid)(void * private))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_group_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->cleanup_gid != NULL && a->lookup_gid_data != NULL)
 		(a->cleanup_gid)(a->lookup_gid_data);
-
 	a->lookup_gid = lookup_gid;
 	a->cleanup_gid = cleanup_gid;
 	a->lookup_gid_data = private_data;
 	return ARCHIVE_OK;
 }
 
-int archive_write_disk_set_user_lookup(struct archive * _a,
-    void * private_data,
-    int64 (*lookup_uid)(void * private, const char * uname, int64 uid),
-    void (*cleanup_uid)(void * private))
+int archive_write_disk_set_user_lookup(struct archive * _a, void * private_data,
+    int64 (*lookup_uid)(void * private, const char * uname, int64 uid), void (*cleanup_uid)(void * private))
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_set_user_lookup");
-
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->cleanup_uid != NULL && a->lookup_uid_data != NULL)
 		(a->cleanup_uid)(a->lookup_uid_data);
-
 	a->lookup_uid = lookup_uid;
 	a->cleanup_uid = cleanup_uid;
 	a->lookup_uid_data = private_data;
@@ -1810,8 +1789,7 @@ int archive_write_disk_set_user_lookup(struct archive * _a,
 int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_gid");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->lookup_gid)
 		return (a->lookup_gid)(a->lookup_gid_data, name, id);
 	return (id);
@@ -1820,8 +1798,7 @@ int64 archive_write_disk_gid(struct archive * _a, const char * name, la_int64_t 
 int64 archive_write_disk_uid(struct archive * _a, const char * name, la_int64_t id)
 {
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY, "archive_write_disk_uid");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
 	if(a->lookup_uid)
 		return (a->lookup_uid)(a->lookup_uid_data, name, id);
 	return (id);
@@ -2327,29 +2304,19 @@ static int _archive_write_disk_close(struct archive * _a)
 	struct archive_write_disk * a = (struct archive_write_disk *)_a;
 	struct fixup_entry * next, * p;
 	int fd, ret;
-
-	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA,
-	    "archive_write_disk_close");
+	archive_check_magic(&a->archive, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_HEADER | ARCHIVE_STATE_DATA, __FUNCTION__);
 	ret = _archive_write_disk_finish_entry(&a->archive);
-
 	/* Sort dir list so directories are fixed up in depth-first order. */
 	p = sort_dir_list(a->fixup_list);
-
 	while(p != NULL) {
 		fd = -1;
 		a->pst = NULL; /* Mark stat cache as out-of-date. */
-		if(p->fixup &
-		    (TODO_TIMES | TODO_MODE_BASE | TODO_ACLS | TODO_FFLAGS)) {
-			fd = open(p->name,
-				O_WRONLY | O_BINARY | O_NOFOLLOW | O_CLOEXEC);
+		if(p->fixup & (TODO_TIMES | TODO_MODE_BASE | TODO_ACLS | TODO_FFLAGS)) {
+			fd = open(p->name, O_WRONLY | O_BINARY | O_NOFOLLOW | O_CLOEXEC);
 		}
 		if(p->fixup & TODO_TIMES) {
-			set_times(a, fd, p->mode, p->name,
-			    p->atime, p->atime_nanos,
-			    p->birthtime, p->birthtime_nanos,
-			    p->mtime, p->mtime_nanos,
-			    p->ctime, p->ctime_nanos);
+			set_times(a, fd, p->mode, p->name, p->atime, p->atime_nanos, p->birthtime, p->birthtime_nanos,
+			    p->mtime, p->mtime_nanos, p->ctime, p->ctime_nanos);
 		}
 		if(p->fixup & TODO_MODE_BASE) {
 #ifdef HAVE_FCHMOD
@@ -2387,8 +2354,7 @@ static int _archive_write_disk_free(struct archive * _a)
 	int ret;
 	if(_a == NULL)
 		return ARCHIVE_OK;
-	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC,
-	    ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, "archive_write_disk_free");
+	archive_check_magic(_a, ARCHIVE_WRITE_DISK_MAGIC, ARCHIVE_STATE_ANY | ARCHIVE_STATE_FATAL, __FUNCTION__);
 	a = (struct archive_write_disk *)_a;
 	ret = _archive_write_disk_close(&a->archive);
 	archive_write_disk_set_group_lookup(&a->archive, NULL, NULL, NULL);
@@ -2834,11 +2800,9 @@ static int check_symlinks(struct archive_write_disk * a)
 	int error_number;
 	int rc;
 	archive_string_init(&error_string);
-	rc = check_symlinks_fsobj(a->name, &error_number, &error_string,
-		a->flags);
+	rc = check_symlinks_fsobj(a->name, &error_number, &error_string, a->flags);
 	if(rc != ARCHIVE_OK) {
-		archive_set_error(&a->archive, error_number, "%s",
-		    error_string.s);
+		archive_set_error(&a->archive, error_number, "%s", error_string.s);
 	}
 	archive_string_free(&error_string);
 	a->pst = NULL; /* to be safe */

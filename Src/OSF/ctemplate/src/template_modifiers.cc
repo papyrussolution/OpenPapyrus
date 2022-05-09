@@ -443,7 +443,7 @@ const char* const ValidateUrl::kUnsafeImgSrcUrlReplacement =
 void ValidateUrl::Modify(const char* in, size_t inlen,
     const PerExpandData* per_expand_data,
     ExpandEmitter* out, const string& arg) const {
-	const char* slashpos = (char*)memchr(in, '/', inlen);
+	const char* slashpos = (char *)memchr(in, '/', inlen);
 	if(slashpos == NULL) {
 		slashpos = in + inlen;
 	}

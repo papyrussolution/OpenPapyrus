@@ -108,7 +108,7 @@ int archive_read_open_filenames(struct archive * a, const char ** filenames, siz
 	archive_read_set_seek_callback(a, file_seek);
 	return (archive_read_open1(a));
 no_memory:
-	archive_set_error(a, ENOMEM, "No memory");
+	archive_set_error(a, ENOMEM, "Out of memory");
 	return ARCHIVE_FATAL;
 }
 
@@ -116,7 +116,7 @@ int archive_read_open_filename_w(struct archive * a, const wchar_t * wfilename, 
 {
 	struct read_file_data * mine = (struct read_file_data *)SAlloc::C(1, sizeof(*mine) + wcslen(wfilename) * sizeof(wchar_t));
 	if(!mine) {
-		archive_set_error(a, ENOMEM, "No memory");
+		archive_set_error(a, ENOMEM, "Out of memory");
 		return ARCHIVE_FATAL;
 	}
 	mine->fd = -1;
@@ -291,7 +291,7 @@ static int file_open(struct archive * a, void * client_data)
 	}
 	buffer = SAlloc::M(mine->block_size);
 	if(buffer == NULL) {
-		archive_set_error(a, ENOMEM, "No memory");
+		archive_set_error(a, ENOMEM, "Out of memory");
 		goto fail;
 	}
 	mine->buffer = buffer;

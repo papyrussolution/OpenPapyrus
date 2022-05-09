@@ -4804,13 +4804,11 @@ cc_in_cc:
 		}
 	}
 	else if(c == '&') {
-		if(IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_CCLASS_SET_OP) &&
-		    !PEND && (PPEEK_IS('&'))) {
+		if(IS_SYNTAX_OP2(syn, ONIG_SYN_OP2_CCLASS_SET_OP) && !PEND && (PPEEK_IS('&'))) {
 			PINC;
 			tok->type = TK_CC_AND;
 		}
 	}
-
 end:
 	*src = p;
 	return tok->type;

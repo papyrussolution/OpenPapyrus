@@ -154,7 +154,6 @@ int SCardSpecialTreatment_AstraZeneca::PrepareHtmlFields(StrStrAssocArray & rHdr
 int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 {
 	int    ok = 1;
-	SJson * p_query = 0;
 	SJson * p_reply = 0;
 	ScURL  c;
 	SString temp_buf;
@@ -176,15 +175,15 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 		{
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
-			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
-			THROW_SL(p_query->InsertString("card_number", pScBlk->ScPack.Rec.Code));
+			SJson js_query(SJson::tOBJECT);
+			THROW_SL(js_query.InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(js_query.InsertString("card_number", pScBlk->ScPack.Rec.Code));
 			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			THROW(temp_buf.NotEmptyS());
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-			THROW_SL(p_query->InsertString("phone_number", phone_buf));
+			THROW_SL(js_query.InsertString("phone_number", phone_buf));
 			//THROW_SL(p_query->Insert("trust_key", json_new_string("")));
-			THROW_SL(p_query->ToStr(temp_buf));
+			THROW_SL(js_query.ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -193,7 +192,8 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 				if(p_ack_buf) {
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+					p_reply = SJson::Parse(temp_buf);
+					if(p_reply) {
 						for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Type == SJson::tOBJECT) {
 								for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -223,17 +223,16 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 				CALLEXCEPT_PP_S(PPERR_SCSPCTRT_AZ, temp_buf);
 			}
 		}
-		json_free_value(&p_query);
 		if(last_query_status > 0 && VerifyPhoneNumberBySms(phone_buf, 0, &check_code, 1) > 0) {
 			MakeUrl("confirm_code", temp_buf);
 			url.Z().Parse(temp_buf);
 			//
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
-			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
-			THROW_SL(p_query->InsertString("code", temp_buf.Z().Cat(check_code)));
-			THROW_SL(p_query->ToStr(temp_buf));
+			SJson js_query(SJson::tOBJECT);
+			THROW_SL(js_query.InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(js_query.InsertString("code", temp_buf.Z().Cat(check_code)));
+			THROW_SL(js_query.ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -242,8 +241,9 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 				if(p_ack_buf) {
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-					json_free_value(&p_reply);
-					if(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK) {
+					ZDELETE(p_reply);
+					p_reply = SJson::Parse(temp_buf);
+					if(p_reply) {
 						for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 							if(p_cur->Type == SJson::tOBJECT) {
 								for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -272,15 +272,13 @@ int SCardSpecialTreatment_AstraZeneca::VerifyOwner(const CardBlock * pScBlk)
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_reply);
-	json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 
 int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, const CCheckPacket * pCcPack, TransactionResult * pResult)
 {
 	int    ok = -1;
-	SJson * p_query = 0;
 	SJson * p_reply = 0;
 	SString temp_buf;
 	SString ta_ident;
@@ -311,13 +309,13 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 			SFile f_out_test(temp_buf, SFile::mAppend);
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
-			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
-			THROW_SL(p_query->InsertString("card_number", pScBlk->ScPack.Rec.Code));
+			SJson js_query(SJson::tOBJECT);
+			THROW_SL(js_query.InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(js_query.InsertString("card_number", pScBlk->ScPack.Rec.Code));
 			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			THROW(temp_buf.NotEmptyS());
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-			THROW_SL(p_query->InsertString("phone_number", phone_buf));
+			THROW_SL(js_query.InsertString("phone_number", phone_buf));
 			{
 				SJson * p_array = new SJson(SJson::tARRAY);
 				THROW_SL(p_array);
@@ -331,9 +329,9 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 						THROW_SL(json_insert_child(p_array, p_item));
 					}
 				}
-				THROW_SL(p_query->Insert("transactions", p_array));
+				THROW_SL(js_query.Insert("transactions", p_array));
 			}
-			THROW_SL(p_query->ToStr(temp_buf));
+			THROW_SL(js_query.ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -345,7 +343,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 					SString item_msg;
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
+					THROW_SL(p_reply = SJson::Parse(temp_buf));
 					for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 						if(SJson::IsObject(p_cur)) {
 							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -371,8 +369,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_reply);
-	json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 
@@ -407,7 +404,6 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 {
 	int    ok = -1;
 	Reference * p_ref = PPRef;
-	SJson * p_query = 0;
 	SJson * p_reply = 0;
 	SString temp_buf;
 	PPObjGoods goods_obj;
@@ -453,14 +449,14 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 			SFile f_out_test(temp_buf, SFile::mAppend);
 			SBuffer ack_buf;
 			SFile wr_stream(ack_buf, SFile::mWrite);
-			THROW_SL(p_query = new SJson(SJson::tOBJECT));
-			THROW_SL(p_query->InsertString("pos_id", pScBlk->PosNodeCode));
-			THROW_SL(p_query->InsertString("card_number", pScBlk->ScPack.Rec.Code));
+			SJson js_query(SJson::tOBJECT);
+			THROW_SL(js_query.InsertString("pos_id", pScBlk->PosNodeCode));
+			THROW_SL(js_query.InsertString("card_number", pScBlk->ScPack.Rec.Code));
 			pScBlk->ScPack.GetExtStrData(PPSCardPacket::extssPhone, temp_buf);
 			THROW(temp_buf.NotEmptyS());
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
-			THROW_SL(p_query->InsertString("phone_number", phone_buf));
-			THROW_SL(p_query->InsertString("any_data", ""));
+			THROW_SL(js_query.InsertString("phone_number", phone_buf));
+			THROW_SL(js_query.InsertString("any_data", ""));
 			{
 				SJson * p_array = new SJson(SJson::tARRAY);
 				THROW_SL(p_array);
@@ -494,9 +490,9 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 						}
 					}
 				}
-				THROW_SL(p_query->Insert("orders", p_array));
+				THROW_SL(js_query.Insert("orders", p_array));
 			}
-			THROW_SL(p_query->ToStr(temp_buf));
+			THROW_SL(js_query.ToStr(temp_buf));
 			json_buf.EncodeUrl(temp_buf, 0);
 			f_out_test.WriteLine((log_buf = "Q").CatDiv(':', 2).Cat(json_buf).CR());
 			THROW_SL(c.HttpPost(url, ScURL::mfDontVerifySslPeer|ScURL::mfVerbose, &hdr_flds, json_buf, &wr_stream));
@@ -508,7 +504,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 					SString item_msg;
 					temp_buf.Z().CatN(p_ack_buf->GetBufC(), p_ack_buf->GetAvailableSize());
 					f_out_test.WriteLine((log_buf = "R").CatDiv(':', 2).Cat(temp_buf).CR());
-					THROW_SL(json_parse_document(&p_reply, temp_buf.cptr()) == JSON_OK);
+					THROW_SL(p_reply = SJson::Parse(temp_buf));
 					for(const SJson * p_cur = p_reply; p_cur; p_cur = p_cur->P_Next) {
 						if(p_cur->Type == SJson::tOBJECT) {
 							for(const SJson * p_obj = p_cur->P_Child; p_obj; p_obj = p_obj->P_Next) {
@@ -604,8 +600,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 		}
 	}
 	CATCHZOK
-	json_free_value(&p_reply);
-	json_free_value(&p_query);
+	delete p_reply;
 	return ok;
 }
 //

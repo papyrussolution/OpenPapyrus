@@ -14,9 +14,6 @@
 #ifndef DIBIO_H_003
 #define DIBIO_H_003
 
-/*-*************************************
-*  Dependencies
-***************************************/
 #define ZDICT_STATIC_LINKING_ONLY
 #include <zdict.h> // ZDICT_params_t
 

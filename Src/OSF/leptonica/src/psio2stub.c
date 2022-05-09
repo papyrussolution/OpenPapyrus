@@ -51,7 +51,7 @@ l_ok pixWriteStreamPS(FILE * fp, PIX * pix, BOX * box, l_int32 res,
 
 char * pixWriteStringPS(PIX * pixs, BOX * box, l_int32 res, float scale)
 {
-	return (char*)ERROR_PTR("function not present", "pixWriteStringPS", NULL);
+	return (char *)ERROR_PTR("function not present", "pixWriteStringPS", NULL);
 }
 
 char * generateUncompressedPS(char * hexdata, l_int32 w, l_int32 h, l_int32 d,
@@ -59,7 +59,7 @@ char * generateUncompressedPS(char * hexdata, l_int32 w, l_int32 h, l_int32 d,
     float ypt, float wpt, float hpt,
     l_int32 boxflag)
 {
-	return (char*)ERROR_PTR("function not present",
+	return (char *)ERROR_PTR("function not present",
 		   "generateUncompressedPS", NULL);
 }
 

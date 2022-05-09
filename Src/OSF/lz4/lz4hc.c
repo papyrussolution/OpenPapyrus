@@ -96,10 +96,10 @@ LZ4_FORCE_INLINE void LZ4HC_Insert(LZ4HC_CCtx_internal* hc4, const uint8 * ip)
 	uint16 * const chainTable = hc4->chainTable;
 	uint32 * const hashTable  = hc4->hashTable;
 	const uint8 * const base = hc4->base;
-	uint32 const target = (uint32)(ip - base);
+	const uint32 target = (uint32)(ip - base);
 	uint32 idx = hc4->nextToUpdate;
 	while(idx < target) {
-		uint32 const h = LZ4HC_hashPtr(base+idx);
+		const uint32 h = LZ4HC_hashPtr(base+idx);
 		size_t delta = idx - hashTable[h];
 		if(delta>MAX_DISTANCE) delta = MAX_DISTANCE;
 		DELTANEXTU16(chainTable, idx) = (uint16)delta;
@@ -127,7 +127,7 @@ LZ4_FORCE_INLINE int LZ4HC_countBack(const uint8 * const ip, const uint8 * const
 // LZ4HC_countPattern() :
 // pattern32 must be a sample of repetitive pattern of length 1, 2 or 4 (but not 3!) 
 // 
-static uint LZ4HC_countPattern(const uint8 * ip, const uint8 * const iEnd, uint32 const pattern32)
+static uint LZ4HC_countPattern(const uint8 * ip, const uint8 * const iEnd, const uint32 pattern32)
 {
 	const uint8 * const iStart = ip;
 	reg_t const pattern = (sizeof(pattern)==8) ? (reg_t)pattern32 + (((reg_t)pattern32) << 32) : pattern32;
@@ -202,7 +202,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 	int const lookBackLength = (int)(ip-iLowLimit);
 	int nbAttempts = maxNbAttempts;
 	int matchChainPos = 0;
-	uint32 const pattern = LZ4_read32(ip);
+	const uint32 pattern = LZ4_read32(ip);
 	uint32 matchIndex;
 	repeat_state_e repeat = rep_untested;
 	size_t srcPatternLength = 0;
@@ -264,7 +264,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 				uint32 distanceToNextMatch = 1;
 				int pos;
 				for(pos = 0; pos <= longest - MINMATCH; pos++) {
-					uint32 const candidateDist = DELTANEXTU16(chainTable, matchIndex + pos);
+					const uint32 candidateDist = DELTANEXTU16(chainTable, matchIndex + pos);
 					if(candidateDist > distanceToNextMatch) {
 						distanceToNextMatch = candidateDist;
 						matchChainPos = pos;
@@ -279,13 +279,13 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 			}
 		}
 
-		{   uint32 const distNextMatch = DELTANEXTU16(chainTable, matchIndex);
+		{   
+			const uint32 distNextMatch = DELTANEXTU16(chainTable, matchIndex);
 		    if(patternAnalysis && distNextMatch==1 && matchChainPos==0) {
-			    uint32 const matchCandidateIdx = matchIndex-1;
+			    const uint32 matchCandidateIdx = matchIndex-1;
 			    /* may be a repeated pattern */
 			    if(repeat == rep_untested) {
-				    if( ((pattern & 0xFFFF) == (pattern >> 16))
-					&  ((pattern & 0xFF)   == (pattern >> 24))) {
+				    if( ((pattern & 0xFFFF) == (pattern >> 16)) &  ((pattern & 0xFF)   == (pattern >> 24))) {
 					    repeat = rep_confirmed;
 					    srcPatternLength =
 						LZ4HC_countPattern(ip+sizeof(pattern), iHighLimit, pattern) + sizeof(pattern);
@@ -320,7 +320,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 								    *startpos = ip;
 							    }
 							    {   
-									uint32 const distToNextPattern = DELTANEXTU16(chainTable, matchIndex);
+									const uint32 distToNextPattern = DELTANEXTU16(chainTable, matchIndex);
 									if(distToNextPattern > matchIndex) 
 										break; // avoid overflow 
 									matchIndex -= distToNextPattern;
@@ -359,7 +359,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 				}
 			}
 			{   
-				uint32 const nextOffset = DELTANEXTU16(dictCtx->chainTable, dictMatchIndex);
+				const uint32 nextOffset = DELTANEXTU16(dictCtx->chainTable, dictMatchIndex);
 			    dictMatchIndex -= nextOffset;
 			    matchIndex -= nextOffset;
 			}
@@ -394,11 +394,11 @@ LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8 ** ip, uint8 ** op, const 
 #if defined(LZ4_DEBUG) && (LZ4_DEBUG >= 6)
 	static const uint8 * start = NULL;
 	static uint32 totalCost = 0;
-	uint32 const pos = (start==NULL) ? 0 : (uint32)(*anchor - start);
-	uint32 const ll = (uint32)(*ip - *anchor);
-	uint32 const llAdd = (ll>=15) ? ((ll-15) / 255) + 1 : 0;
-	uint32 const mlAdd = (matchLength>=19) ? ((matchLength-19) / 255) + 1 : 0;
-	uint32 const cost = 1 + llAdd + ll + 2 + mlAdd;
+	const uint32 pos = (start==NULL) ? 0 : (uint32)(*anchor - start);
+	const uint32 ll = (uint32)(*ip - *anchor);
+	const uint32 llAdd = (ll>=15) ? ((ll-15) / 255) + 1 : 0;
+	const uint32 mlAdd = (matchLength>=19) ? ((matchLength-19) / 255) + 1 : 0;
+	const uint32 cost = 1 + llAdd + ll + 2 + mlAdd;
 	if(start==NULL) start = *anchor; /* only works for single segment */
 	/* g_debuglog_enable = (pos >= 2228) & (pos <= 2262); */
 	//DEBUGLOG(6, "pos:%7u -- literals:%3u, match:%4i, offset:%5u, cost:%3u + %u", pos, (uint32)(*ip - *anchor), matchLength, (uint32)(*ip-match), cost, totalCost);
@@ -957,7 +957,7 @@ int LZ4_saveDictHC(LZ4_streamHC_t* LZ4_streamHCPtr, char * safeBuffer, int dictS
 		dictSize = prefixSize;
 	memmove(safeBuffer, streamPtr->end - dictSize, dictSize);
 	{   
-		uint32 const endIndex = (uint32)(streamPtr->end - streamPtr->base);
+		const uint32 endIndex = (uint32)(streamPtr->end - streamPtr->base);
 	    streamPtr->end = (const uint8 *)safeBuffer + dictSize;
 	    streamPtr->base = streamPtr->end - endIndex;
 	    streamPtr->dictLimit = endIndex - dictSize;

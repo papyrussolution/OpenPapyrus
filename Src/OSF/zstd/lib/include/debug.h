@@ -1,18 +1,16 @@
 /* ******************************************************************
- * debug
- * Part of FSE library
- * Copyright (c) Yann Collet, Facebook, Inc.
- *
- * You can contact the author at :
- * - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
- *
- * This source code is licensed under both the BSD-style license (found in the
- * LICENSE file in the root directory of this source tree) and the GPLv2 (found
- * in the COPYING file in the root directory of this source tree).
- * You may select, at your option, one of the above-listed licenses.
+* debug
+* Part of FSE library
+* Copyright (c) Yann Collet, Facebook, Inc.
+*
+* You can contact the author at :
+* - Source repository : https://github.com/Cyan4973/FiniteStateEntropy
+*
+* This source code is licensed under both the BSD-style license (found in the
+* LICENSE file in the root directory of this source tree) and the GPLv2 (found
+* in the COPYING file in the root directory of this source tree).
+* You may select, at your option, one of the above-listed licenses.
 ****************************************************************** */
-
-
 /*
  * The purpose of this header is to enable debug functions.
  * They regroup assert(), DEBUGLOG() and RAWLOG() for run-time,
@@ -36,12 +34,10 @@
 extern "C" {
 #endif
 
-
 /* static assert is triggered at compile time, leaving no runtime artefact.
  * static assert only works with compile-time constants.
  * Also, this variant can only be used inside a function. */
 #define DEBUG_STATIC_ASSERT(c) (void)sizeof(char[(c) ? 1 : -1])
-
 
 /* DEBUGLEVEL is expected to be defined externally,
  * typically through compiler command line.
@@ -49,7 +45,6 @@ extern "C" {
 #ifndef DEBUGLEVEL
 #  define DEBUGLEVEL 0
 #endif
-
 
 /* recommended values for DEBUGLEVEL :
  * 0 : release mode, no debug, all run-time checks disabled
@@ -86,19 +81,18 @@ extern int g_debuglevel; /* the variable is only declared,
                             on selective conditions (such as position in src) */
 
 #  define RAWLOG(l, ...) {                                       \
-                if (l<=g_debuglevel) {                           \
-                    ZSTD_DEBUG_PRINT(__VA_ARGS__);               \
-            }   }
+		if(l<=g_debuglevel) {                           \
+			ZSTD_DEBUG_PRINT(__VA_ARGS__);               \
+		}   }
 #  define DEBUGLOG(l, ...) {                                     \
-                if (l<=g_debuglevel) {                           \
-                    ZSTD_DEBUG_PRINT(__FILE__ ": " __VA_ARGS__); \
-                    ZSTD_DEBUG_PRINT(" \n");                     \
-            }   }
+		if(l<=g_debuglevel) {                           \
+			ZSTD_DEBUG_PRINT(__FILE__ ": " __VA_ARGS__); \
+			ZSTD_DEBUG_PRINT(" \n");                     \
+		}   }
 #else
 #  define RAWLOG(l, ...)      {}    /* disabled */
 #  define DEBUGLOG(l, ...)    {}    /* disabled */
 #endif
-
 
 #if defined (__cplusplus)
 }

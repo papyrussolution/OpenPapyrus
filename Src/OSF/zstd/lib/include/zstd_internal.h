@@ -50,10 +50,10 @@ extern "C" {
 /*-*************************************
 *  shared macros
 ***************************************/
-#undef MIN
-#undef MAX
-#define MIN(a, b) ((a)<(b) ? (a) : (b))
-#define MAX(a, b) ((a)>(b) ? (a) : (b))
+//#undef MIN
+//#undef MAX
+//#define MIN(a, b) ((a)<(b) ? (a) : (b))
+//#define MAX(a, b) ((a)>(b) ? (a) : (b))
 #define BOUNDED(min, val, max) (MAX(min, MIN(val, max)))
 
 /*-*************************************
@@ -62,7 +62,7 @@ extern "C" {
 #define ZSTD_OPT_NUM    (1<<12)
 
 #define ZSTD_REP_NUM      3                 /* number of repcodes */
-static UNUSED_ATTR const U32 repStartValue[ZSTD_REP_NUM] = { 1, 4, 8 };
+static UNUSED_ATTR const uint32 repStartValue[ZSTD_REP_NUM] = { 1, 4, 8 };
 
 #define KB *(1 <<10)
 #define MB *(1 <<20)
@@ -121,7 +121,7 @@ static UNUSED_ATTR const U8 LL_bits[MaxLL+1] = {
 	4, 6, 7, 8, 9, 10, 11, 12,
 	13, 14, 15, 16
 };
-static UNUSED_ATTR const S16 LL_defaultNorm[MaxLL+1] = {
+static UNUSED_ATTR const int16 LL_defaultNorm[MaxLL+1] = {
 	4, 3, 2, 2, 2, 2, 2, 2,
 	2, 2, 2, 2, 2, 1, 1, 1,
 	2, 2, 2, 2, 2, 2, 2, 2,
@@ -129,7 +129,7 @@ static UNUSED_ATTR const S16 LL_defaultNorm[MaxLL+1] = {
 	-1, -1, -1, -1
 };
 #define LL_DEFAULTNORMLOG 6  /* for static allocation */
-static UNUSED_ATTR const U32 LL_defaultNormLog = LL_DEFAULTNORMLOG;
+static UNUSED_ATTR const uint32 LL_defaultNormLog = LL_DEFAULTNORMLOG;
 
 static UNUSED_ATTR const U8 ML_bits[MaxML+1] = {
 	0, 0, 0, 0, 0, 0, 0, 0,
@@ -140,7 +140,7 @@ static UNUSED_ATTR const U8 ML_bits[MaxML+1] = {
 	4, 4, 5, 7, 8, 9, 10, 11,
 	12, 13, 14, 15, 16
 };
-static UNUSED_ATTR const S16 ML_defaultNorm[MaxML+1] = {
+static UNUSED_ATTR const int16 ML_defaultNorm[MaxML+1] = {
 	1, 4, 3, 2, 2, 2, 2, 2,
 	2, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1,
@@ -150,25 +150,26 @@ static UNUSED_ATTR const S16 ML_defaultNorm[MaxML+1] = {
 	-1, -1, -1, -1, -1
 };
 #define ML_DEFAULTNORMLOG 6  /* for static allocation */
-static UNUSED_ATTR const U32 ML_defaultNormLog = ML_DEFAULTNORMLOG;
+static UNUSED_ATTR const uint32 ML_defaultNormLog = ML_DEFAULTNORMLOG;
 
-static UNUSED_ATTR const S16 OF_defaultNorm[DefaultMaxOff+1] = {
+static UNUSED_ATTR const int16 OF_defaultNorm[DefaultMaxOff+1] = {
 	1, 1, 1, 1, 1, 1, 2, 2,
 	2, 1, 1, 1, 1, 1, 1, 1,
 	1, 1, 1, 1, 1, 1, 1, 1,
 	-1, -1, -1, -1, -1
 };
 #define OF_DEFAULTNORMLOG 5  /* for static allocation */
-static UNUSED_ATTR const U32 OF_defaultNormLog = OF_DEFAULTNORMLOG;
+static UNUSED_ATTR const uint32 OF_defaultNormLog = OF_DEFAULTNORMLOG;
 
 /*-*******************************************
 *  Shared functions to include for inlining
 *********************************************/
-static void ZSTD_copy8(void* dst, const void* src) {
+static void ZSTD_copy8(void* dst, const void* src) 
+{
 #if defined(ZSTD_ARCH_ARM_NEON)
 	vst1_u8((uint8_t*)dst, vld1_u8((const uint8_t*)src));
 #else
-	ZSTD_memcpy(dst, src, 8);
+	memcpy(dst, src, 8);
 #endif
 }
 
@@ -185,12 +186,12 @@ static void ZSTD_copy16(void* dst, const void* src)
 #elif defined(ZSTD_ARCH_X86_SSE2)
 	_mm_storeu_si128((__m128i*)dst, _mm_loadu_si128((const __m128i*)src));
 #elif defined(__clang__)
-	ZSTD_memmove(dst, src, 16);
+	memmove(dst, src, 16);
 #else
-	/* ZSTD_memmove is not inlined properly by gcc */
+	/* memmove is not inlined properly by gcc */
 	BYTE copy16_buf[16];
-	ZSTD_memcpy(copy16_buf, src, 16);
-	ZSTD_memcpy(dst, copy16_buf, 16);
+	memcpy(copy16_buf, src, 16);
+	memcpy(dst, copy16_buf, 16);
 #endif
 }
 
@@ -206,7 +207,7 @@ typedef enum {
 } ZSTD_overlap_e;
 
 /*! ZSTD_wildcopy() :
- *  Custom version of ZSTD_memcpy(), can over read/write up to WILDCOPY_OVERLENGTH bytes (if length==0)
+ *  Custom version of memcpy(), can over read/write up to WILDCOPY_OVERLENGTH bytes (if length==0)
  *  @param ovtype controls the overlap detection
  *         - ZSTD_no_overlap: The source and destination are guaranteed to be at least WILDCOPY_VECLEN bytes apart.
  *         - ZSTD_overlap_src_before_dst: The src and dst may overlap, but they MUST be at least 8 bytes apart.
@@ -254,7 +255,7 @@ MEM_STATIC size_t ZSTD_limitCopy(void* dst, size_t dstCapacity, const void* src,
 {
 	const size_t length = MIN(dstCapacity, srcSize);
 	if(length > 0) {
-		ZSTD_memcpy(dst, src, length);
+		memcpy(dst, src, length);
 	}
 	return length;
 }
@@ -278,9 +279,9 @@ typedef enum {
 // Private declarations
 // 
 typedef struct seqDef_s {
-	U32 offBase; /* offBase == Offset + ZSTD_REP_NUM, or repcode 1,2,3 */
-	U16 litLength;
-	U16 mlBase; /* mlBase == matchLength - MINMATCH */
+	uint32 offBase; /* offBase == Offset + ZSTD_REP_NUM, or repcode 1,2,3 */
+	uint16 litLength;
+	uint16 mlBase; /* mlBase == matchLength - MINMATCH */
 } seqDef;
 
 /* Controls whether seqStore has a single "long" litLength or matchLength. See seqStore_t. */
@@ -301,16 +302,16 @@ typedef struct {
 	size_t maxNbSeq;
 	size_t maxNbLit;
 	/* longLengthPos and longLengthType to allow us to represent either a single litLength or matchLength
-	 * in the seqStore that has a value larger than U16 (if it exists). To do so, we increment
+	 * in the seqStore that has a value larger than uint16 (if it exists). To do so, we increment
 	 * the existing value of the litLength or matchLength by 0x10000.
 	 */
 	ZSTD_longLengthType_e longLengthType;
-	U32 longLengthPos; /* Index of the sequence to apply long length modification to */
+	uint32 longLengthPos; /* Index of the sequence to apply long length modification to */
 } seqStore_t;
 
 typedef struct {
-	U32 litLength;
-	U32 matchLength;
+	uint32 litLength;
+	uint32 matchLength;
 } ZSTD_sequenceLength;
 /**
  * Returns the ZSTD_sequenceLength for the given sequences. It handles the decoding of long sequences
@@ -321,7 +322,7 @@ MEM_STATIC ZSTD_sequenceLength ZSTD_getSequenceLength(seqStore_t const* seqStore
 	ZSTD_sequenceLength seqLen;
 	seqLen.litLength = seq->litLength;
 	seqLen.matchLength = seq->mlBase + MINMATCH;
-	if(seqStore->longLengthPos == (U32)(seq - seqStore->sequencesStart)) {
+	if(seqStore->longLengthPos == (uint32)(seq - seqStore->sequencesStart)) {
 		if(seqStore->longLengthType == ZSTD_llt_literalLength) {
 			seqLen.litLength += 0xFFFF;
 		}
@@ -359,21 +360,19 @@ void ZSTD_invalidateRepCodes(ZSTD_CCtx* cctx);   /* zstdmt, adaptive_compression
 
 typedef struct {
 	blockType_e blockType;
-	U32 lastBlock;
-	U32 origSize;
+	uint32 lastBlock;
+	uint32 origSize;
 } blockProperties_t;   /* declared here for decompress and fullbench */
 
 /*! ZSTD_getcBlockSize() :
  *  Provides the size of compressed block from block header `src` */
 /* Used by: decompress, fullbench (does not get its definition from here) */
-size_t ZSTD_getcBlockSize(const void* src, size_t srcSize,
-    blockProperties_t* bpPtr);
+size_t ZSTD_getcBlockSize(const void* src, size_t srcSize, blockProperties_t* bpPtr);
 
 /*! ZSTD_decodeSeqHeaders() :
  *  decode sequence header from src */
 /* Used by: decompress, fullbench (does not get its definition from here) */
-size_t ZSTD_decodeSeqHeaders(ZSTD_DCtx* dctx, int* nbSeqPtr,
-    const void* src, size_t srcSize);
+size_t ZSTD_decodeSeqHeaders(ZSTD_DCtx* dctx, int* nbSeqPtr, const void* src, size_t srcSize);
 
 /**
  * @returns true iff the CPU supports dynamic BMI2 dispatch.

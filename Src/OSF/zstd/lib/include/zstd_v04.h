@@ -31,9 +31,7 @@ extern "C" {
     return : the number of bytes decompressed into destination buffer (originalSize)
              or an errorCode if it fails (which can be tested using ZSTDv01_isError())
  */
-size_t ZSTDv04_decompress(void* dst, size_t maxOriginalSize,
-    const void* src, size_t compressedSize);
-
+size_t ZSTDv04_decompress(void* dst, size_t maxOriginalSize, const void* src, size_t compressedSize);
 /**
    ZSTDv04_findFrameSizeInfoLegacy() : get the source length and decompressed bound of a ZSTD frame compliant with
       v0.4.x format
@@ -45,24 +43,19 @@ size_t ZSTDv04_decompress(void* dst, size_t maxOriginalSize,
 
    note : assumes `cSize` and `dBound` are _not_ NULL.
  */
-void ZSTDv04_findFrameSizeInfoLegacy(const void * src, size_t srcSize,
-    size_t* cSize, unsigned long long* dBound);
+void ZSTDv04_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, unsigned long long* dBound);
 
 /**
    ZSTDv04_isError() : tells if the result of ZSTDv04_decompress() is an error
  */
-unsigned ZSTDv04_isError(size_t code);
-
-/* *************************************
-*  Advanced functions
-***************************************/
+uint ZSTDv04_isError(size_t code);
+// 
+// Advanced functions
+// 
 typedef struct ZSTDv04_Dctx_s ZSTDv04_Dctx;
 ZSTDv04_Dctx* ZSTDv04_createDCtx(void);
 size_t ZSTDv04_freeDCtx(ZSTDv04_Dctx* dctx);
-
-size_t ZSTDv04_decompressDCtx(ZSTDv04_Dctx* dctx,
-    void* dst, size_t maxOriginalSize,
-    const void* src, size_t compressedSize);
+size_t ZSTDv04_decompressDCtx(ZSTDv04_Dctx* dctx, void* dst, size_t maxOriginalSize, const void* src, size_t compressedSize);
 
 /* *************************************
 *  Direct Streaming
@@ -121,7 +114,7 @@ size_t ZBUFFv04_decompressContinue(ZBUFFv04_DCtx* dctx, void* dst, size_t* maxDs
  *  input : ZBUFF_recommendedDInSize==128Kb+3; just follow indications from ZBUFF_decompressContinue() to minimize
  *latency. It should always be <= 128 KB + 3 .
  * **************************************************/
-unsigned ZBUFFv04_isError(size_t errorCode);
+uint ZBUFFv04_isError(size_t errorCode);
 const char* ZBUFFv04_getErrorName(size_t errorCode);
 
 /** The below functions provide recommended buffer sizes for Compression or Decompression operations.

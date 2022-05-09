@@ -195,15 +195,12 @@ extern "C" {
  *        In general, it's recommended to provide a few thousands samples, though this can vary a lot.
  *        It's recommended that total size of all samples be about ~x100 times the target size of dictionary.
  */
-ZDICTLIB_API size_t ZDICT_trainFromBuffer(void* dictBuffer, size_t dictBufferCapacity,
-    const void* samplesBuffer,
-    const size_t* samplesSizes, unsigned nbSamples);
+ZDICTLIB_API size_t ZDICT_trainFromBuffer(void* dictBuffer, size_t dictBufferCapacity, const void* samplesBuffer, const size_t* samplesSizes, uint nbSamples);
 
 typedef struct {
 	int compressionLevel;    /*< optimize for a specific zstd compression level; 0 means default */
-	unsigned notificationLevel; /*< Write log to stderr; 0 = none (default); 1 = errors; 2 = progression; 3 =
-	                               details; 4 = debug; */
-	unsigned dictID;         /*< force dictID value; 0 means auto mode (32-bits random value)
+	uint notificationLevel; /*< Write log to stderr; 0 = none (default); 1 = errors; 2 = progression; 3 = details; 4 = debug; */
+	uint dictID;         /*< force dictID value; 0 means auto mode (32-bits random value)
 	                          *   NOTE: The zstd format reserves some dictionary IDs for future use.
 	                          *         You may use them in private settings, but be warned that they
 	                          *         may be used by zstd in a public dictionary registry in the future.
@@ -250,16 +247,16 @@ typedef struct {
  */
 ZDICTLIB_API size_t ZDICT_finalizeDictionary(void* dstDictBuffer, size_t maxDictSize,
     const void* dictContent, size_t dictContentSize,
-    const void* samplesBuffer, const size_t* samplesSizes, unsigned nbSamples,
+    const void* samplesBuffer, const size_t* samplesSizes, uint nbSamples,
     ZDICT_params_t parameters);
 
 /*======   Helper functions   ======*/
-ZDICTLIB_API unsigned ZDICT_getDictID(const void* dictBuffer, size_t dictSize);  /**< extracts dictID; @return zero if
+ZDICTLIB_API uint ZDICT_getDictID(const void* dictBuffer, size_t dictSize);  /**< extracts dictID; @return zero if
                                                                                     error (not a valid dictionary) */
 ZDICTLIB_API size_t ZDICT_getDictHeaderSize(const void* dictBuffer, size_t dictSize);  /* returns dict header size;
                                                                                           returns a ZSTD error code on
                                                                                           failure */
-ZDICTLIB_API unsigned ZDICT_isError(size_t errorCode);
+ZDICTLIB_API uint ZDICT_isError(size_t errorCode);
 ZDICTLIB_API const char* ZDICT_getErrorName(size_t errorCode);
 
 #ifdef ZDICT_STATIC_LINKING_ONLY
@@ -333,7 +330,7 @@ typedef struct {
  *        It's recommended that total size of all samples be about ~x100 times the target size of dictionary.
  */
 ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(void * dictBuffer, size_t dictBufferCapacity,
-    const void * samplesBuffer, const size_t * samplesSizes, unsigned nbSamples, ZDICT_cover_params_t parameters);
+    const void * samplesBuffer, const size_t * samplesSizes, uint nbSamples, ZDICT_cover_params_t parameters);
 
 /*! ZDICT_optimizeTrainFromBuffer_cover():
  * The same requirements as above hold for all the parameters except `parameters`.
@@ -354,7 +351,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(void * dictBuffer, size_t dictBu
  *another 5 bytes of memory for each byte of memory for each thread.
  */
 ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_cover(void* dictBuffer, size_t dictBufferCapacity,
-    const void* samplesBuffer, const size_t* samplesSizes, unsigned nbSamples, ZDICT_cover_params_t* parameters);
+    const void* samplesBuffer, const size_t* samplesSizes, uint nbSamples, ZDICT_cover_params_t* parameters);
 
 /*! ZDICT_trainFromBuffer_fastCover():
  *  Train a dictionary from an array of samples using a modified version of COVER algorithm.
@@ -373,7 +370,7 @@ ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_cover(void* dictBuffer, size_t
  *        It's recommended that total size of all samples be about ~x100 times the target size of dictionary.
  */
 ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer,
-    const size_t * samplesSizes, unsigned nbSamples, ZDICT_fastCover_params_t parameters);
+    const size_t * samplesSizes, uint nbSamples, ZDICT_fastCover_params_t parameters);
 
 /*! ZDICT_optimizeTrainFromBuffer_fastCover():
  * The same requirements as above hold for all the parameters except `parameters`.
@@ -393,13 +390,11 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t di
  *          See ZDICT_trainFromBuffer() for details on failure modes.
  * Note: ZDICT_optimizeTrainFromBuffer_fastCover() requires about 6 * 2^f bytes of memory for each thread.
  */
-ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_fastCover(void* dictBuffer,
-    size_t dictBufferCapacity, const void* samplesBuffer,
-    const size_t* samplesSizes, unsigned nbSamples,
-    ZDICT_fastCover_params_t* parameters);
+ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_fastCover(void* dictBuffer, size_t dictBufferCapacity, const void* samplesBuffer,
+    const size_t* samplesSizes, uint nbSamples, ZDICT_fastCover_params_t* parameters);
 
 typedef struct {
-	unsigned selectivityLevel; /* 0 means default; larger => select more => larger dictionary */
+	uint selectivityLevel; /* 0 means default; larger => select more => larger dictionary */
 	ZDICT_params_t zParams;
 } ZDICT_legacy_params_t;
 
@@ -420,8 +415,7 @@ typedef struct {
  *notificationLevel>0.
  */
 ZDICTLIB_API size_t ZDICT_trainFromBuffer_legacy(void* dictBuffer, size_t dictBufferCapacity,
-    const void* samplesBuffer, const size_t* samplesSizes, unsigned nbSamples,
-    ZDICT_legacy_params_t parameters);
+    const void* samplesBuffer, const size_t* samplesSizes, uint nbSamples, ZDICT_legacy_params_t parameters);
 
 /* Deprecation warnings */
 /* It is generally possible to disable deprecation warnings from compiler,
@@ -448,7 +442,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_legacy(void* dictBuffer, size_t dictBu
 
 ZDICT_DEPRECATED("use ZDICT_finalizeDictionary() instead")
 size_t ZDICT_addEntropyTablesFromBuffer(void* dictBuffer, size_t dictContentSize, size_t dictBufferCapacity,
-    const void* samplesBuffer, const size_t* samplesSizes, unsigned nbSamples);
+    const void* samplesBuffer, const size_t* samplesSizes, uint nbSamples);
 
 #endif   /* ZDICT_STATIC_LINKING_ONLY */
 

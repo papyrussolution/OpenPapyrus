@@ -727,7 +727,7 @@ L_KERNEL * kernelCreateFromFile(const char * filename)
 	if(!filename)
 		return (L_KERNEL*)ERROR_PTR("filename not defined", procName, NULL);
 
-	if((filestr = (char*)l_binaryRead(filename, &size)) == NULL)
+	if((filestr = (char *)l_binaryRead(filename, &size)) == NULL)
 		return (L_KERNEL*)ERROR_PTR("file not found", procName, NULL);
 	if(size == 0) {
 		SAlloc::F(filestr);

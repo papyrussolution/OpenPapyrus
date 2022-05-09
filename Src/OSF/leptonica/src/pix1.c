@@ -1395,7 +1395,7 @@ char * pixGetText(PIX  * pix)
 	PROCNAME(__FUNCTION__);
 
 	if(!pix)
-		return (char*)ERROR_PTR("pix not defined", procName, NULL);
+		return (char *)ERROR_PTR("pix not defined", procName, NULL);
 	return pix->text;
 }
 

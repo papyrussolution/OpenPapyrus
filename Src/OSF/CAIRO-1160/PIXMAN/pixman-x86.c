@@ -11,13 +11,6 @@
  * written prior permission.  SuSE makes no representations about the
  * suitability of this software for any purpose.  It is provided "as is"
  * without express or implied warranty.
- *
- * SuSE DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL SuSE
- * BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
- * WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION
- * OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 #include "cairoint.h"
 #pragma hdrstop
@@ -192,7 +185,7 @@ static cpu_features_t detect_cpu_features(void)
 	if(!have_cpuid())
 		return (cpu_features_t)features;
 	/* Get feature bits */
-	/*pixman_cpuid*/SLS.GetSSys().CpuId(0x01, &a, &b, &c, &d);
+	/*pixman_cpuid*/SLS.SSys.CpuId(0x01, &a, &b, &c, &d);
 	if(d & (1 << 15))
 		features |= X86_CMOV;
 	if(d & (1 << 23))
@@ -208,14 +201,14 @@ static cpu_features_t detect_cpu_features(void)
 		char vendor[13];
 		/* Get vendor string */
 		memzero(vendor, sizeof(vendor));
-		/*pixman_cpuid*/SLS.GetSSys().CpuId(0x00, &a, &b, &c, &d);
+		/*pixman_cpuid*/SLS.SSys.CpuId(0x00, &a, &b, &c, &d);
 		memcpy(vendor + 0, &b, 4);
 		memcpy(vendor + 4, &d, 4);
 		memcpy(vendor + 8, &c, 4);
 		if(sstreq(vendor, "AuthenticAMD") || sstreq(vendor, "Geode by NSC")) {
-			/*pixman_cpuid*/SLS.GetSSys().CpuId(0x80000000, &a, &b, &c, &d);
+			/*pixman_cpuid*/SLS.SSys.CpuId(0x80000000, &a, &b, &c, &d);
 			if(a >= 0x80000001) {
-				/*pixman_cpuid*/SLS.GetSSys().CpuId(0x80000001, &a, &b, &c, &d);
+				/*pixman_cpuid*/SLS.SSys.CpuId(0x80000001, &a, &b, &c, &d);
 				if(d & (1 << 22))
 					features |= X86_MMX_EXTENSIONS;
 			}

@@ -249,7 +249,7 @@ void ResortStates(struct lemon *);
 /********** From the file "set.h" ****************************************/
 void  SetSize(int);             /* All sets will be of size N */
 char * SetNew();               /* A new set for element 0..N */
-void  SetFree(char*);             /* Deallocate a set */
+void  SetFree(char *);             /* Deallocate a set */
 int SetAdd(char*, int);            /* Add element to a set */
 int SetUnion(char *, char *);    /* A <- A U B, thru element N */
 #define SetFind(X, Y) (X[Y])       /* True if Y is in set X */
@@ -553,7 +553,7 @@ static int actioncmp(const char * char_ap1, const char * char_ap2)
 static struct action * Action_sort(struct action * ap
     ){
 	/* Cast to "char **" via "void *" to avoid aliasing problems. */
-	ap = (struct action *)msort((char*)ap, (char**)(void*)&ap->next, actioncmp);
+	ap = (struct action *)msort((char *)ap, (char**)(void*)&ap->next, actioncmp);
 	return ap;
 }
 
@@ -1077,11 +1077,11 @@ PRIVATE void buildshifts(struct lemon * lemp, struct state * stp)
 		** on the symbol "sp" */
 		if(sp->type==MULTITERMINAL) {
 			for(int i = 0; i<sp->nsubsym; i++) {
-				Action_add(&stp->ap, SHIFT, sp->subsym[i], (char*)newstp);
+				Action_add(&stp->ap, SHIFT, sp->subsym[i], (char *)newstp);
 			}
 		}
 		else {
-			Action_add(&stp->ap, SHIFT, sp, (char*)newstp);
+			Action_add(&stp->ap, SHIFT, sp, (char *)newstp);
 		}
 	}
 }
@@ -1176,7 +1176,7 @@ void FindActions(struct lemon * lemp)
 					if(SetFind(cfp->fws, j)) {
 						/* Add a reduce action to the state "stp" which will reduce by the
 						** rule "cfp->rp" if the lookahead symbol is "lemp->symbols[j]" */
-						Action_add(&stp->ap, REDUCE, lemp->symbols[j], (char*)cfp->rp);
+						Action_add(&stp->ap, REDUCE, lemp->symbols[j], (char *)cfp->rp);
 					}
 				}
 			}
@@ -1457,7 +1457,7 @@ void Configlist_closure(struct lemon * lemp)
 void Configlist_sort()
 {
 	/* Cast to "char **" via "void *" to avoid aliasing problems. */
-	current = (struct config*)msort((char*)current, (char**)(void*)&(current->next), Configcmp);
+	current = (struct config*)msort((char *)current, (char**)(void*)&(current->next), Configcmp);
 	currentend = 0;
 }
 
@@ -1465,7 +1465,7 @@ void Configlist_sort()
 void Configlist_sortbasis()
 {
 	/* Cast to "char **" via "void *" to avoid aliasing problems. */
-	basis = (struct config*)msort((char*)current, (char**)(void*)&(current->bp), Configcmp);
+	basis = (struct config*)msort((char *)current, (char**)(void*)&(current->bp), Configcmp);
 	basisend = 0;
 }
 
@@ -1549,7 +1549,7 @@ static void handle_D_option(char * z)
 		exit(1);
 	}
 	paz = &azDefine[nDefine-1];
-	*paz = (char*)SAlloc::M(sstrlen(z)+1);
+	*paz = (char *)SAlloc::M(sstrlen(z)+1);
 	if(*paz==0) {
 		slfprintf_stderr("out of memory\n");
 		exit(1);
@@ -1566,7 +1566,7 @@ static char * output_filename = 0;  /* Output filename from -o */
  */
 static void handle_o_option(char * z)
 {
-	output_filename = (char*)SAlloc::M(strlen(z)+1);
+	output_filename = (char *)SAlloc::M(strlen(z)+1);
 	if(output_filename==0) {
 		slfprintf_stderr("out of memory\n");
 		exit(1);
@@ -1580,7 +1580,7 @@ static char * output_header_filename = 0;  /* Output filename from -h */
  */
 static void handle_h_option(char * z)
 {
-	output_header_filename = (char*)SAlloc::M(strlen(z)+1);
+	output_header_filename = (char *)SAlloc::M(strlen(z)+1);
 	if(output_header_filename==0) {
 		slfprintf_stderr("out of memory\n");
 		exit(1);
@@ -1591,7 +1591,7 @@ static void handle_h_option(char * z)
 static char * user_templatename = NULL;
 static void handle_T_option(char * z)
 {
-	user_templatename = (char*)SAlloc::M(sstrlen(z)+1);
+	user_templatename = (char *)SAlloc::M(sstrlen(z)+1);
 	if(user_templatename==0) {
 		memory_error();
 	}
@@ -1849,7 +1849,7 @@ int main(int argc, char ** argv)
 /*
 ** Return a pointer to the next structure in the linked list.
 */
-#define NEXT(A) (*(char**)(((char*)A)+offset))
+#define NEXT(A) (*(char**)(((char *)A)+offset))
 
 /*
 ** Inputs:
@@ -1927,7 +1927,7 @@ static char * msort(char * list, char ** next, int (*cmp)(const char*, const cha
 	char * ep;
 	char * set[LISTSIZE];
 	int i;
-	offset = (ulong)((char*)next - (char*)list);
+	offset = (ulong)((char *)next - (char *)list);
 	for(i = 0; i<LISTSIZE; i++) 
 		set[i] = 0;
 	while(list) {
@@ -2083,7 +2083,7 @@ static int handleswitch(int i, FILE * err)
 				    if(err) {
 					    fprintf(err,
 						"%sillegal character in floating-point argument.\n", emsg);
-					    errline(i, (int)((char*)end-(char*)argv[i]), err);
+					    errline(i, (int)((char *)end-(char *)argv[i]), err);
 				    }
 				    errcnt++;
 			    }
@@ -2094,7 +2094,7 @@ static int handleswitch(int i, FILE * err)
 			    if(*end) {
 				    if(err) {
 					    fprintf(err, "%sillegal character in integer argument.\n", emsg);
-					    errline(i, (int)((char*)end-(char*)argv[i]), err);
+					    errline(i, (int)((char *)end-(char *)argv[i]), err);
 				    }
 				    errcnt++;
 			    }
@@ -2412,7 +2412,7 @@ static void parseonetoken(struct pstate * psp)
 		case IN_RHS:
 		    if(x[0]=='.') {
 			    struct rule * rp;
-			    rp = (struct rule *)SAlloc::C(sizeof(struct rule) + sizeof(struct symbol*)*psp->nrhs + sizeof(char*)*psp->nrhs, 1);
+			    rp = (struct rule *)SAlloc::C(sizeof(struct rule) + sizeof(struct symbol*)*psp->nrhs + sizeof(char *)*psp->nrhs, 1);
 			    if(rp==0) {
 				    ErrorMsg(psp->filename, psp->tokenlineno, "Can't allocate enough memory for this rule.");
 				    psp->errorcnt++;
@@ -2706,7 +2706,7 @@ static void parseonetoken(struct pstate * psp)
 				    nLine = sstrleni(zLine);
 				    n += nLine + sstrleni(psp->filename) + nBack;
 			    }
-			    *psp->declargslot = (char*)SAlloc::R(*psp->declargslot, n);
+			    *psp->declargslot = (char *)SAlloc::R(*psp->declargslot, n);
 			    MemoryCheck(*psp->declargslot);
 			    zBuf = *psp->declargslot + nOld;
 			    if(addLineMacro) {
@@ -2932,7 +2932,7 @@ void Parse(struct lemon * gp)
 	fseek(fp, 0, 2);
 	filesize = ftell(fp);
 	rewind(fp);
-	filebuf = (char*)SAlloc::M(filesize+1);
+	filebuf = (char *)SAlloc::M(filesize+1);
 	if(filesize>100000000 || filebuf==0) {
 		ErrorMsg(ps.filename, 0, "Input file too large.");
 		gp->errorcnt++;
@@ -3134,7 +3134,7 @@ void Plink_delete(struct plink * plp)
 PRIVATE char * file_makename(struct lemon * lemp, const char * suffix)
 {
 	char * cp;
-	char * name = (char*)SAlloc::M(sstrlen(lemp->filename) + sstrlen(suffix) + 5);
+	char * name = (char *)SAlloc::M(sstrlen(lemp->filename) + sstrlen(suffix) + 5);
 	if(name==0) {
 		slfprintf_stderr("Can't allocate space for a filename.\n");
 		exit(1);
@@ -3447,15 +3447,15 @@ PRIVATE char * pathsearch(char * argv0, char * name, int modemask)
 	if(cp) {
 		c = *cp;
 		*cp = 0;
-		path = (char*)SAlloc::M(sstrlen(argv0) + sstrlen(name) + 2);
+		path = (char *)SAlloc::M(sstrlen(argv0) + sstrlen(name) + 2);
 		if(path) lemon_sprintf(path, "%s/%s", argv0, name);
 		*cp = c;
 	}
 	else {
 		pathlist = getenv("PATH");
 		if(pathlist==0) pathlist = ".:/bin:/usr/bin";
-		pathbuf = (char*)SAlloc::M(sstrlen(pathlist) + 1);
-		path = (char*)SAlloc::M(sstrlen(pathlist)+sstrlen(name)+2);
+		pathbuf = (char *)SAlloc::M(sstrlen(pathlist) + 1);
+		path = (char *)SAlloc::M(sstrlen(pathlist)+sstrlen(name)+2);
 		if( (pathbuf != 0) && (path!=0)) {
 			pathbufptr = pathbuf;
 			sstrcpy(pathbuf, pathlist);
@@ -3732,7 +3732,7 @@ PRIVATE char * append_str(const char * zText, int n, int p1, int p2)
 	}
 	if( (int)(n+sizeof(zInt)*2+used) >= alloced) {
 		alloced = n + sizeof(zInt)*2 + used + 200;
-		z = (char*)SAlloc::R(z,  alloced);
+		z = (char *)SAlloc::R(z,  alloced);
 	}
 	if(z==0) {
 		slfprintf_stderr("Out of memory.\n");
@@ -3842,7 +3842,7 @@ PRIVATE int translate_code(struct lemon * lemp, struct rule * rp)
 	}
 	append_str(0, 0, 0, 0);
 	/* This const cast is wrong but harmless, if we're careful. */
-	for(cp = (char*)rp->code; *cp; cp++) {
+	for(cp = (char *)rp->code; *cp; cp++) {
 		if(cp==zSkip) {
 			append_str(zOvwrt, 0, 0, 0);
 			cp += sstrlen(zOvwrt)-1;
@@ -4026,7 +4026,7 @@ void print_stack_union(FILE * out,                  /* The output stream */
 
 	/* Allocate and initialize types[] and allocate stddt[] */
 	arraysize = lemp->nsymbol * 2;
-	types = (char**)SAlloc::C(arraysize, sizeof(char*) );
+	types = (char**)SAlloc::C(arraysize, sizeof(char *) );
 	if(types==0) {
 		slfprintf_stderr("Out of memory.\n");
 		exit(1);
@@ -4045,7 +4045,7 @@ void print_stack_union(FILE * out,                  /* The output stream */
 		if(len>maxdtlength) 
 			maxdtlength = len;
 	}
-	stddt = (char*)SAlloc::M(maxdtlength*2 + 1);
+	stddt = (char *)SAlloc::M(maxdtlength*2 + 1);
 	if(stddt==0) {
 		slfprintf_stderr("Out of memory.\n");
 		exit(1);
@@ -4093,7 +4093,7 @@ void print_stack_union(FILE * out,                  /* The output stream */
 		}
 		if(types[hash]==0) {
 			sp->dtnum = hash + 1;
-			types[hash] = (char*)SAlloc::M(sstrlen(stddt)+1);
+			types[hash] = (char *)SAlloc::M(sstrlen(stddt)+1);
 			if(types[hash]==0) {
 				slfprintf_stderr("Out of memory.\n");
 				exit(1);
@@ -5002,7 +5002,7 @@ void SetSize(int n)
 /* Allocate a new set */
 char * SetNew()
 {
-	char * s = (char*)SAlloc::C(size, 1);
+	char * s = (char *)SAlloc::C(size, 1);
 	if(s==0) {
 		extern void memory_error();
 		memory_error();
@@ -5072,7 +5072,7 @@ const char * Strsafe(const char * y)
 	if(y) {
 		char * cpy;
 		z = Strsafe_find(y);
-		if(z==0 && (cpy = (char*)SAlloc::M(sstrlen(y)+1))!=0) {
+		if(z==0 && (cpy = (char *)SAlloc::M(sstrlen(y)+1))!=0) {
 			sstrcpy(cpy, y);
 			z = cpy;
 			Strsafe_insert(z);

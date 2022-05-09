@@ -634,7 +634,7 @@ char * selGetName(SEL  * sel)
 	PROCNAME(__FUNCTION__);
 
 	if(!sel)
-		return (char*)ERROR_PTR("sel not defined", procName, NULL);
+		return (char *)ERROR_PTR("sel not defined", procName, NULL);
 
 	return sel->name;
 }
@@ -874,7 +874,7 @@ char * selaGetBrickName(SELA    * sela,
 	PROCNAME(__FUNCTION__);
 
 	if(!sela)
-		return (char*)ERROR_PTR("sela not defined", procName, NULL);
+		return (char *)ERROR_PTR("sela not defined", procName, NULL);
 
 	nsels = selaGetCount(sela);
 	for(i = 0; i < nsels; i++) {
@@ -884,7 +884,7 @@ char * selaGetBrickName(SELA    * sela,
 			return stringNew(selGetName(sel));
 	}
 
-	return (char*)ERROR_PTR("sel not found", procName, NULL);
+	return (char *)ERROR_PTR("sel not found", procName, NULL);
 }
 
 /*!
@@ -913,9 +913,9 @@ char * selaGetCombName(SELA    * sela,
 	PROCNAME(__FUNCTION__);
 
 	if(!sela)
-		return (char*)ERROR_PTR("sela not defined", procName, NULL);
+		return (char *)ERROR_PTR("sela not defined", procName, NULL);
 	if(direction != L_HORIZ && direction != L_VERT)
-		return (char*)ERROR_PTR("invalid direction", procName, NULL);
+		return (char *)ERROR_PTR("invalid direction", procName, NULL);
 
 	/* Derive the comb name we're looking for */
 	if(direction == L_HORIZ)
@@ -940,7 +940,7 @@ char * selaGetCombName(SELA    * sela,
 	if(found)
 		return stringNew(selname);
 	else
-		return (char*)ERROR_PTR("sel not found", procName, NULL);
+		return (char *)ERROR_PTR("sel not found", procName, NULL);
 }
 
 /* --------- Function used to generate code in this file  ---------- */
@@ -1610,11 +1610,11 @@ char * selPrintToString(SEL  * sel)
 	PROCNAME(__FUNCTION__);
 
 	if(!sel)
-		return (char*)ERROR_PTR("sel not defined", procName, NULL);
+		return (char *)ERROR_PTR("sel not defined", procName, NULL);
 
 	selGetParameters(sel, &sy, &sx, &cy, &cx);
-	if((str = (char*)SAlloc::C(1, sy * (sx + 1) + 1)) == NULL)
-		return (char*)ERROR_PTR("calloc fail for str", procName, NULL);
+	if((str = (char *)SAlloc::C(1, sy * (sx + 1) + 1)) == NULL)
+		return (char *)ERROR_PTR("calloc fail for str", procName, NULL);
 	strptr = str;
 
 	for(y = 0; y < sy; ++y) {
@@ -1688,7 +1688,7 @@ SELA * selaCreateFromFile(const char * filename)
 	if(!filename)
 		return (SELA*)ERROR_PTR("filename not defined", procName, NULL);
 
-	filestr = (char*)l_binaryRead(filename, &nbytes);
+	filestr = (char *)l_binaryRead(filename, &nbytes);
 	sa = sarrayCreateLinesFromString(filestr, 1);
 	SAlloc::F(filestr);
 	n = sarrayGetCount(sa);

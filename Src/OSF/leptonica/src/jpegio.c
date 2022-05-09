@@ -205,7 +205,7 @@ PIX * pixReadJpeg(const char * filename,
 	if(pix) {
 		ret = fgetJpegComment(fp, &comment);
 		if(!ret && comment)
-			pixSetText(pix, (char*)comment);
+			pixSetText(pix, (char *)comment);
 		SAlloc::F(comment);
 	}
 	fclose(fp);
@@ -994,7 +994,7 @@ PIX * pixReadMemJpeg(const uint8  * data,
 	if(pix) {
 		ret = fgetJpegComment(fp, &comment);
 		if(!ret && comment) {
-			pixSetText(pix, (char*)comment);
+			pixSetText(pix, (char *)comment);
 			SAlloc::F(comment);
 		}
 	}

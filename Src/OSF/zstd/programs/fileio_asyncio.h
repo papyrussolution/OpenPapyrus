@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 
-#include <zstd_mem.h> // U32, U64
+#include <zstd_mem.h> // uint32, uint64
 #include "fileio_types.h"
 #include "platform.h"
 #include "util.h"
@@ -45,8 +45,8 @@ typedef struct {
 	IOPoolCtx_t base;
 	/* State regarding the currently read file */
 	int reachedEof;
-	U64 nextReadOffset;
-	U64 waitingOnOffset;
+	uint64 nextReadOffset;
+	uint64 waitingOnOffset;
 	void * currentJobHeld; /* We may hold an IOJob object as needed if we actively expose its buffer. */
 	/* Coalesce buffer is used to join two buffers in case where we need to read more bytes than left in
 	 * the first of them. Shouldn't be accessed from outside ot utility functions. */
@@ -76,7 +76,7 @@ typedef struct {
 	/* This field should be changed before a job is queued for execution and should contain the number
 	 * of bytes to write from the buffer. */
 	size_t usedBufferSize;
-	U64 offset;
+	uint64 offset;
 } IOJob_t;
 
 /* AIO_supported:

@@ -593,7 +593,7 @@ l_ok pixWriteStreamJp2k(FILE * fp,
 		char * version1 = getLeptonicaVersion();
 		const char * version2 = opj_version();
 		len1 += len2 + strlen(version1) + strlen(version2) + 1;
-		parameters.cp_comment = (char*)SAlloc::M(len1);
+		parameters.cp_comment = (char *)SAlloc::M(len1);
 		snprintf(parameters.cp_comment, len1, "%s%s%s%s", comment1, version1,
 		    comment2, version2);
 		SAlloc::F(version1);

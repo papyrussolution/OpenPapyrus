@@ -75,11 +75,11 @@ static const unsigned g_defaultSelectivityLevel = 9;
 static const unsigned g_defaultMaxWindowLog = 27;
 #define OVERLAP_LOG_DEFAULT 9999
 #define LDM_PARAM_DEFAULT 9999  /* Default for parameters where 0 is valid */
-static U32 g_overlapLog = OVERLAP_LOG_DEFAULT;
-static U32 g_ldmHashLog = 0;
-static U32 g_ldmMinMatch = 0;
-static U32 g_ldmHashRateLog = LDM_PARAM_DEFAULT;
-static U32 g_ldmBucketSizeLog = LDM_PARAM_DEFAULT;
+static uint32 g_overlapLog = OVERLAP_LOG_DEFAULT;
+static uint32 g_ldmHashLog = 0;
+static uint32 g_ldmMinMatch = 0;
+static uint32 g_ldmHashRateLog = LDM_PARAM_DEFAULT;
+static uint32 g_ldmBucketSizeLog = LDM_PARAM_DEFAULT;
 
 #define DEFAULT_ACCEL 1
 
@@ -1348,8 +1348,8 @@ int main(int argCount, const char* argv[])
 				if(longCommandWArg(&argument, "--fast")) {
 					/* Parse optional acceleration factor */
 					if(*argument == '=') {
-						U32 const maxFast = (U32)-ZSTD_minCLevel();
-						U32 fastLevel;
+						const uint32 maxFast = (uint32)-ZSTD_minCLevel();
+						uint32 fastLevel;
 						++argument;
 						fastLevel = readU32FromChar(&argument);
 						if(fastLevel > maxFast) fastLevel = maxFast;
@@ -1772,10 +1772,10 @@ int main(int argCount, const char* argv[])
 	FIO_setPatchFromMode(prefs, patchFromDictFileName != NULL);
 	if(memLimit == 0) {
 		if(compressionParams.windowLog == 0) {
-			memLimit = (U32)1 << g_defaultMaxWindowLog;
+			memLimit = (uint32)1 << g_defaultMaxWindowLog;
 		}
 		else {
-			memLimit = (U32)1 << (compressionParams.windowLog & 31);
+			memLimit = (uint32)1 << (compressionParams.windowLog & 31);
 		}
 	}
 	if(patchFromDictFileName != NULL)

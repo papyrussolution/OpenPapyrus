@@ -62,7 +62,7 @@ int archive_write_set_format_ar_bsd(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_ar_bsd");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	r = archive_write_set_format_ar(a);
 	if(r == ARCHIVE_OK) {
 		a->archive.archive_format = ARCHIVE_FORMAT_AR_BSD;
@@ -75,7 +75,7 @@ int archive_write_set_format_ar_svr4(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	int r;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_ar_svr4");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	r = archive_write_set_format_ar(a);
 	if(r == ARCHIVE_OK) {
 		a->archive.archive_format = ARCHIVE_FORMAT_AR_GNU;

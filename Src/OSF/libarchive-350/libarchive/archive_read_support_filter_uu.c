@@ -56,7 +56,7 @@ int archive_read_support_filter_uu(struct archive * _a)
 {
 	struct archive_read * a = (struct archive_read *)_a;
 	struct archive_read_filter_bidder * bidder;
-	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, "archive_read_support_filter_uu");
+	archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	if(__archive_read_get_bidder(a, &bidder) != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	bidder->data = NULL;
@@ -327,13 +327,11 @@ static int uudecode_bidder_init(struct archive_read_filter * self)
 	struct uudecode   * uudecode;
 	void * out_buff;
 	void * in_buff;
-
 	self->code = ARCHIVE_FILTER_UU;
 	self->name = "uu";
-	self->read = uudecode_filter_read;
+	self->FnRead = uudecode_filter_read;
 	self->skip = NULL; /* not supported */
-	self->close = uudecode_filter_close;
-
+	self->FnClose = uudecode_filter_close;
 	uudecode = (struct uudecode *)SAlloc::C(sizeof(*uudecode), 1);
 	out_buff = SAlloc::M(OUT_BUFF_SIZE);
 	in_buff = SAlloc::M(IN_BUFF_SIZE);
@@ -357,12 +355,11 @@ static int ensure_in_buff_size(struct archive_read_filter * self, struct uudecod
 {
 	if(size > uudecode->in_allocated) {
 		uchar * ptr;
-		size_t newsize;
 		/*
 		 * Calculate a new buffer size for in_buff.
 		 * Increase its value until it has enough size we need.
 		 */
-		newsize = uudecode->in_allocated;
+		size_t newsize = uudecode->in_allocated;
 		do {
 			if(newsize < IN_BUFF_SIZE*32)
 				newsize <<= 1;

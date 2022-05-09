@@ -13,11 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-
-import com.bumptech.glide.Glide;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -39,6 +36,8 @@ public class CommonPrereqModule {
 	public GoodsFilt Gf;
 	public ArrayList <WareEntry> GoodsListData;
 	public ArrayList <CommonPrereqModule.TabEntry> TabList;
+	public ArrayList <Document.Head> OrderHList;
+	public ArrayList<ProcessorEntry> ProcessorListData;
 	protected Document CurrentOrder;
 	protected boolean Locker_CommitCurrentDocument;
 	public enum Tab {
@@ -197,9 +196,6 @@ public class CommonPrereqModule {
 		JSONObject JsItem;
 		int   GoodsExpandStatus; // 0 - no goods, 1 - goods collapsed, 2 - goods expanded
 	}
-
-	public ArrayList<ProcessorEntry> ProcessorListData;
-
 	public static class SimpleSearchIndexEntry {
 		SimpleSearchIndexEntry(int objType, int objID, int attr, final String text, final String displayText)
 		{
@@ -392,6 +388,8 @@ public class CommonPrereqModule {
 		GoodsListData = null;
 		Gf = null;
 		CurrentOrder = null;
+		OrderHList = null;
+		ProcessorListData = null;
 		Locker_CommitCurrentDocument = false;
 	}
 	public void GetAttributesFromIntent(Intent intent)
@@ -431,18 +429,51 @@ public class CommonPrereqModule {
 				title_text = (SLib.GetLen(title_text) > 0) ? (title_text + "\n" + CmdDescr) : CmdDescr;
 			if(SLib.GetLen(title_text) > 0)
 				SLib.SetCtrlString(activity, R.id.CTL_PAGEHEADER_TOPIC, title_text);
-			{
-				View imgv_ = activity.findViewById(R.id.CTLIMG_PAGEHEADER_SVC);
-				if(imgv_ != null && imgv_ instanceof ImageView) {
-					ImageView imgv = (ImageView)imgv_;
-					if(SLib.GetLen(blob_signature) > 0) {
-						imgv.setVisibility(View.VISIBLE);
-						Glide.with(activity).load(GlideSupport.ModelPrefix + blob_signature).into(imgv);
+			SLib.SetupImage(activity, activity.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+		}
+	}
+	public void MakeCurrentDocList(StyloQApp appCtx)
+	{
+		if(OrderHList != null)
+			OrderHList.clear();
+		try {
+			if(SvcIdent != null) {
+				StyloQDatabase db = (appCtx != null) ? appCtx.GetDB() : null;
+				if(db != null) {
+					StyloQDatabase.SecStoragePacket svc_pack = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
+					if(svc_pack != null) {
+						long svc_id = svc_pack.Rec.ID;
+						ArrayList<Long> doc_id_list = db.GetDocIdListByType(+1, StyloQDatabase.SecStoragePacket.doctypGeneric, svc_id, null);
+						if(doc_id_list != null) {
+							for(int i = 0; i < doc_id_list.size(); i++) {
+								long local_doc_id = doc_id_list.get(i);
+								StyloQDatabase.SecStoragePacket local_doc_pack = db.GetPeerEntry(local_doc_id);
+								if(local_doc_pack != null) {
+									byte [] raw_doc = local_doc_pack.Pool.Get(SecretTagPool.tagRawData);
+									if(SLib.GetLen(raw_doc) > 0) {
+										String json_doc = new String(raw_doc);
+										Document local_doc = new Document();
+										if(local_doc.FromJson(json_doc)) {
+											if(OrderHList == null)
+												OrderHList = new ArrayList<Document.Head>();
+											// Эти операторы нужны на начальном этапе разработки поскольку
+											// финализация пакета документа появилась не сразу {
+											if(local_doc.GetNominalAmount() == 0.0)
+												local_doc.H.Amount = local_doc.CalcNominalAmount();
+											// }
+											OrderHList.add(local_doc.H);
+											local_doc.H = null;
+										}
+
+									}
+								}
+							}
+						}
 					}
-					else
-						imgv.setVisibility(View.GONE);
 				}
 			}
+		} catch(StyloQException exn) {
+			;
 		}
 	}
 	public static class GoodsFilt {
@@ -538,6 +569,64 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	public int GetServiceDurationForPrc(int prcID, int goodsID)
+	{
+		int   result = 0;
+		try {
+			if(goodsID > 0 && ProcessorListData != null) {
+				if(prcID > 0) {
+					for(int i = 0; i < ProcessorListData.size(); i++) {
+						ProcessorEntry entry = ProcessorListData.get(i);
+						if(entry != null && entry.JsItem != null && entry.JsItem.optInt("id", 0) == prcID) {
+							JSONArray js_goods_list = entry.JsItem.optJSONArray("goods_list");
+							if(js_goods_list != null) {
+								for(int j = 0; j < js_goods_list.length(); j++) {
+									JSONObject js_goods_item = js_goods_list.getJSONObject(j);
+									int iter_id = (js_goods_item != null) ? js_goods_item.optInt("id", 0) : 0;
+									if(iter_id == goodsID) {
+										result = js_goods_item.optInt("duration", 0);
+										break; // В этом цикле такой же товар больше не встретится (если, конечно, нет ошибок в данных)
+									}
+								}
+							}
+							break;
+						}
+					}
+				}
+				else {
+					int _sum = 0;
+					int _count = 0;
+					for(int i = 0; i < ProcessorListData.size(); i++) {
+						ProcessorEntry entry = ProcessorListData.get(i);
+						if(entry != null && entry.JsItem != null) {
+							JSONArray js_goods_list = entry.JsItem.optJSONArray("goods_list");
+							if(js_goods_list != null) {
+								for(int j = 0; j < js_goods_list.length(); j++) {
+									JSONObject js_goods_item = js_goods_list.getJSONObject(j);
+									int iter_id = (js_goods_item != null) ? js_goods_item.optInt("id", 0) : 0;
+									if(iter_id == goodsID) {
+										int _duration = js_goods_item.optInt("duration", 0);
+										if(_duration > 0) {
+											_sum += _duration;
+											_count++;
+											break; // В этом цикле такой же товар больше не встретится (если, конечно, нет ошибок в данных)
+										}
+									}
+								}
+							}
+						}
+					}
+					if(_sum > 0) {
+						assert(_count > 0);
+						result = (int)(((double)_sum) / ((double)_count));
+					}
+				}
+			}
+		} catch(JSONException exn) {
+			result = 0;
+		}
+		return result;
+	}
 	public ArrayList <WareEntry> GetGoodsListByPrc(int prcID)
 	{
 		ArrayList <WareEntry> result = null;
@@ -551,6 +640,7 @@ public class CommonPrereqModule {
 							for(int j = 0; j < js_goods_list.length(); j++) {
 								JSONObject js_goods_item = js_goods_list.getJSONObject(j);
 								int iter_id = (js_goods_item != null) ? js_goods_item.optInt("id", 0) : 0;
+								int duration = (js_goods_item != null) ? js_goods_item.optInt("duration", 0) : 0;
 								if(iter_id > 0) {
 									WareEntry ware_entry = FindGoodsItemByGoodsID(iter_id);
 									if(ware_entry != null) {

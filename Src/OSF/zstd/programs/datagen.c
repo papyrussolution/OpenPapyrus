@@ -11,7 +11,7 @@
 #pragma hdrstop
 #include "datagen.h"
 #include "platform.h"  /* SET_BINARY_MODE */
-#include <zstd_mem.h> // U32
+#include <zstd_mem.h> // uint32
 
 /*-************************************
 *  Macros
@@ -32,11 +32,11 @@
 *  Local Functions
 *********************************************************/
 #define RDG_rotl32(x, r) ((x << r) | (x >> (32 - r)))
-static U32 RDG_rand(U32* src)
+static uint32 RDG_rand(uint32* src)
 {
-	static const U32 prime1 = 2654435761U;
-	static const U32 prime2 = 2246822519U;
-	U32 rand32 = *src;
+	static const uint32 prime1 = 2654435761U;
+	static const uint32 prime2 = 2246822519U;
+	uint32 rand32 = *src;
 	rand32 *= prime1;
 	rand32 ^= prime2;
 	rand32  = RDG_rotl32(rand32, 13);
@@ -44,49 +44,49 @@ static U32 RDG_rand(U32* src)
 	return rand32 >> 5;
 }
 
-typedef U32 fixedPoint_24_8;
+typedef uint32 fixedPoint_24_8;
 
 static void RDG_fillLiteralDistrib(BYTE* ldt, fixedPoint_24_8 ld)
 {
 	BYTE const firstChar = (ld<=0.0) ?   0 : '(';
 	BYTE const lastChar  = (ld<=0.0) ? 255 : '}';
 	BYTE character = (ld<=0.0) ? 0 : '0';
-	U32 u;
+	uint32 u;
 
 	if(ld<=0) ld = 0;
 	for(u = 0; u<LTSIZE;) {
-		U32 const weight = (((LTSIZE - u) * ld) >> 8) + 1;
-		U32 const end = MIN(u + weight, LTSIZE);
+		const uint32 weight = (((LTSIZE - u) * ld) >> 8) + 1;
+		const uint32 end = MIN(u + weight, LTSIZE);
 		while(u < end) ldt[u++] = character;
 		character++;
 		if(character > lastChar) character = firstChar;
 	}
 }
 
-static BYTE RDG_genChar(U32* seed, const BYTE* ldt)
+static BYTE RDG_genChar(uint32* seed, const BYTE* ldt)
 {
-	U32 const id = RDG_rand(seed) & LTMASK;
+	const uint32 id = RDG_rand(seed) & LTMASK;
 	return ldt[id]; /* memory-sanitizer fails here, stating "uninitialized value" when table initialized with
 	                   P==0.0. Checked : table is fully initialized */
 }
 
-static U32 RDG_rand15Bits(U32* seedPtr)
+static uint32 RDG_rand15Bits(uint32* seedPtr)
 {
 	return RDG_rand(seedPtr) & 0x7FFF;
 }
 
-static U32 RDG_randLength(U32* seedPtr)
+static uint32 RDG_randLength(uint32* seedPtr)
 {
 	if(RDG_rand(seedPtr) & 7) return (RDG_rand(seedPtr) & 0xF); /* small length */
 	return (RDG_rand(seedPtr) & 0x1FF) + 0xF;
 }
 
-static void RDG_genBlock(void* buffer, size_t buffSize, size_t prefixSize, double matchProba, const BYTE* ldt, U32* seedPtr)
+static void RDG_genBlock(void * buffer, size_t buffSize, size_t prefixSize, double matchProba, const BYTE* ldt, uint32* seedPtr)
 {
 	BYTE* const buffPtr = (BYTE*)buffer;
-	U32 const matchProba32 = (U32)(32768 * matchProba);
+	const uint32 matchProba32 = (uint32)(32768 * matchProba);
 	size_t pos = prefixSize;
-	U32 prevOffset = 1;
+	uint32 prevOffset = 1;
 	/* special case : sparse content */
 	while(matchProba >= 1.0) {
 		size_t size0 = RDG_rand(seedPtr) & 3;
@@ -109,11 +109,11 @@ static void RDG_genBlock(void* buffer, size_t buffSize, size_t prefixSize, doubl
 		/* Select : Literal (char) or Match (within 32K) */
 		if(RDG_rand15Bits(seedPtr) < matchProba32) {
 			/* Copy (within 32K) */
-			U32 const length = RDG_randLength(seedPtr) + 4;
-			U32 const d = (U32)MIN(pos + length, buffSize);
-			U32 const repeatOffset = (RDG_rand(seedPtr) & 15) == 2;
-			U32 const randOffset = RDG_rand15Bits(seedPtr) + 1;
-			U32 const offset = repeatOffset ? prevOffset : (U32)MIN(randOffset, pos);
+			const uint32 length = RDG_randLength(seedPtr) + 4;
+			const uint32 d = (uint32)MIN(pos + length, buffSize);
+			const uint32 repeatOffset = (RDG_rand(seedPtr) & 15) == 2;
+			const uint32 randOffset = RDG_rand15Bits(seedPtr) + 1;
+			const uint32 offset = repeatOffset ? prevOffset : (uint32)MIN(randOffset, pos);
 			size_t match = pos - offset;
 			while(pos < d) {
 				buffPtr[pos++] = buffPtr[match++]; /* correctly manages overlaps */
@@ -122,8 +122,8 @@ static void RDG_genBlock(void* buffer, size_t buffSize, size_t prefixSize, doubl
 		}
 		else {
 			/* Literal (noise) */
-			U32 const length = RDG_randLength(seedPtr);
-			U32 const d = (U32)MIN(pos + length, buffSize);
+			const uint32 length = RDG_randLength(seedPtr);
+			const uint32 d = (uint32)MIN(pos + length, buffSize);
 			while(pos < d) {
 				buffPtr[pos++] = RDG_genChar(seedPtr, ldt);
 			}
@@ -131,9 +131,9 @@ static void RDG_genBlock(void* buffer, size_t buffSize, size_t prefixSize, doubl
 	}
 }
 
-void RDG_genBuffer(void* buffer, size_t size, double matchProba, double litProba, unsigned seed)
+void RDG_genBuffer(void * buffer, size_t size, double matchProba, double litProba, unsigned seed)
 {
-	U32 seed32 = seed;
+	uint32 seed32 = seed;
 	BYTE ldt[LTSIZE];
 	memset(ldt, '0', sizeof(ldt)); /* yes, character '0', this is intentional */
 	if(litProba<=0.0) litProba = matchProba / 4.5;
@@ -143,11 +143,11 @@ void RDG_genBuffer(void* buffer, size_t size, double matchProba, double litProba
 
 void RDG_genStdout(unsigned long long size, double matchProba, double litProba, unsigned seed)
 {
-	U32 seed32 = seed;
+	uint32 seed32 = seed;
 	size_t const stdBlockSize = 128 KB;
 	size_t const stdDictSize = 32 KB;
-	BYTE* const buff = (BYTE*)malloc(stdDictSize + stdBlockSize);
-	U64 total = 0;
+	BYTE* const buff = (BYTE*)SAlloc::M(stdDictSize + stdBlockSize);
+	uint64 total = 0;
 	BYTE ldt[LTSIZE]; /* literals distribution table */
 	/* init */
 	if(buff==NULL) {

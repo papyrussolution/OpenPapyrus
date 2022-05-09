@@ -69,43 +69,32 @@ struct archive_read_filter_bidder {
  */
 struct archive_read_filter {
 	int64 position;
-	/* Essentially all filters will need these values, so
-	 * just declare them here. */
-	struct archive_read_filter_bidder *bidder; /* My bidder. */
-	struct archive_read_filter *upstream; /* Who I read from. */
-	struct archive_read *archive; /* Associated archive. */
-	/* Open a block for reading */
-	int (*open)(struct archive_read_filter *self);
-	/* Return next block. */
-	ssize_t (*read)(struct archive_read_filter *, const void **);
-	/* Skip forward this many bytes. */
-	int64 (*skip)(struct archive_read_filter *self, int64 request);
-	/* Seek to an absolute location. */
-	int64 (*seek)(struct archive_read_filter *self, int64 offset, int whence);
-	/* Close (just this filter) and SAlloc::F(self). */
-	int (*close)(struct archive_read_filter *self);
-	/* Function that handles switching from reading one block to the next/prev */
-	int (*sswitch)(struct archive_read_filter *self, uint iindex);
-	/* Read any header metadata if available. */
-	int (*read_header)(struct archive_read_filter *self, struct archive_entry *entry);
-	/* My private data. */
-	void *data;
-
-	const char	*name;
-	int		 code;
-
-	/* Used by reblocking logic. */
-	char		*buffer;
-	size_t		 buffer_size;
-	char		*next;		/* Current read location. */
-	size_t		 avail;		/* Bytes in my buffer. */
-	const void	*client_buff;	/* Client buffer information. */
-	size_t		 client_total;
-	const char	*client_next;
-	size_t		 client_avail;
-	char		 end_of_file;
-	char		 closed;
-	char		 fatal;
+	// Essentially all filters will need these values, so just declare them here.
+	struct archive_read_filter_bidder * bidder; /* My bidder. */
+	struct archive_read_filter * upstream; /* Who I read from. */
+	struct archive_read * archive; /* Associated archive. */
+	int    (* FnOpen)(struct archive_read_filter *self); /* Open a block for reading */
+	ssize_t (* FnRead)(struct archive_read_filter *, const void **); /* Return next block. */
+	int64  (* skip)(struct archive_read_filter *self, int64 request); /* Skip forward this many bytes. */
+	int64  (* seek)(struct archive_read_filter *self, int64 offset, int whence); /* Seek to an absolute location. */
+	int    (* FnClose)(struct archive_read_filter *self); /* Close (just this filter) and SAlloc::F(self). */
+	int    (* sswitch)(struct archive_read_filter *self, uint iindex); /* Function that handles switching from reading one block to the next/prev */
+	int    (* read_header)(struct archive_read_filter *self, struct archive_entry *entry); /* Read any header metadata if available. */
+	void * data; /* My private data. */
+	const char * name;
+	int    code;
+	// Used by reblocking logic
+	char * buffer;
+	size_t buffer_size;
+	char * next;  // Current read location.
+	size_t avail; // Bytes in my buffer.
+	const void * client_buff; // Client buffer information.
+	size_t client_total;
+	const char * client_next;
+	size_t client_avail;
+	char   end_of_file;
+	char   closed;
+	char   fatal;
 };
 
 /*

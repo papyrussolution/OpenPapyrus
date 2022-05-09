@@ -82,7 +82,7 @@ struct hb_serialize_context_t {
 	}
 
 	hb_serialize_context_t(void * start_, uint size) :
-		start((char*)start_),
+		start((char *)start_),
 		end(start + size),
 		current(nullptr)
 	{
@@ -481,10 +481,10 @@ struct hb_serialize_context_t {
 			{
 			if(UNLIKELY(in_error())) return nullptr;
 
-			assert(this->start <= (char*)obj);
-			assert((char*)obj <= this->head);
-			assert((char*)obj + size >= this->head);
-			if(UNLIKELY(!this->allocate_size<Type> (((char*)obj) + size - this->head))) return nullptr;
+			assert(this->start <= (char *)obj);
+			assert((char *)obj <= this->head);
+			assert((char *)obj + size >= this->head);
+			if(UNLIKELY(!this->allocate_size<Type> (((char *)obj) + size - this->head))) return nullptr;
 			return reinterpret_cast<Type *> (obj);
 		}
 
@@ -522,7 +522,7 @@ struct hb_serialize_context_t {
 			assert(this->successful);
 		        /* Copy both items from head side and tail side... */
 			uint len = (this->head - this->start) + (this->end  - this->tail);
-			char * p = (char*)SAlloc::M(len);
+			char * p = (char *)SAlloc::M(len);
 			if(UNLIKELY(!p)) 
 				return hb_bytes_t();
 			memcpy(p, this->start, this->head - this->start);
@@ -531,13 +531,13 @@ struct hb_serialize_context_t {
 		}
 		template <typename Type> Type * copy() const 
 		{
-			return reinterpret_cast<Type *> ((char*)copy_bytes().arrayZ);
+			return reinterpret_cast<Type *> ((char *)copy_bytes().arrayZ);
 		}
 
 		hb_blob_t * copy_blob() const
 		{
 			hb_bytes_t b = copy_bytes();
-			return hb_blob_create(b.arrayZ, b.length, HB_MEMORY_MODE_WRITABLE, (char*)b.arrayZ, free);
+			return hb_blob_create(b.arrayZ, b.length, HB_MEMORY_MODE_WRITABLE, (char *)b.arrayZ, free);
 		}
 		private:
 		template <typename T>

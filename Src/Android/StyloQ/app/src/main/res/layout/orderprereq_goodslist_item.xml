@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout style="@style/ListItemRegular"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/orderPrereqGoodsListItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <ImageView
         android:id="@+id/ORDERPREREQ_GOODS_IMG"
         android:layout_width="48dp"
@@ -51,19 +52,26 @@
                 android:textAlignment="viewEnd"
                 android:textColor="@color/PrimaryText"
                 />
-            <Button
-                android:id="@+id/buttonOrder"
-                android:layout_height="wrap_content"
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:minWidth="40dp"
-                android:minHeight="20dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginBottom="4dp"
-                android:textAlignment="viewEnd"
-                android:background="@color/PrimaryDark"
-                android:textColor="@color/White"
-                android:onClick="OnButtonClk"
-                />
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginLeft="8dp"
+                android:layout_marginRight="8dp">
+                <ImageButton style="@style/ToolbarButton"
+                    android:id="@+id/buttonOrder"
+                    android:layout_height="32dp"
+                    android:layout_width="32dp"
+                    android:onClick="OnButtonClk"
+                    app:srcCompat="@drawable/ic_shoppingcart01"
+                    />
+                <TextView style="@style/OrderedQtyText"
+                    android:id="@+id/ORDERPREREQ_GOODS_ORDEREDQTY"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:textAlignment="viewEnd"
+                    />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </LinearLayout>

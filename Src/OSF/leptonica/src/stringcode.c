@@ -218,7 +218,7 @@ l_ok strcodeCreateFromFile(const char * filein,
 
 	if((data = l_binaryRead(filein, &nbytes)) == NULL)
 		return ERROR_INT("data not read from file", procName, 1);
-	sa = sarrayCreateLinesFromString((char*)data, 0);
+	sa = sarrayCreateLinesFromString((char *)data, 0);
 	SAlloc::F(data);
 	if(!sa)
 		return ERROR_INT("sa not made", procName, 1);
@@ -340,7 +340,7 @@ l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
 	/* ------------------------------------------------------- */
 
 	/* Make array of textlines from TEMPLATE1 */
-	filestr = (char*)l_binaryRead(TEMPLATE1, &size);
+	filestr = (char *)l_binaryRead(TEMPLATE1, &size);
 	sa1 = sarrayCreateLinesFromString(filestr, 1);
 	SAlloc::F(filestr);
 	sa3 = sarrayCreate(0);
@@ -424,7 +424,7 @@ l_int32 strcodeFinalize(L_STRCODE  ** pstrcode,
 	/* ------------------------------------------------------- */
 
 	/* Make array of textlines from TEMPLATE2 */
-	filestr = (char*)l_binaryRead(TEMPLATE2, &size);
+	filestr = (char *)l_binaryRead(TEMPLATE2, &size);
 	sa2 = sarrayCreateLinesFromString(filestr, 1);
 	SAlloc::F(filestr);
 	sa3 = sarrayCreate(0);
@@ -679,12 +679,12 @@ static char * l_genDataString(const char * filein,
 	PROCNAME(__FUNCTION__);
 
 	if(!filein)
-		return (char*)ERROR_PTR("filein not defined", procName, NULL);
+		return (char *)ERROR_PTR("filein not defined", procName, NULL);
 
 	/* Read it in, gzip it, encode, and reformat.  We gzip because some
 	 * serialized data has a significant amount of ascii content. */
 	if((data1 = l_binaryRead(filein, &size1)) == NULL)
-		return (char*)ERROR_PTR("bindata not returned", procName, NULL);
+		return (char *)ERROR_PTR("bindata not returned", procName, NULL);
 	data2 = zlibCompress(data1, size1, &size2);
 	cdata1 = encodeBase64(data2, size2, &csize1);
 	cdata2 = reformatPacked64(cdata1, csize1, 4, 72, 1, &csize2);
@@ -757,7 +757,7 @@ static char * l_genDescrString(const char * filein,
 	PROCNAME(__FUNCTION__);
 
 	if(!filein)
-		return (char*)ERROR_PTR("filein not defined", procName, NULL);
+		return (char *)ERROR_PTR("filein not defined", procName, NULL);
 
 	splitPathAtDirectory(filein, NULL, &tail);
 	snprintf(buf, sizeof(buf), " *     %-2d       %-10s    %-14s   %s",

@@ -72,7 +72,7 @@ int archive_write_set_format_cpio(struct archive * _a)
 {
 	struct archive_write * a = (struct archive_write *)_a;
 	struct cpio * cpio;
-	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, "archive_write_set_format_cpio");
+	archive_check_magic(_a, ARCHIVE_WRITE_MAGIC, ARCHIVE_STATE_NEW, __FUNCTION__);
 	/* If someone else was already registered, unregister them. */
 	if(a->format_free != NULL)
 		(a->format_free)(a);
@@ -94,20 +94,15 @@ int archive_write_set_format_cpio(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int archive_write_cpio_options(struct archive_write * a, const char * key,
-    const char * val)
+static int archive_write_cpio_options(struct archive_write * a, const char * key, const char * val)
 {
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-
 	if(strcmp(key, "hdrcharset")  == 0) {
 		if(val == NULL || val[0] == 0)
-			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC,
-			    "%s: hdrcharset option needs a character-set name",
-			    a->format_name);
+			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {
-			cpio->opt_sconv = archive_string_conversion_to_charset(
-				&a->archive, val, 0);
+			cpio->opt_sconv = archive_string_conversion_to_charset(&a->archive, val, 0);
 			if(cpio->opt_sconv != NULL)
 				ret = ARCHIVE_OK;
 			else

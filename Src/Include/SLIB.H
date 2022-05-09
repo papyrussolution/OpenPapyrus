@@ -6608,7 +6608,7 @@ public:
 		static uint8  * P_Tab_Crc8;
 		static uint16 * P_Tab_Crc16;
 		static uint32 * P_Tab_Crc32;
-		static uint64 * P_Tab_Crc64;
+		static uint64 * P_Tab_Crc64[8];
 	};
 	//
 	// Общий подход к использованию следующих функций:
@@ -6624,6 +6624,7 @@ public:
 	static uint8  STDCALL CRC8(State * pS, const void * pData, size_t len);
 	static uint32 STDCALL CRC24(State * pS, const void * pData, size_t len);
 	static uint32 STDCALL CRC32(State * pS, const void * pData, size_t len);
+	static uint64 STDCALL CRC64(State * pS, const void * pData, size_t len);
 	static uint32 STDCALL Adler32(State * pS, const void * pData, size_t len);
 	static binary128 STDCALL Md5(State * pS, const void * pData, size_t len);
 	static binary160 STDCALL Sha1(State * pS, const void * pData, size_t len);
@@ -9731,7 +9732,7 @@ public:
 		cpuftr_X86_PBE     = 0x0101031f,
 
 		cpuftr_X86_SSE3    = 0x01010200,
-		cpuftr_X86_PCLMULQDQ       = 0x01010201,
+		cpuftr_X86_PCLMULQDQ = 0x01010201,
 		cpuftr_X86_DTES64  = 0x01010202,
 		cpuftr_X86_MONITOR = 0x01010203,
 		cpuftr_X86_DS_CPL  = 0x01010204,
@@ -9753,16 +9754,16 @@ public:
 		cpuftr_X86_X2APIC  = 0x01010215,
 		cpuftr_X86_MOVBE   = 0x01010216,
 		cpuftr_X86_POPCNT  = 0x01010217,
-		cpuftr_X86_TSC_DEADLINE    = 0x01010218,
+		cpuftr_X86_TSC_DEADLINE = 0x01010218,
 		cpuftr_X86_AES     = 0x01010219,
 		cpuftr_X86_XSAVE   = 0x0101021a,
 		cpuftr_X86_OSXSAVE = 0x0101021b,
 		cpuftr_X86_AVX     = 0x0101021c,
 		cpuftr_X86_F16C    = 0x0101021d,
 		cpuftr_X86_RDRND   = 0x0101021e,
-		cpuftr_X86_HYPERVISOR      = 0x0101021f,
+		cpuftr_X86_HYPERVISOR = 0x0101021f,
 
-		cpuftr_X86_FSGSBASE        = 0x01070100,
+		cpuftr_X86_FSGSBASE   = 0x01070100,
 		cpuftr_X86_TSC_ADJ = 0x01070101,
 		cpuftr_X86_SGX     = 0x01070102,
 		cpuftr_X86_BMI1    = 0x01070103,
@@ -9777,24 +9778,24 @@ public:
 		cpuftr_X86_MPX     = 0x0107010e,
 		cpuftr_X86_PQE     = 0x0107010f,
 		cpuftr_X86_AVX512F = 0x01070110,
-		cpuftr_X86_AVX512DQ        = 0x01070111,
-		cpuftr_X86_RDSEED  = 0x01070112,
-		cpuftr_X86_ADX     = 0x01070113,
-		cpuftr_X86_SMAP    = 0x01070114,
-		cpuftr_X86_AVX512IFMA      = 0x01070115,
-		cpuftr_X86_PCOMMIT = 0x01070116,
-		cpuftr_X86_CLFLUSHOPT      = 0x01070117,
-		cpuftr_X86_CLWB    = 0x01070118,
-		cpuftr_X86_INTEL_PT        = 0x01070119,
-		cpuftr_X86_AVX512PF        = 0x0107011a,
-		cpuftr_X86_AVX512ER        = 0x0107011b,
-		cpuftr_X86_AVX512CD        = 0x0107011c,
+		cpuftr_X86_AVX512DQ = 0x01070111,
+		cpuftr_X86_RDSEED   = 0x01070112,
+		cpuftr_X86_ADX      = 0x01070113,
+		cpuftr_X86_SMAP     = 0x01070114,
+		cpuftr_X86_AVX512IFMA  = 0x01070115,
+		cpuftr_X86_PCOMMIT     = 0x01070116,
+		cpuftr_X86_CLFLUSHOPT  = 0x01070117,
+		cpuftr_X86_CLWB        = 0x01070118,
+		cpuftr_X86_INTEL_PT    = 0x01070119,
+		cpuftr_X86_AVX512PF    = 0x0107011a,
+		cpuftr_X86_AVX512ER    = 0x0107011b,
+		cpuftr_X86_AVX512CD    = 0x0107011c,
 		cpuftr_X86_SHA     = 0x0107011d,
-		cpuftr_X86_AVX512BW        = 0x0107011e,
-		cpuftr_X86_AVX512VL        = 0x0107011f,
+		cpuftr_X86_AVX512BW    = 0x0107011e,
+		cpuftr_X86_AVX512VL    = 0x0107011f,
 
-		cpuftr_X86_PREFETCHWT1     = 0x01070200,
-		cpuftr_X86_AVX512VBMI      = 0x01070201,
+		cpuftr_X86_PREFETCHWT1 = 0x01070200,
+		cpuftr_X86_AVX512VBMI  = 0x01070201,
 		cpuftr_X86_UMIP    = 0x01070202,
 		cpuftr_X86_PKU     = 0x01070203,
 		cpuftr_X86_OSPKE   = 0x01070204,
@@ -9802,14 +9803,14 @@ public:
 		cpuftr_X86_RDPID   = 0x01070215,
 		cpuftr_X86_SGX_LC  = 0x0107021e,
 
-		cpuftr_X86_AVX512_4VNNIW   = 0x01070302,
-		cpuftr_X86_AVX512_4FMAPS   = 0x01070303,
+		cpuftr_X86_AVX512_4VNNIW = 0x01070302,
+		cpuftr_X86_AVX512_4FMAPS = 0x01070303,
 
 		cpuftr_ARM_SWP     = cpuftr_ARM | 1,
 		cpuftr_ARM_HALF    = cpuftr_ARM | 2,
 		cpuftr_ARM_THUMB   = cpuftr_ARM | 3,
 		cpuftr_ARM_26BIT   = cpuftr_ARM | 4,
-		cpuftr_ARM_FAST_MULT       = cpuftr_ARM | 5,
+		cpuftr_ARM_FAST_MULT = cpuftr_ARM | 5,
 		cpuftr_ARM_FPA     = cpuftr_ARM | 6,
 		cpuftr_ARM_VFP     = cpuftr_ARM | 7,
 		cpuftr_ARM_EDSP    = cpuftr_ARM | 8,
@@ -9819,7 +9820,7 @@ public:
 		cpuftr_ARM_THUMBEE = cpuftr_ARM | 12,
 		cpuftr_ARM_NEON    = cpuftr_ARM | 13,
 		cpuftr_ARM_VFPV3   = cpuftr_ARM | 14,
-		cpuftr_ARM_VFPV3D16        = cpuftr_ARM | 15,
+		cpuftr_ARM_VFPV3D16 = cpuftr_ARM | 15,
 		cpuftr_ARM_TLS     = cpuftr_ARM | 16,
 		cpuftr_ARM_VFPV4   = cpuftr_ARM | 17,
 		cpuftr_ARM_IDIVA   = cpuftr_ARM | 18,
@@ -9835,7 +9836,7 @@ public:
 		cpuftr_ARM_CRC32   = cpuftr_ARM | 0x0100 | 5
 	};
 	enum {
-		fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
+		// @v11.3.11 (do use IsBigEndian member) fBigEndian    = 0x0001, // Процессор имеет архитектуру BIG ENDIAN (на текущий момент флаг всегда сброшен)
 		fPerfFreqIsOk = 0x0002  // @v10.5.7
 	};
 	//
@@ -9865,7 +9866,8 @@ public:
 	//
 	int64  GetSystemTimestampMks() const;
 
-	int64  PerfFreq; // @firstmember @v10.5.7 Frequency of the performance counter. Если !(Flags & fPerfFreqIsOk) то при инициализации PerfFreq произошла ошибка.
+	uint   IsBigEndian; // @firstmember 0xfffffff - big-endian arch, 0 - low-endian
+	int64  PerfFreq;    // Frequency of the performance counter. Если !(Flags & fPerfFreqIsOk) то при инициализации PerfFreq произошла ошибка.
 	CpuVendor CpuV;
 	CpuCmdSet CpuCs;
 	size_t CpuCacheSizeL0;
@@ -15362,7 +15364,7 @@ public:
 	// Descr: Возвращает инкрементируемое целочисленное значение, уникальное в пределах данного процесса.
 	//
 	int64  GetSequenceValue();
-	const  SSystem & GetSSys() const { return SSys; }
+	//const  SSystem & GetSSys() const { return SSys; }
 	//
 	// Descr: Возвращает абсолютное время в микросекундах для целей профилирования //
 	// Note: использует локальный для потока объект SlThreadLocalArea::Prf
@@ -15401,7 +15403,9 @@ public:
 	SAlloc::Stat & GetAllocStat() { return AllocStat; }
 private:
 	long   TlsIdx;          // @firstmember
-	const  SSystem SSys;    //
+public:
+	const  SSystem SSys;    // 
+private:
 	long   Id;              // @anchor
 	ACount SeqValue;        // @anchor Последнее значение, возвращенное функций GetSequenceValue().
 		// Положение переменной должно быть выровнено по 64-битной границе.
