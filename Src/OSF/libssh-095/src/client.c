@@ -425,7 +425,7 @@ int ssh_connect(ssh_session session)
 		ssh_set_error(session, SSH_FATAL, "Library not initialized.");
 		return SSH_ERROR;
 	}
-	if(session == NULL) {
+	if(!session) {
 		return SSH_ERROR;
 	}
 	switch(session->pending_call_state) {
@@ -544,7 +544,7 @@ char * ssh_get_issue_banner(ssh_session session)
  * @endcode
  */
 int ssh_get_openssh_version(ssh_session session) {
-	if(session == NULL) {
+	if(!session) {
 		return 0;
 	}
 
@@ -561,7 +561,7 @@ void ssh_disconnect(ssh_session session)
 {
 	struct ssh_iterator * it;
 	int rc;
-	if(session == NULL) {
+	if(!session) {
 		return;
 	}
 	if(session->socket != NULL && ssh_socket_is_open(session->socket)) {

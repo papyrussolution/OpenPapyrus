@@ -79,7 +79,7 @@
 #else /* HAVE__SNPRINTF_S */
 #if defined(HAVE__SNPRINTF)
 #     undef snprintf
-#     define snprintf _snprintf
+#define snprintf _snprintf
 #else /* HAVE__SNPRINTF */
 #if !defined(HAVE_SNPRINTF)
 #error "no snprintf compatible function found"

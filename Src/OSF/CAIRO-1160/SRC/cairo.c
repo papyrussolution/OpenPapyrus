@@ -3075,7 +3075,7 @@ void cairo_show_text(cairo_t * cr, const char * utf8)
 	cairo_glyph_text_info_t info, * i;
 	if(UNLIKELY(cr->status))
 		return;
-	if(utf8 == NULL)
+	if(!utf8)
 		return;
 	scaled_font = cairo_get_scaled_font(cr);
 	if(UNLIKELY(scaled_font->status)) {
@@ -3280,7 +3280,7 @@ void cairo_text_path(cairo_t * cr, const char * utf8)
 	double x, y;
 	if(UNLIKELY(cr->status))
 		return;
-	if(utf8 == NULL)
+	if(!utf8)
 		return;
 	glyphs = stack_glyphs;
 	num_glyphs = ARRAY_LENGTH(stack_glyphs);

@@ -437,7 +437,7 @@ WrappersTestCases::WrappersTestCases(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.WrappersTestCases)
@@ -547,7 +547,7 @@ inline void WrappersTestCases::SharedCtor() {
 
 WrappersTestCases::~WrappersTestCases() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.WrappersTestCases)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -666,8 +666,8 @@ void WrappersTestCases::Clear() {
 }
 
 const char* WrappersTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -815,8 +815,7 @@ const char* WrappersTestCases::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -847,145 +846,109 @@ uint8_t* WrappersTestCases::_InternalSerialize(
   // .proto_util_converter.testing.DoubleWrapper double_wrapper = 1;
   if(this->_internal_has_double_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::double_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::double_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.FloatWrapper float_wrapper = 2;
   if(this->_internal_has_float_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::float_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::float_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.Int64Wrapper int64_wrapper = 3;
   if(this->_internal_has_int64_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::int64_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, _Internal::int64_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.UInt64Wrapper uint64_wrapper = 4;
   if(this->_internal_has_uint64_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::uint64_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(4, _Internal::uint64_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.Int32Wrapper int32_wrapper = 5;
   if(this->_internal_has_int32_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::int32_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, _Internal::int32_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.UInt32Wrapper uint32_wrapper = 6;
   if(this->_internal_has_uint32_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::uint32_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(6, _Internal::uint32_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.BoolWrapper bool_wrapper = 7;
   if(this->_internal_has_bool_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        7, _Internal::bool_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(7, _Internal::bool_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.StringWrapper string_wrapper = 8;
   if(this->_internal_has_string_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        8, _Internal::string_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(8, _Internal::string_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.BytesWrapper bytes_wrapper = 9;
   if(this->_internal_has_bytes_wrapper()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        9, _Internal::bytes_wrapper(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(9, _Internal::bytes_wrapper(this), target, stream);
   }
 
   // .proto_util_converter.testing.DoubleWrapper double_wrapper_default = 10;
   if(this->_internal_has_double_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        10, _Internal::double_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(10, _Internal::double_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.FloatWrapper float_wrapper_default = 11;
   if(this->_internal_has_float_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        11, _Internal::float_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(11, _Internal::float_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.Int64Wrapper int64_wrapper_default = 12;
   if(this->_internal_has_int64_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        12, _Internal::int64_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(12, _Internal::int64_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.UInt64Wrapper uint64_wrapper_default = 13;
   if(this->_internal_has_uint64_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        13, _Internal::uint64_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(13, _Internal::uint64_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.Int32Wrapper int32_wrapper_default = 14;
   if(this->_internal_has_int32_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        14, _Internal::int32_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(14, _Internal::int32_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.UInt32Wrapper uint32_wrapper_default = 15;
   if(this->_internal_has_uint32_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        15, _Internal::uint32_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(15, _Internal::uint32_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.BoolWrapper bool_wrapper_default = 16;
   if(this->_internal_has_bool_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        16, _Internal::bool_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(16, _Internal::bool_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.StringWrapper string_wrapper_default = 17;
   if(this->_internal_has_string_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        17, _Internal::string_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(17, _Internal::string_wrapper_default(this), target, stream);
   }
 
   // .proto_util_converter.testing.BytesWrapper bytes_wrapper_default = 18;
   if(this->_internal_has_bytes_wrapper_default()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        18, _Internal::bytes_wrapper_default(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(18, _Internal::bytes_wrapper_default(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1006,128 +969,92 @@ size_t WrappersTestCases::ByteSizeLong() const {
 
   // .proto_util_converter.testing.DoubleWrapper double_wrapper = 1;
   if(this->_internal_has_double_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *double_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*double_wrapper_);
   }
 
   // .proto_util_converter.testing.FloatWrapper float_wrapper = 2;
   if(this->_internal_has_float_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *float_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*float_wrapper_);
   }
 
   // .proto_util_converter.testing.Int64Wrapper int64_wrapper = 3;
   if(this->_internal_has_int64_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *int64_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*int64_wrapper_);
   }
 
   // .proto_util_converter.testing.UInt64Wrapper uint64_wrapper = 4;
   if(this->_internal_has_uint64_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *uint64_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uint64_wrapper_);
   }
 
   // .proto_util_converter.testing.Int32Wrapper int32_wrapper = 5;
   if(this->_internal_has_int32_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *int32_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*int32_wrapper_);
   }
 
   // .proto_util_converter.testing.UInt32Wrapper uint32_wrapper = 6;
   if(this->_internal_has_uint32_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *uint32_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uint32_wrapper_);
   }
 
   // .proto_util_converter.testing.BoolWrapper bool_wrapper = 7;
   if(this->_internal_has_bool_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *bool_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bool_wrapper_);
   }
 
   // .proto_util_converter.testing.StringWrapper string_wrapper = 8;
   if(this->_internal_has_string_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *string_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*string_wrapper_);
   }
 
   // .proto_util_converter.testing.BytesWrapper bytes_wrapper = 9;
   if(this->_internal_has_bytes_wrapper()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *bytes_wrapper_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bytes_wrapper_);
   }
 
   // .proto_util_converter.testing.DoubleWrapper double_wrapper_default = 10;
   if(this->_internal_has_double_wrapper_default()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *double_wrapper_default_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*double_wrapper_default_);
   }
 
   // .proto_util_converter.testing.FloatWrapper float_wrapper_default = 11;
   if(this->_internal_has_float_wrapper_default()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *float_wrapper_default_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*float_wrapper_default_);
   }
 
   // .proto_util_converter.testing.Int64Wrapper int64_wrapper_default = 12;
   if(this->_internal_has_int64_wrapper_default()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *int64_wrapper_default_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*int64_wrapper_default_);
   }
 
   // .proto_util_converter.testing.UInt64Wrapper uint64_wrapper_default = 13;
   if(this->_internal_has_uint64_wrapper_default()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *uint64_wrapper_default_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uint64_wrapper_default_);
   }
 
   // .proto_util_converter.testing.Int32Wrapper int32_wrapper_default = 14;
   if(this->_internal_has_int32_wrapper_default()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *int32_wrapper_default_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*int32_wrapper_default_);
   }
 
   // .proto_util_converter.testing.UInt32Wrapper uint32_wrapper_default = 15;
   if(this->_internal_has_uint32_wrapper_default()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *uint32_wrapper_default_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uint32_wrapper_default_);
   }
 
   // .proto_util_converter.testing.BoolWrapper bool_wrapper_default = 16;
   if(this->_internal_has_bool_wrapper_default()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *bool_wrapper_default_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bool_wrapper_default_);
   }
 
   // .proto_util_converter.testing.StringWrapper string_wrapper_default = 17;
   if(this->_internal_has_string_wrapper_default()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *string_wrapper_default_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*string_wrapper_default_);
   }
 
   // .proto_util_converter.testing.BytesWrapper bytes_wrapper_default = 18;
   if(this->_internal_has_bytes_wrapper_default()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *bytes_wrapper_default_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bytes_wrapper_default_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1256,7 +1183,7 @@ DoubleWrapper::DoubleWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.DoubleWrapper)
@@ -1278,7 +1205,7 @@ double__ = nullptr;
 
 DoubleWrapper::~DoubleWrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.DoubleWrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1312,8 +1239,8 @@ void DoubleWrapper::Clear() {
 }
 
 const char* DoubleWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1325,8 +1252,7 @@ const char* DoubleWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1357,9 +1283,7 @@ uint8_t* DoubleWrapper::_InternalSerialize(
   // .google.protobuf.DoubleValue double = 1;
   if(this->_internal_has_double_()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::double_(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::double_(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1380,9 +1304,7 @@ size_t DoubleWrapper::ByteSizeLong() const {
 
   // .google.protobuf.DoubleValue double = 1;
   if(this->_internal_has_double_()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *double__);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*double__);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1455,7 +1377,7 @@ FloatWrapper::FloatWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.FloatWrapper)
@@ -1477,7 +1399,7 @@ float__ = nullptr;
 
 FloatWrapper::~FloatWrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.FloatWrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1511,8 +1433,8 @@ void FloatWrapper::Clear() {
 }
 
 const char* FloatWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1524,8 +1446,7 @@ const char* FloatWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1556,9 +1477,7 @@ uint8_t* FloatWrapper::_InternalSerialize(
   // .google.protobuf.FloatValue float = 1;
   if(this->_internal_has_float_()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::float_(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::float_(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1579,9 +1498,7 @@ size_t FloatWrapper::ByteSizeLong() const {
 
   // .google.protobuf.FloatValue float = 1;
   if(this->_internal_has_float_()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *float__);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*float__);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1654,7 +1571,7 @@ Int64Wrapper::Int64Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Int64Wrapper)
@@ -1676,7 +1593,7 @@ int64_ = nullptr;
 
 Int64Wrapper::~Int64Wrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Int64Wrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1710,8 +1627,8 @@ void Int64Wrapper::Clear() {
 }
 
 const char* Int64Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1723,8 +1640,7 @@ const char* Int64Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1755,9 +1671,7 @@ uint8_t* Int64Wrapper::_InternalSerialize(
   // .google.protobuf.Int64Value int64 = 1;
   if(this->_internal_has_int64()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::int64(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::int64(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1778,9 +1692,7 @@ size_t Int64Wrapper::ByteSizeLong() const {
 
   // .google.protobuf.Int64Value int64 = 1;
   if(this->_internal_has_int64()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *int64_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*int64_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1853,7 +1765,7 @@ UInt64Wrapper::UInt64Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.UInt64Wrapper)
@@ -1875,7 +1787,7 @@ uint64_ = nullptr;
 
 UInt64Wrapper::~UInt64Wrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.UInt64Wrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1909,8 +1821,8 @@ void UInt64Wrapper::Clear() {
 }
 
 const char* UInt64Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1922,8 +1834,7 @@ const char* UInt64Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1954,9 +1865,7 @@ uint8_t* UInt64Wrapper::_InternalSerialize(
   // .google.protobuf.UInt64Value uint64 = 1;
   if(this->_internal_has_uint64()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::uint64(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::uint64(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1977,9 +1886,7 @@ size_t UInt64Wrapper::ByteSizeLong() const {
 
   // .google.protobuf.UInt64Value uint64 = 1;
   if(this->_internal_has_uint64()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *uint64_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uint64_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2052,7 +1959,7 @@ Int32Wrapper::Int32Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Int32Wrapper)
@@ -2074,7 +1981,7 @@ int32_ = nullptr;
 
 Int32Wrapper::~Int32Wrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Int32Wrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2108,8 +2015,8 @@ void Int32Wrapper::Clear() {
 }
 
 const char* Int32Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2121,8 +2028,7 @@ const char* Int32Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2153,9 +2059,7 @@ uint8_t* Int32Wrapper::_InternalSerialize(
   // .google.protobuf.Int32Value int32 = 1;
   if(this->_internal_has_int32()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::int32(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::int32(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2176,9 +2080,7 @@ size_t Int32Wrapper::ByteSizeLong() const {
 
   // .google.protobuf.Int32Value int32 = 1;
   if(this->_internal_has_int32()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *int32_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*int32_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2251,7 +2153,7 @@ UInt32Wrapper::UInt32Wrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.UInt32Wrapper)
@@ -2273,7 +2175,7 @@ uint32_ = nullptr;
 
 UInt32Wrapper::~UInt32Wrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.UInt32Wrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2307,8 +2209,8 @@ void UInt32Wrapper::Clear() {
 }
 
 const char* UInt32Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2320,8 +2222,7 @@ const char* UInt32Wrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2352,9 +2253,7 @@ uint8_t* UInt32Wrapper::_InternalSerialize(
   // .google.protobuf.UInt32Value uint32 = 1;
   if(this->_internal_has_uint32()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::uint32(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::uint32(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2375,9 +2274,7 @@ size_t UInt32Wrapper::ByteSizeLong() const {
 
   // .google.protobuf.UInt32Value uint32 = 1;
   if(this->_internal_has_uint32()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *uint32_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uint32_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2450,7 +2347,7 @@ BoolWrapper::BoolWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.BoolWrapper)
@@ -2472,7 +2369,7 @@ bool__ = nullptr;
 
 BoolWrapper::~BoolWrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.BoolWrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2506,8 +2403,8 @@ void BoolWrapper::Clear() {
 }
 
 const char* BoolWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2519,8 +2416,7 @@ const char* BoolWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2551,9 +2447,7 @@ uint8_t* BoolWrapper::_InternalSerialize(
   // .google.protobuf.BoolValue bool = 1;
   if(this->_internal_has_bool_()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::bool_(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::bool_(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2574,9 +2468,7 @@ size_t BoolWrapper::ByteSizeLong() const {
 
   // .google.protobuf.BoolValue bool = 1;
   if(this->_internal_has_bool_()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *bool__);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bool__);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2649,7 +2541,7 @@ StringWrapper::StringWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.StringWrapper)
@@ -2671,7 +2563,7 @@ string_ = nullptr;
 
 StringWrapper::~StringWrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.StringWrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2705,8 +2597,8 @@ void StringWrapper::Clear() {
 }
 
 const char* StringWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2718,8 +2610,7 @@ const char* StringWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2750,9 +2641,7 @@ uint8_t* StringWrapper::_InternalSerialize(
   // .google.protobuf.StringValue string = 1;
   if(this->_internal_has_string()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::string(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::string(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2773,9 +2662,7 @@ size_t StringWrapper::ByteSizeLong() const {
 
   // .google.protobuf.StringValue string = 1;
   if(this->_internal_has_string()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *string_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*string_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2848,7 +2735,7 @@ BytesWrapper::BytesWrapper(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.BytesWrapper)
@@ -2870,7 +2757,7 @@ bytes_ = nullptr;
 
 BytesWrapper::~BytesWrapper() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.BytesWrapper)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2904,8 +2791,8 @@ void BytesWrapper::Clear() {
 }
 
 const char* BytesWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2917,8 +2804,7 @@ const char* BytesWrapper::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2949,9 +2835,7 @@ uint8_t* BytesWrapper::_InternalSerialize(
   // .google.protobuf.BytesValue bytes = 1;
   if(this->_internal_has_bytes()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::bytes(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::bytes(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2972,9 +2856,7 @@ size_t BytesWrapper::ByteSizeLong() const {
 
   // .google.protobuf.BytesValue bytes = 1;
   if(this->_internal_has_bytes()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *bytes_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bytes_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -3030,34 +2912,34 @@ void BytesWrapper::InternalSwap(BytesWrapper* other) {
 }  // namespace testing
 }  // namespace proto_util_converter
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::WrappersTestCases* Arena::CreateMaybeMessage< ::proto_util_converter::testing::WrappersTestCases >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::WrappersTestCases * Arena::CreateMaybeMessage< ::proto_util_converter::testing::WrappersTestCases >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::WrappersTestCases >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::DoubleWrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::DoubleWrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::DoubleWrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::DoubleWrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::DoubleWrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::FloatWrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::FloatWrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::FloatWrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::FloatWrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::FloatWrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Int64Wrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Int64Wrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Int64Wrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Int64Wrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Int64Wrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::UInt64Wrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::UInt64Wrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::UInt64Wrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::UInt64Wrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::UInt64Wrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Int32Wrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Int32Wrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Int32Wrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Int32Wrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Int32Wrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::UInt32Wrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::UInt32Wrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::UInt32Wrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::UInt32Wrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::UInt32Wrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BoolWrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::BoolWrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BoolWrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::BoolWrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::BoolWrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::StringWrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::StringWrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::StringWrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::StringWrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::StringWrapper >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BytesWrapper* Arena::CreateMaybeMessage< ::proto_util_converter::testing::BytesWrapper >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BytesWrapper * Arena::CreateMaybeMessage< ::proto_util_converter::testing::BytesWrapper >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::BytesWrapper >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

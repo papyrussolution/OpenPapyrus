@@ -78,8 +78,8 @@ void WrapperFieldGenerator::GenerateMembers(io::Printer* printer)
 void WrapperFieldGenerator::GenerateMergingCode(io::Printer* printer) 
 {
 	printer->Print(variables_,
-		"if (other.$has_property_check$) {\n"
-		"  if ($has_not_property_check$ || other.$property_name$ != $default_value$) {\n"
+		"if(other.$has_property_check$) {\n"
+		"  if($has_not_property_check$ || other.$property_name$ != $default_value$) {\n"
 		"    $property_name$ = other.$property_name$;\n"
 		"  }\n"
 		"}\n");
@@ -94,11 +94,11 @@ void WrapperFieldGenerator::GenerateParsingCode(io::Printer* printer, bool use_p
 		variables_,
 		use_parse_context
 		? "$type_name$ value = _single_$name$_codec.Read(ref input);\n"
-		"if ($has_not_property_check$ || value != $default_value$) {\n"
+		"if($has_not_property_check$ || value != $default_value$) {\n"
 		"  $property_name$ = value;\n"
 		"}\n"
 		: "$type_name$ value = _single_$name$_codec.Read(input);\n"
-		"if ($has_not_property_check$ || value != $default_value$) {\n"
+		"if($has_not_property_check$ || value != $default_value$) {\n"
 		"  $property_name$ = value;\n"
 		"}\n");
 }
@@ -111,44 +111,39 @@ void WrapperFieldGenerator::GenerateSerializationCode(io::Printer* printer, bool
 	printer->Print(
 		variables_,
 		use_write_context
-		? "if ($has_property_check$) {\n"
+		? "if($has_property_check$) {\n"
 		"  _single_$name$_codec.WriteTagAndValue(ref output, $property_name$);\n"
 		"}\n"
-		: "if ($has_property_check$) {\n"
+		: "if($has_property_check$) {\n"
 		"  _single_$name$_codec.WriteTagAndValue(output, $property_name$);\n"
 		"}\n");
 }
 
 void WrapperFieldGenerator::GenerateSerializedSizeCode(io::Printer* printer) {
-	printer->Print(
-		variables_,
-		"if ($has_property_check$) {\n"
+	printer->Print(variables_,
+		"if($has_property_check$) {\n"
 		"  size += _single_$name$_codec.CalculateSizeWithTag($property_name$);\n"
 		"}\n");
 }
 
 void WrapperFieldGenerator::WriteHash(io::Printer* printer) {
-	const char * text = "if ($has_property_check$) hash ^= $property_name$.GetHashCode();\n";
+	const char * text = "if($has_property_check$) hash ^= $property_name$.GetHashCode();\n";
 	if(descriptor_->message_type()->field(0)->type() == FieldDescriptor::TYPE_FLOAT) {
-		text =
-		    "if ($has_property_check$) hash ^= pbc::ProtobufEqualityComparers.BitwiseNullableSingleEqualityComparer.GetHashCode($property_name$);\n";
+		text = "if($has_property_check$) hash ^= pbc::ProtobufEqualityComparers.BitwiseNullableSingleEqualityComparer.GetHashCode($property_name$);\n";
 	}
 	else if(descriptor_->message_type()->field(0)->type() == FieldDescriptor::TYPE_DOUBLE) {
-		text =
-		    "if ($has_property_check$) hash ^= pbc::ProtobufEqualityComparers.BitwiseNullableDoubleEqualityComparer.GetHashCode($property_name$);\n";
+		text = "if($has_property_check$) hash ^= pbc::ProtobufEqualityComparers.BitwiseNullableDoubleEqualityComparer.GetHashCode($property_name$);\n";
 	}
 	printer->Print(variables_, text);
 }
 
 void WrapperFieldGenerator::WriteEquals(io::Printer* printer) {
-	const char * text = "if ($property_name$ != other.$property_name$) return false;\n";
+	const char * text = "if($property_name$ != other.$property_name$) return false;\n";
 	if(descriptor_->message_type()->field(0)->type() == FieldDescriptor::TYPE_FLOAT) {
-		text =
-		    "if (!pbc::ProtobufEqualityComparers.BitwiseNullableSingleEqualityComparer.Equals($property_name$, other.$property_name$)) return false;\n";
+		text = "if(!pbc::ProtobufEqualityComparers.BitwiseNullableSingleEqualityComparer.Equals($property_name$, other.$property_name$)) return false;\n";
 	}
 	else if(descriptor_->message_type()->field(0)->type() == FieldDescriptor::TYPE_DOUBLE) {
-		text =
-		    "if (!pbc::ProtobufEqualityComparers.BitwiseNullableDoubleEqualityComparer.Equals($property_name$, other.$property_name$)) return false;\n";
+		text = "if(!pbc::ProtobufEqualityComparers.BitwiseNullableDoubleEqualityComparer.Equals($property_name$, other.$property_name$)) return false;\n";
 	}
 	printer->Print(variables_, text);
 }
@@ -229,7 +224,7 @@ void WrapperOneofFieldGenerator::GenerateMembers(io::Printer* printer) {
 		printer->Print(
 			variables_,
 			"$access_level$ void Clear$property_name$() {\n"
-			"  if ($has_property_check$) {\n"
+			"  if($has_property_check$) {\n"
 			"    Clear$oneof_property_name$();\n"
 			"  }\n"
 			"}\n");
@@ -258,22 +253,19 @@ void WrapperOneofFieldGenerator::GenerateSerializationCode(io::Printer* printer)
 
 void WrapperOneofFieldGenerator::GenerateSerializationCode(io::Printer* printer, bool use_write_context) {
 	// TODO: I suspect this is wrong...
-	printer->Print(
-		variables_,
-		use_write_context
-		? "if ($has_property_check$) {\n"
+	printer->Print(variables_,
+		use_write_context ? "if($has_property_check$) {\n"
 		"  _oneof_$name$_codec.WriteTagAndValue(ref output, ($type_name$) $oneof_name$_);\n"
 		"}\n"
-		: "if ($has_property_check$) {\n"
+		: "if($has_property_check$) {\n"
 		"  _oneof_$name$_codec.WriteTagAndValue(output, ($type_name$) $oneof_name$_);\n"
 		"}\n");
 }
 
 void WrapperOneofFieldGenerator::GenerateSerializedSizeCode(io::Printer* printer) {
 	// TODO: I suspect this is wrong...
-	printer->Print(
-		variables_,
-		"if ($has_property_check$) {\n"
+	printer->Print(variables_,
+		"if($has_property_check$) {\n"
 		"  size += _oneof_$name$_codec.CalculateSizeWithTag($property_name$);\n"
 		"}\n");
 }

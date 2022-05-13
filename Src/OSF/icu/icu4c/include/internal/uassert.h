@@ -48,7 +48,7 @@
 #if defined(UPRV_UNREACHABLE_ASSERT)
     // Use the predefined value.
 #elif U_DEBUG
-#   include <assert.h>
+#include <assert.h>
 #define UPRV_UNREACHABLE_ASSERT assert(false)
 #elif U_CPLUSPLUS_VERSION
 #define UPRV_UNREACHABLE_ASSERT (void)0

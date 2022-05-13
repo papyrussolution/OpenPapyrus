@@ -28,10 +28,10 @@
 
 // ICU-20853=ICU-20935 Solaris #defines CS and ES in sys/regset.h
 #ifdef CS
-#   undef CS
+#undef CS
 #endif
 #ifdef ES
-#   undef ES
+#undef ES
 #endif
 
 typedef uint8 DirProp;
@@ -215,8 +215,7 @@ typedef struct Run {
 #define IS_ODD_RUN(x)  ((bool)(((x)&INDEX_ODD_BIT)!=0))
 #define IS_EVEN_RUN(x) ((bool)(((x)&INDEX_ODD_BIT)==0))
 
-U_CFUNC bool
-ubidi_getRuns(UBiDi *pBiDi, UErrorCode *pErrorCode);
+U_CFUNC bool ubidi_getRuns(UBiDi *pBiDi, UErrorCode *pErrorCode);
 
 /** BiDi control code points */
 enum {

@@ -331,7 +331,7 @@ int PPCashMachine::_SyncCloseBill(int ret, int use_ta)
 					sum -= BR2(bill_rec.Amount);
 				else
 					sum += BR2(bill_rec.Amount);
-				if(count == 0 && NodeRec.DownBill == 0) {
+				if(!count && NodeRec.DownBill == 0) {
 					THROW(p_bobj->TurnPacket(&pack, 0));
 					//
 					// Засекаем ид. результирующего документа
@@ -846,7 +846,7 @@ int PPCashMachine::SyncSetPrintErrCode(int retCode, int updateNode)
 CmLocking::CmLocking(const PPCashNode & rNodeRec) : R_NodeRec(rNodeRec), Flags(0)
 {
 	int    r = PPObjCashNode::IsLocked(R_NodeRec.ID);
-	if(r == 0) {
+	if(!r) {
 		r = PPObjCashNode::Lock(R_NodeRec.ID);
 		if(!r)
 			Flags |= fError;

@@ -288,7 +288,7 @@ int ACS_DREAMKAS::SendGoods(SJson ** ppJson, uint & rCount, int update, int forc
 			//
 			json_free_value(ppJson);
 			if(!force) {
-				THROW_MEM(*ppJson = new SJson(SJson::tARRAY));
+				THROW_MEM(*ppJson = SJson::CreateArr());
 			}
 			rCount = 0;
 		}
@@ -311,8 +311,8 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 	uint   items_to_create_count = 0;
 	uint   items_to_update_count = 0;
 	char * p_json_buf = 0;
-	SJson * p_iter_ary_to_create = new SJson(SJson::tARRAY);
-	SJson * p_iter_ary_to_update = new SJson(SJson::tARRAY);
+	SJson * p_iter_ary_to_create = SJson::CreateArr();
+	SJson * p_iter_ary_to_update = SJson::CreateArr();
 	THROW_SL(p_iter_ary_to_create);
 	THROW_SL(p_iter_ary_to_update);
 	THROW(ImportGoodsList(ex_goods_list));
@@ -333,7 +333,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 			}
 			{
 				int    is_wght = 0; // @v10.8.4 Признак весового товара
-				SJson * p_iter_obj = new SJson(SJson::tOBJECT);
+				SJson * p_iter_obj = SJson::CreateObj();
 				THROW_SL(p_iter_obj);
 				THROW_SL(p_iter_obj->InsertString("id", temp_buf.Z().Cat(gds_info.Uuid, S_GUID::fmtIDL)));
 				THROW_SL(p_iter_obj->InsertString("name", temp_buf.Z().Cat(gds_info.Name).Escape().Transf(CTRANSF_INNER_TO_UTF8)));
@@ -354,10 +354,10 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 				THROW_SL(p_iter_obj->Insert("quantity", json_new_number(temp_buf.Z().Cat(1000))));
 				THROW_SL(p_iter_obj->Insert("price", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
 				if(LogNumList.getCount()) {
-					SJson * p_price_ary = new SJson(SJson::tARRAY);
+					SJson * p_price_ary = SJson::CreateArr();
 					THROW_SL(p_price_ary);
 					for(uint i = 0; i < LogNumList.getCount(); i++) {
-						SJson * p_price_obj = new SJson(SJson::tOBJECT);
+						SJson * p_price_obj = SJson::CreateObj();
 						THROW_SL(p_price_obj);
 						THROW_SL(p_price_obj->Insert("deviceId", json_new_number(temp_buf.Z().Cat(LogNumList.get(i)))));
 						THROW_SL(p_price_obj->Insert("value", json_new_number(temp_buf.Z().Cat((long)(gds_info.Price * 100.0)))));
@@ -380,7 +380,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 						}
 					}
 					if(normal_bc_pos_list.getCount()) {
-						SJson * p_array = new SJson(SJson::tARRAY);
+						SJson * p_array = SJson::CreateArr();
 						for(uint j = 0; j < normal_bc_pos_list.getCount(); j++) {
 							const char * p_code = gds_info.P_CodeList->at(normal_bc_pos_list.get(j)-1).Code;
 							THROW_SL(json_insert_child(p_array, json_new_string(p_code)));
@@ -388,7 +388,7 @@ int ACS_DREAMKAS::ExportGoods(AsyncCashGoodsIterator & rIter, PPID gcAlcID)
 						p_iter_obj->Insert("barcodes", p_array);
 					}
 					{
-						SJson * p_array = new SJson(SJson::tARRAY);
+						SJson * p_array = SJson::CreateArr();
 						THROW_SL(json_insert_child(p_array, json_new_string(temp_buf.Z().Cat(gds_info.ID))));
 						if(etc_bc_pos_list.getCount()) {
 							for(uint j = 0; j < etc_bc_pos_list.getCount(); j++) { // @v10.7.1 @fix normal_bc_pos_list-->etc_bc_pos_list

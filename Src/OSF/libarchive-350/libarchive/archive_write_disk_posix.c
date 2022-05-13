@@ -737,7 +737,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	/* If we changed directory above, restore it here. */
 	if(a->restore_pwd >= 0) {
 		r = fchdir(a->restore_pwd);
-		if(r != 0) {
+		if(r) {
 			archive_set_error(&a->archive, errno, "chdir() failure");
 			ret = ARCHIVE_FATAL;
 		}
@@ -1811,7 +1811,7 @@ struct archive * archive_write_disk_new(void)                 {
 	struct archive_write_disk * a;
 
 	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
 	/* We're ready to write a header immediately. */
@@ -1982,7 +1982,7 @@ static int restore_entry(struct archive_write_disk * a)
 		 */
 		if(r != 0 || !S_ISDIR(a->mode))
 			r = lstat(a->name, &a->st);
-		if(r != 0) {
+		if(r) {
 			archive_set_error(&a->archive, errno, "Can't stat existing object");
 			return ARCHIVE_FAILED;
 		}
@@ -2085,7 +2085,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 	/* We identify hard/symlinks according to the link names. */
 	/* Since link(2) and symlink(2) don't handle modes, we're done here. */
 	linkname = archive_entry_hardlink(a->entry);
-	if(linkname != NULL) {
+	if(linkname) {
 #if !HAVE_LINK
 		return (EPERM);
 #else
@@ -2154,7 +2154,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 #else
 			r = la_stat(a->name, &st);
 #endif
-			if(r != 0)
+			if(r)
 				r = errno;
 			else if((st.st_mode & AE_IFMT) == AE_IFREG) {
 				a->fd = open(a->name, O_WRONLY | O_TRUNC |
@@ -2168,7 +2168,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 #endif
 	}
 	linkname = archive_entry_symlink(a->entry);
-	if(linkname != NULL) {
+	if(linkname) {
 #if HAVE_SYMLINK
 		/*
 		 * Unlinking and linking here is really not atomic,
@@ -2243,7 +2243,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		case AE_IFDIR:
 		    mode = (mode | MINIMUM_DIR_MODE) & MAXIMUM_DIR_MODE;
 		    r = mkdir(a->name, mode);
-		    if(r == 0) {
+		    if(!r) {
 			    /* Defer setting dir times. */
 			    a->deferred |= (a->todo & TODO_TIMES);
 			    a->todo &= ~TODO_TIMES;
@@ -2579,7 +2579,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 #else
 		r = lstat(head, &st);
 #endif
-		if(r != 0) {
+		if(r) {
 			tail[0] = c;
 			/* We've hit a dir that doesn't exist; stop now. */
 			if(errno == ENOENT) {
@@ -2618,7 +2618,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 #else
 				r = chdir(head);
 #endif
-				if(r != 0) {
+				if(r) {
 					tail[0] = c;
 					fsobj_error(a_eno, a_estr, errno,
 					    "Could not chdir ", path);
@@ -2641,7 +2641,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 #else
 				r = unlink(head);
 #endif
-				if(r != 0) {
+				if(r) {
 					tail[0] = c;
 					fsobj_error(a_eno, a_estr, errno,
 					    "Could not remove symlink ",
@@ -2677,7 +2677,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 #else
 				r = unlink(head);
 #endif
-				if(r != 0) {
+				if(r) {
 					tail[0] = c;
 					fsobj_error(a_eno, a_estr, 0,
 					    "Cannot remove intervening "
@@ -2701,7 +2701,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 #else
 				r = la_stat(head, &st);
 #endif
-				if(r != 0) {
+				if(r) {
 					tail[0] = c;
 					if(errno == ENOENT) {
 						break;
@@ -2727,7 +2727,7 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 #else
 					r = chdir(head);
 #endif
-					if(r != 0) {
+					if(r) {
 						tail[0] = c;
 						fsobj_error(a_eno, a_estr,
 						    errno,
@@ -2774,13 +2774,13 @@ static int check_symlinks_fsobj(char * path, int * a_eno, struct archive_string 
 	/* If we changed directory above, restore it here. */
 	if(chdir_fd >= 0) {
 		r = fchdir(chdir_fd);
-		if(r != 0) {
+		if(r) {
 			fsobj_error(a_eno, a_estr, errno,
 			    "chdir() failure", "");
 		}
 		close(chdir_fd);
 		chdir_fd = -1;
-		if(r != 0) {
+		if(r) {
 			res = (ARCHIVE_FATAL);
 		}
 	}
@@ -4177,7 +4177,7 @@ static int set_xattrs(struct archive_write_disk * a)
 		const void * value;
 		size_t size;
 		archive_entry_xattr_next(entry, &name, &value, &size);
-		if(name != NULL) {
+		if(name) {
 			int e;
 			int _namespace;
 			_namespace = EXTATTR_NAMESPACE_USER;

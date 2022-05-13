@@ -26,7 +26,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2, ASN1_
 	int i, inl = 0, outl = 0;
 	size_t inll = 0, outll = 0;
 	X509_ALGOR * a;
-	if(ctx == NULL) {
+	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_SIGN, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
@@ -35,7 +35,7 @@ int ASN1_sign(i2d_of_void * i2d, X509_ALGOR * algor1, X509_ALGOR * algor2, ASN1_
 			a = algor1;
 		else
 			a = algor2;
-		if(a == NULL)
+		if(!a)
 			continue;
 		if(type->pkey_type == NID_dsaWithSHA1) {
 			/*
@@ -110,7 +110,7 @@ int ASN1_item_sign(const ASN1_ITEM * it, X509_ALGOR * algor1, X509_ALGOR * algor
 {
 	int rv;
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ASN1err(ASN1_F_ASN1_ITEM_SIGN, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

@@ -1,11 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2014-2015, International Business Machines Corporation and
- * others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2014-2015, International Business Machines Corporation and others. All Rights Reserved.
+//
 #include <icu-internal.h>
 #pragma hdrstop
 #if !UCONFIG_NO_BREAK_ITERATION && !UCONFIG_NO_FILTERED_BREAK_ITERATION
@@ -20,7 +16,8 @@ U_NAMESPACE_BEGIN
 #endif
 
 #if FB_DEBUG
-static void _fb_trace(const char * m, const UnicodeString * s, bool b, int32_t d, const char * f, int l) {
+static void _fb_trace(const char * m, const UnicodeString * s, bool b, int32_t d, const char * f, int l) 
+{
 	char buf[2048];
 	if(s) {
 		s->extract(0, s->length(), buf, 2048);
@@ -28,8 +25,7 @@ static void _fb_trace(const char * m, const UnicodeString * s, bool b, int32_t d
 	else {
 		strcpy(buf, "NULL");
 	}
-	slfprintf_stderr("%s:%d: %s. s='%s'(%p), b=%c, d=%d\n",
-	    f, l, m, buf, (const void *)s, b ? 'T' : 'F', (int)d);
+	slfprintf_stderr("%s:%d: %s. s='%s'(%p), b=%c, d=%d\n", f, l, m, buf, (const void *)s, b ? 'T' : 'F', (int)d);
 }
 
 #define FB_TRACE(m, s, b, d) _fb_trace(m, s, b, d, __FILE__, __LINE__)
@@ -40,7 +36,8 @@ static void _fb_trace(const char * m, const UnicodeString * s, bool b, int32_t d
 /**
  * Used with sortedInsert()
  */
-static int32_t U_CALLCONV compareUnicodeString(UElement t1, UElement t2) {
+static int32_t U_CALLCONV compareUnicodeString(UElement t1, UElement t2) 
+{
 	const UnicodeString & a = *(const UnicodeString *)t1.pointer;
 	const UnicodeString & b = *(const UnicodeString *)t2.pointer;
 	return a.compare(b);

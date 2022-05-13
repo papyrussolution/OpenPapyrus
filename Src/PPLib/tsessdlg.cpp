@@ -212,7 +212,7 @@ int PrcTechCtrlGroup::setData(TDialog * pDlg, void * pData)
 		setupArticle(pDlg, &prc_rec);
 	}
 	else {
-		if(r == 0)
+		if(!r)
 			ok = 0;
 	}
 	setupCreateGoodsButton(pDlg);
@@ -844,7 +844,7 @@ void TSessionDialog::SetupSCard()
 				if(TSesObj.Search(temp_pack.Rec.ID, &rec) > 0)
 					setCtrlReal(CTL_TSESS_AMOUNT, Data.Rec.Amount = rec.Amount);
 			}
-			else if(r == 0)
+			else if(!r)
 				PPError();
 		}
 	}
@@ -1832,7 +1832,7 @@ IMPL_HANDLE_EVENT(TSessLineDialog)
 		else if(event.isCbSelected(CTLSEL_TSESSLN_GOODS)) {
 			const  PPID goods_id = getCtrlLong(CTLSEL_TSESSLN_GOODS);
 			const  int  r = TSesObj.SetupLineGoods(&Data, goods_id, 0, 0);
-			if(r == 0) {
+			if(!r) {
 				setCtrlLong(CTLSEL_TSESSLN_GOODS, Data.GoodsID);
 				PPError();
 			}

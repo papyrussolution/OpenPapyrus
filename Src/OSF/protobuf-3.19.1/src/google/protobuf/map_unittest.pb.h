@@ -3720,11 +3720,11 @@ inline const ::protobuf_unittest::TestMap& TestMapSubmessage::test_map() const {
 }
 inline void TestMapSubmessage::unsafe_arena_set_allocated_test_map(
     ::protobuf_unittest::TestMap* test_map) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(test_map_);
   }
   test_map_ = test_map;
-  if (test_map) {
+  if(test_map) {
     
   } else {
     
@@ -3738,9 +3738,9 @@ inline ::protobuf_unittest::TestMap* TestMapSubmessage::release_test_map() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3755,7 +3755,7 @@ inline ::protobuf_unittest::TestMap* TestMapSubmessage::unsafe_arena_release_tes
 }
 inline ::protobuf_unittest::TestMap* TestMapSubmessage::_internal_mutable_test_map() {
   
-  if (test_map_ == nullptr) {
+  if(test_map_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestMap>(GetArenaForAllocation());
     test_map_ = p;
   }
@@ -3768,15 +3768,14 @@ inline ::protobuf_unittest::TestMap* TestMapSubmessage::mutable_test_map() {
 }
 inline void TestMapSubmessage::set_allocated_test_map(::protobuf_unittest::TestMap* test_map) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete test_map_;
   }
-  if (test_map) {
+  if(test_map) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestMap>::GetOwningArena(test_map);
-    if (message_arena != submessage_arena) {
-      test_map = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, test_map, submessage_arena);
+    if(message_arena != submessage_arena) {
+      test_map = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, test_map, submessage_arena);
     }
     
   } else {

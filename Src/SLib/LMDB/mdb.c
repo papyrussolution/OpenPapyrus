@@ -195,7 +195,7 @@ extern int cacheflush(char * addr, int nbytes, int cache);
 #else
 #define BYTE_ORDER  BIG_ENDIAN
 #endif
-# else
+#else
 #define BYTE_ORDER   __BYTE_ORDER
 #endif
 #endif
@@ -4410,7 +4410,7 @@ static int ESECT mdb_fopen(const MDB_env * env, MDB_name * fname, enum mdb_fopen
 			 */
 #ifdef F_NOCACHE       /* __APPLE__ */
 			(void)fcntl(fd, F_NOCACHE, 1);
-# elif defined O_DIRECT
+#elif defined O_DIRECT
 			/* open(...O_DIRECT...) would break on filesystems without
 			 * O_DIRECT support (ITS#7682). Try to set it here instead.
 			 */
@@ -6748,7 +6748,7 @@ int mdb_cursor_get(MDB_cursor * mc, MDB_val * key, MDB_val * data, MDB_cursor_op
 		case MDB_SET:
 		case MDB_SET_KEY:
 		case MDB_SET_RANGE:
-		    if(key == NULL) {
+		    if(!key) {
 			    rc = EINVAL;
 		    }
 		    else {
@@ -9994,7 +9994,7 @@ static int mdb_drop0(MDB_cursor * mc, int subs)
 						pgno_t pg;
 						memcpy(&pg, NODEDATA(ni), sizeof(pg));
 						rc = mdb_page_get(mc, pg, &omp, NULL);
-						if(rc != 0)
+						if(rc)
 							goto done;
 						mdb_cassert(mc, IS_OVERFLOW(omp));
 						rc = mdb_midl_append_range(&txn->mt_free_pgs, pg, omp->mp_pages);

@@ -437,7 +437,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
 	long int i;
 	uint u;
 	//int rc;
-	if(session == NULL) {
+	if(!session) {
 		return -1;
 	}
 	switch(type) {
@@ -1050,7 +1050,7 @@ int ssh_options_set(ssh_session session, enum ssh_options_e type, const void * v
  *
  */
 int ssh_options_get_port(ssh_session session, uint* port_target) {
-	if(session == NULL) {
+	if(!session) {
 		return -1;
 	}
 
@@ -1111,7 +1111,7 @@ int ssh_options_get(ssh_session session, enum ssh_options_e type, char ** value)
 {
 	char * src = NULL;
 
-	if(session == NULL) {
+	if(!session) {
 		return SSH_ERROR;
 	}
 
@@ -1155,7 +1155,7 @@ int ssh_options_get(ssh_session session, enum ssh_options_e type, char ** value)
 		    return SSH_ERROR;
 		    break;
 	}
-	if(src == NULL) {
+	if(!src) {
 		return SSH_ERROR;
 	}
 	*value = sstrdup(src);
@@ -1373,7 +1373,7 @@ int ssh_options_parse_config(ssh_session session, const char * filename) {
 	char * expanded_filename;
 	int r;
 
-	if(session == NULL) {
+	if(!session) {
 		return -1;
 	}
 	if(session->opts.host == NULL) {
@@ -2103,7 +2103,7 @@ int ssh_bind_options_parse_config(ssh_bind sshbind, const char * filename)
 	 * before the provided configuration. */
 	if(!(sshbind->config_processed)) {
 		rc = ssh_bind_config_parse_file(sshbind, GLOBAL_BIND_CONFIG);
-		if(rc != 0) {
+		if(rc) {
 			return rc;
 		}
 		sshbind->config_processed = true;

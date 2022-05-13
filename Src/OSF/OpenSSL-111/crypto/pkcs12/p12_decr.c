@@ -28,7 +28,7 @@ uchar * PKCS12_pbe_crypt(const X509_ALGOR * algor,
 	int outlen, i;
 	EVP_CIPHER_CTX * ctx = EVP_CIPHER_CTX_new();
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		PKCS12err(PKCS12_F_PKCS12_PBE_CRYPT, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

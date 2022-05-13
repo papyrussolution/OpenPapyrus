@@ -20,9 +20,9 @@
 
 // Some people may want to compile as C++ with all warnings on, in this case make compiler silent
 #ifdef _MSC_VER
-#    if(_MSC_VER >= 1400)
-#       pragma warning( disable : 4365 )
-#    endif
+#if(_MSC_VER >= 1400)
+#pragma warning( disable : 4365 )
+#endif
 #endif
 
 // Interpolation routines by default
@@ -136,24 +136,21 @@ cmsInterpParams* _cmsComputeInterpParamsEx(cmsContext ContextID,
 }
 
 // This one is a wrapper on the anterior, but assuming all directions have same number of nodes
-cmsInterpParams* CMSEXPORT _cmsComputeInterpParams(cmsContext ContextID, uint32 nSamples,
-    uint32 InputChan, uint32 OutputChan, const void * Table, uint32 dwFlags)
+cmsInterpParams * CMSEXPORT _cmsComputeInterpParams(cmsContext ContextID, uint32 nSamples, uint32 InputChan, uint32 OutputChan, const void * Table, uint32 dwFlags)
 {
-	int i;
 	uint32 Samples[MAX_INPUT_DIMENSIONS];
-
 	// Fill the auxiliary array
-	for(i = 0; i < MAX_INPUT_DIMENSIONS; i++)
+	for(int i = 0; i < MAX_INPUT_DIMENSIONS; i++)
 		Samples[i] = nSamples;
-
 	// Call the extended function
 	return _cmsComputeInterpParamsEx(ContextID, Samples, InputChan, OutputChan, Table, dwFlags);
 }
 
 // Free all associated memory
-void CMSEXPORT _cmsFreeInterpParams(cmsInterpParams* p)
+void CMSEXPORT _cmsFreeInterpParams(cmsInterpParams * p)
 {
-	if(p) _cmsFree(p->ContextID, p);
+	if(p)
+		_cmsFree(p->ContextID, p);
 }
 
 // Inline fixed point interpolation
@@ -360,8 +357,8 @@ static CMS_NO_SANITIZE void BilinearInterp16(const uint16 Input[], uint16 Output
 		Output[OutChan] = (uint16)dxy;
 	}
 
-#   undef LERP
-#   undef DENS
+#undef LERP
+#undef DENS
 }
 
 // Trilinear interpolation (16 bits) - float version
@@ -425,8 +422,8 @@ static void TrilinearInterpFloat(const float Input[], float Output[], const cmsI
 		Output[OutChan] = dxyz;
 	}
 
-#   undef LERP
-#   undef DENS
+#undef LERP
+#undef DENS
 }
 
 // Trilinear interpolation (16 bits) - optimized version
@@ -493,8 +490,8 @@ static CMS_NO_SANITIZE void TrilinearInterp16(const uint16 Input[], uint16 Outpu
 		Output[OutChan] = (uint16)dxyz;
 	}
 
-#   undef LERP
-#   undef DENS
+#undef LERP
+#undef DENS
 }
 
 // Tetrahedral interpolation, using Sakamoto algorithm.

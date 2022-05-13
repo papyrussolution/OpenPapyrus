@@ -401,7 +401,7 @@ int PEM_do_header(EVP_CIPHER_INFO * cipher, uchar * data, long * plen,
 		return 0;
 
 	ctx = EVP_CIPHER_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	ok = EVP_DecryptInit_ex(ctx, cipher->cipher, NULL, key, &(cipher->iv[0]));
@@ -566,7 +566,7 @@ int PEM_write_bio(BIO * bp, const char * name, const char * header,
 	int reason = ERR_R_BUF_LIB;
 	int retval = 0;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		reason = ERR_R_MALLOC_FAILURE;
 		goto err;
 	}
@@ -854,7 +854,7 @@ int PEM_read_bio_ex(BIO * bp, char ** name_out, char ** header,
 	int len, taillen, headerlen, ret = 0;
 	BUF_MEM * buf_mem;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		PEMerr(PEM_F_PEM_READ_BIO_EX, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

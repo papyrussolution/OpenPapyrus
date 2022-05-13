@@ -160,7 +160,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphras
 	}
 
 	key = ssh_key_new();
-	if(key == NULL) {
+	if(!key) {
 		goto fail;
 	}
 
@@ -246,19 +246,19 @@ int pki_privkey_build_rsa(ssh_key key,
 		ssh_string_data(q), ssh_string_len(q),
 		ssh_string_data(d), ssh_string_len(d),
 		ssh_string_data(e), ssh_string_len(e));
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARN, "Failed to import private RSA key");
 		goto fail;
 	}
 
 	rc = mbedtls_rsa_complete(rsa);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARN, "Failed to complete private RSA key");
 		goto fail;
 	}
 
 	rc = mbedtls_rsa_check_privkey(rsa);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARN, "Inconsistent private RSA key");
 		goto fail;
 	}
@@ -294,12 +294,12 @@ int pki_pubkey_build_rsa(ssh_key key, ssh_string e, ssh_string n)
 	rsa = mbedtls_pk_rsa(*key->rsa);
 	rc = mbedtls_mpi_read_binary(&rsa->N, ssh_string_data(n),
 		ssh_string_len(n));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 	rc = mbedtls_mpi_read_binary(&rsa->E, ssh_string_data(e),
 		ssh_string_len(e));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
@@ -352,44 +352,44 @@ ssh_key pki_key_dup(const ssh_key key, int demote)
 			    new_rsa = mbedtls_pk_rsa(*new->rsa);
 
 			    rc = mbedtls_mpi_copy(&new_rsa->N, &rsa->N);
-			    if(rc != 0) {
+			    if(rc) {
 				    goto fail;
 			    }
 
 			    rc = mbedtls_mpi_copy(&new_rsa->E, &rsa->E);
-			    if(rc != 0) {
+			    if(rc) {
 				    goto fail;
 			    }
 			    new_rsa->len = (mbedtls_mpi_bitlen(&new_rsa->N) + 7) >> 3;
 
 			    if(!demote && (key->flags & SSH_KEY_FLAG_PRIVATE)) {
 				    rc = mbedtls_mpi_copy(&new_rsa->D, &rsa->D);
-				    if(rc != 0) {
+				    if(rc) {
 					    goto fail;
 				    }
 
 				    rc = mbedtls_mpi_copy(&new_rsa->P, &rsa->P);
-				    if(rc != 0) {
+				    if(rc) {
 					    goto fail;
 				    }
 
 				    rc = mbedtls_mpi_copy(&new_rsa->Q, &rsa->Q);
-				    if(rc != 0) {
+				    if(rc) {
 					    goto fail;
 				    }
 
 				    rc = mbedtls_mpi_copy(&new_rsa->DP, &rsa->DP);
-				    if(rc != 0) {
+				    if(rc) {
 					    goto fail;
 				    }
 
 				    rc = mbedtls_mpi_copy(&new_rsa->DQ, &rsa->DQ);
-				    if(rc != 0) {
+				    if(rc) {
 					    goto fail;
 				    }
 
 				    rc = mbedtls_mpi_copy(&new_rsa->QP, &rsa->QP);
-				    if(rc != 0) {
+				    if(rc) {
 					    goto fail;
 				    }
 			    }
@@ -415,12 +415,12 @@ ssh_key pki_key_dup(const ssh_key key, int demote)
 
 		    if(demote && ssh_key_is_private(key)) {
 			    rc = mbedtls_ecp_copy(&new->ecdsa->Q, &key->ecdsa->Q);
-			    if(rc != 0) {
+			    if(rc) {
 				    goto fail;
 			    }
 
 			    rc = mbedtls_ecp_group_copy(&new->ecdsa->grp, &key->ecdsa->grp);
-			    if(rc != 0) {
+			    if(rc) {
 				    goto fail;
 			    }
 		    }
@@ -459,7 +459,7 @@ int pki_key_generate_rsa(ssh_key key, int parameter)
 
 	info = mbedtls_pk_info_from_type(MBEDTLS_PK_RSA);
 	rc = mbedtls_pk_setup(key->rsa, info);
-	if(rc != 0) {
+	if(rc) {
 		return SSH_ERROR;
 	}
 
@@ -469,7 +469,7 @@ int pki_key_generate_rsa(ssh_key key, int parameter)
 			ssh_get_mbedtls_ctr_drbg_context(),
 			parameter,
 			65537);
-		if(rc != 0) {
+		if(rc) {
 			mbedtls_pk_free(key->rsa);
 			return SSH_ERROR;
 		}
@@ -579,7 +579,7 @@ ssh_string make_ecpoint_string(const mbedtls_ecp_group * g, const
 			&len, ssh_string_data(s), ssh_string_len(s));
 	}
 
-	if(rc != 0) {
+	if(rc) {
 		SSH_STRING_FREE(s);
 		return NULL;
 	}
@@ -618,7 +618,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 	int rc;
 
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		return NULL;
 	}
 
@@ -1102,7 +1102,7 @@ ssh_signature pki_do_sign_hash(const ssh_key privkey,
 			    hlen,
 			    mbedtls_ctr_drbg_random,
 			    ssh_get_mbedtls_ctr_drbg_context());
-		    if(rc != 0) {
+		    if(rc) {
 			    ssh_signature_free(sig);
 			    return NULL;
 		    }
@@ -1279,7 +1279,7 @@ int pki_verify_data_signature(ssh_signature signature,
 		    rc = mbedtls_pk_verify(pubkey->rsa, md, hash, hlen,
 			    ssh_string_data(signature->rsa_sig),
 			    ssh_string_len(signature->rsa_sig));
-		    if(rc != 0) {
+		    if(rc) {
 			    char error_buf[100];
 			    mbedtls_strerror(rc, error_buf, 100);
 			    SSH_LOG(SSH_LOG_TRACE, "RSA error: %s", error_buf);
@@ -1295,7 +1295,7 @@ int pki_verify_data_signature(ssh_signature signature,
 		    rc = mbedtls_ecdsa_verify(&pubkey->ecdsa->grp, hash, hlen,
 			    &pubkey->ecdsa->Q, signature->ecdsa_sig.r,
 			    signature->ecdsa_sig.s);
-		    if(rc != 0) {
+		    if(rc) {
 			    char error_buf[100];
 			    mbedtls_strerror(rc, error_buf, 100);
 			    SSH_LOG(SSH_LOG_TRACE, "ECDSA error: %s", error_buf);
@@ -1385,34 +1385,34 @@ int pki_privkey_build_ecdsa(ssh_key key, int nid, ssh_string e, ssh_string exp)
 
 	rc = mbedtls_ecp_group_load(&group,
 		pki_key_ecdsa_nid_to_mbed_gid(nid));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecp_point_read_binary(&group, &Q, ssh_string_data(e),
 		ssh_string_len(e));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecp_copy(&keypair.Q, &Q);
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecp_group_copy(&keypair.grp, &group);
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_mpi_read_binary(&keypair.d, ssh_string_data(exp),
 		ssh_string_len(exp));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecdsa_from_keypair(key->ecdsa, &keypair);
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
@@ -1452,30 +1452,30 @@ int pki_pubkey_build_ecdsa(ssh_key key, int nid, ssh_string e)
 
 	rc = mbedtls_ecp_group_load(&group,
 		pki_key_ecdsa_nid_to_mbed_gid(nid));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecp_point_read_binary(&group, &Q, ssh_string_data(e),
 		ssh_string_len(e));
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecp_copy(&keypair.Q, &Q);
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	rc = mbedtls_ecp_group_copy(&keypair.grp, &group);
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 
 	mbedtls_mpi_init(&keypair.d);
 
 	rc = mbedtls_ecdsa_from_keypair(key->ecdsa, &keypair);
-	if(rc != 0) {
+	if(rc) {
 		goto fail;
 	}
 

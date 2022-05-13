@@ -768,6 +768,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\ht_dec.c" />
     <ClCompile Include="..\OSF\openjpeg\src\lib\openjp2\openjp2-pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='MtDllDebug|Win32'">Create</PrecompiledHeader>

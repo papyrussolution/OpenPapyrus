@@ -774,7 +774,7 @@ int PPViewGoodsStruc::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 								Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 								ok = 1;
 							}
-							else if(r == 0)
+							else if(!r)
 								ok = PPErrorZ();
 						}
 					}
@@ -1114,7 +1114,7 @@ static int __MakeGoodsStrucTreeListView(/*PPViewBrowser * pBrw*/)
 										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 										//ok = 1;
 									}
-									else if(r == 0) {
+									else if(!r) {
 										//ok = PPErrorZ();
 									}
 								}
@@ -1220,7 +1220,7 @@ int PPViewGoodsStruc::MakeTreeListView(PPViewBrowser * pBrw) // @v11.1.12
 										P_Blk->Cb.ItemList.sort(PTR_CMPCFUNC(GoodsStrucView_ItemEntry_CurrentOrder), this);
 										//ok = 1;
 									}
-									else if(r == 0) {
+									else if(!r) {
 										//ok = PPErrorZ();
 									}
 								}

@@ -254,7 +254,7 @@ int PrcssrMailCharry::RestoreParam(Param * pParam)
 	__MailCharryParam strg;
 	memzero(pParam, sizeof(*pParam));
 	int r = PPRef->GetPropMainConfig(PPPRP_MAILCHARRYCFG, &strg, sizeof(strg));
-	if(r == 0)
+	if(!r)
 		ok = 0;
 	else if(r < 0) {
 		PPAlbatrossConfig alb_cfg;
@@ -444,7 +444,7 @@ int TestOprKindInput()
 				op_obj.EditPacket(&((PPDS_OprKind *)p_decl)->Data);
 			}
 		}
-		if(r == 0) {
+		if(!r) {
 			char msg_buf[256];
 			dsp.MakeErrMsgString(msg_buf, sizeof(msg_buf));
 			PPOutputMessage(msg_buf, mfError | mfOK);

@@ -341,7 +341,7 @@ int ossl_ecdsa_verify_sig(const uchar * dgst, int dgst_len,
 	}
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ECerr(EC_F_OSSL_ECDSA_VERIFY_SIG, ERR_R_MALLOC_FAILURE);
 		return -1;
 	}

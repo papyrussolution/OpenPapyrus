@@ -314,7 +314,7 @@ int EC_KEY_set_public_key_affine_coordinates(EC_KEY * key, BIGNUM * x, BIGNUM * 
 		return 0;
 	}
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	BN_CTX_start(ctx);
 	point = EC_POINT_new(key->group);

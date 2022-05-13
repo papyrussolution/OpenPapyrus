@@ -13,10 +13,9 @@
 #if defined (__cplusplus)
 extern "C" {
 #endif
-
-/* **************************************
-*  Compiler Options
-****************************************/
+//
+// Compiler Options
+//
 #if defined(_MSC_VER)
 #define _CRT_SECURE_NO_WARNINGS    /* Disable Visual Studio warning messages for fopen, strncpy, strerror */
 #define _CRT_NONSTDC_NO_WARNINGS   /* Disable C4996 complaining about posix function names */
@@ -24,7 +23,7 @@ extern "C" {
 #define _CRT_SECURE_NO_DEPRECATE /* VS2005 - must be declared before <io.h> and <windows.h> */
 #define snprintf sprintf_s       /* snprintf unsupported by Visual <= 2013 */
 #endif
-#  pragma warning(disable : 4127)    /* disable: C4127: conditional expression is constant */
+#pragma warning(disable : 4127)    /* disable: C4127: conditional expression is constant */
 #endif
 
 /* **************************************
@@ -82,26 +81,26 @@ extern "C" {
  * The following list of build macros tries to "guess" if target OS is likely unix-like, and therefore can #include
  *<unistd.h>
  */
-#  elif !defined(_WIN32) && ( defined(__unix__) || defined(__unix) || defined(__midipix__) || defined(__VMS) || defined(__HAIKU__))
-#    if defined(__linux__) || defined(__linux) || defined(__CYGWIN__)
+#elif !defined(_WIN32) && ( defined(__unix__) || defined(__unix) || defined(__midipix__) || defined(__VMS) || defined(__HAIKU__))
+#if defined(__linux__) || defined(__linux) || defined(__CYGWIN__)
 #      ifndef _POSIX_C_SOURCE
 #        define _POSIX_C_SOURCE 200809L  /* feature test macro : https://www.gnu.org/software/libc/manual/html_node/Feature-Test-Macros.html */
 #      endif
-#    endif
-#    include <unistd.h>  /* declares _POSIX_VERSION */
-#    if defined(_POSIX_VERSION)  /* POSIX compliant */
-#      define PLATFORM_POSIX_VERSION _POSIX_VERSION
-#    else
-#      define PLATFORM_POSIX_VERSION 1
-#    endif
+#endif
+#include <unistd.h>  /* declares _POSIX_VERSION */
+#if defined(_POSIX_VERSION)  /* POSIX compliant */
+#define PLATFORM_POSIX_VERSION _POSIX_VERSION
+#else
+#define PLATFORM_POSIX_VERSION 1
+#endif
 
-#    ifdef __UCLIBC__
+#ifdef __UCLIBC__
 #     ifndef __USE_MISC
-#      define __USE_MISC /* enable st_mtim on uclibc */
+#define __USE_MISC /* enable st_mtim on uclibc */
 #     endif
-#    endif
+#endif
 
-#  else  /* non-unix target platform (like Windows) */
+#else  /* non-unix target platform (like Windows) */
 #define PLATFORM_POSIX_VERSION 0
 #endif
 
@@ -110,7 +109,7 @@ extern "C" {
 #if PLATFORM_POSIX_VERSION > 1
 /* glibc < 2.26 may not expose struct timespec def without this.
  * See issue #1920. */
-#  ifndef _ATFILE_SOURCE
+#ifndef _ATFILE_SOURCE
 #define _ATFILE_SOURCE
 #endif
 #endif
@@ -121,16 +120,16 @@ extern "C" {
 #if (defined(__linux__) && (PLATFORM_POSIX_VERSION > 1)) \
 	|| (PLATFORM_POSIX_VERSION >= 200112L) \
 	|| defined(__DJGPP__)
-#  include <unistd.h>   /* isatty */
-#  include <stdio.h>    /* fileno */
+#include <unistd.h>   /* isatty */
+#include <stdio.h>    /* fileno */
 #define IS_CONSOLE(stdStream) isatty(fileno(stdStream))
 #elif defined(MSDOS) || defined(OS2)
-#  include <io.h>       /* _isatty */
+#include <io.h>       /* _isatty */
 #define IS_CONSOLE(stdStream) _isatty(_fileno(stdStream))
 #elif defined(WIN32) || defined(_WIN32)
-#  include <io.h>      /* _isatty */
-#  include <windows.h> /* DeviceIoControl, HANDLE, FSCTL_SET_SPARSE */
-#  include <stdio.h>   /* FILE */
+#include <io.h>      /* _isatty */
+#include <windows.h> /* DeviceIoControl, HANDLE, FSCTL_SET_SPARSE */
+#include <stdio.h>   /* FILE */
 static __inline int IS_CONSOLE(FILE* stdStream) {
 	DWORD dummy;
 	return _isatty(_fileno(stdStream)) && GetConsoleMode((HANDLE)_get_osfhandle(_fileno(stdStream)), &dummy);
@@ -144,15 +143,15 @@ static __inline int IS_CONSOLE(FILE* stdStream) {
 *  OS-specific IO behaviors
 ******************************/
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(_WIN32)
-#  include <fcntl.h>   /* _O_BINARY */
-#  include <io.h>      /* _setmode, _fileno, _get_osfhandle */
+#include <fcntl.h>   /* _O_BINARY */
+#include <io.h>      /* _setmode, _fileno, _get_osfhandle */
 #if !defined(__DJGPP__)
-#    include <windows.h> /* DeviceIoControl, HANDLE, FSCTL_SET_SPARSE */
-#    include <winioctl.h> /* FSCTL_SET_SPARSE */
+#include <windows.h> /* DeviceIoControl, HANDLE, FSCTL_SET_SPARSE */
+#include <winioctl.h> /* FSCTL_SET_SPARSE */
 #define SET_BINARY_MODE(file) { int const unused = _setmode(_fileno(file), _O_BINARY); (void)unused; }
 #define SET_SPARSE_FILE_MODE(file) { DWORD dw; DeviceIoControl((HANDLE)_get_osfhandle(_fileno(file)), FSCTL_SET_SPARSE, 0, 0, 0, 0, &dw, 0); \
 }
-#  else
+#else
 #define SET_BINARY_MODE(file) setmode(fileno(file), O_BINARY)
 #define SET_SPARSE_FILE_MODE(file)
 #endif
@@ -164,17 +163,17 @@ static __inline int IS_CONSOLE(FILE* stdStream) {
 #ifndef ZSTD_SPARSE_DEFAULT
 #if (defined(__APPLE__) && defined(__MACH__))
 #define ZSTD_SPARSE_DEFAULT 0
-#  else
+#else
 #define ZSTD_SPARSE_DEFAULT 1
 #endif
 #endif
 
 #ifndef ZSTD_START_SYMBOLLIST_FRAME
-#  ifdef __linux__
+#ifdef __linux__
 #define ZSTD_START_SYMBOLLIST_FRAME 2
-#  elif defined __APPLE__
+#elif defined __APPLE__
 #define ZSTD_START_SYMBOLLIST_FRAME 4
-#  else
+#else
 #define ZSTD_START_SYMBOLLIST_FRAME 0
 #endif
 #endif
@@ -188,9 +187,9 @@ static __inline int IS_CONSOLE(FILE* stdStream) {
 #ifndef ZSTD_NANOSLEEP_SUPPORT
 /* mandates support of nanosleep() within <time.h> : http://man7.org/linux/man-pages/man2/nanosleep.2.html */
 #if (defined(__linux__) && (PLATFORM_POSIX_VERSION >= 199309L)) || (PLATFORM_POSIX_VERSION >= 200112L)
-#     define ZSTD_NANOSLEEP_SUPPORT 1
-#  else
-#     define ZSTD_NANOSLEEP_SUPPORT 0
+#define ZSTD_NANOSLEEP_SUPPORT 1
+#else
+#define ZSTD_NANOSLEEP_SUPPORT 0
 #endif
 #endif
 

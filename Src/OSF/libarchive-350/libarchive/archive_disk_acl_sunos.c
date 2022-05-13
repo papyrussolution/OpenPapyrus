@@ -120,7 +120,7 @@ static void * sunacl_get(int cmd, int * aclcnt, int fd, const char * path)
 				aclp = SAlloc::M(cnt * size);
 			else
 				aclp = SAlloc::R(NULL, cnt * size);
-			if(aclp != NULL) {
+			if(aclp) {
 				if(path != NULL)
 					cnt = acl(path, cmd, cnt, aclp);
 				else
@@ -412,25 +412,19 @@ static int translate_acl(struct archive_read_disk * a,
 				    /* Unknown tag type, skip */
 				    continue;
 			}
-
 			for(i = 0; i < acl_posix_perm_map_size; ++i) {
-				if((aclent->a_perm &
-				    acl_posix_perm_map[i].p_perm) != 0)
+				if((aclent->a_perm & acl_posix_perm_map[i].p_perm) != 0)
 					ae_perm |= acl_posix_perm_map[i].a_perm;
 			}
 		}
 		else
 			return ARCHIVE_WARN;
-
-		archive_entry_acl_add_entry(entry, entry_acl_type,
-		    ae_perm, ae_tag, ae_id, ae_name);
+		archive_entry_acl_add_entry(entry, entry_acl_type, ae_perm, ae_tag, ae_id, ae_name);
 	}
 	return ARCHIVE_OK;
 }
 
-static int set_acl(struct archive * a, int fd, const char * name,
-    struct archive_acl * abstract_acl,
-    int ae_requested_type, const char * tname)
+static int set_acl(struct archive * a, int fd, const char * name, struct archive_acl * abstract_acl, int ae_requested_type, const char * tname)
 {
 	aclent_t         * aclent;
 #if ARCHIVE_ACL_SUNOS_NFS4
@@ -497,7 +491,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		switch(ae_tag) {
 			case ARCHIVE_ENTRY_ACL_USER:
 			    ae_uid = archive_write_disk_uid(a, ae_name, ae_id);
-			    if(aclent != NULL) {
+			    if(aclent) {
 				    aclent->a_id = ae_uid;
 				    aclent->a_type |= USER;
 			    }
@@ -509,7 +503,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			    break;
 			case ARCHIVE_ENTRY_ACL_GROUP:
 			    ae_gid = archive_write_disk_gid(a, ae_name, ae_id);
-			    if(aclent != NULL) {
+			    if(aclent) {
 				    aclent->a_id = ae_gid;
 				    aclent->a_type |= GROUP;
 			    }
@@ -521,7 +515,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 #endif
 			    break;
 			case ARCHIVE_ENTRY_ACL_USER_OBJ:
-			    if(aclent != NULL)
+			    if(aclent)
 				    aclent->a_type |= USER_OBJ;
 #if ARCHIVE_ACL_SUNOS_NFS4
 			    else {
@@ -530,7 +524,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 #endif
 			    break;
 			case ARCHIVE_ENTRY_ACL_GROUP_OBJ:
-			    if(aclent != NULL)
+			    if(aclent)
 				    aclent->a_type |= GROUP_OBJ;
 #if ARCHIVE_ACL_SUNOS_NFS4
 			    else {
@@ -540,16 +534,16 @@ static int set_acl(struct archive * a, int fd, const char * name,
 #endif
 			    break;
 			case ARCHIVE_ENTRY_ACL_MASK:
-			    if(aclent != NULL)
+			    if(aclent)
 				    aclent->a_type |= CLASS_OBJ;
 			    break;
 			case ARCHIVE_ENTRY_ACL_OTHER:
-			    if(aclent != NULL)
+			    if(aclent)
 				    aclent->a_type |= OTHER_OBJ;
 			    break;
 #if ARCHIVE_ACL_SUNOS_NFS4
 			case ARCHIVE_ENTRY_ACL_EVERYONE:
-			    if(ace != NULL)
+			    if(ace)
 				    ace->a_flags |= ACE_EVERYONE;
 			    break;
 #endif
@@ -563,25 +557,25 @@ static int set_acl(struct archive * a, int fd, const char * name,
 		switch(ae_type) {
 #if ARCHIVE_ACL_SUNOS_NFS4
 			case ARCHIVE_ENTRY_ACL_TYPE_ALLOW:
-			    if(ace != NULL)
+			    if(ace)
 				    ace->a_type = ACE_ACCESS_ALLOWED_ACE_TYPE;
 			    else
 				    r = -1;
 			    break;
 			case ARCHIVE_ENTRY_ACL_TYPE_DENY:
-			    if(ace != NULL)
+			    if(ace)
 				    ace->a_type = ACE_ACCESS_DENIED_ACE_TYPE;
 			    else
 				    r = -1;
 			    break;
 			case ARCHIVE_ENTRY_ACL_TYPE_AUDIT:
-			    if(ace != NULL)
+			    if(ace)
 				    ace->a_type = ACE_SYSTEM_AUDIT_ACE_TYPE;
 			    else
 				    r = -1;
 			    break;
 			case ARCHIVE_ENTRY_ACL_TYPE_ALARM:
-			    if(ace != NULL)
+			    if(ace)
 				    ace->a_type = ACE_SYSTEM_ALARM_ACE_TYPE;
 			    else
 				    r = -1;
@@ -592,7 +586,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 				    r = -1;
 			    break;
 			case ARCHIVE_ENTRY_ACL_TYPE_DEFAULT:
-			    if(aclent != NULL)
+			    if(aclent)
 				    aclent->a_type |= ACL_DEFAULT;
 			    else
 				    r = -1;
@@ -603,7 +597,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			    goto exit_free;
 		}
 
-		if(r != 0) {
+		if(r) {
 			errno = EINVAL;
 			archive_set_error(a, errno, "Failed to set ACL entry type");
 			ret = ARCHIVE_FAILED;
@@ -678,51 +672,34 @@ exit_free:
 	return ret;
 }
 
-int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
-	const char      * accpath;
-	void            * aclp;
+	void * aclp;
 	int aclcnt;
 	int r;
-
-	accpath = NULL;
-
+	const char * accpath = NULL;
 	if(*fd < 0) {
 		accpath = archive_read_disk_entry_setup_path(a, entry, fd);
 		if(accpath == NULL)
 			return ARCHIVE_WARN;
 	}
-
 	archive_entry_acl_clear(entry);
-
 	aclp = NULL;
-
 #if ARCHIVE_ACL_SUNOS_NFS4
 	if(*fd >= 0)
 		aclp = sunacl_get(ACE_GETACL, &aclcnt, *fd, NULL);
-	else if((!a->follow_symlinks)
-	    && (archive_entry_filetype(entry) == AE_IFLNK))
-		/* We can't get the ACL of a symlink, so we assume it can't
-		   have one. */
+	else if((!a->follow_symlinks) && (archive_entry_filetype(entry) == AE_IFLNK))
+		/* We can't get the ACL of a symlink, so we assume it can't have one. */
 		aclp = NULL;
 	else
 		aclp = sunacl_get(ACE_GETACL, &aclcnt, 0, accpath);
-
-	if(aclp != NULL && sun_acl_is_trivial(aclp, aclcnt,
-	    archive_entry_mode(entry), 1, S_ISDIR(archive_entry_mode(entry)),
-	    &r) == 0 && r == 1) {
-		SAlloc::F(aclp);
-		aclp = NULL;
+	if(aclp != NULL && sun_acl_is_trivial(aclp, aclcnt, archive_entry_mode(entry), 1, S_ISDIR(archive_entry_mode(entry)), &r) == 0 && r == 1) {
+		ZFREE(aclp);
 		return ARCHIVE_OK;
 	}
-
-	if(aclp != NULL) {
-		r = translate_acl(a, entry, aclp, aclcnt,
-			ARCHIVE_ENTRY_ACL_TYPE_NFS4);
-		SAlloc::F(aclp);
-		aclp = NULL;
-
+	if(aclp) {
+		r = translate_acl(a, entry, aclp, aclcnt, ARCHIVE_ENTRY_ACL_TYPE_NFS4);
+		ZFREE(aclp);
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, errno, "Couldn't translate NFSv4 ACLs");
 		}
@@ -733,34 +710,23 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	/* Retrieve POSIX.1e ACLs from file. */
 	if(*fd >= 0)
 		aclp = sunacl_get(GETACL, &aclcnt, *fd, NULL);
-	else if((!a->follow_symlinks)
-	    && (archive_entry_filetype(entry) == AE_IFLNK))
-		/* We can't get the ACL of a symlink, so we assume it can't
-		   have one. */
+	else if((!a->follow_symlinks) && (archive_entry_filetype(entry) == AE_IFLNK))
+		/* We can't get the ACL of a symlink, so we assume it can't have one. */
 		aclp = NULL;
 	else
 		aclp = sunacl_get(GETACL, &aclcnt, 0, accpath);
-
 	/* Ignore "trivial" ACLs that just mirror the file mode. */
-	if(aclp != NULL && sun_acl_is_trivial(aclp, aclcnt,
-	    archive_entry_mode(entry), 0, S_ISDIR(archive_entry_mode(entry)),
-	    &r) == 0 && r == 1) {
-		SAlloc::F(aclp);
-		aclp = NULL;
+	if(aclp != NULL && sun_acl_is_trivial(aclp, aclcnt, archive_entry_mode(entry), 0, S_ISDIR(archive_entry_mode(entry)), &r) == 0 && r == 1) {
+		ZFREE(aclp);
 	}
-
-	if(aclp != NULL) {
-		r = translate_acl(a, entry, aclp, aclcnt,
-			ARCHIVE_ENTRY_ACL_TYPE_ACCESS);
-		SAlloc::F(aclp);
-		aclp = NULL;
-
+	if(aclp) {
+		r = translate_acl(a, entry, aclp, aclcnt, ARCHIVE_ENTRY_ACL_TYPE_ACCESS);
+		ZFREE(aclp);
 		if(r != ARCHIVE_OK) {
 			archive_set_error(&a->archive, errno, "Couldn't translate access ACLs");
 			return r;
 		}
 	}
-
 	return ARCHIVE_OK;
 }
 

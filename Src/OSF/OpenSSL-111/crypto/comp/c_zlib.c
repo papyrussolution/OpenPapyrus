@@ -309,7 +309,7 @@ static int bio_zlib_new(BIO * bi)
 	}
 #endif
 	ctx = static_cast<BIO_ZLIB_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL) {
+	if(!ctx) {
 		COMPerr(COMP_F_BIO_ZLIB_NEW, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

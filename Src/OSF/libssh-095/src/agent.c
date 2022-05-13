@@ -51,7 +51,7 @@ static size_t atomicio(struct ssh_agent_struct * agent, void * buf, size_t n, in
 	ssh_channel channel = agent->channel;
 	socket_t fd;
 	/* Using a socket ? */
-	if(channel == NULL) {
+	if(!channel) {
 		fd = ssh_socket_get_fd(agent->sock);
 		pfd.fd = fd;
 		pfd.events = do_read ? POLLIN : POLLOUT;
@@ -266,8 +266,7 @@ static int agent_talk(struct ssh_session_struct * session, struct ssh_buffer_str
 			n = sizeof(payload);
 		}
 		if(atomicio(session->agent, payload, n, 1) != n) {
-			SSH_LOG(SSH_LOG_WARN,
-			    "Error reading response from authentication socket.");
+			SSH_LOG(SSH_LOG_WARN, "Error reading response from authentication socket.");
 			return -1;
 		}
 		if(ssh_buffer_add_data(reply, payload, n) < 0) {
@@ -340,8 +339,7 @@ uint32_t ssh_agent_get_ident_count(struct ssh_session_struct * session)
 		return 0;
 	}
 	session->agent->count = ntohl(count);
-	SSH_LOG(SSH_LOG_DEBUG, "Agent count: %d",
-	    session->agent->count);
+	SSH_LOG(SSH_LOG_DEBUG, "Agent count: %d", session->agent->count);
 	if(session->agent->count > 1024) {
 		ssh_set_error(session, SSH_FATAL, "Too many identities in authentication reply: %d", session->agent->count);
 		SSH_BUFFER_FREE(reply);

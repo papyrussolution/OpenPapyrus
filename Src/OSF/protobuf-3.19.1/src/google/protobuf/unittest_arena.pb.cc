@@ -102,7 +102,7 @@ NestedMessage::NestedMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_arena_unittest.NestedMessage)
@@ -121,7 +121,7 @@ d_ = 0;
 
 NestedMessage::~NestedMessage() {
   // @@protoc_insertion_point(destructor:proto2_arena_unittest.NestedMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -152,9 +152,9 @@ void NestedMessage::Clear() {
 }
 
 const char* NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -167,8 +167,7 @@ const char* NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -287,7 +286,7 @@ ArenaMessage::ArenaMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   repeated_nested_message_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_arena_unittest.ArenaMessage)
@@ -304,7 +303,7 @@ inline void ArenaMessage::SharedCtor() {
 
 ArenaMessage::~ArenaMessage() {
   // @@protoc_insertion_point(destructor:proto2_arena_unittest.ArenaMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -334,8 +333,8 @@ void ArenaMessage::Clear() {
 }
 
 const char* ArenaMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -347,13 +346,12 @@ const char* ArenaMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_repeated_nested_message(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -382,11 +380,9 @@ uint8_t* ArenaMessage::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated .proto2_arena_unittest.NestedMessage repeated_nested_message = 1;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_nested_message_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_nested_message_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_repeated_nested_message(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, this->_internal_repeated_nested_message(i), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -461,10 +457,10 @@ void ArenaMessage::InternalSwap(ArenaMessage* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto2_arena_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto2_arena_unittest::NestedMessage* Arena::CreateMaybeMessage< ::proto2_arena_unittest::NestedMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_arena_unittest::NestedMessage * Arena::CreateMaybeMessage< ::proto2_arena_unittest::NestedMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_arena_unittest::NestedMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto2_arena_unittest::ArenaMessage* Arena::CreateMaybeMessage< ::proto2_arena_unittest::ArenaMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_arena_unittest::ArenaMessage * Arena::CreateMaybeMessage< ::proto2_arena_unittest::ArenaMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_arena_unittest::ArenaMessage >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

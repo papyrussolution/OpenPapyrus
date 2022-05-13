@@ -157,7 +157,7 @@ TestOptimizedForSize::TestOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Arena* arena
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   _extensions_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestOptimizedForSize)
@@ -174,7 +174,7 @@ TestOptimizedForSize::TestOptimizedForSize(const TestOptimizedForSize& from)
   }
   i_ = from.i_;
   clear_has_foo();
-  switch (from.foo_case()) {
+  switch(from.foo_case()) {
     case kIntegerField: {
       _internal_set_integer_field(from._internal_integer_field());
       break;
@@ -200,7 +200,7 @@ clear_has_foo();
 
 TestOptimizedForSize::~TestOptimizedForSize() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestOptimizedForSize)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -225,7 +225,7 @@ void TestOptimizedForSize::SetCachedSize(int size) const {
 
 void TestOptimizedForSize::clear_foo() {
 // @@protoc_insertion_point(one_of_clear_start:protobuf_unittest.TestOptimizedForSize)
-  switch (foo_case()) {
+  switch(foo_case()) {
     case kIntegerField: {
       // No need to clear
       break;
@@ -263,7 +263,7 @@ TestRequiredOptimizedForSize::TestRequiredOptimizedForSize(::PROTOBUF_NAMESPACE_
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestRequiredOptimizedForSize)
@@ -282,7 +282,7 @@ x_ = 0;
 
 TestRequiredOptimizedForSize::~TestRequiredOptimizedForSize() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestRequiredOptimizedForSize)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -326,7 +326,7 @@ TestOptionalOptimizedForSize::TestOptionalOptimizedForSize(::PROTOBUF_NAMESPACE_
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestOptionalOptimizedForSize)
@@ -349,7 +349,7 @@ o_ = nullptr;
 
 TestOptionalOptimizedForSize::~TestOptionalOptimizedForSize() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestOptionalOptimizedForSize)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -392,13 +392,13 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIde
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestOptimizedForSize* Arena::CreateMaybeMessage< ::protobuf_unittest::TestOptimizedForSize >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestOptimizedForSize * Arena::CreateMaybeMessage< ::protobuf_unittest::TestOptimizedForSize >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestOptimizedForSize >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestRequiredOptimizedForSize* Arena::CreateMaybeMessage< ::protobuf_unittest::TestRequiredOptimizedForSize >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestRequiredOptimizedForSize * Arena::CreateMaybeMessage< ::protobuf_unittest::TestRequiredOptimizedForSize >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestRequiredOptimizedForSize >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestOptionalOptimizedForSize* Arena::CreateMaybeMessage< ::protobuf_unittest::TestOptionalOptimizedForSize >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestOptionalOptimizedForSize * Arena::CreateMaybeMessage< ::protobuf_unittest::TestOptionalOptimizedForSize >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestOptionalOptimizedForSize >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

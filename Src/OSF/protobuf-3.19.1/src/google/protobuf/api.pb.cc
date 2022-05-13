@@ -182,7 +182,7 @@ Api::Api(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   options_(arena),
   mixins_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.Api)
@@ -233,7 +233,7 @@ version_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlre
 
 Api::~Api() {
   // @@protoc_insertion_point(destructor:google.protobuf.Api)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -275,8 +275,8 @@ void Api::Clear() {
 }
 
 const char* Api::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -298,8 +298,8 @@ const char* Api::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_methods(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -311,8 +311,8 @@ const char* Api::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_options(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -342,8 +342,8 @@ const char* Api::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_mixins(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -356,8 +356,7 @@ const char* Api::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::intern
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -395,19 +394,15 @@ uint8_t* Api::_InternalSerialize(
   }
 
   // repeated .google.protobuf.Method methods = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_methods_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_methods_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, this->_internal_methods(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, this->_internal_methods(i), target, stream);
   }
 
   // repeated .google.protobuf.Option options = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_options_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_options_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_options(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, this->_internal_options(i), target, stream);
   }
 
   // string version = 4;
@@ -422,17 +417,13 @@ uint8_t* Api::_InternalSerialize(
   // .google.protobuf.SourceContext source_context = 5;
   if(this->_internal_has_source_context()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::source_context(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, _Internal::source_context(this), target, stream);
   }
 
   // repeated .google.protobuf.Mixin mixins = 6;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_mixins_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_mixins_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(6, this->_internal_mixins(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(6, this->_internal_mixins(i), target, stream);
   }
 
   // .google.protobuf.Syntax syntax = 7;
@@ -487,9 +478,7 @@ size_t Api::ByteSizeLong() const {
 
   // .google.protobuf.SourceContext source_context = 5;
   if(this->_internal_has_source_context()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *source_context_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*source_context_);
   }
 
   // .google.protobuf.Syntax syntax = 7;
@@ -593,7 +582,7 @@ Method::Method(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   options_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.Method)
@@ -650,7 +639,7 @@ response_type_url_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmpty
 
 Method::~Method() {
   // @@protoc_insertion_point(destructor:google.protobuf.Method)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -689,8 +678,8 @@ void Method::Clear() {
 }
 
 const char* Method::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -748,8 +737,8 @@ const char* Method::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_options(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<50>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -762,8 +751,7 @@ const char* Method::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -831,11 +819,9 @@ uint8_t* Method::_InternalSerialize(
   }
 
   // repeated .google.protobuf.Option options = 6;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_options_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_options_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(6, this->_internal_options(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(6, this->_internal_options(i), target, stream);
   }
 
   // .google.protobuf.Syntax syntax = 7;
@@ -995,7 +981,7 @@ Mixin::Mixin(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.Mixin)
@@ -1033,7 +1019,7 @@ root_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 
 Mixin::~Mixin() {
   // @@protoc_insertion_point(destructor:google.protobuf.Mixin)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1066,8 +1052,8 @@ void Mixin::Clear() {
 }
 
 const char* Mixin::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1091,8 +1077,7 @@ const char* Mixin::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1230,13 +1215,13 @@ void Mixin::InternalSwap(Mixin* other) {
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Api* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Api >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Api * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Api >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Api >(arena);
 }
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Method* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Method >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Method * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Method >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Method >(arena);
 }
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Mixin* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Mixin >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Mixin * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Mixin >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Mixin >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

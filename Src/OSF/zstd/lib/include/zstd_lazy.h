@@ -25,9 +25,9 @@ extern "C" {
  */
 #define ZSTD_LAZY_DDSS_BUCKET_LOG 2
 
-uint32 ZSTD_insertAndFindFirstIndex(ZSTD_matchState_t* ms, const BYTE* ip);
-void ZSTD_row_update(ZSTD_matchState_t* const ms, const BYTE* ip);
-void ZSTD_dedicatedDictSearch_lazy_loadDictionary(ZSTD_matchState_t* ms, const BYTE* const ip);
+uint32 ZSTD_insertAndFindFirstIndex(ZSTD_matchState_t* ms, const BYTE * ip);
+void ZSTD_row_update(ZSTD_matchState_t* const ms, const BYTE * ip);
+void ZSTD_dedicatedDictSearch_lazy_loadDictionary(ZSTD_matchState_t* ms, const BYTE * const ip);
 void ZSTD_preserveUnsortedMark(uint32* const table, const uint32 size, const uint32 reducerValue); //! used in ZSTD_reduceIndex(). preemptively increase value of ZSTD_DUBT_UNSORTED_MARK 
 size_t ZSTD_compressBlock_btlazy2(ZSTD_matchState_t* ms, seqStore_t* seqStore, uint32 rep[ZSTD_REP_NUM], void const* src, size_t srcSize);
 size_t ZSTD_compressBlock_lazy2(ZSTD_matchState_t* ms, seqStore_t* seqStore, uint32 rep[ZSTD_REP_NUM], void const* src, size_t srcSize);

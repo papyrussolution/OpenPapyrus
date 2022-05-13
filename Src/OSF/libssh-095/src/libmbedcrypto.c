@@ -41,28 +41,23 @@ SHACTX sha1_init()
 {
 	SHACTX ctx = NULL;
 	int rc;
-	const mbedtls_md_info_t * md_info =
-	    mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
-
+	const mbedtls_md_info_t * md_info = mbedtls_md_info_from_type(MBEDTLS_MD_SHA1);
 	if(md_info == NULL) {
 		return NULL;
 	}
-
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
-
 	mbedtls_md_init(ctx);
-
 	rc = mbedtls_md_setup(ctx, md_info, 0);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
@@ -130,20 +125,20 @@ EVPCTX evp_init(int nid)
 	}
 
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 
 	mbedtls_md_init(ctx);
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
@@ -173,18 +168,18 @@ SHA256CTX sha256_init()
 		return NULL;
 	}
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 	mbedtls_md_init(ctx);
 	rc = mbedtls_md_setup(ctx, md_info, 0);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
@@ -222,18 +217,18 @@ SHA384CTX sha384_init()
 		return NULL;
 	}
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 	mbedtls_md_init(ctx);
 	rc = mbedtls_md_setup(ctx, md_info, 0);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
@@ -273,20 +268,20 @@ SHA512CTX sha512_init()
 	}
 
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 
 	mbedtls_md_init(ctx);
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
@@ -326,20 +321,20 @@ MD5CTX md5_init()
 	}
 
 	ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 
 	mbedtls_md_init(ctx);
 
 	rc = mbedtls_md_setup(ctx, md_info, 0);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
 
 	rc = mbedtls_md_starts(ctx);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(ctx);
 		return NULL;
 	}
@@ -369,7 +364,7 @@ HMACCTX hmac_init(const void * key, int len, enum ssh_hmac_e type)
 	const mbedtls_md_info_t * md_info = NULL;
 	int rc;
 	HMACCTX ctx = SAlloc::M(sizeof(mbedtls_md_context_t));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 	switch(type) {
@@ -390,11 +385,11 @@ HMACCTX hmac_init(const void * key, int len, enum ssh_hmac_e type)
 		goto error;
 	}
 	rc = mbedtls_md_setup(ctx, md_info, 1);
-	if(rc != 0) {
+	if(rc) {
 		goto error;
 	}
 	rc = mbedtls_md_hmac_starts(ctx, key, len);
-	if(rc != 0) {
+	if(rc) {
 		goto error;
 	}
 	return ctx;
@@ -441,7 +436,7 @@ static int cipher_init(struct ssh_cipher_struct * cipher,
 	cipher_info = mbedtls_cipher_info_from_type(cipher->type);
 
 	rc = mbedtls_cipher_setup(ctx, cipher_info);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_setup failed");
 		goto error;
 	}
@@ -449,13 +444,13 @@ static int cipher_init(struct ssh_cipher_struct * cipher,
 	rc = mbedtls_cipher_setkey(ctx, key,
 		cipher_info->key_bitlen,
 		operation);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_setkey failed");
 		goto error;
 	}
 
 	rc = mbedtls_cipher_set_iv(ctx, IV, cipher_info->iv_size);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_set_iv failed");
 		goto error;
 	}
@@ -473,13 +468,13 @@ static int cipher_set_encrypt_key(struct ssh_cipher_struct * cipher,
 	int rc;
 
 	rc = cipher_init(cipher, MBEDTLS_ENCRYPT, key, IV);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "cipher_init failed");
 		goto error;
 	}
 
 	rc = mbedtls_cipher_reset(&cipher->encrypt_ctx);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_reset failed");
 		goto error;
 	}
@@ -492,19 +487,19 @@ error:
 static int cipher_set_encrypt_key_cbc(struct ssh_cipher_struct * cipher, void * key, void * IV)
 {
 	int rc = cipher_init(cipher, MBEDTLS_ENCRYPT, key, IV);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "cipher_init failed");
 		goto error;
 	}
 	/* libssh only encypts and decrypts packets that are multiples of a block
 	 * size, and no padding is used */
 	rc = mbedtls_cipher_set_padding_mode(&cipher->encrypt_ctx, MBEDTLS_PADDING_NONE);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_set_padding_mode failed");
 		goto error;
 	}
 	rc = mbedtls_cipher_reset(&cipher->encrypt_ctx);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_reset failed");
 		goto error;
 	}
@@ -522,7 +517,7 @@ static int cipher_set_key_gcm(struct ssh_cipher_struct * cipher, void * key, voi
 	mbedtls_gcm_init(&cipher->gcm_ctx);
 	cipher_info = mbedtls_cipher_info_from_type(cipher->type);
 	rc = mbedtls_gcm_setkey(&cipher->gcm_ctx, MBEDTLS_CIPHER_ID_AES, key, cipher_info->key_bitlen);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_gcm_setkey failed");
 		goto error;
 	}
@@ -539,12 +534,12 @@ error:
 static int cipher_set_decrypt_key(struct ssh_cipher_struct * cipher, void * key, void * IV)
 {
 	int rc = cipher_init(cipher, MBEDTLS_DECRYPT, key, IV);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "cipher_init failed");
 		goto error;
 	}
 	mbedtls_cipher_reset(&cipher->decrypt_ctx);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_reset failed");
 		goto error;
 	}
@@ -562,20 +557,20 @@ static int cipher_set_decrypt_key_cbc(struct ssh_cipher_struct * cipher,
 	int rc;
 
 	rc = cipher_init(cipher, MBEDTLS_DECRYPT, key, IV);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "cipher_init failed");
 		goto error;
 	}
 
 	rc = mbedtls_cipher_set_padding_mode(&cipher->decrypt_ctx,
 		MBEDTLS_PADDING_NONE);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_set_padding_mode failed");
 		goto error;
 	}
 
 	mbedtls_cipher_reset(&cipher->decrypt_ctx);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_reset failed");
 		goto error;
 	}
@@ -591,7 +586,7 @@ static void cipher_encrypt(struct ssh_cipher_struct * cipher, void * in, void * 
 	size_t outlen = 0;
 	size_t total_len = 0;
 	int rc = mbedtls_cipher_update(&cipher->encrypt_ctx, in, len, out, &outlen);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_update failed during encryption");
 		return;
 	}
@@ -601,7 +596,7 @@ static void cipher_encrypt(struct ssh_cipher_struct * cipher, void * in, void * 
 	}
 	rc = mbedtls_cipher_finish(&cipher->encrypt_ctx, (uchar *)out + outlen, &outlen);
 	total_len += outlen;
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_finish failed during encryption");
 		return;
 	}
@@ -615,7 +610,7 @@ static void cipher_encrypt_cbc(struct ssh_cipher_struct * cipher, void * in, voi
 {
 	size_t outlen = 0;
 	int rc = mbedtls_cipher_update(&cipher->encrypt_ctx, in, len, out, &outlen);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_update failed during encryption");
 		return;
 	}
@@ -628,49 +623,36 @@ static void cipher_encrypt_cbc(struct ssh_cipher_struct * cipher, void * in, voi
 static void cipher_decrypt(struct ssh_cipher_struct * cipher, void * in, void * out, size_t len)
 {
 	size_t outlen = 0;
-	int rc = 0;
 	size_t total_len = 0;
-
-	rc = mbedtls_cipher_update(&cipher->decrypt_ctx, in, len, out, &outlen);
-	if(rc != 0) {
+	int rc = mbedtls_cipher_update(&cipher->decrypt_ctx, in, len, out, &outlen);
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_update failed during decryption");
 		return;
 	}
-
 	total_len += outlen;
-
 	if(total_len == len) {
 		return;
 	}
-
-	rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar *)out +
-		outlen, &outlen);
-
-	if(rc != 0) {
+	rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar *)out + outlen, &outlen);
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_reset failed during decryption");
 		return;
 	}
-
 	total_len += outlen;
-
 	if(total_len != len) {
-		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_update: output size %zu for %zu",
-		    outlen, len);
+		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_update: output size %zu for %zu", outlen, len);
 		return;
 	}
 }
 
-static void cipher_decrypt_cbc(struct ssh_cipher_struct * cipher, void * in, void * out,
-    ulong len)
+static void cipher_decrypt_cbc(struct ssh_cipher_struct * cipher, void * in, void * out, ulong len)
 {
 	size_t outlen = 0;
-	int rc = 0;
-	rc = mbedtls_cipher_update(&cipher->decrypt_ctx, in, len, out, &outlen);
-	if(rc != 0) {
+	int rc = mbedtls_cipher_update(&cipher->decrypt_ctx, in, len, out, &outlen);
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_update failed during decryption");
 		return;
 	}
-
 	/* MbedTLS caches the last block when decrypting with cbc.
 	 * By calling finish the block is flushed to out, however the unprocessed
 	 * data counter is not reset.
@@ -685,12 +667,12 @@ static void cipher_decrypt_cbc(struct ssh_cipher_struct * cipher, void * in, voi
 	else {
 		rc = mbedtls_cipher_finish(&cipher->decrypt_ctx, (uchar *)out + outlen, &outlen);
 	}
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_finish failed during decryption");
 		return;
 	}
 	rc = mbedtls_cipher_reset(&cipher->decrypt_ctx);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_cipher_reset failed during decryption");
 		return;
 	}
@@ -730,7 +712,7 @@ static void cipher_encrypt_gcm(struct ssh_cipher_struct * cipher, void * in, voi
 		(uchar *)out + aadlen,                     /* output */
 		authlen,
 		tag);                    /* tag */
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_gcm_crypt_and_tag failed");
 		return;
 	}
@@ -739,35 +721,22 @@ static void cipher_encrypt_gcm(struct ssh_cipher_struct * cipher, void * in, voi
 	uint64_inc(cipher->last_iv + 4);
 }
 
-static int cipher_decrypt_gcm(struct ssh_cipher_struct * cipher,
-    void * complete_packet,
-    uint8 * out,
-    size_t encrypted_size,
-    uint64_t seq)
+static int cipher_decrypt_gcm(struct ssh_cipher_struct * cipher, void * complete_packet, uint8 * out, size_t encrypted_size, uint64_t seq)
 {
 	size_t authlen, aadlen;
 	int rc;
 	(void)seq;
 	aadlen = cipher->lenfield_blocksize;
 	authlen = cipher->tag_size;
-	rc = mbedtls_gcm_auth_decrypt(&cipher->gcm_ctx,
-		encrypted_size,                   /* encrypted data len */
-		cipher->last_iv,                   /* IV */
-		AES_GCM_IVLEN,
-		complete_packet,                   /* aad */
-		aadlen,
-		(const uint8 *)complete_packet + aadlen + encrypted_size,                    /* tag */
-		authlen,
-		(const uint8 *)complete_packet + aadlen,                    /* input */
-		(uchar *)out);                    /* output */
-	if(rc != 0) {
+	rc = mbedtls_gcm_auth_decrypt(&cipher->gcm_ctx, encrypted_size/* encrypted data len */,
+		cipher->last_iv/* IV */, AES_GCM_IVLEN, complete_packet/* aad */, aadlen, (const uint8 *)complete_packet + aadlen + encrypted_size/* tag */,
+		authlen, (const uint8 *)complete_packet + aadlen/* input */, (uchar *)out/* output */);
+	if(rc) {
 		SSH_LOG(SSH_LOG_WARNING, "mbedtls_gcm_auth_decrypt failed");
 		return SSH_ERROR;
 	}
-
 	/* Increment the IV for the next invocation */
 	uint64_inc(cipher->last_iv + 4);
-
 	return SSH_OK;
 }
 
@@ -933,7 +902,7 @@ int ssh_crypto_init()
 	mbedtls_entropy_init(&ssh_mbedtls_entropy);
 	mbedtls_ctr_drbg_init(&ssh_mbedtls_ctr_drbg);
 	rc = mbedtls_ctr_drbg_seed(&ssh_mbedtls_ctr_drbg, mbedtls_entropy_func, &ssh_mbedtls_entropy, NULL, 0);
-	if(rc != 0) {
+	if(rc) {
 		mbedtls_ctr_drbg_free(&ssh_mbedtls_ctr_drbg);
 	}
 	for(i = 0; ssh_ciphertab[i].name != NULL; i++) {

@@ -311,7 +311,7 @@ static int _dopr(char ** sbuffer, char ** buffer, size_t * maxlen, size_t * retl
 	 * We have to truncate if there is no dynamic buffer and we have filled the
 	 * static buffer.
 	 */
-	if(buffer == NULL) {
+	if(!buffer) {
 		*truncated = (currlen > *maxlen - 1);
 		if(*truncated)
 			currlen = *maxlen - 1;

@@ -99,7 +99,7 @@ static BIO_ACCEPT * BIO_ACCEPT_new(void)
 
 static void BIO_ACCEPT_free(BIO_ACCEPT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	OPENSSL_free(a->param_addr);
 	OPENSSL_free(a->param_serv);
@@ -129,7 +129,7 @@ static int acpt_free(BIO * a)
 {
 	BIO_ACCEPT * data;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 	data = (BIO_ACCEPT*)a->ptr;
 

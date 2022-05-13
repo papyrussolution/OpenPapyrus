@@ -319,7 +319,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 	 * I use memcpy(dest, src, strlen()) here a lot to copy strings.
 	 */
 	r = archive_entry_pathname_l(entry, &pp, &copy_length, sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
@@ -337,7 +337,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 		ret = ARCHIVE_FAILED;
 	}
 	r = archive_entry_hardlink_l(entry, &p, &copy_length, sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			return ARCHIVE_FATAL;
@@ -349,7 +349,7 @@ static int format_header_v7tar(struct archive_write * a, char h[512],
 		mytartype = '1';
 	else {
 		r = archive_entry_symlink_l(entry, &p, &copy_length, sconv);
-		if(r != 0) {
+		if(r) {
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return ARCHIVE_FATAL;

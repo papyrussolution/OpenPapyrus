@@ -35,14 +35,11 @@ tools:context=".CommandListActivity">
             <TextView style="@style/PageHeaderTitleText"
                 android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
                 android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:textColor="@color/PrimaryText"
-                />
+                android:layout_height="match_parent"/>
             <TextView style="@style/PageHeaderTopicText"
                 android:id="@+id/CTL_PAGEHEADER_TOPIC"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:textColor="@color/PrimaryText"
                 android:text="@{cmd_pl}"/>
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>

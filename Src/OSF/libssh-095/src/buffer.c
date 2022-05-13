@@ -99,7 +99,7 @@ struct ssh_buffer_struct * ssh_buffer_new()
 	 * -1 for ralloc_buffer magic.
 	 */
 	rc = ssh_buffer_allocate_size(buf, 64 - 1);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(buf);
 		return NULL;
 	}
@@ -115,7 +115,7 @@ struct ssh_buffer_struct * ssh_buffer_new()
  */
 void ssh_buffer_free(struct ssh_buffer_struct * buffer)
 {
-	if(buffer == NULL) {
+	if(!buffer) {
 		return;
 	}
 	buffer_verify(buffer);
@@ -214,7 +214,7 @@ static void buffer_shift(ssh_buffer buffer)
  */
 int FASTCALL ssh_buffer_reinit(struct ssh_buffer_struct * buffer)
 {
-	if(buffer == NULL) {
+	if(!buffer) {
 		return -1;
 	}
 	buffer_verify(buffer);
@@ -227,7 +227,7 @@ int FASTCALL ssh_buffer_reinit(struct ssh_buffer_struct * buffer)
 	if(buffer->allocated > 65536) {
 		/* -1 for realloc_buffer magic */
 		int rc = realloc_buffer(buffer, 65536 - 1);
-		if(rc != 0) {
+		if(rc) {
 			return -1;
 		}
 	}
@@ -248,7 +248,7 @@ int FASTCALL ssh_buffer_reinit(struct ssh_buffer_struct * buffer)
  */
 int ssh_buffer_add_data(struct ssh_buffer_struct * buffer, const void * data, uint32_t len)
 {
-	if(buffer == NULL) {
+	if(!buffer) {
 		return -1;
 	}
 	buffer_verify(buffer);
@@ -804,7 +804,7 @@ static int ssh_buffer_pack_allocate_va(struct ssh_buffer_struct * buffer,
 	}
 
 	rc = ssh_buffer_allocate_size(buffer, needed_size);
-	if(rc != 0) {
+	if(rc) {
 		return SSH_ERROR;
 	}
 

@@ -345,7 +345,7 @@ ssize_t __la_read(int fd, void * buf, size_t nbytes)
 	handle = (HANDLE)_get_osfhandle(fd);
 	r = ReadFile(handle, buf, (uint32)nbytes,
 		&bytes_read, NULL);
-	if(r == 0) {
+	if(!r) {
 		lasterr = GetLastError();
 		if(lasterr == ERROR_NO_DATA) {
 			errno = EAGAIN;

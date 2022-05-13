@@ -234,7 +234,7 @@ BIO_CONNECT * BIO_CONNECT_new(void)
 
 void BIO_CONNECT_free(BIO_CONNECT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	OPENSSL_free(a->param_hostname);
 	OPENSSL_free(a->param_service);
@@ -276,7 +276,7 @@ static int conn_free(BIO * a)
 {
 	BIO_CONNECT * data;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 	data = (BIO_CONNECT*)a->ptr;
 

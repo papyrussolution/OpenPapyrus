@@ -95,37 +95,37 @@ int __archive_create_child(const char * cmd, int * child_stdin, int * child_stdo
 #if HAVE_POSIX_SPAWNP
 
 	r = posix_spawn_file_actions_init(&actions);
-	if(r != 0) {
+	if(r) {
 		errno = r;
 		goto stdout_opened;
 	}
 	r = posix_spawn_file_actions_addclose(&actions, stdin_pipe[1]);
-	if(r != 0)
+	if(r)
 		goto actions_inited;
 	r = posix_spawn_file_actions_addclose(&actions, stdout_pipe[0]);
-	if(r != 0)
+	if(r)
 		goto actions_inited;
 	/* Setup for stdin. */
 	r = posix_spawn_file_actions_adddup2(&actions, stdin_pipe[0], 0);
-	if(r != 0)
+	if(r)
 		goto actions_inited;
 	if(stdin_pipe[0] != 0 /* stdin */) {
 		r = posix_spawn_file_actions_addclose(&actions, stdin_pipe[0]);
-		if(r != 0)
+		if(r)
 			goto actions_inited;
 	}
 	/* Setup for stdout. */
 	r = posix_spawn_file_actions_adddup2(&actions, stdout_pipe[1], 1);
-	if(r != 0)
+	if(r)
 		goto actions_inited;
 	if(stdout_pipe[1] != 1 /* stdout */) {
 		r = posix_spawn_file_actions_addclose(&actions, stdout_pipe[1]);
-		if(r != 0)
+		if(r)
 			goto actions_inited;
 	}
 	r = posix_spawnp(&child, cmdline->path, &actions, NULL,
 		cmdline->argv, NULL);
-	if(r != 0)
+	if(r)
 		goto actions_inited;
 	posix_spawn_file_actions_destroy(&actions);
 

@@ -62,10 +62,10 @@ MEM_STATIC uint ZSTD_countLeadingZeros32_fallback(uint32 val)
 MEM_STATIC uint ZSTD_countLeadingZeros32(uint32 val)
 {
 	assert(val != 0);
-#   if defined(_MSC_VER)
-#       if STATIC_BMI2 == 1
+#if defined(_MSC_VER)
+#if STATIC_BMI2 == 1
 	return _lzcnt_u32(val);
-#       else
+#else
 	if(val != 0) {
 		ulong r;
 		_BitScanReverse(&r, val);
@@ -75,10 +75,10 @@ MEM_STATIC uint ZSTD_countLeadingZeros32(uint32 val)
 		/* Should not reach this code path */
 		__assume(0);
 	}
-#       endif
-#   elif defined(__GNUC__) && (__GNUC__ >= 4)
+#endif
+#elif defined(__GNUC__) && (__GNUC__ >= 4)
 	return (uint)__builtin_clz(val);
-#   else
+#else
 	return ZSTD_countLeadingZeros32_fallback(val);
 #   endif
 }
@@ -86,10 +86,10 @@ MEM_STATIC uint ZSTD_countLeadingZeros32(uint32 val)
 MEM_STATIC uint ZSTD_countTrailingZeros64(uint64 val)
 {
 	assert(val != 0);
-#   if defined(_MSC_VER) && defined(_WIN64)
-#       if STATIC_BMI2 == 1
+#if defined(_MSC_VER) && defined(_WIN64)
+#if STATIC_BMI2 == 1
 	return _tzcnt_u64(val);
-#       else
+#else
 	if(val != 0) {
 		ulong r;
 		_BitScanForward64(&r, val);
@@ -99,10 +99,10 @@ MEM_STATIC uint ZSTD_countTrailingZeros64(uint64 val)
 		/* Should not reach this code path */
 		__assume(0);
 	}
-#       endif
-#   elif defined(__GNUC__) && (__GNUC__ >= 4) && defined(__LP64__)
+#endif
+#elif defined(__GNUC__) && (__GNUC__ >= 4) && defined(__LP64__)
 	return (uint)__builtin_ctzll(val);
-#   else
+#else
 	{
 		uint32 mostSignificantWord = (uint32)(val >> 32);
 		uint32 leastSignificantWord = (uint32)val;
@@ -119,10 +119,10 @@ MEM_STATIC uint ZSTD_countTrailingZeros64(uint64 val)
 MEM_STATIC uint ZSTD_countLeadingZeros64(uint64 val)
 {
 	assert(val != 0);
-#   if defined(_MSC_VER) && defined(_WIN64)
-#       if STATIC_BMI2 == 1
+#if defined(_MSC_VER) && defined(_WIN64)
+#if STATIC_BMI2 == 1
 	return _lzcnt_u64(val);
-#       else
+#else
 	if(val != 0) {
 		ulong r;
 		_BitScanReverse64(&r, val);
@@ -132,10 +132,10 @@ MEM_STATIC uint ZSTD_countLeadingZeros64(uint64 val)
 		/* Should not reach this code path */
 		__assume(0);
 	}
-#       endif
-#   elif defined(__GNUC__) && (__GNUC__ >= 4)
+#endif
+#elif defined(__GNUC__) && (__GNUC__ >= 4)
 	return (uint)(__builtin_clzll(val));
-#   else
+#else
 	{
 		uint32 mostSignificantWord = (uint32)(val >> 32);
 		uint32 leastSignificantWord = (uint32)val;

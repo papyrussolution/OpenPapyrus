@@ -150,7 +150,7 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 				use_random_seed, cb);
 			if(r > 0)
 				break;
-			if(r != 0)
+			if(r)
 				goto err;
 
 			/* do a callback call */
@@ -221,7 +221,7 @@ int dsa_builtin_paramgen(DSA * ret, size_t bits, size_t qbits,
 				r = BN_is_prime_fasttest_ex(p, DSS_prime_checks, ctx, 1, cb);
 				if(r > 0)
 					goto end; /* found it */
-				if(r != 0)
+				if(r)
 					goto err;
 			}
 
@@ -418,7 +418,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 				seed_in ? 1 : 0, cb);
 			if(r > 0)
 				break;
-			if(r != 0)
+			if(r)
 				goto err;
 			/* Provided seed didn't produce a prime: error */
 			if(seed_in) {
@@ -498,7 +498,7 @@ int dsa_builtin_paramgen2(DSA * ret, size_t L, size_t N,
 				r = BN_is_prime_fasttest_ex(p, DSS_prime_checks, ctx, 1, cb);
 				if(r > 0)
 					goto end; /* found it */
-				if(r != 0)
+				if(r)
 					goto err;
 			}
 

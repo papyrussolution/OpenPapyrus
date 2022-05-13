@@ -71,16 +71,16 @@ extern UTIL_time_t g_displayClock;
 
 /* Avoid fseek()'s 2GiB barrier with MSVC, macOS, *BSD, MinGW */
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-#   define LONG_SEEK _fseeki64
-#   define LONG_TELL _ftelli64
+#define LONG_SEEK _fseeki64
+#define LONG_TELL _ftelli64
 #elif !defined(__64BIT__) && (PLATFORM_POSIX_VERSION >= 200112L) /* No point defining Large file for 64 bit */
 #  define LONG_SEEK fseeko
 #  define LONG_TELL ftello
 #elif defined(__MINGW32__) && !defined(__STRICT_ANSI__) && !defined(__NO_MINGW_LFS) && defined(__MSVCRT__)
-#   define LONG_SEEK fseeko64
-#   define LONG_TELL ftello64
+#define LONG_SEEK fseeko64
+#define LONG_TELL ftello64
 #elif defined(_WIN32) && !defined(__DJGPP__)
-#   include <windows.h>
+#include <windows.h>
 static int LONG_SEEK(FILE* file, __int64 offset, int origin) {
 	LARGE_INTEGER off;
 	DWORD method;
@@ -107,8 +107,8 @@ static __int64 LONG_TELL(FILE* file)
 }
 
 #else
-#   define LONG_SEEK fseek
-#   define LONG_TELL ftell
+#define LONG_SEEK fseek
+#define LONG_TELL ftell
 #endif
 
 #if defined (__cplusplus)

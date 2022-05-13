@@ -4076,7 +4076,7 @@ static void xmlParseCommentComplex(xmlParserCtxt * ctxt, xmlChar * buf, size_t l
 	}
 	NEXTL(ql);
 	r = CUR_CHAR(rl);
-	if(r == 0)
+	if(!r)
 		goto not_terminated;
 	if(!IS_CHAR(r)) {
 		xmlFatalErrMsgInt(ctxt, XML_ERR_INVALID_CHAR, "xmlParseComment: invalid xmlChar value %d\n", q);

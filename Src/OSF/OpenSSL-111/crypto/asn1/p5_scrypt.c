@@ -86,7 +86,7 @@ X509_ALGOR * PKCS5_pbe2_set_scrypt(const EVP_CIPHER * cipher,
 	}
 
 	ctx = EVP_CIPHER_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto merr;
 
 	/* Dummy cipherinit to just setup the IV */

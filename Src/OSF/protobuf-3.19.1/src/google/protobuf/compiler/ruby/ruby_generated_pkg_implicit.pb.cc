@@ -83,7 +83,7 @@ Four::Four(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:one.two.a_three.Four)
@@ -110,7 +110,7 @@ a_string_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlr
 
 Four::~Four() {
   // @@protoc_insertion_point(destructor:one.two.a_three.Four)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -141,8 +141,8 @@ void Four::Clear() {
 }
 
 const char* Four::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -156,8 +156,7 @@ const char* Four::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -275,7 +274,7 @@ void Four::InternalSwap(Four* other) {
 }  // namespace two
 }  // namespace one
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::one::two::a_three::Four* Arena::CreateMaybeMessage< ::one::two::a_three::Four >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::one::two::a_three::Four * Arena::CreateMaybeMessage< ::one::two::a_three::Four >(Arena* arena) {
   return Arena::CreateMessageInternal< ::one::two::a_three::Four >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

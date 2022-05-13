@@ -2438,7 +2438,7 @@ void MessageGenerator::GenerateArenaDestructorCode(io::Printer* printer)
 		format(
 			"inline void $classname$::RegisterArenaDtor(::$proto_ns$::Arena* "
 			"arena) {\n"
-			"  if (arena != nullptr) {\n"
+			"  if(arena != nullptr) {\n"
 			"    arena->OwnCustomDestructor(this, &$classname$::ArenaDtor);\n"
 			"  }\n"
 			"}\n");
@@ -2600,7 +2600,7 @@ void MessageGenerator::GenerateStructors(io::Printer* printer) {
 
 	if(!inlined_string_indices_.empty()) {
 		// Donate inline string fields.
-		format("  if (arena != nullptr) {\n");
+		format("  if(arena != nullptr) {\n");
 		for(size_t i = 0; i < InlinedStringDonatedSize(); ++i) {
 			format("    _inlined_string_donated_[$1$] = ~0u;\n", i);
 		}
@@ -2610,7 +2610,7 @@ void MessageGenerator::GenerateStructors(io::Printer* printer) {
 	if(!HasSimpleBaseClass(descriptor_, options_)) {
 		format(
 			"  SharedCtor();\n"
-			"  if (!is_message_owned) {\n"
+			"  if(!is_message_owned) {\n"
 			"    RegisterArenaDtor(arena);\n"
 			"  }\n");
 	}
@@ -2641,54 +2641,37 @@ void MessageGenerator::GenerateStructors(io::Printer* printer) {
 		format.Indent();
 		format.Indent();
 		format.Indent();
-
-		// Do not copy inlined_string_donated_, because this is not an arena
-		// constructor.
-
+		// Do not copy inlined_string_donated_, because this is not an arena constructor.
 		if(!has_bit_indices_.empty()) {
 			format(",\n_has_bits_(from._has_bits_)");
 		}
-
 		std::vector<bool> processed(optimized_order_.size(), false);
 		for(int i = 0; i < optimized_order_.size(); i++) {
 			auto field = optimized_order_[i];
-			if(!(field->is_repeated() && !(field->is_map())) &&
-			    !IsCord(field, options_)) {
+			if(!(field->is_repeated() && !(field->is_map())) && !IsCord(field, options_)) {
 				continue;
 			}
-
 			processed[i] = true;
 			format(",\n$1$_(from.$1$_)", FieldName(field));
 		}
-
 		if(IsAnyMessage(descriptor_, options_)) {
 			format(",\n_any_metadata_(&type_url_, &value_)");
 		}
 		if(num_weak_fields_ > 0) {
 			format(",\n_weak_field_map_(from._weak_field_map_)");
 		}
-
 		format.Outdent();
 		format.Outdent();
 		format(" {\n");
-
-		format(
-			"_internal_metadata_.MergeFrom<$unknown_fields_type$>(from._internal_"
-			"metadata_);\n");
-
+		format("_internal_metadata_.MergeFrom<$unknown_fields_type$>(from._internal_metadata_);\n");
 		if(descriptor_->extension_range_count() > 0) {
-			format(
-				"_extensions_.MergeFrom(internal_default_instance(), "
-				"from._extensions_);\n");
+			format("_extensions_.MergeFrom(internal_default_instance(), from._extensions_);\n");
 		}
-
 		GenerateConstructorBody(printer, processed, true);
-
 		// Copy oneof fields. Oneof field requires oneof case check.
 		for(auto oneof : OneOfRange(descriptor_)) {
-			format(
-				"clear_has_$1$();\n"
-				"switch (from.$1$_case()) {\n",
+			format("clear_has_$1$();\n"
+				"switch(from.$1$_case()) {\n",
 				oneof->name());
 			format.Indent();
 			for(auto field : FieldRange(oneof)) {
@@ -2711,21 +2694,17 @@ void MessageGenerator::GenerateStructors(io::Printer* printer) {
 		}
 
 		format.Outdent();
-		format(
-			"  // @@protoc_insertion_point(copy_constructor:$full_name$)\n"
+		format("  // @@protoc_insertion_point(copy_constructor:$full_name$)\n"
 			"}\n"
 			"\n");
 	}
-
 	// Generate the shared constructor code.
 	GenerateSharedConstructorCode(printer);
-
 	// Generate the destructor.
 	if(!HasSimpleBaseClass(descriptor_, options_)) {
-		format(
-			"$classname$::~$classname$() {\n"
+		format("$classname$::~$classname$() {\n"
 			"  // @@protoc_insertion_point(destructor:$full_name$)\n"
-			"  if (GetArenaForAllocation() != nullptr) return;\n"
+			"  if(GetArenaForAllocation() != nullptr) return;\n"
 			"  SharedDtor();\n"
 			"  _internal_metadata_.Delete<$unknown_fields_type$>();\n"
 			"}\n"
@@ -2738,33 +2717,28 @@ void MessageGenerator::GenerateStructors(io::Printer* printer) {
 		// we have no fields needing destruction, of course.  (No strings
 		// or extensions)
 	}
-
 	// Generate the shared destructor code.
 	GenerateSharedDestructorCode(printer);
-
 	// Generate the arena-specific destructor code.
 	GenerateArenaDestructorCode(printer);
-
 	if(!HasSimpleBaseClass(descriptor_, options_)) {
 		// Generate SetCachedSize.
-		format(
-			"void $classname$::SetCachedSize(int size) const {\n"
+		format("void $classname$::SetCachedSize(int size) const {\n"
 			"  _cached_size_.Set(size);\n"
 			"}\n");
 	}
 }
 
-void MessageGenerator::GenerateSourceInProto2Namespace(io::Printer* printer) {
+void MessageGenerator::GenerateSourceInProto2Namespace(io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
-	format(
-		"template<> "
-		"PROTOBUF_NOINLINE "
-		"$classtype$* Arena::CreateMaybeMessage< $classtype$ >(Arena* arena) {\n"
+	format("template<> PROTOBUF_NOINLINE $classtype$ * Arena::CreateMaybeMessage< $classtype$ >(Arena* arena) {\n"
 		"  return Arena::CreateMessageInternal< $classtype$ >(arena);\n"
 		"}\n");
 }
 
-void MessageGenerator::GenerateClear(io::Printer* printer) {
+void MessageGenerator::GenerateClear(io::Printer* printer) 
+{
 	if(HasSimpleBaseClass(descriptor_, options_)) return;
 	Formatter format(printer, variables_);
 
@@ -2950,7 +2924,7 @@ void MessageGenerator::GenerateOneofClear(io::Printer* printer) {
 			"void $classname$::clear_$oneofname$() {\n"
 			"// @@protoc_insertion_point(one_of_clear_start:$full_name$)\n");
 		format.Indent();
-		format("switch ($oneofname$_case()) {\n");
+		format("switch($oneofname$_case()) {\n");
 		format.Indent();
 		for(auto field : FieldRange(oneof)) {
 			format("case k$1$: {\n", UnderscoresToCamelCase(field->name(), true));
@@ -3254,7 +3228,7 @@ void MessageGenerator::GenerateClassSpecificMergeFrom(io::Printer* printer) {
 
 	// Merge oneof fields. Oneof field requires oneof case check.
 	for(auto oneof : OneOfRange(descriptor_)) {
-		format("switch (from.$1$_case()) {\n", oneof->name());
+		format("switch(from.$1$_case()) {\n", oneof->name());
 		format.Indent();
 		for(auto field : FieldRange(oneof)) {
 			format("case k$1$: {\n", UnderscoresToCamelCase(field->name(), true));
@@ -3352,7 +3326,7 @@ void MessageGenerator::GenerateSerializeOneofFields(io::Printer* printer, const 
 	}
 	// We have multiple mutually exclusive choices.  Emit a switch statement.
 	const OneofDescriptor* oneof = fields[0]->containing_oneof();
-	format("switch ($1$_case()) {\n", oneof->name());
+	format("switch($1$_case()) {\n", oneof->name());
 	format.Indent();
 	for(auto field : fields) {
 		format("case k$1$: {\n", UnderscoresToCamelCase(field->name(), true));

@@ -159,7 +159,7 @@
 #elif defined(__ANDROID__)
 #define U_PLATFORM U_PF_ANDROID
     /* Android wchar_t support depends on the API level. */
-#   include <android/api-level.h>
+#include <android/api-level.h>
 #elif defined(__pnacl__) || defined(__native_client__)
 #define U_PLATFORM U_PF_BROWSER_NATIVE_CLIENT
 #elif defined(__Fuchsia__)
@@ -167,27 +167,27 @@
 #elif defined(linux) || defined(__linux__) || defined(__linux)
 #define U_PLATFORM U_PF_LINUX
 #elif defined(__APPLE__) && defined(__MACH__)
-#   include <TargetConditionals.h>
-#   if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE  /* variant of TARGET_OS_MAC */
-#       define U_PLATFORM U_PF_IPHONE
-#   else
-#       define U_PLATFORM U_PF_DARWIN
-#   endif
+#include <TargetConditionals.h>
+#if defined(TARGET_OS_IPHONE) && TARGET_OS_IPHONE  /* variant of TARGET_OS_MAC */
+#define U_PLATFORM U_PF_IPHONE
+#else
+#define U_PLATFORM U_PF_DARWIN
+#endif
 #elif defined(BSD) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(__NetBSD__) || defined(__OpenBSD__) || defined(__MirBSD__)
-#   if defined(__FreeBSD__)
-#       include <sys/endian.h>
-#   endif
+#if defined(__FreeBSD__)
+#include <sys/endian.h>
+#endif
 #define U_PLATFORM U_PF_BSD
 #elif defined(sun) || defined(__sun)
     /* Check defined(__SVR4) || defined(__svr4__) to distinguish Solaris from SunOS? */
 #define U_PLATFORM U_PF_SOLARIS
-#   if defined(__GNUC__)
+#if defined(__GNUC__)
         /* Solaris/GCC needs this header file to get the proper endianness. Normally, this
          * header file is included with stddef.h but on Solairs/GCC, the GCC version of stddef.h
          *  is included which does not include this header file.
          */
-#       include <sys/isa_defs.h>
-#   endif
+#include <sys/isa_defs.h>
+#endif
 #elif defined(_AIX) || defined(__TOS_AIX__)
 #define U_PLATFORM U_PF_AIX
 #elif defined(_hpux) || defined(hpux) || defined(__hpux)
@@ -312,12 +312,12 @@
 #ifdef U_HAVE_STDINT_H
     /* Use the predefined value. */
 #elif U_PLATFORM_USES_ONLY_WIN32_API
-#   if defined(__BORLANDC__) || U_PLATFORM == U_PF_MINGW || (defined(_MSC_VER) && _MSC_VER>=1600)
+#if defined(__BORLANDC__) || U_PLATFORM == U_PF_MINGW || (defined(_MSC_VER) && _MSC_VER>=1600)
         /* Windows Visual Studio 9 and below do not have stdint.h & inttypes.h, but VS 2010 adds them. */
-#       define U_HAVE_STDINT_H 1
-#   else
-#       define U_HAVE_STDINT_H 0
-#   endif
+#define U_HAVE_STDINT_H 1
+#else
+#define U_HAVE_STDINT_H 0
+#endif
 #elif U_PLATFORM == U_PF_SOLARIS
     /* Solaris has inttypes.h but not stdint.h. */
 #define U_HAVE_STDINT_H 0
@@ -493,10 +493,10 @@
  * @internal
  */
 #ifdef U_CPLUSPLUS_VERSION
-#   if U_CPLUSPLUS_VERSION != 0 && !defined(__cplusplus)
-#       undef U_CPLUSPLUS_VERSION
-#       define U_CPLUSPLUS_VERSION 0
-#   endif
+#if U_CPLUSPLUS_VERSION != 0 && !defined(__cplusplus)
+#undef U_CPLUSPLUS_VERSION
+#define U_CPLUSPLUS_VERSION 0
+#endif
     /* Otherwise use the predefined value. */
 #elif !defined(__cplusplus)
 #define U_CPLUSPLUS_VERSION 0
@@ -542,9 +542,9 @@ namespace std {
 #elif defined(__clang__)
     // Test for compiler vs. feature separately.
     // Other compilers might choke on the feature test.
-#    if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || (UPRV_HAS_FEATURE(cxx_attributes) && UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
-#       define U_FALLTHROUGH [[clang::fallthrough]]
-#   endif
+#if UPRV_HAS_CPP_ATTRIBUTE(clang::fallthrough) || (UPRV_HAS_FEATURE(cxx_attributes) && UPRV_HAS_WARNING("-Wimplicit-fallthrough"))
+#define U_FALLTHROUGH [[clang::fallthrough]]
+#endif
 #elif defined(__GNUC__) && (__GNUC__ >= 7)
 #define U_FALLTHROUGH __attribute__((fallthrough))
 #endif
@@ -703,10 +703,10 @@ namespace std {
      * except the IBM-eucTW codeset."
      */
 #   ifdef __64BIT__
-#       define U_SIZEOF_WCHAR_T 4
-#   else
-#       define U_SIZEOF_WCHAR_T 2
-#   endif
+#define U_SIZEOF_WCHAR_T 4
+#else
+#define U_SIZEOF_WCHAR_T 2
+#endif
 #elif U_PLATFORM == U_PF_OS390
     /*
      * z/OS V1R11 information center, section "LP64 | ILP32":
@@ -714,33 +714,33 @@ namespace std {
      * Under LP64, the size of long and pointer is 8 bytes and the size of wchar_t is 4 bytes."
      */
 #   ifdef _LP64
-#       define U_SIZEOF_WCHAR_T 4
-#   else
-#       define U_SIZEOF_WCHAR_T 2
-#   endif
+#define U_SIZEOF_WCHAR_T 4
+#else
+#define U_SIZEOF_WCHAR_T 2
+#endif
 #elif U_PLATFORM == U_PF_OS400
-#   if defined(__UTF32__)
+#if defined(__UTF32__)
         /*
          * LOCALETYPE(*LOCALEUTF) is specified.
          * Wide-character strings are in UTF-32,
          * narrow-character strings are in UTF-8.
          */
-#       define U_SIZEOF_WCHAR_T 4
-#   elif defined(__UCS2__)
+#define U_SIZEOF_WCHAR_T 4
+#elif defined(__UCS2__)
         /*
          * LOCALETYPE(*LOCALEUCS2) is specified.
          * Wide-character strings are in UCS-2,
          * narrow-character strings are in EBCDIC.
          */
-#       define U_SIZEOF_WCHAR_T 2
-#   else
+#define U_SIZEOF_WCHAR_T 2
+#else
         /*
          * LOCALETYPE(*CLD) or LOCALETYPE(*LOCALE) is specified.
          * Wide-character strings are in 16-bit EBCDIC,
          * narrow-character strings are in EBCDIC.
          */
-#       define U_SIZEOF_WCHAR_T 2
-#   endif
+#define U_SIZEOF_WCHAR_T 2
+#endif
 #else
 #define U_SIZEOF_WCHAR_T 4
 #endif
@@ -773,11 +773,11 @@ namespace std {
      * C++11 and C11 require support for UTF-16 literals
      * TODO: Fix for plain C. Doesn't work on Mac.
      */
-#   if U_CPLUSPLUS_VERSION >= 11 || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
-#       define U_HAVE_CHAR16_T 1
-#   else
-#       define U_HAVE_CHAR16_T 0
-#   endif
+#if U_CPLUSPLUS_VERSION >= 11 || (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
+#define U_HAVE_CHAR16_T 1
+#else
+#define U_HAVE_CHAR16_T 0
+#endif
 #endif
 
 /**

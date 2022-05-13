@@ -82,7 +82,7 @@ static int zstd_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	const uint zstd_magic_skippable_mask = 0xFFFFFFF0;
 	CXX_UNUSED(self);
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 4, &avail);
-	if(buffer == NULL)
+	if(!buffer)
 		return 0;
 	prefix = archive_le32dec(buffer);
 	if(prefix == zstd_magic)

@@ -675,7 +675,7 @@ IMPL_CMPFUNC(Sdr_Baltika_RestPartLine, i1, i2)
 	const Sdr_Baltika_RestPartLine * p_i1 = static_cast<const Sdr_Baltika_RestPartLine*>(i1);
 	const Sdr_Baltika_RestPartLine * p_i2 = static_cast<const Sdr_Baltika_RestPartLine*>(i2);
 	int r = stricmp866(p_i1->WareId, p_i2->WareId);
-	if(r == 0)
+	if(!r)
 		r = stricmp866(p_i1->PartNumber, p_i2->PartNumber);
 	return r;
 }
@@ -1175,9 +1175,9 @@ IMPL_CMPFUNC(Sdr_BaltikaBillItemAttrs, i1, i2)
 	const Sdr_BaltikaBillItemAttrs * p_i1 = static_cast<const Sdr_BaltikaBillItemAttrs *>(i1);
 	const Sdr_BaltikaBillItemAttrs * p_i2 = static_cast<const Sdr_BaltikaBillItemAttrs *>(i2);
 	int r = stricmp866(p_i1->DocumentNumber, p_i2->DocumentNumber);
-	if(r == 0)
+	if(!r)
 		r = stricmp866(p_i1->WareId, p_i2->WareId);
-	if(r == 0)
+	if(!r)
 		r = stricmp866(p_i1->PartNumber, p_i2->PartNumber);
 	return r;
 }

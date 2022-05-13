@@ -228,35 +228,26 @@ static ssize_t archive_write_gnutar_data(struct archive_write * a, const void * 
 	return (s);
 }
 
-static int archive_write_gnutar_header(struct archive_write * a,
-    struct archive_entry * entry)
+static int archive_write_gnutar_header(struct archive_write * a, struct archive_entry * entry)
 {
 	char buff[512];
 	int r, ret, ret2 = ARCHIVE_OK;
 	int tartype;
-	struct gnutar * gnutar;
 	struct archive_string_conv * sconv;
 	struct archive_entry * entry_main;
-
-	gnutar = (struct gnutar *)a->format_data;
-
+	struct gnutar * gnutar = (struct gnutar *)a->format_data;
 	/* Setup default string conversion. */
 	if(gnutar->opt_sconv == NULL) {
 		if(!gnutar->init_default_conversion) {
-			gnutar->sconv_default =
-			    archive_string_default_conversion_for_write(
-				&(a->archive));
+			gnutar->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 			gnutar->init_default_conversion = 1;
 		}
 		sconv = gnutar->sconv_default;
 	}
 	else
 		sconv = gnutar->opt_sconv;
-
 	/* Only regular files (not hardlinks) have data. */
-	if(archive_entry_hardlink(entry) != NULL ||
-	    archive_entry_symlink(entry) != NULL ||
-	    !(archive_entry_filetype(entry) == AE_IFREG))
+	if(archive_entry_hardlink(entry) != NULL || archive_entry_symlink(entry) != NULL || !(archive_entry_filetype(entry) == AE_IFREG))
 		archive_entry_set_size(entry, 0);
 
 	if(AE_IFDIR == archive_entry_filetype(entry)) {
@@ -298,8 +289,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 			struct archive_string as;
 			archive_string_init(&as);
 			path_length = strlen(p);
-			if(archive_string_ensure(&as,
-			    path_length + 2) == NULL) {
+			if(archive_string_ensure(&as, path_length + 2) == NULL) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate ustar data");
 				archive_string_free(&as);
 				return(ARCHIVE_FATAL);
@@ -335,9 +325,8 @@ static int archive_write_gnutar_header(struct archive_write * a,
 #else
 	entry_main = NULL;
 #endif
-	r = archive_entry_pathname_l(entry, &(gnutar->pathname),
-		&(gnutar->pathname_length), sconv);
-	if(r != 0) {
+	r = archive_entry_pathname_l(entry, &(gnutar->pathname), &(gnutar->pathname_length), sconv);
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathame");
 			ret = ARCHIVE_FATAL;
@@ -347,7 +336,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 		ret2 = ARCHIVE_WARN;
 	}
 	r = archive_entry_uname_l(entry, &(gnutar->uname), &(gnutar->uname_length), sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			ret = ARCHIVE_FATAL;
@@ -357,7 +346,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 		ret2 = ARCHIVE_WARN;
 	}
 	r = archive_entry_gname_l(entry, &(gnutar->gname), &(gnutar->gname_length), sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			ret = ARCHIVE_FATAL;
@@ -368,7 +357,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 	}
 	/* If linkname is longer than 100 chars we need to add a 'K' header. */
 	r = archive_entry_hardlink_l(entry, &(gnutar->linkname), &(gnutar->linkname_length), sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			ret = ARCHIVE_FATAL;
@@ -379,7 +368,7 @@ static int archive_write_gnutar_header(struct archive_write * a,
 	}
 	if(gnutar->linkname_length == 0) {
 		r = archive_entry_symlink_l(entry, &(gnutar->linkname), &(gnutar->linkname_length), sconv);
-		if(r != 0) {
+		if(r) {
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				ret = ARCHIVE_FATAL;
@@ -392,12 +381,10 @@ static int archive_write_gnutar_header(struct archive_write * a,
 	if(gnutar->linkname_length > GNUTAR_linkname_size) {
 		size_t length = gnutar->linkname_length + 1;
 		struct archive_entry * temp = archive_entry_new2(&a->archive);
-
 		/* Uname/gname here don't really matter since no one reads them;
 		 * these are the values that GNU tar happens to use on FreeBSD. */
 		archive_entry_set_uname(temp, "root");
 		archive_entry_set_gname(temp, "wheel");
-
 		archive_entry_set_pathname(temp, "././@LongLink");
 		archive_entry_set_size(temp, length);
 		ret = archive_format_gnutar_header(a, buff, temp, 'K');

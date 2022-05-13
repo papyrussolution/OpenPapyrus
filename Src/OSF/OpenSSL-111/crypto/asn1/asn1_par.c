@@ -116,7 +116,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 			if((j == 0x21) && (len == 0)) {
 				for(;;) {
 					r = asn1_parse2(bp, &p, (long)(tot - p), offset + (p - *pp), depth + 1, indent, dump);
-					if(r == 0) {
+					if(!r) {
 						ret = 0;
 						goto end;
 					}
@@ -131,7 +131,7 @@ static int asn1_parse2(BIO * bp, const uchar ** pp, long length, int offset, int
 				while(p < ep) {
 					sp = p;
 					r = asn1_parse2(bp, &p, tmp, offset + (p - *pp), depth + 1, indent, dump);
-					if(r == 0) {
+					if(!r) {
 						ret = 0;
 						goto end;
 					}

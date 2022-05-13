@@ -428,7 +428,7 @@ static int pkey_dh_derive(EVP_PKEY_CTX * ctx, uchar * key,
 	dh = ctx->pkey->pkey.dh;
 	dhpub = ctx->peerkey->pkey.dh->pub_key;
 	if(dctx->kdf_type == EVP_PKEY_DH_KDF_NONE) {
-		if(key == NULL) {
+		if(!key) {
 			*keylen = DH_size(dh);
 			return 1;
 		}
@@ -447,7 +447,7 @@ static int pkey_dh_derive(EVP_PKEY_CTX * ctx, uchar * key,
 		size_t Zlen = 0;
 		if(!dctx->kdf_outlen || !dctx->kdf_oid)
 			return 0;
-		if(key == NULL) {
+		if(!key) {
 			*keylen = dctx->kdf_outlen;
 			return 1;
 		}

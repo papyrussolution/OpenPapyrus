@@ -64,7 +64,7 @@ int ExprEvalContext::SelfScanArgList() const { return BIN(ImplementFlags & fSelf
 int ExprEvalContext::IsFunc(const char * pSymb, int * pFuncId) { return 0; }
 int ExprEvalContext::ResolveFunc(int funcId, FC & rFc) { return 0; }
 
-/*static*/int FASTCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
+/*static*/int STDCALL PPExprParser::CalcExpression(const char * pStr, double * pResult, const PPCalcFuncList * pCFL, ExprEvalContext * pCtx)
 {
 	PPExprParser parser(pStr, pCFL, pCtx);
 	return parser.CalcExpr(pResult);

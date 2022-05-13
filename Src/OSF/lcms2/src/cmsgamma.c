@@ -733,8 +733,7 @@ void CMSEXPORT cmsFreeToneCurve(cmsToneCurve * Curve)
 		if(Curve->Segments) {
 			for(uint32 i = 0; i < Curve->nSegments; i++) {
 				_cmsFree(ContextID, Curve->Segments[i].SampledPoints);
-				if(Curve->SegInterp[i] != 0)
-					_cmsFreeInterpParams(Curve->SegInterp[i]);
+				_cmsFreeInterpParams(Curve->SegInterp[i]);
 			}
 			_cmsFree(ContextID, Curve->Segments);
 			_cmsFree(ContextID, Curve->SegInterp);
@@ -787,15 +786,11 @@ cmsToneCurve * CMSEXPORT cmsJoinToneCurve(cmsContext ContextID, const cmsToneCur
 		x = cmsEvalToneCurveFloat(X,  t);
 		Res[i] = cmsEvalToneCurveFloat(Yreversed, x);
 	}
-
 	// Allocate space for output
 	out = cmsBuildTabulatedToneCurveFloat(ContextID, nResultingPoints, Res);
-
 Error:
-
-	if(Res != NULL) _cmsFree(ContextID, Res);
-	if(Yreversed != NULL) cmsFreeToneCurve(Yreversed);
-
+	_cmsFree(ContextID, Res);
+	cmsFreeToneCurve(Yreversed);
 	return out;
 }
 
@@ -812,7 +807,6 @@ static int GetInterval(double In, const uint16 LutTable[], const struct _cms_int
 		for(i = (int)p->Domain[0] - 1; i >= 0; --i) {
 			y0 = LutTable[i];
 			y1 = LutTable[i+1];
-
 			if(y0 <= y1) { // Increasing
 				if(In >= y0 && In <= y1) return i;
 			}
@@ -954,15 +948,13 @@ static boolint smooth2(cmsContext ContextID, float w[], float y[], float z[], fl
 
 		for(i = m - 2; 1<= i; i--)
 			z[i] = z[i] / d[i] - c[i] * z[i+1] - e[i] * z[i+2];
-
 		st = TRUE;
 	}
-	else st = FALSE;
-
-	if(c != NULL) _cmsFree(ContextID, c);
-	if(d) _cmsFree(ContextID, d);
-	if(e != NULL) _cmsFree(ContextID, e);
-
+	else 
+		st = FALSE;
+	_cmsFree(ContextID, c);
+	_cmsFree(ContextID, d);
+	_cmsFree(ContextID, e);
 	return st;
 }
 
@@ -981,7 +973,6 @@ boolint CMSEXPORT cmsSmoothToneCurve(cmsToneCurve * Tab, double lambda)
 				w = (float *)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
 				y = (float *)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
 				z = (float *)_cmsCalloc(ContextID, nItems + 1, sizeof(float));
-
 				if(w != NULL && y != NULL && z != NULL) { // Ensure no memory allocation failure
 					memzero(w, (nItems + 1) * sizeof(float));
 					memzero(y, (nItems + 1) * sizeof(float));
@@ -990,7 +981,6 @@ boolint CMSEXPORT cmsSmoothToneCurve(cmsToneCurve * Tab, double lambda)
 						y[i+1] = (float)Tab->Table16[i];
 						w[i+1] = 1.0;
 					}
-
 					if(smooth2(ContextID, w, y, z, (float)lambda, (int)nItems)) {
 						// Do some reality - checking...
 

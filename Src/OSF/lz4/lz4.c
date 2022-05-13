@@ -73,9 +73,9 @@
 #define LZ4_DISABLE_DEPRECATE_WARNINGS /* due to LZ4_decompress_safe_withPrefix64k */
 #include "lz4.h"
 /* see also "memory routines" below */
-// 
+//
 // Compiler Options
-// 
+//
 #ifdef _MSC_VER // Visual Studio 
 	// @sobolev #include <intrin.h>
 	#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
@@ -1084,7 +1084,7 @@ int LZ4_compress_destSize(const char * src, char * dst, int* srcSizePtr, int tar
 {
 #if(LZ4_HEAPMODE)
 	LZ4_stream_t* ctx = (LZ4_stream_t*)SAlloc::M(sizeof(LZ4_stream_t)); // malloc-calloc always properly aligned 
-	if(ctx == NULL) return 0;
+	if(!ctx) return 0;
 #else
 	LZ4_stream_t ctxBody;
 	LZ4_stream_t* ctx = &ctxBody;
@@ -1341,7 +1341,7 @@ LZ4_FORCE_INLINE int LZ4_decompress_generic(const char * const src, char * const
     const size_t dictSize                      /* note : = 0 if noDict */
     )
 {
-	if(src == NULL) 
+	if(!src) 
 		return -1;
 	{   
 		const uint8 * ip = (const uint8 *)src;

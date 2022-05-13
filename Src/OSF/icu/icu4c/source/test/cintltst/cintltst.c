@@ -477,7 +477,7 @@ char * aescstrdup(const UChar * unichars, int32_t length)
 #if U_CHARSET_FAMILY==U_EBCDIC_FAMILY
 #if U_PLATFORM == U_PF_OS390
 	static const char convName[] = "ibm-1047";
-#   else
+#else
 	static const char convName[] = "ibm-37";
 #endif
 #else

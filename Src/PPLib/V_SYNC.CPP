@@ -728,7 +728,7 @@ int PPViewObjSyncCmp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrows
 							P_Ot->UpdateSyncCmpItem(P_TmpTbl, p_hdr->ObjType, p_hdr->CommID);
 							ok = 1;
 						}
-						else if(r == 0)
+						else if(!r)
 							ok = PPErrorZ();
 					}
 				}

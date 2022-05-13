@@ -1115,9 +1115,9 @@ next:
 	}
 	for(t = 0; t < mcf->tables.nelts; t++) {
 		src = charset[tables[t].src].tables;
-		if(src == NULL) {
+		if(!src) {
 			src = (u_char **)ngx_pcalloc(cf->pool, sizeof(u_char *) * mcf->charsets.nelts);
-			if(src == NULL) {
+			if(!src) {
 				return NGX_ERROR;
 			}
 			charset[tables[t].src].tables = src;

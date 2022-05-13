@@ -227,7 +227,7 @@ int EVP_PBE_scrypt(const char * pass, size_t passlen,
 	}
 
 	/* If no key return to indicate parameters are OK */
-	if(key == NULL)
+	if(!key)
 		return 1;
 	B = static_cast<uchar *>(OPENSSL_malloc((size_t)(Blen + Vlen)));
 	if(B == NULL) {

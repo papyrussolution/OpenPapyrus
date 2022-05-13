@@ -59,13 +59,13 @@ int ssh_client_ecdh_init(ssh_session session)
 	mbedtls_ecp_keypair_init(session->next_crypto->ecdh_privkey);
 	mbedtls_ecp_group_init(&grp);
 	rc = mbedtls_ecp_group_load(&grp, curve);
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}
 	rc = mbedtls_ecp_gen_keypair(&grp, &session->next_crypto->ecdh_privkey->d, &session->next_crypto->ecdh_privkey->Q, 
 		mbedtls_ctr_drbg_random, ssh_get_mbedtls_ctr_drbg_context());
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}
@@ -106,7 +106,7 @@ int ecdh_build_k(ssh_session session)
 	mbedtls_ecp_point_init(&pubkey);
 
 	rc = mbedtls_ecp_group_load(&grp, curve);
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}
@@ -122,7 +122,7 @@ int ecdh_build_k(ssh_session session)
 			ssh_string_len(session->next_crypto->ecdh_server_pubkey));
 	}
 
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}
@@ -141,7 +141,7 @@ int ecdh_build_k(ssh_session session)
 		&session->next_crypto->ecdh_privkey->d,
 		mbedtls_ctr_drbg_random,
 		ssh_get_mbedtls_ctr_drbg_context());
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}
@@ -190,13 +190,13 @@ SSH_PACKET_CALLBACK(ssh_packet_server_ecdh_init)
 	mbedtls_ecp_group_init(&grp);
 	mbedtls_ecp_keypair_init(session->next_crypto->ecdh_privkey);
 	rc = mbedtls_ecp_group_load(&grp, curve);
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}
 	rc = mbedtls_ecp_gen_keypair(&grp, &session->next_crypto->ecdh_privkey->d, &session->next_crypto->ecdh_privkey->Q, mbedtls_ctr_drbg_random,
 		ssh_get_mbedtls_ctr_drbg_context());
-	if(rc != 0) {
+	if(rc) {
 		rc = SSH_ERROR;
 		goto out;
 	}

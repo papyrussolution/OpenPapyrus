@@ -213,7 +213,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 	}
 	public CmdRAttendancePrereqActivity()
 	{
-		CPM = new CommonPrereqModule();
+		CPM = new CommonPrereqModule(this);
 		P = new Param();
 		AttdcBlk = new AttendanceBlock(P);
 	}
@@ -642,7 +642,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					MakeSimpleSearchIndex();
 					requestWindowFeature(Window.FEATURE_NO_TITLE);
 					setContentView(R.layout.activity_cmdrattendanceprereq);
-					CPM.SetupActivityTitles(this, db);
+					CPM.SetupActivity(db, R.id.VIEWPAGER_ATTENDANCEPREREQ, R.id.TABLAYOUT_ATTENDANCEPREREQ);
 					ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ATTENDANCEPREREQ);
 					SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_ATTENDANCEPREREQ);
 					{
@@ -804,12 +804,22 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										View iv = ev_subj.RvHolder.itemView;
 										SLib.SetCtrlString(iv, R.id.LVITEM_GENERICNAME, cur_entry.JsItem.optString("nm", ""));
 										{
-											double val = cur_entry.JsItem.optDouble("price", 0.0);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_PRICE, (val > 0.0) ? SLib.formatdouble(val, 2) : "");
+											Context app_ctx = getApplication();
+											if(app_ctx != null && app_ctx instanceof StyloQApp) {
+												int duration = CPM.GetServiceDurationForPrc(0, cur_id);
+												if(duration > 0) {
+													String text = ((StyloQApp)app_ctx).GetString("duration");
+													if(SLib.GetLen(text) == 0)
+														text = SLib.durationfmt(duration);
+													else
+														text += ": " + SLib.durationfmt(duration);
+													SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_DURATION, text);
+												}
+											}
 										}
 										{
-											double val = cur_entry.JsItem.optDouble("stock", 0.0);
-											SLib.SetCtrlString(iv, R.id.ORDERPREREQ_GOODS_REST, (val > 0.0) ? SLib.formatdouble(val, 0) : "");
+											double val = cur_entry.JsItem.optDouble("price", 0.0);
+											SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_PRICE, (val > 0.0) ? SLib.formatdouble(val, 2) : "");
 										}
 										{
 											View ctl = iv.findViewById(R.id.buttonOrder);
@@ -846,7 +856,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 													ctl.setImageResource(R.drawable.ic_triangledown03);
 													if(prc_lv != null) {
 														prc_lv.setVisibility(View.VISIBLE);
-														PrcByGoodsListAdapter adapter = new PrcByGoodsListAdapter(iv.getContext(), R.layout.simple_list_item, cur_id, prc_list);
+														PrcByGoodsListAdapter adapter = new PrcByGoodsListAdapter(iv.getContext(), R.layout.li_simple, cur_id, prc_list);
 														prc_lv.setAdapter(adapter);
 														{
 															int total_items_height = SLib.CalcListViewHeight(prc_lv);
@@ -989,12 +999,12 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												int color = 0;
 												if(busy) {
 													if(busy_cur)
-														color = getResources().getColor(R.color.FocusedListItem, getTheme());
+														color = getResources().getColor(R.color.ListItemFocused, getTheme());
 													else
 														color = getResources().getColor(R.color.Accent, getTheme());
 												}
 												else if(busy_cur)
-													color = getResources().getColor(R.color.FocusedListItem, getTheme());
+													color = getResources().getColor(R.color.ListItemFocused, getTheme());
 												if(color != 0)
 													ctl.setBackgroundColor(color);
 												else
@@ -1035,7 +1045,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 														ctl.setImageResource(R.drawable.ic_triangledown03);
 														if(goods_lv != null) {
 															goods_lv.setVisibility(View.VISIBLE);
-															GoodsByPrcListAdapter adapter = new GoodsByPrcListAdapter(iv.getContext(), R.layout.goods_by_prc_list_item, cur_id, goods_list);
+															GoodsByPrcListAdapter adapter = new GoodsByPrcListAdapter(iv.getContext(), R.layout.li_goods_by_prc, cur_id, goods_list);
 															goods_lv.setAdapter(adapter);
 															{
 																int total_items_height = SLib.CalcListViewHeight(goods_lv);
@@ -1134,7 +1144,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 						View lv = fv.findViewById(R.id.attendancePrereqGoodsListView);
 						if(lv != null) {
 							((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-							SetupRecyclerListView(fv, R.id.attendancePrereqGoodsListView, R.layout.attendanceprereq_goodslist_item);
+							SetupRecyclerListView(fv, R.id.attendancePrereqGoodsListView, R.layout.li_attendanceprereq_goods);
 							if(selected_search_objtype == SLib.PPOBJ_GOODS) {
 								final int foc_idx = CPM.FindGoodsItemIndexByID(selected_search_objid);
 								SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
@@ -1146,7 +1156,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 							lv = fv.findViewById(R.id.attendancePrereqGoodsGroupListView);
 							if(lv != null) {
 								((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-								SetupRecyclerListView(fv, R.id.attendancePrereqGoodsGroupListView, R.layout.simple_list_item);
+								SetupRecyclerListView(fv, R.id.attendancePrereqGoodsGroupListView, R.layout.li_simple);
 								if(selected_search_objtype == SLib.PPOBJ_GOODSGROUP) {
 									final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_objid);
 									SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
@@ -1158,7 +1168,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								lv = fv.findViewById(R.id.attendancePrereqProcessorListView);
 								if(lv != null) {
 									((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-									SetupRecyclerListView(fv, R.id.attendancePrereqProcessorListView, R.layout.attendanceprereq_processorlist_item);
+									SetupRecyclerListView(fv, R.id.attendancePrereqProcessorListView, R.layout.li_attendanceprereq_processor);
 									if(selected_search_objtype == SLib.PPOBJ_PROCESSOR) {
 										final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_objid);
 										SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
@@ -1170,7 +1180,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									lv = fv.findViewById(R.id.attendancePrereqAttendanceView);
 									if(lv != null) {
 										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-										SetupRecyclerListView(fv, R.id.attendancePrereqAttendanceView, R.layout.attendanceprereq_attendance_item);
+										SetupRecyclerListView(fv, R.id.attendancePrereqAttendanceView, R.layout.li_attendanceprereq_attendance);
 										{
 											View btn = fv.findViewById(R.id.CTL_PREV);
 											if(btn != null) {
@@ -1194,13 +1204,13 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										lv = fv.findViewById(R.id.attendancePrereqBookingListView);
 										if(lv != null) {
 											((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-											SetupRecyclerListView(fv, R.id.attendancePrereqBookingListView, R.layout.attendanceprereq_booking_item);
+											SetupRecyclerListView(fv, R.id.attendancePrereqBookingListView, R.layout.li_attendanceprereq_booking);
 										}
 										else {
 											lv = fv.findViewById(R.id.searchPaneListView);
 											if(lv != null) {
 												((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
-												SetupRecyclerListView(fv, R.id.searchPaneListView, R.layout.searchpane_result_item);
+												SetupRecyclerListView(fv, R.id.searchPaneListView, R.layout.li_searchpane_result);
 												{
 													View iv = fv.findViewById(R.id.CTL_SEARCHPANE_INPUT);
 													if(iv != null && iv instanceof TextInputEditText) {
@@ -1239,7 +1249,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 												lv = fv.findViewById(R.id.attendancePrereqOrderListView);
 												if(lv != null) {
 													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-													SetupRecyclerListView(fv, R.id.attendancePrereqOrderListView, R.layout.attendanceprereq_orderlist_item);
+													SetupRecyclerListView(fv, R.id.attendancePrereqOrderListView, R.layout.li_attendanceprereq_order);
 												}
 											}
 										}
@@ -1505,12 +1515,50 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 					StyloQApp.InterchangeResult ir = (StyloQApp.InterchangeResult)subj;
 					if(ir.OriginalCmdItem != null && ir.OriginalCmdItem.Name.equalsIgnoreCase("PostDocument")) {
 						CPM.Locker_CommitCurrentDocument = false;
+						if(ir.InfoReply != null && ir.InfoReply instanceof SecretTagPool) {
+							SecretTagPool svc_reply_pool = (SecretTagPool)ir.InfoReply;
+							byte [] svc_reply_bytes = svc_reply_pool.Get(SecretTagPool.tagRawData);
+							if(SLib.GetLen(svc_reply_bytes) > 0) {
+								String svc_reply_js_text = new String(svc_reply_bytes);
+								try {
+									JSONObject sv_reply_js = new JSONObject(svc_reply_js_text);
+									if(sv_reply_js != null) {
+										JSONObject js_prc = sv_reply_js.optJSONObject("prc");
+										if(js_prc != null) {
+											int prc_id = js_prc.optInt("id", 0);
+											if(prc_id > 0) {
+												if(CPM.ProcessorListData != null) {
+													boolean found = false;
+													for(int i = 0; !found && i < CPM.ProcessorListData.size(); i++) {
+														CommonPrereqModule.ProcessorEntry prc_entry = CPM.ProcessorListData.get(i);
+														if(prc_entry != null && prc_entry.JsItem != null) {
+															int local_prc_id = prc_entry.JsItem.optInt("id", 0);
+															if(local_prc_id == prc_id) {
+																prc_entry.JsItem = js_prc;
+																found = true;
+															}
+														}
+													}
+													if(!found) {
+														CommonPrereqModule.ProcessorEntry new_prc_entry = new CommonPrereqModule.ProcessorEntry(js_prc);
+														CPM.ProcessorListData.add(new_prc_entry);
+													}
+													NotifyTabContentChanged(CommonPrereqModule.Tab.tabAttendance, 0);
+												}
+											}
+										}
+									}
+								} catch(JSONException exn) {
+									;
+								}
+							}
+						}
 						if(ir.ResultTag == StyloQApp.SvcQueryResult.SUCCESS) {
-							//MakeCurrentDocList();
+							CPM.MakeCurrentDocList((StyloQApp)getApplication());
 							CPM.CurrentOrder = null;
 							//NotifyCurrentOrderChanged();
-							//GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
-							//SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.attendancePrereqOrderListView, -1, -1);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 						}
 						else {
 

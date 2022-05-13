@@ -1336,40 +1336,29 @@ static uint dos_time(const time_t unix_time)
 
 static size_t path_length(struct archive_entry * entry)
 {
-	mode_t type;
-	const char * path;
-	size_t len;
-
-	type = archive_entry_filetype(entry);
-	path = archive_entry_pathname(entry);
-
-	if(!path)
-		return 0;
-	len = strlen(path);
-	if(type == AE_IFDIR && (path[0] == '\0' || path[len - 1] != '/'))
-		++len; /* Space for the trailing / */
+	size_t len = 0;
+	mode_t type = archive_entry_filetype(entry);
+	const char * path = archive_entry_pathname(entry);
+	if(path) {
+		len = strlen(path);
+		if(type == AE_IFDIR && (path[0] == '\0' || path[len - 1] != '/'))
+			++len; /* Space for the trailing / */
+	}
 	return len;
 }
 
 static int write_path(struct archive_entry * entry, struct archive_write * archive)
 {
 	int ret;
-	const char * path;
-	mode_t type;
-	size_t written_bytes;
-
-	path = archive_entry_pathname(entry);
-	type = archive_entry_filetype(entry);
-	written_bytes = 0;
-
+	const char * path = archive_entry_pathname(entry);
+	mode_t type = archive_entry_filetype(entry);
+	size_t written_bytes = 0;
 	if(!path)
 		return ARCHIVE_FATAL;
-
 	ret = __archive_write_output(archive, path, strlen(path));
 	if(ret != ARCHIVE_OK)
 		return ARCHIVE_FATAL;
 	written_bytes += strlen(path);
-
 	/* Folders are recognized by a trailing slash. */
 	if((type == AE_IFDIR) & (path[strlen(path) - 1] != '/')) {
 		ret = __archive_write_output(archive, "/", 1);
@@ -1377,43 +1366,33 @@ static int write_path(struct archive_entry * entry, struct archive_write * archi
 			return ARCHIVE_FATAL;
 		written_bytes += 1;
 	}
-
 	return ((int)written_bytes);
 }
 
 static void copy_path(struct archive_entry * entry, uchar * p)
 {
-	const char * path;
-	size_t pathlen;
-	mode_t type;
-
-	path = archive_entry_pathname(entry);
-	pathlen = strlen(path);
-	type = archive_entry_filetype(entry);
-
+	const char * path = archive_entry_pathname(entry);
+	size_t pathlen = strlen(path);
+	mode_t type = archive_entry_filetype(entry);
 	memcpy(p, path, pathlen);
-
 	/* Folders are recognized by a trailing slash. */
 	if((type == AE_IFDIR) && (path[pathlen - 1] != '/'))
 		p[pathlen] = '/';
 }
 
-static struct archive_string_conv * get_sconv(struct archive_write * a, struct zip * zip)                                      {
+static struct archive_string_conv * get_sconv(struct archive_write * a, struct zip * zip)                                      
+{
 	if(zip->opt_sconv != NULL)
 		return (zip->opt_sconv);
-
 	if(!zip->init_default_conversion) {
-		zip->sconv_default =
-		    archive_string_default_conversion_for_write(&(a->archive));
+		zip->sconv_default = archive_string_default_conversion_for_write(&(a->archive));
 		zip->init_default_conversion = 1;
 	}
 	return (zip->sconv_default);
 }
-
 /*
    Traditional PKWARE Decryption functions.
  */
-
 static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 {
 	uint8 t;
@@ -1427,15 +1406,14 @@ static void trad_enc_update_keys(struct trad_enc_ctx * ctx, uint8 c)
 
 static uint8 trad_enc_decrypt_byte(struct trad_enc_ctx * ctx)
 {
-	unsigned temp = ctx->keys[2] | 2;
+	uint temp = ctx->keys[2] | 2;
 	return (uint8)((temp * (temp ^ 1)) >> 8) & 0xff;
 }
 
-static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in,
-    size_t in_len, uint8 * out, size_t out_len)
+static unsigned trad_enc_encrypt_update(struct trad_enc_ctx * ctx, const uint8 * in, size_t in_len, uint8 * out, size_t out_len)
 {
 	uint i;
-	const unsigned max = (uint)((in_len < out_len) ? in_len : out_len);
+	const uint max = (uint)((in_len < out_len) ? in_len : out_len);
 	for(i = 0; i < max; i++) {
 		uint8 t = in[i];
 		out[i] = t ^ trad_enc_decrypt_byte(ctx);
@@ -1449,7 +1427,6 @@ static int trad_enc_init(struct trad_enc_ctx * ctx, const char * pw, size_t pw_l
 	ctx->keys[0] = 305419896L;
 	ctx->keys[1] = 591751049L;
 	ctx->keys[2] = 878082192L;
-
 	for(; pw_len; --pw_len)
 		trad_enc_update_keys(ctx, *pw++);
 	return 0;
@@ -1539,7 +1516,6 @@ static int init_winzip_aes_encryption(struct archive_write * a)
 		return ret;
 	zip->written_bytes += salt_len + 2;
 	zip->entry_compressed_written += salt_len + 2;
-
 	return ARCHIVE_OK;
 }
 
@@ -1565,7 +1541,6 @@ static int is_winzip_aes_encryption_supported(int encryption)
 	ret = archive_pbkdf2_sha1("p", 1, salt, salt_len, 1000, derived_key, key_len * 2 + 2);
 	if(ret != 0)
 		return 0;
-
 	ret = archive_encrypto_aes_ctr_init(&cctx, derived_key, key_len);
 	if(ret != 0)
 		return 0;

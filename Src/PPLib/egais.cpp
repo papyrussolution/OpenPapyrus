@@ -7857,7 +7857,7 @@ int PPEgaisProcessor::SendBillActs(const PPBillIterchangeFilt & rP)
 			if(r > 0) {
 				ok = 1;
 			}
-			else if(r == 0)
+			else if(!r)
 				LogLastError();
 		}
 	}
@@ -7892,7 +7892,7 @@ int PPEgaisProcessor::SendBillRepeals(const PPBillIterchangeFilt & rP)
 					if(r > 0) {
 						ok = 1;
 					}
-					else if(r == 0)
+					else if(!r)
 						LogLastError();
 				}
 			}
@@ -8139,7 +8139,7 @@ int PPEgaisProcessor::Helper_SendBills(PPID billID, int ediOp, PPID locID, const
 		const int r = PutQuery(pack, locID, pUrlSuffix, ack);
 		if(r > 0)
 			ok = 1;
-		else if(r == 0)
+		else if(!r)
 			LogLastError();
 	}
 	return ok;
@@ -8194,7 +8194,7 @@ int PPEgaisProcessor::Helper_SendBillsByPattern(const PPBillIterchangeFilt & rP,
 										else
 											LogLastError();
 									}
-									else if(r == 0)
+									else if(!r)
 										LogLastError();
 								}
 							}
@@ -8309,7 +8309,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 						const int r = PutQuery(pack, rP.LocID, p_suffix, ack);
 						if(r > 0)
 							ok = 1;
-						else if(r == 0)
+						else if(!r)
 							LogLastError();
 					}
 				}
@@ -8336,7 +8336,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 					const int r = PutQuery(pack, rP.LocID, p_url_sfx, ack);
 					if(r > 0)
 						ok = 1;
-					else if(r == 0)
+					else if(!r)
 						LogLastError();
 				}
 			}
@@ -8356,7 +8356,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 						const int r = PutQuery(pack, rP.LocID, p_suffix, ack);
 						if(r > 0)
 							ok = 1;
-						else if(r == 0)
+						else if(!r)
 							LogLastError();
 					}
 				}
@@ -8396,7 +8396,7 @@ int PPEgaisProcessor::SendBills(const PPBillIterchangeFilt & rP)
 						const int r = PutQuery(pack, rP.LocID, "WayBillTicket", ack);
 						if(r > 0)
 							ok = 1;
-						else if(r == 0)
+						else if(!r)
 							LogLastError();
 					}
 				}

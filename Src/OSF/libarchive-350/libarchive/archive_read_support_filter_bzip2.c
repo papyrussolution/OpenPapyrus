@@ -94,7 +94,7 @@ static int bzip2_reader_bid(struct archive_read_filter_bidder * self, struct arc
 	CXX_UNUSED(self);
 	/* Minimal bzip2 archive is 14 bytes. */
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 14, &avail));
-	if(buffer == NULL)
+	if(!buffer)
 		return 0;
 	/* First three bytes must be "BZh" */
 	bits_checked = 0;

@@ -371,9 +371,9 @@ private:
 		CATCHZOK
 		return ok;
 	}
-	SJson * MakeJson_CCheck(CCheckPacket * pPack, uint flags); // @v11.3.1
+	SJson * MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, uint flags); // @v11.3.1
 	int  ReadSettingsBulk(SString & rJsonBuf); // handler
-	int  WriteSettingsBukl(const SString & rJsonBuf); // handler
+	int  WriteSettingsBulk(const SString & rJsonBuf); // handler
 	int  Connect(StateBlock * pStB)
 	{
 		int    ok = 1;
@@ -833,165 +833,184 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 	rResult.Z();
 	int    ok = 1;
 	int    mcv_status = -1;
+	SString temp_buf;
 	StateBlock stb;
 	THROW(Connect(&stb));
 	if(P_Fptr10 && P_Fptr10->IsValid() && P_Fptr10->ProcessJsonProc) {
-		SString temp_buf;
-		{
-			SJson  js(SJson::tOBJECT);
-			js.InsertString("type", "cancelMarkingCodeValidation");
-			THROW(CallJsonProc(&js, temp_buf));
-		}
-		{
-			SJson  js(SJson::tOBJECT);
-			js.InsertString("type", "clearMarkingCodeValidationResult");
-			THROW(CallJsonProc(&js, temp_buf));
-		}
-		{
-			SJson  js(SJson::tOBJECT);
-			js.InsertString("type", "beginMarkingCodeValidation");
+		if(op == 0) { // Проверка марки
 			{
-				SJson * p_js_params = new SJson(SJson::tOBJECT);
-				p_js_params->InsertString("imcType", "auto"/*"imcShort"*/);
-				temp_buf.Z().EncodeMime64(pCode, sstrlen(pCode));
-				p_js_params->InsertString("imc", temp_buf);
-				// itemPieceSold itemDryForSale 
-				p_js_params->InsertString("itemEstimatedStatus", "itemDryForSale");
-				p_js_params->InsertDouble("itemQuantity", qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
-				p_js_params->InsertString("itemUnits", "piece");
-				p_js_params->InsertInt("imcModeProcessing", 0);
-				//p_js_params->InsertString("itemFractionalAmount", "");
-				js.Insert("params", p_js_params);
-			}
-			THROW(CallJsonProc(&js, temp_buf));
-		}
-		//
-		{
-			const uint max_tries = 5;
-			const long _timeout = 500;
-			uint  try_no = 0;
-			do {
-				if(try_no)
-					SDelay(_timeout);
-				SJson js(SJson::tOBJECT);
-				js.InsertString("type", "getMarkingCodeValidationStatus");
+				SJson  js(SJson::tOBJECT);
+				js.InsertString("type", "cancelMarkingCodeValidation");
 				THROW(CallJsonProc(&js, temp_buf));
+			}
+			{
+				SJson  js(SJson::tOBJECT);
+				js.InsertString("type", "clearMarkingCodeValidationResult");
+				THROW(CallJsonProc(&js, temp_buf));
+			}
+			{
+				SJson  js(SJson::tOBJECT);
+				js.InsertString("type", "beginMarkingCodeValidation");
 				{
-					int    err_code = -1;
-					SString err_text;
-					SString err_description;
-					SString mark_operator_item_status;
-					SString mark_operator_response_result;
-					SString imc_type;
-					SString imc_barcode;
-					int    imc_mode_processing = 0;
-					SJson * p_js_reply = SJson::Parse(temp_buf);
-					if(p_js_reply) {
-						if(p_js_reply->IsObject()) {
-							for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
-								if(p_itm->Text.IsEqiAscii("driverError") && SJson::IsObject(p_itm->P_Child)) {
-									for(const SJson * p_dei = p_itm->P_Child->P_Child; p_dei; p_dei = p_dei->P_Next) {
-										if(p_dei->Text.IsEqiAscii("code")) {
-											err_code = p_dei->P_Child->Text.ToLong();
-										}
-										else if(p_dei->Text.IsEqiAscii("error")) {
-											if(p_dei->P_Child)
-												(err_text = p_dei->P_Child->Text).Unescape();
-										}
-										else if(p_dei->Text.IsEqiAscii("description")) {
-											if(p_dei->P_Child)
-												(err_description = p_dei->P_Child->Text).Unescape();
+					SJson * p_js_params = SJson::CreateObj();
+					p_js_params->InsertString("imcType", "auto"/*"imcShort"*/);
+					temp_buf.Z().EncodeMime64(pCode, sstrlen(pCode));
+					p_js_params->InsertString("imc", temp_buf);
+					// itemPieceSold itemDryForSale 
+					p_js_params->InsertString("itemEstimatedStatus", "itemDryForSale");
+					p_js_params->InsertDouble("itemQuantity", qtty, MKSFMTD(0, 3, NMBF_NOTRAILZ));
+					p_js_params->InsertString("itemUnits", "piece");
+					p_js_params->InsertInt("imcModeProcessing", 0);
+					//p_js_params->InsertString("itemFractionalAmount", "");
+					js.Insert("params", p_js_params);
+				}
+				THROW(CallJsonProc(&js, temp_buf));
+			}
+			//
+			{
+				const uint max_tries = 5;
+				const long _timeout = 500;
+				uint  try_no = 0;
+				do {
+					if(try_no)
+						SDelay(_timeout);
+					SJson js(SJson::tOBJECT);
+					js.InsertString("type", "getMarkingCodeValidationStatus");
+					THROW(CallJsonProc(&js, temp_buf));
+					{
+						int    err_code = -1;
+						SString err_text;
+						SString err_description;
+						SString mark_operator_item_status;
+						SString mark_operator_response_result;
+						SString imc_type;
+						SString imc_barcode;
+						int    imc_mode_processing = 0;
+						bool   sent_imc_request = false;
+						SJson * p_js_reply = SJson::Parse(temp_buf);
+						if(p_js_reply) {
+							if(p_js_reply->IsObject()) {
+								for(const SJson * p_itm = p_js_reply->P_Child; p_itm; p_itm = p_itm->P_Next) {
+									if(p_itm->Text.IsEqiAscii("driverError") && SJson::IsObject(p_itm->P_Child)) {
+										for(const SJson * p_dei = p_itm->P_Child->P_Child; p_dei; p_dei = p_dei->P_Next) {
+											if(p_dei->Text.IsEqiAscii("code")) {
+												err_code = p_dei->P_Child->Text.ToLong();
+											}
+											else if(p_dei->Text.IsEqiAscii("error")) {
+												if(p_dei->P_Child)
+													(err_text = p_dei->P_Child->Text).Unescape();
+											}
+											else if(p_dei->Text.IsEqiAscii("description")) {
+												if(p_dei->P_Child)
+													(err_description = p_dei->P_Child->Text).Unescape();
+											}
 										}
 									}
-								}
-								else if(p_itm->Text.IsEqiAscii("onlineValidation") && SJson::IsObject(p_itm->P_Child)) {
-									CCheckPacket::PreprocessChZnCodeResult ttt; // @debug
-									for(const SJson * p_olv = p_itm->P_Child->P_Child; p_olv; p_olv = p_olv->P_Next) {
-										if(p_olv->Text.IsEqiAscii("itemInfoCheckResult") && SJson::IsObject(p_olv->P_Child)) { // object tag 2106
-											for(const SJson * p_icr = p_olv->P_Child->P_Child; p_icr; p_icr = p_icr->P_Next) {
-												if(p_icr->Text.IsEqiAscii("imcCheckFlag")) {
-													int b = SJson::GetBoolean(p_icr->P_Child);
-													if(b == 1)
-														rResult.CheckResult |= (1 << 0);
-												}
-												else if(p_icr->Text.IsEqiAscii("imcCheckResult")) {
-													int b = SJson::GetBoolean(p_icr->P_Child);
-													if(b == 1)
-														rResult.CheckResult |= (1 << 1);
-												}
-												else if(p_icr->Text.IsEqiAscii("imcStatusInfo")) {
-													int b = SJson::GetBoolean(p_icr->P_Child);
-													if(b == 1)
-														rResult.CheckResult |= (1 << 2);
-												}
-												else if(p_icr->Text.IsEqiAscii("imcEstimatedStatusCorrect")) {
-													int b = SJson::GetBoolean(p_icr->P_Child);
-													if(b == 1)
-														rResult.CheckResult |= (1 << 3);
-												}
-												else if(p_icr->Text.IsEqiAscii("ecrStandAloneFlag")) {
-													int b = SJson::GetBoolean(p_icr->P_Child);
-													if(b == 1)
-														rResult.CheckResult |= (1 << 4);
+									else if(p_itm->Text.IsEqiAscii("onlineValidation") && SJson::IsObject(p_itm->P_Child)) {
+										CCheckPacket::PreprocessChZnCodeResult ttt; // @debug
+										for(const SJson * p_olv = p_itm->P_Child->P_Child; p_olv; p_olv = p_olv->P_Next) {
+											if(p_olv->Text.IsEqiAscii("itemInfoCheckResult") && SJson::IsObject(p_olv->P_Child)) { // object tag 2106
+												for(const SJson * p_icr = p_olv->P_Child->P_Child; p_icr; p_icr = p_icr->P_Next) {
+													if(p_icr->Text.IsEqiAscii("imcCheckFlag")) {
+														if(SJson::GetBoolean(p_icr->P_Child) == 1)
+															rResult.CheckResult |= (1 << 0);
+													}
+													else if(p_icr->Text.IsEqiAscii("imcCheckResult")) {
+														if(SJson::GetBoolean(p_icr->P_Child) == 1)
+															rResult.CheckResult |= (1 << 1);
+													}
+													else if(p_icr->Text.IsEqiAscii("imcStatusInfo")) {
+														if(SJson::GetBoolean(p_icr->P_Child) == 1)
+															rResult.CheckResult |= (1 << 2);
+													}
+													else if(p_icr->Text.IsEqiAscii("imcEstimatedStatusCorrect")) {
+														if(SJson::GetBoolean(p_icr->P_Child) == 1)
+															rResult.CheckResult |= (1 << 3);
+													}
+													else if(p_icr->Text.IsEqiAscii("ecrStandAloneFlag")) {
+														if(SJson::GetBoolean(p_icr->P_Child) == 1)
+															rResult.CheckResult |= (1 << 4);
+													}
 												}
 											}
-										}
-										else if(p_olv->Text.IsEqiAscii("markOperatorItemStatus")) { // tag 2109
-											if(p_olv->P_Child)
-												(mark_operator_item_status = p_olv->P_Child->Text).Unescape();
-										}
-										else if(p_olv->Text.IsEqiAscii("markOperatorResponse") && SJson::IsObject(p_olv->P_Child)) { // object tag 2005
-											rResult.ProcessingResult |= (1 << 0); // Зарезервирован - 1
-											rResult.ProcessingResult |= (1 << 2); // Зарезервирован - 1
-											for(const SJson * p_mor = p_olv->P_Child->P_Child; p_mor; p_mor = p_mor->P_Next) {
-												if(p_mor->Text.IsEqiAscii("responseStatus")) {
-													int b = SJson::GetBoolean(p_mor->P_Child);
-													if(b == 1)
-														rResult.ProcessingResult |= (1 << 1);
-												}
-												else if(p_mor->Text.IsEqiAscii("itemStatusCheck")) {
-													int b = SJson::GetBoolean(p_mor->P_Child);
-													if(b == 1)
-														rResult.ProcessingResult |= (1 << 3);
+											else if(p_olv->Text.IsEqiAscii("markOperatorItemStatus")) { // tag 2109
+												if(p_olv->P_Child) {
+													if(p_olv->P_Child->Text.IsEqiAscii("itemEstimatedStatusCorrect"))
+														rResult.Status = 1;
+													if(p_olv->P_Child->Text.IsEqiAscii("itemEstimatedStatusIncorrect"))
+														rResult.Status = 2;
+													if(p_olv->P_Child->Text.IsEqiAscii("itemSaleStopped"))
+														rResult.Status = 3;
 												}
 											}
-										}
-										else if(p_olv->Text.IsEqiAscii("markOperatorResponseResult")) { // tag 2105
-											rResult.ProcessingCode;
-											if(p_olv->P_Child)
-												(mark_operator_response_result = p_olv->P_Child->Text).Unescape();
-										}
-										else if(p_olv->Text.IsEqiAscii("imcType")) { // tag 2100
-											if(p_olv->P_Child)
-												(imc_type = p_olv->P_Child->Text).Unescape();
-										}
-										else if(p_olv->Text.IsEqiAscii("imcBarcode")) { // tag 2101
-											if(p_olv->P_Child)
-												(imc_barcode = p_olv->P_Child->Text).Unescape();
-										}
-										else if(p_olv->Text.IsEqiAscii("imcModeProcessing")) { // tag 2102
-											if(p_olv->P_Child)
-												imc_mode_processing = p_olv->P_Child->Text.ToLong();
-										}
-									}									
-								}
-								else if(p_itm->Text.IsEqiAscii("sentImcRequest")) {
-									int b = SJson::GetBoolean(p_itm->P_Child);
-								}
-								else if(p_itm->Text.IsEqiAscii("ready")) {
-									if(SJson::IsTrue(p_itm->P_Child))
-										mcv_status = 1;					
+											else if(p_olv->Text.IsEqiAscii("markOperatorResponse") && SJson::IsObject(p_olv->P_Child)) { // object tag 2005
+												rResult.ProcessingResult |= (1 << 0); // Зарезервирован - 1
+												rResult.ProcessingResult |= (1 << 2); // Зарезервирован - 1
+												for(const SJson * p_mor = p_olv->P_Child->P_Child; p_mor; p_mor = p_mor->P_Next) {
+													if(p_mor->Text.IsEqiAscii("responseStatus")) {
+														if(SJson::GetBoolean(p_mor->P_Child) == 1)
+															rResult.ProcessingResult |= (1 << 1);
+													}
+													else if(p_mor->Text.IsEqiAscii("itemStatusCheck")) {
+														if(SJson::GetBoolean(p_mor->P_Child) == 1)
+															rResult.ProcessingResult |= (1 << 3);
+													}
+												}
+											}
+											else if(p_olv->Text.IsEqiAscii("markOperatorResponseResult")) { // tag 2105
+												if(p_olv->P_Child) {
+													if(p_olv->P_Child->Text.IsEqiAscii("correct"))
+														rResult.ProcessingCode = 0;
+													else if(p_olv->P_Child->Text.IsEqiAscii("incorrect"))
+														rResult.ProcessingCode = 1;
+													else if(p_olv->P_Child->Text.IsEqiAscii("unrecognized"))
+														rResult.ProcessingCode = 2;
+												}
+											}
+											else if(p_olv->Text.IsEqiAscii("imcType")) { // tag 2100
+												if(p_olv->P_Child)
+													(imc_type = p_olv->P_Child->Text).Unescape();
+											}
+											else if(p_olv->Text.IsEqiAscii("imcBarcode")) { // tag 2101
+												if(p_olv->P_Child)
+													(imc_barcode = p_olv->P_Child->Text).Unescape();
+											}
+											else if(p_olv->Text.IsEqiAscii("imcModeProcessing")) { // tag 2102
+												imc_mode_processing = p_olv->P_Child ? p_olv->P_Child->Text.ToLong() : 0;
+											}
+										}									
+									}
+									else if(p_itm->Text.IsEqiAscii("sentImcRequest")) {
+										int b = SJson::GetBoolean(p_itm->P_Child);
+										if(b > 0)
+											sent_imc_request = true;
+									}
+									else if(p_itm->Text.IsEqiAscii("ready")) {
+										int b = SJson::GetBoolean(p_itm->P_Child);
+										if(b > 0)
+											mcv_status = 1;					
+									}
 								}
 							}
+							if(mcv_status > 0) {
+								;
+							}
+							ZDELETE(p_js_reply);
 						}
-						if(mcv_status > 0) {
-							
-						}
-						ZDELETE(p_js_reply);
 					}
-				}
-				try_no++;
-			} while(mcv_status < 0 && try_no < max_tries);
+					try_no++;
+				} while(mcv_status < 0 && try_no < max_tries);
+			}
+		}
+		else if(op == 1) { //   1 - акцепт марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
+			SJson  js(SJson::tOBJECT);
+			js.InsertString("type", "acceptMarkingCode");
+			THROW(CallJsonProc(&js, temp_buf));			
+		}
+		else if(op == 2) { //   2 - отказ от акцепта марки. должна быть вызвана непосредственно после вызова PreprocessChZnCode(0, ...)
+			SJson  js(SJson::tOBJECT);
+			js.InsertString("type", "declineMarkingCode");
+			THROW(CallJsonProc(&js, temp_buf));			
 		}
 	}
 	CATCHZOK
@@ -1019,7 +1038,7 @@ int SCS_ATOLDRV::ReadSettingsBulk(SString & rJsonBuf)
 	return ok;
 }
 
-int SCS_ATOLDRV::WriteSettingsBukl(const SString & rJsonBuf)
+int SCS_ATOLDRV::WriteSettingsBulk(const SString & rJsonBuf)
 {
 	int    ok = 0;
 	if(P_Fptr10 && P_Fptr10->IsValid()) {
@@ -1401,7 +1420,7 @@ int SCS_ATOLDRV::ExecOper(uint id)
 	return ok;
 }
 
-SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3.1 @construction
+SJson * SCS_ATOLDRV::MakeJson_CCheck(OfdFactors & rOfdf, CCheckPacket * pPack, uint flags) // @v11.3.1 @construction
 {
 	/*
 		{
@@ -1536,7 +1555,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
 		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
 		CnObj.GetTaxSystem(NodeID, pPack->Rec.Dt, &tax_sys_id);
-		p_result = new SJson(SJson::tOBJECT);
+		p_result = SJson::CreateObj();
 		p_result->InsertString("type", (pPack->Rec.Flags & CCHKF_RETURN) ? "sellReturn" : "sell");
 		{
 			const char * p_atol_taxsys_symb = 0;
@@ -1553,7 +1572,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 		}
 		p_result->InsertBool("ignoreNonFiscalPrintErrors", false);
 		{
-			SJson * p_inner = new SJson(SJson::tOBJECT);
+			SJson * p_inner = SJson::CreateObj();
 			PPSyncCashSession::GetCurrentUserName(temp_buf);
 			p_inner->InsertString("name", temp_buf.Transf(CTRANSF_INNER_TO_UTF8));
 			//
@@ -1561,7 +1580,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 		}
 		// @v11.3.10 {
 		{
-			SJson * p_inner = 0; // new SJson(SJson::tOBJECT); // clientInfo
+			SJson * p_inner = 0; // SJson::CreateObj(); // clientInfo
 			bool paperless = false;
 			SString buyers_email;
 			SString buyers_phone;
@@ -1569,12 +1588,12 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 			pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
 			if(buyers_email.NotEmpty()) {
 				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-				SETIFZQ(p_inner, new SJson(SJson::tOBJECT));
+				SETIFZQ(p_inner, SJson::CreateObj());
 				p_inner->InsertString("emailOrPhone", buyers_email);
 			}
 			else if(buyers_phone.NotEmpty()) {
 				paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-				SETIFZQ(p_inner, new SJson(SJson::tOBJECT));
+				SETIFZQ(p_inner, SJson::CreateObj());
 				p_inner->InsertString("emailOrPhone", buyers_phone);
 			}
 			else
@@ -1597,7 +1616,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 			bool   prn_total_sale = true;
 			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
 			if(r > 0) {
-				SJson * p_inner = new SJson(SJson::tARRAY);
+				SJson * p_inner = SJson::CreateArr();
 				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
 					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
 						const  double _q = sl_param.Qtty;
@@ -1607,7 +1626,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 						const double pp = R2(_p);
 						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
 
-						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						SJson * p_js_item = SJson::CreateObj();
 						p_js_item->InsertString("type", "position");
 						{
 							(temp_buf = sl_param.Text).Strip().SetIfEmpty("WARE").Transf(CTRANSF_INNER_TO_UTF8).Escape();
@@ -1618,14 +1637,82 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 						p_js_item->InsertDouble("amount", pp * pq, MKSFMTD(0, 2, 0));
 						p_js_item->InsertDouble("infoDiscountAmount", 0.0, MKSFMTD(0, 1, 0));
 						p_js_item->InsertInt("department", inrangeordefault(sl_param.DivID, 0, 16, 0));
-						p_js_item->InsertString("measurementUnit", "");
 						p_js_item->InsertString("paymentMethod", ""); // "advance" etc
 						p_js_item->InsertString("paymentObject", ""); // "commodity" etc
-						{
-							uint8 fptr10_mark_buf[512];
-							int   mark_buf_data_len = 0;
-							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
-								p_js_item->InsertString("nomenclatureCode", ""); // chzn mark
+						if(sl_param.ChZnProductType && /*sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()*/sl_param.ChZnCode.NotEmpty()) {
+							if(rOfdf.IsOfdVerGe12()) {
+								if(sl_param.PpChZnR.LineIdx > 0) {
+									//p_js_item->InsertString("measurementUnit", "");
+									/*
+										struct PreprocessChZnCodeResult { // @flat
+											PreprocessChZnCodeResult();
+											PreprocessChZnCodeResult & Z();
+											uint   LineIdx;          // [1..] Индекс строки в чеке
+											int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
+												// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+												// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
+												//   "1" - код маркировки проверен
+												// 1 "0" - результат проверки КП КМ отрицательный или код маркировки не был проверен
+												//   "1" - результат проверки КП КМ положительный
+												// 2 "0" - сведения о статусе товара от ОИСМ не получены
+												//   "1" - проверка статуса ОИСМ выполнена
+												// 3 "0" - от ОИСМ получены сведения, что планируемый статус товара некорректен или сведения о статусе товара от ОИСМ не получены
+												//   "1" - от ОИСМ получены сведения, что планируемый статус товара корректен
+												// 4 "0" - результат проверки КП КМ и статуса товара сформирован ККТ, работающей в режиме передачи данных
+												//   "1" - результат проверки КП КМ сформирован ККТ, работающей в автономном режиме
+												//
+											int    Reason;           // Причина того, что КМ не проверен в ФН
+												// 0 - КМ проверен в ФН;
+												// 1 - КМ данного типа не подлежит проверке в ФН;
+												// 2 - ФН не содержит ключ проверки кода проверки этого КМ;
+												// 3 - переданный код маркировки не соответствует заданному формату (проверка невозможна, так как отсутствуют теги 91 и/или 92 или их формат неверный, согласно GS1)
+												// 4 - внутренняя ошибка в ФН при проверке этого КМ.
+											int    ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
+												// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
+												// 1 "0" - результат проверки КП КМ отрицательный
+												//   "1" - результат проверки КП КМ положительный
+												// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "2" или "3")
+												//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "1")
+												// 0, 2    Заполняются единицами
+												// 4 - 7   Заполняются нулями
+											int    ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
+												// 0 Запрос имеет корректный формат, в том числе корректный формат кода маркировки
+												// 1 Запрос имеет некорректный формат
+												// 2 Указанный в запросе код маркировки имеет некорректный формат (не распознан)
+											int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
+												// 1 Планируемый статус товара корректен
+												// 2 Планируемый статус товара некорректен
+												// 3 Оборот товара приостановлен
+										};
+									*/
+									{
+										SJson * p_js_imcparams = SJson::CreateObj();
+										p_js_imcparams->InsertString("imcType", "auto");
+										temp_buf.EncodeMime64(sl_param.ChZnCode.cptr(), sl_param.ChZnCode.Len());
+										p_js_imcparams->InsertString("imc", temp_buf); // mark ofdtag-2000
+										p_js_imcparams->InsertInt("itemEstimatedStatus", (pPack->Rec.Flags & CCHKF_RETURN) ? 2 : 1);
+										p_js_imcparams->InsertInt("imcModeProcessing", 0); // ofdtag-2102
+										//p_js_imcparams->InsertString("itemFractionalAmount", ""); // ofdtag-1291
+										{
+											SJson * p_js_checkresult = SJson::CreateObj();
+											p_js_checkresult->InsertBool("imcCheckFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<0)));
+											p_js_checkresult->InsertBool("imcCheckResult", LOGIC(sl_param.PpChZnR.CheckResult & (1<<1)));
+											p_js_checkresult->InsertBool("imcStatusInfo", LOGIC(sl_param.PpChZnR.CheckResult & (1<<2)));
+											p_js_checkresult->InsertBool("imcEstimatedStatusCorrect", LOGIC(sl_param.PpChZnR.CheckResult & (1<<3)));
+											p_js_checkresult->InsertBool("ecrStandAloneFlag", LOGIC(sl_param.PpChZnR.CheckResult & (1<<4))); 
+											p_js_imcparams->Insert("itemInfoCheckResult", p_js_checkresult); // ofdtag-2106
+										}
+										p_js_imcparams->InsertInt("itemQuantity", 1); // ofdtag-1023
+										p_js_imcparams->InsertInt("itemUnits", 0); // ofdtag-2108
+										//
+										p_js_item->Insert("imcParams", p_js_imcparams);
+									}
+								}
+							}
+							else {
+								uint8 fptr10_mark_buf[512];
+								int   mark_buf_data_len = 0;
+								p_js_item->InsertString("nomenclatureCode", sl_param.ChZnCode); // chzn mark
 							}
 						}
 						{
@@ -1645,16 +1732,16 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 								else
 									p_tax_type = "vat20"; // @default
 							}
-							SJson * p_js_tax = new SJson(SJson::tOBJECT);
+							SJson * p_js_tax = SJson::CreateObj();
 							p_js_tax->InsertString("type", p_tax_type); // "vat18" etc
 							p_js_item->Insert("tax", p_js_tax);
 						}
 						{
-							SJson * p_js_agentinfo = new SJson(SJson::tOBJECT);
+							SJson * p_js_agentinfo = SJson::CreateObj();
 							p_js_item->Insert("agentInfo", p_js_agentinfo);
 						}
 						{
-							SJson * p_js_supplinfo = new SJson(SJson::tOBJECT);
+							SJson * p_js_supplinfo = SJson::CreateObj();
 							p_js_item->Insert("supplierInfo", p_js_supplinfo);
 						}
 						/*
@@ -1715,7 +1802,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 							   "doubleHeight": false
 						   },
 						*/
-						SJson * p_js_item = new SJson(SJson::tOBJECT);
+						SJson * p_js_item = SJson::CreateObj();
 						p_js_item->InsertString("type", "text");
 						p_js_item->InsertString("text", line_buf.Transf(CTRANSF_OUTER_TO_UTF8).Escape());
 						p_js_item->InsertString("alignment", "left");
@@ -1729,7 +1816,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 				if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
 					sum = running_total;
 				{
-					SJson * p_paym_list = new SJson(SJson::tARRAY);
+					SJson * p_paym_list = SJson::CreateArr();
 					{
 						const double __amt_bnk = R2(fabs(amt_bnk));
 						const double __amt_ccrd = R2(fabs(amt_ccrd));
@@ -1738,19 +1825,19 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 							Space().CatEq("PAYMCASH", __amt_cash, MKSFMTD(0, 10, 0)).
 							Space().CatEq("PAYMCRDCARD", __amt_ccrd, MKSFMTD(0, 10, 0));
 						if(__amt_cash > 0.0) {
-							SJson * p_paym_item = new SJson(SJson::tOBJECT);
+							SJson * p_paym_item = SJson::CreateObj();
 							p_paym_item->InsertString("type", "cash");
 							p_paym_item->InsertDouble("sum", __amt_cash, MKSFMTD(0, 2, 0));
 							p_paym_list->InsertChild(p_paym_item);
 						}
 						if(__amt_bnk > 0.0) {
-							SJson * p_paym_item = new SJson(SJson::tOBJECT);
+							SJson * p_paym_item = SJson::CreateObj();
 							p_paym_item->InsertString("type", "electronically");
 							p_paym_item->InsertDouble("sum", __amt_bnk, MKSFMTD(0, 2, 0));
 							p_paym_list->InsertChild(p_paym_item);
 						}
 						if(__amt_ccrd > 0.0) {
-							SJson * p_paym_item = new SJson(SJson::tOBJECT);
+							SJson * p_paym_item = SJson::CreateObj();
 							p_paym_item->InsertString("type", "other");
 							p_paym_item->InsertDouble("sum", __amt_ccrd, MKSFMTD(0, 2, 0));
 							p_paym_list->InsertChild(p_paym_item);
@@ -1770,6 +1857,7 @@ SJson * SCS_ATOLDRV::MakeJson_CCheck(CCheckPacket * pPack, uint flags) // @v11.3
 int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 {
 	int    ok = 1;
+	Reference * p_ref = PPRef;
 #ifdef  NDEBUG
 	bool   use_json_cmd = false; // @v11.3.5 @debug
 #else
@@ -1782,493 +1870,500 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 	SStringU temp_buf_u;
 	SString buf;
 	SString debug_log_buf;
+	OfdFactors ofdf; // @v11.3.12
 	ResCode = RESCODE_NO_ERROR;
 	ErrCode = SYNCPRN_ERROR;
 	void * fph = P_Fptr10 ? P_Fptr10->Handler : 0;
 	THROW_INVARG(pPack);
+	GetOfdFactors(ofdf); // @v11.3.12
 	debug_log_buf.CatEq("CCID", pPack->Rec.ID).CatDiv(';', 2).CatEq("CCCode", pPack->Rec.Code);
 	if(pPack->GetCount() == 0)
 		ok = -1;
-	else if(use_json_cmd && !P_Disp && P_SlipFmt) {
-		SJson * p_js_cc = MakeJson_CCheck(pPack, 0);
-		if(p_js_cc) {
-			jsproc_result = CallJsonProc(p_js_cc, temp_buf);
-		}
-	}
 	else {
-		SlipDocCommonParam sdc_param;
-		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
-		double sum = fabs(pPack->_Cash);
-		double running_total = 0.0;
-		SString operator_name;
-		SString goods_name;
-		SString chzn_sid; // @v11.0.0
-		const  bool is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
-		StateBlock stb;
-		// @v10.9.0 {
-		double real_fiscal = 0.0;
-		double real_nonfiscal = 0.0;
-		pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
-		const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
-		const CcAmountList & r_al = pPack->AL_Const();
-		const bool   is_al = (r_al.getCount() > 0);
-		const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
-		const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
-		const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
-		// } @v10.9.0 
-		// @v11.0.0 {
-		if(SCn.LocID)
-			PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
-		// } @v11.0.0 
-		THROW(Connect(&stb));
-		THROW(AllowPrintOper_Fptr10());
-		// @v10.9.0 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
-		// @v10.9.0 fiscal = fabs(fiscal);
-		// @v10.9.0 nonfiscal = fabs(nonfiscal);
-		if(flags & PRNCHK_LASTCHKANNUL) {
-			THROW(Annulate(MODE_REGISTER));
+		PreprocessCCheckForOfd12(ofdf, pPack); // @v11.3.12
+		if(use_json_cmd && !P_Disp && P_SlipFmt) {
+			SJson * p_js_cc = MakeJson_CCheck(ofdf, pPack, 0);
+			if(p_js_cc) {
+				jsproc_result = CallJsonProc(p_js_cc, temp_buf);
+			}
 		}
-		if(flags & PRNCHK_RETURN && !(flags & PRNCHK_BANKING)) {
-			int is_cash = 0;
-			THROW(is_cash = CheckForCash(amt));
-			THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
-		}
-		//
-		// Имя кассира
-		//
-		PPSyncCashSession::GetCurrentUserName(operator_name);
-		operator_name.Transf(CTRANSF_INNER_TO_OUTER);
-		if(P_Disp) {
-			THROW(SetProp(OperatorName, operator_name));
-			THROW(SetProp(Mode, MODE_REGISTER));
-			THROW(ExecOper(NewDocument));
-			//THROW(GetProp(CharLineLength, &CheckStrLen));
-		}
-		pPack->Rec.Code = static_cast<long>(stb.ReceiptNumber);
-		if(P_SlipFmt) {
-			bool   prn_total_sale = true;
-			int    r = 0;
-			SString line_buf;
-			const SString format_name("CCheck");
-			SlipLineParam sl_param;
-			THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
-			if(r > 0) {
-				is_format = true;
-				if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
-					WriteLogFile_PageWidthOver(format_name);
-				if(P_Fptr10) {
-					temp_buf_u.Z().CopyFromMb_OUTER(operator_name, operator_name.Len());
-					P_Fptr10->SetParamStrProc(fph, 1021, temp_buf_u);
-					//temp_buf_u.Z().CopyFromMb_OUTER(CashierPassword, CashierPassword.Len());
-					temp_buf_u.Z().CopyFromMb_OUTER(P_Fptr10->UserPassword, P_Fptr10->UserPassword.Len());
-					P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
-					THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
-					// @v11.0.0 {
-					// LIBFPTR_PARAM_TAG_VALUE LIBFPTR_PARAM_RECEIPT_TYPE
-					if(chzn_sid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
-						uint8  fptr10_mdlp_buf[512];
-						int    mdlp_buf_len = 0;
-						P_Fptr10->SetParamStrProc(fph, 1085, L"mdlp");
-						temp_buf.Z().Cat("sid").Cat(chzn_sid).CatChar('&');
-						temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
-						P_Fptr10->SetParamStrProc(fph, 1086, temp_buf_u); // sid
-						P_Fptr10->UtilFormTlvProc(fph);
+		else {
+			SlipDocCommonParam sdc_param;
+			double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
+			double sum = fabs(pPack->_Cash);
+			double running_total = 0.0;
+			SString operator_name;
+			SString goods_name;
+			SString chzn_sid; // @v11.0.0
+			const  bool is_vat_free = (CnObj.IsVatFree(NodeID) > 0);
+			StateBlock stb;
+			// @v10.9.0 {
+			double real_fiscal = 0.0;
+			double real_nonfiscal = 0.0;
+			pPack->HasNonFiscalAmount(&real_fiscal, &real_nonfiscal);
+			const double _fiscal = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? real_fiscal : (real_fiscal + real_nonfiscal);
+			const CcAmountList & r_al = pPack->AL_Const();
+			const bool   is_al = (r_al.getCount() > 0);
+			const double amt_bnk = is_al ? r_al.Get(CCAMTTYP_BANK) : ((pPack->Rec.Flags & CCHKF_BANKING) ? _fiscal : 0.0);
+			const double amt_cash = (_PPConst.Flags & _PPConst.fDoSeparateNonFiscalCcItems) ? (_fiscal - amt_bnk) : (is_al ? r_al.Get(CCAMTTYP_CASH) : (_fiscal - amt_bnk));
+			const double amt_ccrd = is_al ? r_al.Get(CCAMTTYP_CRDCARD) : (real_fiscal + real_nonfiscal - _fiscal);
+			// } @v10.9.0 
+			// @v11.0.0 {
+			if(SCn.LocID)
+				PPRef->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
+			// } @v11.0.0 
+			THROW(Connect(&stb));
+			THROW(AllowPrintOper_Fptr10());
+			// @v10.9.0 pPack->HasNonFiscalAmount(&fiscal, &nonfiscal);
+			// @v10.9.0 fiscal = fabs(fiscal);
+			// @v10.9.0 nonfiscal = fabs(nonfiscal);
+			if(flags & PRNCHK_LASTCHKANNUL) {
+				THROW(Annulate(MODE_REGISTER));
+			}
+			if(flags & PRNCHK_RETURN && !(flags & PRNCHK_BANKING)) {
+				int is_cash = 0;
+				THROW(is_cash = CheckForCash(amt));
+				THROW_PP(is_cash > 0, PPERR_SYNCCASH_NO_CASH);
+			}
+			//
+			// Имя кассира
+			//
+			PPSyncCashSession::GetCurrentUserName(operator_name);
+			operator_name.Transf(CTRANSF_INNER_TO_OUTER);
+			if(P_Disp) {
+				THROW(SetProp(OperatorName, operator_name));
+				THROW(SetProp(Mode, MODE_REGISTER));
+				THROW(ExecOper(NewDocument));
+				//THROW(GetProp(CharLineLength, &CheckStrLen));
+			}
+			pPack->Rec.Code = static_cast<long>(stb.ReceiptNumber);
+			if(P_SlipFmt) {
+				bool   prn_total_sale = true;
+				int    r = 0;
+				SString line_buf;
+				const SString format_name("CCheck");
+				SlipLineParam sl_param;
+				THROW(r = P_SlipFmt->Init(format_name, &sdc_param));
+				if(r > 0) {
+					is_format = true;
+					if(sdc_param.PageWidth > static_cast<uint>(CheckStrLen))
+						WriteLogFile_PageWidthOver(format_name);
+					if(P_Fptr10) {
+						temp_buf_u.Z().CopyFromMb_OUTER(operator_name, operator_name.Len());
+						P_Fptr10->SetParamStrProc(fph, 1021, temp_buf_u);
+						//temp_buf_u.Z().CopyFromMb_OUTER(CashierPassword, CashierPassword.Len());
+						temp_buf_u.Z().CopyFromMb_OUTER(P_Fptr10->UserPassword, P_Fptr10->UserPassword.Len());
+						P_Fptr10->SetParamStrProc(fph, 1203, temp_buf_u);
+						THROW(P_Fptr10->OperatorLoginProc(fph) == 0);
+						// @v11.0.0 {
+						// LIBFPTR_PARAM_TAG_VALUE LIBFPTR_PARAM_RECEIPT_TYPE
+						if(chzn_sid.NotEmpty() && P_Fptr10->UtilFormTlvProc) {
+							uint8  fptr10_mdlp_buf[512];
+							int    mdlp_buf_len = 0;
+							P_Fptr10->SetParamStrProc(fph, 1085, L"mdlp");
+							temp_buf.Z().Cat("sid").Cat(chzn_sid).CatChar('&');
+							temp_buf_u.CopyFromMb_OUTER(temp_buf, temp_buf.Len());
+							P_Fptr10->SetParamStrProc(fph, 1086, temp_buf_u); // sid
+							P_Fptr10->UtilFormTlvProc(fph);
 											
-						//uint8 fptr10_mdlp_buf[512];
-						//int   mdlp_buf_len = 0;
-						mdlp_buf_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mdlp_buf, sizeof(fptr10_mdlp_buf));
-						//libfptr_set_param_str(fptr, 1191, 'mdlp1/10&');
-						//libfptr_set_param_str(fptr, 1085, "mdlp");
-						//libfptr_set_param_str(fptr, 1086, 'sid717528521946&');
-						if(mdlp_buf_len > 0 && P_Fptr10->SetNonPrintableParamByteArrayProc) {
-							P_Fptr10->SetNonPrintableParamByteArrayProc(fph, 1084, fptr10_mdlp_buf, mdlp_buf_len);
+							//uint8 fptr10_mdlp_buf[512];
+							//int   mdlp_buf_len = 0;
+							mdlp_buf_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mdlp_buf, sizeof(fptr10_mdlp_buf));
+							//libfptr_set_param_str(fptr, 1191, 'mdlp1/10&');
+							//libfptr_set_param_str(fptr, 1085, "mdlp");
+							//libfptr_set_param_str(fptr, 1086, 'sid717528521946&');
+							if(mdlp_buf_len > 0 && P_Fptr10->SetNonPrintableParamByteArrayProc) {
+								P_Fptr10->SetNonPrintableParamByteArrayProc(fph, 1084, fptr10_mdlp_buf, mdlp_buf_len);
+							}
 						}
-					}
-					// } @v11.0.0 
-					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
-					// @v11.3.10 {
-					{
-						bool paperless = false;
-						SString buyers_email;
-						SString buyers_phone;
-						pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
-						pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
-						if(buyers_email.NotEmpty()) {
-							paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-							temp_buf_u.Z().CopyFromMb_INNER(buyers_email, buyers_email.Len());
-							P_Fptr10->SetParamStrProc(fph, 1008, temp_buf_u);
-						}
-						else if(buyers_phone.NotEmpty()) {
-							paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
-							temp_buf_u.Z().CopyFromMb_INNER(buyers_phone, buyers_phone.Len());
-							P_Fptr10->SetParamStrProc(fph, 1008, temp_buf_u);
-						}
-						else
-							paperless = false;
-						if(paperless) {
-							P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, paperless);
-						}
-					}
-					// } @v11.3.10 
-					THROW(P_Fptr10->OpenReceiptProc(fph) == 0);
-				}
-				else if(P_Disp) {
-					THROW(SetProp(CheckType, (flags & PRNCHK_RETURN) ? 2L : 1L));
-					THROW(ExecOper(OpenCheck));
-				}
-				Flags |= sfOpenCheck;
-				debug_log_buf.Space().CatChar('{');
-				for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
-					if(sl_param.Flags & SlipLineParam::fRegFiscal) {
-						const  double _q = sl_param.Qtty;
-						const  double _p = fabs(sl_param.Price);
-						int    tax_type_number = 1;
-						goods_name.Z();
+						// } @v11.0.0 
+						P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_RECEIPT_TYPE, (flags & PRNCHK_RETURN) ? LIBFPTR_RT_SELL_RETURN : LIBFPTR_RT_SELL);
+						// @v11.3.10 {
 						{
-							(goods_name = sl_param.Text).Strip();
-							if(!goods_name.NotEmptyS())
-								goods_name = "WARE";
+							bool paperless = false;
+							SString buyers_email;
+							SString buyers_phone;
+							pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
+							pPack->GetExtStrData(CCheckPacket::extssBuyerPhone, buyers_phone);
+							if(buyers_email.NotEmpty()) {
+								paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+								temp_buf_u.Z().CopyFromMb_INNER(buyers_email, buyers_email.Len());
+								P_Fptr10->SetParamStrProc(fph, 1008, temp_buf_u);
+							}
+							else if(buyers_phone.NotEmpty()) {
+								paperless = LOGIC(pPack->Rec.Flags & CCHKF_PAPERLESS);
+								temp_buf_u.Z().CopyFromMb_INNER(buyers_phone, buyers_phone.Len());
+								P_Fptr10->SetParamStrProc(fph, 1008, temp_buf_u);
+							}
 							else
-								goods_name.Transf(CTRANSF_INNER_TO_OUTER);
-							goods_name.Trim(CheckStrLen);
+								paperless = false;
+							if(paperless) {
+								P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_RECEIPT_ELECTRONICALLY, paperless);
+							}
 						}
-						running_total += (_q * _p);
-						const double pq = R3(_q);
-						const double pp = R2(_p);
-						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
-						if(P_Fptr10) {
-							// @v10.7.12 {
-							uint8 fptr10_mark_buf[512];
-							int   mark_buf_data_len = 0;
-							if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
-								{
-									temp_buf.Z().Cat("chzn-mark").CatDiv(':', 2).Cat(sl_param.ChZnProductType).CatChar('-').Cat(sl_param.ChZnGTIN).CatChar('-').Cat(sl_param.ChZnSerial);
-									PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
-								}
-								if(P_Fptr10->UtilFormNomenclature) {
-									int marking_type = -1;
-									switch(sl_param.ChZnProductType) {
-										case GTCHZNPT_FUR: marking_type = LIBFPTR_NT_FURS; break;
-										case GTCHZNPT_TOBACCO: marking_type = LIBFPTR_NT_TOBACCO; break;
-										case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
-										case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
-										case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
-										case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v11.0.0
-									}
-									if(marking_type >= 0) {
-										P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);
-										temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnGTIN, sl_param.ChZnGTIN.Len());
-										P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_GTIN, temp_buf_u);
-										temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnSerial, sl_param.ChZnSerial.Len());
-										P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_SERIAL_NUMBER, temp_buf_u);
-										P_Fptr10->UtilFormNomenclature(fph);
-										mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
-										temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
-										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
-										/*
-										fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
-										fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
-										fptr.setParam(fptr.LIBFPTR_PARAM_SERIAL_NUMBER, 'ABC1234');
-										fptr.utilFormNomenclature;
-										nomenclatureCode := fptr.getParamByteArray(fptr.LIBFPTR_PARAM_TAG_VALUE);
-										fptr.setParam(fptr.LIBFPTR_PARAM_COMMODITY_NAME, 'товар1');
-										fptr.setParam(1212, 5); // признак предмета расчета
-										fptr.setParam(fptr.LIBFPTR_PARAM_PRICE, pr);
-										fptr.setParam(fptr.LIBFPTR_PARAM_QUANTITY, 1);
-										fptr.setParam(fptr.LIBFPTR_PARAM_TAX_TYPE, fptr.LIBFPTR_TAX_VAT0);
-										fptr.setParam(fptr.LIBFPTR_PARAM_USE_ONLY_TAX_TYPE, True);
-										fptr.setParam(1162, nomenclatureCode);
-										fptr.registration; 
-										*/
-										/*
-											1191 - propertiesItem
-											1084 - properties 
-											1085 - propertyName
-											1086 - propertyValue
-										*/
-									}
-								}
-							}
-							// } @v10.7.12 
-							temp_buf_u.CopyFromMb_OUTER(goods_name, goods_name.Len());
-							P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
-							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
-							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
-							if(is_vat_free)
-								tax_type_number = LIBFPTR_TAX_NO;
-							else {
-								const double vatrate = fabs(sl_param.VatRate);
-								if(vatrate == 18.0)
-									tax_type_number = LIBFPTR_TAX_VAT18;
-								else if(vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-									tax_type_number = LIBFPTR_TAX_VAT20;
-								else if(vatrate == 10.0)
-									tax_type_number = LIBFPTR_TAX_VAT10;
-								else if(vatrate == 0.0)
-									tax_type_number = LIBFPTR_TAX_VAT0;
-								else
-									tax_type_number = LIBFPTR_TAX_VAT20; // @default
-							}
-							P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TAX_TYPE, tax_type_number);
-							P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : sl_param.DivID);
-							// @v10.7.12 {
-							if(mark_buf_data_len > 0) {
-								P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
-							}
-							// } @v10.7.12
-							// @v11.1.9 {
-							if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
-								SString tag_1191;
-								tag_1191.Cat("mdlp");
-								P_Fptr10->SetParamStrProc(fph, 1191, SUcSwitchW(tag_1191));
-							}
-							// } @v11.1.9
-							THROW(P_Fptr10->RegistrationProc(fph) == 0);
-						}
-						else if(P_Disp) {
-							THROW(SetProp(Name, goods_name)); // Наименование товара
-							THROW(SetProp(Quantity, pq));
-							THROW(SetProp(Price, pp));
-							// @v10.0.03 {
-							// @v10.0.10 {
-							if(SCn.DrvVerMinor == 30) { 
-								// 1 - 0%
-								// 2 - 10%
-								// 3 - 18%
-								// 4 - 18/118 ?
-								// 5 - 10/110
-								// 6 - без НДС
-								if(is_vat_free)
-									tax_type_number = 6;
-								else {
-									const double vatrate = fabs(sl_param.VatRate);
-									if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-										tax_type_number = 3;
-									else if(vatrate == 10.0)
-										tax_type_number = 2;
-									else if(vatrate == 0.0)
-										tax_type_number = 1;
-									else
-										tax_type_number = 3; // @default
-								}
-							}
-							else if((SCn.DrvVerMinor % 2) == 0) { 
-								//
-								// 1 - 18
-								// 2 - 10
-								// 3 - 0
-								// 4 - без НДС
-								//
-								if(is_vat_free)
-									tax_type_number = 4;
-								else {
-									const double vatrate = fabs(sl_param.VatRate);
-									if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-										tax_type_number = 1;
-									else if(vatrate == 10.0)
-										tax_type_number = 2;
-									else if(vatrate == 0.0)
-										tax_type_number = 3;
-									else
-										tax_type_number = 1; // @default
-								}
-							}
-							else 
-							// } @v10.0.10
+						// } @v11.3.10 
+						THROW(P_Fptr10->OpenReceiptProc(fph) == 0);
+					}
+					else if(P_Disp) {
+						THROW(SetProp(CheckType, (flags & PRNCHK_RETURN) ? 2L : 1L));
+						THROW(ExecOper(OpenCheck));
+					}
+					Flags |= sfOpenCheck;
+					debug_log_buf.Space().CatChar('{');
+					for(P_SlipFmt->InitIteration(pPack); P_SlipFmt->NextIteration(line_buf, &sl_param) > 0;) {
+						if(sl_param.Flags & SlipLineParam::fRegFiscal) {
+							const  double _q = sl_param.Qtty;
+							const  double _p = fabs(sl_param.Price);
+							int    tax_type_number = 1;
+							goods_name.Z();
 							{
-								//
-								// 1 - 18
-								// 2 - 10
-								// 3 - 18/118
-								// 4 - 10/110
-								// 5 - 0
-								// 6 - без НДС
-								//
+								(goods_name = sl_param.Text).Strip();
+								if(!goods_name.NotEmptyS())
+									goods_name = "WARE";
+								else
+									goods_name.Transf(CTRANSF_INNER_TO_OUTER);
+								goods_name.Trim(CheckStrLen);
+							}
+							running_total += (_q * _p);
+							const double pq = R3(_q);
+							const double pp = R2(_p);
+							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+							if(P_Fptr10) {
+								// @v10.7.12 {
+								uint8 fptr10_mark_buf[512];
+								int   mark_buf_data_len = 0;
+								if(sl_param.ChZnProductType && sl_param.ChZnGTIN.NotEmpty() && sl_param.ChZnSerial.NotEmpty()) {
+									{
+										temp_buf.Z().Cat("chzn-mark").CatDiv(':', 2).Cat(sl_param.ChZnProductType).CatChar('-').Cat(sl_param.ChZnGTIN).CatChar('-').Cat(sl_param.ChZnSerial);
+										PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);
+									}
+									if(P_Fptr10->UtilFormNomenclature) {
+										int marking_type = -1;
+										switch(sl_param.ChZnProductType) {
+											case GTCHZNPT_FUR: marking_type = LIBFPTR_NT_FURS; break;
+											case GTCHZNPT_TOBACCO: marking_type = LIBFPTR_NT_TOBACCO; break;
+											case GTCHZNPT_SHOE: marking_type = LIBFPTR_NT_SHOES; break;
+											case GTCHZNPT_MEDICINE: marking_type = LIBFPTR_NT_MEDICINES; break;
+											case GTCHZNPT_CARTIRE: marking_type = 0x444D; break; // @v10.9.7
+											case GTCHZNPT_TEXTILE: marking_type = 0x444D; break; // @v11.0.0
+											case GTCHZNPT_PERFUMERY: marking_type = 0x444D; break; // @v11.3.12 Парфюмерия
+											case GTCHZNPT_MILK: marking_type = 0x444D; break; // @v11.3.12 Молоко
+										}
+										if(marking_type >= 0) {
+											P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_NOMENCLATURE_TYPE, marking_type);
+											temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnGTIN, sl_param.ChZnGTIN.Len());
+											P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_GTIN, temp_buf_u);
+											temp_buf_u.CopyFromMb_OUTER(sl_param.ChZnSerial, sl_param.ChZnSerial.Len());
+											P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_SERIAL_NUMBER, temp_buf_u);
+											P_Fptr10->UtilFormNomenclature(fph);
+											mark_buf_data_len = P_Fptr10->GetParamByteArrayProc(fph, LIBFPTR_PARAM_TAG_VALUE, fptr10_mark_buf, sizeof(fptr10_mark_buf));
+											temp_buf.Z().Cat("chzn-mark-composed").CatDiv(':', 2).CatEq("length", static_cast<long>(mark_buf_data_len));
+											PPLogMessage(PPFILNAM_ATOLDRV_LOG, temp_buf, LOGMSGF_TIME|LOGMSGF_USER);										
+											/*
+											fptr.setParam(fptr.LIBFPTR_PARAM_NOMENCLATURE_TYPE, fptr.LIBFPTR_NT_TOBACCO);
+											fptr.setParam(fptr.LIBFPTR_PARAM_GTIN, '98765432101234');
+											fptr.setParam(fptr.LIBFPTR_PARAM_SERIAL_NUMBER, 'ABC1234');
+											fptr.utilFormNomenclature;
+											nomenclatureCode := fptr.getParamByteArray(fptr.LIBFPTR_PARAM_TAG_VALUE);
+											fptr.setParam(fptr.LIBFPTR_PARAM_COMMODITY_NAME, 'товар1');
+											fptr.setParam(1212, 5); // признак предмета расчета
+											fptr.setParam(fptr.LIBFPTR_PARAM_PRICE, pr);
+											fptr.setParam(fptr.LIBFPTR_PARAM_QUANTITY, 1);
+											fptr.setParam(fptr.LIBFPTR_PARAM_TAX_TYPE, fptr.LIBFPTR_TAX_VAT0);
+											fptr.setParam(fptr.LIBFPTR_PARAM_USE_ONLY_TAX_TYPE, True);
+											fptr.setParam(1162, nomenclatureCode);
+											fptr.registration; 
+											*/
+											/*
+												1191 - propertiesItem
+												1084 - properties 
+												1085 - propertyName
+												1086 - propertyValue
+											*/
+										}
+									}
+								}
+								// } @v10.7.12 
+								temp_buf_u.CopyFromMb_OUTER(goods_name, goods_name.Len());
+								P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
+								P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+								P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
 								if(is_vat_free)
-									tax_type_number = 6;
+									tax_type_number = LIBFPTR_TAX_NO;
 								else {
 									const double vatrate = fabs(sl_param.VatRate);
-									if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
-										tax_type_number = 1;
+									if(vatrate == 18.0)
+										tax_type_number = LIBFPTR_TAX_VAT18;
+									else if(vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+										tax_type_number = LIBFPTR_TAX_VAT20;
 									else if(vatrate == 10.0)
-										tax_type_number = 2;
+										tax_type_number = LIBFPTR_TAX_VAT10;
 									else if(vatrate == 0.0)
-										tax_type_number = 5;
+										tax_type_number = LIBFPTR_TAX_VAT0;
 									else
-										tax_type_number = 1; // @default
+										tax_type_number = LIBFPTR_TAX_VAT20; // @default
 								}
-							}
-							THROW(SetProp(TaxTypeNumber, tax_type_number));
-							// } @v10.0.03 
-							THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : static_cast<int32>(sl_param.DivID)));
-							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
-						}
-						Flags |= sfOpenCheck;
-						prn_total_sale = false;
-					}
-					else if(sl_param.Kind == sl_param.lkBarcode) {
-						;
-					}
-					else if(sl_param.Kind == sl_param.lkSignBarcode) {
-						if(line_buf.NotEmptyS()) {
-							int    atol_bctype = 0;
-							const  int barcode_height = (sl_param.BarcodeHt > 0) ? sl_param.BarcodeHt : 50;
-							const  int barcode_scale = 300;
-							if(P_Fptr10) {
-								switch(sl_param.BarcodeStd) {
-									case BARCSTD_CODE39: atol_bctype = LIBFPTR_BT_CODE_39; break;
-									case BARCSTD_UPCA: atol_bctype = LIBFPTR_BT_UPC_A; break;
-									case BARCSTD_UPCE: atol_bctype = LIBFPTR_BT_UPC_E; break;
-									case BARCSTD_EAN13: atol_bctype = LIBFPTR_BT_EAN_13; break;
-									case BARCSTD_EAN8: atol_bctype = LIBFPTR_BT_EAN_8; break;
-									case BARCSTD_ANSI: atol_bctype = LIBFPTR_BT_CODABAR; break;
-									case BARCSTD_CODE93: atol_bctype = LIBFPTR_BT_CODE_93; break;
-									case BARCSTD_CODE128: atol_bctype = LIBFPTR_BT_CODE_128; break;
-									case BARCSTD_PDF417: atol_bctype = LIBFPTR_BT_PDF417; break;
-									case BARCSTD_QR: atol_bctype = LIBFPTR_BT_QR; break;
-									default: atol_bctype = LIBFPTR_BT_QR; break; // QR by default
+								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_TAX_TYPE, tax_type_number);
+								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : sl_param.DivID);
+								// @v10.7.12 {
+								if(mark_buf_data_len > 0) {
+									P_Fptr10->SetParamByteArrayProc(fph, 1162, fptr10_mark_buf, mark_buf_data_len);
 								}
-								temp_buf_u.Z().CopyFromMb_OUTER(line_buf, line_buf.Len());
-								P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_BARCODE, temp_buf_u);
-								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_BARCODE_TYPE, atol_bctype);
-								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_HEIGHT, barcode_height);
-								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_SCALE, barcode_scale);
-								P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_CENTER);
-								P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_BARCODE_PRINT_TEXT, BIN(sl_param.Flags & (sl_param.fBcTextBelow|sl_param.fBcTextAbove)));
-								P_Fptr10->PrintBarcodeProc(fph);
+								// } @v10.7.12
+								// @v11.1.9 {
+								if(sl_param.ChZnProductType == GTCHZNPT_MEDICINE) {
+									SString tag_1191;
+									tag_1191.Cat("mdlp");
+									P_Fptr10->SetParamStrProc(fph, 1191, SUcSwitchW(tag_1191));
+								}
+								// } @v11.1.9
+								THROW(P_Fptr10->RegistrationProc(fph) == 0);
 							}
 							else if(P_Disp) {
-								switch(sl_param.BarcodeStd) {
-									case BARCSTD_CODE39: atol_bctype = 1; break;
-									case BARCSTD_UPCA: atol_bctype = 0; break;
-									case BARCSTD_UPCE: atol_bctype = 4; break;
-									case BARCSTD_EAN13: atol_bctype = 2; break;
-									case BARCSTD_EAN8: atol_bctype = 3; break;
-									case BARCSTD_ANSI: atol_bctype = 6; break;
-									case BARCSTD_CODE93: atol_bctype = 7; break;
-									case BARCSTD_CODE128: atol_bctype = 8; break;
-									case BARCSTD_PDF417: atol_bctype = 10; break;
-									case BARCSTD_QR: atol_bctype = 84; break;
-									default: atol_bctype = 84; break; // QR by default
+								THROW(SetProp(Name, goods_name)); // Наименование товара
+								THROW(SetProp(Quantity, pq));
+								THROW(SetProp(Price, pp));
+								// @v10.0.03 {
+								// @v10.0.10 {
+								if(SCn.DrvVerMinor == 30) { 
+									// 1 - 0%
+									// 2 - 10%
+									// 3 - 18%
+									// 4 - 18/118 ?
+									// 5 - 10/110
+									// 6 - без НДС
+									if(is_vat_free)
+										tax_type_number = 6;
+									else {
+										const double vatrate = fabs(sl_param.VatRate);
+										if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+											tax_type_number = 3;
+										else if(vatrate == 10.0)
+											tax_type_number = 2;
+										else if(vatrate == 0.0)
+											tax_type_number = 1;
+										else
+											tax_type_number = 3; // @default
+									}
 								}
-								THROW(SetProp(BarcodeType, atol_bctype));
-								THROW(SetProp(Barcode, line_buf));
-								THROW(SetProp(Height, barcode_height));
-								if(sl_param.Flags & sl_param.fBcTextBelow) {
-									THROW(SetProp(PrintBarcodeText, 2));
+								else if((SCn.DrvVerMinor % 2) == 0) { 
+									//
+									// 1 - 18
+									// 2 - 10
+									// 3 - 0
+									// 4 - без НДС
+									//
+									if(is_vat_free)
+										tax_type_number = 4;
+									else {
+										const double vatrate = fabs(sl_param.VatRate);
+										if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+											tax_type_number = 1;
+										else if(vatrate == 10.0)
+											tax_type_number = 2;
+										else if(vatrate == 0.0)
+											tax_type_number = 3;
+										else
+											tax_type_number = 1; // @default
+									}
 								}
-								else if(sl_param.Flags & sl_param.fBcTextAbove) {
-									THROW(SetProp(PrintBarcodeText, 1));
+								else 
+								// } @v10.0.10
+								{
+									//
+									// 1 - 18
+									// 2 - 10
+									// 3 - 18/118
+									// 4 - 10/110
+									// 5 - 0
+									// 6 - без НДС
+									//
+									if(is_vat_free)
+										tax_type_number = 6;
+									else {
+										const double vatrate = fabs(sl_param.VatRate);
+										if(vatrate == 18.0 || vatrate == 20.0) // @v10.2.10 (|| vatrate == 20.0)
+											tax_type_number = 1;
+										else if(vatrate == 10.0)
+											tax_type_number = 2;
+										else if(vatrate == 0.0)
+											tax_type_number = 5;
+										else
+											tax_type_number = 1; // @default
+									}
 								}
-								else {
-									THROW(SetProp(PrintBarcodeText, 0));
+								THROW(SetProp(TaxTypeNumber, tax_type_number));
+								// } @v10.0.03 
+								THROW(SetProp(Department, (sl_param.DivID > 16 || sl_param.DivID < 0) ? 0 : static_cast<int32>(sl_param.DivID)));
+								THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
+							}
+							Flags |= sfOpenCheck;
+							prn_total_sale = false;
+						}
+						else if(sl_param.Kind == sl_param.lkBarcode) {
+							;
+						}
+						else if(sl_param.Kind == sl_param.lkSignBarcode) {
+							if(line_buf.NotEmptyS()) {
+								int    atol_bctype = 0;
+								const  int barcode_height = (sl_param.BarcodeHt > 0) ? sl_param.BarcodeHt : 50;
+								const  int barcode_scale = 300;
+								if(P_Fptr10) {
+									switch(sl_param.BarcodeStd) {
+										case BARCSTD_CODE39: atol_bctype = LIBFPTR_BT_CODE_39; break;
+										case BARCSTD_UPCA: atol_bctype = LIBFPTR_BT_UPC_A; break;
+										case BARCSTD_UPCE: atol_bctype = LIBFPTR_BT_UPC_E; break;
+										case BARCSTD_EAN13: atol_bctype = LIBFPTR_BT_EAN_13; break;
+										case BARCSTD_EAN8: atol_bctype = LIBFPTR_BT_EAN_8; break;
+										case BARCSTD_ANSI: atol_bctype = LIBFPTR_BT_CODABAR; break;
+										case BARCSTD_CODE93: atol_bctype = LIBFPTR_BT_CODE_93; break;
+										case BARCSTD_CODE128: atol_bctype = LIBFPTR_BT_CODE_128; break;
+										case BARCSTD_PDF417: atol_bctype = LIBFPTR_BT_PDF417; break;
+										case BARCSTD_QR: atol_bctype = LIBFPTR_BT_QR; break;
+										default: atol_bctype = LIBFPTR_BT_QR; break; // QR by default
+									}
+									temp_buf_u.Z().CopyFromMb_OUTER(line_buf, line_buf.Len());
+									P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_BARCODE, temp_buf_u);
+									P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_BARCODE_TYPE, atol_bctype);
+									P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_HEIGHT, barcode_height);
+									P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_SCALE, barcode_scale);
+									P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_ALIGNMENT, LIBFPTR_ALIGNMENT_CENTER);
+									P_Fptr10->SetParamBoolProc(fph, LIBFPTR_PARAM_BARCODE_PRINT_TEXT, BIN(sl_param.Flags & (sl_param.fBcTextBelow|sl_param.fBcTextAbove)));
+									P_Fptr10->PrintBarcodeProc(fph);
 								}
-								THROW(SetProp(AutoSize, true));
-								THROW(SetProp(Alignment, 1));
-								THROW(SetProp(Scale, barcode_scale));
-								THROW(SetProp(PrintPurpose, 1));
-								THROW(SetProp(BarcodeControlCode, false));
-								THROW(ExecOper(PrintBarcode));
+								else if(P_Disp) {
+									switch(sl_param.BarcodeStd) {
+										case BARCSTD_CODE39: atol_bctype = 1; break;
+										case BARCSTD_UPCA: atol_bctype = 0; break;
+										case BARCSTD_UPCE: atol_bctype = 4; break;
+										case BARCSTD_EAN13: atol_bctype = 2; break;
+										case BARCSTD_EAN8: atol_bctype = 3; break;
+										case BARCSTD_ANSI: atol_bctype = 6; break;
+										case BARCSTD_CODE93: atol_bctype = 7; break;
+										case BARCSTD_CODE128: atol_bctype = 8; break;
+										case BARCSTD_PDF417: atol_bctype = 10; break;
+										case BARCSTD_QR: atol_bctype = 84; break;
+										default: atol_bctype = 84; break; // QR by default
+									}
+									THROW(SetProp(BarcodeType, atol_bctype));
+									THROW(SetProp(Barcode, line_buf));
+									THROW(SetProp(Height, barcode_height));
+									if(sl_param.Flags & sl_param.fBcTextBelow) {
+										THROW(SetProp(PrintBarcodeText, 2));
+									}
+									else if(sl_param.Flags & sl_param.fBcTextAbove) {
+										THROW(SetProp(PrintBarcodeText, 1));
+									}
+									else {
+										THROW(SetProp(PrintBarcodeText, 0));
+									}
+									THROW(SetProp(AutoSize, true));
+									THROW(SetProp(Alignment, 1));
+									THROW(SetProp(Scale, barcode_scale));
+									THROW(SetProp(PrintPurpose, 1));
+									THROW(SetProp(BarcodeControlCode, false));
+									THROW(ExecOper(PrintBarcode));
+								}
 							}
 						}
-					}
-					else {
-						THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
-					}
-				}
-				if(prn_total_sale) {
-					if(!pPack->GetCount()) {
-						const double pq = 1.0;
-						const double pp = fabs(amt);
-						debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
-						if(P_Fptr10) {
-							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
-							P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
-							THROW(P_Fptr10->RegistrationProc(fph) == 0);
+						else {
+							THROW(PrintText(line_buf.Trim(CheckStrLen), ptfWrap, 0));
 						}
-						else if(P_Disp) {
-							THROW(SetProp(Quantity, pq));
-							THROW(SetProp(Price, pp));
-							THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
-						}
-						Flags |= sfOpenCheck;
-						running_total += amt;
 					}
+					if(prn_total_sale) {
+						if(!pPack->GetCount()) {
+							const double pq = 1.0;
+							const double pp = fabs(amt);
+							debug_log_buf.CatChar('[').CatEq("QTY", pq).Space().CatEq("PRICE", pp, MKSFMTD(0, 10, 0)).CatChar(']');
+							if(P_Fptr10) {
+								P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+								P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
+								THROW(P_Fptr10->RegistrationProc(fph) == 0);
+							}
+							else if(P_Disp) {
+								THROW(SetProp(Quantity, pq));
+								THROW(SetProp(Price, pp));
+								THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
+							}
+							Flags |= sfOpenCheck;
+							running_total += amt;
+						}
+					}
+					else if(running_total > amt) {
+						SString fmt_buf, msg_buf, added_buf;
+						added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
+						msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
+						PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+					}
+					debug_log_buf.CatChar('}');
 				}
-				else if(running_total > amt) {
-					SString fmt_buf, msg_buf, added_buf;
-					added_buf.Z().Cat(running_total, MKSFMTD(0, 12, NMBF_NOTRAILZ)).CatChar('>').Cat(amt, MKSFMTD(0, 12, NMBF_NOTRAILZ));
-					msg_buf.Printf(PPLoadTextS(PPTXT_SHTRIH_RUNNGTOTALGTAMT, fmt_buf), added_buf.cptr());
-					PPLogMessage(PPFILNAM_ATOLDRV_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_USER);
+			}
+			if(!is_format) {
+				CCheckLineTbl::Rec ccl;
+				buf.Z().CatCharN('-', CheckStrLen);
+				for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
+					int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
+					GetGoodsName(ccl.GoodsID, buf);
+					buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
+					const double pq = R3(fabs(ccl.Quantity));
+					const double pp = R2(intmnytodbl(ccl.Price) - ccl.Dscnt);
+					if(P_Fptr10) {
+						temp_buf_u.CopyFromMb_OUTER(buf, buf.Len());
+						P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
+						P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
+						P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
+						P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (division > 16 || division < 0) ? 0 : division);
+						THROW(P_Fptr10->RegistrationProc(fph) == 0);
+					}
+					else if(P_Disp) {
+						THROW(SetProp(Name, buf));    // Наименование товара
+						THROW(SetProp(Price, pp));    // Цена
+						THROW(SetProp(Quantity, pq)); // Количество
+						THROW(SetProp(Department, (division > 16 || division < 0) ? 0 : division));
+						THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
+					}
+					Flags |= sfOpenCheck;
 				}
-				debug_log_buf.CatChar('}');
+				// Информация о скидке
+				THROW(PrintDiscountInfo(pPack, flags));
+				buf.Z().CatCharN('-', CheckStrLen);
+				THROW(PrintText(buf.Trim(CheckStrLen), 0, 0));
 			}
-		}
-		if(!is_format) {
-			CCheckLineTbl::Rec ccl;
-			buf.Z().CatCharN('-', CheckStrLen);
-			for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
-				int  division = (ccl.DivID >= CHECK_LINE_IS_PRINTED_BIAS) ? ccl.DivID - CHECK_LINE_IS_PRINTED_BIAS : ccl.DivID;
-				GetGoodsName(ccl.GoodsID, buf);
-				buf.Strip().Transf(CTRANSF_INNER_TO_OUTER).Trim(CheckStrLen);
-				const double pq = R3(fabs(ccl.Quantity));
-				const double pp = R2(intmnytodbl(ccl.Price) - ccl.Dscnt);
-				if(P_Fptr10) {
-					temp_buf_u.CopyFromMb_OUTER(buf, buf.Len());
-					P_Fptr10->SetParamStrProc(fph, LIBFPTR_PARAM_COMMODITY_NAME, temp_buf_u);
-					P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_PRICE, pp);
-					P_Fptr10->SetParamDoubleProc(fph, LIBFPTR_PARAM_QUANTITY, pq);
-					P_Fptr10->SetParamIntProc(fph, LIBFPTR_PARAM_DEPARTMENT, (division > 16 || division < 0) ? 0 : division);
-					THROW(P_Fptr10->RegistrationProc(fph) == 0);
+			debug_log_buf.Space().CatEq("SUM", sum, MKSFMTD(0, 10, 0)).Space().CatEq("RUNNINGTOTAL", running_total, MKSFMTD(0, 10, 0));
+			if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
+				sum = running_total;
+			{
+				const double __amt_bnk = R2(fabs(amt_bnk));
+				const double __amt_ccrd = R2(fabs(amt_ccrd));
+				const double __amt_cash = R2(fabs(sum - __amt_bnk - __amt_ccrd));
+				debug_log_buf.Space().CatEq("PAYMBANK", __amt_bnk, MKSFMTD(0, 10, 0)).
+					Space().CatEq("PAYMCASH", __amt_cash, MKSFMTD(0, 10, 0)).
+					Space().CatEq("PAYMCRDCARD", __amt_ccrd, MKSFMTD(0, 10, 0));
+				if(__amt_cash > 0.0) {
+					THROW(RegisterPayment(__amt_cash, LIBFPTR_PT_CASH));
 				}
-				else if(P_Disp) {
-					THROW(SetProp(Name, buf));    // Наименование товара
-					THROW(SetProp(Price, pp));    // Цена
-					THROW(SetProp(Quantity, pq)); // Количество
-					THROW(SetProp(Department, (division > 16 || division < 0) ? 0 : division));
-					THROW(ExecOper((flags & PRNCHK_RETURN) ? Return : Registration));
+				if(__amt_bnk > 0.0) {
+					THROW(RegisterPayment(__amt_bnk, LIBFPTR_PT_ELECTRONICALLY));
 				}
-				Flags |= sfOpenCheck;
+				if(__amt_ccrd > 0.0) {
+					THROW(RegisterPayment(__amt_ccrd, LIBFPTR_PT_OTHER));
+				}
 			}
-			// Информация о скидке
-			THROW(PrintDiscountInfo(pPack, flags));
-			buf.Z().CatCharN('-', CheckStrLen);
-			THROW(PrintText(buf.Trim(CheckStrLen), 0, 0));
-		}
-		debug_log_buf.Space().CatEq("SUM", sum, MKSFMTD(0, 10, 0)).Space().CatEq("RUNNINGTOTAL", running_total, MKSFMTD(0, 10, 0));
-		if(!feqeps(running_total, sum, 1E-5)) // @v10.3.1 (running_total > sum)-->feqeps(running_total, sum, 1E-5)
-			sum = running_total;
-		{
-			const double __amt_bnk = R2(fabs(amt_bnk));
-			const double __amt_ccrd = R2(fabs(amt_ccrd));
-			const double __amt_cash = R2(fabs(sum - __amt_bnk - __amt_ccrd));
-			debug_log_buf.Space().CatEq("PAYMBANK", __amt_bnk, MKSFMTD(0, 10, 0)).
-				Space().CatEq("PAYMCASH", __amt_cash, MKSFMTD(0, 10, 0)).
-				Space().CatEq("PAYMCRDCARD", __amt_ccrd, MKSFMTD(0, 10, 0));
-			if(__amt_cash > 0.0) {
-				THROW(RegisterPayment(__amt_cash, LIBFPTR_PT_CASH));
+			if(P_Fptr10) {
+				THROW(AllowPrintOper_Fptr10());
+				THROW(P_Fptr10->CloseReceiptProc(fph) == 0);
 			}
-			if(__amt_bnk > 0.0) {
-				THROW(RegisterPayment(__amt_bnk, LIBFPTR_PT_ELECTRONICALLY));
+			else if(P_Disp) {
+				THROW(ExecOper(CloseCheck));
+				THROW(Exec(ResetMode));
 			}
-			if(__amt_ccrd > 0.0) {
-				THROW(RegisterPayment(__amt_ccrd, LIBFPTR_PT_OTHER));
+			Flags &= ~sfOpenCheck;
+			ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
+			if(!(Flags & sfDontUseCutter)) {
+				CutPaper(0);
 			}
+			ErrCode = SYNCPRN_NO_ERROR;
 		}
-		if(P_Fptr10) {
-			THROW(AllowPrintOper_Fptr10());
-			THROW(P_Fptr10->CloseReceiptProc(fph) == 0);
-		}
-		else if(P_Disp) {
-			THROW(ExecOper(CloseCheck));
-			THROW(Exec(ResetMode));
-		}
-		Flags &= ~sfOpenCheck;
-		ErrCode = SYNCPRN_ERROR_AFTER_PRINT;
-		if(!(Flags & sfDontUseCutter)) {
-			CutPaper(0);
-		}
-		ErrCode = SYNCPRN_NO_ERROR;
 	}
 	CATCH
 		if(Flags & sfCancelled) {
@@ -2348,7 +2443,8 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 
 int SCS_ATOLDRV::PrintReport(int withCleaning)
 {
-	int     ok = 1, mode = 0;
+	int     ok = 1;
+	int     mode = 0;
 	SString cshr_pssw;
 	SString operator_name;
 	SString temp_buf;

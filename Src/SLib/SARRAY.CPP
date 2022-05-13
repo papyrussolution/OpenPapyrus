@@ -140,7 +140,7 @@ int SVectorBase::Shrink()
 {
 	// @v10.7.3 {
 	int    ok = -1;
-	if(count == 0) {
+	if(!count) {
 		ZFREE(P_VData);
 		Limit = 0;
 		ok = 1;

@@ -2414,7 +2414,7 @@ static cairo_status_t _cairo_ps_surface_emit_image(cairo_ps_surface_t * surface,
 				case CAIRO_IMAGE_IS_MONOCHROME:
 				    if(bit == 7)
 					    data[i] = 0;
-				    if(r != 0)
+				    if(r)
 					    data[i] |= (1 << bit);
 				    bit--;
 				    if(bit < 0) {

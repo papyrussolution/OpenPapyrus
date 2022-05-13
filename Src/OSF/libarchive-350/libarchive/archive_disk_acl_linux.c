@@ -115,7 +115,7 @@ static int translate_acl(struct archive_read_disk * a,
 		switch(acl_tag) {
 			case ACL_USER:
 			    q = acl_get_qualifier(acl_entry);
-			    if(q != NULL) {
+			    if(q) {
 				    ae_id = (int)*(uid_t*)q;
 				    acl_free(q);
 				    ae_name = archive_read_disk_uname(&a->archive,
@@ -125,7 +125,7 @@ static int translate_acl(struct archive_read_disk * a,
 			    break;
 			case ACL_GROUP:
 			    q = acl_get_qualifier(acl_entry);
-			    if(q != NULL) {
+			    if(q) {
 				    ae_id = (int)*(gid_t*)q;
 				    acl_free(q);
 				    ae_name = archive_read_disk_gname(&a->archive,
@@ -578,10 +578,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	/* Try NFSv4 ACL first. */
 	if(*fd >= 0)
 		richacl = richacl_get_fd(*fd);
-	else if((!a->follow_symlinks)
-	    && (archive_entry_filetype(entry) == AE_IFLNK))
-		/* We can't get the ACL of a symlink, so we assume it can't
-		   have one */
+	else if((!a->follow_symlinks) && (archive_entry_filetype(entry) == AE_IFLNK))
+		/* We can't get the ACL of a symlink, so we assume it can't have one */
 		richacl = NULL;
 	else
 		richacl = richacl_get_file(accpath);
@@ -613,10 +611,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	/* Retrieve access ACL from file. */
 	if(*fd >= 0)
 		acl = acl_get_fd(*fd);
-	else if((!a->follow_symlinks)
-	    && (archive_entry_filetype(entry) == AE_IFLNK))
-		/* We can't get the ACL of a symlink, so we assume it can't
-		   have one. */
+	else if((!a->follow_symlinks) && (archive_entry_filetype(entry) == AE_IFLNK))
+		/* We can't get the ACL of a symlink, so we assume it can't have one. */
 		acl = NULL;
 	else
 		acl = acl_get_file(accpath, ACL_TYPE_ACCESS);

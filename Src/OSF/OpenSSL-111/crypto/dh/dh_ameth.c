@@ -368,7 +368,7 @@ static int int_dh_bn_cpy(BIGNUM ** dst, const BIGNUM * src)
 	 * If source is read only just copy the pointer, so
 	 * we don't have to reallocate it.
 	 */
-	if(src == NULL)
+	if(!src)
 		a = NULL;
 	else if(BN_get_flags(src, BN_FLG_STATIC_DATA) && !BN_get_flags(src, BN_FLG_MALLOCED))
 		a = (BIGNUM*)src;

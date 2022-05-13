@@ -71,7 +71,7 @@ struct archive * archive_write_new(void)                 {
 	uchar * nulls;
 
 	a = (struct archive_write *)SAlloc::C(1, sizeof(*a));
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_MAGIC;
 	a->archive.state = ARCHIVE_STATE_NEW;

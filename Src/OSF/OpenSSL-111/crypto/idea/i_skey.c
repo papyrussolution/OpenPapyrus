@@ -95,7 +95,7 @@ static IDEA_INT inverse(uint xin)
 		do {
 			r = (n1 % n2);
 			q = (n1 - r) / n2;
-			if(r == 0) {
+			if(!r) {
 				if(b2 < 0)
 					b2 = 0x10001 + b2;
 			}

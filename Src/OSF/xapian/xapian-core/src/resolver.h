@@ -88,7 +88,7 @@ public:
 
 		const char * node = host.empty() ? NULL : host.c_str();
 		int r = getaddrinfo(node, str(port).c_str(), &hints, &result);
-		if(r != 0) {
+		if(r) {
 			throw Xapian::NetworkError("Couldn't resolve host " + host,
 				  eai_to_xapian(r));
 		}

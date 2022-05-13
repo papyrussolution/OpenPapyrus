@@ -116,7 +116,7 @@ static int file_new(BIO * bi)
 
 static int file_free(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if(a->shutdown) {
 		if((a->init) && (a->ptr != NULL)) {

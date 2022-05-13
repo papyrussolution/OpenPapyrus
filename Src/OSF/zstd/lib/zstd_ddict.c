@@ -21,7 +21,7 @@
 #include "zstd_ddict.h"
 
 #if defined(ZSTD_LEGACY_SUPPORT) && (ZSTD_LEGACY_SUPPORT>=1)
-#  include "../legacy/zstd_legacy.h"
+#include "../legacy/zstd_legacy.h"
 #endif
 
 /*-*******************************************************
@@ -57,7 +57,7 @@ void ZSTD_copyDDictParameters(ZSTD_DCtx* dctx, const ZSTD_DDict* ddict)
 	dctx->dictID = ddict->dictID;
 	dctx->prefixStart = ddict->dictContent;
 	dctx->virtualStart = ddict->dictContent;
-	dctx->dictEnd = (const BYTE*)ddict->dictContent + ddict->dictSize;
+	dctx->dictEnd = (const BYTE *)ddict->dictContent + ddict->dictSize;
 	dctx->previousDstEnd = dctx->dictEnd;
 #ifdef FUZZING_BUILD_MODE_UNSAFE_FOR_PRODUCTION
 	dctx->dictContentBeginForFuzzing = dctx->prefixStart;
@@ -219,7 +219,8 @@ size_t ZSTD_estimateDDictSize(size_t dictSize, ZSTD_dictLoadMethod_e dictLoadMet
 
 size_t ZSTD_sizeof_DDict(const ZSTD_DDict* ddict)
 {
-	if(ddict==NULL) return 0; /* support sizeof on NULL */
+	if(ddict==NULL) 
+		return 0; /* support sizeof on NULL */
 	return sizeof(*ddict) + (ddict->dictBuffer ? ddict->dictSize : 0);
 }
 
@@ -229,6 +230,7 @@ size_t ZSTD_sizeof_DDict(const ZSTD_DDict* ddict)
  *  Non-conformant dictionaries can still be loaded, but as content-only dictionaries. */
 unsigned ZSTD_getDictID_fromDDict(const ZSTD_DDict* ddict)
 {
-	if(ddict==NULL) return 0;
+	if(ddict==NULL) 
+		return 0;
 	return ZSTD_getDictID_fromDict(ddict->dictContent, ddict->dictSize);
 }

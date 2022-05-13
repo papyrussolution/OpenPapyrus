@@ -192,16 +192,14 @@ class NestedFieldMask final :
   public:
   void clear_repeated_mask();
   ::PROTOBUF_NAMESPACE_ID::FieldMask* mutable_repeated_mask(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >*
-      mutable_repeated_mask();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > * mutable_repeated_mask();
   private:
   const ::PROTOBUF_NAMESPACE_ID::FieldMask& _internal_repeated_mask(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FieldMask* _internal_add_repeated_mask();
   public:
   const ::PROTOBUF_NAMESPACE_ID::FieldMask& repeated_mask(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FieldMask* add_repeated_mask();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >&
-      repeated_mask() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > & repeated_mask() const;
 
   // string data = 1;
   void clear_data();
@@ -365,16 +363,14 @@ class FieldMaskTest final :
   public:
   void clear_repeated_mask();
   ::PROTOBUF_NAMESPACE_ID::FieldMask* mutable_repeated_mask(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >*
-      mutable_repeated_mask();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > * mutable_repeated_mask();
   private:
   const ::PROTOBUF_NAMESPACE_ID::FieldMask& _internal_repeated_mask(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FieldMask* _internal_add_repeated_mask();
   public:
   const ::PROTOBUF_NAMESPACE_ID::FieldMask& repeated_mask(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FieldMask* add_repeated_mask();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >&
-      repeated_mask() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > & repeated_mask() const;
 
   // repeated .proto_util_converter.testing.NestedFieldMask nested_mask = 4;
   int nested_mask_size() const;
@@ -383,16 +379,14 @@ class FieldMaskTest final :
   public:
   void clear_nested_mask();
   ::proto_util_converter::testing::NestedFieldMask* mutable_nested_mask(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::NestedFieldMask >*
-      mutable_nested_mask();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::NestedFieldMask > * mutable_nested_mask();
   private:
   const ::proto_util_converter::testing::NestedFieldMask& _internal_nested_mask(int index) const;
   ::proto_util_converter::testing::NestedFieldMask* _internal_add_nested_mask();
   public:
   const ::proto_util_converter::testing::NestedFieldMask& nested_mask(int index) const;
   ::proto_util_converter::testing::NestedFieldMask* add_nested_mask();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::NestedFieldMask >&
-      nested_mask() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::NestedFieldMask > & nested_mask() const;
 
   // string id = 1;
   void clear_id();
@@ -1009,11 +1003,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& NestedFieldMask::single_mask() 
 }
 inline void NestedFieldMask::unsafe_arena_set_allocated_single_mask(
     ::PROTOBUF_NAMESPACE_ID::FieldMask* single_mask) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask_);
   }
   single_mask_ = single_mask;
-  if (single_mask) {
+  if(single_mask) {
     
   } else {
     
@@ -1027,9 +1021,9 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::release_single_mask(
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1044,7 +1038,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::unsafe_arena_release
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::_internal_mutable_single_mask() {
   
-  if (single_mask_ == nullptr) {
+  if(single_mask_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::FieldMask>(GetArenaForAllocation());
     single_mask_ = p;
   }
@@ -1057,17 +1051,15 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::mutable_single_mask(
 }
 inline void NestedFieldMask::set_allocated_single_mask(::PROTOBUF_NAMESPACE_ID::FieldMask* single_mask) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask_);
   }
-  if (single_mask) {
+  if(single_mask) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask));
-    if (message_arena != submessage_arena) {
-      single_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, single_mask, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask));
+    if(message_arena != submessage_arena) {
+      single_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, single_mask, submessage_arena);
     }
     
   } else {
@@ -1091,16 +1083,15 @@ NestedFieldMask::mutable_repeated_mask() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.NestedFieldMask.repeated_mask)
   return &repeated_mask_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& NestedFieldMask::_internal_repeated_mask(int index) const {
-  return repeated_mask_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& NestedFieldMask::_internal_repeated_mask(int index) const
+{
+ return repeated_mask_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& NestedFieldMask::repeated_mask(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.NestedFieldMask.repeated_mask)
   return _internal_repeated_mask(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::_internal_add_repeated_mask() {
-  return repeated_mask_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::_internal_add_repeated_mask() { return repeated_mask_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* NestedFieldMask::add_repeated_mask() {
   ::PROTOBUF_NAMESPACE_ID::FieldMask* _add = _internal_add_repeated_mask();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.NestedFieldMask.repeated_mask)
@@ -1182,11 +1173,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskTest::single_mask() co
 }
 inline void FieldMaskTest::unsafe_arena_set_allocated_single_mask(
     ::PROTOBUF_NAMESPACE_ID::FieldMask* single_mask) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask_);
   }
   single_mask_ = single_mask;
-  if (single_mask) {
+  if(single_mask) {
     
   } else {
     
@@ -1200,9 +1191,9 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::release_single_mask() 
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1217,7 +1208,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::unsafe_arena_release_s
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::_internal_mutable_single_mask() {
   
-  if (single_mask_ == nullptr) {
+  if(single_mask_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::FieldMask>(GetArenaForAllocation());
     single_mask_ = p;
   }
@@ -1230,17 +1221,15 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::mutable_single_mask() 
 }
 inline void FieldMaskTest::set_allocated_single_mask(::PROTOBUF_NAMESPACE_ID::FieldMask* single_mask) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask_);
   }
-  if (single_mask) {
+  if(single_mask) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask));
-    if (message_arena != submessage_arena) {
-      single_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, single_mask, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask));
+    if(message_arena != submessage_arena) {
+      single_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, single_mask, submessage_arena);
     }
     
   } else {
@@ -1264,16 +1253,15 @@ FieldMaskTest::mutable_repeated_mask() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.FieldMaskTest.repeated_mask)
   return &repeated_mask_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskTest::_internal_repeated_mask(int index) const {
-  return repeated_mask_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskTest::_internal_repeated_mask(int index) const
+{
+ return repeated_mask_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskTest::repeated_mask(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.FieldMaskTest.repeated_mask)
   return _internal_repeated_mask(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::_internal_add_repeated_mask() {
-  return repeated_mask_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::_internal_add_repeated_mask() { return repeated_mask_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskTest::add_repeated_mask() {
   ::PROTOBUF_NAMESPACE_ID::FieldMask* _add = _internal_add_repeated_mask();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.FieldMaskTest.repeated_mask)
@@ -1302,16 +1290,15 @@ FieldMaskTest::mutable_nested_mask() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.FieldMaskTest.nested_mask)
   return &nested_mask_;
 }
-inline const ::proto_util_converter::testing::NestedFieldMask& FieldMaskTest::_internal_nested_mask(int index) const {
-  return nested_mask_.Get(index);
+inline const ::proto_util_converter::testing::NestedFieldMask& FieldMaskTest::_internal_nested_mask(int index) const
+{
+ return nested_mask_.Get(index);
 }
 inline const ::proto_util_converter::testing::NestedFieldMask& FieldMaskTest::nested_mask(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.FieldMaskTest.nested_mask)
   return _internal_nested_mask(index);
 }
-inline ::proto_util_converter::testing::NestedFieldMask* FieldMaskTest::_internal_add_nested_mask() {
-  return nested_mask_.Add();
-}
+inline ::proto_util_converter::testing::NestedFieldMask* FieldMaskTest::_internal_add_nested_mask() { return nested_mask_.Add(); }
 inline ::proto_util_converter::testing::NestedFieldMask* FieldMaskTest::add_nested_mask() {
   ::proto_util_converter::testing::NestedFieldMask* _add = _internal_add_nested_mask();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.FieldMaskTest.nested_mask)
@@ -1351,11 +1338,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_single_mask(
     ::proto_util_converter::testing::FieldMaskWrapper* single_mask) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(single_mask_);
   }
   single_mask_ = single_mask;
-  if (single_mask) {
+  if(single_mask) {
     
   } else {
     
@@ -1369,9 +1356,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1386,7 +1373,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_single_mask() {
   
-  if (single_mask_ == nullptr) {
+  if(single_mask_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     single_mask_ = p;
   }
@@ -1399,15 +1386,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_single_mask(::proto_util_converter::testing::FieldMaskWrapper* single_mask) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete single_mask_;
   }
-  if (single_mask) {
+  if(single_mask) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(single_mask);
-    if (message_arena != submessage_arena) {
-      single_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, single_mask, submessage_arena);
+    if(message_arena != submessage_arena) {
+      single_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, single_mask, submessage_arena);
     }
     
   } else {
@@ -1441,11 +1427,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_multiple_mask(
     ::proto_util_converter::testing::FieldMaskWrapper* multiple_mask) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(multiple_mask_);
   }
   multiple_mask_ = multiple_mask;
-  if (multiple_mask) {
+  if(multiple_mask) {
     
   } else {
     
@@ -1459,9 +1445,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1476,7 +1462,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_multiple_mask() {
   
-  if (multiple_mask_ == nullptr) {
+  if(multiple_mask_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     multiple_mask_ = p;
   }
@@ -1489,15 +1475,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_multiple_mask(::proto_util_converter::testing::FieldMaskWrapper* multiple_mask) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete multiple_mask_;
   }
-  if (multiple_mask) {
+  if(multiple_mask) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(multiple_mask);
-    if (message_arena != submessage_arena) {
-      multiple_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, multiple_mask, submessage_arena);
+    if(message_arena != submessage_arena) {
+      multiple_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, multiple_mask, submessage_arena);
     }
     
   } else {
@@ -1531,11 +1516,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_snake_camel(
     ::proto_util_converter::testing::FieldMaskWrapper* snake_camel) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(snake_camel_);
   }
   snake_camel_ = snake_camel;
-  if (snake_camel) {
+  if(snake_camel) {
     
   } else {
     
@@ -1549,9 +1534,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1566,7 +1551,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_snake_camel() {
   
-  if (snake_camel_ == nullptr) {
+  if(snake_camel_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     snake_camel_ = p;
   }
@@ -1579,15 +1564,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_snake_camel(::proto_util_converter::testing::FieldMaskWrapper* snake_camel) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete snake_camel_;
   }
-  if (snake_camel) {
+  if(snake_camel) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(snake_camel);
-    if (message_arena != submessage_arena) {
-      snake_camel = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, snake_camel, submessage_arena);
+    if(message_arena != submessage_arena) {
+      snake_camel = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, snake_camel, submessage_arena);
     }
     
   } else {
@@ -1621,11 +1605,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_empty_field(
     ::proto_util_converter::testing::FieldMaskWrapper* empty_field) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_field_);
   }
   empty_field_ = empty_field;
-  if (empty_field) {
+  if(empty_field) {
     
   } else {
     
@@ -1639,9 +1623,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1656,7 +1640,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_empty_field() {
   
-  if (empty_field_ == nullptr) {
+  if(empty_field_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     empty_field_ = p;
   }
@@ -1669,15 +1653,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_empty_field(::proto_util_converter::testing::FieldMaskWrapper* empty_field) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_field_;
   }
-  if (empty_field) {
+  if(empty_field) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(empty_field);
-    if (message_arena != submessage_arena) {
-      empty_field = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_field, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_field = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_field, submessage_arena);
     }
     
   } else {
@@ -1711,11 +1694,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_apiary_format1(
     ::proto_util_converter::testing::FieldMaskWrapper* apiary_format1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(apiary_format1_);
   }
   apiary_format1_ = apiary_format1;
-  if (apiary_format1) {
+  if(apiary_format1) {
     
   } else {
     
@@ -1729,9 +1712,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1746,7 +1729,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_apiary_format1() {
   
-  if (apiary_format1_ == nullptr) {
+  if(apiary_format1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     apiary_format1_ = p;
   }
@@ -1759,15 +1742,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_apiary_format1(::proto_util_converter::testing::FieldMaskWrapper* apiary_format1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete apiary_format1_;
   }
-  if (apiary_format1) {
+  if(apiary_format1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(apiary_format1);
-    if (message_arena != submessage_arena) {
-      apiary_format1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, apiary_format1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      apiary_format1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, apiary_format1, submessage_arena);
     }
     
   } else {
@@ -1801,11 +1783,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_apiary_format2(
     ::proto_util_converter::testing::FieldMaskWrapper* apiary_format2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(apiary_format2_);
   }
   apiary_format2_ = apiary_format2;
-  if (apiary_format2) {
+  if(apiary_format2) {
     
   } else {
     
@@ -1819,9 +1801,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1836,7 +1818,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_apiary_format2() {
   
-  if (apiary_format2_ == nullptr) {
+  if(apiary_format2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     apiary_format2_ = p;
   }
@@ -1849,15 +1831,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_apiary_format2(::proto_util_converter::testing::FieldMaskWrapper* apiary_format2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete apiary_format2_;
   }
-  if (apiary_format2) {
+  if(apiary_format2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(apiary_format2);
-    if (message_arena != submessage_arena) {
-      apiary_format2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, apiary_format2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      apiary_format2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, apiary_format2, submessage_arena);
     }
     
   } else {
@@ -1891,11 +1872,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_apiary_format3(
     ::proto_util_converter::testing::FieldMaskWrapper* apiary_format3) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(apiary_format3_);
   }
   apiary_format3_ = apiary_format3;
-  if (apiary_format3) {
+  if(apiary_format3) {
     
   } else {
     
@@ -1909,9 +1890,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1926,7 +1907,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_apiary_format3() {
   
-  if (apiary_format3_ == nullptr) {
+  if(apiary_format3_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     apiary_format3_ = p;
   }
@@ -1939,15 +1920,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_apiary_format3(::proto_util_converter::testing::FieldMaskWrapper* apiary_format3) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete apiary_format3_;
   }
-  if (apiary_format3) {
+  if(apiary_format3) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(apiary_format3);
-    if (message_arena != submessage_arena) {
-      apiary_format3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, apiary_format3, submessage_arena);
+    if(message_arena != submessage_arena) {
+      apiary_format3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, apiary_format3, submessage_arena);
     }
     
   } else {
@@ -1981,11 +1961,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_map_key1(
     ::proto_util_converter::testing::FieldMaskWrapper* map_key1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(map_key1_);
   }
   map_key1_ = map_key1;
-  if (map_key1) {
+  if(map_key1) {
     
   } else {
     
@@ -1999,9 +1979,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2016,7 +1996,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_map_key1() {
   
-  if (map_key1_ == nullptr) {
+  if(map_key1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     map_key1_ = p;
   }
@@ -2029,15 +2009,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_map_key1(::proto_util_converter::testing::FieldMaskWrapper* map_key1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete map_key1_;
   }
-  if (map_key1) {
+  if(map_key1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(map_key1);
-    if (message_arena != submessage_arena) {
-      map_key1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, map_key1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      map_key1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, map_key1, submessage_arena);
     }
     
   } else {
@@ -2071,11 +2050,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_map_key2(
     ::proto_util_converter::testing::FieldMaskWrapper* map_key2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(map_key2_);
   }
   map_key2_ = map_key2;
-  if (map_key2) {
+  if(map_key2) {
     
   } else {
     
@@ -2089,9 +2068,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2106,7 +2085,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_map_key2() {
   
-  if (map_key2_ == nullptr) {
+  if(map_key2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     map_key2_ = p;
   }
@@ -2119,15 +2098,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_map_key2(::proto_util_converter::testing::FieldMaskWrapper* map_key2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete map_key2_;
   }
-  if (map_key2) {
+  if(map_key2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(map_key2);
-    if (message_arena != submessage_arena) {
-      map_key2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, map_key2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      map_key2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, map_key2, submessage_arena);
     }
     
   } else {
@@ -2161,11 +2139,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_map_key3(
     ::proto_util_converter::testing::FieldMaskWrapper* map_key3) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(map_key3_);
   }
   map_key3_ = map_key3;
-  if (map_key3) {
+  if(map_key3) {
     
   } else {
     
@@ -2179,9 +2157,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2196,7 +2174,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_map_key3() {
   
-  if (map_key3_ == nullptr) {
+  if(map_key3_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     map_key3_ = p;
   }
@@ -2209,15 +2187,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_map_key3(::proto_util_converter::testing::FieldMaskWrapper* map_key3) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete map_key3_;
   }
-  if (map_key3) {
+  if(map_key3) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(map_key3);
-    if (message_arena != submessage_arena) {
-      map_key3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, map_key3, submessage_arena);
+    if(message_arena != submessage_arena) {
+      map_key3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, map_key3, submessage_arena);
     }
     
   } else {
@@ -2251,11 +2228,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_map_key4(
     ::proto_util_converter::testing::FieldMaskWrapper* map_key4) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(map_key4_);
   }
   map_key4_ = map_key4;
-  if (map_key4) {
+  if(map_key4) {
     
   } else {
     
@@ -2269,9 +2246,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2286,7 +2263,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_map_key4() {
   
-  if (map_key4_ == nullptr) {
+  if(map_key4_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     map_key4_ = p;
   }
@@ -2299,15 +2276,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_map_key4(::proto_util_converter::testing::FieldMaskWrapper* map_key4) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete map_key4_;
   }
-  if (map_key4) {
+  if(map_key4) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(map_key4);
-    if (message_arena != submessage_arena) {
-      map_key4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, map_key4, submessage_arena);
+    if(message_arena != submessage_arena) {
+      map_key4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, map_key4, submessage_arena);
     }
     
   } else {
@@ -2341,11 +2317,11 @@ inline const ::proto_util_converter::testing::FieldMaskWrapper& FieldMaskTestCas
 }
 inline void FieldMaskTestCases::unsafe_arena_set_allocated_map_key5(
     ::proto_util_converter::testing::FieldMaskWrapper* map_key5) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(map_key5_);
   }
   map_key5_ = map_key5;
-  if (map_key5) {
+  if(map_key5) {
     
   } else {
     
@@ -2359,9 +2335,9 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2376,7 +2352,7 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::un
 }
 inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::_internal_mutable_map_key5() {
   
-  if (map_key5_ == nullptr) {
+  if(map_key5_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FieldMaskWrapper>(GetArenaForAllocation());
     map_key5_ = p;
   }
@@ -2389,15 +2365,14 @@ inline ::proto_util_converter::testing::FieldMaskWrapper* FieldMaskTestCases::mu
 }
 inline void FieldMaskTestCases::set_allocated_map_key5(::proto_util_converter::testing::FieldMaskWrapper* map_key5) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete map_key5_;
   }
-  if (map_key5) {
+  if(map_key5) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FieldMaskWrapper>::GetOwningArena(map_key5);
-    if (message_arena != submessage_arena) {
-      map_key5 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, map_key5, submessage_arena);
+    if(message_arena != submessage_arena) {
+      map_key5 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, map_key5, submessage_arena);
     }
     
   } else {
@@ -2429,11 +2404,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& FieldMaskWrapper::mask() const 
 }
 inline void FieldMaskWrapper::unsafe_arena_set_allocated_mask(
     ::PROTOBUF_NAMESPACE_ID::FieldMask* mask) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mask_);
   }
   mask_ = mask;
-  if (mask) {
+  if(mask) {
     
   } else {
     
@@ -2447,9 +2422,9 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskWrapper::release_mask() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2464,7 +2439,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskWrapper::unsafe_arena_releas
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskWrapper::_internal_mutable_mask() {
   
-  if (mask_ == nullptr) {
+  if(mask_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::FieldMask>(GetArenaForAllocation());
     mask_ = p;
   }
@@ -2477,17 +2452,15 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* FieldMaskWrapper::mutable_mask() {
 }
 inline void FieldMaskWrapper::set_allocated_mask(::PROTOBUF_NAMESPACE_ID::FieldMask* mask) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(mask_);
   }
-  if (mask) {
+  if(mask) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mask));
-    if (message_arena != submessage_arena) {
-      mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, mask, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mask));
+    if(message_arena != submessage_arena) {
+      mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, mask, submessage_arena);
     }
     
   } else {

@@ -1719,11 +1719,11 @@ inline const ::protobuf_unittest::TestProto3Optional_NestedMessage& TestProto3Op
 }
 inline void TestProto3Optional::unsafe_arena_set_allocated_optional_nested_message(
     ::protobuf_unittest::TestProto3Optional_NestedMessage* optional_nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_nested_message_);
   }
   optional_nested_message_ = optional_nested_message;
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
@@ -1737,9 +1737,9 @@ inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1754,7 +1754,7 @@ inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional
 }
 inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional::_internal_mutable_optional_nested_message() {
   _has_bits_[0] |= 0x00000008u;
-  if (optional_nested_message_ == nullptr) {
+  if(optional_nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestProto3Optional_NestedMessage>(GetArenaForAllocation());
     optional_nested_message_ = p;
   }
@@ -1767,15 +1767,14 @@ inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional
 }
 inline void TestProto3Optional::set_allocated_optional_nested_message(::protobuf_unittest::TestProto3Optional_NestedMessage* optional_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_nested_message_;
   }
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestProto3Optional_NestedMessage>::GetOwningArena(optional_nested_message);
-    if (message_arena != submessage_arena) {
-      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_nested_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000008u;
   } else {
@@ -1809,11 +1808,11 @@ inline const ::protobuf_unittest::TestProto3Optional_NestedMessage& TestProto3Op
 }
 inline void TestProto3Optional::unsafe_arena_set_allocated_lazy_nested_message(
     ::protobuf_unittest::TestProto3Optional_NestedMessage* lazy_nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(lazy_nested_message_);
   }
   lazy_nested_message_ = lazy_nested_message;
-  if (lazy_nested_message) {
+  if(lazy_nested_message) {
     _has_bits_[0] |= 0x00000010u;
   } else {
     _has_bits_[0] &= ~0x00000010u;
@@ -1827,9 +1826,9 @@ inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1844,7 +1843,7 @@ inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional
 }
 inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional::_internal_mutable_lazy_nested_message() {
   _has_bits_[0] |= 0x00000010u;
-  if (lazy_nested_message_ == nullptr) {
+  if(lazy_nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestProto3Optional_NestedMessage>(GetArenaForAllocation());
     lazy_nested_message_ = p;
   }
@@ -1857,15 +1856,14 @@ inline ::protobuf_unittest::TestProto3Optional_NestedMessage* TestProto3Optional
 }
 inline void TestProto3Optional::set_allocated_lazy_nested_message(::protobuf_unittest::TestProto3Optional_NestedMessage* lazy_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete lazy_nested_message_;
   }
-  if (lazy_nested_message) {
+  if(lazy_nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestProto3Optional_NestedMessage>::GetOwningArena(lazy_nested_message);
-    if (message_arena != submessage_arena) {
-      lazy_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, lazy_nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      lazy_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, lazy_nested_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000010u;
   } else {
@@ -2017,11 +2015,11 @@ inline const ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage& TestP
 }
 inline void TestProto3OptionalMessage::unsafe_arena_set_allocated_nested_message(
     ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(nested_message_);
   }
   nested_message_ = nested_message;
-  if (nested_message) {
+  if(nested_message) {
     
   } else {
     
@@ -2035,9 +2033,9 @@ inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3O
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2052,7 +2050,7 @@ inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3O
 }
 inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3OptionalMessage::_internal_mutable_nested_message() {
   
-  if (nested_message_ == nullptr) {
+  if(nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestProto3OptionalMessage_NestedMessage>(GetArenaForAllocation());
     nested_message_ = p;
   }
@@ -2065,15 +2063,14 @@ inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3O
 }
 inline void TestProto3OptionalMessage::set_allocated_nested_message(::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete nested_message_;
   }
-  if (nested_message) {
+  if(nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestProto3OptionalMessage_NestedMessage>::GetOwningArena(nested_message);
-    if (message_arena != submessage_arena) {
-      nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, nested_message, submessage_arena);
     }
     
   } else {
@@ -2107,11 +2104,11 @@ inline const ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage& TestP
 }
 inline void TestProto3OptionalMessage::unsafe_arena_set_allocated_optional_nested_message(
     ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* optional_nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_nested_message_);
   }
   optional_nested_message_ = optional_nested_message;
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -2125,9 +2122,9 @@ inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3O
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2142,7 +2139,7 @@ inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3O
 }
 inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3OptionalMessage::_internal_mutable_optional_nested_message() {
   _has_bits_[0] |= 0x00000001u;
-  if (optional_nested_message_ == nullptr) {
+  if(optional_nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestProto3OptionalMessage_NestedMessage>(GetArenaForAllocation());
     optional_nested_message_ = p;
   }
@@ -2155,15 +2152,14 @@ inline ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* TestProto3O
 }
 inline void TestProto3OptionalMessage::set_allocated_optional_nested_message(::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* optional_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_nested_message_;
   }
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestProto3OptionalMessage_NestedMessage>::GetOwningArena(optional_nested_message);
-    if (message_arena != submessage_arena) {
-      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_nested_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {

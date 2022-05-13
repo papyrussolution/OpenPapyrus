@@ -52,7 +52,7 @@ static void ctlog_store_load_ctx_free(CTLOG_STORE_LOAD_CTX* ctx);
 static CTLOG_STORE_LOAD_CTX * ctlog_store_load_ctx_new(void)
 {
 	CTLOG_STORE_LOAD_CTX * ctx = static_cast<CTLOG_STORE_LOAD_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL)
+	if(!ctx)
 		CTerr(CT_F_CTLOG_STORE_LOAD_CTX_NEW, ERR_R_MALLOC_FAILURE);
 	return ctx;
 }

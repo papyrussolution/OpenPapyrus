@@ -48,13 +48,11 @@
                     <TextView style="@style/PageHeaderTitleText"
                         android:id="@+id/CTL_PAGEHEADER_SVCTITLE"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/PrimaryText"/>
+                        android:layout_height="wrap_content"/>
                     <TextView style="@style/PageHeaderTopicText"
                         android:id="@+id/CTL_PAGEHEADER_TOPIC"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/PrimaryText"/>
+                        android:layout_height="wrap_content"/>
                 </LinearLayout>
                 <!--
                 <View style="@style/FakeView"/>

@@ -33,7 +33,7 @@ SSH_PACKET_CALLBACK(ssh_packet_disconnect_callback)
 	(void)user;
 	(void)type;
 	rc = ssh_buffer_get_u32(packet, &code);
-	if(rc != 0) {
+	if(rc) {
 		code = ntohl(code);
 	}
 	error_s = ssh_buffer_get_ssh_string(packet);

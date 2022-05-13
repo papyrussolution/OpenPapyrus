@@ -86,7 +86,7 @@ static int enc_free(BIO * a)
 {
 	BIO_ENC_CTX * b;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	b = static_cast<BIO_ENC_CTX *>(BIO_get_data(a));
@@ -303,7 +303,7 @@ static long enc_ctrl(BIO * b, int cmd, long num, void * ptr)
 
 	ctx = static_cast<BIO_ENC_CTX *>(BIO_get_data(b));
 	next = BIO_next(b);
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	switch(cmd) {
@@ -405,7 +405,7 @@ int BIO_set_cipher(BIO * b, const EVP_CIPHER * c, const uchar * k, const uchar *
 {
 	long (* callback) (struct bio_st *, int, const char *, int, long, long);
 	BIO_ENC_CTX * ctx = static_cast<BIO_ENC_CTX *>(BIO_get_data(b));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	callback = BIO_get_callback(b);
 	if((callback != NULL) && (callback(b, BIO_CB_CTRL, (const char *)c, BIO_CTRL_SET, e, 0L) <= 0))

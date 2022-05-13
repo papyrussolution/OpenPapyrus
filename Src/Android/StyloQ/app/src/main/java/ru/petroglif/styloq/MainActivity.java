@@ -333,7 +333,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 			case SLib.EV_CREATE:
 				{
 					setContentView(R.layout.activity_main);
-					SetupRecyclerListView(null, R.id.serviceListView, R.layout.service_list_item);
+					SetupRecyclerListView(null, R.id.serviceListView, R.layout.li_service);
 					{
 						StyloQApp app_ctx = (StyloQApp)getApplication();
 						if(app_ctx != null) {
@@ -383,7 +383,7 @@ public class MainActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 				{
 					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
-					if(adapter != null && adapter.GetRcId() == R.layout.service_list_item && SvcListData != null) {
+					if(adapter != null && adapter.GetRcId() == R.layout.li_service && SvcListData != null) {
 						_count = SvcListData.size();
 					}
 					result = new Integer(_count);

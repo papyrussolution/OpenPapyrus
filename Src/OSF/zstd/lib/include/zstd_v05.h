@@ -42,7 +42,7 @@ size_t ZSTDv05_decompress(void* dst, size_t dstCapacity, const void * src, size_
 
    note : assumes `cSize` and `dBound` are _not_ NULL.
  */
-void ZSTDv05_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, unsigned long long* dBound);
+void ZSTDv05_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
 
 /* *************************************
 *  Helper functions

@@ -426,7 +426,7 @@ typedef enum {
    use uchar *.  */
 #ifdef __USE_GNU_REGEX
 # ifndef RE_TRANSLATE_TYPE
-#  define RE_TRANSLATE_TYPE uchar *
+#define RE_TRANSLATE_TYPE uchar *
 #endif
 #define REG_TRANSLATE_TYPE RE_TRANSLATE_TYPE
 #else
@@ -575,11 +575,11 @@ extern void re_set_registers(struct re_pattern_buffer * __buffer, struct re_regi
    different name.  */
 #ifndef _Restrict_
 #if 199901L <= __STDC_VERSION__
-#  define _Restrict_ restrict
+#define _Restrict_ restrict
 # elif 2 < __GNUC__ || (2 == __GNUC__ && 95 <= __GNUC_MINOR__)
-#  define _Restrict_ __restrict
+#define _Restrict_ __restrict
 #else
-#  define _Restrict_
+#define _Restrict_
 #endif
 #endif
 /* gcc 3.1 and up support the [restrict] syntax.  Don't trust

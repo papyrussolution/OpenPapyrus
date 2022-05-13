@@ -558,7 +558,7 @@ int PPViewAsset::Print(const void * pHdr)
 		const int r = P_BObj->MakeAssetCard(lot_id, &card);
 		if(r > 0)
 			ok = PPAlddPrint(REPORT_ASSETCARD, PPFilt(&card), 0);
-		else if(r == 0)
+		else if(!r)
 			ok = PPErrorZ();
 		else
 			ok = -1;

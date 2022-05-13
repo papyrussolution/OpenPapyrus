@@ -260,87 +260,77 @@
 #error PROTOBUF_LOCKS_EXCLUDED was previously defined
 #endif
 #if __has_attribute(locks_excluded)
-#define PROTOBUF_LOCKS_EXCLUDED(...) \
-  __attribute__((locks_excluded(__VA_ARGS__)))
+	#define PROTOBUF_LOCKS_EXCLUDED(...) __attribute__((locks_excluded(__VA_ARGS__)))
 #else
-#define PROTOBUF_LOCKS_EXCLUDED(...)
+	#define PROTOBUF_LOCKS_EXCLUDED(...)
 #endif
-
 #ifdef PROTOBUF_COLD
-#error PROTOBUF_COLD was previously defined
+	#error PROTOBUF_COLD was previously defined
 #endif
 #if __has_attribute(cold) || PROTOBUF_GNUC_MIN(4, 3)
-# define PROTOBUF_COLD __attribute__((cold))
+	#define PROTOBUF_COLD __attribute__((cold))
 #else
-# define PROTOBUF_COLD
+	#define PROTOBUF_COLD
 #endif
-
 #ifdef PROTOBUF_SECTION_VARIABLE
-#error PROTOBUF_SECTION_VARIABLE was previously defined
+	#error PROTOBUF_SECTION_VARIABLE was previously defined
 #endif
 #if (__has_attribute(section) || defined(__GNUC__)) && defined(__ELF__)
-// Place a variable in the given ELF section.
-# define PROTOBUF_SECTION_VARIABLE(x) __attribute__((section(#x)))
+	// Place a variable in the given ELF section.
+	#define PROTOBUF_SECTION_VARIABLE(x) __attribute__((section(#x)))
 #else
-# define PROTOBUF_SECTION_VARIABLE(x)
+	#define PROTOBUF_SECTION_VARIABLE(x)
 #endif
-
 #if defined(PROTOBUF_DEPRECATED)
-#error PROTOBUF_DEPRECATED was previously defined
+	#error PROTOBUF_DEPRECATED was previously defined
 #endif
 #if defined(PROTOBUF_DEPRECATED_MSG)
-#error PROTOBUF_DEPRECATED_MSG was previously defined
+	#error PROTOBUF_DEPRECATED_MSG was previously defined
 #endif
 #if __has_attribute(deprecated) || PROTOBUF_GNUC_MIN(3, 0)
-# define PROTOBUF_DEPRECATED __attribute__((deprecated))
-# define PROTOBUF_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))
+	#define PROTOBUF_DEPRECATED __attribute__((deprecated))
+	#define PROTOBUF_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))
 #elif defined(_MSC_VER)
-# define PROTOBUF_DEPRECATED __declspec(deprecated)
-# define PROTOBUF_DEPRECATED_MSG(msg) __declspec(deprecated(msg))
+	#define PROTOBUF_DEPRECATED __declspec(deprecated)
+	#define PROTOBUF_DEPRECATED_MSG(msg) __declspec(deprecated(msg))
 #else
-# define PROTOBUF_DEPRECATED
-# define PROTOBUF_DEPRECATED_MSG(msg)
+	#define PROTOBUF_DEPRECATED
+	#define PROTOBUF_DEPRECATED_MSG(msg)
 #endif
-
 #if defined(PROTOBUF_DEPRECATED_ENUM)
-#error PROTOBUF_DEPRECATED_ENUM was previously defined
+	#error PROTOBUF_DEPRECATED_ENUM was previously defined
 #endif
 #if defined(__clang__) || PROTOBUF_GNUC_MIN(6, 0)
 // https://gcc.gnu.org/gcc-6/changes.html
-# define PROTOBUF_DEPRECATED_ENUM __attribute__((deprecated))
+	#define PROTOBUF_DEPRECATED_ENUM __attribute__((deprecated))
 #else
-# define PROTOBUF_DEPRECATED_ENUM
+	#define PROTOBUF_DEPRECATED_ENUM
 #endif
-
 #ifdef PROTOBUF_FUNC_ALIGN
-#error PROTOBUF_FUNC_ALIGN was previously defined
+	#error PROTOBUF_FUNC_ALIGN was previously defined
 #endif
 #if __has_attribute(aligned) || PROTOBUF_GNUC_MIN(4, 3)
-#define PROTOBUF_FUNC_ALIGN(bytes) __attribute__((aligned(bytes)))
+	#define PROTOBUF_FUNC_ALIGN(bytes) __attribute__((aligned(bytes)))
 #else
-#define PROTOBUF_FUNC_ALIGN(bytes)
+	#define PROTOBUF_FUNC_ALIGN(bytes)
 #endif
-
 #ifdef PROTOBUF_RETURNS_NONNULL
-#error PROTOBUF_RETURNS_NONNULL was previously defined
+	#error PROTOBUF_RETURNS_NONNULL was previously defined
 #endif
 #if __has_attribute(returns_nonnull) || PROTOBUF_GNUC_MIN(4, 9)
-#define PROTOBUF_RETURNS_NONNULL __attribute__((returns_nonnull))
+	#define PROTOBUF_RETURNS_NONNULL __attribute__((returns_nonnull))
 #else
-#define PROTOBUF_RETURNS_NONNULL
+	#define PROTOBUF_RETURNS_NONNULL
 #endif
-
 #ifdef PROTOBUF_ATTRIBUTE_REINITIALIZES
-#error PROTOBUF_ATTRIBUTE_REINITIALIZES was previously defined
+	#error PROTOBUF_ATTRIBUTE_REINITIALIZES was previously defined
 #endif
 #if __has_cpp_attribute(clang::reinitializes)
-#define PROTOBUF_ATTRIBUTE_REINITIALIZES [[clang::reinitializes]]
+	#define PROTOBUF_ATTRIBUTE_REINITIALIZES [[clang::reinitializes]]
 #else
-#define PROTOBUF_ATTRIBUTE_REINITIALIZES
+	#define PROTOBUF_ATTRIBUTE_REINITIALIZES
 #endif
-
-// The minimum library version which works with the current version of the
-// headers.
+// The minimum library version which works with the current version of the headers.
 #define GOOGLE_PROTOBUF_MIN_LIBRARY_VERSION 3019000
 
 #ifdef PROTOBUF_RTTI
@@ -384,34 +374,29 @@
 // just use zero, GCC complains about dereferencing a NULL pointer.  We
 // choose 16 rather than some other number just in case the compiler would
 // be confused by an unaligned pointer.
-#define PROTOBUF_FIELD_OFFSET(TYPE, FIELD)                                \
-  static_cast< ::uint32_t>(reinterpret_cast<const char*>(                   \
-                             &reinterpret_cast<const TYPE*>(16)->FIELD) - \
-                         reinterpret_cast<const char*>(16))
+#define PROTOBUF_FIELD_OFFSET(TYPE, FIELD) static_cast< ::uint32_t>(reinterpret_cast<const char*>(&reinterpret_cast<const TYPE*>(16)->FIELD) - reinterpret_cast<const char*>(16))
 #endif
-
 #ifdef PROTOBUF_EXPORT
 #error PROTOBUF_EXPORT was previously defined
 #endif
-
 #if defined(PROTOBUF_USE_DLLS) && defined(_MSC_VER)
-# if defined(LIBPROTOBUF_EXPORTS)
-#  define PROTOBUF_EXPORT __declspec(dllexport)
-#  define PROTOBUF_EXPORT_TEMPLATE_DECLARE
-#  define PROTOBUF_EXPORT_TEMPLATE_DEFINE __declspec(dllexport)
-# else
-#  define PROTOBUF_EXPORT __declspec(dllimport)
-#  define PROTOBUF_EXPORT_TEMPLATE_DECLARE
-#  define PROTOBUF_EXPORT_TEMPLATE_DEFINE __declspec(dllimport)
-# endif  // defined(LIBPROTOBUF_EXPORTS)
-#elif defined(PROTOBUF_USE_DLLS) && defined(LIBPROTOBUF_EXPORTS)
-# define PROTOBUF_EXPORT __attribute__((visibility("default")))
-# define PROTOBUF_EXPORT_TEMPLATE_DECLARE __attribute__((visibility("default")))
-# define PROTOBUF_EXPORT_TEMPLATE_DEFINE
+#if defined(LIBPROTOBUF_EXPORTS)
+#define PROTOBUF_EXPORT __declspec(dllexport)
+#define PROTOBUF_EXPORT_TEMPLATE_DECLARE
+#define PROTOBUF_EXPORT_TEMPLATE_DEFINE __declspec(dllexport)
 #else
-# define PROTOBUF_EXPORT
-# define PROTOBUF_EXPORT_TEMPLATE_DECLARE
-# define PROTOBUF_EXPORT_TEMPLATE_DEFINE
+#define PROTOBUF_EXPORT __declspec(dllimport)
+#define PROTOBUF_EXPORT_TEMPLATE_DECLARE
+#define PROTOBUF_EXPORT_TEMPLATE_DEFINE __declspec(dllimport)
+#endif  // defined(LIBPROTOBUF_EXPORTS)
+#elif defined(PROTOBUF_USE_DLLS) && defined(LIBPROTOBUF_EXPORTS)
+#define PROTOBUF_EXPORT __attribute__((visibility("default")))
+#define PROTOBUF_EXPORT_TEMPLATE_DECLARE __attribute__((visibility("default")))
+#define PROTOBUF_EXPORT_TEMPLATE_DEFINE
+#else
+#define PROTOBUF_EXPORT
+#define PROTOBUF_EXPORT_TEMPLATE_DECLARE
+#define PROTOBUF_EXPORT_TEMPLATE_DEFINE
 #endif
 
 #ifdef PROTOC_EXPORT

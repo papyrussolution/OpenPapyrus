@@ -688,7 +688,7 @@ int PrcssrWrOffDraft::WriteOff(const PPDraftWrOffPacket * pPack,
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 				PPWaitPercent(cntr.Increment(), PPObjBill::MakeCodeString(&bill_rec, 1, msg_buf));
 				const int  r = P_BObj->WriteOffDraft(bill_id, pWrOffBillList, pPugl, 0);
-				if(r == 0) {
+				if(!r) {
 					ASSIGN_PTR(pErrBillID, bill_id);
 					CALLEXCEPT();
 				}

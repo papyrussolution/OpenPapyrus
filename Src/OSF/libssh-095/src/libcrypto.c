@@ -311,7 +311,7 @@ int ssh_kdf(struct ssh_crypto_struct * crypto, uchar * key, size_t key_len, int 
 {
 	EVP_KDF_CTX * ctx = EVP_KDF_CTX_new_id(EVP_KDF_SSHKDF);
 	int rc;
-	if(ctx == NULL) {
+	if(!ctx) {
 		return -1;
 	}
 	rc = EVP_KDF_ctrl(ctx, EVP_KDF_CTRL_SET_MD, sshkdf_digest_to_md(crypto->digest_type));

@@ -582,9 +582,9 @@ static char * ngx_stream_geo_add_range(ngx_conf_t * cf, ngx_stream_geo_conf_ctx_
 			e = 0xffff;
 		}
 		a = (ngx_array_t*)ctx->high.low[h];
-		if(a == NULL) {
+		if(!a) {
 			a = ngx_array_create(ctx->temp_pool, 64, sizeof(ngx_stream_geo_range_t));
-			if(a == NULL) {
+			if(!a) {
 				return NGX_CONF_ERROR;
 			}
 			ctx->high.low[h] = (ngx_stream_geo_range_t*)a;

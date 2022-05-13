@@ -216,11 +216,11 @@ typedef struct {
 } ZSTD_BuildCTableWksp;
 
 size_t ZSTD_buildCTable(void * dst, size_t dstCapacity, FSE_CTable* nextCTable, uint32 FSELog, symbolEncodingType_e type,
-    uint * count, uint32 max, const BYTE* codeTable, size_t nbSeq, const int16 * defaultNorm, uint32 defaultNormLog, uint32 defaultMax,
+    uint * count, uint32 max, const BYTE * codeTable, size_t nbSeq, const int16 * defaultNorm, uint32 defaultNormLog, uint32 defaultMax,
     const FSE_CTable* prevCTable, size_t prevCTableSize, void * entropyWorkspace, size_t entropyWorkspaceSize)
 {
-	BYTE* op = (BYTE*)dst;
-	const BYTE* const oend = op + dstCapacity;
+	BYTE * op = (BYTE *)dst;
+	const BYTE * const oend = op + dstCapacity;
 	DEBUGLOG(6, "ZSTD_buildCTable (dstCapacity=%u)", (uint)dstCapacity);
 	switch(type) {
 		case set_rle:

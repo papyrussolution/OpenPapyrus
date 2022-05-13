@@ -130,7 +130,7 @@ static const char * parse_option(const char ** s, const char ** m, const char **
 	opt = *s;
 	val = "1";
 	p = (char *)(strchr(opt, ',')); // @badcast
-	if(p != NULL) {
+	if(p) {
 		*p = '\0';
 		end = ((const char *)p) + 1;
 	}
@@ -142,13 +142,13 @@ static const char * parse_option(const char ** s, const char ** m, const char **
 		return end;
 	}
 	p = (char *)strchr(opt, ':'); // @badcast
-	if(p != NULL) {
+	if(p) {
 		*p = '\0';
 		mod = opt;
 		opt = ++p;
 	}
 	p = (char *)strchr(opt, '='); // @badcast
-	if(p != NULL) {
+	if(p) {
 		*p = '\0';
 		val = ++p;
 	}

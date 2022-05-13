@@ -343,7 +343,7 @@ ASN1_OBJECT * ASN1_OBJECT_new(void)
 
 void ASN1_OBJECT_free(ASN1_OBJECT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	if(a->flags & ASN1_OBJECT_FLAG_DYNAMIC_STRINGS) {
 #ifndef CONST_STRICT            /* disable purely for compile-time strict

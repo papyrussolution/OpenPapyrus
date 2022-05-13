@@ -425,7 +425,7 @@ void TW::UpdateText(int count)
 			// When we do not need to draw everything because we use suspend/resume,
 			// we only would need to (re)draw the last one or two lines.
 			int width = ScreenBuffer.wrap_at;
-			if(count == 0) { /* redraw all */
+			if(!count) { /* redraw all */
 				yofs = 0;
 				n = x / width + 1;
 			}

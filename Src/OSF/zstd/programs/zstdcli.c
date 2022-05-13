@@ -28,13 +28,13 @@
 #include "util.h"     /* UTIL_HAS_CREATEFILELIST, UTIL_createFileList */
 #include "fileio.h"   /* stdinmark, stdoutmark, ZSTD_EXTENSION */
 #ifndef ZSTD_NOBENCH
-#  include "benchzstd.h"  /* BMK_benchFiles */
+#include "benchzstd.h"  /* BMK_benchFiles */
 #endif
 #ifndef ZSTD_NODICT
-#  include "dibio.h"  /* ZDICT_cover_params_t, DiB_trainFromFiles() */
+#include "dibio.h"  /* ZDICT_cover_params_t, DiB_trainFromFiles() */
 #endif
 #ifndef ZSTD_NOTRACE
-#  include "zstdcli_trace.h"
+#include "zstdcli_trace.h"
 #endif
 #include <zstd.h> // ZSTD_VERSION_STRING, ZSTD_minCLevel, ZSTD_maxCLevel
 #include "fileio_asyncio.h"
@@ -218,7 +218,7 @@ static void usage_advanced(const char* programName)
 	DISPLAYOUT(
 		"     --auto-threads={physical,logical} :  use either physical cores or logical cores as default when specifying -T0 (default: physical)\n");
 	DISPLAYOUT("     --rsyncable       compress using a rsync-friendly method (-B sets block size) \n");
-# endif
+#endif
 	DISPLAYOUT("     --exclude-compressed :  only compress files that are not already compressed \n");
 	DISPLAYOUT("     --stream-size=#   specify size of streaming input from `stdin` \n");
 	DISPLAYOUT("     --size-hint=#     optimize compression parameters for streaming input of approximately this size \n");
@@ -245,11 +245,11 @@ static void usage_advanced(const char* programName)
 	DISPLAYOUT("  -l                   print information about zstd compressed files\n");
 	DISPLAYOUT("     --test            test compressed file integrity\n");
 	DISPLAYOUT("  -M#                  Set a memory usage limit for decompression\n");
-# if ZSTD_SPARSE_DEFAULT
+#if ZSTD_SPARSE_DEFAULT
 	DISPLAYOUT("     --[no-]sparse     sparse mode (default: enabled on file, disabled on stdout)\n");
-# else
+#else
 	DISPLAYOUT("     --[no-]sparse     sparse mode (default: disabled)\n");
-# endif
+#endif
 #endif  /* ZSTD_NODECOMPRESS */
 
 #ifndef ZSTD_NODICT
@@ -915,12 +915,12 @@ typedef enum { zom_compress, zom_decompress, zom_test, zom_bench, zom_train, zom
 #define CLEAN_RETURN(i) { operationResult = (i); goto _end; }
 
 #ifdef ZSTD_NOCOMPRESS
-/* symbols from compression library are not defined and should not be invoked */
-# define MINCLEVEL  -99
-# define MAXCLEVEL   22
+	/* symbols from compression library are not defined and should not be invoked */
+	#define MINCLEVEL  -99
+	#define MAXCLEVEL   22
 #else
-# define MINCLEVEL  ZSTD_minCLevel()
-# define MAXCLEVEL  ZSTD_maxCLevel()
+	#define MINCLEVEL  ZSTD_minCLevel()
+	#define MAXCLEVEL  ZSTD_maxCLevel()
 #endif
 
 int main(int argCount, const char* argv[])

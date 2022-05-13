@@ -324,7 +324,7 @@ int UriComposeQueryMallocEx(char * *dest, const UriQueryList*queryList, int spac
 	int charsRequired;
 	int res;
 	char * queryString;
-	if(dest == NULL) {
+	if(!dest) {
 		return SLERR_URI_NULL;
 	}
 	/* Calculate space */
@@ -355,7 +355,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 	int ampersandLen = 0;
 	char * write = dest;
 	/* Subtract terminator */
-	if(dest == NULL) {
+	if(!dest) {
 		*charsRequired = 0;
 	}
 	else {
@@ -369,7 +369,7 @@ int UriComposeQueryEngine(char * dest, const UriQueryList*queryList,
 		const int keyRequiredChars = worstCase*keyLen;
 		const int valueLen = sstrleni(value);
 		const int valueRequiredChars = worstCase*valueLen;
-		if(dest == NULL) {
+		if(!dest) {
 			if(firstItem == TRUE) {
 				ampersandLen = 1;
 				firstItem = FALSE;

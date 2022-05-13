@@ -3226,16 +3226,14 @@ class MapOutWireFormat final :
   public:
   void clear_map1();
   ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* mutable_map1(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map1Entry >*
-      mutable_map1();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map1Entry > * mutable_map1();
   private:
   const ::proto_util_converter::testing::MapOutWireFormat_Map1Entry& _internal_map1(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* _internal_add_map1();
   public:
   const ::proto_util_converter::testing::MapOutWireFormat_Map1Entry& map1(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* add_map1();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map1Entry >&
-      map1() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map1Entry > & map1() const;
 
   // repeated .proto_util_converter.testing.MapOutWireFormat.Map2Entry map2 = 2;
   int map2_size() const;
@@ -3244,16 +3242,14 @@ class MapOutWireFormat final :
   public:
   void clear_map2();
   ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* mutable_map2(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map2Entry >*
-      mutable_map2();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map2Entry > * mutable_map2();
   private:
   const ::proto_util_converter::testing::MapOutWireFormat_Map2Entry& _internal_map2(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* _internal_add_map2();
   public:
   const ::proto_util_converter::testing::MapOutWireFormat_Map2Entry& map2(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* add_map2();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map2Entry >&
-      map2() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map2Entry > & map2() const;
 
   // repeated .proto_util_converter.testing.MapOutWireFormat.Map3Entry map3 = 3;
   int map3_size() const;
@@ -3262,16 +3258,14 @@ class MapOutWireFormat final :
   public:
   void clear_map3();
   ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* mutable_map3(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map3Entry >*
-      mutable_map3();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map3Entry > * mutable_map3();
   private:
   const ::proto_util_converter::testing::MapOutWireFormat_Map3Entry& _internal_map3(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* _internal_add_map3();
   public:
   const ::proto_util_converter::testing::MapOutWireFormat_Map3Entry& map3(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* add_map3();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map3Entry >&
-      map3() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map3Entry > & map3() const;
 
   // repeated .proto_util_converter.testing.MapOutWireFormat.Map4Entry map4 = 5;
   int map4_size() const;
@@ -3280,16 +3274,14 @@ class MapOutWireFormat final :
   public:
   void clear_map4();
   ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* mutable_map4(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map4Entry >*
-      mutable_map4();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map4Entry > * mutable_map4();
   private:
   const ::proto_util_converter::testing::MapOutWireFormat_Map4Entry& _internal_map4(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* _internal_add_map4();
   public:
   const ::proto_util_converter::testing::MapOutWireFormat_Map4Entry& map4(int index) const;
   ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* add_map4();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map4Entry >&
-      map4() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::MapOutWireFormat_Map4Entry > & map4() const;
 
   // string bar = 4;
   void clear_bar();
@@ -3487,11 +3479,11 @@ inline const ::proto_util_converter::testing::EmptyMap& MapsTestCases::empty_map
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_map(
     ::proto_util_converter::testing::EmptyMap* empty_map) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_map_);
   }
   empty_map_ = empty_map;
-  if (empty_map) {
+  if(empty_map) {
     
   } else {
     
@@ -3505,9 +3497,9 @@ inline ::proto_util_converter::testing::EmptyMap* MapsTestCases::release_empty_m
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3522,7 +3514,7 @@ inline ::proto_util_converter::testing::EmptyMap* MapsTestCases::unsafe_arena_re
 }
 inline ::proto_util_converter::testing::EmptyMap* MapsTestCases::_internal_mutable_empty_map() {
   
-  if (empty_map_ == nullptr) {
+  if(empty_map_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::EmptyMap>(GetArenaForAllocation());
     empty_map_ = p;
   }
@@ -3535,15 +3527,14 @@ inline ::proto_util_converter::testing::EmptyMap* MapsTestCases::mutable_empty_m
 }
 inline void MapsTestCases::set_allocated_empty_map(::proto_util_converter::testing::EmptyMap* empty_map) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_map_;
   }
-  if (empty_map) {
+  if(empty_map) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::EmptyMap>::GetOwningArena(empty_map);
-    if (message_arena != submessage_arena) {
-      empty_map = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_map, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_map = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_map, submessage_arena);
     }
     
   } else {
@@ -3577,11 +3568,11 @@ inline const ::proto_util_converter::testing::StringtoInt& MapsTestCases::string
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_string_to_int(
     ::proto_util_converter::testing::StringtoInt* string_to_int) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(string_to_int_);
   }
   string_to_int_ = string_to_int;
-  if (string_to_int) {
+  if(string_to_int) {
     
   } else {
     
@@ -3595,9 +3586,9 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::release_stri
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3612,7 +3603,7 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::unsafe_arena
 }
 inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::_internal_mutable_string_to_int() {
   
-  if (string_to_int_ == nullptr) {
+  if(string_to_int_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::StringtoInt>(GetArenaForAllocation());
     string_to_int_ = p;
   }
@@ -3625,15 +3616,14 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::mutable_stri
 }
 inline void MapsTestCases::set_allocated_string_to_int(::proto_util_converter::testing::StringtoInt* string_to_int) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete string_to_int_;
   }
-  if (string_to_int) {
+  if(string_to_int) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::StringtoInt>::GetOwningArena(string_to_int);
-    if (message_arena != submessage_arena) {
-      string_to_int = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, string_to_int, submessage_arena);
+    if(message_arena != submessage_arena) {
+      string_to_int = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, string_to_int, submessage_arena);
     }
     
   } else {
@@ -3667,11 +3657,11 @@ inline const ::proto_util_converter::testing::IntToString& MapsTestCases::int_to
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_int_to_string(
     ::proto_util_converter::testing::IntToString* int_to_string) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int_to_string_);
   }
   int_to_string_ = int_to_string;
-  if (int_to_string) {
+  if(int_to_string) {
     
   } else {
     
@@ -3685,9 +3675,9 @@ inline ::proto_util_converter::testing::IntToString* MapsTestCases::release_int_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3702,7 +3692,7 @@ inline ::proto_util_converter::testing::IntToString* MapsTestCases::unsafe_arena
 }
 inline ::proto_util_converter::testing::IntToString* MapsTestCases::_internal_mutable_int_to_string() {
   
-  if (int_to_string_ == nullptr) {
+  if(int_to_string_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::IntToString>(GetArenaForAllocation());
     int_to_string_ = p;
   }
@@ -3715,15 +3705,14 @@ inline ::proto_util_converter::testing::IntToString* MapsTestCases::mutable_int_
 }
 inline void MapsTestCases::set_allocated_int_to_string(::proto_util_converter::testing::IntToString* int_to_string) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete int_to_string_;
   }
-  if (int_to_string) {
+  if(int_to_string) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::IntToString>::GetOwningArena(int_to_string);
-    if (message_arena != submessage_arena) {
-      int_to_string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int_to_string, submessage_arena);
+    if(message_arena != submessage_arena) {
+      int_to_string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int_to_string, submessage_arena);
     }
     
   } else {
@@ -3757,11 +3746,11 @@ inline const ::proto_util_converter::testing::Mixed1& MapsTestCases::mixed1() co
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_mixed1(
     ::proto_util_converter::testing::Mixed1* mixed1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mixed1_);
   }
   mixed1_ = mixed1;
-  if (mixed1) {
+  if(mixed1) {
     
   } else {
     
@@ -3775,9 +3764,9 @@ inline ::proto_util_converter::testing::Mixed1* MapsTestCases::release_mixed1() 
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3792,7 +3781,7 @@ inline ::proto_util_converter::testing::Mixed1* MapsTestCases::unsafe_arena_rele
 }
 inline ::proto_util_converter::testing::Mixed1* MapsTestCases::_internal_mutable_mixed1() {
   
-  if (mixed1_ == nullptr) {
+  if(mixed1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Mixed1>(GetArenaForAllocation());
     mixed1_ = p;
   }
@@ -3805,15 +3794,14 @@ inline ::proto_util_converter::testing::Mixed1* MapsTestCases::mutable_mixed1() 
 }
 inline void MapsTestCases::set_allocated_mixed1(::proto_util_converter::testing::Mixed1* mixed1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete mixed1_;
   }
-  if (mixed1) {
+  if(mixed1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Mixed1>::GetOwningArena(mixed1);
-    if (message_arena != submessage_arena) {
-      mixed1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, mixed1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      mixed1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, mixed1, submessage_arena);
     }
     
   } else {
@@ -3847,11 +3835,11 @@ inline const ::proto_util_converter::testing::Mixed2& MapsTestCases::mixed2() co
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_mixed2(
     ::proto_util_converter::testing::Mixed2* mixed2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mixed2_);
   }
   mixed2_ = mixed2;
-  if (mixed2) {
+  if(mixed2) {
     
   } else {
     
@@ -3865,9 +3853,9 @@ inline ::proto_util_converter::testing::Mixed2* MapsTestCases::release_mixed2() 
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3882,7 +3870,7 @@ inline ::proto_util_converter::testing::Mixed2* MapsTestCases::unsafe_arena_rele
 }
 inline ::proto_util_converter::testing::Mixed2* MapsTestCases::_internal_mutable_mixed2() {
   
-  if (mixed2_ == nullptr) {
+  if(mixed2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Mixed2>(GetArenaForAllocation());
     mixed2_ = p;
   }
@@ -3895,15 +3883,14 @@ inline ::proto_util_converter::testing::Mixed2* MapsTestCases::mutable_mixed2() 
 }
 inline void MapsTestCases::set_allocated_mixed2(::proto_util_converter::testing::Mixed2* mixed2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete mixed2_;
   }
-  if (mixed2) {
+  if(mixed2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Mixed2>::GetOwningArena(mixed2);
-    if (message_arena != submessage_arena) {
-      mixed2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, mixed2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      mixed2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, mixed2, submessage_arena);
     }
     
   } else {
@@ -3937,11 +3924,11 @@ inline const ::proto_util_converter::testing::MapOfObjects& MapsTestCases::map_o
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_map_of_objects(
     ::proto_util_converter::testing::MapOfObjects* map_of_objects) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(map_of_objects_);
   }
   map_of_objects_ = map_of_objects;
-  if (map_of_objects) {
+  if(map_of_objects) {
     
   } else {
     
@@ -3955,9 +3942,9 @@ inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::release_map
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3972,7 +3959,7 @@ inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::unsafe_aren
 }
 inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::_internal_mutable_map_of_objects() {
   
-  if (map_of_objects_ == nullptr) {
+  if(map_of_objects_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::MapOfObjects>(GetArenaForAllocation());
     map_of_objects_ = p;
   }
@@ -3985,15 +3972,14 @@ inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::mutable_map
 }
 inline void MapsTestCases::set_allocated_map_of_objects(::proto_util_converter::testing::MapOfObjects* map_of_objects) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete map_of_objects_;
   }
-  if (map_of_objects) {
+  if(map_of_objects) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::MapOfObjects>::GetOwningArena(map_of_objects);
-    if (message_arena != submessage_arena) {
-      map_of_objects = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, map_of_objects, submessage_arena);
+    if(message_arena != submessage_arena) {
+      map_of_objects = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, map_of_objects, submessage_arena);
     }
     
   } else {
@@ -4027,11 +4013,11 @@ inline const ::proto_util_converter::testing::StringtoInt& MapsTestCases::empty_
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_string_to_int1(
     ::proto_util_converter::testing::StringtoInt* empty_key_string_to_int1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_string_to_int1_);
   }
   empty_key_string_to_int1_ = empty_key_string_to_int1;
-  if (empty_key_string_to_int1) {
+  if(empty_key_string_to_int1) {
     
   } else {
     
@@ -4045,9 +4031,9 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::release_empt
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4062,7 +4048,7 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::unsafe_arena
 }
 inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::_internal_mutable_empty_key_string_to_int1() {
   
-  if (empty_key_string_to_int1_ == nullptr) {
+  if(empty_key_string_to_int1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::StringtoInt>(GetArenaForAllocation());
     empty_key_string_to_int1_ = p;
   }
@@ -4075,15 +4061,14 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::mutable_empt
 }
 inline void MapsTestCases::set_allocated_empty_key_string_to_int1(::proto_util_converter::testing::StringtoInt* empty_key_string_to_int1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_string_to_int1_;
   }
-  if (empty_key_string_to_int1) {
+  if(empty_key_string_to_int1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::StringtoInt>::GetOwningArena(empty_key_string_to_int1);
-    if (message_arena != submessage_arena) {
-      empty_key_string_to_int1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_string_to_int1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_string_to_int1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_string_to_int1, submessage_arena);
     }
     
   } else {
@@ -4117,11 +4102,11 @@ inline const ::proto_util_converter::testing::StringtoInt& MapsTestCases::empty_
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_string_to_int2(
     ::proto_util_converter::testing::StringtoInt* empty_key_string_to_int2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_string_to_int2_);
   }
   empty_key_string_to_int2_ = empty_key_string_to_int2;
-  if (empty_key_string_to_int2) {
+  if(empty_key_string_to_int2) {
     
   } else {
     
@@ -4135,9 +4120,9 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::release_empt
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4152,7 +4137,7 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::unsafe_arena
 }
 inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::_internal_mutable_empty_key_string_to_int2() {
   
-  if (empty_key_string_to_int2_ == nullptr) {
+  if(empty_key_string_to_int2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::StringtoInt>(GetArenaForAllocation());
     empty_key_string_to_int2_ = p;
   }
@@ -4165,15 +4150,14 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::mutable_empt
 }
 inline void MapsTestCases::set_allocated_empty_key_string_to_int2(::proto_util_converter::testing::StringtoInt* empty_key_string_to_int2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_string_to_int2_;
   }
-  if (empty_key_string_to_int2) {
+  if(empty_key_string_to_int2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::StringtoInt>::GetOwningArena(empty_key_string_to_int2);
-    if (message_arena != submessage_arena) {
-      empty_key_string_to_int2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_string_to_int2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_string_to_int2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_string_to_int2, submessage_arena);
     }
     
   } else {
@@ -4207,11 +4191,11 @@ inline const ::proto_util_converter::testing::StringtoInt& MapsTestCases::empty_
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_string_to_int3(
     ::proto_util_converter::testing::StringtoInt* empty_key_string_to_int3) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_string_to_int3_);
   }
   empty_key_string_to_int3_ = empty_key_string_to_int3;
-  if (empty_key_string_to_int3) {
+  if(empty_key_string_to_int3) {
     
   } else {
     
@@ -4225,9 +4209,9 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::release_empt
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4242,7 +4226,7 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::unsafe_arena
 }
 inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::_internal_mutable_empty_key_string_to_int3() {
   
-  if (empty_key_string_to_int3_ == nullptr) {
+  if(empty_key_string_to_int3_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::StringtoInt>(GetArenaForAllocation());
     empty_key_string_to_int3_ = p;
   }
@@ -4255,15 +4239,14 @@ inline ::proto_util_converter::testing::StringtoInt* MapsTestCases::mutable_empt
 }
 inline void MapsTestCases::set_allocated_empty_key_string_to_int3(::proto_util_converter::testing::StringtoInt* empty_key_string_to_int3) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_string_to_int3_;
   }
-  if (empty_key_string_to_int3) {
+  if(empty_key_string_to_int3) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::StringtoInt>::GetOwningArena(empty_key_string_to_int3);
-    if (message_arena != submessage_arena) {
-      empty_key_string_to_int3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_string_to_int3, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_string_to_int3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_string_to_int3, submessage_arena);
     }
     
   } else {
@@ -4297,11 +4280,11 @@ inline const ::proto_util_converter::testing::BoolToString& MapsTestCases::empty
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_bool_to_string(
     ::proto_util_converter::testing::BoolToString* empty_key_bool_to_string) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_bool_to_string_);
   }
   empty_key_bool_to_string_ = empty_key_bool_to_string;
-  if (empty_key_bool_to_string) {
+  if(empty_key_bool_to_string) {
     
   } else {
     
@@ -4315,9 +4298,9 @@ inline ::proto_util_converter::testing::BoolToString* MapsTestCases::release_emp
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4332,7 +4315,7 @@ inline ::proto_util_converter::testing::BoolToString* MapsTestCases::unsafe_aren
 }
 inline ::proto_util_converter::testing::BoolToString* MapsTestCases::_internal_mutable_empty_key_bool_to_string() {
   
-  if (empty_key_bool_to_string_ == nullptr) {
+  if(empty_key_bool_to_string_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::BoolToString>(GetArenaForAllocation());
     empty_key_bool_to_string_ = p;
   }
@@ -4345,15 +4328,14 @@ inline ::proto_util_converter::testing::BoolToString* MapsTestCases::mutable_emp
 }
 inline void MapsTestCases::set_allocated_empty_key_bool_to_string(::proto_util_converter::testing::BoolToString* empty_key_bool_to_string) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_bool_to_string_;
   }
-  if (empty_key_bool_to_string) {
+  if(empty_key_bool_to_string) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::BoolToString>::GetOwningArena(empty_key_bool_to_string);
-    if (message_arena != submessage_arena) {
-      empty_key_bool_to_string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_bool_to_string, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_bool_to_string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_bool_to_string, submessage_arena);
     }
     
   } else {
@@ -4387,11 +4369,11 @@ inline const ::proto_util_converter::testing::IntToString& MapsTestCases::empty_
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_int_to_string(
     ::proto_util_converter::testing::IntToString* empty_key_int_to_string) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_int_to_string_);
   }
   empty_key_int_to_string_ = empty_key_int_to_string;
-  if (empty_key_int_to_string) {
+  if(empty_key_int_to_string) {
     
   } else {
     
@@ -4405,9 +4387,9 @@ inline ::proto_util_converter::testing::IntToString* MapsTestCases::release_empt
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4422,7 +4404,7 @@ inline ::proto_util_converter::testing::IntToString* MapsTestCases::unsafe_arena
 }
 inline ::proto_util_converter::testing::IntToString* MapsTestCases::_internal_mutable_empty_key_int_to_string() {
   
-  if (empty_key_int_to_string_ == nullptr) {
+  if(empty_key_int_to_string_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::IntToString>(GetArenaForAllocation());
     empty_key_int_to_string_ = p;
   }
@@ -4435,15 +4417,14 @@ inline ::proto_util_converter::testing::IntToString* MapsTestCases::mutable_empt
 }
 inline void MapsTestCases::set_allocated_empty_key_int_to_string(::proto_util_converter::testing::IntToString* empty_key_int_to_string) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_int_to_string_;
   }
-  if (empty_key_int_to_string) {
+  if(empty_key_int_to_string) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::IntToString>::GetOwningArena(empty_key_int_to_string);
-    if (message_arena != submessage_arena) {
-      empty_key_int_to_string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_int_to_string, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_int_to_string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_int_to_string, submessage_arena);
     }
     
   } else {
@@ -4477,11 +4458,11 @@ inline const ::proto_util_converter::testing::Mixed1& MapsTestCases::empty_key_m
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_mixed(
     ::proto_util_converter::testing::Mixed1* empty_key_mixed) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_mixed_);
   }
   empty_key_mixed_ = empty_key_mixed;
-  if (empty_key_mixed) {
+  if(empty_key_mixed) {
     
   } else {
     
@@ -4495,9 +4476,9 @@ inline ::proto_util_converter::testing::Mixed1* MapsTestCases::release_empty_key
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4512,7 +4493,7 @@ inline ::proto_util_converter::testing::Mixed1* MapsTestCases::unsafe_arena_rele
 }
 inline ::proto_util_converter::testing::Mixed1* MapsTestCases::_internal_mutable_empty_key_mixed() {
   
-  if (empty_key_mixed_ == nullptr) {
+  if(empty_key_mixed_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Mixed1>(GetArenaForAllocation());
     empty_key_mixed_ = p;
   }
@@ -4525,15 +4506,14 @@ inline ::proto_util_converter::testing::Mixed1* MapsTestCases::mutable_empty_key
 }
 inline void MapsTestCases::set_allocated_empty_key_mixed(::proto_util_converter::testing::Mixed1* empty_key_mixed) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_mixed_;
   }
-  if (empty_key_mixed) {
+  if(empty_key_mixed) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Mixed1>::GetOwningArena(empty_key_mixed);
-    if (message_arena != submessage_arena) {
-      empty_key_mixed = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_mixed, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_mixed = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_mixed, submessage_arena);
     }
     
   } else {
@@ -4567,11 +4547,11 @@ inline const ::proto_util_converter::testing::MapOfObjects& MapsTestCases::empty
 }
 inline void MapsTestCases::unsafe_arena_set_allocated_empty_key_map_objects(
     ::proto_util_converter::testing::MapOfObjects* empty_key_map_objects) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(empty_key_map_objects_);
   }
   empty_key_map_objects_ = empty_key_map_objects;
-  if (empty_key_map_objects) {
+  if(empty_key_map_objects) {
     
   } else {
     
@@ -4585,9 +4565,9 @@ inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::release_emp
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4602,7 +4582,7 @@ inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::unsafe_aren
 }
 inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::_internal_mutable_empty_key_map_objects() {
   
-  if (empty_key_map_objects_ == nullptr) {
+  if(empty_key_map_objects_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::MapOfObjects>(GetArenaForAllocation());
     empty_key_map_objects_ = p;
   }
@@ -4615,15 +4595,14 @@ inline ::proto_util_converter::testing::MapOfObjects* MapsTestCases::mutable_emp
 }
 inline void MapsTestCases::set_allocated_empty_key_map_objects(::proto_util_converter::testing::MapOfObjects* empty_key_map_objects) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete empty_key_map_objects_;
   }
-  if (empty_key_map_objects) {
+  if(empty_key_map_objects) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::MapOfObjects>::GetOwningArena(empty_key_map_objects);
-    if (message_arena != submessage_arena) {
-      empty_key_map_objects = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, empty_key_map_objects, submessage_arena);
+    if(message_arena != submessage_arena) {
+      empty_key_map_objects = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, empty_key_map_objects, submessage_arena);
     }
     
   } else {
@@ -5406,11 +5385,11 @@ inline const ::proto_util_converter::testing::MapM& MapOutWireFormat_Map1Entry::
 }
 inline void MapOutWireFormat_Map1Entry::unsafe_arena_set_allocated_value(
     ::proto_util_converter::testing::MapM* value) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(value_);
   }
   value_ = value;
-  if (value) {
+  if(value) {
     
   } else {
     
@@ -5424,9 +5403,9 @@ inline ::proto_util_converter::testing::MapM* MapOutWireFormat_Map1Entry::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -5441,7 +5420,7 @@ inline ::proto_util_converter::testing::MapM* MapOutWireFormat_Map1Entry::unsafe
 }
 inline ::proto_util_converter::testing::MapM* MapOutWireFormat_Map1Entry::_internal_mutable_value() {
   
-  if (value_ == nullptr) {
+  if(value_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::MapM>(GetArenaForAllocation());
     value_ = p;
   }
@@ -5454,15 +5433,14 @@ inline ::proto_util_converter::testing::MapM* MapOutWireFormat_Map1Entry::mutabl
 }
 inline void MapOutWireFormat_Map1Entry::set_allocated_value(::proto_util_converter::testing::MapM* value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete value_;
   }
-  if (value) {
+  if(value) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::MapM>::GetOwningArena(value);
-    if (message_arena != submessage_arena) {
-      value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, value, submessage_arena);
+    if(message_arena != submessage_arena) {
+      value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
     
   } else {
@@ -5548,11 +5526,11 @@ inline const ::proto_util_converter::testing::MapOut& MapOutWireFormat_Map2Entry
 }
 inline void MapOutWireFormat_Map2Entry::unsafe_arena_set_allocated_value(
     ::proto_util_converter::testing::MapOut* value) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(value_);
   }
   value_ = value;
-  if (value) {
+  if(value) {
     
   } else {
     
@@ -5566,9 +5544,9 @@ inline ::proto_util_converter::testing::MapOut* MapOutWireFormat_Map2Entry::rele
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -5583,7 +5561,7 @@ inline ::proto_util_converter::testing::MapOut* MapOutWireFormat_Map2Entry::unsa
 }
 inline ::proto_util_converter::testing::MapOut* MapOutWireFormat_Map2Entry::_internal_mutable_value() {
   
-  if (value_ == nullptr) {
+  if(value_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::MapOut>(GetArenaForAllocation());
     value_ = p;
   }
@@ -5596,15 +5574,14 @@ inline ::proto_util_converter::testing::MapOut* MapOutWireFormat_Map2Entry::muta
 }
 inline void MapOutWireFormat_Map2Entry::set_allocated_value(::proto_util_converter::testing::MapOut* value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete value_;
   }
-  if (value) {
+  if(value) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::MapOut>::GetOwningArena(value);
-    if (message_arena != submessage_arena) {
-      value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, value, submessage_arena);
+    if(message_arena != submessage_arena) {
+      value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
     
   } else {
@@ -5775,16 +5752,15 @@ MapOutWireFormat::mutable_map1() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.MapOutWireFormat.map1)
   return &map1_;
 }
-inline const ::proto_util_converter::testing::MapOutWireFormat_Map1Entry& MapOutWireFormat::_internal_map1(int index) const {
-  return map1_.Get(index);
+inline const ::proto_util_converter::testing::MapOutWireFormat_Map1Entry& MapOutWireFormat::_internal_map1(int index) const
+{
+ return map1_.Get(index);
 }
 inline const ::proto_util_converter::testing::MapOutWireFormat_Map1Entry& MapOutWireFormat::map1(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.MapOutWireFormat.map1)
   return _internal_map1(index);
 }
-inline ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* MapOutWireFormat::_internal_add_map1() {
-  return map1_.Add();
-}
+inline ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* MapOutWireFormat::_internal_add_map1() { return map1_.Add(); }
 inline ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* MapOutWireFormat::add_map1() {
   ::proto_util_converter::testing::MapOutWireFormat_Map1Entry* _add = _internal_add_map1();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.MapOutWireFormat.map1)
@@ -5813,16 +5789,15 @@ MapOutWireFormat::mutable_map2() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.MapOutWireFormat.map2)
   return &map2_;
 }
-inline const ::proto_util_converter::testing::MapOutWireFormat_Map2Entry& MapOutWireFormat::_internal_map2(int index) const {
-  return map2_.Get(index);
+inline const ::proto_util_converter::testing::MapOutWireFormat_Map2Entry& MapOutWireFormat::_internal_map2(int index) const
+{
+ return map2_.Get(index);
 }
 inline const ::proto_util_converter::testing::MapOutWireFormat_Map2Entry& MapOutWireFormat::map2(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.MapOutWireFormat.map2)
   return _internal_map2(index);
 }
-inline ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* MapOutWireFormat::_internal_add_map2() {
-  return map2_.Add();
-}
+inline ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* MapOutWireFormat::_internal_add_map2() { return map2_.Add(); }
 inline ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* MapOutWireFormat::add_map2() {
   ::proto_util_converter::testing::MapOutWireFormat_Map2Entry* _add = _internal_add_map2();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.MapOutWireFormat.map2)
@@ -5851,16 +5826,15 @@ MapOutWireFormat::mutable_map3() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.MapOutWireFormat.map3)
   return &map3_;
 }
-inline const ::proto_util_converter::testing::MapOutWireFormat_Map3Entry& MapOutWireFormat::_internal_map3(int index) const {
-  return map3_.Get(index);
+inline const ::proto_util_converter::testing::MapOutWireFormat_Map3Entry& MapOutWireFormat::_internal_map3(int index) const
+{
+ return map3_.Get(index);
 }
 inline const ::proto_util_converter::testing::MapOutWireFormat_Map3Entry& MapOutWireFormat::map3(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.MapOutWireFormat.map3)
   return _internal_map3(index);
 }
-inline ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* MapOutWireFormat::_internal_add_map3() {
-  return map3_.Add();
-}
+inline ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* MapOutWireFormat::_internal_add_map3() { return map3_.Add(); }
 inline ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* MapOutWireFormat::add_map3() {
   ::proto_util_converter::testing::MapOutWireFormat_Map3Entry* _add = _internal_add_map3();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.MapOutWireFormat.map3)
@@ -5889,16 +5863,15 @@ MapOutWireFormat::mutable_map4() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.MapOutWireFormat.map4)
   return &map4_;
 }
-inline const ::proto_util_converter::testing::MapOutWireFormat_Map4Entry& MapOutWireFormat::_internal_map4(int index) const {
-  return map4_.Get(index);
+inline const ::proto_util_converter::testing::MapOutWireFormat_Map4Entry& MapOutWireFormat::_internal_map4(int index) const
+{
+ return map4_.Get(index);
 }
 inline const ::proto_util_converter::testing::MapOutWireFormat_Map4Entry& MapOutWireFormat::map4(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.MapOutWireFormat.map4)
   return _internal_map4(index);
 }
-inline ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* MapOutWireFormat::_internal_add_map4() {
-  return map4_.Add();
-}
+inline ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* MapOutWireFormat::_internal_add_map4() { return map4_.Add(); }
 inline ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* MapOutWireFormat::add_map4() {
   ::proto_util_converter::testing::MapOutWireFormat_Map4Entry* _add = _internal_add_map4();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.MapOutWireFormat.map4)

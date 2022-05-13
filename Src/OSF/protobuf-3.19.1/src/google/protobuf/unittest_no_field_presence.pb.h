@@ -792,16 +792,14 @@ class TestAllTypes final :
   public:
   void clear_repeated_nested_message();
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* mutable_repeated_nested_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >*
-      mutable_repeated_nested_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage > * mutable_repeated_nested_message();
   private:
   const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& _internal_repeated_nested_message(int index) const;
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* _internal_add_repeated_nested_message();
   public:
   const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& repeated_nested_message(int index) const;
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* add_repeated_nested_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >&
-      repeated_nested_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage > & repeated_nested_message() const;
 
   // repeated .proto2_nofieldpresence_unittest.ForeignMessage repeated_foreign_message = 49;
   int repeated_foreign_message_size() const;
@@ -810,16 +808,14 @@ class TestAllTypes final :
   public:
   void clear_repeated_foreign_message();
   ::proto2_nofieldpresence_unittest::ForeignMessage* mutable_repeated_foreign_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::ForeignMessage >*
-      mutable_repeated_foreign_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::ForeignMessage > * mutable_repeated_foreign_message();
   private:
   const ::proto2_nofieldpresence_unittest::ForeignMessage& _internal_repeated_foreign_message(int index) const;
   ::proto2_nofieldpresence_unittest::ForeignMessage* _internal_add_repeated_foreign_message();
   public:
   const ::proto2_nofieldpresence_unittest::ForeignMessage& repeated_foreign_message(int index) const;
   ::proto2_nofieldpresence_unittest::ForeignMessage* add_repeated_foreign_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::ForeignMessage >&
-      repeated_foreign_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::ForeignMessage > & repeated_foreign_message() const;
 
   // repeated .protobuf_unittest.TestAllTypes repeated_proto2_message = 50;
   int repeated_proto2_message_size() const;
@@ -828,16 +824,14 @@ class TestAllTypes final :
   public:
   void clear_repeated_proto2_message();
   ::protobuf_unittest::TestAllTypes* mutable_repeated_proto2_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypes >*
-      mutable_repeated_proto2_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypes > * mutable_repeated_proto2_message();
   private:
   const ::protobuf_unittest::TestAllTypes& _internal_repeated_proto2_message(int index) const;
   ::protobuf_unittest::TestAllTypes* _internal_add_repeated_proto2_message();
   public:
   const ::protobuf_unittest::TestAllTypes& repeated_proto2_message(int index) const;
   ::protobuf_unittest::TestAllTypes* add_repeated_proto2_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypes >&
-      repeated_proto2_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypes > & repeated_proto2_message() const;
 
   // repeated .proto2_nofieldpresence_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
   int repeated_nested_enum_size() const;
@@ -934,16 +928,14 @@ class TestAllTypes final :
   public:
   void clear_repeated_lazy_message();
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* mutable_repeated_lazy_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >*
-      mutable_repeated_lazy_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage > * mutable_repeated_lazy_message();
   private:
   const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& _internal_repeated_lazy_message(int index) const;
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* _internal_add_repeated_lazy_message();
   public:
   const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& repeated_lazy_message(int index) const;
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* add_repeated_lazy_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >&
-      repeated_lazy_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage > & repeated_lazy_message() const;
 
   // string optional_string = 14;
   void clear_optional_string();
@@ -2009,11 +2001,11 @@ inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& Test
 }
 inline void TestAllTypes::unsafe_arena_set_allocated_optional_nested_message(
     ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* optional_nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_nested_message_);
   }
   optional_nested_message_ = optional_nested_message;
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     
   } else {
     
@@ -2027,9 +2019,9 @@ inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTyp
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2044,7 +2036,7 @@ inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTyp
 }
 inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::_internal_mutable_optional_nested_message() {
   
-  if (optional_nested_message_ == nullptr) {
+  if(optional_nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage>(GetArenaForAllocation());
     optional_nested_message_ = p;
   }
@@ -2057,15 +2049,14 @@ inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTyp
 }
 inline void TestAllTypes::set_allocated_optional_nested_message(::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* optional_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_nested_message_;
   }
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage>::GetOwningArena(optional_nested_message);
-    if (message_arena != submessage_arena) {
-      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_nested_message, submessage_arena);
     }
     
   } else {
@@ -2099,11 +2090,11 @@ inline const ::proto2_nofieldpresence_unittest::ForeignMessage& TestAllTypes::op
 }
 inline void TestAllTypes::unsafe_arena_set_allocated_optional_foreign_message(
     ::proto2_nofieldpresence_unittest::ForeignMessage* optional_foreign_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_foreign_message_);
   }
   optional_foreign_message_ = optional_foreign_message;
-  if (optional_foreign_message) {
+  if(optional_foreign_message) {
     
   } else {
     
@@ -2117,9 +2108,9 @@ inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::release_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2134,7 +2125,7 @@ inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::unsafe_a
 }
 inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::_internal_mutable_optional_foreign_message() {
   
-  if (optional_foreign_message_ == nullptr) {
+  if(optional_foreign_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto2_nofieldpresence_unittest::ForeignMessage>(GetArenaForAllocation());
     optional_foreign_message_ = p;
   }
@@ -2147,15 +2138,14 @@ inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::mutable_
 }
 inline void TestAllTypes::set_allocated_optional_foreign_message(::proto2_nofieldpresence_unittest::ForeignMessage* optional_foreign_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_foreign_message_;
   }
-  if (optional_foreign_message) {
+  if(optional_foreign_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto2_nofieldpresence_unittest::ForeignMessage>::GetOwningArena(optional_foreign_message);
-    if (message_arena != submessage_arena) {
-      optional_foreign_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_foreign_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_foreign_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_foreign_message, submessage_arena);
     }
     
   } else {
@@ -2183,11 +2173,11 @@ inline const ::protobuf_unittest::TestAllTypes& TestAllTypes::optional_proto2_me
 }
 inline void TestAllTypes::unsafe_arena_set_allocated_optional_proto2_message(
     ::protobuf_unittest::TestAllTypes* optional_proto2_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_proto2_message_);
   }
   optional_proto2_message_ = optional_proto2_message;
-  if (optional_proto2_message) {
+  if(optional_proto2_message) {
     
   } else {
     
@@ -2201,9 +2191,9 @@ inline ::protobuf_unittest::TestAllTypes* TestAllTypes::release_optional_proto2_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2218,7 +2208,7 @@ inline ::protobuf_unittest::TestAllTypes* TestAllTypes::unsafe_arena_release_opt
 }
 inline ::protobuf_unittest::TestAllTypes* TestAllTypes::_internal_mutable_optional_proto2_message() {
   
-  if (optional_proto2_message_ == nullptr) {
+  if(optional_proto2_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypes>(GetArenaForAllocation());
     optional_proto2_message_ = p;
   }
@@ -2231,17 +2221,15 @@ inline ::protobuf_unittest::TestAllTypes* TestAllTypes::mutable_optional_proto2_
 }
 inline void TestAllTypes::set_allocated_optional_proto2_message(::protobuf_unittest::TestAllTypes* optional_proto2_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_proto2_message_);
   }
-  if (optional_proto2_message) {
+  if(optional_proto2_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_proto2_message));
-    if (message_arena != submessage_arena) {
-      optional_proto2_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_proto2_message, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_proto2_message));
+    if(message_arena != submessage_arena) {
+      optional_proto2_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_proto2_message, submessage_arena);
     }
     
   } else {
@@ -2407,11 +2395,11 @@ inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& Test
 }
 inline void TestAllTypes::unsafe_arena_set_allocated_optional_lazy_message(
     ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* optional_lazy_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_lazy_message_);
   }
   optional_lazy_message_ = optional_lazy_message;
-  if (optional_lazy_message) {
+  if(optional_lazy_message) {
     
   } else {
     
@@ -2425,9 +2413,9 @@ inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTyp
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2442,7 +2430,7 @@ inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTyp
 }
 inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::_internal_mutable_optional_lazy_message() {
   
-  if (optional_lazy_message_ == nullptr) {
+  if(optional_lazy_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage>(GetArenaForAllocation());
     optional_lazy_message_ = p;
   }
@@ -2455,15 +2443,14 @@ inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTyp
 }
 inline void TestAllTypes::set_allocated_optional_lazy_message(::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* optional_lazy_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_lazy_message_;
   }
-  if (optional_lazy_message) {
+  if(optional_lazy_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage>::GetOwningArena(optional_lazy_message);
-    if (message_arena != submessage_arena) {
-      optional_lazy_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_lazy_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_lazy_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_lazy_message, submessage_arena);
     }
     
   } else {
@@ -3161,16 +3148,15 @@ TestAllTypes::mutable_repeated_nested_message() {
   // @@protoc_insertion_point(field_mutable_list:proto2_nofieldpresence_unittest.TestAllTypes.repeated_nested_message)
   return &repeated_nested_message_;
 }
-inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& TestAllTypes::_internal_repeated_nested_message(int index) const {
-  return repeated_nested_message_.Get(index);
+inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& TestAllTypes::_internal_repeated_nested_message(int index) const
+{
+ return repeated_nested_message_.Get(index);
 }
 inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& TestAllTypes::repeated_nested_message(int index) const {
   // @@protoc_insertion_point(field_get:proto2_nofieldpresence_unittest.TestAllTypes.repeated_nested_message)
   return _internal_repeated_nested_message(index);
 }
-inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::_internal_add_repeated_nested_message() {
-  return repeated_nested_message_.Add();
-}
+inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::_internal_add_repeated_nested_message() { return repeated_nested_message_.Add(); }
 inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::add_repeated_nested_message() {
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* _add = _internal_add_repeated_nested_message();
   // @@protoc_insertion_point(field_add:proto2_nofieldpresence_unittest.TestAllTypes.repeated_nested_message)
@@ -3199,16 +3185,15 @@ TestAllTypes::mutable_repeated_foreign_message() {
   // @@protoc_insertion_point(field_mutable_list:proto2_nofieldpresence_unittest.TestAllTypes.repeated_foreign_message)
   return &repeated_foreign_message_;
 }
-inline const ::proto2_nofieldpresence_unittest::ForeignMessage& TestAllTypes::_internal_repeated_foreign_message(int index) const {
-  return repeated_foreign_message_.Get(index);
+inline const ::proto2_nofieldpresence_unittest::ForeignMessage& TestAllTypes::_internal_repeated_foreign_message(int index) const
+{
+ return repeated_foreign_message_.Get(index);
 }
 inline const ::proto2_nofieldpresence_unittest::ForeignMessage& TestAllTypes::repeated_foreign_message(int index) const {
   // @@protoc_insertion_point(field_get:proto2_nofieldpresence_unittest.TestAllTypes.repeated_foreign_message)
   return _internal_repeated_foreign_message(index);
 }
-inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::_internal_add_repeated_foreign_message() {
-  return repeated_foreign_message_.Add();
-}
+inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::_internal_add_repeated_foreign_message() { return repeated_foreign_message_.Add(); }
 inline ::proto2_nofieldpresence_unittest::ForeignMessage* TestAllTypes::add_repeated_foreign_message() {
   ::proto2_nofieldpresence_unittest::ForeignMessage* _add = _internal_add_repeated_foreign_message();
   // @@protoc_insertion_point(field_add:proto2_nofieldpresence_unittest.TestAllTypes.repeated_foreign_message)
@@ -3234,16 +3219,15 @@ TestAllTypes::mutable_repeated_proto2_message() {
   // @@protoc_insertion_point(field_mutable_list:proto2_nofieldpresence_unittest.TestAllTypes.repeated_proto2_message)
   return &repeated_proto2_message_;
 }
-inline const ::protobuf_unittest::TestAllTypes& TestAllTypes::_internal_repeated_proto2_message(int index) const {
-  return repeated_proto2_message_.Get(index);
+inline const ::protobuf_unittest::TestAllTypes& TestAllTypes::_internal_repeated_proto2_message(int index) const
+{
+ return repeated_proto2_message_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypes& TestAllTypes::repeated_proto2_message(int index) const {
   // @@protoc_insertion_point(field_get:proto2_nofieldpresence_unittest.TestAllTypes.repeated_proto2_message)
   return _internal_repeated_proto2_message(index);
 }
-inline ::protobuf_unittest::TestAllTypes* TestAllTypes::_internal_add_repeated_proto2_message() {
-  return repeated_proto2_message_.Add();
-}
+inline ::protobuf_unittest::TestAllTypes* TestAllTypes::_internal_add_repeated_proto2_message() { return repeated_proto2_message_.Add(); }
 inline ::protobuf_unittest::TestAllTypes* TestAllTypes::add_repeated_proto2_message() {
   ::protobuf_unittest::TestAllTypes* _add = _internal_add_repeated_proto2_message();
   // @@protoc_insertion_point(field_add:proto2_nofieldpresence_unittest.TestAllTypes.repeated_proto2_message)
@@ -3488,16 +3472,15 @@ TestAllTypes::mutable_repeated_lazy_message() {
   // @@protoc_insertion_point(field_mutable_list:proto2_nofieldpresence_unittest.TestAllTypes.repeated_lazy_message)
   return &repeated_lazy_message_;
 }
-inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& TestAllTypes::_internal_repeated_lazy_message(int index) const {
-  return repeated_lazy_message_.Get(index);
+inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& TestAllTypes::_internal_repeated_lazy_message(int index) const
+{
+ return repeated_lazy_message_.Get(index);
 }
 inline const ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage& TestAllTypes::repeated_lazy_message(int index) const {
   // @@protoc_insertion_point(field_get:proto2_nofieldpresence_unittest.TestAllTypes.repeated_lazy_message)
   return _internal_repeated_lazy_message(index);
 }
-inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::_internal_add_repeated_lazy_message() {
-  return repeated_lazy_message_.Add();
-}
+inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::_internal_add_repeated_lazy_message() { return repeated_lazy_message_.Add(); }
 inline ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* TestAllTypes::add_repeated_lazy_message() {
   ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* _add = _internal_add_repeated_lazy_message();
   // @@protoc_insertion_point(field_add:proto2_nofieldpresence_unittest.TestAllTypes.repeated_lazy_message)
@@ -3762,11 +3745,11 @@ inline const ::protobuf_unittest::TestRequired& TestProto2Required::proto2() con
 }
 inline void TestProto2Required::unsafe_arena_set_allocated_proto2(
     ::protobuf_unittest::TestRequired* proto2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(proto2_);
   }
   proto2_ = proto2;
-  if (proto2) {
+  if(proto2) {
     
   } else {
     
@@ -3780,9 +3763,9 @@ inline ::protobuf_unittest::TestRequired* TestProto2Required::release_proto2() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3797,7 +3780,7 @@ inline ::protobuf_unittest::TestRequired* TestProto2Required::unsafe_arena_relea
 }
 inline ::protobuf_unittest::TestRequired* TestProto2Required::_internal_mutable_proto2() {
   
-  if (proto2_ == nullptr) {
+  if(proto2_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestRequired>(GetArenaForAllocation());
     proto2_ = p;
   }
@@ -3810,17 +3793,15 @@ inline ::protobuf_unittest::TestRequired* TestProto2Required::mutable_proto2() {
 }
 inline void TestProto2Required::set_allocated_proto2(::protobuf_unittest::TestRequired* proto2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(proto2_);
   }
-  if (proto2) {
+  if(proto2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(proto2));
-    if (message_arena != submessage_arena) {
-      proto2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, proto2, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(proto2));
+    if(message_arena != submessage_arena) {
+      proto2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, proto2, submessage_arena);
     }
     
   } else {

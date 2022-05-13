@@ -432,10 +432,10 @@ void MessageGenerator::GenerateFrameworkMethods(io::Printer* printer) {
 	printer->Print(
 		vars,
 		"public bool Equals($class_name$ other) {\n"
-		"  if (ReferenceEquals(other, null)) {\n"
+		"  if(ReferenceEquals(other, null)) {\n"
 		"    return false;\n"
 		"  }\n"
-		"  if (ReferenceEquals(other, this)) {\n"
+		"  if(ReferenceEquals(other, this)) {\n"
 		"    return true;\n"
 		"  }\n");
 	printer->Indent();
@@ -445,12 +445,12 @@ void MessageGenerator::GenerateFrameworkMethods(io::Printer* printer) {
 		generator->WriteEquals(printer);
 	}
 	for(int i = 0; i < descriptor_->real_oneof_decl_count(); i++) {
-		printer->Print("if ($property_name$Case != other.$property_name$Case) return false;\n",
+		printer->Print("if($property_name$Case != other.$property_name$Case) return false;\n",
 		    "property_name", UnderscoresToCamelCase(descriptor_->oneof_decl(i)->name(), true));
 	}
 	if(has_extension_ranges_) {
 		printer->Print(
-			"if (!Equals(_extensions, other._extensions)) {\n"
+			"if(!Equals(_extensions, other._extensions)) {\n"
 			"  return false;\n"
 			"}\n");
 	}
@@ -477,12 +477,12 @@ void MessageGenerator::GenerateFrameworkMethods(io::Printer* printer) {
 	}
 	if(has_extension_ranges_) {
 		printer->Print(
-			"if (_extensions != null) {\n"
+			"if(_extensions != null) {\n"
 			"  hash ^= _extensions.GetHashCode();\n"
 			"}\n");
 	}
 	printer->Print(
-		"if (_unknownFields != null) {\n"
+		"if(_unknownFields != null) {\n"
 		"  hash ^= _unknownFields.GetHashCode();\n"
 		"}\n"
 		"return hash;\n");
@@ -526,20 +526,19 @@ void MessageGenerator::GenerateMessageSerializationMethods(io::Printer* printer)
 	printer->Indent();
 	printer->Print("int size = 0;\n");
 	for(int i = 0; i < descriptor_->field_count(); i++) {
-		std::unique_ptr<FieldGeneratorBase> generator(
-			CreateFieldGeneratorInternal(descriptor_->field(i)));
+		std::unique_ptr<FieldGeneratorBase> generator(CreateFieldGeneratorInternal(descriptor_->field(i)));
 		generator->GenerateSerializedSizeCode(printer);
 	}
 
 	if(has_extension_ranges_) {
 		printer->Print(
-			"if (_extensions != null) {\n"
+			"if(_extensions != null) {\n"
 			"  size += _extensions.CalculateSize();\n"
 			"}\n");
 	}
 
 	printer->Print(
-		"if (_unknownFields != null) {\n"
+		"if(_unknownFields != null) {\n"
 		"  size += _unknownFields.CalculateSize();\n"
 		"}\n");
 
@@ -559,44 +558,37 @@ void MessageGenerator::GenerateWriteToBody(io::Printer* printer, bool use_write_
 	if(has_extension_ranges_) {
 		// Serialize extensions
 		printer->Print(
-			use_write_context
-			? "if (_extensions != null) {\n"
+			use_write_context ? "if(_extensions != null) {\n"
 			"  _extensions.WriteTo(ref output);\n"
 			"}\n"
-			: "if (_extensions != null) {\n"
+			: "if(_extensions != null) {\n"
 			"  _extensions.WriteTo(output);\n"
 			"}\n");
 	}
 
 	// Serialize unknown fields
 	printer->Print(
-		use_write_context
-		? "if (_unknownFields != null) {\n"
+		use_write_context ? "if(_unknownFields != null) {\n"
 		"  _unknownFields.WriteTo(ref output);\n"
 		"}\n"
-		: "if (_unknownFields != null) {\n"
+		: "if(_unknownFields != null) {\n"
 		"  _unknownFields.WriteTo(output);\n"
 		"}\n");
 
 	// TODO(jonskeet): Memoize size of frozen messages?
 }
 
-void MessageGenerator::GenerateMergingMethods(io::Printer* printer) {
+void MessageGenerator::GenerateMergingMethods(io::Printer* printer) 
+{
 	// Note:  These are separate from GenerateMessageSerializationMethods()
 	//   because they need to be generated even for messages that are optimized
 	//   for code size.
 	std::map<std::string, std::string> vars;
 	vars["class_name"] = class_name();
-
 	WriteGeneratedCodeAttributes(printer);
-	printer->Print(
-		vars,
-		"public void MergeFrom($class_name$ other) {\n");
+	printer->Print(vars, "public void MergeFrom($class_name$ other) {\n");
 	printer->Indent();
-	printer->Print(
-		"if (other == null) {\n"
-		"  return;\n"
-		"}\n");
+	printer->Print("if(other == null) {\n  return;\n}\n");
 	// Merge non-oneof fields, treating optional proto3 fields as normal fields
 	for(int i = 0; i < descriptor_->field_count(); i++) {
 		const FieldDescriptor* field = descriptor_->field(i);
@@ -616,9 +608,7 @@ void MessageGenerator::GenerateMergingMethods(io::Printer* printer) {
 		for(int j = 0; j < oneof->field_count(); j++) {
 			const FieldDescriptor* field = oneof->field(j);
 			vars["field_property_name"] = GetPropertyName(field);
-			printer->Print(
-				vars,
-				"case $property_name$OneofCase.$field_property_name$:\n");
+			printer->Print(vars, "case $property_name$OneofCase.$field_property_name$:\n");
 			printer->Indent();
 			std::unique_ptr<FieldGeneratorBase> generator(CreateFieldGeneratorInternal(field));
 			generator->GenerateMergingCode(printer);
@@ -632,14 +622,10 @@ void MessageGenerator::GenerateMergingMethods(io::Printer* printer) {
 	if(has_extension_ranges_) {
 		printer->Print("pb::ExtensionSet.MergeFrom(ref _extensions, other._extensions);\n");
 	}
-
 	// Merge unknown fields.
-	printer->Print(
-		"_unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);\n");
-
+	printer->Print("_unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);\n");
 	printer->Outdent();
 	printer->Print("}\n\n");
-
 	WriteGeneratedCodeAttributes(printer);
 	printer->Print("public void MergeFrom(pb::CodedInputStream input) {\n");
 	printer->Print("#if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE\n");
@@ -663,13 +649,13 @@ void MessageGenerator::GenerateMergingMethods(io::Printer* printer) {
 	printer->Print("#endif\n\n");
 }
 
-void MessageGenerator::GenerateMainParseLoop(io::Printer* printer, bool use_parse_context) {
+void MessageGenerator::GenerateMainParseLoop(io::Printer* printer, bool use_parse_context) 
+{
 	std::map<std::string, std::string> vars;
 	vars["maybe_ref_input"] = use_parse_context ? "ref input" : "input";
-
 	printer->Print(
 		"uint tag;\n"
-		"while ((tag = input.ReadTag()) != 0) {\n"
+		"while((tag = input.ReadTag()) != 0) {\n"
 		"  switch(tag) {\n");
 	printer->Indent();
 	printer->Indent();
@@ -682,7 +668,7 @@ void MessageGenerator::GenerateMainParseLoop(io::Printer* printer, bool use_pars
 	if(has_extension_ranges_) {
 		printer->Print(vars,
 		    "default:\n"
-		    "  if (!pb::ExtensionSet.TryMergeFieldFrom(ref _extensions, $maybe_ref_input$)) {\n"
+		    "  if(!pb::ExtensionSet.TryMergeFieldFrom(ref _extensions, $maybe_ref_input$)) {\n"
 		    "    _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, $maybe_ref_input$);\n"
 		    "  }\n"
 		    "  break;\n");
@@ -704,19 +690,12 @@ void MessageGenerator::GenerateMainParseLoop(io::Printer* printer, bool use_pars
 		// is_repeated && wt in { VARINT, FIXED32, FIXED64 }.
 		// It looks like it is...
 		if(field->is_packable()) {
-			printer->Print(
-				"case $packed_tag$:\n",
-				"packed_tag",
-				StrCat(
-					internal::WireFormatLite::MakeTag(
-						field->number(),
-						internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED)));
+			printer->Print("case $packed_tag$:\n", "packed_tag",
+				StrCat(internal::WireFormatLite::MakeTag(field->number(), internal::WireFormatLite::WIRETYPE_LENGTH_DELIMITED)));
 		}
-
 		printer->Print("case $tag$: {\n", "tag", StrCat(tag));
 		printer->Indent();
-		std::unique_ptr<FieldGeneratorBase> generator(
-			CreateFieldGeneratorInternal(field));
+		std::unique_ptr<FieldGeneratorBase> generator(CreateFieldGeneratorInternal(field));
 		generator->GenerateParsingCode(printer, use_parse_context);
 		printer->Print("break;\n");
 		printer->Outdent();
@@ -729,11 +708,11 @@ void MessageGenerator::GenerateMainParseLoop(io::Printer* printer, bool use_pars
 }
 
 // it's a waste of space to track presence for all values, so we only track them if they're not nullable
-int MessageGenerator::GetPresenceIndex(const FieldDescriptor* descriptor) {
+int MessageGenerator::GetPresenceIndex(const FieldDescriptor* descriptor) 
+{
 	if(!RequiresPresenceBit(descriptor)) {
 		return -1;
 	}
-
 	int index = 0;
 	for(int i = 0; i < fields_by_number().size(); i++) {
 		const FieldDescriptor* field = fields_by_number()[i];

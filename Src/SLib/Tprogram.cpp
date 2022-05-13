@@ -285,7 +285,7 @@ void TProgram::DelItemFromMenu(void * ptr)
 						break;
 					}
 				}
-				if(count == 0)
+				if(!count)
 					ShowWindow(H_ShortcutsWnd, SW_HIDE);
 				else {
 					for(i = 0; i < count; i++) {

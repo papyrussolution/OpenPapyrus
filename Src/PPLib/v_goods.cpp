@@ -1140,7 +1140,7 @@ void GoodsListDialog::searchBarcode()
 			grp_id = goods_rec.ParentID;
 			selectGoods(grp_id, id);
 		}
-		else if(r == 0)
+		else if(!r)
 			PPError();
 	}
 }

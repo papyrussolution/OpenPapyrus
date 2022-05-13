@@ -31,7 +31,7 @@ struct ssh_mac_ctx_struct {
 static ssh_mac_ctx ssh_mac_ctx_init(enum ssh_kdf_digest type)
 {
 	ssh_mac_ctx ctx = (ssh_mac_ctx)SAlloc::M(sizeof(struct ssh_mac_ctx_struct));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return NULL;
 	}
 	ctx->digest_type = type;
@@ -76,7 +76,7 @@ int sshkdf_derive_key(struct ssh_crypto_struct * crypto, uchar * key, size_t key
 		return -1;
 	}
 	ctx = ssh_mac_ctx_init(crypto->digest_type);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return -1;
 	}
 	ssh_mac_update(ctx, key, key_len);
@@ -90,7 +90,7 @@ int sshkdf_derive_key(struct ssh_crypto_struct * crypto, uchar * key, size_t key
 	memcpy(output, digest, output_len);
 	while(requested_len > output_len) {
 		ctx = ssh_mac_ctx_init(crypto->digest_type);
-		if(ctx == NULL) {
+		if(!ctx) {
 			return -1;
 		}
 		ssh_mac_update(ctx, key, key_len);

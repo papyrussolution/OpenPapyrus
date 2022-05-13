@@ -177,9 +177,8 @@ int __archive_cmdline_free(struct archive_cmdline * data)
 {
 	if(data) {
 		SAlloc::F(data->path);
-		if(data->argv != NULL) {
-			int i;
-			for(i = 0; data->argv[i] != NULL; i++)
+		if(data->argv) {
+			for(int i = 0; data->argv[i]; i++)
 				SAlloc::F(data->argv[i]);
 			SAlloc::F(data->argv);
 		}

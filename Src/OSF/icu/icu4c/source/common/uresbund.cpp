@@ -1,18 +1,17 @@
 // uresbund.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- * Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
- * Modification History:
- *   Date        Name        Description
- *   04/01/97    aliu        Creation.
- *   06/14/99    stephen     Removed functions taking a filename suffix.
- *   07/20/99    stephen     Changed for UResourceBundle typedef'd to void *
- *   11/09/99    weiv            Added ures_getLocale()
- *   March 2000  weiv        Total overhaul - using data in DLLs
- *   06/20/2000  helena      OS/400 port changes; mostly typecast.
- *   06/24/02    weiv        Added support for resource sharing
- */
+// Copyright (C) 1997-2016, International Business Machines Corporation and others. All Rights Reserved.
+// Modification History:
+// Date        Name        Description
+// 04/01/97    aliu        Creation.
+// 06/14/99    stephen     Removed functions taking a filename suffix.
+// 07/20/99    stephen     Changed for UResourceBundle typedef'd to void *
+// 11/09/99    weiv            Added ures_getLocale()
+// March 2000  weiv        Total overhaul - using data in DLLs
+// 06/20/2000  helena      OS/400 port changes; mostly typecast.
+// 06/24/02    weiv        Added support for resource sharing
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/ucnv.h"
@@ -25,7 +24,6 @@
 #include "uresdata.h"
 
 using namespace icu;
-
 /*
    Static cache for already opened resource bundles - mostly for keeping fallback info
    TODO: This cache should probably be removed when the deprecated code is
@@ -217,26 +215,19 @@ U_CAPI bool U_EXPORT2 ures_dumpCacheContents() {
 	int32_t pos = UHASH_FIRST;
 	const UHashElement * e;
 	UResourceDataEntry * resB;
-
 	Mutex lock(&resbMutex);
 	if(cache == NULL) {
 		slfprintf_stderr("%s:%d: RB Cache is NULL.\n", __FILE__, __LINE__);
 		return FALSE;
 	}
-
 	while((e = uhash_nextElement(cache, &pos)) != NULL) {
 		cacheNotEmpty = TRUE;
 		resB = (UResourceDataEntry*)e->value.pointer;
 		slfprintf_stderr("%s:%d: RB Cache: Entry @0x%p, refcount %d, name %s:%s.  Pool 0x%p, alias 0x%p, parent 0x%p\n",
-		    __FILE__, __LINE__,
-		    (void *)resB, resB->fCountExisting,
-		    resB->fName ? resB->fName : "NULL",
-		    resB->fPath ? resB->fPath : "NULL",
-		    (void *)resB->fPool,
-		    (void *)resB->fAlias,
-		    (void *)resB->fParent);
+		    __FILE__, __LINE__, (void *)resB, resB->fCountExisting,
+		    resB->fName ? resB->fName : "NULL", resB->fPath ? resB->fPath : "NULL",
+		    (void *)resB->fPool, (void *)resB->fAlias, (void *)resB->fParent);
 	}
-
 	slfprintf_stderr("%s:%d: RB Cache still contains %d items.\n", __FILE__, __LINE__, uhash_count(cache));
 	return cacheNotEmpty;
 }

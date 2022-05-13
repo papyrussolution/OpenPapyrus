@@ -59,7 +59,7 @@ typedef struct {
  * Struct used for the dictionary selection function.
  */
 typedef struct COVER_dictSelection {
-	BYTE* dictContent;
+	BYTE * dictContent;
 	size_t dictSize;
 	size_t totalCompressedSize;
 } COVER_dictSelection_t;
@@ -134,6 +134,6 @@ void COVER_dictSelectionFree(COVER_dictSelection_t selection);
  * smallest dictionary within a specified regression of the compressed size
  * from the largest dictionary.
  */
-COVER_dictSelection_t COVER_selectDict(BYTE* customDictContent, size_t dictBufferCapacity,
-    size_t dictContentSize, const BYTE* samplesBuffer, const size_t* samplesSizes, uint nbFinalizeSamples,
+COVER_dictSelection_t COVER_selectDict(BYTE * customDictContent, size_t dictBufferCapacity,
+    size_t dictContentSize, const BYTE * samplesBuffer, const size_t* samplesSizes, uint nbFinalizeSamples,
     size_t nbCheckSamples, size_t nbSamples, ZDICT_cover_params_t params, size_t* offsets, size_t totalCompressedSize);

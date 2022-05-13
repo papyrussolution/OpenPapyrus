@@ -41,8 +41,7 @@ wchar_t * curlx_convert_UTF8_to_wchar(const char * str_utf8)
 		if(str_w_len > 0) {
 			str_w = (wchar_t *)SAlloc::M(str_w_len * sizeof(wchar_t));
 			if(str_w) {
-				if(MultiByteToWideChar(CP_UTF8, 0, str_utf8, -1, str_w,
-				    str_w_len) == 0) {
+				if(MultiByteToWideChar(CP_UTF8, 0, str_utf8, -1, str_w, str_w_len) == 0) {
 					SAlloc::F(str_w);
 					return NULL;
 				}

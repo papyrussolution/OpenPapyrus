@@ -85,10 +85,10 @@ static int b64_new(BIO * bi)
 static int b64_free(BIO * a)
 {
 	BIO_B64_CTX * ctx;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	ctx = static_cast<BIO_B64_CTX *>(BIO_get_data(a));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	EVP_ENCODE_CTX_free(ctx->base64);
 	OPENSSL_free(ctx);

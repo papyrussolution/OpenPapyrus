@@ -317,7 +317,7 @@ int SCardSpecialTreatment_AstraZeneca::CommitCheck(const CardBlock * pScBlk, con
 			PPEAddr::Phone::NormalizeStr(temp_buf, PPEAddr::Phone::nsfPlus, phone_buf);
 			THROW_SL(js_query.InsertString("phone_number", phone_buf));
 			{
-				SJson * p_array = new SJson(SJson::tARRAY);
+				SJson * p_array = SJson::CreateArr();
 				THROW_SL(p_array);
 				for(uint lp = 0; lp < pCcPack->GetCount(); lp++) {
 					const CCheckLineTbl::Rec & r_line = pCcPack->GetLine(lp);
@@ -458,7 +458,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 			THROW_SL(js_query.InsertString("phone_number", phone_buf));
 			THROW_SL(js_query.InsertString("any_data", ""));
 			{
-				SJson * p_array = new SJson(SJson::tARRAY);
+				SJson * p_array = SJson::CreateArr();
 				THROW_SL(p_array);
 				p_array->AssignText(temp_buf = "orders");
 				for(uint i = 0; i < rDL.getCount(); i++) {
@@ -479,7 +479,7 @@ int SCardSpecialTreatment_AstraZeneca::QueryDiscount(const CardBlock * pScBlk, T
 							}
 						}
 						if(barcode.NotEmpty()) {
-							SJson * p_item = new SJson(SJson::tOBJECT);
+							SJson * p_item = SJson::CreateObj();
 							THROW_SL(p_item);
 							THROW_SL(p_item->InsertString("barcode", barcode));
 							THROW_SL(p_item->Insert("count", json_new_number(temp_buf.Z().Cat(r_line.Qtty, MKSFMTD(0, 6, NMBF_NOTRAILZ)))));
@@ -1271,11 +1271,11 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		PrepareHtmlFields(hdr_flds);
 	}
 	{
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		if(rT.Code.NotEmpty())
 			p_json_req->InsertString("code", rT.Code);
 		if(rT.Cust.Phone.NotEmpty() || !!rT.Cust.Uid) {
-			SJson * p_js_participant = new SJson(SJson::tOBJECT);
+			SJson * p_js_participant = SJson::CreateObj();
 			if(!!rT.Cust.Uid) {
 				rT.Cust.Uid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 				p_js_participant->InsertString("uid", temp_buf);
@@ -1293,7 +1293,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		S_GUID(SCtrGenerate_).ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		p_json_req->InsertString("nonce", temp_buf);
 		if(rT.Cashier.ID || rT.Cashier.Name.NotEmpty()) {
-			SJson * p_js_cashier = new SJson(SJson::tOBJECT);
+			SJson * p_js_cashier = SJson::CreateObj();
 			if(rT.Cashier.ID) {
 				temp_buf.Z().Cat(rT.Cashier.ID);
 				p_js_cashier->InsertString("externalId", temp_buf);
@@ -1304,7 +1304,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 			p_json_req->Insert("cashier", p_js_cashier);
 		}
 		{
-			SJson * p_js_receipt = new SJson(SJson::tOBJECT);
+			SJson * p_js_receipt = SJson::CreateObj();
 			p_js_receipt->InsertDouble("total", rT.Total, MKSFMTD(0, 2, 0));
 			p_js_receipt->InsertDouble("cash", rT.Cash, MKSFMTD(0, 2, 0));
 			p_js_receipt->InsertDouble("points", rT.Points, MKSFMTD(0, 2, 0));
@@ -1493,12 +1493,12 @@ int UdsGameInterface::CreatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 				"hidden": true
 			}
 		*/
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		p_json_req->InsertString("name", rItem.Name);
 		p_json_req->InsertInt64("nodeId", rItem.ParentId);
 		p_json_req->InsertString("externalId", rItem.Ident);
 		{
-			SJson * p_json_data = new SJson(SJson::tOBJECT);
+			SJson * p_json_data = SJson::CreateObj();
 			const char * p_type = 0;
 			if(rItem.Type == rItem.typCategory)
 				p_type = "CATEGORY";
@@ -1582,12 +1582,12 @@ int UdsGameInterface::UpdatePriceItem(const GoodsItem & rItem, GoodsItem & rRetI
 				"hidden": true
 			}
 		*/
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		p_json_req->InsertString("name", rItem.Name);
 		p_json_req->InsertInt64("nodeId", rItem.ParentId);
 		p_json_req->InsertString("externalId", rItem.Ident);
 		{
-			SJson * p_json_data = new SJson(SJson::tOBJECT);
+			SJson * p_json_data = SJson::CreateObj();
 			const char * p_type = 0;
 			if(rItem.Type == rItem.typCategory)
 				p_type = "CATEGORY";

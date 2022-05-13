@@ -388,7 +388,7 @@ int archive_read_disk_set_gname_lookup(struct archive * _a, void * private_data,
 {
 	struct archive_read_disk * a = (struct archive_read_disk *)_a;
 	archive_check_magic(&a->archive, ARCHIVE_READ_DISK_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__);
-	if(a->cleanup_gname != NULL && a->lookup_gname_data != NULL)
+	if(a->cleanup_gname && a->lookup_gname_data)
 		(a->cleanup_gname)(a->lookup_gname_data);
 	a->lookup_gname = lookup_gname;
 	a->cleanup_gname = cleanup_gname;
@@ -408,15 +408,13 @@ int archive_read_disk_set_uname_lookup(struct archive * _a, void * private_data,
 	a->lookup_uname_data = private_data;
 	return ARCHIVE_OK;
 }
-
 /*
  * Create a new archive_read_disk object and initialize it with global state.
  */
 struct archive * archive_read_disk_new(void)                 
 {
-	struct archive_read_disk * a;
-	a = (struct archive_read_disk *)SAlloc::C(1, sizeof(*a));
-	if(a == NULL)
+	struct archive_read_disk * a = (struct archive_read_disk *)SAlloc::C(1, sizeof(*a));
+	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_READ_DISK_MAGIC;
 	a->archive.state = ARCHIVE_STATE_NEW;
@@ -443,7 +441,7 @@ static int _archive_read_free(struct archive * _a)
 	else
 		r = ARCHIVE_OK;
 	tree_free(a->tree);
-	if(a->cleanup_gname != NULL && a->lookup_gname_data != NULL)
+	if(a->cleanup_gname && a->lookup_gname_data)
 		(a->cleanup_gname)(a->lookup_gname_data);
 	if(a->cleanup_uname != NULL && a->lookup_uname_data != NULL)
 		(a->cleanup_uname)(a->lookup_uname_data);
@@ -932,9 +930,7 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 		}
 #endif
 	}
-
 	archive_entry_copy_stat(entry, st);
-
 	/* Save the times to be restored. This must be in before
 	 * calling archive_read_disk_descend() or any chance of it,
 	 * especially, invoking a callback. */
@@ -944,7 +940,6 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 	t->restore_time.atime_nsec = archive_entry_atime_nsec(entry);
 	t->restore_time.filetype = archive_entry_filetype(entry);
 	t->restore_time.noatime = t->current_filesystem->noatime;
-
 	/*
 	 * Perform time matching.
 	 */
@@ -956,18 +951,16 @@ static int next_entry(struct archive_read_disk * a, struct tree * t,
 		}
 		if(r) {
 			if(a->excluded_cb_func)
-				a->excluded_cb_func(&(a->archive),
-				    a->excluded_cb_data, entry);
+				a->excluded_cb_func(&(a->archive), a->excluded_cb_data, entry);
 			return (ARCHIVE_RETRY);
 		}
 	}
-
 	/* Lookup uname/gname */
 	name = archive_read_disk_uname(&(a->archive), archive_entry_uid(entry));
-	if(name != NULL)
+	if(name)
 		archive_entry_copy_uname(entry, name);
 	name = archive_read_disk_gname(&(a->archive), archive_entry_gid(entry));
-	if(name != NULL)
+	if(name)
 		archive_entry_copy_gname(entry, name);
 
 	/*
@@ -1404,7 +1397,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			return ARCHIVE_FAILED;
 		}
 		r = fstatfs(fd, &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, fd, NULL);
 		close(fd);
 #else
@@ -1413,13 +1406,13 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			return ARCHIVE_FAILED;
 		}
 		r = statfs(tree_current_access_path(t), &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, tree_current_access_path(t));
 #endif
 	}
 	else {
 		r = fstatfs(tree_current_dir_fd(t), &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, tree_current_dir_fd(t), NULL);
 	}
 	if(r == -1 || xr == -1) {
@@ -1503,17 +1496,17 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 	}
 	if(tree_current_is_symblic_link_target(t)) {
 		r = statvfs(tree_current_access_path(t), &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, tree_current_access_path(t));
 	}
 	else {
 #ifdef HAVE_FSTATVFS
 		r = fstatvfs(tree_current_dir_fd(t), &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, tree_current_dir_fd(t), NULL);
 #else
 		r = statvfs(".", &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, ".");
 #endif
 	}
@@ -1592,7 +1585,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		vr = fstatvfs(fd, &svfs); /* for f_flag, mount flags */
 #endif
 		r = fstatfs(fd, &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, fd, NULL);
 		close(fd);
 #else
@@ -1604,7 +1597,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		vr = statvfs(tree_current_access_path(t), &svfs);
 #endif
 		r = statfs(tree_current_access_path(t), &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, tree_current_access_path(t));
 #endif
 	}
@@ -1614,7 +1607,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		vr = fstatvfs(tree_current_dir_fd(t), &svfs);
 #endif
 		r = fstatfs(tree_current_dir_fd(t), &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, tree_current_dir_fd(t), NULL);
 #else
 		if(tree_enter_working_dir(t) != 0) {
@@ -1625,7 +1618,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 		vr = statvfs(".", &svfs);
 #endif
 		r = statfs(".", &sfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, ".");
 #endif
 	}
@@ -1717,7 +1710,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			return ARCHIVE_FAILED;
 		}
 		r = fstatvfs(fd, &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, fd, NULL);
 		close(fd);
 #else
@@ -1726,14 +1719,14 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			return ARCHIVE_FAILED;
 		}
 		r = statvfs(tree_current_access_path(t), &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, tree_current_access_path(t));
 #endif
 	}
 	else {
 #ifdef HAVE_FSTATVFS
 		r = fstatvfs(tree_current_dir_fd(t), &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, tree_current_dir_fd(t), NULL);
 #else
 		if(tree_enter_working_dir(t) != 0) {
@@ -1741,7 +1734,7 @@ static int setup_current_filesystem(struct archive_read_disk * a)
 			return ARCHIVE_FAILED;
 		}
 		r = statvfs(".", &svfs);
-		if(r == 0)
+		if(!r)
 			xr = get_xfer_size(t, -1, ".");
 #endif
 	}
@@ -2113,7 +2106,7 @@ static int tree_enter_initial_dir(struct tree * t)
 
 	if((t->flags & onInitialDir) == 0) {
 		r = fchdir(t->initial_dir_fd);
-		if(r == 0) {
+		if(!r) {
 			t->flags &= ~onWorkingDir;
 			t->flags |= onInitialDir;
 		}
@@ -2135,7 +2128,7 @@ static int tree_enter_working_dir(struct tree * t)
 	 */
 	if(t->depth > 0 && (t->flags & onWorkingDir) == 0) {
 		r = fchdir(t->working_dir_fd);
-		if(r == 0) {
+		if(!r) {
 			t->flags &= ~onInitialDir;
 			t->flags |= onWorkingDir;
 		}
@@ -2180,7 +2173,7 @@ static int tree_next(struct tree * t)
 		/* If there's an open dir, get the next entry from there. */
 		if(t->d != INVALID_DIR_HANDLE) {
 			r = tree_dir_next_posix(t);
-			if(r == 0)
+			if(!r)
 				continue;
 			return r;
 		}
@@ -2202,7 +2195,7 @@ static int tree_next(struct tree * t)
 			    archive_strlen(&(t->stack->name)));
 			t->stack->flags &= ~needsDescent;
 			r = tree_descent(t);
-			if(r != 0) {
+			if(r) {
 				tree_pop(t);
 				t->visit_type = r;
 			}
@@ -2213,7 +2206,7 @@ static int tree_next(struct tree * t)
 		else if(t->stack->flags & needsOpen) {
 			t->stack->flags &= ~needsOpen;
 			r = tree_dir_next_posix(t);
-			if(r == 0)
+			if(!r)
 				continue;
 			return r;
 		}
@@ -2303,7 +2296,7 @@ static int tree_dir_next_posix(struct tree * t)
 #endif
 			closedir(t->d);
 			t->d = INVALID_DIR_HANDLE;
-			if(r != 0) {
+			if(r) {
 				t->tree_errno = r;
 				t->visit_type = TREE_ERROR_DIR;
 				return (t->visit_type);

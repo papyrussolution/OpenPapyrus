@@ -1244,7 +1244,7 @@ void cairo_scaled_font_text_extents(cairo_scaled_font_t * scaled_font, const cha
 	int num_glyphs;
 	if(scaled_font->status)
 		goto ZERO_EXTENTS;
-	if(utf8 == NULL)
+	if(!utf8)
 		goto ZERO_EXTENTS;
 	status = cairo_scaled_font_text_to_glyphs(scaled_font, 0., 0., utf8, -1, &glyphs, &num_glyphs, NULL, NULL, NULL);
 	if(UNLIKELY(status)) {

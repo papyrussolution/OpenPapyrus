@@ -155,7 +155,7 @@ static VP8StatusCode AllocateBuffer(WebPDecBuffer* const buffer) {
 }
 
 VP8StatusCode WebPFlipBuffer(WebPDecBuffer* const buffer) {
-	if(buffer == NULL) {
+	if(!buffer) {
 		return VP8_STATUS_INVALID_PARAM;
 	}
 	if(WebPIsRGBMode(buffer->colorspace)) {
@@ -237,7 +237,7 @@ int WebPInitDecBufferInternal(WebPDecBuffer* buffer, int version)
 	if(WEBP_ABI_IS_INCOMPATIBLE(version, WEBP_DECODER_ABI_VERSION)) {
 		return 0; // version mismatch
 	}
-	if(buffer == NULL) 
+	if(!buffer) 
 		return 0;
 	memzero(buffer, sizeof(*buffer));
 	return 1;

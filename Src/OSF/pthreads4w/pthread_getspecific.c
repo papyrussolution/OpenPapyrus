@@ -54,7 +54,7 @@
 void * pthread_getspecific(pthread_key_t key)
 {
 	void * ptr;
-	if(key == NULL) {
+	if(!key) {
 		ptr = NULL;
 	}
 	else {

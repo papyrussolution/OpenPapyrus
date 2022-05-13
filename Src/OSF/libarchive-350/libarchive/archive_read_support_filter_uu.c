@@ -35,12 +35,9 @@ struct uudecode {
 #define ST_IGNORE       4
 };
 
-static int uudecode_bidder_bid(struct archive_read_filter_bidder *,
-    struct archive_read_filter * filter);
+static int uudecode_bidder_bid(struct archive_read_filter_bidder *, struct archive_read_filter * filter);
 static int uudecode_bidder_init(struct archive_read_filter *);
-
-static ssize_t  uudecode_filter_read(struct archive_read_filter *,
-    const void **);
+static ssize_t  uudecode_filter_read(struct archive_read_filter *, const void **);
 static int uudecode_filter_close(struct archive_read_filter *);
 
 #if ARCHIVE_VERSION_NUMBER < 4000000
@@ -146,25 +143,20 @@ static const int base64num[128] = {
 
 static ssize_t get_line(const uchar * b, ssize_t avail, ssize_t * nlsize)
 {
-	ssize_t len;
-
-	len = 0;
+	ssize_t len = 0;
 	while(len < avail) {
 		switch(ascii[*b]) {
 			case 0: /* Non-ascii character or control character. */
-			    if(nlsize != NULL)
-				    *nlsize = 0;
+				ASSIGN_PTR(nlsize, 0);
 			    return -1;
 			case '\r':
 			    if(avail-len > 1 && b[1] == '\n') {
-				    if(nlsize != NULL)
-					    *nlsize = 2;
+					ASSIGN_PTR(nlsize, 2);
 				    return (len+2);
 			    }
 			// @fallthrough
 			case '\n':
-			    if(nlsize != NULL)
-				    *nlsize = 1;
+				ASSIGN_PTR(nlsize, 1);
 			    return (len+1);
 			case 1:
 			    b++;
@@ -172,26 +164,20 @@ static ssize_t get_line(const uchar * b, ssize_t avail, ssize_t * nlsize)
 			    break;
 		}
 	}
-	if(nlsize != NULL)
-		*nlsize = 0;
+	ASSIGN_PTR(nlsize, 0);
 	return (avail);
 }
 
-static ssize_t bid_get_line(struct archive_read_filter * filter,
-    const uchar ** b, ssize_t * avail, ssize_t * ravail,
-    ssize_t * nl, size_t* nbytes_read)
+static ssize_t bid_get_line(struct archive_read_filter * filter, const uchar ** b, ssize_t * avail, ssize_t * ravail, ssize_t * nl, size_t* nbytes_read)
 {
 	ssize_t len;
-	int quit;
-
-	quit = 0;
+	int quit = 0;
 	if(*avail == 0) {
 		*nl = 0;
 		len = 0;
 	}
 	else
 		len = get_line(*b, *avail, nl);
-
 	/*
 	 * Read bytes more while it does not reach the end of line.
 	 */
@@ -225,8 +211,7 @@ static ssize_t bid_get_line(struct archive_read_filter * filter,
 
 #define UUDECODE(c) (((c) - 0x20) & 0x3f)
 
-static int uudecode_bidder_bid(struct archive_read_filter_bidder * self,
-    struct archive_read_filter * filter)
+static int uudecode_bidder_bid(struct archive_read_filter_bidder * self, struct archive_read_filter * filter)
 {
 	const uchar * b;
 	ssize_t avail, ravail;
@@ -459,8 +444,7 @@ read_more:
 			if(total == 0) {
 				/* Do not return 0; it means end-of-file.
 				 * We should try to read bytes more. */
-				__archive_read_filter_consume(
-					self->upstream, ravail);
+				__archive_read_filter_consume(self->upstream, ravail);
 				goto read_more;
 			}
 			used += len;
@@ -476,14 +460,11 @@ read_more:
 			    }
 			    if(len - nl >= 11 && memcmp(b, "begin ", 6) == 0)
 				    l = 6;
-			    else if(len - nl >= 18 &&
-				memcmp(b, "begin-base64 ", 13) == 0)
+			    else if(len - nl >= 18 && memcmp(b, "begin-base64 ", 13) == 0)
 				    l = 13;
 			    else
 				    l = 0;
-			    if(l != 0 && b[l] >= '0' && b[l] <= '7' &&
-				b[l+1] >= '0' && b[l+1] <= '7' &&
-				b[l+2] >= '0' && b[l+2] <= '7' && b[l+3] == ' ') {
+			    if(l != 0 && b[l] >= '0' && b[l] <= '7' && b[l+1] >= '0' && b[l+1] <= '7' && b[l+2] >= '0' && b[l+2] <= '7' && b[l+3] == ' ') {
 				    if(l == 6)
 					    uudecode->state = ST_READ_UU;
 				    else
@@ -511,7 +492,6 @@ read_more:
 			    }
 			    while(l > 0) {
 				    int n = 0;
-
 				    if(!uuchar[b[0]] || !uuchar[b[1]])
 					    break;
 				    n = UUDECODE(*b++) << 18;
@@ -558,7 +538,6 @@ read_more:
 			    }
 			    while(l > 0) {
 				    int n = 0;
-
 				    if(!base64[b[0]] || !base64[b[1]])
 					    break;
 				    n = base64num[*b++] << 18;
@@ -596,7 +575,6 @@ finish:
 	if(ravail < avail_in)
 		used -= avail_in - ravail;
 	__archive_read_filter_consume(self->upstream, used);
-
 	*buff = uudecode->out_buff;
 	uudecode->total += total;
 	return (total);
@@ -604,8 +582,7 @@ finish:
 
 static int uudecode_filter_close(struct archive_read_filter * self)
 {
-	struct uudecode * uudecode;
-	uudecode = (struct uudecode *)self->data;
+	struct uudecode * uudecode = (struct uudecode *)self->data;
 	SAlloc::F(uudecode->in_buff);
 	SAlloc::F(uudecode->out_buff);
 	SAlloc::F(uudecode);

@@ -36,7 +36,7 @@ int RSA_verify_PKCS1_PSS_mgf1(RSA * rsa, const uchar * mHash, const EVP_MD * Has
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	uchar H_[EVP_MAX_MD_SIZE];
 
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 
 	if(mgf1Hash == NULL)
@@ -193,7 +193,7 @@ int RSA_padding_add_PKCS1_PSS_mgf1(RSA * rsa, uchar * EM, const uchar * mHash, c
 	maskedDBLen = emLen - hLen - 1;
 	H = EM + maskedDBLen;
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	if(!EVP_DigestInit_ex(ctx, Hash, NULL) || !EVP_DigestUpdate(ctx, zeroes, sizeof(zeroes)) || !EVP_DigestUpdate(ctx, mHash, hLen))
 		goto err;

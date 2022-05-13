@@ -332,7 +332,7 @@ static const char * ngx_http_geo_block(ngx_conf_t * cf, const ngx_command_t * cm
 		if(ctx.high.low && !ctx.binary_include) {
 			for(i = 0; i < 0x10000; i++) {
 				a = (ngx_array_t*)ctx.high.low[i];
-				if(a == NULL) {
+				if(!a) {
 					continue;
 				}
 				if(a->nelts == 0) {
@@ -603,9 +603,9 @@ static char * ngx_http_geo_add_range(ngx_conf_t * cf, ngx_http_geo_conf_ctx_t * 
 			e = 0xffff;
 		}
 		a = (ngx_array_t*)ctx->high.low[h];
-		if(a == NULL) {
+		if(!a) {
 			a = ngx_array_create(ctx->temp_pool, 64, sizeof(ngx_http_geo_range_t));
-			if(a == NULL) {
+			if(!a) {
 				return NGX_CONF_ERROR;
 			}
 			ctx->high.low[h] = (ngx_http_geo_range_t*)a;

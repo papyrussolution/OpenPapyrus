@@ -316,16 +316,14 @@ class ArenaMessage final :
   public:
   void clear_repeated_nested_message();
   ::proto2_arena_unittest::NestedMessage* mutable_repeated_nested_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_arena_unittest::NestedMessage >*
-      mutable_repeated_nested_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_arena_unittest::NestedMessage > * mutable_repeated_nested_message();
   private:
   const ::proto2_arena_unittest::NestedMessage& _internal_repeated_nested_message(int index) const;
   ::proto2_arena_unittest::NestedMessage* _internal_add_repeated_nested_message();
   public:
   const ::proto2_arena_unittest::NestedMessage& repeated_nested_message(int index) const;
   ::proto2_arena_unittest::NestedMessage* add_repeated_nested_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_arena_unittest::NestedMessage >&
-      repeated_nested_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto2_arena_unittest::NestedMessage > & repeated_nested_message() const;
 
   // @@protoc_insertion_point(class_scope:proto2_arena_unittest.ArenaMessage)
  private:
@@ -396,16 +394,15 @@ ArenaMessage::mutable_repeated_nested_message() {
   // @@protoc_insertion_point(field_mutable_list:proto2_arena_unittest.ArenaMessage.repeated_nested_message)
   return &repeated_nested_message_;
 }
-inline const ::proto2_arena_unittest::NestedMessage& ArenaMessage::_internal_repeated_nested_message(int index) const {
-  return repeated_nested_message_.Get(index);
+inline const ::proto2_arena_unittest::NestedMessage& ArenaMessage::_internal_repeated_nested_message(int index) const
+{
+ return repeated_nested_message_.Get(index);
 }
 inline const ::proto2_arena_unittest::NestedMessage& ArenaMessage::repeated_nested_message(int index) const {
   // @@protoc_insertion_point(field_get:proto2_arena_unittest.ArenaMessage.repeated_nested_message)
   return _internal_repeated_nested_message(index);
 }
-inline ::proto2_arena_unittest::NestedMessage* ArenaMessage::_internal_add_repeated_nested_message() {
-  return repeated_nested_message_.Add();
-}
+inline ::proto2_arena_unittest::NestedMessage* ArenaMessage::_internal_add_repeated_nested_message() { return repeated_nested_message_.Add(); }
 inline ::proto2_arena_unittest::NestedMessage* ArenaMessage::add_repeated_nested_message() {
   ::proto2_arena_unittest::NestedMessage* _add = _internal_add_repeated_nested_message();
   // @@protoc_insertion_point(field_add:proto2_arena_unittest.ArenaMessage.repeated_nested_message)

@@ -99,7 +99,7 @@ const BIO_METHOD * BIO_f_asn1(void)
 static int asn1_bio_new(BIO * b)
 {
 	BIO_ASN1_BUF_CTX * ctx = static_cast<BIO_ASN1_BUF_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	if(!asn1_bio_init(ctx, DEFAULT_ASN1_BUF_SIZE)) {
 		OPENSSL_free(ctx);
@@ -129,7 +129,7 @@ static int asn1_bio_free(BIO * b)
 	if(b == NULL)
 		return 0;
 	ctx = static_cast<BIO_ASN1_BUF_CTX *>(BIO_get_data(b));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	OPENSSL_free(ctx->buf);
 	OPENSSL_free(ctx);
@@ -304,7 +304,7 @@ static long asn1_bio_ctrl(BIO * b, int cmd, long arg1, void * arg2)
 	long ret = 1;
 	BIO * next;
 	BIO_ASN1_BUF_CTX * ctx = static_cast<BIO_ASN1_BUF_CTX *>(BIO_get_data(b));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	next = BIO_next(b);
 	switch(cmd) {

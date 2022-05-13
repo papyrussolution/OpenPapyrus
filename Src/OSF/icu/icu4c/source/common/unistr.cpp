@@ -710,7 +710,7 @@ int8 UnicodeString::doCompare(int32_t start,
 		if(result != 0) {
 			return (int8)(result >> 15 | 1);
 		}
-#   else
+#else
 		// little-endian: compare UChar units
 		do {
 			result = ((int32_t)*(chars++) - (int32_t)*(srcChars++));
@@ -1266,7 +1266,7 @@ UnicodeString & UnicodeString::setTo(UChar * buffer,
 		return *this;
 	}
 
-	if(buffer == NULL) {
+	if(!buffer) {
 		// treat as an empty string, do not alias
 		releaseArray();
 		setToEmpty();

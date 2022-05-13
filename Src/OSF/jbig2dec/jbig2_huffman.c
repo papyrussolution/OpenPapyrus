@@ -663,7 +663,7 @@ static int test1()
 	int i;
 	int success = 0;
 	Jbig2Ctx * ctx = jbig2_ctx_new(NULL, 0, NULL, NULL, NULL);
-	if(ctx == NULL) {
+	if(!ctx) {
 		slfprintf_stderr("Failed to allocate jbig2 context\n");
 		goto cleanup;
 	}
@@ -1962,7 +1962,7 @@ static int test2()
 	int success = 0;
 	int i;
 	Jbig2Ctx * ctx = jbig2_ctx_new(NULL, 0, NULL, NULL, NULL);
-	if(ctx == NULL) {
+	if(!ctx) {
 		slfprintf_stderr("Failed to allocate jbig2 context\n");
 		return 0;
 	}

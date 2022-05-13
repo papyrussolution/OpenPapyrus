@@ -229,7 +229,7 @@ int glthread_recursive_lock_destroy(gl_recursive_lock_t * lock)
 
 #  ifdef PTHREAD_RWLOCK_INITIALIZER
 
-#   if !HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER
+#if !HAVE_PTHREAD_RWLOCK_RDLOCK_PREFER_WRITER
 /* glibc with bug https://sourceware.org/bugzilla/show_bug.cgi?id=13701 */
 
 int glthread_rwlock_init_for_glibc(pthread_rwlock_t * lock)
@@ -254,8 +254,8 @@ int glthread_rwlock_init_for_glibc(pthread_rwlock_t * lock)
 	return err;
 }
 
-#   endif
-#  else
+#endif
+#else
 
 int glthread_rwlock_init_multithreaded(gl_rwlock_t * lock)
 {
@@ -332,7 +332,7 @@ int glthread_rwlock_destroy_multithreaded(gl_rwlock_t * lock)
 	return 0;
 }
 
-#  endif
+#endif
 
 #else
 
@@ -470,7 +470,7 @@ int glthread_rwlock_destroy_multithreaded(gl_rwlock_t * lock)
 
 #if HAVE_PTHREAD_MUTEX_RECURSIVE
 
-#  if defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER || defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
+#if defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER || defined PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 
 int glthread_recursive_lock_init_multithreaded(gl_recursive_lock_t * lock)
 {
@@ -496,7 +496,7 @@ int glthread_recursive_lock_init_multithreaded(gl_recursive_lock_t * lock)
 	return 0;
 }
 
-#  else
+#else
 
 int glthread_recursive_lock_init_multithreaded(gl_recursive_lock_t * lock)
 {
@@ -565,7 +565,7 @@ int glthread_recursive_lock_destroy_multithreaded(gl_recursive_lock_t * lock)
 	return 0;
 }
 
-#  endif
+#endif
 
 #else
 

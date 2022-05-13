@@ -85,7 +85,7 @@ static DSA_SIG * dsa_do_sign(const uchar * dgst, int dlen, DSA * dsa)
 		goto err;
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	m = BN_CTX_get(ctx);
 	blind = BN_CTX_get(ctx);

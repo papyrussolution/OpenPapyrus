@@ -1516,7 +1516,7 @@ static uint fake_port(ENV * env, uint port)
 	iovec.iov_len = sizeof(buf);
 	p = buf;
 	while((ret = __repmgr_readv(s, &iovec, 1, &count)) == 0) {
-		if(count == 0) {
+		if(!count) {
 			__db_errx(env, "fake_port: premature EOF");
 			goto err;
 		}

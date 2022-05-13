@@ -37,7 +37,7 @@ extern "C" {
        note 1 : if `0`, follow up with ZSTDv07_getFrameParams() to know precise failure cause.
        note 2 : decompressed size could be wrong or intentionally modified !
                 always ensure results fit within application's authorized limits */
-unsigned long long ZSTDv07_getDecompressedSize(const void* src, size_t srcSize);
+uint64 ZSTDv07_getDecompressedSize(const void* src, size_t srcSize);
 
 /*! ZSTDv07_decompress() :
     `compressedSize` : must be _exact_ size of compressed input, otherwise decompression will fail.
@@ -58,7 +58,7 @@ ZSTDLIBv07_API size_t ZSTDv07_decompress(void* dst, size_t dstCapacity, const vo
     note : assumes `cSize` and `dBound` are _not_ NULL.
  */
 void ZSTDv07_findFrameSizeInfoLegacy(const void * src, size_t srcSize,
-    size_t* cSize, unsigned long long* dBound);
+    size_t* cSize, uint64* dBound);
 
 /*======  Helper functions  ======*/
 ZSTDLIBv07_API uint ZSTDv07_isError(size_t code);          /*!< tells if a `size_t` function result is an error
@@ -101,7 +101,7 @@ ZSTDLIBv07_API size_t      ZSTDv07_freeDDict(ZSTDv07_DDict* ddict);
 ZSTDLIBv07_API size_t ZSTDv07_decompress_usingDDict(ZSTDv07_DCtx* dctx, void* dst, size_t dstCapacity, const void* src, size_t srcSize, const ZSTDv07_DDict* ddict);
 
 typedef struct {
-	unsigned long long frameContentSize;
+	uint64 frameContentSize;
 	uint   windowSize;
 	uint   dictID;
 	uint   checksumFlag;

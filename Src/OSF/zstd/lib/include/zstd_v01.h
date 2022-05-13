@@ -36,7 +36,7 @@ size_t ZSTDv01_decompress(void* dst, size_t maxOriginalSize, const void* src, si
 
     note : assumes `cSize` and `dBound` are _not_ NULL.
  */
-void ZSTDv01_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, unsigned long long* dBound);
+void ZSTDv01_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
 /**
    ZSTDv01_isError() : tells if the result of ZSTDv01_decompress() is an error
  */

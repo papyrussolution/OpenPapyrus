@@ -45,7 +45,7 @@ const char * COMP_get_name(const COMP_METHOD * meth)
 
 void COMP_CTX_free(COMP_CTX * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 	if(ctx->meth->finish != NULL)
 		ctx->meth->finish(ctx);

@@ -23,7 +23,7 @@ bool BlockingCounter::DecrementCount() {
 	int count = count_.fetch_sub(1, std::memory_order_acq_rel) - 1;
 	ABSL_RAW_CHECK(count >= 0,
 	    "BlockingCounter::DecrementCount() called too many times");
-	if(count == 0) {
+	if(!count) {
 		MutexLock l(&lock_);
 		done_ = true;
 		return true;

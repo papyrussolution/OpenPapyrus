@@ -34,7 +34,7 @@ ulong X509_issuer_and_serial_hash(X509 * a)
 	uchar md[16];
 	char * f;
 
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	f = X509_NAME_oneline(a->cert_info.issuer, NULL, 0);
 	if(!EVP_DigestInit_ex(ctx, EVP_md5(), NULL))

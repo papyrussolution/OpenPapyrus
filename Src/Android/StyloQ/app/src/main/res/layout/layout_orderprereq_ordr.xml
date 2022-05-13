@@ -37,7 +37,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_weight="1"
-                        android:textColor="@color/PrimaryText"
+                        android:textColor="@color/TextPrimary"
                         />
                 </LinearLayout>
                 <LinearLayout
@@ -57,7 +57,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_weight="1"
-                        android:textColor="@color/PrimaryText"
+                        android:textColor="@color/TextPrimary"
                         />
                 </LinearLayout>
             </LinearLayout>
@@ -70,13 +70,13 @@
                     android:id="@+id/CTL_DOCUMENT_CLI"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
-                    android:textColor="@color/PrimaryText"
+                    android:textColor="@color/TextPrimary"
                     />
                 <TextView
                     android:id="@+id/CTL_DOCUMENT_DLVRLOC"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
-                    android:textColor="@color/PrimaryText"
+                    android:textColor="@color/TextPrimary"
                     />
             </LinearLayout>
             <EditText

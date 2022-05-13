@@ -224,7 +224,7 @@ __LA_DECL dev_t		 archive_entry_dev(struct archive_entry *);
 __LA_DECL int		 archive_entry_dev_is_set(struct archive_entry *);
 __LA_DECL dev_t		 archive_entry_devmajor(struct archive_entry *);
 __LA_DECL dev_t		 archive_entry_devminor(struct archive_entry *);
-__LA_DECL __LA_MODE_T	 archive_entry_filetype(struct archive_entry *);
+__LA_DECL __LA_MODE_T FASTCALL archive_entry_filetype(const struct archive_entry *);
 __LA_DECL void		 archive_entry_fflags(struct archive_entry *, ulong * /* set */, ulong * /* clear */);
 __LA_DECL const char	*archive_entry_fflags_text(struct archive_entry *);
 __LA_DECL la_int64_t	 archive_entry_gid(struct archive_entry *);

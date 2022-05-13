@@ -97,7 +97,7 @@ public:
 			}
 			size_ = (std::min)(size_ + word_shift, max_words);
 			count %= 32;
-			if(count == 0) {
+			if(!count) {
 				std::copy_backward(words_, words_ + size_ - word_shift, words_ + size_);
 			}
 			else {

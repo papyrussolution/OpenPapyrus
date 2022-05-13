@@ -307,20 +307,17 @@ void RepeatedEnumFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Pri
 		// Write the tag and the size.
 		format(
 			"{\n"
-			"  int byte_size = "
-			"_$name$_cached_byte_size_.load(std::memory_order_relaxed);\n"
-			"  if (byte_size > 0) {\n"
-			"    target = stream->WriteEnumPacked(\n"
-			"        $number$, $name$_, byte_size, target);\n"
+			"  int byte_size = _$name$_cached_byte_size_.load(std::memory_order_relaxed);\n"
+			"  if(byte_size > 0) {\n"
+			"    target = stream->WriteEnumPacked($number$, $name$_, byte_size, target);\n"
 			"  }\n"
 			"}\n");
 	}
 	else {
 		format(
-			"for (int i = 0, n = this->_internal_$name$_size(); i < n; i++) {\n"
+			"for(int i = 0, n = this->_internal_$name$_size(); i < n; i++) {\n"
 			"  target = stream->EnsureSpace(target);\n"
-			"  target = ::$proto_ns$::internal::WireFormatLite::WriteEnumToArray(\n"
-			"      $number$, this->_internal_$name$(i), target);\n"
+			"  target = ::$proto_ns$::internal::WireFormatLite::WriteEnumToArray($number$, this->_internal_$name$(i), target);\n"
 			"}\n");
 	}
 }

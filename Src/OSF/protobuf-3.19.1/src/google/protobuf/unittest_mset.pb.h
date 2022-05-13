@@ -819,16 +819,14 @@ class RawMessageSet final :
   public:
   void clear_item();
   ::protobuf_unittest::RawMessageSet_Item* mutable_item(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::RawMessageSet_Item >*
-      mutable_item();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::RawMessageSet_Item > * mutable_item();
   private:
   const ::protobuf_unittest::RawMessageSet_Item& _internal_item(int index) const;
   ::protobuf_unittest::RawMessageSet_Item* _internal_add_item();
   public:
   const ::protobuf_unittest::RawMessageSet_Item& item(int index) const;
   ::protobuf_unittest::RawMessageSet_Item* add_item();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::RawMessageSet_Item >&
-      item() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::RawMessageSet_Item > & item() const;
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.RawMessageSet)
  private:
@@ -872,11 +870,11 @@ inline const ::proto2_wireformat_unittest::TestMessageSet& TestMessageSetContain
 }
 inline void TestMessageSetContainer::unsafe_arena_set_allocated_message_set(
     ::proto2_wireformat_unittest::TestMessageSet* message_set) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_set_);
   }
   message_set_ = message_set;
-  if (message_set) {
+  if(message_set) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -890,9 +888,9 @@ inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetContainer::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -907,7 +905,7 @@ inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetContainer::un
 }
 inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetContainer::_internal_mutable_message_set() {
   _has_bits_[0] |= 0x00000001u;
-  if (message_set_ == nullptr) {
+  if(message_set_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto2_wireformat_unittest::TestMessageSet>(GetArenaForAllocation());
     message_set_ = p;
   }
@@ -920,17 +918,15 @@ inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetContainer::mu
 }
 inline void TestMessageSetContainer::set_allocated_message_set(::proto2_wireformat_unittest::TestMessageSet* message_set) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_set_);
   }
-  if (message_set) {
+  if(message_set) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_set));
-    if (message_arena != submessage_arena) {
-      message_set = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, message_set, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_set));
+    if(message_arena != submessage_arena) {
+      message_set = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, message_set, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -990,11 +986,11 @@ inline const ::proto2_wireformat_unittest::TestMessageSet& TestMessageSetExtensi
 }
 inline void TestMessageSetExtension1::unsafe_arena_set_allocated_recursive(
     ::proto2_wireformat_unittest::TestMessageSet* recursive) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(recursive_);
   }
   recursive_ = recursive;
-  if (recursive) {
+  if(recursive) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -1008,9 +1004,9 @@ inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetExtension1::r
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1025,7 +1021,7 @@ inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetExtension1::u
 }
 inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetExtension1::_internal_mutable_recursive() {
   _has_bits_[0] |= 0x00000002u;
-  if (recursive_ == nullptr) {
+  if(recursive_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto2_wireformat_unittest::TestMessageSet>(GetArenaForAllocation());
     recursive_ = p;
   }
@@ -1038,17 +1034,15 @@ inline ::proto2_wireformat_unittest::TestMessageSet* TestMessageSetExtension1::m
 }
 inline void TestMessageSetExtension1::set_allocated_recursive(::proto2_wireformat_unittest::TestMessageSet* recursive) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(recursive_);
   }
-  if (recursive) {
+  if(recursive) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(recursive));
-    if (message_arena != submessage_arena) {
-      recursive = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, recursive, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(recursive));
+    if(message_arena != submessage_arena) {
+      recursive = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, recursive, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -1305,16 +1299,15 @@ RawMessageSet::mutable_item() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.RawMessageSet.item)
   return &item_;
 }
-inline const ::protobuf_unittest::RawMessageSet_Item& RawMessageSet::_internal_item(int index) const {
-  return item_.Get(index);
+inline const ::protobuf_unittest::RawMessageSet_Item& RawMessageSet::_internal_item(int index) const
+{
+ return item_.Get(index);
 }
 inline const ::protobuf_unittest::RawMessageSet_Item& RawMessageSet::item(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.RawMessageSet.item)
   return _internal_item(index);
 }
-inline ::protobuf_unittest::RawMessageSet_Item* RawMessageSet::_internal_add_item() {
-  return item_.Add();
-}
+inline ::protobuf_unittest::RawMessageSet_Item* RawMessageSet::_internal_add_item() { return item_.Add(); }
 inline ::protobuf_unittest::RawMessageSet_Item* RawMessageSet::add_item() {
   ::protobuf_unittest::RawMessageSet_Item* _add = _internal_add_item();
   // @@protoc_insertion_point(field_add:protobuf_unittest.RawMessageSet.item)

@@ -56,8 +56,10 @@ typedef struct UCMapping {
 		uint32_t idx;
 		uint8_t bytes[4];
 	} b;
-
-	int8_t uLen, bLen, f, moveFlag;
+	int8_t uLen;
+	int8_t bLen;
+	int8_t f;
+	int8_t moveFlag;
 } UCMapping;
 
 /* constants for UCMTable.flagsType */
@@ -70,17 +72,15 @@ enum {
 
 typedef struct UCMTable {
 	UCMapping * mappings;
-	int32_t mappingsCapacity, mappingsLength;
-
+	int32_t mappingsCapacity;
+	int32_t mappingsLength;
 	UChar32 * codePoints;
-	int32_t codePointsCapacity, codePointsLength;
-
+	int32_t codePointsCapacity;
+	int32_t codePointsLength;
 	uint8_t * bytes;
-	int32_t bytesCapacity, bytesLength;
-
-	/* index map for mapping by bytes first */
-	int32_t * reverseMap;
-
+	int32_t bytesCapacity;
+	int32_t bytesLength;
+	int32_t * reverseMap; /* index map for mapping by bytes first */
 	uint8_t unicodeMask;
 	int8_t flagsType; /* UCM_FLAGS_INITIAL etc. */
 	bool isSorted;
@@ -89,7 +89,6 @@ typedef struct UCMTable {
 enum {
 	MBCS_STATE_FLAG_DIRECT = 1,
 	MBCS_STATE_FLAG_SURROGATES,
-
 	MBCS_STATE_FLAG_READY = 16
 };
 

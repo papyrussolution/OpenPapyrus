@@ -5,7 +5,7 @@
 #define HAVE_STDARG_H
 #define HAVE_MALLOC_H
 #define HAVE_ERRNO_H
-#define HAVE_ZLIB_H
+#define HAVE_ZLIB_H  1 // @v11.3.12 (HAVE_ZLIB_H)-->(HAVE_ZLIB_H 1) for compatibility with libarchive
 #if defined(_WIN32_WCE)
 	#undef HAVE_ERRNO_H
 	#include <windows.h>

@@ -66,7 +66,7 @@ static int pkey_siphash_keygen(EVP_PKEY_CTX * ctx, EVP_PKEY * pkey)
 	if(ASN1_STRING_get0_data(&pctx->ktmp) == NULL)
 		return 0;
 	key = ASN1_OCTET_STRING_dup(&pctx->ktmp);
-	if(key == NULL)
+	if(!key)
 		return 0;
 	return EVP_PKEY_assign_SIPHASH(pkey, key);
 }

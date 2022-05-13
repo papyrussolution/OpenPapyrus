@@ -7,15 +7,17 @@
     <color name="PrimaryLight">#98c1d9</color>
     <color name="TextIcons">#FFFFFF</color>
     <color name="Accent">#FF5722</color>
-    <color name="PrimaryText">#212121</color>
-    <color name="SecondaryText">#757575</color>
+    <color name="TextPrimary">#15133C</color>
+    <color name="TextPrimaryLight">#73777B</color>
+    <color name="TextSecondary">#757575</color>
     <color name="Divider">#BDBDBD</color>
     <color name="Logo">@color/PrimaryDark</color>
-    <color name="ListItemBorder">#DDDDDD</color>
     <color name="GridInterleavedOdd">#EEEEEE</color>
     <color name="GridInterleavedEven">#DDDDDD</color>
+    <color name="ListItemBorder">#DDDDDD</color>
     <color name="ListItemRegular">#FFFFFF</color>
-    <color name="FoundListItem">#FDFFB6</color>
-    <color name="FocusedListItem">@color/PrimaryLight</color>
+    <color name="ListItemFound">#FDFFB6</color>
+    <color name="ListItemFocused">@color/PrimaryLight</color>
+    <color name="ListItemCatched">#FF8D29</color>
     <color name="PageHeader">#FCFFE7</color>
 </resources>

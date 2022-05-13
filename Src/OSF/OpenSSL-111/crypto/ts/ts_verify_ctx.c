@@ -15,7 +15,7 @@
 TS_VERIFY_CTX * TS_VERIFY_CTX_new(void)
 {
 	TS_VERIFY_CTX * ctx = static_cast<TS_VERIFY_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL)
+	if(!ctx)
 		TSerr(TS_F_TS_VERIFY_CTX_NEW, ERR_R_MALLOC_FAILURE);
 	return ctx;
 }

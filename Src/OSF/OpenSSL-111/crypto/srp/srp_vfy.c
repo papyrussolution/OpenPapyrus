@@ -56,7 +56,7 @@ static int t_fromb64(uchar * a, size_t alen, const char * src)
 		return -1;
 
 	ctx = EVP_ENCODE_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return -1;
 
 	/*
@@ -134,7 +134,7 @@ static int t_tob64(char * dst, const uchar * src, int size)
 	uchar pad[2] = {0, 0};
 	size_t leadz = 0;
 
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 
 	EVP_EncodeInit(ctx);
@@ -253,7 +253,7 @@ static SRP_user_pwd * srp_user_pwd_dup(SRP_user_pwd * src)
 {
 	SRP_user_pwd * ret;
 
-	if(src == NULL)
+	if(!src)
 		return NULL;
 	if((ret = SRP_user_pwd_new()) == NULL)
 		return NULL;

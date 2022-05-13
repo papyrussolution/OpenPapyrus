@@ -190,7 +190,7 @@ int InetAddr::Set(const char * pHostName, int port)
 		hint.ai_protocol = 0;
 		hint.ai_socktype = SOCK_STREAM;
 		int    r = getaddrinfo(pHostName, 0, &hint, &p_ai);
-		if(r == 0)
+		if(!r)
 			for(addrinfo * p = p_ai; p != 0; p = p->ai_next) {
 				HostName = p->ai_canonname;
 				V4 = reinterpret_cast<const sockaddr_in *>(p->ai_addr)->sin_addr.s_addr;

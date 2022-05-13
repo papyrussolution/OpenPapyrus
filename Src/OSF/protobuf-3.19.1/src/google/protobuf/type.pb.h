@@ -292,16 +292,14 @@ class Type final :
   public:
   void clear_fields();
   ::PROTOBUF_NAMESPACE_ID::Field* mutable_fields(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Field >*
-      mutable_fields();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Field > * mutable_fields();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Field& _internal_fields(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Field* _internal_add_fields();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Field& fields(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Field* add_fields();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Field >&
-      fields() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Field > & fields() const;
 
   // repeated string oneofs = 3;
   int oneofs_size() const;
@@ -334,16 +332,14 @@ class Type final :
   public:
   void clear_options();
   ::PROTOBUF_NAMESPACE_ID::Option* mutable_options(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-      mutable_options();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * mutable_options();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Option& _internal_options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* _internal_add_options();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Option& options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* add_options();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >&
-      options() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > & options() const;
 
   // string name = 1;
   void clear_name();
@@ -623,16 +619,14 @@ class Field final :
   public:
   void clear_options();
   ::PROTOBUF_NAMESPACE_ID::Option* mutable_options(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-      mutable_options();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * mutable_options();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Option& _internal_options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* _internal_add_options();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Option& options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* add_options();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >&
-      options() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > & options() const;
 
   // string name = 4;
   void clear_name();
@@ -873,16 +867,14 @@ class Enum final :
   public:
   void clear_enumvalue();
   ::PROTOBUF_NAMESPACE_ID::EnumValue* mutable_enumvalue(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValue >*
-      mutable_enumvalue();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValue > * mutable_enumvalue();
   private:
   const ::PROTOBUF_NAMESPACE_ID::EnumValue& _internal_enumvalue(int index) const;
   ::PROTOBUF_NAMESPACE_ID::EnumValue* _internal_add_enumvalue();
   public:
   const ::PROTOBUF_NAMESPACE_ID::EnumValue& enumvalue(int index) const;
   ::PROTOBUF_NAMESPACE_ID::EnumValue* add_enumvalue();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValue >&
-      enumvalue() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::EnumValue > & enumvalue() const;
 
   // repeated .google.protobuf.Option options = 3;
   int options_size() const;
@@ -891,16 +883,14 @@ class Enum final :
   public:
   void clear_options();
   ::PROTOBUF_NAMESPACE_ID::Option* mutable_options(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-      mutable_options();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * mutable_options();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Option& _internal_options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* _internal_add_options();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Option& options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* add_options();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >&
-      options() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > & options() const;
 
   // string name = 1;
   void clear_name();
@@ -1074,16 +1064,14 @@ class EnumValue final :
   public:
   void clear_options();
   ::PROTOBUF_NAMESPACE_ID::Option* mutable_options(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-      mutable_options();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * mutable_options();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Option& _internal_options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* _internal_add_options();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Option& options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* add_options();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >&
-      options() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > & options() const;
 
   // string name = 1;
   void clear_name();
@@ -1349,16 +1337,15 @@ Type::mutable_fields() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Type.fields)
   return &fields_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Field& Type::_internal_fields(int index) const {
-  return fields_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Field& Type::_internal_fields(int index) const
+{
+ return fields_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Field& Type::fields(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Type.fields)
   return _internal_fields(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Field* Type::_internal_add_fields() {
-  return fields_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Field* Type::_internal_add_fields() { return fields_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Field* Type::add_fields() {
   ::PROTOBUF_NAMESPACE_ID::Field* _add = _internal_add_fields();
   // @@protoc_insertion_point(field_add:google.protobuf.Type.fields)
@@ -1456,16 +1443,15 @@ Type::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Type.options)
   return &options_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Option& Type::_internal_options(int index) const {
-  return options_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Option& Type::_internal_options(int index) const
+{
+ return options_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Option& Type::options(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Type.options)
   return _internal_options(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Option* Type::_internal_add_options() {
-  return options_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Option* Type::_internal_add_options() { return options_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Type::add_options() {
   ::PROTOBUF_NAMESPACE_ID::Option* _add = _internal_add_options();
   // @@protoc_insertion_point(field_add:google.protobuf.Type.options)
@@ -1495,11 +1481,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& Type::source_context() cons
 }
 inline void Type::unsafe_arena_set_allocated_source_context(
     ::PROTOBUF_NAMESPACE_ID::SourceContext* source_context) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context_);
   }
   source_context_ = source_context;
-  if (source_context) {
+  if(source_context) {
     
   } else {
     
@@ -1513,9 +1499,9 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Type::release_source_context() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1530,7 +1516,7 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Type::unsafe_arena_release_source
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Type::_internal_mutable_source_context() {
   
-  if (source_context_ == nullptr) {
+  if(source_context_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::SourceContext>(GetArenaForAllocation());
     source_context_ = p;
   }
@@ -1543,17 +1529,15 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Type::mutable_source_context() {
 }
 inline void Type::set_allocated_source_context(::PROTOBUF_NAMESPACE_ID::SourceContext* source_context) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context_);
   }
-  if (source_context) {
+  if(source_context) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context));
-    if (message_arena != submessage_arena) {
-      source_context = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, source_context, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context));
+    if(message_arena != submessage_arena) {
+      source_context = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, source_context, submessage_arena);
     }
     
   } else {
@@ -1788,16 +1772,15 @@ Field::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Field.options)
   return &options_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Option& Field::_internal_options(int index) const {
-  return options_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Option& Field::_internal_options(int index) const
+{
+ return options_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Option& Field::options(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Field.options)
   return _internal_options(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Option* Field::_internal_add_options() {
-  return options_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Option* Field::_internal_add_options() { return options_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Field::add_options() {
   ::PROTOBUF_NAMESPACE_ID::Option* _add = _internal_add_options();
   // @@protoc_insertion_point(field_add:google.protobuf.Field.options)
@@ -1974,16 +1957,15 @@ Enum::mutable_enumvalue() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Enum.enumvalue)
   return &enumvalue_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::EnumValue& Enum::_internal_enumvalue(int index) const {
-  return enumvalue_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::EnumValue& Enum::_internal_enumvalue(int index) const
+{
+ return enumvalue_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::EnumValue& Enum::enumvalue(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Enum.enumvalue)
   return _internal_enumvalue(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::EnumValue* Enum::_internal_add_enumvalue() {
-  return enumvalue_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::EnumValue* Enum::_internal_add_enumvalue() { return enumvalue_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::EnumValue* Enum::add_enumvalue() {
   ::PROTOBUF_NAMESPACE_ID::EnumValue* _add = _internal_add_enumvalue();
   // @@protoc_insertion_point(field_add:google.protobuf.Enum.enumvalue)
@@ -2012,16 +1994,15 @@ Enum::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Enum.options)
   return &options_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Option& Enum::_internal_options(int index) const {
-  return options_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Option& Enum::_internal_options(int index) const
+{
+ return options_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Option& Enum::options(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Enum.options)
   return _internal_options(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Option* Enum::_internal_add_options() {
-  return options_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Option* Enum::_internal_add_options() { return options_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Enum::add_options() {
   ::PROTOBUF_NAMESPACE_ID::Option* _add = _internal_add_options();
   // @@protoc_insertion_point(field_add:google.protobuf.Enum.options)
@@ -2051,11 +2032,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& Enum::source_context() cons
 }
 inline void Enum::unsafe_arena_set_allocated_source_context(
     ::PROTOBUF_NAMESPACE_ID::SourceContext* source_context) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context_);
   }
   source_context_ = source_context;
-  if (source_context) {
+  if(source_context) {
     
   } else {
     
@@ -2069,9 +2050,9 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Enum::release_source_context() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2086,7 +2067,7 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Enum::unsafe_arena_release_source
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Enum::_internal_mutable_source_context() {
   
-  if (source_context_ == nullptr) {
+  if(source_context_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::SourceContext>(GetArenaForAllocation());
     source_context_ = p;
   }
@@ -2099,17 +2080,15 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Enum::mutable_source_context() {
 }
 inline void Enum::set_allocated_source_context(::PROTOBUF_NAMESPACE_ID::SourceContext* source_context) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context_);
   }
-  if (source_context) {
+  if(source_context) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context));
-    if (message_arena != submessage_arena) {
-      source_context = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, source_context, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context));
+    if(message_arena != submessage_arena) {
+      source_context = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, source_context, submessage_arena);
     }
     
   } else {
@@ -2224,16 +2203,15 @@ EnumValue::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.EnumValue.options)
   return &options_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Option& EnumValue::_internal_options(int index) const {
-  return options_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Option& EnumValue::_internal_options(int index) const
+{
+ return options_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Option& EnumValue::options(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.EnumValue.options)
   return _internal_options(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Option* EnumValue::_internal_add_options() {
-  return options_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Option* EnumValue::_internal_add_options() { return options_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Option* EnumValue::add_options() {
   ::PROTOBUF_NAMESPACE_ID::Option* _add = _internal_add_options();
   // @@protoc_insertion_point(field_add:google.protobuf.EnumValue.options)
@@ -2315,11 +2293,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Any& Option::value() const {
 }
 inline void Option::unsafe_arena_set_allocated_value(
     ::PROTOBUF_NAMESPACE_ID::Any* value) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(value_);
   }
   value_ = value;
-  if (value) {
+  if(value) {
     
   } else {
     
@@ -2333,9 +2311,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* Option::release_value() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2350,7 +2328,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* Option::unsafe_arena_release_value() {
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* Option::_internal_mutable_value() {
   
-  if (value_ == nullptr) {
+  if(value_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Any>(GetArenaForAllocation());
     value_ = p;
   }
@@ -2363,17 +2341,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* Option::mutable_value() {
 }
 inline void Option::set_allocated_value(::PROTOBUF_NAMESPACE_ID::Any* value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(value_);
   }
-  if (value) {
+  if(value) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(value));
-    if (message_arena != submessage_arena) {
-      value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, value, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(value));
+    if(message_arena != submessage_arena) {
+      value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, value, submessage_arena);
     }
     
   } else {

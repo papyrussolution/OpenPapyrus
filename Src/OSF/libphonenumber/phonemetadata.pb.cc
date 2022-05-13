@@ -120,7 +120,7 @@ NumberFormat::NumberFormat(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
   leading_digits_pattern_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:i18n.phonenumbers.NumberFormat)
@@ -184,7 +184,7 @@ national_prefix_optional_when_formatting_ = false;
 
 NumberFormat::~NumberFormat() {
   // @@protoc_insertion_point(destructor:i18n.phonenumbers.NumberFormat)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -235,9 +235,9 @@ void NumberFormat::Clear() {
 }
 
 const char* NumberFormat::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -268,8 +268,8 @@ const char* NumberFormat::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             auto str = _internal_add_leading_digits_pattern();
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -300,8 +300,7 @@ const char* NumberFormat::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -532,7 +531,7 @@ PhoneNumberDesc::PhoneNumberDesc(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   possible_length_(arena),
   possible_length_local_only_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:i18n.phonenumbers.PhoneNumberDesc)
@@ -573,7 +572,7 @@ example_number_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStr
 
 PhoneNumberDesc::~PhoneNumberDesc() {
   // @@protoc_insertion_point(destructor:i18n.phonenumbers.PhoneNumberDesc)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -616,9 +615,9 @@ void PhoneNumberDesc::Clear() {
 }
 
 const char* PhoneNumberDesc::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -648,9 +647,9 @@ const char* PhoneNumberDesc::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
             ptr += 1;
             _internal_add_possible_length(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<72>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 74) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<72>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 74) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_possible_length(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -664,16 +663,15 @@ const char* PhoneNumberDesc::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
             ptr += 1;
             _internal_add_possible_length_local_only(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<80>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 82) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<80>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 82) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_possible_length_local_only(), ptr, ctx);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -967,7 +965,7 @@ PhoneMetadata::PhoneMetadata(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   number_format_(arena),
   intl_number_format_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:i18n.phonenumbers.PhoneMetadata)
@@ -1166,7 +1164,7 @@ leading_digits_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStr
 
 PhoneMetadata::~PhoneMetadata() {
   // @@protoc_insertion_point(destructor:i18n.phonenumbers.PhoneMetadata)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -1327,9 +1325,9 @@ void PhoneMetadata::Clear() {
 }
 
 const char* PhoneMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1486,8 +1484,8 @@ const char* PhoneMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
             ptr += 2;
             ptr = ctx->ParseMessage(_internal_add_number_format(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<154>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<154>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1499,8 +1497,8 @@ const char* PhoneMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
             ptr += 2;
             ptr = ctx->ParseMessage(_internal_add_intl_number_format(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<162>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<162>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1612,8 +1610,7 @@ const char* PhoneMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1646,65 +1643,49 @@ uint8_t* PhoneMetadata::_InternalSerialize(
   // optional .i18n.phonenumbers.PhoneNumberDesc general_desc = 1;
   if(cached_has_bits & 0x00000100u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::general_desc(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::general_desc(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc fixed_line = 2;
   if(cached_has_bits & 0x00000200u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::fixed_line(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::fixed_line(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc mobile = 3;
   if(cached_has_bits & 0x00000400u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::mobile(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, _Internal::mobile(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc toll_free = 4;
   if(cached_has_bits & 0x00000800u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::toll_free(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(4, _Internal::toll_free(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc premium_rate = 5;
   if(cached_has_bits & 0x00001000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::premium_rate(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, _Internal::premium_rate(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc shared_cost = 6;
   if(cached_has_bits & 0x00002000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::shared_cost(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(6, _Internal::shared_cost(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc personal_number = 7;
   if(cached_has_bits & 0x00004000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        7, _Internal::personal_number(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(7, _Internal::personal_number(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc voip = 8;
   if(cached_has_bits & 0x00008000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        8, _Internal::voip(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(8, _Internal::voip(this), target, stream);
   }
 
   // required string id = 9;
@@ -1755,27 +1736,21 @@ uint8_t* PhoneMetadata::_InternalSerialize(
   }
 
   // repeated .i18n.phonenumbers.NumberFormat number_format = 19;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_number_format_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_number_format_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(19, this->_internal_number_format(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(19, this->_internal_number_format(i), target, stream);
   }
 
   // repeated .i18n.phonenumbers.NumberFormat intl_number_format = 20;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_intl_number_format_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_intl_number_format_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(20, this->_internal_intl_number_format(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(20, this->_internal_intl_number_format(i), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc pager = 21;
   if(cached_has_bits & 0x00010000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        21, _Internal::pager(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(21, _Internal::pager(this), target, stream);
   }
 
   // optional bool main_country_for_code = 22 [default = false];
@@ -1792,17 +1767,13 @@ uint8_t* PhoneMetadata::_InternalSerialize(
   // optional .i18n.phonenumbers.PhoneNumberDesc no_international_dialling = 24;
   if(cached_has_bits & 0x00020000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        24, _Internal::no_international_dialling(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(24, _Internal::no_international_dialling(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc uan = 25;
   if(cached_has_bits & 0x00040000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        25, _Internal::uan(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(25, _Internal::uan(this), target, stream);
   }
 
   // optional bool leading_zero_possible = 26 [default = false];
@@ -1814,41 +1785,31 @@ uint8_t* PhoneMetadata::_InternalSerialize(
   // optional .i18n.phonenumbers.PhoneNumberDesc emergency = 27;
   if(cached_has_bits & 0x00080000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        27, _Internal::emergency(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(27, _Internal::emergency(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc voicemail = 28;
   if(cached_has_bits & 0x00100000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        28, _Internal::voicemail(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(28, _Internal::voicemail(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc short_code = 29;
   if(cached_has_bits & 0x00200000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        29, _Internal::short_code(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(29, _Internal::short_code(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc standard_rate = 30;
   if(cached_has_bits & 0x00400000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        30, _Internal::standard_rate(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(30, _Internal::standard_rate(this), target, stream);
   }
 
   // optional .i18n.phonenumbers.PhoneNumberDesc carrier_specific = 31;
   if(cached_has_bits & 0x00800000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        31, _Internal::carrier_specific(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(31, _Internal::carrier_specific(this), target, stream);
   }
 
   // optional bool mobile_number_portable_region = 32 [default = false];
@@ -1860,9 +1821,7 @@ uint8_t* PhoneMetadata::_InternalSerialize(
   // optional .i18n.phonenumbers.PhoneNumberDesc sms_services = 33;
   if(cached_has_bits & 0x01000000u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        33, _Internal::sms_services(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(33, _Internal::sms_services(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1938,125 +1897,91 @@ size_t PhoneMetadata::ByteSizeLong() const {
   if(cached_has_bits & 0x0000ff00u) {
     // optional .i18n.phonenumbers.PhoneNumberDesc general_desc = 1;
     if(cached_has_bits & 0x00000100u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *general_desc_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*general_desc_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc fixed_line = 2;
     if(cached_has_bits & 0x00000200u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *fixed_line_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*fixed_line_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc mobile = 3;
     if(cached_has_bits & 0x00000400u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *mobile_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*mobile_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc toll_free = 4;
     if(cached_has_bits & 0x00000800u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *toll_free_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*toll_free_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc premium_rate = 5;
     if(cached_has_bits & 0x00001000u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *premium_rate_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*premium_rate_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc shared_cost = 6;
     if(cached_has_bits & 0x00002000u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *shared_cost_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*shared_cost_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc personal_number = 7;
     if(cached_has_bits & 0x00004000u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *personal_number_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*personal_number_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc voip = 8;
     if(cached_has_bits & 0x00008000u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *voip_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*voip_);
     }
 
   }
   if(cached_has_bits & 0x00ff0000u) {
     // optional .i18n.phonenumbers.PhoneNumberDesc pager = 21;
     if(cached_has_bits & 0x00010000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *pager_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*pager_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc no_international_dialling = 24;
     if(cached_has_bits & 0x00020000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *no_international_dialling_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*no_international_dialling_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc uan = 25;
     if(cached_has_bits & 0x00040000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *uan_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*uan_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc emergency = 27;
     if(cached_has_bits & 0x00080000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *emergency_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*emergency_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc voicemail = 28;
     if(cached_has_bits & 0x00100000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *voicemail_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*voicemail_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc short_code = 29;
     if(cached_has_bits & 0x00200000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *short_code_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*short_code_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc standard_rate = 30;
     if(cached_has_bits & 0x00400000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *standard_rate_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*standard_rate_);
     }
 
     // optional .i18n.phonenumbers.PhoneNumberDesc carrier_specific = 31;
     if(cached_has_bits & 0x00800000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *carrier_specific_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*carrier_specific_);
     }
 
   }
   if(cached_has_bits & 0x3f000000u) {
     // optional .i18n.phonenumbers.PhoneNumberDesc sms_services = 33;
     if(cached_has_bits & 0x01000000u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *sms_services_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*sms_services_);
     }
 
     // optional int32 country_code = 10;
@@ -2220,9 +2145,9 @@ void PhoneMetadata::CopyFrom(const PhoneMetadata& from) {
 bool PhoneMetadata::IsInitialized() const {
   if(_Internal::MissingRequiredFields(_has_bits_)) return false;
   if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(number_format_))
-    return false;
+  	return false;
   if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(intl_number_format_))
-    return false;
+  	return false;
   return true;
 }
 
@@ -2296,7 +2221,7 @@ PhoneMetadataCollection::PhoneMetadataCollection(::PROTOBUF_NAMESPACE_ID::Arena*
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
   metadata_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:i18n.phonenumbers.PhoneMetadataCollection)
@@ -2313,7 +2238,7 @@ inline void PhoneMetadataCollection::SharedCtor() {
 
 PhoneMetadataCollection::~PhoneMetadataCollection() {
   // @@protoc_insertion_point(destructor:i18n.phonenumbers.PhoneMetadataCollection)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -2343,8 +2268,8 @@ void PhoneMetadataCollection::Clear() {
 }
 
 const char* PhoneMetadataCollection::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2356,13 +2281,12 @@ const char* PhoneMetadataCollection::_InternalParse(const char* ptr, ::PROTOBUF_
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_metadata(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2391,11 +2315,9 @@ uint8_t* PhoneMetadataCollection::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated .i18n.phonenumbers.PhoneMetadata metadata = 1;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_metadata_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_metadata_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_metadata(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, this->_internal_metadata(i), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2453,7 +2375,7 @@ void PhoneMetadataCollection::CopyFrom(const PhoneMetadataCollection& from) {
 
 bool PhoneMetadataCollection::IsInitialized() const {
   if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(metadata_))
-    return false;
+  	return false;
   return true;
 }
 
@@ -2470,16 +2392,16 @@ std::string PhoneMetadataCollection::GetTypeName() const { return "i18n.phonenum
 }  // namespace phonenumbers
 }  // namespace i18n
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::NumberFormat* Arena::CreateMaybeMessage< ::i18n::phonenumbers::NumberFormat >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::NumberFormat * Arena::CreateMaybeMessage< ::i18n::phonenumbers::NumberFormat >(Arena* arena) {
   return Arena::CreateMessageInternal< ::i18n::phonenumbers::NumberFormat >(arena);
 }
-template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneNumberDesc* Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneNumberDesc >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneNumberDesc * Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneNumberDesc >(Arena* arena) {
   return Arena::CreateMessageInternal< ::i18n::phonenumbers::PhoneNumberDesc >(arena);
 }
-template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneMetadata* Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneMetadata >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneMetadata * Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneMetadata >(Arena* arena) {
   return Arena::CreateMessageInternal< ::i18n::phonenumbers::PhoneMetadata >(arena);
 }
-template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneMetadataCollection* Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneMetadataCollection >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneMetadataCollection * Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneMetadataCollection >(Arena* arena) {
   return Arena::CreateMessageInternal< ::i18n::phonenumbers::PhoneMetadataCollection >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

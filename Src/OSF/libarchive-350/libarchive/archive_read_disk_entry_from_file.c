@@ -115,14 +115,12 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a, struct arch
 const char * archive_read_disk_entry_setup_path(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	const char * path = archive_entry_sourcepath(entry);
-	if(path == NULL || (a->tree != NULL &&
-	    a->tree_enter_working_dir(a->tree) != 0))
+	if(path == NULL || (a->tree != NULL && a->tree_enter_working_dir(a->tree) != 0))
 		path = archive_entry_pathname(entry);
 	if(!path) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Couldn't determine path");
 	}
-	else if(fd != NULL && *fd < 0 && a->tree != NULL &&
-	    (a->follow_symlinks || archive_entry_filetype(entry) != AE_IFLNK)) {
+	else if(fd != NULL && *fd < 0 && a->tree != NULL && (a->follow_symlinks || archive_entry_filetype(entry) != AE_IFLNK)) {
 		*fd = a->open_on_current_dir(a->tree, path, O_RDONLY | O_NONBLOCK);
 	}
 	return (path);
@@ -171,10 +169,10 @@ int archive_read_disk_entry_from_file(struct archive * _a, struct archive_entry 
 
 	/* Lookup uname/gname */
 	name = archive_read_disk_uname(_a, archive_entry_uid(entry));
-	if(name != NULL)
+	if(name)
 		archive_entry_copy_uname(entry, name);
 	name = archive_read_disk_gname(_a, archive_entry_gid(entry));
-	if(name != NULL)
+	if(name)
 		archive_entry_copy_gname(entry, name);
 
 #ifdef HAVE_STRUCT_STAT_ST_FLAGS
@@ -585,11 +583,9 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  * to not include the system extattrs that hold ACLs; we handle
  * those separately.
  */
-static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry,
-    int _namespace, const char * name, const char * fullname, int fd, const char * path);
+static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry, int _namespace, const char * name, const char * fullname, int fd, const char * path);
 
-static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry,
-    int _namespace, const char * name, const char * fullname, int fd, const char * accpath)
+static int setup_xattr(struct archive_read_disk * a, struct archive_entry * entry, int _namespace, const char * name, const char * fullname, int fd, const char * accpath)
 {
 	ssize_t size;
 	void * value = NULL;
@@ -739,9 +735,7 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
  * to not trigger sparse file extensions if we don't have to, since
  * not all readers support them.
  */
-
-static int setup_sparse_fiemap(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_sparse_fiemap(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	char buff[4096];
 	struct fiemap * fm;
@@ -750,20 +744,14 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 	int count, do_fiemap, iters;
 	int exit_sts = ARCHIVE_OK;
 	const char * path;
-
-	if(archive_entry_filetype(entry) != AE_IFREG
-	   || archive_entry_size(entry) <= 0
-	   || archive_entry_hardlink(entry) != NULL)
+	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry) != NULL)
 		return ARCHIVE_OK;
-
 	if(*fd < 0) {
 		path = archive_read_disk_entry_setup_path(a, entry, NULL);
 		if(!path)
 			return ARCHIVE_FAILED;
-
 		if(a->tree != NULL)
-			*fd = a->open_on_current_dir(a->tree, path,
-				O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+			*fd = a->open_on_current_dir(a->tree, path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		else
 			*fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
 		if(*fd < 0) {
@@ -772,7 +760,6 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 		}
 		__archive_ensure_cloexec_flag(*fd);
 	}
-
 	/* Initialize buffer to avoid the error valgrind complains about. */
 	memzero(buff, sizeof(buff));
 	count = (sizeof(buff) - sizeof(*fm))/sizeof(*fe);
@@ -784,9 +771,8 @@ static int setup_sparse_fiemap(struct archive_read_disk * a,
 	do_fiemap = 1;
 	size = archive_entry_size(entry);
 	for(iters = 0;; ++iters) {
-		int i, r;
-
-		r = ioctl(*fd, FS_IOC_FIEMAP, fm);
+		int i;
+		int r = ioctl(*fd, FS_IOC_FIEMAP, fm);
 		if(r < 0) {
 			/* When something error happens, it is better we
 			 * should return ARCHIVE_OK because an earlier
@@ -847,8 +833,7 @@ static int setup_sparse(struct archive_read_disk * a,
  * SEEK_HOLE sparse interface (FreeBSD, Linux, Solaris)
  */
 
-static int setup_sparse(struct archive_read_disk * a,
-    struct archive_entry * entry, int * fd)
+static int setup_sparse(struct archive_read_disk * a, struct archive_entry * entry, int * fd)
 {
 	int64 size;
 	off_t initial_off;
@@ -856,12 +841,8 @@ static int setup_sparse(struct archive_read_disk * a,
 	int exit_sts = ARCHIVE_OK;
 	int check_fully_sparse = 0;
 	const char * path;
-
-	if(archive_entry_filetype(entry) != AE_IFREG
-	   || archive_entry_size(entry) <= 0
-	   || archive_entry_hardlink(entry) != NULL)
+	if(archive_entry_filetype(entry) != AE_IFREG || archive_entry_size(entry) <= 0 || archive_entry_hardlink(entry) != NULL)
 		return ARCHIVE_OK;
-
 	/* Does filesystem support the reporting of hole ? */
 	if(*fd < 0)
 		path = archive_read_disk_entry_setup_path(a, entry, fd);

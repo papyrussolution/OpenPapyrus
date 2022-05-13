@@ -509,7 +509,7 @@ void * BDbDatabase::Helper_Open(const char * pFileName, BDbTable * pTbl, int fla
 	}
 	// } @v9.7.11
 	CATCH
-		if(r != 0) {
+		if(r) {
 			p_db->close(p_db, 0);
 			p_db = 0;
 		}
@@ -1630,7 +1630,7 @@ BDbTransaction::BDbTransaction(BDbDatabase * pDb, int use_ta) : Ta(0), Err(0), P
 		int    r = P_Db->StartTransaction();
 		if(r > 0)
 			Ta = 1;
-		else if(r == 0) {
+		else if(!r) {
 			Err = 1;
 		}
 	}
@@ -1658,7 +1658,7 @@ int BDbTransaction::Start(int use_ta)
 		int    r = P_Db->StartTransaction();
 		if(r > 0)
 			Ta = 1;
-		else if(r == 0) {
+		else if(!r) {
 			ok = 0;
 			Err = 1;
 		}

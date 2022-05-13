@@ -101,7 +101,7 @@ public class CommandListActivity extends SLib.SlActivity {
 				SvcIdent = intent.getByteArrayExtra("SvcIdent");
 				{
 					StyloQApp app_ctx = (StyloQApp)getApplicationContext();
-					SetupRecyclerListView(null, R.id.commandListView, R.layout.command_list_item);
+					SetupRecyclerListView(null, R.id.commandListView, R.layout.li_command);
 					{
 						View vg = findViewById(R.id.CTL_PAGEHEADER_ROOT);
 						if(vg != null && vg instanceof ViewGroup)
@@ -153,7 +153,7 @@ public class CommandListActivity extends SLib.SlActivity {
 					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
-						if(adapter.GetRcId() == R.layout.command_list_item && ListData != null && ListData.Items != null) {
+						if(adapter.GetRcId() == R.layout.li_command && ListData != null && ListData.Items != null) {
 							_count = ListData.Items.size();
 						}
 					}

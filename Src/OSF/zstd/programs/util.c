@@ -15,15 +15,15 @@ extern "C" {
 
 #include "util.h"       /* note : ensure that platform.h is included first ! */
 #if defined(_WIN32)
-#  include <sys/utime.h>  /* utime */
-#  include <io.h>         /* _chmod */
+#include <sys/utime.h>  /* utime */
+#include <io.h>         /* _chmod */
 #else
-#  include <unistd.h>     /* chown, stat */
+#include <unistd.h>     /* chown, stat */
 #if PLATFORM_POSIX_VERSION < 200809L || !defined(st_mtime)
-#    include <utime.h>    /* utime */
-#  else
-#    include <fcntl.h>    /* AT_FDCWD */
-#    include <sys/stat.h> /* utimensat */
+#include <utime.h>    /* utime */
+#else
+#include <fcntl.h>    /* AT_FDCWD */
+#include <sys/stat.h> /* utimensat */
 #endif
 #endif
 
@@ -32,8 +32,8 @@ extern "C" {
 #endif
 
 #if defined(__linux__) || (PLATFORM_POSIX_VERSION >= 200112L)  /* opendir, readdir require POSIX.1-2001 */
-#  include <dirent.h>       /* opendir, readdir */
-#  include <string.h>       /* strerror, memcpy */
+#include <dirent.h>       /* opendir, readdir */
+#include <string.h>       /* strerror, memcpy */
 #endif /* #ifdef _WIN32 */
 
 /*-****************************************

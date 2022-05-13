@@ -248,7 +248,7 @@ int FASTCALL PPSetError(int errCode, long val)
 	return 0;
 }
 
-int FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID)
+int STDCALL PPSetObjError(int errCode, PPID objType, PPID objID)
 {
 	PPThreadLocalArea & tla = DS.GetTLA();
 	if(&tla && tla.IsConsistent()) {
@@ -287,7 +287,7 @@ int FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf)
 	return PPGetMessage(mfError, /**/PPErrCode, 0, rmvSpcChrs, rBuf);
 }
 
-int FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf)
+int STDCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf)
 {
 	const PPThreadLocalArea & r_ds_tla = DS.GetConstTLA();
 	SString temp_buf;
@@ -485,7 +485,7 @@ int FASTCALL PPError(int errcode, const char * pAddInfo)
 	{ return Helper_PPError(errcode, pAddInfo, 0); }
 int FASTCALL PPError(int errcode)
 	{ return Helper_PPError(errcode, 0, 0); }
-int FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions)
+int STDCALL  PPError(int errcode, const char * pAddInfo, uint extraMfOptions)
 	{ return Helper_PPError(errcode, pAddInfo, extraMfOptions); }
 int PPError()
 	{ return Helper_PPError(-1, 0, 0); }
@@ -547,7 +547,7 @@ static int PPCriticalWarning(SString & rMsg, uint /*options*/)
 		return cmYes;
 }
 
-int FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo)
+int STDCALL PPMessage(uint options, int msgcode, const char * pAddInfo)
 {
 	int    ok = 0;
 	SString buf;

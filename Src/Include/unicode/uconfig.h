@@ -71,7 +71,7 @@
      * which disables assert().
      */
 #define U_DEBUG 1
-# else
+#else
 #define U_DEBUG 0
 #endif
 
@@ -224,9 +224,9 @@
 #define UCONFIG_NO_IDNA 1
 
     /* i18n library */
-#   if UCONFIG_NO_COLLATION
-#       error Contradictory collation switches in uconfig.h.
-#   endif
+#if UCONFIG_NO_COLLATION
+#error Contradictory collation switches in uconfig.h.
+#endif
 #define UCONFIG_NO_FORMATTING 1
 #define UCONFIG_NO_TRANSLITERATION 1
 #define UCONFIG_NO_REGULAR_EXPRESSIONS 1
@@ -331,9 +331,9 @@
 #define UCONFIG_NO_IDNA 1
 
     /* i18n library */
-#   if UCONFIG_ONLY_COLLATION
-#       error Contradictory collation switches in uconfig.h.
-#   endif
+#if UCONFIG_ONLY_COLLATION
+#error Contradictory collation switches in uconfig.h.
+#endif
 #define UCONFIG_NO_COLLATION 1
 #define UCONFIG_NO_TRANSLITERATION 1
 #endif

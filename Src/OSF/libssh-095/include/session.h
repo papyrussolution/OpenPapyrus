@@ -18,7 +18,7 @@
 
 /* These are the different states a SSH session can be into its life */
 enum ssh_session_state_e {
-	SSH_SESSION_STATE_NONE=0,
+	SSH_SESSION_STATE_NONE = 0,
 	SSH_SESSION_STATE_CONNECTING,
 	SSH_SESSION_STATE_SOCKET_CONNECTED,
 	SSH_SESSION_STATE_BANNER_RECEIVED,
@@ -32,12 +32,12 @@ enum ssh_session_state_e {
 };
 
 enum ssh_dh_state_e {
-  DH_STATE_INIT=0,
-  DH_STATE_GROUP_SENT,
-  DH_STATE_REQUEST_SENT,
-  DH_STATE_INIT_SENT,
-  DH_STATE_NEWKEYS_SENT,
-  DH_STATE_FINISHED
+	DH_STATE_INIT = 0,
+	DH_STATE_GROUP_SENT,
+	DH_STATE_REQUEST_SENT,
+	DH_STATE_INIT_SENT,
+	DH_STATE_NEWKEYS_SENT,
+	DH_STATE_FINISHED
 };
 
 enum ssh_pending_call_e {
@@ -85,139 +85,140 @@ enum ssh_pending_call_e {
 
 /* members that are common to ssh_session and ssh_bind */
 struct ssh_common_struct {
-    struct error_struct error;
-    ssh_callbacks callbacks; /* Callbacks to user functions */
-    int log_verbosity; /* verbosity of the log functions */
+	struct error_struct error;
+	ssh_callbacks callbacks; /* Callbacks to user functions */
+	int log_verbosity; /* verbosity of the log functions */
 };
 
 struct ssh_session_struct {
-    struct ssh_common_struct common;
-    struct ssh_socket_struct *socket;
-    char *serverbanner;
-    char *clientbanner;
-    int protoversion;
-    int server;
-    int client;
-    int openssh;
-    uint32_t send_seq;
-    uint32_t recv_seq;
-    struct ssh_timestamp last_rekey_time;
+	struct ssh_common_struct common;
+	struct ssh_socket_struct * socket;
+	char * serverbanner;
+	char * clientbanner;
+	int protoversion;
+	int server;
+	int client;
+	int openssh;
+	uint32_t send_seq;
+	uint32_t recv_seq;
+	struct ssh_timestamp last_rekey_time;
 
-    int connected;
-    /* !=0 when the user got a session handle */
-    int alive;
-    /* two previous are deprecated */
-    /* int auth_service_asked; */
+	int connected;
+	/* !=0 when the user got a session handle */
+	int alive;
+	/* two previous are deprecated */
+	/* int auth_service_asked; */
 
-    /* session flags (SSH_SESSION_FLAG_*) */
-    int flags;
+	/* session flags (SSH_SESSION_FLAG_*) */
+	int flags;
 
-    /* Extensions negotiated using RFC 8308 */
-    uint32_t extensions;
+	/* Extensions negotiated using RFC 8308 */
+	uint32_t extensions;
 
-    ssh_string banner; /* that's the issue banner from
-                       the server */
-    char *discon_msg; /* disconnect message from
-                         the remote host */
-    ssh_buffer in_buffer;
-    PACKET in_packet;
-    ssh_buffer out_buffer;
-    struct ssh_list *out_queue; /* This list is used for delaying packets
-                                   when rekeying is required */
+	ssh_string banner; /* that's the issue banner from
+	                      the server */
+	char * discon_msg; /* disconnect message from
+	                      the remote host */
+	ssh_buffer in_buffer;
+	PACKET in_packet;
+	ssh_buffer out_buffer;
+	struct ssh_list * out_queue; /* This list is used for delaying packets
+	                                when rekeying is required */
 
-    /* the states are used by the nonblocking stuff to remember */
-    /* where it was before being interrupted */
-    enum ssh_pending_call_e pending_call_state;
-    enum ssh_session_state_e session_state;
-    enum ssh_packet_state_e packet_state;
-    enum ssh_dh_state_e dh_handshake_state;
-    enum ssh_channel_request_state_e global_req_state;
-    struct ssh_agent_state_struct *agent_state;
+	/* the states are used by the nonblocking stuff to remember */
+	/* where it was before being interrupted */
+	enum ssh_pending_call_e pending_call_state;
+	enum ssh_session_state_e session_state;
+	enum ssh_packet_state_e packet_state;
+	enum ssh_dh_state_e dh_handshake_state;
+	enum ssh_channel_request_state_e global_req_state;
+	struct ssh_agent_state_struct * agent_state;
 
-    struct {
-        struct ssh_auth_auto_state_struct *auto_state;
-        enum ssh_auth_service_state_e service_state;
-        enum ssh_auth_state_e state;
-        uint32_t supported_methods;
-        uint32_t current_method;
-    } auth;
+	struct {
+		struct ssh_auth_auto_state_struct * auto_state;
+		enum ssh_auth_service_state_e service_state;
+		enum ssh_auth_state_e state;
+		uint32_t supported_methods;
+		uint32_t current_method;
+	} auth;
 
-    /*
-     * RFC 4253, 7.1: if the first_kex_packet_follows flag was set in
-     * the received SSH_MSG_KEXINIT, but the guess was wrong, this
-     * field will be set such that the following guessed packet will
-     * be ignored.  Once that packet has been received and ignored,
-     * this field is cleared.
-     */
-    int first_kex_follows_guess_wrong;
+	/*
+	 * RFC 4253, 7.1: if the first_kex_packet_follows flag was set in
+	 * the received SSH_MSG_KEXINIT, but the guess was wrong, this
+	 * field will be set such that the following guessed packet will
+	 * be ignored.  Once that packet has been received and ignored,
+	 * this field is cleared.
+	 */
+	int first_kex_follows_guess_wrong;
 
-    ssh_buffer in_hashbuf;
-    ssh_buffer out_hashbuf;
-    struct ssh_crypto_struct *current_crypto;
-    struct ssh_crypto_struct *next_crypto; /* next_crypto is going to be used after a SSH2_MSG_NEWKEYS */
-    struct ssh_list *channels; /* linked list of channels */
-    int maxchannel;
-    ssh_agent agent; /* ssh agent */
+	ssh_buffer in_hashbuf;
+	ssh_buffer out_hashbuf;
+	struct ssh_crypto_struct * current_crypto;
+	struct ssh_crypto_struct * next_crypto; /* next_crypto is going to be used after a SSH2_MSG_NEWKEYS */
+	struct ssh_list * channels; /* linked list of channels */
+	int maxchannel;
+	ssh_agent agent; /* ssh agent */
 /* keyb interactive data */
-    struct ssh_kbdint_struct *kbdint;
-    struct ssh_gssapi_struct *gssapi;
+	struct ssh_kbdint_struct * kbdint;
+	struct ssh_gssapi_struct * gssapi;
 
-    /* server host keys */
-    struct {
-        ssh_key rsa_key;
-        ssh_key dsa_key;
-        ssh_key ecdsa_key;
-        ssh_key ed25519_key;
-        /* The type of host key wanted by client */
-        enum ssh_keytypes_e hostkey;
-        enum ssh_digest_e hostkey_digest;
-    } srv;
+	/* server host keys */
+	struct {
+		ssh_key rsa_key;
+		ssh_key dsa_key;
+		ssh_key ecdsa_key;
+		ssh_key ed25519_key;
+		/* The type of host key wanted by client */
+		enum ssh_keytypes_e hostkey;
+		enum ssh_digest_e hostkey_digest;
+	} srv;
 
-    /* auths accepted by server */
-    struct ssh_list *ssh_message_list; /* list of delayed SSH messages */
-    int (*ssh_message_callback)( struct ssh_session_struct *session, ssh_message msg, void *userdata);
-    void *ssh_message_callback_data;
-    ssh_server_callbacks server_callbacks;
-    void (*ssh_connection_callback)( struct ssh_session_struct *session);
-    struct ssh_packet_callbacks_struct default_packet_callbacks;
-    struct ssh_list *packet_callbacks;
-    struct ssh_socket_callbacks_struct socket_callbacks;
-    ssh_poll_ctx default_poll_ctx;
-    /* options */
+	/* auths accepted by server */
+	struct ssh_list * ssh_message_list; /* list of delayed SSH messages */
+	int (* ssh_message_callback)(struct ssh_session_struct * session, ssh_message msg, void * userdata);
+	void * ssh_message_callback_data;
+	ssh_server_callbacks server_callbacks;
+	void (* ssh_connection_callback)(struct ssh_session_struct * session);
+	struct ssh_packet_callbacks_struct default_packet_callbacks;
+	struct ssh_list * packet_callbacks;
+	struct ssh_socket_callbacks_struct socket_callbacks;
+	ssh_poll_ctx default_poll_ctx;
+	/* options */
 #ifdef WITH_PCAP
-    ssh_pcap_context pcap_ctx; /* pcap debugging context */
+	ssh_pcap_context pcap_ctx; /* pcap debugging context */
 #endif
-    struct {
-        struct ssh_list *identity;
-        char *username;
-        char *host;
-        char *bindaddr; /* bind the client to an ip addr */
-        char *sshdir;
-        char *knownhosts;
-        char *global_knownhosts;
-        char *wanted_methods[SSH_KEX_METHODS];
-        char *pubkey_accepted_types;
-        char *ProxyCommand;
-        char *custombanner;
-        ulong timeout; /* seconds */
-        ulong timeout_usec;
-        uint port;
-        socket_t fd;
-        int StrictHostKeyChecking;
-        char compressionlevel;
-        char *gss_server_identity;
-        char *gss_client_identity;
-        int gss_delegate_creds;
-        int flags;
-        int nodelay;
-        bool config_processed;
-        uint8 options_seen[SOC_MAX];
-        uint64_t rekey_data;
-        uint32_t rekey_time;
-    } opts;
-    /* counters */
-    ssh_counter socket_counter;
-    ssh_counter raw_counter;
+	struct {
+		struct ssh_list * identity;
+		char * username;
+		char * host;
+		char * bindaddr; /* bind the client to an ip addr */
+		char * sshdir;
+		char * knownhosts;
+		char * global_knownhosts;
+		char * wanted_methods[SSH_KEX_METHODS];
+		char * pubkey_accepted_types;
+		char * ProxyCommand;
+		char * custombanner;
+		ulong timeout; /* seconds */
+		ulong timeout_usec;
+		uint port;
+		socket_t fd;
+		int StrictHostKeyChecking;
+		char compressionlevel;
+		char * gss_server_identity;
+		char * gss_client_identity;
+		int gss_delegate_creds;
+		int flags;
+		int nodelay;
+		bool config_processed;
+		uint8 options_seen[SOC_MAX];
+		uint64_t rekey_data;
+		uint32_t rekey_time;
+	} opts;
+
+	/* counters */
+	ssh_counter socket_counter;
+	ssh_counter raw_counter;
 };
 
 /** @internal
@@ -225,12 +226,9 @@ struct ssh_session_struct {
  * @param user[in] object to evaluate
  * @returns 1 if the polling routine should terminate, 0 instead
  */
-typedef int (*ssh_termination_function)(void *user);
+typedef int (* ssh_termination_function)(void * user);
 int ssh_handle_packets(ssh_session session, int timeout);
-int ssh_handle_packets_termination(ssh_session session,
-                                   long timeout,
-                                   ssh_termination_function fct,
-                                   void *user);
-void ssh_socket_exception_callback(int code, int errno_code, void *user);
+int ssh_handle_packets_termination(ssh_session session, long timeout, ssh_termination_function fct, void * user);
+void ssh_socket_exception_callback(int code, int errno_code, void * user);
 
 #endif /* SESSION_H_ */

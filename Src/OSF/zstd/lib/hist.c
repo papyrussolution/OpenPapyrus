@@ -28,8 +28,8 @@ uint HIST_isError(size_t code) { return ERR_isError(code); }
 ****************************************************************/
 uint HIST_count_simple(uint * count, uint * maxSymbolValuePtr, const void * src, size_t srcSize)
 {
-	const BYTE* ip = (const BYTE*)src;
-	const BYTE* const end = ip + srcSize;
+	const BYTE * ip = (const BYTE *)src;
+	const BYTE * const end = ip + srcSize;
 	uint maxSymbolValue = *maxSymbolValuePtr;
 	uint largestCount = 0;
 	memzero(count, (maxSymbolValue+1) * sizeof(*count));
@@ -61,13 +61,13 @@ typedef enum { trustInput, checkMaxSymbolValue } HIST_checkInput_e;
  * `workSpace` must be a uint32 table of size >= HIST_WKSP_SIZE_U32.
  * @return : largest histogram frequency,
  *           or an error code (notably when histogram's alphabet is larger than *maxSymbolValuePtr) */
-static size_t HIST_count_parallel_wksp(unsigned* count, unsigned* maxSymbolValuePtr,
+static size_t HIST_count_parallel_wksp(uint * count, uint * maxSymbolValuePtr,
     const void * source, size_t sourceSize, HIST_checkInput_e check, uint32* const workSpace)
 {
-	const BYTE* ip = (const BYTE*)source;
-	const BYTE* const iend = ip+sourceSize;
+	const BYTE * ip = (const BYTE *)source;
+	const BYTE * const iend = ip+sourceSize;
 	const size_t countSize = (*maxSymbolValuePtr + 1) * sizeof(*count);
-	unsigned max = 0;
+	uint max = 0;
 	uint32* const Counting1 = workSpace;
 	uint32* const Counting2 = Counting1 + 256;
 	uint32* const Counting3 = Counting2 + 256;
@@ -113,15 +113,13 @@ static size_t HIST_count_parallel_wksp(unsigned* count, unsigned* maxSymbolValue
 	while(ip<iend) 
 		Counting1[*ip++]++;
 	{	
-		uint32 s;
-	    for(s = 0; s<256; s++) {
+	    for(uint32 s = 0; s<256; s++) {
 		    Counting1[s] += Counting2[s] + Counting3[s] + Counting4[s];
 		    if(Counting1[s] > max) max = Counting1[s];
 	    }
 	}
-
 	{   
-		unsigned maxSymbolValue = 255;
+		uint maxSymbolValue = 255;
 	    while(!Counting1[maxSymbolValue]) maxSymbolValue--;
 	    if(check && maxSymbolValue > *maxSymbolValuePtr) return ERROR(maxSymbolValue_tooSmall);
 	    *maxSymbolValuePtr = maxSymbolValue;
@@ -135,7 +133,7 @@ static size_t HIST_count_parallel_wksp(unsigned* count, unsigned* maxSymbolValue
  * `workSpace` is a writable buffer which must be 4-bytes aligned,
  * `workSpaceSize` must be >= HIST_WKSP_SIZE
  */
-size_t HIST_countFast_wksp(unsigned* count, unsigned* maxSymbolValuePtr, const void * source, size_t sourceSize, void * workSpace, size_t workSpaceSize)
+size_t HIST_countFast_wksp(uint * count, uint * maxSymbolValuePtr, const void * source, size_t sourceSize, void * workSpace, size_t workSpaceSize)
 {
 	if(sourceSize < 1500) /* heuristic threshold */
 		return HIST_count_simple(count, maxSymbolValuePtr, source, sourceSize);
@@ -147,7 +145,7 @@ size_t HIST_countFast_wksp(unsigned* count, unsigned* maxSymbolValuePtr, const v
 /* HIST_count_wksp() :
  * Same as HIST_count(), but using an externally provided scratch buffer.
  * `workSpace` size must be table of >= HIST_WKSP_SIZE_U32 unsigned */
-size_t HIST_count_wksp(unsigned* count, unsigned* maxSymbolValuePtr, const void * source, size_t sourceSize, void * workSpace, size_t workSpaceSize)
+size_t HIST_count_wksp(uint * count, uint * maxSymbolValuePtr, const void * source, size_t sourceSize, void * workSpace, size_t workSpaceSize)
 {
 	if((size_t)workSpace & 3) return ERROR(GENERIC); /* must be aligned on 4-bytes boundaries */
 	if(workSpaceSize < HIST_WKSP_SIZE) return ERROR(workSpace_tooSmall);
@@ -159,15 +157,15 @@ size_t HIST_count_wksp(unsigned* count, unsigned* maxSymbolValuePtr, const void 
 
 #ifndef ZSTD_NO_UNUSED_FUNCTIONS
 /* fast variant (unsafe : won't check if src contains values beyond count[] limit) */
-size_t HIST_countFast(unsigned* count, unsigned* maxSymbolValuePtr, const void * source, size_t sourceSize)
+size_t HIST_countFast(uint * count, uint * maxSymbolValuePtr, const void * source, size_t sourceSize)
 {
-	unsigned tmpCounters[HIST_WKSP_SIZE_U32];
+	uint tmpCounters[HIST_WKSP_SIZE_U32];
 	return HIST_countFast_wksp(count, maxSymbolValuePtr, source, sourceSize, tmpCounters, sizeof(tmpCounters));
 }
 
-size_t HIST_count(unsigned* count, unsigned* maxSymbolValuePtr, const void * src, size_t srcSize)
+size_t HIST_count(uint * count, uint * maxSymbolValuePtr, const void * src, size_t srcSize)
 {
-	unsigned tmpCounters[HIST_WKSP_SIZE_U32];
+	uint tmpCounters[HIST_WKSP_SIZE_U32];
 	return HIST_count_wksp(count, maxSymbolValuePtr, src, srcSize, tmpCounters, sizeof(tmpCounters));
 }
 

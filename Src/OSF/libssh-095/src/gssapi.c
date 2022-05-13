@@ -571,7 +571,7 @@ ssh_gssapi_creds ssh_gssapi_get_creds(ssh_session session){
  */
 void ssh_gssapi_set_creds(ssh_session session, const ssh_gssapi_creds creds)
 {
-	if(session == NULL) {
+	if(!session) {
 		return;
 	}
 	if(session->gssapi == NULL) {

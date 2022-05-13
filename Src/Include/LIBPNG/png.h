@@ -2429,16 +2429,16 @@ PNG_EXPORT(207, void, png_save_uint_16, (png_bytep buf, unsigned int i));
  * but defining a macro name prefixed with PNG_PREFIX.
  */
 #ifndef PNG_PREFIX
-#     define png_get_uint_32(buf) PNG_get_uint_32(buf)
-#     define png_get_uint_16(buf) PNG_get_uint_16(buf)
-#     define png_get_int_32(buf)  PNG_get_int_32(buf)
+#define png_get_uint_32(buf) PNG_get_uint_32(buf)
+#define png_get_uint_16(buf) PNG_get_uint_16(buf)
+#define png_get_int_32(buf)  PNG_get_int_32(buf)
 #endif
 #else
 #ifdef PNG_PREFIX
 /* No macros; revert to the (redefined) function */
-#     define PNG_get_uint_32 (png_get_uint_32)
-#     define PNG_get_uint_16 (png_get_uint_16)
-#     define PNG_get_int_32  (png_get_int_32)
+#define PNG_get_uint_32 (png_get_uint_32)
+#define PNG_get_uint_16 (png_get_uint_16)
+#define PNG_get_int_32  (png_get_int_32)
 #endif
 #endif
 

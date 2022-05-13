@@ -22,7 +22,7 @@ extern "C" {
 #ifndef ZSTDERRORLIB_VISIBILITY
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 #define ZSTDERRORLIB_VISIBILITY __attribute__ ((visibility("default")))
-#  else
+#else
 #define ZSTDERRORLIB_VISIBILITY
 #endif
 #endif

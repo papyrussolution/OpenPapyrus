@@ -1838,7 +1838,7 @@ int SRegion::AddFrame(const TRect & rR, uint halfThick, int combine)
 	TRect  nrc = rR;
 	nrc.Normalize();
 	int    r = nrc.IsDegenerated();
-	if(r != 0) {
+	if(r) {
 		(rc = nrc).grow(halfThick, halfThick);
 		THROW(Add(rc, combine));
 	}

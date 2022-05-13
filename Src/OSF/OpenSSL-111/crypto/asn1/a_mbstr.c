@@ -147,7 +147,7 @@ int ASN1_mbstring_ncopy(ASN1_STRING ** out, const uchar * in, int len,
 	else {
 		free_out = 1;
 		dest = ASN1_STRING_type_new(str_type);
-		if(dest == NULL) {
+		if(!dest) {
 			ASN1err(ASN1_F_ASN1_MBSTRING_NCOPY, ERR_R_MALLOC_FAILURE);
 			return -1;
 		}

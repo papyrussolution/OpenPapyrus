@@ -17,7 +17,7 @@ int i2a_ASN1_STRING(BIO * bp, const ASN1_STRING * a, int type)
 	int i, n = 0;
 	static const char * h = "0123456789ABCDEF";
 	char buf[2];
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	if(a->length == 0) {

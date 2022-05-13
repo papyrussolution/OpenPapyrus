@@ -602,7 +602,7 @@ EC_GROUP * EC_GROUP_new_from_ecparameters(const ECPARAMETERS * params)
 		goto err;
 	}
 	a = BN_bin2bn(params->curve->a->data, params->curve->a->length, NULL);
-	if(a == NULL) {
+	if(!a) {
 		ECerr(EC_F_EC_GROUP_NEW_FROM_ECPARAMETERS, ERR_R_BN_LIB);
 		goto err;
 	}
@@ -1123,7 +1123,7 @@ err:
 
 int i2d_ECParameters(EC_KEY * a, uchar ** out)
 {
-	if(a == NULL) {
+	if(!a) {
 		ECerr(EC_F_I2D_ECPARAMETERS, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -1186,7 +1186,7 @@ int i2o_ECPublicKey(const EC_KEY * a, uchar ** out)
 	size_t buf_len = 0;
 	int new_buffer = 0;
 
-	if(a == NULL) {
+	if(!a) {
 		ECerr(EC_F_I2O_ECPUBLICKEY, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}

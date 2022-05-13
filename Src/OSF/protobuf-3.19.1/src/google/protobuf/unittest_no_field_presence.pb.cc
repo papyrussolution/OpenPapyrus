@@ -344,7 +344,7 @@ TestAllTypes_NestedMessage::TestAllTypes_NestedMessage(::PROTOBUF_NAMESPACE_ID::
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage)
@@ -362,7 +362,7 @@ bb_ = 0;
 
 TestAllTypes_NestedMessage::~TestAllTypes_NestedMessage() {
   // @@protoc_insertion_point(destructor:proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -392,8 +392,8 @@ void TestAllTypes_NestedMessage::Clear() {
 }
 
 const char* TestAllTypes_NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -405,8 +405,7 @@ const char* TestAllTypes_NestedMessage::_InternalParse(const char* ptr, ::PROTOB
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -553,12 +552,10 @@ void TestAllTypes::clear_repeated_proto2_message() {
 void TestAllTypes::set_allocated_oneof_nested_message(::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* oneof_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_oneof_field();
-  if (oneof_nested_message) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-      ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage>::GetOwningArena(oneof_nested_message);
-    if (message_arena != submessage_arena) {
-      oneof_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, oneof_nested_message, submessage_arena);
+  if(oneof_nested_message) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage>::GetOwningArena(oneof_nested_message);
+    if(message_arena != submessage_arena) {
+      oneof_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, oneof_nested_message, submessage_arena);
     }
     set_has_oneof_nested_message();
     oneof_field_.oneof_nested_message_ = oneof_nested_message;
@@ -592,7 +589,7 @@ TestAllTypes::TestAllTypes(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   repeated_cord_(arena),
   repeated_lazy_message_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_nofieldpresence_unittest.TestAllTypes)
@@ -675,7 +672,7 @@ TestAllTypes::TestAllTypes(const TestAllTypes& from)
     static_cast<size_t>(reinterpret_cast<char*>(&optional_foreign_enum_) -
     reinterpret_cast<char*>(&optional_int64_)) + sizeof(optional_foreign_enum_));
   clear_has_oneof_field();
-  switch (from.oneof_field_case()) {
+  switch(from.oneof_field_case()) {
     case kOneofUint32: {
       _internal_set_oneof_uint32(from._internal_oneof_uint32());
       break;
@@ -725,7 +722,7 @@ clear_has_oneof_field();
 
 TestAllTypes::~TestAllTypes() {
   // @@protoc_insertion_point(destructor:proto2_nofieldpresence_unittest.TestAllTypes)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -757,7 +754,7 @@ void TestAllTypes::SetCachedSize(int size) const {
 
 void TestAllTypes::clear_oneof_field() {
 // @@protoc_insertion_point(one_of_clear_start:proto2_nofieldpresence_unittest.TestAllTypes)
-  switch (oneof_field_case()) {
+  switch(oneof_field_case()) {
     case kOneofUint32: {
       // No need to clear
       break;
@@ -841,8 +838,8 @@ void TestAllTypes::Clear() {
 }
 
 const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1044,7 +1041,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 250)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_repeated_int32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 248) {
+        } else if(static_cast<uint8_t>(tag) == 248) {
           _internal_add_repeated_int32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
@@ -1055,7 +1052,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 2)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt64Parser(_internal_mutable_repeated_int64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 0) {
+        } else if(static_cast<uint8_t>(tag) == 0) {
           _internal_add_repeated_int64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
@@ -1066,7 +1063,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_repeated_uint32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 8) {
+        } else if(static_cast<uint8_t>(tag) == 8) {
           _internal_add_repeated_uint32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
@@ -1077,7 +1074,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_repeated_uint64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 16) {
+        } else if(static_cast<uint8_t>(tag) == 16) {
           _internal_add_repeated_uint64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
@@ -1088,7 +1085,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt32Parser(_internal_mutable_repeated_sint32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 24) {
+        } else if(static_cast<uint8_t>(tag) == 24) {
           _internal_add_repeated_sint32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr));
           CHK_(ptr);
         } else
@@ -1099,7 +1096,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt64Parser(_internal_mutable_repeated_sint64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 32) {
+        } else if(static_cast<uint8_t>(tag) == 32) {
           _internal_add_repeated_sint64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr));
           CHK_(ptr);
         } else
@@ -1110,7 +1107,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 42)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFixed32Parser(_internal_mutable_repeated_fixed32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 45) {
+        } else if(static_cast<uint8_t>(tag) == 45) {
           _internal_add_repeated_fixed32(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<uint32_t>(ptr));
           ptr += sizeof(uint32_t);
         } else
@@ -1121,7 +1118,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 50)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFixed64Parser(_internal_mutable_repeated_fixed64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 49) {
+        } else if(static_cast<uint8_t>(tag) == 49) {
           _internal_add_repeated_fixed64(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<uint64_t>(ptr));
           ptr += sizeof(uint64_t);
         } else
@@ -1132,7 +1129,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 58)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSFixed32Parser(_internal_mutable_repeated_sfixed32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 61) {
+        } else if(static_cast<uint8_t>(tag) == 61) {
           _internal_add_repeated_sfixed32(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<int32_t>(ptr));
           ptr += sizeof(int32_t);
         } else
@@ -1143,7 +1140,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 66)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSFixed64Parser(_internal_mutable_repeated_sfixed64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 65) {
+        } else if(static_cast<uint8_t>(tag) == 65) {
           _internal_add_repeated_sfixed64(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<int64_t>(ptr));
           ptr += sizeof(int64_t);
         } else
@@ -1154,7 +1151,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 74)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_repeated_float(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 77) {
+        } else if(static_cast<uint8_t>(tag) == 77) {
           _internal_add_repeated_float(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
           ptr += sizeof(float);
         } else
@@ -1165,7 +1162,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 82)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_repeated_double(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 81) {
+        } else if(static_cast<uint8_t>(tag) == 81) {
           _internal_add_repeated_double(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
           ptr += sizeof(double);
         } else
@@ -1176,7 +1173,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 90)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedBoolParser(_internal_mutable_repeated_bool(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 88) {
+        } else if(static_cast<uint8_t>(tag) == 88) {
           _internal_add_repeated_bool(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
@@ -1192,8 +1189,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto2_nofieldpresence_unittest.TestAllTypes.repeated_string"));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<354>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<354>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1206,8 +1203,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             auto str = _internal_add_repeated_bytes();
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<362>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<362>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1219,8 +1216,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr += 2;
             ptr = ctx->ParseMessage(_internal_add_repeated_nested_message(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<386>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<386>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1232,8 +1229,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr += 2;
             ptr = ctx->ParseMessage(_internal_add_repeated_foreign_message(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<394>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<394>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1245,8 +1242,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr += 2;
             ptr = ctx->ParseMessage(_internal_add_repeated_proto2_message(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<402>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<402>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1255,7 +1252,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser(_internal_mutable_repeated_nested_enum(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 152) {
+        } else if(static_cast<uint8_t>(tag) == 152) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_add_repeated_nested_enum(static_cast<::proto2_nofieldpresence_unittest::TestAllTypes_NestedEnum>(val));
@@ -1267,7 +1264,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 162)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser(_internal_mutable_repeated_foreign_enum(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 160) {
+        } else if(static_cast<uint8_t>(tag) == 160) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           _internal_add_repeated_foreign_enum(static_cast<::proto2_nofieldpresence_unittest::ForeignEnum>(val));
@@ -1284,8 +1281,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto2_nofieldpresence_unittest.TestAllTypes.repeated_string_piece"));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<434>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<434>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1299,8 +1296,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto2_nofieldpresence_unittest.TestAllTypes.repeated_cord"));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<442>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<442>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1312,8 +1309,8 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
             ptr += 2;
             ptr = ctx->ParseMessage(_internal_add_repeated_lazy_message(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<458>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<458>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1352,8 +1349,7 @@ const char* TestAllTypes::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1484,25 +1480,19 @@ uint8_t* TestAllTypes::_InternalSerialize(
   // .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage optional_nested_message = 18;
   if(this->_internal_has_optional_nested_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        18, _Internal::optional_nested_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(18, _Internal::optional_nested_message(this), target, stream);
   }
 
   // .proto2_nofieldpresence_unittest.ForeignMessage optional_foreign_message = 19;
   if(this->_internal_has_optional_foreign_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        19, _Internal::optional_foreign_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(19, _Internal::optional_foreign_message(this), target, stream);
   }
 
   // .protobuf_unittest.TestAllTypes optional_proto2_message = 20;
   if(this->_internal_has_optional_proto2_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        20, _Internal::optional_proto2_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(20, _Internal::optional_proto2_message(this), target, stream);
   }
 
   // .proto2_nofieldpresence_unittest.TestAllTypes.NestedEnum optional_nested_enum = 21;
@@ -1538,9 +1528,7 @@ uint8_t* TestAllTypes::_InternalSerialize(
   // .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage optional_lazy_message = 30 [lazy = true];
   if(this->_internal_has_optional_lazy_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        30, _Internal::optional_lazy_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(30, _Internal::optional_lazy_message(this), target, stream);
   }
 
   // repeated int32 repeated_int32 = 31;
@@ -1643,44 +1631,36 @@ uint8_t* TestAllTypes::_InternalSerialize(
   }
 
   // repeated .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage repeated_nested_message = 48;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_nested_message_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_nested_message_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(48, this->_internal_repeated_nested_message(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(48, this->_internal_repeated_nested_message(i), target, stream);
   }
 
   // repeated .proto2_nofieldpresence_unittest.ForeignMessage repeated_foreign_message = 49;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_foreign_message_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_foreign_message_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(49, this->_internal_repeated_foreign_message(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(49, this->_internal_repeated_foreign_message(i), target, stream);
   }
 
   // repeated .protobuf_unittest.TestAllTypes repeated_proto2_message = 50;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_proto2_message_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_proto2_message_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(50, this->_internal_repeated_proto2_message(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(50, this->_internal_repeated_proto2_message(i), target, stream);
   }
 
   // repeated .proto2_nofieldpresence_unittest.TestAllTypes.NestedEnum repeated_nested_enum = 51;
   {
     int byte_size = _repeated_nested_enum_cached_byte_size_.load(std::memory_order_relaxed);
-    if (byte_size > 0) {
-      target = stream->WriteEnumPacked(
-          51, repeated_nested_enum_, byte_size, target);
+    if(byte_size > 0) {
+      target = stream->WriteEnumPacked(51, repeated_nested_enum_, byte_size, target);
     }
   }
 
   // repeated .proto2_nofieldpresence_unittest.ForeignEnum repeated_foreign_enum = 52;
   {
     int byte_size = _repeated_foreign_enum_cached_byte_size_.load(std::memory_order_relaxed);
-    if (byte_size > 0) {
-      target = stream->WriteEnumPacked(
-          52, repeated_foreign_enum_, byte_size, target);
+    if(byte_size > 0) {
+      target = stream->WriteEnumPacked(52, repeated_foreign_enum_, byte_size, target);
     }
   }
 
@@ -1705,11 +1685,9 @@ uint8_t* TestAllTypes::_InternalSerialize(
   }
 
   // repeated .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage repeated_lazy_message = 57 [lazy = true];
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_lazy_message_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_lazy_message_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(57, this->_internal_repeated_lazy_message(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(57, this->_internal_repeated_lazy_message(i), target, stream);
   }
 
   // uint32 oneof_uint32 = 111;
@@ -1721,9 +1699,7 @@ uint8_t* TestAllTypes::_InternalSerialize(
   // .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage oneof_nested_message = 112;
   if(_internal_has_oneof_nested_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        112, _Internal::oneof_nested_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(112, _Internal::oneof_nested_message(this), target, stream);
   }
 
   // string oneof_string = 113;
@@ -1991,30 +1967,22 @@ size_t TestAllTypes::ByteSizeLong() const {
 
   // .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage optional_nested_message = 18;
   if(this->_internal_has_optional_nested_message()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *optional_nested_message_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_nested_message_);
   }
 
   // .proto2_nofieldpresence_unittest.ForeignMessage optional_foreign_message = 19;
   if(this->_internal_has_optional_foreign_message()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *optional_foreign_message_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_foreign_message_);
   }
 
   // .protobuf_unittest.TestAllTypes optional_proto2_message = 20;
   if(this->_internal_has_optional_proto2_message()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *optional_proto2_message_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_proto2_message_);
   }
 
   // .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage optional_lazy_message = 30 [lazy = true];
   if(this->_internal_has_optional_lazy_message()) {
-    total_size += 2 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *optional_lazy_message_);
+    total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_lazy_message_);
   }
 
   // int64 optional_int64 = 2;
@@ -2110,9 +2078,7 @@ size_t TestAllTypes::ByteSizeLong() const {
     }
     // .proto2_nofieldpresence_unittest.TestAllTypes.NestedMessage oneof_nested_message = 112;
     case kOneofNestedMessage: {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *oneof_field_.oneof_nested_message_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*oneof_field_.oneof_nested_message_);
       break;
     }
     // string oneof_string = 113;
@@ -2250,7 +2216,7 @@ void TestAllTypes::MergeFrom(const TestAllTypes& from) {
   if(from._internal_optional_foreign_enum() != 0) {
     _internal_set_optional_foreign_enum(from._internal_optional_foreign_enum());
   }
-  switch (from.oneof_field_case()) {
+  switch(from.oneof_field_case()) {
     case kOneofUint32: {
       _internal_set_oneof_uint32(from._internal_oneof_uint32());
       break;
@@ -2368,7 +2334,7 @@ TestProto2Required::TestProto2Required(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_nofieldpresence_unittest.TestProto2Required)
@@ -2390,7 +2356,7 @@ proto2_ = nullptr;
 
 TestProto2Required::~TestProto2Required() {
   // @@protoc_insertion_point(destructor:proto2_nofieldpresence_unittest.TestProto2Required)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2424,8 +2390,8 @@ void TestProto2Required::Clear() {
 }
 
 const char* TestProto2Required::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2437,8 +2403,7 @@ const char* TestProto2Required::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2469,9 +2434,7 @@ uint8_t* TestProto2Required::_InternalSerialize(
   // .protobuf_unittest.TestRequired proto2 = 1;
   if(this->_internal_has_proto2()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::proto2(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::proto2(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2492,9 +2455,7 @@ size_t TestProto2Required::ByteSizeLong() const {
 
   // .protobuf_unittest.TestRequired proto2 = 1;
   if(this->_internal_has_proto2()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *proto2_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*proto2_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -2534,7 +2495,7 @@ void TestProto2Required::CopyFrom(const TestProto2Required& from) {
 
 bool TestProto2Required::IsInitialized() const {
   if(_internal_has_proto2()) {
-    if (!proto2_->IsInitialized()) return false;
+    if(!proto2_->IsInitialized()) return false;
   }
   return true;
 }
@@ -2559,7 +2520,7 @@ ForeignMessage::ForeignMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_nofieldpresence_unittest.ForeignMessage)
@@ -2577,7 +2538,7 @@ c_ = 0;
 
 ForeignMessage::~ForeignMessage() {
   // @@protoc_insertion_point(destructor:proto2_nofieldpresence_unittest.ForeignMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2607,8 +2568,8 @@ void ForeignMessage::Clear() {
 }
 
 const char* ForeignMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2620,8 +2581,7 @@ const char* ForeignMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2728,16 +2688,16 @@ void ForeignMessage::InternalSwap(ForeignMessage* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto2_nofieldpresence_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage* Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage * Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_nofieldpresence_unittest::TestAllTypes_NestedMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::TestAllTypes* Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::TestAllTypes >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::TestAllTypes * Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::TestAllTypes >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_nofieldpresence_unittest::TestAllTypes >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::TestProto2Required* Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::TestProto2Required >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::TestProto2Required * Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::TestProto2Required >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_nofieldpresence_unittest::TestProto2Required >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::ForeignMessage* Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::ForeignMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_nofieldpresence_unittest::ForeignMessage * Arena::CreateMaybeMessage< ::proto2_nofieldpresence_unittest::ForeignMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_nofieldpresence_unittest::ForeignMessage >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

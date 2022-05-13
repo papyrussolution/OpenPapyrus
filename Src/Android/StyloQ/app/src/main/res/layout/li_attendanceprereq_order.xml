@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/orderPrereqOrderListItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    >
+    <TextView
+        android:id="@+id/CTL_DOCUMENT_DATE"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView
+        android:id="@+id/CTL_DOCUMENT_CODE"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:textColor="@color/TextPrimary"
+        />
+    <TextView
+        android:id="@+id/CTL_DOCUMENT_AMOUNT"
+        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:textColor="@color/TextPrimary"
+        />
+</LinearLayout>

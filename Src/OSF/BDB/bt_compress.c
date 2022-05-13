@@ -1366,7 +1366,7 @@ static int __bamc_compress_get_next_dup(DBC * dbc, DBT * key, uint32 flags)
 		return DB_NOTFOUND;
 	if(ret != DB_NOTFOUND)
 		return ret;
-	if(key == NULL) {
+	if(!key) {
 		/* Copy the current key to del_key */
 		if((ret = __bam_compress_set_dbt(dbp, &cp->del_key, cp->currentKey->data, cp->currentKey->size)) != 0)
 			return ret;

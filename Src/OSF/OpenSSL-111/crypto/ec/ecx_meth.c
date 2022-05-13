@@ -64,7 +64,7 @@ static int ecx_key_op(EVP_PKEY * pkey, int id, const X509_ALGOR * palg,
 	}
 
 	key = static_cast<ECX_KEY *>(OPENSSL_zalloc(sizeof(*key)));
-	if(key == NULL) {
+	if(!key) {
 		ECerr(EC_F_ECX_KEY_OP, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

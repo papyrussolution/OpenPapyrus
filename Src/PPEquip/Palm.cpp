@@ -2083,7 +2083,7 @@ static int CopyFilesToFTP(const PPStyloPalmPacket * pPack, WinInetFTP * pFtp, in
 							r = CopyFileToFtp(files_dtms[i].FileID, 0, path, ftp_path, pPack->Rec.Name, pFtp, 1, pLogger);
 							if(r < 0 && send_ok > 0)
 								send_ok = r;
-							else if(r == 0)
+							else if(!r)
 								send_ok = 0;
 							if(r <= 0)
 								files_dtms[i].P_LocalDTMS->Z();
@@ -4202,7 +4202,7 @@ private:
 			if((r = DS.GetSync().CreateMutex_(r_cfg.SessionID, PPOBJ_STYLOPALM, -1, &mutex_id, &sync_item)) < 0) {
 				THROW_PP_S(0, PPERR_PALMEXPIMPBLOCKED, sync_item.Name);
 			}
-			else if(r == 0) {
+			else if(!r) {
 				THROW_PP(0, PPERR_LOGICLOCKFAULT);
 			}
 			locked = 1;

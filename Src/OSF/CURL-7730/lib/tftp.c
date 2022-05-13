@@ -1242,7 +1242,7 @@ static CURLcode tftp_multi_statemach(struct connectdata * conn, bool * done)
 			failf(data, "%s", Curl_strerror(error, buffer, sizeof(buffer)));
 			state->event = TFTP_EVENT_ERROR;
 		}
-		else if(rc != 0) {
+		else if(rc) {
 			result = tftp_receive_packet(conn);
 			if(result)
 				return result;

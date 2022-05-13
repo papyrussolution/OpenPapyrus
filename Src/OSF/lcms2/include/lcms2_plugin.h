@@ -28,14 +28,14 @@
 
 // Deal with Microsoft's attempt at deprecating C standard runtime functions
 #ifdef _MSC_VER
-#    if (_MSC_VER >= 1400)
+#if (_MSC_VER >= 1400)
 #ifndef _CRT_SECURE_NO_DEPRECATE
 #        define _CRT_SECURE_NO_DEPRECATE
 #endif
 #ifndef _CRT_SECURE_NO_WARNINGS
 #        define _CRT_SECURE_NO_WARNINGS
 #endif
-#    endif
+#endif
 #endif
 
 #ifndef _lcms2_H
@@ -120,25 +120,25 @@ struct _cms_io_handler {
 };
 
 // Endianness adjust functions
-CMSAPI uint16 CMSEXPORT  _cmsAdjustEndianess16(uint16 Word);
-CMSAPI uint32 CMSEXPORT  _cmsAdjustEndianess32(uint32 Value);
-CMSAPI void CMSEXPORT  _cmsAdjustEndianess64(uint64* Result, uint64* QWord);
+CMSAPI uint16 /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess16(uint16 Word);
+CMSAPI uint32 /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess32(uint32 Value);
+CMSAPI void /*CMSEXPORT*/FASTCALL _cmsAdjustEndianess64(uint64* Result, uint64* QWord);
 
 // Helper IO functions
-CMSAPI boolint CMSEXPORT  _cmsReadUInt8Number(cmsIOHANDLER* io,  uint8 * n);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt16Number(cmsIOHANDLER* io, uint16* n);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt32Number(cmsIOHANDLER* io, uint32* n);
-CMSAPI boolint CMSEXPORT  _cmsReadFloat32Number(cmsIOHANDLER* io, float* n);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt64Number(cmsIOHANDLER* io, uint64* n);
-CMSAPI boolint CMSEXPORT  _cmsRead15Fixed16Number(cmsIOHANDLER* io, double * n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt8Number(cmsIOHANDLER* io,  uint8 * n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt16Number(cmsIOHANDLER* io, uint16* n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt32Number(cmsIOHANDLER* io, uint32* n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadFloat32Number(cmsIOHANDLER* io, float* n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsReadUInt64Number(cmsIOHANDLER* io, uint64* n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsRead15Fixed16Number(cmsIOHANDLER* io, double * n);
 CMSAPI boolint CMSEXPORT  _cmsReadXYZNumber(cmsIOHANDLER* io, cmsCIEXYZ* XYZ);
-CMSAPI boolint CMSEXPORT  _cmsReadUInt16Array(cmsIOHANDLER* io, uint32 n, uint16* Array);
-CMSAPI boolint CMSEXPORT  _cmsWriteUInt8Number(cmsIOHANDLER* io, uint8 n);
-CMSAPI boolint CMSEXPORT  _cmsWriteUInt16Number(cmsIOHANDLER* io, uint16 n);
-CMSAPI boolint CMSEXPORT  _cmsWriteUInt32Number(cmsIOHANDLER* io, uint32 n);
+CMSAPI boolint /*CMSEXPORT*/STDCALL _cmsReadUInt16Array(cmsIOHANDLER* io, uint32 n, uint16* Array);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsWriteUInt8Number(cmsIOHANDLER* io, uint8 n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsWriteUInt16Number(cmsIOHANDLER* io, uint16 n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsWriteUInt32Number(cmsIOHANDLER* io, uint32 n);
 CMSAPI boolint CMSEXPORT  _cmsWriteFloat32Number(cmsIOHANDLER* io, float n);
 CMSAPI boolint CMSEXPORT  _cmsWriteUInt64Number(cmsIOHANDLER* io, uint64* n);
-CMSAPI boolint CMSEXPORT  _cmsWrite15Fixed16Number(cmsIOHANDLER* io, double n);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL _cmsWrite15Fixed16Number(cmsIOHANDLER* io, double n);
 CMSAPI boolint CMSEXPORT  _cmsWriteXYZNumber(cmsIOHANDLER* io, const cmsCIEXYZ* XYZ);
 CMSAPI boolint CMSEXPORT  _cmsWriteUInt16Array(cmsIOHANDLER* io, uint32 n, const uint16* Array);
 
@@ -159,7 +159,7 @@ CMSAPI boolint CMSEXPORT _cmsIOPrintf(cmsIOHANDLER* io, const char * frm, ...);
 // Fixed point helper functions
 CMSAPI double CMSEXPORT _cms8Fixed8toDouble(uint16 fixed8);
 CMSAPI uint16 CMSEXPORT _cmsDoubleTo8Fixed8(double val);
-CMSAPI double CMSEXPORT _cms15Fixed16toDouble(cmsS15Fixed16Number fix32);
+CMSAPI double /*CMSEXPORT*/FASTCALL _cms15Fixed16toDouble(cmsS15Fixed16Number fix32);
 CMSAPI cmsS15Fixed16Number CMSEXPORT _cmsDoubleTo15Fixed16(double v);
 // Date/time helper functions
 CMSAPI void CMSEXPORT _cmsEncodeDateTimeNumber(cmsDateTimeNumber * Dest, const struct tm * Source);
@@ -504,7 +504,6 @@ typedef void (* _cmsUnlockMutexFnPtrType)(cmsContext ContextID, void * mtx);
 
 typedef struct {
 	cmsPluginBase base;
-
 	_cmsCreateMutexFnPtrType CreateMutexPtr;
 	_cmsDestroyMutexFnPtrType DestroyMutexPtr;
 	_cmsLockMutexFnPtrType LockMutexPtr;

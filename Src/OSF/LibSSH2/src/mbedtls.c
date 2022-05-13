@@ -380,7 +380,7 @@ static int _libssh2_mbedtls_pub_priv_key(LIBSSH2_SESSION * session, uchar ** met
 	}
 	mbedtls_rsa_context * rsa = mbedtls_pk_rsa(*pkey);
 	key = gen_publickey_from_rsa(session, rsa, &keylen);
-	if(key == NULL) {
+	if(!key) {
 		ret = -1;
 	}
 	// write output

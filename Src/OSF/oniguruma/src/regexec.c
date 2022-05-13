@@ -788,7 +788,7 @@ extern int onig_region_resize(OnigRegion* region, int n)
 static int onig_region_resize_clear(OnigRegion* region, int n)
 {
 	int r = onig_region_resize(region, n);
-	if(r != 0) 
+	if(r) 
 		return r;
 	onig_region_clear(region);
 	return 0;
@@ -1485,7 +1485,7 @@ static int stack_double(int* is_alloca, char ** arg_alloc_base, StackType** arg_
 #define STACK_ENSURE(n) do { \
 		if((int)(stk_end - stk) < (n)) { \
 			int r = stack_double(&is_alloca, &alloc_base, &stk_base, &stk_end, &stk, msa); \
-			if(r != 0) return r; \
+			if(r) return r; \
 			UPDATE_FOR_STACK_REALLOC; \
 		} \
 } while(0)
@@ -2252,10 +2252,10 @@ static int make_capture_history_tree(OnigCaptureTreeNode* node, StackType** kp, 
 				child->group = n;
 				child->beg = (int)(k->u.mem.pstr - str);
 				r = history_tree_add_child(node, child);
-				if(r != 0) return r;
+				if(r) return r;
 				*kp = (k + 1);
 				r = make_capture_history_tree(child, kp, stk_top, str, reg);
-				if(r != 0) return r;
+				if(r) return r;
 
 				k = *kp;
 				child->end = (int)(k->u.mem.pstr - str);
@@ -4248,7 +4248,7 @@ static inline int regset_search_body_regex_lead(OnigRegSet* set, const uchar * s
 				ep = str + r;
 			}
 		}
-		else if(r == 0) {
+		else if(!r) {
 			match_index = i;
 			*rmatch_pos = r;
 			break;
@@ -4282,7 +4282,7 @@ extern int onig_regset_search_with_param(OnigRegSet* set, const uchar * str, con
 		ADJUST_MATCH_PARAM(reg, mps[i]);
 		if(IS_NOT_NULL(region)) {
 			r = onig_region_resize_clear(region, reg->num_mem + 1);
-			if(r != 0) 
+			if(r) 
 				goto finish_no_msa;
 		}
 	}
@@ -4641,7 +4641,7 @@ extern int onig_match_with_param(regex_t* reg, const uchar * str, const uchar * 
 	}
 	else
 		r = 0;
-	if(r == 0) {
+	if(!r) {
 		if(OPTON_CHECK_VALIDITY_OF_STRING(option)) {
 			if(!ONIGENC_IS_VALID_MBC_STRING(reg->enc, str, end)) {
 				r = ONIGERR_INVALID_WIDE_CHAR_VALUE;
@@ -4871,7 +4871,7 @@ static int search_in_range(regex_t* reg, const uchar * str, const uchar * end, c
 #endif
 	    ) {
 		r = onig_region_resize_clear(region, reg->num_mem + 1);
-		if(r != 0) 
+		if(r) 
 			goto finish_no_msa;
 	}
 	if(start > end || start < str) 
@@ -5233,7 +5233,7 @@ extern int onig_regset_new(OnigRegSet** rset, int n, regex_t* regs[])
 	for(i = 0; i < n; i++) {
 		regex_t * reg = regs[i];
 		r = onig_regset_add(set, reg);
-		if(r != 0) {
+		if(r) {
 			for(i = 0; i < set->n; i++) {
 				OnigRegion* region = set->rs[i].region;
 				if(IS_NOT_NULL(region))

@@ -59,7 +59,7 @@ TestLiteImportsNonlite::TestLiteImportsNonlite(::PROTOBUF_NAMESPACE_ID::Arena* a
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestLiteImportsNonlite)
@@ -90,7 +90,7 @@ inline void TestLiteImportsNonlite::SharedCtor() {
 
 TestLiteImportsNonlite::~TestLiteImportsNonlite() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestLiteImportsNonlite)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -133,9 +133,9 @@ void TestLiteImportsNonlite::Clear() {
 }
 
 const char* TestLiteImportsNonlite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -155,8 +155,7 @@ const char* TestLiteImportsNonlite::_InternalParse(const char* ptr, ::PROTOBUF_N
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -189,17 +188,13 @@ uint8_t* TestLiteImportsNonlite::_InternalSerialize(
   // optional .protobuf_unittest.TestAllTypes message = 1;
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::message(this), target, stream);
   }
 
   // optional .protobuf_unittest.TestRequired message_with_required = 2;
   if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::message_with_required(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::message_with_required(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -222,16 +217,12 @@ size_t TestLiteImportsNonlite::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional .protobuf_unittest.TestAllTypes message = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *message_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*message_);
     }
 
     // optional .protobuf_unittest.TestRequired message_with_required = 2;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *message_with_required_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*message_with_required_);
     }
 
   }
@@ -276,7 +267,7 @@ void TestLiteImportsNonlite::CopyFrom(const TestLiteImportsNonlite& from) {
 
 bool TestLiteImportsNonlite::IsInitialized() const {
   if(_internal_has_message_with_required()) {
-    if (!message_with_required_->IsInitialized()) return false;
+    if(!message_with_required_->IsInitialized()) return false;
   }
   return true;
 }
@@ -299,7 +290,7 @@ std::string TestLiteImportsNonlite::GetTypeName() const { return "protobuf_unitt
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestLiteImportsNonlite* Arena::CreateMaybeMessage< ::protobuf_unittest::TestLiteImportsNonlite >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestLiteImportsNonlite * Arena::CreateMaybeMessage< ::protobuf_unittest::TestLiteImportsNonlite >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestLiteImportsNonlite >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

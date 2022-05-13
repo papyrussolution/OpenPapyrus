@@ -205,10 +205,8 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HOSTKEY, p);
-			    if(rc != 0) {
-				    SSH_LOG(SSH_LOG_WARN,
-					"line %d: Failed to set Hostkey value '%s'",
-					count, p);
+			    if(rc) {
+				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set Hostkey value '%s'", count, p);
 			    }
 		    }
 		    break;
@@ -216,7 +214,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_BINDADDR, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set ListenAddress value '%s'", count, p);
 			    }
 		    }
@@ -225,7 +223,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_BINDPORT_STR, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set Port value '%s'", count, p);
 			    }
 		    }
@@ -234,13 +232,12 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_CIPHERS_C_S, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set C->S Ciphers value '%s'", count, p);
 				    break;
 			    }
-
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_CIPHERS_S_C, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set S->C Ciphers value '%s'", count, p);
 			    }
 		    }
@@ -249,12 +246,12 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HMAC_C_S, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set C->S MAC value '%s'", count, p);
 				    break;
 			    }
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HMAC_S_C, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set S->C MAC value '%s'", count, p);
 			    }
 		    }
@@ -280,7 +277,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 			    }
 			    if(value != -1) {
 				    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_LOG_VERBOSITY, &value);
-				    if(rc != 0) {
+				    if(rc) {
 					    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set LogLevel value '%s'", count, p);
 				    }
 			    }
@@ -290,7 +287,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_KEY_EXCHANGE, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set KexAlgorithms value '%s'", count, p);
 			    }
 		    }
@@ -389,7 +386,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_PUBKEY_ACCEPTED_KEY_TYPES, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set PubKeyAcceptedKeyTypes value '%s'",
 					count, p);
 			    }
@@ -399,7 +396,7 @@ static int ssh_bind_config_parse_line(ssh_bind bind, const char * line, uint cou
 		    p = ssh_config_get_str_tok(&s, NULL);
 		    if(p && (*parser_flags & PARSING)) {
 			    rc = ssh_bind_options_set(bind, SSH_BIND_OPTIONS_HOSTKEY_ALGORITHMS, p);
-			    if(rc != 0) {
+			    if(rc) {
 				    SSH_LOG(SSH_LOG_WARN, "line %d: Failed to set HostkeyAlgorithms value '%s'", count, p);
 			    }
 		    }

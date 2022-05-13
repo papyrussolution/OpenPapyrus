@@ -372,7 +372,7 @@ static FT_Error ft_gzip_file_skip_output(FT_GZipFile zip,
 		zip->pos    += delta;
 
 		count -= delta;
-		if(count == 0)
+		if(!count)
 			break;
 
 		error = ft_gzip_file_fill_output(zip);
@@ -405,7 +405,7 @@ static FT_ULong ft_gzip_file_io(FT_GZipFile zip,
 		if(error)
 			goto Exit;
 	}
-	if(count == 0)
+	if(!count)
 		goto Exit;
 	/* now read the data */
 	for(;;) {
@@ -422,7 +422,7 @@ static FT_ULong ft_gzip_file_io(FT_GZipFile zip,
 		zip->pos    += delta;
 
 		count -= delta;
-		if(count == 0)
+		if(!count)
 			break;
 
 		error = ft_gzip_file_fill_output(zip);

@@ -81,7 +81,7 @@ FieldMask::FieldMask(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   paths_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.FieldMask)
@@ -98,7 +98,7 @@ inline void FieldMask::SharedCtor() {
 
 FieldMask::~FieldMask() {
   // @@protoc_insertion_point(destructor:google.protobuf.FieldMask)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -128,8 +128,8 @@ void FieldMask::Clear() {
 }
 
 const char* FieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -143,13 +143,12 @@ const char* FieldMask::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "google.protobuf.FieldMask.paths"));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -259,7 +258,7 @@ void FieldMask::InternalSwap(FieldMask* other) {
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::FieldMask* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::FieldMask >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::FieldMask * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::FieldMask >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::FieldMask >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

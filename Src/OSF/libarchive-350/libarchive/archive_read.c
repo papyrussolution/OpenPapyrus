@@ -67,7 +67,7 @@ static struct archive_vtable * archive_read_vtable(void)
 struct archive * archive_read_new(void)                 
 {
 	struct archive_read * a = (struct archive_read *)SAlloc::C(1, sizeof(*a));
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_READ_MAGIC;
 	a->archive.state = ARCHIVE_STATE_NEW;
@@ -82,7 +82,7 @@ struct archive * archive_read_new(void)
 void archive_read_extract_set_skip_file(struct archive * _a, la_int64_t d, la_int64_t i)
 {
 	struct archive_read * a = (struct archive_read *)_a;
-	if(ARCHIVE_OK != __archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, "archive_read_extract_set_skip_file"))
+	if(__archive_check_magic(_a, ARCHIVE_READ_MAGIC, ARCHIVE_STATE_ANY, __FUNCTION__) != ARCHIVE_OK)
 		return;
 	a->skip_file_set = 1;
 	a->skip_file_dev = d;
@@ -1133,10 +1133,10 @@ const void * __archive_read_filter_ahead(struct archive_read_filter * filter, si
 			 */
 			/* Ensure the buffer is big enough. */
 			if(min > filter->buffer_size) {
-				size_t s, t;
 				char * p;
 				/* Double the buffer; watch for overflow. */
-				s = t = filter->buffer_size;
+				size_t s = filter->buffer_size;
+				size_t t = s;
 				if(s == 0)
 					s = min;
 				while(s < min) {
@@ -1190,7 +1190,7 @@ int64 FASTCALL __archive_read_consume(struct archive_read * a, int64 request)
 	return (__archive_read_filter_consume(a->filter, request));
 }
 
-int64 __archive_read_filter_consume(struct archive_read_filter * filter, int64 request)
+int64 FASTCALL __archive_read_filter_consume(struct archive_read_filter * filter, int64 request)
 {
 	int64 skipped;
 	if(request < 0)

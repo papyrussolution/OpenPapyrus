@@ -317,7 +317,7 @@ ASN1_STRING * ASN1_STRING_type_new(int type)
 
 void asn1_string_embed_free(ASN1_STRING * a, int embed)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	if(!(a->flags & ASN1_STRING_FLAG_NDEF))
 		OPENSSL_free(a->data);

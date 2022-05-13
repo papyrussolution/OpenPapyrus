@@ -256,7 +256,7 @@ void TreeWindow::ShortcutsWindow::DelItem(void * ptr)
 				break;
 			}
 		}
-		if(count == 0)
+		if(!count)
 			ShowWindow(Hwnd, SW_HIDE);
 		else {
 			for(i = 0; i < count; i++) {

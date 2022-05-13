@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -31,7 +30,8 @@ namespace {
 // The GOOGLE_ARRAYSIZE constant is the max enum value plus 1. If the max enum value
 // is kint32max, GOOGLE_ARRAYSIZE will overflow. In such cases we should omit the
 // generation of the GOOGLE_ARRAYSIZE constant.
-bool ShouldGenerateArraySize(const EnumDescriptor* descriptor) {
+bool ShouldGenerateArraySize(const EnumDescriptor* descriptor) 
+{
 	int32_t max_value = descriptor->value(0)->number();
 	for(int i = 0; i < descriptor->value_count(); i++) {
 		if(descriptor->value(i)->number() > max_value) {
@@ -43,7 +43,8 @@ bool ShouldGenerateArraySize(const EnumDescriptor* descriptor) {
 
 // Returns the number of unique numeric enum values. This is less than
 // descriptor->value_count() when there are aliased values.
-int CountUniqueValues(const EnumDescriptor* descriptor) {
+int CountUniqueValues(const EnumDescriptor* descriptor) 
+{
 	std::set<int> values;
 	for(int i = 0; i < descriptor->value_count(); ++i) {
 		values.insert(descriptor->value(i)->number());
@@ -52,34 +53,28 @@ int CountUniqueValues(const EnumDescriptor* descriptor) {
 }
 }  // namespace
 
-EnumGenerator::EnumGenerator(const EnumDescriptor* descriptor,
-    const std::map<std::string, std::string>& vars,
-    const Options& options)
-	: descriptor_(descriptor),
-	classname_(ClassName(descriptor, false)),
-	options_(options),
-	generate_array_size_(ShouldGenerateArraySize(descriptor)),
-	variables_(vars) {
+EnumGenerator::EnumGenerator(const EnumDescriptor* descriptor, const std::map<std::string, std::string>& vars, const Options& options) : 
+	descriptor_(descriptor), classname_(ClassName(descriptor, false)), options_(options), generate_array_size_(ShouldGenerateArraySize(descriptor)),
+	variables_(vars) 
+{
 	variables_["classname"] = classname_;
 	variables_["classtype"] = QualifiedClassName(descriptor_, options);
 	variables_["short_name"] = descriptor_->name();
 	variables_["nested_name"] = descriptor_->name();
 	variables_["resolved_name"] = ResolveKeyword(descriptor_->name());
-	variables_["prefix"] =
-	    (descriptor_->containing_type() == NULL) ? "" : classname_ + "_";
+	variables_["prefix"] = (descriptor_->containing_type() == NULL) ? "" : classname_ + "_";
 }
 
 EnumGenerator::~EnumGenerator() {
 }
 
-void EnumGenerator::GenerateDefinition(io::Printer* printer) {
+void EnumGenerator::GenerateDefinition(io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
 	format("enum ${1$$classname$$}$ : int {\n", descriptor_);
 	format.Indent();
-
 	const EnumValueDescriptor* min_value = descriptor_->value(0);
 	const EnumValueDescriptor* max_value = descriptor_->value(0);
-
 	for(int i = 0; i < descriptor_->value_count(); i++) {
 		auto format_value = format;
 		format_value.Set("name", EnumValueName(descriptor_->value(i)));
@@ -87,13 +82,9 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer) {
 		// 2147483648, and since 2147483648 can't fit in an integer, this produces a
 		// compiler warning.  This works around that issue.
 		format_value.Set("number", Int32ToString(descriptor_->value(i)->number()));
-		format_value.Set("deprecation",
-		    DeprecatedAttribute(options_, descriptor_->value(i)));
-
+		format_value.Set("deprecation", DeprecatedAttribute(options_, descriptor_->value(i)));
 		if(i > 0) format_value(",\n");
-		format_value("${1$$prefix$$name$$}$ $deprecation$= $number$",
-		    descriptor_->value(i));
-
+		format_value("${1$$prefix$$name$$}$ $deprecation$= $number$", descriptor_->value(i));
 		if(descriptor_->value(i)->number() < min_value->number()) {
 			min_value = descriptor_->value(i);
 		}
@@ -101,21 +92,16 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer) {
 			max_value = descriptor_->value(i);
 		}
 	}
-
 	if(descriptor_->file()->syntax() == FileDescriptor::SYNTAX_PROTO3) {
 		// For new enum semantics: generate min and max sentinel values equal to
 		// INT32_MIN and INT32_MAX
 		if(descriptor_->value_count() > 0) format(",\n");
 		format(
-			"$classname$_$prefix$INT_MIN_SENTINEL_DO_NOT_USE_ = "
-			"std::numeric_limits<$int32$>::min(),\n"
-			"$classname$_$prefix$INT_MAX_SENTINEL_DO_NOT_USE_ = "
-			"std::numeric_limits<$int32$>::max()");
+			"$classname$_$prefix$INT_MIN_SENTINEL_DO_NOT_USE_ = std::numeric_limits<$int32$>::min(),\n"
+			"$classname$_$prefix$INT_MAX_SENTINEL_DO_NOT_USE_ = std::numeric_limits<$int32$>::max()");
 	}
-
 	format.Outdent();
 	format("\n};\n");
-
 	format(
 		"$dllexport_decl $bool $classname$_IsValid(int value);\n"
 		"constexpr $classname$ ${1$$prefix$$short_name$_MIN$}$ = "
@@ -125,16 +111,10 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer) {
 		descriptor_, EnumValueName(min_value), EnumValueName(max_value));
 
 	if(generate_array_size_) {
-		format(
-			"constexpr int ${1$$prefix$$short_name$_ARRAYSIZE$}$ = "
-			"$prefix$$short_name$_MAX + 1;\n\n",
-			descriptor_);
+		format("constexpr int ${1$$prefix$$short_name$_ARRAYSIZE$}$ = $prefix$$short_name$_MAX + 1;\n\n", descriptor_);
 	}
-
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
-		format(
-			"$dllexport_decl $const ::$proto_ns$::EnumDescriptor* "
-			"$classname$_descriptor();\n");
+		format("$dllexport_decl $const ::$proto_ns$::EnumDescriptor * $classname$_descriptor();\n");
 	}
 
 	// The _Name and _Parse functions. The lite implementation is table-based, so
@@ -145,123 +125,78 @@ void EnumGenerator::GenerateDefinition(io::Printer* printer) {
 	// The _Name() function accepts the enum type itself but also any integral
 	// type.
 	format(
-		"template<typename T>\n"
-		"inline const std::string& $classname$_Name(T enum_t_value) {\n"
-		"  static_assert(::std::is_same<T, $classname$>::value ||\n"
-		"    ::std::is_integral<T>::value,\n"
-		"    \"Incorrect type passed to function $classname$_Name.\");\n");
+		"template<typename T> inline const std::string& $classname$_Name(T enum_t_value)\n{\n"
+		"\tstatic_assert(::std::is_same<T, $classname$>::value || ::std::is_integral<T>::value, \"Incorrect type passed to function $classname$_Name.\");\n");
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
-		format(
-			"  return ::$proto_ns$::internal::NameOfEnum(\n"
-			"    $classname$_descriptor(), enum_t_value);\n");
+		format("\treturn ::$proto_ns$::internal::NameOfEnum($classname$_descriptor(), enum_t_value);\n");
 	}
 	else {
-		format(
-			"  return $classname$_Name(static_cast<$classname$>(enum_t_value));\n");
+		format("\treturn $classname$_Name(static_cast<$classname$>(enum_t_value));\n");
 	}
 	format("}\n");
-
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
 		format(
-			"inline bool $classname$_Parse(\n"
-			"    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$* "
-			"value) "
-			"{\n"
-			"  return ::$proto_ns$::internal::ParseNamedEnum<$classname$>(\n"
-			"    $classname$_descriptor(), name, value);\n"
+			"inline bool $classname$_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$ * value)\n{\n"
+			"\treturn ::$proto_ns$::internal::ParseNamedEnum<$classname$>($classname$_descriptor(), name, value);\n"
 			"}\n");
 	}
 	else {
-		format(
-			"bool $classname$_Parse(\n"
-			"    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$* "
-			"value);\n");
+		format("bool $classname$_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$ * value);\n");
 	}
 }
 
-void EnumGenerator::GenerateGetEnumDescriptorSpecializations(io::Printer* printer) {
+void EnumGenerator::GenerateGetEnumDescriptorSpecializations(io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
-	format(
-		"template <> struct is_proto_enum< $classtype$> : ::std::true_type "
-		"{};\n");
+	format("template <> struct is_proto_enum< $classtype$> : ::std::true_type {};\n");
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
-		format(
-			"template <>\n"
-			"inline const EnumDescriptor* GetEnumDescriptor< $classtype$>() {\n"
-			"  return $classtype$_descriptor();\n"
-			"}\n");
+		format("template <> inline const EnumDescriptor* GetEnumDescriptor< $classtype$>() { return $classtype$_descriptor(); }\n");
 	}
 }
 
-void EnumGenerator::GenerateSymbolImports(io::Printer* printer) const {
+void EnumGenerator::GenerateSymbolImports(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("typedef $classname$ $resolved_name$;\n");
-
 	for(int j = 0; j < descriptor_->value_count(); j++) {
-		std::string deprecated_attr =
-		    DeprecatedAttribute(options_, descriptor_->value(j));
-		format(
-			"$1$static constexpr $resolved_name$ ${2$$3$$}$ =\n"
-			"  $classname$_$3$;\n",
-			deprecated_attr, descriptor_->value(j),
-			EnumValueName(descriptor_->value(j)));
+		std::string deprecated_attr = DeprecatedAttribute(options_, descriptor_->value(j));
+		format("$1$static constexpr $resolved_name$ ${2$$3$$}$ = $classname$_$3$;\n",
+			deprecated_attr, descriptor_->value(j), EnumValueName(descriptor_->value(j)));
 	}
-
 	format(
-		"static inline bool $nested_name$_IsValid(int value) {\n"
-		"  return $classname$_IsValid(value);\n"
-		"}\n"
-		"static constexpr $resolved_name$ ${1$$nested_name$_MIN$}$ =\n"
-		"  $classname$_$nested_name$_MIN;\n"
-		"static constexpr $resolved_name$ ${1$$nested_name$_MAX$}$ =\n"
-		"  $classname$_$nested_name$_MAX;\n",
-		descriptor_);
+		"static inline bool $nested_name$_IsValid(int value) { return $classname$_IsValid(value); }\n"
+		"static constexpr $resolved_name$ ${1$$nested_name$_MIN$}$ = $classname$_$nested_name$_MIN;\n"
+		"static constexpr $resolved_name$ ${1$$nested_name$_MAX$}$ = $classname$_$nested_name$_MAX;\n", descriptor_);
 	if(generate_array_size_) {
-		format(
-			"static constexpr int ${1$$nested_name$_ARRAYSIZE$}$ =\n"
-			"  $classname$_$nested_name$_ARRAYSIZE;\n",
-			descriptor_);
+		format("static constexpr int ${1$$nested_name$_ARRAYSIZE$}$ = $classname$_$nested_name$_ARRAYSIZE;\n", descriptor_);
 	}
-
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
-		format(
-			"static inline const ::$proto_ns$::EnumDescriptor*\n"
-			"$nested_name$_descriptor() {\n"
-			"  return $classname$_descriptor();\n"
-			"}\n");
+		format("static inline const ::$proto_ns$::EnumDescriptor * $nested_name$_descriptor() { return $classname$_descriptor(); }\n");
 	}
-
 	format(
-		"template<typename T>\n"
-		"static inline const std::string& $nested_name$_Name(T enum_t_value) {\n"
-		"  static_assert(::std::is_same<T, $resolved_name$>::value ||\n"
-		"    ::std::is_integral<T>::value,\n"
-		"    \"Incorrect type passed to function $nested_name$_Name.\");\n"
-		"  return $classname$_Name(enum_t_value);\n"
+		"template<typename T> static inline const std::string& $nested_name$_Name(T enum_t_value)\n{\n"
+		"\tstatic_assert(::std::is_same<T, $resolved_name$>::value || ::std::is_integral<T>::value, \"Incorrect type passed to function $nested_name$_Name.\");\n"
+		"\treturn $classname$_Name(enum_t_value);\n"
 		"}\n");
 	format(
-		"static inline bool "
-		"$nested_name$_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,\n"
-		"    $resolved_name$* value) {\n"
-		"  return $classname$_Parse(name, value);\n"
+		"static inline bool $nested_name$_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $resolved_name$* value)\n{\n"
+		"\treturn $classname$_Parse(name, value);\n"
 		"}\n");
 }
 
-void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
+void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
 	if(HasDescriptorMethods(descriptor_->file(), options_)) {
 		format(
-			"const ::$proto_ns$::EnumDescriptor* $classname$_descriptor() {\n"
-			"  ::$proto_ns$::internal::AssignDescriptors(&$desc_table$);\n"
-			"  return $file_level_enum_descriptors$[$1$];\n"
+			"const ::$proto_ns$::EnumDescriptor* $classname$_descriptor()\n{\n"
+			"\t::$proto_ns$::internal::AssignDescriptors(&$desc_table$);\n"
+			"\treturn $file_level_enum_descriptors$[$1$];\n"
 			"}\n",
 			idx);
 	}
-
-	format(
-		"bool $classname$_IsValid(int value) {\n"
-		"  switch (value) {\n");
-
+	format("bool $classname$_IsValid(int value)\n{\n"
+		"\tswitch(value) {\n");
 	// Multiple values may have the same number.  Make sure we only cover
 	// each number once by first constructing a set containing all valid
 	// numbers, then printing a case statement for each element.
@@ -271,17 +206,14 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
 		const EnumValueDescriptor* value = descriptor_->value(j);
 		numbers.insert(value->number());
 	}
-
-	for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end();
-	    ++iter) {
-		format("    case $1$:\n", Int32ToString(*iter));
+	for(std::set<int>::iterator iter = numbers.begin(); iter != numbers.end(); ++iter) {
+		format("\t\tcase $1$:\n", Int32ToString(*iter));
 	}
-
 	format(
-		"      return true;\n"
-		"    default:\n"
-		"      return false;\n"
-		"  }\n"
+		"\t\t\treturn true;\n"
+		"\t\tdefault:\n"
+		"\t\t\treturn false;\n"
+		"\t}\n"
 		"}\n"
 		"\n");
 
@@ -309,10 +241,7 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
 			number_to_canonical_name.emplace(value->number(), value->name());
 		}
 
-		format(
-			"static ::$proto_ns$::internal::ExplicitlyConstructed<std::string> "
-			"$classname$_strings[$1$] = {};\n\n",
-			CountUniqueValues(descriptor_));
+		format("static ::$proto_ns$::internal::ExplicitlyConstructed<std::string> $classname$_strings[$1$] = {};\n\n", CountUniqueValues(descriptor_));
 
 		// We concatenate all the names for a given enum into one big string
 		// literal. If instead we store an array of string literals, the linker
@@ -323,64 +252,47 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
 			format("\n  \"$1$\"", p.first);
 		}
 		format(";\n\n");
-
-		format(
-			"static const ::$proto_ns$::internal::EnumEntry $classname$_entries[] "
-			"= {\n");
+		format("static const ::$proto_ns$::internal::EnumEntry $classname$_entries[] = {\n");
 		int i = 0;
 		std::map<int, int> number_to_index;
 		int data_index = 0;
 		for(const auto& p : name_to_number) {
-			format("  { {$classname$_names + $1$, $2$}, $3$ },\n", data_index,
-			    p.first.size(), p.second);
+			format("  { {$classname$_names + $1$, $2$}, $3$ },\n", data_index, p.first.size(), p.second);
 			if(number_to_canonical_name[p.second] == p.first) {
 				number_to_index.emplace(p.second, i);
 			}
 			++i;
 			data_index += p.first.size();
 		}
-
 		format(
 			"};\n"
 			"\n"
 			"static const int $classname$_entries_by_number[] = {\n");
 		for(const auto& p : number_to_index) {
-			format("  $1$, // $2$ -> $3$\n", p.second, p.first,
-			    number_to_canonical_name[p.first]);
+			format("  $1$, // $2$ -> $3$\n", p.second, p.first, number_to_canonical_name[p.first]);
 		}
 		format(
 			"};\n"
 			"\n");
 
 		format(
-			"const std::string& $classname$_Name(\n"
-			"    $classname$ value) {\n"
-			"  static const bool dummy =\n"
-			"      ::$proto_ns$::internal::InitializeEnumStrings(\n"
-			"          $classname$_entries,\n"
-			"          $classname$_entries_by_number,\n"
-			"          $1$, $classname$_strings);\n"
-			"  (void) dummy;\n"
-			"  int idx = ::$proto_ns$::internal::LookUpEnumName(\n"
-			"      $classname$_entries,\n"
-			"      $classname$_entries_by_number,\n"
-			"      $1$, value);\n"
-			"  return idx == -1 ? ::$proto_ns$::internal::GetEmptyString() :\n"
-			"                     $classname$_strings[idx].get();\n"
+			"const std::string& $classname$_Name($classname$ value)\n{\n"
+			"\tstatic const bool dummy = ::$proto_ns$::internal::InitializeEnumStrings(\n"
+			"\t\t$classname$_entries, $classname$_entries_by_number, $1$, $classname$_strings);\n"
+			"\t(void)dummy;\n"
+			"\tint idx = ::$proto_ns$::internal::LookUpEnumName($classname$_entries, $classname$_entries_by_number, $1$, value);\n"
+			"\treturn idx == -1 ? ::$proto_ns$::internal::GetEmptyString() : $classname$_strings[idx].get();\n"
 			"}\n",
 			CountUniqueValues(descriptor_));
 		format(
-			"bool $classname$_Parse(\n"
-			"    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$* "
-			"value) "
+			"bool $classname$_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, $classname$ * value)\n"
 			"{\n"
-			"  int int_value;\n"
-			"  bool success = ::$proto_ns$::internal::LookUpEnumValue(\n"
-			"      $classname$_entries, $1$, name, &int_value);\n"
-			"  if (success) {\n"
-			"    *value = static_cast<$classname$>(int_value);\n"
-			"  }\n"
-			"  return success;\n"
+			"\tint int_value;\n"
+			"\tbool success = ::$proto_ns$::internal::LookUpEnumValue($classname$_entries, $1$, name, &int_value);\n"
+			"\tif(success) {\n"
+			"\t\t*value = static_cast<$classname$>(int_value);\n"
+			"\t}\n"
+			"\treturn success;\n"
 			"}\n",
 			descriptor_->value_count());
 	}
@@ -390,25 +302,18 @@ void EnumGenerator::GenerateMethods(int idx, io::Printer* printer) {
 		// Before C++17, we must define the static constants which were
 		// declared in the header, to give the linker a place to put them.
 		// But MSVC++ pre-2015 and post-2017 (version 15.5+) insists that we not.
-		format(
-			"#if (__cplusplus < 201703) && "
-			"(!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))\n");
+		format("#if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))\n");
 
 		for(int i = 0; i < descriptor_->value_count(); i++) {
-			format("constexpr $classname$ $1$::$2$;\n", parent,
-			    EnumValueName(descriptor_->value(i)));
+			format("constexpr $classname$ $1$::$2$;\n", parent, EnumValueName(descriptor_->value(i)));
 		}
-		format(
-			"constexpr $classname$ $1$::$nested_name$_MIN;\n"
+		format("constexpr $classname$ $1$::$nested_name$_MIN;\n"
 			"constexpr $classname$ $1$::$nested_name$_MAX;\n",
 			parent);
 		if(generate_array_size_) {
 			format("constexpr int $1$::$nested_name$_ARRAYSIZE;\n", parent);
 		}
-
-		format(
-			"#endif  // (__cplusplus < 201703) && "
-			"(!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))\n");
+		format("#endif  // (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))\n");
 	}
 }
 }  // namespace cpp

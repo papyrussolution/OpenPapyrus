@@ -87,7 +87,7 @@ static int generate_key(DH * dh)
 	}
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 
 	if(dh->priv_key == NULL) {
@@ -183,7 +183,7 @@ static int compute_key(uchar * key, const BIGNUM * pub_key, DH * dh)
 	}
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	tmp = BN_CTX_get(ctx);

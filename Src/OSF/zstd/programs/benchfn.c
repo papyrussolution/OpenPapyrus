@@ -17,15 +17,15 @@
 #define TIMELOOP_MICROSEC     SEC_TO_MICRO      /* 1 second */
 #define TIMELOOP_NANOSEC      (1*1000000000ULL) /* 1 second */
 
-#define KB *(1 <<10)
-#define MB *(1 <<20)
-#define GB *(1U<<30)
+//#define KB_Removed *(1 <<10)
+//#define MB_Removed *(1 <<20)
+//#define GB_Removed *(1U<<30)
 
 /* *************************************
 *  Debug errors
 ***************************************/
 #if defined(DEBUG) && (DEBUG >= 1)
-#  include <stdio.h>       /* fprintf */
+//#include <stdio.h>       /* fprintf */
 #define DISPLAY(...)       fprintf(stderr, __VA_ARGS__)
 #define DEBUGOUTPUT(...) { if(DEBUG) DISPLAY(__VA_ARGS__); }
 #else
@@ -97,26 +97,25 @@ BMK_runOutcome_t BMK_benchFunction(BMK_benchParams_t p, unsigned nbLoops)
 	nbLoops += !nbLoops; /* minimum nbLoops is 1 */
 	/* init */
 	{   
-		size_t i;
-	    for(i = 0; i < p.blockCount; i++) {
+	    for(size_t i = 0; i < p.blockCount; i++) {
 		    memset(p.dstBuffers[i], 0xE5, p.dstCapacities[i]); /* warm up and erase result buffer */
 	    }
 	}
 	/* benchmark */
 	{   
 		UTIL_time_t const clockStart = UTIL_getTime();
-	    unsigned loopNb, blockNb;
+	    uint loopNb;
+		uint blockNb;
 	    if(p.initFn != NULL) 
 			p.initFn(p.initPayload);
 	    for(loopNb = 0; loopNb < nbLoops; loopNb++) {
 		    for(blockNb = 0; blockNb < p.blockCount; blockNb++) {
 			    size_t const res = p.benchFn(p.srcBuffers[blockNb], p.srcSizes[blockNb], p.dstBuffers[blockNb], p.dstCapacities[blockNb], p.benchPayload);
 			    if(loopNb == 0) {
-				    if(p.blockResults != NULL) p.blockResults[blockNb] = res;
+				    if(p.blockResults != NULL) 
+						p.blockResults[blockNb] = res;
 				    if((p.errorFn != NULL) && (p.errorFn(res))) {
-					    RETURN_QUIET_ERROR(BMK_runOutcome_error(res),
-						"Function benchmark failed on block %u (of size %u) with error %i",
-						blockNb, (unsigned)p.srcSizes[blockNb], (int)res);
+					    RETURN_QUIET_ERROR(BMK_runOutcome_error(res), "Function benchmark failed on block %u (of size %u) with error %i", blockNb, (uint)p.srcSizes[blockNb], (int)res);
 				    }
 				    dstSize += res;
 			    }
@@ -139,11 +138,11 @@ struct BMK_timedFnState_s {
 	PTime timeBudget_ns;
 	PTime runBudget_ns;
 	BMK_runTime_t fastestRun;
-	unsigned nbLoops;
+	uint nbLoops;
 	UTIL_time_t coolTime;
 };  /* typedef'd to BMK_timedFnState_t within bench.h */
 
-BMK_timedFnState_t* BMK_createTimedFnState(unsigned total_ms, unsigned run_ms)
+BMK_timedFnState_t* BMK_createTimedFnState(uint total_ms, uint run_ms)
 {
 	BMK_timedFnState_t* const r = (BMK_timedFnState_t*)SAlloc::M(sizeof(*r));
 	if(r == NULL) 
@@ -157,7 +156,7 @@ void BMK_freeTimedFnState(BMK_timedFnState_t* state)
 	SAlloc::F(state);
 }
 
-BMK_timedFnState_t* BMK_initStatic_timedFnState(void* buffer, size_t size, unsigned total_ms, unsigned run_ms)
+BMK_timedFnState_t* BMK_initStatic_timedFnState(void* buffer, size_t size, uint total_ms, uint run_ms)
 {
 	typedef char check_size[ 2 * (sizeof(BMK_timedFnState_shell) >= sizeof(struct BMK_timedFnState_s)) - 1]; // static assert : a compilation failure indicates
 		// that BMK_timedFnState_shell is not large enough
@@ -171,7 +170,7 @@ BMK_timedFnState_t* BMK_initStatic_timedFnState(void* buffer, size_t size, unsig
 	return r;
 }
 
-void BMK_resetTimedFnState(BMK_timedFnState_t* timedFnState, unsigned total_ms, unsigned run_ms)
+void BMK_resetTimedFnState(BMK_timedFnState_t* timedFnState, uint total_ms, uint run_ms)
 {
 	if(!total_ms) total_ms = 1;
 	if(!run_ms) run_ms = 1;
@@ -179,9 +178,7 @@ void BMK_resetTimedFnState(BMK_timedFnState_t* timedFnState, unsigned total_ms, 
 	timedFnState->timeSpent_ns = 0;
 	timedFnState->timeBudget_ns = (PTime)total_ms * TIMELOOP_NANOSEC / 1000;
 	timedFnState->runBudget_ns = (PTime)run_ms * TIMELOOP_NANOSEC / 1000;
-	timedFnState->fastestRun.nanoSecPerRun = (double)TIMELOOP_NANOSEC * 2000000000; /* hopefully large enough : must
-	                                                                                   be larger than any potential
-	                                                                                   measurement */
+	timedFnState->fastestRun.nanoSecPerRun = (double)TIMELOOP_NANOSEC * 2000000000; // hopefully large enough : must be larger than any potential measurement 
 	timedFnState->fastestRun.sumOfReturn = (size_t)(-1LL);
 	timedFnState->nbLoops = 1;
 	timedFnState->coolTime = UTIL_getTime();
@@ -213,21 +210,19 @@ BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont, BMK_benchParams_t p)
 			BMK_runTime_t const newRunTime = BMK_extract_runTime(runResult);
 		    double const loopDuration_ns = newRunTime.nanoSecPerRun * cont->nbLoops;
 		    cont->timeSpent_ns += (unsigned long long)loopDuration_ns;
-			/* estimate nbLoops for next run to last approximately 1 second */
+			// estimate nbLoops for next run to last approximately 1 second 
 		    if(loopDuration_ns > (runBudget_ns / 50)) {
 			    double const fastestRun_ns = MIN(bestRunTime.nanoSecPerRun, newRunTime.nanoSecPerRun);
-			    cont->nbLoops = (unsigned)(runBudget_ns / fastestRun_ns) + 1;
+			    cont->nbLoops = (uint)(runBudget_ns / fastestRun_ns) + 1;
 		    }
 		    else {
-			    /* previous run was too short : blindly increase workload by x multiplier */
-			    const unsigned multiplier = 10;
-			    assert(cont->nbLoops < ((unsigned)-1) / multiplier); /* avoid overflow */
+			    // previous run was too short : blindly increase workload by x multiplier 
+			    const uint multiplier = 10;
+			    assert(cont->nbLoops < ((uint)-1) / multiplier); /* avoid overflow */
 			    cont->nbLoops *= multiplier;
 		    }
-
 		    if(loopDuration_ns < runTimeMin_ns) {
-			    /* don't report results for which benchmark run time was too small : increased risks of
-			       rounding errors */
+			    // don't report results for which benchmark run time was too small : increased risks of rounding errors 
 			    assert(completed == 0);
 			    continue;
 		    }
@@ -236,8 +231,8 @@ BMK_runOutcome_t BMK_benchTimedFn(BMK_timedFnState_t* cont, BMK_benchParams_t p)
 				    bestRunTime = newRunTime;
 			    }
 			    completed = 1;
-		    }}
+		    }
+		}
 	} /* while (!completed) */
-
 	return BMK_setValid_runTime(bestRunTime);
 }

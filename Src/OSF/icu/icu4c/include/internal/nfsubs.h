@@ -1,20 +1,12 @@
+// nfsubs.h
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- ******************************************************************************
- *   Copyright (C) 1997-2015, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- ******************************************************************************
- *   file name:  nfsubs.h
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- * Modification history
- * Date        Name      Comments
- * 10/11/2001  Doug      Ported from ICU4J
- */
-
+// Copyright (C) 1997-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// Modification history
+// Date        Name      Comments
+// 10/11/2001  Doug      Ported from ICU4J
+// 
 #ifndef NFSUBS_H
 #define NFSUBS_H
 
@@ -170,14 +162,8 @@ public:
 	 * no match this is new Long(0) (not null), and parsePosition
 	 * is left unchanged.
 	 */
-	virtual bool doParse(const UnicodeString & text,
-	    ParsePosition& parsePosition,
-	    double baseValue,
-	    double upperBound,
-	    bool lenientParse,
-	    uint32_t nonNumericalExecutedRuleMask,
-	    Formattable& result) const;
-
+	virtual bool doParse(const UnicodeString & text, ParsePosition& parsePosition, double baseValue, double upperBound, bool lenientParse, 
+		uint32_t nonNumericalExecutedRuleMask, Formattable& result) const;
 	/**
 	 * Derives a new value from the two values passed in.  The two values
 	 * are typically either the base values of two rules (the one containing
@@ -191,7 +177,6 @@ public:
 	 * partial parse result
 	 */
 	virtual double composeRuleValue(double newRuleValue, double oldRuleValue) const = 0;
-
 	/**
 	 * Calculates an upper bound when searching for a rule that matches
 	 * this substitution.  Rules with base values greater than or equal
@@ -235,8 +220,5 @@ public:
 
 U_NAMESPACE_END
 
-/* U_HAVE_RBNF */
-#endif
-
-// NFSUBS_H
-#endif
+#endif /* U_HAVE_RBNF */
+#endif // NFSUBS_H

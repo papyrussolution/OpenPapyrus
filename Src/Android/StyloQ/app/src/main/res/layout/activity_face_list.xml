@@ -26,7 +26,7 @@
                 android:layout_gravity="left"
                 android:ems="10"
                 android:text="Faces"
-                android:textColor="@color/PrimaryText"/>
+                android:textColor="@color/TextPrimary"/>
             <ImageButton style="@style/ToolbarButton" android:id="@+id/tbButtonAdd"
                 android:layout_gravity="right"
                 app:srcCompat="@drawable/ic_addfile02"/>

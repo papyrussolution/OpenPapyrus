@@ -253,7 +253,7 @@ static int file_information(struct archive_write_disk * a, wchar_t * path, BY_HA
 	}
 	r = GetFileInformationByHandle(h, st);
 	CloseHandle(h);
-	if(r == 0) {
+	if(!r) {
 		la_dosmaperr(GetLastError());
 		return -1;
 	}
@@ -446,7 +446,7 @@ static int la_chmod(const wchar_t * path, mode_t mode)
 		r = SetFileAttributesW(fullname, attr);
 	else
 		r = SetFileAttributesW(path, attr);
-	if(r == 0) {
+	if(!r) {
 		la_dosmaperr(GetLastError());
 		ret = -1;
 	}
@@ -1213,7 +1213,7 @@ struct archive * archive_write_disk_new(void)                 {
 	struct archive_write_disk * a;
 
 	a = (struct archive_write_disk *)SAlloc::C(1, sizeof(*a));
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_WRITE_DISK_MAGIC;
 	/* We're ready to write a header immediately. */
@@ -1367,7 +1367,7 @@ static int restore_entry(struct archive_write_disk * a)
 		 * information.
 		 */
 		r = file_information(a, a->name, &lst, &lst_mode, 1);
-		if(r != 0) {
+		if(r) {
 			archive_set_error(&a->archive, errno, "Can't stat existing object");
 			return ARCHIVE_FAILED;
 		}
@@ -1376,7 +1376,7 @@ static int restore_entry(struct archive_write_disk * a)
 				dirlnk = 1;
 			/* In case of a symlink we need target information */
 			r = file_information(a, a->name, &a->st, &st_mode, 0);
-			if(r != 0) {
+			if(r) {
 				a->st = lst;
 				st_mode = lst_mode;
 			}
@@ -1492,7 +1492,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 	/* We identify hard/symlinks according to the link names. */
 	/* Since link(2) and symlink(2) don't handle modes, we're done here. */
 	linkname = archive_entry_hardlink_w(a->entry);
-	if(linkname != NULL) {
+	if(linkname) {
 		wchar_t * linkfull, * namefull;
 
 		linkfull = __la_win_permissive_name_w(linkname);
@@ -1517,7 +1517,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 				}
 			}
 			r = la_CreateHardLinkW(namefull, linkfull);
-			if(r == 0) {
+			if(!r) {
 				la_dosmaperr(GetLastError());
 				r = errno;
 			}
@@ -1553,7 +1553,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		return r;
 	}
 	linkname = archive_entry_symlink_w(a->entry);
-	if(linkname != NULL) {
+	if(linkname) {
 		/*
 		 * Unlinking and linking here is really not atomic,
 		 * but doing it right, would require us to construct
@@ -1572,7 +1572,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 		errno = 0;
 		r = la_CreateSymbolicLinkW((const wchar_t *)a->name, linkname,
 			archive_entry_symlink_type(a->entry));
-		if(r == 0) {
+		if(!r) {
 			if(errno == 0)
 				la_dosmaperr(GetLastError());
 			r = errno;
@@ -1650,7 +1650,7 @@ static int create_filesystem_object(struct archive_write_disk * a)
 			    fullname = __la_win_permissive_name_w(a->name);
 			    r = CreateDirectoryW(fullname, NULL);
 		    }
-		    if(r != 0) {
+		    if(r) {
 			    r = 0;
 			    /* Defer setting dir times. */
 			    a->deferred |= (a->todo & TODO_TIMES);
@@ -1887,7 +1887,7 @@ static int check_symlinks(struct archive_write_disk * a)
 		pn[0] = '\0';
 		/* Check that we haven't hit a symlink. */
 		r = file_information(a, a->name, &st, &st_mode, 1);
-		if(r != 0) {
+		if(r) {
 			/* We've hit a dir that doesn't exist; stop now. */
 			if(errno == ENOENT)
 				break;
@@ -1942,7 +1942,7 @@ static int check_symlinks(struct archive_write_disk * a)
 				else {
 					r = disk_unlink(a->name);
 				}
-				if(r != 0) {
+				if(r) {
 					archive_set_error(&a->archive, 0, "Cannot remove intervening symlink %ls", a->name);
 					pn[0] = c;
 					return ARCHIVE_FAILED;

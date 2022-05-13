@@ -43,14 +43,12 @@ struct HasUserDefinedConvert<T, void_t<decltype(AbslFormatConvert(
 	: std::true_type {};
 
 void AbslFormatConvert();  // Stops the lexical name lookup
-template <typename T>
-auto FormatConvertImpl(const T& v, FormatConversionSpecImpl conv, FormatSinkImpl* sink)->decltype(AbslFormatConvert(v,
+template <typename T> auto FormatConvertImpl(const T& v, FormatConversionSpecImpl conv, FormatSinkImpl* sink)->decltype(AbslFormatConvert(v,
 std::declval<const FormatConversionSpec&>(),
-std::declval<FormatSink*>())) {
-	using FormatConversionSpecT =
-	    absl::enable_if_t<sizeof(const T &(*)()) != 0, FormatConversionSpec>;
-	using FormatSinkT =
-	    absl::enable_if_t<sizeof(const T &(*)()) != 0, FormatSink>;
+std::declval<FormatSink*>())) 
+{
+	using FormatConversionSpecT = absl::enable_if_t<sizeof(const T &(*)()) != 0, FormatConversionSpec>;
+	using FormatSinkT = absl::enable_if_t<sizeof(const T &(*)()) != 0, FormatSink>;
 	auto fcs = conv.Wrap<FormatConversionSpecT>();
 	auto fs = sink->Wrap<FormatSinkT>();
 	return AbslFormatConvert(v, fcs, &fs);
@@ -73,8 +71,7 @@ class StreamedWrapper;
 // Raw pointers.
 struct VoidPtr {
 	VoidPtr() = default;
-	template <typename T,
-	    decltype(reinterpret_cast<uintptr_t>(std::declval<T*>())) = 0>
+	template <typename T, decltype(reinterpret_cast<uintptr_t>(std::declval<T*>())) = 0>
 	VoidPtr(T* ptr) // NOLINT
 		: value(ptr ? reinterpret_cast<uintptr_t>(ptr) : 0) {
 	}
@@ -82,36 +79,18 @@ struct VoidPtr {
 	uintptr_t value;
 };
 
-template <FormatConversionCharSet C>
-struct ArgConvertResult {
-	bool value;
-};
-
-template <FormatConversionCharSet C>
-constexpr FormatConversionCharSet ExtractCharSet(FormatConvertResult<C>) {
-	return C;
-}
-
-template <FormatConversionCharSet C>
-constexpr FormatConversionCharSet ExtractCharSet(ArgConvertResult<C>) {
-	return C;
-}
-
-using StringConvertResult =
-    ArgConvertResult<FormatConversionCharSetInternal::s>;
+template <FormatConversionCharSet C> struct ArgConvertResult { bool value; };
+template <FormatConversionCharSet C> constexpr FormatConversionCharSet ExtractCharSet(FormatConvertResult<C>) { return C; }
+template <FormatConversionCharSet C> constexpr FormatConversionCharSet ExtractCharSet(ArgConvertResult<C>) { return C; }
+using StringConvertResult = ArgConvertResult<FormatConversionCharSetInternal::s>;
 ArgConvertResult<FormatConversionCharSetInternal::p> FormatConvertImpl(VoidPtr v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
 
 // Strings.
-StringConvertResult FormatConvertImpl(const std::string & v,
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
-StringConvertResult FormatConvertImpl(string_view v,
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink);
+StringConvertResult FormatConvertImpl(const std::string & v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
+StringConvertResult FormatConvertImpl(string_view v, FormatConversionSpecImpl conv, FormatSinkImpl* sink);
 #if defined(ABSL_HAVE_STD_STRING_VIEW) && !defined(ABSL_USES_STD_STRING_VIEW)
-inline StringConvertResult FormatConvertImpl(std::string_view v,
-    FormatConversionSpecImpl conv,
-    FormatSinkImpl* sink) {
+inline StringConvertResult FormatConvertImpl(std::string_view v, FormatConversionSpecImpl conv, FormatSinkImpl* sink) 
+{
 	return FormatConvertImpl(absl::string_view(v.data(), v.size()), conv, sink);
 }
 
@@ -337,167 +316,125 @@ private:
 	//   - Decay function pointers to void*.
 	template <typename T, typename = void>
 	struct DecayType {
-		static constexpr bool kHasUserDefined =
-		    str_format_internal::HasUserDefinedConvert<T>::value;
-		using type = typename std::conditional<
-			!kHasUserDefined && std::is_convertible<T, const char*>::value,
-			const char*,
-			typename std::conditional<!kHasUserDefined &&
-			std::is_convertible<T, VoidPtr>::value,
-			VoidPtr, const T&>::type>::type;
+		static constexpr bool kHasUserDefined = str_format_internal::HasUserDefinedConvert<T>::value;
+		using type = typename std::conditional<!kHasUserDefined && std::is_convertible<T, const char*>::value, const char*, 
+			typename std::conditional<!kHasUserDefined && std::is_convertible<T, VoidPtr>::value, VoidPtr, const T&>::type>::type;
 	};
-
-	template <typename T>
-	struct DecayType<T,
-	    typename std::enable_if<
-		    !str_format_internal::HasUserDefinedConvert<T>::value &&
-		    std::is_enum<T>::value>::type> {
+	template <typename T> struct DecayType<T, typename std::enable_if<!str_format_internal::HasUserDefinedConvert<T>::value && std::is_enum<T>::value>::type> 
+	{
 		using type = typename std::underlying_type<T>::type;
 	};
 
 public:
-	template <typename T>
-	explicit FormatArgImpl(const T& value) {
+	template <typename T> explicit FormatArgImpl(const T& value) 
+	{
 		using D = typename DecayType<T>::type;
-		static_assert(
-			std::is_same<D, const T&>::value || storage_policy<D>::value == ByValue,
-			"Decayed types must be stored by value");
+		static_assert(std::is_same<D, const T&>::value || storage_policy<D>::value == ByValue, "Decayed types must be stored by value");
 		Init(static_cast<D>(value));
 	}
-
 private:
 	friend struct str_format_internal::FormatArgImplFriend;
 	template <typename T, StoragePolicy = storage_policy<T>::value>
 	struct Manager;
 
-	template <typename T>
-	struct Manager<T, ByPointer> {
-		static Data SetValue(const T& value) {
+	template <typename T> struct Manager<T, ByPointer> {
+		static Data SetValue(const T& value) 
+		{
 			Data data;
 			data.ptr = std::addressof(value);
 			return data;
 		}
-
-		static const T& Value(Data arg) {
-			return *static_cast<const T*>(arg.ptr);
-		}
+		static const T& Value(Data arg) { return *static_cast<const T*>(arg.ptr); }
 	};
-
-	template <typename T>
-	struct Manager<T, ByVolatilePointer> {
-		static Data SetValue(const T& value) {
+	template <typename T> struct Manager<T, ByVolatilePointer> {
+		static Data SetValue(const T& value) 
+		{
 			Data data;
 			data.volatile_ptr = &value;
 			return data;
 		}
-
-		static const T& Value(Data arg) {
-			return *static_cast<const T*>(arg.volatile_ptr);
-		}
+		static const T& Value(Data arg) { return *static_cast<const T*>(arg.volatile_ptr); }
 	};
-
-	template <typename T>
-	struct Manager<T, ByValue> {
-		static Data SetValue(const T& value) {
+	template <typename T> struct Manager<T, ByValue> 
+	{
+		static Data SetValue(const T& value) 
+		{
 			Data data;
 			memcpy(data.buf, &value, sizeof(value));
 			return data;
 		}
-
-		static T Value(Data arg) {
+		static T Value(Data arg) 
+		{
 			T value;
 			memcpy(&value, arg.buf, sizeof(T));
 			return value;
 		}
 	};
 
-	template <typename T>
-	void Init(const T& value) {
+	template <typename T> void Init(const T& value) 
+	{
 		data_ = Manager<T>::SetValue(value);
 		dispatcher_ = &Dispatch<T>;
 	}
-
-	template <typename T>
-	static int ToIntVal(const T& val) {
-		using CommonType = typename std::conditional<std::is_signed<T>::value,
-			int64_t, uint64_t>::type;
+	template <typename T> static int ToIntVal(const T& val) 
+	{
+		using CommonType = typename std::conditional<std::is_signed<T>::value, int64_t, uint64_t>::type;
 		if(static_cast<CommonType>(val) >
 		    static_cast<CommonType>((std::numeric_limits<int>::max)())) {
 			return (std::numeric_limits<int>::max)();
 		}
-		else if(std::is_signed<T>::value &&
-		    static_cast<CommonType>(val) <
-		    static_cast<CommonType>((std::numeric_limits<int>::min)())) {
+		else if(std::is_signed<T>::value && static_cast<CommonType>(val) <static_cast<CommonType>((std::numeric_limits<int>::min)())) {
 			return (std::numeric_limits<int>::min)();
 		}
 		return static_cast<int>(val);
 	}
-
-	template <typename T>
-	static bool ToInt(Data arg, int* out, std::true_type /* is_integral */,
-	    std::false_type) {
+	template <typename T> static bool ToInt(Data arg, int* out, std::true_type /* is_integral */, std::false_type) 
+	{
 		*out = ToIntVal(Manager<T>::Value(arg));
 		return true;
 	}
-
-	template <typename T>
-	static bool ToInt(Data arg, int* out, std::false_type,
-	    std::true_type /* is_enum */) {
-		*out = ToIntVal(static_cast<typename std::underlying_type<T>::type>(
-				Manager<T>::Value(arg)));
+	template <typename T> static bool ToInt(Data arg, int* out, std::false_type, std::true_type /* is_enum */) 
+	{
+		*out = ToIntVal(static_cast<typename std::underlying_type<T>::type>(Manager<T>::Value(arg)));
 		return true;
 	}
-
-	template <typename T>
-	static bool ToInt(Data, int*, std::false_type, std::false_type) {
+	template <typename T> static bool ToInt(Data, int*, std::false_type, std::false_type) 
+	{
 		return false;
 	}
-
-	template <typename T>
-	static bool Dispatch(Data arg, FormatConversionSpecImpl spec, void* out) {
+	template <typename T> static bool Dispatch(Data arg, FormatConversionSpecImpl spec, void* out) 
+	{
 		// A `none` conv indicates that we want the `int` conversion.
 		if(ABSL_PREDICT_FALSE(spec.conversion_char() ==
 		    FormatConversionCharInternal::kNone)) {
-			return ToInt<T>(arg, static_cast<int*>(out), std::is_integral<T>(),
-				   std::is_enum<T>());
+			return ToInt<T>(arg, static_cast<int*>(out), std::is_integral<T>(), std::is_enum<T>());
 		}
 		if(ABSL_PREDICT_FALSE(!Contains(ArgumentToConv<T>(),
 		    spec.conversion_char()))) {
 			return false;
 		}
-		return str_format_internal::FormatConvertImpl(
-			Manager<T>::Value(arg), spec,
-			static_cast<FormatSinkImpl*>(out))
-		       .value;
+		return str_format_internal::FormatConvertImpl(Manager<T>::Value(arg), spec, static_cast<FormatSinkImpl*>(out)).value;
 	}
-
 	Data data_;
 	Dispatcher dispatcher_;
 };
 
-#define ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(T, E)                     \
-	E template bool FormatArgImpl::Dispatch<T>(Data, FormatConversionSpecImpl, \
-	    void*)
+#define ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(T, E) E template bool FormatArgImpl::Dispatch<T>(Data, FormatConversionSpecImpl, void*)
 
 #define ABSL_INTERNAL_FORMAT_DISPATCH_OVERLOADS_EXPAND_(...)                   \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(str_format_internal::VoidPtr,     \
-	    __VA_ARGS__);                     \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(str_format_internal::VoidPtr, __VA_ARGS__); \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(bool, __VA_ARGS__);               \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(char, __VA_ARGS__);               \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(signed char, __VA_ARGS__);        \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned char, __VA_ARGS__);      \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(short, __VA_ARGS__); /* NOLINT */ \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned short, /* NOLINT */ \
-	    __VA_ARGS__);                     \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned short, /* NOLINT */ __VA_ARGS__); \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(int, __VA_ARGS__);                \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned int, __VA_ARGS__);       \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long, __VA_ARGS__); /* NOLINT */  \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long, /* NOLINT */  \
-	    __VA_ARGS__);                     \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long long, /* NOLINT */           \
-	    __VA_ARGS__);                     \
-	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long long, /* NOLINT */  \
-	    __VA_ARGS__);                     \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long, /* NOLINT */  __VA_ARGS__); \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(long long, /* NOLINT */ __VA_ARGS__); \
+	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(unsigned long long, /* NOLINT */ __VA_ARGS__); \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(int128, __VA_ARGS__);             \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(uint128, __VA_ARGS__);            \
 	ABSL_INTERNAL_FORMAT_DISPATCH_INSTANTIATE_(float, __VA_ARGS__);              \

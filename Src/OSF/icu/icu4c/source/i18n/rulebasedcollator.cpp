@@ -1417,7 +1417,7 @@ int32_t RuleBasedCollator::getSortKey(const UChar * s, int32_t length,
 		return 0;
 	}
 	uint8 noDest[1] = { 0 };
-	if(dest == NULL) {
+	if(!dest) {
 		// Distinguish pure preflighting from an allocation error.
 		dest = noDest;
 		capacity = 0;
@@ -1544,7 +1544,7 @@ int32_t RuleBasedCollator::internalNextSortKeyPart(UCharIterator * iter, uint32_
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-	if(count == 0) {
+	if(!count) {
 		return 0;
 	}
 

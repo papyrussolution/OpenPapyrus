@@ -79,7 +79,7 @@ typedef unsigned char uint8;
 
 #elif U_HAVE_INTTYPES_H
 
-#   include <inttypes.h>
+#include <inttypes.h>
 
 #else /* neither U_HAVE_STDINT_H nor U_HAVE_INTTYPES_H */
 

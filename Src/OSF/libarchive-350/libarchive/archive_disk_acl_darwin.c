@@ -82,7 +82,7 @@ static int translate_guid(struct archive * a, acl_entry_t acl_entry, int * ae_id
 	if(q == NULL)
 		return 1;
 	r = mbr_uuid_to_id((const uchar *)q, &ugid, &idtype);
-	if(r != 0) {
+	if(r) {
 		acl_free(q);
 		return 1;
 	}
@@ -226,7 +226,7 @@ static int translate_acl(struct archive_read_disk * a, struct archive_entry * en
 		}
 
 		/* Skip if translate_guid() above failed */
-		if(r != 0) {
+		if(r) {
 			s = acl_get_entry(acl, ACL_NEXT_ENTRY, &acl_entry);
 			continue;
 		}

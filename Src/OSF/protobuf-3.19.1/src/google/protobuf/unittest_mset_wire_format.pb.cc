@@ -101,7 +101,7 @@ TestMessageSet::TestMessageSet(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   _extensions_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_wireformat_unittest.TestMessageSet)
@@ -118,7 +118,7 @@ inline void TestMessageSet::SharedCtor() {
 
 TestMessageSet::~TestMessageSet() {
   // @@protoc_insertion_point(destructor:proto2_wireformat_unittest.TestMessageSet)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -238,7 +238,7 @@ TestMessageSetWireFormatContainer::TestMessageSetWireFormatContainer(::PROTOBUF_
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_wireformat_unittest.TestMessageSetWireFormatContainer)
@@ -261,7 +261,7 @@ message_set_ = nullptr;
 
 TestMessageSetWireFormatContainer::~TestMessageSetWireFormatContainer() {
   // @@protoc_insertion_point(destructor:proto2_wireformat_unittest.TestMessageSetWireFormatContainer)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -297,9 +297,9 @@ void TestMessageSetWireFormatContainer::Clear() {
 }
 
 const char* TestMessageSetWireFormatContainer::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -311,8 +311,7 @@ const char* TestMessageSetWireFormatContainer::_InternalParse(const char* ptr, :
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -345,9 +344,7 @@ uint8_t* TestMessageSetWireFormatContainer::_InternalSerialize(
   // optional .proto2_wireformat_unittest.TestMessageSet message_set = 1;
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::message_set(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::message_set(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -369,9 +366,7 @@ size_t TestMessageSetWireFormatContainer::ByteSizeLong() const {
   // optional .proto2_wireformat_unittest.TestMessageSet message_set = 1;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *message_set_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*message_set_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -411,7 +406,7 @@ void TestMessageSetWireFormatContainer::CopyFrom(const TestMessageSetWireFormatC
 
 bool TestMessageSetWireFormatContainer::IsInitialized() const {
   if(_internal_has_message_set()) {
-    if (!message_set_->IsInitialized()) return false;
+    if(!message_set_->IsInitialized()) return false;
   }
   return true;
 }
@@ -430,10 +425,10 @@ void TestMessageSetWireFormatContainer::InternalSwap(TestMessageSetWireFormatCon
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto2_wireformat_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto2_wireformat_unittest::TestMessageSet* Arena::CreateMaybeMessage< ::proto2_wireformat_unittest::TestMessageSet >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_wireformat_unittest::TestMessageSet * Arena::CreateMaybeMessage< ::proto2_wireformat_unittest::TestMessageSet >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_wireformat_unittest::TestMessageSet >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto2_wireformat_unittest::TestMessageSetWireFormatContainer* Arena::CreateMaybeMessage< ::proto2_wireformat_unittest::TestMessageSetWireFormatContainer >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_wireformat_unittest::TestMessageSetWireFormatContainer * Arena::CreateMaybeMessage< ::proto2_wireformat_unittest::TestMessageSetWireFormatContainer >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_wireformat_unittest::TestMessageSetWireFormatContainer >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

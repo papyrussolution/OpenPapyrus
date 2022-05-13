@@ -116,7 +116,7 @@ int STDCALL __archive_check_magic(struct archive *, uint magic, uint state, cons
 			return ARCHIVE_FATAL; \
 	} while(0)
 
-void    __archive_errx(int retvalue, const char * msg) __LA_DEAD;
+void    FASTCALL __archive_errx(int retvalue, const char * msg) __LA_DEAD;
 void    __archive_ensure_cloexec_flag(int fd);
 int     __archive_mktemp(const char * tmpdir);
 #if defined(_WIN32) && !defined(__CYGWIN__)

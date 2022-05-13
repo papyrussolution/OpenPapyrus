@@ -104,7 +104,7 @@ TestMessage::TestMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   _extensions_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.no_generic_services_test.TestMessage)
@@ -124,7 +124,7 @@ a_ = 0;
 
 TestMessage::~TestMessage() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.no_generic_services_test.TestMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -156,9 +156,9 @@ void TestMessage::Clear() {
 }
 
 const char* TestMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -171,8 +171,7 @@ const char* TestMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -304,7 +303,7 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIde
 }  // namespace no_generic_services_test
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::no_generic_services_test::TestMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::no_generic_services_test::TestMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::no_generic_services_test::TestMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::no_generic_services_test::TestMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::no_generic_services_test::TestMessage >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

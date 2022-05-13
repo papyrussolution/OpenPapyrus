@@ -62,7 +62,7 @@ ssh_buffer base64_to_bin(const char * source)
 	}
 
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		ZFREE(base64);
 		return NULL;
 	}

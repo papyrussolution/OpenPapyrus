@@ -15,10 +15,9 @@
 #include "lcms2_internal.h"
 #pragma hdrstop
 #include "testcms2.h"
-
+//
 // ZOO checks
-// ------------------------------------------------------------------------------------------------------------
-
+//
 #ifdef CMS_IS_WINDOWS_
 
 static char ZOOfolder[cmsMAX_PATH] = "c:\\colormaps\\";
@@ -51,14 +50,14 @@ static void ReadAllRAWTags(cmsHPROFILE h)
 
 static void PrintInfo(cmsHPROFILE h, cmsInfoType Info)
 {
-	wchar_t * text;
-	cmsContext id = 0;
-	int32 len = cmsGetProfileInfo(h, Info, "en", "US", NULL, 0);
-	if(len == 0) return;
-	text = (wchar_t *)_cmsMalloc(id, len);
-	cmsGetProfileInfo(h, Info, "en", "US", text, len);
-	wprintf(L"%s\n", text);
-	_cmsFree(id, text);
+	const int32 len = cmsGetProfileInfo(h, Info, "en", "US", NULL, 0);
+	if(len > 0) {
+		cmsContext id = 0;
+		wchar_t * text = (wchar_t *)_cmsMalloc(id, len);
+		cmsGetProfileInfo(h, Info, "en", "US", text, len);
+		wprintf(L"%s\n", text);
+		_cmsFree(id, text);
+	}
 }
 
 static void PrintAllInfos(cmsHPROFILE h)
@@ -74,38 +73,29 @@ static void ReadAllLUTS(cmsHPROFILE h)
 {
 	cmsCIEXYZ Black;
 	cmsPipeline * a = _cmsReadInputLUT(h, INTENT_PERCEPTUAL);
-	if(a) cmsPipelineFree(a);
+	cmsPipelineFree(a);
 	a = _cmsReadInputLUT(h, INTENT_RELATIVE_COLORIMETRIC);
-	if(a) cmsPipelineFree(a);
+	cmsPipelineFree(a);
 	a = _cmsReadInputLUT(h, INTENT_SATURATION);
-	if(a) cmsPipelineFree(a);
+	cmsPipelineFree(a);
 	a = _cmsReadInputLUT(h, INTENT_ABSOLUTE_COLORIMETRIC);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadOutputLUT(h, INTENT_PERCEPTUAL);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadOutputLUT(h, INTENT_RELATIVE_COLORIMETRIC);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadOutputLUT(h, INTENT_SATURATION);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadOutputLUT(h, INTENT_ABSOLUTE_COLORIMETRIC);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadDevicelinkLUT(h, INTENT_PERCEPTUAL);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadDevicelinkLUT(h, INTENT_RELATIVE_COLORIMETRIC);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadDevicelinkLUT(h, INTENT_SATURATION);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	a = _cmsReadDevicelinkLUT(h, INTENT_ABSOLUTE_COLORIMETRIC);
-	if(a) cmsPipelineFree(a);
-
+	cmsPipelineFree(a);
 	cmsDetectDestinationBlackPoint(&Black, h, INTENT_PERCEPTUAL, 0);
 	cmsDetectDestinationBlackPoint(&Black, h, INTENT_RELATIVE_COLORIMETRIC, 0);
 	cmsDetectDestinationBlackPoint(&Black, h, INTENT_SATURATION, 0);
@@ -117,69 +107,68 @@ static void ReadAllLUTS(cmsHPROFILE h)
 
 static int32 CheckSingleSpecimen(const char * Profile)
 {
-	char BuffSrc[256];
-	char BuffDst[256];
+	char buff_src[256];
+	char buff_dst[256];
 	cmsHPROFILE h;
-	sprintf(BuffSrc, "%s%s", ZOOfolder, Profile);
-	sprintf(BuffDst, "%s%s", ZOOwrite,  Profile);
-	h = cmsOpenProfileFromFile(BuffSrc, "r");
+	sprintf(buff_src, "%s%s", ZOOfolder, Profile);
+	sprintf(buff_dst, "%s%s", ZOOwrite,  Profile);
+	h = cmsOpenProfileFromFile(buff_src, "r");
 	if(h == NULL) return 0;
 	printf("%s\n", Profile);
 	PrintAllInfos(h);
 	ReadAllTags(h);
 	ReadAllLUTS(h);
 	// ReadAllRAWTags(h);
-	cmsSaveProfileToFile(h, BuffDst);
+	cmsSaveProfileToFile(h, buff_dst);
 	cmsCloseProfile(h);
-	h = cmsOpenProfileFromFile(BuffDst, "r");
-	if(h == NULL) return 0;
+	h = cmsOpenProfileFromFile(buff_dst, "r");
+	if(h == NULL) 
+		return 0;
 	ReadAllTags(h);
-
 	cmsCloseProfile(h);
-
 	return 1;
 }
 
 static int32 CheckRAWSpecimen(const char * Profile)
 {
-	char BuffSrc[256];
-	char BuffDst[256];
+	char buff_src[256];
+	char buff_dst[256];
 	cmsHPROFILE h;
-	sprintf(BuffSrc, "%s%s", ZOOfolder, Profile);
-	sprintf(BuffDst, "%s%s", ZOORawWrite,  Profile);
-	h = cmsOpenProfileFromFile(BuffSrc, "r");
+	sprintf(buff_src, "%s%s", ZOOfolder, Profile);
+	sprintf(buff_dst, "%s%s", ZOORawWrite,  Profile);
+	h = cmsOpenProfileFromFile(buff_src, "r");
 	if(h == NULL) return 0;
 	ReadAllTags(h);
 	ReadAllRAWTags(h);
-	cmsSaveProfileToFile(h, BuffDst);
+	cmsSaveProfileToFile(h, buff_dst);
 	cmsCloseProfile(h);
-	h = cmsOpenProfileFromFile(BuffDst, "r");
+	h = cmsOpenProfileFromFile(buff_dst, "r");
 	if(h == NULL) return 0;
 	ReadAllTags(h);
 	cmsCloseProfile(h);
 	return 1;
 }
 
-static int input = 0,
-    disp = 0,
-    output = 0,
-    link = 0,
-    abst = 0,
-    color = 0,
-    named = 0;
+static int input = 0;
+static int disp = 0;
+static int output = 0;
+static int link = 0;
+static int abst = 0;
+static int color = 0;
+static int named = 0;
 
-static int rgb = 0,
-    cmyk = 0,
-    gray = 0,
-    other = 0;
+static int rgb = 0;
+static int cmyk = 0;
+static int gray = 0;
+static int other = 0;
 
 static int count_stats(const char * Profile)
 {
-	char BuffSrc[256];
+	char buff_src[256];
 	cmsHPROFILE h;
 	cmsCIEXYZ Black;
-	sprintf(BuffSrc, "%s%s", ZOOfolder, Profile);
-	h = cmsOpenProfileFromFile(BuffSrc, "r");
+	sprintf(buff_src, "%s%s", ZOOfolder, Profile);
+	h = cmsOpenProfileFromFile(buff_src, "r");
 	if(h == NULL) return 0;
 	switch(cmsGetDeviceClass(h)) {
 		case cmsSigInputClass: input++; break;
@@ -203,22 +192,20 @@ static int count_stats(const char * Profile)
 	return 1;
 }
 
-void CheckProfileZOO(void)
+void CheckProfileZOO(FILE * fOut)
 {
 	struct _finddata_t c_file;
 	intptr_t hFile;
 	cmsSetLogErrorHandler(NULL);
-	if((hFile = _findfirst("c:\\colormaps\\*.*", &c_file)) == -1L)
-		printf("No files in current directory");
+	if((hFile = _findfirst(/*"c:\\colormaps\\*.*"*/"/Papyrus/Src/PPTEST/DATA/colormaps/*.*", &c_file)) == -1L)
+		fprintf(fOut, "No files in current directory");
 	else {
 		do {
-			if(strcmp(c_file.name, ".") != 0 &&
-			    strcmp(c_file.name, "..") != 0) {
+			if(!sstreq(c_file.name, ".") && !sstreq(c_file.name, "..")) {
 				CheckSingleSpecimen(c_file.name);
 				CheckRAWSpecimen(c_file.name);
-
 				count_stats(c_file.name);
-				TestMemoryLeaks(FALSE);
+				TestMemoryLeaks(fOut, FALSE);
 			}
 		} while(_findnext(hFile, &c_file) == 0);
 		_findclose(hFile);

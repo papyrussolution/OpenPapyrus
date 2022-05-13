@@ -94,7 +94,7 @@ ImportMessageLite::ImportMessageLite(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest_import.ImportMessageLite)
@@ -113,7 +113,7 @@ d_ = 0;
 
 ImportMessageLite::~ImportMessageLite() {
   // @@protoc_insertion_point(destructor:protobuf_unittest_import.ImportMessageLite)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -144,9 +144,9 @@ void ImportMessageLite::Clear() {
 }
 
 const char* ImportMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -159,8 +159,7 @@ const char* ImportMessageLite::_InternalParse(const char* ptr, ::PROTOBUF_NAMESP
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -268,7 +267,7 @@ std::string ImportMessageLite::GetTypeName() const { return "protobuf_unittest_i
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest_import
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest_import::ImportMessageLite* Arena::CreateMaybeMessage< ::protobuf_unittest_import::ImportMessageLite >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest_import::ImportMessageLite * Arena::CreateMaybeMessage< ::protobuf_unittest_import::ImportMessageLite >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest_import::ImportMessageLite >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="extract">
+      <UniqueIdentifier>{e5f700e4-e42e-4ff7-972d-be60a309eaae}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header\extract">
+      <UniqueIdentifier>{e48b0631-9992-492c-9715-ccf7c98e5b64}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\alloc.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\astring.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\buffer.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\docx.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\docx_template.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\extract.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\misc-test.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\outf.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\xml.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\zip.c">
+      <Filter>extract</Filter>
+    </ClCompile>
+    <ClCompile Include="..\OSF\mupdf\thirdparty\extract\src\join.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\alloc.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\astring.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\document.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\docx.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\docx_template.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\outf.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\xml.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\src\zip.h">
+      <Filter>extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\include\extract.h">
+      <Filter>Header\extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\include\extract_buffer.h">
+      <Filter>Header\extract</Filter>
+    </ClInclude>
+    <ClInclude Include="..\OSF\mupdf\thirdparty\extract\include\extract_buffer_impl.h">
+      <Filter>Header\extract</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

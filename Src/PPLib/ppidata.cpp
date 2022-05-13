@@ -628,7 +628,7 @@ int WinInetFTP::SafeGet(const char * pLocalPath, const char * pFTPPath, int chec
 			pLogger->LogString(PPTXT_FTPRCVSUCCESS, buf);
 		else if(r == -1)
 			pLogger->LogMsgCode(mfError, PPERR_NOSRCFILE, buf);
-		else if(r == 0) {
+		else if(!r) {
 			SString add_buf;
 			PPGetLastErrorMessage(1, buf);
 			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);
@@ -666,7 +666,7 @@ int WinInetFTP::SafePut(const char * pLocalPath, const char * pFTPPath, int chec
 			pLogger->LogString(PPTXT_FTPSENDSUCCESS, buf);
 		else if(r == -1)
 			pLogger->LogMsgCode(mfError, PPERR_NOSRCFILE, buf);
-		else if(r == 0) {
+		else if(!r) {
 			SString add_buf;
 			PPGetLastErrorMessage(1, buf);
 			// @v9.4.12 PPGetWord(PPWORD_ERROR, 0, add_buf);

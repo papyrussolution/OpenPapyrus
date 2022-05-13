@@ -47,7 +47,7 @@ int ssh_userauth_pubkey(ssh_session session, const char * username, ssh_string p
 	int rc;
 	(void)publickey; /* unused */
 	key = ssh_key_new();
-	if(key == NULL) {
+	if(!key) {
 		return SSH_AUTH_ERROR;
 	}
 	key->type = (enum ssh_keytypes_e)privatekey->type;
@@ -332,7 +332,7 @@ char * string_to_char(ssh_string str){
 /* OLD PKI FUNCTIONS */
 
 void publickey_free(ssh_public_key key) {
-	if(key == NULL) {
+	if(!key) {
 		return;
 	}
 
@@ -523,7 +523,7 @@ ssh_string publickey_to_string(ssh_public_key pubkey) {
 	}
 
 	key = ssh_key_new();
-	if(key == NULL) {
+	if(!key) {
 		return NULL;
 	}
 	key->type = (enum ssh_keytypes_e)pubkey->type;
@@ -663,7 +663,7 @@ ssh_string ssh_get_pubkey(ssh_session session)
 
 	rc = ssh_dh_get_current_server_publickey_blob(session,
 		&pubkey_blob);
-	if(rc != 0) {
+	if(rc) {
 		return NULL;
 	}
 

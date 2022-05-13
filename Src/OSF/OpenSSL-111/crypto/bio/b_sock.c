@@ -171,7 +171,7 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 	 * that, instead.
 	 */
 #if __INITIAL_POINTER_SIZE == 64
-#     define ARG arg_32p
+#define ARG arg_32p
 #     pragma pointer_size save
 #     pragma pointer_size 32
 	ulong arg_32;
@@ -180,7 +180,7 @@ int BIO_socket_ioctl(int fd, long type, void * arg)
 	arg_32p = &arg_32;
 	arg_32 = *((ulong *)arg);
 #else                       /* __INITIAL_POINTER_SIZE == 64 */
-#     define ARG arg
+#define ARG arg
 #endif                      /* __INITIAL_POINTER_SIZE == 64 [else] */
 #else                        /* defined(OPENSSL_SYS_VMS) */
 #define ARG arg

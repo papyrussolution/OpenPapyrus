@@ -662,7 +662,7 @@ int PPViewPrcBusy::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser 
 						pugl.OPcug = PCUG_CANCEL;
 						ProcessUnsuffisientList(DLG_MSGNCMPL4, &pugl);
 					}
-					else if(r == 0)
+					else if(!r)
 						ok = PPErrorZ();
 				}
 				break;

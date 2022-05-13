@@ -98,14 +98,14 @@ typedef uint8 UVersionInfo[U_MAX_VERSION_LENGTH];
  * @stable ICU 2.4
  */
 
-#   if U_DISABLE_RENAMING
-#       define U_ICU_NAMESPACE icu
+#if U_DISABLE_RENAMING
+#define U_ICU_NAMESPACE icu
         namespace U_ICU_NAMESPACE { }
-#   else
-#       define U_ICU_NAMESPACE U_ICU_ENTRY_POINT_RENAME(icu)
+#else
+#define U_ICU_NAMESPACE U_ICU_ENTRY_POINT_RENAME(icu)
         namespace U_ICU_NAMESPACE { }
         namespace icu = U_ICU_NAMESPACE;
-#   endif
+#endif
 
 #define U_NAMESPACE_BEGIN namespace U_ICU_NAMESPACE {
 #define U_NAMESPACE_END }
@@ -113,17 +113,17 @@ typedef uint8 UVersionInfo[U_MAX_VERSION_LENGTH];
 #define U_NAMESPACE_QUALIFIER U_ICU_NAMESPACE::
 
 #   ifndef U_USING_ICU_NAMESPACE
-#       if defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || \
+#if defined(U_COMBINED_IMPLEMENTATION) || defined(U_COMMON_IMPLEMENTATION) || \
                 defined(U_I18N_IMPLEMENTATION) || defined(U_IO_IMPLEMENTATION) || \
                 defined(U_LAYOUTEX_IMPLEMENTATION) || defined(U_TOOLUTIL_IMPLEMENTATION)
-#           define U_USING_ICU_NAMESPACE 0
-#       else
-#           define U_USING_ICU_NAMESPACE 0
-#       endif
-#   endif
-#   if U_USING_ICU_NAMESPACE
+#define U_USING_ICU_NAMESPACE 0
+#else
+#define U_USING_ICU_NAMESPACE 0
+#endif
+#endif
+#if U_USING_ICU_NAMESPACE
         U_NAMESPACE_USE
-#   endif
+#endif
 #endif /* __cplusplus */
 
 /*===========================================================================*/

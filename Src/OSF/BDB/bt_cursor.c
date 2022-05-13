@@ -331,7 +331,7 @@ static int __bamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 		    case DB_BTREE:                      /* Case #1, #3. */
 			if((ret = __bam_ca_delete(dbp, cp->pgno, cp->indx, 1, &count)) != 0)
 				goto err;
-			if(count == 0)
+			if(!count)
 				goto lock;
 			goto done;
 		    case DB_RECNO:
@@ -340,7 +340,7 @@ static int __bamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 			/* Case #3. */
 			if((ret = __ram_ca_delete(dbp, cp->root, &count)) != 0)
 				goto err;
-			if(count == 0)
+			if(!count)
 				goto lock;
 			goto done;
 		    case DB_HASH:
@@ -367,13 +367,13 @@ static int __bamc_close(DBC * dbc, db_pgno_t root_pgno, int * rmroot)
 		    case DB_BTREE:
 			if((ret = __bam_ca_delete(dbp, cp_opd->pgno, cp_opd->indx, 1, &count)) != 0)
 				goto err;
-			if(count == 0)
+			if(!count)
 				goto lock;
 			goto done;
 		    case DB_RECNO:
 			if((ret = __ram_ca_delete(dbp, cp_opd->root, &count)) != 0)
 				goto err;
-			if(count == 0)
+			if(!count)
 				goto lock;
 			goto done;
 		    case DB_HASH:

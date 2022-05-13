@@ -135,7 +135,7 @@ RegexPattern &RegexPattern::operator = (const RegexPattern &other) {
 			const UnicodeString * name = (const UnicodeString *)hashEl->key.pointer;
 			UnicodeString * key = new UnicodeString(*name);
 			int32_t val = hashEl->value.integer;
-			if(key == NULL) {
+			if(!key) {
 				fDeferredStatus = U_MEMORY_ALLOCATION_ERROR;
 			}
 			else {

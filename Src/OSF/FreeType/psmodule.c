@@ -88,7 +88,7 @@ static FT_UInt32 ps_unicode_value(const char * glyph_name)
 		}
 
 		/* there must be exactly four hex digits */
-		if(count == 0) {
+		if(!count) {
 			if(*p == '\0')
 				return value;
 			if(*p == '.')
@@ -322,7 +322,7 @@ static FT_Error ps_unicodes_init(FT_Memory memory,
 		/* now compress the table a bit */
 		count = (FT_UInt)( map - table->maps );
 
-		if(count == 0) {
+		if(!count) {
 			/* No unicode chars here! */
 			FT_FREE(table->maps);
 			if(!error)

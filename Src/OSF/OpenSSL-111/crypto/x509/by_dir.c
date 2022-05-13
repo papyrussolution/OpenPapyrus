@@ -87,7 +87,7 @@ static int dir_ctrl(X509_LOOKUP * ctx, int cmd, const char * argp, long argl, ch
 static int new_dir(X509_LOOKUP * lu)
 {
 	BY_DIR * a = static_cast<BY_DIR *>(OPENSSL_malloc(sizeof(*a)));
-	if(a == NULL) {
+	if(!a) {
 		X509err(X509_F_NEW_DIR, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

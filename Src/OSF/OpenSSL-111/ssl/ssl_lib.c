@@ -678,7 +678,7 @@ SSL * SSL_new(SSL_CTX * ctx)
 {
 	SSL * s;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLerr(SSL_F_SSL_NEW, SSL_R_NULL_SSL_CTX);
 		return NULL;
 	}
@@ -1149,32 +1149,25 @@ void SSL_free(SSL * s)
 
 	/* Ignore return value */
 	ssl_free_wbio_buffer(s);
-
 	BIO_free_all(s->wbio);
 	BIO_free_all(s->rbio);
-
 	BUF_MEM_free(s->init_buf);
-
 	/* add extra stuff */
 	sk_SSL_CIPHER_free(s->cipher_list);
 	sk_SSL_CIPHER_free(s->cipher_list_by_id);
 	sk_SSL_CIPHER_free(s->tls13_ciphersuites);
 	sk_SSL_CIPHER_free(s->peer_ciphers);
-
 	/* Make the next call work :-) */
-	if(s->session != NULL) {
+	if(s->session) {
 		ssl_clear_bad_session(s);
 		SSL_SESSION_free(s->session);
 	}
 	SSL_SESSION_free(s->psksession);
 	OPENSSL_free(s->psksession_id);
-
 	clear_ciphers(s);
-
 	ssl_cert_free(s->cert);
 	OPENSSL_free(s->shared_sigalgs);
 	/* Free up if allocated */
-
 	OPENSSL_free(s->ext.hostname);
 	SSL_CTX_free(s->session_ctx);
 #ifndef OPENSSL_NO_EC
@@ -1197,7 +1190,6 @@ void SSL_free(SSL * s)
 	OPENSSL_free(s->clienthello);
 	OPENSSL_free(s->pha_context);
 	EVP_MD_CTX_free(s->pha_dgst);
-
 	sk_X509_NAME_pop_free(s->ca_names, X509_NAME_free);
 	sk_X509_NAME_pop_free(s->client_ca_names, X509_NAME_free);
 
@@ -1588,8 +1580,7 @@ int SSL_CTX_check_private_key(const SSL_CTX * ctx)
 		SSLerr(SSL_F_SSL_CTX_CHECK_PRIVATE_KEY, SSL_R_NO_PRIVATE_KEY_ASSIGNED);
 		return 0;
 	}
-	return X509_check_private_key
-		       (ctx->cert->key->x509, ctx->cert->key->privatekey);
+	return X509_check_private_key (ctx->cert->key->x509, ctx->cert->key->privatekey);
 }
 
 /* Fix this function so that it takes an optional type parameter */
@@ -1615,28 +1606,23 @@ int SSL_waiting_for_async(SSL * s)
 {
 	if(s->job)
 		return 1;
-
 	return 0;
 }
 
 int SSL_get_all_async_fds(SSL * s, OSSL_ASYNC_FD * fds, size_t * numfds)
 {
 	ASYNC_WAIT_CTX * ctx = s->waitctx;
-
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	return ASYNC_WAIT_CTX_get_all_fds(ctx, fds, numfds);
 }
 
-int SSL_get_changed_async_fds(SSL * s, OSSL_ASYNC_FD * addfd, size_t * numaddfds,
-    OSSL_ASYNC_FD * delfd, size_t * numdelfds)
+int SSL_get_changed_async_fds(SSL * s, OSSL_ASYNC_FD * addfd, size_t * numaddfds, OSSL_ASYNC_FD * delfd, size_t * numdelfds)
 {
 	ASYNC_WAIT_CTX * ctx = s->waitctx;
-
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
-	return ASYNC_WAIT_CTX_get_changed_fds(ctx, addfd, numaddfds, delfd,
-		   numdelfds);
+	return ASYNC_WAIT_CTX_get_changed_fds(ctx, addfd, numaddfds, delfd, numdelfds);
 }
 
 int SSL_accept(SSL * s)
@@ -1645,7 +1631,6 @@ int SSL_accept(SSL * s)
 		/* Not properly initialized yet */
 		SSL_set_accept_state(s);
 	}
-
 	return SSL_do_handshake(s);
 }
 
@@ -1655,7 +1640,6 @@ int SSL_connect(SSL * s)
 		/* Not properly initialized yet */
 		SSL_set_connect_state(s);
 	}
-
 	return SSL_do_handshake(s);
 }
 
@@ -1664,8 +1648,7 @@ long SSL_get_default_timeout(const SSL * s)
 	return s->method->get_timeout();
 }
 
-static int ssl_start_async_job(SSL * s, struct ssl_async_args * args,
-    int (*func)(void *))
+static int ssl_start_async_job(SSL * s, struct ssl_async_args * args, int (*func)(void *))
 {
 	int ret;
 	if(s->waitctx == NULL) {
@@ -1673,8 +1656,7 @@ static int ssl_start_async_job(SSL * s, struct ssl_async_args * args,
 		if(s->waitctx == NULL)
 			return -1;
 	}
-	switch(ASYNC_start_job(&s->job, s->waitctx, &ret, func, args,
-	    sizeof(struct ssl_async_args))) {
+	switch(ASYNC_start_job(&s->job, s->waitctx, &ret, func, args, sizeof(struct ssl_async_args))) {
 		case ASYNC_ERR:
 		    s->rwstate = SSL_NOTHING;
 		    SSLerr(SSL_F_SSL_START_ASYNC_JOB, SSL_R_FAILED_TO_INIT_ASYNC);
@@ -1698,14 +1680,10 @@ static int ssl_start_async_job(SSL * s, struct ssl_async_args * args,
 
 static int ssl_io_intern(void * vargs)
 {
-	struct ssl_async_args * args;
-	SSL * s;
-	void * buf;
-	size_t num;
-	args = (struct ssl_async_args *)vargs;
-	s = args->s;
-	buf = args->buf;
-	num = args->num;
+	struct ssl_async_args * args = (struct ssl_async_args *)vargs;
+	SSL * s = args->s;
+	void * buf = args->buf;
+	size_t num = args->num;
 	switch(args->type) {
 		case ssl_async_args::READFUNC: return args->f.func_read(s, buf, num, &s->asyncrw);
 		case ssl_async_args::WRITEFUNC: return args->f.func_write(s, buf, num, &s->asyncrw);
@@ -1720,14 +1698,11 @@ int ssl_read_internal(SSL * s, void * buf, size_t num, size_t * readbytes)
 		SSLerr(SSL_F_SSL_READ_INTERNAL, SSL_R_UNINITIALIZED);
 		return -1;
 	}
-
 	if(s->shutdown & SSL_RECEIVED_SHUTDOWN) {
 		s->rwstate = SSL_NOTHING;
 		return 0;
 	}
-
-	if(s->early_data_state == SSL_EARLY_DATA_CONNECT_RETRY
-	   || s->early_data_state == SSL_EARLY_DATA_ACCEPT_RETRY) {
+	if(oneof2(s->early_data_state, SSL_EARLY_DATA_CONNECT_RETRY, SSL_EARLY_DATA_ACCEPT_RETRY)) {
 		SSLerr(SSL_F_SSL_READ_INTERNAL, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return 0;
 	}
@@ -1736,7 +1711,6 @@ int ssl_read_internal(SSL * s, void * buf, size_t num, size_t * readbytes)
 	 * better do that
 	 */
 	ossl_statem_check_finish_init(s, 0);
-
 	if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 		struct ssl_async_args args;
 		int ret;
@@ -1758,28 +1732,23 @@ int SSL_read(SSL * s, void * buf, int num)
 {
 	int ret;
 	size_t readbytes;
-
 	if(num < 0) {
 		SSLerr(SSL_F_SSL_READ, SSL_R_BAD_LENGTH);
 		return -1;
 	}
-
 	ret = ssl_read_internal(s, buf, (size_t)num, &readbytes);
-
 	/*
 	 * The cast is safe here because ret should be <= INT_MAX because num is
 	 * <= INT_MAX
 	 */
 	if(ret > 0)
 		ret = (int)readbytes;
-
 	return ret;
 }
 
 int SSL_read_ex(SSL * s, void * buf, size_t num, size_t * readbytes)
 {
 	int ret = ssl_read_internal(s, buf, num, readbytes);
-
 	if(ret < 0)
 		ret = 0;
 	return ret;
@@ -1788,17 +1757,14 @@ int SSL_read_ex(SSL * s, void * buf, size_t num, size_t * readbytes)
 int SSL_read_early_data(SSL * s, void * buf, size_t num, size_t * readbytes)
 {
 	int ret;
-
 	if(!s->server) {
 		SSLerr(SSL_F_SSL_READ_EARLY_DATA, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 		return SSL_READ_EARLY_DATA_ERROR;
 	}
-
 	switch(s->early_data_state) {
 		case SSL_EARLY_DATA_NONE:
 		    if(!SSL_in_before(s)) {
-			    SSLerr(SSL_F_SSL_READ_EARLY_DATA,
-				ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+			    SSLerr(SSL_F_SSL_READ_EARLY_DATA, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 			    return SSL_READ_EARLY_DATA_ERROR;
 		    }
 		// @fallthrough
@@ -2271,7 +2237,7 @@ long SSL_CTX_ctrl(SSL_CTX * ctx, int cmd, long larg, void * parg)
 {
 	long l;
 	/* For some cases with ctx == NULL perform syntax checks */
-	if(ctx == NULL) {
+	if(!ctx) {
 		switch(cmd) {
 #ifndef OPENSSL_NO_EC
 			case SSL_CTRL_SET_GROUPS_LIST:
@@ -3087,7 +3053,7 @@ void SSL_CTX_free(SSL_CTX * a)
 {
 	int i;
 
-	if(a == NULL)
+	if(!a)
 		return;
 
 	CRYPTO_DOWN_REF(&a->references, &i, a->lock);
@@ -3383,13 +3349,10 @@ void ssl_update_cache(SSL * s, int mode)
 	 * Do not cache (on the server) these sessions that are not resumable
 	 * (clients can set SSL_VERIFY_PEER without needing a sid_ctx set).
 	 */
-	if(s->server && s->session->sid_ctx_length == 0
-	 && (s->verify_mode & SSL_VERIFY_PEER) != 0)
+	if(s->server && s->session->sid_ctx_length == 0 && (s->verify_mode & SSL_VERIFY_PEER) != 0)
 		return;
-
 	i = s->session_ctx->session_cache_mode;
-	if((i & mode) != 0
-	 && (!s->hit || SSL_IS_TLS13(s))) {
+	if((i & mode) != 0 && (!s->hit || SSL_IS_TLS13(s))) {
 		/*
 		 * Add the session to the internal cache. In server side TLSv1.3 we
 		 * normally don't do this because by default it's a full stateless ticket
@@ -3401,15 +3364,9 @@ void ssl_update_cache(SSL * s, int mode)
 		 *   session timeout events
 		 * - SSL_OP_NO_TICKET is set in which case it is a stateful ticket
 		 */
-		if((i & SSL_SESS_CACHE_NO_INTERNAL_STORE) == 0
-		 && (!SSL_IS_TLS13(s)
-		   || !s->server
-		   || (s->max_early_data > 0
-		 && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0)
-		   || s->session_ctx->remove_session_cb != NULL
-		   || (s->options & SSL_OP_NO_TICKET) != 0))
+		if((i & SSL_SESS_CACHE_NO_INTERNAL_STORE) == 0 && (!SSL_IS_TLS13(s) || !s->server || 
+			(s->max_early_data > 0 && (s->options & SSL_OP_NO_ANTI_REPLAY) == 0) || s->session_ctx->remove_session_cb != NULL || (s->options & SSL_OP_NO_TICKET) != 0))
 			SSL_CTX_add_session(s->session_ctx, s->session);
-
 		/*
 		 * Add the session to the external cache. We do this even in server side
 		 * TLSv1.3 without early data because some applications just want to
@@ -3421,7 +3378,6 @@ void ssl_update_cache(SSL * s, int mode)
 				SSL_SESSION_free(s->session);
 		}
 	}
-
 	/* auto flush every 255 connections */
 	if((!(i & SSL_SESS_CACHE_NO_AUTO_CLEAR)) && ((i & mode) == mode)) {
 		TSAN_QUALIFIER int * stat;
@@ -3434,24 +3390,15 @@ void ssl_update_cache(SSL * s, int mode)
 	}
 }
 
-const SSL_METHOD * SSL_CTX_get_ssl_method(const SSL_CTX * ctx)
-{
-	return ctx->method;
-}
-
-const SSL_METHOD * SSL_get_ssl_method(const SSL * s)
-{
-	return s->method;
-}
+const SSL_METHOD * SSL_CTX_get_ssl_method(const SSL_CTX * ctx) { return ctx->method; }
+const SSL_METHOD * SSL_get_ssl_method(const SSL * s) { return s->method; }
 
 int SSL_set_ssl_method(SSL * s, const SSL_METHOD * meth)
 {
 	int ret = 1;
-
 	if(s->method != meth) {
 		const SSL_METHOD * sm = s->method;
 		int (* hf) (SSL *) = s->handshake_func;
-
 		if(sm->version == meth->version)
 			s->method = meth;
 		else {
@@ -3459,7 +3406,6 @@ int SSL_set_ssl_method(SSL * s, const SSL_METHOD * meth)
 			s->method = meth;
 			ret = s->method->ssl_new(s);
 		}
-
 		if(hf == sm->ssl_connect)
 			s->handshake_func = meth->ssl_connect;
 		else if(hf == sm->ssl_accept)
@@ -3473,10 +3419,8 @@ int SSL_get_error(const SSL * s, int i)
 	int reason;
 	ulong l;
 	BIO * bio;
-
 	if(i > 0)
 		return SSL_ERROR_NONE;
-
 	/*
 	 * Make things return SSL_ERROR_SYSCALL when doing SSL_do_handshake etc,
 	 * where we do encode the error
@@ -3487,7 +3431,6 @@ int SSL_get_error(const SSL * s, int i)
 		else
 			return SSL_ERROR_SSL;
 	}
-
 	if(SSL_want_read(s)) {
 		bio = SSL_get_rbio(s);
 		if(BIO_should_read(bio))
@@ -3552,34 +3495,24 @@ int SSL_get_error(const SSL * s, int i)
 
 static int ssl_do_handshake_intern(void * vargs)
 {
-	struct ssl_async_args * args;
-	SSL * s;
-
-	args = (struct ssl_async_args *)vargs;
-	s = args->s;
-
+	struct ssl_async_args * args = (struct ssl_async_args *)vargs;
+	SSL * s = args->s;
 	return s->handshake_func(s);
 }
 
 int SSL_do_handshake(SSL * s)
 {
 	int ret = 1;
-
 	if(s->handshake_func == NULL) {
 		SSLerr(SSL_F_SSL_DO_HANDSHAKE, SSL_R_CONNECTION_TYPE_NOT_SET);
 		return -1;
 	}
-
 	ossl_statem_check_finish_init(s, -1);
-
 	s->method->ssl_renegotiate_check(s, 0);
-
 	if(SSL_in_init(s) || SSL_in_before(s)) {
 		if((s->mode & SSL_MODE_ASYNC) && ASYNC_get_current_job() == NULL) {
 			struct ssl_async_args args;
-
 			args.s = s;
-
 			ret = ssl_start_async_job(s, &args, ssl_do_handshake_intern);
 		}
 		else {
@@ -3615,8 +3548,7 @@ int ssl_undefined_function(SSL * s)
 
 int ssl_undefined_void_function(void)
 {
-	SSLerr(SSL_F_SSL_UNDEFINED_VOID_FUNCTION,
-	    ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
+	SSLerr(SSL_F_SSL_UNDEFINED_VOID_FUNCTION, ERR_R_SHOULD_NOT_HAVE_BEEN_CALLED);
 	return 0;
 }
 
@@ -3633,34 +3565,16 @@ const SSL_METHOD * ssl_bad_method(int ver)
 
 const char * ssl_protocol_to_string(int version)
 {
-	switch(version)
-	{
-		case TLS1_3_VERSION:
-		    return "TLSv1.3";
-
-		case TLS1_2_VERSION:
-		    return "TLSv1.2";
-
-		case TLS1_1_VERSION:
-		    return "TLSv1.1";
-
-		case TLS1_VERSION:
-		    return "TLSv1";
-
-		case SSL3_VERSION:
-		    return "SSLv3";
-
-		case DTLS1_BAD_VER:
-		    return "DTLSv0.9";
-
-		case DTLS1_VERSION:
-		    return "DTLSv1";
-
-		case DTLS1_2_VERSION:
-		    return "DTLSv1.2";
-
-		default:
-		    return "unknown";
+	switch(version) {
+		case TLS1_3_VERSION: return "TLSv1.3";
+		case TLS1_2_VERSION: return "TLSv1.2";
+		case TLS1_1_VERSION: return "TLSv1.1";
+		case TLS1_VERSION: return "TLSv1";
+		case SSL3_VERSION: return "SSLv3";
+		case DTLS1_BAD_VER: return "DTLSv0.9";
+		case DTLS1_VERSION: return "DTLSv1";
+		case DTLS1_2_VERSION: return "DTLSv1.2";
+		default: return "unknown";
 	}
 }
 
@@ -3674,12 +3588,10 @@ static int dup_ca_names(STACK_OF(X509_NAME) ** dst, STACK_OF(X509_NAME) * src)
 	STACK_OF(X509_NAME) *sk;
 	X509_NAME * xn;
 	int i;
-
-	if(src == NULL) {
+	if(!src) {
 		*dst = NULL;
 		return 1;
 	}
-
 	if((sk = sk_X509_NAME_new_null()) == NULL)
 		return 0;
 	for(i = 0; i < sk_X509_NAME_num(src); i++) {
@@ -3703,20 +3615,17 @@ SSL * SSL_dup(SSL * s)
 {
 	SSL * ret;
 	int i;
-
 	/* If we're not quiescent, just up_ref! */
 	if(!SSL_in_init(s) || !SSL_in_before(s)) {
 		CRYPTO_UP_REF(&s->references, &i, s->lock);
 		return s;
 	}
-
 	/*
 	 * Otherwise, copy configuration state, and session if set.
 	 */
 	if((ret = SSL_new(SSL_get_SSL_CTX(s))) == NULL)
 		return NULL;
-
-	if(s->session != NULL) {
+	if(s->session) {
 		/*
 		 * Arranges to share the same session via up_ref.  This "copies"
 		 * session-id, SSL_METHOD, sid_ctx, and 'cert'
@@ -3974,7 +3883,7 @@ SSL_CTX * SSL_set_SSL_CTX(SSL * ssl, SSL_CTX * ctx)
 	CERT * new_cert;
 	if(ssl->ctx == ctx)
 		return ssl->ctx;
-	if(ctx == NULL)
+	if(!ctx)
 		ctx = ssl->session_ctx;
 	new_cert = ssl_cert_dup(ctx->cert);
 	if(new_cert == NULL) {
@@ -4421,7 +4330,7 @@ int ssl_handshake_hash(SSL * s, uchar * out, size_t outlen,
 	}
 
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 
 	if(!EVP_MD_CTX_copy_ex(ctx, hdgst)
@@ -4832,7 +4741,7 @@ int ssl_validate_ct(SSL * s)
 	}
 
 	ctx = CT_POLICY_EVAL_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_VALIDATE_CT,
 		    ERR_R_MALLOC_FAILURE);
 		goto end;
@@ -5179,32 +5088,23 @@ int ssl_log_secret(SSL * ssl,
 
 int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 {
-	int n;
-
-	n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
-
+	int n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
 	if(PACKET_remaining(cipher_suites) == 0) {
-		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SSL_CACHE_CIPHERLIST,
-		    SSL_R_NO_CIPHERS_SPECIFIED);
+		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_SSL_CACHE_CIPHERLIST, SSL_R_NO_CIPHERS_SPECIFIED);
 		return 0;
 	}
-
 	if(PACKET_remaining(cipher_suites) % n != 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL_CACHE_CIPHERLIST,
-		    SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL_CACHE_CIPHERLIST, SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		return 0;
 	}
-
 	OPENSSL_free(s->s3->tmp.ciphers_raw);
 	s->s3->tmp.ciphers_raw = NULL;
 	s->s3->tmp.ciphers_rawlen = 0;
-
 	if(sslv2format) {
 		size_t numciphers = PACKET_remaining(cipher_suites) / n;
 		PACKET sslv2ciphers = *cipher_suites;
 		uint leadbyte;
 		uchar * raw;
-
 		/*
 		 * We store the raw ciphers list in SSLv3+ format so we need to do some
 		 * preprocessing to convert the list first. If there are any SSLv2 only
@@ -5215,21 +5115,15 @@ int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 		raw = static_cast<uchar *>(OPENSSL_malloc(numciphers * TLS_CIPHER_LEN));
 		s->s3->tmp.ciphers_raw = raw;
 		if(raw == NULL) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_CACHE_CIPHERLIST,
-			    ERR_R_MALLOC_FAILURE);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL_CACHE_CIPHERLIST, ERR_R_MALLOC_FAILURE);
 			return 0;
 		}
 		for(s->s3->tmp.ciphers_rawlen = 0;
 		    PACKET_remaining(&sslv2ciphers) > 0;
 		    raw += TLS_CIPHER_LEN) {
-			if(!PACKET_get_1(&sslv2ciphers, &leadbyte)
-			   || (leadbyte == 0
-			 && !PACKET_copy_bytes(&sslv2ciphers, raw,
-			    TLS_CIPHER_LEN))
-			   || (leadbyte != 0
-			 && !PACKET_forward(&sslv2ciphers, TLS_CIPHER_LEN))) {
-				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL_CACHE_CIPHERLIST,
-				    SSL_R_BAD_PACKET);
+			if(!PACKET_get_1(&sslv2ciphers, &leadbyte) || (leadbyte == 0 && !PACKET_copy_bytes(&sslv2ciphers, raw, TLS_CIPHER_LEN)) || 
+				(leadbyte != 0 && !PACKET_forward(&sslv2ciphers, TLS_CIPHER_LEN))) {
+				SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_SSL_CACHE_CIPHERLIST, SSL_R_BAD_PACKET);
 				OPENSSL_free(s->s3->tmp.ciphers_raw);
 				s->s3->tmp.ciphers_raw = NULL;
 				s->s3->tmp.ciphers_rawlen = 0;
@@ -5248,21 +5142,15 @@ int ssl_cache_cipherlist(SSL * s, PACKET * cipher_suites, int sslv2format)
 	return 1;
 }
 
-int SSL_bytes_to_cipher_list(SSL * s, const uchar * bytes, size_t len,
-    int isv2format, STACK_OF(SSL_CIPHER) ** sk,
-    STACK_OF(SSL_CIPHER) ** scsvs)
+int SSL_bytes_to_cipher_list(SSL * s, const uchar * bytes, size_t len, int isv2format, STACK_OF(SSL_CIPHER) ** sk, STACK_OF(SSL_CIPHER) ** scsvs)
 {
 	PACKET pkt;
-
 	if(!PACKET_buf_init(&pkt, bytes, len))
 		return 0;
 	return bytes_to_cipher_list(s, &pkt, sk, scsvs, isv2format, 0);
 }
 
-int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
-    STACK_OF(SSL_CIPHER) ** skp,
-    STACK_OF(SSL_CIPHER) ** scsvs_out,
-    int sslv2format, int fatal)
+int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites, STACK_OF(SSL_CIPHER) ** skp, STACK_OF(SSL_CIPHER) ** scsvs_out, int sslv2format, int fatal)
 {
 	const SSL_CIPHER * c;
 	STACK_OF(SSL_CIPHER) *sk = NULL;
@@ -5270,39 +5158,30 @@ int bytes_to_cipher_list(SSL * s, PACKET * cipher_suites,
 	int n;
 	/* 3 = SSLV2_CIPHER_LEN > TLS_CIPHER_LEN = 2. */
 	uchar cipher[SSLV2_CIPHER_LEN];
-
 	n = sslv2format ? SSLV2_CIPHER_LEN : TLS_CIPHER_LEN;
-
 	if(PACKET_remaining(cipher_suites) == 0) {
 		if(fatal)
-			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_BYTES_TO_CIPHER_LIST,
-			    SSL_R_NO_CIPHERS_SPECIFIED);
+			SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_BYTES_TO_CIPHER_LIST, SSL_R_NO_CIPHERS_SPECIFIED);
 		else
 			SSLerr(SSL_F_BYTES_TO_CIPHER_LIST, SSL_R_NO_CIPHERS_SPECIFIED);
 		return 0;
 	}
-
 	if(PACKET_remaining(cipher_suites) % n != 0) {
 		if(fatal)
-			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_BYTES_TO_CIPHER_LIST,
-			    SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_BYTES_TO_CIPHER_LIST, SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		else
-			SSLerr(SSL_F_BYTES_TO_CIPHER_LIST,
-			    SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
+			SSLerr(SSL_F_BYTES_TO_CIPHER_LIST, SSL_R_ERROR_IN_RECEIVED_CIPHER_LIST);
 		return 0;
 	}
-
 	sk = sk_SSL_CIPHER_new_null();
 	scsvs = sk_SSL_CIPHER_new_null();
 	if(sk == NULL || scsvs == NULL) {
 		if(fatal)
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_BYTES_TO_CIPHER_LIST,
-			    ERR_R_MALLOC_FAILURE);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_BYTES_TO_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
 		else
 			SSLerr(SSL_F_BYTES_TO_CIPHER_LIST, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}
-
 	while(PACKET_copy_bytes(cipher_suites, cipher, n)) {
 		/*
 		 * SSLv3 ciphers wrapped in an SSLv2-compatible ClientHello have the
@@ -5352,10 +5231,7 @@ int SSL_CTX_set_max_early_data(SSL_CTX * ctx, uint32_t max_early_data)
 	return 1;
 }
 
-uint32_t SSL_CTX_get_max_early_data(const SSL_CTX * ctx)
-{
-	return ctx->max_early_data;
-}
+uint32_t SSL_CTX_get_max_early_data(const SSL_CTX * ctx) { return ctx->max_early_data; }
 
 int SSL_set_max_early_data(SSL * s, uint32_t max_early_data)
 {
@@ -5363,10 +5239,7 @@ int SSL_set_max_early_data(SSL * s, uint32_t max_early_data)
 	return 1;
 }
 
-uint32_t SSL_get_max_early_data(const SSL * s)
-{
-	return s->max_early_data;
-}
+uint32_t SSL_get_max_early_data(const SSL * s) { return s->max_early_data; }
 
 int SSL_CTX_set_recv_max_early_data(SSL_CTX * ctx, uint32_t recv_max_early_data)
 {
@@ -5374,10 +5247,7 @@ int SSL_CTX_set_recv_max_early_data(SSL_CTX * ctx, uint32_t recv_max_early_data)
 	return 1;
 }
 
-uint32_t SSL_CTX_get_recv_max_early_data(const SSL_CTX * ctx)
-{
-	return ctx->recv_max_early_data;
-}
+uint32_t SSL_CTX_get_recv_max_early_data(const SSL_CTX * ctx) { return ctx->recv_max_early_data; }
 
 int SSL_set_recv_max_early_data(SSL * s, uint32_t recv_max_early_data)
 {
@@ -5385,17 +5255,13 @@ int SSL_set_recv_max_early_data(SSL * s, uint32_t recv_max_early_data)
 	return 1;
 }
 
-uint32_t SSL_get_recv_max_early_data(const SSL * s)
-{
-	return s->recv_max_early_data;
-}
+uint32_t SSL_get_recv_max_early_data(const SSL * s) { return s->recv_max_early_data; }
 
 __owur uint ssl_get_max_send_fragment(const SSL * ssl)
 {
 	/* Return any active Max Fragment Len extension */
 	if(ssl->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(ssl->session))
 		return GET_MAX_FRAGMENT_LENGTH(ssl->session);
-
 	/* return current SSL connection setting */
 	return ssl->max_send_fragment;
 }
@@ -5405,11 +5271,9 @@ __owur uint ssl_get_split_send_fragment(const SSL * ssl)
 	/* Return a value regarding an active Max Fragment Len extension */
 	if(ssl->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(ssl->session) && ssl->split_send_fragment > GET_MAX_FRAGMENT_LENGTH(ssl->session))
 		return GET_MAX_FRAGMENT_LENGTH(ssl->session);
-
 	/* else limit |split_send_fragment| to current |max_send_fragment| */
 	if(ssl->split_send_fragment > ssl->max_send_fragment)
 		return ssl->max_send_fragment;
-
 	/* return current SSL connection setting */
 	return ssl->split_send_fragment;
 }
@@ -5431,15 +5295,8 @@ int SSL_stateless(SSL * s)
 	return -1;
 }
 
-void SSL_CTX_set_post_handshake_auth(SSL_CTX * ctx, int val)
-{
-	ctx->pha_enabled = val;
-}
-
-void SSL_set_post_handshake_auth(SSL * ssl, int val)
-{
-	ssl->pha_enabled = val;
-}
+void SSL_CTX_set_post_handshake_auth(SSL_CTX * ctx, int val) { ctx->pha_enabled = val; }
+void SSL_set_post_handshake_auth(SSL * ssl, int val) { ssl->pha_enabled = val; }
 
 int SSL_verify_client_post_handshake(SSL * ssl)
 {
@@ -5451,32 +5308,19 @@ int SSL_verify_client_post_handshake(SSL * ssl)
 		SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_NOT_SERVER);
 		return 0;
 	}
-
 	if(!SSL_is_init_finished(ssl)) {
 		SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_STILL_IN_INIT);
 		return 0;
 	}
-
 	switch(ssl->post_handshake_auth) {
-		case SSL_PHA_NONE:
-		    SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_EXTENSION_NOT_RECEIVED);
-		    return 0;
+		case SSL_PHA_NONE: SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_EXTENSION_NOT_RECEIVED); return 0;
 		default:
-		case SSL_PHA_EXT_SENT:
-		    SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, ERR_R_INTERNAL_ERROR);
-		    return 0;
-		case SSL_PHA_EXT_RECEIVED:
-		    break;
-		case SSL_PHA_REQUEST_PENDING:
-		    SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_REQUEST_PENDING);
-		    return 0;
-		case SSL_PHA_REQUESTED:
-		    SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_REQUEST_SENT);
-		    return 0;
+		case SSL_PHA_EXT_SENT: SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, ERR_R_INTERNAL_ERROR); return 0;
+		case SSL_PHA_EXT_RECEIVED: break;
+		case SSL_PHA_REQUEST_PENDING: SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_REQUEST_PENDING); return 0;
+		case SSL_PHA_REQUESTED: SSLerr(SSL_F_SSL_VERIFY_CLIENT_POST_HANDSHAKE, SSL_R_REQUEST_SENT); return 0;
 	}
-
 	ssl->post_handshake_auth = SSL_PHA_REQUEST_PENDING;
-
 	/* checks verify_mode and algorithm_auth */
 	if(!send_certificate_request(ssl)) {
 		ssl->post_handshake_auth = SSL_PHA_EXT_RECEIVED; /* restore on error */

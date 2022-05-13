@@ -38,7 +38,7 @@ ssh_session ssh_new()
 	char * id = NULL;
 	int rc;
 	ssh_session session = (ssh_session)SAlloc::C(1, sizeof(struct ssh_session_struct));
-	if(session == NULL) {
+	if(!session) {
 		return NULL;
 	}
 	session->next_crypto = crypto_new();
@@ -156,7 +156,7 @@ void ssh_free(ssh_session session)
 	int i;
 	struct ssh_iterator * it = NULL;
 	struct ssh_buffer_struct * b = NULL;
-	if(session == NULL) {
+	if(!session) {
 		return;
 	}
 	/*
@@ -279,7 +279,7 @@ void ssh_free(ssh_session session)
  */
 const char * ssh_get_clientbanner(ssh_session session) 
 {
-	if(session == NULL) {
+	if(!session) {
 		return NULL;
 	}
 	return session->clientbanner;
@@ -407,7 +407,7 @@ const char * ssh_get_hmac_out(ssh_session session) {
  * @param[in]  session  The SSH session to disconnect.
  */
 void ssh_silent_disconnect(ssh_session session) {
-	if(session == NULL) {
+	if(!session) {
 		return;
 	}
 
@@ -425,7 +425,7 @@ void ssh_silent_disconnect(ssh_session session) {
  */
 void ssh_set_blocking(ssh_session session, int blocking)
 {
-	if(session == NULL) {
+	if(!session) {
 		return;
 	}
 	session->flags &= ~SSH_SESSION_FLAG_BLOCKING;
@@ -463,25 +463,21 @@ static int ssh_flush_termination(void * c)
  * @returns           SSH_OK on success, SSH_AGAIN if timeout occurred,
  *              SSH_ERROR otherwise.
  */
-
-int ssh_blocking_flush(ssh_session session, int timeout){
+int ssh_blocking_flush(ssh_session session, int timeout)
+{
 	int rc;
-	if(session == NULL) {
+	if(!session) {
 		return SSH_ERROR;
 	}
-
-	rc = ssh_handle_packets_termination(session, timeout,
-		ssh_flush_termination, session);
+	rc = ssh_handle_packets_termination(session, timeout, ssh_flush_termination, session);
 	if(rc == SSH_ERROR) {
 		return rc;
 	}
 	if(!ssh_flush_termination(session)) {
 		rc = SSH_AGAIN;
 	}
-
 	return rc;
 }
-
 /**
  * @brief Check if we are connected.
  *
@@ -489,14 +485,10 @@ int ssh_blocking_flush(ssh_session session, int timeout){
  *
  * @return              1 if we are connected, 0 if not.
  */
-int ssh_is_connected(ssh_session session) {
-	if(session == NULL) {
-		return 0;
-	}
-
-	return session->alive;
+int ssh_is_connected(ssh_session session) 
+{
+	return session ? session->alive : 0;
 }
-
 /**
  * @brief Get the fd of a connection.
  *
@@ -507,54 +499,41 @@ int ssh_is_connected(ssh_session session) {
  * @return              The file descriptor of the connection, or -1 if it is
  *                not connected
  */
-socket_t ssh_get_fd(ssh_session session) {
-	if(session == NULL) {
-		return -1;
-	}
-
-	return ssh_socket_get_fd(session->socket);
+socket_t ssh_get_fd(ssh_session session) 
+{
+	return session ? ssh_socket_get_fd(session->socket) : -1;
 }
-
 /**
  * @brief Tell the session it has data to read on the file descriptor without
  * blocking.
  *
  * @param[in] session   The ssh session to use.
  */
-void ssh_set_fd_toread(ssh_session session) {
-	if(session == NULL) {
-		return;
-	}
-
-	ssh_socket_set_read_wontblock(session->socket);
+void ssh_set_fd_toread(ssh_session session) 
+{
+	if(session)
+		ssh_socket_set_read_wontblock(session->socket);
 }
-
 /**
  * @brief Tell the session it may write to the file descriptor without blocking.
  *
  * @param[in] session   The ssh session to use.
  */
-void ssh_set_fd_towrite(ssh_session session) {
-	if(session == NULL) {
-		return;
-	}
-
-	ssh_socket_set_write_wontblock(session->socket);
+void ssh_set_fd_towrite(ssh_session session) 
+{
+	if(session)
+		ssh_socket_set_write_wontblock(session->socket);
 }
-
 /**
  * @brief Tell the session it has an exception to catch on the file descriptor.
  *
  * \param[in] session   The ssh session to use.
  */
-void ssh_set_fd_except(ssh_session session) {
-	if(session == NULL) {
-		return;
-	}
-
-	ssh_socket_set_except(session->socket);
+void ssh_set_fd_except(ssh_session session) 
+{
+	if(session)
+		ssh_socket_set_except(session->socket);
 }
-
 /**
  * @internal
  *
@@ -574,40 +553,31 @@ void ssh_set_fd_except(ssh_session session) {
  *
  * @return              SSH_OK on success, SSH_ERROR otherwise.
  */
-int ssh_handle_packets(ssh_session session, int timeout) {
+int ssh_handle_packets(ssh_session session, int timeout) 
+{
 	ssh_poll_handle spoll;
 	ssh_poll_ctx ctx;
 	int tm = timeout;
 	int rc;
-
 	if(session == NULL || session->socket == NULL) {
 		return SSH_ERROR;
 	}
-
 	spoll = ssh_socket_get_poll_handle(session->socket);
 	ssh_poll_add_events(spoll, POLLIN);
 	ctx = ssh_poll_get_ctx(spoll);
-
 	if(!ctx) {
 		ctx = ssh_poll_get_default_ctx(session);
 		ssh_poll_ctx_add(ctx, spoll);
 	}
-
 	if(timeout == SSH_TIMEOUT_USER) {
-		if(ssh_is_blocking(session))
-			tm = ssh_make_milliseconds(session->opts.timeout,
-				session->opts.timeout_usec);
-		else
-			tm = 0;
+		tm = ssh_is_blocking(session) ? ssh_make_milliseconds(session->opts.timeout, session->opts.timeout_usec) : 0;
 	}
 	rc = ssh_poll_ctx_dopoll(ctx, tm);
 	if(rc == SSH_ERROR) {
 		session->session_state = SSH_SESSION_STATE_ERROR;
 	}
-
 	return rc;
 }
-
 /**
  * @internal
  *
@@ -634,16 +604,12 @@ int ssh_handle_packets(ssh_session session, int timeout) {
  * @returns             SSH_OK on success, SSH_AGAIN if timeout occurred,
  *                SSH_ERROR otherwise.
  */
-int ssh_handle_packets_termination(ssh_session session,
-    long timeout,
-    ssh_termination_function fct,
-    void * user)
+int ssh_handle_packets_termination(ssh_session session, long timeout, ssh_termination_function fct, void * user)
 {
 	struct ssh_timestamp ts;
 	long timeout_ms = SSH_TIMEOUT_INFINITE;
 	long tm;
 	int ret = SSH_OK;
-
 	/* If a timeout has been provided, use it */
 	if(timeout >= 0) {
 		timeout_ms = timeout;
@@ -651,11 +617,8 @@ int ssh_handle_packets_termination(ssh_session session,
 	else {
 		if(ssh_is_blocking(session)) {
 			if(timeout == SSH_TIMEOUT_USER || timeout == SSH_TIMEOUT_DEFAULT) {
-				if(session->opts.timeout > 0 ||
-				    session->opts.timeout_usec > 0) {
-					timeout_ms =
-					    ssh_make_milliseconds(session->opts.timeout,
-						session->opts.timeout_usec);
+				if(session->opts.timeout > 0 || session->opts.timeout_usec > 0) {
+					timeout_ms = ssh_make_milliseconds(session->opts.timeout, session->opts.timeout_usec);
 				}
 			}
 		}
@@ -663,12 +626,10 @@ int ssh_handle_packets_termination(ssh_session session,
 			timeout_ms = SSH_TIMEOUT_NONBLOCKING;
 		}
 	}
-
 	/* avoid unnecessary syscall for the SSH_TIMEOUT_NONBLOCKING case */
 	if(timeout_ms != SSH_TIMEOUT_NONBLOCKING) {
 		ssh_timestamp_init(&ts);
 	}
-
 	tm = timeout_ms;
 	while(!fct(user)) {
 		ret = ssh_handle_packets(session, tm);
@@ -679,13 +640,10 @@ int ssh_handle_packets_termination(ssh_session session,
 			ret = fct(user) ? SSH_OK : SSH_AGAIN;
 			break;
 		}
-
 		tm = ssh_timeout_update(&ts, timeout_ms);
 	}
-
 	return ret;
 }
-
 /**
  * @brief Get session status
  *
@@ -696,16 +654,14 @@ int ssh_handle_packets_termination(ssh_session session,
  *    has data to read on the connection socket and session was closed
  *    due to an error.
  */
-int ssh_get_status(ssh_session session) {
+int ssh_get_status(ssh_session session) 
+{
 	int socketstate;
 	int r = 0;
-
-	if(session == NULL) {
+	if(!session) {
 		return 0;
 	}
-
 	socketstate = ssh_socket_get_status(session->socket);
-
 	if(session->session_state == SSH_SESSION_STATE_DISCONNECTED) {
 		r |= SSH_CLOSED;
 	}
@@ -715,15 +671,11 @@ int ssh_get_status(ssh_session session) {
 	if(socketstate & SSH_WRITE_PENDING) {
 		r |= SSH_WRITE_PENDING;
 	}
-	if((session->session_state == SSH_SESSION_STATE_DISCONNECTED &&
-	    (socketstate & SSH_CLOSED_ERROR)) ||
-	    session->session_state == SSH_SESSION_STATE_ERROR) {
+	if((session->session_state == SSH_SESSION_STATE_DISCONNECTED && (socketstate & SSH_CLOSED_ERROR)) || session->session_state == SSH_SESSION_STATE_ERROR) {
 		r |= SSH_CLOSED_ERROR;
 	}
-
 	return r;
 }
-
 /**
  * @brief Get poll flags for an external mainloop
  *
@@ -736,13 +688,8 @@ int ssh_get_status(ssh_session session) {
  */
 int ssh_get_poll_flags(ssh_session session)
 {
-	if(session == NULL) {
-		return 0;
-	}
-
-	return ssh_socket_get_poll_flags(session->socket);
+	return session ? ssh_socket_get_poll_flags(session->socket) : 0;
 }
-
 /**
  * @brief Get the disconnect message from the server.
  *
@@ -754,26 +701,21 @@ int ssh_get_poll_flags(ssh_session session)
  *
  * @see ssh_get_error()
  */
-const char * ssh_get_disconnect_message(ssh_session session) {
-	if(session == NULL) {
-		return NULL;
+const char * ssh_get_disconnect_message(ssh_session session) 
+{
+	if(session) {
+		if(session->session_state != SSH_SESSION_STATE_DISCONNECTED) {
+			ssh_set_error(session, SSH_REQUEST_DENIED, "Connection not closed yet");
+		}
+		else if(!session->discon_msg) {
+			ssh_set_error(session, SSH_FATAL, "Connection correctly closed but no disconnect message");
+		}
+		else {
+			return session->discon_msg;
+		}
 	}
-
-	if(session->session_state != SSH_SESSION_STATE_DISCONNECTED) {
-		ssh_set_error(session, SSH_REQUEST_DENIED,
-		    "Connection not closed yet");
-	}
-	else if(!session->discon_msg) {
-		ssh_set_error(session, SSH_FATAL,
-		    "Connection correctly closed but no disconnect message");
-	}
-	else {
-		return session->discon_msg;
-	}
-
 	return NULL;
 }
-
 /**
  * @brief Get the protocol version of the session.
  *
@@ -781,22 +723,18 @@ const char * ssh_get_disconnect_message(ssh_session session) {
  *
  * @return The SSH version as integer, < 0 on error.
  */
-int ssh_get_version(ssh_session session) {
-	if(session == NULL) {
-		return -1;
-	}
-
-	return 2;
+int ssh_get_version(ssh_session session) 
+{
+	return session ? 2 : -1;
 }
-
 /**
  * @internal
  * @brief Callback to be called when the socket received an exception code.
  * @param user is a pointer to session
  */
-void ssh_socket_exception_callback(int code, int errno_code, void * user){
+void ssh_socket_exception_callback(int code, int errno_code, void * user)
+{
 	ssh_session session = (ssh_session)user;
-
 	SSH_LOG(SSH_LOG_RARE, "Socket exception callback: %d (%d)", code, errno_code);
 	session->session_state = SSH_SESSION_STATE_ERROR;
 	if(errno_code == 0 && code == SSH_SOCKET_EXCEPTION_EOF) {
@@ -805,7 +743,6 @@ void ssh_socket_exception_callback(int code, int errno_code, void * user){
 	else {
 		ssh_set_error(session, SSH_FATAL, "Socket error: %s", strerror(errno_code));
 	}
-
 	session->ssh_connection_callback(session);
 }
 
@@ -817,15 +754,12 @@ void ssh_socket_exception_callback(int code, int errno_code, void * user){
  *
  * @return              SSH_OK on success, SSH_ERROR otherwise.
  */
-int ssh_send_ignore(ssh_session session, const char * data) {
+int ssh_send_ignore(ssh_session session, const char * data) 
+{
 	const int type = SSH2_MSG_IGNORE;
 	int rc;
-
 	if(ssh_socket_is_open(session->socket)) {
-		rc = ssh_buffer_pack(session->out_buffer,
-			"bs",
-			type,
-			data);
+		rc = ssh_buffer_pack(session->out_buffer, "bs", type, data);
 		if(rc != SSH_OK) {
 			ssh_set_error_oom(session);
 			goto error;
@@ -833,14 +767,11 @@ int ssh_send_ignore(ssh_session session, const char * data) {
 		ssh_packet_send(session);
 		ssh_handle_packets(session, 0);
 	}
-
 	return SSH_OK;
-
 error:
 	ssh_buffer_reinit(session->out_buffer);
 	return SSH_ERROR;
 }
-
 /**
  * @brief Send a debug message
  *
@@ -852,16 +783,11 @@ error:
  *
  * @return                     SSH_OK on success, SSH_ERROR otherwise.
  */
-int ssh_send_debug(ssh_session session, const char * message, int always_display) {
+int ssh_send_debug(ssh_session session, const char * message, int always_display) 
+{
 	int rc;
-
 	if(ssh_socket_is_open(session->socket)) {
-		rc = ssh_buffer_pack(session->out_buffer,
-			"bbsd",
-			SSH2_MSG_DEBUG,
-			always_display != 0 ? 1 : 0,
-			message,
-			0); /* empty language tag */
+		rc = ssh_buffer_pack(session->out_buffer, "bbsd", SSH2_MSG_DEBUG, always_display != 0 ? 1 : 0, message, 0/* empty language tag */);
 		if(rc != SSH_OK) {
 			ssh_set_error_oom(session);
 			goto error;
@@ -869,14 +795,11 @@ int ssh_send_debug(ssh_session session, const char * message, int always_display
 		ssh_packet_send(session);
 		ssh_handle_packets(session, 0);
 	}
-
 	return SSH_OK;
-
 error:
 	ssh_buffer_reinit(session->out_buffer);
 	return SSH_ERROR;
 }
-
 /**
  * @brief Set the session data counters.
  *
@@ -908,9 +831,9 @@ error:
  * @param[in] rcounter  Counter for byte and packet data handled by the session,
  *                prior compression and SSH overhead.
  */
-void ssh_set_counters(ssh_session session, ssh_counter scounter,
-    ssh_counter rcounter) {
-	if(session != NULL) {
+void ssh_set_counters(ssh_session session, ssh_counter scounter, ssh_counter rcounter) 
+{
+	if(session) {
 		session->socket_counter = scounter;
 		session->raw_counter = rcounter;
 	}
@@ -951,7 +874,7 @@ int ssh_get_pubkey_hash(ssh_session session, uchar ** hash)
 	}
 
 	ctx = md5_init();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ZFREE(h);
 		return SSH_ERROR;
 	}
@@ -1082,7 +1005,7 @@ int ssh_get_publickey_hash(const ssh_key key,
 			    goto out;
 		    }
 		    ctx = sha1_init();
-		    if(ctx == NULL) {
+		    if(!ctx) {
 			    SAlloc::F(h);
 			    rc = -1;
 			    goto out;
@@ -1104,7 +1027,7 @@ int ssh_get_publickey_hash(const ssh_key key,
 		    }
 
 		    ctx = sha256_init();
-		    if(ctx == NULL) {
+		    if(!ctx) {
 			    SAlloc::F(h);
 			    rc = -1;
 			    goto out;
@@ -1132,7 +1055,7 @@ int ssh_get_publickey_hash(const ssh_key key,
 			    goto out;
 		    }
 		    ctx = md5_init();
-		    if(ctx == NULL) {
+		    if(!ctx) {
 			    SAlloc::F(h);
 			    rc = -1;
 			    goto out;

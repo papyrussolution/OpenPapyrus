@@ -2664,7 +2664,7 @@ int DBMaintenance(PPDbEntrySet2 * pDbes, int autoMode)
 								}
 		   	        			if(r > 0)
 									dlg->updateCopyList();
-						   		else if(r == 0)
+						   		else if(!r)
 						   			PPError();
 							}
 						}

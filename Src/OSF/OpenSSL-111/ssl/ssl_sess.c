@@ -106,7 +106,7 @@ SSL_SESSION * ssl_session_dup(SSL_SESSION * src, int ticket)
 {
 	SSL_SESSION * dest;
 	dest = static_cast<SSL_SESSION *>(OPENSSL_malloc(sizeof(*src)));
-	if(dest == NULL) {
+	if(!dest) {
 		goto err;
 	}
 	memcpy(dest, src, sizeof(*dest));
@@ -758,10 +758,8 @@ void SSL_SESSION_free(SSL_SESSION * ss)
 int SSL_SESSION_up_ref(SSL_SESSION * ss)
 {
 	int i;
-
 	if(CRYPTO_UP_REF(&ss->references, &i, ss->lock) <= 0)
 		return 0;
-
 	REF_PRINT_COUNT("SSL_SESSION", ss);
 	REF_ASSERT_ISNT(i < 2);
 	return ((i > 1) ? 1 : 0);
@@ -774,23 +772,19 @@ int SSL_set_session(SSL * s, SSL_SESSION * session)
 		if(!SSL_set_ssl_method(s, s->ctx->method))
 			return 0;
 	}
-
-	if(session != NULL) {
+	if(session) {
 		SSL_SESSION_up_ref(session);
 		s->verify_result = session->verify_result;
 	}
 	SSL_SESSION_free(s->session);
 	s->session = session;
-
 	return 1;
 }
 
-int SSL_SESSION_set1_id(SSL_SESSION * s, const uchar * sid,
-    uint sid_len)
+int SSL_SESSION_set1_id(SSL_SESSION * s, const uchar * sid, uint sid_len)
 {
 	if(sid_len > SSL_MAX_SSL_SESSION_ID_LENGTH) {
-		SSLerr(SSL_F_SSL_SESSION_SET1_ID,
-		    SSL_R_SSL_SESSION_ID_TOO_LONG);
+		SSLerr(SSL_F_SSL_SESSION_SET1_ID, SSL_R_SSL_SESSION_ID_TOO_LONG);
 		return 0;
 	}
 	s->session_id_length = sid_len;

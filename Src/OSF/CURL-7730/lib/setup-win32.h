@@ -42,18 +42,18 @@
 #endif
 #include <winerror.h>
 //#include <windows.h>
-#  ifdef HAVE_WINSOCK2_H
-//#    include <winsock2.h>
-//#    ifdef HAVE_WS2TCPIP_H
-//#      include <ws2tcpip.h>
-//#    endif
-#  else
-//#    ifdef HAVE_WINSOCK_H
-//#      include <winsock.h>
-//#    endif
+#ifdef HAVE_WINSOCK2_H
+//#include <winsock2.h>
+//#ifdef HAVE_WS2TCPIP_H
+//#include <ws2tcpip.h>
+//#endif
+#else
+//#ifdef HAVE_WINSOCK_H
+//#include <winsock.h>
+//#endif
 #endif
 #include <tchar.h>
-#  ifdef UNICODE
+#ifdef UNICODE
      typedef wchar_t *(*curl_wcsdup_callback)(const wchar_t *str);
 #endif
 #endif
@@ -68,7 +68,7 @@
 #ifdef HAVE_WINSOCK2_H
 #define USE_WINSOCK 2
 #else
-#  ifdef HAVE_WINSOCK_H
+#ifdef HAVE_WINSOCK_H
 #    error "WinSock version 1 is no longer supported, version 2 is required!"
 #endif
 #endif

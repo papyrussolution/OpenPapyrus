@@ -2973,7 +2973,7 @@ int PPObjTSession::EditLine(PPID tsesID, long * pOprNo, PPID goodsID, const char
 		if(goodsID) {
 			do {
 				r = SetupLineGoods(&line_rec, goodsID, pSerial, 0);
-				if(r == 0) {
+				if(!r) {
 					if(PPErrCode == PPERR_TSESRECOMPLNOSER) {
 						ProcessorTbl::Rec prc_rec;
 						if(GetPrc(tses_rec.PrcID, &prc_rec, 1, 1) > 0) {
@@ -3127,7 +3127,7 @@ int PPObjTSession::EditNewIdleSession(PPID prcID, PPID curSessID, PPID * pSessID
 		if(rec.Flags & TSESF_WRITEDOFF) {
 			uint   r = 0;
 			if(SelectorDialog(DLG_RMVTSESS, CTL_RMVTSESS_WHAT, &r) > 0)
-				if(r == 0)
+				if(!r)
 					level = 1;
 				else if(r == 1)
 					level = 0;

@@ -73,7 +73,7 @@ int BTRCALL(int OP, char * POS_BLK, char * DATA_BUF, int16 * DATA_LEN, char * KE
 
 static int FASTCALL BRet(int r)
 {
-	if(r == 0) {
+	if(!r) {
 		return 1;
 	}
 	else {

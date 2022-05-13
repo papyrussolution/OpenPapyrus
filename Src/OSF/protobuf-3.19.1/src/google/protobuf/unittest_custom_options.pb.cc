@@ -980,7 +980,7 @@ TestMessageWithCustomOptions::TestMessageWithCustomOptions(::PROTOBUF_NAMESPACE_
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   map_field_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestMessageWithCustomOptions)
@@ -998,7 +998,7 @@ TestMessageWithCustomOptions::TestMessageWithCustomOptions(const TestMessageWith
     field1_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_field1(), GetArenaForAllocation());
   }
   clear_has_AnOneof();
-  switch (from.AnOneof_case()) {
+  switch(from.AnOneof_case()) {
     case kOneofField: {
       _internal_set_oneof_field(from._internal_oneof_field());
       break;
@@ -1020,7 +1020,7 @@ clear_has_AnOneof();
 
 TestMessageWithCustomOptions::~TestMessageWithCustomOptions() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestMessageWithCustomOptions)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1039,7 +1039,7 @@ void TestMessageWithCustomOptions::ArenaDtor(void* object) {
   _this->map_field_. ~MapField();
 }
 inline void TestMessageWithCustomOptions::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if (arena != nullptr) {
+  if(arena != nullptr) {
     arena->OwnCustomDestructor(this, &TestMessageWithCustomOptions::ArenaDtor);
   }
 }
@@ -1049,7 +1049,7 @@ void TestMessageWithCustomOptions::SetCachedSize(int size) const {
 
 void TestMessageWithCustomOptions::clear_AnOneof() {
 // @@protoc_insertion_point(one_of_clear_start:protobuf_unittest.TestMessageWithCustomOptions)
-  switch (AnOneof_case()) {
+  switch(AnOneof_case()) {
     case kOneofField: {
       // No need to clear
       break;
@@ -1079,9 +1079,9 @@ void TestMessageWithCustomOptions::Clear() {
 }
 
 const char* TestMessageWithCustomOptions::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1113,13 +1113,12 @@ const char* TestMessageWithCustomOptions::_InternalParse(const char* ptr, ::PROT
             ptr += 1;
             ptr = ctx->ParseMessage(&map_field_, ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1272,7 +1271,7 @@ void TestMessageWithCustomOptions::MergeFrom(const TestMessageWithCustomOptions&
   if(from._internal_has_field1()) {
     _internal_set_field1(from._internal_field1());
   }
-  switch (from.AnOneof_case()) {
+  switch(from.AnOneof_case()) {
     case kOneofField: {
       _internal_set_oneof_field(from._internal_oneof_field());
       break;
@@ -1738,7 +1737,7 @@ ComplexOptionType1::ComplexOptionType1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   _extensions_(arena),
   foo4_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.ComplexOptionType1)
@@ -1764,7 +1763,7 @@ inline void ComplexOptionType1::SharedCtor() {
 
 ComplexOptionType1::~ComplexOptionType1() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.ComplexOptionType1)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1802,9 +1801,9 @@ void ComplexOptionType1::Clear() {
 }
 
 const char* ComplexOptionType1::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1843,16 +1842,15 @@ const char* ComplexOptionType1::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
             ptr += 1;
             _internal_add_foo4(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<32>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 34) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<32>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 34) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_foo4(), ptr, ctx);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2044,7 +2042,7 @@ ComplexOptionType2_ComplexOptionType4::ComplexOptionType2_ComplexOptionType4(::P
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.ComplexOptionType2.ComplexOptionType4)
@@ -2063,7 +2061,7 @@ waldo_ = 0;
 
 ComplexOptionType2_ComplexOptionType4::~ComplexOptionType2_ComplexOptionType4() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.ComplexOptionType2.ComplexOptionType4)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2094,9 +2092,9 @@ void ComplexOptionType2_ComplexOptionType4::Clear() {
 }
 
 const char* ComplexOptionType2_ComplexOptionType4::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2109,8 +2107,7 @@ const char* ComplexOptionType2_ComplexOptionType4::_InternalParse(const char* pt
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2244,7 +2241,7 @@ ComplexOptionType2::ComplexOptionType2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   _extensions_(arena),
   barney_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.ComplexOptionType2)
@@ -2278,7 +2275,7 @@ inline void ComplexOptionType2::SharedCtor() {
 
 ComplexOptionType2::~ComplexOptionType2() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.ComplexOptionType2)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2324,9 +2321,9 @@ void ComplexOptionType2::Clear() {
 }
 
 const char* ComplexOptionType2::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2363,13 +2360,12 @@ const char* ComplexOptionType2::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_barney(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<34>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2407,9 +2403,7 @@ uint8_t* ComplexOptionType2::_InternalSerialize(
   // optional .protobuf_unittest.ComplexOptionType1 bar = 1;
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::bar(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::bar(this), target, stream);
   }
 
   // optional int32 baz = 2;
@@ -2421,17 +2415,13 @@ uint8_t* ComplexOptionType2::_InternalSerialize(
   // optional .protobuf_unittest.ComplexOptionType2.ComplexOptionType4 fred = 3;
   if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::fred(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, _Internal::fred(this), target, stream);
   }
 
   // repeated .protobuf_unittest.ComplexOptionType2.ComplexOptionType4 barney = 4;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_barney_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_barney_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(4, this->_internal_barney(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(4, this->_internal_barney(i), target, stream);
   }
 
   // Extension range [100, 536870912)
@@ -2466,16 +2456,12 @@ size_t ComplexOptionType2::ByteSizeLong() const {
   if(cached_has_bits & 0x00000007u) {
     // optional .protobuf_unittest.ComplexOptionType1 bar = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *bar_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*bar_);
     }
 
     // optional .protobuf_unittest.ComplexOptionType2.ComplexOptionType4 fred = 3;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *fred_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*fred_);
     }
 
     // optional int32 baz = 2;
@@ -2537,7 +2523,7 @@ bool ComplexOptionType2::IsInitialized() const {
   }
 
   if(_internal_has_bar()) {
-    if (!bar_->IsInitialized()) return false;
+    if(!bar_->IsInitialized()) return false;
   }
   return true;
 }
@@ -2572,7 +2558,7 @@ ComplexOptionType3_ComplexOptionType5::ComplexOptionType3_ComplexOptionType5(::P
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.ComplexOptionType3.ComplexOptionType5)
@@ -2591,7 +2577,7 @@ plugh_ = 0;
 
 ComplexOptionType3_ComplexOptionType5::~ComplexOptionType3_ComplexOptionType5() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.ComplexOptionType3.ComplexOptionType5)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2622,9 +2608,9 @@ void ComplexOptionType3_ComplexOptionType5::Clear() {
 }
 
 const char* ComplexOptionType3_ComplexOptionType5::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2637,8 +2623,7 @@ const char* ComplexOptionType3_ComplexOptionType5::_InternalParse(const char* pt
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2764,7 +2749,7 @@ ComplexOptionType3::ComplexOptionType3(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.ComplexOptionType3)
@@ -2791,7 +2776,7 @@ inline void ComplexOptionType3::SharedCtor() {
 
 ComplexOptionType3::~ComplexOptionType3() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.ComplexOptionType3)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2828,9 +2813,9 @@ void ComplexOptionType3::Clear() {
 }
 
 const char* ComplexOptionType3::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2851,8 +2836,7 @@ const char* ComplexOptionType3::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2891,9 +2875,7 @@ uint8_t* ComplexOptionType3::_InternalSerialize(
   // optional group ComplexOptionType5 = 2 { ... };
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteGroup(
-        2, _Internal::complexoptiontype5(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteGroup(2, _Internal::complexoptiontype5(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2916,9 +2898,7 @@ size_t ComplexOptionType3::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional group ComplexOptionType5 = 2 { ... };
     if(cached_has_bits & 0x00000001u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GroupSize(
-          *complexoptiontype5_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GroupSize(*complexoptiontype5_);
     }
 
     // optional int32 qux = 1;
@@ -3001,7 +2981,7 @@ ComplexOpt6::ComplexOpt6(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.ComplexOpt6)
@@ -3020,7 +3000,7 @@ xyzzy_ = 0;
 
 ComplexOpt6::~ComplexOpt6() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.ComplexOpt6)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -3051,9 +3031,9 @@ void ComplexOpt6::Clear() {
 }
 
 const char* ComplexOpt6::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -3066,8 +3046,7 @@ const char* ComplexOpt6::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -3223,7 +3202,7 @@ AggregateMessageSet::AggregateMessageSet(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   _extensions_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.AggregateMessageSet)
@@ -3240,7 +3219,7 @@ inline void AggregateMessageSet::SharedCtor() {
 
 AggregateMessageSet::~AggregateMessageSet() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.AggregateMessageSet)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -3355,7 +3334,7 @@ AggregateMessageSetElement::AggregateMessageSetElement(::PROTOBUF_NAMESPACE_ID::
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.AggregateMessageSetElement)
@@ -3383,7 +3362,7 @@ s_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyIni
 
 AggregateMessageSetElement::~AggregateMessageSetElement() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.AggregateMessageSetElement)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -3418,9 +3397,9 @@ void AggregateMessageSetElement::Clear() {
 }
 
 const char* AggregateMessageSetElement::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -3436,8 +3415,7 @@ const char* AggregateMessageSetElement::_InternalParse(const char* ptr, ::PROTOB
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -3599,7 +3577,7 @@ Aggregate::Aggregate(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.Aggregate)
@@ -3652,7 +3630,7 @@ s_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyIni
 
 Aggregate::~Aggregate() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.Aggregate)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -3710,9 +3688,9 @@ void Aggregate::Clear() {
 }
 
 const char* Aggregate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -3769,8 +3747,7 @@ const char* Aggregate::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -3818,33 +3795,25 @@ uint8_t* Aggregate::_InternalSerialize(
   // optional .protobuf_unittest.Aggregate sub = 3;
   if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::sub(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, _Internal::sub(this), target, stream);
   }
 
   // optional .google.protobuf.FileOptions file = 4;
   if(cached_has_bits & 0x00000004u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::file(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(4, _Internal::file(this), target, stream);
   }
 
   // optional .protobuf_unittest.AggregateMessageSet mset = 5;
   if(cached_has_bits & 0x00000008u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::mset(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, _Internal::mset(this), target, stream);
   }
 
   // optional .google.protobuf.Any any = 6;
   if(cached_has_bits & 0x00000010u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::any(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(6, _Internal::any(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -3872,30 +3841,22 @@ size_t Aggregate::ByteSizeLong() const {
 
     // optional .protobuf_unittest.Aggregate sub = 3;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *sub_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*sub_);
     }
 
     // optional .google.protobuf.FileOptions file = 4;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *file_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*file_);
     }
 
     // optional .protobuf_unittest.AggregateMessageSet mset = 5;
     if(cached_has_bits & 0x00000008u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *mset_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*mset_);
     }
 
     // optional .google.protobuf.Any any = 6;
     if(cached_has_bits & 0x00000010u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *any_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*any_);
     }
 
     // optional int32 i = 1;
@@ -3960,13 +3921,13 @@ void Aggregate::CopyFrom(const Aggregate& from) {
 
 bool Aggregate::IsInitialized() const {
   if(_internal_has_sub()) {
-    if (!sub_->IsInitialized()) return false;
+    if(!sub_->IsInitialized()) return false;
   }
   if(_internal_has_file()) {
-    if (!file_->IsInitialized()) return false;
+    if(!file_->IsInitialized()) return false;
   }
   if(_internal_has_mset()) {
-    if (!mset_->IsInitialized()) return false;
+    if(!mset_->IsInitialized()) return false;
   }
   return true;
 }
@@ -4006,7 +3967,7 @@ AggregateMessage::AggregateMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.AggregateMessage)
@@ -4025,7 +3986,7 @@ fieldname_ = 0;
 
 AggregateMessage::~AggregateMessage() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.AggregateMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4056,9 +4017,9 @@ void AggregateMessage::Clear() {
 }
 
 const char* AggregateMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4071,8 +4032,7 @@ const char* AggregateMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -4192,7 +4152,7 @@ NestedOptionType_NestedMessage::NestedOptionType_NestedMessage(::PROTOBUF_NAMESP
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.NestedOptionType.NestedMessage)
@@ -4211,7 +4171,7 @@ nested_field_ = 0;
 
 NestedOptionType_NestedMessage::~NestedOptionType_NestedMessage() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.NestedOptionType.NestedMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4242,9 +4202,9 @@ void NestedOptionType_NestedMessage::Clear() {
 }
 
 const char* NestedOptionType_NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4257,8 +4217,7 @@ const char* NestedOptionType_NestedMessage::_InternalParse(const char* ptr, ::PR
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -4416,7 +4375,7 @@ OldOptionType::OldOptionType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.OldOptionType)
@@ -4435,7 +4394,7 @@ value_ = 0;
 
 OldOptionType::~OldOptionType() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.OldOptionType)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4466,9 +4425,9 @@ void OldOptionType::Clear() {
 }
 
 const char* OldOptionType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4485,8 +4444,7 @@ const char* OldOptionType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -4607,7 +4565,7 @@ NewOptionType::NewOptionType(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.NewOptionType)
@@ -4626,7 +4584,7 @@ value_ = 0;
 
 NewOptionType::~NewOptionType() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.NewOptionType)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4657,9 +4615,9 @@ void NewOptionType::Clear() {
 }
 
 const char* NewOptionType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4676,8 +4634,7 @@ const char* NewOptionType::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -5150,91 +5107,91 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIde
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestMessageWithCustomOptions_MapFieldEntry_DoNotUse* Arena::CreateMaybeMessage< ::protobuf_unittest::TestMessageWithCustomOptions_MapFieldEntry_DoNotUse >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestMessageWithCustomOptions_MapFieldEntry_DoNotUse * Arena::CreateMaybeMessage< ::protobuf_unittest::TestMessageWithCustomOptions_MapFieldEntry_DoNotUse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestMessageWithCustomOptions_MapFieldEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestMessageWithCustomOptions* Arena::CreateMaybeMessage< ::protobuf_unittest::TestMessageWithCustomOptions >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestMessageWithCustomOptions * Arena::CreateMaybeMessage< ::protobuf_unittest::TestMessageWithCustomOptions >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestMessageWithCustomOptions >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooRequest* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooRequest >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooRequest * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooRequest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionFooRequest >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooResponse* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooResponse >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooResponse * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooResponse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionFooResponse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooClientMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooClientMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooClientMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooClientMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionFooClientMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooServerMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooServerMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionFooServerMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionFooServerMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionFooServerMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::DummyMessageContainingEnum* Arena::CreateMaybeMessage< ::protobuf_unittest::DummyMessageContainingEnum >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::DummyMessageContainingEnum * Arena::CreateMaybeMessage< ::protobuf_unittest::DummyMessageContainingEnum >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::DummyMessageContainingEnum >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::DummyMessageInvalidAsOptionType* Arena::CreateMaybeMessage< ::protobuf_unittest::DummyMessageInvalidAsOptionType >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::DummyMessageInvalidAsOptionType * Arena::CreateMaybeMessage< ::protobuf_unittest::DummyMessageInvalidAsOptionType >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::DummyMessageInvalidAsOptionType >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionMinIntegerValues* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionMinIntegerValues >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionMinIntegerValues * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionMinIntegerValues >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionMinIntegerValues >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionMaxIntegerValues* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionMaxIntegerValues >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionMaxIntegerValues * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionMaxIntegerValues >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionMaxIntegerValues >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionOtherValues* Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionOtherValues >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::CustomOptionOtherValues * Arena::CreateMaybeMessage< ::protobuf_unittest::CustomOptionOtherValues >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::CustomOptionOtherValues >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::SettingRealsFromPositiveInts* Arena::CreateMaybeMessage< ::protobuf_unittest::SettingRealsFromPositiveInts >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::SettingRealsFromPositiveInts * Arena::CreateMaybeMessage< ::protobuf_unittest::SettingRealsFromPositiveInts >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::SettingRealsFromPositiveInts >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::SettingRealsFromNegativeInts* Arena::CreateMaybeMessage< ::protobuf_unittest::SettingRealsFromNegativeInts >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::SettingRealsFromNegativeInts * Arena::CreateMaybeMessage< ::protobuf_unittest::SettingRealsFromNegativeInts >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::SettingRealsFromNegativeInts >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType1* Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType1 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType1 * Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType1 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::ComplexOptionType1 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4* Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 * Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::ComplexOptionType2_ComplexOptionType4 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType2* Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType2 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType2 * Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType2 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::ComplexOptionType2 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType3_ComplexOptionType5* Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType3_ComplexOptionType5 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType3_ComplexOptionType5 * Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType3_ComplexOptionType5 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::ComplexOptionType3_ComplexOptionType5 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType3* Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType3 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOptionType3 * Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOptionType3 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::ComplexOptionType3 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOpt6* Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOpt6 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::ComplexOpt6 * Arena::CreateMaybeMessage< ::protobuf_unittest::ComplexOpt6 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::ComplexOpt6 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::VariousComplexOptions* Arena::CreateMaybeMessage< ::protobuf_unittest::VariousComplexOptions >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::VariousComplexOptions * Arena::CreateMaybeMessage< ::protobuf_unittest::VariousComplexOptions >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::VariousComplexOptions >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::AggregateMessageSet* Arena::CreateMaybeMessage< ::protobuf_unittest::AggregateMessageSet >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::AggregateMessageSet * Arena::CreateMaybeMessage< ::protobuf_unittest::AggregateMessageSet >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::AggregateMessageSet >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::AggregateMessageSetElement* Arena::CreateMaybeMessage< ::protobuf_unittest::AggregateMessageSetElement >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::AggregateMessageSetElement * Arena::CreateMaybeMessage< ::protobuf_unittest::AggregateMessageSetElement >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::AggregateMessageSetElement >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::Aggregate* Arena::CreateMaybeMessage< ::protobuf_unittest::Aggregate >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::Aggregate * Arena::CreateMaybeMessage< ::protobuf_unittest::Aggregate >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::Aggregate >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::AggregateMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::AggregateMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::AggregateMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::AggregateMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::AggregateMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::NestedOptionType_NestedMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::NestedOptionType_NestedMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::NestedOptionType_NestedMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::NestedOptionType_NestedMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::NestedOptionType_NestedMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::NestedOptionType* Arena::CreateMaybeMessage< ::protobuf_unittest::NestedOptionType >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::NestedOptionType * Arena::CreateMaybeMessage< ::protobuf_unittest::NestedOptionType >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::NestedOptionType >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::OldOptionType* Arena::CreateMaybeMessage< ::protobuf_unittest::OldOptionType >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::OldOptionType * Arena::CreateMaybeMessage< ::protobuf_unittest::OldOptionType >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::OldOptionType >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::NewOptionType* Arena::CreateMaybeMessage< ::protobuf_unittest::NewOptionType >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::NewOptionType * Arena::CreateMaybeMessage< ::protobuf_unittest::NewOptionType >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::NewOptionType >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestMessageWithRequiredEnumOption* Arena::CreateMaybeMessage< ::protobuf_unittest::TestMessageWithRequiredEnumOption >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestMessageWithRequiredEnumOption * Arena::CreateMaybeMessage< ::protobuf_unittest::TestMessageWithRequiredEnumOption >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestMessageWithRequiredEnumOption >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

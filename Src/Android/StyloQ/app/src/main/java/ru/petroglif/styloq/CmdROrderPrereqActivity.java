@@ -45,7 +45,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 
 	public CmdROrderPrereqActivity()
 	{
-		CPM = new CommonPrereqModule();
+		CPM = new CommonPrereqModule(this);
 	}
 	private static class CliEntry {
 		CliEntry(JSONObject jsItem)
@@ -517,22 +517,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 			}
 		}
 	}
-	private void SetTabVisibility(CommonPrereqModule.Tab tabId, int visibilityMode)
-	{
-		ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
-		if(view_pager != null && CPM.TabList != null) {
-			for(int tidx = 0; tidx < CPM.TabList.size(); tidx++) {
-				if(CPM.TabList.get(tidx).TabId == tabId) {
-					View v_lo_tab = findViewById(R.id.TABLAYOUT_ORDERPREREQ);
-					if(v_lo_tab != null && v_lo_tab instanceof TabLayout) {
-						TabLayout lo_tab = (TabLayout)v_lo_tab;
-						((ViewGroup)lo_tab.getChildAt(0)).getChildAt(tidx).setVisibility(visibilityMode);
-					}
-					break;
-				}
-			}
-		}
-	}
 	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
 		ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
@@ -542,8 +526,8 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					SLib.SlFragmentStatic f = CPM.TabList.get(tidx).TabView;
 					if(f != null) {
 						View fv = f.getView();
-						if(innerViewId != 0 && fv != null && fv instanceof ViewGroup) {
-							View lv = fv.findViewById(innerViewId);
+						if(fv != null) {
+							View lv = (innerViewId != 0) ? fv.findViewById(innerViewId) : null;
 							if(lv != null) {
 								if(lv instanceof RecyclerView) {
 									RecyclerView.Adapter gva = ((RecyclerView) lv).getAdapter();
@@ -554,7 +538,6 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									lv.refreshDrawableState();
 								}
 							}
-
 						}
 					}
 					break;
@@ -671,8 +654,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 					int dlvrloc_id = (dlvrLocItem != null) ? dlvrLocItem.optInt("id", 0) : 0;
 					result = CPM.SetClientToCurrentDocument((StyloQApp)getApplicationContext(), cli_id, dlvrloc_id);
 					if(result) {
-						SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+						CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
 						NotifyCurrentOrderChanged();
+						NotifyTabContentChanged(CommonPrereqModule.Tab.tabClients, R.id.orderPrereqClientsListView);
 					}
 				}
 			}
@@ -709,7 +693,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						CPM.CurrentOrder.TiList = new ArrayList<Document.TransferItem>();
 					CPM.CurrentOrder.TiList.add(ti);
 				}
-				SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
+				CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.VISIBLE);
 				NotifyCurrentOrderChanged();
 				result = true;
 			}
@@ -755,8 +739,29 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 		int shaperc = 0;
 		if(GetRecyclerListFocusedIndex(a) == itemIdxToDraw)
 			shaperc = R.drawable.shape_listitem_focused;
-		else
-			shaperc = IsObjInSearchResult(objType, objID) ? R.drawable.shape_listitem_found : R.drawable.shape_listitem;
+		else {
+			boolean is_catched = false;
+			if(objID > 0 && CPM.CurrentOrder != null) {
+				if(CPM.CurrentOrder.H != null) {
+					if(objType == SLib.PPOBJ_PERSON && objID == CPM.CurrentOrder.H.ClientID) {
+						is_catched = true;
+					}
+					else if(objType == SLib.PPOBJ_LOCATION && objID == CPM.CurrentOrder.H.DlvrLocID) {
+						is_catched = true;
+					}
+					else if(objType == SLib.PPOBJ_GOODS) {
+						if(CPM.SearchGoodsItemInCurrentOrder(objID) != null)
+							is_catched = true;
+					}
+				}
+			}
+			if(is_catched)
+				shaperc = R.drawable.shape_listitem_catched;
+			else if(IsObjInSearchResult(objType, objID))
+				shaperc = R.drawable.shape_listitem_found;
+			else
+				shaperc = R.drawable.shape_listitem;
+		}
 		iv.setBackground(getResources().getDrawable(shaperc, getTheme()));
 	}
 	private void GetFragmentData(Object entry)
@@ -854,7 +859,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						}
 						requestWindowFeature(Window.FEATURE_NO_TITLE);
 						setContentView(R.layout.activity_cmdrorderprereq);
-						CPM.SetupActivityTitles(this, db);
+						CPM.SetupActivity(db, R.id.VIEWPAGER_ORDERPREREQ, R.id.TABLAYOUT_ORDERPREREQ);
 						ViewPager2 view_pager = (ViewPager2)findViewById(R.id.VIEWPAGER_ORDERPREREQ);
 						SetupViewPagerWithFragmentAdapter(R.id.VIEWPAGER_ORDERPREREQ);
 						{
@@ -869,7 +874,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								SLib.SetupTabLayoutStyle(lo_tab);
 								SLib.SetupTabLayoutListener(lo_tab, view_pager);
 								if(CPM.CurrentOrder == null || CPM.CurrentOrder.H == null) {
-									SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+									CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 								}
 								//SetTabVisibility(Tab.tabSearch, View.GONE);
 							}
@@ -1002,7 +1007,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													ctl.setImageResource(R.drawable.ic_triangledown03);
 													if(dlvrloc_lv != null) {
 														dlvrloc_lv.setVisibility(View.VISIBLE);
-														DlvrLocListAdapter adapter = new DlvrLocListAdapter(/*this*/iv.getContext(), R.layout.orderprereq_dlvrloclist_item, dlvr_loc_list);
+														DlvrLocListAdapter adapter = new DlvrLocListAdapter(/*this*/iv.getContext(), R.layout.li_orderprereq_dlvrloc, dlvr_loc_list);
 														dlvrloc_lv.setAdapter(adapter);
 														{
 															int total_items_height = SLib.CalcListViewHeight(dlvrloc_lv);
@@ -1145,7 +1150,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 						View lv = fv.findViewById(R.id.orderPrereqGoodsListView);
 						if(lv != null) {
 							((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-							SetupRecyclerListView(fv, R.id.orderPrereqGoodsListView, R.layout.orderprereq_goodslist_item);
+							SetupRecyclerListView(fv, R.id.orderPrereqGoodsListView, R.layout.li_orderprereq_goods);
 							if(selected_search_objtype == SLib.PPOBJ_GOODS) {
 								final int foc_idx = CPM.FindGoodsItemIndexByID(selected_search_objid);
 								SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
@@ -1157,13 +1162,13 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							lv = fv.findViewById(R.id.orderPrereqOrderListView);
 							if(lv != null) {
 								((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-								SetupRecyclerListView(fv, R.id.orderPrereqOrderListView, R.layout.orderprereq_orderlist_item);
+								SetupRecyclerListView(fv, R.id.orderPrereqOrderListView, R.layout.li_orderprereq_order);
 							}
 							else {
 								lv = fv.findViewById(R.id.orderPrereqGoodsGroupListView);
 								if(lv != null) {
 									((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-									SetupRecyclerListView(fv, R.id.orderPrereqGoodsGroupListView, R.layout.simple_list_item);
+									SetupRecyclerListView(fv, R.id.orderPrereqGoodsGroupListView, R.layout.li_simple);
 									if(selected_search_objtype == SLib.PPOBJ_GOODSGROUP) {
 										final int foc_idx = CPM.FindGoodsGroupItemIndexByID(selected_search_objid);
 										SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
@@ -1175,7 +1180,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 									lv = fv.findViewById(R.id.orderPrereqBrandListView);
 									if(lv != null) {
 										((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-										SetupRecyclerListView(fv, R.id.orderPrereqBrandListView, R.layout.simple_list_item);
+										SetupRecyclerListView(fv, R.id.orderPrereqBrandListView, R.layout.li_simple);
 										if(selected_search_objtype == SLib.PPOBJ_BRAND) {
 											final int foc_idx = FindBrandItemIndexByID(selected_search_objid);
 											SetRecyclerListFocusedIndex(((RecyclerView) lv).getAdapter(), foc_idx);
@@ -1187,19 +1192,19 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 										lv = fv.findViewById(R.id.orderPrereqOrdrListView);
 										if(lv != null) {
 											((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-											SetupRecyclerListView(fv, R.id.orderPrereqOrdrListView, R.layout.orderprereq_ordrtilist_item);
+											SetupRecyclerListView(fv, R.id.orderPrereqOrdrListView, R.layout.li_orderprereq_ordrti);
 										}
 										else {
 											lv = fv.findViewById(R.id.orderPrereqOrderListView);
 											if(lv != null) {
 												((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-												SetupRecyclerListView(fv, R.id.orderPrereqOrderListView, R.layout.orderprereq_orderlist_item);
+												SetupRecyclerListView(fv, R.id.orderPrereqOrderListView, R.layout.li_orderprereq_order);
 											}
 											else {
 												lv = fv.findViewById(R.id.orderPrereqClientsListView);
 												if(lv != null) {
 													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-													SetupRecyclerListView(fv, R.id.orderPrereqClientsListView, R.layout.orderprereq_clientlist_item);
+													SetupRecyclerListView(fv, R.id.orderPrereqClientsListView, R.layout.li_orderprereq_client);
 													if(selected_search_objtype == SLib.PPOBJ_PERSON) {
 														SLib.RequestRecyclerListViewPosition((RecyclerView) lv, FindClientItemIndexByID(selected_search_objid));
 														CPM.SearchResult.ResetSelectedItemIndex();
@@ -1212,7 +1217,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 													lv = fv.findViewById(R.id.searchPaneListView);
 													if(lv != null) {
 														((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-														SetupRecyclerListView(fv, R.id.searchPaneListView, R.layout.searchpane_result_item);
+														SetupRecyclerListView(fv, R.id.searchPaneListView, R.layout.li_searchpane_result);
 														{
 															View iv = fv.findViewById(R.id.CTL_SEARCHPANE_INPUT);
 															if(iv != null && iv instanceof TextInputEditText) {
@@ -1311,7 +1316,9 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 								}
 								else if(((ListView)srcObj).getId() == R.id.dlvrLocListView) {
 									if(ev_subj.ItemObj != null && ev_subj.ItemObj instanceof JSONObject) {
-										SetCurrentOrderClient(null, (JSONObject)ev_subj.ItemObj);
+										if(SetCurrentOrderClient(null, (JSONObject)ev_subj.ItemObj)) {
+											;
+										}
 									}
 								}
 							}
@@ -1467,7 +1474,7 @@ public class CmdROrderPrereqActivity extends SLib.SlActivity {
 							CPM.CurrentOrder = null;
 							NotifyCurrentOrderChanged();
 							GotoTab(CommonPrereqModule.Tab.tabOrders, R.id.orderPrereqOrderListView, -1, -1);
-							SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
+							CPM.SetTabVisibility(CommonPrereqModule.Tab.tabCurrentOrder, View.GONE);
 						}
 						else {
 

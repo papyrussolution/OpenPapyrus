@@ -1481,7 +1481,7 @@ int PPApp::SetDatetimeByServer(PPIniFile * pIniFile, int force)
 				if(force)
 					PPLogMessage(PPFILNAM_INFO_LOG, PPSTR_TEXT, PPTXT_LOG_TIMECHANGE_FORCE, LOGMSGF_TIME|LOGMSGF_COMP);
 				int r = SGetTimeFromRemoteServer(server_name, &dtm);
-				if(r == 0) {
+				if(!r) {
 					PPSetErrorSLib();
 					PPFormatT(PPTXT_LOG_TIMESERVERERR, &msg_buf, server_name.cptr(), PPErrCode);
 					PPLogMessage(PPFILNAM_ERR_LOG, msg_buf, LOGMSGF_TIME|LOGMSGF_COMP);

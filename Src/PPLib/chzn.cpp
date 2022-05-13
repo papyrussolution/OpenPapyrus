@@ -1761,7 +1761,7 @@ int ChZnInterface::MakeAuthRequest(InitBlock & rBlk, SString & rBuf)
 	int    ok = 1;
 	SJson * p_json_req = 0;
 	{
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		p_json_req->InsertString("client_id", rBlk.CliAccsKey);
 		p_json_req->InsertString("client_secret", rBlk.CliSecret);
 		p_json_req->InsertString("user_id", rBlk.CliIdent);
@@ -1781,7 +1781,7 @@ int ChZnInterface::MakeTokenRequest(InitBlock & rIb, const char * pAuthCode, SSt
 	SJson * p_json_req = 0;
 	THROW(GetSign(rIb, pAuthCode, sstrlen(pAuthCode), code_sign));
 	{
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		p_json_req->InsertString("code", pAuthCode);
 		p_json_req->InsertString("signature", code_sign);
 		THROW_SL(p_json_req->ToStr(rBuf));
@@ -1811,7 +1811,7 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 			}
 		*/
 		if(ChZnGetDocTypeSymb(rPack.DocType, temp_buf)) {
-			p_json_req = new SJson(SJson::tOBJECT);
+			p_json_req = SJson::CreateObj();
 			p_json_req->InsertString("document_format", "XML");
 			p_json_req->InsertString("product_document", data_base64_buf);
 			p_json_req->InsertString("type", temp_buf.CatChar('_').Cat("XML"));
@@ -1820,7 +1820,7 @@ int ChZnInterface::MakeDocumentRequest(const InitBlock & rIb, const ChZnInterfac
 		}
 	}
 	else {
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		p_json_req->InsertString("document", data_base64_buf);
 		p_json_req->InsertString("sign", code_sign);
 		rReqId.Generate();
@@ -2583,9 +2583,9 @@ int ChZnInterface::GetDocumentList(InitBlock & rIb, const DocumentFilt * pFilt, 
 		req_buf.Z();
 		{
 			// { "filter": { "doc_status": "PROCESSED_DOCUMENT" }, "start_from": 0, "count": 100 }
-			p_json_req = new SJson(SJson::tOBJECT);
+			p_json_req = SJson::CreateObj();
 			{
-				SJson * p_json_filt = new SJson(SJson::tOBJECT);
+				SJson * p_json_filt = SJson::CreateObj();
 				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
 				p_json_req->Insert("filter", p_json_filt);
 			}
@@ -2668,9 +2668,9 @@ int ChZnInterface::GetIncomeDocList2_temp(InitBlock & rIb)
 		req_buf.Z();
 		{
 			// { "filter": { "doc_status": "PROCESSED_DOCUMENT" }, "start_from": 0, "count": 100 }
-			p_json_req = new SJson(SJson::tOBJECT);
+			p_json_req = SJson::CreateObj();
 			{
-				SJson * p_json_filt = new SJson(SJson::tOBJECT);
+				SJson * p_json_filt = SJson::CreateObj();
 				p_json_filt->InsertString("doc_status", "PROCESSED_DOCUMENT");
 				p_json_req->Insert("filter", p_json_filt);
 			}

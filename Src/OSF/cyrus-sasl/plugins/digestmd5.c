@@ -69,11 +69,11 @@
 #define des_ede2_cbc_encrypt(i, o, l, k1, k2, iv, e) \
 	DES_ede2_cbc_encrypt((i), (o), (l), &(k1), &(k2), (iv), (e))
 #endif /* OpenSSL 0.9.7+ w/o old DES support */
-# else /* system DES library */
+#else /* system DES library */
 #ifdef HAVE_DES_H
 #include <des.h>
 #endif
-# endif
+#endif
 #endif /* WITH_DES */
 
 #ifdef WIN32

@@ -7003,7 +7003,7 @@ void PPVetisInterface::PutListOptionsParam(xmlTextWriter * pWriter, uint offs, u
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_VETISIC, funcId, &mutex_id, &sync_item);
 		if(r < 0)
 			ok = PPSetError(PPERR_VETISICFUNCLOCKED, sync_item.Name);
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	else
@@ -11999,7 +11999,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 							int r = Helper_ProcessIncoming(item.Uuid, &param, ifc, &ure_list);
-							if(r == 0)
+							if(!r)
 								logger.LogLastError();
 							else if(r > 0)
 								do_update = 1;
@@ -12025,7 +12025,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 						VetisVetDocument item;
 						if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 							int r = Helper_ProcessIncoming(item.Uuid, &param, ifc, &ure_list);
-							if(r == 0)
+							if(!r)
 								logger.LogLastError();
 							if(r > 0)
 								do_update = 1;
@@ -12073,7 +12073,7 @@ int PPViewVetisDocument::ProcessIncoming(PPID entityID)
 							VetisVetDocument item;
 							if(EC.Get(vi.EntityID, item) > 0 && !!item.Uuid) {
 								int r = ifc.WriteOffIncomeCert(vi.EntityID, &ure_list, reply);
-								if(r == 0)
+								if(!r)
 									logger.LogLastError();
 								else if(r > 0)
 									do_update = 1;
@@ -12886,7 +12886,7 @@ int PPViewVetisDocument::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBr
 							int r = EC.DeleteEntity(id, 1);
 							if(r > 0)
 								ok = 1;
-							else if(r == 0)
+							else if(!r)
 								PPError();
 						}
 						else if(rec.VetisDocStatus == vetisdocstCONFIRMED && rec.Flags & VetisVetDocument::fFromMainOrg) {

@@ -300,7 +300,7 @@ int FASTCALL DBQuery::analyzeOrder(int * pKeyArray)
 				count++;
 			}
 		}
-		if(count == 0)
+		if(!count)
 			status |= s_add_index_needed;
 	}
 	return count;
@@ -1138,7 +1138,7 @@ DBQuery::Frame::~Frame()
 
 void FASTCALL DBQuery::Frame::topByCur(int dir)
 {
-	if(count == 0)
+	if(!count)
 		top = 0;
 	else if(dir == spNext) {
 		if(cur >= hight) {

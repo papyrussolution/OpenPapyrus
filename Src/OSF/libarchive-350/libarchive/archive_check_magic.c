@@ -22,10 +22,9 @@ __FBSDID("$FreeBSD: head/lib/libarchive/archive_check_magic.c 201089 2009-12-28 
 
 static void errmsg(const char * m)
 {
-	size_t s = strlen(m);
-	ssize_t written;
+	size_t s = sstrlen(m);
 	while(s > 0) {
-		written = write(2, m, s);
+		const ssize_t written = write(2, m, s);
 		if(written <= 0)
 			return;
 		m += written;
@@ -93,13 +92,12 @@ int STDCALL __archive_check_magic(struct archive * a, uint magic, uint state, co
 {
 	char states1[64];
 	char states2[64];
-	const char * handle_type;
 	/*
 	 * If this isn't some form of archive handle,
 	 * then the library user has screwed up so bad that
 	 * we don't even have a reliable way to report an error.
 	 */
-	handle_type = archive_handle_type_name(a->magic);
+	const char * handle_type = archive_handle_type_name(a->magic);
 	if(!handle_type) {
 		errmsg("PROGRAMMER ERROR: Function ");
 		errmsg(function);

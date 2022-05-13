@@ -109,7 +109,7 @@ public class FaceListActivity extends SLib.SlActivity/*AppCompatActivity*/ {
 						ListData = new ArrayList<StyloQFace>();
 						app_ctx.DisplayError(null, exn, 5000);
 					}
-					SetupListView(R.id.faceListView, R.layout.face_list_item, ListData);
+					SetupListView(R.id.faceListView, R.layout.li_face, ListData);
 				}
 				break;
 			case SLib.EV_GETLISTITEMVIEW:

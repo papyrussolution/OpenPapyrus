@@ -231,7 +231,7 @@ void ImmutableEnumFieldGenerator::GenerateBuilderMembers(io::Printer* printer) c
 	printer->Print(variables_,
 	    "$deprecation$public Builder "
 	    "${$set$capitalized_name$$}$($type$ value) {\n"
-	    "  if (value == null) {\n"
+	    "  if(value == null) {\n"
 	    "    throw new NullPointerException();\n"
 	    "  }\n"
 	    "  $set_has_field_bit_builder$\n"
@@ -298,14 +298,14 @@ void ImmutableEnumFieldGenerator::GenerateBuilderClearCode(io::Printer* printer)
 void ImmutableEnumFieldGenerator::GenerateMergingCode(io::Printer* printer) const {
 	if(HasHazzer(descriptor_)) {
 		printer->Print(variables_,
-		    "if (other.has$capitalized_name$()) {\n"
+		    "if(other.has$capitalized_name$()) {\n"
 		    "  set$capitalized_name$(other.get$capitalized_name$());\n"
 		    "}\n");
 	}
 	else if(SupportUnknownEnumValue(descriptor_->file())) {
 		printer->Print(
 			variables_,
-			"if (other.$name$_ != $default_number$) {\n"
+			"if(other.$name$_ != $default_number$) {\n"
 			"  set$capitalized_name$Value(other.get$capitalized_name$Value());\n"
 			"}\n");
 	}
@@ -317,7 +317,7 @@ void ImmutableEnumFieldGenerator::GenerateMergingCode(io::Printer* printer) cons
 void ImmutableEnumFieldGenerator::GenerateBuildingCode(io::Printer* printer) const {
 	if(HasHazzer(descriptor_)) {
 		printer->Print(variables_,
-		    "if ($get_has_field_bit_from_local$) {\n"
+		    "if($get_has_field_bit_from_local$) {\n"
 		    "  $set_has_field_bit_to_local$;\n"
 		    "}\n");
 	}
@@ -336,7 +336,7 @@ void ImmutableEnumFieldGenerator::GenerateParsingCode(io::Printer* printer) cons
 		    "int rawValue = input.readEnum();\n"
 		    "  @SuppressWarnings(\"deprecation\")\n"
 		    "$type$ value = $type$.$for_number$(rawValue);\n"
-		    "if (value == null) {\n"
+		    "if(value == null) {\n"
 		    "  unknownFields.mergeVarintField($number$, rawValue);\n"
 		    "} else {\n"
 		    "  $set_has_field_bit_message$\n"
@@ -351,21 +351,21 @@ void ImmutableEnumFieldGenerator::GenerateParsingDoneCode(io::Printer* printer) 
 
 void ImmutableEnumFieldGenerator::GenerateSerializationCode(io::Printer* printer) const {
 	printer->Print(variables_,
-	    "if ($is_field_present_message$) {\n"
+	    "if($is_field_present_message$) {\n"
 	    "  output.writeEnum($number$, $name$_);\n"
 	    "}\n");
 }
 
 void ImmutableEnumFieldGenerator::GenerateSerializedSizeCode(io::Printer* printer) const {
 	printer->Print(variables_,
-	    "if ($is_field_present_message$) {\n"
+	    "if($is_field_present_message$) {\n"
 	    "  size += com.google.protobuf.CodedOutputStream\n"
 	    "    .computeEnumSize($number$, $name$_);\n"
 	    "}\n");
 }
 
 void ImmutableEnumFieldGenerator::GenerateEqualsCode(io::Printer* printer) const {
-	printer->Print(variables_, "if ($name$_ != other.$name$_) return false;\n");
+	printer->Print(variables_, "if($name$_ != other.$name$_) return false;\n");
 }
 
 void ImmutableEnumFieldGenerator::GenerateHashCode(io::Printer* printer) const {
@@ -409,7 +409,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateMembers(io::Printer* printer) con
 		printer->Print(
 			variables_,
 			"$deprecation$public int ${$get$capitalized_name$Value$}$() {\n"
-			"  if ($has_oneof_case_message$) {\n"
+			"  if($has_oneof_case_message$) {\n"
 			"    return (java.lang.Integer) $oneof_name$_;\n"
 			"  }\n"
 			"  return $default_number$;\n"
@@ -419,7 +419,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateMembers(io::Printer* printer) con
 	WriteFieldAccessorDocComment(printer, descriptor_, GETTER);
 	printer->Print(variables_,
 	    "$deprecation$public $type$ ${$get$capitalized_name$$}$() {\n"
-	    "  if ($has_oneof_case_message$) {\n"
+	    "  if($has_oneof_case_message$) {\n"
 	    "    @SuppressWarnings(\"deprecation\")\n"
 	    "    $type$ result = $type$.$for_number$(\n"
 	    "        (java.lang.Integer) $oneof_name$_);\n"
@@ -446,7 +446,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateBuilderMembers(io::Printer* print
 			variables_,
 			"@java.lang.Override\n"
 			"$deprecation$public int ${$get$capitalized_name$Value$}$() {\n"
-			"  if ($has_oneof_case_message$) {\n"
+			"  if($has_oneof_case_message$) {\n"
 			"    return ((java.lang.Integer) $oneof_name$_).intValue();\n"
 			"  }\n"
 			"  return $default_number$;\n"
@@ -468,7 +468,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateBuilderMembers(io::Printer* print
 	printer->Print(variables_,
 	    "@java.lang.Override\n"
 	    "$deprecation$public $type$ ${$get$capitalized_name$$}$() {\n"
-	    "  if ($has_oneof_case_message$) {\n"
+	    "  if($has_oneof_case_message$) {\n"
 	    "    @SuppressWarnings(\"deprecation\")\n"
 	    "    $type$ result = $type$.$for_number$(\n"
 	    "        (java.lang.Integer) $oneof_name$_);\n"
@@ -482,7 +482,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateBuilderMembers(io::Printer* print
 	printer->Print(variables_,
 	    "$deprecation$public Builder "
 	    "${$set$capitalized_name$$}$($type$ value) {\n"
-	    "  if (value == null) {\n"
+	    "  if(value == null) {\n"
 	    "    throw new NullPointerException();\n"
 	    "  }\n"
 	    "  $set_oneof_case_message$;\n"
@@ -496,7 +496,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateBuilderMembers(io::Printer* print
 	printer->Print(
 		variables_,
 		"$deprecation$public Builder ${$clear$capitalized_name$$}$() {\n"
-		"  if ($has_oneof_case_message$) {\n"
+		"  if($has_oneof_case_message$) {\n"
 		"    $clear_oneof_case_message$;\n"
 		"    $oneof_name$_ = null;\n"
 		"    $on_changed$\n"
@@ -508,7 +508,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateBuilderMembers(io::Printer* print
 
 void ImmutableEnumOneofFieldGenerator::GenerateBuildingCode(io::Printer* printer) const {
 	printer->Print(variables_,
-	    "if ($has_oneof_case_message$) {\n"
+	    "if($has_oneof_case_message$) {\n"
 	    "  result.$oneof_name$_ = $oneof_name$_;\n"
 	    "}\n");
 }
@@ -537,7 +537,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateParsingCode(io::Printer* printer)
 		    "int rawValue = input.readEnum();\n"
 		    "@SuppressWarnings(\"deprecation\")\n"
 		    "$type$ value = $type$.$for_number$(rawValue);\n"
-		    "if (value == null) {\n"
+		    "if(value == null) {\n"
 		    "  unknownFields.mergeVarintField($number$, rawValue);\n"
 		    "} else {\n"
 		    "  $set_oneof_case_message$;\n"
@@ -549,7 +549,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateParsingCode(io::Printer* printer)
 void ImmutableEnumOneofFieldGenerator::GenerateSerializationCode(io::Printer* printer) const {
 	printer->Print(
 		variables_,
-		"if ($has_oneof_case_message$) {\n"
+		"if($has_oneof_case_message$) {\n"
 		"  output.writeEnum($number$, ((java.lang.Integer) $oneof_name$_));\n"
 		"}\n");
 }
@@ -557,7 +557,7 @@ void ImmutableEnumOneofFieldGenerator::GenerateSerializationCode(io::Printer* pr
 void ImmutableEnumOneofFieldGenerator::GenerateSerializedSizeCode(io::Printer* printer) const {
 	printer->Print(
 		variables_,
-		"if ($has_oneof_case_message$) {\n"
+		"if($has_oneof_case_message$) {\n"
 		"  size += com.google.protobuf.CodedOutputStream\n"
 		"    .computeEnumSize($number$, ((java.lang.Integer) $oneof_name$_));\n"
 		"}\n");
@@ -567,13 +567,13 @@ void ImmutableEnumOneofFieldGenerator::GenerateEqualsCode(io::Printer* printer) 
 	if(SupportUnknownEnumValue(descriptor_->file())) {
 		printer->Print(
 			variables_,
-			"if (get$capitalized_name$Value()\n"
+			"if(get$capitalized_name$Value()\n"
 			"    != other.get$capitalized_name$Value()) return false;\n");
 	}
 	else {
 		printer->Print(
 			variables_,
-			"if (!get$capitalized_name$()\n"
+			"if(!get$capitalized_name$()\n"
 			"    .equals(other.get$capitalized_name$())) return false;\n");
 	}
 }
@@ -721,7 +721,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateBuilderMembers(io::Printer* pr
 		"  java.util.Collections.emptyList();\n"
 
 		"private void ensure$capitalized_name$IsMutable() {\n"
-		"  if (!$get_mutable_bit_builder$) {\n"
+		"  if(!$get_mutable_bit_builder$) {\n"
 		"    $name$_ = new java.util.ArrayList<java.lang.Integer>($name$_);\n"
 		"    $set_mutable_bit_builder$;\n"
 		"  }\n"
@@ -759,7 +759,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateBuilderMembers(io::Printer* pr
 	printer->Print(variables_,
 	    "$deprecation$public Builder ${$set$capitalized_name$$}$(\n"
 	    "    int index, $type$ value) {\n"
-	    "  if (value == null) {\n"
+	    "  if(value == null) {\n"
 	    "    throw new NullPointerException();\n"
 	    "  }\n"
 	    "  ensure$capitalized_name$IsMutable();\n"
@@ -773,7 +773,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateBuilderMembers(io::Printer* pr
 	printer->Print(variables_,
 	    "$deprecation$public Builder "
 	    "${$add$capitalized_name$$}$($type$ value) {\n"
-	    "  if (value == null) {\n"
+	    "  if(value == null) {\n"
 	    "    throw new NullPointerException();\n"
 	    "  }\n"
 	    "  ensure$capitalized_name$IsMutable();\n"
@@ -886,8 +886,8 @@ void RepeatedImmutableEnumFieldGenerator::GenerateMergingCode(io::Printer* print
 	//   2. If the other list is non-empty and our current list is empty, we can
 	//      reuse the other list which is guaranteed to be immutable.
 	printer->Print(variables_,
-	    "if (!other.$name$_.isEmpty()) {\n"
-	    "  if ($name$_.isEmpty()) {\n"
+	    "if(!other.$name$_.isEmpty()) {\n"
+	    "  if($name$_.isEmpty()) {\n"
 	    "    $name$_ = other.$name$_;\n"
 	    "    $clear_mutable_bit_builder$;\n"
 	    "  } else {\n"
@@ -903,7 +903,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateBuildingCode(io::Printer* prin
 	// list is immutable, we can just reuse it. If not, we make it immutable.
 	printer->Print(
 		variables_,
-		"if ($get_mutable_bit_builder$) {\n"
+		"if($get_mutable_bit_builder$) {\n"
 		"  $name$_ = java.util.Collections.unmodifiableList($name$_);\n"
 		"  $clear_mutable_bit_builder$;\n"
 		"}\n"
@@ -915,7 +915,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateParsingCode(io::Printer* print
 	if(SupportUnknownEnumValue(descriptor_->file())) {
 		printer->Print(variables_,
 		    "int rawValue = input.readEnum();\n"
-		    "if (!$get_mutable_bit_parser$) {\n"
+		    "if(!$get_mutable_bit_parser$) {\n"
 		    "  $name$_ = new java.util.ArrayList<java.lang.Integer>();\n"
 		    "  $set_mutable_bit_parser$;\n"
 		    "}\n"
@@ -927,10 +927,10 @@ void RepeatedImmutableEnumFieldGenerator::GenerateParsingCode(io::Printer* print
 			"int rawValue = input.readEnum();\n"
 			"@SuppressWarnings(\"deprecation\")\n"
 			"$type$ value = $type$.$for_number$(rawValue);\n"
-			"if (value == null) {\n"
+			"if(value == null) {\n"
 			"  unknownFields.mergeVarintField($number$, rawValue);\n"
 			"} else {\n"
-			"  if (!$get_mutable_bit_parser$) {\n"
+			"  if(!$get_mutable_bit_parser$) {\n"
 			"    $name$_ = new java.util.ArrayList<java.lang.Integer>();\n"
 			"    $set_mutable_bit_parser$;\n"
 			"  }\n"
@@ -959,7 +959,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateParsingCodeFromPacked(io::Prin
 void RepeatedImmutableEnumFieldGenerator::GenerateParsingDoneCode(io::Printer* printer) const {
 	printer->Print(
 		variables_,
-		"if ($get_mutable_bit_parser$) {\n"
+		"if($get_mutable_bit_parser$) {\n"
 		"  $name$_ = java.util.Collections.unmodifiableList($name$_);\n"
 		"}\n");
 }
@@ -967,7 +967,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateParsingDoneCode(io::Printer* p
 void RepeatedImmutableEnumFieldGenerator::GenerateSerializationCode(io::Printer* printer) const {
 	if(descriptor_->is_packed()) {
 		printer->Print(variables_,
-		    "if (get$capitalized_name$List().size() > 0) {\n"
+		    "if(get$capitalized_name$List().size() > 0) {\n"
 		    "  output.writeUInt32NoTag($tag$);\n"
 		    "  output.writeUInt32NoTag($name$MemoizedSerializedSize);\n"
 		    "}\n"
@@ -997,7 +997,7 @@ void RepeatedImmutableEnumFieldGenerator::GenerateSerializedSizeCode(io::Printer
 	printer->Print("size += dataSize;\n");
 	if(descriptor_->is_packed()) {
 		printer->Print(variables_,
-		    "if (!get$capitalized_name$List().isEmpty()) {"
+		    "if(!get$capitalized_name$List().isEmpty()) {"
 		    "  size += $tag_size$;\n"
 		    "  size += com.google.protobuf.CodedOutputStream\n"
 		    "    .computeUInt32SizeNoTag(dataSize);\n"
@@ -1018,12 +1018,12 @@ void RepeatedImmutableEnumFieldGenerator::GenerateSerializedSizeCode(io::Printer
 
 void RepeatedImmutableEnumFieldGenerator::GenerateEqualsCode(io::Printer* printer) const {
 	printer->Print(variables_,
-	    "if (!$name$_.equals(other.$name$_)) return false;\n");
+	    "if(!$name$_.equals(other.$name$_)) return false;\n");
 }
 
 void RepeatedImmutableEnumFieldGenerator::GenerateHashCode(io::Printer* printer) const {
 	printer->Print(variables_,
-	    "if (get$capitalized_name$Count() > 0) {\n"
+	    "if(get$capitalized_name$Count() > 0) {\n"
 	    "  hash = (37 * hash) + $constant_name$;\n"
 	    "  hash = (53 * hash) + $name$_.hashCode();\n"
 	    "}\n");

@@ -155,7 +155,7 @@ uchar * ssh_packet_encrypt(ssh_session session, void * data, uint32_t len)
 	}
 	else {
 		ctx = hmac_init(crypto->encryptMAC, hmac_digest_len(type), type);
-		if(ctx == NULL) {
+		if(!ctx) {
 			ZFREE(out);
 			return NULL;
 		}
@@ -228,7 +228,7 @@ int ssh_packet_hmac_verify(ssh_session session, const void * data, size_t len, u
 		return SSH_ERROR;
 	}
 	ctx = hmac_init(crypto->decryptMAC, hmac_digest_len(type), type);
-	if(ctx == NULL) {
+	if(!ctx) {
 		return -1;
 	}
 	seq = htonl(session->recv_seq);

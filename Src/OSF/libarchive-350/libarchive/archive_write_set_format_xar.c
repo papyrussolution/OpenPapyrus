@@ -385,7 +385,7 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown compression name: `%s'", value);
 			return ARCHIVE_FAILED;
 		}
-		if(name != NULL) {
+		if(name) {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "`%s' compression not supported on this platform", name);
 			return ARCHIVE_FAILED;
 		}
@@ -1138,7 +1138,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	r = archive_entry_uname_l(file->entry, &p, &len, xar->sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			return ARCHIVE_FATAL;
@@ -1158,7 +1158,7 @@ static int make_file_entry(struct archive_write * a, xmlTextWriterPtr writer, st
 	if(r < 0)
 		return ARCHIVE_FATAL;
 	r = archive_entry_gname_l(file->entry, &p, &len, xar->sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			return ARCHIVE_FATAL;
@@ -2659,7 +2659,7 @@ static int save_xattrs(struct archive_write * a, struct file * file)
 
 	xar = (struct xar *)a->format_data;
 	count = archive_entry_xattr_reset(file->entry);
-	if(count == 0)
+	if(!count)
 		return ARCHIVE_OK;
 	while(count--) {
 		archive_entry_xattr_next(file->entry, &name, &value, &size);

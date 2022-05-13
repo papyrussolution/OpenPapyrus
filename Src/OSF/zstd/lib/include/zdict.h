@@ -22,7 +22,7 @@ extern "C" {
 #ifndef ZDICTLIB_VISIBILITY
 #if defined(__GNUC__) && (__GNUC__ >= 4)
 #define ZDICTLIB_VISIBILITY __attribute__ ((visibility("default")))
-#  else
+#else
 #define ZDICTLIB_VISIBILITY
 #endif
 #endif
@@ -428,13 +428,13 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_legacy(void* dictBuffer, size_t dictBu
 #define ZDICT_GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__)
 #if defined (__cplusplus) && (__cplusplus >= 201402) /* C++14 or greater */
 #define ZDICT_DEPRECATED(message) [[deprecated(message)]] ZDICTLIB_API
-#  elif defined(__clang__) || (ZDICT_GCC_VERSION >= 405)
+#elif defined(__clang__) || (ZDICT_GCC_VERSION >= 405)
 #define ZDICT_DEPRECATED(message) ZDICTLIB_API __attribute__((deprecated(message)))
-#  elif (ZDICT_GCC_VERSION >= 301)
+#elif (ZDICT_GCC_VERSION >= 301)
 #define ZDICT_DEPRECATED(message) ZDICTLIB_API __attribute__((deprecated))
-#  elif defined(_MSC_VER)
+#elif defined(_MSC_VER)
 #define ZDICT_DEPRECATED(message) ZDICTLIB_API __declspec(deprecated(message))
-#  else
+#else
 #    pragma message("WARNING: You need to implement ZDICT_DEPRECATED for this compiler")
 #define ZDICT_DEPRECATED(message) ZDICTLIB_API
 #endif

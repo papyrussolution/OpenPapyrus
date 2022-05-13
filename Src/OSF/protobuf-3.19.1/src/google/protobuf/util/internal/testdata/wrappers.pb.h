@@ -1835,11 +1835,11 @@ inline const ::proto_util_converter::testing::DoubleWrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_double_wrapper(
     ::proto_util_converter::testing::DoubleWrapper* double_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(double_wrapper_);
   }
   double_wrapper_ = double_wrapper;
-  if (double_wrapper) {
+  if(double_wrapper) {
     
   } else {
     
@@ -1853,9 +1853,9 @@ inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1870,7 +1870,7 @@ inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::_internal_mutable_double_wrapper() {
   
-  if (double_wrapper_ == nullptr) {
+  if(double_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DoubleWrapper>(GetArenaForAllocation());
     double_wrapper_ = p;
   }
@@ -1883,15 +1883,14 @@ inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_double_wrapper(::proto_util_converter::testing::DoubleWrapper* double_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete double_wrapper_;
   }
-  if (double_wrapper) {
+  if(double_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DoubleWrapper>::GetOwningArena(double_wrapper);
-    if (message_arena != submessage_arena) {
-      double_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, double_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      double_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, double_wrapper, submessage_arena);
     }
     
   } else {
@@ -1925,11 +1924,11 @@ inline const ::proto_util_converter::testing::FloatWrapper& WrappersTestCases::f
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_float_wrapper(
     ::proto_util_converter::testing::FloatWrapper* float_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(float_wrapper_);
   }
   float_wrapper_ = float_wrapper;
-  if (float_wrapper) {
+  if(float_wrapper) {
     
   } else {
     
@@ -1943,9 +1942,9 @@ inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1960,7 +1959,7 @@ inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::_internal_mutable_float_wrapper() {
   
-  if (float_wrapper_ == nullptr) {
+  if(float_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FloatWrapper>(GetArenaForAllocation());
     float_wrapper_ = p;
   }
@@ -1973,15 +1972,14 @@ inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_float_wrapper(::proto_util_converter::testing::FloatWrapper* float_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete float_wrapper_;
   }
-  if (float_wrapper) {
+  if(float_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FloatWrapper>::GetOwningArena(float_wrapper);
-    if (message_arena != submessage_arena) {
-      float_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, float_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      float_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, float_wrapper, submessage_arena);
     }
     
   } else {
@@ -2015,11 +2013,11 @@ inline const ::proto_util_converter::testing::Int64Wrapper& WrappersTestCases::i
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_int64_wrapper(
     ::proto_util_converter::testing::Int64Wrapper* int64_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int64_wrapper_);
   }
   int64_wrapper_ = int64_wrapper;
-  if (int64_wrapper) {
+  if(int64_wrapper) {
     
   } else {
     
@@ -2033,9 +2031,9 @@ inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2050,7 +2048,7 @@ inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::_internal_mutable_int64_wrapper() {
   
-  if (int64_wrapper_ == nullptr) {
+  if(int64_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Int64Wrapper>(GetArenaForAllocation());
     int64_wrapper_ = p;
   }
@@ -2063,15 +2061,14 @@ inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_int64_wrapper(::proto_util_converter::testing::Int64Wrapper* int64_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete int64_wrapper_;
   }
-  if (int64_wrapper) {
+  if(int64_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Int64Wrapper>::GetOwningArena(int64_wrapper);
-    if (message_arena != submessage_arena) {
-      int64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int64_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      int64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int64_wrapper, submessage_arena);
     }
     
   } else {
@@ -2105,11 +2102,11 @@ inline const ::proto_util_converter::testing::UInt64Wrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_uint64_wrapper(
     ::proto_util_converter::testing::UInt64Wrapper* uint64_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint64_wrapper_);
   }
   uint64_wrapper_ = uint64_wrapper;
-  if (uint64_wrapper) {
+  if(uint64_wrapper) {
     
   } else {
     
@@ -2123,9 +2120,9 @@ inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2140,7 +2137,7 @@ inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::_internal_mutable_uint64_wrapper() {
   
-  if (uint64_wrapper_ == nullptr) {
+  if(uint64_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::UInt64Wrapper>(GetArenaForAllocation());
     uint64_wrapper_ = p;
   }
@@ -2153,15 +2150,14 @@ inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_uint64_wrapper(::proto_util_converter::testing::UInt64Wrapper* uint64_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete uint64_wrapper_;
   }
-  if (uint64_wrapper) {
+  if(uint64_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::UInt64Wrapper>::GetOwningArena(uint64_wrapper);
-    if (message_arena != submessage_arena) {
-      uint64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uint64_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      uint64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uint64_wrapper, submessage_arena);
     }
     
   } else {
@@ -2195,11 +2191,11 @@ inline const ::proto_util_converter::testing::Int32Wrapper& WrappersTestCases::i
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_int32_wrapper(
     ::proto_util_converter::testing::Int32Wrapper* int32_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int32_wrapper_);
   }
   int32_wrapper_ = int32_wrapper;
-  if (int32_wrapper) {
+  if(int32_wrapper) {
     
   } else {
     
@@ -2213,9 +2209,9 @@ inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2230,7 +2226,7 @@ inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::_internal_mutable_int32_wrapper() {
   
-  if (int32_wrapper_ == nullptr) {
+  if(int32_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Int32Wrapper>(GetArenaForAllocation());
     int32_wrapper_ = p;
   }
@@ -2243,15 +2239,14 @@ inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_int32_wrapper(::proto_util_converter::testing::Int32Wrapper* int32_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete int32_wrapper_;
   }
-  if (int32_wrapper) {
+  if(int32_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Int32Wrapper>::GetOwningArena(int32_wrapper);
-    if (message_arena != submessage_arena) {
-      int32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int32_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      int32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int32_wrapper, submessage_arena);
     }
     
   } else {
@@ -2285,11 +2280,11 @@ inline const ::proto_util_converter::testing::UInt32Wrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_uint32_wrapper(
     ::proto_util_converter::testing::UInt32Wrapper* uint32_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint32_wrapper_);
   }
   uint32_wrapper_ = uint32_wrapper;
-  if (uint32_wrapper) {
+  if(uint32_wrapper) {
     
   } else {
     
@@ -2303,9 +2298,9 @@ inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2320,7 +2315,7 @@ inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::_internal_mutable_uint32_wrapper() {
   
-  if (uint32_wrapper_ == nullptr) {
+  if(uint32_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::UInt32Wrapper>(GetArenaForAllocation());
     uint32_wrapper_ = p;
   }
@@ -2333,15 +2328,14 @@ inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_uint32_wrapper(::proto_util_converter::testing::UInt32Wrapper* uint32_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete uint32_wrapper_;
   }
-  if (uint32_wrapper) {
+  if(uint32_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::UInt32Wrapper>::GetOwningArena(uint32_wrapper);
-    if (message_arena != submessage_arena) {
-      uint32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uint32_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      uint32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uint32_wrapper, submessage_arena);
     }
     
   } else {
@@ -2375,11 +2369,11 @@ inline const ::proto_util_converter::testing::BoolWrapper& WrappersTestCases::bo
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_bool_wrapper(
     ::proto_util_converter::testing::BoolWrapper* bool_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bool_wrapper_);
   }
   bool_wrapper_ = bool_wrapper;
-  if (bool_wrapper) {
+  if(bool_wrapper) {
     
   } else {
     
@@ -2393,9 +2387,9 @@ inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::release_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2410,7 +2404,7 @@ inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::unsafe_a
 }
 inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::_internal_mutable_bool_wrapper() {
   
-  if (bool_wrapper_ == nullptr) {
+  if(bool_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::BoolWrapper>(GetArenaForAllocation());
     bool_wrapper_ = p;
   }
@@ -2423,15 +2417,14 @@ inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::mutable_
 }
 inline void WrappersTestCases::set_allocated_bool_wrapper(::proto_util_converter::testing::BoolWrapper* bool_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete bool_wrapper_;
   }
-  if (bool_wrapper) {
+  if(bool_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::BoolWrapper>::GetOwningArena(bool_wrapper);
-    if (message_arena != submessage_arena) {
-      bool_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, bool_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      bool_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, bool_wrapper, submessage_arena);
     }
     
   } else {
@@ -2465,11 +2458,11 @@ inline const ::proto_util_converter::testing::StringWrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_string_wrapper(
     ::proto_util_converter::testing::StringWrapper* string_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(string_wrapper_);
   }
   string_wrapper_ = string_wrapper;
-  if (string_wrapper) {
+  if(string_wrapper) {
     
   } else {
     
@@ -2483,9 +2476,9 @@ inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2500,7 +2493,7 @@ inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::_internal_mutable_string_wrapper() {
   
-  if (string_wrapper_ == nullptr) {
+  if(string_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::StringWrapper>(GetArenaForAllocation());
     string_wrapper_ = p;
   }
@@ -2513,15 +2506,14 @@ inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_string_wrapper(::proto_util_converter::testing::StringWrapper* string_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete string_wrapper_;
   }
-  if (string_wrapper) {
+  if(string_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::StringWrapper>::GetOwningArena(string_wrapper);
-    if (message_arena != submessage_arena) {
-      string_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, string_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      string_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, string_wrapper, submessage_arena);
     }
     
   } else {
@@ -2555,11 +2547,11 @@ inline const ::proto_util_converter::testing::BytesWrapper& WrappersTestCases::b
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_bytes_wrapper(
     ::proto_util_converter::testing::BytesWrapper* bytes_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bytes_wrapper_);
   }
   bytes_wrapper_ = bytes_wrapper;
-  if (bytes_wrapper) {
+  if(bytes_wrapper) {
     
   } else {
     
@@ -2573,9 +2565,9 @@ inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2590,7 +2582,7 @@ inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::_internal_mutable_bytes_wrapper() {
   
-  if (bytes_wrapper_ == nullptr) {
+  if(bytes_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::BytesWrapper>(GetArenaForAllocation());
     bytes_wrapper_ = p;
   }
@@ -2603,15 +2595,14 @@ inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_bytes_wrapper(::proto_util_converter::testing::BytesWrapper* bytes_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete bytes_wrapper_;
   }
-  if (bytes_wrapper) {
+  if(bytes_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::BytesWrapper>::GetOwningArena(bytes_wrapper);
-    if (message_arena != submessage_arena) {
-      bytes_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, bytes_wrapper, submessage_arena);
+    if(message_arena != submessage_arena) {
+      bytes_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, bytes_wrapper, submessage_arena);
     }
     
   } else {
@@ -2645,11 +2636,11 @@ inline const ::proto_util_converter::testing::DoubleWrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_double_wrapper_default(
     ::proto_util_converter::testing::DoubleWrapper* double_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(double_wrapper_default_);
   }
   double_wrapper_default_ = double_wrapper_default;
-  if (double_wrapper_default) {
+  if(double_wrapper_default) {
     
   } else {
     
@@ -2663,9 +2654,9 @@ inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2680,7 +2671,7 @@ inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::_internal_mutable_double_wrapper_default() {
   
-  if (double_wrapper_default_ == nullptr) {
+  if(double_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DoubleWrapper>(GetArenaForAllocation());
     double_wrapper_default_ = p;
   }
@@ -2693,15 +2684,14 @@ inline ::proto_util_converter::testing::DoubleWrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_double_wrapper_default(::proto_util_converter::testing::DoubleWrapper* double_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete double_wrapper_default_;
   }
-  if (double_wrapper_default) {
+  if(double_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DoubleWrapper>::GetOwningArena(double_wrapper_default);
-    if (message_arena != submessage_arena) {
-      double_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, double_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      double_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, double_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -2735,11 +2725,11 @@ inline const ::proto_util_converter::testing::FloatWrapper& WrappersTestCases::f
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_float_wrapper_default(
     ::proto_util_converter::testing::FloatWrapper* float_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(float_wrapper_default_);
   }
   float_wrapper_default_ = float_wrapper_default;
-  if (float_wrapper_default) {
+  if(float_wrapper_default) {
     
   } else {
     
@@ -2753,9 +2743,9 @@ inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2770,7 +2760,7 @@ inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::_internal_mutable_float_wrapper_default() {
   
-  if (float_wrapper_default_ == nullptr) {
+  if(float_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::FloatWrapper>(GetArenaForAllocation());
     float_wrapper_default_ = p;
   }
@@ -2783,15 +2773,14 @@ inline ::proto_util_converter::testing::FloatWrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_float_wrapper_default(::proto_util_converter::testing::FloatWrapper* float_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete float_wrapper_default_;
   }
-  if (float_wrapper_default) {
+  if(float_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::FloatWrapper>::GetOwningArena(float_wrapper_default);
-    if (message_arena != submessage_arena) {
-      float_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, float_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      float_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, float_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -2825,11 +2814,11 @@ inline const ::proto_util_converter::testing::Int64Wrapper& WrappersTestCases::i
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_int64_wrapper_default(
     ::proto_util_converter::testing::Int64Wrapper* int64_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int64_wrapper_default_);
   }
   int64_wrapper_default_ = int64_wrapper_default;
-  if (int64_wrapper_default) {
+  if(int64_wrapper_default) {
     
   } else {
     
@@ -2843,9 +2832,9 @@ inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2860,7 +2849,7 @@ inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::_internal_mutable_int64_wrapper_default() {
   
-  if (int64_wrapper_default_ == nullptr) {
+  if(int64_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Int64Wrapper>(GetArenaForAllocation());
     int64_wrapper_default_ = p;
   }
@@ -2873,15 +2862,14 @@ inline ::proto_util_converter::testing::Int64Wrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_int64_wrapper_default(::proto_util_converter::testing::Int64Wrapper* int64_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete int64_wrapper_default_;
   }
-  if (int64_wrapper_default) {
+  if(int64_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Int64Wrapper>::GetOwningArena(int64_wrapper_default);
-    if (message_arena != submessage_arena) {
-      int64_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int64_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      int64_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int64_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -2915,11 +2903,11 @@ inline const ::proto_util_converter::testing::UInt64Wrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_uint64_wrapper_default(
     ::proto_util_converter::testing::UInt64Wrapper* uint64_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint64_wrapper_default_);
   }
   uint64_wrapper_default_ = uint64_wrapper_default;
-  if (uint64_wrapper_default) {
+  if(uint64_wrapper_default) {
     
   } else {
     
@@ -2933,9 +2921,9 @@ inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2950,7 +2938,7 @@ inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::_internal_mutable_uint64_wrapper_default() {
   
-  if (uint64_wrapper_default_ == nullptr) {
+  if(uint64_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::UInt64Wrapper>(GetArenaForAllocation());
     uint64_wrapper_default_ = p;
   }
@@ -2963,15 +2951,14 @@ inline ::proto_util_converter::testing::UInt64Wrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_uint64_wrapper_default(::proto_util_converter::testing::UInt64Wrapper* uint64_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete uint64_wrapper_default_;
   }
-  if (uint64_wrapper_default) {
+  if(uint64_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::UInt64Wrapper>::GetOwningArena(uint64_wrapper_default);
-    if (message_arena != submessage_arena) {
-      uint64_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uint64_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      uint64_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uint64_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -3005,11 +2992,11 @@ inline const ::proto_util_converter::testing::Int32Wrapper& WrappersTestCases::i
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_int32_wrapper_default(
     ::proto_util_converter::testing::Int32Wrapper* int32_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int32_wrapper_default_);
   }
   int32_wrapper_default_ = int32_wrapper_default;
-  if (int32_wrapper_default) {
+  if(int32_wrapper_default) {
     
   } else {
     
@@ -3023,9 +3010,9 @@ inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3040,7 +3027,7 @@ inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::_internal_mutable_int32_wrapper_default() {
   
-  if (int32_wrapper_default_ == nullptr) {
+  if(int32_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Int32Wrapper>(GetArenaForAllocation());
     int32_wrapper_default_ = p;
   }
@@ -3053,15 +3040,14 @@ inline ::proto_util_converter::testing::Int32Wrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_int32_wrapper_default(::proto_util_converter::testing::Int32Wrapper* int32_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete int32_wrapper_default_;
   }
-  if (int32_wrapper_default) {
+  if(int32_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Int32Wrapper>::GetOwningArena(int32_wrapper_default);
-    if (message_arena != submessage_arena) {
-      int32_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int32_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      int32_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int32_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -3095,11 +3081,11 @@ inline const ::proto_util_converter::testing::UInt32Wrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_uint32_wrapper_default(
     ::proto_util_converter::testing::UInt32Wrapper* uint32_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint32_wrapper_default_);
   }
   uint32_wrapper_default_ = uint32_wrapper_default;
-  if (uint32_wrapper_default) {
+  if(uint32_wrapper_default) {
     
   } else {
     
@@ -3113,9 +3099,9 @@ inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3130,7 +3116,7 @@ inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::_internal_mutable_uint32_wrapper_default() {
   
-  if (uint32_wrapper_default_ == nullptr) {
+  if(uint32_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::UInt32Wrapper>(GetArenaForAllocation());
     uint32_wrapper_default_ = p;
   }
@@ -3143,15 +3129,14 @@ inline ::proto_util_converter::testing::UInt32Wrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_uint32_wrapper_default(::proto_util_converter::testing::UInt32Wrapper* uint32_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete uint32_wrapper_default_;
   }
-  if (uint32_wrapper_default) {
+  if(uint32_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::UInt32Wrapper>::GetOwningArena(uint32_wrapper_default);
-    if (message_arena != submessage_arena) {
-      uint32_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uint32_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      uint32_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uint32_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -3185,11 +3170,11 @@ inline const ::proto_util_converter::testing::BoolWrapper& WrappersTestCases::bo
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_bool_wrapper_default(
     ::proto_util_converter::testing::BoolWrapper* bool_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bool_wrapper_default_);
   }
   bool_wrapper_default_ = bool_wrapper_default;
-  if (bool_wrapper_default) {
+  if(bool_wrapper_default) {
     
   } else {
     
@@ -3203,9 +3188,9 @@ inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::release_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3220,7 +3205,7 @@ inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::unsafe_a
 }
 inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::_internal_mutable_bool_wrapper_default() {
   
-  if (bool_wrapper_default_ == nullptr) {
+  if(bool_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::BoolWrapper>(GetArenaForAllocation());
     bool_wrapper_default_ = p;
   }
@@ -3233,15 +3218,14 @@ inline ::proto_util_converter::testing::BoolWrapper* WrappersTestCases::mutable_
 }
 inline void WrappersTestCases::set_allocated_bool_wrapper_default(::proto_util_converter::testing::BoolWrapper* bool_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete bool_wrapper_default_;
   }
-  if (bool_wrapper_default) {
+  if(bool_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::BoolWrapper>::GetOwningArena(bool_wrapper_default);
-    if (message_arena != submessage_arena) {
-      bool_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, bool_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      bool_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, bool_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -3275,11 +3259,11 @@ inline const ::proto_util_converter::testing::StringWrapper& WrappersTestCases::
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_string_wrapper_default(
     ::proto_util_converter::testing::StringWrapper* string_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(string_wrapper_default_);
   }
   string_wrapper_default_ = string_wrapper_default;
-  if (string_wrapper_default) {
+  if(string_wrapper_default) {
     
   } else {
     
@@ -3293,9 +3277,9 @@ inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3310,7 +3294,7 @@ inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::unsafe
 }
 inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::_internal_mutable_string_wrapper_default() {
   
-  if (string_wrapper_default_ == nullptr) {
+  if(string_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::StringWrapper>(GetArenaForAllocation());
     string_wrapper_default_ = p;
   }
@@ -3323,15 +3307,14 @@ inline ::proto_util_converter::testing::StringWrapper* WrappersTestCases::mutabl
 }
 inline void WrappersTestCases::set_allocated_string_wrapper_default(::proto_util_converter::testing::StringWrapper* string_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete string_wrapper_default_;
   }
-  if (string_wrapper_default) {
+  if(string_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::StringWrapper>::GetOwningArena(string_wrapper_default);
-    if (message_arena != submessage_arena) {
-      string_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, string_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      string_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, string_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -3365,11 +3348,11 @@ inline const ::proto_util_converter::testing::BytesWrapper& WrappersTestCases::b
 }
 inline void WrappersTestCases::unsafe_arena_set_allocated_bytes_wrapper_default(
     ::proto_util_converter::testing::BytesWrapper* bytes_wrapper_default) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bytes_wrapper_default_);
   }
   bytes_wrapper_default_ = bytes_wrapper_default;
-  if (bytes_wrapper_default) {
+  if(bytes_wrapper_default) {
     
   } else {
     
@@ -3383,9 +3366,9 @@ inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::release
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3400,7 +3383,7 @@ inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::unsafe_
 }
 inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::_internal_mutable_bytes_wrapper_default() {
   
-  if (bytes_wrapper_default_ == nullptr) {
+  if(bytes_wrapper_default_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::BytesWrapper>(GetArenaForAllocation());
     bytes_wrapper_default_ = p;
   }
@@ -3413,15 +3396,14 @@ inline ::proto_util_converter::testing::BytesWrapper* WrappersTestCases::mutable
 }
 inline void WrappersTestCases::set_allocated_bytes_wrapper_default(::proto_util_converter::testing::BytesWrapper* bytes_wrapper_default) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete bytes_wrapper_default_;
   }
-  if (bytes_wrapper_default) {
+  if(bytes_wrapper_default) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::BytesWrapper>::GetOwningArena(bytes_wrapper_default);
-    if (message_arena != submessage_arena) {
-      bytes_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, bytes_wrapper_default, submessage_arena);
+    if(message_arena != submessage_arena) {
+      bytes_wrapper_default = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, bytes_wrapper_default, submessage_arena);
     }
     
   } else {
@@ -3453,11 +3435,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& DoubleWrapper::double_() cons
 }
 inline void DoubleWrapper::unsafe_arena_set_allocated_double_(
     ::PROTOBUF_NAMESPACE_ID::DoubleValue* double_) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(double__);
   }
   double__ = double_;
-  if (double_) {
+  if(double_) {
     
   } else {
     
@@ -3471,9 +3453,9 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* DoubleWrapper::release_double_() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3488,7 +3470,7 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* DoubleWrapper::unsafe_arena_release
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* DoubleWrapper::_internal_mutable_double_() {
   
-  if (double__ == nullptr) {
+  if(double__ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::DoubleValue>(GetArenaForAllocation());
     double__ = p;
   }
@@ -3501,17 +3483,15 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* DoubleWrapper::mutable_double_() {
 }
 inline void DoubleWrapper::set_allocated_double_(::PROTOBUF_NAMESPACE_ID::DoubleValue* double_) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(double__);
   }
-  if (double_) {
+  if(double_) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(double_));
-    if (message_arena != submessage_arena) {
-      double_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, double_, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(double_));
+    if(message_arena != submessage_arena) {
+      double_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, double_, submessage_arena);
     }
     
   } else {
@@ -3543,11 +3523,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& FloatWrapper::float_() const {
 }
 inline void FloatWrapper::unsafe_arena_set_allocated_float_(
     ::PROTOBUF_NAMESPACE_ID::FloatValue* float_) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(float__);
   }
   float__ = float_;
-  if (float_) {
+  if(float_) {
     
   } else {
     
@@ -3561,9 +3541,9 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* FloatWrapper::release_float_() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3578,7 +3558,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* FloatWrapper::unsafe_arena_release_f
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* FloatWrapper::_internal_mutable_float_() {
   
-  if (float__ == nullptr) {
+  if(float__ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::FloatValue>(GetArenaForAllocation());
     float__ = p;
   }
@@ -3591,17 +3571,15 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* FloatWrapper::mutable_float_() {
 }
 inline void FloatWrapper::set_allocated_float_(::PROTOBUF_NAMESPACE_ID::FloatValue* float_) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(float__);
   }
-  if (float_) {
+  if(float_) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(float_));
-    if (message_arena != submessage_arena) {
-      float_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, float_, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(float_));
+    if(message_arena != submessage_arena) {
+      float_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, float_, submessage_arena);
     }
     
   } else {
@@ -3633,11 +3611,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& Int64Wrapper::int64() const {
 }
 inline void Int64Wrapper::unsafe_arena_set_allocated_int64(
     ::PROTOBUF_NAMESPACE_ID::Int64Value* int64) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int64_);
   }
   int64_ = int64;
-  if (int64) {
+  if(int64) {
     
   } else {
     
@@ -3651,9 +3629,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* Int64Wrapper::release_int64() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3668,7 +3646,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* Int64Wrapper::unsafe_arena_release_i
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* Int64Wrapper::_internal_mutable_int64() {
   
-  if (int64_ == nullptr) {
+  if(int64_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Int64Value>(GetArenaForAllocation());
     int64_ = p;
   }
@@ -3681,17 +3659,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* Int64Wrapper::mutable_int64() {
 }
 inline void Int64Wrapper::set_allocated_int64(::PROTOBUF_NAMESPACE_ID::Int64Value* int64) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(int64_);
   }
-  if (int64) {
+  if(int64) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int64));
-    if (message_arena != submessage_arena) {
-      int64 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int64, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int64));
+    if(message_arena != submessage_arena) {
+      int64 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int64, submessage_arena);
     }
     
   } else {
@@ -3723,11 +3699,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& UInt64Wrapper::uint64() const
 }
 inline void UInt64Wrapper::unsafe_arena_set_allocated_uint64(
     ::PROTOBUF_NAMESPACE_ID::UInt64Value* uint64) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint64_);
   }
   uint64_ = uint64;
-  if (uint64) {
+  if(uint64) {
     
   } else {
     
@@ -3741,9 +3717,9 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* UInt64Wrapper::release_uint64() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3758,7 +3734,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* UInt64Wrapper::unsafe_arena_release
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* UInt64Wrapper::_internal_mutable_uint64() {
   
-  if (uint64_ == nullptr) {
+  if(uint64_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::UInt64Value>(GetArenaForAllocation());
     uint64_ = p;
   }
@@ -3771,17 +3747,15 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* UInt64Wrapper::mutable_uint64() {
 }
 inline void UInt64Wrapper::set_allocated_uint64(::PROTOBUF_NAMESPACE_ID::UInt64Value* uint64) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint64_);
   }
-  if (uint64) {
+  if(uint64) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint64));
-    if (message_arena != submessage_arena) {
-      uint64 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uint64, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint64));
+    if(message_arena != submessage_arena) {
+      uint64 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uint64, submessage_arena);
     }
     
   } else {
@@ -3813,11 +3787,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& Int32Wrapper::int32() const {
 }
 inline void Int32Wrapper::unsafe_arena_set_allocated_int32(
     ::PROTOBUF_NAMESPACE_ID::Int32Value* int32) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int32_);
   }
   int32_ = int32;
-  if (int32) {
+  if(int32) {
     
   } else {
     
@@ -3831,9 +3805,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* Int32Wrapper::release_int32() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3848,7 +3822,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* Int32Wrapper::unsafe_arena_release_i
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* Int32Wrapper::_internal_mutable_int32() {
   
-  if (int32_ == nullptr) {
+  if(int32_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Int32Value>(GetArenaForAllocation());
     int32_ = p;
   }
@@ -3861,17 +3835,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* Int32Wrapper::mutable_int32() {
 }
 inline void Int32Wrapper::set_allocated_int32(::PROTOBUF_NAMESPACE_ID::Int32Value* int32) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(int32_);
   }
-  if (int32) {
+  if(int32) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int32));
-    if (message_arena != submessage_arena) {
-      int32 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, int32, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(int32));
+    if(message_arena != submessage_arena) {
+      int32 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, int32, submessage_arena);
     }
     
   } else {
@@ -3903,11 +3875,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& UInt32Wrapper::uint32() const
 }
 inline void UInt32Wrapper::unsafe_arena_set_allocated_uint32(
     ::PROTOBUF_NAMESPACE_ID::UInt32Value* uint32) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint32_);
   }
   uint32_ = uint32;
-  if (uint32) {
+  if(uint32) {
     
   } else {
     
@@ -3921,9 +3893,9 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* UInt32Wrapper::release_uint32() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3938,7 +3910,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* UInt32Wrapper::unsafe_arena_release
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* UInt32Wrapper::_internal_mutable_uint32() {
   
-  if (uint32_ == nullptr) {
+  if(uint32_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::UInt32Value>(GetArenaForAllocation());
     uint32_ = p;
   }
@@ -3951,17 +3923,15 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* UInt32Wrapper::mutable_uint32() {
 }
 inline void UInt32Wrapper::set_allocated_uint32(::PROTOBUF_NAMESPACE_ID::UInt32Value* uint32) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint32_);
   }
-  if (uint32) {
+  if(uint32) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint32));
-    if (message_arena != submessage_arena) {
-      uint32 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uint32, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uint32));
+    if(message_arena != submessage_arena) {
+      uint32 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uint32, submessage_arena);
     }
     
   } else {
@@ -3993,11 +3963,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& BoolWrapper::bool_() const {
 }
 inline void BoolWrapper::unsafe_arena_set_allocated_bool_(
     ::PROTOBUF_NAMESPACE_ID::BoolValue* bool_) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bool__);
   }
   bool__ = bool_;
-  if (bool_) {
+  if(bool_) {
     
   } else {
     
@@ -4011,9 +3981,9 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* BoolWrapper::release_bool_() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4028,7 +3998,7 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* BoolWrapper::unsafe_arena_release_boo
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* BoolWrapper::_internal_mutable_bool_() {
   
-  if (bool__ == nullptr) {
+  if(bool__ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::BoolValue>(GetArenaForAllocation());
     bool__ = p;
   }
@@ -4041,17 +4011,15 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* BoolWrapper::mutable_bool_() {
 }
 inline void BoolWrapper::set_allocated_bool_(::PROTOBUF_NAMESPACE_ID::BoolValue* bool_) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(bool__);
   }
-  if (bool_) {
+  if(bool_) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bool_));
-    if (message_arena != submessage_arena) {
-      bool_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, bool_, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bool_));
+    if(message_arena != submessage_arena) {
+      bool_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, bool_, submessage_arena);
     }
     
   } else {
@@ -4083,11 +4051,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::StringValue& StringWrapper::string() const
 }
 inline void StringWrapper::unsafe_arena_set_allocated_string(
     ::PROTOBUF_NAMESPACE_ID::StringValue* string) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(string_);
   }
   string_ = string;
-  if (string) {
+  if(string) {
     
   } else {
     
@@ -4101,9 +4069,9 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* StringWrapper::release_string() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4118,7 +4086,7 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* StringWrapper::unsafe_arena_release
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* StringWrapper::_internal_mutable_string() {
   
-  if (string_ == nullptr) {
+  if(string_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::StringValue>(GetArenaForAllocation());
     string_ = p;
   }
@@ -4131,17 +4099,15 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* StringWrapper::mutable_string() {
 }
 inline void StringWrapper::set_allocated_string(::PROTOBUF_NAMESPACE_ID::StringValue* string) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(string_);
   }
-  if (string) {
+  if(string) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(string));
-    if (message_arena != submessage_arena) {
-      string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, string, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(string));
+    if(message_arena != submessage_arena) {
+      string = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, string, submessage_arena);
     }
     
   } else {
@@ -4173,11 +4139,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& BytesWrapper::bytes() const {
 }
 inline void BytesWrapper::unsafe_arena_set_allocated_bytes(
     ::PROTOBUF_NAMESPACE_ID::BytesValue* bytes) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bytes_);
   }
   bytes_ = bytes;
-  if (bytes) {
+  if(bytes) {
     
   } else {
     
@@ -4191,9 +4157,9 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* BytesWrapper::release_bytes() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4208,7 +4174,7 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* BytesWrapper::unsafe_arena_release_b
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* BytesWrapper::_internal_mutable_bytes() {
   
-  if (bytes_ == nullptr) {
+  if(bytes_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::BytesValue>(GetArenaForAllocation());
     bytes_ = p;
   }
@@ -4221,17 +4187,15 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* BytesWrapper::mutable_bytes() {
 }
 inline void BytesWrapper::set_allocated_bytes(::PROTOBUF_NAMESPACE_ID::BytesValue* bytes) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(bytes_);
   }
-  if (bytes) {
+  if(bytes) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bytes));
-    if (message_arena != submessage_arena) {
-      bytes = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, bytes, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(bytes));
+    if(message_arena != submessage_arena) {
+      bytes = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, bytes, submessage_arena);
     }
     
   } else {

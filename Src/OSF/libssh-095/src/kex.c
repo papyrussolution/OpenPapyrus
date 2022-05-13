@@ -47,12 +47,12 @@
 
 #elif defined(HAVE_LIBCRYPTO)
 #ifdef HAVE_OPENSSL_AES_H
-#  ifdef HAVE_OPENSSL_EVP_AES_GCM
+#ifdef HAVE_OPENSSL_EVP_AES_GCM
 #define GCM "aes256-gcm@openssh.com,aes128-gcm@openssh.com,"
 #else
 #define GCM ""
 #endif /* HAVE_OPENSSL_EVP_AES_GCM */
-#  ifdef BROKEN_AES_CTR
+#ifdef BROKEN_AES_CTR
 #define AES GCM "aes256-cbc,aes192-cbc,aes128-cbc,"
 #else /* BROKEN_AES_CTR */
 #define AES GCM "aes256-ctr,aes192-ctr,aes128-ctr,aes256-cbc,aes192-cbc,aes128-cbc,"
@@ -1339,7 +1339,7 @@ int ssh_generate_session_keys(ssh_session session)
 error:
 	ssh_string_burn(k_string);
 	SSH_STRING_FREE(k_string);
-	if(rc != 0) {
+	if(rc) {
 		SAlloc::F(IV_cli_to_srv);
 		SAlloc::F(IV_srv_to_cli);
 		SAlloc::F(enckey_cli_to_srv);

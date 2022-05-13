@@ -17,7 +17,7 @@
 }
 #endif // } 0
 
-int FASTCALL DbeInitSize(int option, DBConst * result, size_t s)
+int STDCALL DbeInitSize(int option, DBConst * result, size_t s)
 {
 	if(option == CALC_SIZE) {
 		result->init(s);
@@ -1643,14 +1643,14 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	return ok;
 }
 
-/*static*/void FASTCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld)
+/*static*/void STDCALL PPDbqFuncPool::InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld)
 {
 	rDbe.init();
 	rDbe.push(rFld);
 	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
-/*static*/void FASTCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache)
+/*static*/void STDCALL PPDbqFuncPool::InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache)
 {
 	rDbe.init();
 	rDbe.push(dbconst(tagID));
@@ -1658,14 +1658,14 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	rDbe.push(static_cast<DBFunc>(dontUseCache ? PPDbqFuncPool::IdObjTagText_NoCache : PPDbqFuncPool::IdObjTagText));
 }
 
-/*static*/void FASTCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
+/*static*/void STDCALL PPDbqFuncPool::InitLongFunc(DBE & rDbe, int funcId, DBField & rFld)
 {
 	rDbe.init();
 	rDbe.push(rFld);
 	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
-/*static*/void FASTCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
+/*static*/void STDCALL PPDbqFuncPool::InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2)
 {
 	rDbe.init();
 	rDbe.push(rA1);
@@ -1673,7 +1673,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 	rDbe.push(static_cast<DBFunc>(funcId));
 }
 
-/*static*/void FASTCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
+/*static*/void STDCALL PPDbqFuncPool::InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv)
 {
 	rDbe.init();
 	rDbe.push(rFld1);
@@ -1686,7 +1686,7 @@ static IMPL_DBE_PROC(dbqf_datebase_id)
 		rDbe.push(static_cast<DBFunc>(PPDbqFuncPool::IdPercent));
 }
 
-/*static*/void FASTCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg)
+/*static*/void STDCALL PPDbqFuncPool::InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg)
 {
 	rDbe.init();
 	rDbe.push(rFld);

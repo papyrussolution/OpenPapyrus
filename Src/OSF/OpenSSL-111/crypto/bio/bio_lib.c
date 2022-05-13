@@ -87,7 +87,7 @@ err:
 int FASTCALL BIO_free(BIO * a)
 {
 	int ret;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if(CRYPTO_DOWN_REF(&a->references, &ret, a->lock) <= 0)
 		return 0;

@@ -4204,7 +4204,7 @@ static double incbcf(double a, double b, double x)
 
 		if(qk != 0)
 			r = pk/qk;
-		if(r != 0) {
+		if(r) {
 			t = fabs( (ans - r)/r);
 			ans = r;
 		}
@@ -4290,7 +4290,7 @@ static double incbd(double a, double b, double x)
 
 		if(qk != 0)
 			r = pk/qk;
-		if(r != 0) {
+		if(r) {
 			t = fabs( (ans - r)/r);
 			ans = r;
 		}

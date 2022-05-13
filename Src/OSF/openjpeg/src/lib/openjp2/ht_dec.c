@@ -975,22 +975,17 @@ static INLINE uint32_t frwd_fetch(frwd_struct_t * msp)
  *  @param [in]       w is codeblock width
  *  @param [in]       h is codeblock height
  */
-static boolint opj_t1_allocate_buffers(opj_t1_t * t1,
-    uint32_t w,
-    uint32_t h)
+static boolint opj_t1_allocate_buffers(opj_t1_t * t1, uint32_t w, uint32_t h)
 {
 	uint32_t flagssize;
-
 	/* No risk of overflow. Prior checks ensure those assert are met */
 	/* They are per the specification */
 	assert(w <= 1024);
 	assert(h <= 1024);
 	assert(w * h <= 4096);
-
 	/* encoder uses tile buffer, so no need to allocate */
 	{
 		uint32_t datasize = w * h;
-
 		if(datasize > t1->datasize) {
 			opj_aligned_free(t1->data);
 			t1->data = (int32_t*)opj_aligned_malloc(datasize * sizeof(int32_t));

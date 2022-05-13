@@ -15,9 +15,6 @@
 extern "C" {
 #endif
 
-/* *************************************
-*  Includes
-***************************************/
 #include <stddef.h>   /* size_t */
 
 /* *************************************
@@ -44,7 +41,7 @@ size_t ZSTDv03_decompress(void* dst, size_t maxOriginalSize, const void* src, si
 
    note : assumes `cSize` and `dBound` are _not_ NULL.
  */
-void ZSTDv03_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, unsigned long long* dBound);
+void ZSTDv03_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
 /**
    ZSTDv03_isError() : tells if the result of ZSTDv03_decompress() is an error
  */

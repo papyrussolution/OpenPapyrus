@@ -2235,6 +2235,9 @@ copy ..\OSF\npp-gh20210917\PowerEditor\src\contextMenu.xml $(ProjectDir)..\..\pp
     <ProjectReference Include="icu-stubdata.vcxproj">
       <Project>{203ec78a-0531-43f0-a636-285439bde025}</Project>
     </ProjectReference>
+    <ProjectReference Include="lcms2.vcxproj">
+      <Project>{71dede59-3f1e-486b-a899-4283000f76b5}</Project>
+    </ProjectReference>
     <ProjectReference Include="libicu.vcxproj">
       <Project>{6d226127-c063-4702-b4b9-118233d7354c}</Project>
     </ProjectReference>

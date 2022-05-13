@@ -363,7 +363,7 @@ int ssl_verify_cert_chain(SSL * s, STACK_OF(X509) * sk)
 		verify_store = s->ctx->cert_store;
 
 	ctx = X509_STORE_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLerr(SSL_F_SSL_VERIFY_CERT_CHAIN, ERR_R_MALLOC_FAILURE);
 		return 0;
 	}

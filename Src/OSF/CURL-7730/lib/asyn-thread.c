@@ -293,7 +293,7 @@ static unsigned int CURL_STDCALL getaddrinfo_thread(void * arg)
 
 	rc = Curl_getaddrinfo_ex(tsd->hostname, service, &tsd->hints, &tsd->res);
 
-	if(rc != 0) {
+	if(rc) {
 		tsd->sock_error = SOCKERRNO ? SOCKERRNO : rc;
 		if(tsd->sock_error == 0)
 			tsd->sock_error = RESOLVER_ENOMEM;

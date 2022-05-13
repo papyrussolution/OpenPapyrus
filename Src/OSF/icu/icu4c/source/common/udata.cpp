@@ -1,12 +1,11 @@
 // udata.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
- *   encoding:   UTF-8
- *   created on: 1999oct25
- *   created by: Markus W. Scherer
- */
+// Copyright (C) 1999-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 1999oct25
+// created by: Markus W. Scherer
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -1293,8 +1292,8 @@ static UDataMemory * doOpenChoice(const char * path, const char * type, const ch
 
 /* API ---------------------------------------------------------------------- */
 
-U_CAPI UDataMemory * U_EXPORT2 udata_open(const char * path, const char * type, const char * name,
-    UErrorCode * pErrorCode) {
+U_CAPI UDataMemory * U_EXPORT2 udata_open(const char * path, const char * type, const char * name, UErrorCode * pErrorCode) 
+{
 #ifdef UDATA_DEBUG
 	slfprintf_stderr("udata_open(): Opening: %s : %s . %s\n", (path ? path : "NULL"), name, type);
 	fflush(stderr);

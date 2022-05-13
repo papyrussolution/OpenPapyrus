@@ -152,7 +152,7 @@ static int ok_free(BIO * a)
 {
 	BIO_OK_CTX * ctx;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	ctx = static_cast<BIO_OK_CTX *>(BIO_get_data(a));

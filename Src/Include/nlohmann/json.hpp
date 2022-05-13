@@ -2677,36 +2677,27 @@ struct position_t {
 
    @since version 3.0.0
  */
-class exception : public std::exception
-{
+class exception : public std::exception {
 public:
 	/// returns the explanatory string
-	const char* what() const noexcept override
-	{
-		return m.what();
-	}
-
+	const char* what() const noexcept override { return m.what(); }
 	/// the id of the exception
 	const int id; // NOLINT(cppcoreguidelines-non-private-member-variables-in-classes)
-
 protected:
 	JSON_HEDLEY_NON_NULL(3)
-	exception(int id_, const char* what_arg) : id(id_), m(what_arg) {
-	}                                                              // NOLINT(bugprone-throw-keyword-missing)
-
+	exception(int id_, const char* what_arg) : id(id_), m(what_arg) 
+	{
+	} // NOLINT(bugprone-throw-keyword-missing)
 	static std::string name(const std::string& ename, int id_)
 	{
 		return "[json.exception." + ename + "." + std::to_string(id_) + "] ";
 	}
-
-	template <typename BasicJsonType>
-	static std::string diagnostics(const BasicJsonType& leaf_element)
+	template <typename BasicJsonType> static std::string diagnostics(const BasicJsonType& leaf_element)
 	{
 #if JSON_DIAGNOSTICS
 		std::vector<std::string> tokens;
 		for(const auto* current = &leaf_element; current->m_parent != nullptr; current = current->m_parent) {
-			switch(current->m_parent->type())
-			{
+			switch(current->m_parent->type()) {
 				case value_t::array:
 			    {
 				    for(std::size_t i = 0; i < current->m_parent->m_value.array->size(); ++i) {
@@ -2717,7 +2708,6 @@ protected:
 				    }
 				    break;
 			    }
-
 				case value_t::object:
 			    {
 				    for(const auto& element : *current->m_parent->m_value.object) {
@@ -2728,7 +2718,6 @@ protected:
 				    }
 				    break;
 			    }
-
 				case value_t::null: // LCOV_EXCL_LINE
 				case value_t::string: // LCOV_EXCL_LINE
 				case value_t::boolean: // LCOV_EXCL_LINE
@@ -2865,16 +2854,13 @@ public:
 	      This also holds true when reading a byte vector (CBOR or MessagePack).
 	 */
 	const std::size_t byte;
-
 private:
-	parse_error(int id_, std::size_t byte_, const char* what_arg)
-		: exception(id_, what_arg), byte(byte_) {
+	parse_error(int id_, std::size_t byte_, const char* what_arg) : exception(id_, what_arg), byte(byte_) 
+	{
 	}
-
 	static std::string position_string(const position_t& pos)
 	{
-		return " at line " + std::to_string(pos.lines_read + 1) +
-		       ", column " + std::to_string(pos.chars_read_current_line);
+		return " at line " + std::to_string(pos.lines_read + 1) + ", column " + std::to_string(pos.chars_read_current_line);
 	}
 };
 
@@ -2935,23 +2921,19 @@ private:
 
    @since version 3.0.0
  */
-class invalid_iterator : public exception
-{
+class invalid_iterator : public exception {
 public:
-	template <typename BasicJsonType>
-	static invalid_iterator create(int id_, const std::string& what_arg, const BasicJsonType& context)
+	template <typename BasicJsonType> static invalid_iterator create(int id_, const std::string& what_arg, const BasicJsonType& context)
 	{
 		std::string w = exception::name("invalid_iterator", id_) + exception::diagnostics(context) + what_arg;
 		return {id_, w.c_str()};
 	}
-
 private:
 	JSON_HEDLEY_NON_NULL(3)
-	invalid_iterator(int id_, const char* what_arg)
-		: exception(id_, what_arg) {
+	invalid_iterator(int id_, const char* what_arg) : exception(id_, what_arg) 
+	{
 	}
 };
-
 /*!
    @brief exception indicating executing a member function with a wrong type
 
@@ -3248,9 +3230,7 @@ using index_sequence_for = make_index_sequence<sizeof ... (Ts)>;
 template <unsigned N> struct priority_tag : priority_tag < N - 1 > {};
 template <> struct priority_tag<0> {};
 // taken from ranges-v3
-template <typename T> struct static_const {
-	static constexpr T value{};
-};
+template <typename T> struct static_const { static constexpr T value{}; };
 template <typename T> constexpr T static_const<T>::value;
 	// dispatching helper struct
 	template <class T> struct identity_tag {};
@@ -3258,11 +3238,7 @@ template <typename T> constexpr T static_const<T>::value;
 template <typename It, typename = void>
 struct iterator_types {};
 
-template <typename It>
-struct iterator_types <
-	It,
-	void_t<typename It::difference_type, typename It::value_type, typename It::pointer,
-	typename It::reference, typename It::iterator_category > >{
+template <typename It> struct iterator_types <It, void_t<typename It::difference_type, typename It::value_type, typename It::pointer, typename It::reference, typename It::iterator_category > > {
 	using difference_type = typename It::difference_type;
 	using value_type = typename It::value_type;
 	using pointer = typename It::pointer;
@@ -3464,27 +3440,18 @@ struct has_from_json < BasicJsonType, T, enable_if_t < !is_basic_json<T>::value 
 template <typename BasicJsonType, typename T, typename = void>
 struct has_non_default_from_json : std::false_type {};
 
-template <typename BasicJsonType, typename T>
-struct has_non_default_from_json < BasicJsonType, T, enable_if_t < !is_basic_json<T>::value > >{
+template <typename BasicJsonType, typename T> struct has_non_default_from_json < BasicJsonType, T, enable_if_t < !is_basic_json<T>::value > > {
 	using serializer = typename BasicJsonType::template json_serializer<T, void>;
-
-	static constexpr bool value =
-	    is_detected_exact<T, from_json_function, serializer,
-		const BasicJsonType&>::value;
+	static constexpr bool value = is_detected_exact<T, from_json_function, serializer, const BasicJsonType&>::value;
 };
 
 // This trait checks if BasicJsonType::json_serializer<T>::to_json exists
 // Do not evaluate the trait when T is a basic_json type, to avoid template instantiation infinite recursion.
-template <typename BasicJsonType, typename T, typename = void>
-struct has_to_json : std::false_type {};
+template <typename BasicJsonType, typename T, typename = void> struct has_to_json : std::false_type {};
 
-template <typename BasicJsonType, typename T>
-struct has_to_json < BasicJsonType, T, enable_if_t < !is_basic_json<T>::value > >{
+template <typename BasicJsonType, typename T> struct has_to_json < BasicJsonType, T, enable_if_t < !is_basic_json<T>::value > >{
 	using serializer = typename BasicJsonType::template json_serializer<T, void>;
-
-	static constexpr bool value =
-	    is_detected_exact<void, to_json_function, serializer, BasicJsonType&,
-		T>::value;
+	static constexpr bool value = is_detected_exact<void, to_json_function, serializer, BasicJsonType&, T>::value;
 };
 
 ///////////////////
@@ -3493,12 +3460,8 @@ struct has_to_json < BasicJsonType, T, enable_if_t < !is_basic_json<T>::value > 
 
 // https://en.cppreference.com/w/cpp/types/conjunction
 template <class ...> struct conjunction : std::true_type { };
-
 template <class B1> struct conjunction<B1> : B1 { };
-
-template <class B1, class ... Bn>
-struct conjunction<B1, Bn ...>
-	: std::conditional<bool(B1::value), conjunction<Bn ...>, B1>::type {};
+template <class B1, class ... Bn> struct conjunction<B1, Bn ...> : std::conditional<bool(B1::value), conjunction<Bn ...>, B1>::type {};
 
 // https://en.cppreference.com/w/cpp/types/negation
 template <class B> struct negation : std::integral_constant < bool, !B::value > { };
@@ -3509,45 +3472,20 @@ template <class B> struct negation : std::integral_constant < bool, !B::value > 
 template <typename T>
 struct is_default_constructible : std::is_default_constructible<T> {};
 
-template <typename T1, typename T2>
-struct is_default_constructible<std::pair<T1, T2> >
-	: conjunction<is_default_constructible<T1>, is_default_constructible<T2> > {};
+template <typename T1, typename T2> struct is_default_constructible<std::pair<T1, T2> > : conjunction<is_default_constructible<T1>, is_default_constructible<T2> > {};
+template <typename T1, typename T2> struct is_default_constructible<const std::pair<T1, T2> > : conjunction<is_default_constructible<T1>, is_default_constructible<T2> > {};
+template <typename ... Ts> struct is_default_constructible<std::tuple<Ts ...> > : conjunction<is_default_constructible<Ts>...> {};
+template <typename ... Ts> struct is_default_constructible<const std::tuple<Ts ...> > : conjunction<is_default_constructible<Ts>...> {};
+template <typename T, typename ... Args> struct is_constructible : std::is_constructible<T, Args ...> {};
+template <typename T1, typename T2> struct is_constructible<std::pair<T1, T2> > : is_default_constructible<std::pair<T1, T2> > {};
+template <typename T1, typename T2> struct is_constructible<const std::pair<T1, T2> > : is_default_constructible<const std::pair<T1, T2> > {};
+template <typename ... Ts> struct is_constructible<std::tuple<Ts ...> > : is_default_constructible<std::tuple<Ts ...> > {};
+template <typename ... Ts> struct is_constructible<const std::tuple<Ts ...> > : is_default_constructible<const std::tuple<Ts ...> > {};
+template <typename T, typename = void> struct is_iterator_traits : std::false_type {};
 
-template <typename T1, typename T2>
-struct is_default_constructible<const std::pair<T1, T2> >
-	: conjunction<is_default_constructible<T1>, is_default_constructible<T2> > {};
-
-template <typename ... Ts>
-struct is_default_constructible<std::tuple<Ts ...> >
-	: conjunction<is_default_constructible<Ts>...> {};
-
-template <typename ... Ts>
-struct is_default_constructible<const std::tuple<Ts ...> >
-	: conjunction<is_default_constructible<Ts>...> {};
-
-template <typename T, typename ... Args>
-struct is_constructible : std::is_constructible<T, Args ...> {};
-
-template <typename T1, typename T2>
-struct is_constructible<std::pair<T1, T2> > : is_default_constructible<std::pair<T1, T2> > {};
-
-template <typename T1, typename T2>
-struct is_constructible<const std::pair<T1, T2> > : is_default_constructible<const std::pair<T1, T2> > {};
-
-template <typename ... Ts>
-struct is_constructible<std::tuple<Ts ...> > : is_default_constructible<std::tuple<Ts ...> > {};
-
-template <typename ... Ts>
-struct is_constructible<const std::tuple<Ts ...> > : is_default_constructible<const std::tuple<Ts ...> > {};
-
-template <typename T, typename = void>
-struct is_iterator_traits : std::false_type {};
-
-template <typename T>
-struct is_iterator_traits<iterator_traits<T> >{
+template <typename T> struct is_iterator_traits<iterator_traits<T> >{
 private:
 	using traits = iterator_traits<T>;
-
 public:
 	static constexpr auto value =
 	    is_detected<value_type_t, traits>::value &&
@@ -3816,8 +3754,7 @@ template < typename BasicJsonType, typename ArithmeticType,
     int > = 0 >
 void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
 {
-	switch(static_cast<value_t>(j))
-	{
+	switch(static_cast<value_t>(j)) {
 		case value_t::number_unsigned:
 	    {
 		    val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_unsigned_t*>());
@@ -3833,7 +3770,6 @@ void get_arithmetic_value(const BasicJsonType& j, ArithmeticType& val)
 		    val = static_cast<ArithmeticType>(*j.template get_ptr<const typename BasicJsonType::number_float_t*>());
 		    break;
 	    }
-
 		case value_t::null:
 		case value_t::object:
 		case value_t::array:
@@ -4979,11 +4915,7 @@ public:
 
 	   @since version 3.8.0
 	 */
-	constexpr bool has_subtype() const noexcept
-	{
-		return m_has_subtype;
-	}
-
+	constexpr bool has_subtype() const noexcept { return m_has_subtype; }
 	/*!
 	   @brief clears the binary subtype
 
@@ -5020,7 +4952,6 @@ inline std::size_t combine(std::size_t seed, std::size_t h) noexcept
 	seed ^= h + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
 	return seed;
 }
-
 /*!
    @brief hash a JSON value
 
@@ -5032,23 +4963,17 @@ inline std::size_t combine(std::size_t seed, std::size_t h) noexcept
    @param j JSON value to hash
    @return hash value of j
  */
-template <typename BasicJsonType>
-std::size_t hash(const BasicJsonType& j)
+template <typename BasicJsonType> std::size_t hash(const BasicJsonType& j)
 {
 	using string_t = typename BasicJsonType::string_t;
 	using number_integer_t = typename BasicJsonType::number_integer_t;
 	using number_unsigned_t = typename BasicJsonType::number_unsigned_t;
 	using number_float_t = typename BasicJsonType::number_float_t;
-
 	const auto type = static_cast<std::size_t>(j.type());
-	switch(j.type())
-	{
+	switch(j.type()) {
 		case BasicJsonType::value_t::null:
 		case BasicJsonType::value_t::discarded:
-	    {
 		    return combine(type, 0);
-	    }
-
 		case BasicJsonType::value_t::object:
 	    {
 		    auto seed = combine(type, j.size());
@@ -5059,7 +4984,6 @@ std::size_t hash(const BasicJsonType& j)
 		    }
 		    return seed;
 	    }
-
 		case BasicJsonType::value_t::array:
 	    {
 		    auto seed = combine(type, j.size());
@@ -5068,37 +4992,31 @@ std::size_t hash(const BasicJsonType& j)
 		    }
 		    return seed;
 	    }
-
 		case BasicJsonType::value_t::string:
 	    {
 		    const auto h = std::hash<string_t> {} (j.template get_ref<const string_t&>());
 		    return combine(type, h);
 	    }
-
 		case BasicJsonType::value_t::boolean:
 	    {
 		    const auto h = std::hash<bool> {} (j.template get<bool>());
 		    return combine(type, h);
 	    }
-
 		case BasicJsonType::value_t::number_integer:
 	    {
 		    const auto h = std::hash<number_integer_t> {} (j.template get<number_integer_t>());
 		    return combine(type, h);
 	    }
-
 		case BasicJsonType::value_t::number_unsigned:
 	    {
 		    const auto h = std::hash<number_unsigned_t> {} (j.template get<number_unsigned_t>());
 		    return combine(type, h);
 	    }
-
 		case BasicJsonType::value_t::number_float:
 	    {
 		    const auto h = std::hash<number_float_t> {} (j.template get<number_float_t>());
 		    return combine(type, h);
 	    }
-
 		case BasicJsonType::value_t::binary:
 	    {
 		    auto seed = combine(type, j.get_binary().size());
@@ -5135,26 +5053,18 @@ public:
 	using char_type = char;
 
 	JSON_HEDLEY_NON_NULL(2)
-	explicit file_input_adapter(std::FILE* f) noexcept
-		: m_file(f)
+	explicit file_input_adapter(std::FILE* f) noexcept : m_file(f)
 	{
 	}
-
 	// make class move-only
 	file_input_adapter(const file_input_adapter&) = delete;
 	file_input_adapter(file_input_adapter&&) noexcept = default;
 	file_input_adapter& operator=(const file_input_adapter&) = delete;
 	file_input_adapter& operator=(file_input_adapter&&) = delete;
 	~file_input_adapter() = default;
-
-	std::char_traits<char>::int_type get_character() noexcept
-	{
-		return std::fgetc(m_file);
-	}
-
+	std::char_traits<char>::int_type get_character() noexcept { return std::fgetc(m_file); }
 private:
-	/// the file pointer to read from
-	std::FILE* m_file;
+	std::FILE* m_file; /// the file pointer to read from
 };
 
 /*!
@@ -5217,12 +5127,9 @@ class iterator_input_adapter
 {
 public:
 	using char_type = typename std::iterator_traits<IteratorType>::value_type;
-
-	iterator_input_adapter(IteratorType first, IteratorType last)
-		: current(std::move(first)), end(std::move(last))
+	iterator_input_adapter(IteratorType first, IteratorType last) : current(std::move(first)), end(std::move(last))
 	{
 	}
-
 	typename std::char_traits<char_type>::int_type get_character()
 	{
 		if(JSON_HEDLEY_LIKELY(current != end)) {
@@ -5230,21 +5137,15 @@ public:
 			std::advance(current, 1);
 			return result;
 		}
-
 		return std::char_traits<char_type>::eof();
 	}
-
 private:
 	IteratorType current;
 	IteratorType end;
 
 	template <typename BaseInputAdapter, size_t T>
 	friend struct wide_string_input_helper;
-
-	bool empty() const
-	{
-		return current == end;
-	}
+	bool empty() const { return current == end; }
 };
 
 template <typename BaseInputAdapter, size_t T>
@@ -5253,13 +5154,9 @@ struct wide_string_input_helper;
 template <typename BaseInputAdapter>
 struct wide_string_input_helper<BaseInputAdapter, 4>{
 	// UTF-32
-	static void fill_buffer(BaseInputAdapter& input,
-	    std::array<std::char_traits<char>::int_type, 4>& utf8_bytes,
-	    size_t& utf8_bytes_index,
-	    size_t& utf8_bytes_filled)
+	static void fill_buffer(BaseInputAdapter& input, std::array<std::char_traits<char>::int_type, 4>& utf8_bytes, size_t& utf8_bytes_index, size_t& utf8_bytes_filled)
 	{
 		utf8_bytes_index = 0;
-
 		if(JSON_HEDLEY_UNLIKELY(input.empty())) {
 			utf8_bytes[0] = std::char_traits<char>::eof();
 			utf8_bytes_filled = 1;
@@ -5267,46 +5164,27 @@ struct wide_string_input_helper<BaseInputAdapter, 4>{
 		else {
 			// get the current character
 			const auto wc = input.get_character();
-
 			// UTF-32 to UTF-8 encoding
 			if(wc < 0x80) {
 				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(wc);
 				utf8_bytes_filled = 1;
 			}
 			else if(wc <= 0x7FF) {
-				utf8_bytes[0] =
-				    static_cast<std::char_traits<char>::int_type>(0xC0u |
-				    ((static_cast<unsigned int>(wc) >> 6u) & 0x1Fu));
-				utf8_bytes[1] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    (static_cast<unsigned int>(wc) & 0x3Fu));
+				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(0xC0u | ((static_cast<unsigned int>(wc) >> 6u) & 0x1Fu));
+				utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | (static_cast<unsigned int>(wc) & 0x3Fu));
 				utf8_bytes_filled = 2;
 			}
 			else if(wc <= 0xFFFF) {
-				utf8_bytes[0] =
-				    static_cast<std::char_traits<char>::int_type>(0xE0u |
-				    ((static_cast<unsigned int>(wc) >> 12u) & 0x0Fu));
-				utf8_bytes[1] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    ((static_cast<unsigned int>(wc) >> 6u) & 0x3Fu));
-				utf8_bytes[2] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    (static_cast<unsigned int>(wc) & 0x3Fu));
+				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(0xE0u | ((static_cast<unsigned int>(wc) >> 12u) & 0x0Fu));
+				utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | ((static_cast<unsigned int>(wc) >> 6u) & 0x3Fu));
+				utf8_bytes[2] = static_cast<std::char_traits<char>::int_type>(0x80u | (static_cast<unsigned int>(wc) & 0x3Fu));
 				utf8_bytes_filled = 3;
 			}
 			else if(wc <= 0x10FFFF) {
-				utf8_bytes[0] =
-				    static_cast<std::char_traits<char>::int_type>(0xF0u |
-				    ((static_cast<unsigned int>(wc) >> 18u) & 0x07u));
-				utf8_bytes[1] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    ((static_cast<unsigned int>(wc) >> 12u) & 0x3Fu));
-				utf8_bytes[2] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    ((static_cast<unsigned int>(wc) >> 6u) & 0x3Fu));
-				utf8_bytes[3] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    (static_cast<unsigned int>(wc) & 0x3Fu));
+				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(0xF0u | ((static_cast<unsigned int>(wc) >> 18u) & 0x07u));
+				utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | ((static_cast<unsigned int>(wc) >> 12u) & 0x3Fu));
+				utf8_bytes[2] = static_cast<std::char_traits<char>::int_type>(0x80u | ((static_cast<unsigned int>(wc) >> 6u) & 0x3Fu));
+				utf8_bytes[3] = static_cast<std::char_traits<char>::int_type>(0x80u | (static_cast<unsigned int>(wc) & 0x3Fu));
 				utf8_bytes_filled = 4;
 			}
 			else {
@@ -5318,16 +5196,11 @@ struct wide_string_input_helper<BaseInputAdapter, 4>{
 	}
 };
 
-template <typename BaseInputAdapter>
-struct wide_string_input_helper<BaseInputAdapter, 2>{
+template <typename BaseInputAdapter> struct wide_string_input_helper<BaseInputAdapter, 2>{
 	// UTF-16
-	static void fill_buffer(BaseInputAdapter& input,
-	    std::array<std::char_traits<char>::int_type, 4>& utf8_bytes,
-	    size_t& utf8_bytes_index,
-	    size_t& utf8_bytes_filled)
+	static void fill_buffer(BaseInputAdapter& input, std::array<std::char_traits<char>::int_type, 4>& utf8_bytes, size_t& utf8_bytes_index, size_t& utf8_bytes_filled)
 	{
 		utf8_bytes_index = 0;
-
 		if(JSON_HEDLEY_UNLIKELY(input.empty())) {
 			utf8_bytes[0] = std::char_traits<char>::eof();
 			utf8_bytes_filled = 1;
@@ -5335,31 +5208,20 @@ struct wide_string_input_helper<BaseInputAdapter, 2>{
 		else {
 			// get the current character
 			const auto wc = input.get_character();
-
 			// UTF-16 to UTF-8 encoding
 			if(wc < 0x80) {
 				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(wc);
 				utf8_bytes_filled = 1;
 			}
 			else if(wc <= 0x7FF) {
-				utf8_bytes[0] =
-				    static_cast<std::char_traits<char>::int_type>(0xC0u |
-				    ((static_cast<unsigned int>(wc) >> 6u)));
-				utf8_bytes[1] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    (static_cast<unsigned int>(wc) & 0x3Fu));
+				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(0xC0u | ((static_cast<unsigned int>(wc) >> 6u)));
+				utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | (static_cast<unsigned int>(wc) & 0x3Fu));
 				utf8_bytes_filled = 2;
 			}
 			else if(0xD800 > wc || wc >= 0xE000) {
-				utf8_bytes[0] =
-				    static_cast<std::char_traits<char>::int_type>(0xE0u |
-				    ((static_cast<unsigned int>(wc) >> 12u)));
-				utf8_bytes[1] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    ((static_cast<unsigned int>(wc) >> 6u) & 0x3Fu));
-				utf8_bytes[2] =
-				    static_cast<std::char_traits<char>::int_type>(0x80u |
-				    (static_cast<unsigned int>(wc) & 0x3Fu));
+				utf8_bytes[0] = static_cast<std::char_traits<char>::int_type>(0xE0u | ((static_cast<unsigned int>(wc) >> 12u)));
+				utf8_bytes[1] = static_cast<std::char_traits<char>::int_type>(0x80u | ((static_cast<unsigned int>(wc) >> 6u) & 0x3Fu));
+				utf8_bytes[2] = static_cast<std::char_traits<char>::int_type>(0x80u | (static_cast<unsigned int>(wc) & 0x3Fu));
 				utf8_bytes_filled = 3;
 			}
 			else {
@@ -5383,26 +5245,20 @@ struct wide_string_input_helper<BaseInputAdapter, 2>{
 };
 
 // Wraps another input apdater to convert wide character types into individual bytes.
-template <typename BaseInputAdapter, typename WideCharType>
-class wide_string_input_adapter
-{
+template <typename BaseInputAdapter, typename WideCharType> class wide_string_input_adapter {
 public:
 	using char_type = char;
-
-	wide_string_input_adapter(BaseInputAdapter base)
-		: base_adapter(base) {
+	wide_string_input_adapter(BaseInputAdapter base) : base_adapter(base) 
+	{
 	}
-
 	typename std::char_traits<char>::int_type get_character() noexcept
 	{
 		// check if buffer needs to be filled
 		if(utf8_bytes_index == utf8_bytes_filled) {
 			fill_buffer<sizeof(WideCharType)>();
-
 			JSON_ASSERT(utf8_bytes_filled > 0);
 			JSON_ASSERT(utf8_bytes_index == 0);
 		}
-
 		// use buffer
 		JSON_ASSERT(utf8_bytes_filled > 0);
 		JSON_ASSERT(utf8_bytes_index < utf8_bytes_filled);
@@ -6173,58 +6029,19 @@ public:
 	using number_float_t = typename BasicJsonType::number_float_t;
 	using string_t = typename BasicJsonType::string_t;
 	using binary_t = typename BasicJsonType::binary_t;
-	bool null()
-	{
-		return true;
-	}
-	bool boolean(bool /*unused*/)
-	{
-		return true;
-	}
-	bool number_integer(number_integer_t /*unused*/)
-	{
-		return true;
-	}
-	bool number_unsigned(number_unsigned_t /*unused*/)
-	{
-		return true;
-	}
-	bool number_float(number_float_t /*unused*/, const string_t& /*unused*/)
-	{
-		return true;
-	}
-	bool string(string_t& /*unused*/)
-	{
-		return true;
-	}
-	bool binary(binary_t& /*unused*/)
-	{
-		return true;
-	}
-	bool start_object(std::size_t /*unused*/ = std::size_t(-1))
-	{
-		return true;
-	}
-	bool key(string_t& /*unused*/)
-	{
-		return true;
-	}
-	bool end_object()
-	{
-		return true;
-	}
-	bool start_array(std::size_t /*unused*/ = std::size_t(-1))
-	{
-		return true;
-	}
-	bool end_array()
-	{
-		return true;
-	}
-	bool parse_error(std::size_t /*unused*/, const std::string& /*unused*/, const detail::exception& /*unused*/)
-	{
-		return false;
-	}
+	bool null() { return true; }
+	bool boolean(bool /*unused*/) { return true; }
+	bool number_integer(number_integer_t /*unused*/) { return true; }
+	bool number_unsigned(number_unsigned_t /*unused*/) { return true; }
+	bool number_float(number_float_t /*unused*/, const string_t& /*unused*/) { return true; }
+	bool string(string_t& /*unused*/) { return true; }
+	bool binary(binary_t& /*unused*/) { return true; }
+	bool start_object(std::size_t /*unused*/ = std::size_t(-1)) { return true; }
+	bool key(string_t& /*unused*/) { return true; }
+	bool end_object() { return true; }
+	bool start_array(std::size_t /*unused*/ = std::size_t(-1)) { return true; }
+	bool end_array() { return true; }
+	bool parse_error(std::size_t /*unused*/, const std::string& /*unused*/, const detail::exception& /*unused*/) { return false; }
 };
 ///////////
 // lexer //

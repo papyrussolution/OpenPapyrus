@@ -2126,20 +2126,15 @@ const char * CMSEXPORT cmsIT8GetDataRowCol(cmsHANDLE hIT8, int row, int col)
 double CMSEXPORT cmsIT8GetDataRowColDbl(cmsHANDLE hIT8, int row, int col)
 {
 	const char * Buffer;
-
 	Buffer = cmsIT8GetDataRowCol(hIT8, row, col);
-
 	if(Buffer == NULL) return 0.0;
-
 	return ParseFloatNumber(Buffer);
 }
 
 boolint CMSEXPORT cmsIT8SetDataRowCol(cmsHANDLE hIT8, int row, int col, const char * Val)
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
-
 	_cmsAssert(hIT8);
-
 	return SetData(it8, row, col, Val);
 }
 
@@ -2147,11 +2142,8 @@ boolint CMSEXPORT cmsIT8SetDataRowColDbl(cmsHANDLE hIT8, int row, int col, doubl
 {
 	cmsIT8* it8 = (cmsIT8*)hIT8;
 	char Buff[256];
-
 	_cmsAssert(hIT8);
-
 	snprintf(Buff, 255, it8->DoubleFormatter, Val);
-
 	return SetData(it8, row, col, Buff);
 }
 

@@ -429,7 +429,7 @@ size_t ssl3_final_finish_mac(SSL * s, const char * sender, size_t len,
 	}
 
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_FINAL_FINISH_MAC,
 		    ERR_R_MALLOC_FAILURE);
 		return 0;
@@ -485,7 +485,7 @@ int ssl3_generate_master_secret(SSL * s, uchar * out, uchar * p,
 	uint n;
 	size_t ret_secret_size = 0;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_SSL3_GENERATE_MASTER_SECRET,
 		    ERR_R_MALLOC_FAILURE);
 		return 0;

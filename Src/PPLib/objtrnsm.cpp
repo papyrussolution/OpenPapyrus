@@ -3172,7 +3172,7 @@ int PPObjectTransmit::GetPrivateObjSyncData(PPID objType, PPCommSyncID commID, P
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_DBXCHG, 1L, &mutex_id, &sync_item);
 		if(r < 0)
 			ok = PPSetError(PPERR_DBXCHGRCVISLOCKED, sync_item.Name);
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	else

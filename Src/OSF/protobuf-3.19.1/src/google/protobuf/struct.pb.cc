@@ -181,7 +181,7 @@ Struct::Struct(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   fields_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.Struct)
@@ -198,7 +198,7 @@ inline void Struct::SharedCtor() {
 
 Struct::~Struct() {
   // @@protoc_insertion_point(destructor:google.protobuf.Struct)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -213,7 +213,7 @@ void Struct::ArenaDtor(void* object) {
   _this->fields_. ~MapField();
 }
 inline void Struct::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena* arena) {
-  if (arena != nullptr) {
+  if(arena != nullptr) {
     arena->OwnCustomDestructor(this, &Struct::ArenaDtor);
   }
 }
@@ -232,8 +232,8 @@ void Struct::Clear() {
 }
 
 const char* Struct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -245,13 +245,12 @@ const char* Struct::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
             ptr += 1;
             ptr = ctx->ParseMessage(&fields_, ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -409,12 +408,10 @@ Value::_Internal::list_value(const Value* msg) {
 void Value::set_allocated_struct_value(::PROTOBUF_NAMESPACE_ID::Struct* struct_value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_kind();
-  if (struct_value) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-      ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::PROTOBUF_NAMESPACE_ID::Struct>::GetOwningArena(struct_value);
-    if (message_arena != submessage_arena) {
-      struct_value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, struct_value, submessage_arena);
+  if(struct_value) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::PROTOBUF_NAMESPACE_ID::Struct>::GetOwningArena(struct_value);
+    if(message_arena != submessage_arena) {
+      struct_value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, struct_value, submessage_arena);
     }
     set_has_struct_value();
     kind_.struct_value_ = struct_value;
@@ -424,12 +421,10 @@ void Value::set_allocated_struct_value(::PROTOBUF_NAMESPACE_ID::Struct* struct_v
 void Value::set_allocated_list_value(::PROTOBUF_NAMESPACE_ID::ListValue* list_value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   clear_kind();
-  if (list_value) {
-    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-      ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::PROTOBUF_NAMESPACE_ID::ListValue>::GetOwningArena(list_value);
-    if (message_arena != submessage_arena) {
-      list_value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, list_value, submessage_arena);
+  if(list_value) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena = ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::PROTOBUF_NAMESPACE_ID::ListValue>::GetOwningArena(list_value);
+    if(message_arena != submessage_arena) {
+      list_value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, list_value, submessage_arena);
     }
     set_has_list_value();
     kind_.list_value_ = list_value;
@@ -440,7 +435,7 @@ Value::Value(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.Value)
@@ -449,7 +444,7 @@ Value::Value(const Value& from)
   : ::PROTOBUF_NAMESPACE_ID::Message() {
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   clear_has_kind();
-  switch (from.kind_case()) {
+  switch(from.kind_case()) {
     case kNullValue: {
       _internal_set_null_value(from._internal_null_value());
       break;
@@ -487,7 +482,7 @@ clear_has_kind();
 
 Value::~Value() {
   // @@protoc_insertion_point(destructor:google.protobuf.Value)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -511,7 +506,7 @@ void Value::SetCachedSize(int size) const {
 
 void Value::clear_kind() {
 // @@protoc_insertion_point(one_of_clear_start:google.protobuf.Value)
-  switch (kind_case()) {
+  switch(kind_case()) {
     case kNullValue: {
       // No need to clear
       break;
@@ -559,8 +554,8 @@ void Value::Clear() {
 }
 
 const char* Value::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -615,8 +610,7 @@ const char* Value::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inte
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -674,17 +668,13 @@ uint8_t* Value::_InternalSerialize(
   // .google.protobuf.Struct struct_value = 5;
   if(_internal_has_struct_value()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        5, _Internal::struct_value(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, _Internal::struct_value(this), target, stream);
   }
 
   // .google.protobuf.ListValue list_value = 6;
   if(_internal_has_list_value()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        6, _Internal::list_value(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(6, _Internal::list_value(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -727,16 +717,12 @@ size_t Value::ByteSizeLong() const {
     }
     // .google.protobuf.Struct struct_value = 5;
     case kStructValue: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *kind_.struct_value_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*kind_.struct_value_);
       break;
     }
     // .google.protobuf.ListValue list_value = 6;
     case kListValue: {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *kind_.list_value_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*kind_.list_value_);
       break;
     }
     case KIND_NOT_SET: break;
@@ -763,7 +749,7 @@ void Value::MergeFrom(const Value& from) {
   uint32_t cached_has_bits = 0;
   (void) cached_has_bits;
 
-  switch (from.kind_case()) {
+  switch(from.kind_case()) {
     case kNullValue: {
       _internal_set_null_value(from._internal_null_value());
       break;
@@ -828,7 +814,7 @@ ListValue::ListValue(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   values_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:google.protobuf.ListValue)
@@ -845,7 +831,7 @@ inline void ListValue::SharedCtor() {
 
 ListValue::~ListValue() {
   // @@protoc_insertion_point(destructor:google.protobuf.ListValue)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -875,8 +861,8 @@ void ListValue::Clear() {
 }
 
 const char* ListValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -888,13 +874,12 @@ const char* ListValue::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_values(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -923,11 +908,9 @@ uint8_t* ListValue::_InternalSerialize(
   (void) cached_has_bits;
 
   // repeated .google.protobuf.Value values = 1;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_values_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_values_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(1, this->_internal_values(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, this->_internal_values(i), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1002,16 +985,16 @@ void ListValue::InternalSwap(ListValue* other) {
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Struct_FieldsEntry_DoNotUse* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Struct_FieldsEntry_DoNotUse >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Struct_FieldsEntry_DoNotUse * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Struct_FieldsEntry_DoNotUse >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Struct_FieldsEntry_DoNotUse >(arena);
 }
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Struct* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Struct >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Struct * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Struct >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Struct >(arena);
 }
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Value* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Value >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Value * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Value >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Value >(arena);
 }
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::ListValue* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::ListValue >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::ListValue * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::ListValue >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::ListValue >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

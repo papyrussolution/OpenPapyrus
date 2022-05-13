@@ -981,16 +981,14 @@ class TimestampDuration final :
   public:
   void clear_rep_ts();
   ::PROTOBUF_NAMESPACE_ID::Timestamp* mutable_rep_ts(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp >*
-      mutable_rep_ts();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp > * mutable_rep_ts();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Timestamp& _internal_rep_ts(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Timestamp* _internal_add_rep_ts();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Timestamp& rep_ts(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Timestamp* add_rep_ts();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp >&
-      rep_ts() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp > & rep_ts() const;
 
   // .google.protobuf.Timestamp ts = 1;
   bool has_ts() const;
@@ -1076,11 +1074,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_epoch(
     ::proto_util_converter::testing::TimeStampType* epoch) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(epoch_);
   }
   epoch_ = epoch;
-  if (epoch) {
+  if(epoch) {
     
   } else {
     
@@ -1094,9 +1092,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1111,7 +1109,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_epoch() {
   
-  if (epoch_ == nullptr) {
+  if(epoch_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     epoch_ = p;
   }
@@ -1124,15 +1122,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_epoch(::proto_util_converter::testing::TimeStampType* epoch) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete epoch_;
   }
-  if (epoch) {
+  if(epoch) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(epoch);
-    if (message_arena != submessage_arena) {
-      epoch = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, epoch, submessage_arena);
+    if(message_arena != submessage_arena) {
+      epoch = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, epoch, submessage_arena);
     }
     
   } else {
@@ -1166,11 +1163,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_epoch2(
     ::proto_util_converter::testing::TimeStampType* epoch2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(epoch2_);
   }
   epoch2_ = epoch2;
-  if (epoch2) {
+  if(epoch2) {
     
   } else {
     
@@ -1184,9 +1181,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1201,7 +1198,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_epoch2() {
   
-  if (epoch2_ == nullptr) {
+  if(epoch2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     epoch2_ = p;
   }
@@ -1214,15 +1211,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_epoch2(::proto_util_converter::testing::TimeStampType* epoch2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete epoch2_;
   }
-  if (epoch2) {
+  if(epoch2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(epoch2);
-    if (message_arena != submessage_arena) {
-      epoch2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, epoch2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      epoch2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, epoch2, submessage_arena);
     }
     
   } else {
@@ -1256,11 +1252,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_mintime(
     ::proto_util_converter::testing::TimeStampType* mintime) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mintime_);
   }
   mintime_ = mintime;
-  if (mintime) {
+  if(mintime) {
     
   } else {
     
@@ -1274,9 +1270,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1291,7 +1287,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_mintime() {
   
-  if (mintime_ == nullptr) {
+  if(mintime_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     mintime_ = p;
   }
@@ -1304,15 +1300,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_mintime(::proto_util_converter::testing::TimeStampType* mintime) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete mintime_;
   }
-  if (mintime) {
+  if(mintime) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(mintime);
-    if (message_arena != submessage_arena) {
-      mintime = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, mintime, submessage_arena);
+    if(message_arena != submessage_arena) {
+      mintime = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, mintime, submessage_arena);
     }
     
   } else {
@@ -1346,11 +1341,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_maxtime(
     ::proto_util_converter::testing::TimeStampType* maxtime) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(maxtime_);
   }
   maxtime_ = maxtime;
-  if (maxtime) {
+  if(maxtime) {
     
   } else {
     
@@ -1364,9 +1359,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1381,7 +1376,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_maxtime() {
   
-  if (maxtime_ == nullptr) {
+  if(maxtime_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     maxtime_ = p;
   }
@@ -1394,15 +1389,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_maxtime(::proto_util_converter::testing::TimeStampType* maxtime) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete maxtime_;
   }
-  if (maxtime) {
+  if(maxtime) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(maxtime);
-    if (message_arena != submessage_arena) {
-      maxtime = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, maxtime, submessage_arena);
+    if(message_arena != submessage_arena) {
+      maxtime = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, maxtime, submessage_arena);
     }
     
   } else {
@@ -1436,11 +1430,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval1(
     ::proto_util_converter::testing::TimeStampType* timeval1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval1_);
   }
   timeval1_ = timeval1;
-  if (timeval1) {
+  if(timeval1) {
     
   } else {
     
@@ -1454,9 +1448,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1471,7 +1465,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval1() {
   
-  if (timeval1_ == nullptr) {
+  if(timeval1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval1_ = p;
   }
@@ -1484,15 +1478,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval1(::proto_util_converter::testing::TimeStampType* timeval1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval1_;
   }
-  if (timeval1) {
+  if(timeval1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval1);
-    if (message_arena != submessage_arena) {
-      timeval1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval1, submessage_arena);
     }
     
   } else {
@@ -1526,11 +1519,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval2(
     ::proto_util_converter::testing::TimeStampType* timeval2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval2_);
   }
   timeval2_ = timeval2;
-  if (timeval2) {
+  if(timeval2) {
     
   } else {
     
@@ -1544,9 +1537,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1561,7 +1554,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval2() {
   
-  if (timeval2_ == nullptr) {
+  if(timeval2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval2_ = p;
   }
@@ -1574,15 +1567,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval2(::proto_util_converter::testing::TimeStampType* timeval2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval2_;
   }
-  if (timeval2) {
+  if(timeval2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval2);
-    if (message_arena != submessage_arena) {
-      timeval2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval2, submessage_arena);
     }
     
   } else {
@@ -1616,11 +1608,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval3(
     ::proto_util_converter::testing::TimeStampType* timeval3) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval3_);
   }
   timeval3_ = timeval3;
-  if (timeval3) {
+  if(timeval3) {
     
   } else {
     
@@ -1634,9 +1626,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1651,7 +1643,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval3() {
   
-  if (timeval3_ == nullptr) {
+  if(timeval3_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval3_ = p;
   }
@@ -1664,15 +1656,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval3(::proto_util_converter::testing::TimeStampType* timeval3) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval3_;
   }
-  if (timeval3) {
+  if(timeval3) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval3);
-    if (message_arena != submessage_arena) {
-      timeval3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval3, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval3, submessage_arena);
     }
     
   } else {
@@ -1706,11 +1697,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval4(
     ::proto_util_converter::testing::TimeStampType* timeval4) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval4_);
   }
   timeval4_ = timeval4;
-  if (timeval4) {
+  if(timeval4) {
     
   } else {
     
@@ -1724,9 +1715,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1741,7 +1732,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval4() {
   
-  if (timeval4_ == nullptr) {
+  if(timeval4_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval4_ = p;
   }
@@ -1754,15 +1745,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval4(::proto_util_converter::testing::TimeStampType* timeval4) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval4_;
   }
-  if (timeval4) {
+  if(timeval4) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval4);
-    if (message_arena != submessage_arena) {
-      timeval4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval4, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval4, submessage_arena);
     }
     
   } else {
@@ -1796,11 +1786,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval5(
     ::proto_util_converter::testing::TimeStampType* timeval5) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval5_);
   }
   timeval5_ = timeval5;
-  if (timeval5) {
+  if(timeval5) {
     
   } else {
     
@@ -1814,9 +1804,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1831,7 +1821,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval5() {
   
-  if (timeval5_ == nullptr) {
+  if(timeval5_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval5_ = p;
   }
@@ -1844,15 +1834,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval5(::proto_util_converter::testing::TimeStampType* timeval5) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval5_;
   }
-  if (timeval5) {
+  if(timeval5) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval5);
-    if (message_arena != submessage_arena) {
-      timeval5 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval5, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval5 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval5, submessage_arena);
     }
     
   } else {
@@ -1886,11 +1875,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval6(
     ::proto_util_converter::testing::TimeStampType* timeval6) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval6_);
   }
   timeval6_ = timeval6;
-  if (timeval6) {
+  if(timeval6) {
     
   } else {
     
@@ -1904,9 +1893,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1921,7 +1910,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval6() {
   
-  if (timeval6_ == nullptr) {
+  if(timeval6_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval6_ = p;
   }
@@ -1934,15 +1923,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval6(::proto_util_converter::testing::TimeStampType* timeval6) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval6_;
   }
-  if (timeval6) {
+  if(timeval6) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval6);
-    if (message_arena != submessage_arena) {
-      timeval6 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval6, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval6 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval6, submessage_arena);
     }
     
   } else {
@@ -1976,11 +1964,11 @@ inline const ::proto_util_converter::testing::TimeStampType& TimestampDurationTe
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval7(
     ::proto_util_converter::testing::TimeStampType* timeval7) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval7_);
   }
   timeval7_ = timeval7;
-  if (timeval7) {
+  if(timeval7) {
     
   } else {
     
@@ -1994,9 +1982,9 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2011,7 +1999,7 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCases::_internal_mutable_timeval7() {
   
-  if (timeval7_ == nullptr) {
+  if(timeval7_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::TimeStampType>(GetArenaForAllocation());
     timeval7_ = p;
   }
@@ -2024,15 +2012,14 @@ inline ::proto_util_converter::testing::TimeStampType* TimestampDurationTestCase
 }
 inline void TimestampDurationTestCases::set_allocated_timeval7(::proto_util_converter::testing::TimeStampType* timeval7) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete timeval7_;
   }
-  if (timeval7) {
+  if(timeval7) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::TimeStampType>::GetOwningArena(timeval7);
-    if (message_arena != submessage_arena) {
-      timeval7 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval7, submessage_arena);
+    if(message_arena != submessage_arena) {
+      timeval7 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval7, submessage_arena);
     }
     
   } else {
@@ -2060,11 +2047,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TimestampDurationTestCases::tim
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_timeval8(
     ::PROTOBUF_NAMESPACE_ID::Timestamp* timeval8) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval8_);
   }
   timeval8_ = timeval8;
-  if (timeval8) {
+  if(timeval8) {
     
   } else {
     
@@ -2078,9 +2065,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDurationTestCases::release_t
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2095,7 +2082,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDurationTestCases::unsafe_ar
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDurationTestCases::_internal_mutable_timeval8() {
   
-  if (timeval8_ == nullptr) {
+  if(timeval8_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaForAllocation());
     timeval8_ = p;
   }
@@ -2108,17 +2095,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDurationTestCases::mutable_t
 }
 inline void TimestampDurationTestCases::set_allocated_timeval8(::PROTOBUF_NAMESPACE_ID::Timestamp* timeval8) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval8_);
   }
-  if (timeval8) {
+  if(timeval8) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval8));
-    if (message_arena != submessage_arena) {
-      timeval8 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timeval8, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timeval8));
+    if(message_arena != submessage_arena) {
+      timeval8 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timeval8, submessage_arena);
     }
     
   } else {
@@ -2152,11 +2137,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_zero_duration(
     ::proto_util_converter::testing::DurationType* zero_duration) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(zero_duration_);
   }
   zero_duration_ = zero_duration;
-  if (zero_duration) {
+  if(zero_duration) {
     
   } else {
     
@@ -2170,9 +2155,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2187,7 +2172,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_zero_duration() {
   
-  if (zero_duration_ == nullptr) {
+  if(zero_duration_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     zero_duration_ = p;
   }
@@ -2200,15 +2185,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_zero_duration(::proto_util_converter::testing::DurationType* zero_duration) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete zero_duration_;
   }
-  if (zero_duration) {
+  if(zero_duration) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(zero_duration);
-    if (message_arena != submessage_arena) {
-      zero_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, zero_duration, submessage_arena);
+    if(message_arena != submessage_arena) {
+      zero_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, zero_duration, submessage_arena);
     }
     
   } else {
@@ -2242,11 +2226,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_min_duration(
     ::proto_util_converter::testing::DurationType* min_duration) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(min_duration_);
   }
   min_duration_ = min_duration;
-  if (min_duration) {
+  if(min_duration) {
     
   } else {
     
@@ -2260,9 +2244,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2277,7 +2261,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_min_duration() {
   
-  if (min_duration_ == nullptr) {
+  if(min_duration_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     min_duration_ = p;
   }
@@ -2290,15 +2274,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_min_duration(::proto_util_converter::testing::DurationType* min_duration) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete min_duration_;
   }
-  if (min_duration) {
+  if(min_duration) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(min_duration);
-    if (message_arena != submessage_arena) {
-      min_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, min_duration, submessage_arena);
+    if(message_arena != submessage_arena) {
+      min_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, min_duration, submessage_arena);
     }
     
   } else {
@@ -2332,11 +2315,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_max_duration(
     ::proto_util_converter::testing::DurationType* max_duration) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(max_duration_);
   }
   max_duration_ = max_duration;
-  if (max_duration) {
+  if(max_duration) {
     
   } else {
     
@@ -2350,9 +2333,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2367,7 +2350,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_max_duration() {
   
-  if (max_duration_ == nullptr) {
+  if(max_duration_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     max_duration_ = p;
   }
@@ -2380,15 +2363,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_max_duration(::proto_util_converter::testing::DurationType* max_duration) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete max_duration_;
   }
-  if (max_duration) {
+  if(max_duration) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(max_duration);
-    if (message_arena != submessage_arena) {
-      max_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, max_duration, submessage_arena);
+    if(message_arena != submessage_arena) {
+      max_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, max_duration, submessage_arena);
     }
     
   } else {
@@ -2422,11 +2404,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_duration1(
     ::proto_util_converter::testing::DurationType* duration1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration1_);
   }
   duration1_ = duration1;
-  if (duration1) {
+  if(duration1) {
     
   } else {
     
@@ -2440,9 +2422,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2457,7 +2439,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_duration1() {
   
-  if (duration1_ == nullptr) {
+  if(duration1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     duration1_ = p;
   }
@@ -2470,15 +2452,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_duration1(::proto_util_converter::testing::DurationType* duration1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete duration1_;
   }
-  if (duration1) {
+  if(duration1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(duration1);
-    if (message_arena != submessage_arena) {
-      duration1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, duration1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      duration1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, duration1, submessage_arena);
     }
     
   } else {
@@ -2512,11 +2493,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_duration2(
     ::proto_util_converter::testing::DurationType* duration2) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration2_);
   }
   duration2_ = duration2;
-  if (duration2) {
+  if(duration2) {
     
   } else {
     
@@ -2530,9 +2511,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2547,7 +2528,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_duration2() {
   
-  if (duration2_ == nullptr) {
+  if(duration2_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     duration2_ = p;
   }
@@ -2560,15 +2541,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_duration2(::proto_util_converter::testing::DurationType* duration2) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete duration2_;
   }
-  if (duration2) {
+  if(duration2) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(duration2);
-    if (message_arena != submessage_arena) {
-      duration2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, duration2, submessage_arena);
+    if(message_arena != submessage_arena) {
+      duration2 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, duration2, submessage_arena);
     }
     
   } else {
@@ -2602,11 +2582,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_duration3(
     ::proto_util_converter::testing::DurationType* duration3) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration3_);
   }
   duration3_ = duration3;
-  if (duration3) {
+  if(duration3) {
     
   } else {
     
@@ -2620,9 +2600,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2637,7 +2617,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_duration3() {
   
-  if (duration3_ == nullptr) {
+  if(duration3_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     duration3_ = p;
   }
@@ -2650,15 +2630,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_duration3(::proto_util_converter::testing::DurationType* duration3) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete duration3_;
   }
-  if (duration3) {
+  if(duration3) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(duration3);
-    if (message_arena != submessage_arena) {
-      duration3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, duration3, submessage_arena);
+    if(message_arena != submessage_arena) {
+      duration3 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, duration3, submessage_arena);
     }
     
   } else {
@@ -2692,11 +2671,11 @@ inline const ::proto_util_converter::testing::DurationType& TimestampDurationTes
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_duration4(
     ::proto_util_converter::testing::DurationType* duration4) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration4_);
   }
   duration4_ = duration4;
-  if (duration4) {
+  if(duration4) {
     
   } else {
     
@@ -2710,9 +2689,9 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2727,7 +2706,7 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases::_internal_mutable_duration4() {
   
-  if (duration4_ == nullptr) {
+  if(duration4_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::DurationType>(GetArenaForAllocation());
     duration4_ = p;
   }
@@ -2740,15 +2719,14 @@ inline ::proto_util_converter::testing::DurationType* TimestampDurationTestCases
 }
 inline void TimestampDurationTestCases::set_allocated_duration4(::proto_util_converter::testing::DurationType* duration4) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete duration4_;
   }
-  if (duration4) {
+  if(duration4) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::DurationType>::GetOwningArena(duration4);
-    if (message_arena != submessage_arena) {
-      duration4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, duration4, submessage_arena);
+    if(message_arena != submessage_arena) {
+      duration4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, duration4, submessage_arena);
     }
     
   } else {
@@ -2776,11 +2754,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Duration& TimestampDurationTestCases::dura
 }
 inline void TimestampDurationTestCases::unsafe_arena_set_allocated_duration5(
     ::PROTOBUF_NAMESPACE_ID::Duration* duration5) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration5_);
   }
   duration5_ = duration5;
-  if (duration5) {
+  if(duration5) {
     
   } else {
     
@@ -2794,9 +2772,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDurationTestCases::release_du
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2811,7 +2789,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDurationTestCases::unsafe_are
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDurationTestCases::_internal_mutable_duration5() {
   
-  if (duration5_ == nullptr) {
+  if(duration5_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Duration>(GetArenaForAllocation());
     duration5_ = p;
   }
@@ -2824,17 +2802,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDurationTestCases::mutable_du
 }
 inline void TimestampDurationTestCases::set_allocated_duration5(::PROTOBUF_NAMESPACE_ID::Duration* duration5) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration5_);
   }
-  if (duration5) {
+  if(duration5) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration5));
-    if (message_arena != submessage_arena) {
-      duration5 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, duration5, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration5));
+    if(message_arena != submessage_arena) {
+      duration5 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, duration5, submessage_arena);
     }
     
   } else {
@@ -2866,11 +2842,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TimeStampType::timestamp() cons
 }
 inline void TimeStampType::unsafe_arena_set_allocated_timestamp(
     ::PROTOBUF_NAMESPACE_ID::Timestamp* timestamp) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timestamp_);
   }
   timestamp_ = timestamp;
-  if (timestamp) {
+  if(timestamp) {
     
   } else {
     
@@ -2884,9 +2860,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimeStampType::release_timestamp() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2901,7 +2877,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimeStampType::unsafe_arena_release_t
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimeStampType::_internal_mutable_timestamp() {
   
-  if (timestamp_ == nullptr) {
+  if(timestamp_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaForAllocation());
     timestamp_ = p;
   }
@@ -2914,17 +2890,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimeStampType::mutable_timestamp() {
 }
 inline void TimeStampType::set_allocated_timestamp(::PROTOBUF_NAMESPACE_ID::Timestamp* timestamp) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(timestamp_);
   }
-  if (timestamp) {
+  if(timestamp) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timestamp));
-    if (message_arena != submessage_arena) {
-      timestamp = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, timestamp, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(timestamp));
+    if(message_arena != submessage_arena) {
+      timestamp = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, timestamp, submessage_arena);
     }
     
   } else {
@@ -2956,11 +2930,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Duration& DurationType::duration() const {
 }
 inline void DurationType::unsafe_arena_set_allocated_duration(
     ::PROTOBUF_NAMESPACE_ID::Duration* duration) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration_);
   }
   duration_ = duration;
-  if (duration) {
+  if(duration) {
     
   } else {
     
@@ -2974,9 +2948,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* DurationType::release_duration() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2991,7 +2965,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* DurationType::unsafe_arena_release_dur
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* DurationType::_internal_mutable_duration() {
   
-  if (duration_ == nullptr) {
+  if(duration_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Duration>(GetArenaForAllocation());
     duration_ = p;
   }
@@ -3004,17 +2978,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* DurationType::mutable_duration() {
 }
 inline void DurationType::set_allocated_duration(::PROTOBUF_NAMESPACE_ID::Duration* duration) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration_);
   }
-  if (duration) {
+  if(duration) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration));
-    if (message_arena != submessage_arena) {
-      duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, duration, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(duration));
+    if(message_arena != submessage_arena) {
+      duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, duration, submessage_arena);
     }
     
   } else {
@@ -3046,11 +3018,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TimestampDuration::ts() const {
 }
 inline void TimestampDuration::unsafe_arena_set_allocated_ts(
     ::PROTOBUF_NAMESPACE_ID::Timestamp* ts) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(ts_);
   }
   ts_ = ts;
-  if (ts) {
+  if(ts) {
     
   } else {
     
@@ -3064,9 +3036,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::release_ts() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3081,7 +3053,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::unsafe_arena_relea
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::_internal_mutable_ts() {
   
-  if (ts_ == nullptr) {
+  if(ts_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaForAllocation());
     ts_ = p;
   }
@@ -3094,17 +3066,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::mutable_ts() {
 }
 inline void TimestampDuration::set_allocated_ts(::PROTOBUF_NAMESPACE_ID::Timestamp* ts) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(ts_);
   }
-  if (ts) {
+  if(ts) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(ts));
-    if (message_arena != submessage_arena) {
-      ts = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, ts, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(ts));
+    if(message_arena != submessage_arena) {
+      ts = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, ts, submessage_arena);
     }
     
   } else {
@@ -3132,11 +3102,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Duration& TimestampDuration::dur() const {
 }
 inline void TimestampDuration::unsafe_arena_set_allocated_dur(
     ::PROTOBUF_NAMESPACE_ID::Duration* dur) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(dur_);
   }
   dur_ = dur;
-  if (dur) {
+  if(dur) {
     
   } else {
     
@@ -3150,9 +3120,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDuration::release_dur() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3167,7 +3137,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDuration::unsafe_arena_releas
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDuration::_internal_mutable_dur() {
   
-  if (dur_ == nullptr) {
+  if(dur_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Duration>(GetArenaForAllocation());
     dur_ = p;
   }
@@ -3180,17 +3150,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TimestampDuration::mutable_dur() {
 }
 inline void TimestampDuration::set_allocated_dur(::PROTOBUF_NAMESPACE_ID::Duration* dur) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(dur_);
   }
-  if (dur) {
+  if(dur) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(dur));
-    if (message_arena != submessage_arena) {
-      dur = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, dur, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(dur));
+    if(message_arena != submessage_arena) {
+      dur = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, dur, submessage_arena);
     }
     
   } else {
@@ -3214,16 +3182,15 @@ TimestampDuration::mutable_rep_ts() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.TimestampDuration.rep_ts)
   return &rep_ts_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TimestampDuration::_internal_rep_ts(int index) const {
-  return rep_ts_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TimestampDuration::_internal_rep_ts(int index) const
+{
+ return rep_ts_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TimestampDuration::rep_ts(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.TimestampDuration.rep_ts)
   return _internal_rep_ts(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::_internal_add_rep_ts() {
-  return rep_ts_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::_internal_add_rep_ts() { return rep_ts_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TimestampDuration::add_rep_ts() {
   ::PROTOBUF_NAMESPACE_ID::Timestamp* _add = _internal_add_rep_ts();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.TimestampDuration.rep_ts)

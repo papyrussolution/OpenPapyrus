@@ -129,7 +129,7 @@ public:
 	int compare(const StringPiece & x) const 
 	{
 		int r = memcmp(ptr_, x.ptr_, length_ < x.length_ ? length_ : x.length_);
-		if(r == 0) {
+		if(!r) {
 			if(length_ < x.length_) r = -1;
 			else if(length_ > x.length_) r = +1;
 		}

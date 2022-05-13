@@ -131,7 +131,7 @@ PhoneNumber::PhoneNumber(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:i18n.phonenumbers.PhoneNumber)
@@ -189,7 +189,7 @@ number_of_leading_zeros_ = 1;
 
 PhoneNumber::~PhoneNumber() {
   // @@protoc_insertion_point(destructor:i18n.phonenumbers.PhoneNumber)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<std::string>();
 }
@@ -240,9 +240,9 @@ void PhoneNumber::Clear() {
 }
 
 const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -322,8 +322,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -576,7 +575,7 @@ std::string PhoneNumber::GetTypeName() const { return "i18n.phonenumbers.PhoneNu
 }  // namespace phonenumbers
 }  // namespace i18n
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneNumber* Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneNumber >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::i18n::phonenumbers::PhoneNumber * Arena::CreateMaybeMessage< ::i18n::phonenumbers::PhoneNumber >(Arena* arena) {
   return Arena::CreateMessageInternal< ::i18n::phonenumbers::PhoneNumber >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

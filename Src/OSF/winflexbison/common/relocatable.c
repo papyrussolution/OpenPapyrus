@@ -86,9 +86,9 @@
    Windows platforms.  */
 #ifndef ENABLE_COSTLY_RELOCATABLE
 #if defined _WIN32 && !defined __CYGWIN__
-#  define ENABLE_COSTLY_RELOCATABLE 1
+#define ENABLE_COSTLY_RELOCATABLE 1
 #else
-#  define ENABLE_COSTLY_RELOCATABLE 0
+#define ENABLE_COSTLY_RELOCATABLE 0
 #endif
 #endif
 

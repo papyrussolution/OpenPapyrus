@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-annotate.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-file.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-font.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-form.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-input.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-main.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-ui.c" />
+    <ClCompile Include="..\OSF\mupdf\platform\gl\gl-win32.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{dfa863b4-c3f2-49f1-aedf-d0a97f0b7360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
+      <UniqueIdentifier>{493196b4-5343-4f09-849d-455390130d2a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\OSF\mupdf\platform\gl\gl-app.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\OSF\mupdf\platform\gl\gl-winres.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>

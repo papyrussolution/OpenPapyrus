@@ -303,10 +303,10 @@
 #if _GL_HAS_BUILTIN_MUL_OVERFLOW
 #if (9 < __GNUC__ + (3 <= __GNUC_MINOR__) \
       || (__GNUC__ == 8 && 4 <= __GNUC_MINOR__))
-#  define INT_MULTIPLY_WRAPV(a, b, r) __builtin_mul_overflow (a, b, r)
+#define INT_MULTIPLY_WRAPV(a, b, r) __builtin_mul_overflow (a, b, r)
 #else
    /* Work around GCC bug 91450.  */
-#  define INT_MULTIPLY_WRAPV(a, b, r) \
+#define INT_MULTIPLY_WRAPV(a, b, r) \
     ((!_GL_SIGNED_TYPE_OR_EXPR (*(r)) && EXPR_SIGNED (a) && EXPR_SIGNED (b) \
       && _GL_INT_MULTIPLY_RANGE_OVERFLOW (a, b, 0, (__typeof__ (*(r))) -1)) \
      ? ((void) __builtin_mul_overflow (a, b, r), 1) \
@@ -353,12 +353,12 @@
    is UT with bounds U..UMAX.  ST and UT are narrower than int.
    Return 1 if the result overflows.  See above for restrictions.  */
 #if _GL_HAVE___TYPEOF__
-#  define _GL_INT_OP_WRAPV_SMALLISH(a,b,r,op,overflow,st,smin,smax,ut,umax) \
+#define _GL_INT_OP_WRAPV_SMALLISH(a,b,r,op,overflow,st,smin,smax,ut,umax) \
     (TYPE_SIGNED (__typeof__ (*(r))) \
      ? _GL_INT_OP_CALC (a, b, r, op, overflow, uint, st, smin, smax) \
      : _GL_INT_OP_CALC (a, b, r, op, overflow, uint, ut, 0, umax))
 #else
-#  define _GL_INT_OP_WRAPV_SMALLISH(a,b,r,op,overflow,st,smin,smax,ut,umax) \
+#define _GL_INT_OP_WRAPV_SMALLISH(a,b,r,op,overflow,st,smin,smax,ut,umax) \
     (overflow (a, b, smin, smax) ? (overflow (a, b, 0, umax) \
         ? (*(r) = _GL_INT_OP_WRAPV_VIA_UNSIGNED (a,b,op,uint,st), 1) \
         : (*(r) = _GL_INT_OP_WRAPV_VIA_UNSIGNED (a,b,op,uint,st)) < 0) \
@@ -377,7 +377,7 @@
        : _GL_INT_OP_CALC (a, b, r, op, overflow, uint, uint, 0, UINT_MAX)) \
     : _GL_INT_OP_WRAPV_LONGISH(a, b, r, op, overflow))
 # ifdef LLONG_MAX
-#  define _GL_INT_OP_WRAPV_LONGISH(a, b, r, op, overflow) \
+#define _GL_INT_OP_WRAPV_LONGISH(a, b, r, op, overflow) \
     (sizeof *(r) == sizeof(long) ? (EXPR_SIGNED (*(r)) \
         ? _GL_INT_OP_CALC (a, b, r, op, overflow, ulong, long int, LONG_MIN, LONG_MAX) \
         : _GL_INT_OP_CALC (a, b, r, op, overflow, ulong, ulong, 0, ULONG_MAX)) \
@@ -385,7 +385,7 @@
         ? _GL_INT_OP_CALC (a, b, r, op, overflow, uint64, long long int, LLONG_MIN, LLONG_MAX) \
         : _GL_INT_OP_CALC (a, b, r, op, overflow, uint64, uint64, 0, ULLONG_MAX)))
 #else
-#  define _GL_INT_OP_WRAPV_LONGISH(a, b, r, op, overflow) \
+#define _GL_INT_OP_WRAPV_LONGISH(a, b, r, op, overflow) \
     (EXPR_SIGNED (*(r)) \
      ? _GL_INT_OP_CALC (a, b, r, op, overflow, ulong, \
                         long int, LONG_MIN, LONG_MAX) \

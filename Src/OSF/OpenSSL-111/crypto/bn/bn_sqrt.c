@@ -195,7 +195,7 @@ BIGNUM * BN_mod_sqrt(BIGNUM * in, const BIGNUM * a, const BIGNUM * p, BN_CTX * c
 		r = BN_kronecker(y, q, ctx); /* here 'q' is |p| */
 		if(r < -1)
 			goto end;
-		if(r == 0) {
+		if(!r) {
 			/* m divides p */
 			BNerr(BN_F_BN_MOD_SQRT, BN_R_P_IS_NOT_PRIME);
 			goto end;

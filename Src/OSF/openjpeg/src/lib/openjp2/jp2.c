@@ -32,7 +32,7 @@
 /*@{*/
 
 #define OPJ_BOX_SIZE    1024
-#define CXX_UNUSED(x) (void)x
+// #define CXX_UNUSED(x) (void)x
 
 /** @name Local static functions */
 /*@{*/

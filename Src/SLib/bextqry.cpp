@@ -421,7 +421,7 @@ __again:
 				P_Tbl->setBuffer(saved_buf);
 				ActCount = *reinterpret_cast<const uint16 *>(Buf.cptr());
 				State &= ~stRejectLimit;
-				if(r == 0)
+				if(!r)
 					if(BTRNFOUND) {
 						State |= stEOF;
 						r = -1;

@@ -537,17 +537,17 @@ SString & CDECL PPFormatT(int textCode, SString * pBuf, ...);
 SString & CDECL PPFormatS(int textGroup, int textCode, SString * pBuf, ...);
 void   FASTCALL PPSetAddedMsgString(const char * pStr);
 void   FASTCALL PPSetAddedMsgObjName(PPID objType, PPID objID);
-int    FASTCALL PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
+int    STDCALL  PPGetMessage(uint options, int msgcode, const char * pAddInfo, int rmvSpcChrs, SString & rBuf);
 //
 // Descr: Сокращенный аналог PPGetLastErrorMessage(rmvSpcChrs, rBuf)
 //
 int    FASTCALL PPGetLastErrorMessage(int rmvSpcChrs, SString & rBuf);
 int    PPOutputMessage(const char * msg, uint option);
-int    FASTCALL PPMessage(uint options, int msgcode, const char * pAddInfo);
+int    STDCALL  PPMessage(uint options, int msgcode, const char * pAddInfo);
 int    FASTCALL PPMessage(uint options, int msgcode);
 int    FASTCALL PPError(int errcode);
 int    FASTCALL PPError(int errcode, const char * pAddInfo);
-int    FASTCALL PPError(int errcode, const char * pAddInfo, uint extraMfOptions);
+int    STDCALL  PPError(int errcode, const char * pAddInfo, uint extraMfOptions);
 int    PPTooltipMessage(uint options, int msgcode, const char * pAddInfo);
 int    PPTooltipMessage(const char * pMsg, const char * pImgPath, HWND parent, long timer, COLORREF color, long flags);
 //
@@ -581,7 +581,7 @@ int    PPSetErrorSLib();
 //
 int    PPSetErrorDB();
 int    PPDbSearchError(); // { return (BTROKORNFOUND) /**/ ? -1 : PPSetErrorDB(); }
-int    FASTCALL PPSetObjError(int errCode, PPID objType, PPID objID);
+int    STDCALL PPSetObjError(int errCode, PPID objType, PPID objID);
 //
 // Descr: Утилитный класс, используемый как базовый для классов, имеющих
 //   строки расширения, идентифицируемые целочисленными значениями.
@@ -967,7 +967,7 @@ public:
 	void   Init();
 	void   Init(long start, long finish);
 	void   Init(const DateRange *);
-	int    FASTCALL Advance(LDATE d, long o);
+	int    Advance(LDATE d, long o);
 	int    IsEnd() const;
 	//
 	// Descr: Сравнивает объект this с объектом rS.
@@ -1112,7 +1112,7 @@ protected:
 //
 class PPExprParser {
 public:
-	static int FASTCALL CalcExpression(const char * pFormula, double * pResult, const PPCalcFuncList * pFuncList, ExprEvalContext * pCtx);
+	static int STDCALL CalcExpression(const char * pFormula, double * pResult, const PPCalcFuncList * pFuncList, ExprEvalContext * pCtx);
 private:
 	enum {
 		tokNumber = 257,
@@ -1474,25 +1474,25 @@ public:
 	static int IdTechCapacity;      // @v11.3.10 (fldPrcID, fldCapacity)
 
 	static int Register();
-	static void FASTCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
-	static void FASTCALL InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache = 0);
-	static void FASTCALL InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
-	static void FASTCALL InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
+	static void STDCALL InitObjNameFunc(DBE & rDbe, int funcId, DBField & rFld);
+	static void STDCALL InitObjTagTextFunc(DBE & rDbe, PPID tagID, DBField & rFld, int dontUseCache = 0);
+	static void STDCALL InitLongFunc(DBE & rDbe, int funcId, DBField & rFld);
+	static void STDCALL InitFunc2Arg(DBE & rDbe, int funcId, DBItem & rA1, DBItem & rA2);
 	//
 	// ARG(incDiv)
 	//   Если 0, то результат равен (100 * fld1 / fld2)
 	//   Если 1, то результат равен (100 * fld1 / (fld2+fld1))
 	//   Если 2, то результат равен (100 * (fld1-fld2) / fld2)
 	//
-	static void FASTCALL InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv);
-	static void FASTCALL InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg);
+	static void STDCALL InitPctFunc(DBE & rDbe, DBField & rFld1, DBField & rFld2, int incDiv);
+	static void STDCALL InitStrPoolRefFunc(DBE & rDbe, DBField & rFld, SStrGroup * pSg);
 	//static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 	static PPID FASTCALL helper_dbq_name(const DBConst * params, char * pNameBuf);
 };
 //
 // Descr: Утилита, используемая для инициализации размера строки, возвращаемой динамической функцией.
 //
-int FASTCALL DbeInitSize(int option, DBConst * result, size_t s);
+int STDCALL DbeInitSize(int option, DBConst * result, size_t s);
 //
 //
 //
@@ -1524,8 +1524,8 @@ int FASTCALL DbeInitSize(int option, DBConst * result, size_t s);
 #define BR2(v) R2(v) // Используется для округления сумм документов
 #define TR5(v) R5(v) // Используется для округления цен в Transfer
 
-long FASTCALL CheckXORFlags(long v, long f1, long f2);
-long FASTCALL SetXORFlags(long v, long f1, long f2, long f);
+long STDCALL CheckXORFlags(long v, long f1, long f2);
+long STDCALL SetXORFlags(long v, long f1, long f2, long f);
 //
 // Функции и макросы для профилирования кодов
 //
@@ -1981,10 +1981,10 @@ private:
 #define LOGMSGF_NODUPFORJOB 0x0200L // Сообщение не следует дублировать в спец журнале для рассылки результатов выполнения задач
 #define LOGMSGF_SLSSESSGUID 0x0400L // Выводить GUID сессии
 
-int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
-int FASTCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);
-int FASTCALL PPLogMessageList(uint fileNameId, const SStrCollection & rList, long options);
-int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
+int STDCALL PPLogMessage(const char * pFileName, const char * pStr, long options);
+int STDCALL PPLogMessage(uint fileNameId, const char * pMsg, long options);
+int STDCALL PPLogMessageList(uint fileNameId, const SStrCollection & rList, long options);
+int STDCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options);
 //
 //
 //
@@ -2265,7 +2265,7 @@ public:
 	int    Backup(uint maxCopies = 5);
 	int    UpdateFromFile(const char * pSrcFileName);
 private:
-	static void FASTCALL ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam);
+	static void STDCALL ParamIdToStrings(uint sectId, uint paramId, SString * pSectName, SString * pParam);
 };
 
 class PPRegKeys {
@@ -3015,16 +3015,16 @@ protected:
 	//
 	// Вспомогательные методы для функции Describe
 	//
-	static void FASTCALL PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(LDATE, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(const DateRange *, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(const RealRange *, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(const char *, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(const SString &, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(double, const char * pMembName, SString & rBuf);
-	static void FASTCALL PutMembToBuf(long, const char * pMembName, SString & rBuf);
+	static void STDCALL PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf);
+	static void STDCALL PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf);
+	static void STDCALL PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(LDATE, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(const DateRange *, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(const RealRange *, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(const char *, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(const SString &, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(double, const char * pMembName, SString & rBuf);
+	static void STDCALL PutMembToBuf(long, const char * pMembName, SString & rBuf);
 	void   PutSggMembToBuf(SubstGrpGoods,  const char * pMembName, SString & rBuf) const;
 	void   PutSgpMembToBuf(SubstGrpPerson, const char * pMembName, SString & rBuf) const;
 	void   PutSgdMembToBuf(SubstGrpDate,   const char * pMembName, SString & rBuf) const;
@@ -14971,7 +14971,7 @@ public:
 		PreprocessChZnCodeResult();
 		PreprocessChZnCodeResult & Z();
 		uint   LineIdx;          // [1..] Индекс строки в чеке
-		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
+		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
 			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
 			// 0 "0" - код маркировки не был проверен ФН и (или) ОИСМ
 			//   "1" - код маркировки проверен
@@ -14990,19 +14990,19 @@ public:
 			// 2 - ФН не содержит ключ проверки кода проверки этого КМ;
 			// 3 - переданный код маркировки не соответствует заданному формату (проверка невозможна, так как отсутствуют теги 91 и/или 92 или их формат неверный, согласно GS1)
 			// 4 - внутренняя ошибка в ФН при проверке этого КМ.
-		int    ProcessingResult; // tag 2005 Результаты обработки запроса (тег 2005)
+		int    ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
 			// Номер бита Состояние бита в зависимости от результата проверки КМ и статуса товара
 			// 1 "0" - результат проверки КП КМ отрицательный
 			//   "1" - результат проверки КП КМ положительный
-			// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (тег 2109) принимает значение "2" или "3")
-			//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (тег 2109) принимает значение "1")
+			// 3 "0" - статус товара некорректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "2" или "3")
+			//   "1" - статус товара корректен (если реквизит "ответ ОИСМ о статусе товара" (ofdtag-2109) принимает значение "1")
 			// 0, 2    Заполняются единицами
 			// 4 - 7   Заполняются нулями
-		int    ProcessingCode;   // tag 2105 Код обработки запроса (тег 2105)
+		int    ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
 			// 0 Запрос имеет корректный формат, в том числе корректный формат кода маркировки
 			// 1 Запрос имеет некорректный формат
 			// 2 Указанный в запросе код маркировки имеет некорректный формат (не распознан)
-		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
+		int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
 			// 1 Планируемый статус товара корректен
 			// 2 Планируемый статус товара некорректен
 			// 3 Оборот товара приостановлен
@@ -21818,11 +21818,11 @@ public:
 	int    Init(const char * pName, const char * pPort);
 	int    IsError() const;
 	/*
-		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (тег 2106)
+		int    CheckResult;      // tag 2106 Результат проверки КМ в ФН (ofdtag-2106)
 		int    Reason;           // Причина того, что КМ не проверен в ФН
-		int    ProcessingResult; // tag 2005 Результаты обработки запроса (тег 2005)
-		int    ProcessingCode;   // tag 2105 Код обработки запроса (тег 2105)
-		int    Status;           // tag 2109 Сведения о статусе товара (тег 2109)
+		int    ProcessingResult; // tag 2005 Результаты обработки запроса (ofdtag-2005)
+		int    ProcessingCode;   // tag 2105 Код обработки запроса (ofdtag-2105)
+		int    Status;           // tag 2109 Сведения о статусе товара (ofdtag-2109)
 	*/
 	static void LogPreprocessChZnCodeResult(int ret, int op, const char * pCode, double qtty, const CCheckPacket::PreprocessChZnCodeResult & rResult);
 	//
@@ -21881,6 +21881,24 @@ public:
 	const  char * GetName() const { return Name; }
 	PPSlipFormatter * GetSlipFormatter() { return P_SlipFmt; }
 	int    CompleteSession(PPID sessID);
+	//
+	// Descr: Параметры, необходимые для правильной печати чека с ёбнутыми обвесами для российской офд и честного знака
+	//
+	struct OfdFactors {
+		OfdFactors & Z();
+		// 
+		// Descr: Возвращает true если версия офд для этого кассового узла больше или равна 1.2
+		//
+		bool   IsOfdVerGe12() const; 
+		SString OfdVer;
+		SString Sid;
+	};
+	void    GetOfdFactors(OfdFactors & rP);
+	//
+	// Descr: Высокоуровневая функция, реализующая предварительную обработку пакета чека
+	//   с марками честный знак перед проведением чека через фискальный регистратор.
+	//
+	int     PreprocessCCheckForOfd12(const OfdFactors & rOfdf, CCheckPacket * pPack);
 protected:
 	enum {
 		stError = 0x0001
@@ -46556,8 +46574,11 @@ public:
 	// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
 	//
 	enum {
-		styloqfMediator = 0x0001 // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
+		styloqfMediator         = 0x0001, // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 			// записи после получения соответствующей информации от сервиса-медиатора
+		styloqfDocFinished      = 0x0002, // @v11.3.12 Для документа: цикл обработки для документа завершен
+		styloqfDocWaitForOrdrsp = 0x0004, // @v11.3.12 Для документа заказа: ожидает подтверждения заказа
+		styloqfDocWaitForDesadv = 0x0008  // @v11.3.12 Для документа заказа: ожидает документа отгрузки
 	};
 	//
 	// Descr: Типы документов, хранящихся в реестре Stylo-Q
@@ -47136,7 +47157,7 @@ private:
 	//    //PPOBJ_TSESSION - функция успешно завершена. идентификатор созданной или уже существующей техсессии присвоен по указателю pResultID.
 	//    //0 - ошибка
 	//
-	SJson * ProcessCommand_PostDocument(const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
+	SJson * ProcessCommand_PostDocument(const SBinaryChunk & rOwnIdent, const StyloQCore::StoragePacket & rCliPack, const SJson * pDeclaration, const SJson * pDocument, PPID * pResultID);
 	SJson * MakeRsrvAttendancePrereqResponse_Prc(const SBinaryChunk & rOwnIdent, PPID prcID, PPObjTSession & rTSesObj, long maxScheduleDays, 
 		LAssocArray * pGoodsToPrcList, Stq_CmdStat_MakeRsrv_Response * pStat);
 	//
@@ -56011,17 +56032,17 @@ int    PPCheckDatabaseChain();
 //
 int    FASTCALL PPGetPath(PPID pathID, SString & rBuf);
 SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf);
-int    FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf);
-int    FASTCALL PPGetFilePath(PPID pathID, uint fnameID, SString & rBuf);
+int    STDCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf);
+int    STDCALL PPGetFilePath(PPID pathID, uint fnameID, SString & rBuf);
 //
 // Descr: То же, что и PPGetFilePath но возвращает ссылку на буфер rBuf с целью
 //   непосредственной подстановки результата в функцию-консьюмер.
 //
-SString & FASTCALL PPGetFilePathS(PPID pathID, uint fnameID, SString & rBuf);
+SString & STDCALL PPGetFilePathS(PPID pathID, uint fnameID, SString & rBuf);
 //
 // Descr: Формирует уникальное имя временного файла в каталоге PPPATH_TEMP.
 //
-SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
+SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf);
 	// @>>MakeTempFileName
 //
 // Descr: Удаляет файлы, пути к которым перечислены в массиве pFileList

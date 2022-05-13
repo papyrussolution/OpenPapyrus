@@ -85,7 +85,7 @@ static cairo_damage_t * _cairo_damage_add_boxes(cairo_damage_t * damage, const c
 	count -= n;
 	damage->tail->count += n;
 	damage->remain -= n;
-	if(count == 0)
+	if(!count)
 		return damage;
 	size = 2 * damage->tail->size;
 	if(size < count)

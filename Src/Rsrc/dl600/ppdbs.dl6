@@ -3715,6 +3715,28 @@ file:
 	vlr;
 }
 //
+// @construction
+//
+table StyloQSettlement {
+	// хэш строится по следующим полям {Uid, OtherBI, Amt, Tmstmp}
+	raw    Uid[16];
+	raw    OtherBI[20];
+	int64  Amt;
+	int64  Rst;
+	int64  Tmstmp;
+	raw    Hsh[20];
+	raw    BckHsh[20];
+	raw    Reserve[128];
+	blob   VT[2048];
+index:
+	Uid (unique);
+	Tmstmp (unique);
+	OtherBI, Tmstmp (unique); // blockchain is calculated by this index!
+file:
+	"styloqsettlement.btr";
+	vlr;
+}
+//
 // @v10.7.7 @construction
 //
 table TsTaJournal {

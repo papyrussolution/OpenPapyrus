@@ -1729,7 +1729,7 @@ int ec_GFp_nistp521_group_set_curve(EC_GROUP * group, const BIGNUM * p,
 	BN_CTX * new_ctx = NULL;
 	BIGNUM * curve_p, * curve_a, * curve_b;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);
@@ -2053,7 +2053,7 @@ int ec_GFp_nistp521_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 
 	/* throw away old precomputation */
 	EC_pre_comp_free(group);
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 	BN_CTX_start(ctx);

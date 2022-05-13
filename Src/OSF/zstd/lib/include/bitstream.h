@@ -35,9 +35,9 @@ extern "C" {
 // 
 #ifndef ZSTD_NO_INTRINSICS
 #if (defined(__BMI__) || defined(__BMI2__)) && defined(__GNUC__)
-#    include <immintrin.h>   /* support for bextr (experimental)/bzhi */
-#  elif defined(__ICCARM__)
-#    include <intrinsics.h>
+#include <immintrin.h>   /* support for bextr (experimental)/bzhi */
+#elif defined(__ICCARM__)
+#include <intrinsics.h>
 #endif
 #endif
 
@@ -246,7 +246,7 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 		bitD->ptr   = (const char*)srcBuffer + srcSize - sizeof(bitD->bitContainer);
 		bitD->bitContainer = MEM_readLEST(bitD->ptr);
 		{ 
-			BYTE const lastByte = ((const BYTE*)srcBuffer)[srcSize-1];
+			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
 			bitD->bitsConsumed = lastByte ? 8 - ZSTD_highbit32(lastByte) : 0; // ensures bitsConsumed is always set 
 			if(lastByte == 0) 
 				return ERROR(GENERIC); /* endMark not present */ 
@@ -254,30 +254,30 @@ MEM_STATIC size_t BIT_initDStream(BIT_DStream_t * bitD, const void * srcBuffer, 
 	}
 	else {
 		bitD->ptr   = bitD->start;
-		bitD->bitContainer = *(const BYTE*)(bitD->start);
+		bitD->bitContainer = *(const BYTE *)(bitD->start);
 		switch(srcSize) {
 			case 7: 
-				bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16);
+				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[6]) << (sizeof(bitD->bitContainer)*8 - 16);
 			    ZSTD_FALLTHROUGH;
 			case 6: 
-				bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24);
+				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[5]) << (sizeof(bitD->bitContainer)*8 - 24);
 			    ZSTD_FALLTHROUGH;
 			case 5: 
-				bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32);
+				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[4]) << (sizeof(bitD->bitContainer)*8 - 32);
 			    ZSTD_FALLTHROUGH;
 			case 4: 
-				bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[3]) << 24;
+				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[3]) << 24;
 			    ZSTD_FALLTHROUGH;
 			case 3: 
-				bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[2]) << 16;
+				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[2]) << 16;
 			    ZSTD_FALLTHROUGH;
 			case 2: 
-				bitD->bitContainer += (size_t)(((const BYTE*)(srcBuffer))[1]) <<  8;
+				bitD->bitContainer += (size_t)(((const BYTE *)(srcBuffer))[1]) <<  8;
 			    ZSTD_FALLTHROUGH;
 			default: break;
 		}
 		{   
-			BYTE const lastByte = ((const BYTE*)srcBuffer)[srcSize-1];
+			BYTE const lastByte = ((const BYTE *)srcBuffer)[srcSize-1];
 		    bitD->bitsConsumed = lastByte ? 8 - ZSTD_highbit32(lastByte) : 0;
 		    if(lastByte == 0) 
 				return ERROR(corruption_detected); /* endMark not present */

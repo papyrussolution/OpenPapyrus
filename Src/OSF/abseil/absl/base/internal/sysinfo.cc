@@ -181,7 +181,7 @@ static int GetNumCPUs() {
 		#else
 			int rc = clock_gettime(CLOCK_MONOTONIC, &t);
 		#endif
-			if(rc != 0) {
+			if(rc) {
 				perror("clock_gettime() failed");
 				abort();
 			}

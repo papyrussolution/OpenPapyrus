@@ -46,7 +46,7 @@ char * X509_NAME_oneline(const X509_NAME * a, char * buf, int len)
 	else if(len == 0) {
 		return NULL;
 	}
-	if(a == NULL) {
+	if(!a) {
 		if(b) {
 			buf = b->data;
 			OPENSSL_free(b);

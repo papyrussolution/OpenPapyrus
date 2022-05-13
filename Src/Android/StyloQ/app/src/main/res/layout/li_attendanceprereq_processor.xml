@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/attendancePrereqProcessorListItem"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <ImageView
+            android:id="@+id/ATTENDANCEPREREQ_PRC_EXPANDSTATUS"
+            android:layout_width="24dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_triangleleft03">
+        </ImageView>
+        <ImageView
+            android:id="@+id/ATTENDANCEPREREQ_PRC_IMG"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="2dp"
+            android:layout_margin="2dp">
+        </ImageView>
+        <TextView
+            android:id="@+id/LVITEM_GENERICNAME"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="4dp"
+            android:textColor="@color/TextPrimary"
+            />
+    </LinearLayout>
+    <ListView
+        android:id="@+id/goodsByPrcListView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="16dp"
+        android:layout_marginBottom="2dp"
+        android:layout_marginRight="2dp"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="2dp"
+        >
+    </ListView>
+</LinearLayout>

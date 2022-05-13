@@ -3,8 +3,7 @@
 // https://developers.google.com/protocol-buffers/
 //
 // Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
+// modification, are permitted provided that the following conditions are met:
 //
 // * Redistributions of source code must retain the above copyright
 // notice, this list of conditions and the following disclaimer.
@@ -150,14 +149,14 @@ void EnumGenerator::Generate(io::Printer* printer) {
 	if(SupportUnknownEnumValue(descriptor_->file())) {
 		if(ordinal_is_index) {
 			printer->Print(
-				"  if (this == UNRECOGNIZED) {\n"
+				"  if(this == UNRECOGNIZED) {\n"
 				"    throw new java.lang.IllegalArgumentException(\n"
 				"        \"Can't get the number of an unknown enum value.\");\n"
 				"  }\n");
 		}
 		else {
 			printer->Print(
-				"  if (index == -1) {\n"
+				"  if(index == -1) {\n"
 				"    throw new java.lang.IllegalArgumentException(\n"
 				"        \"Can't get the number of an unknown enum value.\");\n"
 				"  }\n");
@@ -226,7 +225,7 @@ void EnumGenerator::Generate(io::Printer* printer) {
 		if(SupportUnknownEnumValue(descriptor_->file())) {
 			if(ordinal_is_index) {
 				printer->Print(
-					"  if (this == UNRECOGNIZED) {\n"
+					"  if(this == UNRECOGNIZED) {\n"
 					"    throw new java.lang.IllegalStateException(\n"
 					"        \"Can't get the descriptor of an unrecognized enum "
 					"value.\");\n"
@@ -234,7 +233,7 @@ void EnumGenerator::Generate(io::Printer* printer) {
 			}
 			else {
 				printer->Print(
-					"  if (index == -1) {\n"
+					"  if(index == -1) {\n"
 					"    throw new java.lang.IllegalStateException(\n"
 					"        \"Can't get the descriptor of an unrecognized enum "
 					"value.\");\n"
@@ -316,14 +315,14 @@ void EnumGenerator::Generate(io::Printer* printer) {
 			"\n"
 			"public static $classname$ valueOf(\n"
 			"    com.google.protobuf.Descriptors.EnumValueDescriptor desc) {\n"
-			"  if (desc.getType() != getDescriptor()) {\n"
+			"  if(desc.getType() != getDescriptor()) {\n"
 			"    throw new java.lang.IllegalArgumentException(\n"
 			"      \"EnumValueDescriptor is not for this type.\");\n"
 			"  }\n",
 			"classname", descriptor_->name());
 		if(SupportUnknownEnumValue(descriptor_->file())) {
 			printer->Print(
-				"  if (desc.getIndex() == -1) {\n"
+				"  if(desc.getIndex() == -1) {\n"
 				"    return UNRECOGNIZED;\n"
 				"  }\n");
 		}

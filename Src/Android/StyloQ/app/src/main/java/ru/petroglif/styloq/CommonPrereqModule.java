@@ -16,6 +16,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import androidx.viewpager2.widget.ViewPager2;
+
+import com.google.android.material.tabs.TabLayout;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -40,6 +44,9 @@ public class CommonPrereqModule {
 	public ArrayList<ProcessorEntry> ProcessorListData;
 	protected Document CurrentOrder;
 	protected boolean Locker_CommitCurrentDocument;
+	private SLib.SlActivity ActivityInstance;
+	private int ViewPagerResourceId;
+	private int TabLayoutResourceId;
 	public enum Tab {
 		tabUndef,
 		tabGoodsGroups,
@@ -378,7 +385,7 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
-	public CommonPrereqModule()
+	public CommonPrereqModule(SLib.SlActivity activityInstance)
 	{
 		SvcIdent = null;
 		CmdName = null;
@@ -391,6 +398,9 @@ public class CommonPrereqModule {
 		OrderHList = null;
 		ProcessorListData = null;
 		Locker_CommitCurrentDocument = false;
+		ActivityInstance = activityInstance;
+		ViewPagerResourceId = 0;
+		TabLayoutResourceId = 0;
 	}
 	public void GetAttributesFromIntent(Intent intent)
 	{
@@ -404,11 +414,12 @@ public class CommonPrereqModule {
 			}
 		}
 	}
-	public void SetupActivityTitles(SLib.SlActivity activity, StyloQDatabase db) throws StyloQException
+	public void SetupActivity(StyloQDatabase db, int viewPagerResourceId, int tabLayoutResourceId) throws StyloQException
 	{
-		if(activity != null && db != null) {
+		if(ActivityInstance != null && db != null) {
+			ViewPagerResourceId = viewPagerResourceId;
+			TabLayoutResourceId = tabLayoutResourceId;
 			String title_text = null;
-
 			String blob_signature = null;
 			if(SLib.GetLen(SvcIdent) > 0) {
 				StyloQDatabase.SecStoragePacket svc_packet = db.SearchGlobalIdentEntry(StyloQDatabase.SecStoragePacket.kForeignService, SvcIdent);
@@ -421,15 +432,33 @@ public class CommonPrereqModule {
 					}
 				}
 				if(SLib.GetLen(svc_name) > 0)
-					SLib.SetCtrlString(activity, R.id.CTL_PAGEHEADER_SVCTITLE, svc_name);
+					SLib.SetCtrlString(ActivityInstance, R.id.CTL_PAGEHEADER_SVCTITLE, svc_name);
 			}
 			if(SLib.GetLen(CmdName) > 0)
 				title_text = CmdName;
 			if(SLib.GetLen(CmdDescr) > 0)
 				title_text = (SLib.GetLen(title_text) > 0) ? (title_text + "\n" + CmdDescr) : CmdDescr;
 			if(SLib.GetLen(title_text) > 0)
-				SLib.SetCtrlString(activity, R.id.CTL_PAGEHEADER_TOPIC, title_text);
-			SLib.SetupImage(activity, activity.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+				SLib.SetCtrlString(ActivityInstance, R.id.CTL_PAGEHEADER_TOPIC, title_text);
+			SLib.SetupImage(ActivityInstance, ActivityInstance.findViewById(R.id.CTLIMG_PAGEHEADER_SVC), blob_signature);
+		}
+	}
+	public void SetTabVisibility(CommonPrereqModule.Tab tabId, int visibilityMode)
+	{
+		if(ActivityInstance != null && ViewPagerResourceId != 0 && TabLayoutResourceId != 0) {
+			ViewPager2 view_pager = (ViewPager2)ActivityInstance.findViewById(ViewPagerResourceId);
+			if(view_pager != null && TabList != null) {
+				for(int tidx = 0; tidx < TabList.size(); tidx++) {
+					if(TabList.get(tidx).TabId == tabId) {
+						View v_lo_tab = ActivityInstance.findViewById(TabLayoutResourceId);
+						if(v_lo_tab != null && v_lo_tab instanceof TabLayout) {
+							TabLayout lo_tab = (TabLayout) v_lo_tab;
+							((ViewGroup)lo_tab.getChildAt(0)).getChildAt(tidx).setVisibility(visibilityMode);
+						}
+						break;
+					}
+				}
+			}
 		}
 	}
 	public void MakeCurrentDocList(StyloQApp appCtx)
@@ -908,7 +937,7 @@ public class CommonPrereqModule {
 									int fp_end = fp_start+pat_len;
 									SpannableStringBuilder spbldr = new SpannableStringBuilder();
 									int color_reg = _ctx.getResources().getColor(R.color.ListItemRegular, _ctx.getTheme());
-									int color_found = _ctx.getResources().getColor(R.color.FoundListItem, _ctx.getTheme());
+									int color_found = _ctx.getResources().getColor(R.color.ListItemFound, _ctx.getTheme());
 									if(fp_start > 0) {
 										SpannableString ss = new SpannableString(se.Text.substring(0, fp_start-1));
 										ss.setSpan(new BackgroundColorSpan(color_reg), 0, ss.length(), 0);
@@ -959,7 +988,7 @@ public class CommonPrereqModule {
 				ListView detail_lv = (ListView)itemView.findViewById(R.id.searchPaneTerminalListView);
 				ArrayList <CommonPrereqModule.SimpleSearchIndexEntry> detail_list = SearchResult.GetListByObjType(obj_type);
 				if(detail_lv != null && detail_list != null) {
-					SearchDetailListAdapter adapter = new SearchDetailListAdapter(/*this*/itemView.getContext(), R.layout.searchpane_resultdetail_item, detail_list);
+					SearchDetailListAdapter adapter = new SearchDetailListAdapter(/*this*/itemView.getContext(), R.layout.li_searchpane_resultdetail, detail_list);
 					detail_lv.setAdapter(adapter);
 					{
 						int total_items_height = SLib.CalcListViewHeight(detail_lv);

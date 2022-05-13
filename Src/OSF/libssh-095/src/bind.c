@@ -34,7 +34,7 @@ static socket_t bind_socket(ssh_bind sshbind, const char * hostname, int port)
 	hints.ai_socktype = SOCK_STREAM;
 	snprintf(port_c, 6, "%d", port);
 	rc = getaddrinfo(hostname, port_c, &hints, &ai);
-	if(rc != 0) {
+	if(rc) {
 		ssh_set_error(sshbind, SSH_FATAL, "Resolving %s: %s", hostname, gai_strerror(rc));
 		return -1;
 	}
@@ -341,13 +341,13 @@ int ssh_bind_accept_fd(ssh_bind sshbind, ssh_session session, socket_t fd)
 	if(sshbind == NULL) {
 		return SSH_ERROR;
 	}
-	if(session == NULL) {
+	if(!session) {
 		ssh_set_error(sshbind, SSH_FATAL, "session is null");
 		return SSH_ERROR;
 	}
 	/* Apply global bind configurations, if it hasn't been applied before */
 	rc = ssh_bind_options_parse_config(sshbind, NULL);
-	if(rc != 0) {
+	if(rc) {
 		ssh_set_error(sshbind, SSH_FATAL, "Could not parse global config");
 		return SSH_ERROR;
 	}
@@ -471,7 +471,7 @@ int ssh_bind_accept(ssh_bind sshbind, ssh_session session) {
 		return SSH_ERROR;
 	}
 
-	if(session == NULL) {
+	if(!session) {
 		ssh_set_error(sshbind, SSH_FATAL, "session is null");
 		return SSH_ERROR;
 	}

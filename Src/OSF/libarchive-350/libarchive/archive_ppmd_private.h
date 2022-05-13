@@ -1,6 +1,6 @@
 /* Ppmd.h -- PPMD codec common code
-2010-03-12 : Igor Pavlov : Public domain
-This code is based on PPMd var.H (2001): Dmitry Shkarin : Public domain */
+   2010-03-12 : Igor Pavlov : Public domain
+   This code is based on PPMd var.H (2001): Dmitry Shkarin : Public domain */
 
 #ifndef ARCHIVE_PPMD_PRIVATE_H_INCLUDED
 #define ARCHIVE_PPMD_PRIVATE_H_INCLUDED
@@ -10,7 +10,6 @@ This code is based on PPMd var.H (2001): Dmitry Shkarin : Public domain */
 #endif
 
 #include <stddef.h>
-
 #include "archive_read_private.h"
 
 /*** Begin defined in Types.h ***/
@@ -20,7 +19,6 @@ typedef uchar Byte;
 #endif
 typedef short Int16;
 typedef unsigned short UInt16;
-
 #ifdef _LZMA_UINT32_IS_ULONG
 typedef long Int32;
 typedef unsigned long UInt32;
@@ -30,13 +28,10 @@ typedef uint UInt32;
 #endif
 
 #ifdef _SZ_NO_INT_64
-
-/* define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
-   NOTES: Some code will work incorrectly in that case! */
-
+// define _SZ_NO_INT_64, if your compiler doesn't support 64-bit integers.
+// NOTES: Some code will work incorrectly in that case!
 typedef long Int64;
 typedef unsigned long UInt64;
-
 #else
 
 #if defined(_MSC_VER) || defined(__BORLANDC__)
@@ -51,37 +46,33 @@ typedef unsigned long long int UInt64;
 
 #endif
 
-typedef int Bool;
-#define True 1
-#define False 0
+// @sobolev typedef int Bool;
+// @sobolev #define True 1
+// @sobolev #define False 0
 
 /* The following interfaces use first parameter as pointer to structure */
 
-typedef struct
-{
-  struct archive_read *a;
-  Byte (*Read)(void *p); /* reads one byte, returns 0 in case of EOF or error */
+typedef struct {
+	struct archive_read * a;
+	Byte (* Read)(void * p); /* reads one byte, returns 0 in case of EOF or error */
 } IByteIn;
 
-typedef struct
-{
-  struct archive_write *a;
-  void (*Write)(void *p, Byte b);
+typedef struct {
+	struct archive_write * a;
+	void (* Write)(void * p, Byte b);
 } IByteOut;
 
 /*** End defined in Types.h ***/
 /*** Begin defined in CpuArch.h ***/
 
 #if defined(_M_IX86) || defined(__i386__)
-#define MY_CPU_X86
+	#define MY_CPU_X86
 #endif
-
 #if defined(MY_CPU_X86) || defined(_M_ARM)
-#define MY_CPU_32BIT
+	#define MY_CPU_32BIT
 #endif
-
 #ifdef MY_CPU_32BIT
-#define PPMD_32BIT
+	#define PPMD_32BIT
 #endif
 
 /*** End defined in CpuArch.h ***/
@@ -102,22 +93,20 @@ typedef struct
 #define PPMD_NUM_INDEXES (PPMD_N1 + PPMD_N2 + PPMD_N3 + PPMD_N4)
 
 /* SEE-contexts for PPM-contexts with masked symbols */
-typedef struct
-{
-  UInt16 Summ; /* Freq */
-  Byte Shift; /* Speed of Freq change; low Shift is for fast change */
-  Byte Count; /* Count to next change of Shift */
+typedef struct {
+	UInt16 Summ; /* Freq */
+	Byte Shift; /* Speed of Freq change; low Shift is for fast change */
+	Byte Count; /* Count to next change of Shift */
 } CPpmd_See;
 
-#define Ppmd_See_Update(p)  if ((p)->Shift < PPMD_PERIOD_BITS && --(p)->Count == 0) \
-    { (p)->Summ <<= 1; (p)->Count = (Byte)(3 << (p)->Shift++); }
+#define Ppmd_See_Update(p)  if((p)->Shift < PPMD_PERIOD_BITS && --(p)->Count == 0) \
+	{ (p)->Summ <<= 1; (p)->Count = (Byte)(3 << (p)->Shift++); }
 
-typedef struct
-{
-  Byte Symbol;
-  Byte Freq;
-  UInt16 SuccessorLow;
-  UInt16 SuccessorHigh;
+typedef struct {
+	Byte Symbol;
+	Byte Freq;
+	UInt16 SuccessorLow;
+	UInt16 SuccessorHigh;
 } CPpmd_State;
 
 typedef
@@ -126,7 +115,7 @@ typedef
   #else
     UInt32
   #endif
-  CPpmd_State_Ref;
+    CPpmd_State_Ref;
 
 typedef
   #ifdef PPMD_32BIT
@@ -134,7 +123,7 @@ typedef
   #else
     UInt32
   #endif
-  CPpmd_Void_Ref;
+    CPpmd_Void_Ref;
 
 typedef
   #ifdef PPMD_32BIT
@@ -142,10 +131,9 @@ typedef
   #else
     UInt32
   #endif
-  CPpmd_Byte_Ref;
+    CPpmd_Byte_Ref;
 
 #define PPMD_SetAllBitsIn256Bytes(p) \
-  { unsigned j; for (j = 0; j < 256 / sizeof(p[0]); j += 8) { \
-  p[j+7] = p[j+6] = p[j+5] = p[j+4] = p[j+3] = p[j+2] = p[j+1] = p[j+0] = ~(size_t)0; }}
+	{ for(uint j = 0; j < 256 / sizeof(p[0]); j += 8) { p[j+7] = p[j+6] = p[j+5] = p[j+4] = p[j+3] = p[j+2] = p[j+1] = p[j+0] = ~(size_t)0; }}
 
 #endif

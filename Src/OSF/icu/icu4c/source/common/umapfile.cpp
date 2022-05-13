@@ -41,16 +41,16 @@
 // Some previous versions of the Windows 10 SDK don't expose various APIs for UWP applications
 // to use, even though UWP apps are allowed to call and use them.  Temporarily change the
 // WINAPI family partition below to Desktop, so that function declarations are visible for UWP.
-#       include <winapifamily.h>
-#       if !(WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM))
-#           pragma push_macro("WINAPI_PARTITION_DESKTOP")
-#           undef WINAPI_PARTITION_DESKTOP
-#           define WINAPI_PARTITION_DESKTOP 1
-#           define CHANGED_WINAPI_PARTITION_DESKTOP_VALUE
-#       endif
+#include <winapifamily.h>
+#if !(WINAPI_FAMILY_PARTITION(WINAPI_PARTITION_DESKTOP | WINAPI_PARTITION_SYSTEM))
+#pragma push_macro("WINAPI_PARTITION_DESKTOP")
+#undef WINAPI_PARTITION_DESKTOP
+#define WINAPI_PARTITION_DESKTOP 1
+#define CHANGED_WINAPI_PARTITION_DESKTOP_VALUE
+#endif
 #endif
 #if U_PLATFORM_HAS_WINUWP_API == 1 && defined(CHANGED_WINAPI_PARTITION_DESKTOP_VALUE)
-#       pragma pop_macro("WINAPI_PARTITION_DESKTOP")
+#pragma pop_macro("WINAPI_PARTITION_DESKTOP")
 #endif
 
 typedef HANDLE MemoryMap;
@@ -62,10 +62,10 @@ typedef size_t MemoryMap;
 
 #define IS_MAP(map) ((map)!=0)
 
-#   include <unistd.h>
-#   include <sys/mman.h>
-#   include <sys/stat.h>
-#   include <fcntl.h>
+#include <unistd.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 #ifndef MAP_FAILED
 #define MAP_FAILED ((void *)-1)
@@ -73,7 +73,7 @@ typedef size_t MemoryMap;
 
 #if MAP_IMPLEMENTATION==MAP_390DLL
 /* No memory mapping for 390 batch mode.  Fake it using dll loading.  */
-#       include <dll.h>
+#include <dll.h>
 #define LIB_PREFIX "lib"
 #define LIB_SUFFIX ".dll"
 /* This is inconvenient until we figure out what to do with U_ICUDATA_NAME in utypes.h */
@@ -447,7 +447,7 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 		return TRUE;
 	}
 
-#       ifdef OS390BATCH
+#ifdef OS390BATCH
 	/* ### hack: we still need to get u_getDataDirectory() fixed
 	   for OS/390 (batch mode - always return "//"? )
 	   and this here straightened out with LIB_PREFIX and LIB_SUFFIX (both empty?!)
@@ -458,20 +458,20 @@ U_CFUNC bool uprv_mapFile(UDataMemory * pData, const char * path, UErrorCode * s
 	/* THE FIRST THREE LETTERS ARE PREASSIGNED TO THE */
 	/* PROJECT!!!!! */
 	uprv_strcpy(pathBuffer, "IXMI" U_ICU_VERSION_SHORT "DA");
-#       else
+#else
 	/* set up the library name */
 	uprv_strcpy(basename, LIB_PREFIX U_LIBICUDATA_NAME U_ICU_VERSION_SHORT LIB_SUFFIX);
-#       endif
+#endif
 
-#       ifdef UDATA_DEBUG
+#ifdef UDATA_DEBUG
 	slfprintf_stderr("dllload: %s ", pathBuffer);
-#       endif
+#endif
 
 	handle = dllload(pathBuffer);
 
-#       ifdef UDATA_DEBUG
+#ifdef UDATA_DEBUG
 	slfprintf_stderr(" -> %08X\n", handle);
-#       endif
+#endif
 
 	if(handle != nullptr) {
 		/* we have a data DLL - what kind of lookup do we need here? */

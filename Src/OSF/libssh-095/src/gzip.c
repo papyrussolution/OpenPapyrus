@@ -58,7 +58,7 @@ static ssh_buffer gzip_compress(ssh_session session, ssh_buffer source, int leve
 		}
 	}
 	dest = ssh_buffer_new();
-	if(dest == NULL) {
+	if(!dest) {
 		return NULL;
 	}
 	zout->next_out = out_buf;
@@ -85,7 +85,7 @@ static ssh_buffer gzip_compress(ssh_session session, ssh_buffer source, int leve
 int compress_buffer(ssh_session session, ssh_buffer buf) 
 {
 	ssh_buffer dest = gzip_compress(session, buf, session->opts.compressionlevel);
-	if(dest == NULL) {
+	if(!dest) {
 		return -1;
 	}
 	if(ssh_buffer_reinit(buf) < 0) {
@@ -141,7 +141,7 @@ static ssh_buffer gzip_decompress(ssh_session session, ssh_buffer source, size_t
 		}
 	}
 	dest = ssh_buffer_new();
-	if(dest == NULL) {
+	if(!dest) {
 		return NULL;
 	}
 	zin->next_out = out_buf;
@@ -174,7 +174,7 @@ static ssh_buffer gzip_decompress(ssh_session session, ssh_buffer source, size_t
 int decompress_buffer(ssh_session session, ssh_buffer buf, size_t maxlen)
 {
 	ssh_buffer dest = gzip_decompress(session, buf, maxlen);
-	if(dest == NULL) {
+	if(!dest) {
 		return -1;
 	}
 	if(ssh_buffer_reinit(buf) < 0) {

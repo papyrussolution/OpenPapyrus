@@ -38,7 +38,7 @@ static UNUSED_ATTR const uint32 OF_base[MaxOff+1] = {
 	0xFFFFFD, 0x1FFFFFD, 0x3FFFFFD, 0x7FFFFFD, 0xFFFFFFD, 0x1FFFFFFD, 0x3FFFFFFD, 0x7FFFFFFD
 };
 
-static UNUSED_ATTR const U8 OF_bits[MaxOff+1] = {
+static UNUSED_ATTR const uint8 OF_bits[MaxOff+1] = {
 	0,  1,  2,  3,  4,  5,  6,  7,
 	8,  9, 10, 11, 12, 13, 14, 15,
 	16, 17, 18, 19, 20, 21, 22, 23,
@@ -151,7 +151,7 @@ struct ZSTD_DCtx_s {
 	                                                   frame. Default == 0 */
 	uint32 validateChecksum;     /* if == 1, will validate checksum. Is == 1 if (fParams.checksumFlag == 1) and
 	                             (forceIgnoreChecksum == 0). */
-	const BYTE* litPtr;
+	const BYTE * litPtr;
 	ZSTD_customMem customMem;
 	size_t litSize;
 	size_t rleSize;
@@ -194,8 +194,8 @@ struct ZSTD_DCtx_s {
 	ZSTD_outBuffer expectedOutBuffer;
 
 	/* workspace */
-	BYTE* litBuffer;
-	const BYTE* litBufferEnd;
+	BYTE * litBuffer;
+	const BYTE * litBufferEnd;
 	ZSTD_litLocation_e litBufferLocation;
 	BYTE litExtraBuffer[ZSTD_LITBUFFEREXTRASIZE + WILDCOPY_OVERLENGTH]; /* literal buffer can be split between
 	                                                                       storage within dst and within this

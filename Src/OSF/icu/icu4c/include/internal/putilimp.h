@@ -485,9 +485,9 @@ U_CAPI void * U_EXPORT2 uprv_maximumPtr(void * base);
 #if U_PLATFORM == U_PF_OS390 && !defined(_LP64)
 /* We have 31-bit pointers. */
 #define U_MAX_PTR(base) ((void*)0x7fffffff)
-#  elif U_PLATFORM == U_PF_OS400
+#elif U_PLATFORM == U_PF_OS400
 #define U_MAX_PTR(base) uprv_maximumPtr((void*)base)
-#  elif 0
+#elif 0
 /*
  * For platforms where pointers are scalar values (which is normal, but unlike i5/OS)
  * but that do not define uintptr_t.
@@ -499,7 +499,7 @@ U_CAPI void * U_EXPORT2 uprv_maximumPtr(void * base);
  * (See ICU tickets #7187 and #8096.)
  */
 #define U_MAX_PTR(base) ((void*)(((char *)(base)+0x7fffffffu) > (char *)(base) ? ((char *)(base)+0x7fffffffu) : (char *)-1))
-#  else
+#else
 /* Default version. C++ standard compliant for scalar pointers. */
 #define U_MAX_PTR(base) ((void*)(((uintptr_t)(base)+0x7fffffffu) > (uintptr_t)(base) ? ((uintptr_t)(base)+0x7fffffffu) : (uintptr_t)-1))
 #endif
@@ -532,9 +532,9 @@ inline int32_t pinCapacity(T * dest, int32_t capacity) {
 #if U_PLATFORM == U_PF_OS390 && !defined(_LP64)
 	// We have 31-bit pointers.
 	maxInt = 0x7fffffff;
-#  elif U_PLATFORM == U_PF_OS400
+#elif U_PLATFORM == U_PF_OS400
 	maxInt = (uintptr_t)uprv_maximumPtr((void*)dest);
-#  else
+#else
 	maxInt = destInt + 0x7fffffffu;
 	if(maxInt < destInt) {
 		// Less than 2GB to the end of the address space.

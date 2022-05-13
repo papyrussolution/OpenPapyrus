@@ -1261,7 +1261,7 @@ uint32 /* PRIVATE */ png_check_keyword(png_structrp png_ptr, const char * key, p
 	int bad_character = 0;
 	int space = 1;
 	png_debug(1, "in " __FUNCTION__);
-	if(key == NULL) {
+	if(!key) {
 		*new_key = 0;
 		return 0;
 	}

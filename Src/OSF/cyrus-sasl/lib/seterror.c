@@ -57,8 +57,8 @@
 /* need to handle the fact that errno has been defined as a function
    in a dll, not an extern int */
 # ifdef errno
-#  undef errno
-# endif /* errno */
+#undef errno
+#endif /* errno */
 #endif /* WIN32 */
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

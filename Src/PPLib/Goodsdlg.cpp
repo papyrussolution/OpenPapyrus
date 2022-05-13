@@ -1497,7 +1497,7 @@ void GoodsDialog::setupBarcode()
 		Data.GetGroupCode(barcode);
 	else {
 		const uint count = Data.Codes.getCount();
-		if(count == 0)
+		if(!count)
 			barcode.Z();
 		else if(count == 1)
 			barcode = Data.Codes.at(0).Code;
@@ -1534,7 +1534,7 @@ int GoodsDialog::getBarcode()
 		else {
 			count = Data.Codes.getCount();
 			if(barcode.NotEmptyS()) {
-				if(count == 0) {
+				if(!count) {
 					MEMSZERO(rec);
 					rec.GoodsID = Data.Rec.ID;
 					rec.Qtty    = 1.0;
@@ -1558,7 +1558,7 @@ void GoodsDialog::editBarcodeList()
 	BarcodeListDialog * dlg = 0;
 	int    r = getBarcode();
 	if(r >= 0) {
-		if(r == 0)
+		if(!r)
 			PPError();
 		PPID   goods_grp_id = getCtrlLong(CTLSEL_GOODS_GROUP);
 		if(CheckDialogPtrErr(&(dlg = new BarcodeListDialog(Data.Rec.ID, goods_grp_id)))) {
@@ -3019,7 +3019,7 @@ int GoodsAsscDialog::editItem(long pos, long /*id*/)
 				r = P_GObj->Edit(&item.Val, 0);
 			if(r == cmOK)
 				return 1;
-			else if(r == 0)
+			else if(!r)
 				return 0;
 		}
 	}

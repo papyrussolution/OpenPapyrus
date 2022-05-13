@@ -167,7 +167,7 @@ static int xz_bidder_bid(struct archive_read_filter_bidder * self, struct archiv
 	ssize_t avail;
 	CXX_UNUSED(self);
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 6, &avail));
-	if(buffer == NULL)
+	if(!buffer)
 		return 0;
 	/*
 	 * Verify Header Magic Bytes : FD 37 7A 58 5A 00
@@ -198,7 +198,7 @@ static int lzma_bidder_bid(struct archive_read_filter_bidder * self, struct arch
 	int bits_checked;
 	CXX_UNUSED(self);
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 14, &avail));
-	if(buffer == NULL)
+	if(!buffer)
 		return 0;
 	/* First byte of raw LZMA stream is commonly 0x5d.
 	 * The first byte is a special number, which consists of
@@ -298,7 +298,7 @@ static int lzip_has_member(struct archive_read_filter * filter)
 	int bits_checked;
 	int log2dic;
 	buffer = static_cast<const uchar *>(__archive_read_filter_ahead(filter, 6, &avail));
-	if(buffer == NULL)
+	if(!buffer)
 		return 0;
 	/*
 	 * Verify Header Magic Bytes : 4C 5A 49 50 (`LZIP')

@@ -1070,7 +1070,7 @@ int PPObjLocation::GetListByRegNumber(PPID regTypeID, PPID locTyp, const char * 
 	reg_flt.NmbPattern = pNumber;
 	THROW_MEM(SETIFZ(P_RegObj, new PPObjRegister));
 	int    r = P_RegObj->SearchByFilt(&reg_flt, 0, &rList);
-	if(r == 0)
+	if(!r)
 		ok = 0;
 	else if(r < 0) {
 		PPSetError(PPERR_LOCBYREGNFOUND, msg_buf.Cat(pSerial).CatDivIfNotEmpty(':', 1).Cat(pNumber));
@@ -1435,7 +1435,7 @@ int LocationView::Restore()
 			if(r)
 				logger.LogString(PPTXT_LOCRECRESTORED, loc_rec.Name);
 		}
-		if(r == 0) {
+		if(!r) {
 			logger.LogLastError();
 			ok = 0;
 		}
@@ -2746,7 +2746,7 @@ int PPObjLocation::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmCont
 				p_pack->ID = 0;
 				r = PutPacket(pID, p_pack, 1);
 			}
-			if(r == 0) {
+			if(!r) {
 				pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTLOCATION, p_pack->ID, p_pack->Name);
 				ok = -1;
 			}
@@ -2965,7 +2965,7 @@ int DivisionView::addItem(long *, long * pID)
 		ASSIGN_PTR(pID, obj_id);
 		ok = 1;
 	}
-	else if(r == 0)
+	else if(!r)
 		ok = 0;
 	return ok;
 }
@@ -2975,7 +2975,7 @@ int DivisionView::editItem(long, long id)
 	int    r = id ? LocObj.Edit(&id, 0) : -1;
 	if(r == cmOK)
 		return 1;
-	else if(r == 0)
+	else if(!r)
 		return 0;
 	else
 		return -1;

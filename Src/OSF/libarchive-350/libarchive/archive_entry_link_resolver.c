@@ -142,7 +142,7 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 
 	if(*e == NULL) {
 		le = next_entry(res, NEXT_ENTRY_DEFERRED);
-		if(le != NULL) {
+		if(le) {
 			*e = le->entry;
 			le->entry = NULL;
 		}
@@ -153,15 +153,13 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 	if(archive_entry_nlink(*e) == 1)
 		return;
 	/* Directories, devices never have hardlinks. */
-	if(archive_entry_filetype(*e) == AE_IFDIR
-	   || archive_entry_filetype(*e) == AE_IFBLK
-	   || archive_entry_filetype(*e) == AE_IFCHR)
+	if(archive_entry_filetype(*e) == AE_IFDIR || archive_entry_filetype(*e) == AE_IFBLK || archive_entry_filetype(*e) == AE_IFCHR)
 		return;
 
 	switch(res->strategy) {
 		case ARCHIVE_ENTRY_LINKIFY_LIKE_TAR:
 		    le = find_entry(res, *e);
-		    if(le != NULL) {
+		    if(le) {
 			    archive_entry_unset_size(*e);
 			    archive_entry_copy_hardlink(*e,
 				archive_entry_pathname(le->canonical));
@@ -171,7 +169,7 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 		    return;
 		case ARCHIVE_ENTRY_LINKIFY_LIKE_MTREE:
 		    le = find_entry(res, *e);
-		    if(le != NULL) {
+		    if(le) {
 			    archive_entry_copy_hardlink(*e,
 				archive_entry_pathname(le->canonical));
 		    }
@@ -183,7 +181,7 @@ void archive_entry_linkify(struct archive_entry_linkresolver * res,
 		    return;
 		case ARCHIVE_ENTRY_LINKIFY_LIKE_NEW_CPIO:
 		    le = find_entry(res, *e);
-		    if(le != NULL) {
+		    if(le) {
 			    /*
 			     * Put the new entry in le, return the
 			     * old entry from le.
@@ -375,7 +373,7 @@ struct archive_entry * archive_entry_partial_links(struct archive_entry_linkreso
 	}
 
 	le = next_entry(res, NEXT_ENTRY_PARTIAL);
-	if(le != NULL) {
+	if(le) {
 		e = le->canonical;
 		if(links != NULL)
 			*links = le->links;

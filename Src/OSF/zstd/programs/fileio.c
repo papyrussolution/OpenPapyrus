@@ -9,13 +9,12 @@
  */
 #include <zstd-internal.h>
 #pragma hdrstop
-
-/* *************************************
-*  Compiler Options
-***************************************/
+//
+// Compiler Options
+//
 #ifdef _MSC_VER   /* Visual */
-#  pragma warning(disable : 4127)  /* disable: C4127: conditional expression is constant */
-#  pragma warning(disable : 4204)  /* non-constant aggregate initializer */
+#pragma warning(disable : 4127)  /* disable: C4127: conditional expression is constant */
+#pragma warning(disable : 4204)  /* non-constant aggregate initializer */
 #endif
 #if defined(__MINGW32__) && !defined(_POSIX_SOURCE)
 #define _POSIX_SOURCE 1          /* disable %llu warnings with MinGW on Windows */
@@ -73,11 +72,11 @@ char const* FIO_lz4Version(void)
 {
 #if defined(ZSTD_LZ4COMPRESS) || defined(ZSTD_LZ4DECOMPRESS)
 	/* LZ4_versionString() added in v1.7.3 */
-#   if LZ4_VERSION_NUMBER >= 10703
-	return LZ4_versionString();
-#   else
-#       define ZSTD_LZ4_VERSION LZ4_VERSION_MAJOR.LZ4_VERSION_MINOR.LZ4_VERSION_RELEASE
-#       define ZSTD_LZ4_VERSION_STRING ZSTD_EXPAND_AND_QUOTE(ZSTD_LZ4_VERSION)
+#if LZ4_VERSION_NUMBER >= 10703
+		return LZ4_versionString();
+#else
+#define ZSTD_LZ4_VERSION LZ4_VERSION_MAJOR.LZ4_VERSION_MINOR.LZ4_VERSION_RELEASE
+#define ZSTD_LZ4_VERSION_STRING ZSTD_EXPAND_AND_QUOTE(ZSTD_LZ4_VERSION)
 	return ZSTD_LZ4_VERSION_STRING;
 #   endif
 #else
@@ -133,9 +132,8 @@ static void addHandler(char const* dstFileName)
 		g_artefact = dstFileName;
 		signal(SIGINT, INThandler);
 	}
-	else {
+	else
 		g_artefact = NULL;
-	}
 }
 
 /* Idempotent */

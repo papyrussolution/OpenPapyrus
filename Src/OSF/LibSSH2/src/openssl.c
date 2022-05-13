@@ -512,7 +512,7 @@ int _libssh2_sha1(const uchar * message, ulong len, uchar * out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 1; /* error */
 	if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha1"))) {
 		EVP_DigestUpdate(ctx, message, len);
@@ -554,7 +554,7 @@ int _libssh2_sha256(const uchar * message, ulong len, uchar * out)
 {
 #ifdef HAVE_OPAQUE_STRUCTS
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 1; /* error */
 	if(EVP_DigestInit(ctx, EVP_get_digestbyname("sha256"))) {
 		EVP_DigestUpdate(ctx, message, len);
@@ -625,7 +625,7 @@ static uchar * gen_publickey_from_rsa(LIBSSH2_SESSION * session, RSA * rsa, size
 	/* Key form is "ssh-rsa" + e + n. */
 	len = 4 + 7 + 4 + e_bytes + 4 + n_bytes;
 	key = (uchar *)LIBSSH2_ALLOC(session, len);
-	if(key == NULL) {
+	if(!key) {
 		return NULL;
 	}
 	/* Process key encoding. */
@@ -673,7 +673,7 @@ static uchar * gen_publickey_from_dsa(LIBSSH2_SESSION* session, DSA * dsa, size_
 	len = 4 + 7 + 4 + p_bytes + 4 + q_bytes + 4 + g_bytes + 4 + k_bytes;
 
 	key = (uchar *)LIBSSH2_ALLOC(session, len);
-	if(key == NULL) {
+	if(!key) {
 		return NULL;
 	}
 
@@ -712,7 +712,7 @@ static int gen_publickey_from_rsa_evp(LIBSSH2_SESSION * session, uchar ** method
 		goto __alloc_error;
 	}
 	key = gen_publickey_from_rsa(session, rsa, &key_len);
-	if(key == NULL) {
+	if(!key) {
 		goto __alloc_error;
 	}
 	RSA_free(rsa);
@@ -748,7 +748,7 @@ static int gen_publickey_from_dsa_evp(LIBSSH2_SESSION * session, uchar ** method
 		goto __alloc_error;
 	}
 	key = gen_publickey_from_dsa(session, dsa, &key_len);
-	if(key == NULL) {
+	if(!key) {
 		goto __alloc_error;
 	}
 	DSA_free(dsa);

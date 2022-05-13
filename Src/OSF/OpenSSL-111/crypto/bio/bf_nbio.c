@@ -66,7 +66,7 @@ static int nbiof_new(BIO * bi)
 
 static int nbiof_free(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 	OPENSSL_free(a->ptr);
 	a->ptr = NULL;

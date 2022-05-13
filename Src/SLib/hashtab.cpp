@@ -1926,7 +1926,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 	uint32 hashv = 0xfeedbeef;
 	uint32 _hj_i, _hj_j;
 	char * _hj_key = (char *)pKey;
-	_hj_i = _hj_j = 0x9e3779b9;
+	_hj_i = _hj_j = _SlConst.GoldenRatioInt32/*0x9e3779b9*/;
 	size_t _hj_k = keyLen;
 	for(; _hj_k >= 12; _hj_k -= 12) {
 		_hj_i += (_hj_key[0] + ((uint)_hj_key[1] << 8) + ((uint)_hj_key[2]  << 16) + ((uint)_hj_key[3]  << 24));
@@ -1960,7 +1960,7 @@ uint32 HashJen(const void * pKey, size_t keyLen, uint numBkts, uint * pBkt)
 		unsigned _hj_i, _hj_j, _hj_k;							 \
 		char * _hj_key = (char *)(key);							  \
 		hashv = 0xfeedbeef;							       \
-		_hj_i = _hj_j = 0x9e3779b9;						       \
+		_hj_i = _hj_j = _SlConst.GoldenRatioInt32/*0x9e3779b9*/; \
 		_hj_k = (uint)keylen;								 \
 		while(_hj_k >= 12) {							      \
 			_hj_i += (_hj_key[0] + ((uint)_hj_key[1] << 8) + ((uint)_hj_key[2]  << 16) + ((uint)_hj_key[3]  << 24)); \

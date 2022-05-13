@@ -3833,7 +3833,7 @@ IMPL_HANDLE_EVENT(BillItemBrowser)
 						if(!EventBarrier()) {
 							int    r = P_Pack->InsertPartitialStruc();
 							if(r >= 0) {
-								if(r == 0)
+								if(!r)
 									PPError();
 								State |= stIsModified;
 								update(pos_bottom);
@@ -4560,7 +4560,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 			BillTbl::Rec bill_rec;
 			if(P_BObj->Search(bill_id, &bill_rec) > 0) {
 				int    r = P_BObj->Edit(&bill_id, 0);
-				if(r == 0)
+				if(!r)
 					PPError();
 				else if(r == cmOK)
 					update(-1);
@@ -4584,7 +4584,7 @@ IMPL_HANDLE_EVENT(CompleteBrowser)
 					if(r == cmOK) {
 						update(-1);
 					}
-					else if(r == 0)
+					else if(!r)
 						PPError();
 					//if(P_Pack->BoundsByLot(Item.LotID, &Item, ItemNo, &Rest, 0));
 				}

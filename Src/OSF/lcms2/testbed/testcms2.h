@@ -13,17 +13,6 @@
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
 //
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-// NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-// LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-// OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-// WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
-//---------------------------------------------------------------------------------
-//
-
 #ifndef TESTCMS2_H
 #define TESTCMS2_H
 
@@ -49,35 +38,35 @@ boolint IsGoodFixed8_8(const char * title, double in, double out);
 boolint STDCALL IsGoodWord(const char * title, uint16 in, uint16 out);
 boolint STDCALL IsGoodWordPrec(const char * title, uint16 in, uint16 out, uint16 maxErr);
 
-void* PluginMemHandler(void);
-cmsContext WatchDogContext(void* usr);
+void * PluginMemHandler();
+cmsContext WatchDogContext(FILE * fOut, void * usr);
 
-void ResetFatalError(void);
-void Die(const char* Reason, ...);
-void Dot(void);
+void ResetFatalError();
+void Die(FILE * fOut, const char * Reason, ...);
+void Dot(FILE * fOut);
 void Fail(const char* frm, ...);
-void SubTest(const char* frm, ...);
-void TestMemoryLeaks(boolint ok);
-void Say(const char* str);
+void SubTest(FILE * fOut, const char* frm, ...);
+void TestMemoryLeaks(FILE * fOut, boolint ok);
+void Say(FILE * fOut, const char* str);
 
 // Plug-in tests
-int32 CheckSimpleContext(void);
-int32 CheckAllocContext(void);
-int32 CheckAlarmColorsContext(void);
-int32 CheckAdaptationStateContext(void);
-int32 CheckInterp1DPlugin(void);
-int32 CheckInterp3DPlugin(void);
-int32 CheckParametricCurvePlugin(void);
-int32 CheckFormattersPlugin(void);
-int32 CheckTagTypePlugin(void);
-int32 CheckMPEPlugin(void);
-int32 CheckOptimizationPlugin(void);
-int32 CheckIntentPlugin(void);
-int32 CheckTransformPlugin(void);
-int32 CheckMutexPlugin(void);
-int32 CheckMethodPackDoublesFromFloat(void);
+int32 CheckSimpleContext(FILE * fOut);
+int32 CheckAllocContext();
+int32 CheckAlarmColorsContext(FILE * fOut);
+int32 CheckAdaptationStateContext(FILE * fOut);
+int32 CheckInterp1DPlugin(FILE * fOut);
+int32 CheckInterp3DPlugin(FILE * fOut);
+int32 CheckParametricCurvePlugin(FILE * fOut);
+int32 CheckFormattersPlugin(FILE * fOut);
+int32 CheckTagTypePlugin(FILE * fOut);
+int32 CheckMPEPlugin(FILE * fOut);
+int32 CheckOptimizationPlugin(FILE * fOut);
+int32 CheckIntentPlugin(FILE * fOut);
+int32 CheckTransformPlugin(FILE * fOut);
+int32 CheckMutexPlugin(FILE * fOut);
+int32 CheckMethodPackDoublesFromFloat(FILE * fOut);
 
 // Zoo
-void CheckProfileZOO(void);
+void CheckProfileZOO(FILE * fOut);
 
 #endif

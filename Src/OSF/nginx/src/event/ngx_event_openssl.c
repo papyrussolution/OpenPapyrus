@@ -487,7 +487,7 @@ ngx_int_t ngx_ssl_client_certificate(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t
 	 */
 	ERR_clear_error();
 	list = SSL_load_client_CA_file((char *)cert->data);
-	if(list == NULL) {
+	if(!list) {
 		ngx_ssl_error(NGX_LOG_EMERG, ssl->log, 0, "SSL_load_client_CA_file(\"%s\") failed", cert->data);
 		return NGX_ERROR;
 	}
@@ -619,7 +619,7 @@ RSA * ngx_ssl_rsa512_key_callback(ngx_ssl_conn_t * ssl_conn, int is_export, int 
 		return NULL;
 	}
 #if (OPENSSL_VERSION_NUMBER < 0x10100003L && !defined OPENSSL_NO_DEPRECATED)
-	if(key == NULL) {
+	if(!key) {
 		key = RSA_generate_key(512, RSA_F4, NULL, NULL);
 	}
 #endif
@@ -839,7 +839,7 @@ ngx_int_t ngx_ssl_ecdh_curve(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_str_t * name)
 ngx_int_t ngx_ssl_create_connection(ngx_ssl_t * ssl, ngx_connection_t * c, ngx_uint_t flags)
 {
 	ngx_ssl_connection_t  * sc = (ngx_ssl_connection_t *)ngx_pcalloc(c->pool, sizeof(ngx_ssl_connection_t));
-	if(sc == NULL) {
+	if(!sc) {
 		return NGX_ERROR;
 	}
 	sc->buffer = ((flags & NGX_SSL_BUFFER) != 0);
@@ -2040,7 +2040,7 @@ ngx_int_t ngx_ssl_session_ticket_keys(ngx_conf_t * cf, ngx_ssl_t * ssl, ngx_arra
 			goto failed;
 		}
 		key = static_cast<ngx_ssl_session_ticket_key_t *>(ngx_array_push(keys));
-		if(key == NULL) {
+		if(!key) {
 			goto failed;
 		}
 		if(size == 48) {

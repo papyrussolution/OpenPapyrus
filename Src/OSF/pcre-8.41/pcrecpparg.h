@@ -33,7 +33,7 @@ template <class T> class _RE_MatchObject {
 public:
 	static inline bool Parse(const char * str, int n, void * dest) 
 	{
-		if(dest == NULL) return true;
+		if(!dest) return true;
 		T* object = reinterpret_cast<T*>(dest);
 		return object->ParseFrom(str, n);
 	}

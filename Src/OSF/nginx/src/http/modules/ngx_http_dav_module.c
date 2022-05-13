@@ -363,7 +363,7 @@ static ngx_int_t ngx_http_dav_copy_move_handler(ngx_http_request_t * r)
 		return NGX_HTTP_UNSUPPORTED_MEDIA_TYPE;
 	}
 	dest = r->headers_in.destination;
-	if(dest == NULL) {
+	if(!dest) {
 		ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "client sent no \"Destination\" header");
 		return NGX_HTTP_BAD_REQUEST;
 	}

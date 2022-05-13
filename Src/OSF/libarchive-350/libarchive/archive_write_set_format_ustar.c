@@ -319,7 +319,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512], s
 	 * I use memcpy(dest, src, strlen()) here a lot to copy strings.
 	 */
 	r = archive_entry_pathname_l(entry, &pp, &copy_length, sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
@@ -367,7 +367,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512], s
 		}
 	}
 	r = archive_entry_hardlink_l(entry, &p, &copy_length, sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			return ARCHIVE_FATAL;
@@ -379,7 +379,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512], s
 		mytartype = '1';
 	else {
 		r = archive_entry_symlink_l(entry, &p, &copy_length, sconv);
-		if(r != 0) {
+		if(r) {
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 				return ARCHIVE_FATAL;
@@ -397,7 +397,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512], s
 		memcpy(h + USTAR_linkname_offset, p, copy_length);
 	}
 	r = archive_entry_uname_l(entry, &p, &copy_length, sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			return ARCHIVE_FATAL;
@@ -416,7 +416,7 @@ int __archive_write_format_header_ustar(struct archive_write * a, char h[512], s
 		memcpy(h + USTAR_uname_offset, p, copy_length);
 	}
 	r = archive_entry_gname_l(entry, &p, &copy_length, sconv);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			return ARCHIVE_FATAL;

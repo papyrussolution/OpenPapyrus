@@ -31,7 +31,7 @@ X509_LOOKUP * X509_LOOKUP_new(X509_LOOKUP_METHOD * method)
 
 void X509_LOOKUP_free(X509_LOOKUP * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 	if((ctx->method != NULL) && (ctx->method->free != NULL))
 		(*ctx->method->free)(ctx);
@@ -424,7 +424,7 @@ X509_OBJECT * X509_OBJECT_new(void)
 
 static void x509_object_free_internal(X509_OBJECT * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	switch(a->type) {
 		case X509_LU_NONE:

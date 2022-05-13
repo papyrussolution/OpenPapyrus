@@ -205,7 +205,7 @@ static gtoken_t lexer_scan_comment(gravity_lexer_t * lexer)
 				--count; 
 				NEXT; 
 				INC_TOKLEN; 
-				if(count == 0) 
+				if(!count) 
 					break;
 			}
 			if(is_newline(lexer, c)) {

@@ -4015,7 +4015,7 @@ static int tcp_disconnect(struct soap * soap)
 		}
 		r = SSL_shutdown(soap->ssl);
 		/* SSL shutdown does not work when reads are pending, non-blocking */
-		if(r == 0) {
+		if(!r) {
 			while(SSL_want_read(soap->ssl)) {
 				if(SSL_read(soap->ssl, NULL, 0) || soap_socket_errno(soap->socket) != SOAP_EAGAIN) {
 					r = SSL_shutdown(soap->ssl);
@@ -4023,7 +4023,7 @@ static int tcp_disconnect(struct soap * soap)
 				}
 			}
 		}
-		if(r == 0) {
+		if(!r) {
 			if(soap_valid_socket(soap->socket)) {
 				if(!soap->fshutdownsocket(soap, soap->socket, SOAP_SHUT_WR)) {
    #if !defined(WITH_LEAN) && !defined(WIN32)

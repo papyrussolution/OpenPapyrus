@@ -761,15 +761,13 @@ static cmsToneCurve * ExtractGray2Y(cmsContext ContextID, cmsHPROFILE hProfile, 
 		for(i = 0; i < 256; i++) {
 			uint8 Gray = (uint8)i;
 			cmsCIEXYZ XYZ;
-
 			cmsDoTransform(xform, &Gray, &XYZ, 1);
-
 			Out->Table16[i] = _cmsQuickSaturateWord(XYZ.Y * 65535.0);
 		}
 	}
-
-	if(xform) cmsDeleteTransform(xform);
-	if(hXYZ) cmsCloseProfile(hXYZ);
+	if(xform) 
+		cmsDeleteTransform(xform);
+	cmsCloseProfile(hXYZ);
 	return Out;
 }
 
@@ -948,11 +946,9 @@ static uint32 GenerateCSA(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Int
 			cmsSignalError(ContextID, cmsERROR_COLORSPACE_CHECK, "Invalid output color space");
 			goto Error;
 		}
-
 		// Read the lut with all necessary conversion stages
 		lut = _cmsReadInputLUT(hProfile, Intent);
 		if(lut == NULL) goto Error;
-
 		// Tone curves + matrix can be implemented without any LUT
 		if(cmsPipelineCheckAndRetreiveStages(lut, 2, cmsSigCurveSetElemType, cmsSigMatrixElemType, &Shaper, &Matrix)) {
 			if(!WriteInputMatrixShaper(mem, hProfile, Matrix, Shaper)) goto Error;
@@ -962,18 +958,14 @@ static uint32 GenerateCSA(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Int
 			if(!WriteInputLUT(mem, hProfile, Intent, dwFlags)) goto Error;
 		}
 	}
-
 	// Done, keep memory usage
 	dwBytesUsed = mem->UsedSpace;
-
 	// Get rid of LUT
-	if(lut != NULL) cmsPipelineFree(lut);
-
+	cmsPipelineFree(lut);
 	// Finally, return used byte count
 	return dwBytesUsed;
-
 Error:
-	if(lut != NULL) cmsPipelineFree(lut);
+	cmsPipelineFree(lut);
 	return 0;
 }
 
@@ -1247,49 +1239,37 @@ static void BuildColorantList(char * Colorant, uint32 nColorant, uint16 Out[])
 
 static int WriteNamedColorCRD(cmsIOHANDLER* m, cmsHPROFILE hNamedColor, uint32 Intent, uint32 dwFlags)
 {
-	cmsHTRANSFORM xform;
-	uint32 i, nColors, nColorant;
-	uint32 OutputFormat;
+	uint32 i, nColors;
 	char ColorName[cmsMAX_PATH];
 	char Colorant[512];
 	cmsNAMEDCOLORLIST* NamedColorList;
-
-	OutputFormat = cmsFormatterForColorspaceOfProfile(hNamedColor, 2, FALSE);
-	nColorant    = T_CHANNELS(OutputFormat);
-
-	xform = cmsCreateTransform(hNamedColor, TYPE_NAMED_COLOR_INDEX, NULL, OutputFormat, Intent, dwFlags);
-	if(xform == NULL) return 0;
-
+	uint32 OutputFormat = cmsFormatterForColorspaceOfProfile(hNamedColor, 2, FALSE);
+	uint32 nColorant    = T_CHANNELS(OutputFormat);
+	cmsHTRANSFORM xform = cmsCreateTransform(hNamedColor, TYPE_NAMED_COLOR_INDEX, NULL, OutputFormat, Intent, dwFlags);
+	if(xform == NULL) 
+		return 0;
 	NamedColorList = cmsGetNamedColorList(xform);
-	if(NamedColorList == NULL) return 0;
-
+	if(NamedColorList == NULL) 
+		return 0;
 	_cmsIOPrintf(m, "<<\n");
 	_cmsIOPrintf(m, "(colorlistcomment) (%s) \n", "Named profile");
 	_cmsIOPrintf(m, "(Prefix) [ (Pantone ) (PANTONE ) ]\n");
 	_cmsIOPrintf(m, "(Suffix) [ ( CV) ( CVC) ( C) ]\n");
-
 	nColors   = cmsNamedColorCount(NamedColorList);
-
 	for(i = 0; i < nColors; i++) {
 		uint16 In[1];
 		uint16 Out[cmsMAXCHANNELS];
-
 		In[0] = (uint16)i;
-
 		if(!cmsNamedColorInfo(NamedColorList, i, ColorName, NULL, NULL, NULL, NULL))
 			continue;
-
 		cmsDoTransform(xform, In, Out, 1);
 		BuildColorantList(Colorant, nColorant, Out);
 		_cmsIOPrintf(m, "  (%s) [ %s ]\n", ColorName, Colorant);
 	}
-
 	_cmsIOPrintf(m, "   >>");
-
 	if(!(dwFlags & cmsFLAGS_NODEFAULTRESOURCEDEF)) {
 		_cmsIOPrintf(m, " /Current exch /HPSpotTable defineresource pop\n");
 	}
-
 	cmsDeleteTransform(xform);
 	return 1;
 }

@@ -347,7 +347,7 @@ int TcpSocket::Select(int mode /* TcpSocket::mXXX */, int timeout, size_t * pAva
 			p_tval = &tval;
 		}
 		int    r = ::select(S+1/* ignored */, p_rset, p_wset, &eset, p_tval);
-		if(r == 0)
+		if(!r)
 			ok = (SLibError = SLERR_SOCK_TIMEOUT, 0);
 		else if(r == SOCKET_ERROR)
 			ok = SLS.SetError(SLERR_SOCK_WINSOCK);

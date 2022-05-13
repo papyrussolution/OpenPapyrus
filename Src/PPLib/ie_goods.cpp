@@ -2438,7 +2438,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 										logger.Log(msg_buf);
 										if(Param.Flags & PPGoodsImpExpParam::fUHTT) {
 											temp_buf2.CopyTo(barcode, sizeof(barcode));
-											if(r == 0)
+											if(!r)
 												continue;
 										}
 									}
@@ -2454,7 +2454,7 @@ int PPGoodsImporter::Run(const char * pCfgName, int use_ta)
 											Cat(temp_buf2).Semicol().Cat(sdr_rec.AddedCode).Semicol().Cat(err_msg_buf/*.ToOem()*/).CR();
 										logger.Log(msg_buf);
 										if(Param.Flags & PPGoodsImpExpParam::fUHTT)
-											if(r != 0)
+											if(r)
 												temp_buf2.CopyTo(sdr_rec.AddedCode, sizeof(sdr_rec.AddedCode));
 											else
 												sdr_rec.AddedCode[0] = 0;

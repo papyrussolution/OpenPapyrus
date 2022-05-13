@@ -2929,7 +2929,7 @@ void GnuPlot::Plot3DZErrorFill(GpTermEntry * pTerm, GpSurfacePoints * pPlot)
 			i1 = i2;
 		}
 	}
-	if(count == 0)
+	if(!count)
 		IntError(NO_CARET, "all points out of range");
 	// Default is to write out each zerror plot as we come to it     
 	// (most recent plot occludes all previous plots). To get proper 

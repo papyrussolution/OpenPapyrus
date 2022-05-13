@@ -342,7 +342,7 @@ static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax 
 			/* Convert narrow-character to UTF-8. */
 			r = archive_strcpy_l(&(pax->l_url_encoded_name), url_encoded_name, pax->sconv_utf8);
 			SAlloc::F(url_encoded_name); /* Done with this. */
-			if(r == 0)
+			if(!r)
 				encoded_name = pax->l_url_encoded_name.s;
 			else if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
@@ -357,7 +357,7 @@ static int archive_write_pax_header_xattrs(struct archive_write * a, struct pax 
 static int get_entry_hardlink(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_hardlink_l(entry, name, length, sc);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			return ARCHIVE_FATAL;
@@ -370,7 +370,7 @@ static int get_entry_hardlink(struct archive_write * a, struct archive_entry * e
 static int get_entry_pathname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_pathname_l(entry, name, length, sc);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Pathname");
 			return ARCHIVE_FATAL;
@@ -383,7 +383,7 @@ static int get_entry_pathname(struct archive_write * a, struct archive_entry * e
 static int get_entry_uname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_uname_l(entry, name, length, sc);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Uname");
 			return ARCHIVE_FATAL;
@@ -396,7 +396,7 @@ static int get_entry_uname(struct archive_write * a, struct archive_entry * entr
 static int get_entry_gname(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_gname_l(entry, name, length, sc);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Gname");
 			return ARCHIVE_FATAL;
@@ -409,7 +409,7 @@ static int get_entry_gname(struct archive_write * a, struct archive_entry * entr
 static int get_entry_symlink(struct archive_write * a, struct archive_entry * entry, const char ** name, size_t * length, struct archive_string_conv * sc)
 {
 	int r = archive_entry_symlink_l(entry, name, length, sc);
-	if(r != 0) {
+	if(r) {
 		if(errno == ENOMEM) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate memory for Linkname");
 			return ARCHIVE_FATAL;
@@ -900,7 +900,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 		add_pax_attr_int(&(pax->pax_header), "uid", archive_entry_uid(entry_main));
 		need_extension = 1;
 	}
-
 	/* Add 'uname' to pax extended attrs if necessary. */
 	if(uname != NULL) {
 		if(uname_length > 31 || has_non_ASCII(uname)) {
@@ -908,7 +907,6 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 			need_extension = 1;
 		}
 	}
-
 	/*
 	 * POSIX/SUSv3 doesn't provide a standard key for large device
 	 * numbers.  I use the same keys here that Joerg Schilling
@@ -920,8 +918,7 @@ static int archive_write_pax_header(struct archive_write * a, struct archive_ent
 	 *
 	 * Of course, this is only needed for block or char device entries.
 	 */
-	if(archive_entry_filetype(entry_main) == AE_IFBLK
-	   || archive_entry_filetype(entry_main) == AE_IFCHR) {
+	if(archive_entry_filetype(entry_main) == AE_IFBLK || archive_entry_filetype(entry_main) == AE_IFCHR) {
 		/*
 		 * If rdevmajor is too large, add 'SCHILY.devmajor' to
 		 * extended attributes.

@@ -40,9 +40,9 @@ typedef long long int xtime_t;
 #else
 typedef long int xtime_t;
 #if LONG_MAX >> 31 >> 31 == 0
-#  define XTIME_PRECISION 1
+#define XTIME_PRECISION 1
 #else
-#  define XTIME_PRECISION 1000000000
+#define XTIME_PRECISION 1000000000
 #endif
 #endif
 

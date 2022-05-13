@@ -153,7 +153,7 @@ int ssh_dh_keypair_set_keys(struct dh_ctx * ctx, int peer, bignum priv, bignum p
 int ssh_dh_get_parameters(struct dh_ctx * ctx,
     const_bignum * modulus, const_bignum * generator)
 {
-	if(ctx == NULL) {
+	if(!ctx) {
 		return SSH_ERROR;
 	}
 	if(modulus) {
@@ -206,7 +206,7 @@ int ssh_dh_init_common(struct ssh_crypto_struct * crypto)
 {
 	int rc;
 	struct dh_ctx * ctx = (struct dh_ctx *)SAlloc::C(1, sizeof(*ctx));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return SSH_ERROR;
 	}
 	switch(crypto->kex_type) {

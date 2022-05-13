@@ -42,9 +42,8 @@ typedef enum {
  * @return : decompressed block size,
  *           or an error code (which can be tested using ZSTD_isError())
  */
-size_t ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx,
-    void* dst, size_t dstCapacity,
-    const void* src, size_t srcSize, const int frame, const streaming_operation streaming);
+size_t ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx, void* dst, size_t dstCapacity,
+    const void * src, size_t srcSize, const int frame, const streaming_operation streaming);
 
 /* ZSTD_buildFSETable() :
  * generate FSE decoding table for one symbol (ll, ml or off)
@@ -55,10 +54,7 @@ size_t ZSTD_decompressBlock_internal(ZSTD_DCtx* dctx,
  * defined in zstd_decompress_internal.h.
  * Internal use only.
  */
-void ZSTD_buildFSETable(ZSTD_seqSymbol* dt,
-    const short* normalizedCounter, unsigned maxSymbolValue,
-    const uint32* baseValue, const U8* nbAdditionalBits,
-    unsigned tableLog, void* wksp, size_t wkspSize,
-    int bmi2);
+void ZSTD_buildFSETable(ZSTD_seqSymbol* dt, const short * normalizedCounter, uint maxSymbolValue,
+    const uint32 * baseValue, const uint8 * nbAdditionalBits, uint tableLog, void * wksp, size_t wkspSize, int bmi2);
 
 #endif /* ZSTD_DEC_BLOCK_H */

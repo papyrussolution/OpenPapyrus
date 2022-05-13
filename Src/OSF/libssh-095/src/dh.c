@@ -339,7 +339,7 @@ SSH_PACKET_CALLBACK(ssh_packet_client_dh_reply){
 	}
 	rc = ssh_dh_import_next_pubkey_blob(session, pubkey_blob);
 	SSH_STRING_FREE(pubkey_blob);
-	if(rc != 0) {
+	if(rc) {
 		goto error;
 	}
 

@@ -91,7 +91,7 @@ void Ppmd8_Free(CPpmd8 * p)
 	}
 }
 
-Bool Ppmd8_Alloc(CPpmd8 * p, UInt32 size)
+boolint Ppmd8_Alloc(CPpmd8 * p, UInt32 size)
 {
 	if(p->Base == 0 || p->Size != size) {
 		Ppmd8_Free(p);
@@ -102,10 +102,10 @@ Bool Ppmd8_Alloc(CPpmd8 * p, UInt32 size)
 		    4 - (size & 3);
       #endif
 		if((p->Base = (Byte*)SAlloc::M(p->AlignOffset + size)) == 0)
-			return False;
+			return false;
 		p->Size = size;
 	}
-	return True;
+	return true;
 }
 
 static void InsertNode(CPpmd8 * p, void * node, unsigned indx)
@@ -563,7 +563,7 @@ static void RestoreModel(CPpmd8 * p, CTX_PTR c1
 	}
 }
 
-static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR c)
+static CTX_PTR CreateSuccessors(CPpmd8 * p, boolint skip, CPpmd_State * s1, CTX_PTR c)
 {
 	CPpmd_State upState;
 	Byte flags;
@@ -571,10 +571,8 @@ static CTX_PTR CreateSuccessors(CPpmd8 * p, Bool skip, CPpmd_State * s1, CTX_PTR
 	/* fixed over Shkarin's code. Maybe it could work without + 1 too. */
 	CPpmd_State * ps[PPMD8_MAX_ORDER + 1];
 	unsigned numPs = 0;
-
 	if(!skip)
 		ps[numPs++] = p->FoundState;
-
 	while(c->Suffix) {
 		CPpmd_Void_Ref successor;
 		CPpmd_State * s;
@@ -719,15 +717,13 @@ static CTX_PTR ReduceOrder(CPpmd8 * p, CPpmd_State * s1, CTX_PTR c)
 		CTX_PTR successor;
 		CPpmd_State * s2 = p->FoundState;
 		p->FoundState = s;
-
-		successor = CreateSuccessors(p, False, NULL, c);
+		successor = CreateSuccessors(p, false, NULL, c);
 		if(successor == NULL)
 			SetSuccessor(s, 0);
 		else
 			SetSuccessor(s, REF(successor));
 		p->FoundState = s2;
 	}
-
 	if(p->OrderFall == 1 && c1 == p->MaxContext) {
 		SetSuccessor(p->FoundState, SUCCESSOR(s));
 		p->Text--;
@@ -770,10 +766,9 @@ static void UpdateModel(CPpmd8 * p)
 			}
 		}
 	}
-
 	c = p->MaxContext;
 	if(p->OrderFall == 0 && fSuccessor) {
-		CTX_PTR cs = CreateSuccessors(p, True, s, p->MinContext);
+		CTX_PTR cs = CreateSuccessors(p, true, s, p->MinContext);
 		if(cs == 0) {
 			SetSuccessor(p->FoundState, 0);
 			RESTORE_MODEL(c, CTX(fSuccessor));
@@ -784,14 +779,12 @@ static void UpdateModel(CPpmd8 * p)
 		}
 		return;
 	}
-
 	*p->Text++ = p->FoundState->Symbol;
 	successor = REF(p->Text);
 	if(p->Text >= p->UnitsStart) {
 		RESTORE_MODEL(c, CTX(fSuccessor)); /* check it */
 		return;
 	}
-
 	if(!fSuccessor) {
 		CTX_PTR cs = ReduceOrder(p, s, p->MinContext);
 		if(cs == NULL) {
@@ -801,14 +794,13 @@ static void UpdateModel(CPpmd8 * p)
 		fSuccessor = REF(cs);
 	}
 	else if((Byte*)Ppmd8_GetPtr(p, fSuccessor) < p->UnitsStart) {
-		CTX_PTR cs = CreateSuccessors(p, False, s, p->MinContext);
+		CTX_PTR cs = CreateSuccessors(p, false, s, p->MinContext);
 		if(cs == NULL) {
 			RESTORE_MODEL(c, 0);
 			return;
 		}
 		fSuccessor = REF(cs);
 	}
-
 	if(--p->OrderFall == 0) {
 		successor = fSuccessor;
 		p->Text -= (p->MaxContext != p->MinContext);
@@ -1035,7 +1027,7 @@ void Ppmd8_Update2(CPpmd8 * p)
    PPMd var.I (2002): Dmitry Shkarin : Public domain
    Carryless rangecoder (1999): Dmitry Subbotin : Public domain */
 
-Bool Ppmd8_RangeDec_Init(CPpmd8 * p)
+boolint Ppmd8_RangeDec_Init(CPpmd8 * p)
 {
 	uint i;
 	p->Low = 0;

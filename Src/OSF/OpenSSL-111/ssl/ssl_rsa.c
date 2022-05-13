@@ -657,7 +657,7 @@ static int use_certificate_chain_file(SSL_CTX * ctx, SSL * ssl, const char * fil
 		else
 			r = SSL_clear_chain_certs(ssl);
 
-		if(r == 0) {
+		if(!r) {
 			ret = 0;
 			goto end;
 		}
@@ -831,7 +831,7 @@ static int serverinfo_process_buffer(uint version,
 		   || !PACKET_get_length_prefixed_2(&pkt, &data))
 			return 0;
 
-		if(ctx == NULL)
+		if(!ctx)
 			continue;
 
 		/*

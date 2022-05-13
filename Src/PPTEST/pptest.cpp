@@ -1426,7 +1426,7 @@ extern int OnigTestC_Windows_main(FILE * fOut);
 	return BIN(path.NotEmpty());
 }*/
 
-int Test_LCMS2(int argc, const char * argv[]); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
+//int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
 int DoTest_PThr4w();
 
 static void Test_LibPhoneNumber()
@@ -1489,10 +1489,12 @@ int DoConstructionTest()
 		SDelay(1);
 	}*/
 	{ // @v10.9.7 Экпериментальное внедрение тестирования библиотеки lcms2
-#if _MSC_VER >= 1910
-		const char * test_lcms_argv[] = { "Test_LCMS2" };
-		Test_LCMS2(1, test_lcms_argv);
-#endif
+//#if _MSC_VER >= 1910
+		//SString out_file_name;
+		//SString testbed_path("/Papyrus/Src/OSF/lcms2/testbed");
+		//PPGetFilePath(PPPATH_OUT, "lcms2-test.out", out_file_name);
+		//Test_LCMS2(testbed_path, out_file_name, true);
+//#endif
 	}
 	//ImportYYE("/DEV/Resource/Data/yeda");
 	//TestGtinStruc();

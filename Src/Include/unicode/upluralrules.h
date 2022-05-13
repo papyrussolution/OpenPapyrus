@@ -1,12 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
-*****************************************************************************************
-* Copyright (C) 2010-2013, International Business Machines
-* Corporation and others. All Rights Reserved.
-*****************************************************************************************
-*/
-
+// Copyright (C) 2010-2013, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef UPLURALRULES_H
 #define UPLURALRULES_H
 
@@ -17,11 +12,10 @@
 #include "unicode/uenum.h"
 
 #if U_SHOW_CPLUSPLUS_API
-#include "unicode/localpointer.h"
+	#include "unicode/localpointer.h"
 #endif   // U_SHOW_CPLUSPLUS_API
-
 #ifndef U_HIDE_INTERNAL_API
-#include "unicode/unum.h"
+	#include "unicode/unum.h"
 #endif  /* U_HIDE_INTERNAL_API */
 
 // Forward-declaration
@@ -50,40 +44,40 @@ struct UFormattedNumberRange;
  * predefined rules, see the CLDR page at
  * http://unicode.org/repos/cldr-tmp/trunk/diff/supplemental/language_plural_rules.html
  */
-
 /**
  * Type of plurals and PluralRules.
  * @stable ICU 50
  */
 enum UPluralType {
-    /**
-     * Plural rules for cardinal numbers: 1 file vs. 2 files.
-     * @stable ICU 50
-     */
-    UPLURAL_TYPE_CARDINAL,
-    /**
-     * Plural rules for ordinal numbers: 1st file, 2nd file, 3rd file, 4th file, etc.
-     * @stable ICU 50
-     */
-    UPLURAL_TYPE_ORDINAL,
+	/**
+	 * Plural rules for cardinal numbers: 1 file vs. 2 files.
+	 * @stable ICU 50
+	 */
+	UPLURAL_TYPE_CARDINAL,
+	/**
+	 * Plural rules for ordinal numbers: 1st file, 2nd file, 3rd file, 4th file, etc.
+	 * @stable ICU 50
+	 */
+	UPLURAL_TYPE_ORDINAL,
 #ifndef U_HIDE_DEPRECATED_API
-    /**
-     * One more than the highest normal UPluralType value.
-     * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
-     */
-    UPLURAL_TYPE_COUNT
+	/**
+	 * One more than the highest normal UPluralType value.
+	 * @deprecated ICU 58 The numeric value may change over time, see ICU ticket #12420.
+	 */
+	UPLURAL_TYPE_COUNT
 #endif  /* U_HIDE_DEPRECATED_API */
 };
+
 /**
  * @stable ICU 50
  */
 typedef enum UPluralType UPluralType;
-
 /**
  * Opaque UPluralRules object for use in C programs.
  * @stable ICU 4.8
  */
 struct UPluralRules;
+
 typedef struct UPluralRules UPluralRules;  /**< C typedef for struct UPluralRules. @stable ICU 4.8 */
 
 /**
@@ -95,8 +89,7 @@ typedef struct UPluralRules UPluralRules;  /**< C typedef for struct UPluralRule
  * @return A UPluralRules for the specified locale, or NULL if an error occurred.
  * @stable ICU 4.8
  */
-U_CAPI UPluralRules* U_EXPORT2
-uplrules_open(const char *locale, UErrorCode *status);
+U_CAPI UPluralRules* U_EXPORT2 uplrules_open(const char * locale, UErrorCode * status);
 
 /**
  * Opens a new UPluralRules object using the predefined plural rules for a
@@ -107,17 +100,14 @@ uplrules_open(const char *locale, UErrorCode *status);
  * @return A UPluralRules for the specified locale, or NULL if an error occurred.
  * @stable ICU 50
  */
-U_CAPI UPluralRules* U_EXPORT2
-uplrules_openForType(const char *locale, UPluralType type, UErrorCode *status);
+U_CAPI UPluralRules* U_EXPORT2 uplrules_openForType(const char * locale, UPluralType type, UErrorCode * status);
 
 /**
  * Closes a UPluralRules object. Once closed it may no longer be used.
  * @param uplrules The UPluralRules object to close.
  * @stable ICU 4.8
  */
-U_CAPI void U_EXPORT2
-uplrules_close(UPluralRules *uplrules);
-
+U_CAPI void U_EXPORT2 uplrules_close(UPluralRules * uplrules);
 
 #if U_SHOW_CPLUSPLUS_API
 
@@ -132,12 +122,11 @@ U_NAMESPACE_BEGIN
  * @see LocalPointer
  * @stable ICU 4.8
  */
-U_DEFINE_LOCAL_OPEN_POINTER(LocalUPluralRulesPointer, UPluralRules, uplrules_close);
+    U_DEFINE_LOCAL_OPEN_POINTER(LocalUPluralRulesPointer, UPluralRules, uplrules_close);
 
 U_NAMESPACE_END
 
 #endif
-
 
 /**
  * Given a floating-point number, returns the keyword of the first rule that
@@ -151,12 +140,7 @@ U_NAMESPACE_END
  * @return The length of the keyword.
  * @stable ICU 4.8
  */
-U_CAPI int32_t U_EXPORT2
-uplrules_select(const UPluralRules *uplrules,
-               double number,
-               UChar *keyword, int32_t capacity,
-               UErrorCode *status);
-
+U_CAPI int32_t U_EXPORT2 uplrules_select(const UPluralRules * uplrules, double number, UChar * keyword, int32_t capacity, UErrorCode * status);
 /**
  * Given a formatted number, returns the keyword of the first rule
  * that applies to the number, according to the supplied UPluralRules object.
@@ -174,12 +158,8 @@ uplrules_select(const UPluralRules *uplrules,
  * @return The length of the keyword.
  * @stable ICU 64
  */
-U_CAPI int32_t U_EXPORT2
-uplrules_selectFormatted(const UPluralRules *uplrules,
-               const struct UFormattedNumber* number,
-               UChar *keyword, int32_t capacity,
-               UErrorCode *status);
-
+U_CAPI int32_t U_EXPORT2 uplrules_selectFormatted(const UPluralRules * uplrules, const struct UFormattedNumber* number,
+    UChar * keyword, int32_t capacity, UErrorCode * status);
 /**
  * Given a formatted number range, returns the overall plural form of the
  * range. For example, "3-5" returns "other" in English.
@@ -195,11 +175,8 @@ uplrules_selectFormatted(const UPluralRules *uplrules,
  * @return The length of the keyword.
  * @stable ICU 68
  */
-U_CAPI int32_t U_EXPORT2
-uplrules_selectForRange(const UPluralRules *uplrules,
-               const struct UFormattedNumberRange* urange,
-               UChar *keyword, int32_t capacity,
-               UErrorCode *status);
+U_CAPI int32_t U_EXPORT2 uplrules_selectForRange(const UPluralRules * uplrules, const struct UFormattedNumberRange* urange,
+    UChar * keyword, int32_t capacity, UErrorCode * status);
 
 #ifndef U_HIDE_INTERNAL_API
 /**
@@ -220,12 +197,11 @@ uplrules_selectForRange(const UPluralRules *uplrules,
  * @return The length of keyword.
  * @internal ICU 59 technology preview, may be removed in the future
  */
-U_CAPI int32_t U_EXPORT2
-uplrules_selectWithFormat(const UPluralRules *uplrules,
-                          double number,
-                          const UNumberFormat *fmt,
-                          UChar *keyword, int32_t capacity,
-                          UErrorCode *status);
+U_CAPI int32_t U_EXPORT2 uplrules_selectWithFormat(const UPluralRules * uplrules,
+    double number,
+    const UNumberFormat * fmt,
+    UChar * keyword, int32_t capacity,
+    UErrorCode * status);
 
 #endif  /* U_HIDE_INTERNAL_API */
 
@@ -239,10 +215,8 @@ uplrules_selectWithFormat(const UPluralRules *uplrules,
  * upon error. The caller is responsible for closing the result.
  * @stable ICU 59
  */
-U_CAPI UEnumeration* U_EXPORT2
-uplrules_getKeywords(const UPluralRules *uplrules,
-                     UErrorCode *status);
+U_CAPI UEnumeration* U_EXPORT2 uplrules_getKeywords(const UPluralRules * uplrules,
+    UErrorCode * status);
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif

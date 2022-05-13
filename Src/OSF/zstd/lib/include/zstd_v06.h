@@ -49,7 +49,7 @@ ZSTDLIBv06_API size_t ZSTDv06_decompress(void* dst, size_t dstCapacity, const vo
 
     note : assumes `cSize` and `dBound` are _not_ NULL.
  */
-void ZSTDv06_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, unsigned long long* dBound);
+void ZSTDv06_findFrameSizeInfoLegacy(const void * src, size_t srcSize, size_t* cSize, uint64* dBound);
 
 /* *************************************
 *  Helper functions
@@ -86,7 +86,7 @@ ZSTDLIBv06_API size_t ZSTDv06_decompress_usingDict(ZSTDv06_DCtx* dctx, void* dst
  *  Advanced Streaming API
  ***************************/
 struct ZSTDv06_frameParams_s { 
-	unsigned long long frameContentSize; 
+	uint64 frameContentSize; 
 	unsigned windowLog; 
 };
 

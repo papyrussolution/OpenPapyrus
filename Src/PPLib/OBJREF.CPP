@@ -4067,7 +4067,7 @@ int PPObjEdiProvider::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 				if(same_id == 0) {
 					p_pack->Rec.ID = 0;
 					r = PutPacket(pID, p_pack, 1);
-					if(r == 0) {
+					if(!r) {
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTEDIPRV, p_pack->Rec.ID, p_pack->Rec.Name);
 						ok = -1;
 					}
@@ -4080,7 +4080,7 @@ int PPObjEdiProvider::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmC
 			else {
 				p_pack->Rec.ID = *pID;
 				r = PutPacket(pID, p_pack, 1);
-				if(r == 0) {
+				if(!r) {
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTEDIPRV, p_pack->Rec.ID, p_pack->Rec.Name);
 					ok = -1;
 				}

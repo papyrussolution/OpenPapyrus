@@ -246,7 +246,7 @@ int FASTCALL GnuPlot::GetNum(char pStr[])
 			// Linux and Windows implementations of POSIX function strtoll() differ.
 			// I don't know which is "correct" but returning 0 causes an infinite   
 			// loop on input "0x" as the scanner fails to progress.                 
-			if(count == 0) 
+			if(!count) 
 				count++;
 			if((Pgm.Tok().LVal.v.int_val = static_cast<intgr_t>(lval)) == lval)
 				return(count);

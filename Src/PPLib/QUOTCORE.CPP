@@ -217,7 +217,7 @@ void PPQuotItemArray::Sort()
 				int r = loc_obj.IsMemberOfGroup(rLocList.get(i), locID);
 				if(r > 0)
 					yes = 1;
-				else if(r == 0) {
+				else if(!r) {
 					; // @todo process error
 				}
 			}

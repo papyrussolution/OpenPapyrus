@@ -399,7 +399,7 @@ static struct passwd *vms_getpwuid(uid_t uid)
 #define des_ecb_encrypt DES_ECB_ENCRYPT
 
 #endif
-#   include <openssl/evp.h>
+#include <openssl/evp.h>
 #ifndef OpenSSL_add_all_algorithms
 #define OpenSSL_add_all_algorithms OPENSSL_ADD_ALL_ALGORITHMS
         void OPENSSL_ADD_ALL_ALGORITHMS(void);
@@ -409,32 +409,29 @@ static struct passwd *vms_getpwuid(uid_t uid)
     /* So we need static routines */
 #if(OPENSSL_VERSION_NUMBER < 0x00907001L)
 
-#       undef des_set_odd_parity
-#       undef DES_set_odd_parity
-#       undef des_set_key
-#       undef DES_set_key
-#       undef des_ecb_encrypt
-#       undef DES_ecb_encrypt
+#undef des_set_odd_parity
+#undef DES_set_odd_parity
+#undef des_set_key
+#undef DES_set_key
+#undef des_ecb_encrypt
+#undef DES_ecb_encrypt
 
         static void des_set_odd_parity(des_cblock *key) {
             DES_SET_ODD_PARITY(key);
         }
-
-        static int des_set_key(const_des_cblock *key,
-                               des_key_schedule schedule) {
+        static int des_set_key(const_des_cblock *key, des_key_schedule schedule) 
+        {
             return DES_SET_KEY(key, schedule);
         }
-
-        static void des_ecb_encrypt(const_des_cblock *input,
-                                    des_cblock *output,
-                                    des_key_schedule ks, int enc) {
+        static void des_ecb_encrypt(const_des_cblock *input, des_cblock *output, des_key_schedule ks, int enc) 
+        {
             DES_ECB_ENCRYPT(input, output, ks, enc);
         }
 #endif
 /* Need this to stop a macro redefinition error */
 #if OPENSSL_VERSION_NUMBER < 0x00907000L
 #ifdef X509_STORE_set_flags
-#       undef X509_STORE_set_flags
+#undef X509_STORE_set_flags
 #define X509_STORE_set_flags(x,y) Curl_nop_stmt
 #endif
 #endif

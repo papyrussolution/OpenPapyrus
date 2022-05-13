@@ -492,7 +492,7 @@ int PPAbstractDevice::Helper_RunCmd(const SString & rCmd, const SString & rArg, 
 			const char * p_arg = rArg.cptr();
 			r = Ib.Func(p_cmd, p_arg, RetBuf, RetBuf.GetSize());
 		}
-		if(r == 0) {
+		if(!r) {
 			if(RetBuf.IsValid()) {
 				s_arr.Z().Cat(RetBuf);
 				//THROW(StrToArr(s_arr, rOut));

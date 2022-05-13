@@ -50,10 +50,8 @@ static void _cairo_in_fill_init(cairo_in_fill_t * in_fill, double tolerance, dou
 	in_fill->on_edge = FALSE;
 	in_fill->winding = 0;
 	in_fill->tolerance = tolerance;
-
 	in_fill->x = _cairo_fixed_from_double(x);
 	in_fill->y = _cairo_fixed_from_double(y);
-
 	in_fill->has_current_point = FALSE;
 	in_fill->current_point.x = 0;
 	in_fill->current_point.y = 0;

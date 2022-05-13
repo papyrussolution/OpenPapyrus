@@ -74,7 +74,7 @@ enum UMessagePatternApostropheMode {
      * Within a MessageFormat pattern, a single apostrophe only starts quoted literal text
      * if it immediately precedes a curly brace {},
      * or a pipe symbol | if inside a choice format,
-     * or a pound symbol # if inside a plural format.
+     * or a pound symbol #if inside a plural format.
      * <p>
      * This is the default behavior starting with ICU 4.8.
      * @stable ICU 4.8

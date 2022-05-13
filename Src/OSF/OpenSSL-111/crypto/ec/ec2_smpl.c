@@ -178,9 +178,9 @@ int ec_GF2m_simple_group_check_discriminant(const EC_GROUP * group,
 	BIGNUM * b;
 	BN_CTX * new_ctx = NULL;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL) {
+		if(!ctx) {
 			ECerr(EC_F_EC_GF2M_SIMPLE_GROUP_CHECK_DISCRIMINANT,
 			    ERR_R_MALLOC_FAILURE);
 			goto err;
@@ -365,9 +365,9 @@ int ec_GF2m_simple_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
 		return 1;
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 
@@ -513,9 +513,9 @@ int ec_GF2m_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
 	if(!point->Z_is_one)
 		return -1;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return -1;
 	}
 
@@ -578,9 +578,9 @@ int ec_GF2m_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 		return ((BN_cmp(a->X, b->X) == 0) && BN_cmp(a->Y, b->Y) == 0) ? 0 : 1;
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return -1;
 	}
 
@@ -615,9 +615,9 @@ int ec_GF2m_simple_make_affine(const EC_GROUP * group, EC_POINT * point,
 	if(point->Z_is_one || EC_POINT_is_at_infinity(group, point))
 		return 1;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 

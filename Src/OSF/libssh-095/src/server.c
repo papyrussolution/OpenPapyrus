@@ -256,7 +256,7 @@ int ssh_get_key_params(ssh_session session,
 
 	rc = ssh_dh_import_next_pubkey_blob(session, pubkey_blob);
 	SSH_STRING_FREE(pubkey_blob);
-	if(rc != 0) {
+	if(rc) {
 		ssh_set_error(session,
 		    SSH_FATAL,
 		    "Could not import server public key");
@@ -457,7 +457,8 @@ void ssh_set_auth_methods(ssh_session session, int auth_methods)
 }
 
 /* Do the banner and key exchange */
-int ssh_handle_key_exchange(ssh_session session) {
+int ssh_handle_key_exchange(ssh_session session) 
+{
 	int rc;
 	if(session->session_state != SSH_SESSION_STATE_NONE)
 		goto pending;
@@ -465,32 +466,25 @@ int ssh_handle_key_exchange(ssh_session session) {
 	if(rc < 0) {
 		return SSH_ERROR;
 	}
-
 	session->alive = 1;
-
 	session->ssh_connection_callback = ssh_server_connection_callback;
 	session->session_state = SSH_SESSION_STATE_SOCKET_CONNECTED;
 	ssh_socket_set_callbacks(session->socket, &session->socket_callbacks);
 	session->socket_callbacks.data = callback_receive_banner;
 	session->socket_callbacks.exception = ssh_socket_exception_callback;
 	session->socket_callbacks.userdata = session;
-
 	rc = server_set_kex(session);
 	if(rc < 0) {
 		return SSH_ERROR;
 	}
 pending:
-	rc = ssh_handle_packets_termination(session, SSH_TIMEOUT_USER,
-		ssh_server_kex_termination, session);
-	SSH_LOG(SSH_LOG_PACKET, "ssh_handle_key_exchange: current state : %d",
-	    session->session_state);
+	rc = ssh_handle_packets_termination(session, SSH_TIMEOUT_USER, ssh_server_kex_termination, session);
+	SSH_LOG(SSH_LOG_PACKET, "ssh_handle_key_exchange: current state : %d", session->session_state);
 	if(rc != SSH_OK)
 		return rc;
-	if(session->session_state == SSH_SESSION_STATE_ERROR ||
-	    session->session_state == SSH_SESSION_STATE_DISCONNECTED) {
+	if(session->session_state == SSH_SESSION_STATE_ERROR || session->session_state == SSH_SESSION_STATE_DISCONNECTED) {
 		return SSH_ERROR;
 	}
-
 	return SSH_OK;
 }
 
@@ -607,7 +601,7 @@ int ssh_message_service_reply_success(ssh_message msg) {
 	ssh_session session;
 	int rc;
 
-	if(msg == NULL) {
+	if(!msg) {
 		return SSH_ERROR;
 	}
 	session = msg->session;
@@ -681,7 +675,7 @@ error:
 
 int ssh_message_reply_default(ssh_message msg) 
 {
-	if(msg == NULL) {
+	if(!msg) {
 		return -1;
 	}
 	switch(msg->type) {
@@ -706,14 +700,14 @@ int ssh_message_reply_default(ssh_message msg)
 }
 
 const char * ssh_message_service_service(ssh_message msg){
-	if(msg == NULL) {
+	if(!msg) {
 		return NULL;
 	}
 	return msg->service_request.service;
 }
 
 const char * ssh_message_auth_user(ssh_message msg) {
-	if(msg == NULL) {
+	if(!msg) {
 		return NULL;
 	}
 
@@ -721,7 +715,7 @@ const char * ssh_message_auth_user(ssh_message msg) {
 }
 
 const char * ssh_message_auth_password(ssh_message msg){
-	if(msg == NULL) {
+	if(!msg) {
 		return NULL;
 	}
 
@@ -729,7 +723,7 @@ const char * ssh_message_auth_password(ssh_message msg){
 }
 
 ssh_key ssh_message_auth_pubkey(ssh_message msg) {
-	if(msg == NULL) {
+	if(!msg) {
 		return NULL;
 	}
 
@@ -738,7 +732,7 @@ ssh_key ssh_message_auth_pubkey(ssh_message msg) {
 
 /* Get the publickey of an auth request */
 ssh_public_key ssh_message_auth_publickey(ssh_message msg){
-	if(msg == NULL) {
+	if(!msg) {
 		return NULL;
 	}
 
@@ -747,7 +741,7 @@ ssh_public_key ssh_message_auth_publickey(ssh_message msg){
 
 enum ssh_publickey_state_e ssh_message_auth_publickey_state(ssh_message msg)
 {
-	if(msg == NULL) {
+	if(!msg) {
 		return (enum ssh_publickey_state_e)-1;
 	}
 	return msg->auth_request.signature_state;
@@ -755,7 +749,7 @@ enum ssh_publickey_state_e ssh_message_auth_publickey_state(ssh_message msg)
 
 int ssh_message_auth_kbdint_is_response(ssh_message msg) 
 {
-	if(msg == NULL) {
+	if(!msg) {
 		return -1;
 	}
 	return msg->auth_request.kbdint_response != 0;
@@ -888,7 +882,7 @@ int ssh_auth_reply_success(ssh_session session, int partial)
 	struct ssh_crypto_struct * crypto = NULL;
 	int r;
 
-	if(session == NULL) {
+	if(!session) {
 		return SSH_ERROR;
 	}
 
@@ -927,7 +921,7 @@ int ssh_auth_reply_success(ssh_session session, int partial)
 }
 
 int ssh_message_auth_reply_success(ssh_message msg, int partial) {
-	if(msg == NULL)
+	if(!msg)
 		return SSH_ERROR;
 	return ssh_auth_reply_success(msg->session, partial);
 }
@@ -935,7 +929,7 @@ int ssh_message_auth_reply_success(ssh_message msg, int partial) {
 /* Answer OK to a pubkey auth request */
 int ssh_message_auth_reply_pk_ok(ssh_message msg, ssh_string algo, ssh_string pubkey) {
 	int rc;
-	if(msg == NULL) {
+	if(!msg) {
 		return SSH_ERROR;
 	}
 

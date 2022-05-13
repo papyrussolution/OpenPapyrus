@@ -33,7 +33,7 @@
 #if defined __EMX__
 /* Assume EMX program runs on OS/2, even if compiled under DOS.  */
 # ifndef OS2
-#  define OS2
+#define OS2
 #endif
 #endif
 
@@ -354,7 +354,7 @@ const char * locale_charset(void)
 		sprintf(buf, "CP%u", GetACP());
 		codeset = buf;
 	}
-#  endif
+#endif
 #else
 	/* On old systems which lack it, use setlocale or getenv.  */
 	const char * locale = NULL;
@@ -362,9 +362,9 @@ const char * locale_charset(void)
 	   (like SunOS 4 or DJGPP) have only the C locale.  Therefore we don't
 	   use setlocale here; it would return "C" when it doesn't support the
 	   locale name the user has set.  */
-#  if 0
+#if 0
 	locale = setlocale(LC_CTYPE, NULL);
-#  endif
+#endif
 	if(locale == NULL || locale[0] == '\0') {
 		locale = getenv("LC_ALL");
 		if(locale == NULL || locale[0] == '\0') {

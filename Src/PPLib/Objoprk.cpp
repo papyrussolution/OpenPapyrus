@@ -1300,7 +1300,7 @@ int OprKindView::addItem(long *, long * pID)
 			ASSIGN_PTR(pID, obj_id);
 			ok = 1;
 		}
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	return ok;
@@ -1312,7 +1312,7 @@ int OprKindView::editItem(long, long id)
 		int    r = id ? OpObj.Edit(&id, 0) : -1;
 		if(r == cmOK)
 			return 1;
-		if(r == 0)
+		if(!r)
 			return 0;
 	}
 	return -1;

@@ -117,13 +117,13 @@ static void Ppmd7_Free(CPpmd7 * p)
 	p->Base = 0;
 }
 
-static Bool Ppmd7_Alloc(CPpmd7 * p, UInt32 size)
+static boolint Ppmd7_Alloc(CPpmd7 * p, UInt32 size)
 {
 	if(p->Base == 0 || p->Size != size) {
 		/* RestartModel() below assumes that p->Size >= UNIT_SIZE
 		   (see the calculation of m->MinContext). */
 		if(size < UNIT_SIZE) {
-			return False;
+			return false;
 		}
 		Ppmd7_Free(p);
 		p->AlignOffset =
@@ -137,10 +137,10 @@ static Bool Ppmd7_Alloc(CPpmd7 * p, UInt32 size)
 		    + UNIT_SIZE
 	#endif
 		    )) == 0)
-			return False;
+			return false;
 		p->Size = size;
 	}
-	return True;
+	return true;
 }
 
 static void InsertNode(CPpmd7 * p, void * node, unsigned indx)
@@ -350,17 +350,15 @@ static void Ppmd7_Init(CPpmd7 * p, unsigned maxOrder)
 	p->DummySee.Count = 64; /* unused */
 }
 
-static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
+static CTX_PTR CreateSuccessors(CPpmd7 * p, boolint skip)
 {
 	CPpmd_State upState;
 	CTX_PTR c = p->MinContext;
 	CPpmd_Byte_Ref upBranch = (CPpmd_Byte_Ref)SUCCESSOR(p->FoundState);
 	CPpmd_State * ps[PPMD7_MAX_ORDER];
 	unsigned numPs = 0;
-
 	if(!skip)
 		ps[numPs++] = p->FoundState;
-
 	while(c->Suffix) {
 		CPpmd_Void_Ref successor;
 		CPpmd_State * s;
@@ -379,21 +377,19 @@ static CTX_PTR CreateSuccessors(CPpmd7 * p, Bool skip)
 		}
 		ps[numPs++] = s;
 	}
-
 	upState.Symbol = *(const Byte*)Ppmd7_GetPtr(p, upBranch);
 	SetSuccessor(&upState, upBranch + 1);
-
 	if(c->NumStats == 1)
 		upState.Freq = ONE_STATE(c)->Freq;
 	else {
 		UInt32 cf, s0;
 		CPpmd_State * s;
-		for(s = STATS(c); s->Symbol != upState.Symbol; s++);
+		for(s = STATS(c); s->Symbol != upState.Symbol; s++)
+			;
 		cf = s->Freq - 1;
 		s0 = c->SummFreq - c->NumStats - cf;
 		upState.Freq = (Byte)(1 + ((2 * cf <= s0) ? (5 * cf > s0) : ((2 * cf + 3 * s0 - 1) / (2 * s0))));
 	}
-
 	while(numPs != 0) {
 		/* Create Child */
 		CTX_PTR c1; /* = AllocContext(p); */
@@ -456,7 +452,7 @@ static void UpdateModel(CPpmd7 * p)
 	}
 
 	if(p->OrderFall == 0) {
-		p->MinContext = p->MaxContext = CreateSuccessors(p, True);
+		p->MinContext = p->MaxContext = CreateSuccessors(p, true);
 		if(p->MinContext == 0) {
 			RestartModel(p);
 			return;
@@ -464,17 +460,15 @@ static void UpdateModel(CPpmd7 * p)
 		SetSuccessor(p->FoundState, REF(p->MinContext));
 		return;
 	}
-
 	*p->Text++ = p->FoundState->Symbol;
 	successor = REF(p->Text);
 	if(p->Text >= p->UnitsStart) {
 		RestartModel(p);
 		return;
 	}
-
 	if(fSuccessor) {
 		if(fSuccessor <= successor) {
-			CTX_PTR cs = CreateSuccessors(p, False);
+			CTX_PTR cs = CreateSuccessors(p, false);
 			if(cs == NULL) {
 				RestartModel(p);
 				return;
@@ -490,9 +484,7 @@ static void UpdateModel(CPpmd7 * p)
 		SetSuccessor(p->FoundState, successor);
 		fSuccessor = REF(p->MinContext);
 	}
-
 	s0 = p->MinContext->SummFreq - (ns = p->MinContext->NumStats) - (p->FoundState->Freq - 1);
-
 	for(c = p->MaxContext; c != p->MinContext; c = SUFFIX(c)) {
 		unsigned ns1;
 		UInt32 cf, sf;
@@ -684,10 +676,10 @@ static void Ppmd7_Update2(CPpmd7 * p)
 	p->RunLength = p->InitRL;
 	UpdateModel(p);
 }
-
-/* ---------- Decode ---------- */
-
-static Bool Ppmd_RangeDec_Init(CPpmd7z_RangeDec * p)
+//
+// Decode
+//
+static boolint Ppmd_RangeDec_Init(CPpmd7z_RangeDec * p)
 {
 	uint i;
 	p->Low = p->Bottom = 0;
@@ -697,19 +689,19 @@ static Bool Ppmd_RangeDec_Init(CPpmd7z_RangeDec * p)
 	return (p->Code < 0xFFFFFFFF);
 }
 
-static Bool Ppmd7z_RangeDec_Init(CPpmd7z_RangeDec * p)
+static boolint Ppmd7z_RangeDec_Init(CPpmd7z_RangeDec * p)
 {
 	if(p->Stream->Read((void *)p->Stream) != 0)
-		return False;
+		return false;
 	return Ppmd_RangeDec_Init(p);
 }
 
-static Bool PpmdRAR_RangeDec_Init(CPpmd7z_RangeDec * p)
+static boolint PpmdRAR_RangeDec_Init(CPpmd7z_RangeDec * p)
 {
 	if(!Ppmd_RangeDec_Init(p))
-		return False;
+		return false;
 	p->Bottom = 0x8000;
-	return True;
+	return true;
 }
 
 static UInt32 Range_GetThreshold(void * pp, UInt32 total)

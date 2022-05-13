@@ -84,7 +84,7 @@ int ECPKParameters_print(BIO * bp, const EC_GROUP * x, int off)
 	}
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		reason = ERR_R_MALLOC_FAILURE;
 		goto err;
 	}

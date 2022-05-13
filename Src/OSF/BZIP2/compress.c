@@ -362,7 +362,7 @@ static void sendMTFValues(EState* s)
 			if(nGroups == 6 && 50 == ge-gs+1) {
 				/*--- fast track the common case ---*/
 
-#           define BZ_ITUR(nn) s->rfreq[bt][ mtfv[gs+(nn)] ]++
+#define BZ_ITUR(nn) s->rfreq[bt][ mtfv[gs+(nn)] ]++
 
 				BZ_ITUR(0);  BZ_ITUR(1);  BZ_ITUR(2);  BZ_ITUR(3);  BZ_ITUR(4);
 				BZ_ITUR(5);  BZ_ITUR(6);  BZ_ITUR(7);  BZ_ITUR(8);  BZ_ITUR(9);
@@ -375,7 +375,7 @@ static void sendMTFValues(EState* s)
 				BZ_ITUR(40); BZ_ITUR(41); BZ_ITUR(42); BZ_ITUR(43); BZ_ITUR(44);
 				BZ_ITUR(45); BZ_ITUR(46); BZ_ITUR(47); BZ_ITUR(48); BZ_ITUR(49);
 
-#           undef BZ_ITUR
+#undef BZ_ITUR
 			}
 			else {
 				/*--- slow version which correctly handles all situations ---*/

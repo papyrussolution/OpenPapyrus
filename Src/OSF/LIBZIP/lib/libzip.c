@@ -3339,7 +3339,7 @@ static int64 crc_read(zip_source_t *, void *, void *, uint64, zip_source_cmd_t);
 zip_source_t * zip_source_crc(zip_t * za, zip_source_t * src, int validate)
 {
 	struct crc_context * ctx;
-	if(src == NULL) {
+	if(!src) {
 		zip_error_set(&za->error, SLERR_ZIP_INVAL, 0);
 		return NULL;
 	}

@@ -30,7 +30,7 @@ sftp_client_message sftp_get_client_message(sftp_session sftp)
 	ssh_buffer payload;
 	int rc;
 	sftp_client_message msg = (sftp_client_message)SAlloc::M(sizeof(struct sftp_client_message_struct));
-	if(msg == NULL) {
+	if(!msg) {
 		ssh_set_error_oom(session);
 		return NULL;
 	}

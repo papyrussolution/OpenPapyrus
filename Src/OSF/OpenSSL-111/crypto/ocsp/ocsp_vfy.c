@@ -36,7 +36,7 @@ int OCSP_basic_verify(OCSP_BASICRESP * bs, STACK_OF(X509) * certs, X509_STORE * 
 		goto end;
 	}
 	ctx = X509_STORE_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		OCSPerr(OCSP_F_OCSP_BASIC_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto f_err;
 	}
@@ -341,7 +341,7 @@ int OCSP_request_verify(OCSP_REQUEST * req, STACK_OF(X509) * certs,
 	int ret = 0;
 	X509_STORE_CTX * ctx = X509_STORE_CTX_new();
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		OCSPerr(OCSP_F_OCSP_REQUEST_VERIFY, ERR_R_MALLOC_FAILURE);
 		goto err;
 	}

@@ -483,16 +483,14 @@ class TestDiffMessage_Item final :
   public:
   void clear_rm();
   ::protobuf_unittest::TestField* mutable_rm(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField >*
-      mutable_rm();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > * mutable_rm();
   private:
   const ::protobuf_unittest::TestField& _internal_rm(int index) const;
   ::protobuf_unittest::TestField* _internal_add_rm();
   public:
   const ::protobuf_unittest::TestField& rm(int index) const;
   ::protobuf_unittest::TestField* add_rm();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField >&
-      rm() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > & rm() const;
 
   // map<string, int32> mp = 8;
   int mp_size() const;
@@ -708,16 +706,14 @@ class TestDiffMessage final :
   public:
   void clear_item();
   ::protobuf_unittest::TestDiffMessage_Item* mutable_item(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestDiffMessage_Item >*
-      mutable_item();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestDiffMessage_Item > * mutable_item();
   private:
   const ::protobuf_unittest::TestDiffMessage_Item& _internal_item(int index) const;
   ::protobuf_unittest::TestDiffMessage_Item* _internal_add_item();
   public:
   const ::protobuf_unittest::TestDiffMessage_Item& item(int index) const;
   ::protobuf_unittest::TestDiffMessage_Item* add_item();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestDiffMessage_Item >&
-      item() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestDiffMessage_Item > & item() const;
 
   // repeated string rw = 10;
   int rw_size() const;
@@ -772,16 +768,14 @@ class TestDiffMessage final :
   public:
   PROTOBUF_DEPRECATED void clear_rm();
   PROTOBUF_DEPRECATED ::protobuf_unittest::TestField* mutable_rm(int index);
-  PROTOBUF_DEPRECATED ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField >*
-      mutable_rm();
+  PROTOBUF_DEPRECATED ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > * mutable_rm();
   private:
   const ::protobuf_unittest::TestField& _internal_rm(int index) const;
   ::protobuf_unittest::TestField* _internal_add_rm();
   public:
   PROTOBUF_DEPRECATED const ::protobuf_unittest::TestField& rm(int index) const;
   PROTOBUF_DEPRECATED ::protobuf_unittest::TestField* add_rm();
-  PROTOBUF_DEPRECATED const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField >&
-      rm() const;
+  PROTOBUF_DEPRECATED const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestField > & rm() const;
 
   // repeated .google.protobuf.Any rany = 16;
   int rany_size() const;
@@ -790,16 +784,14 @@ class TestDiffMessage final :
   public:
   void clear_rany();
   ::PROTOBUF_NAMESPACE_ID::Any* mutable_rany(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >*
-      mutable_rany();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > * mutable_rany();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Any& _internal_rany(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Any* _internal_add_rany();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Any& rany(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Any* add_rany();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >&
-      rany() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > & rany() const;
 
   // optional string w = 14;
   bool has_w() const;
@@ -1180,11 +1172,11 @@ inline const ::protobuf_unittest::TestField& TestField::m() const {
 }
 inline void TestField::unsafe_arena_set_allocated_m(
     ::protobuf_unittest::TestField* m) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(m_);
   }
   m_ = m;
-  if (m) {
+  if(m) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -1198,9 +1190,9 @@ inline ::protobuf_unittest::TestField* TestField::release_m() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1215,7 +1207,7 @@ inline ::protobuf_unittest::TestField* TestField::unsafe_arena_release_m() {
 }
 inline ::protobuf_unittest::TestField* TestField::_internal_mutable_m() {
   _has_bits_[0] |= 0x00000001u;
-  if (m_ == nullptr) {
+  if(m_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestField>(GetArenaForAllocation());
     m_ = p;
   }
@@ -1228,15 +1220,14 @@ inline ::protobuf_unittest::TestField* TestField::mutable_m() {
 }
 inline void TestField::set_allocated_m(::protobuf_unittest::TestField* m) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete m_;
   }
-  if (m) {
+  if(m) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestField>::GetOwningArena(m);
-    if (message_arena != submessage_arena) {
-      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, m, submessage_arena);
+    if(message_arena != submessage_arena) {
+      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, m, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -1476,11 +1467,11 @@ inline const ::protobuf_unittest::TestField& TestDiffMessage_Item::m() const {
 }
 inline void TestDiffMessage_Item::unsafe_arena_set_allocated_m(
     ::protobuf_unittest::TestField* m) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(m_);
   }
   m_ = m;
-  if (m) {
+  if(m) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -1494,9 +1485,9 @@ inline ::protobuf_unittest::TestField* TestDiffMessage_Item::release_m() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1511,7 +1502,7 @@ inline ::protobuf_unittest::TestField* TestDiffMessage_Item::unsafe_arena_releas
 }
 inline ::protobuf_unittest::TestField* TestDiffMessage_Item::_internal_mutable_m() {
   _has_bits_[0] |= 0x00000002u;
-  if (m_ == nullptr) {
+  if(m_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestField>(GetArenaForAllocation());
     m_ = p;
   }
@@ -1524,15 +1515,14 @@ inline ::protobuf_unittest::TestField* TestDiffMessage_Item::mutable_m() {
 }
 inline void TestDiffMessage_Item::set_allocated_m(::protobuf_unittest::TestField* m) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete m_;
   }
-  if (m) {
+  if(m) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestField>::GetOwningArena(m);
-    if (message_arena != submessage_arena) {
-      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, m, submessage_arena);
+    if(message_arena != submessage_arena) {
+      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, m, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -1559,16 +1549,15 @@ TestDiffMessage_Item::mutable_rm() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.Item.rm)
   return &rm_;
 }
-inline const ::protobuf_unittest::TestField& TestDiffMessage_Item::_internal_rm(int index) const {
-  return rm_.Get(index);
+inline const ::protobuf_unittest::TestField& TestDiffMessage_Item::_internal_rm(int index) const
+{
+ return rm_.Get(index);
 }
 inline const ::protobuf_unittest::TestField& TestDiffMessage_Item::rm(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestDiffMessage.Item.rm)
   return _internal_rm(index);
 }
-inline ::protobuf_unittest::TestField* TestDiffMessage_Item::_internal_add_rm() {
-  return rm_.Add();
-}
+inline ::protobuf_unittest::TestField* TestDiffMessage_Item::_internal_add_rm() { return rm_.Add(); }
 inline ::protobuf_unittest::TestField* TestDiffMessage_Item::add_rm() {
   ::protobuf_unittest::TestField* _add = _internal_add_rm();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestDiffMessage.Item.rm)
@@ -1628,16 +1617,15 @@ TestDiffMessage::mutable_item() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.item)
   return &item_;
 }
-inline const ::protobuf_unittest::TestDiffMessage_Item& TestDiffMessage::_internal_item(int index) const {
-  return item_.Get(index);
+inline const ::protobuf_unittest::TestDiffMessage_Item& TestDiffMessage::_internal_item(int index) const
+{
+ return item_.Get(index);
 }
 inline const ::protobuf_unittest::TestDiffMessage_Item& TestDiffMessage::item(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestDiffMessage.item)
   return _internal_item(index);
 }
-inline ::protobuf_unittest::TestDiffMessage_Item* TestDiffMessage::_internal_add_item() {
-  return item_.Add();
-}
+inline ::protobuf_unittest::TestDiffMessage_Item* TestDiffMessage::_internal_add_item() { return item_.Add(); }
 inline ::protobuf_unittest::TestDiffMessage_Item* TestDiffMessage::add_item() {
   ::protobuf_unittest::TestDiffMessage_Item* _add = _internal_add_item();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestDiffMessage.item)
@@ -1763,11 +1751,11 @@ inline const ::protobuf_unittest::TestField& TestDiffMessage::m() const {
 }
 inline void TestDiffMessage::unsafe_arena_set_allocated_m(
     ::protobuf_unittest::TestField* m) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(m_);
   }
   m_ = m;
-  if (m) {
+  if(m) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -1781,9 +1769,9 @@ inline ::protobuf_unittest::TestField* TestDiffMessage::release_m() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1798,7 +1786,7 @@ inline ::protobuf_unittest::TestField* TestDiffMessage::unsafe_arena_release_m()
 }
 inline ::protobuf_unittest::TestField* TestDiffMessage::_internal_mutable_m() {
   _has_bits_[0] |= 0x00000002u;
-  if (m_ == nullptr) {
+  if(m_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestField>(GetArenaForAllocation());
     m_ = p;
   }
@@ -1811,15 +1799,14 @@ inline ::protobuf_unittest::TestField* TestDiffMessage::mutable_m() {
 }
 inline void TestDiffMessage::set_allocated_m(::protobuf_unittest::TestField* m) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete m_;
   }
-  if (m) {
+  if(m) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestField>::GetOwningArena(m);
-    if (message_arena != submessage_arena) {
-      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, m, submessage_arena);
+    if(message_arena != submessage_arena) {
+      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, m, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -1956,16 +1943,15 @@ TestDiffMessage::mutable_rm() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.rm)
   return &rm_;
 }
-inline const ::protobuf_unittest::TestField& TestDiffMessage::_internal_rm(int index) const {
-  return rm_.Get(index);
+inline const ::protobuf_unittest::TestField& TestDiffMessage::_internal_rm(int index) const
+{
+ return rm_.Get(index);
 }
 inline const ::protobuf_unittest::TestField& TestDiffMessage::rm(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestDiffMessage.rm)
   return _internal_rm(index);
 }
-inline ::protobuf_unittest::TestField* TestDiffMessage::_internal_add_rm() {
-  return rm_.Add();
-}
+inline ::protobuf_unittest::TestField* TestDiffMessage::_internal_add_rm() { return rm_.Add(); }
 inline ::protobuf_unittest::TestField* TestDiffMessage::add_rm() {
   ::protobuf_unittest::TestField* _add = _internal_add_rm();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestDiffMessage.rm)
@@ -1991,16 +1977,15 @@ TestDiffMessage::mutable_rany() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestDiffMessage.rany)
   return &rany_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Any& TestDiffMessage::_internal_rany(int index) const {
-  return rany_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Any& TestDiffMessage::_internal_rany(int index) const
+{
+ return rany_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& TestDiffMessage::rany(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestDiffMessage.rany)
   return _internal_rany(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Any* TestDiffMessage::_internal_add_rany() {
-  return rany_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Any* TestDiffMessage::_internal_add_rany() { return rany_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Any* TestDiffMessage::add_rany() {
   ::PROTOBUF_NAMESPACE_ID::Any* _add = _internal_add_rany();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestDiffMessage.rany)

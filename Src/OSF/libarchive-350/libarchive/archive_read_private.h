@@ -195,29 +195,21 @@ struct archive_read {
 		int candidate;
 		archive_passphrase_callback *callback;
 		void *client_data;
-	}		passphrases;
+	} passphrases;
 };
 
-int	__archive_read_register_format(struct archive_read *a,
-		void *format_data,
-		const char *name,
-		int (*bid)(struct archive_read *, int),
-		int (*options)(struct archive_read *, const char *, const char *),
-		int (*read_header)(struct archive_read *, struct archive_entry *),
-		int (*read_data)(struct archive_read *, const void **, size_t *, int64 *),
-		int (*read_data_skip)(struct archive_read *),
-		int64 (*seek_data)(struct archive_read *, int64, int),
-		int (*cleanup)(struct archive_read *),
-		int (*format_capabilities)(struct archive_read *),
-		int (*has_encrypted_entries)(struct archive_read *));
-
+int	__archive_read_register_format(struct archive_read *a, void *format_data, const char *name,
+		int (*bid)(struct archive_read *, int), int (*options)(struct archive_read *, const char *, const char *),
+		int (*read_header)(struct archive_read *, struct archive_entry *), int (*read_data)(struct archive_read *, const void **, size_t *, int64 *),
+		int (*read_data_skip)(struct archive_read *), int64 (*seek_data)(struct archive_read *, int64, int),
+		int (*cleanup)(struct archive_read *), int (*format_capabilities)(struct archive_read *), int (*has_encrypted_entries)(struct archive_read *));
 int __archive_read_get_bidder(struct archive_read *a, struct archive_read_filter_bidder **bidder);
 const void *__archive_read_ahead(struct archive_read *, size_t, ssize_t *);
 const void *__archive_read_filter_ahead(struct archive_read_filter *, size_t, ssize_t *);
 int64	__archive_read_seek(struct archive_read*, int64, int);
 int64	__archive_read_filter_seek(struct archive_read_filter *, int64, int);
 int64	FASTCALL __archive_read_consume(struct archive_read *, int64);
-int64	__archive_read_filter_consume(struct archive_read_filter *, int64);
+int64	FASTCALL __archive_read_filter_consume(struct archive_read_filter *, int64);
 int __archive_read_header(struct archive_read *, struct archive_entry *);
 int __archive_read_program(struct archive_read_filter *, const char *);
 void __archive_read_free_filters(struct archive_read *);

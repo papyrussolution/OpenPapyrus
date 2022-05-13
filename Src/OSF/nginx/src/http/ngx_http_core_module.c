@@ -842,7 +842,7 @@ static ngx_int_t ngx_http_core_find_static_location(ngx_http_request_t * r, ngx_
 			ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "test location: \"%*s\"", (size_t)node->len, node->name);
 			size_t n = (len <= (size_t)node->len) ? len : node->len;
 			ngx_int_t rc = ngx_filename_cmp(uri, node->name, n);
-			if(rc != 0) {
+			if(rc) {
 				node = (rc < 0) ? node->left : node->right;
 			}
 			else if(len > (size_t)node->len) {

@@ -810,7 +810,7 @@ static xmlNode * xmlXIncludeCopyRange(xmlXIncludeCtxtPtr ctxt, xmlDoc * target, 
 					tmp = xmlNewTextLen(content, len);
 				}
 				/* single sub text node selection */
-				if(list == NULL)
+				if(!list)
 					return tmp;
 				/* prune and return full set */
 				if(level == lastLevel)

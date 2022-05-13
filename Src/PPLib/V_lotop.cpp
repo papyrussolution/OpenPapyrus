@@ -267,7 +267,7 @@ int PPViewLotOp::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowser * 
 							if(bill_rec.OpID == 0 && bill_rec.LinkBillID)
 								bill_id = bill_rec.LinkBillID;
 							int    r = P_BObj->Edit(&bill_id, 0);
-							if(r == 0)
+							if(!r)
 								ok = PPErrorZ();
 							else if(r > 0)
 								ok = 1;

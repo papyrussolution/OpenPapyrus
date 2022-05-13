@@ -37,7 +37,7 @@ la_int64_t archive_filter_bytes(struct archive * a, int n)
 
 int archive_free(struct archive * a)
 {
-	if(a == NULL)
+	if(!a)
 		return ARCHIVE_OK;
 	return ((a->vtable->archive_free)(a));
 }

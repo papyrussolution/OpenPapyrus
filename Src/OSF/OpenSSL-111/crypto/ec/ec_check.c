@@ -22,9 +22,9 @@ int EC_GROUP_check(const EC_GROUP * group, BN_CTX * ctx)
 	if((group->meth->flags & EC_FLAGS_CUSTOM_CURVE) != 0)
 		return 1;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL) {
+		if(!ctx) {
 			ECerr(EC_F_EC_GROUP_CHECK, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

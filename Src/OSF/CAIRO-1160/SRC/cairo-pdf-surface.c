@@ -2321,7 +2321,7 @@ static cairo_int_status_t _cairo_pdf_surface_emit_image(cairo_pdf_surface_t * su
 				case CAIRO_IMAGE_IS_MONOCHROME:
 				    if(bit == 7)
 					    data[i] = 0;
-				    if(r != 0)
+				    if(r)
 					    data[i] |= (1 << bit);
 				    bit--;
 				    if(bit < 0) {
@@ -4438,22 +4438,17 @@ static cairo_int_status_t _cairo_pdf_surface_show_page(void * abstract_surface)
 	return CAIRO_STATUS_SUCCESS;
 }
 
-static boolint _cairo_pdf_surface_get_extents(void * abstract_surface,
-    cairo_rectangle_int_t * rectangle)
+static boolint _cairo_pdf_surface_get_extents(void * abstract_surface, cairo_rectangle_int_t * rectangle)
 {
 	cairo_pdf_surface_t * surface = static_cast<cairo_pdf_surface_t *>(abstract_surface);
-
 	if(surface->surface_bounded)
 		*rectangle = surface->surface_extents;
-
 	return surface->surface_bounded;
 }
 
-static void _cairo_pdf_surface_get_font_options(void * abstract_surface,
-    cairo_font_options_t * options)
+static void _cairo_pdf_surface_get_font_options(void * abstract_surface, cairo_font_options_t * options)
 {
 	_cairo_font_options_init_default(options);
-
 	cairo_font_options_set_hint_style(options, CAIRO_HINT_STYLE_NONE);
 	cairo_font_options_set_hint_metrics(options, CAIRO_HINT_METRICS_OFF);
 	cairo_font_options_set_antialias(options, CAIRO_ANTIALIAS_GRAY);
@@ -4464,40 +4459,32 @@ static void _cairo_pdf_surface_write_pages(cairo_pdf_surface_t * surface)
 {
 	cairo_pdf_resource_t page;
 	int num_pages, i;
-
 	_cairo_pdf_surface_update_object(surface, surface->pages_resource);
 	_cairo_output_stream_printf(surface->output,
 	    "%d 0 obj\n"
 	    "<< /Type /Pages\n"
 	    "   /Kids [ ",
 	    surface->pages_resource.id);
-
 	num_pages = _cairo_array_num_elements(&surface->pages);
 	for(i = 0; i < num_pages; i++) {
 		_cairo_array_copy_element(&surface->pages, i, &page);
 		_cairo_output_stream_printf(surface->output, "%d 0 R ", page.id);
 	}
-
 	_cairo_output_stream_printf(surface->output, "]\n");
 	_cairo_output_stream_printf(surface->output, "   /Count %d\n", num_pages);
 
 	/* TODO: Figure out which other defaults to be inherited by /Page
 	 * objects. */
-	_cairo_output_stream_printf(surface->output,
-	    ">>\n"
-	    "endobj\n");
+	_cairo_output_stream_printf(surface->output, ">>\nendobj\n");
 }
 
 cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 {
 	int i;
-	int len;
-	boolint ascii;
 	char * str;
 	cairo_int_status_t status = CAIRO_STATUS_SUCCESS;
-
-	ascii = TRUE;
-	len = strlen(utf8);
+	boolint ascii = TRUE;
+	int len = strlen(utf8);
 	for(i = 0; i < len; i++) {
 		unsigned c = utf8[i];
 		if(c < 32 || c > 126 || c == '(' || c == ')' || c == '\\') {
@@ -4505,12 +4492,10 @@ cairo_int_status_t _cairo_utf8_to_pdf_string(const char * utf8, char ** str_out)
 			break;
 		}
 	}
-
 	if(ascii) {
 		str = (char *)_cairo_malloc(len + 3);
 		if(str == NULL)
 			return _cairo_error(CAIRO_STATUS_NO_MEMORY);
-
 		str[0] = '(';
 		for(i = 0; i < len; i++)
 			str[i+1] = utf8[i];
@@ -4563,18 +4548,14 @@ static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_su
 		 * Glyphs that do not map to a Unicode code point must be
 		 * mapped to 0xfffd "REPLACEMENT CHARACTER".
 		 */
-		_cairo_output_stream_printf(surface->output,
-		    "fffd");
+		_cairo_output_stream_printf(surface->output, "fffd");
 	}
 	else {
 		for(i = 0; i < utf16_len; i++)
-			_cairo_output_stream_printf(surface->output,
-			    "%04x", (int)(utf16[i]));
+			_cairo_output_stream_printf(surface->output, "%04x", (int)(utf16[i]));
 	}
 	_cairo_output_stream_printf(surface->output, ">");
-
 	SAlloc::F(utf16);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 
@@ -4599,12 +4580,10 @@ static cairo_int_status_t _cairo_pdf_surface_emit_unicode_for_glyph(cairo_pdf_su
 
 static uint32 _hash_data(const uchar * data, int length, uint32 initval)
 {
-	uint32 a, b, c, len;
-
-	len = length;
-	a = b = 0x9e3779b9; /* the golden ratio; an arbitrary value */
+	uint32 a, b, c;
+	uint32 len = length;
+	a = b = _SlConst.GoldenRatioInt32/*0x9e3779b9*/; /* the golden ratio; an arbitrary value */
 	c = initval; /* the previous hash value */
-
 	while(len >= 12) {
 		a += (data[0] + ((uint32)data[1]<<8) + ((uint32)data[2]<<16) + ((uint32)data[3]<<24));
 		b += (data[4] + ((uint32)data[5]<<8) + ((uint32)data[6]<<16) + ((uint32)data[7]<<24));
@@ -4613,7 +4592,6 @@ static uint32 _hash_data(const uchar * data, int length, uint32 initval)
 		data += 12;
 		len -= 12;
 	}
-
 	c += length;
 	switch(len) {
 		case 11: c += ((uint32)data[10] << 24);
@@ -7097,25 +7075,18 @@ static cairo_int_status_t _cairo_pdf_surface_fill_stroke(void * abstract_surface
 	/* PDF rendering of fill-stroke is not the same as cairo when
 	 * either the fill or stroke is not opaque.
 	 */
-	if(!_cairo_pattern_is_opaque(fill_source, NULL) ||
-	    !_cairo_pattern_is_opaque(stroke_source, NULL)) {
+	if(!_cairo_pattern_is_opaque(fill_source, NULL) || !_cairo_pattern_is_opaque(stroke_source, NULL)) {
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 	}
-
 	if(fill_op != stroke_op)
 		return CAIRO_INT_STATUS_UNSUPPORTED;
 
 	/* Compute the operation extents using the stroke which will naturally
 	 * be larger than the fill extents.
 	 */
-	status = _cairo_composite_rectangles_init_for_stroke(&extents,
-		&surface->base,
-		stroke_op, stroke_source,
-		path, stroke_style, stroke_ctm,
-		clip);
+	status = _cairo_composite_rectangles_init_for_stroke(&extents, &surface->base, stroke_op, stroke_source, path, stroke_style, stroke_ctm, clip);
 	if(UNLIKELY(status))
 		return status;
-
 	/* use the more accurate extents */
 	if(extents.is_bounded) {
 		cairo_rectangle_int_t mask;

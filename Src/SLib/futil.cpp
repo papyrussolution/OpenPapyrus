@@ -426,7 +426,7 @@ int copyFileByName(const char * pSrcFileName, const char * pDestFileName)
 {
 #ifdef __WIN32__
 	int    r = ::CopyFile(SUcSwitch(pSrcFileName), SUcSwitch(pDestFileName), 0);
-	if(r == 0)
+	if(!r)
 		SLS.SetOsError();
 	return r;
 #else

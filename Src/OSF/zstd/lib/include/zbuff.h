@@ -37,17 +37,17 @@ extern "C" {
 #ifdef ZBUFF_DISABLE_DEPRECATE_WARNINGS
 #  define ZBUFF_DEPRECATED(message) ZSTDLIB_API  /* disable deprecation warnings */
 #else
-#  if defined (__cplusplus) && (__cplusplus >= 201402) /* C++14 or greater */
-#    define ZBUFF_DEPRECATED(message) [[deprecated(message)]] ZSTDLIB_API
-#  elif (defined(GNUC) && (GNUC > 4 || (GNUC == 4 && GNUC_MINOR >= 5))) || defined(__clang__)
-#    define ZBUFF_DEPRECATED(message) ZSTDLIB_API __attribute__((deprecated(message)))
-#  elif defined(__GNUC__) && (__GNUC__ >= 3)
-#    define ZBUFF_DEPRECATED(message) ZSTDLIB_API __attribute__((deprecated))
-#  elif defined(_MSC_VER)
-#    define ZBUFF_DEPRECATED(message) ZSTDLIB_API __declspec(deprecated(message))
-#  else
+#if defined (__cplusplus) && (__cplusplus >= 201402) /* C++14 or greater */
+#define ZBUFF_DEPRECATED(message) [[deprecated(message)]] ZSTDLIB_API
+#elif (defined(GNUC) && (GNUC > 4 || (GNUC == 4 && GNUC_MINOR >= 5))) || defined(__clang__)
+#define ZBUFF_DEPRECATED(message) ZSTDLIB_API __attribute__((deprecated(message)))
+#elif defined(__GNUC__) && (__GNUC__ >= 3)
+#define ZBUFF_DEPRECATED(message) ZSTDLIB_API __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define ZBUFF_DEPRECATED(message) ZSTDLIB_API __declspec(deprecated(message))
+#else
 #    pragma message("WARNING: You need to implement ZBUFF_DEPRECATED for this compiler")
-#    define ZBUFF_DEPRECATED(message) ZSTDLIB_API
+#define ZBUFF_DEPRECATED(message) ZSTDLIB_API
 #  endif
 #endif /* ZBUFF_DISABLE_DEPRECATE_WARNINGS */
 // 
@@ -183,14 +183,11 @@ ZBUFF_DEPRECATED("use ZSTD_DStreamOutSize") size_t ZBUFF_recommendedDOutSize(voi
 /*! ZBUFF_createCCtx_advanced() :
  *  Create a ZBUFF compression context using external alloc and free functions */
 ZBUFF_DEPRECATED("use ZSTD_createCStream_advanced") ZBUFF_CCtx* ZBUFF_createCCtx_advanced(ZSTD_customMem customMem);
-
 /*! ZBUFF_createDCtx_advanced() :
  *  Create a ZBUFF decompression context using external alloc and free functions */
 ZBUFF_DEPRECATED("use ZSTD_createDStream_advanced") ZBUFF_DCtx* ZBUFF_createDCtx_advanced(ZSTD_customMem customMem);
-
 /*--- Advanced Streaming Initialization ---*/
-ZBUFF_DEPRECATED("use ZSTD_initDStream_usingDict") size_t ZBUFF_compressInit_advanced(ZBUFF_CCtx* zbc,
-    const void* dict, size_t dictSize, ZSTD_parameters params, unsigned long long pledgedSrcSize);
+ZBUFF_DEPRECATED("use ZSTD_initDStream_usingDict") size_t ZBUFF_compressInit_advanced(ZBUFF_CCtx* zbc, const void * dict, size_t dictSize, ZSTD_parameters params, uint64 pledgedSrcSize);
 
 #endif    /* ZBUFF_STATIC_H_30298098432 */
 #endif    /* ZBUFF_STATIC_LINKING_ONLY */

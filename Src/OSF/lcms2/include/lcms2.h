@@ -960,7 +960,7 @@ typedef struct {
 // Get LittleCMS version (for shared objects)
 // -----------------------------------------------------------------------------
 
-CMSAPI int CMSEXPORT cmsGetEncodedCMMversion(void);
+CMSAPI int CMSEXPORT cmsGetEncodedCMMversion();
 
 // Support of non-standard functions
 // --------------------------------------------------------------------------------------
@@ -987,7 +987,7 @@ CMSAPI void * CMSEXPORT cmsGetContextUserData(cmsContext ContextID);
 
 CMSAPI boolint CMSEXPORT cmsPlugin(void * Plugin);
 CMSAPI boolint CMSEXPORT cmsPluginTHR(cmsContext ContextID, void * Plugin);
-CMSAPI void CMSEXPORT cmsUnregisterPlugins(void);
+CMSAPI void CMSEXPORT cmsUnregisterPlugins();
 CMSAPI void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID);
 
 // Error logging
@@ -1022,7 +1022,7 @@ CMSAPI void CMSEXPORT cmsUnregisterPluginsTHR(cmsContext ContextID);
 // chance to know which thread is responsible of the warning and any environment associated
 // with it. Non-multithreading applications may safely ignore this parameter.
 // Note that under certain special circumstances, ContextID may be NULL.
-typedef void (* cmsLogErrorHandlerFunction)(cmsContext ContextID, uint32 ErrorCode, const char * Text);
+typedef void (* cmsLogErrorHandlerFunction)(FILE * fOut, cmsContext ContextID, uint32 ErrorCode, const char * Text);
 
 // Allows user to set any specific logger
 CMSAPI void CMSEXPORT cmsSetLogErrorHandler(cmsLogErrorHandlerFunction Fn);
@@ -1032,8 +1032,8 @@ CMSAPI void CMSEXPORT cmsSetLogErrorHandlerTHR(cmsContext ContextID, cmsLogError
 // --------------------------------------------------------------------------------------------------------------
 
 // Returns pointers to constant structs
-CMSAPI const cmsCIEXYZ* CMSEXPORT cmsD50_XYZ(void);
-CMSAPI const cmsCIExyY* CMSEXPORT cmsD50_xyY(void);
+CMSAPI const cmsCIEXYZ* CMSEXPORT cmsD50_XYZ();
+CMSAPI const cmsCIExyY* CMSEXPORT cmsD50_xyY();
 
 // Colorimetric space conversions
 CMSAPI void CMSEXPORT cmsXYZ2xyY(cmsCIExyY* Dest, const cmsCIEXYZ* Source);
@@ -1144,7 +1144,7 @@ typedef struct _cmsStage_struct cmsStage;
 
 // Those are hi-level pipelines
 CMSAPI cmsPipeline * CMSEXPORT cmsPipelineAlloc(cmsContext ContextID, uint32 InputChannels, uint32 OutputChannels);
-CMSAPI void CMSEXPORT cmsPipelineFree(cmsPipeline * lut);
+CMSAPI void /*CMSEXPORT*/FASTCALL cmsPipelineFree(cmsPipeline * lut);
 CMSAPI cmsPipeline * CMSEXPORT cmsPipelineDup(const cmsPipeline * Orig);
 CMSAPI cmsContext CMSEXPORT cmsGetPipelineContextID(const cmsPipeline * lut);
 CMSAPI uint32 CMSEXPORT cmsPipelineInputChannels(const cmsPipeline * lut);
@@ -1183,7 +1183,7 @@ CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLut16bitGranular(cmsContext ContextID,
 CMSAPI cmsStage * CMSEXPORT cmsStageAllocCLutFloatGranular(cmsContext ContextID, const uint32 clutPoints[],
     uint32 inputChan, uint32 outputChan, const float* Table);
 CMSAPI cmsStage * CMSEXPORT cmsStageDup(cmsStage * mpe);
-CMSAPI void CMSEXPORT cmsStageFree(cmsStage * mpe);
+CMSAPI void /*CMSEXPORT*/FASTCALL cmsStageFree(cmsStage * mpe);
 CMSAPI cmsStage * CMSEXPORT cmsStageNext(const cmsStage * mpe);
 CMSAPI uint32 CMSEXPORT cmsStageInputChannels(const cmsStage * mpe);
 CMSAPI uint32 CMSEXPORT cmsStageOutputChannels(const cmsStage * mpe);
@@ -1211,15 +1211,15 @@ typedef struct _cms_MLU_struct cmsMLU;
 #define  cmsNoLanguage "\0\0"
 #define  cmsNoCountry  "\0\0"
 
-CMSAPI cmsMLU*           CMSEXPORT cmsMLUalloc(cmsContext ContextID, uint32 nItems);
-CMSAPI void CMSEXPORT cmsMLUfree(cmsMLU* mlu);
-CMSAPI cmsMLU*           CMSEXPORT cmsMLUdup(const cmsMLU* mlu);
-CMSAPI boolint CMSEXPORT cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString);
+CMSAPI cmsMLU * CMSEXPORT cmsMLUalloc(cmsContext ContextID, uint32 nItems);
+CMSAPI void    /*CMSEXPORT*/FASTCALL cmsMLUfree(cmsMLU* mlu);
+CMSAPI cmsMLU * /*CMSEXPORT*/FASTCALL cmsMLUdup(const cmsMLU* mlu);
+CMSAPI boolint /*CMSEXPORT*/STDCALL cmsMLUsetASCII(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const char * ASCIIString);
 CMSAPI boolint CMSEXPORT cmsMLUsetWide(cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], const wchar_t * WideString);
-CMSAPI uint32 CMSEXPORT cmsMLUgetASCII(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char * Buffer,    uint32 BufferSize);
-CMSAPI uint32 CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize);
+CMSAPI uint32  /*CMSEXPORT*/STDCALL cmsMLUgetASCII(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char * Buffer,    uint32 BufferSize);
+CMSAPI uint32  CMSEXPORT cmsMLUgetWide(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize);
 CMSAPI boolint CMSEXPORT cmsMLUgetTranslation(const cmsMLU* mlu, const char LanguageCode[3], const char CountryCode[3], char ObtainedLanguage[3], char ObtainedCountry[3]);
-CMSAPI uint32 CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu);
+CMSAPI uint32  CMSEXPORT cmsMLUtranslationsCount(const cmsMLU* mlu);
 CMSAPI boolint CMSEXPORT cmsMLUtranslationsCodes(const cmsMLU* mlu, uint32 idx, char LanguageCode[3], char CountryCode[3]);
 
 // Undercolorremoval & black generation
@@ -1269,7 +1269,7 @@ CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsAllocNamedColorList(cmsContext ContextID,
     uint32 ColorantCount,
     const char * Prefix, const char * Suffix);
 
-CMSAPI void CMSEXPORT cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
+CMSAPI void /*CMSEXPORT*/FASTCALL cmsFreeNamedColorList(cmsNAMEDCOLORLIST* v);
 CMSAPI cmsNAMEDCOLORLIST* CMSEXPORT cmsDupNamedColorList(const cmsNAMEDCOLORLIST* v);
 CMSAPI boolint CMSEXPORT cmsAppendNamedColor(cmsNAMEDCOLORLIST* v, const char * Name,
     uint16 PCS[3],
@@ -1310,15 +1310,14 @@ typedef struct {
 	cmsPSEQDESC*    seq;
 } cmsSEQ;
 
-CMSAPI cmsSEQ*           CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, uint32 n);
-CMSAPI cmsSEQ*           CMSEXPORT cmsDupProfileSequenceDescription(const cmsSEQ* pseq);
+CMSAPI cmsSEQ * CMSEXPORT cmsAllocProfileSequenceDescription(cmsContext ContextID, uint32 n);
+CMSAPI cmsSEQ * CMSEXPORT cmsDupProfileSequenceDescription(const cmsSEQ* pseq);
 CMSAPI void CMSEXPORT cmsFreeProfileSequenceDescription(cmsSEQ* pseq);
 
 // Dictionaries --------------------------------------------------------------------------------------------------------
 
 typedef struct _cmsDICTentry_struct {
 	struct _cmsDICTentry_struct* Next;
-
 	cmsMLU * DisplayName;
 	cmsMLU * DisplayValue;
 	wchar_t * Name;
@@ -1328,12 +1327,7 @@ typedef struct _cmsDICTentry_struct {
 CMSAPI cmsHANDLE CMSEXPORT cmsDictAlloc(cmsContext ContextID);
 CMSAPI void CMSEXPORT cmsDictFree(cmsHANDLE hDict);
 CMSAPI cmsHANDLE CMSEXPORT cmsDictDup(cmsHANDLE hDict);
-
-CMSAPI boolint CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict,
-    const wchar_t * Name,
-    const wchar_t * Value,
-    const cmsMLU * DisplayName,
-    const cmsMLU * DisplayValue);
+CMSAPI boolint CMSEXPORT cmsDictAddEntry(cmsHANDLE hDict, const wchar_t * Name, const wchar_t * Value, const cmsMLU * DisplayName, const cmsMLU * DisplayValue);
 CMSAPI const cmsDICTentry* CMSEXPORT cmsDictGetEntryList(cmsHANDLE hDict);
 CMSAPI const cmsDICTentry* CMSEXPORT cmsDictNextEntry(const cmsDICTentry* e);
 
@@ -1343,11 +1337,11 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsCreateProfilePlaceholder(cmsContext ContextID);
 CMSAPI cmsContext CMSEXPORT cmsGetProfileContextID(cmsHPROFILE hProfile);
 CMSAPI int32 CMSEXPORT cmsGetTagCount(cmsHPROFILE hProfile);
 CMSAPI cmsTagSignature CMSEXPORT cmsGetTagSignature(cmsHPROFILE hProfile, uint32 n);
-CMSAPI boolint CMSEXPORT cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
+CMSAPI boolint /*CMSEXPORT*/FASTCALL cmsIsTag(cmsHPROFILE hProfile, cmsTagSignature sig);
 
 // Read and write pre-formatted data
 CMSAPI void * CMSEXPORT cmsReadTag(cmsHPROFILE hProfile, cmsTagSignature sig);
-CMSAPI boolint CMSEXPORT cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data);
+CMSAPI boolint /*CMSEXPORT*/STDCALL cmsWriteTag(cmsHPROFILE hProfile, cmsTagSignature sig, const void * data);
 CMSAPI boolint CMSEXPORT cmsLinkTag(cmsHPROFILE hProfile, cmsTagSignature sig, cmsTagSignature dest);
 CMSAPI cmsTagSignature CMSEXPORT cmsTagLinkedTo(cmsHPROFILE hProfile, cmsTagSignature sig);
 
@@ -1366,7 +1360,6 @@ CMSAPI void CMSEXPORT cmsGetHeaderAttributes(cmsHPROFILE hProfile, uint64* Flags
 CMSAPI void CMSEXPORT cmsGetHeaderProfileID(cmsHPROFILE hProfile, uint8 * ProfileID);
 CMSAPI boolint CMSEXPORT cmsGetHeaderCreationDateTime(cmsHPROFILE hProfile, struct tm * Dest);
 CMSAPI uint32 CMSEXPORT cmsGetHeaderRenderingIntent(cmsHPROFILE hProfile);
-
 CMSAPI void CMSEXPORT cmsSetHeaderFlags(cmsHPROFILE hProfile, uint32 Flags);
 CMSAPI uint32 CMSEXPORT cmsGetHeaderManufacturer(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetHeaderManufacturer(cmsHPROFILE hProfile, uint32 manufacturer);
@@ -1376,19 +1369,14 @@ CMSAPI void CMSEXPORT cmsSetHeaderModel(cmsHPROFILE hProfile, uint32 model);
 CMSAPI void CMSEXPORT cmsSetHeaderAttributes(cmsHPROFILE hProfile, uint64 Flags);
 CMSAPI void CMSEXPORT cmsSetHeaderProfileID(cmsHPROFILE hProfile, uint8 * ProfileID);
 CMSAPI void CMSEXPORT cmsSetHeaderRenderingIntent(cmsHPROFILE hProfile, uint32 RenderingIntent);
-
-CMSAPI cmsColorSpaceSignature
-CMSEXPORT cmsGetPCS(cmsHPROFILE hProfile);
+CMSAPI cmsColorSpaceSignature CMSEXPORT cmsGetPCS(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetPCS(cmsHPROFILE hProfile, cmsColorSpaceSignature pcs);
-CMSAPI cmsColorSpaceSignature
-CMSEXPORT cmsGetColorSpace(cmsHPROFILE hProfile);
+CMSAPI cmsColorSpaceSignature CMSEXPORT cmsGetColorSpace(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetColorSpace(cmsHPROFILE hProfile, cmsColorSpaceSignature sig);
-CMSAPI cmsProfileClassSignature
-CMSEXPORT cmsGetDeviceClass(cmsHPROFILE hProfile);
+CMSAPI cmsProfileClassSignature CMSEXPORT cmsGetDeviceClass(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetDeviceClass(cmsHPROFILE hProfile, cmsProfileClassSignature sig);
 CMSAPI void CMSEXPORT cmsSetProfileVersion(cmsHPROFILE hProfile, double Version);
 CMSAPI double CMSEXPORT cmsGetProfileVersion(cmsHPROFILE hProfile);
-
 CMSAPI uint32 CMSEXPORT cmsGetEncodedICCversion(cmsHPROFILE hProfile);
 CMSAPI void CMSEXPORT cmsSetEncodedICCversion(cmsHPROFILE hProfile, uint32 Version);
 
@@ -1419,13 +1407,8 @@ typedef enum {
 	cmsInfoCopyright    = 3
 } cmsInfoType;
 
-CMSAPI uint32 CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info,
-    const char LanguageCode[3], const char CountryCode[3],
-    wchar_t * Buffer, uint32 BufferSize);
-
-CMSAPI uint32 CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info,
-    const char LanguageCode[3], const char CountryCode[3],
-    char * Buffer, uint32 BufferSize);
+CMSAPI uint32 CMSEXPORT cmsGetProfileInfo(cmsHPROFILE hProfile, cmsInfoType Info, const char LanguageCode[3], const char CountryCode[3], wchar_t * Buffer, uint32 BufferSize);
+CMSAPI uint32 CMSEXPORT cmsGetProfileInfoASCII(cmsHPROFILE hProfile, cmsInfoType Info, const char LanguageCode[3], const char CountryCode[3], char * Buffer, uint32 BufferSize);
 
 // IO handlers
 // ----------------------------------------------------------------------------------------------------------
@@ -1434,8 +1417,7 @@ typedef struct _cms_io_handler cmsIOHANDLER;
 
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromFile(cmsContext ContextID, const char * FileName, const char * AccessMode);
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromStream(cmsContext ContextID, FILE* Stream);
-CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, uint32 size,
-    const char * AccessMode);
+CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromMem(cmsContext ContextID, void * Buffer, uint32 size, const char * AccessMode);
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsOpenIOhandlerFromNULL(cmsContext ContextID);
 CMSAPI cmsIOHANDLER* CMSEXPORT cmsGetProfileIOhandler(cmsHPROFILE hProfile);
 CMSAPI boolint CMSEXPORT cmsCloseIOhandler(cmsIOHANDLER* io);
@@ -1461,69 +1443,31 @@ CMSAPI boolint CMSEXPORT cmsSaveProfileToFile(cmsHPROFILE hProfile, const char *
 CMSAPI boolint CMSEXPORT cmsSaveProfileToStream(cmsHPROFILE hProfile, FILE* Stream);
 CMSAPI boolint CMSEXPORT cmsSaveProfileToMem(cmsHPROFILE hProfile, void * MemPtr, uint32* BytesNeeded);
 CMSAPI uint32 CMSEXPORT cmsSaveProfileToIOhandler(cmsHPROFILE hProfile, cmsIOHANDLER* io);
-
+//
 // Predefined virtual profiles
-// ------------------------------------------------------------------------------------------
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateRGBProfileTHR(cmsContext ContextID,
-    const cmsCIExyY* WhitePoint,
-    const cmsCIExyYTRIPLE* Primaries,
-    cmsToneCurve * const TransferFunction[3]);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateRGBProfile(const cmsCIExyY* WhitePoint,
-    const cmsCIExyYTRIPLE* Primaries,
-    cmsToneCurve * const TransferFunction[3]);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateGrayProfileTHR(cmsContext ContextID,
-    const cmsCIExyY* WhitePoint,
-    const cmsToneCurve * TransferFunction);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateGrayProfile(const cmsCIExyY* WhitePoint,
-    const cmsToneCurve * TransferFunction);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID,
-    cmsColorSpaceSignature ColorSpace,
-    cmsToneCurve * const TransferFunctions[]);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature ColorSpace,
-    cmsToneCurve * const TransferFunctions[]);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID,
-    cmsColorSpaceSignature ColorSpace, double Limit);
-
+//
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateRGBProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint, const cmsCIExyYTRIPLE* Primaries, cmsToneCurve * const TransferFunction[3]);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateRGBProfile(const cmsCIExyY* WhitePoint, const cmsCIExyYTRIPLE* Primaries, cmsToneCurve * const TransferFunction[3]);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateGrayProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint, const cmsToneCurve * TransferFunction);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateGrayProfile(const cmsCIExyY* WhitePoint, const cmsToneCurve * TransferFunction);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLinkTHR(cmsContext ContextID, cmsColorSpaceSignature ColorSpace, cmsToneCurve * const TransferFunctions[]);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLinearizationDeviceLink(cmsColorSpaceSignature ColorSpace, cmsToneCurve * const TransferFunctions[]);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLinkTHR(cmsContext ContextID, cmsColorSpaceSignature ColorSpace, double Limit);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateInkLimitingDeviceLink(cmsColorSpaceSignature ColorSpace, double Limit);
-
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLab2ProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLab2Profile(const cmsCIExyY* WhitePoint);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLab4ProfileTHR(cmsContext ContextID, const cmsCIExyY* WhitePoint);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateLab4Profile(const cmsCIExyY* WhitePoint);
-
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateXYZProfileTHR(cmsContext ContextID);
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateXYZProfile(void);
-
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateXYZProfile();
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfileTHR(cmsContext ContextID);
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfile(void);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID,
-    uint32 nLUTPoints,
-    double Bright,
-    double Contrast,
-    double Hue,
-    double Saturation,
-    uint32 TempSrc,
-    uint32 TempDest);
-
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(uint32 nLUTPoints,
-    double Bright,
-    double Contrast,
-    double Hue,
-    double Saturation,
-    uint32 TempSrc,
-    uint32 TempDest);
-
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreate_sRGBProfile();
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfileTHR(cmsContext ContextID, uint32 nLUTPoints, double Bright, double Contrast, double Hue,
+    double Saturation, uint32 TempSrc, uint32 TempDest);
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateBCHSWabstractProfile(uint32 nLUTPoints, double Bright, double Contrast, double Hue, double Saturation,
+    uint32 TempSrc, uint32 TempDest);
 CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfileTHR(cmsContext ContextID);
-CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfile(void);
-
+CMSAPI cmsHPROFILE CMSEXPORT cmsCreateNULLProfile();
 // Converts a transform to a devicelink profile
 CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, double Version, uint32 dwFlags);
 
@@ -1545,10 +1489,7 @@ CMSAPI cmsHPROFILE CMSEXPORT cmsTransform2DeviceLink(cmsHTRANSFORM hTransform, d
 
 // Call with NULL as parameters to get the intent count
 CMSAPI uint32 CMSEXPORT cmsGetSupportedIntents(uint32 nMax, uint32* Codes, char ** Descriptions);
-CMSAPI uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID,
-    uint32 nMax,
-    uint32* Codes,
-    char ** Descriptions);
+CMSAPI uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, uint32* Codes, char ** Descriptions);
 
 // Flags
 
@@ -1675,52 +1616,30 @@ CMSAPI void CMSEXPORT cmsDoTransformLineStride(cmsHTRANSFORM Transform,
 
 CMSAPI void CMSEXPORT cmsSetAlarmCodes(const uint16 NewAlarm[cmsMAXCHANNELS]);
 CMSAPI void CMSEXPORT cmsGetAlarmCodes(uint16 NewAlarm[cmsMAXCHANNELS]);
-
-CMSAPI void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID,
-    const uint16 AlarmCodes[cmsMAXCHANNELS]);
-CMSAPI void CMSEXPORT cmsGetAlarmCodesTHR(cmsContext ContextID,
-    uint16 AlarmCodes[cmsMAXCHANNELS]);
-
+CMSAPI void CMSEXPORT cmsSetAlarmCodesTHR(cmsContext ContextID, const uint16 AlarmCodes[cmsMAXCHANNELS]);
+CMSAPI void CMSEXPORT cmsGetAlarmCodesTHR(cmsContext ContextID, uint16 AlarmCodes[cmsMAXCHANNELS]);
 // Adaptation state for absolute colorimetric intent
 CMSAPI double CMSEXPORT cmsSetAdaptationState(double d);
 CMSAPI double CMSEXPORT cmsSetAdaptationStateTHR(cmsContext ContextID, double d);
-
 // Grab the ContextID from an open transform. Returns NULL if a NULL transform is passed
 CMSAPI cmsContext CMSEXPORT cmsGetTransformContextID(cmsHTRANSFORM hTransform);
-
 // Grab the input/output formats
 CMSAPI uint32 CMSEXPORT cmsGetTransformInputFormat(cmsHTRANSFORM hTransform);
 CMSAPI uint32 CMSEXPORT cmsGetTransformOutputFormat(cmsHTRANSFORM hTransform);
-
 // For backwards compatibility
-CMSAPI boolint CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform,
-    uint32 InputFormat,
-    uint32 OutputFormat);
+CMSAPI boolint CMSEXPORT cmsChangeBuffersFormat(cmsHTRANSFORM hTransform, uint32 InputFormat, uint32 OutputFormat);
 
 // PostScript ColorRenderingDictionary and ColorSpaceArray ----------------------------------------------------
 
 typedef enum { cmsPS_RESOURCE_CSA, cmsPS_RESOURCE_CRD } cmsPSResourceType;
 
 // lcms2 unified method to access postscript color resources
-CMSAPI uint32 CMSEXPORT cmsGetPostScriptColorResource(cmsContext ContextID,
-    cmsPSResourceType Type,
-    cmsHPROFILE hProfile,
-    uint32 Intent,
-    uint32 dwFlags,
-    cmsIOHANDLER* io);
-
-CMSAPI uint32 CMSEXPORT cmsGetPostScriptCSA(cmsContext ContextID,
-    cmsHPROFILE hProfile,
-    uint32 Intent,
-    uint32 dwFlags,
-    void * Buffer,
-    uint32 dwBufferLen);
-CMSAPI uint32 CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID,
-    cmsHPROFILE hProfile,
-    uint32 Intent,
-    uint32 dwFlags,
-    void * Buffer,
-    uint32 dwBufferLen);
+CMSAPI uint32 CMSEXPORT cmsGetPostScriptColorResource(cmsContext ContextID, cmsPSResourceType Type, cmsHPROFILE hProfile,
+    uint32 Intent, uint32 dwFlags, cmsIOHANDLER* io);
+CMSAPI uint32 CMSEXPORT cmsGetPostScriptCSA(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Intent,
+    uint32 dwFlags, void * Buffer, uint32 dwBufferLen);
+CMSAPI uint32 CMSEXPORT cmsGetPostScriptCRD(cmsContext ContextID, cmsHPROFILE hProfile, uint32 Intent,
+    uint32 dwFlags, void * Buffer, uint32 dwBufferLen);
 
 // IT8.7 / CGATS.17-200x handling -----------------------------------------------------------------------------
 

@@ -3222,7 +3222,7 @@ static void xmlRelaxNGCheckChoiceDeterminism(xmlRelaxNGParserCtxt * ctxt, xmlRel
 			cur = cur->next;
 		}
 		list = (xmlRelaxNGDefine ***)SAlloc::M(nbchild * sizeof(xmlRelaxNGDefine **));
-		if(list == NULL) {
+		if(!list) {
 			xmlRngPErrMemory(ctxt, "building choice\n");
 			return;
 		}
@@ -3331,7 +3331,7 @@ static void xmlRelaxNGCheckGroupAttrs(xmlRelaxNGParserCtxt * ctxt, xmlRelaxNGDef
 		cur = cur->next;
 	}
 	list = static_cast<xmlRelaxNGDefine ***>(SAlloc::M(nbchild * sizeof(xmlRelaxNGDefine **)));
-	if(list == NULL) {
+	if(!list) {
 		xmlRngPErrMemory(ctxt, "building group\n");
 		return;
 	}
@@ -7593,7 +7593,7 @@ static int xmlRelaxNGValidateInterleave(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGD
 	 * pertaining to each group
 	 */
 	list = static_cast<xmlNode **>(SAlloc::M(nbgroups * sizeof(xmlNode *)));
-	if(list == NULL) {
+	if(!list) {
 		xmlRngVErrMemory(ctxt, "validating\n");
 		return -1;
 	}
@@ -8477,7 +8477,7 @@ static int xmlRelaxNGValidateState(xmlRelaxNGValidCtxtPtr ctxt, xmlRelaxNGDefine
 					    list = (xmlRelaxNGDefine *)xmlHashLookup2(triage, p_node->name, 0);
 					SETIFZ(list, (xmlRelaxNGDefine *)xmlHashLookup2(triage, reinterpret_cast<const xmlChar *>("#any"), 0));
 			    }
-			    if(list == NULL) {
+			    if(!list) {
 				    ret = -1;
 				    VALID_ERR2(XML_RELAXNG_ERR_ELEMWRONG, p_node->name);
 				    break;

@@ -89,7 +89,7 @@ static void ZSTD_ldm_gear_reset(ldmRollingHashState_t* state, BYTE const* data, 
  *
  * Precondition: The splits array must not be full.
  * Returns: The number of bytes processed. */
-static size_t ZSTD_ldm_gear_feed(ldmRollingHashState_t* state, BYTE const* data, size_t size, size_t* splits, unsigned* numSplits)
+static size_t ZSTD_ldm_gear_feed(ldmRollingHashState_t* state, BYTE const* data, size_t size, size_t* splits, uint * numSplits)
 {
 	uint64 hash = state->rolling;
 	uint64 mask = state->stopMask;
@@ -162,7 +162,7 @@ static ldmEntry_t* ZSTD_ldm_getBucket(ldmState_t* ldmState, size_t hash, ldmPara
  *  Insert the entry with corresponding hash into the hash table */
 static void ZSTD_ldm_insertEntry(ldmState_t* ldmState, const size_t hash, const ldmEntry_t entry, ldmParams_t const ldmParams)
 {
-	BYTE* const pOffset = ldmState->bucketOffsets + hash;
+	BYTE * const pOffset = ldmState->bucketOffsets + hash;
 	const uint offset = *pOffset;
 	*(ZSTD_ldm_getBucket(ldmState, hash, ldmParams) + offset) = entry;
 	*pOffset = (BYTE)((offset + 1) & ((1u << ldmParams.bucketSizeLog) - 1));
@@ -172,7 +172,7 @@ static void ZSTD_ldm_insertEntry(ldmState_t* ldmState, const size_t hash, const 
  *  Returns the number of bytes that match backwards before pIn and pMatch.
  *
  *  We count only bytes where pMatch >= pBase and pIn >= pAnchor. */
-static size_t ZSTD_ldm_countBackwardsMatch(const BYTE* pIn, const BYTE* pAnchor, const BYTE* pMatch, const BYTE* pMatchBase)
+static size_t ZSTD_ldm_countBackwardsMatch(const BYTE * pIn, const BYTE * pAnchor, const BYTE * pMatch, const BYTE * pMatchBase)
 {
 	size_t matchLength = 0;
 	while(pIn > pAnchor && pMatch > pMatchBase && pIn[-1] == pMatch[-1]) {
@@ -188,9 +188,9 @@ static size_t ZSTD_ldm_countBackwardsMatch(const BYTE* pIn, const BYTE* pAnchor,
  *  even with the backwards match spanning 2 different segments.
  *
  *  On reaching `pMatchBase`, start counting from mEnd */
-static size_t ZSTD_ldm_countBackwardsMatch_2segments(const BYTE* pIn, const BYTE* pAnchor,
-    const BYTE* pMatch, const BYTE* pMatchBase,
-    const BYTE* pExtDictStart, const BYTE* pExtDictEnd)
+static size_t ZSTD_ldm_countBackwardsMatch_2segments(const BYTE * pIn, const BYTE * pAnchor,
+    const BYTE * pMatch, const BYTE * pMatchBase,
+    const BYTE * pExtDictStart, const BYTE * pExtDictEnd)
 {
 	size_t matchLength = ZSTD_ldm_countBackwardsMatch(pIn, pAnchor, pMatch, pMatchBase);
 	if(pMatch - matchLength != pMatchBase || pMatchBase == pExtDictStart) {
@@ -212,7 +212,7 @@ static size_t ZSTD_ldm_countBackwardsMatch_2segments(const BYTE* pIn, const BYTE
  *  block compressors. */
 static size_t ZSTD_ldm_fillFastTables(ZSTD_matchState_t* ms, void const* end)
 {
-	const BYTE* const iend = (const BYTE*)end;
+	const BYTE * const iend = (const BYTE *)end;
 	switch(ms->cParams.strategy) {
 		case ZSTD_fast:
 		    ZSTD_fillHashTable(ms, iend, ZSTD_dtlm_fast);
@@ -237,8 +237,7 @@ static size_t ZSTD_ldm_fillFastTables(ZSTD_matchState_t* ms, void const* end)
 	return 0;
 }
 
-void ZSTD_ldm_fillHashTable(ldmState_t* ldmState, const BYTE* ip,
-    const BYTE* iend, ldmParams_t const* params)
+void ZSTD_ldm_fillHashTable(ldmState_t* ldmState, const BYTE * ip, const BYTE * iend, ldmParams_t const* params)
 {
 	const uint32 minMatchLength = params->minMatchLength;
 	const uint32 hBits = params->hashLog - params->bucketSizeLog;
@@ -246,18 +245,14 @@ void ZSTD_ldm_fillHashTable(ldmState_t* ldmState, const BYTE* ip,
 	BYTE const* const istart = ip;
 	ldmRollingHashState_t hashState;
 	size_t* const splits = ldmState->splitIndices;
-	unsigned numSplits;
-
+	uint numSplits;
 	DEBUGLOG(5, "ZSTD_ldm_fillHashTable");
-
 	ZSTD_ldm_gear_init(&hashState, params);
 	while(ip < iend) {
 		size_t hashed;
-		unsigned n;
-
+		uint n;
 		numSplits = 0;
 		hashed = ZSTD_ldm_gear_feed(&hashState, ip, iend - ip, splits, &numSplits);
-
 		for(n = 0; n < numSplits; n++) {
 			if(ip + splits[n] >= istart + minMatchLength) {
 				BYTE const* const split = ip + splits[n] - minMatchLength;
@@ -280,7 +275,7 @@ void ZSTD_ldm_fillHashTable(ldmState_t* ldmState, const BYTE* ip,
  *  Sets cctx->nextToUpdate to a position corresponding closer to anchor
  *  if it is far way
  *  (after a long match, only update tables a limited amount). */
-static void ZSTD_ldm_limitTableUpdate(ZSTD_matchState_t* ms, const BYTE* anchor)
+static void ZSTD_ldm_limitTableUpdate(ZSTD_matchState_t* ms, const BYTE * anchor)
 {
 	const uint32 curr = (uint32)(anchor - ms->window.base);
 	if(curr > ms->nextToUpdate + 1024) {
@@ -317,24 +312,18 @@ static size_t ZSTD_ldm_generateSequences_internal(ldmState_t* ldmState, rawSeqSt
 	/* Arrays for staged-processing */
 	size_t* const splits = ldmState->splitIndices;
 	ldmMatchCandidate_t* const candidates = ldmState->matchCandidates;
-	unsigned numSplits;
-
+	uint numSplits;
 	if(srcSize < minMatchLength)
 		return iend - anchor;
-
 	/* Initialize the rolling hash state with the first minMatchLength bytes */
 	ZSTD_ldm_gear_init(&hashState, params);
 	ZSTD_ldm_gear_reset(&hashState, ip, minMatchLength);
 	ip += minMatchLength;
-
 	while(ip < ilimit) {
 		size_t hashed;
-		unsigned n;
-
+		uint n;
 		numSplits = 0;
-		hashed = ZSTD_ldm_gear_feed(&hashState, ip, ilimit - ip,
-			splits, &numSplits);
-
+		hashed = ZSTD_ldm_gear_feed(&hashState, ip, ilimit - ip, splits, &numSplits);
 		for(n = 0; n < numSplits; n++) {
 			BYTE const* const split = ip + splits[n] - minMatchLength;
 			uint64 const xxhash = XXH64(split, minMatchLength, 0);

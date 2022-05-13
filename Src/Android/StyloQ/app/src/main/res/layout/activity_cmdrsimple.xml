@@ -25,7 +25,7 @@
                 android:layout_gravity="left"
                 android:ems="10"
                 android:text="Command Result"
-                android:textColor="@color/PrimaryText"/>
+                android:textColor="@color/TextPrimary"/>
         </androidx.appcompat.widget.Toolbar>
         <TextView
             android:id="@+id/cmdResultText"

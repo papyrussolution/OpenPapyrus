@@ -88,7 +88,7 @@ int PPObjInternetAccount::Browse(void * extraPtr)
 				int    r = ListToListDialog(&data);
 				if(r > 0)
 					ExportEmailAccts(data.P_List);
-				else if(r == 0)
+				else if(!r)
 					PPError();
 			}
 			else if(event.isCmd(cmTransmitCharry)) {

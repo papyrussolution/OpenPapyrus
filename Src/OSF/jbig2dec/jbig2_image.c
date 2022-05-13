@@ -374,7 +374,7 @@ int jbig2_image_compose(Jbig2Ctx * ctx, Jbig2Image * dst, Jbig2Image * src, int 
 	int late;
 	uint32_t bytewidth;
 	uint32_t syoffset = 0;
-	if(src == NULL)
+	if(!src)
 		return 0;
 	if((UINT32_MAX - src->width  < (uint32_t)(x > 0 ? x : -x)) || (UINT32_MAX - src->height < (uint32_t)(y > 0 ? y : -y))) {
 #ifdef JBIG2_DEBUG

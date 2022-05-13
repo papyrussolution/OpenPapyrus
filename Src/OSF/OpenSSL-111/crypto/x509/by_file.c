@@ -220,7 +220,7 @@ int X509_load_cert_crl_file(X509_LOOKUP * ctx, const char * file, int type)
 			count++;
 		}
 	}
-	if(count == 0)
+	if(!count)
 		X509err(X509_F_X509_LOAD_CERT_CRL_FILE,
 		    X509_R_NO_CERTIFICATE_OR_CRL_FOUND);
 err:

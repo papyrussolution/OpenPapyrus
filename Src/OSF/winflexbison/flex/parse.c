@@ -131,11 +131,11 @@ int previous_continued_action;  /* whether the previous rule's action was '|' */
 #line 149 "parse.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
-#  if defined __cplusplus && 201103L <= __cplusplus
-#   define YY_NULLPTR nullptr
-#  else
-#   define YY_NULLPTR 0
-#  endif
+#if defined __cplusplus && 201103L <= __cplusplus
+#define YY_NULLPTR nullptr
+#else
+#define YY_NULLPTR 0
+#endif
 # endif
 
 /* Enabling verbose error messages.  */
@@ -375,7 +375,7 @@ typedef unsigned short int yytype_uint16;
 /* The parser invokes alloca or malloc; define the necessary symbols.  */
 
 # ifdef YYSTACK_USE_ALLOCA
-#  if YYSTACK_USE_ALLOCA
+#if YYSTACK_USE_ALLOCA
 #   ifdef __GNUC__
 #    define YYSTACK_ALLOC __builtin_alloca
 #   elif defined __BUILTIN_VA_ARG_INCR
@@ -385,53 +385,53 @@ typedef unsigned short int yytype_uint16;
 #   elif defined _MSC_VER
 #    include <malloc.h> /* INFRINGES ON USER NAME SPACE */
 #    define alloca _alloca
-#   else
+#else
 #    define YYSTACK_ALLOC alloca
-#    if !defined _ALLOCA_H && !defined EXIT_SUCCESS
+#if !defined _ALLOCA_H && !defined EXIT_SUCCESS
 #     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 /* Use EXIT_SUCCESS as a witness for stdlib.h.  */
 #     ifndef EXIT_SUCCESS
 #      define EXIT_SUCCESS 0
 #     endif
-#    endif
-#   endif
-#  endif
+#endif
+#endif
+#endif
 # endif
 
 # ifdef YYSTACK_ALLOC
 /* Pacify GCC's 'empty if-body' warning.  */
-#  define YYSTACK_FREE(Ptr) do { /* empty */; } while(0)
-#  ifndef YYSTACK_ALLOC_MAXIMUM
+#define YYSTACK_FREE(Ptr) do { /* empty */; } while(0)
+#ifndef YYSTACK_ALLOC_MAXIMUM
 /* The OS might guarantee only one guard page at the bottom of the stack,
    and a page size can be as small as 4096 bytes.  So we cannot safely
    invoke alloca (N) if N exceeds 4096.  Use a slightly smaller number
    to allow for a few compiler-allocated temporary stack slots.  */
-#   define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2006 */
-#  endif
+#define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2006 */
+#endif
 # else
-#  define YYSTACK_ALLOC YYMALLOC
-#  define YYSTACK_FREE YYFREE
-#  ifndef YYSTACK_ALLOC_MAXIMUM
-#   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
-#  endif
-#  if(defined __cplusplus && !defined EXIT_SUCCESS && !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
+#define YYSTACK_ALLOC YYMALLOC
+#define YYSTACK_FREE YYFREE
+#ifndef YYSTACK_ALLOC_MAXIMUM
+#define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
+#endif
+#if(defined __cplusplus && !defined EXIT_SUCCESS && !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   ifndef EXIT_SUCCESS
 #    define EXIT_SUCCESS 0
-#   endif
-#  endif
-#  ifndef YYMALLOC
-#   define YYMALLOC malloc
-#   if !defined malloc && !defined EXIT_SUCCESS
+#endif
+#endif
+#ifndef YYMALLOC
+#define YYMALLOC malloc
+#if !defined malloc && !defined EXIT_SUCCESS
 void * SAlloc::M(YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
-#   endif
-#  endif
-#  ifndef YYFREE
-#   define YYFREE free
-#   if !defined free && !defined EXIT_SUCCESS
+#endif
+#endif
+#ifndef YYFREE
+#define YYFREE free
+#if !defined free && !defined EXIT_SUCCESS
 void SAlloc::F(void *);  /* INFRINGES ON USER NAME SPACE */
-#   endif
-#  endif
+#endif
+#endif
 # endif
 #endif /* ! defined yyoverflow || YYERROR_VERBOSE */
 
@@ -472,17 +472,17 @@ union yyalloc {
 /* Copy COUNT objects from SRC to DST.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
-#  if defined __GNUC__ && 1 < __GNUC__
-#   define YYCOPY(Dst, Src, Count) \
+#if defined __GNUC__ && 1 < __GNUC__
+#define YYCOPY(Dst, Src, Count) \
 	__builtin_memcpy(Dst, Src, (Count) * sizeof(*(Src)))
-#  else
-#   define YYCOPY(Dst, Src, Count)              \
+#else
+#define YYCOPY(Dst, Src, Count)              \
 	do {                                       \
 		YYSIZE_T yyi;                         \
 		for(yyi = 0; yyi < (Count); yyi++)   \
 			(Dst)[yyi] = (Src)[yyi];            \
 	} while(0)
-#  endif
+#endif
 # endif
 #endif /* !YYCOPY_NEEDED */
 
@@ -800,7 +800,7 @@ static const yytype_uint8 yyr2[] =
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYFPRINTF fprintf
+#define YYFPRINTF fprintf
 # endif
 
 #define YYDPRINTF(Args)                        \
@@ -929,9 +929,9 @@ int yydebug;
 #if YYERROR_VERBOSE
 
 # ifndef yystrlen
-#  if defined __GLIBC__ && defined _STRING_H
-#   define yystrlen strlen
-#  else
+#if defined __GLIBC__ && defined _STRING_H
+#define yystrlen strlen
+#else
 /* Return the length of YYSTR.  */
 static YYSIZE_T yystrlen(const char * yystr)
 {
@@ -941,13 +941,13 @@ static YYSIZE_T yystrlen(const char * yystr)
 	return yylen;
 }
 
-#  endif
+#endif
 # endif
 
 # ifndef yystpcpy
-#  if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
-#   define yystpcpy stpcpy
-#  else
+#if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
+#define yystpcpy stpcpy
+#else
 /* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
    YYDEST.  */
 static char * yystpcpy(char * yydest, const char * yysrc)
@@ -961,7 +961,7 @@ static char * yystpcpy(char * yydest, const char * yysrc)
 	return yyd - 1;
 }
 
-#  endif
+#endif
 # endif
 
 # ifndef yytnamerr

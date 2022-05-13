@@ -332,7 +332,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 
 		key = static_cast<uchar *>(OPENSSL_malloc(keylen));
 
-		if(key == NULL)
+		if(!key)
 			goto err;
 
 		if(!kek_wrap_key(key, &keylen, ec->key, ec->keylen, kekctx))
@@ -343,7 +343,7 @@ int cms_RecipientInfo_pwri_crypt(CMS_ContentInfo * cms, CMS_RecipientInfo * ri, 
 	else {
 		key = static_cast<uchar *>(OPENSSL_malloc(pwri->encryptedKey->length));
 
-		if(key == NULL) {
+		if(!key) {
 			CMSerr(CMS_F_CMS_RECIPIENTINFO_PWRI_CRYPT, ERR_R_MALLOC_FAILURE);
 			goto err;
 		}

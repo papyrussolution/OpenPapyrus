@@ -131,7 +131,7 @@ int AccountCore::GenerateNumber(PPAccount * pRec)
 				pRec->Sb = 0;
 				ok = 1;
 			}
-			else if(r == 0)
+			else if(!r)
 				ok = 0;
 	if(ok < 0)
 		ok = PPSetError(PPERR_CANTGENACCNUMBER);

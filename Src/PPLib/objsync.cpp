@@ -178,7 +178,7 @@ int ObjSyncCore::GetSyncStatus(PPID objType, PPID privID, PPCommSyncID * pCommId
 		else
 			ok = 1;
 	}
-	else if(r == 0)
+	else if(!r)
 		ok = 0;
 	ASSIGN_PTR(pCommId, comm_id);
 	ASSIGN_PTR(pDbDivList, db_div_list);

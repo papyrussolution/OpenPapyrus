@@ -26,18 +26,18 @@ nanotime_t nanotime()
 		mach_timebase_info_data_t info;
 		nanotime_t t = mach_absolute_time();
 		kern_return_t r = mach_timebase_info(&info);
-		if(r != 0) return 0;
+		if(r) return 0;
 		value = (t / info.denom) * info.numer;
 		value += (t % info.denom) * info.numer / info.denom;
     #elif defined(__linux)
 		struct timespec ts;
 		int r = clock_gettime(CLOCK_MONOTONIC, &ts);
-		if(r != 0) return 0;
+		if(r) return 0;
 		value = ts.tv_sec * (nanotime_t)1000000000 + ts.tv_nsec;
     #else
 		struct timeval tv;
 		int r = gettimeofday(&tv, 0);
-		if(r != 0) return 0;
+		if(r) return 0;
 		value = tv.tv_sec * (nanotime_t)1000000000 + tv.tv_usec * 1000;
     #endif
 	return value;
@@ -110,7 +110,7 @@ const char * file_read(const char * path, size_t * len)
 	if(fd < 0) 
 		goto abort_read;
 	buffer = (char *)mem_alloc(NULL, (size_t)fsize + 1);
-	if(buffer == NULL) 
+	if(!buffer) 
 		goto abort_read;
 	buffer[fsize] = 0;
 	fsize2 = _read(fd, buffer, (size_t)fsize);
@@ -387,7 +387,7 @@ char * string_replace(const char * str, const char * from, const char * to, size
 		goto end_repl_str;
 	}
 
-	if(count == 0) {
+	if(!count) {
 		// if no matches, then just duplicate the string
 		strcpy(ret, str);
 	}

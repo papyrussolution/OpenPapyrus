@@ -47,7 +47,7 @@
 int __db_makeKey(keyInstance * key, int direction, int keyLen, char * keyMaterial)
 {
 	u8 cipherKey[MAXKB];
-	if(key == NULL) {
+	if(!key) {
 		return BAD_KEY_INSTANCE;
 	}
 	if((direction == DIR_ENCRYPT) || (direction == DIR_DECRYPT)) {

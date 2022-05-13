@@ -1091,7 +1091,7 @@ static int init_decompression(struct archive_read * a, struct _7zip * zip, const
 		    __archive_ppmd7_functions.Ppmd7_Construct(&zip->ppmd7_context);
 		    r = __archive_ppmd7_functions.Ppmd7_Alloc(
 			    &zip->ppmd7_context, msize);
-		    if(r == 0) {
+		    if(!r) {
 			    archive_set_error(&a->archive, ENOMEM, "Coludn't allocate memory for PPMd");
 			    return ARCHIVE_FATAL;
 		    }
@@ -1308,7 +1308,7 @@ static int decompress(struct archive_read * a, struct _7zip * zip,
 			    zip->range_dec.Stream = &zip->bytein;
 			    r = __archive_ppmd7_functions.Ppmd7z_RangeDec_Init(
 				    &(zip->range_dec));
-			    if(r == 0) {
+			    if(!r) {
 				    zip->ppmd7_stat = -1;
 				    archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize PPMd range decorder");
 				    return ARCHIVE_FAILED;
@@ -2594,7 +2594,7 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 			    archive_set_error(&a->archive, -1, "Damaged 7-Zip archive");
 			    r = -1;
 		    }
-		    if(r == 0) {
+		    if(!r) {
 			    if(zip->si.ci.folders[0].digest_defined)
 				    next_header_crc = zip->si.ci.folders[0].digest;
 			    else
@@ -2602,7 +2602,7 @@ static int slurp_central_directory(struct archive_read * a, struct _7zip * zip, 
 			    if(zip->pack_stream_bytes_unconsumed)
 				    read_consume(a);
 			    r = setup_decode_folder(a, zip->si.ci.folders, 1);
-			    if(r == 0) {
+			    if(!r) {
 				    zip->header_bytes_remaining =
 					zip->folder_outbytes_remaining;
 				    r = seek_pack(a);

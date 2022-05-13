@@ -224,7 +224,7 @@ SLTEST_R(SWmi)
 			}
 		}
 	}
-	if(r == 0) {
+	if(!r) {
 		out.WriteLine("Invalid arg list\n");
 		CurrentStatus = 0;
 	}

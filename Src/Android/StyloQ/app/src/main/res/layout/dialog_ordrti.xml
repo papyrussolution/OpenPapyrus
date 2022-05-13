@@ -16,7 +16,7 @@
         android:id="@+id/CTL_ORDRTI_GOODSNAME"
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:textColor="@color/PrimaryText"
+        android:textColor="@color/TextPrimary"
         />
     <LinearLayout
         android:layout_width="match_parent"
@@ -40,7 +40,7 @@
                 android:id="@+id/CTL_ORDRTI_PRICE"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:textColor="@color/PrimaryText"
+                android:textColor="@color/TextPrimary"
                 />
         </LinearLayout>
         <LinearLayout
@@ -122,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:textColor="@color/PrimaryText"
+            android:textColor="@color/TextPrimary"
             />
     </LinearLayout>
     <LinearLayout

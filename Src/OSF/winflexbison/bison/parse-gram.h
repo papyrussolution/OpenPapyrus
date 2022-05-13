@@ -41,12 +41,12 @@
 #ifndef GRAM_DEBUG
 # if defined YYDEBUG
 #if YYDEBUG
-#   define GRAM_DEBUG 1
-#  else
-#   define GRAM_DEBUG 0
-#  endif
+#define GRAM_DEBUG 1
+#else
+#define GRAM_DEBUG 0
+#endif
 # else /* ! defined YYDEBUG */
-#  define GRAM_DEBUG 1
+#define GRAM_DEBUG 1
 # endif /* ! defined YYDEBUG */
 #endif  /* ! defined GRAM_DEBUG */
 #if GRAM_DEBUG

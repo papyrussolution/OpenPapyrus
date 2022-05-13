@@ -32,7 +32,7 @@ static inline uintptr_t mi_bitmap_mask_(size_t count, size_t bitidx) {
 	mi_assert_internal(count + bitidx <= MI_BITMAP_FIELD_BITS);
 	mi_assert_internal(count > 0);
 	if(count >= MI_BITMAP_FIELD_BITS) return MI_BITMAP_FIELD_FULL;
-	if(count == 0) return 0;
+	if(!count) return 0;
 	return ((((uintptr_t)1 << count) - 1) << bitidx);
 }
 

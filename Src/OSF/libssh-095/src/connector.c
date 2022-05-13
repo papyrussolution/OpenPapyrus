@@ -210,7 +210,7 @@ static void ssh_connector_fd_in_cb(ssh_connector connector)
 		}
 
 		if(connector->out_channel != NULL) {
-			if(r == 0) {
+			if(!r) {
 				SSH_LOG(SSH_LOG_TRACE, "input fd %d is EOF", connector->in_fd);
 				if(connector->out_channel->local_eof == 0) {
 					rc = ssh_channel_send_eof(connector->out_channel);
@@ -240,7 +240,7 @@ static void ssh_connector_fd_in_cb(ssh_connector connector)
 			}
 		}
 		else if(connector->out_fd != SSH_INVALID_SOCKET) {
-			if(r == 0) {
+			if(!r) {
 				close(connector->out_fd);
 				connector->out_fd = SSH_INVALID_SOCKET;
 			}
@@ -638,7 +638,7 @@ static bool ssh_connector_fd_is_socket(socket_t s)
 	int rc;
 
 	rc = fstat(s, &sb);
-	if(rc != 0) {
+	if(rc) {
 		SSH_LOG(SSH_LOG_TRACE,
 		    "error %i in fstat() for fd %d",
 		    errno,

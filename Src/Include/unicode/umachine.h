@@ -224,34 +224,34 @@
 #if defined(U_INT64_T_UNAVAILABLE)
 # error int64_t is required for decimal format and rule-based number format.
 #else
-# ifndef INT64_C
+#ifndef INT64_C
 /**
  * Provides a platform independent way to specify a signed 64-bit integer constant.
  * note: may be wrong for some 64 bit platforms - ensure your compiler provides INT64_C
  * @stable ICU 2.8
  */
 #define INT64_C(c) c ## LL
-# endif
-# ifndef UINT64_C
+#endif
+#ifndef UINT64_C
 /**
  * Provides a platform independent way to specify an unsigned 64-bit integer constant.
  * note: may be wrong for some 64 bit platforms - ensure your compiler provides UINT64_C
  * @stable ICU 2.8
  */
 #define UINT64_C(c) c ## ULL
-# endif
-# ifndef U_INT64_MIN
+#endif
+#ifndef U_INT64_MIN
 /** The smallest value a 64 bit signed integer can hold @stable ICU 2.8 */
-#     define U_INT64_MIN       ((int64_t)(INT64_C(-9223372036854775807)-1))
-# endif
-# ifndef U_INT64_MAX
+#define U_INT64_MIN       ((int64_t)(INT64_C(-9223372036854775807)-1))
+#endif
+#ifndef U_INT64_MAX
 /** The largest value a 64 bit signed integer can hold @stable ICU 2.8 */
-#     define U_INT64_MAX       ((int64_t)(INT64_C(9223372036854775807)))
-# endif
-# ifndef U_UINT64_MAX
+#define U_INT64_MAX       ((int64_t)(INT64_C(9223372036854775807)))
+#endif
+#ifndef U_UINT64_MAX
 /** The largest value a 64 bit unsigned integer can hold @stable ICU 2.8 */
-#     define U_UINT64_MAX      ((uint64_t)(UINT64_C(18446744073709551615)))
-# endif
+#define U_UINT64_MAX      ((uint64_t)(UINT64_C(18446744073709551615)))
+#endif
 #endif
 
 /*==========================================================================*/
@@ -332,24 +332,24 @@ typedef int8 UBool_Removed; // @sobolev _Removed
  */
 #if !defined(U_WCHAR_IS_UTF16) && !defined(U_WCHAR_IS_UTF32)
 #   ifdef __STDC_ISO_10646__
-#       if (U_SIZEOF_WCHAR_T==2)
-#           define U_WCHAR_IS_UTF16
+#if (U_SIZEOF_WCHAR_T==2)
+#define U_WCHAR_IS_UTF16
 #       elif (U_SIZEOF_WCHAR_T==4)
-#           define  U_WCHAR_IS_UTF32
-#       endif
-#   elif defined __UCS2__
-#       if (U_PF_OS390 <= U_PLATFORM && U_PLATFORM <= U_PF_OS400) && (U_SIZEOF_WCHAR_T==2)
-#           define U_WCHAR_IS_UTF16
-#       endif
-#   elif defined(__UCS4__) || (U_PLATFORM == U_PF_OS400 && defined(__UTF32__))
-#       if (U_SIZEOF_WCHAR_T==4)
-#           define U_WCHAR_IS_UTF32
-#       endif
-#   elif U_PLATFORM_IS_DARWIN_BASED || (U_SIZEOF_WCHAR_T==4 && U_PLATFORM_IS_LINUX_BASED)
-#       define U_WCHAR_IS_UTF32
-#   elif U_PLATFORM_HAS_WIN32_API
-#       define U_WCHAR_IS_UTF16
-#   endif
+#define  U_WCHAR_IS_UTF32
+#endif
+#elif defined __UCS2__
+#if (U_PF_OS390 <= U_PLATFORM && U_PLATFORM <= U_PF_OS400) && (U_SIZEOF_WCHAR_T==2)
+#define U_WCHAR_IS_UTF16
+#endif
+#elif defined(__UCS4__) || (U_PLATFORM == U_PF_OS400 && defined(__UTF32__))
+#if (U_SIZEOF_WCHAR_T==4)
+#define U_WCHAR_IS_UTF32
+#endif
+#elif U_PLATFORM_IS_DARWIN_BASED || (U_SIZEOF_WCHAR_T==4 && U_PLATFORM_IS_LINUX_BASED)
+#define U_WCHAR_IS_UTF32
+#elif U_PLATFORM_HAS_WIN32_API
+#define U_WCHAR_IS_UTF16
+#endif
 #endif
 
 /* UChar and UChar32 definitions -------------------------------------------- */

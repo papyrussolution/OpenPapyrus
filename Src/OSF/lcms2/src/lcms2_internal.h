@@ -76,7 +76,7 @@
 	#endif
 	#ifndef vsnprintf
 		#define vsnprintf  _vsnprintf
-#endif
+	#endif
 /// Properly define some macros to accommodate
 /// older MSVC versions.
 #if defined(_MSC_VER) && _MSC_VER <= 1700
@@ -87,25 +87,23 @@
 
 #if !defined(_MSC_VER) && (defined(__STDC_VERSION__) && __STDC_VERSION__ < 199901L)
 	#if !defined(isinf)
-	#define isinf(x) (!finite((x)))
+		#define isinf(x) (!finite((x)))
 	#endif
 #endif
-
 #endif
-
 // A fast way to convert from/to 16 <-> 8 bits
 #define FROM_8_TO_16(rgb) (uint16)((((uint16)(rgb)) << 8)|(rgb))
 #define FROM_16_TO_8(rgb) (uint8)((((uint32)(rgb) * 65281U + 8388608U) >> 24) & 0xFFU)
 
 // Code analysis is broken on asserts
 #ifdef _MSC_VER
-#    if(_MSC_VER >= 1500)
+#if(_MSC_VER >= 1500)
 #define _cmsAssert(a) { assert((a)); __analysis_assume((a)); }
 #else
 #define _cmsAssert(a)   assert((a))
 #endif
 #else
-#      define _cmsAssert(a)   assert((a))
+#define _cmsAssert(a)   assert((a))
 #endif
 
 //---------------------------------------------------------------------------------
@@ -226,9 +224,9 @@ cmsINLINE uint16 _cmsQuickSaturateWord(double d)
 typedef CRITICAL_SECTION _cmsMutex;
 
 #ifdef _MSC_VER
-#    if(_MSC_VER >= 1800)
+#if(_MSC_VER >= 1800)
 #          pragma warning(disable : 26135)
-#    endif
+#endif
 #endif
 
 #ifndef CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
@@ -240,13 +238,13 @@ typedef CRITICAL_SECTION _cmsMutex;
 #if _MSC_VER < 1400
 #define CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
 #endif
-#    endif
+#endif
 #endif
 
 #ifdef CMS_RELY_ON_WINDOWS_STATIC_MUTEX_INIT
-#      define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)-1, -1, 0, 0, 0, 0}
+#define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)-1, -1, 0, 0, 0, 0}
 #else
-#      define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)NULL, -1, 0, 0, 0, 0}
+#define CMS_MUTEX_INITIALIZER {(PRTL_CRITICAL_SECTION_DEBUG)NULL, -1, 0, 0, 0, 0}
 #endif
 
 cmsINLINE int _cmsLockPrimitive(_cmsMutex * m)
@@ -442,10 +440,10 @@ struct _cmsContext_struct {
 
 // Returns a pointer to a valid context structure, including the global one if id is zero.
 // Verifies the magic number.
-struct _cmsContext_struct* _cmsGetContext(cmsContext ContextID);
+struct _cmsContext_struct * FASTCALL _cmsGetContext(cmsContext ContextID);
 
 // Returns the block assigned to the specific zone.
-void * _cmsContextGetClientChunk(cmsContext id, _cmsMemoryClient mc);
+void * FASTCALL _cmsContextGetClientChunk(cmsContext id, _cmsMemoryClient mc);
 
 // Chunks of context memory by plug-in client -------------------------------------------------------
 

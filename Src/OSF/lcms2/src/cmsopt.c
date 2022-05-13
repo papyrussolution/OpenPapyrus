@@ -606,43 +606,29 @@ Error:
 		cmsPipelineFree(Dest);
 		return FALSE;
 	}
-
 	// Done.
-
-	if(KeepPreLin != NULL) cmsStageFree(KeepPreLin);
-	if(KeepPostLin != NULL) cmsStageFree(KeepPostLin);
+	cmsStageFree(KeepPreLin);
+	cmsStageFree(KeepPostLin);
 	cmsPipelineFree(Src);
-
 	DataCLUT = (_cmsStageCLutData*)CLUT->Data;
-
-	if(NewPreLin == NULL) DataSetIn = NULL;
-	else DataSetIn = ((_cmsStageToneCurvesData*)NewPreLin->Data)->TheCurves;
-
-	if(NewPostLin == NULL) DataSetOut = NULL;
-	else DataSetOut = ((_cmsStageToneCurvesData*)NewPostLin->Data)->TheCurves;
-
+	if(NewPreLin == NULL) 
+		DataSetIn = NULL;
+	else 
+		DataSetIn = ((_cmsStageToneCurvesData*)NewPreLin->Data)->TheCurves;
+	if(NewPostLin == NULL) 
+		DataSetOut = NULL;
+	else 
+		DataSetOut = ((_cmsStageToneCurvesData*)NewPostLin->Data)->TheCurves;
 	if(DataSetIn == NULL && DataSetOut == NULL) {
-		_cmsPipelineSetOptimizationParameters(Dest,
-		    (_cmsOPTeval16Fn)DataCLUT->Params->Interpolation.Lerp16,
-		    DataCLUT->Params,
-		    NULL,
-		    NULL);
+		_cmsPipelineSetOptimizationParameters(Dest, (_cmsOPTeval16Fn)DataCLUT->Params->Interpolation.Lerp16, DataCLUT->Params, NULL, NULL);
 	}
 	else {
-		p16 = PrelinOpt16alloc(Dest->ContextID,
-			DataCLUT->Params,
-			Dest->InputChannels,
-			DataSetIn,
-			Dest->OutputChannels,
-			DataSetOut);
-
+		p16 = PrelinOpt16alloc(Dest->ContextID, DataCLUT->Params, Dest->InputChannels, DataSetIn, Dest->OutputChannels, DataSetOut);
 		_cmsPipelineSetOptimizationParameters(Dest, PrelinEval16, (void *)p16, PrelinOpt16free, Prelin16dup);
 	}
-
 	// Don't fix white on absolute colorimetric
 	if(Intent == INTENT_ABSOLUTE_COLORIMETRIC)
 		*dwFlags |= cmsFLAGS_NOWHITEONWHITEFIXUP;
-
 	if(!(*dwFlags & cmsFLAGS_NOWHITEONWHITEFIXUP)) {
 		FixWhiteMisalignment(Dest, ColorSpace, OutputColorSpace);
 	}

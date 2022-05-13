@@ -10037,7 +10037,7 @@ IMPL_HANDLE_EVENT(SCardInfoDialog)
 						const int r = ScObj.VerifyOwner(sc_pack, PosNodeID, 1 /*updatImmediately*/);
 						if(r > 0)
 							SetupCard(sc_rec.ID, 0);
-						else if(r == 0)
+						else if(!r)
 							PPError();
 					}
 				}
@@ -10732,7 +10732,7 @@ int CPosProcessor::SetupNewRow(PPID goodsID, PgsBlock & rBlk, PPID giftID/*=0*/)
 					}
 				}
 			}
-			else if(r == 0)
+			else if(!r)
 				ok = MessageError(PPErrCode, 0, eomStatusLine|eomBeep);
 		}
 		else

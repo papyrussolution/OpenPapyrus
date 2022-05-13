@@ -292,7 +292,7 @@ ASN1_INTEGER * c2i_ASN1_INTEGER(ASN1_INTEGER ** a, const uchar ** pp,
 
 	r = c2i_ibuf(NULL, NULL, *pp, len);
 
-	if(r == 0)
+	if(!r)
 		return NULL;
 
 	if((a == NULL) || ((*a) == NULL)) {
@@ -325,7 +325,7 @@ err:
 
 static int asn1_string_get_int64(int64_t * pr, const ASN1_STRING * a, int itype)
 {
-	if(a == NULL) {
+	if(!a) {
 		ASN1err(ASN1_F_ASN1_STRING_GET_INT64, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -361,7 +361,7 @@ static int asn1_string_set_int64(ASN1_STRING * a, int64_t r, int itype)
 static int asn1_string_get_uint64(uint64_t * pr, const ASN1_STRING * a,
     int itype)
 {
-	if(a == NULL) {
+	if(!a) {
 		ASN1err(ASN1_F_ASN1_STRING_GET_UINT64, ERR_R_PASSED_NULL_PARAMETER);
 		return 0;
 	}
@@ -549,7 +549,7 @@ long ASN1_INTEGER_get(const ASN1_INTEGER * a)
 {
 	int i;
 	int64_t r;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	i = ASN1_INTEGER_get_int64(&r, a);
 	if(i == 0)
@@ -588,7 +588,7 @@ long ASN1_ENUMERATED_get(const ASN1_ENUMERATED * a)
 {
 	int i;
 	int64_t r;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if((a->type & ~V_ASN1_NEG) != V_ASN1_ENUMERATED)
 		return -1;

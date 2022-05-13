@@ -68,7 +68,7 @@ static int ssl_new(BIO * bi)
 static int ssl_free(BIO * a)
 {
 	BIO_SSL * bs;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	bs = static_cast<BIO_SSL *>(BIO_get_data(a));
 	if(bs->ssl)

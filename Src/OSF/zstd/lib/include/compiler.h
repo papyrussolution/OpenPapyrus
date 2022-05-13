@@ -72,10 +72,10 @@
 #ifdef _MSC_VER
 #  define FORCE_NOINLINE static __declspec(noinline)
 #else
-#  if defined(__GNUC__) || defined(__ICCARM__)
-#    define FORCE_NOINLINE static __attribute__((__noinline__))
-#  else
-#    define FORCE_NOINLINE static
+#if defined(__GNUC__) || defined(__ICCARM__)
+#define FORCE_NOINLINE static __attribute__((__noinline__))
+#else
+#define FORCE_NOINLINE static
 #  endif
 #endif
 /* target attribute */
@@ -96,19 +96,19 @@
 #  define PREFETCH_L1(ptr)  (void)(ptr)  /* disabled */
 #  define PREFETCH_L2(ptr)  (void)(ptr)  /* disabled */
 #else
-#  if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))  /* _mm_prefetch() is not defined outside of x86/x64 */
-#    include <mmintrin.h>   /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
-#    define PREFETCH_L1(ptr)  _mm_prefetch((const char*)(ptr), _MM_HINT_T0)
-#    define PREFETCH_L2(ptr)  _mm_prefetch((const char*)(ptr), _MM_HINT_T1)
-#  elif defined(__GNUC__) && ( (__GNUC__ >= 4) || ( (__GNUC__ == 3) && (__GNUC_MINOR__ >= 1) ) )
-#    define PREFETCH_L1(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 3 /* locality */)
-#    define PREFETCH_L2(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 2 /* locality */)
-#  elif defined(__aarch64__)
-#    define PREFETCH_L1(ptr)  __asm__ __volatile__("prfm pldl1keep, %0" ::"Q"(*(ptr)))
-#    define PREFETCH_L2(ptr)  __asm__ __volatile__("prfm pldl2keep, %0" ::"Q"(*(ptr)))
-#  else
-#    define PREFETCH_L1(ptr) (void)(ptr)  /* disabled */
-#    define PREFETCH_L2(ptr) (void)(ptr)  /* disabled */
+#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))  /* _mm_prefetch() is not defined outside of x86/x64 */
+#include <mmintrin.h>   /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
+#define PREFETCH_L1(ptr)  _mm_prefetch((const char*)(ptr), _MM_HINT_T0)
+#define PREFETCH_L2(ptr)  _mm_prefetch((const char*)(ptr), _MM_HINT_T1)
+#elif defined(__GNUC__) && ( (__GNUC__ >= 4) || ( (__GNUC__ == 3) && (__GNUC_MINOR__ >= 1) ) )
+#define PREFETCH_L1(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 3 /* locality */)
+#define PREFETCH_L2(ptr)  __builtin_prefetch((ptr), 0 /* rw==read */, 2 /* locality */)
+#elif defined(__aarch64__)
+#define PREFETCH_L1(ptr)  __asm__ __volatile__("prfm pldl1keep, %0" ::"Q"(*(ptr)))
+#define PREFETCH_L2(ptr)  __asm__ __volatile__("prfm pldl2keep, %0" ::"Q"(*(ptr)))
+#else
+#define PREFETCH_L1(ptr) (void)(ptr)  /* disabled */
+#define PREFETCH_L2(ptr) (void)(ptr)  /* disabled */
 #  endif
 #endif  /* NO_PREFETCH */
 
@@ -127,10 +127,10 @@
  * older GCC (pre gcc-4.3 picked as the cutoff) uses a different syntax,
  * and some compilers, like Intel ICC and MCST LCC, do not support it at all. */
 #if !defined(__INTEL_COMPILER) && !defined(__clang__) && defined(__GNUC__) && !defined(__LCC__)
-#  if (__GNUC__ == 4 && __GNUC_MINOR__ > 3) || (__GNUC__ >= 5)
-#    define DONT_VECTORIZE __attribute__((optimize("no-tree-vectorize")))
-#  else
-#    define DONT_VECTORIZE _Pragma("GCC optimize(\"no-tree-vectorize\")")
+#if (__GNUC__ == 4 && __GNUC_MINOR__ > 3) || (__GNUC__ >= 5)
+#define DONT_VECTORIZE __attribute__((optimize("no-tree-vectorize")))
+#else
+#define DONT_VECTORIZE _Pragma("GCC optimize(\"no-tree-vectorize\")")
 #  endif
 #else
 #  define DONT_VECTORIZE
@@ -150,22 +150,22 @@
 //#endif
 /* disable warnings */
 #ifdef _MSC_VER    /* Visual Studio */
-#  include <intrin.h>                    /* For Visual 2005 */
-#  pragma warning(disable : 4100)        /* disable: C4100: unreferenced formal parameter */
-#  pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
-#  pragma warning(disable : 4204)        /* disable: C4204: non-constant aggregate initializer */
-#  pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
-#  pragma warning(disable : 4324)        /* disable: C4324: padded structure */
+#include <intrin.h>                    /* For Visual 2005 */
+#pragma warning(disable : 4100)        /* disable: C4100: unreferenced formal parameter */
+#pragma warning(disable : 4127)        /* disable: C4127: conditional expression is constant */
+#pragma warning(disable : 4204)        /* disable: C4204: non-constant aggregate initializer */
+#pragma warning(disable : 4214)        /* disable: C4214: non-int bitfields */
+#pragma warning(disable : 4324)        /* disable: C4324: padded structure */
 #endif
 
 /*Like DYNAMIC_BMI2 but for compile time determination of BMI2 support*/
 #ifndef STATIC_BMI2
-#  if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))
-#    ifdef __AVX2__  //MSVC does not have a BMI2 specific flag, but every CPU that supports AVX2 also supports BMI2
-#       define STATIC_BMI2 1
-#    endif
-#  elif defined(__BMI2__) && defined(__x86_64__) && defined(__GNUC__)
-#    define STATIC_BMI2 1
+#if defined(_MSC_VER) && (defined(_M_X64) || defined(_M_I86))
+#ifdef __AVX2__  //MSVC does not have a BMI2 specific flag, but every CPU that supports AVX2 also supports BMI2
+#define STATIC_BMI2 1
+#endif
+#elif defined(__BMI2__) && defined(__x86_64__) && defined(__GNUC__)
+#define STATIC_BMI2 1
 #  endif
 #endif
 
@@ -175,34 +175,34 @@
 
 /* compile time determination of SIMD support */
 #if !defined(ZSTD_NO_INTRINSICS)
-#  if defined(__SSE2__) || defined(_M_AMD64) || (defined (_M_IX86) && defined(_M_IX86_FP) && (_M_IX86_FP >= 2))
-#    define ZSTD_ARCH_X86_SSE2
+#if defined(__SSE2__) || defined(_M_AMD64) || (defined (_M_IX86) && defined(_M_IX86_FP) && (_M_IX86_FP >= 2))
+#define ZSTD_ARCH_X86_SSE2
 #  endif
-#  if defined(__ARM_NEON) || defined(_M_ARM64)
-#    define ZSTD_ARCH_ARM_NEON
+#if defined(__ARM_NEON) || defined(_M_ARM64)
+#define ZSTD_ARCH_ARM_NEON
 #  endif
 #
-#  if defined(ZSTD_ARCH_X86_SSE2)
-#    include <emmintrin.h>
-#  elif defined(ZSTD_ARCH_ARM_NEON)
-#    include <arm_neon.h>
+#if defined(ZSTD_ARCH_X86_SSE2)
+#include <emmintrin.h>
+#elif defined(ZSTD_ARCH_ARM_NEON)
+#include <arm_neon.h>
 #  endif
 #endif
 
 /* C-language Attributes are added in C23. */
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ > 201710L) && defined(__has_c_attribute)
-# define ZSTD_HAS_C_ATTRIBUTE(x) __has_c_attribute(x)
+#define ZSTD_HAS_C_ATTRIBUTE(x) __has_c_attribute(x)
 #else
-# define ZSTD_HAS_C_ATTRIBUTE(x) 0
+#define ZSTD_HAS_C_ATTRIBUTE(x) 0
 #endif
 
 /* Only use C++ attributes in C++. Some compilers report support for C++
  * attributes when compiling with C.
  */
 #if defined(__cplusplus) && defined(__has_cpp_attribute)
-# define ZSTD_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
+#define ZSTD_HAS_CPP_ATTRIBUTE(x) __has_cpp_attribute(x)
 #else
-# define ZSTD_HAS_CPP_ATTRIBUTE(x) 0
+#define ZSTD_HAS_CPP_ATTRIBUTE(x) 0
 #endif
 
 /* Define ZSTD_FALLTHROUGH macro for annotating switch case with the 'fallthrough' attribute.
@@ -211,18 +211,18 @@
  * - Else: __attribute__((__fallthrough__))
  */
 #ifndef ZSTD_FALLTHROUGH
-# if ZSTD_HAS_C_ATTRIBUTE(fallthrough)
+#if ZSTD_HAS_C_ATTRIBUTE(fallthrough)
 #  define ZSTD_FALLTHROUGH [[fallthrough]]
-# elif ZSTD_HAS_CPP_ATTRIBUTE(fallthrough)
+#elif ZSTD_HAS_CPP_ATTRIBUTE(fallthrough)
 #  define ZSTD_FALLTHROUGH [[fallthrough]]
-# elif __has_attribute(__fallthrough__)
+#elif __has_attribute(__fallthrough__)
 /* Leading semicolon is to satisfy gcc-11 with -pedantic. Without the semicolon
  * gcc complains about: a label can only be part of a statement and a declaration is not a statement.
  */
 #  define ZSTD_FALLTHROUGH ; __attribute__((__fallthrough__))
-# else
+#else
 #  define ZSTD_FALLTHROUGH
-# endif
+#endif
 #endif
 // 
 // Alignment check
@@ -233,22 +233,22 @@
  * which remains valid for both user & kernel spaces.
  */
 #ifndef ZSTD_ALIGNOF
-# if defined(__GNUC__) || defined(_MSC_VER)
+#if defined(__GNUC__) || defined(_MSC_VER)
 /* covers gcc, clang & MSVC */
 /* note : this section must come first, before C11,
  * due to a limitation in the kernel source generator */
 #  define ZSTD_ALIGNOF(T) __alignof(T)
 
-# elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
 /* C11 support */
-#  include <stdalign.h>
+#include <stdalign.h>
 #  define ZSTD_ALIGNOF(T) alignof(T)
 
-# else
+#else
 /* No known support for alignof() - imperfect backup */
 #  define ZSTD_ALIGNOF(T) (sizeof(void*) < sizeof(T) ? sizeof(void*) : sizeof(T))
 
-# endif
+#endif
 #endif /* ZSTD_ALIGNOF */
 // 
 // Sanitizer

@@ -586,7 +586,7 @@ static ngx_int_t ngx_http_proxy_create_key(ngx_http_request_t * r)
 	ctx = (ngx_http_proxy_ctx_t *)ngx_http_get_module_ctx(r, ngx_http_proxy_module);
 
 	key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
-	if(key == NULL) {
+	if(!key) {
 		return NGX_ERROR;
 	}
 
@@ -601,7 +601,7 @@ static ngx_int_t ngx_http_proxy_create_key(ngx_http_request_t * r)
 	*key = ctx->vars.key_start;
 
 	key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
-	if(key == NULL) {
+	if(!key) {
 		return NGX_ERROR;
 	}
 

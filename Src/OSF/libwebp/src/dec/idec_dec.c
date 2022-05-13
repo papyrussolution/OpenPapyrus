@@ -867,7 +867,7 @@ const WebPDecBuffer* WebPIDecodedArea(const WebPIDecoder* idec,
 uint8* WebPIDecGetRGB(const WebPIDecoder* idec, int* last_y,
     int* width, int* height, int* stride) {
 	const WebPDecBuffer* const src = GetOutputBuffer(idec);
-	if(src == NULL) return NULL;
+	if(!src) return NULL;
 	if(src->colorspace >= MODE_YUV) {
 		return NULL;
 	}
@@ -885,7 +885,7 @@ uint8* WebPIDecGetYUVA(const WebPIDecoder* idec, int* last_y,
     int* width, int* height,
     int* stride, int* uv_stride, int* a_stride) {
 	const WebPDecBuffer* const src = GetOutputBuffer(idec);
-	if(src == NULL) return NULL;
+	if(!src) return NULL;
 	if(src->colorspace < MODE_YUV) {
 		return NULL;
 	}

@@ -1276,7 +1276,7 @@ IMPL_HANDLE_EVENT(GSDialog)
 			int r = 0;
 			if((r = GsObj.Put(&RecurData.Rec.ID, &RecurData, 1)) > 0)
 				updateList(-1);
-			else if(r == 0)
+			else if(!r)
 				PPError();
 			Changed = 1;
 		}

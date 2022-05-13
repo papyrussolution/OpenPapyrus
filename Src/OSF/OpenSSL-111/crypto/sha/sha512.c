@@ -401,14 +401,14 @@ static const SHA_LONG64 K512[80] = {
 			     : "J" (n), "0" (a)         \
 			     : "cc"); ret;           })
 #if !defined(B_ENDIAN)
-#     define PULL64(x) ({ SHA_LONG64 ret = *((const SHA_LONG64*)(&(x)));  \
+#define PULL64(x) ({ SHA_LONG64 ret = *((const SHA_LONG64*)(&(x)));  \
 			  asm ("bswapq    %0"             \
 			  : "=r" (ret)                     \
 			  : "0" (ret)); ret;               })
 #endif
 #elif (defined(__i386) || defined(__i386__)) && !defined(B_ENDIAN)
 #if defined(I386_ONLY)
-#     define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
+#define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
 			  uint hi = p[0], lo = p[1];          \
 			  asm ("xchgb %%ah,%%al;xchgb %%dh,%%dl;" \
 			  "roll $16,%%eax; roll $16,%%edx; " \
@@ -417,7 +417,7 @@ static const SHA_LONG64 K512[80] = {
 			  : "0" (lo), "1" (hi) : "cc");      \
 			  ((SHA_LONG64)hi)<<32|lo;        })
 #else
-#     define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
+#define PULL64(x) ({ const uint * p = (const uint *)(&(x)); \
 			  uint hi = p[0], lo = p[1];         \
 			  asm ("bswapl %0; bswapl %1;"    \
 			  : "=r" (lo), "=r" (hi)             \
@@ -436,7 +436,7 @@ static const SHA_LONG64 K512[80] = {
 			     : "r" (a), "I" (n)); ret;  })
 #if  defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && \
 	__BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__
-#     define PULL64(x)   ({ SHA_LONG64 ret;                     \
+#define PULL64(x)   ({ SHA_LONG64 ret;                     \
 			    asm ("rev       %0,%1"          \
 			    : "=r" (ret)                     \
 			    : "r" (*((const SHA_LONG64*)(&(x))))); ret; })

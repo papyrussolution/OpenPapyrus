@@ -45,7 +45,7 @@ uchar * ssh_mbedcry_bn2num(const_bignum num, int radix)
 		return NULL;
 	}
 	rc = mbedtls_mpi_write_string(num, radix, buf, olen, &olen);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(buf);
 		return NULL;
 	}
@@ -72,20 +72,20 @@ int ssh_mbedcry_rand(bignum rnd, int bits, int top, int bottom)
 		len,
 		mbedtls_ctr_drbg_random,
 		ssh_get_mbedtls_ctr_drbg_context());
-	if(rc != 0) {
+	if(rc) {
 		return 0;
 	}
 
 	for(i = len * 8 - 1; i >= bits; i--) {
 		rc = mbedtls_mpi_set_bit(rnd, i, 0);
-		if(rc != 0) {
+		if(rc) {
 			return 0;
 		}
 	}
 
 	if(top == 0) {
 		rc = mbedtls_mpi_set_bit(rnd, bits - 1, 0);
-		if(rc != 0) {
+		if(rc) {
 			return 0;
 		}
 	}
@@ -96,14 +96,14 @@ int ssh_mbedcry_rand(bignum rnd, int bits, int top, int bottom)
 		}
 
 		rc = mbedtls_mpi_set_bit(rnd, bits - 2, 0);
-		if(rc != 0) {
+		if(rc) {
 			return 0;
 		}
 	}
 
 	if(bottom) {
 		rc = mbedtls_mpi_set_bit(rnd, 0, 1);
-		if(rc != 0) {
+		if(rc) {
 			return 0;
 		}
 	}

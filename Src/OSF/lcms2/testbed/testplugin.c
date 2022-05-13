@@ -29,7 +29,7 @@ static cmsContext DupContext(cmsContext src, void * Data)
 // Simple context functions
 //
 // Allocation order
-int32 CheckAllocContext(void)
+int32 CheckAllocContext()
 {
 	cmsContext c1, c2, c3, c4;
 	c1 = cmsCreateContext(NULL, NULL);              // This creates a context by using the normal malloc
@@ -59,56 +59,43 @@ int32 CheckAllocContext(void)
 }
 
 // Test the very basic context capabilities
-int32 CheckSimpleContext(void)
+int32 CheckSimpleContext(FILE * fOut)
 {
 	int a = 1;
 	int b = 32;
 	int32 rc = 0;
-
 	cmsContext c1, c2, c3;
-
 	// This function creates a context with a special
 	// memory manager that check allocation
-	c1 = WatchDogContext(&a);
+	c1 = WatchDogContext(fOut, &a);
 	cmsDeleteContext(c1);
-
-	c1 = WatchDogContext(&a);
-
+	c1 = WatchDogContext(fOut, &a);
 	// Let's check duplication
 	c2 = DupContext(c1, NULL);
 	c3 = DupContext(c2, NULL);
-
 	// User data should have been propagated
 	rc = (*(int*)cmsGetContextUserData(c3)) == 1;
-
 	// Free resources
 	cmsDeleteContext(c1);
 	cmsDeleteContext(c2);
 	cmsDeleteContext(c3);
-
 	if(!rc) {
 		Fail("Creation of user data failed");
 		return 0;
 	}
-
 	// Back to create 3 levels of inherance
 	c1 = cmsCreateContext(NULL, &a);
 	DebugMemDontCheckThis(c1);
-
 	c2 = DupContext(c1, NULL);
 	c3 = DupContext(c2, &b);
-
 	rc = (*(int*)cmsGetContextUserData(c3)) == 32;
-
 	cmsDeleteContext(c1);
 	cmsDeleteContext(c2);
 	cmsDeleteContext(c3);
-
 	if(!rc) {
 		Fail("Modification of user data failed");
 		return 0;
 	}
-
 	// All seems ok
 	return rc;
 }
@@ -118,7 +105,7 @@ int32 CheckSimpleContext(void)
 // --------------------------------------------------------------------------------------------------
 
 // This function tests the alarm codes across contexts
-int32 CheckAlarmColorsContext(void)
+int32 CheckAlarmColorsContext(FILE * fOut)
 {
 	int32 rc = 0;
 	const uint16 codes[] =
@@ -127,15 +114,11 @@ int32 CheckAlarmColorsContext(void)
 	uint16 out[16];
 	cmsContext c1, c2, c3;
 	int i;
-
-	c1 = WatchDogContext(NULL);
-
+	c1 = WatchDogContext(fOut, NULL);
 	cmsSetAlarmCodesTHR(c1, codes);
 	c2 = DupContext(c1, NULL);
 	c3 = DupContext(c2, NULL);
-
 	cmsGetAlarmCodesTHR(c3, out);
-
 	rc = 1;
 	for(i = 0; i < 16; i++) {
 		if(out[i] != codes[i]) {
@@ -144,11 +127,9 @@ int32 CheckAlarmColorsContext(void)
 			break;
 		}
 	}
-
 	cmsDeleteContext(c1);
 	cmsDeleteContext(c2);
 	cmsDeleteContext(c3);
-
 	return rc;
 }
 
@@ -157,34 +138,25 @@ int32 CheckAlarmColorsContext(void)
 // --------------------------------------------------------------------------------------------------
 
 // Similar to the previous, but for adaptation state
-int32 CheckAdaptationStateContext(void)
+int32 CheckAdaptationStateContext(FILE * fOut)
 {
 	int32 rc = 0;
 	cmsContext c1, c2, c3;
 	double old1, old2;
-
 	old1 =  cmsSetAdaptationStateTHR(NULL, -1);
-
-	c1 = WatchDogContext(NULL);
-
+	c1 = WatchDogContext(fOut, NULL);
 	cmsSetAdaptationStateTHR(c1, 0.7);
-
 	c2 = DupContext(c1, NULL);
 	c3 = DupContext(c2, NULL);
-
 	rc = IsGoodVal("Adaptation state", cmsSetAdaptationStateTHR(c3, -1), 0.7, 0.001);
-
 	cmsDeleteContext(c1);
 	cmsDeleteContext(c2);
 	cmsDeleteContext(c3);
-
 	old2 =  cmsSetAdaptationStateTHR(NULL, -1);
-
 	if(old1 != old2) {
 		Fail("Adaptation state has changed");
 		return 0;
 	}
-
 	return rc;
 }
 
@@ -242,16 +214,14 @@ static cmsPluginInterpolation InterpPluginSample = {
 };
 
 // This is the check code for 1D interpolation plug-in
-int32 CheckInterp1DPlugin(void)
+int32 CheckInterp1DPlugin(FILE * fOut)
 {
 	cmsToneCurve * Sampled1D = NULL;
 	cmsContext cpy = NULL;
-	const float tab[] = { 0.0f, 0.10f, 0.20f, 0.30f, 0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f, 1.00f }; // A
-	                                                                                                               // straight
-	                                                                                                               // line
+	const float tab[] = { 0.0f, 0.10f, 0.20f, 0.30f, 0.40f, 0.50f, 0.60f, 0.70f, 0.80f, 0.90f, 1.00f }; // A straight line
 	// 1st level context
-	cmsContext ctx = WatchDogContext(NULL);
-	if(ctx == NULL) {
+	cmsContext ctx = WatchDogContext(fOut, NULL);
+	if(!ctx) {
 		Fail("Cannot create context");
 		goto Error;
 	}
@@ -271,18 +241,15 @@ int32 CheckInterp1DPlugin(void)
 	if(!IsGoodVal("0.13", cmsEvalToneCurveFloat(Sampled1D, 0.13f), 0.10, 0.01)) goto Error;
 	if(!IsGoodVal("0.55", cmsEvalToneCurveFloat(Sampled1D, 0.55f), 0.50, 0.01)) goto Error;
 	if(!IsGoodVal("0.9999", cmsEvalToneCurveFloat(Sampled1D, 0.9999f), 0.90, 0.01)) goto Error;
-
 	cmsFreeToneCurve(Sampled1D);
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
-
 	// Now in global context
 	Sampled1D = cmsBuildTabulatedToneCurveFloat(NULL, 11, tab);
 	if(Sampled1D == NULL) {
 		Fail("Cannot create tone curve (2)");
 		goto Error;
 	}
-
 	// Now without the plug-in
 	if(!IsGoodVal("0.10", cmsEvalToneCurveFloat(Sampled1D, 0.10f), 0.10, 0.001)) goto Error;
 	if(!IsGoodVal("0.13", cmsEvalToneCurveFloat(Sampled1D, 0.13f), 0.13, 0.001)) goto Error;
@@ -291,14 +258,14 @@ int32 CheckInterp1DPlugin(void)
 	cmsFreeToneCurve(Sampled1D);
 	return 1;
 Error:
-	if(ctx != NULL) cmsDeleteContext(ctx);
-	if(cpy != NULL) cmsDeleteContext(ctx);
-	if(Sampled1D != NULL) cmsFreeToneCurve(Sampled1D);
+	cmsDeleteContext(ctx);
+	cmsDeleteContext(cpy); // @fix ctx-->cpy
+	cmsFreeToneCurve(Sampled1D);
 	return 0;
 }
 
 // Checks the 3D interpolation
-int32 CheckInterp3DPlugin(void)
+int32 CheckInterp3DPlugin(FILE * fOut)
 {
 	cmsPipeline * p;
 	cmsStage * clut;
@@ -314,28 +281,21 @@ int32 CheckInterp3DPlugin(void)
 		0xffff,  0xffff,  0,
 		0xffff,  0xffff,  0xffff
 	};
-
-	ctx = WatchDogContext(NULL);
-	if(ctx == NULL) {
+	ctx = WatchDogContext(fOut, NULL);
+	if(!ctx) {
 		Fail("Cannot create context");
 		return 0;
 	}
-
 	cmsPluginTHR(ctx, &InterpPluginSample);
-
 	p =  cmsPipelineAlloc(ctx, 3, 3);
 	clut = cmsStageAllocCLut16bit(ctx, 2, 3, 3, identity);
 	cmsPipelineInsertStage(p, cmsAT_BEGIN, clut);
-
 	// Do some interpolations with the plugin
-
 	In[0] = 0; In[1] = 0; In[2] = 0;
 	cmsPipelineEval16(In, Out, p);
-
 	if(!IsGoodWord("0", Out[0], 0xFFFF - 0)) goto Error;
 	if(!IsGoodWord("1", Out[1], 0xFFFF - 0)) goto Error;
 	if(!IsGoodWord("2", Out[2], 0xFFFF - 0)) goto Error;
-
 	In[0] = 0x1234; In[1] = 0x5678; In[2] = 0x9ABC;
 	cmsPipelineEval16(In, Out, p);
 
@@ -465,7 +425,7 @@ static cmsPluginParametricCurves CurvePluginSample2 = {
 // --------------------------------------------------------------------------------------------------
 // In this test, the DupContext function will be checked as well
 // --------------------------------------------------------------------------------------------------
-int32 CheckParametricCurvePlugin(void)
+int32 CheckParametricCurvePlugin(FILE * fOut)
 {
 	cmsContext ctx = NULL;
 	cmsContext cpy = NULL;
@@ -476,7 +436,7 @@ int32 CheckParametricCurvePlugin(void)
 	cmsToneCurve * reverse_sinus;
 	cmsToneCurve * reverse_cosinus;
 	double scale = 1.0;
-	ctx = WatchDogContext(NULL);
+	ctx = WatchDogContext(fOut, NULL);
 	cmsPluginTHR(ctx, &CurvePluginSample);
 	cpy = DupContext(ctx, NULL);
 	cmsPluginTHR(cpy, &CurvePluginSample2);
@@ -573,9 +533,9 @@ cmsFormatter my_FormatterFactory2(uint32 Type, cmsFormatterDirection Dir, uint32
 static cmsPluginFormatters FormattersPluginSample = { {cmsPluginMagicNumber, 2060, cmsPluginFormattersSig, NULL}, my_FormatterFactory };
 static cmsPluginFormatters FormattersPluginSample2 = { {cmsPluginMagicNumber, 2060, cmsPluginFormattersSig, NULL}, my_FormatterFactory2 };
 
-int32 CheckFormattersPlugin(void)
+int32 CheckFormattersPlugin(FILE * fOut)
 {
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
@@ -639,7 +599,7 @@ static cmsPluginTagType TagTypePluginSample = {
 	{ SigIntType, Type_int_Read, Type_int_Write, Type_int_Dup, Type_int_Free, NULL }
 };
 
-int32 CheckTagTypePlugin(void)
+int32 CheckTagTypePlugin(FILE * fOut)
 {
 	cmsContext ctx = NULL;
 	cmsContext cpy = NULL;
@@ -650,13 +610,10 @@ int32 CheckTagTypePlugin(void)
 	char * data = NULL;
 	uint32 * ptr = NULL;
 	uint32 clen = 0;
-
-	ctx = WatchDogContext(NULL);
+	ctx = WatchDogContext(fOut, NULL);
 	cmsPluginTHR(ctx, &TagTypePluginSample);
-
 	cpy = DupContext(ctx, NULL);
 	cpy2 = DupContext(cpy, NULL);
-
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
 	h = cmsCreateProfilePlaceholder(cpy2);
@@ -715,18 +672,16 @@ int32 CheckTagTypePlugin(void)
 	cmsDeleteContext(cpy2);
 	return rc;
 Error:
-	if(h) cmsCloseProfile(h);
-	if(ctx != NULL) cmsDeleteContext(ctx);
-	if(cpy != NULL) cmsDeleteContext(cpy);
-	if(cpy2 != NULL) cmsDeleteContext(cpy2);
-	if(data)
-		SAlloc::F(data);
+	cmsCloseProfile(h);
+	cmsDeleteContext(ctx);
+	cmsDeleteContext(cpy);
+	cmsDeleteContext(cpy2);
+	SAlloc::F(data);
 	return 0;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // MPE plugin check:
-// --------------------------------------------------------------------------------------------------
+//
 #define SigNegateType ((cmsStageSignature)0x6E202020)
 
 static void EvaluateNegate(const float In[], float Out[], const cmsStage * /*pMpe*/)
@@ -763,7 +718,7 @@ static cmsPluginMultiProcessElement MPEPluginSample = {
 	{ (cmsTagTypeSignature)SigNegateType, Type_negate_Read, Type_negate_Write, NULL, NULL, NULL }
 };
 
-int32 CheckMPEPlugin(void)
+int32 CheckMPEPlugin(FILE * fOut)
 {
 	cmsContext cpy = NULL;
 	cmsContext cpy2 = NULL;
@@ -774,7 +729,7 @@ int32 CheckMPEPlugin(void)
 	uint32 clen = 0;
 	float In[3], Out[3];
 	cmsPipeline * pipe;
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsPluginTHR(ctx, &MPEPluginSample);
 	cpy =  DupContext(ctx, NULL);
 	cpy2 = DupContext(cpy, NULL);
@@ -888,9 +843,9 @@ cmsPluginOptimization OptimizationPluginSample = {
 	MyOptimize
 };
 
-int32 CheckOptimizationPlugin(void)
+int32 CheckOptimizationPlugin(FILE * fOut)
 {
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
@@ -899,12 +854,9 @@ int32 CheckOptimizationPlugin(void)
 	cmsToneCurve * Linear[1];
 	cmsHPROFILE h;
 	int i;
-
 	cmsPluginTHR(ctx, &OptimizationPluginSample);
-
 	cpy = DupContext(ctx, NULL);
 	cpy2 = DupContext(cpy, NULL);
-
 	Linear[0] = cmsBuildGamma(cpy2, 1.0);
 	h = cmsCreateLinearizationDeviceLinkTHR(cpy2, cmsSigGrayData, Linear);
 	cmsFreeToneCurve(Linear[0]);
@@ -961,9 +913,9 @@ static cmsPluginRenderingIntent IntentPluginSample = {
 	INTENT_DECEPTIVE, MyNewIntent,  "bypass gray to gray rendering intent"
 };
 
-int32 CheckIntentPlugin(void)
+int32 CheckIntentPlugin(FILE * fOut)
 {
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
@@ -973,12 +925,9 @@ int32 CheckIntentPlugin(void)
 	uint8 In[] = { 10, 20, 30, 40 };
 	uint8 Out[4];
 	int i;
-
 	cmsPluginTHR(ctx, &IntentPluginSample);
-
 	cpy  = DupContext(ctx, NULL);
 	cpy2 = DupContext(cpy, NULL);
-
 	Linear1 = cmsBuildGamma(cpy2, 3.0);
 	Linear2 = cmsBuildGamma(cpy2, 0.1);
 	h1 = cmsCreateLinearizationDeviceLinkTHR(cpy2, cmsSigGrayData, &Linear1);
@@ -988,25 +937,21 @@ int32 CheckIntentPlugin(void)
 	cmsFreeToneCurve(Linear2);
 
 	xform = cmsCreateTransformTHR(cpy2, h1, TYPE_GRAY_8, h2, TYPE_GRAY_8, INTENT_DECEPTIVE, 0);
-	cmsCloseProfile(h1); cmsCloseProfile(h2);
-
+	cmsCloseProfile(h1); 
+	cmsCloseProfile(h2);
 	cmsDoTransform(xform, In, Out, 4);
-
 	cmsDeleteTransform(xform);
 	cmsDeleteContext(ctx);
 	cmsDeleteContext(cpy);
 	cmsDeleteContext(cpy2);
-
 	for(i = 0; i < 4; i++)
-		if(Out[i] != In[i]) return 0;
-
+		if(Out[i] != In[i]) 
+			return 0;
 	return 1;
 }
-
-// --------------------------------------------------------------------------------------------------
+//
 // Check the full transform plug-in
-// --------------------------------------------------------------------------------------------------
-
+//
 // This is a sample intent that only works for gray8 as output, and always returns '42'
 static void TrancendentalTransform(struct _cmstransform_struct * /*CMM*/, const void * /*pInputBuffer*/, void * OutputBuffer, uint32 Size, uint32 /*_stride*/)
 {
@@ -1034,9 +979,9 @@ static cmsPluginTransform FullTransformPluginSample = {
 	TransformFactory
 };
 
-int32 CheckTransformPlugin(void)
+int32 CheckTransformPlugin(FILE * fOut)
 {
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
@@ -1083,7 +1028,7 @@ static void MyMtxDestroy(cmsContext id, void * mtx)
 {
 	MyMtx* mtx_ = (MyMtx*)mtx;
 	if(mtx_->nlocks != 0)
-		Die("Locks != 0 when setting free a mutex");
+		Die(stderr, "Locks != 0 when setting free a mutex");
 	_cmsFree(id, mtx);
 }
 
@@ -1096,15 +1041,15 @@ static boolint MyMtxLock(cmsContext /*id*/, void * mtx)
 
 static void MyMtxUnlock(cmsContext /*id*/, void * mtx)
 {
-	MyMtx* mtx_ = (MyMtx*)mtx;
+	MyMtx * mtx_ = (MyMtx*)mtx;
 	mtx_->nlocks--;
 }
 
 static cmsPluginMutex MutexPluginSample = { { cmsPluginMagicNumber, 2060, cmsPluginMutexSig, NULL}, MyMtxCreate,  MyMtxDestroy,  MyMtxLock,  MyMtxUnlock };
 
-int32 CheckMutexPlugin(void)
+int32 CheckMutexPlugin(FILE * fOut)
 {
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsContext cpy;
 	cmsContext cpy2;
 	cmsHTRANSFORM xform;
@@ -1131,9 +1076,9 @@ int32 CheckMutexPlugin(void)
 	return 1;
 }
 
-int32 CheckMethodPackDoublesFromFloat(void)
+int32 CheckMethodPackDoublesFromFloat(FILE * fOut)
 {
-	cmsContext ctx = WatchDogContext(NULL);
+	cmsContext ctx = WatchDogContext(fOut, NULL);
 	cmsHTRANSFORM xform;
 	cmsHTRANSFORM l_pFakeProfileLAB;
 	double l_D_OutputColorArrayBlack[8];

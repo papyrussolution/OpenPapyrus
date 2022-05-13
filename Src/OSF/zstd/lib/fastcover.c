@@ -35,10 +35,9 @@
 #define FASTCOVER_DEFAULT_SPLITPOINT 0.75
 #define DEFAULT_F 20
 #define DEFAULT_ACCEL 1
-
-/*-*************************************
-*  Console display
-***************************************/
+//
+// Console display
+//
 #ifndef LOCALDISPLAYLEVEL
 static int g_displayLevel = 0;
 #endif
@@ -73,7 +72,7 @@ static clock_t g_time = 0;
 /**
  * Hash the d-byte value pointed to by p and mod 2^f into the frequency vector
  */
-static size_t FASTCOVER_hashPtrToIndex(const void * p, uint32 f, unsigned d) 
+static size_t FASTCOVER_hashPtrToIndex(const void * p, uint32 f, uint  d) 
 {
 	if(d == 6) {
 		return ZSTD_hash6Ptr(p, f);
@@ -85,8 +84,8 @@ static size_t FASTCOVER_hashPtrToIndex(const void * p, uint32 f, unsigned d)
 * Acceleration
 ***************************************/
 typedef struct {
-	unsigned finalize; /* Percentage of training samples used for ZDICT_finalizeDictionary */
-	unsigned skip;  /* Number of dmer skipped between each dmer counted in computeFrequency */
+	uint  finalize; /* Percentage of training samples used for ZDICT_finalizeDictionary */
+	uint  skip;  /* Number of dmer skipped between each dmer counted in computeFrequency */
 } FASTCOVER_accel_t;
 
 static const FASTCOVER_accel_t FASTCOVER_defaultAccelParameters[FASTCOVER_MAX_ACCEL+1] = {
@@ -115,8 +114,8 @@ typedef struct {
 	size_t nbTestSamples;
 	size_t nbDmers;
 	uint32 * freqs;
-	unsigned d;
-	unsigned f;
+	uint d;
+	uint f;
 	FASTCOVER_accel_t accelParams;
 } FASTCOVER_ctx_t;
 
@@ -196,7 +195,7 @@ static COVER_segment_t FASTCOVER_selectSegment(const FASTCOVER_ctx_t * ctx, uint
 	return bestSegment;
 }
 
-static int FASTCOVER_checkParameters(ZDICT_cover_params_t parameters, size_t maxDictSize, unsigned f, unsigned accel) 
+static int FASTCOVER_checkParameters(ZDICT_cover_params_t parameters, size_t maxDictSize, uint f, uint accel) 
 {
 	/* k, d, and f are required parameters */
 	if(parameters.d == 0 || parameters.k == 0) {
@@ -245,10 +244,10 @@ static void FASTCOVER_ctx_destroy(FASTCOVER_ctx_t* ctx)
  */
 static void FASTCOVER_computeFrequency(uint32* freqs, const FASTCOVER_ctx_t* ctx)
 {
-	const unsigned f = ctx->f;
-	const unsigned d = ctx->d;
-	const unsigned skip = ctx->accelParams.skip;
-	const unsigned readLength = MAX(d, 8);
+	const uint f = ctx->f;
+	const uint d = ctx->d;
+	const uint skip = ctx->accelParams.skip;
+	const uint readLength = MAX(d, 8);
 	size_t i;
 	assert(ctx->nbTrainSamples >= 5);
 	assert(ctx->nbTrainSamples <= ctx->nbSamples);
@@ -270,17 +269,14 @@ static void FASTCOVER_computeFrequency(uint32* freqs, const FASTCOVER_ctx_t* ctx
  * Returns 0 on success or error code on error.
  * The context must be destroyed with `FASTCOVER_ctx_destroy()`.
  */
-static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
-    const void * samplesBuffer,
-    const size_t* samplesSizes, unsigned nbSamples,
-    unsigned d, double splitPoint, unsigned f,
-    FASTCOVER_accel_t accelParams)
+static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx, const void * samplesBuffer,
+    const size_t* samplesSizes, uint nbSamples, uint d, double splitPoint, uint f, FASTCOVER_accel_t accelParams)
 {
-	const BYTE* const samples = (const BYTE*)samplesBuffer;
+	const BYTE * const samples = (const BYTE *)samplesBuffer;
 	const size_t totalSamplesSize = COVER_sum(samplesSizes, nbSamples);
 	/* Split samples into testing and training sets */
-	const unsigned nbTrainSamples = splitPoint < 1.0 ? (uint)((double)nbSamples * splitPoint) : nbSamples;
-	const unsigned nbTestSamples = splitPoint < 1.0 ? nbSamples - nbTrainSamples : nbSamples;
+	const uint nbTrainSamples = splitPoint < 1.0 ? (uint)((double)nbSamples * splitPoint) : nbSamples;
+	const uint nbTestSamples = splitPoint < 1.0 ? nbSamples - nbTrainSamples : nbSamples;
 	const size_t trainingSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes, nbTrainSamples) : totalSamplesSize;
 	const size_t testSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes + nbTrainSamples, nbTestSamples) : totalSamplesSize;
 
@@ -349,7 +345,7 @@ static size_t FASTCOVER_ctx_init(FASTCOVER_ctx_t* ctx,
  */
 static size_t FASTCOVER_buildDictionary(const FASTCOVER_ctx_t* ctx, uint32* freqs, void * dictBuffer, size_t dictBufferCapacity, ZDICT_cover_params_t parameters, uint16* segmentFreqs)
 {
-	BYTE * const dict = (BYTE*)dictBuffer;
+	BYTE * const dict = (BYTE *)dictBuffer;
 	size_t tail = dictBufferCapacity;
 	/* Divide the data into epochs. We will select one segment from each epoch. */
 	const COVER_epoch_info_t epochs = COVER_computeEpochs((uint32)dictBufferCapacity, (uint32)ctx->nbDmers, parameters.k, 1);
@@ -419,7 +415,7 @@ static void FASTCOVER_tryParameters(void * opaque)
 	/* Initialize array to keep track of frequency of dmer within activeSegment */
 	uint16* segmentFreqs = (uint16*)SAlloc::C(((uint64)1 << ctx->f), sizeof(uint16));
 	/* Allocate space for hash table, dict, and freqs */
-	BYTE * const dict = (BYTE*)SAlloc::M(dictBufferCapacity);
+	BYTE * const dict = (BYTE *)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
 	uint32* freqs = (uint32*)SAlloc::M(((uint64)1 << ctx->f) * sizeof(uint32));
 	if(!segmentFreqs || !dict || !freqs) {
@@ -431,7 +427,7 @@ static void FASTCOVER_tryParameters(void * opaque)
 	/* Build the dictionary */
 	{ 
 		const size_t tail = FASTCOVER_buildDictionary(ctx, freqs, dict, dictBufferCapacity, parameters, segmentFreqs);
-		const unsigned nbFinalizeSamples = (uint)(ctx->nbTrainSamples * ctx->accelParams.finalize / 100);
+		const uint nbFinalizeSamples = (uint)(ctx->nbTrainSamples * ctx->accelParams.finalize / 100);
 		selection = COVER_selectDict(dict + tail, dictBufferCapacity, dictBufferCapacity - tail,
 			ctx->samples, ctx->samplesSizes, nbFinalizeSamples, ctx->nbTrainSamples, ctx->nbSamples, parameters, ctx->offsets,
 			totalCompressedSize);
@@ -460,7 +456,7 @@ static void FASTCOVER_convertToCoverParams(ZDICT_fastCover_params_t fastCoverPar
 	coverParams->shrinkDict = fastCoverParams.shrinkDict;
 }
 
-static void FASTCOVER_convertToFastCoverParams(ZDICT_cover_params_t coverParams, ZDICT_fastCover_params_t* fastCoverParams, unsigned f, unsigned accel)
+static void FASTCOVER_convertToFastCoverParams(ZDICT_cover_params_t coverParams, ZDICT_fastCover_params_t* fastCoverParams, uint f, uint accel)
 {
 	fastCoverParams->k = coverParams.k;
 	fastCoverParams->d = coverParams.d;
@@ -474,9 +470,9 @@ static void FASTCOVER_convertToFastCoverParams(ZDICT_cover_params_t coverParams,
 }
 
 ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer, 
-	const size_t* samplesSizes, unsigned nbSamples, ZDICT_fastCover_params_t parameters)
+	const size_t* samplesSizes, uint nbSamples, ZDICT_fastCover_params_t parameters)
 {
-	BYTE* const dict = (BYTE*)dictBuffer;
+	BYTE * const dict = (BYTE *)dictBuffer;
 	FASTCOVER_ctx_t ctx;
 	ZDICT_cover_params_t coverParams;
 	FASTCOVER_accel_t accelParams;
@@ -520,7 +516,7 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t di
 		/* Initialize array to keep track of frequency of dmer within activeSegment */
 		uint16* segmentFreqs = (uint16*)SAlloc::C(((uint64)1 << parameters.f), sizeof(uint16));
 		const size_t tail = FASTCOVER_buildDictionary(&ctx, ctx.freqs, dictBuffer, dictBufferCapacity, coverParams, segmentFreqs);
-		const unsigned nbFinalizeSamples = (uint)(ctx.nbTrainSamples * ctx.accelParams.finalize / 100);
+		const uint nbFinalizeSamples = (uint)(ctx.nbTrainSamples * ctx.accelParams.finalize / 100);
 		const size_t dictionarySize = ZDICT_finalizeDictionary(dict, dictBufferCapacity, dict + tail, dictBufferCapacity - tail,
 			samplesBuffer, samplesSizes, nbFinalizeSamples, coverParams.zParams);
 		if(!ZSTD_isError(dictionarySize)) {
@@ -533,30 +529,29 @@ ZDICTLIB_API size_t ZDICT_trainFromBuffer_fastCover(void * dictBuffer, size_t di
 }
 
 ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_fastCover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer,
-    const size_t* samplesSizes, unsigned nbSamples, ZDICT_fastCover_params_t* parameters)
+    const size_t* samplesSizes, uint nbSamples, ZDICT_fastCover_params_t* parameters)
 {
 	ZDICT_cover_params_t coverParams;
 	FASTCOVER_accel_t accelParams;
 	/* constants */
-	const unsigned nbThreads = parameters->nbThreads;
+	const uint nbThreads = parameters->nbThreads;
 	const double splitPoint =
 	    parameters->splitPoint <= 0.0 ? FASTCOVER_DEFAULT_SPLITPOINT : parameters->splitPoint;
-	const unsigned kMinD = parameters->d == 0 ? 6 : parameters->d;
-	const unsigned kMaxD = parameters->d == 0 ? 8 : parameters->d;
-	const unsigned kMinK = parameters->k == 0 ? 50 : parameters->k;
-	const unsigned kMaxK = parameters->k == 0 ? 2000 : parameters->k;
-	const unsigned kSteps = parameters->steps == 0 ? 40 : parameters->steps;
-	const unsigned kStepSize = MAX((kMaxK - kMinK) / kSteps, 1);
-	const unsigned kIterations =
-	    (1 + (kMaxD - kMinD) / 2) * (1 + (kMaxK - kMinK) / kStepSize);
-	const unsigned f = parameters->f == 0 ? DEFAULT_F : parameters->f;
-	const unsigned accel = parameters->accel == 0 ? DEFAULT_ACCEL : parameters->accel;
-	const unsigned shrinkDict = 0;
+	const uint kMinD = parameters->d == 0 ? 6 : parameters->d;
+	const uint kMaxD = parameters->d == 0 ? 8 : parameters->d;
+	const uint kMinK = parameters->k == 0 ? 50 : parameters->k;
+	const uint kMaxK = parameters->k == 0 ? 2000 : parameters->k;
+	const uint kSteps = parameters->steps == 0 ? 40 : parameters->steps;
+	const uint kStepSize = MAX((kMaxK - kMinK) / kSteps, 1);
+	const uint kIterations = (1 + (kMaxD - kMinD) / 2) * (1 + (kMaxK - kMinK) / kStepSize);
+	const uint f = parameters->f == 0 ? DEFAULT_F : parameters->f;
+	const uint accel = parameters->accel == 0 ? DEFAULT_ACCEL : parameters->accel;
+	const uint shrinkDict = 0;
 	/* Local variables */
 	const int displayLevel = (int)parameters->zParams.notificationLevel;
-	unsigned iteration = 1;
-	unsigned d;
-	unsigned k;
+	uint iteration = 1;
+	uint d;
+	uint k;
 	COVER_best_t best;
 	POOL_ctx * pool = NULL;
 	int warned = 0;
@@ -602,14 +597,7 @@ ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_fastCover(void * dictBuffer, s
 		FASTCOVER_ctx_t ctx;
 		LOCALDISPLAYLEVEL(displayLevel, 3, "d=%u\n", d);
 		{
-			const size_t initVal = FASTCOVER_ctx_init(&ctx,
-				samplesBuffer,
-				samplesSizes,
-				nbSamples,
-				d,
-				splitPoint,
-				f,
-				accelParams);
+			const size_t initVal = FASTCOVER_ctx_init(&ctx, samplesBuffer, samplesSizes, nbSamples, d, splitPoint, f, accelParams);
 			if(ZSTD_isError(initVal)) {
 				LOCALDISPLAYLEVEL(displayLevel, 1, "Failed to initialize context\n");
 				COVER_best_destroy(&best);

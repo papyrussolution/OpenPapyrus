@@ -26,7 +26,7 @@
 #include <float.h>
 
 #if !U_NO_DEFAULT_INCLUDE_UTF_HEADERS
-#   include "unicode/utf.h"
+#include "unicode/utf.h"
 #endif
 
 /*!
@@ -45,10 +45,10 @@
  */
 #ifdef __cplusplus
 #   ifndef U_SHOW_CPLUSPLUS_API
-#       define U_SHOW_CPLUSPLUS_API 1
-#   endif
+#define U_SHOW_CPLUSPLUS_API 1
+#endif
 #else
-#   undef U_SHOW_CPLUSPLUS_API
+#undef U_SHOW_CPLUSPLUS_API
 #define U_SHOW_CPLUSPLUS_API 0
 #endif
 
@@ -94,25 +94,25 @@
  * @stable ICU 2.0
  */
 #if U_CHARSET_FAMILY
-#   if U_IS_BIG_ENDIAN
+#if U_IS_BIG_ENDIAN
 /* EBCDIC - should always be BE */
-#     define U_ICUDATA_TYPE_LETTER "e"
-#     define U_ICUDATA_TYPE_LITLETTER e
-#   else
-#     error "Don't know what to do with little endian EBCDIC!"
-#     define U_ICUDATA_TYPE_LETTER "x"
-#     define U_ICUDATA_TYPE_LITLETTER x
-#   endif
+#define U_ICUDATA_TYPE_LETTER "e"
+#define U_ICUDATA_TYPE_LITLETTER e
 #else
-#   if U_IS_BIG_ENDIAN
+#     error "Don't know what to do with little endian EBCDIC!"
+#define U_ICUDATA_TYPE_LETTER "x"
+#define U_ICUDATA_TYPE_LITLETTER x
+#endif
+#else
+#if U_IS_BIG_ENDIAN
 /* Big-endian ASCII */
-#     define U_ICUDATA_TYPE_LETTER "b"
-#     define U_ICUDATA_TYPE_LITLETTER b
-#   else
+#define U_ICUDATA_TYPE_LETTER "b"
+#define U_ICUDATA_TYPE_LITLETTER b
+#else
 /* Little-endian ASCII */
-#     define U_ICUDATA_TYPE_LETTER "l"
-#     define U_ICUDATA_TYPE_LITLETTER l
-#   endif
+#define U_ICUDATA_TYPE_LETTER "l"
+#define U_ICUDATA_TYPE_LITLETTER l
+#endif
 #endif
 
 /**

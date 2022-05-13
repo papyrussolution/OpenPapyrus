@@ -352,18 +352,18 @@ const xmlChar * FASTCALL xmlStrstr(const xmlChar * str, const xmlChar * val)
  */
 const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val) 
 {
-	int n;
-	if(!str)
-		return 0;
-	if(!val) 
-		return 0;
-	n = sstrlen(val);
-	if(n == 0) 
-		return (str);
-	while(*str != 0) { /* non input consuming */
-		if(casemap[*str] == casemap[*val])
-			if(!xmlStrncasecmp(str, val, n)) return (str);
-		str++;
+	if(str && val) {
+		int n = sstrlen(val);
+		if(n == 0) 
+			return (str);
+		else {
+			while(*str != 0) { /* non input consuming */
+				if(casemap[*str] == casemap[*val])
+					if(!xmlStrncasecmp(str, val, n)) 
+						return (str);
+				str++;
+			}
+		}
 	}
 	return 0;
 }
@@ -379,11 +379,7 @@ const xmlChar * xmlStrcasestr(const xmlChar * str, const xmlChar * val)
  */
 xmlChar * xmlStrsub(const xmlChar * str, int start, int len) 
 {
-	if(!str) 
-		return 0;
-	else if(start < 0) 
-		return 0;
-	else if(len < 0) 
+	if(!str || start < 0 || len < 0)
 		return 0;
 	else {
 		for(int i = 0; i < start; i++) {
@@ -396,7 +392,6 @@ xmlChar * xmlStrsub(const xmlChar * str, int start, int len)
 		return xmlStrndup(str, len);
 	}
 }
-
 /**
  * @str:  the xmlChar * array
  * length of a xmlChar's string

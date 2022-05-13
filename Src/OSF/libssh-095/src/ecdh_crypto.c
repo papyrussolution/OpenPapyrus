@@ -62,7 +62,7 @@ int ssh_client_ecdh_init(ssh_session session)
 		return SSH_ERROR;
 	}
 	key = EC_KEY_new_by_curve_name(curve);
-	if(key == NULL) {
+	if(!key) {
 		BN_CTX_free(ctx);
 		return SSH_ERROR;
 	}
@@ -101,7 +101,7 @@ int ecdh_build_k(ssh_session session)
 	int rc;
 	int len = (EC_GROUP_get_degree(group) + 7) / 8;
 	bignum_CTX ctx = bignum_ctx_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		return -1;
 	}
 	pubkey = EC_POINT_new(group);
@@ -125,7 +125,7 @@ int ecdh_build_k(ssh_session session)
 		return -1;
 	}
 	buffer = SAlloc::M(len);
-	if(buffer == NULL) {
+	if(!buffer) {
 		EC_POINT_clear_free(pubkey);
 		return -1;
 	}

@@ -278,7 +278,7 @@ int PPTransferItem::SetSignFlags(PPID op, int forceSign)
 			int    r = IsExpendOp(op);
 			if(r > 0)
 				Flags |= PPTFR_MINUS;
-			else if(r == 0)
+			else if(!r)
 				Flags |= PPTFR_PLUS;
 		}
 	}
@@ -300,7 +300,7 @@ int PPTransferItem::SetSignFlags(PPID op, int forceSign)
 				const int r = IsExpendOp(op);
 				if(r > 0)
 					sign = TISIGN_MINUS;
-				else if(r == 0)
+				else if(!r)
 					sign = TISIGN_PLUS;
 				else
 					sign = TISIGN_UNDEF;

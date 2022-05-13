@@ -114,7 +114,7 @@ typedef struct {
  *   address of the [dc]ctx pointer if you need to track
  *   more information than just a timestamp.
  */
-typedef unsigned long long ZSTD_TraceCtx;
+typedef uint64 ZSTD_TraceCtx;
 
 /**
  * Trace the beginning of a compression call.

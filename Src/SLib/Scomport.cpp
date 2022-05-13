@@ -248,7 +248,7 @@ int FASTCALL SCommPort::GetChr(int * pChr)
 				collision++;
 			}
 		}
-		if(r == 0)
+		if(!r)
 			SLS.SetOsError();
 		else
 			SLS.SetError(SLERR_COMMRCV);
@@ -290,7 +290,7 @@ int SCommPort::GetChr()
 				collision++;
 			}
 		}
-		if(r == 0)
+		if(!r)
 			SLS.SetOsError();
 		else
 			SLS.SetError(SLERR_COMMRCV);

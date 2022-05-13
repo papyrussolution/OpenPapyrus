@@ -2374,7 +2374,7 @@ void quartz_image_to_png(CGImageRef imgref, char * dest)
 {
 	static int sctr = 0;
 	char sptr[] = "/Users/vladimir/Desktop/barXXXXX.png";
-	if(dest == NULL) {
+	if(!dest) {
 		slfprintf_stderr("** Writing %p to bar%d\n", imgref, sctr);
 		sprintf(sptr, "/Users/vladimir/Desktop/bar%d.png", sctr);
 		sctr++;
@@ -2391,7 +2391,7 @@ void quartz_surface_to_png(cairo_quartz_surface_t * nq, char * dest)
 		slfprintf_stderr("** quartz_surface_to_png: surface %p isn't quartz!\n", nq);
 		return;
 	}
-	if(dest == NULL) {
+	if(!dest) {
 		slfprintf_stderr("** Writing %p to foo%d\n", nq, sctr);
 		sprintf(sptr, "/Users/vladimir/Desktop/foo%d.png", sctr);
 		sctr++;

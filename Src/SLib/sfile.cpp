@@ -1126,7 +1126,7 @@ static void FASTCALL ldatetime_to_wftime(const LDATETIME * st, FILETIME * wt)
 {
 	int    ok = -1;
 	int    r = IsOpenedForWriting(pFileName);
-	if(r == 0)
+	if(!r)
 		ok = -1;
 	else if(r < 0)
 		ok = 0;
@@ -1881,7 +1881,7 @@ int SFile::_Lock(int64 offs, int32 size, int mode)
 	{
 		int    _sm = mode ? LK_NBLCK : LK_UNLCK;
 		r = _locking(IH, _sm, size);
-		if(r == 0) {
+		if(!r) {
 			if(mode) {
 				THROW(handle = AcquireLckDescriptor(offs, size));
 			}
@@ -1895,7 +1895,7 @@ int SFile::_Lock(int64 offs, int32 size, int mode)
 	}
 	CATCH
 		if(mode) {
-			if(r == 0) {
+			if(!r) {
 				_locking(IH, LK_UNLCK, size);
 			}
 			ReleaseLckDescriptor(handle);

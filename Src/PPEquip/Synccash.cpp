@@ -651,7 +651,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 	else {
 		SlipDocCommonParam sdc_param;
 		PPID   tax_sys_id = 0;
-		SString ofd_ver; // @v11.1.9
+		//SString ofd_ver; // @v11.1.9
+		OfdFactors ofdf; // @v11.3.12
 		const  bool  is_vat_free = BIN(CnObj.IsVatFree(NodeID) > 0);
 		double amt = fabs(R2(MONEYTOLDBL(pPack->Rec.Amount)));
 		double sum = fabs(pPack->_Cash) + 0.001;
@@ -669,12 +670,15 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		SString buyers_email;
 		SString buyers_phone;
 		bool  paperless = false; 
+		/*
 		// @v10.8.12 {
 		SString chzn_sid;
 		if(SCn.LocID)
 			p_ref->Ot.GetTagStr(PPOBJ_LOCATION, SCn.LocID, PPTAG_LOC_CHZNCODE, chzn_sid);
 		// } @v10.8.12
 		p_ref->Ot.GetTagStr(PPOBJ_CASHNODE, NodeID, PPTAG_POSNODE_OFDVER, ofd_ver);
+		*/
+		GetOfdFactors(ofdf); // @v11.3.12
 		// @v11.3.6 {
 		{
 			pPack->GetExtStrData(CCheckPacket::extssBuyerEMail, buyers_email);
@@ -689,62 +693,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		// } @v11.3.6 
 		THROW(Connect());
 		THROW(AnnulateCheck());
-		// @v11.1.11 {
-		{
-			SVerT vofd;
-			if(ofd_ver.NotEmptyS() && vofd.FromStr(ofd_ver) && vofd.IsGe(1, 2, 0)) {
-				CCheckLineTbl::Rec ccl;
-				SString chzn_code;
-				for(uint pos = 0; pPack->EnumLines(&pos, &ccl) > 0;) {
-					pPack->GetLineTextExt(pos, CCheckPacket::lnextChZnMark, chzn_code);
-					if(chzn_code.NotEmptyS()) {
-						GtinStruc gts;
-						int pczcr = PPChZnPrcssr::ParseChZnCode(chzn_code, gts, 0);
-						if(pczcr > 0) {
-							CCheckPacket::PreprocessChZnCodeResult chzn_pp_result;
-							PPChZnPrcssr::ReconstructOriginalChZnCode(gts, chzn_code); // @v11.2.0
-							const double chzn_qtty = fabs(ccl.Quantity);
-							// @v11.2.6 {
-							uint  uom_fragm = 0;
-							Goods2Tbl::Rec goods_rec;
-							PPUnit u_rec;
-							if(goods_obj.Fetch(ccl.GoodsID, &goods_rec) > 0 && goods_obj.FetchUnit(goods_rec.UnitID, &u_rec) > 0) {
-								if(u_rec.Fragmentation > 0 && u_rec.Fragmentation < 100000)
-									uom_fragm = u_rec.Fragmentation;
-							}
-							// } @v11.2.6 
-							pczcr = PreprocessChZnCode(0, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-							PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, 0, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-							// @debug {
-							//pczcr = 0;
-							//chzn_pp_result.Z();
-							// } @debug
-							if(pczcr > 0) {
-								if(chzn_pp_result.Status == 1) {
-									chzn_pp_result.LineIdx = pos;
-									int accept_op = 1; // 1 - accept, 2 - reject
-									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-									if(pczcr > 0)
-										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
-								}
-								// @v11.3.3 {
-								else {
-									chzn_pp_result.LineIdx = pos;
-									int accept_op = 2; // 1 - accept, 2 - reject
-									pczcr = PreprocessChZnCode(accept_op, chzn_code, chzn_qtty, uom_fragm, chzn_pp_result);
-									PPSyncCashSession::LogPreprocessChZnCodeResult(pczcr, accept_op, chzn_code, chzn_qtty, chzn_pp_result); // @v11.2.3
-									if(pczcr > 0)
-										pPack->SetLineChZnPreprocessResult(pos, &chzn_pp_result);
-								}
-								// } @v11.3.3 
-							}
-						}
-					}
-				}
-			}
-		}
-		// } @v11.1.11
+		PreprocessCCheckForOfd12(ofdf, pPack); // @v11.3.12 Блок, созданный в v11.1.11 замещен общей функцией базового класса
 		if(flags & PRNCHK_RETURN && amt_cash != 0.0) { // @v10.4.7 !(flags & PRNCHK_BANKING) --> (amt_cash != 0.0)
 			const int is_cash = CheckForCash(amt);
 			THROW(is_cash);
@@ -778,7 +727,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
-					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
+					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofdf.OfdVer)); // @v11.1.9
 					// @v11.3.6 {
 					if(paperless) {
 						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
@@ -801,7 +750,7 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 					}
 					// } @v11.2.3 
 					THROW(ArrAdd(Arr_In, DVCPARAM_TAXSYSTEM, tax_sys_id)); // @v10.6.3
-					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofd_ver)); // @v11.1.9
+					THROW(ArrAdd(Arr_In, DVCPARAM_OFDVER, ofdf.OfdVer)); // @v11.1.9
 					// @v11.3.6 {
 					if(paperless) {
 						THROW(ArrAdd(Arr_In, DVCPARAM_PAPERLESS, 1)); 
@@ -855,8 +804,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 							}
 							// } @v11.1.11
 							// @v11.2.4 {
-							if(chzn_sid.NotEmpty())
-								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, chzn_sid));
+							if(ofdf.Sid.NotEmpty())
+								THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
 							// } @v11.2.4
 						}
 						// @v10.4.1 {
@@ -1024,8 +973,8 @@ int SCS_SYNCCASH::PrintCheck(CCheckPacket * pPack, uint flags)
 		}
 		{
 			// @v10.8.12 {
-			if(chzn_sid.NotEmpty())
-				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, chzn_sid));
+			if(ofdf.Sid.NotEmpty())
+				THROW(ArrAdd(Arr_In, DVCPARAM_CHZNSID, ofdf.Sid));
 			// } @v10.8.12
 		}
 		// @v11.3.6 {

@@ -37,7 +37,7 @@
 #include <stdbool.h>
 #include "unicode/umachine.h"
 #ifndef __UTF_H__
-#   include "unicode/utf.h"
+#include "unicode/utf.h"
 #endif
 
 /* internal definitions ----------------------------------------------------- */
@@ -53,9 +53,7 @@
  * @param leadByte The first byte of a UTF-8 sequence. Must be 0..0xff.
  * @internal
  */
-#define U8_COUNT_TRAIL_BYTES(leadByte) \
-	(U8_IS_LEAD(leadByte) ? \
-	((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0)+1 : 0)
+#define U8_COUNT_TRAIL_BYTES(leadByte) (U8_IS_LEAD(leadByte) ? ((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0)+1 : 0)
 
 /**
  * Counts the trail bytes for a UTF-8 lead byte of a valid UTF-8 sequence.
@@ -68,9 +66,7 @@
  * @param leadByte The first byte of a UTF-8 sequence. Must be 0..0xff.
  * @internal
  */
-#define U8_COUNT_TRAIL_BYTES_UNSAFE(leadByte) \
-	(((uint8)(leadByte)>=0xc2)+((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0))
-
+#define U8_COUNT_TRAIL_BYTES_UNSAFE(leadByte) (((uint8)(leadByte)>=0xc2)+((uint8)(leadByte)>=0xe0)+((uint8)(leadByte)>=0xf0))
 /**
  * Mask a UTF-8 lead byte, leave only the lower bits that form part of the code point value.
  *

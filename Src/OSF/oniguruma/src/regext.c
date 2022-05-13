@@ -147,10 +147,10 @@ extern int onig_new_deluxe(regex_t** reg, const uchar * pattern, const uchar * p
 		goto err2;
 	}
 	r = onig_reg_init(*reg, ci->option, ci->case_fold_flag, ci->target_enc, ci->syntax);
-	if(r != 0) 
+	if(r) 
 		goto err;
 	r = onig_compile(*reg, cpat, cpat_end, einfo);
-	if(r != 0) {
+	if(r) {
 err:
 		onig_free(*reg);
 		*reg = NULL;

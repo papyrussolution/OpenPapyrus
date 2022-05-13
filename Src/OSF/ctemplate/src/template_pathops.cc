@@ -25,10 +25,10 @@
 
 #ifndef PATH_SEP
 # ifdef _WIN32
-#   define PATH_SEP  '\\'
-# else
-#   define PATH_SEP  '/'    // assume a unix-like system
-# endif
+#define PATH_SEP  '\\'
+#else
+#define PATH_SEP  '/'    // assume a unix-like system
+#endif
 #endif
 
 namespace ctemplate {

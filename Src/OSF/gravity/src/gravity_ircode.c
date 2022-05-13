@@ -250,7 +250,7 @@ void ircode_dump(const void * _code) // code_dump_function
 	const ircode_t * code = static_cast<const ircode_t *>(_code);
 	const GravityArray <inst_t *> * list = code->list;
 	uint32 count = ircode_count(code);
-	if(count == 0) {
+	if(!count) {
 		printf("NONE\n");
 		return;
 	}

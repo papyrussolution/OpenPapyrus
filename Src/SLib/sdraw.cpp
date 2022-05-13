@@ -3987,6 +3987,23 @@ IcoCurFound:
 //
 #if SLTEST_RUNNING // {
 
+int Test_LCMS2(const char * pTestBedPath, const char * pOutputFileName, bool exhaustive); // @v10.9.7 (Экспериментальное внедрение тестирования библиотеки lcms2) 
+
+SLTEST_R(lcms2)
+{
+#if _MSC_VER >= 1910
+	SString temp_buf;
+	SString testbed_path;
+	(testbed_path = GetInputPath()).SetLastSlash().Cat("lcms2");
+	(temp_buf = "lcms2").CatChar('-').Cat("test").CatChar('-').Cat(getcurdate_(), DATF_YMD|DATF_NODIV|DATF_CENTURY).Cat(getcurtime_(), TIMF_HMS|TIMF_NODIV).Dot().Cat("out");
+	const char * p_out_file_name = MakeOutputFilePath(temp_buf);
+	SLTEST_CHECK_Z(Test_LCMS2(testbed_path, p_out_file_name, true));	
+#else
+	;
+#endif
+	return CurrentStatus;
+}
+
 SLTEST_R(SDraw)
 {
 	int    ok = 1;

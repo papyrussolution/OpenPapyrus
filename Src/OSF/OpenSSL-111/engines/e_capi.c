@@ -438,7 +438,7 @@ static int capi_init(ENGINE * e)
 	}
 
 	ctx = capi_ctx_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto memerr;
 
 	ENGINE_set_ex_data(e, capi_idx, ctx);
@@ -1428,7 +1428,7 @@ static CAPI_KEY * capi_get_key(CAPI_CTX * ctx, const WCHAR * contname, const WCH
 {
 	DWORD dwFlags = 0;
 	CAPI_KEY * key = static_cast<CAPI_KEY *>(OPENSSL_malloc(sizeof(*key)));
-	if(key == NULL)
+	if(!key)
 		return NULL;
 	/* If PROV_RSA_AES supported use it instead */
 	if(ptype == PROV_RSA_FULL && use_aes_csp &&
@@ -1529,7 +1529,7 @@ void capi_free_key(CAPI_KEY * key)
 static CAPI_CTX * capi_ctx_new(void)
 {
 	CAPI_CTX * ctx = static_cast<CAPI_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL) {
+	if(!ctx) {
 		CAPIerr(CAPI_F_CAPI_CTX_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}

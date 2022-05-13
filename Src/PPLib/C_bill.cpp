@@ -605,7 +605,7 @@ int PrcssrAbsentBill::Run()
 	THROW(ScanAccturn(&bill_list));
 	for(uint i = 0; i < bill_list.getCount(); i++) {
 		int r = Repair(static_cast<AbsentEntry *>(bill_list.at(i)));
-		if(r == 0)
+		if(!r)
 			PPError();
 		else if(r == -2) {
 			ok = -1;

@@ -1586,7 +1586,7 @@ int PPObjPerson::GetListByRegNumber(PPID regTypeID, PPID kindID, const char * pS
 	reg_flt.SerPattern = pSerial;
 	reg_flt.NmbPattern = pNumber;
 	int    r = RegObj.SearchByFilt(&reg_flt, 0, &rList);
-	if(r == 0)
+	if(!r)
 		ok = 0;
 	else if(r < 0) {
 		PPSetError(PPERR_PERSONBYREGNFOUND, msg_buf.Cat(pSerial).CatDivIfNotEmpty(':', 1).Cat(pNumber));

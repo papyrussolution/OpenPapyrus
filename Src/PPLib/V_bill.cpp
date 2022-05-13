@@ -941,7 +941,7 @@ int PPViewBill::EditBaseFilt(PPBaseFilt * pFilt)
 		ZDELETE(d);
 		if(r == cmOK)
 			ok = 1;
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	else {
@@ -1416,7 +1416,7 @@ int PPViewBill::Helper_EnumProc(PPID billID, const BillTbl::Rec * pRec, int chec
 			item.Saldo = item.Debit - item.Credit;
 		}
 		int    r = proc(&item, pExtraPtr);
-		if(r == 0)
+		if(!r)
 			ok = 0;
 		else if(r < 0)
 			ok = -1;
@@ -2105,7 +2105,7 @@ int PPViewBill::EditFilt(BillFilt * pFilt, long extraParam) const
 		ZDELETE(d);
 		if(r == cmOK)
 			ok = 1;
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	else {
@@ -3778,7 +3778,7 @@ int PPViewBill::ChangeFlags()
 						r = P_BObj->SetStatus(bill_id, new_status_id, 0);
 						if(r > 0)
 							ok = 1;
-						else if(r == 0)
+						else if(!r)
 							logger.LogLastError();
 					}
 				}
@@ -4028,7 +4028,7 @@ int PPViewBill::AddBillToPool()
 				count++;
 				break;
 			}
-			if(r == 0)
+			if(!r)
 				PPError();
 		}
 		else if(param.Verb == 2) { // Insert By Filt

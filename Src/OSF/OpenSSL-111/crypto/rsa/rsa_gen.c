@@ -74,7 +74,7 @@ static int rsa_builtin_keygen(RSA * rsa, int bits, int primes, BIGNUM * e_value,
 		goto err;
 	}
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	r0 = BN_CTX_get(ctx);

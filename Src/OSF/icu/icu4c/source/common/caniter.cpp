@@ -55,13 +55,8 @@ UOBJECT_DEFINE_RTTI_IMPLEMENTATION(CanonicalIterator)
  *@param source string to get results for
  */
 CanonicalIterator::CanonicalIterator(const UnicodeString & sourceStr, UErrorCode & status) :
-	pieces(NULL),
-	pieces_length(0),
-	pieces_lengths(NULL),
-	current(NULL),
-	current_length(0),
-	nfd(*Normalizer2::getNFDInstance(status)),
-	nfcImpl(*Normalizer2Factory::getNFCImpl(status))
+	pieces(NULL), pieces_length(0), pieces_lengths(NULL), current(NULL), current_length(0),
+	nfd(*Normalizer2::getNFDInstance(status)), nfcImpl(*Normalizer2Factory::getNFCImpl(status))
 {
 	if(U_SUCCESS(status) && nfcImpl.ensureCanonIterData(status)) {
 		setSource(sourceStr, status);
@@ -145,21 +140,19 @@ UnicodeString CanonicalIterator::next()
  *@param set the source string to iterate against. This allows the same iterator to be used
  * while changing the source string, saving object creation.
  */
-void CanonicalIterator::setSource(const UnicodeString & newSource, UErrorCode & status) {
+void CanonicalIterator::setSource(const UnicodeString & newSource, UErrorCode & status) 
+{
 	int32_t list_length = 0;
 	UChar32 cp = 0;
 	int32_t start = 0;
 	int32_t i = 0;
 	UnicodeString * list = NULL;
-
 	nfd.normalize(newSource, source, status);
 	if(U_FAILURE(status)) {
 		return;
 	}
 	done = FALSE;
-
 	cleanPieces();
-
 	// catch degenerate case
 	if(newSource.length() == 0) {
 		pieces = (UnicodeString **)uprv_malloc(sizeof(UnicodeString *));

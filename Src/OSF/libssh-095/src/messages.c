@@ -509,23 +509,17 @@ static int ssh_message_termination(void * s)
  * @warning This function blocks until a message has been received. Betterset up
  *    a callback if this behavior is unwanted.
  */
-ssh_message ssh_message_get(ssh_session session) {
-	ssh_message msg = NULL;
+ssh_message ssh_message_get(ssh_session session) 
+{
 	int rc;
-
-	msg = ssh_message_pop_head(session);
-	if(msg) {
-		return msg;
+	ssh_message msg = ssh_message_pop_head(session);
+	if(!msg) {
+		SETIFZQ(session->ssh_message_list, ssh_list_new());
+		rc = ssh_handle_packets_termination(session, SSH_TIMEOUT_USER, ssh_message_termination, session);
+		if(rc || session->session_state == SSH_SESSION_STATE_ERROR)
+			return NULL;
+		msg = ssh_list_pop_head(ssh_message, session->ssh_message_list);
 	}
-	if(session->ssh_message_list == NULL) {
-		session->ssh_message_list = ssh_list_new();
-	}
-	rc = ssh_handle_packets_termination(session, SSH_TIMEOUT_USER,
-		ssh_message_termination, session);
-	if(rc || session->session_state == SSH_SESSION_STATE_ERROR)
-		return NULL;
-	msg = ssh_list_pop_head(ssh_message, session->ssh_message_list);
-
 	return msg;
 }
 
@@ -536,14 +530,10 @@ ssh_message ssh_message_get(ssh_session session) {
  *
  * @return              The message type or -1 on error.
  */
-int ssh_message_type(ssh_message msg) {
-	if(msg == NULL) {
-		return -1;
-	}
-
-	return msg->type;
+int ssh_message_type(ssh_message msg) 
+{
+	return msg ? msg->type : -1;
 }
-
 /**
  * @brief Get the subtype of the message.
  *
@@ -551,35 +541,28 @@ int ssh_message_type(ssh_message msg) {
  *
  * @return              The message type or -1 on error.
  */
-int ssh_message_subtype(ssh_message msg) {
-	if(msg == NULL) {
-		return -1;
+int ssh_message_subtype(ssh_message msg) 
+{
+	if(msg) {
+		switch(msg->type) {
+			case SSH_REQUEST_AUTH: return msg->auth_request.method;
+			case SSH_REQUEST_CHANNEL_OPEN: return msg->channel_request_open.type;
+			case SSH_REQUEST_CHANNEL: return msg->channel_request.type;
+			case SSH_REQUEST_GLOBAL: return msg->global_request.type;
+		}
 	}
-
-	switch(msg->type) {
-		case SSH_REQUEST_AUTH:
-		    return msg->auth_request.method;
-		case SSH_REQUEST_CHANNEL_OPEN:
-		    return msg->channel_request_open.type;
-		case SSH_REQUEST_CHANNEL:
-		    return msg->channel_request.type;
-		case SSH_REQUEST_GLOBAL:
-		    return msg->global_request.type;
-	}
-
 	return -1;
 }
-
 /**
  * @brief Free a SSH message.
  *
  * @param[in] msg       The message to release the memory.
  */
-void ssh_message_free(ssh_message msg){
-	if(msg == NULL) {
+void ssh_message_free(ssh_message msg)
+{
+	if(!msg) {
 		return;
 	}
-
 	switch(msg->type) {
 		case SSH_REQUEST_AUTH:
 		    ZFREE(msg->auth_request.username);
@@ -639,60 +622,39 @@ SSH_PACKET_CALLBACK(ssh_packet_service_request)
 	char * service_c = NULL;
 	ssh_message msg = NULL;
 	int rc;
-
 	(void)type;
 	(void)user;
-
-	rc = ssh_buffer_unpack(packet,
-		"s",
-		&service_c);
+	rc = ssh_buffer_unpack(packet, "s", &service_c);
 	if(rc != SSH_OK) {
-		ssh_set_error(session,
-		    SSH_FATAL,
-		    "Invalid SSH_MSG_SERVICE_REQUEST packet");
+		ssh_set_error(session, SSH_FATAL, "Invalid SSH_MSG_SERVICE_REQUEST packet");
 		goto error;
 	}
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Received a SERVICE_REQUEST for service %s",
-	    service_c);
-
+	SSH_LOG(SSH_LOG_PACKET, "Received a SERVICE_REQUEST for service %s", service_c);
 	msg = ssh_message_new(session);
-	if(msg == NULL) {
+	if(!msg) {
 		ZFREE(service_c);
 		goto error;
 	}
-
 	msg->type = SSH_REQUEST_SERVICE;
 	msg->service_request.service = service_c;
-
 	ssh_message_queue(session, msg);
 error:
-
 	return SSH_PACKET_USED;
 }
-
 /*
- * This function concats in a buffer the values needed to do a signature
- * verification.
+ * This function concats in a buffer the values needed to do a signature verification.
  */
-static ssh_buffer ssh_msg_userauth_build_digest(ssh_session session,
-    ssh_message msg,
-    const char * service,
-    ssh_string algo)
+static ssh_buffer ssh_msg_userauth_build_digest(ssh_session session, ssh_message msg, const char * service, ssh_string algo)
 {
-	struct ssh_crypto_struct * crypto = NULL;
 	ssh_buffer buffer;
 	ssh_string str = NULL;
 	int rc;
-
-	crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_IN);
+	struct ssh_crypto_struct * crypto = ssh_packet_get_current_crypto(session, SSH_DIRECTION_IN);
 	if(crypto == NULL) {
 		return NULL;
 	}
-
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		return NULL;
 	}
 	rc = ssh_pki_export_pubkey_blob(msg->auth_request.pubkey, &str);
@@ -700,83 +662,55 @@ static ssh_buffer ssh_msg_userauth_build_digest(ssh_session session,
 		SSH_BUFFER_FREE(buffer);
 		return NULL;
 	}
-
-	rc = ssh_buffer_pack(buffer,
-		"dPbsssbsS",
-		crypto->digest_len,          /* session ID string */
-		(size_t)crypto->digest_len, crypto->session_id,
-		SSH2_MSG_USERAUTH_REQUEST,          /* type */
-		msg->auth_request.username,
-		service,
-		"publickey",          /* method */
-		1,          /* has to be signed (true) */
-		ssh_string_get_char(algo),          /* pubkey algorithm */
-		str); /* public key as a blob */
-
+	rc = ssh_buffer_pack(buffer, "dPbsssbsS", crypto->digest_len/* session ID string */, (size_t)crypto->digest_len, crypto->session_id,
+		SSH2_MSG_USERAUTH_REQUEST/* type */, msg->auth_request.username, service, "publickey"/* method */, 1/* has to be signed (true) */,
+		ssh_string_get_char(algo)/* pubkey algorithm */, str/* public key as a blob */);
 	SSH_STRING_FREE(str);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		SSH_BUFFER_FREE(buffer);
 		return NULL;
 	}
-
 	return buffer;
 }
-
 /**
  * @internal
  *
  * @brief Handle a SSH_MSG_MSG_USERAUTH_REQUEST packet and queue a
  * SSH Message
  */
-SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
+SSH_PACKET_CALLBACK(ssh_packet_userauth_request)
+{
 	ssh_message msg = NULL;
 	ssh_signature sig = NULL;
 	char * service = NULL;
 	char * method = NULL;
 	int cmp;
 	int rc;
-
 	(void)user;
 	(void)type;
-
 	msg = ssh_message_new(session);
-	if(msg == NULL) {
+	if(!msg) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
 	msg->type = SSH_REQUEST_AUTH;
-	rc = ssh_buffer_unpack(packet,
-		"sss",
-		&msg->auth_request.username,
-		&service,
-		&method);
-
+	rc = ssh_buffer_unpack(packet, "sss", &msg->auth_request.username, &service, &method);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Auth request for service %s, method %s for user '%s'",
-	    service, method,
-	    msg->auth_request.username);
-
+	SSH_LOG(SSH_LOG_PACKET, "Auth request for service %s, method %s for user '%s'", service, method, msg->auth_request.username);
 	cmp = strcmp(service, "ssh-connection");
 	if(cmp != 0) {
-		SSH_LOG(SSH_LOG_WARNING,
-		    "Invalid service request: %s",
-		    service);
+		SSH_LOG(SSH_LOG_WARNING, "Invalid service request: %s", service);
 		goto end;
 	}
-
 	if(strcmp(method, "none") == 0) {
 		msg->auth_request.method = SSH_AUTH_METHOD_NONE;
 		goto end;
 	}
-
 	if(strcmp(method, "password") == 0) {
 		uint8 tmp;
-
 		msg->auth_request.method = SSH_AUTH_METHOD_PASSWORD;
 		rc = ssh_buffer_unpack(packet, "bs", &tmp, &msg->auth_request.password);
 		if(rc != SSH_OK) {
@@ -784,11 +718,9 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 		}
 		goto end;
 	}
-
 	if(strcmp(method, "keyboard-interactive") == 0) {
 		ssh_string lang = NULL;
 		ssh_string submethods = NULL;
-
 		msg->auth_request.method = SSH_AUTH_METHOD_INTERACTIVE;
 		lang = ssh_buffer_get_ssh_string(packet);
 		if(lang == NULL) {
@@ -819,19 +751,12 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 		ssh_string algo = NULL;
 		ssh_string pubkey_blob = NULL;
 		uint8 has_sign;
-
 		msg->auth_request.method = SSH_AUTH_METHOD_PUBLICKEY;
 		ZFREE(method);
-		rc = ssh_buffer_unpack(packet, "bSS",
-			&has_sign,
-			&algo,
-			&pubkey_blob
-			);
-
+		rc = ssh_buffer_unpack(packet, "bSS", &has_sign, &algo, &pubkey_blob);
 		if(rc != SSH_OK) {
 			goto error;
 		}
-
 		rc = ssh_pki_import_pubkey_blob(pubkey_blob, &msg->auth_request.pubkey);
 		SSH_STRING_FREE(pubkey_blob);
 		pubkey_blob = NULL;
@@ -843,10 +768,8 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 		msg->auth_request.signature_state = SSH_PUBLICKEY_STATE_NONE;
 		// has a valid signature ?
 		if(has_sign) {
-			ssh_string sig_blob = NULL;
 			ssh_buffer digest = NULL;
-
-			sig_blob = ssh_buffer_get_ssh_string(packet);
+			ssh_string sig_blob = ssh_buffer_get_ssh_string(packet);
 			if(sig_blob == NULL) {
 				SSH_LOG(SSH_LOG_PACKET, "Invalid signature packet from peer");
 				msg->auth_request.signature_state = SSH_PUBLICKEY_STATE_ERROR;
@@ -854,7 +777,6 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 				algo = NULL;
 				goto error;
 			}
-
 			digest = ssh_msg_userauth_build_digest(session, msg, service, algo);
 			SSH_STRING_FREE(algo);
 			algo = NULL;
@@ -864,15 +786,11 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 				msg->auth_request.signature_state = SSH_PUBLICKEY_STATE_WRONG;
 				goto error;
 			}
-
-			rc = ssh_pki_import_signature_blob(sig_blob,
-				msg->auth_request.pubkey,
-				&sig);
+			rc = ssh_pki_import_signature_blob(sig_blob, msg->auth_request.pubkey, &sig);
 			if(rc == SSH_OK) {
 				/* Check if the signature from client matches server preferences */
 				if(session->opts.pubkey_accepted_types) {
-					if(!ssh_match_group(session->opts.pubkey_accepted_types,
-					    sig->type_c)) {
+					if(!ssh_match_group(session->opts.pubkey_accepted_types, sig->type_c)) {
 						ssh_set_error(session, SSH_FATAL, "Public key from client (%s) doesn't match server preference (%s)",
 						    sig->type_c, session->opts.pubkey_accepted_types);
 						rc = SSH_ERROR;
@@ -933,7 +851,6 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 			}
 		}
 		ssh_gssapi_handle_userauth(session, msg->auth_request.username, n_oid, oids);
-
 		for(i = 0; i<(int)n_oid; ++i) {
 			ZFREE(oids[i]);
 		}
@@ -942,27 +859,21 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_request){
 		ZFREE(service);
 		ZFREE(method);
 		SSH_MESSAGE_FREE(msg);
-
 		return SSH_PACKET_USED;
 	}
 #endif
-
 	msg->auth_request.method = SSH_AUTH_METHOD_UNKNOWN;
 	ZFREE(method);
 	goto end;
 error:
 	ZFREE(service);
 	ZFREE(method);
-
 	SSH_MESSAGE_FREE(msg);
-
 	return SSH_PACKET_USED;
 end:
 	ZFREE(service);
 	ZFREE(method);
-
 	ssh_message_queue(session, msg);
-
 	return SSH_PACKET_USED;
 }
 
@@ -974,7 +885,8 @@ end:
  * SSH Message
  */
 #ifndef WITH_SERVER
-SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
+SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response)
+{
 	(void)session;
 	(void)type;
 	(void)packet;
@@ -982,14 +894,13 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 	return SSH_PACKET_USED;
 }
 #else /* WITH_SERVER */
-SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
+SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response)
+{
 	uint32_t nanswers;
 	uint32_t i;
 	ssh_string tmp;
 	int rc;
-
 	ssh_message msg = NULL;
-
 	/* GSSAPI_TOKEN has same packed number. XXX fix this */
 #ifdef WITH_GSSAPI
 	if(session->gssapi != NULL) {
@@ -998,13 +909,11 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 #endif
 	(void)user;
 	(void)type;
-
 	msg = ssh_message_new(session);
-	if(msg == NULL) {
+	if(!msg) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
 	/* HACK: we forge a message to be able to handle it in the
 	 * same switch() as other auth methods */
 	msg->type = SSH_REQUEST_AUTH;
@@ -1013,36 +922,27 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 #if 0 // should we wipe the username ?
 	msg->auth_request.username = NULL;
 #endif
-
 	rc = ssh_buffer_unpack(packet, "d", &nanswers);
 	if(rc != SSH_OK) {
 		ssh_set_error_invalid(session);
 		goto error;
 	}
-
 	if(session->kbdint == NULL) {
-		SSH_LOG(SSH_LOG_PROTOCOL, "Warning: Got a keyboard-interactive "
-		    "response but it seems we didn't send the request.");
-
+		SSH_LOG(SSH_LOG_PROTOCOL, "Warning: Got a keyboard-interactive response but it seems we didn't send the request.");
 		session->kbdint = ssh_kbdint_new();
 		if(session->kbdint == NULL) {
 			ssh_set_error_oom(session);
-
 			goto error;
 		}
 	}
 	else if(session->kbdint->answers != NULL) {
-		uint32_t n;
-
-		for(n = 0; n < session->kbdint->nanswers; n++) {
-			memzero(session->kbdint->answers[n],
-			    strlen(session->kbdint->answers[n]));
+		for(uint32_t n = 0; n < session->kbdint->nanswers; n++) {
+			memzero(session->kbdint->answers[n], strlen(session->kbdint->answers[n]));
 			ZFREE(session->kbdint->answers[n]);
 		}
 		ZFREE(session->kbdint->answers);
 		session->kbdint->nanswers = 0;
 	}
-
 	SSH_LOG(SSH_LOG_PACKET, "kbdint: %d answers", nanswers);
 	if(nanswers > KBDINT_MAX_PROMPT) {
 		ssh_set_error(session, SSH_FATAL, "Too much answers received from client: %u (0x%.4x)", nanswers, nanswers);
@@ -1061,10 +961,8 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 		ssh_set_error_oom(session);
 		ssh_kbdint_free(session->kbdint);
 		session->kbdint = NULL;
-
 		goto error;
 	}
-
 	for(i = 0; i < nanswers; i++) {
 		tmp = ssh_buffer_get_ssh_string(packet);
 		if(tmp == NULL) {
@@ -1072,7 +970,6 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 			session->kbdint->nanswers = i;
 			ssh_kbdint_free(session->kbdint);
 			session->kbdint = NULL;
-
 			goto error;
 		}
 		session->kbdint->answers[i] = ssh_string_to_char(tmp);
@@ -1082,85 +979,58 @@ SSH_PACKET_CALLBACK(ssh_packet_userauth_info_response){
 			session->kbdint->nanswers = i;
 			ssh_kbdint_free(session->kbdint);
 			session->kbdint = NULL;
-
 			goto error;
 		}
 	}
-
 	ssh_message_queue(session, msg);
-
 	return SSH_PACKET_USED;
-
 error:
 	SSH_MESSAGE_FREE(msg);
-
 	return SSH_PACKET_USED;
 }
 #endif /* WITH_SERVER */
 
-SSH_PACKET_CALLBACK(ssh_packet_channel_open){
+SSH_PACKET_CALLBACK(ssh_packet_channel_open)
+{
 	ssh_message msg = NULL;
 	char * type_c = NULL;
 	uint32_t originator_port, destination_port;
 	int rc;
-
 	(void)type;
 	(void)user;
 	msg = ssh_message_new(session);
-	if(msg == NULL) {
+	if(!msg) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
-
 	msg->type = SSH_REQUEST_CHANNEL_OPEN;
 	rc = ssh_buffer_unpack(packet, "s", &type_c);
 	if(rc != SSH_OK) {
 		goto error;
 	}
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Clients wants to open a %s channel", type_c);
-
-	ssh_buffer_unpack(packet, "ddd",
-	    &msg->channel_request_open.sender,
-	    &msg->channel_request_open.window,
-	    &msg->channel_request_open.packet_size);
-
+	SSH_LOG(SSH_LOG_PACKET, "Clients wants to open a %s channel", type_c);
+	ssh_buffer_unpack(packet, "ddd", &msg->channel_request_open.sender, &msg->channel_request_open.window, &msg->channel_request_open.packet_size);
 	if(session->session_state != SSH_SESSION_STATE_AUTHENTICATED) {
 		ssh_set_error(session, SSH_FATAL, "Invalid state when receiving channel open request (must be authenticated)");
 		goto error;
 	}
-
 	if(strcmp(type_c, "session") == 0) {
 		msg->channel_request_open.type = SSH_CHANNEL_SESSION;
 		ZFREE(type_c);
 		goto end;
 	}
-
 	if(strcmp(type_c, "direct-tcpip") == 0) {
-		rc = ssh_buffer_unpack(packet,
-			"sdsd",
-			&msg->channel_request_open.destination,
-			&destination_port,
-			&msg->channel_request_open.originator,
-			&originator_port);
+		rc = ssh_buffer_unpack(packet, "sdsd", &msg->channel_request_open.destination, &destination_port, &msg->channel_request_open.originator, &originator_port);
 		if(rc != SSH_OK) {
 			goto error;
 		}
-
 		msg->channel_request_open.destination_port = (uint16_t)destination_port;
 		msg->channel_request_open.originator_port = (uint16_t)originator_port;
 		msg->channel_request_open.type = SSH_CHANNEL_DIRECT_TCPIP;
 		goto end;
 	}
-
 	if(strcmp(type_c, "forwarded-tcpip") == 0) {
-		rc = ssh_buffer_unpack(packet, "sdsd",
-			&msg->channel_request_open.destination,
-			&destination_port,
-			&msg->channel_request_open.originator,
-			&originator_port
-			);
+		rc = ssh_buffer_unpack(packet, "sdsd", &msg->channel_request_open.destination, &destination_port, &msg->channel_request_open.originator, &originator_port);
 		if(rc != SSH_OK) {
 			goto error;
 		}
@@ -1169,11 +1039,8 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open){
 		msg->channel_request_open.type = SSH_CHANNEL_FORWARDED_TCPIP;
 		goto end;
 	}
-
 	if(strcmp(type_c, "x11") == 0) {
-		rc = ssh_buffer_unpack(packet, "sd",
-			&msg->channel_request_open.originator,
-			&originator_port);
+		rc = ssh_buffer_unpack(packet, "sd", &msg->channel_request_open.originator, &originator_port);
 		if(rc != SSH_OK) {
 			goto error;
 		}
@@ -1181,25 +1048,20 @@ SSH_PACKET_CALLBACK(ssh_packet_channel_open){
 		msg->channel_request_open.type = SSH_CHANNEL_X11;
 		goto end;
 	}
-
 	if(strcmp(type_c, "auth-agent@openssh.com") == 0) {
 		msg->channel_request_open.type = SSH_CHANNEL_AUTH_AGENT;
 		goto end;
 	}
-
 	msg->channel_request_open.type = SSH_CHANNEL_UNKNOWN;
 	goto end;
-
 error:
 	SSH_MESSAGE_FREE(msg);
 end:
 	ZFREE(type_c);
 	if(msg)
 		ssh_message_queue(session, msg);
-
 	return SSH_PACKET_USED;
 }
-
 /**
  * @internal
  *
@@ -1211,16 +1073,14 @@ end:
  *
  * @returns             SSH_OK on success, SSH_ERROR if an error occured.
  */
-int ssh_message_channel_request_open_reply_accept_channel(ssh_message msg, ssh_channel chan) {
+int ssh_message_channel_request_open_reply_accept_channel(ssh_message msg, ssh_channel chan) 
+{
 	ssh_session session;
 	int rc;
-
-	if(msg == NULL) {
+	if(!msg) {
 		return SSH_ERROR;
 	}
-
 	session = msg->session;
-
 	chan->local_channel = ssh_channel_new_id(session);
 	chan->local_maxpacket = 35000;
 	chan->local_window = 32000;
@@ -1229,25 +1089,14 @@ int ssh_message_channel_request_open_reply_accept_channel(ssh_message msg, ssh_c
 	chan->remote_window = msg->channel_request_open.window;
 	chan->state = SSH_CHANNEL_STATE_OPEN;
 	chan->flags &= ~SSH_CHANNEL_FLAG_NOT_BOUND;
-
-	rc = ssh_buffer_pack(session->out_buffer,
-		"bdddd",
-		SSH2_MSG_CHANNEL_OPEN_CONFIRMATION,
-		chan->remote_channel,
-		chan->local_channel,
-		chan->local_window,
-		chan->local_maxpacket);
+	rc = ssh_buffer_pack(session->out_buffer, "bdddd", SSH2_MSG_CHANNEL_OPEN_CONFIRMATION, chan->remote_channel,
+		chan->local_channel, chan->local_window, chan->local_maxpacket);
 	if(rc != SSH_OK) {
 		ssh_set_error_oom(session);
 		return SSH_ERROR;
 	}
-
-	SSH_LOG(SSH_LOG_PACKET,
-	    "Accepting a channel request_open for chan %d",
-	    chan->remote_channel);
-
+	SSH_LOG(SSH_LOG_PACKET, "Accepting a channel request_open for chan %d", chan->remote_channel);
 	rc = ssh_packet_send(session);
-
 	return rc;
 }
 
@@ -1266,7 +1115,7 @@ ssh_channel ssh_message_channel_request_open_reply_accept(ssh_message msg) {
 	ssh_channel chan;
 	int rc;
 
-	if(msg == NULL) {
+	if(!msg) {
 		return NULL;
 	}
 
@@ -1307,7 +1156,7 @@ int ssh_message_handle_channel_request(ssh_session session, ssh_channel channel,
 	int rc;
 
 	msg = ssh_message_new(session);
-	if(msg == NULL) {
+	if(!msg) {
 		ssh_set_error_oom(session);
 		goto error;
 	}
@@ -1417,7 +1266,7 @@ int ssh_message_channel_request_reply_success(ssh_message msg) {
 	uint32_t channel;
 	int rc;
 
-	if(msg == NULL) {
+	if(!msg) {
 		return SSH_ERROR;
 	}
 
@@ -1465,7 +1314,7 @@ SSH_PACKET_CALLBACK(ssh_packet_global_request){
 	}
 
 	msg = ssh_message_new(session);
-	if(msg == NULL) {
+	if(!msg) {
 		ssh_set_error_oom(session);
 		goto error;
 	}

@@ -933,7 +933,7 @@ static int SetChunk(const char fourcc[4], int chunk_num,
 
 	if(dmux == NULL || fourcc == NULL || chunk_num < 0) return 0;
 	count = ChunkCount(dmux, fourcc);
-	if(count == 0) return 0;
+	if(!count) return 0;
 	if(chunk_num == 0) chunk_num = count;
 
 	if(chunk_num <= count) {

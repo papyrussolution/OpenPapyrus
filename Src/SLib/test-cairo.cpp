@@ -451,7 +451,7 @@ static boolint cairo_test_copy_file(const char * src_filename, const char * dst_
 	unlink(dst_filename);
 #endif
 	src = fopen(src_filename, "rb");
-	if(src == NULL)
+	if(!src)
 		return FALSE;
 	dst = fopen(dst_filename, "wb");
 	if(dst == NULL) {

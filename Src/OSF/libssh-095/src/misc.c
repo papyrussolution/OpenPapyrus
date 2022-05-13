@@ -310,7 +310,7 @@ char * ssh_hostport(const char * host, int port)
 	/* 3 for []:, 5 for 65536 and 1 for nul */
 	len = strlen(host) + 3 + 5 + 1;
 	dest = static_cast<char *>(SAlloc::M(len));
-	if(dest == NULL) {
+	if(!dest) {
 		return NULL;
 	}
 	snprintf(dest, len, "[%s]:%d", host, port);
@@ -439,30 +439,24 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 		return;
 	}
 	else {
-		printed = snprintf(buffer + count, sizeof(buffer) - count,
-			"(%zu bytes):", len);
+		printed = snprintf(buffer + count, sizeof(buffer) - count, "(%zu bytes):", len);
 		if(printed < 0) {
 			goto error;
 		}
 		count += printed;
 	}
-
 	if(what == NULL) {
-		printed = snprintf(buffer + count, sizeof(buffer) - count,
-			"(NULL)");
+		printed = snprintf(buffer + count, sizeof(buffer) - count, "(NULL)");
 		if(printed < 0) {
 			goto error;
 		}
 		SSH_LOG(SSH_LOG_DEBUG, "%s", buffer);
 		return;
 	}
-
 	SSH_LOG(SSH_LOG_DEBUG, "%s", buffer);
-
 	/* Reset state */
 	count = 0;
 	pc = what;
-
 	for(i = 0; i < len; i++) {
 		/* Add one space after printing 8 bytes */
 		if((i % 8) == 0) {
@@ -474,36 +468,29 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 				count += printed;
 			}
 		}
-
 		/* Log previous line and reset state for new line */
 		if((i % 16) == 0) {
 			if(i != 0) {
-				printed = snprintf(buffer + count, sizeof(buffer) - count,
-					"  %s", ascii);
+				printed = snprintf(buffer + count, sizeof(buffer) - count, "  %s", ascii);
 				if(printed < 0) {
 					goto error;
 				}
 				SSH_LOG(SSH_LOG_DEBUG, "%s", buffer);
 				count = 0;
 			}
-
 			/* Start a new line with the offset */
-			printed = snprintf(buffer, sizeof(buffer),
-				"  %08zx ", i);
+			printed = snprintf(buffer, sizeof(buffer), "  %08zx ", i);
 			if(printed < 0) {
 				goto error;
 			}
 			count += printed;
 		}
-
 		/* Print the current byte hexadecimal representation */
-		printed = snprintf(buffer + count, sizeof(buffer) - count,
-			" %02x", pc[i]);
+		printed = snprintf(buffer + count, sizeof(buffer) - count, " %02x", pc[i]);
 		if(printed < 0) {
 			goto error;
 		}
 		count += printed;
-
 		/* If printable, store the ASCII character */
 		if(isprint(pc[i])) {
 			ascii[i % 16] = pc[i];
@@ -513,7 +500,6 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 		}
 		ascii[(i % 16) + 1] = '\0';
 	}
-
 	/* Add padding if not exactly 16 characters */
 	while((i % 16) != 0) {
 		/* Add one space after printing 8 bytes */
@@ -526,7 +512,6 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 				count += printed;
 			}
 		}
-
 		printed = snprintf(buffer + count, sizeof(buffer) - count, "   ");
 		if(printed < 0) {
 			goto error;
@@ -534,18 +519,13 @@ void ssh_log_hexdump(const char * descr, const uchar * what, size_t len)
 		count += printed;
 		i++;
 	}
-
 	/* Print the last printable part */
-	printed = snprintf(buffer + count, sizeof(buffer) - count,
-		"   %s", ascii);
+	printed = snprintf(buffer + count, sizeof(buffer) - count, "   %s", ascii);
 	if(printed < 0) {
 		goto error;
 	}
-
 	SSH_LOG(SSH_LOG_DEBUG, "%s", buffer);
-
 	return;
-
 error:
 	SSH_LOG(SSH_LOG_WARN, "Could not print to buffer");
 	return;
@@ -645,7 +625,7 @@ static struct ssh_iterator * ssh_iterator_new(const void * data)
 int ssh_list_append(struct ssh_list * list, const void * data)
 {
 	struct ssh_iterator * iterator = NULL;
-	if(list == NULL) {
+	if(!list) {
 		return SSH_ERROR;
 	}
 	iterator = ssh_iterator_new(data);
@@ -668,7 +648,7 @@ int ssh_list_append(struct ssh_list * list, const void * data)
 int ssh_list_prepend(struct ssh_list * list, const void * data)
 {
 	struct ssh_iterator * it = NULL;
-	if(list == NULL) {
+	if(!list) {
 		return SSH_ERROR;
 	}
 	it = ssh_iterator_new(data);
@@ -690,7 +670,7 @@ int ssh_list_prepend(struct ssh_list * list, const void * data)
 void ssh_list_remove(struct ssh_list * list, struct ssh_iterator * iterator)
 {
 	struct ssh_iterator * ptr, * prev;
-	if(list == NULL) {
+	if(!list) {
 		return;
 	}
 	prev = NULL;
@@ -730,7 +710,7 @@ const void * _ssh_list_pop_head(struct ssh_list * list){
 	struct ssh_iterator * iterator = NULL;
 	const void * data = NULL;
 
-	if(list == NULL) {
+	if(!list) {
 		return NULL;
 	}
 
@@ -1321,7 +1301,7 @@ int ssh_match_group(const char * group, const char * object)
 	z = group;
 	do {
 		a = strchr(z, ',');
-		if(a == NULL) {
+		if(!a) {
 			if(strcmp(z, object) == 0) {
 				return 1;
 			}

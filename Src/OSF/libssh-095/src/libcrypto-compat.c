@@ -232,7 +232,7 @@ static void OPENSSL_clear_free(void * str, size_t num)
 /* This call frees resources associated with the context */
 int EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return 1;
 
 	/*

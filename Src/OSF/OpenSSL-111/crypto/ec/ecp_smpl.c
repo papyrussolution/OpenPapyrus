@@ -145,9 +145,9 @@ int ec_GFp_simple_group_set_curve(EC_GROUP * group,
 		return 0;
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 
@@ -202,9 +202,9 @@ int ec_GFp_simple_group_get_curve(const EC_GROUP * group, BIGNUM * p, BIGNUM * a
 	}
 	if(a || b) {
 		if(group->meth->field_decode) {
-			if(ctx == NULL) {
+			if(!ctx) {
 				ctx = new_ctx = BN_CTX_new();
-				if(ctx == NULL)
+				if(!ctx)
 					return 0;
 			}
 			if(a) {
@@ -247,9 +247,9 @@ int ec_GFp_simple_group_check_discriminant(const EC_GROUP * group, BN_CTX * ctx)
 	const BIGNUM * p = group->field;
 	BN_CTX * new_ctx = NULL;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL) {
+		if(!ctx) {
 			ECerr(EC_F_EC_GFP_SIMPLE_GROUP_CHECK_DISCRIMINANT,
 			    ERR_R_MALLOC_FAILURE);
 			goto err;
@@ -372,9 +372,9 @@ int ec_GFp_simple_set_Jprojective_coordinates_GFp(const EC_GROUP * group, EC_POI
 {
 	BN_CTX * new_ctx = NULL;
 	int ret = 0;
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 	if(x) {
@@ -425,9 +425,9 @@ int ec_GFp_simple_get_Jprojective_coordinates_GFp(const EC_GROUP * group, const 
 	BN_CTX * new_ctx = NULL;
 	int ret = 0;
 	if(group->meth->field_decode != 0) {
-		if(ctx == NULL) {
+		if(!ctx) {
 			ctx = new_ctx = BN_CTX_new();
-			if(ctx == NULL)
+			if(!ctx)
 				return 0;
 		}
 		if(x) {
@@ -494,9 +494,9 @@ int ec_GFp_simple_point_get_affine_coordinates(const EC_GROUP * group,
 		return 0;
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 
@@ -612,9 +612,9 @@ int ec_GFp_simple_add(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
 	field_sqr = group->meth->field_sqr;
 	p = group->field;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 
@@ -802,9 +802,9 @@ int ec_GFp_simple_dbl(const EC_GROUP * group, EC_POINT * r, const EC_POINT * a,
 	field_sqr = group->meth->field_sqr;
 	p = group->field;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 
@@ -958,9 +958,9 @@ int ec_GFp_simple_is_on_curve(const EC_GROUP * group, const EC_POINT * point,
 	field_sqr = group->meth->field_sqr;
 	p = group->field;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return -1;
 	}
 
@@ -1077,9 +1077,9 @@ int ec_GFp_simple_cmp(const EC_GROUP * group, const EC_POINT * a,
 	field_mul = group->meth->field_mul;
 	field_sqr = group->meth->field_sqr;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return -1;
 	}
 
@@ -1167,9 +1167,9 @@ int ec_GFp_simple_make_affine(const EC_GROUP * group, EC_POINT * point,
 	if(point->Z_is_one || EC_POINT_is_at_infinity(group, point))
 		return 1;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 
@@ -1208,9 +1208,9 @@ int ec_GFp_simple_points_make_affine(const EC_GROUP * group, size_t num,
 	if(num == 0)
 		return 1;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 

@@ -11,8 +11,8 @@
 #pragma hdrstop
 #include "platform.h"
 #if defined (_MSC_VER)
-#  include <sys/stat.h>
-#  include <io.h>
+#include <sys/stat.h>
+#include <io.h>
 #endif
 #include "fileio_asyncio.h"
 #include "fileio_common.h"
@@ -501,10 +501,10 @@ void AIO_ReadPool_setFile(ReadPoolCtx_t* ctx, FILE* file) {
 ReadPoolCtx_t* AIO_ReadPool_create(const FIO_prefs_t* prefs, size_t bufferSize) 
 {
 	ReadPoolCtx_t* const ctx = (ReadPoolCtx_t*)SAlloc::M(sizeof(ReadPoolCtx_t));
-	if(!ctx) EXM_THROW(100, "Allocation error : not enough memory");
+	if(!ctx) 
+		EXM_THROW(100, "Allocation error : not enough memory");
 	AIO_IOPool_init(&ctx->base, prefs, AIO_ReadPool_executeReadJob, bufferSize);
-
-	ctx->coalesceBuffer = (U8*)SAlloc::M(bufferSize * 2);
+	ctx->coalesceBuffer = (uint8 *)SAlloc::M(bufferSize * 2);
 	ctx->srcBuffer = ctx->coalesceBuffer;
 	ctx->srcBufferLoaded = 0;
 	ctx->completedJobsCount = 0;
@@ -582,7 +582,7 @@ size_t AIO_ReadPool_fillBuffer(ReadPoolCtx_t* ctx, size_t n) {
 		ctx->srcBufferLoaded += job->usedBufferSize;
 	}
 	else {
-		ctx->srcBuffer = (U8*)job->buffer;
+		ctx->srcBuffer = (uint8 *)job->buffer;
 		ctx->srcBufferLoaded = job->usedBufferSize;
 	}
 	return job->usedBufferSize;
@@ -590,7 +590,8 @@ size_t AIO_ReadPool_fillBuffer(ReadPoolCtx_t* ctx, size_t n) {
 
 /* AIO_ReadPool_consumeAndRefill:
  * Consumes the current buffer and refills it with bufferSize bytes. */
-size_t AIO_ReadPool_consumeAndRefill(ReadPoolCtx_t* ctx) {
+size_t AIO_ReadPool_consumeAndRefill(ReadPoolCtx_t* ctx) 
+{
 	AIO_ReadPool_consumeBytes(ctx, ctx->srcBufferLoaded);
 	return AIO_ReadPool_fillBuffer(ctx, ctx->base.jobBufferSize);
 }

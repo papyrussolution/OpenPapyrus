@@ -272,18 +272,15 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 	format_octal(archive_entry_uid(entry), h + c_uid_offset, c_uid_size);
 	format_octal(archive_entry_gid(entry), h + c_gid_offset, c_gid_size);
 	format_octal(archive_entry_nlink(entry), h + c_nlink_offset, c_nlink_size);
-	if(archive_entry_filetype(entry) == AE_IFBLK
-	   || archive_entry_filetype(entry) == AE_IFCHR)
+	if(archive_entry_filetype(entry) == AE_IFBLK || archive_entry_filetype(entry) == AE_IFCHR)
 		format_octal(archive_entry_rdev(entry), h + c_rdev_offset, c_rdev_size);
 	else
 		format_octal(0, h + c_rdev_offset, c_rdev_size);
 	format_octal(archive_entry_mtime(entry), h + c_mtime_offset, c_mtime_size);
 	format_octal(pathlength, h + c_namesize_offset, c_namesize_size);
-
 	/* Non-regular files don't store bodies. */
 	if(archive_entry_filetype(entry) != AE_IFREG)
 		archive_entry_set_size(entry, 0);
-
 	/* Symlinks get the link written as the body of the entry. */
 	ret = archive_entry_symlink_l(entry, &p, &len, sconv);
 	if(ret != 0) {
@@ -292,8 +289,7 @@ static int write_header(struct archive_write * a, struct archive_entry * entry)
 			ret_final = ARCHIVE_FATAL;
 			goto exit_write_header;
 		}
-		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s",
-		    archive_entry_symlink(entry), archive_string_conversion_charset_name(sconv));
+		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Can't translate linkname '%s' to %s", archive_entry_symlink(entry), archive_string_conversion_charset_name(sconv));
 		ret_final = ARCHIVE_WARN;
 	}
 	if(len > 0 && p != NULL && *p != '\0')

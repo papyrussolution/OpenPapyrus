@@ -9,16 +9,14 @@
  */
 #include <zstd-internal.h>
 #pragma hdrstop
-
-/*-************************************
-*  Compiler specific
-**************************************/
+//
+// Compiler specific
+//
 #ifdef _MSC_VER    /* Visual Studio */
 #define _CRT_SECURE_NO_WARNINGS   /* fgets */
-#  pragma warning(disable : 4127)   /* disable: C4127: conditional expression is constant */
-#  pragma warning(disable : 4204)   /* disable: C4204: non-constant aggregate initializer */
+#pragma warning(disable : 4127)   /* disable: C4127: conditional expression is constant */
+#pragma warning(disable : 4204)   /* disable: C4204: non-constant aggregate initializer */
 #endif
-
 #undef NDEBUG
 #define ZSTD_STATIC_LINKING_ONLY  /* ZSTD_compressContinue, ZSTD_compressBlock */
 #include "debug.h"        /* DEBUG_STATIC_ASSERT */
@@ -40,14 +38,13 @@
 //
 // Constants
 //
-#define GB *(1U<<30)
+//#define GB_Removed *(1U<<30)
 
 static const int FUZ_compressibility_default = 50;
 static const int nbTestsDefault = 30000;
-
-/*-************************************
-*  Display Macros
-**************************************/
+//
+// Display Macros
+//
 #define DISPLAY(...)          fprintf(stderr, __VA_ARGS__)
 #define DISPLAYLEVEL(l, ...)  if(g_displayLevel>=l) { DISPLAY(__VA_ARGS__); }
 static uint32 g_displayLevel = 2;
@@ -83,7 +80,7 @@ void FUZ_bug976(void)
 #define FUZ_rotl32(x, r) ((x << r) | (x >> (32 - r)))
 static uint32 FUZ_rand(uint32* src)
 {
-	static const uint32 prime1 = 2654435761U;
+	static const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
 	static const uint32 prime2 = 2246822519U;
 	uint32 rand32 = *src;
 	rand32 *= prime1;
@@ -3897,12 +3894,14 @@ static int fuzzerTests(uint32 seed, unsigned nbTests, unsigned startTest, const 
 		}
 		FUZ_rand(&coreSeed);
 		{ 
-			const uint32 prime1 = 2654435761U; lseed = coreSeed ^ prime1; 
+			//const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/; 
+			lseed = coreSeed ^ _SlConst.MagicHashPrime32/*prime1*/; 
 		}
 		/* srcBuffer selection [0-4] */
 		{   
 			uint32 buffNb = FUZ_rand(&lseed) & 0x7F;
-		    if(buffNb & 7) buffNb = 2; /* most common : compressible (P) */
+		    if(buffNb & 7) 
+				buffNb = 2; /* most common : compressible (P) */
 		    else {
 			    buffNb >>= 3;
 			    if(buffNb & 7) {

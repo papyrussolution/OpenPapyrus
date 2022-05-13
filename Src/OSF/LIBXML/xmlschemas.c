@@ -18893,9 +18893,9 @@ create_key:
 				/*
 				 * Create a key once per node only.
 				 */
-				if(key == NULL) {
+				if(!key) {
 					key = (xmlSchemaPSVIIDCKeyPtr)SAlloc::M(sizeof(xmlSchemaPSVIIDCKey));
-					if(key == NULL) {
+					if(!key) {
 						xmlSchemaVErrMemory(NULL, "allocating a IDC key", 0);
 						SAlloc::F(keySeq);
 						matcher->keySeqs[pos] = NULL;

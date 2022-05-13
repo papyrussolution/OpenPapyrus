@@ -190,16 +190,14 @@ class Api final :
   public:
   void clear_methods();
   ::PROTOBUF_NAMESPACE_ID::Method* mutable_methods(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Method >*
-      mutable_methods();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Method > * mutable_methods();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Method& _internal_methods(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Method* _internal_add_methods();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Method& methods(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Method* add_methods();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Method >&
-      methods() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Method > & methods() const;
 
   // repeated .google.protobuf.Option options = 3;
   int options_size() const;
@@ -208,16 +206,14 @@ class Api final :
   public:
   void clear_options();
   ::PROTOBUF_NAMESPACE_ID::Option* mutable_options(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-      mutable_options();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * mutable_options();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Option& _internal_options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* _internal_add_options();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Option& options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* add_options();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >&
-      options() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > & options() const;
 
   // repeated .google.protobuf.Mixin mixins = 6;
   int mixins_size() const;
@@ -226,16 +222,14 @@ class Api final :
   public:
   void clear_mixins();
   ::PROTOBUF_NAMESPACE_ID::Mixin* mutable_mixins(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Mixin >*
-      mutable_mixins();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Mixin > * mutable_mixins();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Mixin& _internal_mixins(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Mixin* _internal_add_mixins();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Mixin& mixins(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Mixin* add_mixins();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Mixin >&
-      mixins() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Mixin > & mixins() const;
 
   // string name = 1;
   void clear_name();
@@ -429,16 +423,14 @@ class Method final :
   public:
   void clear_options();
   ::PROTOBUF_NAMESPACE_ID::Option* mutable_options(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >*
-      mutable_options();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > * mutable_options();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Option& _internal_options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* _internal_add_options();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Option& options(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Option* add_options();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option >&
-      options() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Option > & options() const;
 
   // string name = 1;
   void clear_name();
@@ -750,16 +742,15 @@ Api::mutable_methods() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Api.methods)
   return &methods_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Method& Api::_internal_methods(int index) const {
-  return methods_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Method& Api::_internal_methods(int index) const
+{
+ return methods_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Method& Api::methods(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Api.methods)
   return _internal_methods(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Method* Api::_internal_add_methods() {
-  return methods_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Method* Api::_internal_add_methods() { return methods_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Method* Api::add_methods() {
   ::PROTOBUF_NAMESPACE_ID::Method* _add = _internal_add_methods();
   // @@protoc_insertion_point(field_add:google.protobuf.Api.methods)
@@ -785,16 +776,15 @@ Api::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Api.options)
   return &options_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Option& Api::_internal_options(int index) const {
-  return options_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Option& Api::_internal_options(int index) const
+{
+ return options_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Option& Api::options(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Api.options)
   return _internal_options(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Option* Api::_internal_add_options() {
-  return options_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Option* Api::_internal_add_options() { return options_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Api::add_options() {
   ::PROTOBUF_NAMESPACE_ID::Option* _add = _internal_add_options();
   // @@protoc_insertion_point(field_add:google.protobuf.Api.options)
@@ -872,11 +862,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::SourceContext& Api::source_context() const
 }
 inline void Api::unsafe_arena_set_allocated_source_context(
     ::PROTOBUF_NAMESPACE_ID::SourceContext* source_context) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context_);
   }
   source_context_ = source_context;
-  if (source_context) {
+  if(source_context) {
     
   } else {
     
@@ -890,9 +880,9 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Api::release_source_context() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -907,7 +897,7 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Api::unsafe_arena_release_source_
 }
 inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Api::_internal_mutable_source_context() {
   
-  if (source_context_ == nullptr) {
+  if(source_context_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::SourceContext>(GetArenaForAllocation());
     source_context_ = p;
   }
@@ -920,17 +910,15 @@ inline ::PROTOBUF_NAMESPACE_ID::SourceContext* Api::mutable_source_context() {
 }
 inline void Api::set_allocated_source_context(::PROTOBUF_NAMESPACE_ID::SourceContext* source_context) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context_);
   }
-  if (source_context) {
+  if(source_context) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context));
-    if (message_arena != submessage_arena) {
-      source_context = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, source_context, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(source_context));
+    if(message_arena != submessage_arena) {
+      source_context = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, source_context, submessage_arena);
     }
     
   } else {
@@ -957,16 +945,15 @@ Api::mutable_mixins() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Api.mixins)
   return &mixins_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Mixin& Api::_internal_mixins(int index) const {
-  return mixins_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Mixin& Api::_internal_mixins(int index) const
+{
+ return mixins_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Mixin& Api::mixins(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Api.mixins)
   return _internal_mixins(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Mixin* Api::_internal_add_mixins() {
-  return mixins_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Mixin* Api::_internal_add_mixins() { return mixins_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Mixin* Api::add_mixins() {
   ::PROTOBUF_NAMESPACE_ID::Mixin* _add = _internal_add_mixins();
   // @@protoc_insertion_point(field_add:google.protobuf.Api.mixins)
@@ -1194,16 +1181,15 @@ Method::mutable_options() {
   // @@protoc_insertion_point(field_mutable_list:google.protobuf.Method.options)
   return &options_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Option& Method::_internal_options(int index) const {
-  return options_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Option& Method::_internal_options(int index) const
+{
+ return options_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Option& Method::options(int index) const {
   // @@protoc_insertion_point(field_get:google.protobuf.Method.options)
   return _internal_options(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Option* Method::_internal_add_options() {
-  return options_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Option* Method::_internal_add_options() { return options_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Option* Method::add_options() {
   ::PROTOBUF_NAMESPACE_ID::Option* _add = _internal_add_options();
   // @@protoc_insertion_point(field_add:google.protobuf.Method.options)

@@ -1003,7 +1003,7 @@ static bool list_iterator(gravity_vm * vm, GravityValue * args, uint16 nargs, ui
 	gravity_list_t * list = static_cast<gravity_list_t *>(args[0]);
 	// check for empty list first
 	uint32 count = list->array.getCount();
-	if(count == 0) 
+	if(!count) 
 		return vm->ReturnValue(GravityValue::from_bool(false), rindex);
 	// check for start of iteration
 	if(args[1].IsNull()) 

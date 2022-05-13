@@ -47,7 +47,7 @@ U_CFUNC void  uprv_unmapFile(UDataMemory *pData);
 #if U_PLATFORM == U_PF_OS390 && defined (OS390_STUBDATA)
         /* No memory mapping for 390 batch mode.  Fake it using dll loading.  */
 #define MAP_IMPLEMENTATION MAP_390DLL
-#   else
+#else
 #define MAP_IMPLEMENTATION MAP_POSIX
 #endif
 #else /* unknown platform, no memory map implementation: use stdio.h and uprv_malloc() instead */

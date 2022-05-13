@@ -222,7 +222,7 @@ extern int obstack_printf(struct obstack * obs, const char * format, ...);
    does not implement __extension__.  But that compiler doesn't define
    __GNUC_MINOR__.  */
 #if __GNUC__ < 2 || (__NeXT__ && !__GNUC_MINOR__)
-#  define __extension__
+#define __extension__
 #endif
 
 /* For GNU C, if not -traditional,

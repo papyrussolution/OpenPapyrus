@@ -47,9 +47,9 @@
 #if HAVE_THREADS_H && USE_POSIX_THREADS_WEAK
 #  include <threads.h>
 #  pragma weak thrd_exit
-#  define c11_threads_in_use() (thrd_exit != NULL)
+#define c11_threads_in_use() (thrd_exit != NULL)
 #else
-#  define c11_threads_in_use() 0
+#define c11_threads_in_use() 0
 #endif
 #endif
 
@@ -86,7 +86,7 @@ typedef tss_t gl_tls_key_t;
 #if PTHREAD_IN_USE_DETECTION_HARD
 
 /* The pthread_in_use() detection needs to be done at runtime.  */
-#  define pthread_in_use() \
+#define pthread_in_use() \
      glthread_in_use ()
 extern int glthread_in_use (void);
 
@@ -100,21 +100,21 @@ extern int glthread_in_use (void);
 #  pragma weak pthread_getspecific
 #  pragma weak pthread_setspecific
 #  pragma weak pthread_key_delete
-#  ifndef pthread_self
+#ifndef pthread_self
 #   pragma weak pthread_self
-#  endif
+#endif
 
-#  if !PTHREAD_IN_USE_DETECTION_HARD
+#if !PTHREAD_IN_USE_DETECTION_HARD
 #   pragma weak pthread_mutexattr_gettype
-#   define pthread_in_use() \
+#define pthread_in_use() \
       (pthread_mutexattr_gettype != NULL || c11_threads_in_use ())
-#  endif
+#endif
 
 #else
 
-#  if !PTHREAD_IN_USE_DETECTION_HARD
-#   define pthread_in_use() 1
-#  endif
+#if !PTHREAD_IN_USE_DETECTION_HARD
+#define pthread_in_use() 1
+#endif
 
 #endif
 

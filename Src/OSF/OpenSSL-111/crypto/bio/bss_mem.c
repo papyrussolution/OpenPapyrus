@@ -143,7 +143,7 @@ static int mem_free(BIO * a)
 {
 	BIO_BUF_MEM * bb;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	bb = (BIO_BUF_MEM*)a->ptr;
@@ -156,7 +156,7 @@ static int mem_free(BIO * a)
 
 static int mem_buf_free(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	if(a->shutdown && a->init && a->ptr != NULL) {

@@ -2375,7 +2375,7 @@ static void _emit_string_literal(cairo_script_surface_t * surface,
 
 	_cairo_output_stream_puts(ctx->stream, "(");
 
-	if(utf8 == NULL) {
+	if(!utf8) {
 		end = utf8;
 	}
 	else {

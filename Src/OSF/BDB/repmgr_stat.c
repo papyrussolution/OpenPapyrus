@@ -111,7 +111,7 @@ static int __repmgr_print_sites(ENV * env)
 	int ret;
 	if((ret = __repmgr_site_list(env->dbenv, &count, &list)) != 0)
 		return ret;
-	if(count == 0)
+	if(!count)
 		return 0;
 	__db_msg(env, "%s", DB_GLOBAL(db_line));
 	__db_msg(env, "DB_REPMGR site information:");
@@ -202,7 +202,7 @@ int __repmgr_site_list(DB_ENV * dbenv, uint * countp, DB_REPMGR_SITE ** listp)
 		total_size += sstrlen(site->net_addr.host)+1;
 		count++;
 	}
-	if(count == 0)
+	if(!count)
 		goto err;
 	array_size = sizeof(DB_REPMGR_SITE)*count;
 	total_size += array_size;

@@ -114,7 +114,7 @@ static int pki_private_key_decrypt(ssh_string blob, const char * passphrase, con
 		return SSH_ERROR;
 	}
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		return SSH_ERROR;
 	}
 	rc = ssh_buffer_add_data(buffer, ssh_string_data(kdfoptions), ssh_string_len(kdfoptions));
@@ -205,7 +205,7 @@ static ssh_key ssh_pki_openssh_import(const char * text_key, const char * passph
 	base64[i] = '\0';
 	buffer = base64_to_bin(base64);
 	ZFREE(base64);
-	if(buffer == NULL) {
+	if(!buffer) {
 		SSH_LOG(SSH_LOG_WARN, "Not an OpenSSH private key (base64 error)");
 		goto out;
 	}

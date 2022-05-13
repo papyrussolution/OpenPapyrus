@@ -134,18 +134,9 @@ static void opj_pi_update_encode_not_poc(opj_cp_t * p_cp,
  * @param   p_dy_min            pointer that will hold the minimum dy of all the components of all the resolutions for
  *the tile.
  */
-static void opj_get_encoding_parameters(const opj_image_t * p_image,
-    const opj_cp_t * p_cp,
-    uint32_t tileno,
-    uint32_t * p_tx0,
-    uint32_t * p_tx1,
-    uint32_t * p_ty0,
-    uint32_t * p_ty1,
-    uint32_t * p_dx_min,
-    uint32_t * p_dy_min,
-    uint32_t * p_max_prec,
-    uint32_t * p_max_res);
-
+static void opj_get_encoding_parameters(const opj_image_t * p_image, const opj_cp_t * p_cp, uint32_t tileno,
+    uint32_t * p_tx0, uint32_t * p_tx1, uint32_t * p_ty0, uint32_t * p_ty1, uint32_t * p_dx_min, uint32_t * p_dy_min,
+    uint32_t * p_max_prec, uint32_t * p_max_res);
 /**
  * Gets the encoding parameters needed to update the coding parameters and all the pocs.
  * The precinct widths, heights, dx and dy for each component at each resolution will be stored as well.
@@ -169,18 +160,9 @@ static void opj_get_encoding_parameters(const opj_image_t * p_image,
  *tile.
  * @param   p_resolutions   pointer to an area corresponding to the one described above.
  */
-static void opj_get_all_encoding_parameters(const opj_image_t * p_image,
-    const opj_cp_t * p_cp,
-    uint32_t tileno,
-    uint32_t * p_tx0,
-    uint32_t * p_tx1,
-    uint32_t * p_ty0,
-    uint32_t * p_ty1,
-    uint32_t * p_dx_min,
-    uint32_t * p_dy_min,
-    uint32_t * p_max_prec,
-    uint32_t * p_max_res,
-    uint32_t ** p_resolutions);
+static void opj_get_all_encoding_parameters(const opj_image_t * p_image, const opj_cp_t * p_cp, uint32_t tileno,
+    uint32_t * p_tx0, uint32_t * p_tx1, uint32_t * p_ty0, uint32_t * p_ty1, uint32_t * p_dx_min, uint32_t * p_dy_min,
+    uint32_t * p_max_prec, uint32_t * p_max_res, uint32_t ** p_resolutions);
 /**
  * Allocates memory for a packet iterator. Data and data sizes are set by this operation.
  * No other data is set. The include section of the packet  iterator is not allocated.
@@ -191,34 +173,19 @@ static void opj_get_all_encoding_parameters(const opj_image_t * p_image,
  * @param   tileno  the index of the tile from which creating the packet iterator.
  * @param   manager Event manager
  */
-static opj_pi_iterator_t * opj_pi_create(const opj_image_t * p_image,
-    const opj_cp_t * p_cp,
-    uint32_t tileno,
-    opj_event_mgr_t* manager);
+static opj_pi_iterator_t * opj_pi_create(const opj_image_t * p_image, const opj_cp_t * p_cp, uint32_t tileno, opj_event_mgr_t* manager);
 /**
  * FIXME DOC
  */
-static void opj_pi_update_decode_not_poc(opj_pi_iterator_t * p_pi,
-    opj_tcp_t * p_tcp,
-    uint32_t p_max_precision,
-    uint32_t p_max_res);
+static void opj_pi_update_decode_not_poc(opj_pi_iterator_t * p_pi, opj_tcp_t * p_tcp, uint32_t p_max_precision, uint32_t p_max_res);
 /**
  * FIXME DOC
  */
-static void opj_pi_update_decode_poc(opj_pi_iterator_t * p_pi,
-    opj_tcp_t * p_tcp,
-    uint32_t p_max_precision,
-    uint32_t p_max_res);
-
+static void opj_pi_update_decode_poc(opj_pi_iterator_t * p_pi, opj_tcp_t * p_tcp, uint32_t p_max_precision, uint32_t p_max_res);
 /**
  * FIXME DOC
  */
-static boolint opj_pi_check_next_level(int32_t pos,
-    opj_cp_t * cp,
-    uint32_t tileno,
-    uint32_t pino,
-    const char * prog);
-
+static boolint opj_pi_check_next_level(int32_t pos, opj_cp_t * cp, uint32_t tileno, uint32_t pino, const char * prog);
 /*@}*/
 
 /*@}*/
@@ -234,14 +201,10 @@ static boolint opj_pi_next_lrcp(opj_pi_iterator_t * pi)
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	uint32_t index = 0;
-
-	if(pi->poc.compno0 >= pi->numcomps ||
-	    pi->poc.compno1 >= pi->numcomps + 1) {
-		opj_event_msg(pi->manager, EVT_ERROR,
-		    "opj_pi_next_lrcp(): invalid compno0/compno1\n");
+	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
+		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_lrcp(): invalid compno0/compno1\n");
 		return FALSE;
 	}
-
 	if(!pi->first) {
 		comp = &pi->comps[pi->compno];
 		res = &comp->resolutions[pi->resno];
@@ -250,7 +213,6 @@ static boolint opj_pi_next_lrcp(opj_pi_iterator_t * pi)
 	else {
 		pi->first = 0;
 	}
-
 	for(pi->layno = pi->poc.layno0; pi->layno < pi->poc.layno1; pi->layno++) {
 		for(pi->resno = pi->poc.resno0; pi->resno < pi->poc.resno1;
 		    pi->resno++) {
@@ -264,8 +226,7 @@ static boolint opj_pi_next_lrcp(opj_pi_iterator_t * pi)
 					pi->poc.precno1 = res->pw * res->ph;
 				}
 				for(pi->precno = pi->poc.precno0; pi->precno < pi->poc.precno1; pi->precno++) {
-					index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno *
-					    pi->step_c + pi->precno * pi->step_p;
+					index = pi->layno * pi->step_l + pi->resno * pi->step_r + pi->compno * pi->step_c + pi->precno * pi->step_p;
 					/* Avoids index out of bounds access with */
 					/* id_000098,sig_11,src_005411,op_havoc,rep_2 of */
 					/* https://github.com/uclouvain/openjpeg/issues/938 */
@@ -349,11 +310,8 @@ static boolint opj_pi_next_rpcl(opj_pi_iterator_t * pi)
 	opj_pi_comp_t * comp = NULL;
 	opj_pi_resolution_t * res = NULL;
 	uint32_t index = 0;
-
-	if(pi->poc.compno0 >= pi->numcomps ||
-	    pi->poc.compno1 >= pi->numcomps + 1) {
-		opj_event_msg(pi->manager, EVT_ERROR,
-		    "opj_pi_next_rpcl(): invalid compno0/compno1\n");
+	if(pi->poc.compno0 >= pi->numcomps || pi->poc.compno1 >= pi->numcomps + 1) {
+		opj_event_msg(pi->manager, EVT_ERROR, "opj_pi_next_rpcl(): invalid compno0/compno1\n");
 		return FALSE;
 	}
 

@@ -1064,48 +1064,37 @@ int tls_parse_stoc_maxfragmentlen(SSL * s, PACKET * pkt, uint context, X509 * x,
 	return 1;
 }
 
-int tls_parse_stoc_server_name(SSL * s, PACKET * pkt, uint context,
-    X509 * x, size_t chainidx)
+int tls_parse_stoc_server_name(SSL * s, PACKET * pkt, uint context, X509 * x, size_t chainidx)
 {
 	if(s->ext.hostname == NULL) {
-		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME,
-		    ERR_R_INTERNAL_ERROR);
+		SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 		return 0;
 	}
-
 	if(PACKET_remaining(pkt) > 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME,
-		    SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
 	if(!s->hit) {
 		if(s->session->ext.hostname != NULL) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME,
-			    ERR_R_INTERNAL_ERROR);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 			return 0;
 		}
 		s->session->ext.hostname = OPENSSL_strdup(s->ext.hostname);
 		if(s->session->ext.hostname == NULL) {
-			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME,
-			    ERR_R_INTERNAL_ERROR);
+			SSLfatal(s, SSL_AD_INTERNAL_ERROR, SSL_F_TLS_PARSE_STOC_SERVER_NAME, ERR_R_INTERNAL_ERROR);
 			return 0;
 		}
 	}
-
 	return 1;
 }
 
 #ifndef OPENSSL_NO_EC
-int tls_parse_stoc_ec_pt_formats(SSL * s, PACKET * pkt, uint context,
-    X509 * x, size_t chainidx)
+int tls_parse_stoc_ec_pt_formats(SSL * s, PACKET * pkt, uint context, X509 * x, size_t chainidx)
 {
 	size_t ecpointformats_len;
 	PACKET ecptformatlist;
-
 	if(!PACKET_as_length_prefixed_1(pkt, &ecptformatlist)) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_EC_PT_FORMATS,
-		    SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_EC_PT_FORMATS, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
 	if(!s->hit) {
@@ -1595,85 +1584,59 @@ int tls_parse_stoc_key_share(SSL * s, PACKET * pkt, uint context, X509 * x,
 	}
 	s->s3->peer_tmp = skey;
 #endif
-
 	return 1;
 }
 
-int tls_parse_stoc_cookie(SSL * s, PACKET * pkt, uint context, X509 * x,
-    size_t chainidx)
+int tls_parse_stoc_cookie(SSL * s, PACKET * pkt, uint context, X509 * x, size_t chainidx)
 {
 	PACKET cookie;
-
-	if(!PACKET_as_length_prefixed_2(pkt, &cookie)
-	   || !PACKET_memdup(&cookie, &s->ext.tls13_cookie,
-	    &s->ext.tls13_cookie_len)) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_COOKIE,
-		    SSL_R_LENGTH_MISMATCH);
+	if(!PACKET_as_length_prefixed_2(pkt, &cookie) || !PACKET_memdup(&cookie, &s->ext.tls13_cookie, &s->ext.tls13_cookie_len)) {
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_COOKIE, SSL_R_LENGTH_MISMATCH);
 		return 0;
 	}
-
 	return 1;
 }
 
-int tls_parse_stoc_early_data(SSL * s, PACKET * pkt, uint context,
-    X509 * x, size_t chainidx)
+int tls_parse_stoc_early_data(SSL * s, PACKET * pkt, uint context, X509 * x, size_t chainidx)
 {
 	if(context == SSL_EXT_TLS1_3_NEW_SESSION_TICKET) {
 		ulong max_early_data;
-
-		if(!PACKET_get_net_4(pkt, &max_early_data)
-		   || PACKET_remaining(pkt) != 0) {
-			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_EARLY_DATA,
-			    SSL_R_INVALID_MAX_EARLY_DATA);
+		if(!PACKET_get_net_4(pkt, &max_early_data) || PACKET_remaining(pkt) != 0) {
+			SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_EARLY_DATA, SSL_R_INVALID_MAX_EARLY_DATA);
 			return 0;
 		}
-
 		s->session->ext.max_early_data = max_early_data;
-
 		return 1;
 	}
-
 	if(PACKET_remaining(pkt) != 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_EARLY_DATA,
-		    SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_EARLY_DATA, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
-	if(!s->ext.early_data_ok
-	   || !s->hit) {
+	if(!s->ext.early_data_ok || !s->hit) {
 		/*
 		 * If we get here then we didn't send early data, or we didn't resume
 		 * using the first identity, or the SNI/ALPN is not consistent so the
 		 * server should not be accepting it.
 		 */
-		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_PARSE_STOC_EARLY_DATA,
-		    SSL_R_BAD_EXTENSION);
+		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_PARSE_STOC_EARLY_DATA, SSL_R_BAD_EXTENSION);
 		return 0;
 	}
-
 	s->ext.early_data = SSL_EARLY_DATA_ACCEPTED;
-
 	return 1;
 }
 
-int tls_parse_stoc_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
-    size_t chainidx)
+int tls_parse_stoc_psk(SSL * s, PACKET * pkt, uint context, X509 * x, size_t chainidx)
 {
 #ifndef OPENSSL_NO_TLS1_3
 	uint identity;
-
 	if(!PACKET_get_net_2(pkt, &identity) || PACKET_remaining(pkt) != 0) {
-		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_PSK,
-		    SSL_R_LENGTH_MISMATCH);
+		SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_PSK, SSL_R_LENGTH_MISMATCH);
 		return 0;
 	}
-
 	if(identity >= (uint)s->ext.tick_identity) {
-		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_PARSE_STOC_PSK,
-		    SSL_R_BAD_PSK_IDENTITY);
+		SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, SSL_F_TLS_PARSE_STOC_PSK, SSL_R_BAD_PSK_IDENTITY);
 		return 0;
 	}
-
 	/*
 	 * Session resumption tickets are always sent before PSK tickets. If the
 	 * ticket index is 0 then it must be for a session resumption ticket if we
@@ -1695,12 +1658,9 @@ int tls_parse_stoc_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 	 * is already set up, so don't overwrite it. Otherwise we copy the
 	 * early_secret across that we generated earlier.
 	 */
-	if((s->early_data_state != SSL_EARLY_DATA_WRITE_RETRY
-	 && s->early_data_state != SSL_EARLY_DATA_FINISHED_WRITING)
-	   || s->session->ext.max_early_data > 0
-	   || s->psksession->ext.max_early_data == 0)
+	if((s->early_data_state != SSL_EARLY_DATA_WRITE_RETRY && s->early_data_state != SSL_EARLY_DATA_FINISHED_WRITING) || 
+		s->session->ext.max_early_data > 0 || s->psksession->ext.max_early_data == 0)
 		memcpy(s->early_secret, s->psksession->early_secret, EVP_MAX_MD_SIZE);
-
 	SSL_SESSION_free(s->session);
 	s->session = s->psksession;
 	s->psksession = NULL;
@@ -1709,6 +1669,5 @@ int tls_parse_stoc_psk(SSL * s, PACKET * pkt, uint context, X509 * x,
 	if(identity != 0)
 		s->ext.early_data_ok = 0;
 #endif
-
 	return 1;
 }

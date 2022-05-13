@@ -653,7 +653,7 @@ int aria_set_decrypt_key(const uchar * userKey, const int bits, ARIA_KEY * key)
 	uint32_t reg0, reg1, reg2, reg3;
 	uint32_t s0, s1, s2, s3;
 	const int r = aria_set_encrypt_key(userKey, bits, key);
-	if(r != 0) {
+	if(r) {
 		return r;
 	}
 	rk_head = key->rd_key;
@@ -1158,7 +1158,7 @@ int aria_set_decrypt_key(const uchar * userKey, const int bits, ARIA_KEY * key)
 	ARIA_KEY ek;
 	const int r = aria_set_encrypt_key(userKey, bits, &ek);
 	uint i, rounds = ek.rounds;
-	if(r == 0) {
+	if(!r) {
 		key->rounds = rounds;
 		memcpy(&key->rd_key[0], &ek.rd_key[rounds], sizeof(key->rd_key[0]));
 		for(i = 1; i < rounds; i++)

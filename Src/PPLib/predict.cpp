@@ -766,7 +766,7 @@ int PrcssrPrediction::EditParam(Param * pParam)
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_TSALESBUILD, 1L, &mutex_id, &sync_item);
 		if(r < 0)
 			ok = PPSetError(PPERR_PSALESBUILDISLOCKED, sync_item.Name);
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	else

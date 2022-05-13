@@ -322,26 +322,21 @@ cmsHANDLE CMSEXPORT cmsCIECAM02Init(cmsContext ContextID, const cmsViewingCondit
 
 void CMSEXPORT cmsCIECAM02Done(cmsHANDLE hModel)
 {
-	cmsCIECAM02* lpMod = (cmsCIECAM02*)hModel;
-
-	if(lpMod) _cmsFree(lpMod->ContextID, lpMod);
+	cmsCIECAM02 * lpMod = (cmsCIECAM02*)hModel;
+	_cmsFree(lpMod->ContextID, lpMod);
 }
 
 void CMSEXPORT cmsCIECAM02Forward(cmsHANDLE hModel, const cmsCIEXYZ* pIn, cmsJCh* pOut)
 {
 	CAM02COLOR clr;
 	cmsCIECAM02* lpMod = (cmsCIECAM02*)hModel;
-
 	_cmsAssert(lpMod != NULL);
 	_cmsAssert(pIn != NULL);
 	_cmsAssert(pOut != NULL);
-
 	memzero(&clr, sizeof(clr));
-
 	clr.XYZ[0] = pIn->X;
 	clr.XYZ[1] = pIn->Y;
 	clr.XYZ[2] = pIn->Z;
-
 	clr = XYZtoCAT02(clr);
 	clr = ChromaticAdaptation(clr, lpMod);
 	clr = CAT02toHPE(clr);

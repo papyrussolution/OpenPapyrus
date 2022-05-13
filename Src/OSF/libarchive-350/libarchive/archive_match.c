@@ -165,7 +165,7 @@ static int error_nomem(struct archive_match * a)
 struct archive * archive_match_new(void)                 
 {
 	struct archive_match * a = (struct archive_match *)SAlloc::C(1, sizeof(*a));
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	a->archive.magic = ARCHIVE_MATCH_MAGIC;
 	a->archive.state = ARCHIVE_STATE_NEW;
@@ -223,13 +223,13 @@ int archive_match_excluded(struct archive * _a, struct archive_entry * entry)
 #else
 		r = path_excluded(a, 1, archive_entry_pathname(entry));
 #endif
-		if(r != 0)
+		if(r)
 			return r;
 	}
 
 	if(a->setflag & TIME_IS_SET) {
 		r = time_excluded(a, entry);
-		if(r != 0)
+		if(r)
 			return r;
 	}
 
@@ -562,7 +562,7 @@ static int path_excluded(struct archive_match * a, int mbs, const void * pathnam
 	struct match * match;
 	struct match * matched;
 	int r;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	/* Mark off any unmatched inclusions. */
 	/* In particular, if a filename does appear in the archive and
@@ -618,13 +618,13 @@ static int match_path_exclusion(struct archive_match * a, struct match * m, int 
 	if(mbs) {
 		const char * p;
 		r = archive_mstring_get_mbs(&(a->archive), &(m->pattern), &p);
-		if(r == 0)
+		if(!r)
 			return (archive_pathmatch(p, (const char *)pn, flag));
 	}
 	else {
 		const wchar_t * p;
 		r = archive_mstring_get_wcs(&(a->archive), &(m->pattern), &p);
-		if(r == 0)
+		if(!r)
 			return (archive_pathmatch_w(p, (const wchar_t *)pn, flag));
 	}
 	if(errno == ENOMEM)
@@ -645,13 +645,13 @@ static int match_path_inclusion(struct archive_match * a, struct match * m,
 	if(mbs) {
 		const char * p;
 		r = archive_mstring_get_mbs(&(a->archive), &(m->pattern), &p);
-		if(r == 0)
+		if(!r)
 			return (archive_pathmatch(p, (const char *)pn, flag));
 	}
 	else {
 		const wchar_t * p;
 		r = archive_mstring_get_wcs(&(a->archive), &(m->pattern), &p);
-		if(r == 0)
+		if(!r)
 			return (archive_pathmatch_w(p, (const wchar_t *)pn,
 			       flag));
 	}

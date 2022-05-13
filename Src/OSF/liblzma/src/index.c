@@ -661,7 +661,7 @@ static index_stream * index_dup_stream(const index_stream * src, const lzma_allo
 		return NULL;
 	// Allocate and initialize a new Stream.
 	index_stream * dest = index_stream_init(src->node.compressed_base, src->node.uncompressed_base, src->number, src->block_number_base, allocator);
-	if(dest == NULL)
+	if(!dest)
 		return NULL;
 	// Copy the overall information.
 	dest->record_count = src->record_count;
@@ -705,7 +705,7 @@ lzma_index * lzma_index_dup(const lzma_index *src, const lzma_allocator *allocat
 {
 	// Allocate the base structure (no initial Stream).
 	lzma_index * dest = index_init_plain(allocator);
-	if(dest == NULL)
+	if(!dest)
 		return NULL;
 	// Copy the totals.
 	dest->uncompressed_size = src->uncompressed_size;

@@ -1140,7 +1140,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 						j++;
 						done = 1;
 					}
-					if(count == 0) {
+					if(!count) {
 						adjusted_string[j] = '1';
 						j++;
 						done = 1;
@@ -1239,7 +1239,7 @@ int aztec(struct ZintSymbol * symbol, uchar source[], int length)
 					done = 1;
 				}
 
-				if(count == 0) {
+				if(!count) {
 					adjusted_string[j] = '1';
 					j++;
 					done = 1;

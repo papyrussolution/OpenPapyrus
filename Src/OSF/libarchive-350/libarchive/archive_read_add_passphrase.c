@@ -27,7 +27,7 @@ static struct archive_read_passphrase * remove_passphrases_from_head(struct arch
 {
 	struct archive_read_passphrase * p;
 	p = a->passphrases.first;
-	if(p != NULL)
+	if(p)
 		a->passphrases.first = p->next;
 	return (p);
 }
@@ -130,7 +130,7 @@ const char * __archive_read_next_passphrase(struct archive_read * a)
 	else    /* There is no passphrase candidate. */
 		p = NULL;
 
-	if(p != NULL)
+	if(p)
 		passphrase = p->passphrase;
 	else if(a->passphrases.callback != NULL) {
 		/* Get a passphrase through a call-back function

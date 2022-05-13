@@ -75,7 +75,7 @@
 #include <sys/un.h>
 # ifdef HAVE_UNISTD_H
 #include <unistd.h>
-# endif
+#endif
 #endif
 
 /* we store the following secret to check plaintext passwords:

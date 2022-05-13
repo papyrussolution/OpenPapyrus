@@ -444,16 +444,14 @@ class TestFlagsAndStrings final :
   public:
   void clear_repeatedgroup();
   ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* mutable_repeatedgroup(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup >*
-      mutable_repeatedgroup();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup > * mutable_repeatedgroup();
   private:
   const ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup& _internal_repeatedgroup(int index) const;
   ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* _internal_add_repeatedgroup();
   public:
   const ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup& repeatedgroup(int index) const;
   ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* add_repeatedgroup();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup >&
-      repeatedgroup() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup > & repeatedgroup() const;
 
   // required int32 A = 1;
   bool has_a() const;
@@ -1128,16 +1126,14 @@ class TestJavaScriptOrderJSON2 final :
   public:
   void clear_z();
   ::protobuf_unittest::TestJavaScriptOrderJSON1* mutable_z(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestJavaScriptOrderJSON1 >*
-      mutable_z();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestJavaScriptOrderJSON1 > * mutable_z();
   private:
   const ::protobuf_unittest::TestJavaScriptOrderJSON1& _internal_z(int index) const;
   ::protobuf_unittest::TestJavaScriptOrderJSON1* _internal_add_z();
   public:
   const ::protobuf_unittest::TestJavaScriptOrderJSON1& z(int index) const;
   ::protobuf_unittest::TestJavaScriptOrderJSON1* add_z();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestJavaScriptOrderJSON1 >&
-      z() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestJavaScriptOrderJSON1 > & z() const;
 
   // optional int32 d = 1;
   bool has_d() const;
@@ -3170,16 +3166,15 @@ TestFlagsAndStrings::mutable_repeatedgroup() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestFlagsAndStrings.repeatedgroup)
   return &repeatedgroup_;
 }
-inline const ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup& TestFlagsAndStrings::_internal_repeatedgroup(int index) const {
-  return repeatedgroup_.Get(index);
+inline const ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup& TestFlagsAndStrings::_internal_repeatedgroup(int index) const
+{
+ return repeatedgroup_.Get(index);
 }
 inline const ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup& TestFlagsAndStrings::repeatedgroup(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestFlagsAndStrings.repeatedgroup)
   return _internal_repeatedgroup(index);
 }
-inline ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* TestFlagsAndStrings::_internal_add_repeatedgroup() {
-  return repeatedgroup_.Add();
-}
+inline ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* TestFlagsAndStrings::_internal_add_repeatedgroup() { return repeatedgroup_.Add(); }
 inline ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* TestFlagsAndStrings::add_repeatedgroup() {
   ::protobuf_unittest::TestFlagsAndStrings_RepeatedGroup* _add = _internal_add_repeatedgroup();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestFlagsAndStrings.repeatedgroup)
@@ -3728,16 +3723,15 @@ TestJavaScriptOrderJSON2::mutable_z() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestJavaScriptOrderJSON2.z)
   return &z_;
 }
-inline const ::protobuf_unittest::TestJavaScriptOrderJSON1& TestJavaScriptOrderJSON2::_internal_z(int index) const {
-  return z_.Get(index);
+inline const ::protobuf_unittest::TestJavaScriptOrderJSON1& TestJavaScriptOrderJSON2::_internal_z(int index) const
+{
+ return z_.Get(index);
 }
 inline const ::protobuf_unittest::TestJavaScriptOrderJSON1& TestJavaScriptOrderJSON2::z(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestJavaScriptOrderJSON2.z)
   return _internal_z(index);
 }
-inline ::protobuf_unittest::TestJavaScriptOrderJSON1* TestJavaScriptOrderJSON2::_internal_add_z() {
-  return z_.Add();
-}
+inline ::protobuf_unittest::TestJavaScriptOrderJSON1* TestJavaScriptOrderJSON2::_internal_add_z() { return z_.Add(); }
 inline ::protobuf_unittest::TestJavaScriptOrderJSON1* TestJavaScriptOrderJSON2::add_z() {
   ::protobuf_unittest::TestJavaScriptOrderJSON1* _add = _internal_add_z();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestJavaScriptOrderJSON2.z)
@@ -4173,11 +4167,11 @@ inline const ::protobuf_unittest::TestRecursion& TestRecursion::child() const {
 }
 inline void TestRecursion::unsafe_arena_set_allocated_child(
     ::protobuf_unittest::TestRecursion* child) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(child_);
   }
   child_ = child;
-  if (child) {
+  if(child) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -4191,9 +4185,9 @@ inline ::protobuf_unittest::TestRecursion* TestRecursion::release_child() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4208,7 +4202,7 @@ inline ::protobuf_unittest::TestRecursion* TestRecursion::unsafe_arena_release_c
 }
 inline ::protobuf_unittest::TestRecursion* TestRecursion::_internal_mutable_child() {
   _has_bits_[0] |= 0x00000001u;
-  if (child_ == nullptr) {
+  if(child_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestRecursion>(GetArenaForAllocation());
     child_ = p;
   }
@@ -4221,15 +4215,14 @@ inline ::protobuf_unittest::TestRecursion* TestRecursion::mutable_child() {
 }
 inline void TestRecursion::set_allocated_child(::protobuf_unittest::TestRecursion* child) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete child_;
   }
-  if (child) {
+  if(child) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestRecursion>::GetOwningArena(child);
-    if (message_arena != submessage_arena) {
-      child = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, child, submessage_arena);
+    if(message_arena != submessage_arena) {
+      child = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, child, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {

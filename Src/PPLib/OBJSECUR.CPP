@@ -357,7 +357,7 @@ int PPObjSecur::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 			int    r = SearchByKey(P_Ref, 2, &k, 0);
 			if(r > 0)
 				ok = RetRefsExistsErr(Obj, P_Ref->data.ObjID);
-			else if(r == 0)
+			else if(!r)
 				ok = DBRPL_ERROR;
 		}
 		else if(_obj == PPOBJ_USRGRP && Obj == PPOBJ_USR) {

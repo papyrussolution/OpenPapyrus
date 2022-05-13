@@ -20,9 +20,9 @@ int ec_GFp_simple_set_compressed_coordinates(const EC_GROUP * group, EC_POINT * 
 	int ret = 0;
 	// clear error queue 
 	ERR_clear_error();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 	y_bit = (y_bit != 0);
@@ -157,9 +157,9 @@ size_t ec_GFp_simple_point2oct(const EC_GROUP * group, const EC_POINT * point, p
 			ECerr(EC_F_EC_GFP_SIMPLE_POINT2OCT, EC_R_BUFFER_TOO_SMALL);
 			goto err;
 		}
-		if(ctx == NULL) {
+		if(!ctx) {
 			ctx = new_ctx = BN_CTX_new();
-			if(ctx == NULL)
+			if(!ctx)
 				return 0;
 		}
 		BN_CTX_start(ctx);
@@ -255,9 +255,9 @@ int ec_GFp_simple_oct2point(const EC_GROUP * group, EC_POINT * point, const ucha
 		ECerr(EC_F_EC_GFP_SIMPLE_OCT2POINT, EC_R_INVALID_ENCODING);
 		return 0;
 	}
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 	BN_CTX_start(ctx);

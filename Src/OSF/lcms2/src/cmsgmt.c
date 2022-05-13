@@ -51,16 +51,8 @@ cmsHTRANSFORM _cmsChain2Lab(cmsContext ContextID, uint32 nProfiles, uint32 Input
 
 	// Create the transform
 	xform = cmsCreateExtendedTransform(ContextID, nProfiles + 1, ProfileList,
-		BPCList,
-		IntentList,
-		AdaptationList,
-		NULL, 0,
-		InputFormat,
-		OutputFormat,
-		dwFlags);
-
+		BPCList, IntentList, AdaptationList, NULL, 0, InputFormat, OutputFormat, dwFlags);
 	cmsCloseProfile(hLab);
-
 	return xform;
 }
 
@@ -75,30 +67,22 @@ static cmsToneCurve * ComputeKToLstar(cmsContext ContextID, uint32 nPoints, uint
 	cmsCIELab Lab;
 	float cmyk[4];
 	float* SampledPoints;
-
 	xform = _cmsChain2Lab(ContextID, nProfiles, TYPE_CMYK_FLT, TYPE_Lab_DBL, Intents, hProfiles, BPC, AdaptationStates, dwFlags);
 	if(xform == NULL) return NULL;
-
 	SampledPoints = (float *)_cmsCalloc(ContextID, nPoints, sizeof(float));
 	if(SampledPoints  == NULL) goto Error;
-
 	for(i = 0; i < nPoints; i++) {
 		cmyk[0] = 0;
 		cmyk[1] = 0;
 		cmyk[2] = 0;
 		cmyk[3] = (float)((i * 100.0) / (nPoints-1));
-
 		cmsDoTransform(xform, cmyk, &Lab, 1);
 		SampledPoints[i] = (float)(1.0 - Lab.L / 100.0); // Negate K for easier operation
 	}
-
 	out = cmsBuildTabulatedToneCurveFloat(ContextID, nPoints, SampledPoints);
-
 Error:
-
 	cmsDeleteTransform(xform);
-	if(SampledPoints) _cmsFree(ContextID, SampledPoints);
-
+	_cmsFree(ContextID, SampledPoints);
 	return out;
 }
 
@@ -331,13 +315,11 @@ cmsPipeline * _cmsCreateGamutCheckPipeline(cmsContext ContextID, cmsHPROFILE hPr
 	}
 	else
 		Gamut = NULL; // Didn't work...
-
 	// Free all needed stuff.
 	if(Chain.hInput) cmsDeleteTransform(Chain.hInput);
 	if(Chain.hForward) cmsDeleteTransform(Chain.hForward);
 	if(Chain.hReverse) cmsDeleteTransform(Chain.hReverse);
-	if(hLab) cmsCloseProfile(hLab);
-
+	cmsCloseProfile(hLab);
 	// And return computed hull
 	return Gamut;
 }

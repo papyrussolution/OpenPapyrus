@@ -1411,7 +1411,7 @@ static BOOL get_ucp(const pcre_uchar ** ptrptr, BOOL * negptr, uint * ptypeptr, 
 		int r;
 		i = (bot + top) >> 1;
 		r = STRCMP_UC_C8(name, PRIV(utt_names) + PRIV(utt)[i].name_offset);
-		if(r == 0) {
+		if(!r) {
 			*ptypeptr = PRIV(utt)[i].type;
 			*pdataptr = PRIV(utt)[i].value;
 			return TRUE;

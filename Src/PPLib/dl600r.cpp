@@ -1368,11 +1368,11 @@ SJson * DlRtm::ExportJson(ExportParam & rParam)
 	const  DlScope * p_data = GetData();
 	THROW(p_data);
 	if(rParam.Flags & ExportParam::fJsonStQStyle) {
-		THROW_SL(p_result = new SJson(SJson::tOBJECT));
+		THROW_SL(p_result = SJson::CreateObj());
 		THROW(Helper_PutItemToJson(rParam, p_result));
 	}
 	else {
-		THROW_SL(p_result = new SJson(SJson::tARRAY));
+		THROW_SL(p_result = SJson::CreateArr());
 		THROW(Helper_PutItemToJson(rParam, p_result));
 	}
 	CATCH
@@ -1637,12 +1637,12 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 			const PPNamedFilt::ViewDefinition * p_vd = static_cast<const PPNamedFilt::ViewDefinition *>(rParam.P_ViewDef);
 			PPNamedFilt::ViewDefinition::Entry tmp_entry;
 			//SXml::WNode n_vd(p_writer, "ViewDescription");
-			SJson * p_view_def = new SJson(SJson::tOBJECT);
+			SJson * p_view_def = SJson::CreateObj();
 			if(p_vd->GetStrucSymb().NotEmpty()) {
 				p_view_def->InsertString("StrucSymb", p_vd->GetStrucSymb());
 			}
 			{
-				SJson * p_vd_list = new SJson(SJson::tARRAY);
+				SJson * p_vd_list = SJson::CreateArr();
 				for(uint i = 0; i < p_vd->GetCount(); i++) {
 					if(p_vd->GetEntry(i, tmp_entry)) {
 						if(oneof2(rParam.Cp, cpANSI, cp1251)){
@@ -1657,7 +1657,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 						}
 						{
 							//SXml::WNode n_item(p_writer, "Item");
-							SJson * p_vd_item = new SJson(SJson::tOBJECT);
+							SJson * p_vd_item = SJson::CreateObj();
 							p_vd_item->InsertString("Zone", tmp_entry.Zone);
 							p_vd_item->InsertString("FieldName", tmp_entry.FieldName);
 							p_vd_item->InsertString("Text", tmp_entry.Text);
@@ -1675,7 +1675,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 				//THROW(InitData(*pFilt, 0));
 				THROW(InitData(*rParam.P_F, BIN(rParam.Flags & ExportParam::fIsView)));
 				{
-					SJson * p_ho = new SJson(SJson::tOBJECT);
+					SJson * p_ho = SJson::CreateObj();
 					Helper_PutScopeToJson(p_child, p_ho, rParam.Cp);
 					pRoot->Insert("hdr", p_ho);
 				}
@@ -1691,9 +1691,9 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 					suffix = p_child->Name;
 				}
 				THROW(InitIteration(iter_id, 0));
-				SJson * p_iter_ary = new SJson(SJson::tARRAY);
+				SJson * p_iter_ary = SJson::CreateArr();
 				while(NextIteration(iter_id) > 0) {
-					SJson * p_iter_obj = new SJson(SJson::tOBJECT);
+					SJson * p_iter_obj = SJson::CreateObj();
 					Helper_PutScopeToJson(p_child, p_iter_obj, rParam.Cp);
 					THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 				}
@@ -1705,7 +1705,7 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 		// Эта зона обрабатывает старый вариант экспорта (до @v11.2.0), используемый в том числе для проекта Universe-HTT
 		// Его нельзя менять произвольно!
 		// Исходящая кодировка - cp1251 (параметр cpUndef обрабатывается вызываемыми функциями соответственно)
-		p_hdr_obj = new SJson(SJson::tOBJECT);
+		p_hdr_obj = SJson::CreateObj();
 		for(uint i = 0; p_data->EnumChilds(&i, &p_child);) {
 			if(p_child->Name.IsEqiAscii("hdr")) {
 				//THROW(InitData(*pFilt, 0));
@@ -1723,9 +1723,9 @@ int DlRtm::Helper_PutItemToJson(ExportParam & rParam, SJson * pRoot)
 					suffix = p_child->Name;
 				}
 				THROW(InitIteration(iter_id, 0));
-				SJson * p_iter_ary = new SJson(SJson::tARRAY);
+				SJson * p_iter_ary = SJson::CreateArr();
 				while(NextIteration(iter_id) > 0) {
-					SJson * p_iter_obj = new SJson(SJson::tOBJECT);
+					SJson * p_iter_obj = SJson::CreateObj();
 					Helper_PutScopeToJson(p_child, p_iter_obj, cpUndef);
 					THROW_SL(json_insert_child(p_iter_ary, p_iter_obj));
 				}

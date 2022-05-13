@@ -589,7 +589,7 @@ const UVector* U_EXPORT2 ZoneMeta::getMetazoneMappings(const UnicodeString & tzi
 			// add the one just created
 			int32_t tzidLen = tzid.length() + 1;
 			UChar * key = (UChar *)uprv_malloc(tzidLen * sizeof(UChar));
-			if(key == NULL) {
+			if(!key) {
 				// memory allocation error..  just return NULL
 				result = NULL;
 				delete tmpResult;

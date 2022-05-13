@@ -26,25 +26,25 @@ __FBSDID("$FreeBSD$");
 #define wmemcmp(a, b, i)  memcmp((a), (b), (i) * sizeof(wchar_t))
 #endif
 
-static int acl_special(struct archive_acl * acl, int type, int permset, int tag);
+static int    acl_special(struct archive_acl * acl, int type, int permset, int tag);
 static struct archive_acl_entry * acl_new_entry(struct archive_acl * acl, int type, int permset, int tag, int id);
-static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, struct archive_string_conv * sc);
-static int archive_acl_text_want_type(struct archive_acl * acl, int flags);
-static ssize_t  archive_acl_text_len(struct archive_acl * acl, int want_type, int flags, int wide, struct archive * a, struct archive_string_conv * sc);
-static int isint_w(const wchar_t * start, const wchar_t * end, int * result);
-static int ismode_w(const wchar_t * start, const wchar_t * end, int * result);
-static int is_nfs4_flags_w(const wchar_t * start, const wchar_t * end, int * result);
-static int is_nfs4_perms_w(const wchar_t * start, const wchar_t * end, int * result);
-static void     next_field_w(const wchar_t ** wp, const wchar_t ** start, const wchar_t ** end, wchar_t * sep);
-static void     append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int tag, int flags, const wchar_t * wname, int perm, int id);
-static void     append_id_w(wchar_t ** wp, int id);
-static int isint(const char * start, const char * end, int * result);
-static int ismode(const char * start, const char * end, int * result);
-static int is_nfs4_flags(const char * start, const char * end, int * result);
-static int is_nfs4_perms(const char * start, const char * end, int * result);
-static void     next_field(const char ** p, const char ** start, const char ** end, char * sep);
-static void     append_entry(char ** p, const char * prefix, int type, int tag, int flags, const char * name, int perm, int id);
-static void     append_id(char ** p, int id);
+static int    archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, struct archive_string_conv * sc);
+static int    archive_acl_text_want_type(struct archive_acl * acl, int flags);
+static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int flags, int wide, struct archive * a, struct archive_string_conv * sc);
+static int    isint_w(const wchar_t * start, const wchar_t * end, int * result);
+static int    ismode_w(const wchar_t * start, const wchar_t * end, int * result);
+static int    is_nfs4_flags_w(const wchar_t * start, const wchar_t * end, int * result);
+static int    is_nfs4_perms_w(const wchar_t * start, const wchar_t * end, int * result);
+static void   next_field_w(const wchar_t ** wp, const wchar_t ** start, const wchar_t ** end, wchar_t * sep);
+static void   append_entry_w(wchar_t ** wp, const wchar_t * prefix, int type, int tag, int flags, const wchar_t * wname, int perm, int id);
+static void   append_id_w(wchar_t ** wp, int id);
+static int    isint(const char * start, const char * end, int * result);
+static int    ismode(const char * start, const char * end, int * result);
+static int    is_nfs4_flags(const char * start, const char * end, int * result);
+static int    is_nfs4_perms(const char * start, const char * end, int * result);
+static void   next_field(const char ** p, const char ** start, const char ** end, char * sep);
+static void   append_entry(char ** p, const char * prefix, int type, int tag, int flags, const char * name, int perm, int id);
+static void   append_id(char ** p, int id);
 
 static const struct {
 	const int perm;
@@ -87,17 +87,14 @@ static const int nfsv4_acl_flag_map_size = (int)(sizeof(nfsv4_acl_flag_map) / si
 
 void archive_acl_clear(struct archive_acl * acl)
 {
-	struct archive_acl_entry * ap;
-	while(acl->acl_head != NULL) {
-		ap = acl->acl_head->next;
+	while(acl->acl_head) {
+		struct archive_acl_entry * ap = acl->acl_head->next;
 		archive_mstring_clean(&acl->acl_head->name);
 		SAlloc::F(acl->acl_head);
 		acl->acl_head = ap;
 	}
-	SAlloc::F(acl->acl_text_w);
-	acl->acl_text_w = NULL;
-	SAlloc::F(acl->acl_text);
-	acl->acl_text = NULL;
+	ZFREE(acl->acl_text_w);
+	ZFREE(acl->acl_text);
 	acl->acl_p = NULL;
 	acl->acl_types = 0;
 	acl->acl_state = 0; /* Not counting. */
@@ -124,10 +121,9 @@ int archive_acl_add_entry(struct archive_acl * acl, int type, int permset, int t
 		return ARCHIVE_OK;
 	ap = acl_new_entry(acl, type, permset, tag, id);
 	if(!ap) {
-		/* XXX Error XXX */
-		return ARCHIVE_FAILED;
+		return ARCHIVE_FAILED; /* XXX Error XXX */
 	}
-	if(name != NULL && *name != '\0')
+	if(!isempty(name))
 		archive_mstring_copy_mbs(&ap->name, name);
 	else
 		archive_mstring_clean(&ap->name);
@@ -136,19 +132,19 @@ int archive_acl_add_entry(struct archive_acl * acl, int type, int permset, int t
 
 int archive_acl_add_entry_w_len(struct archive_acl * acl, int type, int permset, int tag, int id, const wchar_t * name, size_t len)
 {
-	struct archive_acl_entry * ap;
 	if(acl_special(acl, type, permset, tag) == 0)
 		return ARCHIVE_OK;
-	ap = acl_new_entry(acl, type, permset, tag, id);
-	if(!ap) {
-		/* XXX Error XXX */
-		return ARCHIVE_FAILED;
+	else {
+		struct archive_acl_entry * ap = acl_new_entry(acl, type, permset, tag, id);
+		if(!ap) {
+			return ARCHIVE_FAILED; /* XXX Error XXX */
+		}
+		if(!isempty(name) && len > 0)
+			archive_mstring_copy_wcs_len(&ap->name, name, len);
+		else
+			archive_mstring_clean(&ap->name);
+		return ARCHIVE_OK;
 	}
-	if(name != NULL && *name != L'\0' && len > 0)
-		archive_mstring_copy_wcs_len(&ap->name, name, len);
-	else
-		archive_mstring_clean(&ap->name);
-	return ARCHIVE_OK;
 }
 
 static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int permset, int tag, int id, const char * name, size_t len, struct archive_string_conv * sc)
@@ -159,17 +155,16 @@ static int archive_acl_add_entry_len_l(struct archive_acl * acl, int type, int p
 		return ARCHIVE_OK;
 	ap = acl_new_entry(acl, type, permset, tag, id);
 	if(!ap) {
-		/* XXX Error XXX */
-		return ARCHIVE_FAILED;
+		return ARCHIVE_FAILED; /* XXX Error XXX */
 	}
-	if(name != NULL && *name != '\0' && len > 0) {
+	if(!isempty(name) && len > 0) {
 		r = archive_mstring_copy_mbs_len_l(&ap->name, name, len, sc);
 	}
 	else {
 		r = 0;
 		archive_mstring_clean(&ap->name);
 	}
-	if(r == 0)
+	if(!r)
 		return ARCHIVE_OK;
 	else if(errno == ENOMEM)
 		return ARCHIVE_FATAL;
@@ -484,7 +479,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 			else {
 				r = archive_mstring_get_mbs_l(a, &ap->name, &name,
 					&len, sc);
-				if(r != 0)
+				if(r)
 					return 0;
 				if(len > 0 && name != NULL)
 					length += len;
@@ -532,7 +527,7 @@ static ssize_t archive_acl_text_len(struct archive_acl * acl, int want_type, int
 			length += 32;
 		}
 	}
-	else if(count == 0)
+	else if(!count)
 		return 0;
 	return (length); /* The terminating character is included in count */
 }
@@ -598,7 +593,7 @@ wchar_t * archive_acl_to_text_w(struct archive_acl * acl, ssize_t * text_len, in
 		else
 			prefix = NULL;
 		r = archive_mstring_get_wcs(a, &ap->name, &wname);
-		if(r == 0) {
+		if(!r) {
 			if(count > 0)
 				*wp++ = separator;
 			if(flags & ARCHIVE_ENTRY_ACL_STYLE_EXTRA_ID)
@@ -787,7 +782,7 @@ char * archive_acl_to_text_l(struct archive_acl * acl, ssize_t * text_len, int f
 		else
 			prefix = NULL;
 		r = archive_mstring_get_mbs_l(NULL, &ap->name, &name, &len, sc);
-		if(r != 0) {
+		if(r) {
 			SAlloc::F(s);
 			return NULL;
 		}
@@ -869,7 +864,7 @@ static void append_entry(char ** p, const char * prefix, int type, int tag, int 
 	*p += strlen(*p);
 	*(*p)++ = ':';
 	if((type & ARCHIVE_ENTRY_ACL_TYPE_POSIX1E) || oneof2(tag, ARCHIVE_ENTRY_ACL_USER, ARCHIVE_ENTRY_ACL_GROUP)) {
-		if(name != NULL) {
+		if(name) {
 			strcpy(*p, name);
 			*p += strlen(*p);
 		}
@@ -1339,7 +1334,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text, int wan
 	}
 	ret = ARCHIVE_OK;
 	types = 0;
-	while(text != NULL &&  *text != '\0') {
+	while(!isempty(text)) {
 		/*
 		 * Parse the fields out of the next entry, advance 'text' to start of next entry.
 		 */
@@ -1357,8 +1352,7 @@ int archive_acl_from_text_l(struct archive_acl * acl, const char * text, int wan
 		for(n = fields; n < numfields; ++n)
 			field[n].start = field[n].end = NULL;
 		if(field[0].start != NULL && *(field[0].start) == '#') {
-			/* Comment, skip entry */
-			continue;
+			continue; /* Comment, skip entry */
 		}
 		n = 0;
 		sol = 0;

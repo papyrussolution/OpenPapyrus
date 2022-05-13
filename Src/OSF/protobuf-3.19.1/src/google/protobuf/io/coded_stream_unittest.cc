@@ -35,13 +35,10 @@
 
 #include <google/protobuf/port_def.inc>
 
-
 namespace google {
 namespace protobuf {
 namespace io {
 namespace {
-
-
 // ===================================================================
 // Data-Driven Test Infrastructure
 
@@ -66,53 +63,53 @@ namespace {
 //   a better way to accomplish this.  Rewrite when time permits.
 
 #define TEST_1D(FIXTURE, NAME, CASES)                             \
-  class FIXTURE##_##NAME##_DD : public FIXTURE {                  \
-   protected:                                                     \
-    template <typename CaseType>                                  \
-    void DoSingleCase(const CaseType& CASES##_case);              \
-  };                                                              \
+	class FIXTURE ## _ ## NAME ## _DD : public FIXTURE {                  \
+protected:                                                     \
+		template <typename CaseType>                                  \
+		void DoSingleCase(const CaseType &CASES ## _case);              \
+	};                                                              \
                                                                   \
-  TEST_F(FIXTURE##_##NAME##_DD, NAME) {                           \
-    for (int i = 0; i < GOOGLE_ARRAYSIZE(CASES); i++) {                  \
-      SCOPED_TRACE(testing::Message()                             \
-                   << #CASES " case #" << i << ": " << CASES[i]); \
-      DoSingleCase(CASES[i]);                                     \
-    }                                                             \
-  }                                                               \
+	TEST_F(FIXTURE ## _ ## NAME ## _DD, NAME) {                           \
+		for(int i = 0; i < GOOGLE_ARRAYSIZE(CASES); i++) {                  \
+			SCOPED_TRACE(testing::Message()                             \
+				<< #CASES " case #" << i << ": " << CASES[i]); \
+			DoSingleCase(CASES[i]);                                     \
+		}                                                             \
+	}                                                               \
                                                                   \
-  template <typename CaseType>                                    \
-  void FIXTURE##_##NAME##_DD::DoSingleCase(const CaseType& CASES##_case)
+	template <typename CaseType>                                    \
+	void FIXTURE ## _ ## NAME ## _DD::DoSingleCase(const CaseType &CASES ## _case)
 
 #define TEST_2D(FIXTURE, NAME, CASES1, CASES2)                              \
-  class FIXTURE##_##NAME##_DD : public FIXTURE {                            \
-   protected:                                                               \
-    template <typename CaseType1, typename CaseType2>                       \
-    void DoSingleCase(const CaseType1& CASES1##_case,                       \
-                      const CaseType2& CASES2##_case);                      \
-  };                                                                        \
+	class FIXTURE ## _ ## NAME ## _DD : public FIXTURE {                            \
+protected:                                                               \
+		template <typename CaseType1, typename CaseType2>                       \
+		void DoSingleCase(const CaseType1 &CASES1 ## _case,                       \
+		    const CaseType2 &CASES2 ## _case);                      \
+	};                                                                        \
                                                                             \
-  TEST_F(FIXTURE##_##NAME##_DD, NAME) {                                     \
-    for (int i = 0; i < GOOGLE_ARRAYSIZE(CASES1); i++) {                           \
-      for (int j = 0; j < GOOGLE_ARRAYSIZE(CASES2); j++) {                         \
-        SCOPED_TRACE(testing::Message()                                     \
-                     << #CASES1 " case #" << i << ": " << CASES1[i] << ", " \
-                     << #CASES2 " case #" << j << ": " << CASES2[j]);       \
-        DoSingleCase(CASES1[i], CASES2[j]);                                 \
-      }                                                                     \
-    }                                                                       \
-  }                                                                         \
+	TEST_F(FIXTURE ## _ ## NAME ## _DD, NAME) {                                     \
+		for(int i = 0; i < GOOGLE_ARRAYSIZE(CASES1); i++) {                           \
+			for(int j = 0; j < GOOGLE_ARRAYSIZE(CASES2); j++) {                         \
+				SCOPED_TRACE(testing::Message()                                     \
+					<< #CASES1 " case #" << i << ": " << CASES1[i] << ", " \
+					<< #CASES2 " case #" << j << ": " << CASES2[j]);       \
+				DoSingleCase(CASES1[i], CASES2[j]);                                 \
+			}                                                                     \
+		}                                                                       \
+	}                                                                         \
                                                                             \
-  template <typename CaseType1, typename CaseType2>                         \
-  void FIXTURE##_##NAME##_DD::DoSingleCase(const CaseType1& CASES1##_case,  \
-                                           const CaseType2& CASES2##_case)
+	template <typename CaseType1, typename CaseType2>                         \
+	void FIXTURE ## _ ## NAME ## _DD::DoSingleCase(const CaseType1 &CASES1 ## _case,  \
+	    const CaseType2 &CASES2 ## _case)
 
 // ===================================================================
 
 class CodedStreamTest : public testing::Test {
- protected:
-  // Buffer used during most of the tests. This assumes tests run sequentially.
-  static constexpr int kBufferSize = 1024 * 64;
-  static uint8 buffer_[kBufferSize];
+protected:
+	// Buffer used during most of the tests. This assumes tests run sequentially.
+	static constexpr int kBufferSize = 1024 * 64;
+	static uint8 buffer_[kBufferSize];
 };
 
 uint8 CodedStreamTest::buffer_[CodedStreamTest::kBufferSize];
@@ -124,211 +121,211 @@ uint8 CodedStreamTest::buffer_[CodedStreamTest::kBufferSize];
 // checks.
 const int kBlockSizes[] = {1, 2, 3, 5, 7, 13, 32, 1024};
 
-
 // -------------------------------------------------------------------
 // Varint tests.
 
 struct VarintCase {
-  uint8 bytes[10];  // Encoded bytes.
-  int size;         // Encoded size, in bytes.
-  uint64 value;     // Parsed value.
+	uint8 bytes[10]; // Encoded bytes.
+	int size;   // Encoded size, in bytes.
+	uint64 value; // Parsed value.
 };
 
 inline std::ostream& operator<<(std::ostream& os, const VarintCase& c) {
-  return os << c.value;
+	return os << c.value;
 }
 
 VarintCase kVarintCases[] = {
-    // 32-bit values
-    {{0x00}, 1, 0},
-    {{0x01}, 1, 1},
-    {{0x7f}, 1, 127},
-    {{0xa2, 0x74}, 2, (0x22 << 0) | (0x74 << 7)},  // 14882
-    {{0xbe, 0xf7, 0x92, 0x84, 0x0b},
-     5,  // 2961488830
-     (0x3e << 0) | (0x77 << 7) | (0x12 << 14) | (0x04 << 21) |
-         (uint64_t{0x0bu} << 28)},
+	// 32-bit values
+	{{0x00}, 1, 0},
+	{{0x01}, 1, 1},
+	{{0x7f}, 1, 127},
+	{{0xa2, 0x74}, 2, (0x22 << 0) | (0x74 << 7)}, // 14882
+	{{0xbe, 0xf7, 0x92, 0x84, 0x0b},
+	 5, // 2961488830
+	 (0x3e << 0) | (0x77 << 7) | (0x12 << 14) | (0x04 << 21) |
+	 (uint64_t{0x0bu} << 28)},
 
-    // 64-bit
-    {{0xbe, 0xf7, 0x92, 0x84, 0x1b},
-     5,  // 7256456126
-     (0x3e << 0) | (0x77 << 7) | (0x12 << 14) | (0x04 << 21) |
-         (uint64_t{0x1bu} << 28)},
-    {{0x80, 0xe6, 0xeb, 0x9c, 0xc3, 0xc9, 0xa4, 0x49},
-     8,  // 41256202580718336
-     (0x00 << 0) | (0x66 << 7) | (0x6b << 14) | (0x1c << 21) |
-         (uint64_t{0x43u} << 28) | (uint64_t{0x49u} << 35) |
-         (uint64_t{0x24u} << 42) | (uint64_t{0x49u} << 49)},
-    // 11964378330978735131
-    {{0x9b, 0xa8, 0xf9, 0xc2, 0xbb, 0xd6, 0x80, 0x85, 0xa6, 0x01},
-     10,
-     (0x1b << 0) | (0x28 << 7) | (0x79 << 14) | (0x42 << 21) |
-         (uint64_t{0x3bu} << 28) | (uint64_t{0x56u} << 35) |
-         (uint64_t{0x00u} << 42) | (uint64_t{0x05u} << 49) |
-         (uint64_t{0x26u} << 56) | (uint64_t{0x01u} << 63)},
+	// 64-bit
+	{{0xbe, 0xf7, 0x92, 0x84, 0x1b},
+	 5, // 7256456126
+	 (0x3e << 0) | (0x77 << 7) | (0x12 << 14) | (0x04 << 21) |
+	 (uint64_t{0x1bu} << 28)},
+	{{0x80, 0xe6, 0xeb, 0x9c, 0xc3, 0xc9, 0xa4, 0x49},
+	 8, // 41256202580718336
+	 (0x00 << 0) | (0x66 << 7) | (0x6b << 14) | (0x1c << 21) |
+	 (uint64_t{0x43u} << 28) | (uint64_t{0x49u} << 35) |
+	 (uint64_t{0x24u} << 42) | (uint64_t{0x49u} << 49)},
+	// 11964378330978735131
+	{{0x9b, 0xa8, 0xf9, 0xc2, 0xbb, 0xd6, 0x80, 0x85, 0xa6, 0x01},
+	 10,
+	 (0x1b << 0) | (0x28 << 7) | (0x79 << 14) | (0x42 << 21) |
+	 (uint64_t{0x3bu} << 28) | (uint64_t{0x56u} << 35) |
+	 (uint64_t{0x00u} << 42) | (uint64_t{0x05u} << 49) |
+	 (uint64_t{0x26u} << 56) | (uint64_t{0x01u} << 63)},
 };
 
 TEST_2D(CodedStreamTest, ReadVarint32, kVarintCases, kBlockSizes) {
-  memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    uint32 value;
-    EXPECT_TRUE(coded_input.ReadVarint32(&value));
-    EXPECT_EQ(static_cast<uint32>(kVarintCases_case.value), value);
-  }
+		uint32 value;
+		EXPECT_TRUE(coded_input.ReadVarint32(&value));
+		EXPECT_EQ(static_cast<uint32>(kVarintCases_case.value), value);
+	}
 
-  EXPECT_EQ(kVarintCases_case.size, input.ByteCount());
+	EXPECT_EQ(kVarintCases_case.size, input.ByteCount());
 }
 
 TEST_2D(CodedStreamTest, ReadTag, kVarintCases, kBlockSizes) {
-  memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    uint32 expected_value = static_cast<uint32>(kVarintCases_case.value);
-    EXPECT_EQ(expected_value, coded_input.ReadTag());
+		uint32 expected_value = static_cast<uint32>(kVarintCases_case.value);
+		EXPECT_EQ(expected_value, coded_input.ReadTag());
 
-    EXPECT_TRUE(coded_input.LastTagWas(expected_value));
-    EXPECT_FALSE(coded_input.LastTagWas(expected_value + 1));
-  }
+		EXPECT_TRUE(coded_input.LastTagWas(expected_value));
+		EXPECT_FALSE(coded_input.LastTagWas(expected_value + 1));
+	}
 
-  EXPECT_EQ(kVarintCases_case.size, input.ByteCount());
+	EXPECT_EQ(kVarintCases_case.size, input.ByteCount());
 }
 
 // This is the regression test that verifies that there is no issues
 // with the empty input buffers handling.
 TEST_F(CodedStreamTest, EmptyInputBeforeEos) {
-  class In : public ZeroCopyInputStream {
-   public:
-    In() : count_(0) {}
+	class In : public ZeroCopyInputStream {
+public:
+		In() : count_(0) {
+		}
 
-   private:
-    bool Next(const void** data, int* size) override {
-      *data = NULL;
-      *size = 0;
-      return count_++ < 2;
-    }
-    void BackUp(int count) override { GOOGLE_LOG(FATAL) << "Tests never call this."; }
-    bool Skip(int count) override {
-      GOOGLE_LOG(FATAL) << "Tests never call this.";
-      return false;
-    }
-    int64_t ByteCount() const override { return 0; }
-    int count_;
-  } in;
-  CodedInputStream input(&in);
-  input.ReadTagNoLastTag();
-  EXPECT_TRUE(input.ConsumedEntireMessage());
+private:
+		bool Next(const void** data, int* size) override {
+			*data = NULL;
+			*size = 0;
+			return count_++ < 2;
+		}
+
+		void BackUp(int count) override {
+			GOOGLE_LOG(FATAL) << "Tests never call this.";
+		}
+
+		bool Skip(int count) override {
+			GOOGLE_LOG(FATAL) << "Tests never call this.";
+			return false;
+		}
+
+		int64_t ByteCount() const override {
+			return 0;
+		}
+
+		int count_;
+	} in;
+	CodedInputStream input(&in);
+	input.ReadTagNoLastTag();
+	EXPECT_TRUE(input.ConsumedEntireMessage());
 }
 
 TEST_1D(CodedStreamTest, ExpectTag, kVarintCases) {
-  // Leave one byte at the beginning of the buffer so we can read it
-  // to force the first buffer to be loaded.
-  buffer_[0] = '\0';
-  memcpy(buffer_ + 1, kVarintCases_case.bytes, kVarintCases_case.size);
-  ArrayInputStream input(buffer_, sizeof(buffer_));
+	// Leave one byte at the beginning of the buffer so we can read it
+	// to force the first buffer to be loaded.
+	buffer_[0] = '\0';
+	memcpy(buffer_ + 1, kVarintCases_case.bytes, kVarintCases_case.size);
+	ArrayInputStream input(buffer_, sizeof(buffer_));
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    // Read one byte to force coded_input.Refill() to be called.  Otherwise,
-    // ExpectTag() will return a false negative.
-    uint8 dummy;
-    coded_input.ReadRaw(&dummy, 1);
-    EXPECT_EQ((uint)'\0', (uint)dummy);
+		// Read one byte to force coded_input.Refill() to be called.  Otherwise,
+		// ExpectTag() will return a false negative.
+		uint8 dummy;
+		coded_input.ReadRaw(&dummy, 1);
+		EXPECT_EQ((uint)'\0', (uint)dummy);
 
-    uint32 expected_value = static_cast<uint32>(kVarintCases_case.value);
+		uint32 expected_value = static_cast<uint32>(kVarintCases_case.value);
 
-    // ExpectTag() produces false negatives for large values.
-    if (kVarintCases_case.size <= 2) {
-      EXPECT_FALSE(coded_input.ExpectTag(expected_value + 1));
-      EXPECT_TRUE(coded_input.ExpectTag(expected_value));
-    } else {
-      EXPECT_FALSE(coded_input.ExpectTag(expected_value));
-    }
-  }
+		// ExpectTag() produces false negatives for large values.
+		if(kVarintCases_case.size <= 2) {
+			EXPECT_FALSE(coded_input.ExpectTag(expected_value + 1));
+			EXPECT_TRUE(coded_input.ExpectTag(expected_value));
+		}
+		else {
+			EXPECT_FALSE(coded_input.ExpectTag(expected_value));
+		}
+	}
 
-  if (kVarintCases_case.size <= 2) {
-    EXPECT_EQ(kVarintCases_case.size + 1, input.ByteCount());
-  } else {
-    EXPECT_EQ(1, input.ByteCount());
-  }
+	if(kVarintCases_case.size <= 2) {
+		EXPECT_EQ(kVarintCases_case.size + 1, input.ByteCount());
+	}
+	else {
+		EXPECT_EQ(1, input.ByteCount());
+	}
 }
 
 TEST_1D(CodedStreamTest, ExpectTagFromArray, kVarintCases) {
-  memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
+	memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
 
-  const uint32 expected_value = static_cast<uint32>(kVarintCases_case.value);
+	const uint32 expected_value = static_cast<uint32>(kVarintCases_case.value);
 
-  // If the expectation succeeds, it should return a pointer past the tag.
-  if (kVarintCases_case.size <= 2) {
-    EXPECT_TRUE(NULL == CodedInputStream::ExpectTagFromArray(
-                            buffer_, expected_value + 1));
-    EXPECT_TRUE(buffer_ + kVarintCases_case.size ==
-                CodedInputStream::ExpectTagFromArray(buffer_, expected_value));
-  } else {
-    EXPECT_TRUE(NULL ==
-                CodedInputStream::ExpectTagFromArray(buffer_, expected_value));
-  }
+	// If the expectation succeeds, it should return a pointer past the tag.
+	if(kVarintCases_case.size <= 2) {
+		EXPECT_TRUE(NULL == CodedInputStream::ExpectTagFromArray(
+			    buffer_, expected_value + 1));
+		EXPECT_TRUE(buffer_ + kVarintCases_case.size ==
+		    CodedInputStream::ExpectTagFromArray(buffer_, expected_value));
+	}
+	else {
+		EXPECT_TRUE(NULL ==
+		    CodedInputStream::ExpectTagFromArray(buffer_, expected_value));
+	}
 }
 
 TEST_2D(CodedStreamTest, ReadVarint64, kVarintCases, kBlockSizes) {
-  memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kVarintCases_case.bytes, kVarintCases_case.size);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    uint64 value;
-    EXPECT_TRUE(coded_input.ReadVarint64(&value));
-    EXPECT_EQ(kVarintCases_case.value, value);
-  }
+		uint64 value;
+		EXPECT_TRUE(coded_input.ReadVarint64(&value));
+		EXPECT_EQ(kVarintCases_case.value, value);
+	}
 
-  EXPECT_EQ(kVarintCases_case.size, input.ByteCount());
+	EXPECT_EQ(kVarintCases_case.size, input.ByteCount());
 }
 
 TEST_2D(CodedStreamTest, WriteVarint32, kVarintCases, kBlockSizes) {
-  if (kVarintCases_case.value > uint64_t{0x00000000FFFFFFFFu}) {
-    // Skip this test for the 64-bit values.
-    return;
-  }
-
-  ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
-
-  {
-    CodedOutputStream coded_output(&output);
-
-    coded_output.WriteVarint32(static_cast<uint32>(kVarintCases_case.value));
-    EXPECT_FALSE(coded_output.HadError());
-
-    EXPECT_EQ(kVarintCases_case.size, coded_output.ByteCount());
-  }
-
-  EXPECT_EQ(kVarintCases_case.size, output.ByteCount());
-  EXPECT_EQ(0,
-            memcmp(buffer_, kVarintCases_case.bytes, kVarintCases_case.size));
+	if(kVarintCases_case.value > uint64_t{0x00000000FFFFFFFFu}) {
+		// Skip this test for the 64-bit values.
+		return;
+	}
+	ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
+	{
+		CodedOutputStream coded_output(&output);
+		coded_output.WriteVarint32(static_cast<uint32>(kVarintCases_case.value));
+		EXPECT_FALSE(coded_output.HadError());
+		EXPECT_EQ(kVarintCases_case.size, coded_output.ByteCount());
+	}
+	EXPECT_EQ(kVarintCases_case.size, output.ByteCount());
+	EXPECT_EQ(0, memcmp(buffer_, kVarintCases_case.bytes, kVarintCases_case.size));
 }
 
-TEST_2D(CodedStreamTest, WriteVarint64, kVarintCases, kBlockSizes) {
-  ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
-
-  {
-    CodedOutputStream coded_output(&output);
-
-    coded_output.WriteVarint64(kVarintCases_case.value);
-    EXPECT_FALSE(coded_output.HadError());
-
-    EXPECT_EQ(kVarintCases_case.size, coded_output.ByteCount());
-  }
-
-  EXPECT_EQ(kVarintCases_case.size, output.ByteCount());
-  EXPECT_EQ(0,
-            memcmp(buffer_, kVarintCases_case.bytes, kVarintCases_case.size));
+TEST_2D(CodedStreamTest, WriteVarint64, kVarintCases, kBlockSizes) { 
+	ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
+	{
+		CodedOutputStream coded_output(&output);
+		coded_output.WriteVarint64(kVarintCases_case.value);
+		EXPECT_FALSE(coded_output.HadError());
+		EXPECT_EQ(kVarintCases_case.size, coded_output.ByteCount());
+	}
+	EXPECT_EQ(kVarintCases_case.size, output.ByteCount());
+	EXPECT_EQ(0, memcmp(buffer_, kVarintCases_case.bytes, kVarintCases_case.size));
 }
 
 // This test causes gcc 3.3.5 (and earlier?) to give the cryptic error:
@@ -338,305 +335,306 @@ TEST_2D(CodedStreamTest, WriteVarint64, kVarintCases, kBlockSizes) {
 int32 kSignExtendedVarintCases[] = {0, 1, -1, 1237894, -37895138};
 
 TEST_2D(CodedStreamTest, WriteVarint32SignExtended, kSignExtendedVarintCases,
-        kBlockSizes) {
-  ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
+    kBlockSizes) {
+	ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedOutputStream coded_output(&output);
+	{
+		CodedOutputStream coded_output(&output);
 
-    coded_output.WriteVarint32SignExtended(kSignExtendedVarintCases_case);
-    EXPECT_FALSE(coded_output.HadError());
+		coded_output.WriteVarint32SignExtended(kSignExtendedVarintCases_case);
+		EXPECT_FALSE(coded_output.HadError());
 
-    if (kSignExtendedVarintCases_case < 0) {
-      EXPECT_EQ(10, coded_output.ByteCount());
-    } else {
-      EXPECT_LE(coded_output.ByteCount(), 5);
-    }
-  }
+		if(kSignExtendedVarintCases_case < 0) {
+			EXPECT_EQ(10, coded_output.ByteCount());
+		}
+		else {
+			EXPECT_LE(coded_output.ByteCount(), 5);
+		}
+	}
 
-  if (kSignExtendedVarintCases_case < 0) {
-    EXPECT_EQ(10, output.ByteCount());
-  } else {
-    EXPECT_LE(output.ByteCount(), 5);
-  }
+	if(kSignExtendedVarintCases_case < 0) {
+		EXPECT_EQ(10, output.ByteCount());
+	}
+	else {
+		EXPECT_LE(output.ByteCount(), 5);
+	}
 
-  // Read value back in as a varint64 and insure it matches.
-  ArrayInputStream input(buffer_, sizeof(buffer_));
+	// Read value back in as a varint64 and insure it matches.
+	ArrayInputStream input(buffer_, sizeof(buffer_));
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    uint64 value;
-    EXPECT_TRUE(coded_input.ReadVarint64(&value));
+		uint64 value;
+		EXPECT_TRUE(coded_input.ReadVarint64(&value));
 
-    EXPECT_EQ(kSignExtendedVarintCases_case, static_cast<int64>(value));
-  }
+		EXPECT_EQ(kSignExtendedVarintCases_case, static_cast<int64>(value));
+	}
 
-  EXPECT_EQ(output.ByteCount(), input.ByteCount());
+	EXPECT_EQ(output.ByteCount(), input.ByteCount());
 }
 
 #endif
-
 
 // -------------------------------------------------------------------
 // Varint failure test.
 
 struct VarintErrorCase {
-  uint8 bytes[12];
-  int size;
-  bool can_parse;
+	uint8 bytes[12];
+	int size;
+	bool can_parse;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const VarintErrorCase& c) {
-  return os << "size " << c.size;
+	return os << "size " << c.size;
 }
 
 const VarintErrorCase kVarintErrorCases[] = {
-    // Control case.  (Insures that there isn't something else wrong that
-    // makes parsing always fail.)
-    {{0x00}, 1, true},
+	// Control case.  (Insures that there isn't something else wrong that
+	// makes parsing always fail.)
+	{{0x00}, 1, true},
 
-    // No input data.
-    {{}, 0, false},
+	// No input data.
+	{{}, 0, false},
 
-    // Input ends unexpectedly.
-    {{0xf0, 0xab}, 2, false},
+	// Input ends unexpectedly.
+	{{0xf0, 0xab}, 2, false},
 
-    // Input ends unexpectedly after 32 bits.
-    {{0xf0, 0xab, 0xc9, 0x9a, 0xf8, 0xb2}, 6, false},
+	// Input ends unexpectedly after 32 bits.
+	{{0xf0, 0xab, 0xc9, 0x9a, 0xf8, 0xb2}, 6, false},
 
-    // Longer than 10 bytes.
-    {{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01},
-     11,
-     false},
+	// Longer than 10 bytes.
+	{{0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x01},
+	 11,
+	 false},
 };
 
 TEST_2D(CodedStreamTest, ReadVarint32Error, kVarintErrorCases, kBlockSizes) {
-  memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
-  ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
-                         kBlockSizes_case);
-  CodedInputStream coded_input(&input);
+	memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
+	ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
+	    kBlockSizes_case);
+	CodedInputStream coded_input(&input);
 
-  uint32 value;
-  EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint32(&value));
+	uint32 value;
+	EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint32(&value));
 }
 
 TEST_2D(CodedStreamTest, ReadVarint32Error_LeavesValueInInitializedState,
-        kVarintErrorCases, kBlockSizes) {
-  memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
-  ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
-                         kBlockSizes_case);
-  CodedInputStream coded_input(&input);
+    kVarintErrorCases, kBlockSizes) {
+	memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
+	ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
+	    kBlockSizes_case);
+	CodedInputStream coded_input(&input);
 
-  uint32 value = 0;
-  EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint32(&value));
-  // While the specific value following a failure is not critical, we do want to
-  // ensure that it doesn't get set to an uninitialized value. (This check fails
-  // in MSAN mode if value has been set to an uninitialized value.)
-  EXPECT_EQ(value, value);
+	uint32 value = 0;
+	EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint32(&value));
+	// While the specific value following a failure is not critical, we do want to
+	// ensure that it doesn't get set to an uninitialized value. (This check fails
+	// in MSAN mode if value has been set to an uninitialized value.)
+	EXPECT_EQ(value, value);
 }
 
 TEST_2D(CodedStreamTest, ReadVarint64Error, kVarintErrorCases, kBlockSizes) {
-  memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
-  ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
-                         kBlockSizes_case);
-  CodedInputStream coded_input(&input);
+	memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
+	ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
+	    kBlockSizes_case);
+	CodedInputStream coded_input(&input);
 
-  uint64 value;
-  EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint64(&value));
+	uint64 value;
+	EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint64(&value));
 }
 
 TEST_2D(CodedStreamTest, ReadVarint64Error_LeavesValueInInitializedState,
-        kVarintErrorCases, kBlockSizes) {
-  memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
-  ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
-                         kBlockSizes_case);
-  CodedInputStream coded_input(&input);
+    kVarintErrorCases, kBlockSizes) {
+	memcpy(buffer_, kVarintErrorCases_case.bytes, kVarintErrorCases_case.size);
+	ArrayInputStream input(buffer_, kVarintErrorCases_case.size,
+	    kBlockSizes_case);
+	CodedInputStream coded_input(&input);
 
-  uint64 value = 0;
-  EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint64(&value));
-  // While the specific value following a failure is not critical, we do want to
-  // ensure that it doesn't get set to an uninitialized value. (This check fails
-  // in MSAN mode if value has been set to an uninitialized value.)
-  EXPECT_EQ(value, value);
+	uint64 value = 0;
+	EXPECT_EQ(kVarintErrorCases_case.can_parse, coded_input.ReadVarint64(&value));
+	// While the specific value following a failure is not critical, we do want to
+	// ensure that it doesn't get set to an uninitialized value. (This check fails
+	// in MSAN mode if value has been set to an uninitialized value.)
+	EXPECT_EQ(value, value);
 }
 
 // -------------------------------------------------------------------
 // VarintSize
 
 struct VarintSizeCase {
-  uint64 value;
-  int size;
+	uint64 value;
+	int size;
 };
 
 inline std::ostream& operator<<(std::ostream& os, const VarintSizeCase& c) {
-  return os << c.value;
+	return os << c.value;
 }
 
 VarintSizeCase kVarintSizeCases[] = {
-    {0u, 1},
-    {1u, 1},
-    {127u, 1},
-    {128u, 2},
-    {758923u, 3},
-    {4000000000u, 5},
-    {uint64_t{41256202580718336u}, 8},
-    {uint64_t{11964378330978735131u}, 10},
+	{0u, 1},
+	{1u, 1},
+	{127u, 1},
+	{128u, 2},
+	{758923u, 3},
+	{4000000000u, 5},
+	{uint64_t{41256202580718336u}, 8},
+	{uint64_t{11964378330978735131u}, 10},
 };
 
 TEST_1D(CodedStreamTest, VarintSize32, kVarintSizeCases) {
-  if (kVarintSizeCases_case.value > 0xffffffffu) {
-    // Skip 64-bit values.
-    return;
-  }
+	if(kVarintSizeCases_case.value > 0xffffffffu) {
+		// Skip 64-bit values.
+		return;
+	}
 
-  EXPECT_EQ(kVarintSizeCases_case.size,
-            CodedOutputStream::VarintSize32(
-                static_cast<uint32>(kVarintSizeCases_case.value)));
+	EXPECT_EQ(kVarintSizeCases_case.size,
+	    CodedOutputStream::VarintSize32(
+		    static_cast<uint32>(kVarintSizeCases_case.value)));
 }
 
 TEST_1D(CodedStreamTest, VarintSize64, kVarintSizeCases) {
-  EXPECT_EQ(kVarintSizeCases_case.size,
-            CodedOutputStream::VarintSize64(kVarintSizeCases_case.value));
+	EXPECT_EQ(kVarintSizeCases_case.size,
+	    CodedOutputStream::VarintSize64(kVarintSizeCases_case.value));
 }
 
 TEST_F(CodedStreamTest, VarintSize32PowersOfTwo) {
-  int expected = 1;
-  for (int i = 1; i < 32; i++) {
-    if (i % 7 == 0) {
-      expected += 1;
-    }
-    EXPECT_EQ(expected,
-              CodedOutputStream::VarintSize32(static_cast<uint32>(0x1u << i)));
-  }
+	int expected = 1;
+	for(int i = 1; i < 32; i++) {
+		if(i % 7 == 0) {
+			expected += 1;
+		}
+		EXPECT_EQ(expected,
+		    CodedOutputStream::VarintSize32(static_cast<uint32>(0x1u << i)));
+	}
 }
 
 TEST_F(CodedStreamTest, VarintSize64PowersOfTwo) {
-  int expected = 1;
-  for (int i = 1; i < 64; i++) {
-    if (i % 7 == 0) {
-      expected += 1;
-    }
-    EXPECT_EQ(expected, CodedOutputStream::VarintSize64(
-                            static_cast<uint64>(0x1ull << i)));
-  }
+	int expected = 1;
+	for(int i = 1; i < 64; i++) {
+		if(i % 7 == 0) {
+			expected += 1;
+		}
+		EXPECT_EQ(expected, CodedOutputStream::VarintSize64(
+			    static_cast<uint64>(0x1ull << i)));
+	}
 }
 
 // -------------------------------------------------------------------
 // Fixed-size int tests
 
 struct Fixed32Case {
-  uint8 bytes[sizeof(uint32)];  // Encoded bytes.
-  uint32 value;                 // Parsed value.
+	uint8 bytes[sizeof(uint32)]; // Encoded bytes.
+	uint32 value;           // Parsed value.
 };
 
 struct Fixed64Case {
-  uint8 bytes[sizeof(uint64)];  // Encoded bytes.
-  uint64 value;                 // Parsed value.
+	uint8 bytes[sizeof(uint64)]; // Encoded bytes.
+	uint64 value;           // Parsed value.
 };
 
 inline std::ostream& operator<<(std::ostream& os, const Fixed32Case& c) {
-  return os << "0x" << std::hex << c.value << std::dec;
+	return os << "0x" << std::hex << c.value << std::dec;
 }
 
 inline std::ostream& operator<<(std::ostream& os, const Fixed64Case& c) {
-  return os << "0x" << std::hex << c.value << std::dec;
+	return os << "0x" << std::hex << c.value << std::dec;
 }
 
 Fixed32Case kFixed32Cases[] = {
-    {{0xef, 0xcd, 0xab, 0x90}, 0x90abcdefu},
-    {{0x12, 0x34, 0x56, 0x78}, 0x78563412u},
+	{{0xef, 0xcd, 0xab, 0x90}, 0x90abcdefu},
+	{{0x12, 0x34, 0x56, 0x78}, 0x78563412u},
 };
 
 Fixed64Case kFixed64Cases[] = {
-    {{0xef, 0xcd, 0xab, 0x90, 0x12, 0x34, 0x56, 0x78},
-     uint64_t{0x7856341290abcdefu}},
-    {{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88},
-     uint64_t{0x8877665544332211u}},
+	{{0xef, 0xcd, 0xab, 0x90, 0x12, 0x34, 0x56, 0x78},
+	 uint64_t{0x7856341290abcdefu}},
+	{{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88},
+	 uint64_t{0x8877665544332211u}},
 };
 
 TEST_2D(CodedStreamTest, ReadLittleEndian32, kFixed32Cases, kBlockSizes) {
-  memcpy(buffer_, kFixed32Cases_case.bytes, sizeof(kFixed32Cases_case.bytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kFixed32Cases_case.bytes, sizeof(kFixed32Cases_case.bytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    uint32 value;
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(kFixed32Cases_case.value, value);
-  }
+		uint32 value;
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(kFixed32Cases_case.value, value);
+	}
 
-  EXPECT_EQ(sizeof(uint32), input.ByteCount());
+	EXPECT_EQ(sizeof(uint32), input.ByteCount());
 }
 
 TEST_2D(CodedStreamTest, ReadLittleEndian64, kFixed64Cases, kBlockSizes) {
-  memcpy(buffer_, kFixed64Cases_case.bytes, sizeof(kFixed64Cases_case.bytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kFixed64Cases_case.bytes, sizeof(kFixed64Cases_case.bytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    uint64 value;
-    EXPECT_TRUE(coded_input.ReadLittleEndian64(&value));
-    EXPECT_EQ(kFixed64Cases_case.value, value);
-  }
+		uint64 value;
+		EXPECT_TRUE(coded_input.ReadLittleEndian64(&value));
+		EXPECT_EQ(kFixed64Cases_case.value, value);
+	}
 
-  EXPECT_EQ(sizeof(uint64), input.ByteCount());
+	EXPECT_EQ(sizeof(uint64), input.ByteCount());
 }
 
 TEST_2D(CodedStreamTest, WriteLittleEndian32, kFixed32Cases, kBlockSizes) {
-  ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedOutputStream coded_output(&output);
+	{
+		CodedOutputStream coded_output(&output);
 
-    coded_output.WriteLittleEndian32(kFixed32Cases_case.value);
-    EXPECT_FALSE(coded_output.HadError());
+		coded_output.WriteLittleEndian32(kFixed32Cases_case.value);
+		EXPECT_FALSE(coded_output.HadError());
 
-    EXPECT_EQ(sizeof(uint32), coded_output.ByteCount());
-  }
+		EXPECT_EQ(sizeof(uint32), coded_output.ByteCount());
+	}
 
-  EXPECT_EQ(sizeof(uint32), output.ByteCount());
-  EXPECT_EQ(0, memcmp(buffer_, kFixed32Cases_case.bytes, sizeof(uint32)));
+	EXPECT_EQ(sizeof(uint32), output.ByteCount());
+	EXPECT_EQ(0, memcmp(buffer_, kFixed32Cases_case.bytes, sizeof(uint32)));
 }
 
 TEST_2D(CodedStreamTest, WriteLittleEndian64, kFixed64Cases, kBlockSizes) {
-  ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedOutputStream coded_output(&output);
+	{
+		CodedOutputStream coded_output(&output);
 
-    coded_output.WriteLittleEndian64(kFixed64Cases_case.value);
-    EXPECT_FALSE(coded_output.HadError());
+		coded_output.WriteLittleEndian64(kFixed64Cases_case.value);
+		EXPECT_FALSE(coded_output.HadError());
 
-    EXPECT_EQ(sizeof(uint64), coded_output.ByteCount());
-  }
+		EXPECT_EQ(sizeof(uint64), coded_output.ByteCount());
+	}
 
-  EXPECT_EQ(sizeof(uint64), output.ByteCount());
-  EXPECT_EQ(0, memcmp(buffer_, kFixed64Cases_case.bytes, sizeof(uint64)));
+	EXPECT_EQ(sizeof(uint64), output.ByteCount());
+	EXPECT_EQ(0, memcmp(buffer_, kFixed64Cases_case.bytes, sizeof(uint64)));
 }
 
 // Tests using the static methods to read fixed-size values from raw arrays.
 
 TEST_1D(CodedStreamTest, ReadLittleEndian32FromArray, kFixed32Cases) {
-  memcpy(buffer_, kFixed32Cases_case.bytes, sizeof(kFixed32Cases_case.bytes));
+	memcpy(buffer_, kFixed32Cases_case.bytes, sizeof(kFixed32Cases_case.bytes));
 
-  uint32 value;
-  const uint8* end =
-      CodedInputStream::ReadLittleEndian32FromArray(buffer_, &value);
-  EXPECT_EQ(kFixed32Cases_case.value, value);
-  EXPECT_TRUE(end == buffer_ + sizeof(value));
+	uint32 value;
+	const uint8* end =
+	    CodedInputStream::ReadLittleEndian32FromArray(buffer_, &value);
+	EXPECT_EQ(kFixed32Cases_case.value, value);
+	EXPECT_TRUE(end == buffer_ + sizeof(value));
 }
 
 TEST_1D(CodedStreamTest, ReadLittleEndian64FromArray, kFixed64Cases) {
-  memcpy(buffer_, kFixed64Cases_case.bytes, sizeof(kFixed64Cases_case.bytes));
+	memcpy(buffer_, kFixed64Cases_case.bytes, sizeof(kFixed64Cases_case.bytes));
 
-  uint64 value;
-  const uint8* end =
-      CodedInputStream::ReadLittleEndian64FromArray(buffer_, &value);
-  EXPECT_EQ(kFixed64Cases_case.value, value);
-  EXPECT_TRUE(end == buffer_ + sizeof(value));
+	uint64 value;
+	const uint8* end =
+	    CodedInputStream::ReadLittleEndian64FromArray(buffer_, &value);
+	EXPECT_EQ(kFixed64Cases_case.value, value);
+	EXPECT_TRUE(end == buffer_ + sizeof(value));
 }
 
 // -------------------------------------------------------------------
@@ -645,265 +643,264 @@ TEST_1D(CodedStreamTest, ReadLittleEndian64FromArray, kFixed64Cases) {
 const char kRawBytes[] = "Some bytes which will be written and read raw.";
 
 TEST_1D(CodedStreamTest, ReadRaw, kBlockSizes) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
-  char read_buffer[sizeof(kRawBytes)];
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	char read_buffer[sizeof(kRawBytes)];
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    EXPECT_TRUE(coded_input.ReadRaw(read_buffer, sizeof(kRawBytes)));
-    EXPECT_EQ(0, memcmp(kRawBytes, read_buffer, sizeof(kRawBytes)));
-  }
+		EXPECT_TRUE(coded_input.ReadRaw(read_buffer, sizeof(kRawBytes)));
+		EXPECT_EQ(0, memcmp(kRawBytes, read_buffer, sizeof(kRawBytes)));
+	}
 
-  EXPECT_EQ(sizeof(kRawBytes), input.ByteCount());
+	EXPECT_EQ(sizeof(kRawBytes), input.ByteCount());
 }
 
 TEST_1D(CodedStreamTest, WriteRaw, kBlockSizes) {
-  ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayOutputStream output(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedOutputStream coded_output(&output);
+	{
+		CodedOutputStream coded_output(&output);
 
-    coded_output.WriteRaw(kRawBytes, sizeof(kRawBytes));
-    EXPECT_FALSE(coded_output.HadError());
+		coded_output.WriteRaw(kRawBytes, sizeof(kRawBytes));
+		EXPECT_FALSE(coded_output.HadError());
 
-    EXPECT_EQ(sizeof(kRawBytes), coded_output.ByteCount());
-  }
+		EXPECT_EQ(sizeof(kRawBytes), coded_output.ByteCount());
+	}
 
-  EXPECT_EQ(sizeof(kRawBytes), output.ByteCount());
-  EXPECT_EQ(0, memcmp(buffer_, kRawBytes, sizeof(kRawBytes)));
+	EXPECT_EQ(sizeof(kRawBytes), output.ByteCount());
+	EXPECT_EQ(0, memcmp(buffer_, kRawBytes, sizeof(kRawBytes)));
 }
 
 TEST_1D(CodedStreamTest, ReadString, kBlockSizes) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    std::string str;
-    EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    EXPECT_EQ(kRawBytes, str);
-  }
+		std::string str;
+		EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		EXPECT_EQ(kRawBytes, str);
+	}
 
-  EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
+	EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
 }
 
 // Check to make sure ReadString doesn't crash on impossibly large strings.
 TEST_1D(CodedStreamTest, ReadStringImpossiblyLarge, kBlockSizes) {
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    std::string str;
-    // Try to read a gigabyte.
-    EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
-  }
+		std::string str;
+		// Try to read a gigabyte.
+		EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
+	}
 }
 
 TEST_F(CodedStreamTest, ReadStringImpossiblyLargeFromStringOnStack) {
-  // Same test as above, except directly use a buffer. This used to cause
-  // crashes while the above did not.
-  uint8 buffer[8];
-  CodedInputStream coded_input(buffer, 8);
-  std::string str;
-  EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
+	// Same test as above, except directly use a buffer. This used to cause
+	// crashes while the above did not.
+	uint8 buffer[8];
+	CodedInputStream coded_input(buffer, 8);
+	std::string str;
+	EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
 }
 
 TEST_F(CodedStreamTest, ReadStringImpossiblyLargeFromStringOnHeap) {
-  std::unique_ptr<uint8[]> buffer(new uint8[8]);
-  CodedInputStream coded_input(buffer.get(), 8);
-  std::string str;
-  EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
+	std::unique_ptr<uint8[]> buffer(new uint8[8]);
+	CodedInputStream coded_input(buffer.get(), 8);
+	std::string str;
+	EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
 }
 
 TEST_1D(CodedStreamTest, ReadStringReservesMemoryOnTotalLimit, kBlockSizes) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.SetTotalBytesLimit(sizeof(kRawBytes));
-    EXPECT_EQ(sizeof(kRawBytes), coded_input.BytesUntilTotalBytesLimit());
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.SetTotalBytesLimit(sizeof(kRawBytes));
+		EXPECT_EQ(sizeof(kRawBytes), coded_input.BytesUntilTotalBytesLimit());
 
-    std::string str;
-    EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    EXPECT_EQ(sizeof(kRawBytes) - strlen(kRawBytes),
-              coded_input.BytesUntilTotalBytesLimit());
-    EXPECT_EQ(kRawBytes, str);
-    // TODO(liujisi): Replace with a more meaningful test (see cl/60966023).
-    EXPECT_GE(str.capacity(), strlen(kRawBytes));
-  }
+		std::string str;
+		EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		EXPECT_EQ(sizeof(kRawBytes) - strlen(kRawBytes),
+		    coded_input.BytesUntilTotalBytesLimit());
+		EXPECT_EQ(kRawBytes, str);
+		// TODO(liujisi): Replace with a more meaningful test (see cl/60966023).
+		EXPECT_GE(str.capacity(), strlen(kRawBytes));
+	}
 
-  EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
+	EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
 }
 
 TEST_1D(CodedStreamTest, ReadStringReservesMemoryOnPushedLimit, kBlockSizes) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.PushLimit(sizeof(buffer_));
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.PushLimit(sizeof(buffer_));
 
-    std::string str;
-    EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    EXPECT_EQ(kRawBytes, str);
-    // TODO(liujisi): Replace with a more meaningful test (see cl/60966023).
-    EXPECT_GE(str.capacity(), strlen(kRawBytes));
-  }
+		std::string str;
+		EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		EXPECT_EQ(kRawBytes, str);
+		// TODO(liujisi): Replace with a more meaningful test (see cl/60966023).
+		EXPECT_GE(str.capacity(), strlen(kRawBytes));
+	}
 
-  EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
+	EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
 }
 
 TEST_F(CodedStreamTest, ReadStringNoReservationIfLimitsNotSet) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    std::string str;
-    EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    EXPECT_EQ(kRawBytes, str);
-    // Note: this check depends on string class implementation. It
-    // expects that string will allocate more than strlen(kRawBytes)
-    // if the content of kRawBytes is appended to string in small
-    // chunks.
-    // TODO(liujisi): Replace with a more meaningful test (see cl/60966023).
-    EXPECT_GE(str.capacity(), strlen(kRawBytes));
-  }
+		std::string str;
+		EXPECT_TRUE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		EXPECT_EQ(kRawBytes, str);
+		// Note: this check depends on string class implementation. It
+		// expects that string will allocate more than strlen(kRawBytes)
+		// if the content of kRawBytes is appended to string in small
+		// chunks.
+		// TODO(liujisi): Replace with a more meaningful test (see cl/60966023).
+		EXPECT_GE(str.capacity(), strlen(kRawBytes));
+	}
 
-  EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
+	EXPECT_EQ(strlen(kRawBytes), input.ByteCount());
 }
 
 TEST_F(CodedStreamTest, ReadStringNoReservationSizeIsNegative) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.PushLimit(sizeof(buffer_));
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.PushLimit(sizeof(buffer_));
 
-    std::string str;
-    EXPECT_FALSE(coded_input.ReadString(&str, -1));
-    // Note: this check depends on string class implementation. It
-    // expects that string will always allocate the same amount of
-    // memory for an empty string.
-    EXPECT_EQ(std::string().capacity(), str.capacity());
-  }
+		std::string str;
+		EXPECT_FALSE(coded_input.ReadString(&str, -1));
+		// Note: this check depends on string class implementation. It
+		// expects that string will always allocate the same amount of
+		// memory for an empty string.
+		EXPECT_EQ(std::string().capacity(), str.capacity());
+	}
 }
 
 TEST_F(CodedStreamTest, ReadStringNoReservationSizeIsLarge) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.PushLimit(sizeof(buffer_));
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.PushLimit(sizeof(buffer_));
 
-    std::string str;
-    EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
-    EXPECT_GT(1 << 30, str.capacity());
-  }
+		std::string str;
+		EXPECT_FALSE(coded_input.ReadString(&str, 1 << 30));
+		EXPECT_GT(1 << 30, str.capacity());
+	}
 }
 
 TEST_F(CodedStreamTest, ReadStringNoReservationSizeIsOverTheLimit) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.PushLimit(16);
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.PushLimit(16);
 
-    std::string str;
-    EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    // Note: this check depends on string class implementation. It
-    // expects that string will allocate less than strlen(kRawBytes)
-    // for an empty string.
-    EXPECT_GT(strlen(kRawBytes), str.capacity());
-  }
+		std::string str;
+		EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		// Note: this check depends on string class implementation. It
+		// expects that string will allocate less than strlen(kRawBytes)
+		// for an empty string.
+		EXPECT_GT(strlen(kRawBytes), str.capacity());
+	}
 }
 
 TEST_F(CodedStreamTest, ReadStringNoReservationSizeIsOverTheTotalBytesLimit) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.SetTotalBytesLimit(16);
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.SetTotalBytesLimit(16);
 
-    std::string str;
-    EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    // Note: this check depends on string class implementation. It
-    // expects that string will allocate less than strlen(kRawBytes)
-    // for an empty string.
-    EXPECT_GT(strlen(kRawBytes), str.capacity());
-  }
+		std::string str;
+		EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		// Note: this check depends on string class implementation. It
+		// expects that string will allocate less than strlen(kRawBytes)
+		// for an empty string.
+		EXPECT_GT(strlen(kRawBytes), str.capacity());
+	}
 }
 
 TEST_F(CodedStreamTest,
-       ReadStringNoReservationSizeIsOverTheClosestLimit_GlobalLimitIsCloser) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+    ReadStringNoReservationSizeIsOverTheClosestLimit_GlobalLimitIsCloser) {
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.PushLimit(sizeof(buffer_));
-    coded_input.SetTotalBytesLimit(16);
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.PushLimit(sizeof(buffer_));
+		coded_input.SetTotalBytesLimit(16);
 
-    std::string str;
-    EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    // Note: this check depends on string class implementation. It
-    // expects that string will allocate less than strlen(kRawBytes)
-    // for an empty string.
-    EXPECT_GT(strlen(kRawBytes), str.capacity());
-  }
+		std::string str;
+		EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		// Note: this check depends on string class implementation. It
+		// expects that string will allocate less than strlen(kRawBytes)
+		// for an empty string.
+		EXPECT_GT(strlen(kRawBytes), str.capacity());
+	}
 }
 
 TEST_F(CodedStreamTest,
-       ReadStringNoReservationSizeIsOverTheClosestLimit_LocalLimitIsCloser) {
-  memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
-  // Buffer size in the input must be smaller than sizeof(kRawBytes),
-  // otherwise check against capacity will fail as ReadStringInline()
-  // will handle the reading and will reserve the memory as needed.
-  ArrayInputStream input(buffer_, sizeof(buffer_), 32);
+    ReadStringNoReservationSizeIsOverTheClosestLimit_LocalLimitIsCloser) {
+	memcpy(buffer_, kRawBytes, sizeof(kRawBytes));
+	// Buffer size in the input must be smaller than sizeof(kRawBytes),
+	// otherwise check against capacity will fail as ReadStringInline()
+	// will handle the reading and will reserve the memory as needed.
+	ArrayInputStream input(buffer_, sizeof(buffer_), 32);
 
-  {
-    CodedInputStream coded_input(&input);
-    coded_input.PushLimit(16);
-    coded_input.SetTotalBytesLimit(sizeof(buffer_));
-    EXPECT_EQ(sizeof(buffer_), coded_input.BytesUntilTotalBytesLimit());
+	{
+		CodedInputStream coded_input(&input);
+		coded_input.PushLimit(16);
+		coded_input.SetTotalBytesLimit(sizeof(buffer_));
+		EXPECT_EQ(sizeof(buffer_), coded_input.BytesUntilTotalBytesLimit());
 
-    std::string str;
-    EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
-    // Note: this check depends on string class implementation. It
-    // expects that string will allocate less than strlen(kRawBytes)
-    // for an empty string.
-    EXPECT_GT(strlen(kRawBytes), str.capacity());
-  }
+		std::string str;
+		EXPECT_FALSE(coded_input.ReadString(&str, strlen(kRawBytes)));
+		// Note: this check depends on string class implementation. It
+		// expects that string will allocate less than strlen(kRawBytes)
+		// for an empty string.
+		EXPECT_GT(strlen(kRawBytes), str.capacity());
+	}
 }
-
 
 // -------------------------------------------------------------------
 // Skip
@@ -912,416 +909,420 @@ const char kSkipTestBytes[] =
     "<Before skipping><To be skipped><After skipping>";
 
 TEST_1D(CodedStreamTest, SkipInput, kBlockSizes) {
-  memcpy(buffer_, kSkipTestBytes, sizeof(kSkipTestBytes));
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	memcpy(buffer_, kSkipTestBytes, sizeof(kSkipTestBytes));
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    std::string str;
-    EXPECT_TRUE(coded_input.ReadString(&str, strlen("<Before skipping>")));
-    EXPECT_EQ("<Before skipping>", str);
-    EXPECT_TRUE(coded_input.Skip(strlen("<To be skipped>")));
-    EXPECT_TRUE(coded_input.ReadString(&str, strlen("<After skipping>")));
-    EXPECT_EQ("<After skipping>", str);
-  }
+		std::string str;
+		EXPECT_TRUE(coded_input.ReadString(&str, strlen("<Before skipping>")));
+		EXPECT_EQ("<Before skipping>", str);
+		EXPECT_TRUE(coded_input.Skip(strlen("<To be skipped>")));
+		EXPECT_TRUE(coded_input.ReadString(&str, strlen("<After skipping>")));
+		EXPECT_EQ("<After skipping>", str);
+	}
 
-  EXPECT_EQ(strlen(kSkipTestBytes), input.ByteCount());
+	EXPECT_EQ(strlen(kSkipTestBytes), input.ByteCount());
 }
 
 // -------------------------------------------------------------------
 // GetDirectBufferPointer
 
 TEST_F(CodedStreamTest, GetDirectBufferPointerInput) {
-  ArrayInputStream input(buffer_, sizeof(buffer_), 8);
-  CodedInputStream coded_input(&input);
+	ArrayInputStream input(buffer_, sizeof(buffer_), 8);
+	CodedInputStream coded_input(&input);
 
-  const void* ptr;
-  int size;
+	const void* ptr;
+	int size;
 
-  EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
-  EXPECT_EQ(buffer_, ptr);
-  EXPECT_EQ(8, size);
+	EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
+	EXPECT_EQ(buffer_, ptr);
+	EXPECT_EQ(8, size);
 
-  // Peeking again should return the same pointer.
-  EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
-  EXPECT_EQ(buffer_, ptr);
-  EXPECT_EQ(8, size);
+	// Peeking again should return the same pointer.
+	EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
+	EXPECT_EQ(buffer_, ptr);
+	EXPECT_EQ(8, size);
 
-  // Skip forward in the same buffer then peek again.
-  EXPECT_TRUE(coded_input.Skip(3));
-  EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
-  EXPECT_EQ(buffer_ + 3, ptr);
-  EXPECT_EQ(5, size);
+	// Skip forward in the same buffer then peek again.
+	EXPECT_TRUE(coded_input.Skip(3));
+	EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
+	EXPECT_EQ(buffer_ + 3, ptr);
+	EXPECT_EQ(5, size);
 
-  // Skip to end of buffer and peek -- should get next buffer.
-  EXPECT_TRUE(coded_input.Skip(5));
-  EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
-  EXPECT_EQ(buffer_ + 8, ptr);
-  EXPECT_EQ(8, size);
+	// Skip to end of buffer and peek -- should get next buffer.
+	EXPECT_TRUE(coded_input.Skip(5));
+	EXPECT_TRUE(coded_input.GetDirectBufferPointer(&ptr, &size));
+	EXPECT_EQ(buffer_ + 8, ptr);
+	EXPECT_EQ(8, size);
 }
 
 TEST_F(CodedStreamTest, GetDirectBufferPointerInlineInput) {
-  ArrayInputStream input(buffer_, sizeof(buffer_), 8);
-  CodedInputStream coded_input(&input);
+	ArrayInputStream input(buffer_, sizeof(buffer_), 8);
+	CodedInputStream coded_input(&input);
 
-  const void* ptr;
-  int size;
+	const void* ptr;
+	int size;
 
-  coded_input.GetDirectBufferPointerInline(&ptr, &size);
-  EXPECT_EQ(buffer_, ptr);
-  EXPECT_EQ(8, size);
+	coded_input.GetDirectBufferPointerInline(&ptr, &size);
+	EXPECT_EQ(buffer_, ptr);
+	EXPECT_EQ(8, size);
 
-  // Peeking again should return the same pointer.
-  coded_input.GetDirectBufferPointerInline(&ptr, &size);
-  EXPECT_EQ(buffer_, ptr);
-  EXPECT_EQ(8, size);
+	// Peeking again should return the same pointer.
+	coded_input.GetDirectBufferPointerInline(&ptr, &size);
+	EXPECT_EQ(buffer_, ptr);
+	EXPECT_EQ(8, size);
 
-  // Skip forward in the same buffer then peek again.
-  EXPECT_TRUE(coded_input.Skip(3));
-  coded_input.GetDirectBufferPointerInline(&ptr, &size);
-  EXPECT_EQ(buffer_ + 3, ptr);
-  EXPECT_EQ(5, size);
+	// Skip forward in the same buffer then peek again.
+	EXPECT_TRUE(coded_input.Skip(3));
+	coded_input.GetDirectBufferPointerInline(&ptr, &size);
+	EXPECT_EQ(buffer_ + 3, ptr);
+	EXPECT_EQ(5, size);
 
-  // Skip to end of buffer and peek -- should return false and provide an empty
-  // buffer. It does not try to Refresh().
-  EXPECT_TRUE(coded_input.Skip(5));
-  coded_input.GetDirectBufferPointerInline(&ptr, &size);
-  EXPECT_EQ(buffer_ + 8, ptr);
-  EXPECT_EQ(0, size);
+	// Skip to end of buffer and peek -- should return false and provide an empty
+	// buffer. It does not try to Refresh().
+	EXPECT_TRUE(coded_input.Skip(5));
+	coded_input.GetDirectBufferPointerInline(&ptr, &size);
+	EXPECT_EQ(buffer_ + 8, ptr);
+	EXPECT_EQ(0, size);
 }
 
 // -------------------------------------------------------------------
 // Limits
 
 TEST_1D(CodedStreamTest, BasicLimit, kBlockSizes) {
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-    CodedInputStream::Limit limit = coded_input.PushLimit(8);
+		EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+		CodedInputStream::Limit limit = coded_input.PushLimit(8);
 
-    // Read until we hit the limit.
-    uint32 value;
-    EXPECT_EQ(8, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(4, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
-    EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		// Read until we hit the limit.
+		uint32 value;
+		EXPECT_EQ(8, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(4, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
 
-    coded_input.PopLimit(limit);
+		coded_input.PopLimit(limit);
 
-    EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-  }
+		EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+	}
 
-  EXPECT_EQ(12, input.ByteCount());
+	EXPECT_EQ(12, input.ByteCount());
 }
 
 // Test what happens when we push two limits where the second (top) one is
 // shorter.
 TEST_1D(CodedStreamTest, SmallLimitOnTopOfBigLimit, kBlockSizes) {
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-    CodedInputStream::Limit limit1 = coded_input.PushLimit(8);
-    EXPECT_EQ(8, coded_input.BytesUntilLimit());
-    CodedInputStream::Limit limit2 = coded_input.PushLimit(4);
+		EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+		CodedInputStream::Limit limit1 = coded_input.PushLimit(8);
+		EXPECT_EQ(8, coded_input.BytesUntilLimit());
+		CodedInputStream::Limit limit2 = coded_input.PushLimit(4);
 
-    uint32 value;
+		uint32 value;
 
-    // Read until we hit limit2, the top and shortest limit.
-    EXPECT_EQ(4, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
-    EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		// Read until we hit limit2, the top and shortest limit.
+		EXPECT_EQ(4, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
 
-    coded_input.PopLimit(limit2);
+		coded_input.PopLimit(limit2);
 
-    // Read until we hit limit1.
-    EXPECT_EQ(4, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
-    EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		// Read until we hit limit1.
+		EXPECT_EQ(4, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
 
-    coded_input.PopLimit(limit1);
+		coded_input.PopLimit(limit1);
 
-    // No more limits.
-    EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-  }
+		// No more limits.
+		EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+	}
 
-  EXPECT_EQ(12, input.ByteCount());
+	EXPECT_EQ(12, input.ByteCount());
 }
 
 // Test what happens when we push two limits where the second (top) one is
 // longer.  In this case, the top limit is shortened to match the previous
 // limit.
 TEST_1D(CodedStreamTest, BigLimitOnTopOfSmallLimit, kBlockSizes) {
-  ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
+	ArrayInputStream input(buffer_, sizeof(buffer_), kBlockSizes_case);
 
-  {
-    CodedInputStream coded_input(&input);
+	{
+		CodedInputStream coded_input(&input);
 
-    EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-    CodedInputStream::Limit limit1 = coded_input.PushLimit(4);
-    EXPECT_EQ(4, coded_input.BytesUntilLimit());
-    CodedInputStream::Limit limit2 = coded_input.PushLimit(8);
+		EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+		CodedInputStream::Limit limit1 = coded_input.PushLimit(4);
+		EXPECT_EQ(4, coded_input.BytesUntilLimit());
+		CodedInputStream::Limit limit2 = coded_input.PushLimit(8);
 
-    uint32 value;
+		uint32 value;
 
-    // Read until we hit limit2.  Except, wait!  limit1 is shorter, so
-    // we end up hitting that first, despite having 4 bytes to go on
-    // limit2.
-    EXPECT_EQ(4, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
-    EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		// Read until we hit limit2.  Except, wait!  limit1 is shorter, so
+		// we end up hitting that first, despite having 4 bytes to go on
+		// limit2.
+		EXPECT_EQ(4, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
 
-    coded_input.PopLimit(limit2);
+		coded_input.PopLimit(limit2);
 
-    // OK, popped limit2, now limit1 is on top, which we've already hit.
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
-    EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
-    EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		// OK, popped limit2, now limit1 is on top, which we've already hit.
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
+		EXPECT_FALSE(coded_input.ReadLittleEndian32(&value));
+		EXPECT_EQ(0, coded_input.BytesUntilLimit());
 
-    coded_input.PopLimit(limit1);
+		coded_input.PopLimit(limit1);
 
-    // No more limits.
-    EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-    EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-  }
+		// No more limits.
+		EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+		EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+	}
 
-  EXPECT_EQ(8, input.ByteCount());
+	EXPECT_EQ(8, input.ByteCount());
 }
 
 TEST_F(CodedStreamTest, ExpectAtEnd) {
-  // Test ExpectAtEnd(), which is based on limits.
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
+	// Test ExpectAtEnd(), which is based on limits.
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
 
-  EXPECT_FALSE(coded_input.ExpectAtEnd());
+	EXPECT_FALSE(coded_input.ExpectAtEnd());
 
-  CodedInputStream::Limit limit = coded_input.PushLimit(4);
+	CodedInputStream::Limit limit = coded_input.PushLimit(4);
 
-  uint32 value;
-  EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
-  EXPECT_TRUE(coded_input.ExpectAtEnd());
+	uint32 value;
+	EXPECT_TRUE(coded_input.ReadLittleEndian32(&value));
+	EXPECT_TRUE(coded_input.ExpectAtEnd());
 
-  coded_input.PopLimit(limit);
-  EXPECT_FALSE(coded_input.ExpectAtEnd());
+	coded_input.PopLimit(limit);
+	EXPECT_FALSE(coded_input.ExpectAtEnd());
 }
 
 TEST_F(CodedStreamTest, NegativeLimit) {
-  // Check what happens when we push a negative limit.
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
+	// Check what happens when we push a negative limit.
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
 
-  CodedInputStream::Limit limit = coded_input.PushLimit(-1234);
-  // BytesUntilLimit() returns -1 to mean "no limit", which actually means
-  // "the limit is INT_MAX relative to the beginning of the stream".
-  EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-  coded_input.PopLimit(limit);
+	CodedInputStream::Limit limit = coded_input.PushLimit(-1234);
+	// BytesUntilLimit() returns -1 to mean "no limit", which actually means
+	// "the limit is INT_MAX relative to the beginning of the stream".
+	EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+	coded_input.PopLimit(limit);
 }
 
 TEST_F(CodedStreamTest, NegativeLimitAfterReading) {
-  // Check what happens when we push a negative limit.
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
-  ASSERT_TRUE(coded_input.Skip(128));
+	// Check what happens when we push a negative limit.
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
+	ASSERT_TRUE(coded_input.Skip(128));
 
-  CodedInputStream::Limit limit = coded_input.PushLimit(-64);
-  // BytesUntilLimit() returns -1 to mean "no limit", which actually means
-  // "the limit is INT_MAX relative to the beginning of the stream".
-  EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-  coded_input.PopLimit(limit);
+	CodedInputStream::Limit limit = coded_input.PushLimit(-64);
+	// BytesUntilLimit() returns -1 to mean "no limit", which actually means
+	// "the limit is INT_MAX relative to the beginning of the stream".
+	EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+	coded_input.PopLimit(limit);
 }
 
 TEST_F(CodedStreamTest, OverflowLimit) {
-  // Check what happens when we push a limit large enough that its absolute
-  // position is more than 2GB into the stream.
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
-  ASSERT_TRUE(coded_input.Skip(128));
+	// Check what happens when we push a limit large enough that its absolute
+	// position is more than 2GB into the stream.
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
+	ASSERT_TRUE(coded_input.Skip(128));
 
-  CodedInputStream::Limit limit = coded_input.PushLimit(INT_MAX);
-  // BytesUntilLimit() returns -1 to mean "no limit", which actually means
-  // "the limit is INT_MAX relative to the beginning of the stream".
-  EXPECT_EQ(-1, coded_input.BytesUntilLimit());
-  coded_input.PopLimit(limit);
+	CodedInputStream::Limit limit = coded_input.PushLimit(INT_MAX);
+	// BytesUntilLimit() returns -1 to mean "no limit", which actually means
+	// "the limit is INT_MAX relative to the beginning of the stream".
+	EXPECT_EQ(-1, coded_input.BytesUntilLimit());
+	coded_input.PopLimit(limit);
 }
 
 TEST_F(CodedStreamTest, TotalBytesLimit) {
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
-  coded_input.SetTotalBytesLimit(16);
-  EXPECT_EQ(16, coded_input.BytesUntilTotalBytesLimit());
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
+	coded_input.SetTotalBytesLimit(16);
+	EXPECT_EQ(16, coded_input.BytesUntilTotalBytesLimit());
 
-  std::string str;
-  EXPECT_TRUE(coded_input.ReadString(&str, 16));
-  EXPECT_EQ(0, coded_input.BytesUntilTotalBytesLimit());
+	std::string str;
+	EXPECT_TRUE(coded_input.ReadString(&str, 16));
+	EXPECT_EQ(0, coded_input.BytesUntilTotalBytesLimit());
 
-  std::vector<std::string> errors;
+	std::vector<std::string> errors;
 
-  {
-    ScopedMemoryLog error_log;
-    EXPECT_FALSE(coded_input.ReadString(&str, 1));
-    errors = error_log.GetMessages(ERROR);
-  }
+	{
+		ScopedMemoryLog error_log;
+		EXPECT_FALSE(coded_input.ReadString(&str, 1));
+		errors = error_log.GetMessages(ERROR);
+	}
 
-  ASSERT_EQ(1, errors.size());
-  EXPECT_PRED_FORMAT2(testing::IsSubstring,
-                      "A protocol message was rejected because it was too big",
-                      errors[0]);
+	ASSERT_EQ(1, errors.size());
+	EXPECT_PRED_FORMAT2(testing::IsSubstring,
+	    "A protocol message was rejected because it was too big",
+	    errors[0]);
 
-  coded_input.SetTotalBytesLimit(32);
-  EXPECT_EQ(16, coded_input.BytesUntilTotalBytesLimit());
-  EXPECT_TRUE(coded_input.ReadString(&str, 16));
-  EXPECT_EQ(0, coded_input.BytesUntilTotalBytesLimit());
+	coded_input.SetTotalBytesLimit(32);
+	EXPECT_EQ(16, coded_input.BytesUntilTotalBytesLimit());
+	EXPECT_TRUE(coded_input.ReadString(&str, 16));
+	EXPECT_EQ(0, coded_input.BytesUntilTotalBytesLimit());
 }
 
 TEST_F(CodedStreamTest, TotalBytesLimitNotValidMessageEnd) {
-  // total_bytes_limit_ is not a valid place for a message to end.
+	// total_bytes_limit_ is not a valid place for a message to end.
 
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
 
-  // Set both total_bytes_limit and a regular limit at 16 bytes.
-  coded_input.SetTotalBytesLimit(16);
-  CodedInputStream::Limit limit = coded_input.PushLimit(16);
+	// Set both total_bytes_limit and a regular limit at 16 bytes.
+	coded_input.SetTotalBytesLimit(16);
+	CodedInputStream::Limit limit = coded_input.PushLimit(16);
 
-  // Read 16 bytes.
-  std::string str;
-  EXPECT_TRUE(coded_input.ReadString(&str, 16));
+	// Read 16 bytes.
+	std::string str;
+	EXPECT_TRUE(coded_input.ReadString(&str, 16));
 
-  // Read a tag.  Should fail, but report being a valid endpoint since it's
-  // a regular limit.
-  EXPECT_EQ(0, coded_input.ReadTagNoLastTag());
-  EXPECT_TRUE(coded_input.ConsumedEntireMessage());
+	// Read a tag.  Should fail, but report being a valid endpoint since it's
+	// a regular limit.
+	EXPECT_EQ(0, coded_input.ReadTagNoLastTag());
+	EXPECT_TRUE(coded_input.ConsumedEntireMessage());
 
-  // Pop the limit.
-  coded_input.PopLimit(limit);
+	// Pop the limit.
+	coded_input.PopLimit(limit);
 
-  // Read a tag.  Should fail, and report *not* being a valid endpoint, since
-  // this time we're hitting the total bytes limit.
-  EXPECT_EQ(0, coded_input.ReadTagNoLastTag());
-  EXPECT_FALSE(coded_input.ConsumedEntireMessage());
+	// Read a tag.  Should fail, and report *not* being a valid endpoint, since
+	// this time we're hitting the total bytes limit.
+	EXPECT_EQ(0, coded_input.ReadTagNoLastTag());
+	EXPECT_FALSE(coded_input.ConsumedEntireMessage());
 }
 
 TEST_F(CodedStreamTest, RecursionLimit) {
-  ArrayInputStream input(buffer_, sizeof(buffer_));
-  CodedInputStream coded_input(&input);
-  coded_input.SetRecursionLimit(4);
+	ArrayInputStream input(buffer_, sizeof(buffer_));
+	CodedInputStream coded_input(&input);
+	coded_input.SetRecursionLimit(4);
 
-  // This is way too much testing for a counter.
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 1
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 2
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 3
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 4
-  EXPECT_FALSE(coded_input.IncrementRecursionDepth());  // 5
-  EXPECT_FALSE(coded_input.IncrementRecursionDepth());  // 6
-  coded_input.DecrementRecursionDepth();                // 5
-  EXPECT_FALSE(coded_input.IncrementRecursionDepth());  // 6
-  coded_input.DecrementRecursionDepth();                // 5
-  coded_input.DecrementRecursionDepth();                // 4
-  coded_input.DecrementRecursionDepth();                // 3
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 4
-  EXPECT_FALSE(coded_input.IncrementRecursionDepth());  // 5
-  coded_input.DecrementRecursionDepth();                // 4
-  coded_input.DecrementRecursionDepth();                // 3
-  coded_input.DecrementRecursionDepth();                // 2
-  coded_input.DecrementRecursionDepth();                // 1
-  coded_input.DecrementRecursionDepth();                // 0
-  coded_input.DecrementRecursionDepth();                // 0
-  coded_input.DecrementRecursionDepth();                // 0
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 1
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 2
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 3
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 4
-  EXPECT_FALSE(coded_input.IncrementRecursionDepth());  // 5
+	// This is way too much testing for a counter.
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 1
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 2
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 3
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 4
+	EXPECT_FALSE(coded_input.IncrementRecursionDepth()); // 5
+	EXPECT_FALSE(coded_input.IncrementRecursionDepth()); // 6
+	coded_input.DecrementRecursionDepth();          // 5
+	EXPECT_FALSE(coded_input.IncrementRecursionDepth()); // 6
+	coded_input.DecrementRecursionDepth();          // 5
+	coded_input.DecrementRecursionDepth();          // 4
+	coded_input.DecrementRecursionDepth();          // 3
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 4
+	EXPECT_FALSE(coded_input.IncrementRecursionDepth()); // 5
+	coded_input.DecrementRecursionDepth();          // 4
+	coded_input.DecrementRecursionDepth();          // 3
+	coded_input.DecrementRecursionDepth();          // 2
+	coded_input.DecrementRecursionDepth();          // 1
+	coded_input.DecrementRecursionDepth();          // 0
+	coded_input.DecrementRecursionDepth();          // 0
+	coded_input.DecrementRecursionDepth();          // 0
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 1
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 2
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 3
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 4
+	EXPECT_FALSE(coded_input.IncrementRecursionDepth()); // 5
 
-  coded_input.SetRecursionLimit(6);
-  EXPECT_TRUE(coded_input.IncrementRecursionDepth());   // 6
-  EXPECT_FALSE(coded_input.IncrementRecursionDepth());  // 7
+	coded_input.SetRecursionLimit(6);
+	EXPECT_TRUE(coded_input.IncrementRecursionDepth()); // 6
+	EXPECT_FALSE(coded_input.IncrementRecursionDepth()); // 7
 }
 
-
 class ReallyBigInputStream : public ZeroCopyInputStream {
- public:
-  ReallyBigInputStream() : backup_amount_(0), buffer_count_(0) {}
-  ~ReallyBigInputStream() {}
+public:
+	ReallyBigInputStream() : backup_amount_(0), buffer_count_(0) {
+	}
 
-  // implements ZeroCopyInputStream ----------------------------------
-  bool Next(const void** data, int* size) override {
-    // We only expect BackUp() to be called at the end.
-    EXPECT_EQ(0, backup_amount_);
+	~ReallyBigInputStream() {
+	}
 
-    switch (buffer_count_++) {
-      case 0:
-        *data = buffer_;
-        *size = sizeof(buffer_);
-        return true;
-      case 1:
-        // Return an enormously large buffer that, when combined with the 1k
-        // returned already, should overflow the total_bytes_read_ counter in
-        // CodedInputStream.  Note that we'll only read the first 1024 bytes
-        // of this buffer so it's OK that we have it point at buffer_.
-        *data = buffer_;
-        *size = INT_MAX;
-        return true;
-      default:
-        return false;
-    }
-  }
+	// implements ZeroCopyInputStream ----------------------------------
+	bool Next(const void** data, int* size) override {
+		// We only expect BackUp() to be called at the end.
+		EXPECT_EQ(0, backup_amount_);
 
-  void BackUp(int count) override { backup_amount_ = count; }
+		switch(buffer_count_++) {
+			case 0:
+			    *data = buffer_;
+			    *size = sizeof(buffer_);
+			    return true;
+			case 1:
+			    // Return an enormously large buffer that, when combined with the 1k
+			    // returned already, should overflow the total_bytes_read_ counter in
+			    // CodedInputStream.  Note that we'll only read the first 1024 bytes
+			    // of this buffer so it's OK that we have it point at buffer_.
+			    *data = buffer_;
+			    *size = INT_MAX;
+			    return true;
+			default:
+			    return false;
+		}
+	}
 
-  bool Skip(int count) override {
-    GOOGLE_LOG(FATAL) << "Not implemented.";
-    return false;
-  }
-  int64_t ByteCount() const override {
-    GOOGLE_LOG(FATAL) << "Not implemented.";
-    return 0;
-  }
+	void BackUp(int count) override {
+		backup_amount_ = count;
+	}
 
-  int backup_amount_;
+	bool Skip(int count) override {
+		GOOGLE_LOG(FATAL) << "Not implemented.";
+		return false;
+	}
 
- private:
-  char buffer_[1024];
-  int64 buffer_count_;
+	int64_t ByteCount() const override {
+		GOOGLE_LOG(FATAL) << "Not implemented.";
+		return 0;
+	}
+
+	int backup_amount_;
+
+private:
+	char buffer_[1024];
+	int64 buffer_count_;
 };
 
 TEST_F(CodedStreamTest, InputOver2G) {
-  // CodedInputStream should gracefully handle input over 2G and call
-  // input.BackUp() with the correct number of bytes on destruction.
-  ReallyBigInputStream input;
+	// CodedInputStream should gracefully handle input over 2G and call
+	// input.BackUp() with the correct number of bytes on destruction.
+	ReallyBigInputStream input;
 
-  std::vector<std::string> errors;
+	std::vector<std::string> errors;
 
-  {
-    ScopedMemoryLog error_log;
-    CodedInputStream coded_input(&input);
-    std::string str;
-    EXPECT_TRUE(coded_input.ReadString(&str, 512));
-    EXPECT_TRUE(coded_input.ReadString(&str, 1024));
-    errors = error_log.GetMessages(ERROR);
-  }
+	{
+		ScopedMemoryLog error_log;
+		CodedInputStream coded_input(&input);
+		std::string str;
+		EXPECT_TRUE(coded_input.ReadString(&str, 512));
+		EXPECT_TRUE(coded_input.ReadString(&str, 1024));
+		errors = error_log.GetMessages(ERROR);
+	}
 
-  EXPECT_EQ(INT_MAX - 512, input.backup_amount_);
-  EXPECT_EQ(0, errors.size());
+	EXPECT_EQ(INT_MAX - 512, input.backup_amount_);
+	EXPECT_EQ(0, errors.size());
 }
-
 }  // namespace
 }  // namespace io
 }  // namespace protobuf

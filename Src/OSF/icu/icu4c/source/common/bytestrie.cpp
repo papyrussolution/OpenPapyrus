@@ -159,8 +159,7 @@ UStringTrieResult BytesTrie::nextImpl(const uint8 * pos, int32_t inByte)
 			if(inByte==*pos++) {
 				remainingMatchLength_ = --length;
 				pos_ = pos;
-				return (length<0 && (node = *pos)>=kMinValueLead) ?
-				       valueResult(node) : USTRINGTRIE_NO_VALUE;
+				return (length<0 && (node = *pos)>=kMinValueLead) ? valueResult(node) : USTRINGTRIE_NO_VALUE;
 			}
 			else {
 				// No match.

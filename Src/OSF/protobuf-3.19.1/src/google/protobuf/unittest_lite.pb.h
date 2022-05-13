@@ -1365,16 +1365,14 @@ class TestAllTypesLite final :
   public:
   void clear_repeatedgroup();
   ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* mutable_repeatedgroup(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_RepeatedGroup >*
-      mutable_repeatedgroup();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_RepeatedGroup > * mutable_repeatedgroup();
   private:
   const ::protobuf_unittest::TestAllTypesLite_RepeatedGroup& _internal_repeatedgroup(int index) const;
   ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* _internal_add_repeatedgroup();
   public:
   const ::protobuf_unittest::TestAllTypesLite_RepeatedGroup& repeatedgroup(int index) const;
   ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* add_repeatedgroup();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_RepeatedGroup >&
-      repeatedgroup() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_RepeatedGroup > & repeatedgroup() const;
 
   // repeated .protobuf_unittest.TestAllTypesLite.NestedMessage repeated_nested_message = 48;
   int repeated_nested_message_size() const;
@@ -1383,16 +1381,14 @@ class TestAllTypesLite final :
   public:
   void clear_repeated_nested_message();
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* mutable_repeated_nested_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage >*
-      mutable_repeated_nested_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage > * mutable_repeated_nested_message();
   private:
   const ::protobuf_unittest::TestAllTypesLite_NestedMessage& _internal_repeated_nested_message(int index) const;
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* _internal_add_repeated_nested_message();
   public:
   const ::protobuf_unittest::TestAllTypesLite_NestedMessage& repeated_nested_message(int index) const;
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* add_repeated_nested_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage >&
-      repeated_nested_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage > & repeated_nested_message() const;
 
   // repeated .protobuf_unittest.ForeignMessageLite repeated_foreign_message = 49;
   int repeated_foreign_message_size() const;
@@ -1401,16 +1397,14 @@ class TestAllTypesLite final :
   public:
   void clear_repeated_foreign_message();
   ::protobuf_unittest::ForeignMessageLite* mutable_repeated_foreign_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::ForeignMessageLite >*
-      mutable_repeated_foreign_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::ForeignMessageLite > * mutable_repeated_foreign_message();
   private:
   const ::protobuf_unittest::ForeignMessageLite& _internal_repeated_foreign_message(int index) const;
   ::protobuf_unittest::ForeignMessageLite* _internal_add_repeated_foreign_message();
   public:
   const ::protobuf_unittest::ForeignMessageLite& repeated_foreign_message(int index) const;
   ::protobuf_unittest::ForeignMessageLite* add_repeated_foreign_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::ForeignMessageLite >&
-      repeated_foreign_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::ForeignMessageLite > & repeated_foreign_message() const;
 
   // repeated .protobuf_unittest_import.ImportMessageLite repeated_import_message = 50;
   int repeated_import_message_size() const;
@@ -1419,16 +1413,14 @@ class TestAllTypesLite final :
   public:
   void clear_repeated_import_message();
   ::protobuf_unittest_import::ImportMessageLite* mutable_repeated_import_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest_import::ImportMessageLite >*
-      mutable_repeated_import_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest_import::ImportMessageLite > * mutable_repeated_import_message();
   private:
   const ::protobuf_unittest_import::ImportMessageLite& _internal_repeated_import_message(int index) const;
   ::protobuf_unittest_import::ImportMessageLite* _internal_add_repeated_import_message();
   public:
   const ::protobuf_unittest_import::ImportMessageLite& repeated_import_message(int index) const;
   ::protobuf_unittest_import::ImportMessageLite* add_repeated_import_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest_import::ImportMessageLite >&
-      repeated_import_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest_import::ImportMessageLite > & repeated_import_message() const;
 
   // repeated .protobuf_unittest.TestAllTypesLite.NestedEnum repeated_nested_enum = 51;
   int repeated_nested_enum_size() const;
@@ -1542,16 +1534,14 @@ class TestAllTypesLite final :
   public:
   void clear_repeated_lazy_message();
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* mutable_repeated_lazy_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage >*
-      mutable_repeated_lazy_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage > * mutable_repeated_lazy_message();
   private:
   const ::protobuf_unittest::TestAllTypesLite_NestedMessage& _internal_repeated_lazy_message(int index) const;
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* _internal_add_repeated_lazy_message();
   public:
   const ::protobuf_unittest::TestAllTypesLite_NestedMessage& repeated_lazy_message(int index) const;
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* add_repeated_lazy_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage >&
-      repeated_lazy_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite_NestedMessage > & repeated_lazy_message() const;
 
   // optional string optional_string = 14;
   bool has_optional_string() const;
@@ -4476,16 +4466,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_field1();
   ::protobuf_unittest::TestAllTypesLite* mutable_field1(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >*
-      mutable_field1();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > * mutable_field1();
   private:
   const ::protobuf_unittest::TestAllTypesLite& _internal_field1(int index) const;
   ::protobuf_unittest::TestAllTypesLite* _internal_add_field1();
   public:
   const ::protobuf_unittest::TestAllTypesLite& field1(int index) const;
   ::protobuf_unittest::TestAllTypesLite* add_field1();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >&
-      field1() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > & field1() const;
 
   // repeated .protobuf_unittest.TestAllTypesLite field2 = 2;
   int field2_size() const;
@@ -4494,16 +4482,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_field2();
   ::protobuf_unittest::TestAllTypesLite* mutable_field2(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >*
-      mutable_field2();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > * mutable_field2();
   private:
   const ::protobuf_unittest::TestAllTypesLite& _internal_field2(int index) const;
   ::protobuf_unittest::TestAllTypesLite* _internal_add_field2();
   public:
   const ::protobuf_unittest::TestAllTypesLite& field2(int index) const;
   ::protobuf_unittest::TestAllTypesLite* add_field2();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >&
-      field2() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > & field2() const;
 
   // repeated .protobuf_unittest.TestAllTypesLite field3 = 3;
   int field3_size() const;
@@ -4512,16 +4498,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_field3();
   ::protobuf_unittest::TestAllTypesLite* mutable_field3(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >*
-      mutable_field3();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > * mutable_field3();
   private:
   const ::protobuf_unittest::TestAllTypesLite& _internal_field3(int index) const;
   ::protobuf_unittest::TestAllTypesLite* _internal_add_field3();
   public:
   const ::protobuf_unittest::TestAllTypesLite& field3(int index) const;
   ::protobuf_unittest::TestAllTypesLite* add_field3();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >&
-      field3() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > & field3() const;
 
   // repeated group Group1 = 10 { ... };
   int group1_size() const;
@@ -4530,16 +4514,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_group1();
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* mutable_group1(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1 >*
-      mutable_group1();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1 > * mutable_group1();
   private:
   const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1& _internal_group1(int index) const;
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* _internal_add_group1();
   public:
   const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1& group1(int index) const;
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* add_group1();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1 >&
-      group1() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1 > & group1() const;
 
   // repeated group Group2 = 20 { ... };
   int group2_size() const;
@@ -4548,16 +4530,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_group2();
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* mutable_group2(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2 >*
-      mutable_group2();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2 > * mutable_group2();
   private:
   const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2& _internal_group2(int index) const;
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* _internal_add_group2();
   public:
   const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2& group2(int index) const;
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* add_group2();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2 >&
-      group2() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2 > & group2() const;
 
   // repeated .protobuf_unittest.TestAllTypesLite ext1 = 1000;
   int ext1_size() const;
@@ -4566,16 +4546,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_ext1();
   ::protobuf_unittest::TestAllTypesLite* mutable_ext1(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >*
-      mutable_ext1();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > * mutable_ext1();
   private:
   const ::protobuf_unittest::TestAllTypesLite& _internal_ext1(int index) const;
   ::protobuf_unittest::TestAllTypesLite* _internal_add_ext1();
   public:
   const ::protobuf_unittest::TestAllTypesLite& ext1(int index) const;
   ::protobuf_unittest::TestAllTypesLite* add_ext1();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >&
-      ext1() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > & ext1() const;
 
   // repeated .protobuf_unittest.TestAllTypesLite ext2 = 1001;
   int ext2_size() const;
@@ -4584,16 +4562,14 @@ class TestParsingMergeLite_RepeatedFieldsGenerator final :
   public:
   void clear_ext2();
   ::protobuf_unittest::TestAllTypesLite* mutable_ext2(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >*
-      mutable_ext2();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > * mutable_ext2();
   private:
   const ::protobuf_unittest::TestAllTypesLite& _internal_ext2(int index) const;
   ::protobuf_unittest::TestAllTypesLite* _internal_add_ext2();
   public:
   const ::protobuf_unittest::TestAllTypesLite& ext2(int index) const;
   ::protobuf_unittest::TestAllTypesLite* add_ext2();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >&
-      ext2() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > & ext2() const;
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator)
  private:
@@ -4987,16 +4963,14 @@ class TestParsingMergeLite final :
   public:
   void clear_repeated_all_types();
   ::protobuf_unittest::TestAllTypesLite* mutable_repeated_all_types(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >*
-      mutable_repeated_all_types();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > * mutable_repeated_all_types();
   private:
   const ::protobuf_unittest::TestAllTypesLite& _internal_repeated_all_types(int index) const;
   ::protobuf_unittest::TestAllTypesLite* _internal_add_repeated_all_types();
   public:
   const ::protobuf_unittest::TestAllTypesLite& repeated_all_types(int index) const;
   ::protobuf_unittest::TestAllTypesLite* add_repeated_all_types();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite >&
-      repeated_all_types() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestAllTypesLite > & repeated_all_types() const;
 
   // repeated group RepeatedGroup = 20 { ... };
   int repeatedgroup_size() const;
@@ -5005,16 +4979,14 @@ class TestParsingMergeLite final :
   public:
   void clear_repeatedgroup();
   ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* mutable_repeatedgroup(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup >*
-      mutable_repeatedgroup();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup > * mutable_repeatedgroup();
   private:
   const ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup& _internal_repeatedgroup(int index) const;
   ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* _internal_add_repeatedgroup();
   public:
   const ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup& repeatedgroup(int index) const;
   ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* add_repeatedgroup();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup >&
-      repeatedgroup() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup > & repeatedgroup() const;
 
   // required .protobuf_unittest.TestAllTypesLite required_all_types = 1;
   bool has_required_all_types() const;
@@ -8762,11 +8734,11 @@ inline const ::protobuf_unittest::TestAllTypesLite_OptionalGroup& TestAllTypesLi
 }
 inline void TestAllTypesLite::unsafe_arena_set_allocated_optionalgroup(
     ::protobuf_unittest::TestAllTypesLite_OptionalGroup* optionalgroup) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optionalgroup_);
   }
   optionalgroup_ = optionalgroup;
-  if (optionalgroup) {
+  if(optionalgroup) {
     _has_bits_[0] |= 0x00000100u;
   } else {
     _has_bits_[0] &= ~0x00000100u;
@@ -8780,9 +8752,9 @@ inline ::protobuf_unittest::TestAllTypesLite_OptionalGroup* TestAllTypesLite::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8797,7 +8769,7 @@ inline ::protobuf_unittest::TestAllTypesLite_OptionalGroup* TestAllTypesLite::un
 }
 inline ::protobuf_unittest::TestAllTypesLite_OptionalGroup* TestAllTypesLite::_internal_mutable_optionalgroup() {
   _has_bits_[0] |= 0x00000100u;
-  if (optionalgroup_ == nullptr) {
+  if(optionalgroup_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite_OptionalGroup>(GetArenaForAllocation());
     optionalgroup_ = p;
   }
@@ -8810,15 +8782,14 @@ inline ::protobuf_unittest::TestAllTypesLite_OptionalGroup* TestAllTypesLite::mu
 }
 inline void TestAllTypesLite::set_allocated_optionalgroup(::protobuf_unittest::TestAllTypesLite_OptionalGroup* optionalgroup) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optionalgroup_;
   }
-  if (optionalgroup) {
+  if(optionalgroup) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite_OptionalGroup>::GetOwningArena(optionalgroup);
-    if (message_arena != submessage_arena) {
-      optionalgroup = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optionalgroup, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optionalgroup = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optionalgroup, submessage_arena);
     }
     _has_bits_[0] |= 0x00000100u;
   } else {
@@ -8852,11 +8823,11 @@ inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLi
 }
 inline void TestAllTypesLite::unsafe_arena_set_allocated_optional_nested_message(
     ::protobuf_unittest::TestAllTypesLite_NestedMessage* optional_nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_nested_message_);
   }
   optional_nested_message_ = optional_nested_message;
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     _has_bits_[0] |= 0x00000200u;
   } else {
     _has_bits_[0] &= ~0x00000200u;
@@ -8870,9 +8841,9 @@ inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8887,7 +8858,7 @@ inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::un
 }
 inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::_internal_mutable_optional_nested_message() {
   _has_bits_[0] |= 0x00000200u;
-  if (optional_nested_message_ == nullptr) {
+  if(optional_nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite_NestedMessage>(GetArenaForAllocation());
     optional_nested_message_ = p;
   }
@@ -8900,15 +8871,14 @@ inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::mu
 }
 inline void TestAllTypesLite::set_allocated_optional_nested_message(::protobuf_unittest::TestAllTypesLite_NestedMessage* optional_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_nested_message_;
   }
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite_NestedMessage>::GetOwningArena(optional_nested_message);
-    if (message_arena != submessage_arena) {
-      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_nested_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000200u;
   } else {
@@ -8942,11 +8912,11 @@ inline const ::protobuf_unittest::ForeignMessageLite& TestAllTypesLite::optional
 }
 inline void TestAllTypesLite::unsafe_arena_set_allocated_optional_foreign_message(
     ::protobuf_unittest::ForeignMessageLite* optional_foreign_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_foreign_message_);
   }
   optional_foreign_message_ = optional_foreign_message;
-  if (optional_foreign_message) {
+  if(optional_foreign_message) {
     _has_bits_[0] |= 0x00000400u;
   } else {
     _has_bits_[0] &= ~0x00000400u;
@@ -8960,9 +8930,9 @@ inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::release_option
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8977,7 +8947,7 @@ inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::unsafe_arena_r
 }
 inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::_internal_mutable_optional_foreign_message() {
   _has_bits_[0] |= 0x00000400u;
-  if (optional_foreign_message_ == nullptr) {
+  if(optional_foreign_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::ForeignMessageLite>(GetArenaForAllocation());
     optional_foreign_message_ = p;
   }
@@ -8990,15 +8960,14 @@ inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::mutable_option
 }
 inline void TestAllTypesLite::set_allocated_optional_foreign_message(::protobuf_unittest::ForeignMessageLite* optional_foreign_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_foreign_message_;
   }
-  if (optional_foreign_message) {
+  if(optional_foreign_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::ForeignMessageLite>::GetOwningArena(optional_foreign_message);
-    if (message_arena != submessage_arena) {
-      optional_foreign_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_foreign_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_foreign_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_foreign_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000400u;
   } else {
@@ -9028,11 +8997,11 @@ inline const ::protobuf_unittest_import::ImportMessageLite& TestAllTypesLite::op
 }
 inline void TestAllTypesLite::unsafe_arena_set_allocated_optional_import_message(
     ::protobuf_unittest_import::ImportMessageLite* optional_import_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_import_message_);
   }
   optional_import_message_ = optional_import_message;
-  if (optional_import_message) {
+  if(optional_import_message) {
     _has_bits_[0] |= 0x00000800u;
   } else {
     _has_bits_[0] &= ~0x00000800u;
@@ -9046,9 +9015,9 @@ inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::release_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9063,7 +9032,7 @@ inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::unsafe_a
 }
 inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::_internal_mutable_optional_import_message() {
   _has_bits_[0] |= 0x00000800u;
-  if (optional_import_message_ == nullptr) {
+  if(optional_import_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest_import::ImportMessageLite>(GetArenaForAllocation());
     optional_import_message_ = p;
   }
@@ -9076,17 +9045,15 @@ inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::mutable_
 }
 inline void TestAllTypesLite::set_allocated_optional_import_message(::protobuf_unittest_import::ImportMessageLite* optional_import_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_import_message_);
   }
-  if (optional_import_message) {
+  if(optional_import_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_import_message));
-    if (message_arena != submessage_arena) {
-      optional_import_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_import_message, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_import_message));
+    if(message_arena != submessage_arena) {
+      optional_import_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_import_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000800u;
   } else {
@@ -9325,11 +9292,11 @@ inline const ::protobuf_unittest_import::PublicImportMessageLite& TestAllTypesLi
 }
 inline void TestAllTypesLite::unsafe_arena_set_allocated_optional_public_import_message(
     ::protobuf_unittest_import::PublicImportMessageLite* optional_public_import_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_public_import_message_);
   }
   optional_public_import_message_ = optional_public_import_message;
-  if (optional_public_import_message) {
+  if(optional_public_import_message) {
     _has_bits_[0] |= 0x00001000u;
   } else {
     _has_bits_[0] &= ~0x00001000u;
@@ -9343,9 +9310,9 @@ inline ::protobuf_unittest_import::PublicImportMessageLite* TestAllTypesLite::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9360,7 +9327,7 @@ inline ::protobuf_unittest_import::PublicImportMessageLite* TestAllTypesLite::un
 }
 inline ::protobuf_unittest_import::PublicImportMessageLite* TestAllTypesLite::_internal_mutable_optional_public_import_message() {
   _has_bits_[0] |= 0x00001000u;
-  if (optional_public_import_message_ == nullptr) {
+  if(optional_public_import_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest_import::PublicImportMessageLite>(GetArenaForAllocation());
     optional_public_import_message_ = p;
   }
@@ -9373,17 +9340,15 @@ inline ::protobuf_unittest_import::PublicImportMessageLite* TestAllTypesLite::mu
 }
 inline void TestAllTypesLite::set_allocated_optional_public_import_message(::protobuf_unittest_import::PublicImportMessageLite* optional_public_import_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_public_import_message_);
   }
-  if (optional_public_import_message) {
+  if(optional_public_import_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_public_import_message));
-    if (message_arena != submessage_arena) {
-      optional_public_import_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_public_import_message, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_public_import_message));
+    if(message_arena != submessage_arena) {
+      optional_public_import_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_public_import_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00001000u;
   } else {
@@ -9417,11 +9382,11 @@ inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLi
 }
 inline void TestAllTypesLite::unsafe_arena_set_allocated_optional_lazy_message(
     ::protobuf_unittest::TestAllTypesLite_NestedMessage* optional_lazy_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_lazy_message_);
   }
   optional_lazy_message_ = optional_lazy_message;
-  if (optional_lazy_message) {
+  if(optional_lazy_message) {
     _has_bits_[0] |= 0x00002000u;
   } else {
     _has_bits_[0] &= ~0x00002000u;
@@ -9435,9 +9400,9 @@ inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::re
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9452,7 +9417,7 @@ inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::un
 }
 inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::_internal_mutable_optional_lazy_message() {
   _has_bits_[0] |= 0x00002000u;
-  if (optional_lazy_message_ == nullptr) {
+  if(optional_lazy_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite_NestedMessage>(GetArenaForAllocation());
     optional_lazy_message_ = p;
   }
@@ -9465,15 +9430,14 @@ inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::mu
 }
 inline void TestAllTypesLite::set_allocated_optional_lazy_message(::protobuf_unittest::TestAllTypesLite_NestedMessage* optional_lazy_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_lazy_message_;
   }
-  if (optional_lazy_message) {
+  if(optional_lazy_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite_NestedMessage>::GetOwningArena(optional_lazy_message);
-    if (message_arena != submessage_arena) {
-      optional_lazy_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_lazy_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_lazy_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_lazy_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00002000u;
   } else {
@@ -10171,16 +10135,15 @@ TestAllTypesLite::mutable_repeatedgroup() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypesLite.repeatedgroup)
   return &repeatedgroup_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite_RepeatedGroup& TestAllTypesLite::_internal_repeatedgroup(int index) const {
-  return repeatedgroup_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite_RepeatedGroup& TestAllTypesLite::_internal_repeatedgroup(int index) const
+{
+ return repeatedgroup_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite_RepeatedGroup& TestAllTypesLite::repeatedgroup(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypesLite.repeatedgroup)
   return _internal_repeatedgroup(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* TestAllTypesLite::_internal_add_repeatedgroup() {
-  return repeatedgroup_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* TestAllTypesLite::_internal_add_repeatedgroup() { return repeatedgroup_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* TestAllTypesLite::add_repeatedgroup() {
   ::protobuf_unittest::TestAllTypesLite_RepeatedGroup* _add = _internal_add_repeatedgroup();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypesLite.repeatedgroup)
@@ -10209,16 +10172,15 @@ TestAllTypesLite::mutable_repeated_nested_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypesLite.repeated_nested_message)
   return &repeated_nested_message_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::_internal_repeated_nested_message(int index) const {
-  return repeated_nested_message_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::_internal_repeated_nested_message(int index) const
+{
+ return repeated_nested_message_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::repeated_nested_message(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypesLite.repeated_nested_message)
   return _internal_repeated_nested_message(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::_internal_add_repeated_nested_message() {
-  return repeated_nested_message_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::_internal_add_repeated_nested_message() { return repeated_nested_message_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::add_repeated_nested_message() {
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* _add = _internal_add_repeated_nested_message();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypesLite.repeated_nested_message)
@@ -10247,16 +10209,15 @@ TestAllTypesLite::mutable_repeated_foreign_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypesLite.repeated_foreign_message)
   return &repeated_foreign_message_;
 }
-inline const ::protobuf_unittest::ForeignMessageLite& TestAllTypesLite::_internal_repeated_foreign_message(int index) const {
-  return repeated_foreign_message_.Get(index);
+inline const ::protobuf_unittest::ForeignMessageLite& TestAllTypesLite::_internal_repeated_foreign_message(int index) const
+{
+ return repeated_foreign_message_.Get(index);
 }
 inline const ::protobuf_unittest::ForeignMessageLite& TestAllTypesLite::repeated_foreign_message(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypesLite.repeated_foreign_message)
   return _internal_repeated_foreign_message(index);
 }
-inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::_internal_add_repeated_foreign_message() {
-  return repeated_foreign_message_.Add();
-}
+inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::_internal_add_repeated_foreign_message() { return repeated_foreign_message_.Add(); }
 inline ::protobuf_unittest::ForeignMessageLite* TestAllTypesLite::add_repeated_foreign_message() {
   ::protobuf_unittest::ForeignMessageLite* _add = _internal_add_repeated_foreign_message();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypesLite.repeated_foreign_message)
@@ -10282,16 +10243,15 @@ TestAllTypesLite::mutable_repeated_import_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypesLite.repeated_import_message)
   return &repeated_import_message_;
 }
-inline const ::protobuf_unittest_import::ImportMessageLite& TestAllTypesLite::_internal_repeated_import_message(int index) const {
-  return repeated_import_message_.Get(index);
+inline const ::protobuf_unittest_import::ImportMessageLite& TestAllTypesLite::_internal_repeated_import_message(int index) const
+{
+ return repeated_import_message_.Get(index);
 }
 inline const ::protobuf_unittest_import::ImportMessageLite& TestAllTypesLite::repeated_import_message(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypesLite.repeated_import_message)
   return _internal_repeated_import_message(index);
 }
-inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::_internal_add_repeated_import_message() {
-  return repeated_import_message_.Add();
-}
+inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::_internal_add_repeated_import_message() { return repeated_import_message_.Add(); }
 inline ::protobuf_unittest_import::ImportMessageLite* TestAllTypesLite::add_repeated_import_message() {
   ::protobuf_unittest_import::ImportMessageLite* _add = _internal_add_repeated_import_message();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypesLite.repeated_import_message)
@@ -10581,16 +10541,15 @@ TestAllTypesLite::mutable_repeated_lazy_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestAllTypesLite.repeated_lazy_message)
   return &repeated_lazy_message_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::_internal_repeated_lazy_message(int index) const {
-  return repeated_lazy_message_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::_internal_repeated_lazy_message(int index) const
+{
+ return repeated_lazy_message_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite_NestedMessage& TestAllTypesLite::repeated_lazy_message(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestAllTypesLite.repeated_lazy_message)
   return _internal_repeated_lazy_message(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::_internal_add_repeated_lazy_message() {
-  return repeated_lazy_message_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::_internal_add_repeated_lazy_message() { return repeated_lazy_message_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite_NestedMessage* TestAllTypesLite::add_repeated_lazy_message() {
   ::protobuf_unittest::TestAllTypesLite_NestedMessage* _add = _internal_add_repeated_lazy_message();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestAllTypesLite.repeated_lazy_message)
@@ -12505,11 +12464,11 @@ inline const ::protobuf_unittest::TestDeprecatedLite& TestDeprecatedLite::deprec
 }
 inline void TestDeprecatedLite::unsafe_arena_set_allocated_deprecated_field4(
     ::protobuf_unittest::TestDeprecatedLite* deprecated_field4) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(deprecated_field4_);
   }
   deprecated_field4_ = deprecated_field4;
-  if (deprecated_field4) {
+  if(deprecated_field4) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -12523,9 +12482,9 @@ inline ::protobuf_unittest::TestDeprecatedLite* TestDeprecatedLite::release_depr
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -12540,7 +12499,7 @@ inline ::protobuf_unittest::TestDeprecatedLite* TestDeprecatedLite::unsafe_arena
 }
 inline ::protobuf_unittest::TestDeprecatedLite* TestDeprecatedLite::_internal_mutable_deprecated_field4() {
   _has_bits_[0] |= 0x00000002u;
-  if (deprecated_field4_ == nullptr) {
+  if(deprecated_field4_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestDeprecatedLite>(GetArenaForAllocation());
     deprecated_field4_ = p;
   }
@@ -12553,15 +12512,14 @@ inline ::protobuf_unittest::TestDeprecatedLite* TestDeprecatedLite::mutable_depr
 }
 inline void TestDeprecatedLite::set_allocated_deprecated_field4(::protobuf_unittest::TestDeprecatedLite* deprecated_field4) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete deprecated_field4_;
   }
-  if (deprecated_field4) {
+  if(deprecated_field4) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestDeprecatedLite>::GetOwningArena(deprecated_field4);
-    if (message_arena != submessage_arena) {
-      deprecated_field4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, deprecated_field4, submessage_arena);
+    if(message_arena != submessage_arena) {
+      deprecated_field4 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, deprecated_field4, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -12599,11 +12557,11 @@ inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_Repeate
 }
 inline void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::unsafe_arena_set_allocated_field1(
     ::protobuf_unittest::TestAllTypesLite* field1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(field1_);
   }
   field1_ = field1;
-  if (field1) {
+  if(field1) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -12617,9 +12575,9 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedField
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -12634,7 +12592,7 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedField
 }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator_Group1::_internal_mutable_field1() {
   _has_bits_[0] |= 0x00000001u;
-  if (field1_ == nullptr) {
+  if(field1_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite>(GetArenaForAllocation());
     field1_ = p;
   }
@@ -12647,15 +12605,14 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedField
 }
 inline void TestParsingMergeLite_RepeatedFieldsGenerator_Group1::set_allocated_field1(::protobuf_unittest::TestAllTypesLite* field1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete field1_;
   }
-  if (field1) {
+  if(field1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite>::GetOwningArena(field1);
-    if (message_arena != submessage_arena) {
-      field1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, field1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      field1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, field1, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -12693,11 +12650,11 @@ inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_Repeate
 }
 inline void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::unsafe_arena_set_allocated_field1(
     ::protobuf_unittest::TestAllTypesLite* field1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(field1_);
   }
   field1_ = field1;
-  if (field1) {
+  if(field1) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -12711,9 +12668,9 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedField
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -12728,7 +12685,7 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedField
 }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator_Group2::_internal_mutable_field1() {
   _has_bits_[0] |= 0x00000001u;
-  if (field1_ == nullptr) {
+  if(field1_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite>(GetArenaForAllocation());
     field1_ = p;
   }
@@ -12741,15 +12698,14 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedField
 }
 inline void TestParsingMergeLite_RepeatedFieldsGenerator_Group2::set_allocated_field1(::protobuf_unittest::TestAllTypesLite* field1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete field1_;
   }
-  if (field1) {
+  if(field1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite>::GetOwningArena(field1);
-    if (message_arena != submessage_arena) {
-      field1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, field1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      field1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, field1, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -12780,16 +12736,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_field1() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field1)
   return &field1_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_field1(int index) const {
-  return field1_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_field1(int index) const
+{
+ return field1_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::field1(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field1)
   return _internal_field1(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_field1() {
-  return field1_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_field1() { return field1_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::add_field1() {
   ::protobuf_unittest::TestAllTypesLite* _add = _internal_add_field1();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field1)
@@ -12818,16 +12773,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_field2() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field2)
   return &field2_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_field2(int index) const {
-  return field2_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_field2(int index) const
+{
+ return field2_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::field2(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field2)
   return _internal_field2(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_field2() {
-  return field2_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_field2() { return field2_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::add_field2() {
   ::protobuf_unittest::TestAllTypesLite* _add = _internal_add_field2();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field2)
@@ -12856,16 +12810,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_field3() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field3)
   return &field3_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_field3(int index) const {
-  return field3_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_field3(int index) const
+{
+ return field3_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::field3(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field3)
   return _internal_field3(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_field3() {
-  return field3_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_field3() { return field3_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::add_field3() {
   ::protobuf_unittest::TestAllTypesLite* _add = _internal_add_field3();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.field3)
@@ -12894,16 +12847,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_group1() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.group1)
   return &group1_;
 }
-inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_group1(int index) const {
-  return group1_.Get(index);
+inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_group1(int index) const
+{
+ return group1_.Get(index);
 }
 inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1& TestParsingMergeLite_RepeatedFieldsGenerator::group1(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.group1)
   return _internal_group1(index);
 }
-inline ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_group1() {
-  return group1_.Add();
-}
+inline ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_group1() { return group1_.Add(); }
 inline ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* TestParsingMergeLite_RepeatedFieldsGenerator::add_group1() {
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group1* _add = _internal_add_group1();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.group1)
@@ -12932,16 +12884,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_group2() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.group2)
   return &group2_;
 }
-inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_group2(int index) const {
-  return group2_.Get(index);
+inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_group2(int index) const
+{
+ return group2_.Get(index);
 }
 inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2& TestParsingMergeLite_RepeatedFieldsGenerator::group2(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.group2)
   return _internal_group2(index);
 }
-inline ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_group2() {
-  return group2_.Add();
-}
+inline ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_group2() { return group2_.Add(); }
 inline ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* TestParsingMergeLite_RepeatedFieldsGenerator::add_group2() {
   ::protobuf_unittest::TestParsingMergeLite_RepeatedFieldsGenerator_Group2* _add = _internal_add_group2();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.group2)
@@ -12970,16 +12921,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_ext1() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.ext1)
   return &ext1_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_ext1(int index) const {
-  return ext1_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_ext1(int index) const
+{
+ return ext1_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::ext1(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.ext1)
   return _internal_ext1(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_ext1() {
-  return ext1_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_ext1() { return ext1_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::add_ext1() {
   ::protobuf_unittest::TestAllTypesLite* _add = _internal_add_ext1();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.ext1)
@@ -13008,16 +12958,15 @@ TestParsingMergeLite_RepeatedFieldsGenerator::mutable_ext2() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.ext2)
   return &ext2_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_ext2(int index) const {
-  return ext2_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::_internal_ext2(int index) const
+{
+ return ext2_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_RepeatedFieldsGenerator::ext2(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.ext2)
   return _internal_ext2(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_ext2() {
-  return ext2_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::_internal_add_ext2() { return ext2_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedFieldsGenerator::add_ext2() {
   ::protobuf_unittest::TestAllTypesLite* _add = _internal_add_ext2();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.RepeatedFieldsGenerator.ext2)
@@ -13057,11 +13006,11 @@ inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_Optiona
 }
 inline void TestParsingMergeLite_OptionalGroup::unsafe_arena_set_allocated_optional_group_all_types(
     ::protobuf_unittest::TestAllTypesLite* optional_group_all_types) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_group_all_types_);
   }
   optional_group_all_types_ = optional_group_all_types;
-  if (optional_group_all_types) {
+  if(optional_group_all_types) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -13075,9 +13024,9 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_OptionalGroup
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -13092,7 +13041,7 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_OptionalGroup
 }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_OptionalGroup::_internal_mutable_optional_group_all_types() {
   _has_bits_[0] |= 0x00000001u;
-  if (optional_group_all_types_ == nullptr) {
+  if(optional_group_all_types_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite>(GetArenaForAllocation());
     optional_group_all_types_ = p;
   }
@@ -13105,15 +13054,14 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_OptionalGroup
 }
 inline void TestParsingMergeLite_OptionalGroup::set_allocated_optional_group_all_types(::protobuf_unittest::TestAllTypesLite* optional_group_all_types) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_group_all_types_;
   }
-  if (optional_group_all_types) {
+  if(optional_group_all_types) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite>::GetOwningArena(optional_group_all_types);
-    if (message_arena != submessage_arena) {
-      optional_group_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_group_all_types, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_group_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_group_all_types, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -13151,11 +13099,11 @@ inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite_Repeate
 }
 inline void TestParsingMergeLite_RepeatedGroup::unsafe_arena_set_allocated_repeated_group_all_types(
     ::protobuf_unittest::TestAllTypesLite* repeated_group_all_types) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(repeated_group_all_types_);
   }
   repeated_group_all_types_ = repeated_group_all_types;
-  if (repeated_group_all_types) {
+  if(repeated_group_all_types) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -13169,9 +13117,9 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedGroup
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -13186,7 +13134,7 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedGroup
 }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedGroup::_internal_mutable_repeated_group_all_types() {
   _has_bits_[0] |= 0x00000001u;
-  if (repeated_group_all_types_ == nullptr) {
+  if(repeated_group_all_types_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite>(GetArenaForAllocation());
     repeated_group_all_types_ = p;
   }
@@ -13199,15 +13147,14 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite_RepeatedGroup
 }
 inline void TestParsingMergeLite_RepeatedGroup::set_allocated_repeated_group_all_types(::protobuf_unittest::TestAllTypesLite* repeated_group_all_types) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete repeated_group_all_types_;
   }
-  if (repeated_group_all_types) {
+  if(repeated_group_all_types) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite>::GetOwningArena(repeated_group_all_types);
-    if (message_arena != submessage_arena) {
-      repeated_group_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, repeated_group_all_types, submessage_arena);
+    if(message_arena != submessage_arena) {
+      repeated_group_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, repeated_group_all_types, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -13245,11 +13192,11 @@ inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::requir
 }
 inline void TestParsingMergeLite::unsafe_arena_set_allocated_required_all_types(
     ::protobuf_unittest::TestAllTypesLite* required_all_types) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(required_all_types_);
   }
   required_all_types_ = required_all_types;
-  if (required_all_types) {
+  if(required_all_types) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -13263,9 +13210,9 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::release_requ
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -13280,7 +13227,7 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::unsafe_arena
 }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::_internal_mutable_required_all_types() {
   _has_bits_[0] |= 0x00000001u;
-  if (required_all_types_ == nullptr) {
+  if(required_all_types_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite>(GetArenaForAllocation());
     required_all_types_ = p;
   }
@@ -13293,15 +13240,14 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::mutable_requ
 }
 inline void TestParsingMergeLite::set_allocated_required_all_types(::protobuf_unittest::TestAllTypesLite* required_all_types) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete required_all_types_;
   }
-  if (required_all_types) {
+  if(required_all_types) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite>::GetOwningArena(required_all_types);
-    if (message_arena != submessage_arena) {
-      required_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, required_all_types, submessage_arena);
+    if(message_arena != submessage_arena) {
+      required_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, required_all_types, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -13335,11 +13281,11 @@ inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::option
 }
 inline void TestParsingMergeLite::unsafe_arena_set_allocated_optional_all_types(
     ::protobuf_unittest::TestAllTypesLite* optional_all_types) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_all_types_);
   }
   optional_all_types_ = optional_all_types;
-  if (optional_all_types) {
+  if(optional_all_types) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -13353,9 +13299,9 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::release_opti
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -13370,7 +13316,7 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::unsafe_arena
 }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::_internal_mutable_optional_all_types() {
   _has_bits_[0] |= 0x00000002u;
-  if (optional_all_types_ == nullptr) {
+  if(optional_all_types_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypesLite>(GetArenaForAllocation());
     optional_all_types_ = p;
   }
@@ -13383,15 +13329,14 @@ inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::mutable_opti
 }
 inline void TestParsingMergeLite::set_allocated_optional_all_types(::protobuf_unittest::TestAllTypesLite* optional_all_types) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_all_types_;
   }
-  if (optional_all_types) {
+  if(optional_all_types) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestAllTypesLite>::GetOwningArena(optional_all_types);
-    if (message_arena != submessage_arena) {
-      optional_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_all_types, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_all_types = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_all_types, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -13418,16 +13363,15 @@ TestParsingMergeLite::mutable_repeated_all_types() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.repeated_all_types)
   return &repeated_all_types_;
 }
-inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::_internal_repeated_all_types(int index) const {
-  return repeated_all_types_.Get(index);
+inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::_internal_repeated_all_types(int index) const
+{
+ return repeated_all_types_.Get(index);
 }
 inline const ::protobuf_unittest::TestAllTypesLite& TestParsingMergeLite::repeated_all_types(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.repeated_all_types)
   return _internal_repeated_all_types(index);
 }
-inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::_internal_add_repeated_all_types() {
-  return repeated_all_types_.Add();
-}
+inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::_internal_add_repeated_all_types() { return repeated_all_types_.Add(); }
 inline ::protobuf_unittest::TestAllTypesLite* TestParsingMergeLite::add_repeated_all_types() {
   ::protobuf_unittest::TestAllTypesLite* _add = _internal_add_repeated_all_types();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.repeated_all_types)
@@ -13463,11 +13407,11 @@ inline const ::protobuf_unittest::TestParsingMergeLite_OptionalGroup& TestParsin
 }
 inline void TestParsingMergeLite::unsafe_arena_set_allocated_optionalgroup(
     ::protobuf_unittest::TestParsingMergeLite_OptionalGroup* optionalgroup) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optionalgroup_);
   }
   optionalgroup_ = optionalgroup;
-  if (optionalgroup) {
+  if(optionalgroup) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
@@ -13481,9 +13425,9 @@ inline ::protobuf_unittest::TestParsingMergeLite_OptionalGroup* TestParsingMerge
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -13498,7 +13442,7 @@ inline ::protobuf_unittest::TestParsingMergeLite_OptionalGroup* TestParsingMerge
 }
 inline ::protobuf_unittest::TestParsingMergeLite_OptionalGroup* TestParsingMergeLite::_internal_mutable_optionalgroup() {
   _has_bits_[0] |= 0x00000004u;
-  if (optionalgroup_ == nullptr) {
+  if(optionalgroup_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestParsingMergeLite_OptionalGroup>(GetArenaForAllocation());
     optionalgroup_ = p;
   }
@@ -13511,15 +13455,14 @@ inline ::protobuf_unittest::TestParsingMergeLite_OptionalGroup* TestParsingMerge
 }
 inline void TestParsingMergeLite::set_allocated_optionalgroup(::protobuf_unittest::TestParsingMergeLite_OptionalGroup* optionalgroup) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optionalgroup_;
   }
-  if (optionalgroup) {
+  if(optionalgroup) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestParsingMergeLite_OptionalGroup>::GetOwningArena(optionalgroup);
-    if (message_arena != submessage_arena) {
-      optionalgroup = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optionalgroup, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optionalgroup = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optionalgroup, submessage_arena);
     }
     _has_bits_[0] |= 0x00000004u;
   } else {
@@ -13546,16 +13489,15 @@ TestParsingMergeLite::mutable_repeatedgroup() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestParsingMergeLite.repeatedgroup)
   return &repeatedgroup_;
 }
-inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup& TestParsingMergeLite::_internal_repeatedgroup(int index) const {
-  return repeatedgroup_.Get(index);
+inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup& TestParsingMergeLite::_internal_repeatedgroup(int index) const
+{
+ return repeatedgroup_.Get(index);
 }
 inline const ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup& TestParsingMergeLite::repeatedgroup(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestParsingMergeLite.repeatedgroup)
   return _internal_repeatedgroup(index);
 }
-inline ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* TestParsingMergeLite::_internal_add_repeatedgroup() {
-  return repeatedgroup_.Add();
-}
+inline ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* TestParsingMergeLite::_internal_add_repeatedgroup() { return repeatedgroup_.Add(); }
 inline ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* TestParsingMergeLite::add_repeatedgroup() {
   ::protobuf_unittest::TestParsingMergeLite_RepeatedGroup* _add = _internal_add_repeatedgroup();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestParsingMergeLite.repeatedgroup)
@@ -14038,11 +13980,11 @@ inline const ::protobuf_unittest::ForeignMessageLite& TestHugeFieldNumbersLite::
 }
 inline void TestHugeFieldNumbersLite::unsafe_arena_set_allocated_optional_message(
     ::protobuf_unittest::ForeignMessageLite* optional_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_message_);
   }
   optional_message_ = optional_message;
-  if (optional_message) {
+  if(optional_message) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
@@ -14056,9 +13998,9 @@ inline ::protobuf_unittest::ForeignMessageLite* TestHugeFieldNumbersLite::releas
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -14073,7 +14015,7 @@ inline ::protobuf_unittest::ForeignMessageLite* TestHugeFieldNumbersLite::unsafe
 }
 inline ::protobuf_unittest::ForeignMessageLite* TestHugeFieldNumbersLite::_internal_mutable_optional_message() {
   _has_bits_[0] |= 0x00000004u;
-  if (optional_message_ == nullptr) {
+  if(optional_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::ForeignMessageLite>(GetArenaForAllocation());
     optional_message_ = p;
   }
@@ -14086,15 +14028,14 @@ inline ::protobuf_unittest::ForeignMessageLite* TestHugeFieldNumbersLite::mutabl
 }
 inline void TestHugeFieldNumbersLite::set_allocated_optional_message(::protobuf_unittest::ForeignMessageLite* optional_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_message_;
   }
-  if (optional_message) {
+  if(optional_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::ForeignMessageLite>::GetOwningArena(optional_message);
-    if (message_arena != submessage_arena) {
-      optional_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000004u;
   } else {
@@ -14128,11 +14069,11 @@ inline const ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup& TestHu
 }
 inline void TestHugeFieldNumbersLite::unsafe_arena_set_allocated_optionalgroup(
     ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup* optionalgroup) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optionalgroup_);
   }
   optionalgroup_ = optionalgroup;
-  if (optionalgroup) {
+  if(optionalgroup) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
@@ -14146,9 +14087,9 @@ inline ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup* TestHugeFiel
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -14163,7 +14104,7 @@ inline ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup* TestHugeFiel
 }
 inline ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup* TestHugeFieldNumbersLite::_internal_mutable_optionalgroup() {
   _has_bits_[0] |= 0x00000008u;
-  if (optionalgroup_ == nullptr) {
+  if(optionalgroup_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup>(GetArenaForAllocation());
     optionalgroup_ = p;
   }
@@ -14176,15 +14117,14 @@ inline ::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup* TestHugeFiel
 }
 inline void TestHugeFieldNumbersLite::set_allocated_optionalgroup(::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup* optionalgroup) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optionalgroup_;
   }
-  if (optionalgroup) {
+  if(optionalgroup) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestHugeFieldNumbersLite_OptionalGroup>::GetOwningArena(optionalgroup);
-    if (message_arena != submessage_arena) {
-      optionalgroup = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optionalgroup, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optionalgroup = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optionalgroup, submessage_arena);
     }
     _has_bits_[0] |= 0x00000008u;
   } else {
@@ -15348,11 +15288,11 @@ inline const ::protobuf_unittest::RecursiveMessage& RecursiveMessage::recurse() 
 }
 inline void RecursiveMessage::unsafe_arena_set_allocated_recurse(
     ::protobuf_unittest::RecursiveMessage* recurse) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(recurse_);
   }
   recurse_ = recurse;
-  if (recurse) {
+  if(recurse) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -15366,9 +15306,9 @@ inline ::protobuf_unittest::RecursiveMessage* RecursiveMessage::release_recurse(
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -15383,7 +15323,7 @@ inline ::protobuf_unittest::RecursiveMessage* RecursiveMessage::unsafe_arena_rel
 }
 inline ::protobuf_unittest::RecursiveMessage* RecursiveMessage::_internal_mutable_recurse() {
   _has_bits_[0] |= 0x00000002u;
-  if (recurse_ == nullptr) {
+  if(recurse_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::RecursiveMessage>(GetArenaForAllocation());
     recurse_ = p;
   }
@@ -15396,15 +15336,14 @@ inline ::protobuf_unittest::RecursiveMessage* RecursiveMessage::mutable_recurse(
 }
 inline void RecursiveMessage::set_allocated_recurse(::protobuf_unittest::RecursiveMessage* recurse) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete recurse_;
   }
-  if (recurse) {
+  if(recurse) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::RecursiveMessage>::GetOwningArena(recurse);
-    if (message_arena != submessage_arena) {
-      recurse = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, recurse, submessage_arena);
+    if(message_arena != submessage_arena) {
+      recurse = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, recurse, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {

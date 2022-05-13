@@ -1261,7 +1261,7 @@ void /* PRIVATE */ png_init_read_transformations(png_structrp png_ptr)
 		 * NOTE: this discards the low 16 bits of the user supplied background
 		 * color, but until expand_16 works properly there is no choice!
 		 */
-#     define CHOP(x) (x) = ((png_uint_16)PNG_DIV257(x))
+#define CHOP(x) (x) = ((png_uint_16)PNG_DIV257(x))
 		CHOP(png_ptr->background.red);
 		CHOP(png_ptr->background.green);
 		CHOP(png_ptr->background.blue);

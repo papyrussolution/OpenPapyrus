@@ -563,7 +563,7 @@ static ngx_int_t ngx_http_uwsgi_eval(ngx_http_request_t * r, ngx_http_uwsgi_loc_
 static ngx_int_t ngx_http_uwsgi_create_key(ngx_http_request_t * r)
 {
 	ngx_str_t  * key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
-	if(key == NULL) {
+	if(!key) {
 		return NGX_ERROR;
 	}
 	else {

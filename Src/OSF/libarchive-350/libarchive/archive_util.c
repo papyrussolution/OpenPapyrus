@@ -133,7 +133,7 @@ void archive_copy_error(struct archive * dest, struct archive * src)
 	dest->error = dest->error_string.s;
 }
 
-void __archive_errx(int retvalue, const char * msg)
+void FASTCALL __archive_errx(int retvalue, const char * msg)
 {
 	static const char msg1[] = "Fatal Internal Error in libarchive: ";
 	size_t s = write(2, msg1, strlen(msg1));

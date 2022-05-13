@@ -67,7 +67,7 @@ static void xz_error(xz_statep state, int err, const char * msg)
 	}
 	/* set error code, and if no message, then done */
 	state->err = err;
-	if(msg == NULL)
+	if(!msg)
 		return;
 	/* for an out of memory error, save as static string */
 	if(err == LZMA_MEM_ERROR) {

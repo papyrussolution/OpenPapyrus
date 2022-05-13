@@ -297,7 +297,7 @@ int sm2_decrypt(const EC_KEY * key,
 	msg_len = sm2_ctext->C2->length;
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SM2err(SM2_F_SM2_DECRYPT, ERR_R_MALLOC_FAILURE);
 		goto done;
 	}

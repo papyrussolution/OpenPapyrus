@@ -126,7 +126,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*TestLargeEnumValue::GetClassDa
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestLargeEnumValue* Arena::CreateMaybeMessage< ::protobuf_unittest::TestLargeEnumValue >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestLargeEnumValue * Arena::CreateMaybeMessage< ::protobuf_unittest::TestLargeEnumValue >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestLargeEnumValue >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

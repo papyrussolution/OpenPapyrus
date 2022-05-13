@@ -740,7 +740,7 @@ void ERR_add_error_vdata(int num, va_list args)
 	n = 0;
 	for(i = 0; i < num; i++) {
 		a = va_arg(args, char *);
-		if(a == NULL)
+		if(!a)
 			a = "<NULL>";
 		n += strlen(a);
 		if(n > s) {

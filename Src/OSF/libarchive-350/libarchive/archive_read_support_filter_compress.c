@@ -135,7 +135,7 @@ static int compress_bidder_bid(struct archive_read_filter_bidder * self, struct 
 	CXX_UNUSED(self);
 	/* Shortest valid compress file is 3 bytes. */
 	buffer = (const uchar *)__archive_read_filter_ahead(filter, 3, &avail);
-	if(buffer == NULL)
+	if(!buffer)
 		return 0;
 	bits_checked = 0;
 	/* First two bytes are the magic value */

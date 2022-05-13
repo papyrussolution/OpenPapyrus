@@ -498,29 +498,22 @@ static int archive_read_format_tar_read_header(struct archive_read * a,
 	return r;
 }
 
-static int archive_read_format_tar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_tar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
-	struct tar * tar;
 	struct sparse_block * p;
-
-	tar = (struct tar *)(a->format->data);
-
+	struct tar * tar = (struct tar *)(a->format->data);
 	for(;;) {
 		/* Remove exhausted entries from sparse list. */
-		while(tar->sparse_list != NULL &&
-		    tar->sparse_list->remaining == 0) {
+		while(tar->sparse_list != NULL && tar->sparse_list->remaining == 0) {
 			p = tar->sparse_list;
 			tar->sparse_list = p->next;
 			SAlloc::F(p);
 		}
-
 		if(tar->entry_bytes_unconsumed) {
 			__archive_read_consume(a, tar->entry_bytes_unconsumed);
 			tar->entry_bytes_unconsumed = 0;
 		}
-
 		/* If we're at end of file, return EOF. */
 		if(tar->sparse_list == NULL ||
 		    tar->entry_bytes_remaining == 0) {
@@ -532,7 +525,6 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 			*offset = tar->realsize;
 			return (ARCHIVE_EOF);
 		}
-
 		*buff = __archive_read_ahead(a, 1, &bytes_read);
 		if(bytes_read < 0)
 			return ARCHIVE_FATAL;
@@ -552,7 +544,6 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 		tar->sparse_list->offset += bytes_read;
 		tar->entry_bytes_remaining -= bytes_read;
 		tar->entry_bytes_unconsumed = bytes_read;
-
 		if(!tar->sparse_list->hole)
 			return ARCHIVE_OK;
 		/* Current is hole data and skip this. */
@@ -562,14 +553,10 @@ static int archive_read_format_tar_read_data(struct archive_read * a,
 static int archive_read_format_tar_skip(struct archive_read * a)
 {
 	int64 bytes_skipped;
-	int64 request;
 	struct sparse_block * p;
-	struct tar* tar;
-
-	tar = (struct tar *)(a->format->data);
-
+	struct tar* tar = (struct tar *)(a->format->data);
 	/* Do not consume the hole of a sparse file. */
-	request = 0;
+	int64 request = 0;
 	for(p = tar->sparse_list; p != NULL; p = p->next) {
 		if(!p->hole) {
 			if(p->remaining >= INT64_MAX - request) {
@@ -581,36 +568,28 @@ static int archive_read_format_tar_skip(struct archive_read * a)
 	if(request > tar->entry_bytes_remaining)
 		request = tar->entry_bytes_remaining;
 	request += tar->entry_padding + tar->entry_bytes_unconsumed;
-
 	bytes_skipped = __archive_read_consume(a, request);
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
-
 	tar->entry_bytes_remaining = 0;
 	tar->entry_bytes_unconsumed = 0;
 	tar->entry_padding = 0;
-
 	/* Free the sparse list. */
 	gnu_clear_sparse_list(tar);
-
 	return ARCHIVE_OK;
 }
-
 /*
  * This function recursively interprets all of the headers associated
  * with a single entry.
  */
-static int tar_read_header(struct archive_read * a, struct tar * tar,
-    struct archive_entry * entry, size_t * unconsumed)
+static int tar_read_header(struct archive_read * a, struct tar * tar, struct archive_entry * entry, size_t * unconsumed)
 {
 	ssize_t bytes;
-	int err, eof_vol_header;
+	int err;
 	const char * h;
 	const struct archive_entry_header_ustar * header;
 	const struct archive_entry_header_gnutar * gnuheader;
-
-	eof_vol_header = 0;
-
+	int eof_vol_header = 0;
 	/* Loop until we find a workable header record. */
 	for(;;) {
 		tar_flush_unconsumed(a, unconsumed);
@@ -635,7 +614,6 @@ static int tar_read_header(struct archive_read * a, struct tar * tar,
 			a->archive.archive_format = ARCHIVE_FORMAT_TAR;
 			a->archive.archive_format_name = "tar";
 		}
-
 		if(!tar->read_concatenated_archives) {
 			/* Try to consume a second all-null record, as well. */
 			tar_flush_unconsumed(a, unconsumed);
@@ -645,13 +623,10 @@ static int tar_read_header(struct archive_read * a, struct tar * tar,
 			archive_clear_error(&a->archive);
 			return (ARCHIVE_EOF);
 		}
-
 		/*
-		 * We're reading concatenated archives, ignore this block and
-		 * loop to get the next.
+		 * We're reading concatenated archives, ignore this block and loop to get the next.
 		 */
 	}
-
 	/*
 	 * Note: If the checksum fails and we return ARCHIVE_RETRY,
 	 * then the client is likely to just retry.  This is a very
@@ -994,7 +969,7 @@ static int read_body_to_string(struct archive_read * a, struct tar * tar, struct
 	/* Read the body into the string. */
 	*unconsumed = (size_t)((size + 511) & ~511);
 	src = __archive_read_ahead(a, *unconsumed, NULL);
-	if(src == NULL) {
+	if(!src) {
 		*unconsumed = 0;
 		return ARCHIVE_FATAL;
 	}
@@ -2508,7 +2483,7 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 	s = static_cast<const char *>(t); /* Start of line? */
 	p = memchr(t, '\n', bytes_read);
 	/* If we found '\n' in the read buffer, return pointer to that. */
-	if(p != NULL) {
+	if(p) {
 		bytes_read = 1 + ((const char *)p) - s;
 		if(bytes_read > limit) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Line too long");
@@ -2533,7 +2508,7 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 		tar_flush_unconsumed(a, unconsumed);
 		total_size += bytes_read;
 		/* If we found '\n', clean up and return. */
-		if(p != NULL) {
+		if(p) {
 			*start = tar->line.s;
 			return (total_size);
 		}
@@ -2544,7 +2519,7 @@ static ssize_t readline(struct archive_read * a, struct tar * tar, const char **
 		s = static_cast<const char *>(t); /* Start of line? */
 		p = memchr(t, '\n', bytes_read);
 		/* If we found '\n', trim the read. */
-		if(p != NULL) {
+		if(p) {
 			bytes_read = 1 + ((const char *)p) - s;
 		}
 		*unconsumed = bytes_read;

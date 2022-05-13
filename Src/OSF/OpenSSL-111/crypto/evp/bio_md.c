@@ -50,7 +50,7 @@ const BIO_METHOD * BIO_f_md(void)
 static int md_new(BIO * bi)
 {
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	BIO_set_init(bi, 1);
 	BIO_set_data(bi, ctx);
@@ -59,7 +59,7 @@ static int md_new(BIO * bi)
 
 static int md_free(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 	EVP_MD_CTX_free(static_cast<EVP_MD_CTX *>(BIO_get_data(a)));
 	BIO_set_data(a, NULL);

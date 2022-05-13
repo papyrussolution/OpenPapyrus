@@ -139,7 +139,7 @@ int ssh_dh_init_common(struct ssh_crypto_struct * crypto)
 {
 	int rc;
 	struct dh_ctx * ctx = (struct dh_ctx *)SAlloc::C(1, sizeof(*ctx));
-	if(ctx == NULL) {
+	if(!ctx) {
 		return SSH_ERROR;
 	}
 	crypto->dh_ctx = ctx;

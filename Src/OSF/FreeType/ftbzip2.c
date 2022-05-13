@@ -245,7 +245,7 @@ static FT_Error ft_bzip2_file_skip_output(FT_BZip2File zip,
 		zip->pos    += delta;
 
 		count -= delta;
-		if(count == 0)
+		if(!count)
 			break;
 
 		error = ft_bzip2_file_fill_output(zip);
@@ -272,7 +272,7 @@ static FT_ULong ft_bzip2_file_io(FT_BZip2File zip, FT_ULong pos, FT_Byte * buffe
 		if(error)
 			goto Exit;
 	}
-	if(count == 0)
+	if(!count)
 		goto Exit;
 	/* now read the data */
 	for(;;) {
@@ -285,7 +285,7 @@ static FT_ULong ft_bzip2_file_io(FT_BZip2File zip, FT_ULong pos, FT_Byte * buffe
 		zip->cursor += delta;
 		zip->pos    += delta;
 		count -= delta;
-		if(count == 0)
+		if(!count)
 			break;
 		error = ft_bzip2_file_fill_output(zip);
 		if(error)

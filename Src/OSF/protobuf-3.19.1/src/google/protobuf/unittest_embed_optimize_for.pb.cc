@@ -104,7 +104,7 @@ TestEmbedOptimizedForSize::TestEmbedOptimizedForSize(::PROTOBUF_NAMESPACE_ID::Ar
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   repeated_message_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestEmbedOptimizedForSize)
@@ -128,7 +128,7 @@ optional_message_ = nullptr;
 
 TestEmbedOptimizedForSize::~TestEmbedOptimizedForSize() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestEmbedOptimizedForSize)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -165,9 +165,9 @@ void TestEmbedOptimizedForSize::Clear() {
 }
 
 const char* TestEmbedOptimizedForSize::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -187,13 +187,12 @@ const char* TestEmbedOptimizedForSize::_InternalParse(const char* ptr, ::PROTOBU
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_repeated_message(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -226,17 +225,13 @@ uint8_t* TestEmbedOptimizedForSize::_InternalSerialize(
   // optional .protobuf_unittest.TestOptimizedForSize optional_message = 1;
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::optional_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::optional_message(this), target, stream);
   }
 
   // repeated .protobuf_unittest.TestOptimizedForSize repeated_message = 2;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_message_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_message_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(2, this->_internal_repeated_message(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, this->_internal_repeated_message(i), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -264,9 +259,7 @@ size_t TestEmbedOptimizedForSize::ByteSizeLong() const {
   // optional .protobuf_unittest.TestOptimizedForSize optional_message = 1;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *optional_message_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_message_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -307,9 +300,9 @@ void TestEmbedOptimizedForSize::CopyFrom(const TestEmbedOptimizedForSize& from) 
 
 bool TestEmbedOptimizedForSize::IsInitialized() const {
   if(!::PROTOBUF_NAMESPACE_ID::internal::AllAreInitialized(repeated_message_))
-    return false;
+  	return false;
   if(_internal_has_optional_message()) {
-    if (!optional_message_->IsInitialized()) return false;
+    if(!optional_message_->IsInitialized()) return false;
   }
   return true;
 }
@@ -329,7 +322,7 @@ void TestEmbedOptimizedForSize::InternalSwap(TestEmbedOptimizedForSize* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestEmbedOptimizedForSize* Arena::CreateMaybeMessage< ::protobuf_unittest::TestEmbedOptimizedForSize >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestEmbedOptimizedForSize * Arena::CreateMaybeMessage< ::protobuf_unittest::TestEmbedOptimizedForSize >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestEmbedOptimizedForSize >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

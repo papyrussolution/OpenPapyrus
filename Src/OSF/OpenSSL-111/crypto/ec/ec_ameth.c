@@ -172,7 +172,7 @@ static int eckey_pub_cmp(const EVP_PKEY * a, const EVP_PKEY * b)
 	if(group == NULL || pa == NULL || pb == NULL)
 		return -2;
 	r = EC_POINT_cmp(group, pa, pb, NULL);
-	if(r == 0)
+	if(!r)
 		return 1;
 	if(r == 1)
 		return 0;

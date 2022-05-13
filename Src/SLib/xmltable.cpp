@@ -312,7 +312,7 @@ int XmlDbFile::Open(const char * pPath, const Param * pParam, const SdRecord * p
 		r = xmlTextReaderRead(reader);
 		while(r == 1)
 			r = xmlTextReaderRead(reader);
-		if(r == 0) {
+		if(!r) {
 			THROW(P_Doc = xmlTextReaderCurrentDoc(reader));
 			{
 				//_Test_XPath(P_Doc, "/orders/order/basket/item");

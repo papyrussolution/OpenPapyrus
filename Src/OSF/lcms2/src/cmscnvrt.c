@@ -152,18 +152,13 @@ static double CHAD2Temp(const cmsMAT3* Chad)
 	s.n[VX] = cmsD50_XYZ()->X;
 	s.n[VY] = cmsD50_XYZ()->Y;
 	s.n[VZ] = cmsD50_XYZ()->Z;
-
 	_cmsMAT3eval(&d, &m2, &s);
-
 	Dest.X = d.n[VX];
 	Dest.Y = d.n[VY];
 	Dest.Z = d.n[VZ];
-
 	cmsXYZ2xyY(&DestChromaticity, &Dest);
-
 	if(!cmsTempFromWhitePoint(&TempK, &DestChromaticity))
 		return -1.0;
-
 	return TempK;
 }
 
@@ -491,55 +486,39 @@ static cmsPipeline * DefaultICCintents(cmsContext ContextID, uint32 nProfiles, u
 				// Output direction means PCS connection. Intent may apply here
 				Lut = _cmsReadOutputLUT(hProfile, Intent);
 				if(Lut == NULL) goto Error;
-
 				if(!ComputeConversion(i, hProfiles, Intent, BPC[i], AdaptationStates[i], &m, &off)) goto Error;
 				if(!AddConversion(Result, CurrentColorSpace, ColorSpaceIn, &m, &off)) goto Error;
 			}
 		}
-
 		// Concatenate to the output LUT
 		if(!cmsPipelineCat(Result, Lut))
 			goto Error;
-
 		cmsPipelineFree(Lut);
 		Lut = NULL;
-
 		// Update current space
 		CurrentColorSpace = ColorSpaceOut;
 	}
-
 	// Check for non-negatives clip
 	if(dwFlags & cmsFLAGS_NONEGATIVES) {
-		if(ColorSpaceOut == cmsSigGrayData ||
-		    ColorSpaceOut == cmsSigRgbData ||
-		    ColorSpaceOut == cmsSigCmykData) {
+		if(oneof3(ColorSpaceOut, cmsSigGrayData, cmsSigRgbData, cmsSigCmykData)) {
 			cmsStage * clip = _cmsStageClipNegatives(Result->ContextID, cmsChannelsOf(ColorSpaceOut));
-			if(clip == NULL) goto Error;
-
+			if(clip == NULL) 
+				goto Error;
 			if(!cmsPipelineInsertStage(Result, cmsAT_END, clip))
 				goto Error;
 		}
 	}
-
 	return Result;
-
 Error:
-
-	if(Lut != NULL) cmsPipelineFree(Lut);
-	if(Result != NULL) cmsPipelineFree(Result);
+	cmsPipelineFree(Lut);
+	cmsPipelineFree(Result);
 	return NULL;
-
 	CXX_UNUSED(dwFlags);
 }
 
 // Wrapper for DLL calling convention
-cmsPipeline * CMSEXPORT _cmsDefaultICCintents(cmsContext ContextID,
-    uint32 nProfiles,
-    uint32 TheIntents[],
-    cmsHPROFILE hProfiles[],
-    boolint BPC[],
-    double AdaptationStates[],
-    uint32 dwFlags)
+cmsPipeline * CMSEXPORT _cmsDefaultICCintents(cmsContext ContextID, uint32 nProfiles, uint32 TheIntents[],
+    cmsHPROFILE hProfiles[], boolint BPC[], double AdaptationStates[], uint32 dwFlags)
 {
 	return DefaultICCintents(ContextID, nProfiles, TheIntents, hProfiles, BPC, AdaptationStates, dwFlags);
 }
@@ -552,17 +531,11 @@ static uint32 TranslateNonICCIntents(uint32 Intent)
 {
 	switch(Intent) {
 		case INTENT_PRESERVE_K_ONLY_PERCEPTUAL:
-		case INTENT_PRESERVE_K_PLANE_PERCEPTUAL:
-		    return INTENT_PERCEPTUAL;
-
+		case INTENT_PRESERVE_K_PLANE_PERCEPTUAL: return INTENT_PERCEPTUAL;
 		case INTENT_PRESERVE_K_ONLY_RELATIVE_COLORIMETRIC:
-		case INTENT_PRESERVE_K_PLANE_RELATIVE_COLORIMETRIC:
-		    return INTENT_RELATIVE_COLORIMETRIC;
-
+		case INTENT_PRESERVE_K_PLANE_RELATIVE_COLORIMETRIC: return INTENT_RELATIVE_COLORIMETRIC;
 		case INTENT_PRESERVE_K_ONLY_SATURATION:
-		case INTENT_PRESERVE_K_PLANE_SATURATION:
-		    return INTENT_SATURATION;
-
+		case INTENT_PRESERVE_K_PLANE_SATURATION: return INTENT_SATURATION;
 		default: return Intent;
 	}
 }
@@ -650,18 +623,14 @@ static cmsPipeline *  BlackPreservingKOnlyIntents(cmsContext ContextID, uint32 n
 	// Sample it. We cannot afford pre/post linearization this time.
 	if(!cmsStageSampleCLut16bit(CLUT, BlackPreservingGrayOnlySampler, (void *)&bp, 0))
 		goto Error;
-
 	// Get rid of xform and tone curve
 	cmsPipelineFree(bp.cmyk2cmyk);
 	cmsFreeToneCurve(bp.KTone);
-
 	return Result;
-
 Error:
-
-	if(bp.cmyk2cmyk != NULL) cmsPipelineFree(bp.cmyk2cmyk);
-	if(bp.KTone != NULL) cmsFreeToneCurve(bp.KTone);
-	if(Result != NULL) cmsPipelineFree(Result);
+	cmsPipelineFree(bp.cmyk2cmyk);
+	cmsFreeToneCurve(bp.KTone);
+	cmsPipelineFree(Result);
 	return NULL;
 }
 
@@ -674,7 +643,6 @@ typedef struct {
 	cmsToneCurve *    KTone;     // Black-to-black tone curve
 	cmsPipeline *     LabK2cmyk; // The output profile
 	double MaxError;
-
 	cmsHTRANSFORM hRoundTrip;
 	double MaxTAC;
 } PreserveKPlaneParams;
@@ -827,9 +795,9 @@ static cmsPipeline * BlackPreservingKPlaneIntents(cmsContext ContextID, uint32 n
 		FLOAT_SH(1)|CHANNELS_SH(3)|BYTES_SH(4),
 		INTENT_RELATIVE_COLORIMETRIC,
 		cmsFLAGS_NOCACHE|cmsFLAGS_NOOPTIMIZE);
-	if(bp.cmyk2Lab == NULL) goto Cleanup;
+	if(bp.cmyk2Lab == NULL) 
+		goto Cleanup;
 	cmsCloseProfile(hLab);
-
 	// Error estimation (for debug only)
 	bp.MaxError = 0;
 	// How many gridpoints are we going to use?
@@ -841,11 +809,11 @@ static cmsPipeline * BlackPreservingKPlaneIntents(cmsContext ContextID, uint32 n
 		goto Cleanup;
 	cmsStageSampleCLut16bit(CLUT, BlackPreservingSampler, (void *)&bp, 0);
 Cleanup:
-	if(bp.cmyk2cmyk) cmsPipelineFree(bp.cmyk2cmyk);
+	cmsPipelineFree(bp.cmyk2cmyk);
 	if(bp.cmyk2Lab) cmsDeleteTransform(bp.cmyk2Lab);
 	if(bp.hProofOutput) cmsDeleteTransform(bp.hProofOutput);
-	if(bp.KTone) cmsFreeToneCurve(bp.KTone);
-	if(bp.LabK2cmyk) cmsPipelineFree(bp.LabK2cmyk);
+	cmsFreeToneCurve(bp.KTone);
+	cmsPipelineFree(bp.LabK2cmyk);
 	return Result;
 }
 
@@ -864,70 +832,57 @@ cmsPipeline * _cmsLinkProfiles(cmsContext ContextID, uint32 nProfiles, uint32 Th
 		cmsSignalError(ContextID, cmsERROR_RANGE, "Couldn't link '%d' profiles", nProfiles);
 		return NULL;
 	}
-
 	for(i = 0; i < nProfiles; i++) {
 		// Check if black point is really needed or allowed. Note that
 		// following Adobe's document:
 		// BPC does not apply to devicelink profiles, nor to abs colorimetric,
 		// and applies always on V4 perceptual and saturation.
-
 		if(TheIntents[i] == INTENT_ABSOLUTE_COLORIMETRIC)
 			BPC[i] = FALSE;
-
 		if(TheIntents[i] == INTENT_PERCEPTUAL || TheIntents[i] == INTENT_SATURATION) {
 			// Force BPC for V4 profiles in perceptual and saturation
 			if(cmsGetEncodedICCversion(hProfiles[i]) >= 0x4000000)
 				BPC[i] = TRUE;
 		}
 	}
-
 	// Search for a handler. The first intent in the chain defines the handler. That would
 	// prevent using multiple custom intents in a multiintent chain, but the behaviour of
 	// this case would present some issues if the custom intent tries to do things like
 	// preserve primaries. This solution is not perfect, but works well on most cases.
-
 	Intent = SearchIntent(ContextID, TheIntents[0]);
 	if(Intent == NULL) {
 		cmsSignalError(ContextID, cmsERROR_UNKNOWN_EXTENSION, "Unsupported intent '%d'", TheIntents[0]);
 		return NULL;
 	}
-
 	// Call the handler
 	return Intent->Link(ContextID, nProfiles, TheIntents, hProfiles, BPC, AdaptationStates, dwFlags);
 }
-
-// -------------------------------------------------------------------------------------------------
-
+//
 // Get information about available intents. nMax is the maximum space for the supplied "Codes"
 // and "Descriptions" the function returns the total number of intents, which may be greater
 // than nMax, although the matrices are not populated beyond this level.
+//
 uint32 CMSEXPORT cmsGetSupportedIntentsTHR(cmsContext ContextID, uint32 nMax, uint32* Codes, char ** Descriptions)
 {
 	_cmsIntentsPluginChunkType* ctx = (_cmsIntentsPluginChunkType*)_cmsContextGetClientChunk(ContextID, IntentPlugin);
 	cmsIntentsList* pt;
 	uint32 nIntents;
-
 	for(nIntents = 0, pt = ctx->Intents; pt != NULL; pt = pt->Next) {
 		if(nIntents < nMax) {
 			if(Codes != NULL)
 				Codes[nIntents] = pt->Intent;
-
 			if(Descriptions != NULL)
 				Descriptions[nIntents] = pt->Description;
 		}
-
 		nIntents++;
 	}
-
 	for(nIntents = 0, pt = DefaultIntents; pt != NULL; pt = pt->Next) {
 		if(nIntents < nMax) {
 			if(Codes != NULL)
 				Codes[nIntents] = pt->Intent;
-
 			if(Descriptions != NULL)
 				Descriptions[nIntents] = pt->Description;
 		}
-
 		nIntents++;
 	}
 	return nIntents;

@@ -38,9 +38,9 @@ extern "C" {
 #else
 	#include <stdint.h> /* intptr_t */
 #endif
-typedef uint8_t  BYTE;
-typedef uint8_t  U8;
-typedef int8_t   S8;
+//typedef uint8_t  BYTE_Removed;
+//typedef uint8_t  U8_Removed;
+//typedef int8_t   S8_Removed;
 //typedef uint16_t U16_Removed;
 //typedef int16_t  S16_Removed;
 //typedef uint32_t U32_Removed;
@@ -52,9 +52,9 @@ typedef int8_t   S8;
 #if CHAR_BIT != 8
 #error "this implementation requires char to be exactly 8-bit type"
 #endif
-typedef unsigned char BYTE;
-typedef unsigned char U8;
-typedef signed char   S8;
+//typedef unsigned char BYTE_Removed;
+//typedef unsigned char U8_Removed;
+//typedef signed char   S8_Removed;
 #if USHRT_MAX != 65535
 	#error "this implementation requires short to be exactly 16-bit type"
 #endif
@@ -67,7 +67,7 @@ typedef signed char   S8;
 //typedef  signed int S32_Removed;
 // note : there are no limits defined for long long type in C90.
 // limits exist in C99, however, in such case, <stdint.h> is preferred 
-//typedef unsigned long long U64_Removed;
+//typedef uint64 U64_Removed;
 //typedef   signed long long S64_Removed;
 #endif
 //
@@ -280,7 +280,7 @@ inline uint16 MEM_readLE16(const void* memPtr)
 	if(MEM_isLittleEndian())
 		return MEM_read16(memPtr);
 	else {
-		const BYTE* p = (const BYTE*)memPtr;
+		const BYTE * p = (const BYTE *)memPtr;
 		return (uint16)(p[0] + (p[1]<<8));
 	}
 }
@@ -291,7 +291,7 @@ inline void MEM_writeLE16(void* memPtr, uint16 val)
 		MEM_write16(memPtr, val);
 	}
 	else {
-		BYTE* p = (BYTE*)memPtr;
+		BYTE * p = (BYTE *)memPtr;
 		p[0] = (BYTE)val;
 		p[1] = (BYTE)(val>>8);
 	}
@@ -299,13 +299,13 @@ inline void MEM_writeLE16(void* memPtr, uint16 val)
 
 inline uint32 MEM_readLE24(const void* memPtr)
 {
-	return (uint32)MEM_readLE16(memPtr) + ((uint32)(((const BYTE*)memPtr)[2]) << 16);
+	return (uint32)MEM_readLE16(memPtr) + ((uint32)(((const BYTE *)memPtr)[2]) << 16);
 }
 
 inline void MEM_writeLE24(void* memPtr, uint32 val)
 {
 	MEM_writeLE16(memPtr, (uint16)val);
-	((BYTE*)memPtr)[2] = (BYTE)(val>>16);
+	((BYTE *)memPtr)[2] = (BYTE)(val>>16);
 }
 
 MEM_STATIC uint32 MEM_readLE32(const void* memPtr)

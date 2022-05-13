@@ -1682,7 +1682,7 @@ int __os_read(ENV * env, DB_FH * fhp, void * addr, size_t len, size_t * nrp)
 	for(taddr = (uint8 *)addr, offset = 0; offset < len; taddr += nr, offset += nr) {
 		LAST_PANIC_CHECK_BEFORE_IO(env);
 		RETRY_CHK((!ReadFile(fhp->handle, taddr, (DWORD)(len-offset), &count, NULL)), ret);
-		if(count == 0 || ret != 0)
+		if(!count || ret != 0)
 			break;
 		nr = (size_t)count;
 	}

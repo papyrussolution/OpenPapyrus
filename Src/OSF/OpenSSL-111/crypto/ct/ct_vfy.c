@@ -118,7 +118,7 @@ int SCT_CTX_verify(const SCT_CTX * sctx, const SCT * sct)
 	}
 
 	ctx = EVP_MD_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto end;
 
 	if(!EVP_DigestVerifyInit(ctx, NULL, EVP_sha256(), NULL, sctx->pkey))

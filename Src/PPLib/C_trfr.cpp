@@ -1594,7 +1594,7 @@ int Transfer::RecoverLot(PPID lotID, PPLotFaultArray * pFaultList, long flags, i
 							THROW_SL(rcpt_pos_list.insert(&p));
 						}
 					}
-					if(count == 0) {
+					if(!count) {
 						if(lot_rec.ID && lot_rec.ID == lot_rec.PrevLotID) {
 							TransferTbl::Rec sav_data;
 							copyBufTo(&sav_data);
@@ -2173,7 +2173,7 @@ static int CheckLotList(PPIDArray & rLotList, PPIDArray & rAbsLotList, PPLogger 
 		PPID   lot_id = rLotList.at(i);
 		if(lot_id) {
 			int    r = r_rc.Search(lot_id);
-			if(r == 0) {
+			if(!r) {
 				PPGetLastErrorMessage(1, added_msg);
 				PPFormatT(PPTXT_SEARCHLOTFAULT, &msg_buf, lot_id, added_msg.cptr());
 				rLogger.Log(PPFormat(fmt_buf, &msg_buf, lot_id, added_msg.cptr()));

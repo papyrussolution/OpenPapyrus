@@ -47,7 +47,7 @@
 ssh_scp ssh_scp_new(ssh_session session, int mode, const char * location)
 {
 	ssh_scp scp = NULL;
-	if(session == NULL) {
+	if(!session) {
 		goto error;
 	}
 	scp = (ssh_scp)SAlloc::C(1, sizeof(struct ssh_scp_struct));
@@ -174,7 +174,7 @@ int ssh_scp_init(ssh_scp scp)
 
 	if(scp->mode == SSH_SCP_WRITE) {
 		rc = ssh_scp_response(scp, NULL);
-		if(rc != 0) {
+		if(rc) {
 			return SSH_ERROR;
 		}
 	}
@@ -347,7 +347,7 @@ int ssh_scp_push_directory(ssh_scp scp, const char * dirname, int mode)
 	}
 
 	rc = ssh_scp_response(scp, NULL);
-	if(rc != 0) {
+	if(rc) {
 		return SSH_ERROR;
 	}
 
@@ -391,7 +391,7 @@ int ssh_scp_leave_directory(ssh_scp scp)
 	}
 
 	rc = ssh_scp_response(scp, NULL);
-	if(rc != 0) {
+	if(rc) {
 		return SSH_ERROR;
 	}
 
@@ -484,7 +484,7 @@ int ssh_scp_push_file64(ssh_scp scp, const char * filename, uint64_t size,
 	}
 
 	rc = ssh_scp_response(scp, NULL);
-	if(rc != 0) {
+	if(rc) {
 		return SSH_ERROR;
 	}
 
@@ -633,7 +633,7 @@ int ssh_scp_write(ssh_scp scp, const void * buffer, size_t len)
 	rc = ssh_channel_poll(scp->channel, 0);
 	if(rc > 0) {
 		rc = ssh_scp_response(scp, NULL);
-		if(rc != 0) {
+		if(rc) {
 			return SSH_ERROR;
 		}
 	}

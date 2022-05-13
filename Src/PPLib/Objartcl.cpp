@@ -362,7 +362,7 @@ int ArticleAutoAddDialog::save()
 	int    r = ArObj.GetFreeArticle(&n, Rec.AccSheetID);
 	if(r > 0)
 		Rec.Article = n;
-	else if(r == 0)
+	else if(!r)
 		return (endModal(cmError), 0);
 	return ArObj.P_Tbl->insertRecBuf(&Rec) ? 1 : (endModal(cmError), 0);
 }
@@ -740,7 +740,7 @@ int PPObjArticle::EditGrpArticle(PPID * pID, PPID sheetID)
 				setCtrlData(CTL_ARTICLE_NUMBER, &Rec.Article);
 				PPErrorByDialog(this, CTL_ARTICLE_NUMBER, PPERR_DUPARTICLE);
 			}
-			else if(r == 0) {
+			else if(!r) {
 				CALLEXCEPT();
 			}
 			else if(Rec.AccessLevel < LConfig.AccessLevel)
@@ -883,7 +883,7 @@ int PPObjArticle::EditDialog(ArticleDlgData * pData)
 			dlg->setCtrlData(CTL_ARTICLE_NUMBER, &old_ar_no);
 			PPErrorByDialog(dlg, CTL_ARTICLE_NUMBER, PPERR_DUPARTICLE);
 		}
-		else if(r == 0)
+		else if(!r)
 			PPError();
 		else if(pData->Rec.AccessLevel < LConfig.AccessLevel)
 			PPErrorByDialog(dlg, CTL_ARTICLE_ACCESS, PPERR_TOOHIGHACCS);

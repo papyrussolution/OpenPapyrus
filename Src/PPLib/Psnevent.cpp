@@ -1231,7 +1231,7 @@ int PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPacket *
 			pi.OprNo = pPack->Rec.OprNo;
 			PersonEventTbl::Rec pair_rec;
 			int    r = P_Tbl->SearchPair(&pi, forward, &pair_rec);
-			if(r == 0) {
+			if(!r) {
 				if(PPErrCode == PPERR_NONPAIRPSNEVNT)
 					PPSetAddedMsgString(MakeCodeString(&pair_rec, msg_buf));
 				CALLEXCEPT();
@@ -1242,7 +1242,7 @@ int PPObjPersonEvent::Helper_PutPacket(PPID evID, int action, PPPsnEventPacket *
 			}
 			if(pPokPack->Rec.PairType == POKPT_OPEN) {
 				r = P_Tbl->SearchPair(&pi, 0 /* backward */, &pair_rec);
-				if(r == 0) {
+				if(!r) {
 					if(PPErrCode == PPERR_NONPAIRPSNEVNT)
 						PPSetAddedMsgString(MakeCodeString(&pair_rec, msg_buf));
 					CALLEXCEPT();
@@ -1869,7 +1869,7 @@ int PsnEventDialog::setupPair()
 			line_buf.Cat(dur);
 			ok = 1;
 		}
-		else if(r == 0) {
+		else if(!r) {
 			if(PPErrCode == PPERR_NONPAIRPSNEVNT) {
 				SString msg_buf;
 				PPSetAddedMsgString(P_PeObj->MakeCodeString(&pair_rec, msg_buf));

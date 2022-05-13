@@ -1491,8 +1491,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 			return;
 		}
 		if(!opj_tls_set(tls, OPJ_TLS_KEY_T1, t1, opj_t1_destroy_wrapper)) {
-			opj_event_msg(job->p_manager, EVT_ERROR,
-			    "Unable to set t1 handle as TLS\n");
+			opj_event_msg(job->p_manager, EVT_ERROR, "Unable to set t1 handle as TLS\n");
 			opj_t1_destroy(t1);
 			*(job->pret) = FALSE;
 			SAlloc::F(job);
@@ -1500,38 +1499,20 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 		}
 	}
 	t1->mustuse_cblkdatabuffer = job->mustuse_cblkdatabuffer;
-
 	if((tccp->cblksty & J2K_CCP_CBLKSTY_HT) != 0) {
-		if(FALSE == opj_t1_ht_decode_cblk(
-			    t1,
-			    cblk,
-			    band->bandno,
-			    (uint32_t)tccp->roishift,
-			    tccp->cblksty,
-			    job->p_manager,
-			    job->p_manager_mutex,
-			    job->check_pterm)) {
+		if(FALSE == opj_t1_ht_decode_cblk(t1, cblk, band->bandno, (uint32_t)tccp->roishift, tccp->cblksty, job->p_manager, job->p_manager_mutex, job->check_pterm)) {
 			*(job->pret) = FALSE;
 			SAlloc::F(job);
 			return;
 		}
 	}
 	else {
-		if(FALSE == opj_t1_decode_cblk(
-			    t1,
-			    cblk,
-			    band->bandno,
-			    (uint32_t)tccp->roishift,
-			    tccp->cblksty,
-			    job->p_manager,
-			    job->p_manager_mutex,
-			    job->check_pterm)) {
+		if(FALSE == opj_t1_decode_cblk(t1, cblk, band->bandno, (uint32_t)tccp->roishift, tccp->cblksty, job->p_manager, job->p_manager_mutex, job->check_pterm)) {
 			*(job->pret) = FALSE;
 			SAlloc::F(job);
 			return;
 		}
 	}
-
 	x = cblk->x0 - band->x0;
 	y = cblk->y0 - band->y0;
 	if(band->bandno & 1) {
@@ -1542,11 +1523,9 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 		opj_tcd_resolution_t* pres = &tilec->resolutions[resno - 1];
 		y += pres->y1 - pres->y0;
 	}
-
 	datap = cblk->decoded_data ? cblk->decoded_data : t1->data;
 	cblk_w = t1->w;
 	cblk_h = t1->h;
-
 	if(tccp->roishift) {
 		if(tccp->roishift >= 31) {
 			for(j = 0; j < cblk_h; ++j) {
@@ -1569,12 +1548,9 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 			}
 		}
 	}
-
-	/* Both can be non NULL if for example decoding a full tile and then */
-	/* partially a tile. In which case partial decoding should be the */
-	/* priority */
+	// Both can be non NULL if for example decoding a full tile and then */
+	// partially a tile. In which case partial decoding should be the priority
 	assert((cblk->decoded_data != NULL) || (tilec->data != NULL));
-
 	if(cblk->decoded_data) {
 		uint32_t cblk_size = cblk_w * cblk_h;
 		if(tccp->qmfbid == 1) {
@@ -1589,14 +1565,10 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 			{
 				const __m128 xmm_stepsize = _mm_set1_ps(stepsize);
 				for(; i < (cblk_size & ~15U); i += 16) {
-					__m128 xmm0_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(
-							datap + 0)));
-					__m128 xmm1_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(
-							datap + 4)));
-					__m128 xmm2_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(
-							datap + 8)));
-					__m128 xmm3_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(
-							datap + 12)));
+					__m128 xmm0_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(datap + 0)));
+					__m128 xmm1_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(datap + 4)));
+					__m128 xmm2_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(datap + 8)));
+					__m128 xmm3_data = _mm_cvtepi32_ps(_mm_load_si128((__m128i* const)(datap + 12)));
 					_mm_store_ps((float*)(datap +  0), _mm_mul_ps(xmm0_data, xmm_stepsize));
 					_mm_store_ps((float*)(datap +  4), _mm_mul_ps(xmm1_data, xmm_stepsize));
 					_mm_store_ps((float*)(datap +  8), _mm_mul_ps(xmm2_data, xmm_stepsize));
@@ -1613,8 +1585,7 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 		}
 	}
 	else if(tccp->qmfbid == 1) {
-		int32_t* OPJ_RESTRICT tiledp = &tilec->data[(size_t)y * tile_w +
-		    (size_t)x];
+		int32_t* OPJ_RESTRICT tiledp = &tilec->data[(size_t)y * tile_w + (size_t)x];
 		for(j = 0; j < cblk_h; ++j) {
 			i = 0;
 			for(; i < (cblk_w & ~(uint32_t)3U); i += 4U) {
@@ -1648,50 +1619,30 @@ static void opj_t1_clbl_decode_processor(void* user_data, opj_tls_t* tls)
 			tiledp += tile_w;
 		}
 	}
-
 	SAlloc::F(job);
 }
 
-void opj_t1_decode_cblks(opj_tcd_t* tcd,
-    volatile boolint* pret,
-    opj_tcd_tilecomp_t* tilec,
-    opj_tccp_t* tccp,
-    opj_event_mgr_t * p_manager,
-    opj_mutex_t* p_manager_mutex,
-    boolint check_pterm
-    )
+void opj_t1_decode_cblks(opj_tcd_t* tcd, volatile boolint* pret, opj_tcd_tilecomp_t* tilec, opj_tccp_t* tccp,
+    opj_event_mgr_t * p_manager, opj_mutex_t* p_manager_mutex, boolint check_pterm)
 {
 	opj_thread_pool_t* tp = tcd->thread_pool;
 	uint32_t resno, bandno, precno, cblkno;
-
 #ifdef DEBUG_VERBOSE
 	uint32_t codeblocks_decoded = 0;
 	printf("Enter opj_t1_decode_cblks()\n");
 #endif
-
 	for(resno = 0; resno < tilec->minimum_num_resolutions; ++resno) {
 		opj_tcd_resolution_t* res = &tilec->resolutions[resno];
-
 		for(bandno = 0; bandno < res->numbands; ++bandno) {
 			opj_tcd_band_t* OPJ_RESTRICT band = &res->bands[bandno];
-
 			for(precno = 0; precno < res->pw * res->ph; ++precno) {
 				opj_tcd_precinct_t* precinct = &band->precincts[precno];
-
-				if(!opj_tcd_is_subband_area_of_interest(tcd,
-				    tilec->compno,
-				    resno,
-				    band->bandno,
-				    (uint32_t)precinct->x0,
-				    (uint32_t)precinct->y0,
-				    (uint32_t)precinct->x1,
-				    (uint32_t)precinct->y1)) {
+				if(!opj_tcd_is_subband_area_of_interest(tcd, tilec->compno, resno, band->bandno, (uint32_t)precinct->x0, (uint32_t)precinct->y0, (uint32_t)precinct->x1, (uint32_t)precinct->y1)) {
 					for(cblkno = 0; cblkno < precinct->cw * precinct->ch; ++cblkno) {
 						opj_tcd_cblk_dec_t* cblk = &precinct->cblks.dec[cblkno];
 						if(cblk->decoded_data) {
 #ifdef DEBUG_VERBOSE
-							printf("Discarding codeblock %d,%d at resno=%d, bandno=%d\n",
-							    cblk->x0, cblk->y0, resno, bandno);
+							printf("Discarding codeblock %d,%d at resno=%d, bandno=%d\n", cblk->x0, cblk->y0, resno, bandno);
 #endif
 							opj_aligned_free(cblk->decoded_data);
 							cblk->decoded_data = NULL;
@@ -1699,37 +1650,26 @@ void opj_t1_decode_cblks(opj_tcd_t* tcd,
 					}
 					continue;
 				}
-
 				for(cblkno = 0; cblkno < precinct->cw * precinct->ch; ++cblkno) {
 					opj_tcd_cblk_dec_t* cblk = &precinct->cblks.dec[cblkno];
 					opj_t1_cblk_decode_processing_job_t* job;
-
-					if(!opj_tcd_is_subband_area_of_interest(tcd,
-					    tilec->compno,
-					    resno,
-					    band->bandno,
-					    (uint32_t)cblk->x0,
-					    (uint32_t)cblk->y0,
-					    (uint32_t)cblk->x1,
-					    (uint32_t)cblk->y1)) {
+					if(!opj_tcd_is_subband_area_of_interest(tcd, tilec->compno, resno, band->bandno,
+					    (uint32_t)cblk->x0, (uint32_t)cblk->y0, (uint32_t)cblk->x1, (uint32_t)cblk->y1)) {
 						if(cblk->decoded_data) {
 #ifdef DEBUG_VERBOSE
-							printf("Discarding codeblock %d,%d at resno=%d, bandno=%d\n",
-							    cblk->x0, cblk->y0, resno, bandno);
+							printf("Discarding codeblock %d,%d at resno=%d, bandno=%d\n", cblk->x0, cblk->y0, resno, bandno);
 #endif
 							opj_aligned_free(cblk->decoded_data);
 							cblk->decoded_data = NULL;
 						}
 						continue;
 					}
-
 					if(!tcd->whole_tile_decoding) {
 						uint32_t cblk_w = (uint32_t)(cblk->x1 - cblk->x0);
 						uint32_t cblk_h = (uint32_t)(cblk->y1 - cblk->y0);
 						if(cblk->decoded_data != NULL) {
 #ifdef DEBUG_VERBOSE
-							printf("Reusing codeblock %d,%d at resno=%d, bandno=%d\n",
-							    cblk->x0, cblk->y0, resno, bandno);
+							printf("Reusing codeblock %d,%d at resno=%d, bandno=%d\n", cblk->x0, cblk->y0, resno, bandno);
 #endif
 							continue;
 						}
@@ -1737,13 +1677,10 @@ void opj_t1_decode_cblks(opj_tcd_t* tcd,
 							continue;
 						}
 #ifdef DEBUG_VERBOSE
-						printf("Decoding codeblock %d,%d at resno=%d, bandno=%d\n",
-						    cblk->x0, cblk->y0, resno, bandno);
+						printf("Decoding codeblock %d,%d at resno=%d, bandno=%d\n", cblk->x0, cblk->y0, resno, bandno);
 #endif
 					}
-
-					job = (opj_t1_cblk_decode_processing_job_t*)opj_calloc(1,
-						sizeof(opj_t1_cblk_decode_processing_job_t));
+					job = (opj_t1_cblk_decode_processing_job_t*)opj_calloc(1, sizeof(opj_t1_cblk_decode_processing_job_t));
 					if(!job) {
 						*pret = FALSE;
 						return;

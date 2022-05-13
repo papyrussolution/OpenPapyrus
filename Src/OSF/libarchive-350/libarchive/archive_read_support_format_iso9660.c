@@ -1119,7 +1119,7 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 			(const char *)iso9660->utf16be_path,
 			iso9660->utf16be_path_len,
 			iso9660->sconv_utf16be);
-		if(r != 0) {
+		if(r) {
 			if(errno == ENOMEM) {
 				archive_set_error(&a->archive, ENOMEM, "No memory for Pathname");
 				return ARCHIVE_FATAL;
@@ -1179,7 +1179,7 @@ static int archive_read_format_iso9660_read_header(struct archive_read * a,
 				(const char *)iso9660->utf16be_previous_path,
 				iso9660->utf16be_previous_path_len,
 				iso9660->sconv_utf16be);
-			if(r != 0) {
+			if(r) {
 				if(errno == ENOMEM) {
 					archive_set_error(&a->archive, ENOMEM, "No memory for Linkname"); 
 					return ARCHIVE_FATAL;
@@ -2509,11 +2509,8 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 			 * If directory entries all which are descendant of
 			 * rr_moved are still remaining, expose their.
 			 */
-			if(iso9660->re_files.first != NULL &&
-			    iso9660->rr_moved != NULL &&
-			    iso9660->rr_moved->rr_moved_has_re_only)
-				/* Expose "rr_moved" entry. */
-				cache_add_entry(iso9660, iso9660->rr_moved);
+			if(iso9660->re_files.first != NULL && iso9660->rr_moved != NULL && iso9660->rr_moved->rr_moved_has_re_only)
+				cache_add_entry(iso9660, iso9660->rr_moved); /* Expose "rr_moved" entry. */
 			while((re = re_get_entry(iso9660)) != NULL) {
 				/* Expose its descendant dirs. */
 				while((d = rede_get_entry(re)) != NULL)
@@ -2523,19 +2520,14 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 				return (next_cache_entry(a, iso9660, pfile));
 			return (ARCHIVE_EOF);
 		}
-
 		if(file->cl_offset) {
 			struct file_info * first_re = NULL;
 			int nexted_re = 0;
-
 			/*
-			 * Find "RE" dir for the current file, which
-			 * has "CL" flag.
+			 * Find "RE" dir for the current file, which has "CL" flag.
 			 */
-			while((re = re_get_entry(iso9660))
-			    != first_re) {
-				if(first_re == NULL)
-					first_re = re;
+			while((re = re_get_entry(iso9660)) != first_re) {
+				SETIFZQ(first_re, re);
 				if(re->offset == file->cl_offset) {
 					re->parent->subdirs--;
 					re->parent = file->parent;
@@ -2547,10 +2539,8 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 							goto fatal_rr;
 						/* Move a list of descendants
 						 * to a new ancestor. */
-						while((d = rede_get_entry(
-							    re)) != NULL)
-							if(rede_add_entry(d)
-							    < 0)
+						while((d = rede_get_entry(re)) != NULL)
+							if(rede_add_entry(d) < 0)
 								goto fatal_rr;
 						break;
 					}
@@ -2558,10 +2548,8 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 					 * with "RE" dir */
 					*pfile = file = re;
 					/* Expose its descendant */
-					while((d = rede_get_entry(
-						    file)) != NULL)
-						cache_add_entry(
-							iso9660, d);
+					while((d = rede_get_entry(file)) != NULL)
+						cache_add_entry(iso9660, d);
 					break;
 				}
 				else
@@ -2577,13 +2565,10 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 			}
 		}
 		else if((file->mode & AE_IFMT) == AE_IFDIR) {
-			int r;
-
 			/* Read file entries in this dir. */
-			r = read_children(a, file);
+			int r = read_children(a, file);
 			if(r != ARCHIVE_OK)
 				return r;
-
 			/*
 			 * Handle a special dir of Rockridge extensions,
 			 * "rr_moved".
@@ -2622,10 +2607,8 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 		}
 		break;
 	}
-
 	if((file->mode & AE_IFMT) != AE_IFREG || file->number == -1)
 		return ARCHIVE_OK;
-
 	count = 0;
 	number = file->number;
 	iso9660->cache_files.first = NULL;
@@ -2635,9 +2618,7 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 	/* Collect files which has the same file serial number.
 	 * Peek pending_files so that file which number is different
 	 * is not put back. */
-	while(iso9660->pending_files.used > 0 &&
-	    (iso9660->pending_files.files[0]->number == -1 ||
-	    iso9660->pending_files.files[0]->number == number)) {
+	while(iso9660->pending_files.used > 0 && (iso9660->pending_files.files[0]->number == -1 || iso9660->pending_files.files[0]->number == number)) {
 		if(file->number == -1) {
 			/* This file has the same offset
 			 * but it's wrong offset which empty files
@@ -2657,8 +2638,7 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 		}
 		file = next_entry(iso9660);
 	}
-
-	if(count == 0) {
+	if(!count) {
 		*pfile = file;
 		return ((file == NULL) ? ARCHIVE_EOF : ARCHIVE_OK);
 	}
@@ -2671,14 +2651,12 @@ static int next_cache_entry(struct archive_read * a, struct iso9660 * iso9660,
 		count++;
 		cache_add_entry(iso9660, file);
 	}
-
 	if(count > 1) {
 		/* The count is the same as number of hardlink,
 		 * so much so that each nlinks of files in cache_file
 		 * is overwritten by value of the count.
 		 */
-		for(file = iso9660->cache_files.first;
-		    file != NULL; file = file->next)
+		for(file = iso9660->cache_files.first; file != NULL; file = file->next)
 			file->nlinks = count;
 	}
 	/* If there are empty files, that files are added
@@ -2702,9 +2680,9 @@ static inline void re_add_entry(struct iso9660 * iso9660, struct file_info * fil
 	iso9660->re_files.last = &(file->re_next);
 }
 
-static inline struct file_info * re_get_entry(struct iso9660 * iso9660)                                  {
+static inline struct file_info * re_get_entry(struct iso9660 * iso9660)                                  
+{
 	struct file_info * file;
-
 	if((file = iso9660->re_files.first) != NULL) {
 		iso9660->re_files.first = file->re_next;
 		if(iso9660->re_files.first == NULL)
@@ -2716,26 +2694,23 @@ static inline struct file_info * re_get_entry(struct iso9660 * iso9660)         
 
 static inline int rede_add_entry(struct file_info * file)
 {
-	struct file_info * re;
-
 	/*
 	 * Find "RE" entry.
 	 */
-	re = file->parent;
+	struct file_info * re = file->parent;
 	while(re != NULL && !re->re)
 		re = re->parent;
 	if(re == NULL)
 		return -1;
-
 	file->re_next = NULL;
 	*re->rede_files.last = file;
 	re->rede_files.last = &(file->re_next);
 	return 0;
 }
 
-static inline struct file_info * rede_get_entry(struct file_info * re)                                  {
+static inline struct file_info * rede_get_entry(struct file_info * re)                                  
+{
 	struct file_info * file;
-
 	if((file = re->rede_files.first) != NULL) {
 		re->rede_files.first = file->re_next;
 		if(re->rede_files.first == NULL)
@@ -2752,14 +2727,13 @@ static inline void cache_add_entry(struct iso9660 * iso9660, struct file_info * 
 	iso9660->cache_files.last = &(file->next);
 }
 
-static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)                                  {
+static inline struct file_info * cache_get_entry(struct iso9660 * iso9660)                                  
+{
 	struct file_info * file;
-
 	if((file = iso9660->cache_files.first) != NULL) {
 		iso9660->cache_files.first = file->next;
 		if(iso9660->cache_files.first == NULL)
-			iso9660->cache_files.last =
-			    &(iso9660->cache_files.first);
+			iso9660->cache_files.last = &(iso9660->cache_files.first);
 	}
 	return (file);
 }
@@ -2790,9 +2764,7 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, str
 		heap->files = new_pending_files;
 		heap->allocated = new_size;
 	}
-
 	file_key = file->key = key;
-
 	/*
 	 * Start with hole at end, walk it up tree to find insertion point.
 	 */
@@ -2809,28 +2781,24 @@ static int heap_add_entry(struct archive_read * a, struct heap_queue * heap, str
 		hole = parent;
 	}
 	heap->files[0] = file;
-
 	return ARCHIVE_OK;
 }
 
-static struct file_info * heap_get_entry(struct heap_queue * heap)                           {
+static struct file_info * heap_get_entry(struct heap_queue * heap)                           
+{
 	uint64 a_key, b_key, c_key;
 	int a, b, c;
 	struct file_info * r, * tmp;
-
 	if(heap->used < 1)
 		return NULL;
-
 	/*
 	 * The first file in the list is the earliest; we'll return this.
 	 */
 	r = heap->files[0];
-
 	/*
 	 * Move the last item in the heap to the root of the tree
 	 */
 	heap->files[0] = heap->files[--(heap->used)];
-
 	/*
 	 * Rebalance the heap.
 	 */
@@ -2898,9 +2866,7 @@ static time_t isodate17(const uchar * v)
 	int offset;
 	time_t t;
 	memzero(&tm, sizeof(tm));
-	tm.tm_year = (v[0] - '0') * 1000 + (v[1] - '0') * 100
-	    + (v[2] - '0') * 10 + (v[3] - '0')
-	    - 1900;
+	tm.tm_year = (v[0] - '0') * 1000 + (v[1] - '0') * 100 + (v[2] - '0') * 10 + (v[3] - '0') - 1900;
 	tm.tm_mon = (v[4] - '0') * 10 + (v[5] - '0');
 	tm.tm_mday = (v[6] - '0') * 10 + (v[7] - '0');
 	tm.tm_hour = (v[8] - '0') * 10 + (v[9] - '0');
@@ -2931,14 +2897,8 @@ static time_t time_from_tm(struct tm * t)
 	if(mktime(t) == (time_t)-1)
 		return ((time_t)-1);
 	/* Then we can compute timegm() from first principles. */
-	return (t->tm_sec
-	       + t->tm_min * 60
-	       + t->tm_hour * 3600
-	       + t->tm_yday * 86400
-	       + (t->tm_year - 70) * 31536000
-	       + ((t->tm_year - 69) / 4) * 86400
-	       - ((t->tm_year - 1) / 100) * 86400
-	       + ((t->tm_year + 299) / 400) * 86400);
+	return (t->tm_sec + t->tm_min * 60 + t->tm_hour * 3600 + t->tm_yday * 86400 + (t->tm_year - 70) * 31536000 + 
+			((t->tm_year - 69) / 4) * 86400 - ((t->tm_year - 1) / 100) * 86400 + ((t->tm_year + 299) / 400) * 86400);
 #endif
 }
 
@@ -2962,8 +2922,7 @@ static const char * build_pathname(struct archive_string * as, struct file_info 
 	return (as->s);
 }
 
-static int build_pathname_utf16be(uchar * p, size_t max, size_t * len,
-    struct file_info * file)
+static int build_pathname_utf16be(uchar * p, size_t max, size_t * len, struct file_info * file)
 {
 	if(file->parent != NULL && file->parent->utf16be_bytes > 0) {
 		if(build_pathname_utf16be(p, max, len, file->parent) != 0)
@@ -2991,28 +2950,15 @@ static int build_pathname_utf16be(uchar * p, size_t max, size_t * len,
 #if DEBUG
 static void dump_isodirrec(FILE * out, const uchar * isodirrec)
 {
-	fprintf(out, " l %d,",
-	    toi(isodirrec + DR_length_offset, DR_length_size));
-	fprintf(out, " a %d,",
-	    toi(isodirrec + DR_ext_attr_length_offset, DR_ext_attr_length_size));
-	fprintf(out, " ext 0x%x,",
-	    toi(isodirrec + DR_extent_offset, DR_extent_size));
-	fprintf(out, " s %d,",
-	    toi(isodirrec + DR_size_offset, DR_extent_size));
-	fprintf(out, " f 0x%x,",
-	    toi(isodirrec + DR_flags_offset, DR_flags_size));
-	fprintf(out, " u %d,",
-	    toi(isodirrec + DR_file_unit_size_offset, DR_file_unit_size_size));
-	fprintf(out, " ilv %d,",
-	    toi(isodirrec + DR_interleave_offset, DR_interleave_size));
-	fprintf(out, " seq %d,",
-	    toi(isodirrec + DR_volume_sequence_number_offset,
-	    DR_volume_sequence_number_size));
-	fprintf(out, " nl %d:",
-	    toi(isodirrec + DR_name_len_offset, DR_name_len_size));
-	fprintf(out, " `%.*s'",
-	    toi(isodirrec + DR_name_len_offset, DR_name_len_size),
-	    isodirrec + DR_name_offset);
+	fprintf(out, " l %d,", toi(isodirrec + DR_length_offset, DR_length_size));
+	fprintf(out, " a %d,", toi(isodirrec + DR_ext_attr_length_offset, DR_ext_attr_length_size));
+	fprintf(out, " ext 0x%x,", toi(isodirrec + DR_extent_offset, DR_extent_size));
+	fprintf(out, " s %d,", toi(isodirrec + DR_size_offset, DR_extent_size));
+	fprintf(out, " f 0x%x,", toi(isodirrec + DR_flags_offset, DR_flags_size));
+	fprintf(out, " u %d,", toi(isodirrec + DR_file_unit_size_offset, DR_file_unit_size_size));
+	fprintf(out, " ilv %d,", toi(isodirrec + DR_interleave_offset, DR_interleave_size));
+	fprintf(out, " seq %d,", toi(isodirrec + DR_volume_sequence_number_offset, DR_volume_sequence_number_size));
+	fprintf(out, " nl %d:", toi(isodirrec + DR_name_len_offset, DR_name_len_size));
+	fprintf(out, " `%.*s'", toi(isodirrec + DR_name_len_offset, DR_name_len_size), isodirrec + DR_name_offset);
 }
-
 #endif

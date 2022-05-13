@@ -633,16 +633,14 @@ class Book final :
   public:
   void clear_labels();
   ::proto_util_converter::testing::Book_Label* mutable_labels(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Book_Label >*
-      mutable_labels();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Book_Label > * mutable_labels();
   private:
   const ::proto_util_converter::testing::Book_Label& _internal_labels(int index) const;
   ::proto_util_converter::testing::Book_Label* _internal_add_labels();
   public:
   const ::proto_util_converter::testing::Book_Label& labels(int index) const;
   ::proto_util_converter::testing::Book_Label* add_labels();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Book_Label >&
-      labels() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Book_Label > & labels() const;
 
   // repeated int32 primitive_repeated = 14;
   int primitive_repeated_size() const;
@@ -1296,16 +1294,14 @@ class Author final :
   public:
   void clear_friend_();
   ::proto_util_converter::testing::Author* mutable_friend_(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author >*
-      mutable_friend_();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author > * mutable_friend_();
   private:
   const ::proto_util_converter::testing::Author& _internal_friend_(int index) const;
   ::proto_util_converter::testing::Author* _internal_add_friend_();
   public:
   const ::proto_util_converter::testing::Author& friend_(int index) const;
   ::proto_util_converter::testing::Author* add_friend_();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author >&
-      friend_() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author > & friend_() const;
 
   // optional string name = 2;
   bool has_name() const;
@@ -3140,16 +3136,14 @@ class Cyclic final :
   public:
   void clear_m_author();
   ::proto_util_converter::testing::Author* mutable_m_author(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author >*
-      mutable_m_author();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author > * mutable_m_author();
   private:
   const ::proto_util_converter::testing::Author& _internal_m_author(int index) const;
   ::proto_util_converter::testing::Author* _internal_add_m_author();
   public:
   const ::proto_util_converter::testing::Author& m_author(int index) const;
   ::proto_util_converter::testing::Author* add_m_author();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author >&
-      m_author() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::proto_util_converter::testing::Author > & m_author() const;
 
   // optional string m_str = 2;
   bool has_m_str() const;
@@ -4534,11 +4528,11 @@ inline const ::proto_util_converter::testing::Author& Book::author() const {
 }
 inline void Book::unsafe_arena_set_allocated_author(
     ::proto_util_converter::testing::Author* author) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(author_);
   }
   author_ = author;
-  if (author) {
+  if(author) {
     _has_bits_[0] |= 0x00000008u;
   } else {
     _has_bits_[0] &= ~0x00000008u;
@@ -4552,9 +4546,9 @@ inline ::proto_util_converter::testing::Author* Book::release_author() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4569,7 +4563,7 @@ inline ::proto_util_converter::testing::Author* Book::unsafe_arena_release_autho
 }
 inline ::proto_util_converter::testing::Author* Book::_internal_mutable_author() {
   _has_bits_[0] |= 0x00000008u;
-  if (author_ == nullptr) {
+  if(author_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Author>(GetArenaForAllocation());
     author_ = p;
   }
@@ -4582,15 +4576,14 @@ inline ::proto_util_converter::testing::Author* Book::mutable_author() {
 }
 inline void Book::set_allocated_author(::proto_util_converter::testing::Author* author) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete author_;
   }
-  if (author) {
+  if(author) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Author>::GetOwningArena(author);
-    if (message_arena != submessage_arena) {
-      author = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, author, submessage_arena);
+    if(message_arena != submessage_arena) {
+      author = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, author, submessage_arena);
     }
     _has_bits_[0] |= 0x00000008u;
   } else {
@@ -4740,11 +4733,11 @@ inline const ::proto_util_converter::testing::Book_Data& Book::data() const {
 }
 inline void Book::unsafe_arena_set_allocated_data(
     ::proto_util_converter::testing::Book_Data* data) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(data_);
   }
   data_ = data;
-  if (data) {
+  if(data) {
     _has_bits_[0] |= 0x00000010u;
   } else {
     _has_bits_[0] &= ~0x00000010u;
@@ -4758,9 +4751,9 @@ inline ::proto_util_converter::testing::Book_Data* Book::release_data() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4775,7 +4768,7 @@ inline ::proto_util_converter::testing::Book_Data* Book::unsafe_arena_release_da
 }
 inline ::proto_util_converter::testing::Book_Data* Book::_internal_mutable_data() {
   _has_bits_[0] |= 0x00000010u;
-  if (data_ == nullptr) {
+  if(data_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Book_Data>(GetArenaForAllocation());
     data_ = p;
   }
@@ -4788,15 +4781,14 @@ inline ::proto_util_converter::testing::Book_Data* Book::mutable_data() {
 }
 inline void Book::set_allocated_data(::proto_util_converter::testing::Book_Data* data) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete data_;
   }
-  if (data) {
+  if(data) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Book_Data>::GetOwningArena(data);
-    if (message_arena != submessage_arena) {
-      data = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, data, submessage_arena);
+    if(message_arena != submessage_arena) {
+      data = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, data, submessage_arena);
     }
     _has_bits_[0] |= 0x00000010u;
   } else {
@@ -4830,11 +4822,11 @@ inline const ::proto_util_converter::testing::Publisher& Book::publisher() const
 }
 inline void Book::unsafe_arena_set_allocated_publisher(
     ::proto_util_converter::testing::Publisher* publisher) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(publisher_);
   }
   publisher_ = publisher;
-  if (publisher) {
+  if(publisher) {
     _has_bits_[0] |= 0x00000020u;
   } else {
     _has_bits_[0] &= ~0x00000020u;
@@ -4848,9 +4840,9 @@ inline ::proto_util_converter::testing::Publisher* Book::release_publisher() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4865,7 +4857,7 @@ inline ::proto_util_converter::testing::Publisher* Book::unsafe_arena_release_pu
 }
 inline ::proto_util_converter::testing::Publisher* Book::_internal_mutable_publisher() {
   _has_bits_[0] |= 0x00000020u;
-  if (publisher_ == nullptr) {
+  if(publisher_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Publisher>(GetArenaForAllocation());
     publisher_ = p;
   }
@@ -4878,15 +4870,14 @@ inline ::proto_util_converter::testing::Publisher* Book::mutable_publisher() {
 }
 inline void Book::set_allocated_publisher(::proto_util_converter::testing::Publisher* publisher) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete publisher_;
   }
-  if (publisher) {
+  if(publisher) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Publisher>::GetOwningArena(publisher);
-    if (message_arena != submessage_arena) {
-      publisher = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, publisher, submessage_arena);
+    if(message_arena != submessage_arena) {
+      publisher = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, publisher, submessage_arena);
     }
     _has_bits_[0] |= 0x00000020u;
   } else {
@@ -4913,16 +4904,15 @@ Book::mutable_labels() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Book.labels)
   return &labels_;
 }
-inline const ::proto_util_converter::testing::Book_Label& Book::_internal_labels(int index) const {
-  return labels_.Get(index);
+inline const ::proto_util_converter::testing::Book_Label& Book::_internal_labels(int index) const
+{
+ return labels_.Get(index);
 }
 inline const ::proto_util_converter::testing::Book_Label& Book::labels(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.Book.labels)
   return _internal_labels(index);
 }
-inline ::proto_util_converter::testing::Book_Label* Book::_internal_add_labels() {
-  return labels_.Add();
-}
+inline ::proto_util_converter::testing::Book_Label* Book::_internal_add_labels() { return labels_.Add(); }
 inline ::proto_util_converter::testing::Book_Label* Book::add_labels() {
   ::proto_util_converter::testing::Book_Label* _add = _internal_add_labels();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.Book.labels)
@@ -5045,11 +5035,11 @@ inline const ::proto_util_converter::testing::AnyWrapper& Book::type_not_found()
 }
 inline void Book::unsafe_arena_set_allocated_type_not_found(
     ::proto_util_converter::testing::AnyWrapper* type_not_found) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(type_not_found_);
   }
   type_not_found_ = type_not_found;
-  if (type_not_found) {
+  if(type_not_found) {
     _has_bits_[0] |= 0x00000040u;
   } else {
     _has_bits_[0] &= ~0x00000040u;
@@ -5063,9 +5053,9 @@ inline ::proto_util_converter::testing::AnyWrapper* Book::release_type_not_found
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -5080,7 +5070,7 @@ inline ::proto_util_converter::testing::AnyWrapper* Book::unsafe_arena_release_t
 }
 inline ::proto_util_converter::testing::AnyWrapper* Book::_internal_mutable_type_not_found() {
   _has_bits_[0] |= 0x00000040u;
-  if (type_not_found_ == nullptr) {
+  if(type_not_found_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::AnyWrapper>(GetArenaForAllocation());
     type_not_found_ = p;
   }
@@ -5093,17 +5083,15 @@ inline ::proto_util_converter::testing::AnyWrapper* Book::mutable_type_not_found
 }
 inline void Book::set_allocated_type_not_found(::proto_util_converter::testing::AnyWrapper* type_not_found) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(type_not_found_);
   }
-  if (type_not_found) {
+  if(type_not_found) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(type_not_found));
-    if (message_arena != submessage_arena) {
-      type_not_found = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, type_not_found, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(type_not_found));
+    if(message_arena != submessage_arena) {
+      type_not_found = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, type_not_found, submessage_arena);
     }
     _has_bits_[0] |= 0x00000040u;
   } else {
@@ -5428,16 +5416,15 @@ Author::mutable_friend_() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Author.friend)
   return &friend__;
 }
-inline const ::proto_util_converter::testing::Author& Author::_internal_friend_(int index) const {
-  return friend__.Get(index);
+inline const ::proto_util_converter::testing::Author& Author::_internal_friend_(int index) const
+{
+ return friend__.Get(index);
 }
 inline const ::proto_util_converter::testing::Author& Author::friend_(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.Author.friend)
   return _internal_friend_(index);
 }
-inline ::proto_util_converter::testing::Author* Author::_internal_add_friend_() {
-  return friend__.Add();
-}
+inline ::proto_util_converter::testing::Author* Author::_internal_add_friend_() { return friend__.Add(); }
 inline ::proto_util_converter::testing::Author* Author::add_friend_() {
   ::proto_util_converter::testing::Author* _add = _internal_add_friend_();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.Author.friend)
@@ -7369,11 +7356,11 @@ inline const ::proto_util_converter::testing::Book& NestedBook::book() const {
 }
 inline void NestedBook::unsafe_arena_set_allocated_book(
     ::proto_util_converter::testing::Book* book) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(book_);
   }
   book_ = book;
-  if (book) {
+  if(book) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -7387,9 +7374,9 @@ inline ::proto_util_converter::testing::Book* NestedBook::release_book() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -7404,7 +7391,7 @@ inline ::proto_util_converter::testing::Book* NestedBook::unsafe_arena_release_b
 }
 inline ::proto_util_converter::testing::Book* NestedBook::_internal_mutable_book() {
   _has_bits_[0] |= 0x00000001u;
-  if (book_ == nullptr) {
+  if(book_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Book>(GetArenaForAllocation());
     book_ = p;
   }
@@ -7417,15 +7404,14 @@ inline ::proto_util_converter::testing::Book* NestedBook::mutable_book() {
 }
 inline void NestedBook::set_allocated_book(::proto_util_converter::testing::Book* book) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete book_;
   }
-  if (book) {
+  if(book) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Book>::GetOwningArena(book);
-    if (message_arena != submessage_arena) {
-      book = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, book, submessage_arena);
+    if(message_arena != submessage_arena) {
+      book = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, book, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -7598,11 +7584,11 @@ inline const ::proto_util_converter::testing::Book& Cyclic::m_book() const {
 }
 inline void Cyclic::unsafe_arena_set_allocated_m_book(
     ::proto_util_converter::testing::Book* m_book) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(m_book_);
   }
   m_book_ = m_book;
-  if (m_book) {
+  if(m_book) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -7616,9 +7602,9 @@ inline ::proto_util_converter::testing::Book* Cyclic::release_m_book() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -7633,7 +7619,7 @@ inline ::proto_util_converter::testing::Book* Cyclic::unsafe_arena_release_m_boo
 }
 inline ::proto_util_converter::testing::Book* Cyclic::_internal_mutable_m_book() {
   _has_bits_[0] |= 0x00000002u;
-  if (m_book_ == nullptr) {
+  if(m_book_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Book>(GetArenaForAllocation());
     m_book_ = p;
   }
@@ -7646,15 +7632,14 @@ inline ::proto_util_converter::testing::Book* Cyclic::mutable_m_book() {
 }
 inline void Cyclic::set_allocated_m_book(::proto_util_converter::testing::Book* m_book) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete m_book_;
   }
-  if (m_book) {
+  if(m_book) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Book>::GetOwningArena(m_book);
-    if (message_arena != submessage_arena) {
-      m_book = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, m_book, submessage_arena);
+    if(message_arena != submessage_arena) {
+      m_book = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, m_book, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {
@@ -7681,16 +7666,15 @@ Cyclic::mutable_m_author() {
   // @@protoc_insertion_point(field_mutable_list:proto_util_converter.testing.Cyclic.m_author)
   return &m_author_;
 }
-inline const ::proto_util_converter::testing::Author& Cyclic::_internal_m_author(int index) const {
-  return m_author_.Get(index);
+inline const ::proto_util_converter::testing::Author& Cyclic::_internal_m_author(int index) const
+{
+ return m_author_.Get(index);
 }
 inline const ::proto_util_converter::testing::Author& Cyclic::m_author(int index) const {
   // @@protoc_insertion_point(field_get:proto_util_converter.testing.Cyclic.m_author)
   return _internal_m_author(index);
 }
-inline ::proto_util_converter::testing::Author* Cyclic::_internal_add_m_author() {
-  return m_author_.Add();
-}
+inline ::proto_util_converter::testing::Author* Cyclic::_internal_add_m_author() { return m_author_.Add(); }
 inline ::proto_util_converter::testing::Author* Cyclic::add_m_author() {
   ::proto_util_converter::testing::Author* _add = _internal_add_m_author();
   // @@protoc_insertion_point(field_add:proto_util_converter.testing.Cyclic.m_author)
@@ -7726,11 +7710,11 @@ inline const ::proto_util_converter::testing::Cyclic& Cyclic::m_cyclic() const {
 }
 inline void Cyclic::unsafe_arena_set_allocated_m_cyclic(
     ::proto_util_converter::testing::Cyclic* m_cyclic) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(m_cyclic_);
   }
   m_cyclic_ = m_cyclic;
-  if (m_cyclic) {
+  if(m_cyclic) {
     _has_bits_[0] |= 0x00000004u;
   } else {
     _has_bits_[0] &= ~0x00000004u;
@@ -7744,9 +7728,9 @@ inline ::proto_util_converter::testing::Cyclic* Cyclic::release_m_cyclic() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -7761,7 +7745,7 @@ inline ::proto_util_converter::testing::Cyclic* Cyclic::unsafe_arena_release_m_c
 }
 inline ::proto_util_converter::testing::Cyclic* Cyclic::_internal_mutable_m_cyclic() {
   _has_bits_[0] |= 0x00000004u;
-  if (m_cyclic_ == nullptr) {
+  if(m_cyclic_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Cyclic>(GetArenaForAllocation());
     m_cyclic_ = p;
   }
@@ -7774,15 +7758,14 @@ inline ::proto_util_converter::testing::Cyclic* Cyclic::mutable_m_cyclic() {
 }
 inline void Cyclic::set_allocated_m_cyclic(::proto_util_converter::testing::Cyclic* m_cyclic) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete m_cyclic_;
   }
-  if (m_cyclic) {
+  if(m_cyclic) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Cyclic>::GetOwningArena(m_cyclic);
-    if (message_arena != submessage_arena) {
-      m_cyclic = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, m_cyclic, submessage_arena);
+    if(message_arena != submessage_arena) {
+      m_cyclic = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, m_cyclic, submessage_arena);
     }
     _has_bits_[0] |= 0x00000004u;
   } else {
@@ -8518,11 +8501,11 @@ inline const ::proto_util_converter::testing::Primitive& TestMessageFieldsWithSa
 }
 inline void TestMessageFieldsWithSameJsonName::unsafe_arena_set_allocated_prim1(
     ::proto_util_converter::testing::Primitive* prim1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(prim1_);
   }
   prim1_ = prim1;
-  if (prim1) {
+  if(prim1) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -8536,9 +8519,9 @@ inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJson
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8553,7 +8536,7 @@ inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJson
 }
 inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJsonName::_internal_mutable_prim1() {
   _has_bits_[0] |= 0x00000001u;
-  if (prim1_ == nullptr) {
+  if(prim1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Primitive>(GetArenaForAllocation());
     prim1_ = p;
   }
@@ -8566,15 +8549,14 @@ inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJson
 }
 inline void TestMessageFieldsWithSameJsonName::set_allocated_prim1(::proto_util_converter::testing::Primitive* prim1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete prim1_;
   }
-  if (prim1) {
+  if(prim1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Primitive>::GetOwningArena(prim1);
-    if (message_arena != submessage_arena) {
-      prim1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, prim1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      prim1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, prim1, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -8608,11 +8590,11 @@ inline const ::proto_util_converter::testing::Primitive& TestMessageFieldsWithSa
 }
 inline void TestMessageFieldsWithSameJsonName::unsafe_arena_set_allocated_prim_1(
     ::proto_util_converter::testing::Primitive* prim_1) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(prim_1_);
   }
   prim_1_ = prim_1;
-  if (prim_1) {
+  if(prim_1) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -8626,9 +8608,9 @@ inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJson
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8643,7 +8625,7 @@ inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJson
 }
 inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJsonName::_internal_mutable_prim_1() {
   _has_bits_[0] |= 0x00000002u;
-  if (prim_1_ == nullptr) {
+  if(prim_1_ == nullptr) {
     auto* p = CreateMaybeMessage<::proto_util_converter::testing::Primitive>(GetArenaForAllocation());
     prim_1_ = p;
   }
@@ -8656,15 +8638,14 @@ inline ::proto_util_converter::testing::Primitive* TestMessageFieldsWithSameJson
 }
 inline void TestMessageFieldsWithSameJsonName::set_allocated_prim_1(::proto_util_converter::testing::Primitive* prim_1) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete prim_1_;
   }
-  if (prim_1) {
+  if(prim_1) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::proto_util_converter::testing::Primitive>::GetOwningArena(prim_1);
-    if (message_arena != submessage_arena) {
-      prim_1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, prim_1, submessage_arena);
+    if(message_arena != submessage_arena) {
+      prim_1 = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, prim_1, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {

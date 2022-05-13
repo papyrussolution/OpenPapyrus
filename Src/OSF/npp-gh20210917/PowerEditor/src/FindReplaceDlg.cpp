@@ -4361,7 +4361,7 @@ int Progress::thread()
 {
 	int r = createProgressWindow();
 	::SetEvent(_hActiveState);
-	if(r == 0) {
+	if(!r) {
 		// Window message loop
 		MSG msg;
 		while((r = ::GetMessage(&msg, NULL, 0, 0)) != 0 && r != -1) {

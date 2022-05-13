@@ -299,7 +299,7 @@ TestProto3Optional_NestedMessage::TestProto3Optional_NestedMessage(::PROTOBUF_NA
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestProto3Optional.NestedMessage)
@@ -318,7 +318,7 @@ bb_ = 0;
 
 TestProto3Optional_NestedMessage::~TestProto3Optional_NestedMessage() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestProto3Optional.NestedMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -349,9 +349,9 @@ void TestProto3Optional_NestedMessage::Clear() {
 }
 
 const char* TestProto3Optional_NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -364,8 +364,7 @@ const char* TestProto3Optional_NestedMessage::_InternalParse(const char* ptr, ::
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -512,7 +511,7 @@ TestProto3Optional::TestProto3Optional(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestProto3Optional)
@@ -579,7 +578,7 @@ optional_cord_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStri
 
 TestProto3Optional::~TestProto3Optional() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestProto3Optional)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -652,9 +651,9 @@ void TestProto3Optional::Clear() {
 }
 
 const char* TestProto3Optional::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -845,8 +844,7 @@ const char* TestProto3Optional::_InternalParse(const char* ptr, ::PROTOBUF_NAMES
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -979,17 +977,13 @@ uint8_t* TestProto3Optional::_InternalSerialize(
   // optional .protobuf_unittest.TestProto3Optional.NestedMessage optional_nested_message = 18;
   if(_internal_has_optional_nested_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        18, _Internal::optional_nested_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(18, _Internal::optional_nested_message(this), target, stream);
   }
 
   // optional .protobuf_unittest.TestProto3Optional.NestedMessage lazy_nested_message = 19 [lazy = true];
   if(_internal_has_lazy_nested_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        19, _Internal::lazy_nested_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(19, _Internal::lazy_nested_message(this), target, stream);
   }
 
   // optional .protobuf_unittest.TestProto3Optional.NestedEnum optional_nested_enum = 21;
@@ -1045,16 +1039,12 @@ size_t TestProto3Optional::ByteSizeLong() const {
 
     // optional .protobuf_unittest.TestProto3Optional.NestedMessage optional_nested_message = 18;
     if(cached_has_bits & 0x00000008u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *optional_nested_message_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_nested_message_);
     }
 
     // optional .protobuf_unittest.TestProto3Optional.NestedMessage lazy_nested_message = 19 [lazy = true];
     if(cached_has_bits & 0x00000010u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *lazy_nested_message_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*lazy_nested_message_);
     }
 
     // optional int64 optional_int64 = 2;
@@ -1295,7 +1285,7 @@ TestProto3OptionalMessage_NestedMessage::TestProto3OptionalMessage_NestedMessage
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestProto3OptionalMessage.NestedMessage)
@@ -1322,7 +1312,7 @@ s_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyIni
 
 TestProto3OptionalMessage_NestedMessage::~TestProto3OptionalMessage_NestedMessage() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestProto3OptionalMessage.NestedMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1353,8 +1343,8 @@ void TestProto3OptionalMessage_NestedMessage::Clear() {
 }
 
 const char* TestProto3OptionalMessage_NestedMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1368,8 +1358,7 @@ const char* TestProto3OptionalMessage_NestedMessage::_InternalParse(const char* 
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1504,7 +1493,7 @@ TestProto3OptionalMessage::TestProto3OptionalMessage(::PROTOBUF_NAMESPACE_ID::Ar
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestProto3OptionalMessage)
@@ -1535,7 +1524,7 @@ inline void TestProto3OptionalMessage::SharedCtor() {
 
 TestProto3OptionalMessage::~TestProto3OptionalMessage() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestProto3OptionalMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1576,9 +1565,9 @@ void TestProto3OptionalMessage::Clear() {
 }
 
 const char* TestProto3OptionalMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1598,8 +1587,7 @@ const char* TestProto3OptionalMessage::_InternalParse(const char* ptr, ::PROTOBU
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1631,17 +1619,13 @@ uint8_t* TestProto3OptionalMessage::_InternalSerialize(
   // .protobuf_unittest.TestProto3OptionalMessage.NestedMessage nested_message = 1;
   if(this->_internal_has_nested_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::nested_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::nested_message(this), target, stream);
   }
 
   // optional .protobuf_unittest.TestProto3OptionalMessage.NestedMessage optional_nested_message = 2;
   if(_internal_has_optional_nested_message()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::optional_nested_message(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::optional_nested_message(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -1662,17 +1646,13 @@ size_t TestProto3OptionalMessage::ByteSizeLong() const {
 
   // .protobuf_unittest.TestProto3OptionalMessage.NestedMessage nested_message = 1;
   if(this->_internal_has_nested_message()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *nested_message_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*nested_message_);
   }
 
   // optional .protobuf_unittest.TestProto3OptionalMessage.NestedMessage optional_nested_message = 2;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *optional_nested_message_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*optional_nested_message_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -1785,19 +1765,19 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIde
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3Optional_NestedMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3Optional_NestedMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3Optional_NestedMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3Optional_NestedMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestProto3Optional_NestedMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3Optional* Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3Optional >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3Optional * Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3Optional >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestProto3Optional >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestProto3OptionalMessage_NestedMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3OptionalMessage* Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3OptionalMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestProto3OptionalMessage * Arena::CreateMaybeMessage< ::protobuf_unittest::TestProto3OptionalMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestProto3OptionalMessage >(arena);
 }
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::Proto3OptionalExtensions* Arena::CreateMaybeMessage< ::protobuf_unittest::Proto3OptionalExtensions >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::Proto3OptionalExtensions * Arena::CreateMaybeMessage< ::protobuf_unittest::Proto3OptionalExtensions >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::Proto3OptionalExtensions >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

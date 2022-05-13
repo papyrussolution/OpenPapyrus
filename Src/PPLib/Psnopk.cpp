@@ -403,7 +403,7 @@ int PsnOpKindView::addItem(long * pPos, long * pID)
 		ASSIGN_PTR(pID, obj_id);
 		return 2;
 	}
-	else if(r == 0)
+	else if(!r)
 		return 0;
 	else
 		return -1;
@@ -823,7 +823,7 @@ int PPObjPsnOpKind::GetPacket(PPID id, PPPsnOpKindPacket * pack)
 					}
 				}
 		}
-		if(r == 0)
+		if(!r)
 			ok = 0;
 	}
 	else

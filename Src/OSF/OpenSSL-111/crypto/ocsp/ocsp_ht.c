@@ -481,7 +481,7 @@ OCSP_RESPONSE * OCSP_sendreq_bio(BIO * b, const char * path, OCSP_REQUEST * req)
 
 	ctx = OCSP_sendreq_new(b, path, req, -1);
 
-	if(ctx == NULL)
+	if(!ctx)
 		return NULL;
 
 	do {

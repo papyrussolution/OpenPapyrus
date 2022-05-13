@@ -1113,7 +1113,7 @@ int archive_write_set_format_iso9660(struct archive * _a)
 	return ARCHIVE_OK;
 }
 
-static int get_str_opt(struct archive_write * a, struct archive_string * s, size_t maxsize, const char * key, const char * value)
+static int STDCALL get_str_opt(struct archive_write * a, struct archive_string * s, size_t maxsize, const char * key, const char * value)
 {
 	if(strlen(value) > maxsize) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Value is longer than %zu characters for option ``%s''", maxsize, key);
@@ -1156,7 +1156,6 @@ static int get_num_opt(struct archive_write * a, int * num, int high, int low, c
 	if(neg)
 		data *= -1;
 	*num = data;
-
 	return ARCHIVE_OK;
 }
 
@@ -1165,20 +1164,15 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 	struct iso9660 * iso9660 = static_cast<struct iso9660 *>(a->format_data);
 	const char * p;
 	int r;
-
 	switch(key[0]) {
 		case 'a':
 		    if(strcmp(key, "abstract-file") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->abstract_file_identifier),
-				    ABSTRACT_FILE_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->abstract_file_identifier), ABSTRACT_FILE_SIZE, key, value);
 			    iso9660->opt.abstract_file = r == ARCHIVE_OK;
 			    return r;
 		    }
 		    if(strcmp(key, "application-id") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->application_identifier),
-				    APPLICATION_IDENTIFIER_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->application_identifier), APPLICATION_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.application_id = r == ARCHIVE_OK;
 			    return r;
 		    }
@@ -1189,9 +1183,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    break;
 		case 'b':
 		    if(strcmp(key, "biblio-file") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->bibliographic_file_identifier),
-				    BIBLIO_FILE_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->bibliographic_file_identifier), BIBLIO_FILE_SIZE, key, value);
 			    iso9660->opt.biblio_file = r == ARCHIVE_OK;
 			    return r;
 		    }
@@ -1200,16 +1192,12 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 				    iso9660->opt.boot = 0;
 			    else {
 				    iso9660->opt.boot = 1;
-				    archive_strcpy(
-					    &(iso9660->el_torito.boot_filename),
-					    value);
+				    archive_strcpy(&(iso9660->el_torito.boot_filename), value);
 			    }
 			    return ARCHIVE_OK;
 		    }
 		    if(strcmp(key, "boot-catalog") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->el_torito.catalog_filename),
-				    1024, key, value);
+			    r = get_str_opt(a, &(iso9660->el_torito.catalog_filename), 1024, key, value);
 			    iso9660->opt.boot_catalog = r == ARCHIVE_OK;
 			    return r;
 		    }
@@ -1359,9 +1347,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    return ARCHIVE_OK;
 		    }
 		    if(strcmp(key, "publisher") == 0) {
-			    r = get_str_opt(a,
-				    &(iso9660->publisher_identifier),
-				    PUBLISHER_IDENTIFIER_SIZE, key, value);
+			    r = get_str_opt(a, &(iso9660->publisher_identifier), PUBLISHER_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.publisher = r == ARCHIVE_OK;
 			    return r;
 		    }
@@ -2408,7 +2394,7 @@ static uchar * extra_open_record(uchar * bp, int dr_len, struct isoent * isoent,
     struct ctl_extr_rec * ctl)
 {
 	ctl->bp = bp;
-	if(bp != NULL)
+	if(bp)
 		bp += dr_len;
 	ctl->use_extr = 0;
 	ctl->isoent = isoent;
@@ -2624,7 +2610,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	/* Write "SP" System Use Entry. */
 	if(t == DIR_REC_SELF && isoent == isoent->parent) {
 		length = 7;
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'S';
 			bp[2] = 'P';
 			bp[3] = length;
@@ -2641,7 +2627,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	length = 5;
 	if(extra_space(&ctl) < length)
 		bp = extra_next_record(&ctl, length);
-	if(bp != NULL) {
+	if(bp) {
 		bp[1] = 'R';
 		bp[2] = 'R';
 		bp[3] = length;
@@ -2668,7 +2654,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 
 		if(extra_space(&ctl) < 6)
 			bp = extra_next_record(&ctl, 6);
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'N';
 			bp[2] = 'M';
 			bp[4] = 1; /* version	*/
@@ -2678,7 +2664,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			nmmax = 0xff;
 		while(nmlen + 5 > nmmax) {
 			length = (int)nmmax;
-			if(bp != NULL) {
+			if(bp) {
 				bp[3] = length;
 				bp[5] = 0x01; /* Alternate Name continues
 				              * in next "NM" field */
@@ -2694,14 +2680,14 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 				if(nmmax > 0xff)
 					nmmax = 0xff;
 			}
-			if(bp != NULL) {
+			if(bp) {
 				bp[1] = 'N';
 				bp[2] = 'M';
 				bp[4] = 1; /* version */
 			}
 		}
 		length = 5 + (int)nmlen;
-		if(bp != NULL) {
+		if(bp) {
 			bp[3] = length;
 			bp[5] = 0;
 			memcpy(bp+6, nm, nmlen);
@@ -2727,7 +2713,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		length = 44;
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			mode_t mode;
 			int64 uid;
 			int64 gid;
@@ -2812,7 +2798,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			bp = extra_next_record(&ctl, 7);
 		sl = file->symlink.s;
 		sl_last = '\0';
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'S';
 			bp[2] = 'L';
 			bp[4] = 1; /* version	*/
@@ -2824,7 +2810,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			slmax = extra_space(&ctl);
 			if(slmax > 0xff)
 				slmax = 0xff;
-			if(bp != NULL)
+			if(bp)
 				nc = &bp[6];
 			else
 				nc = NULL;
@@ -2927,7 +2913,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			}
 			if(*sl) {
 				length = 5 + sllen;
-				if(bp != NULL) {
+				if(bp) {
 					/*
 					 * Mark flg as CONTINUE component.
 					 */
@@ -2949,7 +2935,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 				extra_tell_used_size(&ctl, length);
 				if(extra_space(&ctl) < 11)
 					bp = extra_next_record(&ctl, 11);
-				if(bp != NULL) {
+				if(bp) {
 					/* Next 'SL' */
 					bp[1] = 'S';
 					bp[2] = 'L';
@@ -2958,7 +2944,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 			}
 			else {
 				length = 5 + sllen;
-				if(bp != NULL) {
+				if(bp) {
 					bp[3] = length;
 					bp[5] = 0;
 					bp += length;
@@ -3016,7 +3002,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		}
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'T';
 			bp[2] = 'F';
 			bp[3] = length;
@@ -3064,7 +3050,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		length = 4;
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'R';
 			bp[2] = 'E';
 			bp[3] = length;
@@ -3088,7 +3074,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		length = 12;
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'P';
 			bp[2] = 'L';
 			bp[3] = length;
@@ -3114,18 +3100,16 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		length = 12;
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'C';
 			bp[2] = 'L';
 			bp[3] = length;
 			bp[4] = 1; /* version	*/
-			set_num_733(bp + 5,
-			    isoent->rr_child->dir_location);
+			set_num_733(bp + 5, isoent->rr_child->dir_location);
 			bp += length;
 		}
 		extra_tell_used_size(&ctl, length);
 	}
-
 	/* Write "PN" System Use Entry. */
 	if(rr_flag & RR_USE_PN) {
 		/*
@@ -3139,9 +3123,8 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		length = 20;
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			uint64 dev;
-
 			bp[1] = 'P';
 			bp[2] = 'N';
 			bp[3] = length;
@@ -3171,7 +3154,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		length = 16;
 		if(extra_space(&ctl) < length)
 			bp = extra_next_record(&ctl, length);
-		if(bp != NULL) {
+		if(bp) {
 			bp[1] = 'Z';
 			bp[2] = 'F';
 			bp[3] = length;
@@ -3189,7 +3172,7 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 	/* Write "CE" System Use Entry. */
 	if(t == DIR_REC_SELF && isoent == isoent->parent) {
 		length = RR_CE_SIZE;
-		if(bp != NULL)
+		if(bp)
 			set_SUSP_CE(bp+1, iso9660->location_rrip_er,
 			    0, RRIP_ER_SIZE);
 		extra_tell_used_size(&ctl, length);
@@ -3219,7 +3202,7 @@ static int set_directory_record(uchar * p, size_t n, struct isoent * isoent, str
 	size_t dr_len;
 	size_t fi_len;
 
-	if(p != NULL) {
+	if(p) {
 		/*
 		 * Check whether a write buffer size is less than the
 		 * saved size which is needed to write this Directory
@@ -3245,7 +3228,7 @@ static int set_directory_record(uchar * p, size_t n, struct isoent * isoent, str
 	else
 		fi_len = 1;
 
-	if(p != NULL) {
+	if(p) {
 		struct isoent * xisoent;
 		struct isofile * file;
 		uchar flag;
@@ -3322,15 +3305,13 @@ static int set_directory_record(uchar * p, size_t n, struct isoent * isoent, str
 	/* Padding Field */
 	if(dr_len & 0x01) {
 		dr_len++;
-		if(p != NULL)
+		if(p)
 			bp[dr_len] = 0;
 	}
-
 	/* Volume Descriptor does not record extension. */
 	if(t == DIR_REC_VD) {
-		if(p != NULL)
-			/* Length of Directory Record */
-			set_num_711(p, (uchar)dr_len);
+		if(p)
+			set_num_711(p, (uchar)dr_len); /* Length of Directory Record */
 		else
 			isoent->dr_len.vd = (int)dr_len;
 		return ((int)dr_len);
@@ -3338,13 +3319,12 @@ static int set_directory_record(uchar * p, size_t n, struct isoent * isoent, str
 	/* Rockridge */
 	if(iso9660->opt.rr && vdd_type != iso9660::vdd::VDD_JOLIET)
 		dr_len = set_directory_record_rr(bp, (int)dr_len, isoent, iso9660, t);
-	if(p != NULL)
+	if(p)
 		/* Length of Directory Record */
 		set_num_711(p, (uchar)dr_len);
 	else {
 		/*
-		 * Save the size which is needed to write this
-		 * Directory Record.
+		 * Save the size which is needed to write this Directory Record.
 		 */
 		switch(t) {
 			case DIR_REC_VD:
@@ -5028,8 +5008,7 @@ static void _isoent_file_location(struct iso9660 * iso9660, struct isoent * isoe
 		file = np->file;
 		if(file->boot || file->hardlink_target != NULL)
 			continue;
-		if(archive_entry_filetype(file->entry) == AE_IFLNK ||
-		    file->content.size == 0) {
+		if(archive_entry_filetype(file->entry) == AE_IFLNK || file->content.size == 0) {
 			/*
 			 * Do not point a valid location.
 			 * Make sure entry is not hardlink file.
@@ -5040,7 +5019,6 @@ static void _isoent_file_location(struct iso9660 * iso9660, struct isoent * isoe
 		file->write_content = 1;
 	}
 }
-
 /*
  * Setup file locations.
  */

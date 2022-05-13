@@ -416,23 +416,21 @@ typedef uchar uint8_t;
 
 #define HASH_JEN(key, keylen, num_bkts, hashv, bkt)                                                                              \
     do {                                                                                                                         \
-        unsigned _hj_i, _hj_j, _hj_k;                                                                                            \
+        uint   _hj_i, _hj_j, _hj_k;                                                                                            \
         uchar *_hj_key = (uchar *)(key);                                                                         \
         hashv = 0xfeedbeef;                                                                                                      \
-        _hj_i = _hj_j = 0x9e3779b9;                                                                                              \
+        _hj_i = _hj_j = _SlConst.GoldenRatioInt32/*0x9e3779b9*/;                                                                 \
         _hj_k = (uint)(keylen);                                                                                              \
         while(_hj_k >= 12) {                                                                                                    \
             _hj_i += (_hj_key[0] + ((uint)_hj_key[1] << 8) + ((uint)_hj_key[2] << 16) + ((uint)_hj_key[3] << 24));   \
             _hj_j += (_hj_key[4] + ((uint)_hj_key[5] << 8) + ((uint)_hj_key[6] << 16) + ((uint)_hj_key[7] << 24));   \
             hashv += (_hj_key[8] + ((uint)_hj_key[9] << 8) + ((uint)_hj_key[10] << 16) + ((uint)_hj_key[11] << 24)); \
-                                                                                                                                 \
             HASH_JEN_MIX(_hj_i, _hj_j, hashv);                                                                                   \
-                                                                                                                                 \
             _hj_key += 12;                                                                                                       \
             _hj_k -= 12;                                                                                                         \
         }                                                                                                                        \
         hashv += keylen;                                                                                                         \
-        switch (_hj_k) {                                                                                                         \
+        switch(_hj_k) {                                                                                                         \
             case 11:                                                                                                             \
                 hashv += ((uint)_hj_key[10] << 24);                                                                          \
             /* fall through */                                                                                                   \

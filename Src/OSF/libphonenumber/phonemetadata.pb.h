@@ -641,16 +641,14 @@ class PhoneMetadata final :
   public:
   void clear_number_format();
   ::i18n::phonenumbers::NumberFormat* mutable_number_format(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat >*
-      mutable_number_format();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat > * mutable_number_format();
   private:
   const ::i18n::phonenumbers::NumberFormat& _internal_number_format(int index) const;
   ::i18n::phonenumbers::NumberFormat* _internal_add_number_format();
   public:
   const ::i18n::phonenumbers::NumberFormat& number_format(int index) const;
   ::i18n::phonenumbers::NumberFormat* add_number_format();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat >&
-      number_format() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat > & number_format() const;
 
   // repeated .i18n.phonenumbers.NumberFormat intl_number_format = 20;
   int intl_number_format_size() const;
@@ -659,16 +657,14 @@ class PhoneMetadata final :
   public:
   void clear_intl_number_format();
   ::i18n::phonenumbers::NumberFormat* mutable_intl_number_format(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat >*
-      mutable_intl_number_format();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat > * mutable_intl_number_format();
   private:
   const ::i18n::phonenumbers::NumberFormat& _internal_intl_number_format(int index) const;
   ::i18n::phonenumbers::NumberFormat* _internal_add_intl_number_format();
   public:
   const ::i18n::phonenumbers::NumberFormat& intl_number_format(int index) const;
   ::i18n::phonenumbers::NumberFormat* add_intl_number_format();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat >&
-      intl_number_format() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat > & intl_number_format() const;
 
   // required string id = 9;
   bool has_id() const;
@@ -1335,16 +1331,14 @@ class PhoneMetadataCollection final :
   public:
   void clear_metadata();
   ::i18n::phonenumbers::PhoneMetadata* mutable_metadata(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::PhoneMetadata >*
-      mutable_metadata();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::PhoneMetadata > * mutable_metadata();
   private:
   const ::i18n::phonenumbers::PhoneMetadata& _internal_metadata(int index) const;
   ::i18n::phonenumbers::PhoneMetadata* _internal_add_metadata();
   public:
   const ::i18n::phonenumbers::PhoneMetadata& metadata(int index) const;
   ::i18n::phonenumbers::PhoneMetadata* add_metadata();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::PhoneMetadata >&
-      metadata() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::PhoneMetadata > & metadata() const;
 
   // @@protoc_insertion_point(class_scope:i18n.phonenumbers.PhoneMetadataCollection)
  private:
@@ -1961,11 +1955,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::general_desc(
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_general_desc(
     ::i18n::phonenumbers::PhoneNumberDesc* general_desc) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(general_desc_);
   }
   general_desc_ = general_desc;
-  if (general_desc) {
+  if(general_desc) {
     _has_bits_[0] |= 0x00000100u;
   } else {
     _has_bits_[0] &= ~0x00000100u;
@@ -1979,9 +1973,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_general_des
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1996,7 +1990,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_general_desc() {
   _has_bits_[0] |= 0x00000100u;
-  if (general_desc_ == nullptr) {
+  if(general_desc_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     general_desc_ = p;
   }
@@ -2009,15 +2003,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_general_des
 }
 inline void PhoneMetadata::set_allocated_general_desc(::i18n::phonenumbers::PhoneNumberDesc* general_desc) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete general_desc_;
   }
-  if (general_desc) {
+  if(general_desc) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(general_desc);
-    if (message_arena != submessage_arena) {
-      general_desc = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, general_desc, submessage_arena);
+    if(message_arena != submessage_arena) {
+      general_desc = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, general_desc, submessage_arena);
     }
     _has_bits_[0] |= 0x00000100u;
   } else {
@@ -2051,11 +2044,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::fixed_line() 
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_fixed_line(
     ::i18n::phonenumbers::PhoneNumberDesc* fixed_line) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(fixed_line_);
   }
   fixed_line_ = fixed_line;
-  if (fixed_line) {
+  if(fixed_line) {
     _has_bits_[0] |= 0x00000200u;
   } else {
     _has_bits_[0] &= ~0x00000200u;
@@ -2069,9 +2062,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_fixed_line(
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2086,7 +2079,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_fixed_line() {
   _has_bits_[0] |= 0x00000200u;
-  if (fixed_line_ == nullptr) {
+  if(fixed_line_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     fixed_line_ = p;
   }
@@ -2099,15 +2092,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_fixed_line(
 }
 inline void PhoneMetadata::set_allocated_fixed_line(::i18n::phonenumbers::PhoneNumberDesc* fixed_line) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete fixed_line_;
   }
-  if (fixed_line) {
+  if(fixed_line) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(fixed_line);
-    if (message_arena != submessage_arena) {
-      fixed_line = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, fixed_line, submessage_arena);
+    if(message_arena != submessage_arena) {
+      fixed_line = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, fixed_line, submessage_arena);
     }
     _has_bits_[0] |= 0x00000200u;
   } else {
@@ -2141,11 +2133,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::mobile() cons
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_mobile(
     ::i18n::phonenumbers::PhoneNumberDesc* mobile) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(mobile_);
   }
   mobile_ = mobile;
-  if (mobile) {
+  if(mobile) {
     _has_bits_[0] |= 0x00000400u;
   } else {
     _has_bits_[0] &= ~0x00000400u;
@@ -2159,9 +2151,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_mobile() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2176,7 +2168,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_mobile() {
   _has_bits_[0] |= 0x00000400u;
-  if (mobile_ == nullptr) {
+  if(mobile_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     mobile_ = p;
   }
@@ -2189,15 +2181,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_mobile() {
 }
 inline void PhoneMetadata::set_allocated_mobile(::i18n::phonenumbers::PhoneNumberDesc* mobile) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete mobile_;
   }
-  if (mobile) {
+  if(mobile) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(mobile);
-    if (message_arena != submessage_arena) {
-      mobile = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, mobile, submessage_arena);
+    if(message_arena != submessage_arena) {
+      mobile = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, mobile, submessage_arena);
     }
     _has_bits_[0] |= 0x00000400u;
   } else {
@@ -2231,11 +2222,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::toll_free() c
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_toll_free(
     ::i18n::phonenumbers::PhoneNumberDesc* toll_free) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(toll_free_);
   }
   toll_free_ = toll_free;
-  if (toll_free) {
+  if(toll_free) {
     _has_bits_[0] |= 0x00000800u;
   } else {
     _has_bits_[0] &= ~0x00000800u;
@@ -2249,9 +2240,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_toll_free()
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2266,7 +2257,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_toll_free() {
   _has_bits_[0] |= 0x00000800u;
-  if (toll_free_ == nullptr) {
+  if(toll_free_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     toll_free_ = p;
   }
@@ -2279,15 +2270,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_toll_free()
 }
 inline void PhoneMetadata::set_allocated_toll_free(::i18n::phonenumbers::PhoneNumberDesc* toll_free) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete toll_free_;
   }
-  if (toll_free) {
+  if(toll_free) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(toll_free);
-    if (message_arena != submessage_arena) {
-      toll_free = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, toll_free, submessage_arena);
+    if(message_arena != submessage_arena) {
+      toll_free = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, toll_free, submessage_arena);
     }
     _has_bits_[0] |= 0x00000800u;
   } else {
@@ -2321,11 +2311,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::premium_rate(
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_premium_rate(
     ::i18n::phonenumbers::PhoneNumberDesc* premium_rate) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(premium_rate_);
   }
   premium_rate_ = premium_rate;
-  if (premium_rate) {
+  if(premium_rate) {
     _has_bits_[0] |= 0x00001000u;
   } else {
     _has_bits_[0] &= ~0x00001000u;
@@ -2339,9 +2329,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_premium_rat
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2356,7 +2346,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_premium_rate() {
   _has_bits_[0] |= 0x00001000u;
-  if (premium_rate_ == nullptr) {
+  if(premium_rate_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     premium_rate_ = p;
   }
@@ -2369,15 +2359,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_premium_rat
 }
 inline void PhoneMetadata::set_allocated_premium_rate(::i18n::phonenumbers::PhoneNumberDesc* premium_rate) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete premium_rate_;
   }
-  if (premium_rate) {
+  if(premium_rate) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(premium_rate);
-    if (message_arena != submessage_arena) {
-      premium_rate = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, premium_rate, submessage_arena);
+    if(message_arena != submessage_arena) {
+      premium_rate = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, premium_rate, submessage_arena);
     }
     _has_bits_[0] |= 0x00001000u;
   } else {
@@ -2411,11 +2400,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::shared_cost()
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_shared_cost(
     ::i18n::phonenumbers::PhoneNumberDesc* shared_cost) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(shared_cost_);
   }
   shared_cost_ = shared_cost;
-  if (shared_cost) {
+  if(shared_cost) {
     _has_bits_[0] |= 0x00002000u;
   } else {
     _has_bits_[0] &= ~0x00002000u;
@@ -2429,9 +2418,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_shared_cost
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2446,7 +2435,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_shared_cost() {
   _has_bits_[0] |= 0x00002000u;
-  if (shared_cost_ == nullptr) {
+  if(shared_cost_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     shared_cost_ = p;
   }
@@ -2459,15 +2448,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_shared_cost
 }
 inline void PhoneMetadata::set_allocated_shared_cost(::i18n::phonenumbers::PhoneNumberDesc* shared_cost) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete shared_cost_;
   }
-  if (shared_cost) {
+  if(shared_cost) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(shared_cost);
-    if (message_arena != submessage_arena) {
-      shared_cost = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, shared_cost, submessage_arena);
+    if(message_arena != submessage_arena) {
+      shared_cost = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, shared_cost, submessage_arena);
     }
     _has_bits_[0] |= 0x00002000u;
   } else {
@@ -2501,11 +2489,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::personal_numb
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_personal_number(
     ::i18n::phonenumbers::PhoneNumberDesc* personal_number) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(personal_number_);
   }
   personal_number_ = personal_number;
-  if (personal_number) {
+  if(personal_number) {
     _has_bits_[0] |= 0x00004000u;
   } else {
     _has_bits_[0] &= ~0x00004000u;
@@ -2519,9 +2507,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_personal_nu
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2536,7 +2524,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_personal_number() {
   _has_bits_[0] |= 0x00004000u;
-  if (personal_number_ == nullptr) {
+  if(personal_number_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     personal_number_ = p;
   }
@@ -2549,15 +2537,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_personal_nu
 }
 inline void PhoneMetadata::set_allocated_personal_number(::i18n::phonenumbers::PhoneNumberDesc* personal_number) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete personal_number_;
   }
-  if (personal_number) {
+  if(personal_number) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(personal_number);
-    if (message_arena != submessage_arena) {
-      personal_number = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, personal_number, submessage_arena);
+    if(message_arena != submessage_arena) {
+      personal_number = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, personal_number, submessage_arena);
     }
     _has_bits_[0] |= 0x00004000u;
   } else {
@@ -2591,11 +2578,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::voip() const 
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_voip(
     ::i18n::phonenumbers::PhoneNumberDesc* voip) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(voip_);
   }
   voip_ = voip;
-  if (voip) {
+  if(voip) {
     _has_bits_[0] |= 0x00008000u;
   } else {
     _has_bits_[0] &= ~0x00008000u;
@@ -2609,9 +2596,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_voip() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2626,7 +2613,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_voip() {
   _has_bits_[0] |= 0x00008000u;
-  if (voip_ == nullptr) {
+  if(voip_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     voip_ = p;
   }
@@ -2639,15 +2626,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_voip() {
 }
 inline void PhoneMetadata::set_allocated_voip(::i18n::phonenumbers::PhoneNumberDesc* voip) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete voip_;
   }
-  if (voip) {
+  if(voip) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(voip);
-    if (message_arena != submessage_arena) {
-      voip = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, voip, submessage_arena);
+    if(message_arena != submessage_arena) {
+      voip = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, voip, submessage_arena);
     }
     _has_bits_[0] |= 0x00008000u;
   } else {
@@ -2681,11 +2667,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::pager() const
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_pager(
     ::i18n::phonenumbers::PhoneNumberDesc* pager) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(pager_);
   }
   pager_ = pager;
-  if (pager) {
+  if(pager) {
     _has_bits_[0] |= 0x00010000u;
   } else {
     _has_bits_[0] &= ~0x00010000u;
@@ -2699,9 +2685,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_pager() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2716,7 +2702,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_pager() {
   _has_bits_[0] |= 0x00010000u;
-  if (pager_ == nullptr) {
+  if(pager_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     pager_ = p;
   }
@@ -2729,15 +2715,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_pager() {
 }
 inline void PhoneMetadata::set_allocated_pager(::i18n::phonenumbers::PhoneNumberDesc* pager) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete pager_;
   }
-  if (pager) {
+  if(pager) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(pager);
-    if (message_arena != submessage_arena) {
-      pager = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, pager, submessage_arena);
+    if(message_arena != submessage_arena) {
+      pager = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, pager, submessage_arena);
     }
     _has_bits_[0] |= 0x00010000u;
   } else {
@@ -2771,11 +2756,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::uan() const {
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_uan(
     ::i18n::phonenumbers::PhoneNumberDesc* uan) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(uan_);
   }
   uan_ = uan;
-  if (uan) {
+  if(uan) {
     _has_bits_[0] |= 0x00040000u;
   } else {
     _has_bits_[0] &= ~0x00040000u;
@@ -2789,9 +2774,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_uan() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2806,7 +2791,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_uan() {
   _has_bits_[0] |= 0x00040000u;
-  if (uan_ == nullptr) {
+  if(uan_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     uan_ = p;
   }
@@ -2819,15 +2804,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_uan() {
 }
 inline void PhoneMetadata::set_allocated_uan(::i18n::phonenumbers::PhoneNumberDesc* uan) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete uan_;
   }
-  if (uan) {
+  if(uan) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(uan);
-    if (message_arena != submessage_arena) {
-      uan = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, uan, submessage_arena);
+    if(message_arena != submessage_arena) {
+      uan = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, uan, submessage_arena);
     }
     _has_bits_[0] |= 0x00040000u;
   } else {
@@ -2861,11 +2845,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::emergency() c
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_emergency(
     ::i18n::phonenumbers::PhoneNumberDesc* emergency) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(emergency_);
   }
   emergency_ = emergency;
-  if (emergency) {
+  if(emergency) {
     _has_bits_[0] |= 0x00080000u;
   } else {
     _has_bits_[0] &= ~0x00080000u;
@@ -2879,9 +2863,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_emergency()
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2896,7 +2880,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_emergency() {
   _has_bits_[0] |= 0x00080000u;
-  if (emergency_ == nullptr) {
+  if(emergency_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     emergency_ = p;
   }
@@ -2909,15 +2893,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_emergency()
 }
 inline void PhoneMetadata::set_allocated_emergency(::i18n::phonenumbers::PhoneNumberDesc* emergency) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete emergency_;
   }
-  if (emergency) {
+  if(emergency) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(emergency);
-    if (message_arena != submessage_arena) {
-      emergency = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, emergency, submessage_arena);
+    if(message_arena != submessage_arena) {
+      emergency = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, emergency, submessage_arena);
     }
     _has_bits_[0] |= 0x00080000u;
   } else {
@@ -2951,11 +2934,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::voicemail() c
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_voicemail(
     ::i18n::phonenumbers::PhoneNumberDesc* voicemail) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(voicemail_);
   }
   voicemail_ = voicemail;
-  if (voicemail) {
+  if(voicemail) {
     _has_bits_[0] |= 0x00100000u;
   } else {
     _has_bits_[0] &= ~0x00100000u;
@@ -2969,9 +2952,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_voicemail()
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2986,7 +2969,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_voicemail() {
   _has_bits_[0] |= 0x00100000u;
-  if (voicemail_ == nullptr) {
+  if(voicemail_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     voicemail_ = p;
   }
@@ -2999,15 +2982,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_voicemail()
 }
 inline void PhoneMetadata::set_allocated_voicemail(::i18n::phonenumbers::PhoneNumberDesc* voicemail) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete voicemail_;
   }
-  if (voicemail) {
+  if(voicemail) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(voicemail);
-    if (message_arena != submessage_arena) {
-      voicemail = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, voicemail, submessage_arena);
+    if(message_arena != submessage_arena) {
+      voicemail = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, voicemail, submessage_arena);
     }
     _has_bits_[0] |= 0x00100000u;
   } else {
@@ -3041,11 +3023,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::short_code() 
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_short_code(
     ::i18n::phonenumbers::PhoneNumberDesc* short_code) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(short_code_);
   }
   short_code_ = short_code;
-  if (short_code) {
+  if(short_code) {
     _has_bits_[0] |= 0x00200000u;
   } else {
     _has_bits_[0] &= ~0x00200000u;
@@ -3059,9 +3041,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_short_code(
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3076,7 +3058,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_short_code() {
   _has_bits_[0] |= 0x00200000u;
-  if (short_code_ == nullptr) {
+  if(short_code_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     short_code_ = p;
   }
@@ -3089,15 +3071,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_short_code(
 }
 inline void PhoneMetadata::set_allocated_short_code(::i18n::phonenumbers::PhoneNumberDesc* short_code) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete short_code_;
   }
-  if (short_code) {
+  if(short_code) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(short_code);
-    if (message_arena != submessage_arena) {
-      short_code = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, short_code, submessage_arena);
+    if(message_arena != submessage_arena) {
+      short_code = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, short_code, submessage_arena);
     }
     _has_bits_[0] |= 0x00200000u;
   } else {
@@ -3131,11 +3112,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::standard_rate
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_standard_rate(
     ::i18n::phonenumbers::PhoneNumberDesc* standard_rate) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(standard_rate_);
   }
   standard_rate_ = standard_rate;
-  if (standard_rate) {
+  if(standard_rate) {
     _has_bits_[0] |= 0x00400000u;
   } else {
     _has_bits_[0] &= ~0x00400000u;
@@ -3149,9 +3130,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_standard_ra
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3166,7 +3147,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_standard_rate() {
   _has_bits_[0] |= 0x00400000u;
-  if (standard_rate_ == nullptr) {
+  if(standard_rate_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     standard_rate_ = p;
   }
@@ -3179,15 +3160,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_standard_ra
 }
 inline void PhoneMetadata::set_allocated_standard_rate(::i18n::phonenumbers::PhoneNumberDesc* standard_rate) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete standard_rate_;
   }
-  if (standard_rate) {
+  if(standard_rate) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(standard_rate);
-    if (message_arena != submessage_arena) {
-      standard_rate = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, standard_rate, submessage_arena);
+    if(message_arena != submessage_arena) {
+      standard_rate = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, standard_rate, submessage_arena);
     }
     _has_bits_[0] |= 0x00400000u;
   } else {
@@ -3221,11 +3201,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::carrier_speci
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_carrier_specific(
     ::i18n::phonenumbers::PhoneNumberDesc* carrier_specific) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(carrier_specific_);
   }
   carrier_specific_ = carrier_specific;
-  if (carrier_specific) {
+  if(carrier_specific) {
     _has_bits_[0] |= 0x00800000u;
   } else {
     _has_bits_[0] &= ~0x00800000u;
@@ -3239,9 +3219,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_carrier_spe
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3256,7 +3236,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_carrier_specific() {
   _has_bits_[0] |= 0x00800000u;
-  if (carrier_specific_ == nullptr) {
+  if(carrier_specific_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     carrier_specific_ = p;
   }
@@ -3269,15 +3249,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_carrier_spe
 }
 inline void PhoneMetadata::set_allocated_carrier_specific(::i18n::phonenumbers::PhoneNumberDesc* carrier_specific) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete carrier_specific_;
   }
-  if (carrier_specific) {
+  if(carrier_specific) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(carrier_specific);
-    if (message_arena != submessage_arena) {
-      carrier_specific = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, carrier_specific, submessage_arena);
+    if(message_arena != submessage_arena) {
+      carrier_specific = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, carrier_specific, submessage_arena);
     }
     _has_bits_[0] |= 0x00800000u;
   } else {
@@ -3311,11 +3290,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::sms_services(
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_sms_services(
     ::i18n::phonenumbers::PhoneNumberDesc* sms_services) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(sms_services_);
   }
   sms_services_ = sms_services;
-  if (sms_services) {
+  if(sms_services) {
     _has_bits_[0] |= 0x01000000u;
   } else {
     _has_bits_[0] &= ~0x01000000u;
@@ -3329,9 +3308,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_sms_service
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3346,7 +3325,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_sms_services() {
   _has_bits_[0] |= 0x01000000u;
-  if (sms_services_ == nullptr) {
+  if(sms_services_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     sms_services_ = p;
   }
@@ -3359,15 +3338,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_sms_service
 }
 inline void PhoneMetadata::set_allocated_sms_services(::i18n::phonenumbers::PhoneNumberDesc* sms_services) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete sms_services_;
   }
-  if (sms_services) {
+  if(sms_services) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(sms_services);
-    if (message_arena != submessage_arena) {
-      sms_services = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, sms_services, submessage_arena);
+    if(message_arena != submessage_arena) {
+      sms_services = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, sms_services, submessage_arena);
     }
     _has_bits_[0] |= 0x01000000u;
   } else {
@@ -3401,11 +3379,11 @@ inline const ::i18n::phonenumbers::PhoneNumberDesc& PhoneMetadata::no_internatio
 }
 inline void PhoneMetadata::unsafe_arena_set_allocated_no_international_dialling(
     ::i18n::phonenumbers::PhoneNumberDesc* no_international_dialling) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(no_international_dialling_);
   }
   no_international_dialling_ = no_international_dialling;
-  if (no_international_dialling) {
+  if(no_international_dialling) {
     _has_bits_[0] |= 0x00020000u;
   } else {
     _has_bits_[0] &= ~0x00020000u;
@@ -3419,9 +3397,9 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::release_no_internat
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -3436,7 +3414,7 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::unsafe_arena_releas
 }
 inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::_internal_mutable_no_international_dialling() {
   _has_bits_[0] |= 0x00020000u;
-  if (no_international_dialling_ == nullptr) {
+  if(no_international_dialling_ == nullptr) {
     auto* p = CreateMaybeMessage<::i18n::phonenumbers::PhoneNumberDesc>(GetArenaForAllocation());
     no_international_dialling_ = p;
   }
@@ -3449,15 +3427,14 @@ inline ::i18n::phonenumbers::PhoneNumberDesc* PhoneMetadata::mutable_no_internat
 }
 inline void PhoneMetadata::set_allocated_no_international_dialling(::i18n::phonenumbers::PhoneNumberDesc* no_international_dialling) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete no_international_dialling_;
   }
-  if (no_international_dialling) {
+  if(no_international_dialling) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::i18n::phonenumbers::PhoneNumberDesc>::GetOwningArena(no_international_dialling);
-    if (message_arena != submessage_arena) {
-      no_international_dialling = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, no_international_dialling, submessage_arena);
+    if(message_arena != submessage_arena) {
+      no_international_dialling = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, no_international_dialling, submessage_arena);
     }
     _has_bits_[0] |= 0x00020000u;
   } else {
@@ -3984,16 +3961,15 @@ PhoneMetadata::mutable_number_format() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneMetadata.number_format)
   return &number_format_;
 }
-inline const ::i18n::phonenumbers::NumberFormat& PhoneMetadata::_internal_number_format(int index) const {
-  return number_format_.Get(index);
+inline const ::i18n::phonenumbers::NumberFormat& PhoneMetadata::_internal_number_format(int index) const
+{
+ return number_format_.Get(index);
 }
 inline const ::i18n::phonenumbers::NumberFormat& PhoneMetadata::number_format(int index) const {
   // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.number_format)
   return _internal_number_format(index);
 }
-inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::_internal_add_number_format() {
-  return number_format_.Add();
-}
+inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::_internal_add_number_format() { return number_format_.Add(); }
 inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::add_number_format() {
   ::i18n::phonenumbers::NumberFormat* _add = _internal_add_number_format();
   // @@protoc_insertion_point(field_add:i18n.phonenumbers.PhoneMetadata.number_format)
@@ -4022,16 +3998,15 @@ PhoneMetadata::mutable_intl_number_format() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneMetadata.intl_number_format)
   return &intl_number_format_;
 }
-inline const ::i18n::phonenumbers::NumberFormat& PhoneMetadata::_internal_intl_number_format(int index) const {
-  return intl_number_format_.Get(index);
+inline const ::i18n::phonenumbers::NumberFormat& PhoneMetadata::_internal_intl_number_format(int index) const
+{
+ return intl_number_format_.Get(index);
 }
 inline const ::i18n::phonenumbers::NumberFormat& PhoneMetadata::intl_number_format(int index) const {
   // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadata.intl_number_format)
   return _internal_intl_number_format(index);
 }
-inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::_internal_add_intl_number_format() {
-  return intl_number_format_.Add();
-}
+inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::_internal_add_intl_number_format() { return intl_number_format_.Add(); }
 inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::add_intl_number_format() {
   ::i18n::phonenumbers::NumberFormat* _add = _internal_add_intl_number_format();
   // @@protoc_insertion_point(field_add:i18n.phonenumbers.PhoneMetadata.intl_number_format)
@@ -4206,16 +4181,15 @@ PhoneMetadataCollection::mutable_metadata() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneMetadataCollection.metadata)
   return &metadata_;
 }
-inline const ::i18n::phonenumbers::PhoneMetadata& PhoneMetadataCollection::_internal_metadata(int index) const {
-  return metadata_.Get(index);
+inline const ::i18n::phonenumbers::PhoneMetadata& PhoneMetadataCollection::_internal_metadata(int index) const
+{
+ return metadata_.Get(index);
 }
 inline const ::i18n::phonenumbers::PhoneMetadata& PhoneMetadataCollection::metadata(int index) const {
   // @@protoc_insertion_point(field_get:i18n.phonenumbers.PhoneMetadataCollection.metadata)
   return _internal_metadata(index);
 }
-inline ::i18n::phonenumbers::PhoneMetadata* PhoneMetadataCollection::_internal_add_metadata() {
-  return metadata_.Add();
-}
+inline ::i18n::phonenumbers::PhoneMetadata* PhoneMetadataCollection::_internal_add_metadata() { return metadata_.Add(); }
 inline ::i18n::phonenumbers::PhoneMetadata* PhoneMetadataCollection::add_metadata() {
   ::i18n::phonenumbers::PhoneMetadata* _add = _internal_add_metadata();
   // @@protoc_insertion_point(field_add:i18n.phonenumbers.PhoneMetadataCollection.metadata)

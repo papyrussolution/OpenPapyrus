@@ -1135,7 +1135,7 @@ void Notepad_plus::wsTabConvert(spaceTab whichWay)
 					if(*ch == '\t')
 						++count;
 				}
-				if(count == 0) {
+				if(!count) {
 					delete [] source;
 					return;
 				}

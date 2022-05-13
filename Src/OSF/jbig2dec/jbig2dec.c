@@ -564,7 +564,7 @@ int main(int argc, char ** argv)
 		    }
 		    ctx = jbig2_ctx_new((Jbig2Allocator*)allocator, (Jbig2Options)(f_page != NULL || params.embedded ? JBIG2_OPTIONS_EMBEDDED : 0),
 			    NULL, error_callback, &error_callback_state);
-		    if(ctx == NULL) {
+		    if(!ctx) {
 			    fclose(f);
 			    if(f_page)
 				    fclose(f_page);

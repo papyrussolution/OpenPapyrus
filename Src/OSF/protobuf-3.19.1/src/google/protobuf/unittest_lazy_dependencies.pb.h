@@ -442,11 +442,11 @@ inline const ::protobuf_unittest::lazy_imports::LazyMessage& ImportedMessage::la
 }
 inline void ImportedMessage::unsafe_arena_set_allocated_lazy_message(
     ::protobuf_unittest::lazy_imports::LazyMessage* lazy_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(lazy_message_);
   }
   lazy_message_ = lazy_message;
-  if (lazy_message) {
+  if(lazy_message) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -460,9 +460,9 @@ inline ::protobuf_unittest::lazy_imports::LazyMessage* ImportedMessage::release_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -477,7 +477,7 @@ inline ::protobuf_unittest::lazy_imports::LazyMessage* ImportedMessage::unsafe_a
 }
 inline ::protobuf_unittest::lazy_imports::LazyMessage* ImportedMessage::_internal_mutable_lazy_message() {
   _has_bits_[0] |= 0x00000001u;
-  if (lazy_message_ == nullptr) {
+  if(lazy_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::lazy_imports::LazyMessage>(GetArenaForAllocation());
     lazy_message_ = p;
   }
@@ -490,17 +490,15 @@ inline ::protobuf_unittest::lazy_imports::LazyMessage* ImportedMessage::mutable_
 }
 inline void ImportedMessage::set_allocated_lazy_message(::protobuf_unittest::lazy_imports::LazyMessage* lazy_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(lazy_message_);
   }
-  if (lazy_message) {
+  if(lazy_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(lazy_message));
-    if (message_arena != submessage_arena) {
-      lazy_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, lazy_message, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(lazy_message));
+    if(message_arena != submessage_arena) {
+      lazy_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, lazy_message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {

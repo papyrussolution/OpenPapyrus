@@ -107,7 +107,7 @@ const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*Empty::GetClassData() const { 
 // @@protoc_insertion_point(namespace_scope)
 PROTOBUF_NAMESPACE_CLOSE
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Empty* Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Empty >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::PROTOBUF_NAMESPACE_ID::Empty * Arena::CreateMaybeMessage< ::PROTOBUF_NAMESPACE_ID::Empty >(Arena* arena) {
   return Arena::CreateMessageInternal< ::PROTOBUF_NAMESPACE_ID::Empty >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

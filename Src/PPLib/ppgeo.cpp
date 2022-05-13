@@ -36,7 +36,7 @@ size_t PPOsm::NodeCluster::GetSize() const
 	static const uint __row[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
 	uint   possible_count = 0;
 	uint   possible_count_logic = 0;
-	if(count == 0)
+	if(!count)
 		possible_count = 0;
 	else {
 		if(count == 1) {

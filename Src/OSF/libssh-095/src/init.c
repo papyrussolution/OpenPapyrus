@@ -197,7 +197,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 	switch(fdwReason) {
 		case DLL_PROCESS_ATTACH:
 		    rc = _ssh_init(1);
-		    if(rc != 0) {
+		    if(rc) {
 			    slfprintf_stderr("DllMain: ssh_init failed!");
 			    return FALSE;
 		    }

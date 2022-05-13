@@ -16,13 +16,13 @@
 #pragma hdrstop
 
 // D50 - Widely used
-const cmsCIEXYZ* CMSEXPORT cmsD50_XYZ(void)
+const cmsCIEXYZ* CMSEXPORT cmsD50_XYZ()
 {
 	static cmsCIEXYZ D50XYZ = {cmsD50X, cmsD50Y, cmsD50Z};
 	return &D50XYZ;
 }
 
-const cmsCIExyY* CMSEXPORT cmsD50_xyY(void)
+const cmsCIExyY* CMSEXPORT cmsD50_xyY()
 {
 	static cmsCIExyY D50xyY;
 	cmsXYZ2xyY(&D50xyY, cmsD50_XYZ());

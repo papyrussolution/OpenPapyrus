@@ -83,7 +83,7 @@ void errno_to_string(int e, string & s)
 	// number should be returned on error, but glibc < 2.13 returns -1 and sets
 	// errno.
 	int r = strerror_r(e, buf, sizeof(buf));
-	if(r == 0) {
+	if(!r) {
 		s += buf;
 	}
 	else {

@@ -114,23 +114,6 @@ int PPPaths::Resize(size_t sz)
 	return ok;
 }
 
-/* @v9.4.8 int PPPaths::GetPath(PPID pathID, short * pFlags, char * pBuf, size_t bufLen) const
-{
-	if(P) {
-		for(uint s = 0; s < P->TailSize;) {
-			const PathItem * p = (const PathItem*)(((char *)(P + 1)) + s);
-			if(p->ID == pathID) {
-				ASSIGN_PTR(pFlags, p->Flags);
-				return p->GetPath(pBuf, bufLen);
-			}
-			s += p->Size;
-		}
-	}
-	ASSIGN_PTR(pFlags, PATHF_EMPTY);
-	ASSIGN_PTR(pBuf, 0);
-	return -1;
-}*/
-
 int PPPaths::GetPath(PPID pathID, short * pFlags, SString & rBuf) const
 {
 	rBuf.Z();
@@ -157,8 +140,7 @@ int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 	size_t s  = 0;
 	int    found = 0;
 	PathItem * pi = 0;
-	if(P == 0)
-		THROW(Resize(sizeof(PathData)));
+	THROW(P || Resize(sizeof(PathData)));
 	cp = PTR8(P + 1);
 	hs = sizeof(PathData);
 	ts = (size_t)P->TailSize;
@@ -219,14 +201,6 @@ int PPPaths::SetPath(PPID pathID, const char * pBuf, short flags, int replace)
 	PathItem::operator delete(pi, 0);
 	return ok;
 }
-
-/* @v9.4.8 int PPPaths::Get(PPID obj, PPID id, PPID pathID, char * pBuf, size_t bufLen)
-{
-	SString temp_buf;
-	int    ok = Get(obj, id, pathID, temp_buf);
-	temp_buf.CopyTo(pBuf, bufLen);
-	return ok;
-} */
 
 int PPPaths::Get(PPID obj, PPID id, PPID pathID, SString & rBuf)
 {
@@ -449,7 +423,7 @@ void PPPaths::DumpToStr(SString & rBuf) const
 	}
 }
 
-int FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
+int STDCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 {
 	rBuf.Z();
 	if(PPGetPath(pathID, rBuf)) {
@@ -460,13 +434,13 @@ int FASTCALL PPGetFilePath(PPID pathID, const char * pFileName, SString & rBuf)
 		return 0;
 }
 
-int FASTCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
+int STDCALL PPGetFilePath(PPID pathID, uint fileNameID, SString & rBuf)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	return PPGetFilePath(pathID, PPGetFileName(fileNameID, r_temp_buf), rBuf);
 }
 
-SString & FASTCALL PPGetFilePathS(PPID pathID, uint fileNameID, SString & rBuf)
+SString & STDCALL PPGetFilePathS(PPID pathID, uint fileNameID, SString & rBuf)
 {
 	SString & r_temp_buf = SLS.AcquireRvlStr();
 	PPGetFilePath(pathID, PPGetFileName(fileNameID, r_temp_buf), rBuf);
@@ -479,7 +453,7 @@ SString & FASTCALL PPGetFileName(uint fnameID, SString & rBuf)
 	return rBuf;
 }
 
-SString & FASTCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
+SString & STDCALL PPMakeTempFileName(const char * pPrefix, const char * pExt, long * pStart, SString & rBuf)
 {
 	SString path;
 	PPGetPath(PPPATH_TEMP, path);

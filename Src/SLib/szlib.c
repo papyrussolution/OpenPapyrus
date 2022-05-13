@@ -3353,7 +3353,7 @@ void ZLIB_INTERNAL FASTCALL gz_error(gz_state * state, int err, const char * msg
 		state->x.have = 0;
 	// set error code, and if no message, then done 
 	state->err = err;
-	if(msg == NULL)
+	if(!msg)
 		return;
 	// for an out of memory error, return literal string when requested 
 	if(err == Z_MEM_ERROR)

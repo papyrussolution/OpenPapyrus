@@ -690,7 +690,7 @@ int  PPObjGoodsValRestr::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 				if(same_id == 0) {
 					p_pack->Rec.ID = 0;
 					r = PutPacket(pID, p_pack, 1);
-					if(r == 0) {
+					if(!r) {
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSVALRESTR, p_pack->Rec.ID, p_pack->Rec.Name);
 						ok = -1;
 					}
@@ -703,7 +703,7 @@ int  PPObjGoodsValRestr::Read(PPObjPack * p, PPID id, void * stream, ObjTransmCo
 			else {
 				p_pack->Rec.ID = *pID;
 				r = PutPacket(pID, p_pack, 1);
-				if(r == 0) {
+				if(!r) {
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTGOODSVALRESTR, p_pack->Rec.ID, p_pack->Rec.Name);
 					ok = -1;
 				}

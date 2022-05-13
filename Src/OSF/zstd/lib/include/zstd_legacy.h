@@ -20,30 +20,30 @@ extern "C" {
 #include <zstd_internal.h>  /* ZSTD_inBuffer, ZSTD_outBuffer, ZSTD_frameSizeInfo */
 
 #if !defined (ZSTD_LEGACY_SUPPORT) || (ZSTD_LEGACY_SUPPORT == 0)
-#  undef ZSTD_LEGACY_SUPPORT
+#undef ZSTD_LEGACY_SUPPORT
 #define ZSTD_LEGACY_SUPPORT 8
 #endif
 
 #if (ZSTD_LEGACY_SUPPORT <= 1)
-#  include "zstd_v01.h"
+#include "zstd_v01.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 2)
-#  include "zstd_v02.h"
+#include "zstd_v02.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 3)
-#  include "zstd_v03.h"
+#include "zstd_v03.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 4)
-#  include "zstd_v04.h"
+#include "zstd_v04.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 5)
-#  include "zstd_v05.h"
+#include "zstd_v05.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 6)
-#  include "zstd_v06.h"
+#include "zstd_v06.h"
 #endif
 #if (ZSTD_LEGACY_SUPPORT <= 7)
-#  include "zstd_v07.h"
+#include "zstd_v07.h"
 #endif
 
 /** ZSTD_isLegacy() :
@@ -81,7 +81,7 @@ MEM_STATIC unsigned ZSTD_isLegacy(const void* src, size_t srcSize)
 	}
 }
 
-MEM_STATIC unsigned long long ZSTD_getDecompressedSize_legacy(const void* src, size_t srcSize)
+MEM_STATIC uint64 ZSTD_getDecompressedSize_legacy(const void* src, size_t srcSize)
 {
 	const uint32 version = ZSTD_isLegacy(src, srcSize);
 	if(version < 5) return 0; /* no decompressed size in frame header, or not a legacy format */
@@ -141,7 +141,8 @@ MEM_STATIC size_t ZSTD_decompressLegacy(void* dst, size_t dstCapacity, const voi
 	    {   
 			size_t result;
 		ZSTDv05_DCtx* const zd = ZSTDv05_createDCtx();
-		if(zd==NULL) return ERROR(memory_allocation);
+		if(!zd) 
+			return ERROR(memory_allocation);
 		result = ZSTDv05_decompress_usingDict(zd, dst, dstCapacity, src, compressedSize, dict, dictSize);
 		ZSTDv05_freeDCtx(zd);
 		return result;
@@ -152,7 +153,8 @@ MEM_STATIC size_t ZSTD_decompressLegacy(void* dst, size_t dstCapacity, const voi
 	    {   
 			size_t result;
 		ZSTDv06_DCtx* const zd = ZSTDv06_createDCtx();
-		if(zd==NULL) return ERROR(memory_allocation);
+		if(!zd) 
+			return ERROR(memory_allocation);
 		result = ZSTDv06_decompress_usingDict(zd, dst, dstCapacity, src, compressedSize, dict, dictSize);
 		ZSTDv06_freeDCtx(zd);
 		return result;
@@ -163,7 +165,8 @@ MEM_STATIC size_t ZSTD_decompressLegacy(void* dst, size_t dstCapacity, const voi
 	    {   
 			size_t result;
 		ZSTDv07_DCtx* const zd = ZSTDv07_createDCtx();
-		if(zd==NULL) return ERROR(memory_allocation);
+		if(!zd)
+			return ERROR(memory_allocation);
 		result = ZSTDv07_decompress_usingDict(zd, dst, dstCapacity, src, compressedSize, dict, dictSize);
 		ZSTDv07_freeDCtx(zd);
 		return result;

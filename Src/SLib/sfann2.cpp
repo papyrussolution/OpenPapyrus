@@ -4307,7 +4307,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_merge_train_data(struct fan
 	uint i;
 	float * data_input, * data_output;
 	struct fann_train_data * dest = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
-	if(dest == NULL) {
+	if(!dest) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(data1), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
 	}
@@ -4364,7 +4364,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_duplicate_train_data(struct
 	uint i;
 	float * data_input, * data_output;
 	struct fann_train_data * dest = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
-	if(dest == NULL) {
+	if(!dest) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(data), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
 	}
@@ -4414,7 +4414,7 @@ FANN_EXTERNAL struct fann_train_data * FANN_API fann_subset_train_data(struct fa
 	uint i;
 	float * data_input, * data_output;
 	struct fann_train_data * dest = static_cast<struct fann_train_data *>(SAlloc::M(sizeof(struct fann_train_data)));
-	if(dest == NULL) {
+	if(!dest) {
 		fann_error_2(reinterpret_cast<struct fann_error *>(data), FANN_E_CANT_ALLOCATE_MEM);
 		return NULL;
 	}

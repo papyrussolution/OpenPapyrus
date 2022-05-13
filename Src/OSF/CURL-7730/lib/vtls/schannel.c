@@ -672,10 +672,7 @@ static CURLcode schannel_connect_step1(struct connectdata * conn, int sockindex)
 				pszPassword = (WCHAR*)SAlloc::M(sizeof(WCHAR)*(pwd_len + 1));
 				if(pszPassword) {
 					if(pwd_len > 0)
-						str_w_len = MultiByteToWideChar(CP_UTF8,
-							MB_ERR_INVALID_CHARS,
-							data->set.ssl.key_passwd, (int)pwd_len,
-							pszPassword, (int)(pwd_len + 1));
+						str_w_len = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, data->set.ssl.key_passwd, (int)pwd_len, pszPassword, (int)(pwd_len + 1));
 
 					if((str_w_len >= 0) && (str_w_len <= (int)pwd_len))
 						pszPassword[str_w_len] = 0;

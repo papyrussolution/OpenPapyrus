@@ -77,7 +77,7 @@
 #ifndef SQLITE_DISABLE_LFS
 #define _LARGE_FILE       1
 #ifndef _FILE_OFFSET_BITS
-#   define _FILE_OFFSET_BITS 64
+#define _FILE_OFFSET_BITS 64
 #endif
 #define _LARGEFILE_SOURCE 1
 #endif
@@ -108,8 +108,8 @@ typedef unsigned char u8;
 #define GETPID getpid
 #if defined(__MINGW32__)
 #define DIRENT dirent
-#  ifndef S_ISLNK
-#   define S_ISLNK(mode) (0)
+#ifndef S_ISLNK
+#define S_ISLNK(mode) (0)
 #endif
 #endif
 #else
@@ -156,18 +156,18 @@ typedef unsigned char u8;
 #if defined(_WIN32) || defined(WIN32)
 #if SQLITE_OS_WINRT
 #define SQLITE_OMIT_POPEN 1
-# else
+#else
 #include <io.h>
 #include <fcntl.h>
 #define isatty(h) _isatty(h)
-#  ifndef access
-#   define access(f, m) _access((f), (m))
+#ifndef access
+#define access(f, m) _access((f), (m))
 #endif
-#  ifndef unlink
-#   define unlink _unlink
+#ifndef unlink
+#define unlink _unlink
 #endif
-#  ifndef strdup
-#   define strdup _strdup
+#ifndef strdup
+#define strdup _strdup
 #endif
 #undef popen
 #define popen _popen
@@ -183,7 +183,7 @@ extern int isatty(int);
 ** sometimes omitted from the <stdio.h> header */
 extern FILE * popen(const char*, const char*);
 extern int pclose(FILE*);
-# else
+#else
 #define SQLITE_OMIT_POPEN 1
 #endif
 #endif
@@ -1145,9 +1145,9 @@ typedef unsigned short ino_t;
 */
 
 #ifndef NAME_MAX
-#  ifdef FILENAME_MAX
+#ifdef FILENAME_MAX
 #define NAME_MAX (FILENAME_MAX)
-#  else
+#else
 #define NAME_MAX (260)
 #endif
 #endif
@@ -1471,11 +1471,11 @@ SQLITE_EXTENSION_INIT1
 	defined(__x86_64) || defined(__x86_64__) || defined(_M_X64) ||    \
 	defined(_M_AMD64) || defined(_M_ARM)    || defined(__x86)  ||    \
 	defined(__arm__)
-#   define SHA3_BYTEORDER    1234
-# elif defined(sparc)   || defined(__ppc__)
-#   define SHA3_BYTEORDER    4321
-# else
-#   define SHA3_BYTEORDER 0
+#define SHA3_BYTEORDER    1234
+#elif defined(sparc)   || defined(__ppc__)
+#define SHA3_BYTEORDER    4321
+#else
+#define SHA3_BYTEORDER 0
 #endif
 #endif
 
@@ -2238,10 +2238,10 @@ SQLITE_EXTENSION_INIT1
 #include <direct.h>
 /* #include "test_windirent.h" */
 #define dirent DIRENT
-#  ifndef chmod
+#ifndef chmod
 #define chmod _chmod
 #endif
-#  ifndef stat
+#ifndef stat
 #define stat _stat
 #endif
 #define mkdir(path, mode) _mkdir(path)
@@ -6773,14 +6773,14 @@ SQLITE_EXTENSION_INIT1
 #ifndef UINT32_TYPE
 #ifdef HAVE_UINT32_T
 #define UINT32_TYPE uint32_t
-# else
+#else
 #define UINT32_TYPE unsigned int
 #endif
 #endif
 #ifndef UINT16_TYPE
 #ifdef HAVE_UINT16_T
 #define UINT16_TYPE uint16_t
-# else
+#else
 #define UINT16_TYPE unsigned short int
 #endif
 #endif
@@ -22248,7 +22248,7 @@ static char * cmdline_option_value(int argc, char ** argv, int i){
 #if(defined(_WIN32) || defined(WIN32)) \
 	&& (defined(_MSC_VER) || (defined(UNICODE) && defined(__GNUC__)))
 #define SQLITE_SHELL_IS_UTF8          (0)
-#  else
+#else
 #define SQLITE_SHELL_IS_UTF8          (1)
 #endif
 #endif

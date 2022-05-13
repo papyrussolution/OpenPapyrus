@@ -135,8 +135,7 @@ static void CurveSetElemTypeFree(cmsStage * mpe)
 	if(Data == NULL) return;
 	if(Data->TheCurves != NULL) {
 		for(i = 0; i < Data->nCurves; i++) {
-			if(Data->TheCurves[i] != NULL)
-				cmsFreeToneCurve(Data->TheCurves[i]);
+			cmsFreeToneCurve(Data->TheCurves[i]);
 		}
 	}
 	_cmsFree(mpe->ContextID, Data->TheCurves);
@@ -977,7 +976,7 @@ cmsStage * _cmsStageAllocLabPrelin(cmsContext ContextID)
 }
 
 // Free a single MPE
-void CMSEXPORT cmsStageFree(cmsStage * mpe)
+void /*CMSEXPORT*/FASTCALL cmsStageFree(cmsStage * mpe)
 {
 	if(mpe) {
 		if(mpe->FreePtr)
@@ -1136,7 +1135,7 @@ uint32 CMSEXPORT cmsPipelineOutputChannels(const cmsPipeline * lut)
 }
 
 // Free a profile elements LUT
-void CMSEXPORT cmsPipelineFree(cmsPipeline * lut)
+void /*CMSEXPORT*/FASTCALL cmsPipelineFree(cmsPipeline * lut)
 {
 	if(lut) {
 		cmsStage * Next;

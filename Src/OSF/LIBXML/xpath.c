@@ -8752,7 +8752,7 @@ xmlChar * xmlXPathParseNCName(xmlXPathParserContext * ctxt)
 			in++;
 		if((*in == ' ') || (*in == '>') || (*in == '/') || (*in == '[') || (*in == ']') || (*in == ':') || (*in == '@') || (*in == '*')) {
 			count = in - ctxt->cur;
-			if(count == 0)
+			if(!count)
 				return 0;
 			ret = xmlStrndup(ctxt->cur, count);
 			ctxt->cur = in;

@@ -1378,7 +1378,7 @@ SSL_TICKET_STATUS tls_decrypt_ticket(SSL * s, const uchar * etick,
 		goto end;
 	}
 	ctx = EVP_CIPHER_CTX_new();
-	if(ctx == NULL) {
+	if(!ctx) {
 		ret = SSL_TICKET_FATAL_ERR_MALLOC;
 		goto end;
 	}

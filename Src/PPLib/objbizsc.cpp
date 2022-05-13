@@ -1595,7 +1595,7 @@ int PPViewBizScoreVal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 				ok = -1;
 				if(p_hdr && CONFIRM(PPCFM_DELETE)) {
 					int r = Tbl.DeleteItem(p_hdr->ActualDate, p_hdr->ScoreID, p_hdr->ObjID, 1);
-					if(r == 0)
+					if(!r)
 						ok = PPErrorZ();
 					else if(r > 0)
 						ok = 1;
@@ -1607,7 +1607,7 @@ int PPViewBizScoreVal::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					BizScoreValViewItem item;
 					for(InitIteration(); ok && NextIteration(&item) > 0;) {
 						int r = Tbl.DeleteItem(item.ActualDate, item.ScoreID, item.ObjID, 1);
-						if(r == 0)
+						if(!r)
 							ok = PPErrorZ();
 						else if(r > 0)
 							ok = 1;

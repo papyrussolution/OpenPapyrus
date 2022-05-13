@@ -17,7 +17,7 @@ int FIPS_mode(void)
 
 int FIPS_mode_set(int r)
 {
-	if(r == 0)
+	if(!r)
 		return 1;
 	CRYPTOerr(CRYPTO_F_FIPS_MODE_SET, CRYPTO_R_FIPS_MODE_NOT_SUPPORTED);
 	return 0;

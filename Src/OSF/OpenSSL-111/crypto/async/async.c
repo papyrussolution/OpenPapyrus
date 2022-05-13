@@ -148,9 +148,9 @@ int ASYNC_start_job(ASYNC_JOB ** job, ASYNC_WAIT_CTX * wctx, int * ret, int (*fu
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
 		return ASYNC_ERR;
 	ctx = async_get_ctx();
-	if(ctx == NULL)
+	if(!ctx)
 		ctx = async_ctx_new();
-	if(ctx == NULL)
+	if(!ctx)
 		return ASYNC_ERR;
 	if(*job)
 		ctx->currjob = *job;
@@ -348,7 +348,7 @@ ASYNC_JOB * ASYNC_get_current_job(void)
 	if(!OPENSSL_init_crypto(OPENSSL_INIT_ASYNC, NULL))
 		return NULL;
 	ctx = async_get_ctx();
-	if(ctx == NULL)
+	if(!ctx)
 		return NULL;
 	return ctx->currjob;
 }

@@ -50,10 +50,10 @@ typedef struct {
 	void * currentJobHeld; /* We may hold an IOJob object as needed if we actively expose its buffer. */
 	/* Coalesce buffer is used to join two buffers in case where we need to read more bytes than left in
 	 * the first of them. Shouldn't be accessed from outside ot utility functions. */
-	U8 * coalesceBuffer;
+	uint8 * coalesceBuffer;
 	/* Read buffer can be used by consumer code, take care when copying this pointer aside as it might
 	 * change when consuming / refilling buffer. */
-	U8 * srcBuffer;
+	uint8 * srcBuffer;
 	size_t srcBufferLoaded;
 	/* We need to know what tasks completed so we can use their buffers when their time comes.
 	 * Should only be accessed after locking base.ioJobsMutex . */
@@ -64,7 +64,7 @@ typedef struct {
 
 typedef struct {
 	IOPoolCtx_t base;
-	unsigned storedSkips;
+	uint   storedSkips;
 } WritePoolCtx_t;
 
 typedef struct {

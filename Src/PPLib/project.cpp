@@ -2846,7 +2846,7 @@ int PPObjPrjTask::Edit(PPID * pID, void * extraPtr)
 		else
 			PPError();
 	}
-	if(r == 0)
+	if(!r)
 		ok = 0;
 	CATCHZOKPPERR
 	if(pack.Rec.Kind == TODOKIND_TASK) {

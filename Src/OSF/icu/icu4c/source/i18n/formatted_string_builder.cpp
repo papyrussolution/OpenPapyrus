@@ -222,7 +222,7 @@ int32_t FormattedStringBuilder::insert(int32_t index, const FormattedStringBuild
 		return 0;
 	}
 	int32_t count = other.fLength;
-	if(count == 0) {
+	if(!count) {
 		// Nothing to insert.
 		return 0;
 	}

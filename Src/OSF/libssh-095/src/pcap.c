@@ -301,7 +301,7 @@ static int ssh_pcap_context_connect(ssh_pcap_context ctx)
 	int rc;
 	MEMSZERO(local);
 	MEMSZERO(remote);
-	if(session == NULL) {
+	if(!session) {
 		return SSH_ERROR;
 	}
 

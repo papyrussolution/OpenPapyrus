@@ -90,8 +90,7 @@ int xmlModuleSymbol(xmlModule * module, const char * name, void ** symbol)
 	}
 	rc = xmlModulePlatformSymbol(module->handle, name, symbol);
 	if(rc == -1) {
-		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0,
-		    name, NULL, 0, 0, "failed to find symbol: %s\n", (name == NULL ? "NULL" : name));
+		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_OPEN, XML_ERR_FATAL, NULL, 0, 0, name, NULL, 0, 0, "failed to find symbol: %s\n", NZOR(name, "NULL"));
 		return rc;
 	}
 	return rc;
@@ -114,7 +113,7 @@ int xmlModuleClose(xmlModule * module)
 		return -1;
 	}
 	rc = xmlModulePlatformClose(module->handle);
-	if(rc != 0) {
+	if(rc) {
 		__xmlRaiseError(0, 0, 0, 0, 0, XML_FROM_MODULE, XML_MODULE_CLOSE, XML_ERR_FATAL, NULL, 0, 0,
 		    (const char *)module->name, NULL, 0, 0, "failed to close: %s\n", module->name);
 		return -2;

@@ -1,14 +1,9 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- **********************************************************************
- *   Copyright (C) 2001-2008,2010 IBM and others. All rights reserved.
- **********************************************************************
- *   Date        Name        Description
- *  03/22/2000   helena      Creation.
- **********************************************************************
- */
-
+// Copyright (C) 2001-2008,2010 IBM and others. All rights reserved.
+// Date        Name        Description
+// 03/22/2000   helena      Creation.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
@@ -20,8 +15,7 @@
 // public constructors and destructors -----------------------------------
 U_NAMESPACE_BEGIN
 
-SearchIterator::SearchIterator(const SearchIterator &other)
-	: UObject(other)
+SearchIterator::SearchIterator(const SearchIterator &other) : UObject(other)
 {
 	m_breakiterator_    = other.m_breakiterator_;
 	m_text_             = other.m_text_;
@@ -38,16 +32,13 @@ SearchIterator::SearchIterator(const SearchIterator &other)
 
 SearchIterator::~SearchIterator()
 {
-	if(m_search_ != NULL) {
+	if(m_search_)
 		uprv_free(m_search_);
-	}
 }
 
 // public get and set methods ----------------------------------------
 
-void SearchIterator::setAttribute(USearchAttribute attribute,
-    USearchAttributeValue value,
-    UErrorCode            &status)
+void SearchIterator::setAttribute(USearchAttribute attribute, USearchAttributeValue value, UErrorCode &status)
 {
 	if(U_SUCCESS(status)) {
 		switch(attribute) {
@@ -119,8 +110,7 @@ void SearchIterator::getMatchedText(UnicodeString & result) const
 	}
 }
 
-void SearchIterator::setBreakIterator(BreakIterator * breakiter,
-    UErrorCode & status)
+void SearchIterator::setBreakIterator(BreakIterator * breakiter, UErrorCode & status)
 {
 	if(U_SUCCESS(status)) {
 #if 0
@@ -263,7 +253,6 @@ int32_t SearchIterator::next(UErrorCode & status)
 				return matchindex;
 			}
 		}
-
 		if(matchlength > 0) {
 			// if matchlength is 0 we are at the start of the iteration
 			if(m_search_->isOverlap) {
@@ -291,7 +280,6 @@ int32_t SearchIterator::previous(UErrorCode & status)
 		else {
 			offset = getOffset();
 		}
-
 		int32_t matchindex = m_search_->matchedIndex;
 		if(m_search_->isForwardSearching == TRUE) {
 			// switching direction.
@@ -311,18 +299,14 @@ int32_t SearchIterator::previous(UErrorCode & status)
 				return USEARCH_DONE;
 			}
 		}
-
 		if(matchindex != USEARCH_DONE) {
 			if(m_search_->isOverlap) {
 				matchindex += m_search_->matchedLength - 2;
 			}
-
 			return handlePrev(matchindex, status);
 		}
-
 		return handlePrev(offset, status);
 	}
-
 	return USEARCH_DONE;
 }
 
@@ -356,10 +340,7 @@ SearchIterator::SearchIterator()
 	m_breakiterator_      = NULL;
 }
 
-SearchIterator::SearchIterator(const UnicodeString & text,
-    BreakIterator * breakiter) :
-	m_breakiterator_(breakiter),
-	m_text_(text)
+SearchIterator::SearchIterator(const UnicodeString & text, BreakIterator * breakiter) : m_breakiterator_(breakiter), m_text_(text)
 {
 	m_search_             = (USearch*)uprv_malloc(sizeof(USearch));
 	m_search_->breakIter  = NULL;
@@ -374,9 +355,7 @@ SearchIterator::SearchIterator(const UnicodeString & text,
 	m_search_->textLength = text.length();
 }
 
-SearchIterator::SearchIterator(CharacterIterator &text,
-    BreakIterator     * breakiter) :
-	m_breakiterator_(breakiter)
+SearchIterator::SearchIterator(CharacterIterator &text, BreakIterator * breakiter) : m_breakiterator_(breakiter)
 {
 	m_search_             = (USearch*)uprv_malloc(sizeof(USearch));
 	m_search_->breakIter  = NULL;
@@ -412,15 +391,8 @@ SearchIterator & SearchIterator::operator = (const SearchIterator &that)
 	return *this;
 }
 
-void SearchIterator::setMatchLength(int32_t length)
-{
-	m_search_->matchedLength = length;
-}
-
-void SearchIterator::setMatchStart(int32_t position)
-{
-	m_search_->matchedIndex = position;
-}
+void SearchIterator::setMatchLength(int32_t length) { m_search_->matchedLength = length; }
+void SearchIterator::setMatchStart(int32_t position) { m_search_->matchedIndex = position; }
 
 void SearchIterator::setMatchNotFound()
 {

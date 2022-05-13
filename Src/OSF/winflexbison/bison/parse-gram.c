@@ -85,23 +85,23 @@
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
-#   define YY_CAST(Type, Val) static_cast<Type> (Val)
-#   define YY_REINTERPRET_CAST(Type, Val) reinterpret_cast<Type> (Val)
-#  else
-#   define YY_CAST(Type, Val) ((Type)(Val))
-#   define YY_REINTERPRET_CAST(Type, Val) ((Type)(Val))
-#  endif
+#define YY_CAST(Type, Val) static_cast<Type> (Val)
+#define YY_REINTERPRET_CAST(Type, Val) reinterpret_cast<Type> (Val)
+#else
+#define YY_CAST(Type, Val) ((Type)(Val))
+#define YY_REINTERPRET_CAST(Type, Val) ((Type)(Val))
+#endif
 # endif
 # ifndef YY_NULLPTR
-#  if defined __cplusplus
-#   if 201103L <= __cplusplus
+#if defined __cplusplus
+#if 201103L <= __cplusplus
 #    define YY_NULLPTR nullptr
-#   else
+#else
 #    define YY_NULLPTR 0
-#   endif
-#  else
-#   define YY_NULLPTR ((void *)0)
-#  endif
+#endif
+#else
+#define YY_NULLPTR ((void *)0)
+#endif
 # endif
 
 //#include "parse-gram.h"
@@ -323,7 +323,7 @@ static param_type current_param = param_none;
 #include <limits.h> /* INFRINGES ON USER NAME SPACE */
 # if defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
 #  include <stdint.h> /* INFRINGES ON USER NAME SPACE */
-#  define YY_STDINT_H
+#define YY_STDINT_H
 # endif
 #endif
 
@@ -372,30 +372,30 @@ typedef int yytype_uint16;
 
 #ifndef YYPTRDIFF_T
 # if defined __PTRDIFF_TYPE__ && defined __PTRDIFF_MAX__
-#  define YYPTRDIFF_T __PTRDIFF_TYPE__
-#  define YYPTRDIFF_MAXIMUM __PTRDIFF_MAX__
+#define YYPTRDIFF_T __PTRDIFF_TYPE__
+#define YYPTRDIFF_MAXIMUM __PTRDIFF_MAX__
 # elif defined PTRDIFF_MAX
-#  ifndef ptrdiff_t
+#ifndef ptrdiff_t
 #   include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-#  endif
-#  define YYPTRDIFF_T ptrdiff_t
-#  define YYPTRDIFF_MAXIMUM PTRDIFF_MAX
+#endif
+#define YYPTRDIFF_T ptrdiff_t
+#define YYPTRDIFF_MAXIMUM PTRDIFF_MAX
 # else
-#  define YYPTRDIFF_T long
-#  define YYPTRDIFF_MAXIMUM LONG_MAX
+#define YYPTRDIFF_T long
+#define YYPTRDIFF_MAXIMUM LONG_MAX
 # endif
 #endif
 
 #ifndef YYSIZE_T
 # ifdef __SIZE_TYPE__
-#  define YYSIZE_T __SIZE_TYPE__
+#define YYSIZE_T __SIZE_TYPE__
 # elif defined size_t
-#  define YYSIZE_T size_t
+#define YYSIZE_T size_t
 # elif defined __STDC_VERSION__ && 199901 <= __STDC_VERSION__
 #  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYSIZE_T size_t
+#define YYSIZE_T size_t
 # else
-#  define YYSIZE_T unsigned
+#define YYSIZE_T unsigned
 # endif
 #endif
 
@@ -415,13 +415,13 @@ typedef int yy_state_fast_t;
 
 #ifndef YY_
 # if defined YYENABLE_NLS && YYENABLE_NLS
-#  if ENABLE_NLS
+#if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
-#   define YY_(Msgid) dgettext("bison-runtime", Msgid)
-#  endif
+#define YY_(Msgid) dgettext("bison-runtime", Msgid)
+#endif
 # endif
 # ifndef YY_
-#  define YY_(Msgid) Msgid
+#define YY_(Msgid) Msgid
 # endif
 #endif
 
@@ -431,17 +431,17 @@ typedef int yy_state_fast_t;
 
 #ifndef YY_ATTRIBUTE_PURE
 # if defined __GNUC__ && 2 < __GNUC__ + (96 <= __GNUC_MINOR__)
-#  define YY_ATTRIBUTE_PURE __attribute__ ((__pure__))
+#define YY_ATTRIBUTE_PURE __attribute__ ((__pure__))
 # else
-#  define YY_ATTRIBUTE_PURE
+#define YY_ATTRIBUTE_PURE
 # endif
 #endif
 
 #ifndef YY_ATTRIBUTE_UNUSED
 # if defined __GNUC__ && 2 < __GNUC__ + (7 <= __GNUC_MINOR__)
-#  define YY_ATTRIBUTE_UNUSED __attribute__ ((__unused__))
+#define YY_ATTRIBUTE_UNUSED __attribute__ ((__unused__))
 # else
-#  define YY_ATTRIBUTE_UNUSED
+#define YY_ATTRIBUTE_UNUSED
 # endif
 #endif
 
@@ -491,38 +491,38 @@ typedef int yy_state_fast_t;
 
 # ifdef YYSTACK_ALLOC
 /* Pacify GCC's 'empty if-body' warning.  */
-#  define YYSTACK_FREE(Ptr) do { /* empty */; } while(0)
-#  ifndef YYSTACK_ALLOC_MAXIMUM
+#define YYSTACK_FREE(Ptr) do { /* empty */; } while(0)
+#ifndef YYSTACK_ALLOC_MAXIMUM
 /* The OS might guarantee only one guard page at the bottom of the stack,
    and a page size can be as small as 4096 bytes.  So we cannot safely
    invoke alloca (N) if N exceeds 4096.  Use a slightly smaller number
    to allow for a few compiler-allocated temporary stack slots.  */
-#   define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2006 */
-#  endif
+#define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2006 */
+#endif
 # else
-#  define YYSTACK_ALLOC YYMALLOC
-#  define YYSTACK_FREE YYFREE
-#  ifndef YYSTACK_ALLOC_MAXIMUM
-#   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
-#  endif
-#  if (defined __cplusplus && !defined EXIT_SUCCESS && !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
+#define YYSTACK_ALLOC YYMALLOC
+#define YYSTACK_FREE YYFREE
+#ifndef YYSTACK_ALLOC_MAXIMUM
+#define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
+#endif
+#if (defined __cplusplus && !defined EXIT_SUCCESS && !((defined YYMALLOC || defined malloc) && (defined YYFREE || defined free)))
 #   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
 #   ifndef EXIT_SUCCESS
 #    define EXIT_SUCCESS 0
-#   endif
-#  endif
-#  ifndef YYMALLOC
-#   define YYMALLOC malloc
-#   if !defined malloc && !defined EXIT_SUCCESS
+#endif
+#endif
+#ifndef YYMALLOC
+#define YYMALLOC malloc
+#if !defined malloc && !defined EXIT_SUCCESS
 void * malloc(YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
-#   endif
-#  endif
-#  ifndef YYFREE
-#   define YYFREE free
-#   if !defined free && !defined EXIT_SUCCESS
+#endif
+#endif
+#ifndef YYFREE
+#define YYFREE free
+#if !defined free && !defined EXIT_SUCCESS
 void SAlloc::F(void *);  /* INFRINGES ON USER NAME SPACE */
-#   endif
-#  endif
+#endif
+#endif
 # endif
 #define YYCOPY_NEEDED 1
 #endif /* 1 */
@@ -570,17 +570,17 @@ union yyalloc {
 /* Copy COUNT objects from SRC to DST.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
-#  if defined __GNUC__ && 1 < __GNUC__
-#   define YYCOPY(Dst, Src, Count) \
+#if defined __GNUC__ && 1 < __GNUC__
+#define YYCOPY(Dst, Src, Count) \
 	__builtin_memcpy(Dst, Src, YY_CAST(YYSIZE_T, (Count)) * sizeof(*(Src)))
-#  else
-#   define YYCOPY(Dst, Src, Count)              \
+#else
+#define YYCOPY(Dst, Src, Count)              \
 	do {                                      \
 		YYPTRDIFF_T yyi;                      \
 		for(yyi = 0; yyi < (Count); yyi++)   \
 			(Dst)[yyi] = (Src)[yyi];            \
 	} while(0)
-#  endif
+#endif
 # endif
 #endif /* !YYCOPY_NEEDED */
 
@@ -953,7 +953,7 @@ enum { YYENOMEM = -2 };
 
 # ifndef YYFPRINTF
 #  include <stdio.h> /* INFRINGES ON USER NAME SPACE */
-#  define YYFPRINTF fprintf
+#define YYFPRINTF fprintf
 # endif
 
 #define YYDPRINTF(Args)                        \
@@ -967,7 +967,7 @@ enum { YYENOMEM = -2 };
    we won't break user code: when these are the locations we know.  */
 
 # ifndef YY_LOCATION_PRINT
-#  if defined GRAM_LTYPE_IS_TRIVIAL && GRAM_LTYPE_IS_TRIVIAL
+#if defined GRAM_LTYPE_IS_TRIVIAL && GRAM_LTYPE_IS_TRIVIAL
 
 /* Print *YYLOCP on YYO.  Private, do not rely on its existence. */
 
@@ -993,12 +993,12 @@ static int yy_location_print_(FILE * yyo, YYLTYPE const * const yylocp)
 	return res;
 }
 
-#   define YY_LOCATION_PRINT(File, Loc)          \
+#define YY_LOCATION_PRINT(File, Loc)          \
 	yy_location_print_(File, &(Loc))
 
-#  else
-#   define YY_LOCATION_PRINT(File, Loc) ((void)0)
-#  endif
+#else
+#define YY_LOCATION_PRINT(File, Loc) ((void)0)
+#endif
 # endif /* !defined YY_LOCATION_PRINT */
 
 #define YY_SYMBOL_PRINT(Title, Kind, Value, Location)                    \

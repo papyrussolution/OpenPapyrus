@@ -791,11 +791,11 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		PrepareHtmlFields(hdr_flds);
 	}
 	{
-		p_json_req = new SJson(SJson::tOBJECT);
+		p_json_req = SJson::CreateObj();
 		if(rT.Code.NotEmpty())
 			p_json_req->InsertString("code", rT.Code);
 		if(rT.Cust.Phone.NotEmpty() || !!rT.Cust.Uid) {
-			SJson * p_js_participant = new SJson(SJson::tOBJECT);
+			SJson * p_js_participant = SJson::CreateObj();
 			if(!!rT.Cust.Uid) {
 				rT.Cust.Uid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 				p_js_participant->InsertString("uid", temp_buf);
@@ -814,7 +814,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 		tra_guid.ToStr(S_GUID::fmtIDL|S_GUID::fmtLower, temp_buf);
 		p_json_req->InsertString("nonce", temp_buf);
 		if(rT.Cashier.ID || rT.Cashier.Name.NotEmpty()) {
-			SJson * p_js_cashier = new SJson(SJson::tOBJECT);
+			SJson * p_js_cashier = SJson::CreateObj();
 			if(rT.Cashier.ID) {
 				temp_buf.Z().Cat(rT.Cashier.ID);
 				p_js_cashier->InsertString("externalId", temp_buf);
@@ -825,7 +825,7 @@ int UdsGameInterface::CreateTransaction(const Transaction & rT, Transaction & rR
 			p_json_req->Insert("cashier", p_js_cashier);
 		}
 		{
-			SJson * p_js_receipt = new SJson(SJson::tOBJECT);
+			SJson * p_js_receipt = SJson::CreateObj();
 			p_js_receipt->InsertDouble("total", rT.Total, MKSFMTD(0, 2, 0));
 			p_js_receipt->InsertDouble("cash", rT.Cash, MKSFMTD(0, 2, 0));
 			p_js_receipt->InsertDouble("points", rT.Points, MKSFMTD(0, 2, 0));

@@ -201,7 +201,7 @@ static SSH_PACKET_CALLBACK(ssh_packet_client_curve25519_reply)
 
 	rc = ssh_dh_import_next_pubkey_blob(session, pubkey_blob);
 	SSH_STRING_FREE(pubkey_blob);
-	if(rc != 0) {
+	if(rc) {
 		ssh_set_error(session,
 		    SSH_FATAL,
 		    "Failed to import next public key");
@@ -331,7 +331,7 @@ static SSH_PACKET_CALLBACK(ssh_packet_server_curve25519_init)
 		goto error;
 	}
 	rc = ssh_dh_get_next_server_publickey_blob(session, &server_pubkey_blob);
-	if(rc != 0) {
+	if(rc) {
 		ssh_set_error(session, SSH_FATAL, "Could not export server public key");
 		goto error;
 	}

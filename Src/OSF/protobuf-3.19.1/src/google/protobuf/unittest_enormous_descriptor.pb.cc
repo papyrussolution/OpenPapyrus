@@ -14068,7 +14068,7 @@ TestEnormousDescriptor::TestEnormousDescriptor(::PROTOBUF_NAMESPACE_ID::Arena* a
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestEnormousDescriptor)
@@ -19085,7 +19085,7 @@ long_field_name_is_loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
 
 TestEnormousDescriptor::~TestEnormousDescriptor() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestEnormousDescriptor)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -20115,7 +20115,7 @@ void TestEnormousDescriptor::InternalSwap(TestEnormousDescriptor* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestEnormousDescriptor* Arena::CreateMaybeMessage< ::protobuf_unittest::TestEnormousDescriptor >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestEnormousDescriptor * Arena::CreateMaybeMessage< ::protobuf_unittest::TestEnormousDescriptor >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestEnormousDescriptor >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

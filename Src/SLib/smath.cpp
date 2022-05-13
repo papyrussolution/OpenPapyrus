@@ -769,7 +769,7 @@ int SHistogram::GetBinByVal(double val, long * pBinId) const
 			r = 1;
 			break;
 		}
-	if(r == 0) {
+	if(!r) {
 		val_id = c ? BinList.at(c-1).Key : -MAXLONG;
 		r = 2;
 	}
@@ -893,7 +893,7 @@ long SHistogram::Put(double val)
 			r = 1;
 			break;
 		}
-	if(r == 0)
+	if(!r)
 		val_id = c ? BinList.at(c-1).Key : -MAXLONG;
 	if(ValList.bsearch(&val_id, &(c = 0), CMPF_LONG)) {
 		SHistogram::Val & r_val = ValList.at(c);

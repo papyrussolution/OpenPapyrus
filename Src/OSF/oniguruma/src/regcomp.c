@@ -415,7 +415,7 @@ static int node_str_node_cat(Node * node, Node* add)
 	if(STR_(node)->flag != STR_(add)->flag)
 		return ONIGERR_TYPE_BUG;
 	r = onig_node_str_cat(node, STR_(add)->s, STR_(add)->end);
-	if(r != 0) 
+	if(r) 
 		return r;
 	return 0;
 }
@@ -885,12 +885,12 @@ static int compile_quant_body_with_empty_check(QuantNode* qn, regex_t* reg, Scan
 	int saved_num_empty_check = reg->num_empty_check;
 	if(emptiness != BODY_IS_NOT_EMPTY) {
 		r = add_op(reg, OP_EMPTY_CHECK_START);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->empty_check_start.mem = reg->num_empty_check; /* NULL CHECK ID */
 		reg->num_empty_check++;
 	}
 	r = compile_tree(body, reg, env);
-	if(r != 0) 
+	if(r) 
 		return r;
 	if(emptiness != BODY_IS_NOT_EMPTY) {
 		if(emptiness == BODY_MAY_BE_EMPTY)
@@ -898,7 +898,7 @@ static int compile_quant_body_with_empty_check(QuantNode* qn, regex_t* reg, Scan
 		else if(emptiness == BODY_MAY_BE_EMPTY_MEM) {
 			if(NODE_IS_EMPTY_STATUS_CHECK(qn) != 0 && qn->empty_status_mem != 0) {
 				r = add_op(reg, OP_EMPTY_CHECK_END_MEMST);
-				if(r != 0) 
+				if(r) 
 					return r;
 				COP(reg)->empty_check_end.empty_status_mem = qn->empty_status_mem;
 			}
@@ -908,12 +908,12 @@ static int compile_quant_body_with_empty_check(QuantNode* qn, regex_t* reg, Scan
 #ifdef USE_CALL
 		else if(emptiness == BODY_MAY_BE_EMPTY_REC) {
 			r = add_op(reg, OP_EMPTY_CHECK_END_MEMST_PUSH);
-			if(r != 0) 
+			if(r) 
 				return r;
 			COP(reg)->empty_check_end.empty_status_mem = qn->empty_status_mem;
 		}
 #endif
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->empty_check_end.mem = saved_num_empty_check; /* NULL CHECK ID */
 	}
 	return r;
@@ -924,7 +924,7 @@ static int compile_call(CallNode* node, regex_t* reg, ScanEnv* env)
 {
 	int offset;
 	int r = add_op(reg, OP_CALL);
-	if(r != 0) 
+	if(r) 
 		return r;
 	COP(reg)->call.addr = 0; /* dummy addr. */
 #ifdef ONIG_DEBUG_MATCH_COUNTER
@@ -940,7 +940,7 @@ static int compile_tree_n_times(Node * node, int n, regex_t* reg, ScanEnv* env)
 {
 	for(int i = 0; i < n; i++) {
 		int r = compile_tree(node, reg, env);
-		if(r != 0) 
+		if(r) 
 			return r;
 	}
 	return 0;
@@ -958,7 +958,7 @@ static int FASTCALL add_compile_string(uchar * s, int mb_len, int str_len, regex
 	uchar * end;
 	int op = select_str_opcode(mb_len, str_len);
 	int r = add_op(reg, op);
-	if(r != 0) 
+	if(r) 
 		return r;
 	byte_len = mb_len * str_len;
 	end = s + byte_len;
@@ -1042,7 +1042,7 @@ static int compile_string_node(Node * node, regex_t* reg)
 		}
 		else {
 			r = add_compile_string(prev, prev_len, slen, reg);
-			if(r != 0) 
+			if(r) 
 				return r;
 			prev  = p;
 			slen  = 1;
@@ -1080,7 +1080,7 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 	int r;
 	if(IS_NULL(cc->mbuf)) {
 		r = add_op(reg, IS_NCCLASS_NOT(cc) ? OP_CCLASS_NOT : OP_CCLASS);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->cclass.bsp = (BitSetRef)SAlloc::M(SIZE_BITSET);
 		CHECK_NULL_RETURN_MEMERR(COP(reg)->cclass.bsp);
 		memcpy(COP(reg)->cclass.bsp, cc->bs, SIZE_BITSET);
@@ -1089,7 +1089,7 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 		void * p;
 		if(ONIGENC_MBC_MINLEN(reg->enc) > 1 || bitset_is_empty(cc->bs)) {
 			r = add_op(reg, IS_NCCLASS_NOT(cc) ? OP_CCLASS_MB_NOT : OP_CCLASS_MB);
-			if(r != 0) 
+			if(r) 
 				return r;
 			p = set_multi_byte_cclass(cc->mbuf, reg);
 			CHECK_NULL_RETURN_MEMERR(p);
@@ -1097,7 +1097,7 @@ static int compile_cclass_node(CClassNode* cc, regex_t* reg)
 		}
 		else {
 			r = add_op(reg, IS_NCCLASS_NOT(cc) ? OP_CCLASS_MIX_NOT : OP_CCLASS_MIX);
-			if(r != 0) 
+			if(r) 
 				return r;
 			COP(reg)->cclass_mix.bsp = (BitSetRef)SAlloc::M(SIZE_BITSET);
 			CHECK_NULL_RETURN_MEMERR(COP(reg)->cclass_mix.bsp);
@@ -1151,15 +1151,15 @@ static int compile_range_repeat_node(QuantNode* qn, int target_len, int emptines
 {
 	int num_repeat = reg->num_repeat++;
 	int r = add_op(reg, qn->greedy ? OP_REPEAT : OP_REPEAT_NG);
-	if(r != 0) return r;
+	if(r) return r;
 	COP(reg)->repeat.id   = num_repeat;
 	COP(reg)->repeat.addr = SIZE_INC + target_len + OPSIZE_REPEAT_INC;
 	r = entry_repeat_range(reg, num_repeat, qn->lower, qn->upper, COP_CURR_OFFSET(reg) + OPSIZE_REPEAT);
-	if(r != 0) return r;
+	if(r) return r;
 	r = compile_quant_body_with_empty_check(qn, reg, env);
-	if(r != 0) return r;
+	if(r) return r;
 	r = add_op(reg, qn->greedy ? OP_REPEAT_INC : OP_REPEAT_INC_NG);
-	if(r != 0) return r;
+	if(r) return r;
 	COP(reg)->repeat_inc.id = num_repeat;
 	return r;
 }
@@ -1251,11 +1251,11 @@ static int compile_quantifier_node(QuantNode* qn, regex_t* reg, ScanEnv* env)
 	    len_multiply_cmp((OnigLen)tlen, qn->lower,
 	    QUANTIFIER_EXPAND_LIMIT_SIZE) <= 0)) {
 		r = compile_tree_n_times(NODE_QUANT_BODY(qn), qn->lower, reg, env);
-		if(r != 0) return r;
+		if(r) return r;
 		if(IS_NOT_NULL(qn->next_head_exact)) {
 			r = add_op(reg, NODE_IS_MULTILINE(NODE_QUANT_BODY(qn)) ?
 				OP_ANYCHAR_ML_STAR_PEEK_NEXT : OP_ANYCHAR_STAR_PEEK_NEXT);
-			if(r != 0) return r;
+			if(r) return r;
 
 			COP(reg)->anychar_star_peek_next.c = STR_(qn->next_head_exact)->s[0];
 			return 0;
@@ -1279,7 +1279,7 @@ static int compile_quantifier_node(QuantNode* qn, regex_t* reg, ScanEnv* env)
 
 		if(qn->lower == 1 && tlen > QUANTIFIER_EXPAND_LIMIT_SIZE) {
 			r = add_op(reg, OP_JUMP);
-			if(r != 0) return r;
+			if(r) return r;
 			if(qn->greedy) {
 #ifdef USE_OP_PUSH_OR_JUMP_EXACT
 				if(IS_NOT_NULL(qn->head_exact))
@@ -1297,19 +1297,19 @@ static int compile_quantifier_node(QuantNode* qn, regex_t* reg, ScanEnv* env)
 		}
 		else {
 			r = compile_tree_n_times(NODE_QUANT_BODY(qn), qn->lower, reg, env);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 
 		if(qn->greedy) {
 #ifdef USE_OP_PUSH_OR_JUMP_EXACT
 			if(IS_NOT_NULL(qn->head_exact)) {
 				r = add_op(reg, OP_PUSH_OR_JUMP_EXACT1);
-				if(r != 0) return r;
+				if(r) return r;
 				COP(reg)->push_or_jump_exact1.addr = SIZE_INC + mod_tlen + OPSIZE_JUMP;
 				COP(reg)->push_or_jump_exact1.c    = STR_(qn->head_exact)->s[0];
 
 				r = compile_quant_body_with_empty_check(qn, reg, env);
-				if(r != 0) return r;
+				if(r) return r;
 
 				addr = -(mod_tlen + (int)OPSIZE_PUSH_OR_JUMP_EXACT1);
 			}
@@ -1317,47 +1317,47 @@ static int compile_quantifier_node(QuantNode* qn, regex_t* reg, ScanEnv* env)
 #endif
 			if(IS_NOT_NULL(qn->next_head_exact)) {
 				r = add_op(reg, OP_PUSH_IF_PEEK_NEXT);
-				if(r != 0) return r;
+				if(r) return r;
 				COP(reg)->push_if_peek_next.addr = SIZE_INC + mod_tlen + OPSIZE_JUMP;
 				COP(reg)->push_if_peek_next.c    = STR_(qn->next_head_exact)->s[0];
 
 				r = compile_quant_body_with_empty_check(qn, reg, env);
-				if(r != 0) return r;
+				if(r) return r;
 
 				addr = -(mod_tlen + (int)OPSIZE_PUSH_IF_PEEK_NEXT);
 			}
 			else {
 				r = add_op(reg, OP_PUSH);
-				if(r != 0) return r;
+				if(r) return r;
 				COP(reg)->push.addr = SIZE_INC + mod_tlen + OPSIZE_JUMP;
 
 				r = compile_quant_body_with_empty_check(qn, reg, env);
-				if(r != 0) return r;
+				if(r) return r;
 
 				addr = -(mod_tlen + (int)OPSIZE_PUSH);
 			}
 
 			r = add_op(reg, OP_JUMP);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->jump.addr = addr;
 		}
 		else {
 			r = add_op(reg, OP_JUMP);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->jump.addr = mod_tlen + SIZE_INC;
 
 			r = compile_quant_body_with_empty_check(qn, reg, env);
-			if(r != 0) return r;
+			if(r) return r;
 
 			r = add_op(reg, OP_PUSH);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->push.addr = -mod_tlen;
 		}
 	}
 	else if(qn->upper == 0) {
 		if(qn->include_referred != 0) { /* /(?<n>..){0}/ */
 			r = add_op(reg, OP_JUMP);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->jump.addr = tlen + SIZE_INC;
 
 			r = compile_tree(NODE_QUANT_BODY(qn), reg, env);
@@ -1374,27 +1374,27 @@ static int compile_quantifier_node(QuantNode* qn, regex_t* reg, ScanEnv* env)
 		int n = qn->upper - qn->lower;
 
 		r = compile_tree_n_times(NODE_QUANT_BODY(qn), qn->lower, reg, env);
-		if(r != 0) return r;
+		if(r) return r;
 
 		for(i = 0; i < n; i++) {
 			int v = onig_positive_int_multiply(n - i, tlen + OPSIZE_PUSH);
 			if(v < 0) return ONIGERR_TOO_BIG_NUMBER_FOR_REPEAT_RANGE;
 
 			r = add_op(reg, OP_PUSH);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->push.addr = v;
 
 			r = compile_tree(NODE_QUANT_BODY(qn), reg, env);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 	}
 	else if(!qn->greedy && qn->upper == 1 && qn->lower == 0) { /* '??' */
 		r = add_op(reg, OP_PUSH);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->push.addr = SIZE_INC + OPSIZE_JUMP;
 
 		r = add_op(reg, OP_JUMP);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->jump.addr = tlen + SIZE_INC;
 
 		r = compile_tree(NODE_QUANT_BODY(qn), reg, env);
@@ -1518,7 +1518,7 @@ static int compile_bag_memory_node(BagNode* node, regex_t* reg, ScanEnv* env)
 	if(NODE_IS_CALLED(node)) {
 		int len;
 		r = add_op(reg, OP_CALL);
-		if(r != 0) 
+		if(r) 
 			return r;
 		node->m.called_addr = COP_CURR_OFFSET(reg) + 1 + OPSIZE_JUMP;
 		NODE_STATUS_ADD(node, FIXED_ADDR);
@@ -1527,11 +1527,11 @@ static int compile_bag_memory_node(BagNode* node, regex_t* reg, ScanEnv* env)
 			len = compile_length_tree(NODE_BAG_BODY(node), reg);
 			len += OPSIZE_RETURN;
 			r = add_op(reg, OP_JUMP);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->jump.addr = len + SIZE_INC;
 
 			r = compile_tree(NODE_BAG_BODY(node), reg, env);
-			if(r != 0) return r;
+			if(r) return r;
 
 			r = add_op(reg, OP_RETURN);
 			return r;
@@ -1546,7 +1546,7 @@ static int compile_bag_memory_node(BagNode* node, regex_t* reg, ScanEnv* env)
 				len += (NODE_IS_RECURSION(node) ? OPSIZE_MEM_END_REC : OPSIZE_MEM_END);
 
 			r = add_op(reg, OP_JUMP);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->jump.addr = len + SIZE_INC;
 		}
 	}
@@ -1556,11 +1556,11 @@ static int compile_bag_memory_node(BagNode* node, regex_t* reg, ScanEnv* env)
 		r = add_op(reg, OP_MEM_START_PUSH);
 	else
 		r = add_op(reg, OP_MEM_START);
-	if(r != 0) return r;
+	if(r) return r;
 	COP(reg)->memory_start.num = node->m.regnum;
 
 	r = compile_tree(NODE_BAG_BODY(node), reg, env);
-	if(r != 0) return r;
+	if(r) return r;
 
 #ifdef USE_CALL
 	if(MEM_STATUS_AT0(reg->push_mem_end, node->m.regnum))
@@ -1568,7 +1568,7 @@ static int compile_bag_memory_node(BagNode* node, regex_t* reg, ScanEnv* env)
 			? OP_MEM_END_PUSH_REC : OP_MEM_END_PUSH));
 	else
 		r = add_op(reg, (NODE_IS_RECURSION(node) ? OP_MEM_END_REC : OP_MEM_END));
-	if(r != 0) return r;
+	if(r) return r;
 	COP(reg)->memory_end.num = node->m.regnum;
 
 	if(NODE_IS_CALLED(node)) {
@@ -1579,7 +1579,7 @@ static int compile_bag_memory_node(BagNode* node, regex_t* reg, ScanEnv* env)
 		r = add_op(reg, OP_MEM_END_PUSH);
 	else
 		r = add_op(reg, OP_MEM_END);
-	if(r != 0) return r;
+	if(r) return r;
 	COP(reg)->memory_end.num = node->m.regnum;
 #endif
 
@@ -1596,22 +1596,22 @@ static int compile_bag_node(BagNode* node, regex_t* reg, ScanEnv* env)
 		    if(NODE_IS_STRICT_REAL_REPEAT(node)) {
 			    QuantNode* qn = QUANT_(NODE_BAG_BODY(node));
 			    r = compile_tree_n_times(NODE_QUANT_BODY(qn), qn->lower, reg, env);
-			    if(r != 0) return r;
+			    if(r) return r;
 
 			    len = compile_length_tree(NODE_QUANT_BODY(qn), reg);
 			    if(len < 0) return len;
 
 			    r = add_op(reg, OP_PUSH);
-			    if(r != 0) return r;
+			    if(r) return r;
 			    COP(reg)->push.addr = SIZE_INC + len + OPSIZE_POP + OPSIZE_JUMP;
 
 			    r = compile_tree(NODE_QUANT_BODY(qn), reg, env);
-			    if(r != 0) return r;
+			    if(r) return r;
 			    r = add_op(reg, OP_POP);
-			    if(r != 0) return r;
+			    if(r) return r;
 
 			    r = add_op(reg, OP_JUMP);
-			    if(r != 0) return r;
+			    if(r) return r;
 			    COP(reg)->jump.addr = -((int)OPSIZE_PUSH + len + (int)OPSIZE_POP);
 		    }
 		    else {
@@ -1619,14 +1619,14 @@ static int compile_bag_node(BagNode* node, regex_t* reg, ScanEnv* env)
 
 			    ID_ENTRY(env, mid);
 			    r = add_op(reg, OP_MARK);
-			    if(r != 0) return r;
+			    if(r) return r;
 			    COP(reg)->mark.id = mid;
 			    COP(reg)->mark.save_pos = 0;
 
 			    r = compile_tree(NODE_BAG_BODY(node), reg, env);
-			    if(r != 0) return r;
+			    if(r) return r;
 			    r = add_op(reg, OP_CUT_TO_MARK);
-			    if(r != 0) return r;
+			    if(r) return r;
 			    COP(reg)->cut_to_mark.id = mid;
 			    COP(reg)->cut_to_mark.restore_pos = 0;
 		    }
@@ -1643,7 +1643,7 @@ static int compile_bag_node(BagNode* node, regex_t* reg, ScanEnv* env)
 		    ID_ENTRY(env, mid);
 
 		    r = add_op(reg, OP_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->mark.id = mid;
 		    COP(reg)->mark.save_pos = 0;
 
@@ -1659,19 +1659,19 @@ static int compile_bag_node(BagNode* node, regex_t* reg, ScanEnv* env)
 		    jump_len = cond_len + then_len + OPSIZE_CUT_TO_MARK + OPSIZE_JUMP;
 
 		    r = add_op(reg, OP_PUSH);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->push.addr = SIZE_INC + jump_len;
 
 		    r = compile_tree(cond, reg, env);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    r = add_op(reg, OP_CUT_TO_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->cut_to_mark.id = mid;
 		    COP(reg)->cut_to_mark.restore_pos = 0;
 
 		    if(IS_NOT_NULL(Then)) {
 			    r = compile_tree(Then, reg, env);
-			    if(r != 0) return r;
+			    if(r) return r;
 		    }
 
 		    if(IS_NOT_NULL(Else)) {
@@ -1682,11 +1682,11 @@ static int compile_bag_node(BagNode* node, regex_t* reg, ScanEnv* env)
 			    else_len = 0;
 
 		    r = add_op(reg, OP_JUMP);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->jump.addr = OPSIZE_CUT_TO_MARK + else_len + SIZE_INC;
 
 		    r = add_op(reg, OP_CUT_TO_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->cut_to_mark.id = mid;
 		    COP(reg)->cut_to_mark.restore_pos = 0;
 
@@ -1776,21 +1776,21 @@ static int compile_anchor_look_behind_node(AnchorNode* node, regex_t* reg, ScanE
 		MemNumType mid;
 		ID_ENTRY(env, mid);
 		r = add_op(reg, OP_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->mark.id = mid;
 		COP(reg)->mark.save_pos = FALSE;
 
 		r = add_op(reg, OP_STEP_BACK_START);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->step_back_start.initial   = node->char_min_len;
 		COP(reg)->step_back_start.remaining = 0;
 		COP(reg)->step_back_start.addr      = 1;
 
 		r = compile_tree(NODE_ANCHOR_BODY(node), reg, env);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = add_op(reg, OP_CUT_TO_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->cut_to_mark.id = mid;
 		COP(reg)->cut_to_mark.restore_pos = FALSE;
 	}
@@ -1802,45 +1802,45 @@ static int compile_anchor_look_behind_node(AnchorNode* node, regex_t* reg, ScanE
 			r = node_char_len(node->lead_node, reg, &ci, env);
 			if(r < 0) return r;
 			r = add_op(reg, OP_MOVE);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->move.n = -((RelPositionType)ci.min);
 			r = compile_tree(node->lead_node, reg, env);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 		ID_ENTRY(env, mid1);
 		r = add_op(reg, OP_SAVE_VAL);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->save_val.type = SAVE_RIGHT_RANGE;
 		COP(reg)->save_val.id   = mid1;
 
 		r = add_op(reg, OP_UPDATE_VAR);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->update_var.type = UPDATE_VAR_RIGHT_RANGE_TO_S;
 
 		ID_ENTRY(env, mid2);
 		r = add_op(reg, OP_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->mark.id = mid2;
 		COP(reg)->mark.save_pos = FALSE;
 
 		r = add_op(reg, OP_PUSH);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->push.addr = SIZE_INC + OPSIZE_JUMP;
 
 		r = add_op(reg, OP_JUMP);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->jump.addr = SIZE_INC + OPSIZE_UPDATE_VAR + OPSIZE_FAIL;
 
 		r = add_op(reg, OP_UPDATE_VAR);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->update_var.type = UPDATE_VAR_RIGHT_RANGE_FROM_STACK;
 		COP(reg)->update_var.id    = mid1;
 		COP(reg)->update_var.clear = FALSE;
 		r = add_op(reg, OP_FAIL);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = add_op(reg, OP_STEP_BACK_START);
-		if(r != 0) return r;
+		if(r) return r;
 
 		if(node->char_max_len != INFINITE_LEN)
 			diff = node->char_max_len - node->char_min_len;
@@ -1852,22 +1852,22 @@ static int compile_anchor_look_behind_node(AnchorNode* node, regex_t* reg, ScanE
 		COP(reg)->step_back_start.addr      = 2;
 
 		r = add_op(reg, OP_STEP_BACK_NEXT);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = compile_tree(NODE_ANCHOR_BODY(node), reg, env);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = add_op(reg, OP_CHECK_POSITION);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->check_position.type = CHECK_POSITION_CURRENT_RIGHT_RANGE;
 
 		r = add_op(reg, OP_CUT_TO_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->cut_to_mark.id = mid2;
 		COP(reg)->cut_to_mark.restore_pos = FALSE;
 
 		r = add_op(reg, OP_UPDATE_VAR);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->update_var.type = UPDATE_VAR_RIGHT_RANGE_FROM_STACK;
 		COP(reg)->update_var.id    = mid1;
 		COP(reg)->update_var.clear = TRUE;
@@ -1884,28 +1884,28 @@ static int compile_anchor_look_behind_not_node(AnchorNode* node, regex_t* reg, S
 		MemNumType mid;
 		ID_ENTRY(env, mid);
 		r = add_op(reg, OP_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->mark.id = mid;
 		COP(reg)->mark.save_pos = FALSE;
 
 		r = add_op(reg, OP_PUSH);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->push.addr = SIZE_INC + OPSIZE_STEP_BACK_START + len + OPSIZE_POP_TO_MARK + OPSIZE_FAIL;
 
 		r = add_op(reg, OP_STEP_BACK_START);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->step_back_start.initial   = node->char_min_len;
 		COP(reg)->step_back_start.remaining = 0;
 		COP(reg)->step_back_start.addr      = 1;
 
 		r = compile_tree(NODE_ANCHOR_BODY(node), reg, env);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = add_op(reg, OP_POP_TO_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->pop_to_mark.id = mid;
 		r = add_op(reg, OP_FAIL);
-		if(r != 0) return r;
+		if(r) return r;
 		r = add_op(reg, OP_POP);
 	}
 	else {
@@ -1914,22 +1914,22 @@ static int compile_anchor_look_behind_not_node(AnchorNode* node, regex_t* reg, S
 
 		ID_ENTRY(env, mid1);
 		r = add_op(reg, OP_SAVE_VAL);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->save_val.type = SAVE_RIGHT_RANGE;
 		COP(reg)->save_val.id   = mid1;
 
 		r = add_op(reg, OP_UPDATE_VAR);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->update_var.type = UPDATE_VAR_RIGHT_RANGE_TO_S;
 
 		ID_ENTRY(env, mid2);
 		r = add_op(reg, OP_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->mark.id = mid2;
 		COP(reg)->mark.save_pos = FALSE;
 
 		r = add_op(reg, OP_PUSH);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->push.addr = SIZE_INC + OPSIZE_STEP_BACK_START + OPSIZE_STEP_BACK_NEXT + len + OPSIZE_CHECK_POSITION +
 		    OPSIZE_POP_TO_MARK + OPSIZE_UPDATE_VAR + OPSIZE_POP + OPSIZE_FAIL;
 
@@ -1943,15 +1943,15 @@ static int compile_anchor_look_behind_not_node(AnchorNode* node, regex_t* reg, S
 			r = node_char_len(node->lead_node, reg, &ci, env);
 			if(r < 0) return r;
 			r = add_op(reg, OP_MOVE);
-			if(r != 0) return r;
+			if(r) return r;
 			COP(reg)->move.n = -((RelPositionType)ci.min);
 
 			r = compile_tree(node->lead_node, reg, env);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 
 		r = add_op(reg, OP_STEP_BACK_START);
-		if(r != 0) return r;
+		if(r) return r;
 
 		if(node->char_max_len != INFINITE_LEN)
 			diff = node->char_max_len - node->char_min_len;
@@ -1963,38 +1963,38 @@ static int compile_anchor_look_behind_not_node(AnchorNode* node, regex_t* reg, S
 		COP(reg)->step_back_start.addr      = 2;
 
 		r = add_op(reg, OP_STEP_BACK_NEXT);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = compile_tree(NODE_ANCHOR_BODY(node), reg, env);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = add_op(reg, OP_CHECK_POSITION);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->check_position.type = CHECK_POSITION_CURRENT_RIGHT_RANGE;
 
 		r = add_op(reg, OP_POP_TO_MARK);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->pop_to_mark.id = mid2;
 
 		r = add_op(reg, OP_UPDATE_VAR);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->update_var.type = UPDATE_VAR_RIGHT_RANGE_FROM_STACK;
 		COP(reg)->update_var.id   = mid1;
 		COP(reg)->update_var.clear = FALSE;
 
 		r = add_op(reg, OP_POP); /* pop save val */
-		if(r != 0) return r;
+		if(r) return r;
 		r = add_op(reg, OP_FAIL);
-		if(r != 0) return r;
+		if(r) return r;
 
 		r = add_op(reg, OP_UPDATE_VAR);
-		if(r != 0) return r;
+		if(r) return r;
 		COP(reg)->update_var.type = UPDATE_VAR_RIGHT_RANGE_FROM_STACK;
 		COP(reg)->update_var.id   = mid1;
 		COP(reg)->update_var.clear = FALSE;
 
 		r = add_op(reg, OP_POP); /* pop mark */
-		if(r != 0) return r;
+		if(r) return r;
 		r = add_op(reg, OP_POP); /* pop save val */
 	}
 
@@ -2015,7 +2015,7 @@ static int compile_anchor_node(AnchorNode* node, regex_t* reg, ScanEnv* env)
 		case ANCR_SEMI_END_BUF:   r = add_op(reg, OP_SEMI_END_BUF);   break;
 		case ANCR_BEGIN_POSITION:
 		    r = add_op(reg, OP_CHECK_POSITION);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->check_position.type = CHECK_POSITION_SEARCH_START;
 		    break;
 
@@ -2023,7 +2023,7 @@ static int compile_anchor_node(AnchorNode* node, regex_t* reg, ScanEnv* env)
 		    op = OP_WORD_BOUNDARY;
 word:
 		    r = add_op(reg, op);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->word_boundary.mode = (ModeType)node->ascii_mode;
 		    break;
 
@@ -2044,7 +2044,7 @@ word:
 	    {
 		    enum TextSegmentBoundaryType type;
 		    r = add_op(reg, OP_TEXT_SEGMENT_BOUNDARY);
-		    if(r != 0) 
+		    if(r) 
 				return r;
 		    type = EXTENDED_GRAPHEME_CLUSTER_BOUNDARY;
 #ifdef USE_UNICODE_WORD_BREAK
@@ -2060,15 +2060,15 @@ word:
 	    {
 		    ID_ENTRY(env, mid);
 		    r = add_op(reg, OP_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->mark.id = mid;
 		    COP(reg)->mark.save_pos = TRUE;
 
 		    r = compile_tree(NODE_ANCHOR_BODY(node), reg, env);
-		    if(r != 0) return r;
+		    if(r) return r;
 
 		    r = add_op(reg, OP_CUT_TO_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->cut_to_mark.id = mid;
 		    COP(reg)->cut_to_mark.restore_pos = TRUE;
 	    }
@@ -2081,23 +2081,23 @@ word:
 
 		    ID_ENTRY(env, mid);
 		    r = add_op(reg, OP_PUSH);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->push.addr = SIZE_INC + OPSIZE_MARK + len +
 			OPSIZE_POP_TO_MARK + OPSIZE_POP + OPSIZE_FAIL;
 
 		    r = add_op(reg, OP_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->mark.id = mid;
 		    COP(reg)->mark.save_pos = FALSE;
 
 		    r = compile_tree(NODE_ANCHOR_BODY(node), reg, env);
-		    if(r != 0) return r;
+		    if(r) return r;
 
 		    r = add_op(reg, OP_POP_TO_MARK);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->pop_to_mark.id = mid;
 		    r = add_op(reg, OP_POP);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    r = add_op(reg, OP_FAIL);
 	    }
 	    break;
@@ -2124,14 +2124,14 @@ static int compile_gimmick_node(GimmickNode* node, regex_t* reg)
 		    break;
 		case GIMMICK_SAVE:
 		    r = add_op(reg, OP_SAVE_VAL);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->save_val.type = (SaveType)node->detail_type;
 		    COP(reg)->save_val.id   = node->id;
 		    break;
 
 		case GIMMICK_UPDATE_VAR:
 		    r = add_op(reg, OP_UPDATE_VAR);
-		    if(r != 0) return r;
+		    if(r) return r;
 		    COP(reg)->update_var.type = (UpdateVarType)node->detail_type;
 		    COP(reg)->update_var.id   = node->id;
 		    COP(reg)->update_var.clear = FALSE;
@@ -2145,13 +2145,13 @@ static int compile_gimmick_node(GimmickNode* node, regex_t* reg)
 			{
 				if(node->detail_type == ONIG_CALLOUT_OF_NAME) {
 					r = add_op(reg, OP_CALLOUT_NAME);
-					if(r != 0) return r;
+					if(r) return r;
 					COP(reg)->callout_name.id  = node->id;
 					COP(reg)->callout_name.num = node->num;
 				}
 				else {
 					r = add_op(reg, OP_CALLOUT_CONTENTS);
-					if(r != 0) return r;
+					if(r) return r;
 					COP(reg)->callout_contents.num = node->num;
 				}
 			}
@@ -2259,16 +2259,16 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 			    if(IS_NOT_NULL(NODE_CDR(node))) {
 				    enum OpCode push = NODE_IS_SUPER(node) ? OP_PUSH_SUPER : OP_PUSH;
 				    r = add_op(reg, push);
-				    if(r != 0) 
+				    if(r) 
 						break;
 				    COP(reg)->push.addr = SIZE_INC + len + OPSIZE_JUMP;
 			    }
 			    r = compile_tree(NODE_CAR(node), reg, env);
-			    if(r != 0) break;
+			    if(r) break;
 			    if(IS_NOT_NULL(NODE_CDR(node))) {
 				    len = pos - (COP_CURR_OFFSET(reg) + 1);
 				    r = add_op(reg, OP_JUMP);
-				    if(r != 0) 
+				    if(r) 
 						break;
 				    COP(reg)->jump.addr = len;
 			    }
@@ -2313,7 +2313,7 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 #ifdef USE_BACKREF_WITH_LEVEL
 			    if(NODE_IS_NEST_LEVEL(node)) {
 				    r = add_op(reg, OP_BACKREF_CHECK_WITH_LEVEL);
-				    if(r != 0) 
+				    if(r) 
 						return r;
 				    COP(reg)->backref_general.nest_level = br->nest_level;
 			    }
@@ -2321,7 +2321,7 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 #endif
 			    {
 				    r = add_op(reg, OP_BACKREF_CHECK);
-				    if(r != 0) return r;
+				    if(r) return r;
 			    }
 			    goto add_bacref_mems;
 		    }
@@ -2333,7 +2333,7 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 				    else
 					    r = add_op(reg, OP_BACKREF_WITH_LEVEL);
 
-				    if(r != 0) return r;
+				    if(r) return r;
 				    COP(reg)->backref_general.nest_level = br->nest_level;
 				    goto add_bacref_mems;
 			    }
@@ -2343,7 +2343,7 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 				    n = br->back_static[0];
 				    if(NODE_IS_IGNORECASE(node)) {
 					    r = add_op(reg, OP_BACKREF_N_IC);
-					    if(r != 0) return r;
+					    if(r) return r;
 					    COP(reg)->backref_n.n1 = n;
 				    }
 				    else {
@@ -2352,7 +2352,7 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 						    case 2:  r = add_op(reg, OP_BACKREF2); break;
 						    default:
 							r = add_op(reg, OP_BACKREF_N);
-							if(r != 0) return r;
+							if(r) return r;
 							COP(reg)->backref_n.n1 = n;
 							break;
 					    }
@@ -2362,7 +2362,7 @@ static int FASTCALL compile_tree(Node * node, regex_t * reg, ScanEnv * env)
 				    int num;
 				    int* p;
 				    r = add_op(reg, NODE_IS_IGNORECASE(node) ? OP_BACKREF_MULTI_IC : OP_BACKREF_MULTI);
-				    if(r != 0) 
+				    if(r) 
 						return r;
 add_bacref_mems:
 				    num = br->back_num;
@@ -2525,17 +2525,17 @@ static int FASTCALL renumber_backref_traverse(Node * node, GroupNumMap* map)
 	    {
 		    BagNode* en = BAG_(node);
 		    r = renumber_backref_traverse(NODE_BODY(node), map);
-		    if(r != 0) 
+		    if(r) 
 				return r;
 		    if(en->type == BAG_IF_ELSE) {
 			    if(IS_NOT_NULL(en->te.Then)) {
 				    r = renumber_backref_traverse(en->te.Then, map);
-				    if(r != 0) 
+				    if(r) 
 						return r;
 			    }
 			    if(IS_NOT_NULL(en->te.Else)) {
 				    r = renumber_backref_traverse(en->te.Else, map);
-				    if(r != 0) 
+				    if(r) 
 						return r;
 			    }
 		    }
@@ -2578,16 +2578,16 @@ static int FASTCALL numbered_ref_check(Node * node)
 		    BagNode* en = BAG_(node);
 
 		    r = numbered_ref_check(NODE_BODY(node));
-		    if(r != 0) return r;
+		    if(r) return r;
 
 		    if(en->type == BAG_IF_ELSE) {
 			    if(IS_NOT_NULL(en->te.Then)) {
 				    r = numbered_ref_check(en->te.Then);
-				    if(r != 0) return r;
+				    if(r) return r;
 			    }
 			    if(IS_NOT_NULL(en->te.Else)) {
 				    r = numbered_ref_check(en->te.Else);
-				    if(r != 0) return r;
+				    if(r) return r;
 			    }
 		    }
 	    }
@@ -2622,7 +2622,7 @@ static int disable_noname_group_capture(Node ** root, regex_t* reg, ScanEnv* env
 	if(r < 0) return r;
 
 	r = renumber_backref_traverse(*root, map);
-	if(r != 0) return r;
+	if(r) return r;
 
 	for(i = 1, pos = 1; i <= env->num_mem; i++) {
 		if(map[i].new_val > 0) {
@@ -3037,7 +3037,7 @@ static int FASTCALL check_called_node_in_look_behind(Node * node, int not)
 					if(r == 0 && en->type == BAG_IF_ELSE) {
 						if(IS_NOT_NULL(en->te.Then)) {
 							r = check_called_node_in_look_behind(en->te.Then, not);
-							if(r != 0) break;
+							if(r) break;
 						}
 						if(IS_NOT_NULL(en->te.Else)) {
 							r = check_called_node_in_look_behind(en->te.Else, not);
@@ -3105,7 +3105,7 @@ static int FASTCALL check_node_in_look_behind(Node * node, int not, int* used)
 				if(((1<<en->type) & bag_mask[not]) == 0)
 					return 1;
 				r = check_node_in_look_behind(NODE_BODY(node), not, used);
-				if(r != 0) 
+				if(r) 
 					break;
 				if(en->type == BAG_MEMORY) {
 					if(NODE_IS_BACKREF(node) || NODE_IS_CALLED(node) || NODE_IS_REFERENCED(node))
@@ -3114,7 +3114,7 @@ static int FASTCALL check_node_in_look_behind(Node * node, int not, int* used)
 				else if(en->type == BAG_IF_ELSE) {
 					if(IS_NOT_NULL(en->te.Then)) {
 						r = check_node_in_look_behind(en->te.Then, not, used);
-						if(r != 0) 
+						if(r) 
 							break;
 					}
 					if(IS_NOT_NULL(en->te.Else)) {
@@ -3417,10 +3417,10 @@ static int FASTCALL check_backrefs(Node * node, ScanEnv * env)
 		    {
 			    BagNode* en = BAG_(node);
 			    if(en->type == BAG_IF_ELSE) {
-				    if(r != 0) return r;
+				    if(r) return r;
 				    if(IS_NOT_NULL(en->te.Then)) {
 					    r = check_backrefs(en->te.Then, env);
-					    if(r != 0) return r;
+					    if(r) return r;
 				    }
 				    if(IS_NOT_NULL(en->te.Else)) {
 					    r = check_backrefs(en->te.Else, env);
@@ -3490,7 +3490,7 @@ static int FASTCALL set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv
 		case NODE_BAG:
 		    if(IS_NOT_NULL(NODE_BODY(node))) {
 			    r = set_empty_repeat_node_trav(NODE_BODY(node), empty, env);
-			    if(r != 0) 
+			    if(r) 
 					return r;
 		    }
 		    {
@@ -3505,7 +3505,7 @@ static int FASTCALL set_empty_repeat_node_trav(Node * node, Node* empty, ScanEnv
 			    else if(en->type == BAG_IF_ELSE) {
 				    if(IS_NOT_NULL(en->te.Then)) {
 					    r = set_empty_repeat_node_trav(en->te.Then, empty, env);
-					    if(r != 0) return r;
+					    if(r) return r;
 				    }
 				    if(IS_NOT_NULL(en->te.Else)) {
 					    r = set_empty_repeat_node_trav(en->te.Else, empty, env);
@@ -3775,11 +3775,11 @@ static int infinite_recursive_call_check_trav(Node * node, ScanEnv* env)
 				else if(en->type == BAG_IF_ELSE) {
 					if(IS_NOT_NULL(en->te.Then)) {
 						r = infinite_recursive_call_check_trav(en->te.Then, env);
-						if(r != 0) return r;
+						if(r) return r;
 					}
 					if(IS_NOT_NULL(en->te.Else)) {
 						r = infinite_recursive_call_check_trav(en->te.Else, env);
-						if(r != 0) return r;
+						if(r) return r;
 					}
 				}
 			}
@@ -3814,7 +3814,7 @@ static int recursive_call_check(Node * node)
 		    break;
 		case NODE_CALL:
 		    r = recursive_call_check(NODE_BODY(node));
-		    if(r != 0) {
+		    if(r) {
 			    if(NODE_IS_MARK1(NODE_BODY(node)))
 				    NODE_STATUS_ADD(node, RECURSION);
 		    }
@@ -3897,7 +3897,7 @@ static int recursive_call_check_trav(Node * node, ScanEnv* env, int state)
 						if(!NODE_IS_RECURSION(node)) {
 							NODE_STATUS_ADD(node, MARK1);
 							r = recursive_call_check(NODE_BODY(node));
-							if(r != 0) {
+							if(r) {
 								NODE_STATUS_ADD(node, RECURSION);
 								MEM_STATUS_ON(env->backtrack_mem, en->m.regnum);
 							}
@@ -3963,7 +3963,7 @@ static int reduce_string_list(Node * node, OnigEncoding enc)
 				    }
 				    else {
 					    r = node_str_node_cat(prev, curr);
-					    if(r != 0) 
+					    if(r) 
 							return r;
 					    remove_from_list(prev_node, node);
 					    onig_node_free(node);
@@ -3979,7 +3979,7 @@ static int reduce_string_list(Node * node, OnigEncoding enc)
 					    prev = NULL_NODE;
 				    }
 				    r = reduce_string_list(curr, enc);
-				    if(r != 0) 
+				    if(r) 
 						return r;
 				    prev_node = node;
 			    }
@@ -4019,16 +4019,16 @@ static int reduce_string_list(Node * node, OnigEncoding enc)
 			{
 				BagNode* en = BAG_(node);
 				r = reduce_string_list(NODE_BODY(node), enc);
-				if(r != 0) 
+				if(r) 
 					return r;
 				if(en->type == BAG_IF_ELSE) {
 					if(IS_NOT_NULL(en->te.Then)) {
 						r = reduce_string_list(en->te.Then, enc);
-						if(r != 0) return r;
+						if(r) return r;
 					}
 					if(IS_NOT_NULL(en->te.Else)) {
 						r = reduce_string_list(en->te.Else, enc);
-						if(r != 0) return r;
+						if(r) return r;
 					}
 				}
 			}
@@ -4067,7 +4067,7 @@ static int divide_look_behind_alternatives(Node * node)
 	np = node;
 	while(IS_NOT_NULL(np = NODE_CDR(np))) {
 		r = onig_node_copy(&insert_node, head);
-		if(r != 0) 
+		if(r) 
 			return r;
 		CHECK_NULL_RETURN_MEMERR(insert_node);
 		NODE_BODY(insert_node) = NODE_CAR(np);
@@ -4159,10 +4159,10 @@ static int tune_look_behind(Node * node, regex_t* reg, int state, ScanEnv* env)
 	// Execute tune_tree(body) before call node_char_len().
 	// Because case-fold expansion must be done before node_char_len().
 	r = tune_tree(body, reg, state1, env);
-	if(r != 0) 
+	if(r) 
 		return r;
 	r = alt_reduce_in_look_behind(body, reg, env);
-	if(r != 0) 
+	if(r) 
 		return r;
 	r = node_char_len(body, reg, &ci, env);
 	if(r >= 0) {
@@ -4180,7 +4180,7 @@ static int tune_look_behind(Node * node, regex_t* reg, int state, ScanEnv* env)
 		if(r == CHAR_LEN_TOP_ALT_FIXED) {
 			if(IS_SYNTAX_BV(env->syntax, ONIG_SYN_DIFFERENT_LEN_ALT_LOOK_BEHIND)) {
 				r = divide_look_behind_alternatives(node);
-				if(r == 0)
+				if(!r)
 					r = tune_tree(node, reg, state, env);
 			}
 			else if(IS_SYNTAX_BV(env->syntax, ONIG_SYN_VARIABLE_LEN_LOOK_BEHIND))
@@ -4206,7 +4206,7 @@ normal:
 						r = get_tree_tail_literal(body, &tail, reg);
 						if(r == GET_VALUE_FOUND) {
 							r = onig_node_copy(&(an->lead_node), tail);
-							if(r != 0) 
+							if(r) 
 								return r;
 						}
 					}
@@ -4309,7 +4309,7 @@ static int make_code_list_to_string(Node ** rnode, OnigEncoding enc, int n, Onig
 			goto err;
 		}
 		r = onig_node_str_cat(node, buf, buf + len);
-		if(r != 0) 
+		if(r) 
 			goto err;
 	}
 	*rnode = node;
@@ -4348,7 +4348,7 @@ static int unravel_cf_string_add(Node ** rlist, Node ** rsn, uchar * s, uchar * 
 		STR_(sn)->flag = flag;
 		r = unravel_cf_node_add(&list, sn);
 	}
-	if(r == 0) {
+	if(!r) {
 		*rlist = list;
 		*rsn = sn;
 	}
@@ -4368,7 +4368,7 @@ static int unravel_cf_string_alt_or_cc_add(Node ** rlist, int n, OnigCaseFoldCod
 			codes[i+1] = item->code[0];
 		}
 		r = onig_new_cclass_with_code_list(&node, enc, n + 1, codes);
-		if(r != 0) return r;
+		if(r) return r;
 	}
 	else {
 		Node * alt, * curr;
@@ -4383,7 +4383,7 @@ static int unravel_cf_string_alt_or_cc_add(Node ** rlist, int n, OnigCaseFoldCod
 		for(i = 0; i < n; i++) {
 			OnigCaseFoldCodeItem* item = items + i;
 			r = make_code_list_to_string(&snode, enc, item->code_len, item->code);
-			if(r != 0) {
+			if(r) {
 				onig_node_free(node);
 				return r;
 			}
@@ -4398,7 +4398,7 @@ static int unravel_cf_string_alt_or_cc_add(Node ** rlist, int n, OnigCaseFoldCod
 		}
 	}
 	r = unravel_cf_node_add(rlist, node);
-	if(r != 0) 
+	if(r) 
 		onig_node_free(node);
 	return r;
 }
@@ -4433,10 +4433,10 @@ static int unravel_cf_look_behind_add(Node ** rlist, Node ** rsn, int n, OnigCas
 			}
 		}
 		r = onig_new_cclass_with_code_list(&node, enc, found, codes);
-		if(r != 0) 
+		if(r) 
 			return r;
 		r = unravel_cf_node_add(rlist, node);
-		if(r != 0) 
+		if(r) 
 			onig_node_free(node);
 		*rsn = NULL_NODE;
 	}
@@ -4476,7 +4476,7 @@ static int unravel_case_fold_string(Node * node, regex_t* reg, int state)
 			if(q > end) 
 				q = end;
 			r = unravel_cf_string_add(&list, &sn, p, q, 0 /* flag */);
-			if(r != 0) 
+			if(r) 
 				goto err;
 		}
 		else {
@@ -4489,7 +4489,7 @@ static int unravel_case_fold_string(Node * node, regex_t* reg, int state)
 					n = r;
 				}
 				r = unravel_cf_look_behind_add(&list, &sn, n, items, enc, p, one_len);
-				if(r != 0) 
+				if(r) 
 					goto err;
 			}
 			else {
@@ -4500,7 +4500,7 @@ static int unravel_case_fold_string(Node * node, regex_t* reg, int state)
 				}
 				q = p + max_len;
 				r = unravel_cf_string_alt_or_cc_add(&list, n, items, enc, reg->case_fold_flag, p, q);
-				if(r != 0) 
+				if(r) 
 					goto err;
 				sn = NULL_NODE;
 			}
@@ -4740,11 +4740,11 @@ static int tune_call(Node * node, ScanEnv * env, int state)
 				}
 				else if(en->type == BAG_IF_ELSE) {
 					r = tune_call(NODE_BODY(node), env, state);
-					if(r != 0) 
+					if(r) 
 						return r;
 					if(IS_NOT_NULL(en->te.Then)) {
 						r = tune_call(en->te.Then, env, state);
-						if(r != 0) 
+						if(r) 
 							return r;
 					}
 					if(IS_NOT_NULL(en->te.Else))
@@ -4791,12 +4791,12 @@ static int tune_call2(Node * node)
 			    r = tune_call2(NODE_BODY(node));
 		    {
 			    BagNode* en = BAG_(node);
-			    if(r != 0) 
+			    if(r) 
 					return r;
 			    if(en->type == BAG_IF_ELSE) {
 				    if(IS_NOT_NULL(en->te.Then)) {
 					    r = tune_call2(en->te.Then);
-					    if(r != 0) return r;
+					    if(r) return r;
 				    }
 				    if(IS_NOT_NULL(en->te.Else))
 					    r = tune_call2(en->te.Else);
@@ -5042,7 +5042,7 @@ static int tune_quant(Node * node, regex_t* reg, int state, ScanEnv* env)
 	if(qn->lower != qn->upper)
 		state |= IN_VAR_REPEAT;
 	r = tune_tree(body, reg, state, env);
-	if(r != 0) 
+	if(r) 
 		return r;
 	// expand string 
 #define EXPAND_STRING_MAX_LENGTH  100
@@ -5054,7 +5054,7 @@ static int tune_quant(Node * node, regex_t* reg, int state, ScanEnv* env)
 				node_conv_to_str_node(node, body);
 				for(i = 0; i < n; i++) {
 					r = node_str_node_cat(node, body);
-					if(r != 0) 
+					if(r) 
 						return r;
 				}
 				onig_node_free(body);
@@ -5173,10 +5173,10 @@ static int STDCALL tune_tree(Node * node, regex_t* reg, int state, ScanEnv* env)
 					break;
 			    case BAG_IF_ELSE:
 				r = tune_tree(NODE_BODY(node), reg, (state | IN_ALT), env);
-				if(r != 0) return r;
+				if(r) return r;
 				if(IS_NOT_NULL(en->te.Then)) {
 					r = tune_tree(en->te.Then, reg, (state | IN_ALT), env);
-					if(r != 0) return r;
+					if(r) return r;
 				}
 				if(IS_NOT_NULL(en->te.Else))
 					r = tune_tree(en->te.Else, reg, (state | IN_ALT), env);
@@ -5733,7 +5733,7 @@ static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * en
 				copy_opt_env(&nenv, env);
 				do {
 					r = optimize_nodes(NODE_CAR(nd), &xo, &nenv); // @recursion
-					if(r == 0) {
+					if(!r) {
 						mml_add(&nenv.mm, &xo.len);
 						concat_left_node_opt_info(enc, opt, &xo);
 					}
@@ -5745,7 +5745,7 @@ static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * en
 				Node * nd = node;
 				do {
 					r = optimize_nodes(NODE_CAR(nd), &xo, env); // @recursion
-					if(r == 0) {
+					if(!r) {
 						if(nd == node) 
 							copy_node_opt_info(opt, &xo);
 						else 
@@ -5839,7 +5839,7 @@ static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * en
 			    case ANCR_PREC_READ:
 					{
 						r = optimize_nodes(NODE_BODY(node), &xo, env);
-						if(r == 0) {
+						if(!r) {
 							if(xo.sb.len > 0)
 								copy_opt_exact(&opt->spr, &xo.sb);
 							else if(xo.sm.len > 0)
@@ -5889,7 +5889,7 @@ static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * en
 			    break;
 		    }
 		    r = optimize_nodes(NODE_BODY(node), &xo, env);
-		    if(r != 0) 
+		    if(r) 
 				break;
 		    if(qn->lower > 0) {
 			    copy_node_opt_info(opt, &xo);
@@ -5962,18 +5962,18 @@ static int FASTCALL optimize_nodes(Node * node, OptNode * opt, const OptEnv * en
 						OptEnv nenv;
 						copy_opt_env(&nenv, env);
 						r = optimize_nodes(NODE_BAG_BODY(en), &xo, &nenv);
-						if(r == 0) {
+						if(!r) {
 							mml_add(&nenv.mm, &xo.len);
 							concat_left_node_opt_info(enc, opt, &xo);
 							if(IS_NOT_NULL(en->te.Then)) {
 								r = optimize_nodes(en->te.Then, &xo, &nenv);
-								if(r == 0) {
+								if(!r) {
 									concat_left_node_opt_info(enc, opt, &xo);
 								}
 							}
 							if(IS_NOT_NULL(en->te.Else)) {
 								r = optimize_nodes(en->te.Else, &xo, env);
-								if(r == 0)
+								if(!r)
 									alt_merge_node_opt_info(opt, &xo, env);
 							}
 						}
@@ -6007,7 +6007,7 @@ static int set_optimize_exact(regex_t* reg, OptStr* e)
 		int allow_reverse = ONIGENC_IS_ALLOWED_REVERSE_MATCH(reg->enc, reg->exact, reg->exact_end);
 		if(e->len >= 2 || (e->len >= 1 && allow_reverse)) {
 			int r = set_sunday_quick_search_or_bmh_skip_table(reg, 0, reg->exact, reg->exact_end, reg->map, &(reg->map_offset));
-			if(r != 0) 
+			if(r) 
 				return r;
 			reg->optimize = (allow_reverse != 0 ? OPTIMIZE_STR_FAST : OPTIMIZE_STR_FAST_STEP_FORWARD);
 		}
@@ -6056,7 +6056,7 @@ static int set_optimize_info_from_tree(Node * node, regex_t* reg, ScanEnv* scan_
 	env.scan_env       = scan_env;
 	mml_clear(&env.mm);
 	r = optimize_nodes(node, &opt, &env);
-	if(r != 0) 
+	if(r) 
 		return r;
 	reg->anchor = opt.anc.left & (ANCR_BEGIN_BUF|ANCR_BEGIN_POSITION|ANCR_ANYCHAR_INF|ANCR_ANYCHAR_INF_ML|ANCR_LOOK_BEHIND);
 	if((opt.anc.left & (ANCR_LOOK_BEHIND | ANCR_PREC_READ_NOT)) != 0)
@@ -6363,37 +6363,37 @@ static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pat
 		einfo->par = (uchar *)NULL;
 	}
 	r = onig_parse_tree(&root, pattern, pattern_end, reg, scan_env);
-	if(r != 0) goto err;
+	if(r) goto err;
 	r = reduce_string_list(root, reg->enc);
-	if(r != 0) goto err;
+	if(r) goto err;
 	/* mixed use named group and no-named group */
 	if(scan_env->num_named > 0 && IS_SYNTAX_BV(scan_env->syntax, ONIG_SYN_CAPTURE_ONLY_NAMED_GROUP) && !OPTON_CAPTURE_GROUP(reg->options)) {
 		if(scan_env->num_named != scan_env->num_mem)
 			r = disable_noname_group_capture(&root, reg, scan_env);
 		else
 			r = numbered_ref_check(root);
-		if(r != 0) goto err;
+		if(r) goto err;
 	}
 	r = check_backrefs(root, scan_env);
-	if(r != 0) 
+	if(r) 
 		goto err;
 #ifdef USE_CALL
 	if(scan_env->num_call > 0) {
 		r = unset_addr_list_init(uslist, scan_env->num_call);
-		if(r != 0) 
+		if(r) 
 			goto err;
 		scan_env->unset_addr_list = uslist;
 		r = tune_call(root, scan_env, 0);
-		if(r != 0) 
+		if(r) 
 			goto err_unset;
 		r = tune_call2(root);
-		if(r != 0) 
+		if(r) 
 			goto err_unset;
 		r = recursive_call_check_trav(root, scan_env, 0);
 		if(r < 0) 
 			goto err_unset;
 		r = infinite_recursive_call_check_trav(root, scan_env);
-		if(r != 0) 
+		if(r) 
 			goto err_unset;
 		tune_called_state(root, 0);
 	}
@@ -6403,7 +6403,7 @@ static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pat
 	fprintf(DBGFP, "MAX PARSE DEPTH: %d\n", scan_env->max_parse_depth);
 #endif
 	r = tune_tree(root, reg, 0, scan_env);
-	if(r != 0) {
+	if(r) {
 #ifdef ONIG_DEBUG_PARSE
 		fprintf(DBGFP, "TREE (error in tune)\n");
 		print_tree(DBGFP, root);
@@ -6414,7 +6414,7 @@ static int parse_and_tune(regex_t* reg, const uchar * pattern, const uchar * pat
 	if(scan_env->backref_num != 0) {
 		set_parent_node_trav(root, NULL_NODE);
 		r = set_empty_repeat_node_trav(root, NULL_NODE, scan_env);
-		if(r != 0) 
+		if(r) 
 			goto err_unset;
 		set_empty_status_check_trav(root, scan_env);
 	}
@@ -6457,7 +6457,7 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 #endif
 	if(reg->ops_alloc == 0) {
 		r = ops_init(reg, OPS_INIT_SIZE);
-		if(r != 0) {
+		if(r) {
 			if(IS_NOT_NULL(einfo)) {
 				einfo->enc = reg->enc;
 				einfo->par = (uchar *)NULL;
@@ -6472,7 +6472,7 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 		, &uslist
 #endif
 		);
-	if(r != 0) return r;
+	if(r) return r;
 
 #ifdef ONIG_DEBUG_PARSE
 	fprintf(DBGFP, "TREE (after tune)\n");
@@ -6500,7 +6500,7 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 	clear_optimize_info(reg);
 #ifndef ONIG_DONT_OPTIMIZE
 	r = set_optimize_info_from_tree(root, reg, &scan_env);
-	if(r != 0) {
+	if(r) {
 #ifdef USE_CALL
 		if(scan_env.num_call > 0) {
 			unset_addr_list_end(&uslist);
@@ -6514,23 +6514,23 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 		scan_env.mem_env_dynamic = (MemEnv*)NULL;
 	}
 	r = compile_tree(root, reg, &scan_env);
-	if(r == 0) {
+	if(!r) {
 		if(scan_env.keep_num > 0) {
 			r = add_op(reg, OP_UPDATE_VAR);
-			if(r != 0) 
+			if(r) 
 				goto err;
 			COP(reg)->update_var.type = UPDATE_VAR_KEEP_FROM_STACK_LAST;
 			COP(reg)->update_var.id   = 0; /* not used */
 			COP(reg)->update_var.clear = FALSE;
 		}
 		r = add_op(reg, OP_END);
-		if(r != 0) 
+		if(r) 
 			goto err;
 #ifdef USE_CALL
 		if(scan_env.num_call > 0) {
 			r = fix_unset_addr_list(&uslist, reg);
 			unset_addr_list_end(&uslist);
-			if(r != 0) 
+			if(r) 
 				goto err;
 		}
 #endif
@@ -6554,7 +6554,7 @@ int onig_compile(regex_t* reg, const uchar * pattern, const uchar * pattern_end,
 				reg->stack_pop_level = STACK_POP_LEVEL_FREE;
 		}
 		r = ops_make_string_pool(reg);
-		if(r != 0) 
+		if(r) 
 			goto err;
 	}
 #ifdef USE_CALL
@@ -6595,7 +6595,7 @@ int onig_reg_init(regex_t* reg, OnigOptionType option, OnigCaseFoldType case_fol
 		return ONIGERR_LIBRARY_IS_NOT_INITIALIZED;
 #else
 		r = onig_initialize(&enc, 1);
-		if(r != 0)
+		if(r)
 			return ONIGERR_FAIL_TO_INITIALIZE;
 		onig_warning("You didn't call onig_initialize() explicitly");
 #endif
@@ -6636,7 +6636,7 @@ int onig_new_without_alloc(regex_t* reg, const uchar * pattern, const uchar * pa
     OnigOptionType option, OnigEncoding enc, OnigSyntaxType* syntax, OnigErrorInfo* einfo)
 {
 	int r = onig_reg_init(reg, option, ONIGENC_CASE_FOLD_DEFAULT, enc, syntax);
-	if(r != 0) return r;
+	if(r) return r;
 	r = onig_compile(reg, pattern, pattern_end, einfo);
 	return r;
 }
@@ -6649,13 +6649,13 @@ int onig_new(regex_t** reg, const uchar * pattern, const uchar * pattern_end,
 	if(IS_NULL(*reg)) 
 		return ONIGERR_MEMORY;
 	r = onig_reg_init(*reg, option, ONIGENC_CASE_FOLD_DEFAULT, enc, syntax);
-	if(r != 0) {
+	if(r) {
 		SAlloc::F(*reg);
 		*reg = NULL;
 		return r;
 	}
 	r = onig_compile(*reg, pattern, pattern_end, einfo);
-	if(r != 0) {
+	if(r) {
 		onig_free(*reg);
 		*reg = NULL;
 	}
@@ -6670,7 +6670,7 @@ int onig_initialize(OnigEncoding encodings[], int n)
 		for(int i = 0; i < n; i++) {
 			OnigEncoding enc = encodings[i];
 			int r = onig_initialize_encoding(enc);
-			if(r != 0)
+			if(r)
 				return r;
 		}
 	}
@@ -6787,7 +6787,7 @@ static int detect_can_be_slow(Node * node, SlowElementCount* ct, int ncall, int 
 		case NODE_ALT:
 		    do {
 			    r = detect_can_be_slow(NODE_CAR(node), ct, ncall, calls);
-			    if(r != 0) return r;
+			    if(r) return r;
 		    } while(IS_NOT_NULL(node = NODE_CDR(node)));
 		    break;
 		case NODE_QUANT:
@@ -6826,17 +6826,17 @@ static int detect_can_be_slow(Node * node, SlowElementCount* ct, int ncall, int 
 	    {
 		    BagNode * en = BAG_(node);
 		    r = detect_can_be_slow(NODE_BODY(node), ct, ncall, calls);
-		    if(r != 0) 
+		    if(r) 
 				return r;
 		    if(en->type == BAG_IF_ELSE) {
 			    if(IS_NOT_NULL(en->te.Then)) {
 				    r = detect_can_be_slow(en->te.Then, ct, ncall, calls);
-				    if(r != 0) 
+				    if(r) 
 						return r;
 			    }
 			    if(IS_NOT_NULL(en->te.Else)) {
 				    r = detect_can_be_slow(en->te.Else, ct, ncall, calls);
-				    if(r != 0) return r;
+				    if(r) return r;
 			    }
 		    }
 	    }
@@ -6900,7 +6900,7 @@ int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern
 	if(IS_NULL(reg)) 
 		return ONIGERR_MEMORY;
 	r = onig_reg_init(reg, option, ONIGENC_CASE_FOLD_DEFAULT, enc, syntax);
-	if(r != 0) {
+	if(r) {
 		SAlloc::F(reg);
 		return r;
 	}
@@ -6909,7 +6909,7 @@ int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern
 		, &uslist
 #endif
 		);
-	if(r != 0) goto err;
+	if(r) goto err;
 #ifdef USE_CALL
 	if(scan_env.num_call > 0) {
 		unset_addr_list_end(&uslist);
@@ -6924,7 +6924,7 @@ int onig_detect_can_be_slow_pattern(const uchar * pattern, const uchar * pattern
 	count.max_empty_check_nest_level = 0;
 	count.heavy_element = 0;
 	r = detect_can_be_slow(root, &count, 0, calls);
-	if(r == 0) {
+	if(!r) {
 		int n = count.prec_read + count.look_behind + count.backref + count.backref_with_level + count.call;
 		if(count.heavy_element != 0)
 			n += 10;

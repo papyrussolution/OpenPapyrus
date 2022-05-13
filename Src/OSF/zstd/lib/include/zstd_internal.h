@@ -32,7 +32,7 @@
 #endif
 #include "xxhash.h"                /* XXH_reset, update, digest */
 #ifndef ZSTD_NO_TRACE
-#  include "zstd_trace.h"
+#include "zstd_trace.h"
 #else
 #define ZSTD_TRACE 0
 #endif
@@ -114,7 +114,7 @@ typedef enum {
 /* Each table cannot take more than #symbols * FSELog bits */
 #define ZSTD_MAX_FSE_HEADERS_SIZE (((MaxML + 1) * MLFSELog + (MaxLL + 1) * LLFSELog + (MaxOff + 1) * OffFSELog + 7) / 8)
 
-static UNUSED_ATTR const U8 LL_bits[MaxLL+1] = {
+static UNUSED_ATTR const uint8 LL_bits[MaxLL+1] = {
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,
 	1, 1, 1, 1, 2, 2, 3, 3,
@@ -131,7 +131,7 @@ static UNUSED_ATTR const int16 LL_defaultNorm[MaxLL+1] = {
 #define LL_DEFAULTNORMLOG 6  /* for static allocation */
 static UNUSED_ATTR const uint32 LL_defaultNormLog = LL_DEFAULTNORMLOG;
 
-static UNUSED_ATTR const U8 ML_bits[MaxML+1] = {
+static UNUSED_ATTR const uint8 ML_bits[MaxML+1] = {
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, 0, 0, 0, 0,
@@ -215,10 +215,10 @@ typedef enum {
  */
 MEM_STATIC FORCEINLINE void ZSTD_wildcopy(void* dst, const void* src, ptrdiff_t length, ZSTD_overlap_e const ovtype)
 {
-	ptrdiff_t diff = (BYTE*)dst - (const BYTE*)src;
-	const BYTE* ip = (const BYTE*)src;
-	BYTE* op = (BYTE*)dst;
-	BYTE* const oend = op + length;
+	ptrdiff_t diff = (BYTE *)dst - (const BYTE *)src;
+	const BYTE * ip = (const BYTE *)src;
+	BYTE * op = (BYTE *)dst;
+	BYTE * const oend = op + length;
 	if(ovtype == ZSTD_overlap_src_before_dst && diff < WILDCOPY_VECLEN) {
 		/* Handle short offset copies. */
 		do {
@@ -294,11 +294,11 @@ typedef enum {
 typedef struct {
 	seqDef* sequencesStart;
 	seqDef* sequences;  /* ptr to end of sequences */
-	BYTE*  litStart;
-	BYTE*  lit;         /* ptr to end of literals */
-	BYTE*  llCode;
-	BYTE*  mlCode;
-	BYTE*  ofCode;
+	BYTE *  litStart;
+	BYTE *  lit;         /* ptr to end of literals */
+	BYTE *  llCode;
+	BYTE *  mlCode;
+	BYTE *  ofCode;
 	size_t maxNbSeq;
 	size_t maxNbLit;
 	/* longLengthPos and longLengthType to allow us to represent either a single litLength or matchLength
@@ -341,7 +341,7 @@ MEM_STATIC ZSTD_sequenceLength ZSTD_getSequenceLength(seqStore_t const* seqStore
  */
 typedef struct {
 	size_t compressedSize;
-	unsigned long long decompressedBound;
+	uint64 decompressedBound;
 } ZSTD_frameSizeInfo;   /* decompress & legacy */
 
 const seqStore_t* ZSTD_getSeqStore(const ZSTD_CCtx* ctx);   /* compress & dictBuilder */

@@ -37,23 +37,23 @@ extern "C" {
 *  Sleep & priority functions: Windows - Posix - others
 ***************************************************/
 #if defined(_WIN32)
-#  include <windows.h>
+#include <windows.h>
 #define SET_REALTIME_PRIORITY SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS)
 #define UTIL_sleep(s) Sleep(1000*s)
 #define UTIL_sleepMilli(milli) Sleep(milli)
 
 #elif PLATFORM_POSIX_VERSION > 0 /* Unix-like operating system */
-#  include <unistd.h>   /* sleep */
+#include <unistd.h>   /* sleep */
 #define UTIL_sleep(s) sleep(s)
 #if ZSTD_NANOSLEEP_SUPPORT   /* necessarily defined in platform.h */
-#      define UTIL_sleepMilli(milli) { struct timespec t; t.tv_sec = 0; t.tv_nsec = milli*1000000ULL; nanosleep(&t, NULL); }
-#  else
-#      define UTIL_sleepMilli(milli) /* disabled */
+#define UTIL_sleepMilli(milli) { struct timespec t; t.tv_sec = 0; t.tv_nsec = milli*1000000ULL; nanosleep(&t, NULL); }
+#else
+#define UTIL_sleepMilli(milli) /* disabled */
 #endif
 #if ZSTD_SETPRIORITY_SUPPORT
-#    include <sys/resource.h> /* setpriority */
+#include <sys/resource.h> /* setpriority */
 #define SET_REALTIME_PRIORITY setpriority(PRIO_PROCESS, 0, -20)
-#  else
+#else
 #define SET_REALTIME_PRIORITY /* disabled */
 #endif
 
@@ -66,7 +66,7 @@ extern "C" {
 // Compiler specifics
 //
 #if defined(__INTEL_COMPILER)
-#  pragma warning(disable : 177)    /* disable: message #177: function was declared but never referenced, useful with UTIL_STATIC */
+#pragma warning(disable : 177)    /* disable: message #177: function was declared but never referenced, useful with UTIL_STATIC */
 #endif
 #if defined(__GNUC__)
 #define UTIL_STATIC static __attribute__((unused))

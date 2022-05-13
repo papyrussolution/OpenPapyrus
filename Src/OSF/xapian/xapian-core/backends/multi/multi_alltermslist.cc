@@ -108,7 +108,7 @@ TermList * MultiAllTermsList::next()
 	}
 	current_termfreq = 0;
 	if(count <= 1) {
-		if(count == 0) {
+		if(!count) {
 			current_term = std::string();
 			return NULL;
 		}
@@ -138,7 +138,7 @@ TermList * MultiAllTermsList::skip_to(const std::string &term)
 		delete termlists[--count];
 	current_termfreq = 0;
 	if(count <= 1) {
-		if(count == 0) {
+		if(!count) {
 			current_term = std::string();
 			return NULL;
 		}

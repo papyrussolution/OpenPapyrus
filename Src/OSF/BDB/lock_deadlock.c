@@ -372,7 +372,7 @@ skip:
 	 */
 	LOCK_LOCKERS(env, region);
 	count = region->nlockers;
-	if(count == 0) {
+	if(!count) {
 		UNLOCK_LOCKERS(env, region);
 		LOCK_SYSTEM_UNLOCK(lt, region);
 		*nlockers = 0;

@@ -479,15 +479,10 @@ STestCase::~STestCase()
 {
 }
 
-const STestSuite::Entry * STestCase::GetSuiteEntry() const
-{
-	return P_Suite->GetCurEntry();
-}
-
-const char * STestCase::GetTestName() const
-{
-	return P_Suite->GetCurEntry()->TestName;
-}
+const STestSuite::Entry * STestCase::GetSuiteEntry() const { return P_Suite->GetCurEntry(); }
+const char * STestCase::GetTestName() const { return P_Suite->GetCurEntry()->TestName; }
+const char * STestCase::GetInputPath() const { return P_Suite->GetCurEntry()->InPath; }
+const char * STestCase::GetOutputPath() const { return P_Suite->GetCurEntry()->OutPath; }
 
 const char * STestCase::MakeInputFilePath(const char * pFileName)
 {

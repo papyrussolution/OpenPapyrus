@@ -29,7 +29,7 @@ int pki_key_generate_ed25519(ssh_key key)
 		goto error;
 	}
 	rc = crypto_sign_ed25519_keypair(key->ed25519_pubkey, key->ed25519_privkey);
-	if(rc != 0) {
+	if(rc) {
 		goto error;
 	}
 	return SSH_OK;
@@ -44,11 +44,11 @@ int pki_ed25519_sign(const ssh_key privkey, ssh_signature sig, const uchar * has
 	int rc;
 	uint64_t dlen = 0;
 	uint8 * buffer = (uint8 *)SAlloc::M(hlen + ED25519_SIG_LEN);
-	if(buffer == NULL) {
+	if(!buffer) {
 		return SSH_ERROR;
 	}
 	rc = crypto_sign_ed25519(buffer, &dlen, hash, hlen, privkey->ed25519_privkey);
-	if(rc != 0) {
+	if(rc) {
 		goto error;
 	}
 	/* This shouldn't happen */
@@ -77,7 +77,7 @@ int pki_ed25519_verify(const ssh_key pubkey, ssh_signature sig, const uchar * ha
 		return SSH_ERROR;
 	}
 	buffer = (uint8 *)SAlloc::M(hlen + ED25519_SIG_LEN);
-	if(buffer == NULL) {
+	if(!buffer) {
 		return SSH_ERROR;
 	}
 	buffer2 = (uint8 *)SAlloc::M(hlen + ED25519_SIG_LEN);

@@ -510,7 +510,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	return 1;
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutObjMembToBuf(PPID objType, PPID objID, const char * pMembName, SString & rBuf)
 {
 	if(objID) {
 		SString & r_obj_name = SLS.AcquireRvlStr(); // @v10.5.4 SLS.AcquireRvlStr()
@@ -519,7 +519,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutObjMembListToBuf(PPID objType, const ObjIdListFilt * pList, const char * pMembName, SString & rBuf)
 {
 	if(pList && !pList->IsEmpty()) {
 		const PPIDArray & r_list = pList->Get();
@@ -539,7 +539,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutFlagsMembToBuf(const StrAssocArray * pFlagList, const char * pMembName, SString & rBuf)
 {
 	const uint count = pFlagList ? pFlagList->getCount() : 0;
 	if(count) {
@@ -554,19 +554,19 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const SString & rParam, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(const SString & rParam, const char * pMembName, SString & rBuf)
 {
 	if(rParam.Len() && !isempty(pMembName))
 		rBuf.Cat(pMembName).Eq().Cat(rParam).Semicol();
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(const char * pParam, const char * pMembName, SString & rBuf)
 {
 	if(!isempty(pMembName) && !isempty(pParam))
 		rBuf.Cat(pMembName).Eq().Cat(pParam).Semicol();
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(LDATE param, const char * pMembName, SString & rBuf)
 {
 	if(param != ZERODATE) {
 		SString & r_buf = SLS.AcquireRvlStr();
@@ -574,7 +574,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(const DateRange * pParam, const char * pMembName, SString & rBuf)
 {
 	if(pParam && pParam->IsZero() == 0) {
 		SString & r_buf = SLS.AcquireRvlStr();
@@ -582,7 +582,7 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(const RealRange * pParam,  const char * pMembName, SString & rBuf)
 {
 	if(pParam && !pParam->IsZero()) {
 		SString & r_buf = SLS.AcquireRvlStr();
@@ -590,13 +590,13 @@ int PPBaseFilt::Describe(long flags, SString & rBuf) const
 	}
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(double param, const char * pMembName, SString & rBuf)
 {
 	SString & r_buf = SLS.AcquireRvlStr();
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);
 }
 
-/*static*/void FASTCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
+/*static*/void STDCALL PPBaseFilt::PutMembToBuf(long param, const char * pMembName, SString & rBuf)
 {
 	SString & r_buf = SLS.AcquireRvlStr();
 	PutMembToBuf(r_buf.Cat(param), pMembName, rBuf);

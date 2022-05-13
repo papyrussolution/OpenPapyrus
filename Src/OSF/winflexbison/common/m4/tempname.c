@@ -56,7 +56,7 @@
 #ifdef _LIBC
 #include <hp-timing.h>
 #if HP_TIMING_AVAIL
-#  define RANDOM_BITS(Var) \
+#define RANDOM_BITS(Var) \
 	if(__builtin_expect(value == UINT64_C(0), 0))                            \
 	{                                                                         \
 		/* If this is the first time this function is used initialize \

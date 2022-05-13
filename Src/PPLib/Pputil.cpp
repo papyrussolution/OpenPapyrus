@@ -38,8 +38,8 @@ IMPL_CMPFUNC(PPTLBItem, i1, i2)
 	return 0;
 }
 
-long FASTCALL CheckXORFlags(long v, long f1, long f2) { return ((v & f1) ^ (v & f2)) ? ((v & f1) ? f1 : f2) : 0; }
-long FASTCALL SetXORFlags(long v, long f1, long f2, long f) { return ((v & ~(f1 | f2)) | f); }
+long STDCALL CheckXORFlags(long v, long f1, long f2) { return ((v & f1) ^ (v & f2)) ? ((v & f1) ? f1 : f2) : 0; }
+long STDCALL SetXORFlags(long v, long f1, long f2, long f) { return ((v & ~(f1 | f2)) | f); }
 
 int FASTCALL PPInitIterCounter(IterCounter & rCntr, DBTable * pTbl)
 {
@@ -375,7 +375,7 @@ int PPTransaction::Start(int use_ta)
 			int    r = DBS.GetTLA().StartTransaction();
 			if(r > 0)
 				Ta = 1;
-			else if(r == 0) {
+			else if(!r) {
 				Err = 1;
 				ok = PPSetErrorDB();
 			}
@@ -401,7 +401,7 @@ int PPTransaction::Start(PPDbDependTransaction dbDepend, int use_ta)
 			int    r = (dbDepend == ppDbDependTransaction) ? DBS.GetTLA().StartTransaction_DbDepend() : DBS.GetTLA().StartTransaction();
 			if(r > 0)
 				Ta = 1;
-			else if(r == 0) {
+			else if(!r) {
 				Err = 1;
 				ok = PPSetErrorDB();
 			}
@@ -1265,7 +1265,7 @@ void DateIter::Init(const DateRange * pPeriod)
 		Init();
 }
 
-int FASTCALL DateIter::Advance(LDATE d, long o)
+int DateIter::Advance(LDATE d, long o)
 {
 	dt = d;
 	oprno = o;
@@ -1623,7 +1623,7 @@ int PPChainDatabase(const char * pPassword)
 		// @v10.6.4 MEMSZERO(bill_rec);
 		id_max = 0;
 		r = p_bobj->P_Tbl->search(0, &id_max, spLast);
-		if(r == 0) {
+		if(!r) {
 			if(BTRNFOUND)
 				id_max = 1;
 			else
@@ -4371,7 +4371,7 @@ int PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollecti
 					logger.Log(log_buf);
 				}
 			}
-			else if(r == 0) {
+			else if(!r) {
 				logger.LogLastError();
 			}
 			else {
@@ -4409,7 +4409,7 @@ int PPUhttClient::SendSms(const TSCollection <UhttSmsPacket> & rList, TSCollecti
 						logger.Log(log_buf);
 					}
 				}
-				else if(r == 0) {
+				else if(!r) {
 					logger.LogLastError();
 				}
 				else {
@@ -4495,7 +4495,7 @@ int TestUhttClient()
             else
 				log_buf.Space().Cat("fail");
 			PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
-			if(r == 0)
+			if(!r)
 				PPLogMessage(PPFILNAM_TEST_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 		}
 		{
@@ -4521,7 +4521,7 @@ int TestUhttClient()
 				else 
 					log_buf.Cat((r == 0) ? "fail" : "nothing");
 				PPLogMessage(PPFILNAM_TEST_LOG, log_buf, LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
-				if(r == 0)
+				if(!r)
 					PPLogMessage(PPFILNAM_TEST_LOG, 0, LOGMSGF_LASTERR|LOGMSGF_TIME|LOGMSGF_DBINFO|LOGMSGF_COMP);
 			}
 		}

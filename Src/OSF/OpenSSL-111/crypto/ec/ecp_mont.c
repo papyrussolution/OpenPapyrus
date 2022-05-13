@@ -139,9 +139,9 @@ int ec_GFp_mont_group_set_curve(EC_GROUP * group, const BIGNUM * p,
 	BN_free(static_cast<BIGNUM *>(group->field_data2));
 	group->field_data2 = NULL;
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			return 0;
 	}
 

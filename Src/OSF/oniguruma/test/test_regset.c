@@ -15,11 +15,11 @@ static int make_regset(int line_no, int n, char * pat[], OnigRegSet** rset, int 
 	OnigErrorInfo einfo;
 	*rset = NULL;
 	r = onig_regset_new(&set, 0, NULL);
-	if(r != 0) 
+	if(r) 
 		return r;
 	for(i = 0; i < n; i++) {
 		r = onig_new(&reg, (uchar *)pat[i], (uchar *)(pat[i] + strlen(pat[i])), ONIG_OPTION_DEFAULT, ONIG_ENCODING_UTF8, ONIG_SYNTAX_DEFAULT, &einfo);
-		if(r != 0) {
+		if(r) {
 			char s[ONIG_MAX_ERROR_MESSAGE_LEN];
 			if(error_no == 0) {
 				onig_error_code_to_str((uchar *)s, r, &einfo);
@@ -40,7 +40,7 @@ static int make_regset(int line_no, int n, char * pat[], OnigRegSet** rset, int 
 			return r;
 		}
 		r = onig_regset_add(set, reg);
-		if(r != 0) {
+		if(r) {
 			onig_regset_free(set);
 			slfprintf(OnigTB.err_file, "ERROR: %d: onig_regset_add(): /%s/\n", line_no, pat[i]);
 			OnigTB.nerror++;
@@ -67,7 +67,7 @@ static int time_test(int repeat, int n, char * ps[], char * s, char * end, doubl
 	clock_t ts1, ts2;
 	double t_set, t_reg;
 	int r = make_regset(0, n, ps, &set, 0);
-	if(r != 0) 
+	if(r) 
 		return r;
 	ts1 = clock();
 	for(i = 0; i < repeat; i++) {
@@ -124,7 +124,7 @@ static void time_compare(int n, char * ps[], char * s, char * end)
 		for(i = 0; i < n; i++) {
 			fisher_yates_shuffle(n, ps, cps);
 			r = time_test(repeat, n, cps, s, end, &t_set, &t_reg);
-			if(r != 0) {
+			if(r) {
 				SAlloc::F(cps);
 				return;
 			}
@@ -145,7 +145,7 @@ static void xx(int line_no, int n, char * ps[], char * s, int from, int to, int 
 	OnigRegSet* set;
 	char * end;
 	int r = make_regset(line_no, n, ps, &set, error_no);
-	if(r != 0) 
+	if(r) 
 		return;
 	end = s + strlen(s);
 	r = onig_regset_search(set, (uchar *)s, (uchar *)end, (uchar *)s, (uchar *)end, XX_LEAD, ONIG_OPTION_NONE, &match_pos);
@@ -296,7 +296,7 @@ extern int OnigTestRegSet_main(FILE * fOut)
 #ifndef _WIN32
 	#define TEXT_PATH "kofu-utf8.txt"
 	r = get_all_content_of_file(TEXT_PATH, &s, &end);
-	if(r == 0) {
+	if(!r) {
 		slfprintf(out_file, "FILE: %s, size: %d\n", TEXT_PATH, (int)(end - s));
 		file_exist = 1;
 	}

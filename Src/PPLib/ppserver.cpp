@@ -1260,7 +1260,7 @@ int PPJobServer::Arrange(PPJobPool * pPool, LAssocArray * pPlan, PPIDArray * pOn
 		PPLoadText(PPTXT_JOBPOOLLOADFAULT, fmt_buf);
 		msg_buf.Printf(fmt_buf, Mngr.GetFileName().cptr());
 		PPLogMessage(PPFILNAM_SERVER_LOG, msg_buf, LOGMSGF_TIME);
-		if(r == 0)
+		if(!r)
 			PPLogMessage(PPFILNAM_ERR_LOG, 0, LOGMSGF_TIME|LOGMSGF_LASTERR);
 	}
 	ASSIGN_PTR(pPlanDate, curdtm.d);

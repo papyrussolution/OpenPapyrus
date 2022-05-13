@@ -2157,7 +2157,7 @@ int X509_STORE_CTX_purpose_inherit(X509_STORE_CTX * ctx, int def_purpose,
 X509_STORE_CTX * X509_STORE_CTX_new(void)
 {
 	X509_STORE_CTX * ctx = static_cast<X509_STORE_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL) {
+	if(!ctx) {
 		X509err(X509_F_X509_STORE_CTX_NEW, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -2166,7 +2166,7 @@ X509_STORE_CTX * X509_STORE_CTX_new(void)
 
 void X509_STORE_CTX_free(X509_STORE_CTX * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return;
 	X509_STORE_CTX_cleanup(ctx);
 	OPENSSL_free(ctx);

@@ -110,16 +110,16 @@ static int apply_case_fold1(OnigCaseFoldType flag, int from, int to, OnigApplyAl
 			if(CASE_FOLD_IS_ASCII_ONLY(flag) && !ONIGENC_IS_ASCII_CODE(unfold))
 				continue;
 			r = (*f)(fold, &unfold, 1, arg);
-			if(r != 0) return r;
+			if(r) return r;
 			r = (*f)(unfold, &fold, 1, arg);
-			if(r != 0) return r;
+			if(r) return r;
 			for(k = 0; k < j; k++) {
 				OnigCodePoint unfold2 = FOLDS1_UNFOLDS(i)[k];
 				if(CASE_FOLD_IS_ASCII_ONLY(flag) && !ONIGENC_IS_ASCII_CODE(unfold2)) continue;
 				r = (*f)(unfold, &unfold2, 1, arg);
-				if(r != 0) return r;
+				if(r) return r;
 				r = (*f)(unfold2, &unfold, 1, arg);
-				if(r != 0) return r;
+				if(r) return r;
 			}
 		}
 		i = FOLDS1_NEXT_INDEX(i);
@@ -138,14 +138,14 @@ static int apply_case_fold2(int from, int to, OnigApplyAllCaseFoldFunc f, void *
 			OnigCodePoint unfold = FOLDS2_UNFOLDS(i)[j];
 
 			r = (*f)(unfold, fold, 2, arg);
-			if(r != 0) return r;
+			if(r) return r;
 
 			for(k = 0; k < j; k++) {
 				OnigCodePoint unfold2 = FOLDS2_UNFOLDS(i)[k];
 				r = (*f)(unfold, &unfold2, 1, arg);
-				if(r != 0) return r;
+				if(r) return r;
 				r = (*f)(unfold2, &unfold, 1, arg);
-				if(r != 0) return r;
+				if(r) return r;
 			}
 		}
 
@@ -166,14 +166,14 @@ static int apply_case_fold3(int from, int to, OnigApplyAllCaseFoldFunc f, void *
 			OnigCodePoint unfold = FOLDS3_UNFOLDS(i)[j];
 
 			r = (*f)(unfold, fold, 3, arg);
-			if(r != 0) return r;
+			if(r) return r;
 
 			for(k = 0; k < j; k++) {
 				OnigCodePoint unfold2 = FOLDS3_UNFOLDS(i)[k];
 				r = (*f)(unfold, &unfold2, 1, arg);
-				if(r != 0) return r;
+				if(r) return r;
 				r = (*f)(unfold2, &unfold, 1, arg);
-				if(r != 0) return r;
+				if(r) return r;
 			}
 		}
 
@@ -186,28 +186,28 @@ static int apply_case_fold3(int from, int to, OnigApplyAllCaseFoldFunc f, void *
 extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyAllCaseFoldFunc f, void * arg)
 {
 	int r = apply_case_fold1(flag, 0, FOLDS1_NORMAL_END_INDEX, f, arg);
-	if(r != 0) 
+	if(r) 
 		return r;
 #ifdef USE_UNICODE_CASE_FOLD_TURKISH_AZERI
 	if((flag & ONIGENC_CASE_FOLD_TURKISH_AZERI) != 0) {
 		code = 0x0131;
 		r = (*f)(0x0049, &code, 1, arg);
-		if(r != 0) return r;
+		if(r) return r;
 		code = 0x0049;
 		r = (*f)(0x0131, &code, 1, arg);
-		if(r != 0) return r;
+		if(r) return r;
 
 		code = 0x0130;
 		r = (*f)(0x0069, &code, 1, arg);
-		if(r != 0) return r;
+		if(r) return r;
 		code = 0x0069;
 		r = (*f)(0x0130, &code, 1, arg);
-		if(r != 0) return r;
+		if(r) return r;
 	}
 	else {
 #endif
 	r = apply_case_fold1(flag, FOLDS1_NORMAL_END_INDEX, FOLDS1_END_INDEX, f, arg);
-	if(r != 0) return r;
+	if(r) return r;
 #ifdef USE_UNICODE_CASE_FOLD_TURKISH_AZERI
 }
 
@@ -217,19 +217,19 @@ extern int onigenc_unicode_apply_all_case_fold(OnigCaseFoldType flag, OnigApplyA
 		return 0;
 
 	r = apply_case_fold2(0, FOLDS2_NORMAL_END_INDEX, f, arg);
-	if(r != 0) return r;
+	if(r) return r;
 
 #ifdef USE_UNICODE_CASE_FOLD_TURKISH_AZERI
 	if((flag & ONIGENC_CASE_FOLD_TURKISH_AZERI) == 0) {
 #endif
 	r = apply_case_fold2(FOLDS2_NORMAL_END_INDEX, FOLDS2_END_INDEX, f, arg);
-	if(r != 0) return r;
+	if(r) return r;
 #ifdef USE_UNICODE_CASE_FOLD_TURKISH_AZERI
 }
 #endif
 
 	r = apply_case_fold3(0, FOLDS3_NORMAL_END_INDEX, f, arg);
-	if(r != 0) return r;
+	if(r) return r;
 
 	return 0;
 }

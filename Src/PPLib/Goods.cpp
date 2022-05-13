@@ -1697,7 +1697,7 @@ int GoodsCore::SearchByBarcode(const char * pBarcode, BarcodeTbl::Rec * pBcRec, 
 		int    r = Search(bc_rec.GoodsID, pGoodsRec);
 		if(r < 0)
 			ok = PPSetError(PPERR_BL_BARCODE2GOODS);
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 		else {
 			SString msg_buf;
@@ -1813,7 +1813,7 @@ int GoodsCore::SearchByArCode(PPID arID, const char * pBarcode, ArGoodsCodeTbl::
 		r = Search(arcode_rec.GoodsID, pGoodsRec);
 		if(r < 0)
 			ok = PPSetError(PPERR_BL_ARCODE2GOODS, msg_buf.Cat(arID));
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 		else
 			PPSetError(PPERR_BARCODEEXISTS, msg_buf.Cat(pBarcode).CatDiv('-', 1).Cat(data.Name));
@@ -3869,7 +3869,7 @@ int GoodsCore::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 					added_msg = rec.Name;
 					rec.ParentID = 0;
 					r = Update(&rec.ID, &rec, 0);
-					if(r != 0)
+					if(r)
 						added_msg.Space().Cat("CORRECTED");
 					if(f == 1)
 						PPSetError(PPERR_GOODSGRPSELFPAR, added_msg);

@@ -745,14 +745,14 @@ static void getArchitecture(uint16_t * pCPU, uint16_t * pBits, bool * pIsBigEndi
 		// for all architectures though.
 #if defined(_M_IX86)
 		*pCPU = IMAGE_FILE_MACHINE_I386;
-#   else
+#else
 		*pCPU = IMAGE_FILE_MACHINE_UNKNOWN;
 #endif
 #if defined(_M_IA64) || defined(_M_AMD64) || defined (_M_ARM64)
 		*pBits = 64; // Doesn't seem to be used for anything interesting though?
 #   elif defined(_M_IX86) || defined(_M_ARM)
 		*pBits = 32;
-#   else
+#else
 #      error "Unknown platform for CAN_GENERATE_OBJECTS."
 #endif
 #else

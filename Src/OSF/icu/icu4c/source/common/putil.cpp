@@ -71,26 +71,26 @@
 #define NOSERVICE
 #define NOIME
 #define NOMCX
-#   include "wintz.h"
+#include "wintz.h"
 #elif U_PLATFORM == U_PF_OS400
 	#include <qusec.h>       /* error code structure */
 	#include <qusrjobi.h>
 	#include <qliept.h>      /* EPT_CALL macro  - this include must be after all other "QSYSINCs" */
 	#include <mih/testptr.h> /* For uprv_maximumPtr */
 #elif U_PLATFORM == U_PF_OS390
-#   include "unicode/ucnv.h"   /* Needed for UCNV_SWAP_LFNL_OPTION_STRING */
+#include "unicode/ucnv.h"   /* Needed for UCNV_SWAP_LFNL_OPTION_STRING */
 #elif U_PLATFORM_IS_DARWIN_BASED || U_PLATFORM_IS_LINUX_BASED || U_PLATFORM == U_PF_BSD || U_PLATFORM == U_PF_SOLARIS
-#   include <unistd.h>
+#include <unistd.h>
 #if U_PLATFORM == U_PF_SOLARIS
-#       ifndef _XPG4_2
-#           define _XPG4_2
-#       endif
-#   elif U_PLATFORM == U_PF_ANDROID
-#       include <sys/system_properties.h>
-#       include <dlfcn.h>
+#ifndef _XPG4_2
+#define _XPG4_2
+#endif
+#elif U_PLATFORM == U_PF_ANDROID
+#include <sys/system_properties.h>
+#include <dlfcn.h>
 #endif
 #elif U_PLATFORM == U_PF_QNX
-#   include <sys/neutrino.h>
+#include <sys/neutrino.h>
 #endif
 
 /*
@@ -111,7 +111,7 @@
 #if U_PLATFORM == U_PF_OS400
 #define HAVE_DLFCN_H 0
 #define HAVE_DLOPEN 0
-#   else
+#else
 #ifndef HAVE_DLFCN_H
 #define HAVE_DLFCN_H 1
 #endif
@@ -159,7 +159,7 @@ static const BitPatternConversion gInf = { (int64_t)INT64_C(0x7FF0000000000000) 
    ---------------------------------------------------------------------------*/
 
 #if U_PLATFORM_USES_ONLY_WIN32_API || U_PLATFORM == U_PF_OS400
-#   undef U_POSIX_LOCALE
+#undef U_POSIX_LOCALE
 #else
 #define U_POSIX_LOCALE    1
 #endif
@@ -1342,7 +1342,7 @@ static void U_CALLCONV dataDirectoryInitFn()
 #endif
 #ifdef ICU_DATA_DIR
 		path = ICU_DATA_DIR;
-# else
+#else
 		path = U_ICU_DATA_DEFAULT_DIR;
 #endif
 #if defined(ICU_DATA_DIR_PREFIX_ENV_VAR)

@@ -402,7 +402,7 @@ int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 	if(c != -1) {
 		if(c < j && i < c) {
 			int r = compare(LeafItem(p, c), item);
-			if(r == 0) {
+			if(!r) {
 				exact = true;
 				return c;
 			}
@@ -411,7 +411,7 @@ int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 		c += D2;
 		if(c < j && i < c) {
 			int r = compare(item, LeafItem(p, c));
-			if(r == 0) {
+			if(!r) {
 				exact = true;
 				return c;
 			}
@@ -427,7 +427,7 @@ int GlassTable::find_in_leaf(const uint8 * p, LeafItem item, int c, bool& exact)
 		}
 		else {
 			i = k;
-			if(r == 0) {
+			if(!r) {
 				exact = true;
 				break;
 			}
@@ -451,13 +451,13 @@ template <typename ITEM> int find_in_branch_(const uint8 * p, ITEM item, int c)
 	if(c != -1) {
 		if(c < j && i < c) {
 			int r = compare(BItem(p, c), item);
-			if(r == 0) return c;
+			if(!r) return c;
 			if(r < 0) i = c;
 		}
 		c += D2;
 		if(c < j && i < c) {
 			int r = compare(item, BItem(p, c));
-			if(r == 0) return c;
+			if(!r) return c;
 			if(r < 0) j = c;
 		}
 	}
@@ -470,7 +470,7 @@ template <typename ITEM> int find_in_branch_(const uint8 * p, ITEM item, int c)
 		}
 		else {
 			i = k;
-			if(r == 0) break;
+			if(!r) break;
 		}
 	}
 	AssertRel(DIR_START, <=, i);
@@ -1378,7 +1378,7 @@ bool GlassTable::del(const string &key)
 	form_key(key);
 
 	int r = delete_kt();
-	if(r == 0) RETURN(false);
+	if(!r) RETURN(false);
 	int i = 1;
 	while(r == 1) {
 		kt.set_component_of(++i);

@@ -215,7 +215,7 @@ static boolint _cairo_contour_simplify_chain(cairo_contour_t * contour, const do
 		}
 		iter_next(&iter);
 	} while(!iter_equal(&iter, last));
-	if(count == 0)
+	if(!count)
 		return FALSE;
 
 	if(max_error > tolerance * ((uint64)nx * nx + (uint64)ny * ny)) {

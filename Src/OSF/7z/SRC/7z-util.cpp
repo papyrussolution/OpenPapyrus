@@ -582,20 +582,14 @@ static const char k_DefultChar = '_';
 
 #ifdef _WIN32
 	/*
-	   MultiByteToWideChar(CodePage, DWORD dwFlags,
-		LPCSTR lpMultiByteStr, int cbMultiByte,
-		LPWSTR lpWideCharStr, int cchWideChar)
-
+	   MultiByteToWideChar(CodePage, DWORD dwFlags, LPCSTR lpMultiByteStr, int cbMultiByte, LPWSTR lpWideCharStr, int cchWideChar)
 	   if(cbMultiByte == 0)
 		return: 0. ERR: ERROR_INVALID_PARAMETER
-
 	   if(cchWideChar == 0)
 		return: the required buffer size in characters.
-
 	   if(supplied buffer size was not large enough)
 		return: 0. ERR: ERROR_INSUFFICIENT_BUFFER
 		The number of filled characters in lpWideCharStr can be smaller than cchWideChar (if last character is complex)
-
 	   If there are illegal characters:
 		if MB_ERR_INVALID_CHARS is set in dwFlags:
 		  - the function stops conversion on illegal character.
@@ -616,20 +610,15 @@ static const char k_DefultChar = '_';
 			   wchar_t *d = dest.GetBuf(src.Len());
 			   const char *s = (const char *)src;
 			   uint i;
-
-			   for(i = 0;;)
-			   {
+			   for(i = 0;;) {
 			   Byte c = (Byte)s[i];
 			   if(c >= 0x80 || c == 0)
 				break;
 			   d[i++] = (wchar_t)c;
 			   }
 
-			   if(i != src.Len())
-			   {
-			   uint len = MultiByteToWideChar(codePage, 0, s + i,
-				  src.Len() - i, d + i,
-				  src.Len() + 1 - i);
+			   if(i != src.Len()) {
+			   uint len = MultiByteToWideChar(codePage, 0, s + i, src.Len() - i, d + i, src.Len() + 1 - i);
 			   if(len == 0)
 				throw 282228;
 			   i += len;

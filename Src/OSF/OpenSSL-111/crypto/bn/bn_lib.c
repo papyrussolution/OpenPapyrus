@@ -247,7 +247,7 @@ static BN_ULONG * bn_expand_internal(const BIGNUM * b, int words)
 		a = static_cast<uint *>(OPENSSL_secure_zalloc(words * sizeof(*a)));
 	else
 		a = static_cast<uint *>(OPENSSL_zalloc(words * sizeof(*a)));
-	if(a == NULL) {
+	if(!a) {
 		BNerr(BN_F_BN_EXPAND_INTERNAL, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -281,7 +281,7 @@ BIGNUM * bn_expand2(BIGNUM * b, int words)
 BIGNUM * BN_dup(const BIGNUM * a)
 {
 	BIGNUM * t;
-	if(a == NULL)
+	if(!a)
 		return NULL;
 	bn_check_top(a);
 	t = BN_get_flags(a, BN_FLG_SECURE) ? BN_secure_new() : BN_new();
@@ -352,7 +352,7 @@ void BN_swap(BIGNUM * a, BIGNUM * b)
 
 void BN_clear(BIGNUM * a)
 {
-	if(a == NULL)
+	if(!a)
 		return;
 	bn_check_top(a);
 	if(a->d != NULL)

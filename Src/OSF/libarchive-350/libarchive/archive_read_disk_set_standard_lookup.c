@@ -88,11 +88,9 @@ int archive_read_disk_set_standard_lookup(struct archive * a)
 static void cleanup(void * data)
 {
 	struct name_cache * cache = (struct name_cache *)data;
-	size_t i;
-	if(cache != NULL) {
-		for(i = 0; i < cache->size; i++) {
-			if(cache->cache[i].name != NULL &&
-			    cache->cache[i].name != NO_NAME)
+	if(cache) {
+		for(size_t i = 0; i < cache->size; i++) {
+			if(cache->cache[i].name != NULL && cache->cache[i].name != NO_NAME)
 				SAlloc::F((void *)(uintptr_t)cache->cache[i].name);
 		}
 		SAlloc::F(cache->buff);
@@ -103,14 +101,11 @@ static void cleanup(void * data)
 /*
  * Lookup uid/gid from uname/gname, return NULL if no match.
  */
-static const char * lookup_name(struct name_cache * cache,
-    const char * (*lookup_fn)(struct name_cache *, id_t), id_t id)
+static const char * lookup_name(struct name_cache * cache, const char * (*lookup_fn)(struct name_cache *, id_t), id_t id)
 {
 	const char * name;
 	int slot;
-
 	cache->probes++;
-
 	slot = id % cache->size;
 	if(cache->cache[slot].name != NULL) {
 		if(cache->cache[slot].id == id) {
@@ -123,7 +118,6 @@ static const char * lookup_name(struct name_cache * cache,
 			SAlloc::F((void *)(uintptr_t)cache->cache[slot].name);
 		cache->cache[slot].name = NULL;
 	}
-
 	name = (lookup_fn)(cache, id);
 	if(name == NULL) {
 		/* Cache and return the negative response. */
@@ -131,7 +125,6 @@ static const char * lookup_name(struct name_cache * cache,
 		cache->cache[slot].id = id;
 		return NULL;
 	}
-
 	cache->cache[slot].name = name;
 	cache->cache[slot].id = id;
 	return (cache->cache[slot].name);
@@ -162,7 +155,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 		result = &pwent; /* Old getpwuid_r ignores last arg. */
 		r = getpwuid_r((uid_t)id, &pwent,
 			cache->buff, cache->buff_size, &result);
-		if(r == 0)
+		if(!r)
 			break;
 		if(r != ERANGE)
 			break;
@@ -178,7 +171,7 @@ static const char * lookup_uname_helper(struct name_cache * cache, id_t id)
 		cache->buff = nbuff;
 		cache->buff_size = nbuff_size;
 	}
-	if(r != 0) {
+	if(r) {
 		archive_set_error(cache->archive, errno, "Can't lookup user for id %d", (int)id);
 		return NULL;
 	}
@@ -220,7 +213,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 	for(;;) {
 		result = &grent; /* Old getgrgid_r ignores last arg. */
 		r = getgrgid_r((gid_t)id, &grent, cache->buff, cache->buff_size, &result);
-		if(r == 0)
+		if(!r)
 			break;
 		if(r != ERANGE)
 			break;
@@ -234,7 +227,7 @@ static const char * lookup_gname_helper(struct name_cache * cache, id_t id)
 		cache->buff = nbuff;
 		cache->buff_size = nbuff_size;
 	}
-	if(r != 0) {
+	if(r) {
 		archive_set_error(cache->archive, errno, "Can't lookup group for id %d", (int)id);
 		return NULL;
 	}

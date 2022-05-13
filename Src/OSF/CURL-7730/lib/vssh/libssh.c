@@ -1267,7 +1267,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 				    }
 
 				    rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-				    if(rc != 0) {
+				    if(rc) {
 					    MOVE_TO_SFTP_CLOSE_STATE();
 				    }
 			    }
@@ -1617,7 +1617,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 					    }
 
 					    rc = sftp_seek64(sshc->sftp_file, from);
-					    if(rc != 0) {
+					    if(rc) {
 						    MOVE_TO_SFTP_CLOSE_STATE();
 					    }
 				    }
@@ -1650,7 +1650,7 @@ static CURLcode myssh_statemach_act(struct connectdata * conn, bool * block)
 					size - data->state.resume_from);
 
 				    rc = sftp_seek64(sshc->sftp_file, data->state.resume_from);
-				    if(rc != 0) {
+				    if(rc) {
 					    MOVE_TO_SFTP_CLOSE_STATE();
 				    }
 			    }

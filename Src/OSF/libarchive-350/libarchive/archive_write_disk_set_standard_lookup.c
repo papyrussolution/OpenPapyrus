@@ -98,7 +98,7 @@ static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 		for(;;) {
 			result = &grent; /* Old getgrnam_r ignores last arg. */
 			r = getgrnam_r(gname, &grent, buffer, bufsize, &result);
-			if(r == 0)
+			if(!r)
 				break;
 			if(r != ERANGE)
 				break;
@@ -109,7 +109,7 @@ static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 				break;
 			buffer = allocated;
 		}
-		if(result != NULL)
+		if(result)
 			gid = result->gr_gid;
 		SAlloc::F(allocated);
 	}
@@ -118,7 +118,7 @@ static int64 lookup_gid(void * private_data, const char * gname, int64 gid)
 		struct group * result;
 
 		result = getgrnam(gname);
-		if(result != NULL)
+		if(result)
 			gid = result->gr_gid;
 	}
 #  endif /* HAVE_GETGRNAM_R */
@@ -162,11 +162,10 @@ static int64 lookup_uid(void * private_data, const char * uname, int64 uid)
 		char * allocated = NULL;
 		struct passwd pwent, * result;
 		int r;
-
 		for(;;) {
 			result = &pwent; /* Old getpwnam_r ignores last arg. */
 			r = getpwnam_r(uname, &pwent, buffer, bufsize, &result);
-			if(r == 0)
+			if(!r)
 				break;
 			if(r != ERANGE)
 				break;
@@ -177,16 +176,14 @@ static int64 lookup_uid(void * private_data, const char * uname, int64 uid)
 				break;
 			buffer = allocated;
 		}
-		if(result != NULL)
+		if(result)
 			uid = result->pw_uid;
 		SAlloc::F(allocated);
 	}
 #  else /* HAVE_GETPWNAM_R */
 	{
-		struct passwd * result;
-
-		result = getpwnam(uname);
-		if(result != NULL)
+		struct passwd * result = getpwnam(uname);
+		if(result)
 			uid = result->pw_uid;
 	}
 #endif  /* HAVE_GETPWNAM_R */
@@ -196,24 +193,24 @@ static int64 lookup_uid(void * private_data, const char * uname, int64 uid)
 	#error No way to look up uids on this platform
 #endif
 	b->id = (uid_t)uid;
-
 	return (uid);
 }
 
 static void cleanup(void * pPrivate)
 {
-	size_t i;
-	struct bucket * cache = (struct bucket *)pPrivate;
-	for(i = 0; i < cache_size; i++)
-		SAlloc::F(cache[i].name);
-	SAlloc::F(cache);
+	if(pPrivate) {
+		struct bucket * cache = (struct bucket *)pPrivate;
+		for(size_t i = 0; i < cache_size; i++)
+			SAlloc::F(cache[i].name);
+		SAlloc::F(cache);
+	}
 }
 
 static uint hash(const char * p)
 {
 	/* A 32-bit version of Peter Weinberger's (PJW) hash algorithm,
 	   as used by ELF for hashing function names. */
-	unsigned g, h = 0;
+	uint g, h = 0;
 	while(*p != '\0') {
 		h = (h << 4) + *p++;
 		if((g = h & 0xF0000000) != 0) {

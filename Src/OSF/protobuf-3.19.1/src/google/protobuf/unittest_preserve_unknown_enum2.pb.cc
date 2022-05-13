@@ -127,7 +127,7 @@ MyMessage::MyMessage(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   repeated_packed_e_(arena),
   repeated_packed_unexpected_e_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto2_preserve_unknown_enum_unittest.MyMessage)
@@ -141,7 +141,7 @@ MyMessage::MyMessage(const MyMessage& from)
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   e_ = from.e_;
   clear_has_o();
-  switch (from.o_case()) {
+  switch(from.o_case()) {
     case kOneofE1: {
       _internal_set_oneof_e_1(from._internal_oneof_e_1());
       break;
@@ -164,7 +164,7 @@ clear_has_o();
 
 MyMessage::~MyMessage() {
   // @@protoc_insertion_point(destructor:proto2_preserve_unknown_enum_unittest.MyMessage)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -188,7 +188,7 @@ void MyMessage::SetCachedSize(int size) const {
 
 void MyMessage::clear_o() {
 // @@protoc_insertion_point(one_of_clear_start:proto2_preserve_unknown_enum_unittest.MyMessage)
-  switch (o_case()) {
+  switch(o_case()) {
     case kOneofE1: {
       // No need to clear
       break;
@@ -221,9 +221,9 @@ void MyMessage::Clear() {
 }
 
 const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -253,9 +253,9 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             } else {
               ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(2, val, mutable_unknown_fields());
             }
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<16>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 18) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<16>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 18) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(_internal_mutable_repeated_e(), ptr, ctx, ::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid, &_internal_metadata_, 2);
           CHK_(ptr);
         } else
@@ -266,7 +266,7 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 26)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(_internal_mutable_repeated_packed_e(), ptr, ctx, ::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid, &_internal_metadata_, 3);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 24) {
+        } else if(static_cast<uint8_t>(tag) == 24) {
           uint64_t val = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr);
           CHK_(ptr);
           if(PROTOBUF_PREDICT_TRUE(::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid(val))) {
@@ -290,9 +290,9 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             } else {
               ::PROTOBUF_NAMESPACE_ID::internal::WriteVarint(4, val, mutable_unknown_fields());
             }
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<32>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 34) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<32>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 34) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedEnumParser<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(_internal_mutable_repeated_packed_unexpected_e(), ptr, ctx, ::proto2_preserve_unknown_enum_unittest::MyEnum_IsValid, &_internal_metadata_, 4);
           CHK_(ptr);
         } else
@@ -324,8 +324,7 @@ const char* MyMessage::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -362,29 +361,26 @@ uint8_t* MyMessage::_InternalSerialize(
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_e = 2;
-  for (int i = 0, n = this->_internal_repeated_e_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_repeated_e_size(); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-        2, this->_internal_repeated_e(i), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(2, this->_internal_repeated_e(i), target);
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_e = 3 [packed = true];
   {
     int byte_size = _repeated_packed_e_cached_byte_size_.load(std::memory_order_relaxed);
-    if (byte_size > 0) {
-      target = stream->WriteEnumPacked(
-          3, repeated_packed_e_, byte_size, target);
+    if(byte_size > 0) {
+      target = stream->WriteEnumPacked(3, repeated_packed_e_, byte_size, target);
     }
   }
 
   // repeated .proto2_preserve_unknown_enum_unittest.MyEnum repeated_packed_unexpected_e = 4;
-  for (int i = 0, n = this->_internal_repeated_packed_unexpected_e_size(); i < n; i++) {
+  for(int i = 0, n = this->_internal_repeated_packed_unexpected_e_size(); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(
-        4, this->_internal_repeated_packed_unexpected_e(i), target);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(4, this->_internal_repeated_packed_unexpected_e(i), target);
   }
 
-  switch (o_case()) {
+  switch(o_case()) {
     case kOneofE1: {
       target = stream->EnsureSpace(target);
       target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::WriteEnumToArray(5, this->_internal_oneof_e_1(), target);
@@ -495,7 +491,7 @@ void MyMessage::MergeFrom(const MyMessage& from) {
   if(from._internal_has_e()) {
     _internal_set_e(from._internal_e());
   }
-  switch (from.o_case()) {
+  switch(from.o_case()) {
     case kOneofE1: {
       _internal_set_oneof_e_1(from._internal_oneof_e_1());
       break;
@@ -541,7 +537,7 @@ void MyMessage::InternalSwap(MyMessage* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace proto2_preserve_unknown_enum_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto2_preserve_unknown_enum_unittest::MyMessage* Arena::CreateMaybeMessage< ::proto2_preserve_unknown_enum_unittest::MyMessage >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto2_preserve_unknown_enum_unittest::MyMessage * Arena::CreateMaybeMessage< ::proto2_preserve_unknown_enum_unittest::MyMessage >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto2_preserve_unknown_enum_unittest::MyMessage >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

@@ -358,7 +358,7 @@ static int aes_ctr_encrypt_counter(archive_crypto_ctx * ctx)
 	int r;
 
 	r = EVP_EncryptInit_ex(ctx->ctx, ctx->type, NULL, ctx->key, NULL);
-	if(r == 0)
+	if(!r)
 		return -1;
 	r = EVP_EncryptUpdate(ctx->ctx, ctx->encr_buf, &outl, ctx->nonce,
 		AES_BLOCK_SIZE);

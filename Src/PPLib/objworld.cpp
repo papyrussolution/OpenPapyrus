@@ -1500,7 +1500,7 @@ int PPObjWorld::CorrectCycleLink(PPID id, PPLogger * pLogger, int use_ta)
 					if(f & (0x0004|0x0008))
 						pack.Rec.CountryID = 0;
 					r = PutPacket(&pack.Rec.ID, &pack, 0);
-					if(r != 0)
+					if(r)
 						added_msg.Space().Cat("CORRECTED");
 					if(f & 0x0001) {
 						PPSetError(PPERR_WORLDOBJSELFPAR, added_msg);

@@ -389,7 +389,7 @@ static ssh_buffer privatekey_string_to_buffer(const char * pkey, int type,
 	size_t len;
 
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		return NULL;
 	}
 
@@ -533,7 +533,7 @@ static int b64decode_rsa_privatekey(const char * pkey, gcry_sexp_t * r,
 	int rc = 1;
 
 	buffer = privatekey_string_to_buffer(pkey, SSH_KEYTYPE_RSA, cb, userdata, desc);
-	if(buffer == NULL) {
+	if(!buffer) {
 		return 0;
 	}
 
@@ -616,7 +616,7 @@ static int b64decode_dsa_privatekey(const char * pkey, gcry_sexp_t * r, ssh_auth
 	int rc = 1;
 
 	buffer = privatekey_string_to_buffer(pkey, SSH_KEYTYPE_DSS, cb, userdata, desc);
-	if(buffer == NULL) {
+	if(!buffer) {
 		return 0;
 	}
 
@@ -842,7 +842,7 @@ static int b64decode_ecdsa_privatekey(const char * pkey, gcry_sexp_t * r,
 		cb,
 		userdata,
 		desc);
-	if(buffer == NULL) {
+	if(!buffer) {
 		goto error;
 	}
 
@@ -1030,7 +1030,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 	}
 
 	key = ssh_key_new();
-	if(key == NULL) {
+	if(!key) {
 		goto fail;
 	}
 
@@ -1345,7 +1345,7 @@ static int pki_key_generate(ssh_key key, int parameter, const char * type_s, int
 		"(genkey(%s(nbits %d)(transient-key)))",
 		type_s,
 		parameter);
-	if(rc != 0)
+	if(rc)
 		return SSH_ERROR;
 	switch(type) {
 		case SSH_KEYTYPE_RSA:
@@ -1363,7 +1363,7 @@ static int pki_key_generate(ssh_key key, int parameter, const char * type_s, int
 		    assert(!"reached");
 	}
 	gcry_sexp_release(parms);
-	if(rc != 0)
+	if(rc)
 		return SSH_ERROR;
 	return SSH_OK;
 }
@@ -1542,7 +1542,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 	int rc;
 
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		return NULL;
 	}
 

@@ -52,7 +52,7 @@ static int FASTCALL _Lock(PPID id)
 		int    r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_BILL, id, &mutex_id, &sync_item);
 		if(r < 0)
 			return PPSetError(PPERR_BILLISLOCKED, sync_item.Name);
-		else if(r == 0)
+		else if(!r)
 			return 0;
 	}
 	return 1;
@@ -8096,7 +8096,7 @@ int PPObjBill::UpdatePacket(PPBillPacket * pPack, int use_ta)
 							ufp_counter.AtRmvCount++;
 						}
 					}
-					if(r == 0) {
+					if(!r) {
 						const uint msg_id = (prev_rbb != rbybill) ? PPTXT_LOG_LOADACCTURNFAULT_C : PPTXT_LOG_LOADACCTURNFAULT;
 						PPGetLastErrorMessage(1, temp_buf);
 						PPFormatT(msg_id, &msg_buf, id, temp_buf.cptr());
@@ -10048,7 +10048,7 @@ SLTEST_R(PPBillGuid)
 		for(uint i = 0; i < g_list.getCount(); i++) {
 			const BillGuidAssocItem & r_item = g_list.at(i);
 			SLTEST_CHECK_NZ(BillObj->SearchByGuid(r_item.Uuid, &bill_rec) == 1);
-			if(r == 0) {
+			if(!r) {
 				SLTEST_CHECK_EQ(r_item.BillID, bill_rec.ID);
 			}
 		}

@@ -976,7 +976,7 @@ int PPBillPacket::InsertComplete(PPGoodsStruc & rGs, uint pos, PUGL * pDfctList,
 		if(lim != -1) {
 			ComplItem & t = ary.at(lim);
 			int    r = processUnsuffisientQtty;
-			if(r == 0) {
+			if(!r) {
 				p_deficit_list->ClearActions();
 				p_deficit_list->AddAction(PCUG_BALANCE);
 				p_deficit_list->AddAction(PCUG_ASGOODAS);

@@ -149,7 +149,7 @@ static int translate_acl(struct archive_read_disk * a,
 		switch(acl_tag) {
 			case ACL_USER:
 			    q = acl_get_qualifier(acl_entry);
-			    if(q != NULL) {
+			    if(q) {
 				    ae_id = (int)*(uid_t*)q;
 				    acl_free(q);
 				    ae_name = archive_read_disk_uname(&a->archive,
@@ -159,7 +159,7 @@ static int translate_acl(struct archive_read_disk * a,
 			    break;
 			case ACL_GROUP:
 			    q = acl_get_qualifier(acl_entry);
-			    if(q != NULL) {
+			    if(q) {
 				    ae_id = (int)*(gid_t*)q;
 				    acl_free(q);
 				    ae_name = archive_read_disk_gname(&a->archive,
@@ -404,7 +404,7 @@ static int set_acl(struct archive * a, int fd, const char * name,
 			    goto exit_free;
 		}
 
-		if(r != 0) {
+		if(r) {
 			archive_set_error(a, errno, "Failed to set ACL entry type");
 			ret = ARCHIVE_FAILED;
 			goto exit_free;
@@ -565,10 +565,8 @@ int archive_read_disk_entry_setup_acls(struct archive_read_disk * a,
 	else if(!a->follow_symlinks)
 		acl = acl_get_link_np(accpath, ACL_TYPE_ACCESS);
 #else
-	else if((!a->follow_symlinks)
-	    && (archive_entry_filetype(entry) == AE_IFLNK))
-		/* We can't get the ACL of a symlink, so we assume it can't
-		   have one. */
+	else if((!a->follow_symlinks) && (archive_entry_filetype(entry) == AE_IFLNK))
+		/* We can't get the ACL of a symlink, so we assume it can't have one. */
 		acl = NULL;
 #endif
 	else

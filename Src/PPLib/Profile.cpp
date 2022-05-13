@@ -188,7 +188,7 @@ IMPL_CMPFUNC(PrflEnKey, i1, i2)
 	const  ProfileEntry * k1 = static_cast<const ProfileEntry *>(i1);
 	const  ProfileEntry * k2 = static_cast<const ProfileEntry *>(i2);
 	int    r = ((k1->Hash)>(k2->Hash)) ? 1 : (((k1->Hash)<(k2->Hash)) ? -1 : 0);
-	if(r == 0)
+	if(!r)
 		r = ((k1->LineNum)>(k2->LineNum)) ? 1 : (((k1->LineNum)<(k2->LineNum)) ? -1 : 0);
 	return r;
 }

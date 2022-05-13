@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp"
+    android:orientation="horizontal"
+    >
+    <TextView
+        android:id="@+id/LVITEM_CMDNAME"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textColor="@color/TextPrimary"
+        />
+    <View style="@style/FakeView"/>
+    <TextView
+        android:id="@+id/LVITEM_IND_EXECUTETIME"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_marginRight="8dp"
+        android:fontFamily="@font/liquidcrystal_normal"
+        android:textColor="@color/Black"
+        />
+    <ImageView
+        android:id="@+id/LVITEM_STATUSINDICATOR"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_gravity="center_vertical|right"
+        android:src="@drawable/ic_generic_command">
+    </ImageView>
+</LinearLayout>

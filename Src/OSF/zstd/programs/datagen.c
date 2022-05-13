@@ -34,7 +34,7 @@
 #define RDG_rotl32(x, r) ((x << r) | (x >> (32 - r)))
 static uint32 RDG_rand(uint32* src)
 {
-	static const uint32 prime1 = 2654435761U;
+	static const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
 	static const uint32 prime2 = 2246822519U;
 	uint32 rand32 = *src;
 	rand32 *= prime1;

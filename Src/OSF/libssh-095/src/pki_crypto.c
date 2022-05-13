@@ -916,7 +916,7 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 	EVP_PKEY_free(pkey);
 
 	key = ssh_key_new();
-	if(key == NULL) {
+	if(!key) {
 		goto fail;
 	}
 
@@ -1124,7 +1124,7 @@ ssh_string pki_publickey_to_blob(const ssh_key key)
 	ssh_string q = NULL;
 	int rc;
 	buffer = ssh_buffer_new();
-	if(buffer == NULL) {
+	if(!buffer) {
 		return NULL;
 	}
 	if(key->cert != NULL) {
@@ -2067,7 +2067,7 @@ ssh_signature pki_sign_data(const ssh_key privkey,
 
 	/* Create the context */
 	ctx = EVP_MD_CTX_create();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSH_LOG(SSH_LOG_TRACE, "Out of memory");
 		goto out;
 	}
@@ -2224,7 +2224,7 @@ int pki_verify_data_signature(ssh_signature signature,
 
 	/* Create the context */
 	ctx = EVP_MD_CTX_create();
-	if(ctx == NULL) {
+	if(!ctx) {
 		SSH_LOG(SSH_LOG_TRACE,
 		    "Failed to create EVP_MD_CTX: %s",
 		    ERR_error_string(ERR_get_error(), NULL));
@@ -2282,7 +2282,7 @@ int pki_key_generate_ed25519(ssh_key key)
 	EVP_PKEY * pkey = NULL;
 	size_t privkey_len = ED25519_KEY_LEN;
 	size_t pubkey_len = ED25519_KEY_LEN;
-	if(key == NULL) {
+	if(!key) {
 		return SSH_ERROR;
 	}
 	pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_ED25519, NULL);

@@ -946,16 +946,14 @@ class TestConflictingSymbolNames_Data4 final :
   public:
   void clear_data();
   ::protobuf_unittest::TestConflictingSymbolNames_Data4* mutable_data(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestConflictingSymbolNames_Data4 >*
-      mutable_data();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestConflictingSymbolNames_Data4 > * mutable_data();
   private:
   const ::protobuf_unittest::TestConflictingSymbolNames_Data4& _internal_data(int index) const;
   ::protobuf_unittest::TestConflictingSymbolNames_Data4* _internal_add_data();
   public:
   const ::protobuf_unittest::TestConflictingSymbolNames_Data4& data(int index) const;
   ::protobuf_unittest::TestConflictingSymbolNames_Data4* add_data();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestConflictingSymbolNames_Data4 >&
-      data() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_unittest::TestConflictingSymbolNames_Data4 > & data() const;
 
   // @@protoc_insertion_point(class_scope:protobuf_unittest.TestConflictingSymbolNames.Data4)
  private:
@@ -3520,16 +3518,15 @@ TestConflictingSymbolNames_Data4::mutable_data() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_unittest.TestConflictingSymbolNames.Data4.data)
   return &data_;
 }
-inline const ::protobuf_unittest::TestConflictingSymbolNames_Data4& TestConflictingSymbolNames_Data4::_internal_data(int index) const {
-  return data_.Get(index);
+inline const ::protobuf_unittest::TestConflictingSymbolNames_Data4& TestConflictingSymbolNames_Data4::_internal_data(int index) const
+{
+ return data_.Get(index);
 }
 inline const ::protobuf_unittest::TestConflictingSymbolNames_Data4& TestConflictingSymbolNames_Data4::data(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_unittest.TestConflictingSymbolNames.Data4.data)
   return _internal_data(index);
 }
-inline ::protobuf_unittest::TestConflictingSymbolNames_Data4* TestConflictingSymbolNames_Data4::_internal_add_data() {
-  return data_.Add();
-}
+inline ::protobuf_unittest::TestConflictingSymbolNames_Data4* TestConflictingSymbolNames_Data4::_internal_add_data() { return data_.Add(); }
 inline ::protobuf_unittest::TestConflictingSymbolNames_Data4* TestConflictingSymbolNames_Data4::add_data() {
   ::protobuf_unittest::TestConflictingSymbolNames_Data4* _add = _internal_add_data();
   // @@protoc_insertion_point(field_add:protobuf_unittest.TestConflictingSymbolNames.Data4.data)
@@ -4836,11 +4833,11 @@ inline const ::protobuf_unittest::TestConflictingSymbolNames_DO& TestConflicting
 }
 inline void TestConflictingSymbolNames::unsafe_arena_set_allocated_do_(
     ::protobuf_unittest::TestConflictingSymbolNames_DO* do_) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(do__);
   }
   do__ = do_;
-  if (do_) {
+  if(do_) {
     _has_bits_[0] |= 0x00000040u;
   } else {
     _has_bits_[0] &= ~0x00000040u;
@@ -4854,9 +4851,9 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbol
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4871,7 +4868,7 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbol
 }
 inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbolNames::_internal_mutable_do_() {
   _has_bits_[0] |= 0x00000040u;
-  if (do__ == nullptr) {
+  if(do__ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestConflictingSymbolNames_DO>(GetArenaForAllocation());
     do__ = p;
   }
@@ -4884,15 +4881,14 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbol
 }
 inline void TestConflictingSymbolNames::set_allocated_do_(::protobuf_unittest::TestConflictingSymbolNames_DO* do_) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete do__;
   }
-  if (do_) {
+  if(do_) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestConflictingSymbolNames_DO>::GetOwningArena(do_);
-    if (message_arena != submessage_arena) {
-      do_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, do_, submessage_arena);
+    if(message_arena != submessage_arena) {
+      do_ = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, do_, submessage_arena);
     }
     _has_bits_[0] |= 0x00000040u;
   } else {
@@ -5042,11 +5038,11 @@ inline const ::protobuf_unittest::TestConflictingSymbolNames_DO& TestConflicting
 }
 inline void TestConflictingSymbolNames::unsafe_arena_set_allocated_release_do(
     ::protobuf_unittest::TestConflictingSymbolNames_DO* release_do) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(release_do_);
   }
   release_do_ = release_do;
-  if (release_do) {
+  if(release_do) {
     _has_bits_[0] |= 0x00000080u;
   } else {
     _has_bits_[0] &= ~0x00000080u;
@@ -5060,9 +5056,9 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbol
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -5077,7 +5073,7 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbol
 }
 inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbolNames::_internal_mutable_release_do() {
   _has_bits_[0] |= 0x00000080u;
-  if (release_do_ == nullptr) {
+  if(release_do_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestConflictingSymbolNames_DO>(GetArenaForAllocation());
     release_do_ = p;
   }
@@ -5090,15 +5086,14 @@ inline ::protobuf_unittest::TestConflictingSymbolNames_DO* TestConflictingSymbol
 }
 inline void TestConflictingSymbolNames::set_allocated_release_do(::protobuf_unittest::TestConflictingSymbolNames_DO* release_do) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete release_do_;
   }
-  if (release_do) {
+  if(release_do) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestConflictingSymbolNames_DO>::GetOwningArena(release_do);
-    if (message_arena != submessage_arena) {
-      release_do = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, release_do, submessage_arena);
+    if(message_arena != submessage_arena) {
+      release_do = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, release_do, submessage_arena);
     }
     _has_bits_[0] |= 0x00000080u;
   } else {

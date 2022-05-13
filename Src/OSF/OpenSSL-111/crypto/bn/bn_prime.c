@@ -339,7 +339,7 @@ int BN_generate_prime_ex(BIGNUM * ret, int bits, int safe, const BIGNUM * add, c
 		goto err;
 
 	ctx = BN_CTX_new();
-	if(ctx == NULL)
+	if(!ctx)
 		goto err;
 	BN_CTX_start(ctx);
 	t = BN_CTX_get(ctx);

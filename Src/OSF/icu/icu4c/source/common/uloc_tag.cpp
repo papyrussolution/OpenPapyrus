@@ -1243,7 +1243,7 @@ static void _appendKeywordsToLanguageTag(const char * localeID, icu::ByteSink& s
 
 		while(true) {
 			key = uenum_next(keywordEnum.getAlias(), NULL, status);
-			if(key == NULL) {
+			if(!key) {
 				break;
 			}
 
@@ -1656,7 +1656,7 @@ static void _appendLDMLExtensionAsKeywords(const char * ldmlext,
 					 */
 					T_CString_toLowerCase(bcpKeyBuf);
 					icu::CharString* key = kwdBuf.create(bcpKeyBuf, bcpKeyLen, *status);
-					if(key == NULL) {
+					if(!key) {
 						*status = U_MEMORY_ALLOCATION_ERROR;
 						return;
 					}

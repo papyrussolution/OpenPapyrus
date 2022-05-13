@@ -448,7 +448,7 @@ int WebPWriteAlphaPlane(FILE* fout, const WebPDecBuffer* const buffer)
 		const int a_stride = buffer->u.YUVA.a_stride;
 		uint32_t y;
 
-		if(a == NULL) return 0;
+		if(!a) return 0;
 
 		fprintf(fout, "P5\n%u %u\n255\n", width, height);
 		for(y = 0; y < height; ++y) {

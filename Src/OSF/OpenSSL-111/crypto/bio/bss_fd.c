@@ -99,7 +99,7 @@ static int fd_new(BIO * bi)
 
 static int fd_free(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if(a->shutdown) {
 		if(a->init) {

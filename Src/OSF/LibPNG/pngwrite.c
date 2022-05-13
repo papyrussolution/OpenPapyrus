@@ -1366,13 +1366,13 @@ static void png_image_set_PLTE(png_image_write_control * display)
 	const int afirst = (format & PNG_FORMAT_FLAG_AFIRST) != 0 &&
 	    (format & PNG_FORMAT_FLAG_ALPHA) != 0;
 #else
-#     define afirst 0
+#define afirst 0
 #endif
 
 #ifdef PNG_FORMAT_BGR_SUPPORTED
 	const int bgr = (format & PNG_FORMAT_FLAG_BGR) != 0 ? 2 : 0;
 #else
-#     define bgr 0
+#define bgr 0
 #endif
 	int i, num_trans;
 	SColorRGB palette[256];

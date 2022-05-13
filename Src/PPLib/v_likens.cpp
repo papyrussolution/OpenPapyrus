@@ -199,7 +199,7 @@ int PPViewObjLikeness::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrow
 					PPObjGoods gobj;
 					if((r = gobj.Edit((ppvCmd == PPVCMD_EDITITEM1) ? &hdr.ID1 : &hdr.ID2, 0)) == cmOK)
 						ok = 1;
-					else if(r == 0)
+					else if(!r)
 						ok = 0;
 				}
 				break;

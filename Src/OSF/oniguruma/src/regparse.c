@@ -248,7 +248,7 @@ static int bbuf_clone(BBuf** rto, BBuf* from)
 	*rto = to = (BBuf*)SAlloc::M(sizeof(BBuf));
 	CHECK_NULL_RETURN_MEMERR(to);
 	r = BB_INIT(to, from->alloc);
-	if(r != 0) {
+	if(r) {
 		bbuf_free(to);
 		*rto = 0;
 		return r;
@@ -279,7 +279,7 @@ static int backref_rel_to_abs(int rel_no, ScanEnv* env)
 #define ADD_ALL_MULTI_BYTE_RANGE(enc, mbuf) do { \
 		if(!ONIGENC_IS_SINGLEBYTE(enc)) { \
 			r = SET_ALL_MULTI_BYTE_RANGE(enc, &(mbuf)); \
-			if(r != 0) return r; \
+			if(r) return r; \
 		} \
 } while(0)
 
@@ -637,7 +637,7 @@ int onig_names_free(regex_t* reg)
 {
 	NameTable * t;
 	int r = names_clear(reg);
-	if(r != 0) 
+	if(r) 
 		return r;
 	t = (NameTable *)reg->name_table;
 	if(IS_NOT_NULL(t)) 
@@ -671,7 +671,7 @@ static int i_names(uchar * key ARG_UNUSED, NameEntry* e, INamesArg* arg)
 		e->back_num,
 		(e->back_num > 1 ? e->back_refs : &(e->back_ref1)),
 		arg->reg, arg->arg);
-	if(r != 0) {
+	if(r) {
 		arg->ret = r;
 		return ST_STOP;
 	}
@@ -798,7 +798,7 @@ int onig_names_free(regex_t* reg)
 {
 	NameTable* t;
 	int r = names_clear(reg);
-	if(r != 0) 
+	if(r) 
 		return r;
 	t = (NameTable*)reg->name_table;
 	if(IS_NOT_NULL(t)) SAlloc::F(t);
@@ -833,7 +833,7 @@ int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, in
 			r = (*func)(e->name, e->name + e->name_len, e->back_num,
 				(e->back_num > 1 ? e->back_refs : &(e->back_ref1)),
 				reg, arg);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 	}
 	return 0;
@@ -1140,7 +1140,7 @@ static int global_callout_name_table_free(void)
 {
 	if(IS_NOT_NULL(GlobalCalloutNameTable)) {
 		int r = callout_name_table_clear(GlobalCalloutNameTable);
-		if(r != 0) return r;
+		if(r) return r;
 		onig_st_free_table(GlobalCalloutNameTable);
 		GlobalCalloutNameTable = 0;
 		CalloutNameIDCounter = 0;
@@ -1160,7 +1160,7 @@ static CalloutNameEntry* callout_name_find(OnigEncoding enc, int is_not_single,
 	if(IS_NOT_NULL(t)) {
 		r = onig_st_lookup_callout_name_table(t, enc, is_not_single, name, name_end,
 			(HashDataType*)((void *)(&e)));
-		if(r == 0) { /* not found */
+		if(!r) { /* not found */
 			if(enc != ONIG_ENCODING_ASCII &&
 			    ONIGENC_IS_ASCII_COMPATIBLE_ENCODING(enc)) {
 				enc = ONIG_ENCODING_ASCII;
@@ -1203,7 +1203,7 @@ static int global_callout_name_table_free(void)
 {
 	if(IS_NOT_NULL(GlobalCalloutNameTable)) {
 		int r = callout_name_table_clear(GlobalCalloutNameTable);
-		if(r != 0) return r;
+		if(r) return r;
 
 		SAlloc::F(GlobalCalloutNameTable);
 		GlobalCalloutNameTable = 0;
@@ -1608,7 +1608,7 @@ int onig_callout_tag_table_free(void * table)
 	if(table) {
 		CalloutTagTable * t = (CalloutTagTable *)table;
 		int r = callout_tag_table_clear(t);
-		if(r != 0) return r;
+		if(r) return r;
 		onig_st_free_table(t);
 	}
 	return 0;
@@ -1625,7 +1625,7 @@ int onig_get_callout_num_by_tag(regex_t* reg, const uchar * tag, const uchar * t
 
 	r = onig_st_lookup_strend(ext->tag_table, tag, tag_end,
 		(HashDataType*)((void *)(&e)));
-	if(r == 0) return ONIGERR_INVALID_CALLOUT_TAG_NAME;
+	if(!r) return ONIGERR_INVALID_CALLOUT_TAG_NAME;
 	return (int)e;
 }
 
@@ -1906,7 +1906,7 @@ int onig_node_copy(Node ** rcopy, Node* from)
 	switch(NODE_TYPE(copy)) {
 		case NODE_STRING:
 		    r = onig_node_str_set(copy, STR_(from)->s, STR_(from)->end, FALSE);
-		    if(r != 0) {
+		    if(r) {
 err:
 			    onig_node_free(copy);
 			    return r;
@@ -1921,7 +1921,7 @@ err:
 		    tcc = CCLASS_(copy);
 		    if(IS_NOT_NULL(fcc->mbuf)) {
 			    r = bbuf_clone(&(tcc->mbuf), fcc->mbuf);
-			    if(r != 0) goto err;
+			    if(r) goto err;
 		    }
 	    }
 	    break;
@@ -2360,7 +2360,7 @@ static int node_new_keep(Node ** node, ScanEnv* env)
 	int r;
 
 	r = node_new_save_gimmick(node, SAVE_KEEP, env);
-	if(r != 0) return r;
+	if(r) return r;
 
 	env->keep_num++;
 	return ONIG_NORMAL;
@@ -2469,7 +2469,7 @@ static int make_text_segment(Node ** node, ScanEnv* env)
 	ns[0] = node_new_anchor_with_options(ANCR_NO_TEXT_SEGMENT_BOUNDARY, env->options);
 	if(IS_NULL(ns[0])) goto err;
 	r = node_new_true_anychar(&ns[1]);
-	if(r != 0) goto err1;
+	if(r) goto err1;
 	x = make_list(2, ns);
 	if(IS_NULL(x)) goto err;
 	ns[0] = x;
@@ -2480,7 +2480,7 @@ static int make_text_segment(Node ** node, ScanEnv* env)
 	ns[0] = NULL_NODE;
 	ns[1] = x;
 	r = node_new_true_anychar(&ns[0]);
-	if(r != 0) goto err1;
+	if(r) goto err1;
 	x = make_list(2, ns);
 	if(IS_NULL(x)) goto err;
 	ns[0] = x;
@@ -2511,18 +2511,18 @@ static int make_absent_engine(Node ** node, int pre_save_right_id, Node* absent,
 	ns[1] = absent;
 	ns[3] = step_one; /* for err */
 	r = node_new_save_gimmick(&ns[0], SAVE_S, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	id = GIMMICK_(ns[0])->id;
 	r = node_new_update_var_gimmick(&ns[2], UPDATE_VAR_RIGHT_RANGE_FROM_S_STACK,
 		id, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	if(is_range_cutter != 0)
 		NODE_STATUS_ADD(ns[2], ABSENT_WITH_SIDE_EFFECTS);
 
 	r = node_new_fail(&ns[3], env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	x = make_list(4, ns);
 	if(IS_NULL(x)) goto err0;
@@ -2552,10 +2552,10 @@ static int make_absent_engine(Node ** node, int pre_save_right_id, Node* absent,
 
 	r = node_new_update_var_gimmick(&ns[1], UPDATE_VAR_RIGHT_RANGE_FROM_STACK,
 		pre_save_right_id, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	r = node_new_fail(&ns[2], env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	x = make_list(2, ns + 1);
 	if(IS_NULL(x)) goto err0;
@@ -2591,15 +2591,15 @@ static int make_absent_tail(Node ** node1, Node ** node2, int pre_save_right_id,
 	save = ns[0] = ns[1] = NULL_NODE;
 
 	r = node_new_save_gimmick(&save, SAVE_RIGHT_RANGE, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	id = GIMMICK_(save)->id;
 	r = node_new_update_var_gimmick(&ns[0], UPDATE_VAR_RIGHT_RANGE_FROM_STACK,
 		id, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	r = node_new_fail(&ns[1], env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	x = make_list(2, ns);
 	if(IS_NULL(x)) goto err0;
@@ -2608,7 +2608,7 @@ static int make_absent_tail(Node ** node1, Node ** node2, int pre_save_right_id,
 
 	r = node_new_update_var_gimmick(&ns[0], UPDATE_VAR_RIGHT_RANGE_FROM_STACK,
 		pre_save_right_id, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	x = make_alt(2, ns);
 	if(IS_NULL(x)) goto err0;
@@ -2638,15 +2638,15 @@ static int make_range_clear(Node ** node, ScanEnv* env)
 	save = ns[0] = ns[1] = NULL_NODE;
 
 	r = node_new_save_gimmick(&save, SAVE_RIGHT_RANGE, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	id = GIMMICK_(save)->id;
 	r = node_new_update_var_gimmick(&ns[0], UPDATE_VAR_RIGHT_RANGE_FROM_STACK,
 		id, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	r = node_new_fail(&ns[1], env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	x = make_list(2, ns);
 	if(IS_NULL(x)) goto err0;
@@ -2657,7 +2657,7 @@ static int make_range_clear(Node ** node, ScanEnv* env)
 
 	r = node_new_update_var_gimmick(&ns[0], UPDATE_VAR_RIGHT_RANGE_INIT,
 		ID_NOT_USED_DONT_CARE_ME, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 	NODE_STATUS_ADD(ns[0], ABSENT_WITH_SIDE_EFFECTS);
 
 	x = make_alt(2, ns);
@@ -2761,19 +2761,19 @@ static int make_absent_tree_for_simple_one_char_repeat(Node ** node, Node* absen
 	upper = QUANT_(quant)->upper;
 
 	r = node_new_save_gimmick(&ns[0], SAVE_RIGHT_RANGE, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	id1 = GIMMICK_(ns[0])->id;
 
 	r = make_absent_engine(&ns[1], id1, absent, body, lower, upper, possessive,
 		FALSE, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	ns[2] = ns[3] = NULL_NODE;
 
 	r = node_new_update_var_gimmick(&ns[2], UPDATE_VAR_RIGHT_RANGE_FROM_STACK,
 		id1, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 
 	x = make_list(3, ns);
 	if(IS_NULL(x)) goto err0;
@@ -2807,7 +2807,7 @@ static int make_absent_tree(Node ** node, Node* absent, Node* expr, int is_range
 			quant = node_new_quantifier(0, INFINITE_REPEAT, FALSE);
 			if(IS_NULL(quant)) goto err0;
 			r = node_new_true_anychar(&body);
-			if(r != 0) {
+			if(r) {
 				onig_node_free(quant);
 				goto err;
 			}
@@ -2819,7 +2819,7 @@ static int make_absent_tree(Node ** node, Node* absent, Node* expr, int is_range
 simple:
 				r = make_absent_tree_for_simple_one_char_repeat(node, absent, quant, body, possessive, env);
 				onig_node_free(quant);
-				if(r != 0) {
+				if(r) {
 					ns[4] = NULL_NODE;
 					onig_node_free(body);
 					goto err;
@@ -2829,27 +2829,27 @@ simple:
 		}
 	}
 	r = node_new_save_gimmick(&ns[0], SAVE_RIGHT_RANGE, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 	id1 = GIMMICK_(ns[0])->id;
 	r = node_new_save_gimmick(&ns[1], SAVE_S, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 	id2 = GIMMICK_(ns[1])->id;
 	r = node_new_true_anychar(&ns[3]);
-	if(r != 0) goto err;
+	if(r) goto err;
 	possessive = 1;
 	r = make_absent_engine(&ns[2], id1, absent, ns[3], 0, INFINITE_REPEAT, possessive, is_range_cutter, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 	ns[3] = NULL_NODE;
 	ns[5] = NULL_NODE;
 	r = node_new_update_var_gimmick(&ns[3], UPDATE_VAR_S_FROM_STACK, id2, env);
-	if(r != 0) goto err;
+	if(r) goto err;
 	if(is_range_cutter != 0) {
 		x = make_list(4, ns);
 		if(IS_NULL(x)) goto err0;
 	}
 	else {
 		r = make_absent_tail(&ns[5], &ns[6], id1, env);
-		if(r != 0) goto err;
+		if(r) goto err;
 
 		x = make_list(7, ns);
 		if(IS_NULL(x)) goto err0;
@@ -2938,7 +2938,7 @@ static Node * FASTCALL node_new_str(const uchar * s, const uchar * end)
 	Node * node = node_new();
 	CHECK_NULL_RETURN(node);
 	int r = node_set_str(node, s, end);
-	if(r != 0) {
+	if(r) {
 		onig_node_free(node);
 		return NULL;
 	}
@@ -3175,7 +3175,7 @@ range:
 
 		PUNFETCH;
 		r = scan_number_of_base(&p, end, 1, enc, &code, base);
-		if(r != 0) return r;
+		if(r) return r;
 		n++;
 		end_digit = TRUE;
 		state = (state == CPS_RANGE) ? CPS_EMPTY : CPS_START;
@@ -3223,7 +3223,7 @@ end_char:
 
 		PUNFETCH;
 		r = scan_number_of_base(&p, end, 1, enc, &code, base);
-		if(r != 0) return r;
+		if(r) return r;
 		n++;
 		end_digit = TRUE;
 	}
@@ -3257,7 +3257,7 @@ static int get_next_code_point(uchar ** src, uchar * end, int base, OnigEncoding
 		}
 	}
 	r = scan_number_of_base(&p, end, 1, enc, rcode, base);
-	if(r != 0) 
+	if(r) 
 		return r;
 	*src = p;
 	return ONIG_NORMAL;
@@ -3277,7 +3277,7 @@ static int new_code_range(BBuf** pbuf)
 	BBuf * bbuf = *pbuf = (BBuf *)SAlloc::M(sizeof(BBuf));
 	CHECK_NULL_RETURN_MEMERR(bbuf);
 	r = BB_INIT(bbuf, INIT_MULTI_BYTE_RANGE_SIZE);
-	if(r != 0) {
+	if(r) {
 		SAlloc::F(bbuf);
 		*pbuf = 0;
 		return r;
@@ -3300,7 +3300,7 @@ static int add_code_range_to_buf(BBuf** pbuf, OnigCodePoint from, OnigCodePoint 
 
 	if(IS_NULL(*pbuf)) {
 		r = new_code_range(pbuf);
-		if(r != 0) return r;
+		if(r) return r;
 		bbuf = *pbuf;
 		n = 0;
 	}
@@ -3397,7 +3397,7 @@ set_all:
 		to   = data[i*2+1];
 		if(pre <= from - 1) {
 			r = add_code_range_to_buf(pbuf, pre, from - 1);
-			if(r != 0) {
+			if(r) {
 				bbuf_free(*pbuf);
 				return r;
 			}
@@ -3407,7 +3407,7 @@ set_all:
 	}
 	if(to < ~((OnigCodePoint)0)) {
 		r = add_code_range_to_buf(pbuf, to + 1, ~((OnigCodePoint)0));
-		if(r != 0) bbuf_free(*pbuf);
+		if(r) bbuf_free(*pbuf);
 	}
 	return r;
 }
@@ -3464,13 +3464,13 @@ static int or_code_range_buf(OnigEncoding enc, BBuf* bbuf1, int not1,
 	else if(not1 == 0) { /* 1 OR (not 2) */
 		r = not_code_range_buf(enc, bbuf2, pbuf);
 	}
-	if(r != 0) return r;
+	if(r) return r;
 
 	for(i = 0; i < n1; i++) {
 		from = data1[i*2];
 		to   = data1[i*2+1];
 		r = add_code_range_to_buf(pbuf, from, to);
-		if(r != 0) return r;
+		if(r) return r;
 	}
 	return 0;
 }
@@ -3494,7 +3494,7 @@ static int and_code_range1(BBuf** pbuf, OnigCodePoint from1, OnigCodePoint to1,
 			if(to2 < to1) {
 				if(from1 <= from2 - 1) {
 					r = add_code_range_to_buf(pbuf, from1, from2-1);
-					if(r != 0) return r;
+					if(r) return r;
 				}
 				from1 = to2 + 1;
 			}
@@ -3509,7 +3509,7 @@ static int and_code_range1(BBuf** pbuf, OnigCodePoint from1, OnigCodePoint to1,
 	}
 	if(from1 <= to1) {
 		r = add_code_range_to_buf(pbuf, from1, to1);
-		if(r != 0) return r;
+		if(r) return r;
 	}
 	return 0;
 }
@@ -3554,7 +3554,7 @@ static int and_code_range_buf(BBuf* bbuf1, int not1, BBuf* bbuf2, int not2, BBuf
 				from = MAX(from1, from2);
 				to   = MIN(to1, to2);
 				r = add_code_range_to_buf(pbuf, from, to);
-				if(r != 0) return r;
+				if(r) return r;
 			}
 		}
 	}
@@ -3563,7 +3563,7 @@ static int and_code_range_buf(BBuf* bbuf1, int not1, BBuf* bbuf2, int not2, BBuf
 			from1 = data1[i*2];
 			to1   = data1[i*2+1];
 			r = and_code_range1(pbuf, from1, to1, data2, n2);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 	}
 	return 0;
@@ -3604,7 +3604,7 @@ static int and_cclass(CClassNode* dest, CClassNode* cc, OnigEncoding enc)
 			if(r == 0 && not1 != 0) {
 				BBuf * tbuf;
 				r = not_code_range_buf(enc, pbuf, &tbuf);
-				if(r != 0) {
+				if(r) {
 					bbuf_free(pbuf);
 					return r;
 				}
@@ -3612,7 +3612,7 @@ static int and_cclass(CClassNode* dest, CClassNode* cc, OnigEncoding enc)
 				pbuf = tbuf;
 			}
 		}
-		if(r != 0) 
+		if(r) 
 			return r;
 		dest->mbuf = pbuf;
 		bbuf_free(buf1);
@@ -3658,7 +3658,7 @@ static int or_cclass(CClassNode* dest, CClassNode* cc, OnigEncoding enc)
 			if(r == 0 && not1 != 0) {
 				BBuf * tbuf;
 				r = not_code_range_buf(enc, pbuf, &tbuf);
-				if(r != 0) {
+				if(r) {
 					bbuf_free(pbuf);
 					return r;
 				}
@@ -3666,7 +3666,7 @@ static int or_cclass(CClassNode* dest, CClassNode* cc, OnigEncoding enc)
 				pbuf = tbuf;
 			}
 		}
-		if(r != 0) return r;
+		if(r) return r;
 
 		dest->mbuf = pbuf;
 		bbuf_free(buf1);
@@ -3870,7 +3870,7 @@ static int node_new_general_newline(Node ** node, ScanEnv* env)
 	}
 	else {
 		r = add_code_range(&(cc->mbuf), env, NEWLINE_CODE, 0x0d);
-		if(r != 0) {
+		if(r) {
 err1:
 			onig_node_free(ncc);
 err2:
@@ -3881,9 +3881,9 @@ err2:
 
 	if(ONIGENC_IS_UNICODE_ENCODING(env->enc)) {
 		r = add_code_range(&(cc->mbuf), env, 0x85, 0x85);
-		if(r != 0) goto err1;
+		if(r) goto err1;
 		r = add_code_range(&(cc->mbuf), env, 0x2028, 0x2029);
-		if(r != 0) goto err1;
+		if(r) goto err1;
 	}
 
 	x = node_new_bag_if_else(crnl, NULL_NODE, ncc);
@@ -4152,7 +4152,7 @@ static int fetch_escaped_value(uchar ** src, uchar * end, ScanEnv* env, OnigCode
 {
 	int len;
 	int r = fetch_escaped_value_raw(src, end, env, val);
-	if(r != 0) 
+	if(r) 
 		return r;
 	len = ONIGENC_CODE_TO_MBCLEN(env->enc, *val);
 	if(len < 0) 
@@ -4294,7 +4294,7 @@ err2:
 	}
 
 end:
-	if(r == 0) {
+	if(!r) {
 		if(*num_type != IS_NOT_NUM) {
 			*rback_num = scan_number(&pnum_head, name_end, enc);
 			if(*rback_num < 0) return ONIGERR_TOO_BIG_NUMBER;
@@ -4386,7 +4386,7 @@ static int fetch_name(OnigCodePoint start_code, uchar ** src, uchar * end,
 		}
 	}
 
-	if(r == 0) {
+	if(!r) {
 		while(!PEND) {
 			name_end = p;
 			PFETCH_S(c);
@@ -4566,7 +4566,7 @@ static int fetch_token_cc(PToken* tok, uchar ** src, uchar * end, ScanEnv* env, 
 			tok->type = TK_CC_RANGE;
 			goto end;
 		}
-		else if(r == 0) {
+		else if(!r) {
 			tok->type   = TK_CODE_POINT;
 			tok->u.code = code;
 			goto end;
@@ -4712,7 +4712,7 @@ brace_code_point_entry:
 						    r = check_code_point_sequence_cc(p, end, tok->base_num, enc,
 							    curr_state);
 						    if(r < 0) return r;
-						    if(r == 0) return ONIGERR_INVALID_CODE_POINT_VALUE;
+						    if(!r) return ONIGERR_INVALID_CODE_POINT_VALUE;
 						    tok->code_point_continue = TRUE;
 					    }
 					    tok->type   = TK_CODE_POINT;
@@ -4829,7 +4829,7 @@ static int fetch_token(PToken* tok, uchar ** src, uchar * end, ScanEnv* env)
 		if(r == 1) {
 			tok->code_point_continue = 0;
 		}
-		else if(r == 0) {
+		else if(!r) {
 			tok->type   = TK_CODE_POINT;
 			tok->u.code = code;
 			goto out;
@@ -4904,7 +4904,7 @@ possessive_check:
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_ESC_BRACE_INTERVAL)) break;
 			    r = fetch_interval(&p, end, tok, env);
 			    if(r < 0) return r; /* error */
-			    if(r == 0) goto greedy_check2;
+			    if(!r) goto greedy_check2;
 			    else if(r == 2) { /* {n} */
 				    if(IS_SYNTAX_BV(syn, ONIG_SYN_FIXED_INTERVAL_IS_GREEDY_ONLY))
 					    goto possessive_check;
@@ -5125,7 +5125,7 @@ brace_code_point_entry:
 					    else {
 						    r = check_code_point_sequence(p, end, tok->base_num, enc);
 						    if(r < 0) return r;
-						    if(r == 0) return ONIGERR_INVALID_CODE_POINT_VALUE;
+						    if(!r) return ONIGERR_INVALID_CODE_POINT_VALUE;
 						    tok->code_point_continue = TRUE;
 					    }
 					    tok->type   = TK_CODE_POINT;
@@ -5428,7 +5428,7 @@ zero_or_one_time:
 			    if(!IS_SYNTAX_OP(syn, ONIG_SYN_OP_BRACE_INTERVAL)) break;
 			    r = fetch_interval(&p, end, tok, env);
 			    if(r < 0) return r; /* error */
-			    if(r == 0) goto greedy_check2;
+			    if(!r) goto greedy_check2;
 			    else if(r == 2) { /* {n} */
 				    if(IS_SYNTAX_BV(syn, ONIG_SYN_FIXED_INTERVAL_IS_GREEDY_ONLY))
 					    goto possessive_check;
@@ -5606,7 +5606,7 @@ static int add_ctype_to_cc_by_range(CClassNode* cc, int ctype ARG_UNUSED, int no
 					if(j > ONIGENC_CODE_RANGE_FROM(mbr, i)) {
 						r = add_code_range_to_buf(&(cc->mbuf), j,
 							ONIGENC_CODE_RANGE_TO(mbr, i));
-						if(r != 0) return r;
+						if(r) return r;
 						i++;
 					}
 
@@ -5621,7 +5621,7 @@ sb_end:
 			r = add_code_range_to_buf(&(cc->mbuf),
 				ONIGENC_CODE_RANGE_FROM(mbr, i),
 				ONIGENC_CODE_RANGE_TO(mbr, i));
-			if(r != 0) return r;
+			if(r) return r;
 		}
 	}
 	else {
@@ -5647,14 +5647,14 @@ sb_end2:
 			if(prev < ONIGENC_CODE_RANGE_FROM(mbr, i)) {
 				r = add_code_range_to_buf(&(cc->mbuf), prev,
 					ONIGENC_CODE_RANGE_FROM(mbr, i) - 1);
-				if(r != 0) return r;
+				if(r) return r;
 			}
 			prev = ONIGENC_CODE_RANGE_TO(mbr, i) + 1;
 			if(prev == 0) goto end;
 		}
 
 		r = add_code_range_to_buf(&(cc->mbuf), prev, MAX_CODE_POINT);
-		if(r != 0) return r;
+		if(r) return r;
 	}
 
 end:
@@ -5681,7 +5681,7 @@ static int add_ctype_to_cc_by_range_limit(CClassNode* cc, int ctype ARG_UNUSED, 
 						to = ONIGENC_CODE_RANGE_TO(mbr, i);
 						if(to > limit) to = limit;
 						r = add_code_range_to_buf(&(cc->mbuf), j, to);
-						if(r != 0) return r;
+						if(r) return r;
 						i++;
 					}
 
@@ -5698,7 +5698,7 @@ sb_end:
 			if(from > limit) break;
 			if(to   > limit) to = limit;
 			r = add_code_range_to_buf(&(cc->mbuf), from, to);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 	}
 	else {
@@ -5734,7 +5734,7 @@ sb_end2:
 
 			if(prev < from) {
 				r = add_code_range_to_buf(&(cc->mbuf), prev, from - 1);
-				if(r != 0) return r;
+				if(r) return r;
 			}
 			prev = ONIGENC_CODE_RANGE_TO(mbr, i);
 			if(prev > limit) prev = limit;
@@ -5744,7 +5744,7 @@ sb_end2:
 
 last:
 		r = add_code_range_to_buf(&(cc->mbuf), prev, MAX_CODE_POINT);
-		if(r != 0) return r;
+		if(r) return r;
 	}
 
 end:
@@ -5761,7 +5761,7 @@ static int add_ctype_to_cc(CClassNode* cc, int ctype, int not, ScanEnv* env)
 	OnigEncoding enc = env->enc;
 	int ascii_mode = OPTON_IS_ASCII_MODE_CTYPE(ctype, env->options);
 	int r = ONIGENC_GET_CTYPE_CODE_RANGE(enc, ctype, &sb_out, &ranges);
-	if(r == 0) {
+	if(!r) {
 		if(ascii_mode == 0)
 			r = add_ctype_to_cc_by_range(cc, ctype, not, env->enc, sb_out, ranges);
 		else
@@ -5893,7 +5893,7 @@ static int prs_posix_bracket(CClassNode* cc, uchar ** src, uchar * end, ScanEnv*
 				return ONIGERR_INVALID_POSIX_BRACKET_TYPE;
 
 			r = add_ctype_to_cc(cc, pb->ctype, not, env);
-			if(r != 0) return r;
+			if(r) return r;
 
 			PINC_S; PINC_S;
 			*src = p;
@@ -5966,7 +5966,7 @@ static int prs_char_property(Node ** np, PToken* tok, uchar ** src, uchar * end,
 	CHECK_NULL_RETURN_MEMERR(*np);
 	cc = CCLASS_(*np);
 	r = add_ctype_to_cc(cc, ctype, FALSE, env);
-	if(r != 0) return r;
+	if(r) return r;
 	if(tok->u.prop.not != 0) NCCLASS_SET_NOT(cc);
 
 	return 0;
@@ -6221,7 +6221,7 @@ val_entry:
 val_entry2:
 			    r = cc_char_next(cc, &curr_code, in_code, &curr_raw, in_raw, in_type,
 				    &curr_type, &state, env);
-			    if(r != 0) goto err;
+			    if(r) goto err;
 			    break;
 
 			case TK_CC_POSIX_BRACKET_OPEN:
@@ -6239,11 +6239,11 @@ val_entry2:
 
 			case TK_CHAR_TYPE:
 			    r = add_ctype_to_cc(cc, tok->u.prop.ctype, tok->u.prop.not, env);
-			    if(r != 0) goto err;
+			    if(r) goto err;
 
 next_cprop:
 			    r = cc_cprop_next(cc, &curr_code, &curr_type, &state, env);
-			    if(r != 0) goto err;
+			    if(r) goto err;
 			    break;
 
 			case TK_CHAR_PROPERTY:
@@ -6254,7 +6254,7 @@ next_cprop:
 				    goto err;
 			    }
 			    r = add_ctype_to_cc(cc, ctype, tok->u.prop.not, env);
-			    if(r != 0) goto err;
+			    if(r) goto err;
 			    goto next_cprop;
 		    }
 		    break;
@@ -6329,12 +6329,12 @@ range_end_val:
 			    CClassNode* acc;
 			    if(state == CS_VALUE) {
 				    r = cc_char_next(cc, &curr_code, 0, &curr_raw, 0, curr_type, &curr_type, &state, env);
-				    if(r != 0) 
+				    if(r) 
 						goto err;
 			    }
 			    state = CS_COMPLETE;
 			    r = prs_cc(&anode, tok, &p, end, env);
-			    if(r != 0) {
+			    if(r) {
 				    onig_node_free(anode);
 				    goto cc_open_err;
 			    }
@@ -6342,7 +6342,7 @@ range_end_val:
 			    r = or_cclass(cc, acc, env->enc);
 			    onig_node_free(anode);
 cc_open_err:
-			    if(r != 0) 
+			    if(r) 
 					goto err;
 		    }
 		    break;
@@ -6351,7 +6351,7 @@ cc_open_err:
 		    {
 			    if(state == CS_VALUE) {
 				    r = cc_char_next(cc, &curr_code, 0, &curr_raw, 0, curr_type, &curr_type, &state, env);
-				    if(r != 0) 
+				    if(r) 
 						goto err;
 			    }
 			    /* initialize local variables */
@@ -6360,7 +6360,7 @@ cc_open_err:
 
 			    if(IS_NOT_NULL(prev_cc)) {
 				    r = and_cclass(prev_cc, cc, env->enc);
-				    if(r != 0) goto err;
+				    if(r) goto err;
 				    bbuf_free(cc->mbuf);
 			    }
 			    else {
@@ -6392,12 +6392,12 @@ cc_open_err:
 	if(state == CS_VALUE) {
 		r = cc_char_next(cc, &curr_code, 0, &curr_raw, 0, curr_type, &curr_type,
 			&state, env);
-		if(r != 0) goto err;
+		if(r) goto err;
 	}
 
 	if(IS_NOT_NULL(prev_cc)) {
 		r = and_cclass(prev_cc, cc, env->enc);
-		if(r != 0) goto err;
+		if(r) goto err;
 		bbuf_free(cc->mbuf);
 		cc = prev_cc;
 	}
@@ -6524,7 +6524,7 @@ static int prs_callout_of_contents(Node ** np, int cterm, uchar ** src, uchar * 
 		return ONIGERR_INVALID_CALLOUT_PATTERN;
 
 	r = reg_callout_list_entry(env, &num);
-	if(r != 0) return r;
+	if(r) return r;
 
 	ext = onig_get_regex_ext(env->reg);
 	CHECK_NULL_RETURN_MEMERR(ext);
@@ -6548,7 +6548,7 @@ static int prs_callout_of_contents(Node ** np, int cterm, uchar ** src, uchar * 
 	}
 
 	r = node_new_callout(np, ONIG_CALLOUT_OF_CONTENTS, num, ONIG_NON_NAME_ID, env);
-	if(r != 0) {
+	if(r) {
 		SAlloc::F(contents);
 		return r;
 	}
@@ -6885,7 +6885,7 @@ static int prs_callout_of_name(Node ** np, int cterm, uchar ** src, uchar * end,
 	}
 
 	r = reg_callout_list_entry(env, &num);
-	if(r != 0) goto err_clear;
+	if(r) goto err_clear;
 
 	ext = onig_get_regex_ext(env->reg);
 	if(IS_NULL(ext)) {
@@ -7021,7 +7021,7 @@ named_group2:
 						    return ONIGERR_GROUP_NUMBER_OVER_FOR_CAPTURE_HISTORY;
 
 					    r = name_add(env->reg, name, name_end, num, env);
-					    if(r != 0) return r;
+					    if(r) return r;
 					    *np = node_new_memory(1);
 					    CHECK_NULL_RETURN_MEMERR(*np);
 					    BAG_(*np)->m.regnum = num;
@@ -7052,7 +7052,7 @@ named_group2:
 					    if(PPEEK_IS(')')) { /* (?~|)  : range clear */
 						    PINC;
 						    r = make_range_clear(np, env);
-						    if(r != 0) return r;
+						    if(r) return r;
 						    goto end;
 					    }
 				    }
@@ -7092,7 +7092,7 @@ named_group2:
 				    }
 
 				    r = make_absent_tree(np, absent, expr, is_range_cutter, env);
-				    if(r != 0) {
+				    if(r) {
 					    return r;
 				    }
 				    goto end;
@@ -7108,7 +7108,7 @@ named_group2:
 				    return ONIGERR_UNDEFINED_GROUP_OPTION;
 
 			    r = prs_callout_of_contents(np, ')', &p, end, env);
-			    if(r != 0) return r;
+			    if(r) return r;
 
 			    goto end;
 			    break;
@@ -7220,7 +7220,7 @@ named_group2:
 							    condition_is_checker = 0;
 							    PFETCH(c);
 							    r = prs_callout_of_contents(&condition, ')', &p, end, env);
-							    if(r != 0) return r;
+							    if(r) return r;
 							    goto end_condition;
 						    }
 					    }
@@ -7230,7 +7230,7 @@ named_group2:
 					IS_SYNTAX_OP2(env->syntax, ONIG_SYN_OP2_ASTERISK_CALLOUT_NAME)) {
 					    condition_is_checker = 0;
 					    r = prs_callout_of_name(&condition, ')', &p, end, env);
-					    if(r != 0) return r;
+					    if(r) return r;
 					    goto end_condition;
 				    }
 #endif
@@ -7488,7 +7488,7 @@ err_if_else:
 	    IS_SYNTAX_OP2(env->syntax, ONIG_SYN_OP2_ASTERISK_CALLOUT_NAME)) {
 		PINC;
 		r = prs_callout_of_name(np, ')', &p, end, env);
-		if(r != 0) return r;
+		if(r) return r;
 
 		goto end;
 	}
@@ -7519,7 +7519,7 @@ err_if_else:
 		if(BAG_(*np)->type == BAG_MEMORY) {
 			/* Don't move this to previous of prs_alts() */
 			r = scan_env_set_mem_node(env, BAG_(*np)->m.regnum, *np);
-			if(r != 0) return r;
+			if(r) return r;
 		}
 	}
 
@@ -7636,7 +7636,7 @@ static int clear_not_flag_cclass(CClassNode* cc, OnigEncoding enc)
 
 		if(!ONIGENC_IS_SINGLEBYTE(enc)) {
 			r = not_code_range_buf(enc, cc->mbuf, &tbuf);
-			if(r != 0) return r;
+			if(r) return r;
 
 			bbuf_free(cc->mbuf);
 			cc->mbuf = tbuf;
@@ -7959,7 +7959,7 @@ tk_crude_byte_end:
 				CHECK_NULL_RETURN_MEMERR(*np);
 				cc = CCLASS_(*np);
 				r = add_ctype_to_cc(cc, tok->u.prop.ctype, FALSE, env);
-				if(r != 0) {
+				if(r) {
 					onig_node_free(*np);
 					*np = NULL_NODE;
 					return r;
@@ -7975,14 +7975,14 @@ tk_crude_byte_end:
 	    break;
 		case TK_CHAR_PROPERTY:
 		    r = prs_char_property(np, tok, src, end, env);
-		    if(r != 0) 
+		    if(r) 
 				return r;
 		    break;
 		case TK_OPEN_CC:
 	    {
 		    CClassNode * cc;
 		    r = prs_cc(np, tok, src, end, env);
-		    if(r != 0) 
+		    if(r) 
 				return r;
 		    cc = CCLASS_(*np);
 		    if(OPTON_IGNORECASE(env->options)) {
@@ -7992,7 +7992,7 @@ tk_crude_byte_end:
 			    iarg.alt_root = NULL_NODE;
 			    iarg.ptail    = &(iarg.alt_root);
 			    r = ONIGENC_APPLY_ALL_CASE_FOLD(env->enc, env->case_fold_flag, i_apply_case_fold, &iarg);
-			    if(r != 0) {
+			    if(r) {
 				    onig_node_free(iarg.alt_root);
 				    return r;
 			    }
@@ -8126,7 +8126,7 @@ repeat:
 				NODE_BODY(en) = qn;
 				qn = en;
 			}
-			if(r == 0) {
+			if(!r) {
 				*tp = qn;
 			}
 			else if(r == 1) { /* x{1,1} ==> x */
@@ -8276,7 +8276,7 @@ static int prs_regexp(Node ** top, uchar ** src, uchar * end, ScanEnv* env)
 		NODE_BODY(x) = node;
 		BAG_(x)->m.regnum = 0;
 		r = scan_env_set_mem_node(env, 0, x);
-		if(r != 0) {
+		if(r) {
 			onig_node_free(x);
 			return r;
 		}
@@ -8313,13 +8313,13 @@ int onig_parse_tree(Node ** root, const uchar * pattern, const uchar * end, rege
 		return ONIGERR_INVALID_WIDE_CHAR_VALUE;
 	p = (uchar *)pattern;
 	r = prs_regexp(root, &p, (uchar *)end, env);
-	if(r != 0) 
+	if(r) 
 		return r;
 #ifdef USE_CALL
 	if(env->has_call_zero != 0) {
 		Node * zero_node;
 		r = make_call_zero_body(*root, env, &zero_node);
-		if(r != 0) 
+		if(r) 
 			return r;
 		*root = zero_node;
 	}

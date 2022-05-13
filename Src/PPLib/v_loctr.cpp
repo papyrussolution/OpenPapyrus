@@ -1090,7 +1090,7 @@ int PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					int r = disposer.Dispose(DispBillList, &logger, 1);
 					if(r > 0)
 						ok = Helper_BuildDispTable(1, 1) ? 1 : PPErrorZ();
-					else if(r == 0)
+					else if(!r)
 						ok = PPErrorZ();
 				}
 				break;
@@ -1131,7 +1131,7 @@ int PPViewLocTransf::ProcessCommand(uint ppvCmd, const void * pHdr, PPViewBrowse
 					}
 					if(bill_id) {
 						int    r = BillObj->Edit(&bill_id, 0);
-						if(r == 0)
+						if(!r)
 							ok = PPErrorZ();
 						else if(r > 0)
 							ok = 1;

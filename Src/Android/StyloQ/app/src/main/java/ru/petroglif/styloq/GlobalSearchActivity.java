@@ -115,7 +115,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					View vg = findViewById(R.id.LAYOUT_ACTIVITYROOT);
 					if(vg != null && vg instanceof ViewGroup)
 						SLib.SubstituteStringSignatures(app_ctx, (ViewGroup)vg);
-					SetupRecyclerListView(null, R.id.CTL_GLOBALSEARCH_RESULTLIST, R.layout.global_search_list_item);
+					SetupRecyclerListView(null, R.id.CTL_GLOBALSEARCH_RESULTLIST, R.layout.li_global_search);
 					//
 					View inpv = findViewById(R.id.CTL_GLOBALSEARCH_INPUT);
 					if(inpv != null && inpv instanceof SearchView)
@@ -142,7 +142,7 @@ public class GlobalSearchActivity extends SLib.SlActivity implements SearchView.
 					SLib.RecyclerListAdapter adapter = (srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
 					int _count = 0;
 					if(adapter != null) {
-						if(adapter.GetRcId() == R.layout.global_search_list_item && JsResultList != null)
+						if(adapter.GetRcId() == R.layout.li_global_search && JsResultList != null)
 							_count = JsResultList.length();
 					}
 					result = new Integer(_count);

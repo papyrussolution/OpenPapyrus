@@ -16,7 +16,7 @@
 #pragma hdrstop
 
 // This function is here to help applications to prevent mixing lcms versions on header and shared objects.
-int CMSEXPORT cmsGetEncodedCMMversion(void)
+int CMSEXPORT cmsGetEncodedCMMversion()
 {
 	return LCMS_VERSION;
 }
@@ -358,10 +358,15 @@ void * _cmsSubAllocDup(_cmsSubAllocator* s, const void * ptr, uint32 size)
 
 #define MAX_ERROR_MESSAGE_LEN   1024
 
-// ---------------------------------------------------------------------------------------------------------
-
-// This is our default log error
-static void DefaultLogErrorHandlerFunction(cmsContext ContextID, uint32 ErrorCode, const char * Text);
+// The default error logger does nothing.
+static void DefaultLogErrorHandlerFunction(FILE * fOut, cmsContext ContextID, uint32 ErrorCode, const char * Text)
+{
+	// slfprintf_stderr("[lcms]: %s\n", Text);
+	// fflush(stderr);
+	CXX_UNUSED(ContextID);
+	CXX_UNUSED(ErrorCode);
+	CXX_UNUSED(Text);
+}
 
 // Context0 storage, which is global
 _cmsLogErrorChunkType _cmsLogErrorChunk = { DefaultLogErrorHandlerFunction };
@@ -375,20 +380,10 @@ void _cmsAllocLogErrorChunk(struct _cmsContext_struct* ctx, const struct _cmsCon
 	ctx->chunks[Logger] = _cmsSubAllocDup(ctx->MemPool, from, sizeof(_cmsLogErrorChunkType));
 }
 
-// The default error logger does nothing.
-static void DefaultLogErrorHandlerFunction(cmsContext ContextID, uint32 ErrorCode, const char * Text)
-{
-	// slfprintf_stderr("[lcms]: %s\n", Text);
-	// fflush(stderr);
-	CXX_UNUSED(ContextID);
-	CXX_UNUSED(ErrorCode);
-	CXX_UNUSED(Text);
-}
-
 // Change log error, context based
 void CMSEXPORT cmsSetLogErrorHandlerTHR(cmsContext ContextID, cmsLogErrorHandlerFunction Fn)
 {
-	_cmsLogErrorChunkType* lhg = (_cmsLogErrorChunkType*)_cmsContextGetClientChunk(ContextID, Logger);
+	_cmsLogErrorChunkType * lhg = (_cmsLogErrorChunkType*)_cmsContextGetClientChunk(ContextID, Logger);
 	if(lhg)
 		lhg->LogErrorHandler = Fn ? Fn : DefaultLogErrorHandlerFunction;
 }
@@ -412,7 +407,7 @@ void CMSEXPORT cmsSignalError(cmsContext ContextID, uint32 ErrorCode, const char
 	// Check for the context, if specified go there. If not, go for the global
 	lhg = (_cmsLogErrorChunkType*)_cmsContextGetClientChunk(ContextID, Logger);
 	if(lhg->LogErrorHandler) {
-		lhg->LogErrorHandler(ContextID, ErrorCode, Buffer);
+		lhg->LogErrorHandler(stderr, ContextID, ErrorCode, Buffer);
 	}
 }
 

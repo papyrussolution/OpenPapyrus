@@ -267,7 +267,7 @@ typedef struct sqlite3 sqlite3;
 typedef SQLITE_INT64_TYPE sqlite_int64;
 #ifdef SQLITE_UINT64_TYPE
 typedef SQLITE_UINT64_TYPE sqlite_uint64;
-# else
+#else
 typedef unsigned SQLITE_INT64_TYPE sqlite_uint64;
 #endif
 #elif defined(_MSC_VER) || defined(__BORLANDC__)

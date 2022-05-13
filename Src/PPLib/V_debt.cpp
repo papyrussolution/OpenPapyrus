@@ -1471,7 +1471,7 @@ int FASTCALL PPViewDebtTrnovr::NextIteration(DebtTrnovrViewItem * pItem)
 			if(P_IterBillList) {
 				if((r = NextInnerIteration(1, pItem)) > 0)
 					return 1;
-				if(r == 0)
+				if(!r)
 					return 0;
 			}
 			else {
@@ -3791,7 +3791,7 @@ int PrcssrDebtRate::Run()
 					double rckn = 0.0;
 					int    rckn_inited = 0;
 					int    r = ArObj.GetClientAgreement(ar_id, agt_rec, 0);
-					if(r == 0)
+					if(!r)
 						logger.LogLastError();
 					else {
 						do_set_stop = 0;

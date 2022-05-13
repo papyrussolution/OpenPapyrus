@@ -1513,13 +1513,11 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff, si
 		if(ret != ARCHIVE_OK)
 			return ret;
 	}
-
 	compressed_buf = __archive_read_ahead(a, 1, &bytes_avail);
 	if(bytes_avail < 0) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_FILE_FORMAT, "Truncated xz file body");
 		return ARCHIVE_FATAL;
 	}
-
 	in_bytes = zipmin(zip->entry_bytes_remaining, bytes_avail);
 	zip->zipx_lzma_stream.next_in = (const uint8 *)compressed_buf;
 	zip->zipx_lzma_stream.avail_in = in_bytes;
@@ -1527,7 +1525,6 @@ static int zip_read_data_zipx_xz(struct archive_read * a, const void ** buff, si
 	zip->zipx_lzma_stream.next_out = zip->uncompressed_buffer;
 	zip->zipx_lzma_stream.avail_out = zip->uncompressed_buffer_size;
 	zip->zipx_lzma_stream.total_out = 0;
-
 	/* Perform the decompression. */
 	lz_ret = lzma_code(&zip->zipx_lzma_stream, LZMA_RUN);
 	switch(lz_ret) {
@@ -2380,7 +2377,7 @@ static int init_WinZip_AES_decryption(struct archive_read * a)
 		memzero(derived_key, sizeof(derived_key));
 		r = archive_pbkdf2_sha1(passphrase, strlen(passphrase),
 			reinterpret_cast<const uint8 *>(p), salt_len, 1000, derived_key, key_len * 2 + 2);
-		if(r != 0) {
+		if(r) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Decryption is unsupported due to lack of crypto library");
 			return ARCHIVE_FAILED;
 		}
@@ -2396,12 +2393,12 @@ static int init_WinZip_AES_decryption(struct archive_read * a)
 	}
 
 	r = archive_decrypto_aes_ctr_init(&zip->cctx, derived_key, key_len);
-	if(r != 0) {
+	if(r) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Decryption is unsupported due to lack of crypto library");
 		return ARCHIVE_FAILED;
 	}
 	r = archive_hmac_sha1_init(&zip->hctx, derived_key + key_len, key_len);
-	if(r != 0) {
+	if(r) {
 		archive_decrypto_aes_ctr_release(&zip->cctx);
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Failed to initialize HMAC-SHA1");
 		return ARCHIVE_FAILED;

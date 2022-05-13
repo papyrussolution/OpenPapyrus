@@ -1623,7 +1623,7 @@ char * IntlTest::getUnidataPath(char path[])
 	// at the time ICU was built, and look there.
 #ifdef U_TOPSRCDIR
 	strcpy(path, U_TOPSRCDIR U_FILE_SEP_STRING "data");
-#   else
+#else
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const char * testDataPath = loadTestData(errorCode);
 	if(U_FAILURE(errorCode)) {

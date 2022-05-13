@@ -113,7 +113,7 @@ static int slg_new(BIO * bi)
 
 static int slg_free(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 	xcloselog(a);
 	return 1;

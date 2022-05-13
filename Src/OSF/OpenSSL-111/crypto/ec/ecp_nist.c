@@ -87,7 +87,7 @@ int ec_GFp_nist_group_set_curve(EC_GROUP * group, const BIGNUM * p,
 	int ret = 0;
 	BN_CTX * new_ctx = NULL;
 
-	if(ctx == NULL)
+	if(!ctx)
 		if((ctx = new_ctx = BN_CTX_new()) == NULL)
 			return 0;
 

@@ -17,7 +17,7 @@
 /* This call frees resources associated with the context */
 int EVP_MD_CTX_reset(EVP_MD_CTX * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return 1;
 
 	/*
@@ -152,7 +152,7 @@ skip_to_init:
 
 int FASTCALL EVP_DigestUpdate(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
-	if(count == 0)
+	if(!count)
 		return 1;
 	return ctx->update(ctx, data, count);
 }
@@ -275,7 +275,7 @@ int EVP_Digest(const void * data, size_t count,
 	EVP_MD_CTX * ctx = EVP_MD_CTX_new();
 	int ret;
 
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	EVP_MD_CTX_set_flags(ctx, EVP_MD_CTX_FLAG_ONESHOT);
 	ret = EVP_DigestInit_ex(ctx, type, impl)

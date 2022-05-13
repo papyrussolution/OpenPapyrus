@@ -44,7 +44,7 @@
 
 bool LmdbDatabase::ProcessError(int r)
 {
-	if(r == 0)
+	if(!r)
 		return true;
 	else {
 		LastErr = r;

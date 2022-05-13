@@ -39,7 +39,7 @@
 #if !defined _LIBC && defined __GNU_LIBRARY__ && __GNU_LIBRARY__ > 1
 #include <gnu-versions.h>
 #if _GNU_OBSTACK_INTERFACE_VERSION == OBSTACK_INTERFACE_VERSION
-#  define ELIDE_CODE
+#define ELIDE_CODE
 #endif
 #endif
 
@@ -74,7 +74,7 @@ enum {
    in such a case, redefine COPYING_UNIT to 'long' (if that works)
    or 'char' as a last resort.  */
 # ifndef COPYING_UNIT
-#  define COPYING_UNIT int
+#define COPYING_UNIT int
 #endif
 
 /* The functions allocating more room by calling 'obstack_chunk_alloc'
@@ -96,13 +96,13 @@ void (* obstack_alloc_failed_handler) (void) = print_and_abort;
 #endif
 
 # ifdef _LIBC
-#  if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_4)
+#if SHLIB_COMPAT(libc, GLIBC_2_0, GLIBC_2_3_4)
 /* A looong time ago (before 1994, anyway; we're not sure) this global variable
    was used by non-GNU-C macros to avoid multiple evaluation.  The GNU C
    library still exports it because somebody might use it.  */
 struct obstack * _obstack_compat;
 compat_symbol(libc, _obstack_compat, _obstack, GLIBC_2_0);
-#  endif
+#endif
 #endif
 
 /* Define a macro that either calls functions with the traditional malloc/free

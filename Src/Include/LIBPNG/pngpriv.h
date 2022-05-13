@@ -254,7 +254,7 @@
  * always compiles twice, even on systems where it isn't necessary.  Set
  * PNG_BUILD_DLL in case it is necessary:
  */
-#     define PNG_BUILD_DLL
+#define PNG_BUILD_DLL
 #else
 #ifdef _WINDLL
 /* This is set by the Microsoft Visual Studio IDE in projects that
@@ -457,7 +457,7 @@
  * <fp.h> if possible.
  */
 #if !defined(__MATH_H__) && !defined(__MATH_H) && !defined(__cmath__)
-#      include <fp.h>
+#include <fp.h>
 #endif
 #else
 	//#include <math.h>
@@ -523,7 +523,7 @@
 #define png_alignof(type) (sizeof(type))
 #else
 #if PNG_ALIGN_TYPE == PNG_ALIGN_OFFSET
-#     define png_alignof(type) offsetof(struct {char c; type t; }, t)
+#define png_alignof(type) offsetof(struct {char c; type t; }, t)
 #else
 #     if PNG_ALIGN_TYPE == PNG_ALIGN_ALWAYS
 #define png_alignof(type) (1)

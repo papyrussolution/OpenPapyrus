@@ -357,7 +357,7 @@ int crypt_set_algorithms_server(ssh_session session){
 	struct ssh_hmac_struct   * ssh_hmactab = ssh_get_hmactab();
 	int cmp;
 
-	if(session == NULL) {
+	if(!session) {
 		return SSH_ERROR;
 	}
 

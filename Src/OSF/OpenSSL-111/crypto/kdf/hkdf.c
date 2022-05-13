@@ -159,7 +159,7 @@ static int pkey_hkdf_derive(EVP_PKEY_CTX * ctx, uchar * key, size_t * keylen)
 		case EVP_PKEY_HKDEF_MODE_EXTRACT_AND_EXPAND:
 		    return HKDF(kctx->md, kctx->salt, kctx->salt_len, kctx->key, kctx->key_len, kctx->info, kctx->info_len, key, *keylen) != NULL;
 		case EVP_PKEY_HKDEF_MODE_EXTRACT_ONLY:
-		    if(key == NULL) {
+		    if(!key) {
 			    *keylen = EVP_MD_size(kctx->md);
 			    return 1;
 		    }

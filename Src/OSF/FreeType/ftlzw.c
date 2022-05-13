@@ -122,7 +122,7 @@ static FT_Error ft_lzw_file_fill_output(FT_LZWFile zip)
 	zip->cursor = zip->buffer;
 	count = ft_lzwstate_io(lzw, zip->buffer, FT_LZW_BUFFER_SIZE);
 	zip->limit = zip->cursor + count;
-	if(count == 0)
+	if(!count)
 		error = FT_THROW(Invalid_Stream_Operation);
 	return error;
 }
@@ -182,7 +182,7 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip, FT_ULong pos, FT_Byte*    buffer,
 		if(error)
 			goto Exit;
 	}
-	if(count == 0)
+	if(!count)
 		goto Exit;
 	/* now read the data */
 	for(;;) {
@@ -194,7 +194,7 @@ static FT_ULong ft_lzw_file_io(FT_LZWFile zip, FT_ULong pos, FT_Byte*    buffer,
 		zip->cursor += delta;
 		zip->pos    += delta;
 		count -= delta;
-		if(count == 0)
+		if(!count)
 			break;
 		error = ft_lzw_file_fill_output(zip);
 		if(error)

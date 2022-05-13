@@ -212,7 +212,7 @@ U_CAPI USpoofChecker * U_EXPORT2 uspoof_openFromSerialized(const void * data, in
 
 U_CAPI USpoofChecker * U_EXPORT2 uspoof_clone(const USpoofChecker * sc, UErrorCode * status) {
 	const SpoofImpl * src = SpoofImpl::validateThis(sc, *status);
-	if(src == NULL) {
+	if(!src) {
 		return NULL;
 	}
 	SpoofImpl * result = new SpoofImpl(*src, *status); // copy constructor

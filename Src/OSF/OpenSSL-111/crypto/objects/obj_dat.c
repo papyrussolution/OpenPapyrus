@@ -317,7 +317,7 @@ int OBJ_obj2nid(const ASN1_OBJECT * a)
 {
 	const uint * op;
 	ADDED_OBJ ad, * adp;
-	if(a == NULL)
+	if(!a)
 		return NID_undef;
 	if(a->nid != 0)
 		return a->nid;

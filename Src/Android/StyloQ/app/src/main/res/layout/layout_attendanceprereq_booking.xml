@@ -37,7 +37,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_weight="1"
-                        android:textColor="@color/PrimaryText"
+                        android:textColor="@color/TextPrimary"
                         />
                 </LinearLayout>
                 <LinearLayout
@@ -57,7 +57,7 @@
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
                         android:layout_weight="1"
-                        android:textColor="@color/PrimaryText"
+                        android:textColor="@color/TextPrimary"
                         />
                 </LinearLayout>
             </LinearLayout>
@@ -70,7 +70,7 @@
                     android:id="@+id/CTL_DOCUMENT_PRC"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
-                    android:textColor="@color/PrimaryText"
+                    android:textColor="@color/TextPrimary"
                     />
             </LinearLayout>
             <LinearLayout
@@ -82,7 +82,7 @@
                     android:id="@+id/CTL_DOCUMENT_TIMECHUNK"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"
-                    android:textColor="@color/PrimaryText"
+                    android:textColor="@color/TextPrimary"
                     />
             </LinearLayout>
         </LinearLayout>

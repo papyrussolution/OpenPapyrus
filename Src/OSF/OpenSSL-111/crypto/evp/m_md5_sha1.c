@@ -54,7 +54,7 @@ static int ctrl(EVP_MD_CTX * ctx, int cmd, int mslen, void * ms)
 	struct md5_sha1_ctx * mctx;
 	if(cmd != EVP_CTRL_SSL3_MASTER_SECRET)
 		return -2;
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	mctx = static_cast<md5_sha1_ctx *>(EVP_MD_CTX_md_data(ctx));
 	/* SSLv3 client auth handling: see RFC-6101 5.6.8 */

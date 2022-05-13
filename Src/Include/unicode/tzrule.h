@@ -1,10 +1,7 @@
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- * Copyright (C) 2007-2008, International Business Machines Corporation and others. All Rights Reserved.
- *******************************************************************************
- */
+// Copyright (C) 2007-2008, International Business Machines Corporation and others. All Rights Reserved.
+//
 #ifndef TZRULE_H
 #define TZRULE_H
 
@@ -823,9 +820,5 @@ public:
 U_NAMESPACE_END
 
 #endif /* #if !UCONFIG_NO_FORMATTING */
-
 #endif /* U_SHOW_CPLUSPLUS_API */
-
 #endif // TZRULE_H
-
-//eof

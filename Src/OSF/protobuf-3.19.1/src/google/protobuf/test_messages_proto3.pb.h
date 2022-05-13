@@ -1429,16 +1429,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_nested_message();
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* mutable_repeated_nested_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage >*
-      mutable_repeated_nested_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage > * mutable_repeated_nested_message();
   private:
   const ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage& _internal_repeated_nested_message(int index) const;
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* _internal_add_repeated_nested_message();
   public:
   const ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage& repeated_nested_message(int index) const;
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* add_repeated_nested_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage >&
-      repeated_nested_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage > & repeated_nested_message() const;
 
   // repeated .protobuf_test_messages.proto3.ForeignMessage repeated_foreign_message = 49;
   int repeated_foreign_message_size() const;
@@ -1447,16 +1445,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_foreign_message();
   ::protobuf_test_messages::proto3::ForeignMessage* mutable_repeated_foreign_message(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::ForeignMessage >*
-      mutable_repeated_foreign_message();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::ForeignMessage > * mutable_repeated_foreign_message();
   private:
   const ::protobuf_test_messages::proto3::ForeignMessage& _internal_repeated_foreign_message(int index) const;
   ::protobuf_test_messages::proto3::ForeignMessage* _internal_add_repeated_foreign_message();
   public:
   const ::protobuf_test_messages::proto3::ForeignMessage& repeated_foreign_message(int index) const;
   ::protobuf_test_messages::proto3::ForeignMessage* add_repeated_foreign_message();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::ForeignMessage >&
-      repeated_foreign_message() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::protobuf_test_messages::proto3::ForeignMessage > & repeated_foreign_message() const;
 
   // repeated .protobuf_test_messages.proto3.TestAllTypesProto3.NestedEnum repeated_nested_enum = 51;
   int repeated_nested_enum_size() const;
@@ -2482,16 +2478,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_bool_wrapper();
   ::PROTOBUF_NAMESPACE_ID::BoolValue* mutable_repeated_bool_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BoolValue >*
-      mutable_repeated_bool_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BoolValue > * mutable_repeated_bool_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::BoolValue& _internal_repeated_bool_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::BoolValue* _internal_add_repeated_bool_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::BoolValue& repeated_bool_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::BoolValue* add_repeated_bool_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BoolValue >&
-      repeated_bool_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BoolValue > & repeated_bool_wrapper() const;
 
   // repeated .google.protobuf.Int32Value repeated_int32_wrapper = 212;
   int repeated_int32_wrapper_size() const;
@@ -2500,16 +2494,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_int32_wrapper();
   ::PROTOBUF_NAMESPACE_ID::Int32Value* mutable_repeated_int32_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int32Value >*
-      mutable_repeated_int32_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int32Value > * mutable_repeated_int32_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Int32Value& _internal_repeated_int32_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Int32Value* _internal_add_repeated_int32_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Int32Value& repeated_int32_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Int32Value* add_repeated_int32_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int32Value >&
-      repeated_int32_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int32Value > & repeated_int32_wrapper() const;
 
   // repeated .google.protobuf.Int64Value repeated_int64_wrapper = 213;
   int repeated_int64_wrapper_size() const;
@@ -2518,16 +2510,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_int64_wrapper();
   ::PROTOBUF_NAMESPACE_ID::Int64Value* mutable_repeated_int64_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int64Value >*
-      mutable_repeated_int64_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int64Value > * mutable_repeated_int64_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Int64Value& _internal_repeated_int64_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Int64Value* _internal_add_repeated_int64_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Int64Value& repeated_int64_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Int64Value* add_repeated_int64_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int64Value >&
-      repeated_int64_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Int64Value > & repeated_int64_wrapper() const;
 
   // repeated .google.protobuf.UInt32Value repeated_uint32_wrapper = 214;
   int repeated_uint32_wrapper_size() const;
@@ -2536,16 +2526,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_uint32_wrapper();
   ::PROTOBUF_NAMESPACE_ID::UInt32Value* mutable_repeated_uint32_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt32Value >*
-      mutable_repeated_uint32_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt32Value > * mutable_repeated_uint32_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::UInt32Value& _internal_repeated_uint32_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::UInt32Value* _internal_add_repeated_uint32_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::UInt32Value& repeated_uint32_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::UInt32Value* add_repeated_uint32_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt32Value >&
-      repeated_uint32_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt32Value > & repeated_uint32_wrapper() const;
 
   // repeated .google.protobuf.UInt64Value repeated_uint64_wrapper = 215;
   int repeated_uint64_wrapper_size() const;
@@ -2554,16 +2542,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_uint64_wrapper();
   ::PROTOBUF_NAMESPACE_ID::UInt64Value* mutable_repeated_uint64_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt64Value >*
-      mutable_repeated_uint64_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt64Value > * mutable_repeated_uint64_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::UInt64Value& _internal_repeated_uint64_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::UInt64Value* _internal_add_repeated_uint64_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::UInt64Value& repeated_uint64_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::UInt64Value* add_repeated_uint64_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt64Value >&
-      repeated_uint64_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::UInt64Value > & repeated_uint64_wrapper() const;
 
   // repeated .google.protobuf.FloatValue repeated_float_wrapper = 216;
   int repeated_float_wrapper_size() const;
@@ -2572,16 +2558,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_float_wrapper();
   ::PROTOBUF_NAMESPACE_ID::FloatValue* mutable_repeated_float_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FloatValue >*
-      mutable_repeated_float_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FloatValue > * mutable_repeated_float_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::FloatValue& _internal_repeated_float_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FloatValue* _internal_add_repeated_float_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::FloatValue& repeated_float_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FloatValue* add_repeated_float_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FloatValue >&
-      repeated_float_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FloatValue > & repeated_float_wrapper() const;
 
   // repeated .google.protobuf.DoubleValue repeated_double_wrapper = 217;
   int repeated_double_wrapper_size() const;
@@ -2590,16 +2574,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_double_wrapper();
   ::PROTOBUF_NAMESPACE_ID::DoubleValue* mutable_repeated_double_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DoubleValue >*
-      mutable_repeated_double_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DoubleValue > * mutable_repeated_double_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue& _internal_repeated_double_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::DoubleValue* _internal_add_repeated_double_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::DoubleValue& repeated_double_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::DoubleValue* add_repeated_double_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DoubleValue >&
-      repeated_double_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::DoubleValue > & repeated_double_wrapper() const;
 
   // repeated .google.protobuf.StringValue repeated_string_wrapper = 218;
   int repeated_string_wrapper_size() const;
@@ -2608,16 +2590,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_string_wrapper();
   ::PROTOBUF_NAMESPACE_ID::StringValue* mutable_repeated_string_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::StringValue >*
-      mutable_repeated_string_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::StringValue > * mutable_repeated_string_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::StringValue& _internal_repeated_string_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::StringValue* _internal_add_repeated_string_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::StringValue& repeated_string_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::StringValue* add_repeated_string_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::StringValue >&
-      repeated_string_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::StringValue > & repeated_string_wrapper() const;
 
   // repeated .google.protobuf.BytesValue repeated_bytes_wrapper = 219;
   int repeated_bytes_wrapper_size() const;
@@ -2626,16 +2606,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_bytes_wrapper();
   ::PROTOBUF_NAMESPACE_ID::BytesValue* mutable_repeated_bytes_wrapper(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BytesValue >*
-      mutable_repeated_bytes_wrapper();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BytesValue > * mutable_repeated_bytes_wrapper();
   private:
   const ::PROTOBUF_NAMESPACE_ID::BytesValue& _internal_repeated_bytes_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::BytesValue* _internal_add_repeated_bytes_wrapper();
   public:
   const ::PROTOBUF_NAMESPACE_ID::BytesValue& repeated_bytes_wrapper(int index) const;
   ::PROTOBUF_NAMESPACE_ID::BytesValue* add_repeated_bytes_wrapper();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BytesValue >&
-      repeated_bytes_wrapper() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::BytesValue > & repeated_bytes_wrapper() const;
 
   // repeated .google.protobuf.Duration repeated_duration = 311;
   int repeated_duration_size() const;
@@ -2644,16 +2622,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_duration();
   ::PROTOBUF_NAMESPACE_ID::Duration* mutable_repeated_duration(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Duration >*
-      mutable_repeated_duration();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Duration > * mutable_repeated_duration();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Duration& _internal_repeated_duration(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Duration* _internal_add_repeated_duration();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Duration& repeated_duration(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Duration* add_repeated_duration();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Duration >&
-      repeated_duration() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Duration > & repeated_duration() const;
 
   // repeated .google.protobuf.Timestamp repeated_timestamp = 312;
   int repeated_timestamp_size() const;
@@ -2662,16 +2638,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_timestamp();
   ::PROTOBUF_NAMESPACE_ID::Timestamp* mutable_repeated_timestamp(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp >*
-      mutable_repeated_timestamp();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp > * mutable_repeated_timestamp();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Timestamp& _internal_repeated_timestamp(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Timestamp* _internal_add_repeated_timestamp();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Timestamp& repeated_timestamp(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Timestamp* add_repeated_timestamp();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp >&
-      repeated_timestamp() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Timestamp > & repeated_timestamp() const;
 
   // repeated .google.protobuf.FieldMask repeated_fieldmask = 313;
   int repeated_fieldmask_size() const;
@@ -2680,16 +2654,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_fieldmask();
   ::PROTOBUF_NAMESPACE_ID::FieldMask* mutable_repeated_fieldmask(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >*
-      mutable_repeated_fieldmask();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > * mutable_repeated_fieldmask();
   private:
   const ::PROTOBUF_NAMESPACE_ID::FieldMask& _internal_repeated_fieldmask(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FieldMask* _internal_add_repeated_fieldmask();
   public:
   const ::PROTOBUF_NAMESPACE_ID::FieldMask& repeated_fieldmask(int index) const;
   ::PROTOBUF_NAMESPACE_ID::FieldMask* add_repeated_fieldmask();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask >&
-      repeated_fieldmask() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::FieldMask > & repeated_fieldmask() const;
 
   // repeated .google.protobuf.Any repeated_any = 315;
   int repeated_any_size() const;
@@ -2698,16 +2670,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_any();
   ::PROTOBUF_NAMESPACE_ID::Any* mutable_repeated_any(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >*
-      mutable_repeated_any();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > * mutable_repeated_any();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Any& _internal_repeated_any(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Any* _internal_add_repeated_any();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Any& repeated_any(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Any* add_repeated_any();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any >&
-      repeated_any() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Any > & repeated_any() const;
 
   // repeated .google.protobuf.Value repeated_value = 316;
   int repeated_value_size() const;
@@ -2716,16 +2686,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_value();
   ::PROTOBUF_NAMESPACE_ID::Value* mutable_repeated_value(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value >*
-      mutable_repeated_value();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value > * mutable_repeated_value();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Value& _internal_repeated_value(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Value* _internal_add_repeated_value();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Value& repeated_value(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Value* add_repeated_value();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value >&
-      repeated_value() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Value > & repeated_value() const;
 
   // repeated .google.protobuf.ListValue repeated_list_value = 317;
   int repeated_list_value_size() const;
@@ -2734,16 +2702,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_list_value();
   ::PROTOBUF_NAMESPACE_ID::ListValue* mutable_repeated_list_value(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ListValue >*
-      mutable_repeated_list_value();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ListValue > * mutable_repeated_list_value();
   private:
   const ::PROTOBUF_NAMESPACE_ID::ListValue& _internal_repeated_list_value(int index) const;
   ::PROTOBUF_NAMESPACE_ID::ListValue* _internal_add_repeated_list_value();
   public:
   const ::PROTOBUF_NAMESPACE_ID::ListValue& repeated_list_value(int index) const;
   ::PROTOBUF_NAMESPACE_ID::ListValue* add_repeated_list_value();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ListValue >&
-      repeated_list_value() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::ListValue > & repeated_list_value() const;
 
   // repeated .google.protobuf.Struct repeated_struct = 324;
   int repeated_struct_size() const;
@@ -2752,16 +2718,14 @@ class TestAllTypesProto3 final :
   public:
   void clear_repeated_struct();
   ::PROTOBUF_NAMESPACE_ID::Struct* mutable_repeated_struct(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Struct >*
-      mutable_repeated_struct();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Struct > * mutable_repeated_struct();
   private:
   const ::PROTOBUF_NAMESPACE_ID::Struct& _internal_repeated_struct(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Struct* _internal_add_repeated_struct();
   public:
   const ::PROTOBUF_NAMESPACE_ID::Struct& repeated_struct(int index) const;
   ::PROTOBUF_NAMESPACE_ID::Struct* add_repeated_struct();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Struct >&
-      repeated_struct() const;
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PROTOBUF_NAMESPACE_ID::Struct > & repeated_struct() const;
 
   // string optional_string = 14;
   void clear_optional_string();
@@ -4284,11 +4248,11 @@ inline const ::protobuf_test_messages::proto3::TestAllTypesProto3& TestAllTypesP
 }
 inline void TestAllTypesProto3_NestedMessage::unsafe_arena_set_allocated_corecursive(
     ::protobuf_test_messages::proto3::TestAllTypesProto3* corecursive) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(corecursive_);
   }
   corecursive_ = corecursive;
-  if (corecursive) {
+  if(corecursive) {
     
   } else {
     
@@ -4302,9 +4266,9 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4319,7 +4283,7 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3_
 }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3_NestedMessage::_internal_mutable_corecursive() {
   
-  if (corecursive_ == nullptr) {
+  if(corecursive_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_test_messages::proto3::TestAllTypesProto3>(GetArenaForAllocation());
     corecursive_ = p;
   }
@@ -4332,15 +4296,14 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3_
 }
 inline void TestAllTypesProto3_NestedMessage::set_allocated_corecursive(::protobuf_test_messages::proto3::TestAllTypesProto3* corecursive) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete corecursive_;
   }
-  if (corecursive) {
+  if(corecursive) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_test_messages::proto3::TestAllTypesProto3>::GetOwningArena(corecursive);
-    if (message_arena != submessage_arena) {
-      corecursive = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, corecursive, submessage_arena);
+    if(message_arena != submessage_arena) {
+      corecursive = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, corecursive, submessage_arena);
     }
     
   } else {
@@ -4746,11 +4709,11 @@ inline const ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage&
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_nested_message(
     ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* optional_nested_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_nested_message_);
   }
   optional_nested_message_ = optional_nested_message;
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     
   } else {
     
@@ -4764,9 +4727,9 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestA
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4781,7 +4744,7 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestA
 }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestAllTypesProto3::_internal_mutable_optional_nested_message() {
   
-  if (optional_nested_message_ == nullptr) {
+  if(optional_nested_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage>(GetArenaForAllocation());
     optional_nested_message_ = p;
   }
@@ -4794,15 +4757,14 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestA
 }
 inline void TestAllTypesProto3::set_allocated_optional_nested_message(::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* optional_nested_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_nested_message_;
   }
-  if (optional_nested_message) {
+  if(optional_nested_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage>::GetOwningArena(optional_nested_message);
-    if (message_arena != submessage_arena) {
-      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_nested_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_nested_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_nested_message, submessage_arena);
     }
     
   } else {
@@ -4836,11 +4798,11 @@ inline const ::protobuf_test_messages::proto3::ForeignMessage& TestAllTypesProto
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_foreign_message(
     ::protobuf_test_messages::proto3::ForeignMessage* optional_foreign_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_foreign_message_);
   }
   optional_foreign_message_ = optional_foreign_message;
-  if (optional_foreign_message) {
+  if(optional_foreign_message) {
     
   } else {
     
@@ -4854,9 +4816,9 @@ inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::rel
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -4871,7 +4833,7 @@ inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::uns
 }
 inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::_internal_mutable_optional_foreign_message() {
   
-  if (optional_foreign_message_ == nullptr) {
+  if(optional_foreign_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_test_messages::proto3::ForeignMessage>(GetArenaForAllocation());
     optional_foreign_message_ = p;
   }
@@ -4884,15 +4846,14 @@ inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::mut
 }
 inline void TestAllTypesProto3::set_allocated_optional_foreign_message(::protobuf_test_messages::proto3::ForeignMessage* optional_foreign_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete optional_foreign_message_;
   }
-  if (optional_foreign_message) {
+  if(optional_foreign_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_test_messages::proto3::ForeignMessage>::GetOwningArena(optional_foreign_message);
-    if (message_arena != submessage_arena) {
-      optional_foreign_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_foreign_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      optional_foreign_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_foreign_message, submessage_arena);
     }
     
   } else {
@@ -5076,11 +5037,11 @@ inline const ::protobuf_test_messages::proto3::TestAllTypesProto3& TestAllTypesP
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_recursive_message(
     ::protobuf_test_messages::proto3::TestAllTypesProto3* recursive_message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(recursive_message_);
   }
   recursive_message_ = recursive_message;
-  if (recursive_message) {
+  if(recursive_message) {
     
   } else {
     
@@ -5094,9 +5055,9 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3:
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -5111,7 +5072,7 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3:
 }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3::_internal_mutable_recursive_message() {
   
-  if (recursive_message_ == nullptr) {
+  if(recursive_message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_test_messages::proto3::TestAllTypesProto3>(GetArenaForAllocation());
     recursive_message_ = p;
   }
@@ -5124,15 +5085,14 @@ inline ::protobuf_test_messages::proto3::TestAllTypesProto3* TestAllTypesProto3:
 }
 inline void TestAllTypesProto3::set_allocated_recursive_message(::protobuf_test_messages::proto3::TestAllTypesProto3* recursive_message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete recursive_message_;
   }
-  if (recursive_message) {
+  if(recursive_message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_test_messages::proto3::TestAllTypesProto3>::GetOwningArena(recursive_message);
-    if (message_arena != submessage_arena) {
-      recursive_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, recursive_message, submessage_arena);
+    if(message_arena != submessage_arena) {
+      recursive_message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, recursive_message, submessage_arena);
     }
     
   } else {
@@ -5830,16 +5790,15 @@ TestAllTypesProto3::mutable_repeated_nested_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_message)
   return &repeated_nested_message_;
 }
-inline const ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage& TestAllTypesProto3::_internal_repeated_nested_message(int index) const {
-  return repeated_nested_message_.Get(index);
+inline const ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage& TestAllTypesProto3::_internal_repeated_nested_message(int index) const
+{
+ return repeated_nested_message_.Get(index);
 }
 inline const ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage& TestAllTypesProto3::repeated_nested_message(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_message)
   return _internal_repeated_nested_message(index);
 }
-inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestAllTypesProto3::_internal_add_repeated_nested_message() {
-  return repeated_nested_message_.Add();
-}
+inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestAllTypesProto3::_internal_add_repeated_nested_message() { return repeated_nested_message_.Add(); }
 inline ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* TestAllTypesProto3::add_repeated_nested_message() {
   ::protobuf_test_messages::proto3::TestAllTypesProto3_NestedMessage* _add = _internal_add_repeated_nested_message();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_nested_message)
@@ -5868,16 +5827,15 @@ TestAllTypesProto3::mutable_repeated_foreign_message() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_message)
   return &repeated_foreign_message_;
 }
-inline const ::protobuf_test_messages::proto3::ForeignMessage& TestAllTypesProto3::_internal_repeated_foreign_message(int index) const {
-  return repeated_foreign_message_.Get(index);
+inline const ::protobuf_test_messages::proto3::ForeignMessage& TestAllTypesProto3::_internal_repeated_foreign_message(int index) const
+{
+ return repeated_foreign_message_.Get(index);
 }
 inline const ::protobuf_test_messages::proto3::ForeignMessage& TestAllTypesProto3::repeated_foreign_message(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_message)
   return _internal_repeated_foreign_message(index);
 }
-inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::_internal_add_repeated_foreign_message() {
-  return repeated_foreign_message_.Add();
-}
+inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::_internal_add_repeated_foreign_message() { return repeated_foreign_message_.Add(); }
 inline ::protobuf_test_messages::proto3::ForeignMessage* TestAllTypesProto3::add_repeated_foreign_message() {
   ::protobuf_test_messages::proto3::ForeignMessage* _add = _internal_add_repeated_foreign_message();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_foreign_message)
@@ -8263,11 +8221,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& TestAllTypesProto3::optional_bo
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_bool_wrapper(
     ::PROTOBUF_NAMESPACE_ID::BoolValue* optional_bool_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bool_wrapper_);
   }
   optional_bool_wrapper_ = optional_bool_wrapper;
-  if (optional_bool_wrapper) {
+  if(optional_bool_wrapper) {
     
   } else {
     
@@ -8281,9 +8239,9 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::release_optional_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8298,7 +8256,7 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::unsafe_arena_rele
 }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::_internal_mutable_optional_bool_wrapper() {
   
-  if (optional_bool_wrapper_ == nullptr) {
+  if(optional_bool_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::BoolValue>(GetArenaForAllocation());
     optional_bool_wrapper_ = p;
   }
@@ -8311,17 +8269,15 @@ inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::mutable_optional_
 }
 inline void TestAllTypesProto3::set_allocated_optional_bool_wrapper(::PROTOBUF_NAMESPACE_ID::BoolValue* optional_bool_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bool_wrapper_);
   }
-  if (optional_bool_wrapper) {
+  if(optional_bool_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bool_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_bool_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_bool_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bool_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_bool_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_bool_wrapper, submessage_arena);
     }
     
   } else {
@@ -8349,11 +8305,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& TestAllTypesProto3::optional_i
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_int32_wrapper(
     ::PROTOBUF_NAMESPACE_ID::Int32Value* optional_int32_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int32_wrapper_);
   }
   optional_int32_wrapper_ = optional_int32_wrapper;
-  if (optional_int32_wrapper) {
+  if(optional_int32_wrapper) {
     
   } else {
     
@@ -8367,9 +8323,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::release_optional
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8384,7 +8340,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::unsafe_arena_rel
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::_internal_mutable_optional_int32_wrapper() {
   
-  if (optional_int32_wrapper_ == nullptr) {
+  if(optional_int32_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Int32Value>(GetArenaForAllocation());
     optional_int32_wrapper_ = p;
   }
@@ -8397,17 +8353,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::mutable_optional
 }
 inline void TestAllTypesProto3::set_allocated_optional_int32_wrapper(::PROTOBUF_NAMESPACE_ID::Int32Value* optional_int32_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int32_wrapper_);
   }
-  if (optional_int32_wrapper) {
+  if(optional_int32_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int32_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_int32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_int32_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int32_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_int32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_int32_wrapper, submessage_arena);
     }
     
   } else {
@@ -8435,11 +8389,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& TestAllTypesProto3::optional_i
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_int64_wrapper(
     ::PROTOBUF_NAMESPACE_ID::Int64Value* optional_int64_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int64_wrapper_);
   }
   optional_int64_wrapper_ = optional_int64_wrapper;
-  if (optional_int64_wrapper) {
+  if(optional_int64_wrapper) {
     
   } else {
     
@@ -8453,9 +8407,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::release_optional
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8470,7 +8424,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::unsafe_arena_rel
 }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::_internal_mutable_optional_int64_wrapper() {
   
-  if (optional_int64_wrapper_ == nullptr) {
+  if(optional_int64_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Int64Value>(GetArenaForAllocation());
     optional_int64_wrapper_ = p;
   }
@@ -8483,17 +8437,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::mutable_optional
 }
 inline void TestAllTypesProto3::set_allocated_optional_int64_wrapper(::PROTOBUF_NAMESPACE_ID::Int64Value* optional_int64_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int64_wrapper_);
   }
-  if (optional_int64_wrapper) {
+  if(optional_int64_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int64_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_int64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_int64_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_int64_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_int64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_int64_wrapper, submessage_arena);
     }
     
   } else {
@@ -8521,11 +8473,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& TestAllTypesProto3::optional_
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_uint32_wrapper(
     ::PROTOBUF_NAMESPACE_ID::UInt32Value* optional_uint32_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint32_wrapper_);
   }
   optional_uint32_wrapper_ = optional_uint32_wrapper;
-  if (optional_uint32_wrapper) {
+  if(optional_uint32_wrapper) {
     
   } else {
     
@@ -8539,9 +8491,9 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::release_optiona
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8556,7 +8508,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::unsafe_arena_re
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::_internal_mutable_optional_uint32_wrapper() {
   
-  if (optional_uint32_wrapper_ == nullptr) {
+  if(optional_uint32_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::UInt32Value>(GetArenaForAllocation());
     optional_uint32_wrapper_ = p;
   }
@@ -8569,17 +8521,15 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::mutable_optiona
 }
 inline void TestAllTypesProto3::set_allocated_optional_uint32_wrapper(::PROTOBUF_NAMESPACE_ID::UInt32Value* optional_uint32_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint32_wrapper_);
   }
-  if (optional_uint32_wrapper) {
+  if(optional_uint32_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint32_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_uint32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_uint32_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint32_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_uint32_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_uint32_wrapper, submessage_arena);
     }
     
   } else {
@@ -8607,11 +8557,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& TestAllTypesProto3::optional_
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_uint64_wrapper(
     ::PROTOBUF_NAMESPACE_ID::UInt64Value* optional_uint64_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint64_wrapper_);
   }
   optional_uint64_wrapper_ = optional_uint64_wrapper;
-  if (optional_uint64_wrapper) {
+  if(optional_uint64_wrapper) {
     
   } else {
     
@@ -8625,9 +8575,9 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::release_optiona
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8642,7 +8592,7 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::unsafe_arena_re
 }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::_internal_mutable_optional_uint64_wrapper() {
   
-  if (optional_uint64_wrapper_ == nullptr) {
+  if(optional_uint64_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::UInt64Value>(GetArenaForAllocation());
     optional_uint64_wrapper_ = p;
   }
@@ -8655,17 +8605,15 @@ inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::mutable_optiona
 }
 inline void TestAllTypesProto3::set_allocated_optional_uint64_wrapper(::PROTOBUF_NAMESPACE_ID::UInt64Value* optional_uint64_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint64_wrapper_);
   }
-  if (optional_uint64_wrapper) {
+  if(optional_uint64_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint64_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_uint64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_uint64_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_uint64_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_uint64_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_uint64_wrapper, submessage_arena);
     }
     
   } else {
@@ -8693,11 +8641,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& TestAllTypesProto3::optional_f
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_float_wrapper(
     ::PROTOBUF_NAMESPACE_ID::FloatValue* optional_float_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_float_wrapper_);
   }
   optional_float_wrapper_ = optional_float_wrapper;
-  if (optional_float_wrapper) {
+  if(optional_float_wrapper) {
     
   } else {
     
@@ -8711,9 +8659,9 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::release_optional
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8728,7 +8676,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::unsafe_arena_rel
 }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::_internal_mutable_optional_float_wrapper() {
   
-  if (optional_float_wrapper_ == nullptr) {
+  if(optional_float_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::FloatValue>(GetArenaForAllocation());
     optional_float_wrapper_ = p;
   }
@@ -8741,17 +8689,15 @@ inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::mutable_optional
 }
 inline void TestAllTypesProto3::set_allocated_optional_float_wrapper(::PROTOBUF_NAMESPACE_ID::FloatValue* optional_float_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_float_wrapper_);
   }
-  if (optional_float_wrapper) {
+  if(optional_float_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_float_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_float_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_float_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_float_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_float_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_float_wrapper, submessage_arena);
     }
     
   } else {
@@ -8779,11 +8725,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& TestAllTypesProto3::optional_
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_double_wrapper(
     ::PROTOBUF_NAMESPACE_ID::DoubleValue* optional_double_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_double_wrapper_);
   }
   optional_double_wrapper_ = optional_double_wrapper;
-  if (optional_double_wrapper) {
+  if(optional_double_wrapper) {
     
   } else {
     
@@ -8797,9 +8743,9 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::release_optiona
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8814,7 +8760,7 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::unsafe_arena_re
 }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::_internal_mutable_optional_double_wrapper() {
   
-  if (optional_double_wrapper_ == nullptr) {
+  if(optional_double_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::DoubleValue>(GetArenaForAllocation());
     optional_double_wrapper_ = p;
   }
@@ -8827,17 +8773,15 @@ inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::mutable_optiona
 }
 inline void TestAllTypesProto3::set_allocated_optional_double_wrapper(::PROTOBUF_NAMESPACE_ID::DoubleValue* optional_double_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_double_wrapper_);
   }
-  if (optional_double_wrapper) {
+  if(optional_double_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_double_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_double_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_double_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_double_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_double_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_double_wrapper, submessage_arena);
     }
     
   } else {
@@ -8865,11 +8809,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::StringValue& TestAllTypesProto3::optional_
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_string_wrapper(
     ::PROTOBUF_NAMESPACE_ID::StringValue* optional_string_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_string_wrapper_);
   }
   optional_string_wrapper_ = optional_string_wrapper;
-  if (optional_string_wrapper) {
+  if(optional_string_wrapper) {
     
   } else {
     
@@ -8883,9 +8827,9 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::release_optiona
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8900,7 +8844,7 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::unsafe_arena_re
 }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::_internal_mutable_optional_string_wrapper() {
   
-  if (optional_string_wrapper_ == nullptr) {
+  if(optional_string_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::StringValue>(GetArenaForAllocation());
     optional_string_wrapper_ = p;
   }
@@ -8913,17 +8857,15 @@ inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::mutable_optiona
 }
 inline void TestAllTypesProto3::set_allocated_optional_string_wrapper(::PROTOBUF_NAMESPACE_ID::StringValue* optional_string_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_string_wrapper_);
   }
-  if (optional_string_wrapper) {
+  if(optional_string_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_string_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_string_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_string_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_string_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_string_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_string_wrapper, submessage_arena);
     }
     
   } else {
@@ -8951,11 +8893,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& TestAllTypesProto3::optional_b
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_bytes_wrapper(
     ::PROTOBUF_NAMESPACE_ID::BytesValue* optional_bytes_wrapper) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bytes_wrapper_);
   }
   optional_bytes_wrapper_ = optional_bytes_wrapper;
-  if (optional_bytes_wrapper) {
+  if(optional_bytes_wrapper) {
     
   } else {
     
@@ -8969,9 +8911,9 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::release_optional
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -8986,7 +8928,7 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::unsafe_arena_rel
 }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::_internal_mutable_optional_bytes_wrapper() {
   
-  if (optional_bytes_wrapper_ == nullptr) {
+  if(optional_bytes_wrapper_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::BytesValue>(GetArenaForAllocation());
     optional_bytes_wrapper_ = p;
   }
@@ -8999,17 +8941,15 @@ inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::mutable_optional
 }
 inline void TestAllTypesProto3::set_allocated_optional_bytes_wrapper(::PROTOBUF_NAMESPACE_ID::BytesValue* optional_bytes_wrapper) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bytes_wrapper_);
   }
-  if (optional_bytes_wrapper) {
+  if(optional_bytes_wrapper) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bytes_wrapper));
-    if (message_arena != submessage_arena) {
-      optional_bytes_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_bytes_wrapper, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_bytes_wrapper));
+    if(message_arena != submessage_arena) {
+      optional_bytes_wrapper = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_bytes_wrapper, submessage_arena);
     }
     
   } else {
@@ -9033,16 +8973,15 @@ TestAllTypesProto3::mutable_repeated_bool_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bool_wrapper)
   return &repeated_bool_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& TestAllTypesProto3::_internal_repeated_bool_wrapper(int index) const {
-  return repeated_bool_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& TestAllTypesProto3::_internal_repeated_bool_wrapper(int index) const
+{
+ return repeated_bool_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::BoolValue& TestAllTypesProto3::repeated_bool_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bool_wrapper)
   return _internal_repeated_bool_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::_internal_add_repeated_bool_wrapper() {
-  return repeated_bool_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::_internal_add_repeated_bool_wrapper() { return repeated_bool_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::BoolValue* TestAllTypesProto3::add_repeated_bool_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::BoolValue* _add = _internal_add_repeated_bool_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bool_wrapper)
@@ -9068,16 +9007,15 @@ TestAllTypesProto3::mutable_repeated_int32_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int32_wrapper)
   return &repeated_int32_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& TestAllTypesProto3::_internal_repeated_int32_wrapper(int index) const {
-  return repeated_int32_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& TestAllTypesProto3::_internal_repeated_int32_wrapper(int index) const
+{
+ return repeated_int32_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int32Value& TestAllTypesProto3::repeated_int32_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int32_wrapper)
   return _internal_repeated_int32_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::_internal_add_repeated_int32_wrapper() {
-  return repeated_int32_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::_internal_add_repeated_int32_wrapper() { return repeated_int32_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Int32Value* TestAllTypesProto3::add_repeated_int32_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::Int32Value* _add = _internal_add_repeated_int32_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int32_wrapper)
@@ -9103,16 +9041,15 @@ TestAllTypesProto3::mutable_repeated_int64_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int64_wrapper)
   return &repeated_int64_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& TestAllTypesProto3::_internal_repeated_int64_wrapper(int index) const {
-  return repeated_int64_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& TestAllTypesProto3::_internal_repeated_int64_wrapper(int index) const
+{
+ return repeated_int64_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Int64Value& TestAllTypesProto3::repeated_int64_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int64_wrapper)
   return _internal_repeated_int64_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::_internal_add_repeated_int64_wrapper() {
-  return repeated_int64_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::_internal_add_repeated_int64_wrapper() { return repeated_int64_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Int64Value* TestAllTypesProto3::add_repeated_int64_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::Int64Value* _add = _internal_add_repeated_int64_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_int64_wrapper)
@@ -9138,16 +9075,15 @@ TestAllTypesProto3::mutable_repeated_uint32_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint32_wrapper)
   return &repeated_uint32_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& TestAllTypesProto3::_internal_repeated_uint32_wrapper(int index) const {
-  return repeated_uint32_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& TestAllTypesProto3::_internal_repeated_uint32_wrapper(int index) const
+{
+ return repeated_uint32_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt32Value& TestAllTypesProto3::repeated_uint32_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint32_wrapper)
   return _internal_repeated_uint32_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::_internal_add_repeated_uint32_wrapper() {
-  return repeated_uint32_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::_internal_add_repeated_uint32_wrapper() { return repeated_uint32_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::UInt32Value* TestAllTypesProto3::add_repeated_uint32_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::UInt32Value* _add = _internal_add_repeated_uint32_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint32_wrapper)
@@ -9173,16 +9109,15 @@ TestAllTypesProto3::mutable_repeated_uint64_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint64_wrapper)
   return &repeated_uint64_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& TestAllTypesProto3::_internal_repeated_uint64_wrapper(int index) const {
-  return repeated_uint64_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& TestAllTypesProto3::_internal_repeated_uint64_wrapper(int index) const
+{
+ return repeated_uint64_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::UInt64Value& TestAllTypesProto3::repeated_uint64_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint64_wrapper)
   return _internal_repeated_uint64_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::_internal_add_repeated_uint64_wrapper() {
-  return repeated_uint64_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::_internal_add_repeated_uint64_wrapper() { return repeated_uint64_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::UInt64Value* TestAllTypesProto3::add_repeated_uint64_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::UInt64Value* _add = _internal_add_repeated_uint64_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_uint64_wrapper)
@@ -9208,16 +9143,15 @@ TestAllTypesProto3::mutable_repeated_float_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_float_wrapper)
   return &repeated_float_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& TestAllTypesProto3::_internal_repeated_float_wrapper(int index) const {
-  return repeated_float_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& TestAllTypesProto3::_internal_repeated_float_wrapper(int index) const
+{
+ return repeated_float_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FloatValue& TestAllTypesProto3::repeated_float_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_float_wrapper)
   return _internal_repeated_float_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::_internal_add_repeated_float_wrapper() {
-  return repeated_float_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::_internal_add_repeated_float_wrapper() { return repeated_float_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::FloatValue* TestAllTypesProto3::add_repeated_float_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::FloatValue* _add = _internal_add_repeated_float_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_float_wrapper)
@@ -9243,16 +9177,15 @@ TestAllTypesProto3::mutable_repeated_double_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_double_wrapper)
   return &repeated_double_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& TestAllTypesProto3::_internal_repeated_double_wrapper(int index) const {
-  return repeated_double_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& TestAllTypesProto3::_internal_repeated_double_wrapper(int index) const
+{
+ return repeated_double_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::DoubleValue& TestAllTypesProto3::repeated_double_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_double_wrapper)
   return _internal_repeated_double_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::_internal_add_repeated_double_wrapper() {
-  return repeated_double_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::_internal_add_repeated_double_wrapper() { return repeated_double_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::DoubleValue* TestAllTypesProto3::add_repeated_double_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::DoubleValue* _add = _internal_add_repeated_double_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_double_wrapper)
@@ -9278,16 +9211,15 @@ TestAllTypesProto3::mutable_repeated_string_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_string_wrapper)
   return &repeated_string_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::StringValue& TestAllTypesProto3::_internal_repeated_string_wrapper(int index) const {
-  return repeated_string_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::StringValue& TestAllTypesProto3::_internal_repeated_string_wrapper(int index) const
+{
+ return repeated_string_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::StringValue& TestAllTypesProto3::repeated_string_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_string_wrapper)
   return _internal_repeated_string_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::_internal_add_repeated_string_wrapper() {
-  return repeated_string_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::_internal_add_repeated_string_wrapper() { return repeated_string_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::StringValue* TestAllTypesProto3::add_repeated_string_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::StringValue* _add = _internal_add_repeated_string_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_string_wrapper)
@@ -9313,16 +9245,15 @@ TestAllTypesProto3::mutable_repeated_bytes_wrapper() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bytes_wrapper)
   return &repeated_bytes_wrapper_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& TestAllTypesProto3::_internal_repeated_bytes_wrapper(int index) const {
-  return repeated_bytes_wrapper_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& TestAllTypesProto3::_internal_repeated_bytes_wrapper(int index) const
+{
+ return repeated_bytes_wrapper_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::BytesValue& TestAllTypesProto3::repeated_bytes_wrapper(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bytes_wrapper)
   return _internal_repeated_bytes_wrapper(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::_internal_add_repeated_bytes_wrapper() {
-  return repeated_bytes_wrapper_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::_internal_add_repeated_bytes_wrapper() { return repeated_bytes_wrapper_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::BytesValue* TestAllTypesProto3::add_repeated_bytes_wrapper() {
   ::PROTOBUF_NAMESPACE_ID::BytesValue* _add = _internal_add_repeated_bytes_wrapper();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_bytes_wrapper)
@@ -9352,11 +9283,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Duration& TestAllTypesProto3::optional_dur
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_duration(
     ::PROTOBUF_NAMESPACE_ID::Duration* optional_duration) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_duration_);
   }
   optional_duration_ = optional_duration;
-  if (optional_duration) {
+  if(optional_duration) {
     
   } else {
     
@@ -9370,9 +9301,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::release_optional_d
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9387,7 +9318,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::unsafe_arena_relea
 }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::_internal_mutable_optional_duration() {
   
-  if (optional_duration_ == nullptr) {
+  if(optional_duration_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Duration>(GetArenaForAllocation());
     optional_duration_ = p;
   }
@@ -9400,17 +9331,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::mutable_optional_d
 }
 inline void TestAllTypesProto3::set_allocated_optional_duration(::PROTOBUF_NAMESPACE_ID::Duration* optional_duration) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_duration_);
   }
-  if (optional_duration) {
+  if(optional_duration) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_duration));
-    if (message_arena != submessage_arena) {
-      optional_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_duration, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_duration));
+    if(message_arena != submessage_arena) {
+      optional_duration = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_duration, submessage_arena);
     }
     
   } else {
@@ -9438,11 +9367,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TestAllTypesProto3::optional_ti
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_timestamp(
     ::PROTOBUF_NAMESPACE_ID::Timestamp* optional_timestamp) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_timestamp_);
   }
   optional_timestamp_ = optional_timestamp;
-  if (optional_timestamp) {
+  if(optional_timestamp) {
     
   } else {
     
@@ -9456,9 +9385,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::release_optional_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9473,7 +9402,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::unsafe_arena_rele
 }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::_internal_mutable_optional_timestamp() {
   
-  if (optional_timestamp_ == nullptr) {
+  if(optional_timestamp_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Timestamp>(GetArenaForAllocation());
     optional_timestamp_ = p;
   }
@@ -9486,17 +9415,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::mutable_optional_
 }
 inline void TestAllTypesProto3::set_allocated_optional_timestamp(::PROTOBUF_NAMESPACE_ID::Timestamp* optional_timestamp) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_timestamp_);
   }
-  if (optional_timestamp) {
+  if(optional_timestamp) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_timestamp));
-    if (message_arena != submessage_arena) {
-      optional_timestamp = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_timestamp, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_timestamp));
+    if(message_arena != submessage_arena) {
+      optional_timestamp = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_timestamp, submessage_arena);
     }
     
   } else {
@@ -9524,11 +9451,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& TestAllTypesProto3::optional_fi
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_field_mask(
     ::PROTOBUF_NAMESPACE_ID::FieldMask* optional_field_mask) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_field_mask_);
   }
   optional_field_mask_ = optional_field_mask;
-  if (optional_field_mask) {
+  if(optional_field_mask) {
     
   } else {
     
@@ -9542,9 +9469,9 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::release_optional_
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9559,7 +9486,7 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::unsafe_arena_rele
 }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::_internal_mutable_optional_field_mask() {
   
-  if (optional_field_mask_ == nullptr) {
+  if(optional_field_mask_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::FieldMask>(GetArenaForAllocation());
     optional_field_mask_ = p;
   }
@@ -9572,17 +9499,15 @@ inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::mutable_optional_
 }
 inline void TestAllTypesProto3::set_allocated_optional_field_mask(::PROTOBUF_NAMESPACE_ID::FieldMask* optional_field_mask) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_field_mask_);
   }
-  if (optional_field_mask) {
+  if(optional_field_mask) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_field_mask));
-    if (message_arena != submessage_arena) {
-      optional_field_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_field_mask, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_field_mask));
+    if(message_arena != submessage_arena) {
+      optional_field_mask = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_field_mask, submessage_arena);
     }
     
   } else {
@@ -9610,11 +9535,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Struct& TestAllTypesProto3::optional_struc
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_struct(
     ::PROTOBUF_NAMESPACE_ID::Struct* optional_struct) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_struct_);
   }
   optional_struct_ = optional_struct;
-  if (optional_struct) {
+  if(optional_struct) {
     
   } else {
     
@@ -9628,9 +9553,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::release_optional_str
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9645,7 +9570,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::unsafe_arena_release
 }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::_internal_mutable_optional_struct() {
   
-  if (optional_struct_ == nullptr) {
+  if(optional_struct_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Struct>(GetArenaForAllocation());
     optional_struct_ = p;
   }
@@ -9658,17 +9583,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::mutable_optional_str
 }
 inline void TestAllTypesProto3::set_allocated_optional_struct(::PROTOBUF_NAMESPACE_ID::Struct* optional_struct) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_struct_);
   }
-  if (optional_struct) {
+  if(optional_struct) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_struct));
-    if (message_arena != submessage_arena) {
-      optional_struct = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_struct, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_struct));
+    if(message_arena != submessage_arena) {
+      optional_struct = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_struct, submessage_arena);
     }
     
   } else {
@@ -9696,11 +9619,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Any& TestAllTypesProto3::optional_any() co
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_any(
     ::PROTOBUF_NAMESPACE_ID::Any* optional_any) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_any_);
   }
   optional_any_ = optional_any;
-  if (optional_any) {
+  if(optional_any) {
     
   } else {
     
@@ -9714,9 +9637,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::release_optional_any() 
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9731,7 +9654,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::unsafe_arena_release_op
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::_internal_mutable_optional_any() {
   
-  if (optional_any_ == nullptr) {
+  if(optional_any_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Any>(GetArenaForAllocation());
     optional_any_ = p;
   }
@@ -9744,17 +9667,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::mutable_optional_any() 
 }
 inline void TestAllTypesProto3::set_allocated_optional_any(::PROTOBUF_NAMESPACE_ID::Any* optional_any) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_any_);
   }
-  if (optional_any) {
+  if(optional_any) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_any));
-    if (message_arena != submessage_arena) {
-      optional_any = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_any, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_any));
+    if(message_arena != submessage_arena) {
+      optional_any = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_any, submessage_arena);
     }
     
   } else {
@@ -9782,11 +9703,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Value& TestAllTypesProto3::optional_value(
 }
 inline void TestAllTypesProto3::unsafe_arena_set_allocated_optional_value(
     ::PROTOBUF_NAMESPACE_ID::Value* optional_value) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_value_);
   }
   optional_value_ = optional_value;
-  if (optional_value) {
+  if(optional_value) {
     
   } else {
     
@@ -9800,9 +9721,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::release_optional_valu
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -9817,7 +9738,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::unsafe_arena_release_
 }
 inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::_internal_mutable_optional_value() {
   
-  if (optional_value_ == nullptr) {
+  if(optional_value_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Value>(GetArenaForAllocation());
     optional_value_ = p;
   }
@@ -9830,17 +9751,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::mutable_optional_valu
 }
 inline void TestAllTypesProto3::set_allocated_optional_value(::PROTOBUF_NAMESPACE_ID::Value* optional_value) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_value_);
   }
-  if (optional_value) {
+  if(optional_value) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_value));
-    if (message_arena != submessage_arena) {
-      optional_value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, optional_value, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(optional_value));
+    if(message_arena != submessage_arena) {
+      optional_value = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, optional_value, submessage_arena);
     }
     
   } else {
@@ -9882,16 +9801,15 @@ TestAllTypesProto3::mutable_repeated_duration() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_duration)
   return &repeated_duration_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Duration& TestAllTypesProto3::_internal_repeated_duration(int index) const {
-  return repeated_duration_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Duration& TestAllTypesProto3::_internal_repeated_duration(int index) const
+{
+ return repeated_duration_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Duration& TestAllTypesProto3::repeated_duration(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_duration)
   return _internal_repeated_duration(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::_internal_add_repeated_duration() {
-  return repeated_duration_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::_internal_add_repeated_duration() { return repeated_duration_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Duration* TestAllTypesProto3::add_repeated_duration() {
   ::PROTOBUF_NAMESPACE_ID::Duration* _add = _internal_add_repeated_duration();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_duration)
@@ -9917,16 +9835,15 @@ TestAllTypesProto3::mutable_repeated_timestamp() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_timestamp)
   return &repeated_timestamp_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TestAllTypesProto3::_internal_repeated_timestamp(int index) const {
-  return repeated_timestamp_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TestAllTypesProto3::_internal_repeated_timestamp(int index) const
+{
+ return repeated_timestamp_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Timestamp& TestAllTypesProto3::repeated_timestamp(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_timestamp)
   return _internal_repeated_timestamp(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::_internal_add_repeated_timestamp() {
-  return repeated_timestamp_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::_internal_add_repeated_timestamp() { return repeated_timestamp_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Timestamp* TestAllTypesProto3::add_repeated_timestamp() {
   ::PROTOBUF_NAMESPACE_ID::Timestamp* _add = _internal_add_repeated_timestamp();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_timestamp)
@@ -9952,16 +9869,15 @@ TestAllTypesProto3::mutable_repeated_fieldmask() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_fieldmask)
   return &repeated_fieldmask_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& TestAllTypesProto3::_internal_repeated_fieldmask(int index) const {
-  return repeated_fieldmask_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& TestAllTypesProto3::_internal_repeated_fieldmask(int index) const
+{
+ return repeated_fieldmask_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::FieldMask& TestAllTypesProto3::repeated_fieldmask(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_fieldmask)
   return _internal_repeated_fieldmask(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::_internal_add_repeated_fieldmask() {
-  return repeated_fieldmask_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::_internal_add_repeated_fieldmask() { return repeated_fieldmask_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::FieldMask* TestAllTypesProto3::add_repeated_fieldmask() {
   ::PROTOBUF_NAMESPACE_ID::FieldMask* _add = _internal_add_repeated_fieldmask();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_fieldmask)
@@ -9987,16 +9903,15 @@ TestAllTypesProto3::mutable_repeated_struct() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_struct)
   return &repeated_struct_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Struct& TestAllTypesProto3::_internal_repeated_struct(int index) const {
-  return repeated_struct_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Struct& TestAllTypesProto3::_internal_repeated_struct(int index) const
+{
+ return repeated_struct_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Struct& TestAllTypesProto3::repeated_struct(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_struct)
   return _internal_repeated_struct(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::_internal_add_repeated_struct() {
-  return repeated_struct_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::_internal_add_repeated_struct() { return repeated_struct_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Struct* TestAllTypesProto3::add_repeated_struct() {
   ::PROTOBUF_NAMESPACE_ID::Struct* _add = _internal_add_repeated_struct();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_struct)
@@ -10022,16 +9937,15 @@ TestAllTypesProto3::mutable_repeated_any() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_any)
   return &repeated_any_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Any& TestAllTypesProto3::_internal_repeated_any(int index) const {
-  return repeated_any_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Any& TestAllTypesProto3::_internal_repeated_any(int index) const
+{
+ return repeated_any_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Any& TestAllTypesProto3::repeated_any(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_any)
   return _internal_repeated_any(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::_internal_add_repeated_any() {
-  return repeated_any_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::_internal_add_repeated_any() { return repeated_any_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Any* TestAllTypesProto3::add_repeated_any() {
   ::PROTOBUF_NAMESPACE_ID::Any* _add = _internal_add_repeated_any();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_any)
@@ -10057,16 +9971,15 @@ TestAllTypesProto3::mutable_repeated_value() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_value)
   return &repeated_value_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::Value& TestAllTypesProto3::_internal_repeated_value(int index) const {
-  return repeated_value_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::Value& TestAllTypesProto3::_internal_repeated_value(int index) const
+{
+ return repeated_value_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::Value& TestAllTypesProto3::repeated_value(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_value)
   return _internal_repeated_value(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::_internal_add_repeated_value() {
-  return repeated_value_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::_internal_add_repeated_value() { return repeated_value_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::Value* TestAllTypesProto3::add_repeated_value() {
   ::PROTOBUF_NAMESPACE_ID::Value* _add = _internal_add_repeated_value();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_value)
@@ -10092,16 +10005,15 @@ TestAllTypesProto3::mutable_repeated_list_value() {
   // @@protoc_insertion_point(field_mutable_list:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_list_value)
   return &repeated_list_value_;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::ListValue& TestAllTypesProto3::_internal_repeated_list_value(int index) const {
-  return repeated_list_value_.Get(index);
+inline const ::PROTOBUF_NAMESPACE_ID::ListValue& TestAllTypesProto3::_internal_repeated_list_value(int index) const
+{
+ return repeated_list_value_.Get(index);
 }
 inline const ::PROTOBUF_NAMESPACE_ID::ListValue& TestAllTypesProto3::repeated_list_value(int index) const {
   // @@protoc_insertion_point(field_get:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_list_value)
   return _internal_repeated_list_value(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::ListValue* TestAllTypesProto3::_internal_add_repeated_list_value() {
-  return repeated_list_value_.Add();
-}
+inline ::PROTOBUF_NAMESPACE_ID::ListValue* TestAllTypesProto3::_internal_add_repeated_list_value() { return repeated_list_value_.Add(); }
 inline ::PROTOBUF_NAMESPACE_ID::ListValue* TestAllTypesProto3::add_repeated_list_value() {
   ::PROTOBUF_NAMESPACE_ID::ListValue* _add = _internal_add_repeated_list_value();
   // @@protoc_insertion_point(field_add:protobuf_test_messages.proto3.TestAllTypesProto3.repeated_list_value)

@@ -7018,18 +7018,24 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 				else {
 					const bool is_hex_c = ishex(c);
 					const bool is_dec_c = isdec(c);
+					const bool is_asciialpha = isasciialpha(c);
 					if(is_dec_c) {
 						has_dec = 1;
 						rIb.DecCount += ccnt;
 					}
-					if(h & SNTOKSEQ_LAT && !isasciialpha(c))
+					if(h & SNTOKSEQ_LAT && !is_asciialpha) {
 						h &= ~SNTOKSEQ_LAT;
+					}
 					else {
 						if(h & SNTOKSEQ_LATLWR && !(c >= 'a' && c <= 'z'))
 							h &= ~SNTOKSEQ_LATLWR;
 						if(h & SNTOKSEQ_LATUPR && !(c >= 'A' && c <= 'Z'))
 							h &= ~SNTOKSEQ_LATUPR;
 					}
+					// @v11.3.12 {
+					if(h & SNTOKSEQ_LATHYPHENORUSCORE && !is_asciialpha && !oneof2(c, '-', '_'))
+						h &= ~SNTOKSEQ_LATHYPHENORUSCORE;
+					// } @v11.3.12 
 					if(h & SNTOKSEQ_HEX && !is_hex_c)
 						h &= ~SNTOKSEQ_HEX;
 					else if(h & SNTOKSEQ_DEC && !is_dec_c)
@@ -7079,7 +7085,7 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 			if(!(h & SNTOKSEQ_ASCII)) {
 				h &= ~(SNTOKSEQ_LAT|SNTOKSEQ_LATUPR|SNTOKSEQ_LATLWR|SNTOKSEQ_HEX|SNTOKSEQ_DEC|SNTOKSEQ_DECLAT|
 					SNTOKSEQ_HEXHYPHEN|SNTOKSEQ_DECHYPHEN|SNTOKSEQ_HEXCOLON|SNTOKSEQ_DECCOLON|SNTOKSEQ_HEXDOT|
-					SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC);
+					SNTOKSEQ_DECDOT|SNTOKSEQ_DECSLASH|SNTOKSEQ_NUMERIC|SNTOKSEQ_LATHYPHENORUSCORE);
 			}
 			else {
 				if(!(h & SNTOKSEQ_HEX))
@@ -7193,6 +7199,25 @@ int STokenRecognizer::Implement(ImplementBlock & rIb, const uchar * pToken, int 
 					}
 				}
 			}
+			// @v11.3.12 @construction {
+			{
+				const uint32 tf = SNTOKSEQ_LATHYPHENORUSCORE;
+				if(h & tf) {
+					if(h & SNTOKSEQ_LAT) {
+						h &= ~tf;
+					}
+					else if(clc == 1) {
+						assert(oneof2(rIb.ChrList.at(0).Key, '-', '_'));
+						h &= ~tf;
+					}
+					else {
+						if(toklen >= 2 && toklen <= 7) {
+							//RecognizeLinguaSymb(reinterpret_cast<const char *>(pToken), 1);
+						}
+					}
+				}
+			}
+			// } @v11.3.12 
 			{
 				const uint32 tf = SNTOKSEQ_NUMERIC;
 				if(h & tf) {

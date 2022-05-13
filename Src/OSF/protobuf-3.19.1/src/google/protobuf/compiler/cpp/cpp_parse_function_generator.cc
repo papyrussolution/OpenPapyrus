@@ -357,7 +357,7 @@ void ParseFunctionGenerator::GenerateTailcallFallbackFunction(Formatter& format)
 	GOOGLE_CHECK(should_generate_tctable());
 	format(
 		"const char* $classname$::Tct_ParseFallback(PROTOBUF_TC_PARAM_DECL) {\n"
-		"#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) return nullptr\n");
+		"#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) return nullptr\n");
 	format.Indent();
 	format("auto* typed_msg = static_cast<$classname$*>(msg);\n");
 
@@ -399,7 +399,7 @@ void ParseFunctionGenerator::GenerateTailcallFieldParseFunctions(Formatter& form
 		format(
 			"#if PROTOBUF_TC_STATIC_PARSE_SINGULAR$1$\n"
 			"const char* $classname$::Tct_ParseS$1$(PROTOBUF_TC_PARAM_DECL) {\n"
-			"  if (PROTOBUF_PREDICT_FALSE(data.coded_tag<$2$>() != 0))\n"
+			"  if(PROTOBUF_PREDICT_FALSE(data.coded_tag<$2$>() != 0))\n"
 			"    PROTOBUF_MUSTTAIL "
 			"return table->fallback(PROTOBUF_TC_PARAM_PASS);\n"
 			"  ptr += $1$;\n"
@@ -408,7 +408,7 @@ void ParseFunctionGenerator::GenerateTailcallFieldParseFunctions(Formatter& form
 			"(msg, hasbits, table);\n"
 			"  auto& field = ::$proto_ns$::internal::TcParser::"
 			"RefAt<$classtype$*>(msg, data.offset());\n"
-			"  if (field == nullptr)\n"
+			"  if(field == nullptr)\n"
 			"    field = CreateMaybeMessage<$classtype$>(ctx->data().arena);\n"
 			"  return ctx->ParseMessage(field, ptr);\n"
 			"}\n"
@@ -421,7 +421,7 @@ void ParseFunctionGenerator::GenerateTailcallFieldParseFunctions(Formatter& form
 		format(
 			"#if PROTOBUF_TC_STATIC_PARSE_REPEATED$1$\n"
 			"const char* $classname$::Tct_ParseR$1$(PROTOBUF_TC_PARAM_DECL) {\n"
-			"  if (PROTOBUF_PREDICT_FALSE(data.coded_tag<$2$>() != 0)) {\n"
+			"  if(PROTOBUF_PREDICT_FALSE(data.coded_tag<$2$>() != 0)) {\n"
 			"    PROTOBUF_MUSTTAIL "
 			"return table->fallback(PROTOBUF_TC_PARAM_PASS);\n"
 			"  }\n"
@@ -478,7 +478,7 @@ void ParseFunctionGenerator::GenerateLoopingParseFunction(Formatter& format) {
 		"const char* $classname$::_InternalParse(const char* ptr, "
 		"::$proto_ns$::internal::ParseContext* ctx) {\n"
 		"$annotate_deserialize$"
-		"#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure\n");
+		"#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure\n");
 	format.Indent();
 	format.Set("msg", "");
 	format.Set("this", "this");
@@ -496,7 +496,7 @@ void ParseFunctionGenerator::GenerateLoopingParseFunction(Formatter& format) {
 		format.Set("has_bits", "_has_bits_");
 	}
 	format.Set("next_tag", "continue");
-	format("while (!ctx->Done(&ptr)) {\n");
+	format("while(!ctx->Done(&ptr)) {\n");
 	format.Indent();
 
 	GenerateParseIterationBody(format, descriptor_,
@@ -1031,20 +1031,15 @@ void ParseFunctionGenerator::GenerateParseIterationBody(Formatter& format, const
 				"}\n");
 		}
 		format(
-			"ptr = UnknownFieldParse(\n"
-			"    tag,\n"
-			"    $msg$_internal_metadata_.mutable_unknown_fields<"
-			"$unknown_fields_type$>(),\n"
-			"    ptr, ctx);\n"
+			"ptr = UnknownFieldParse(tag, $msg$_internal_metadata_.mutable_unknown_fields<$unknown_fields_type$>(), ptr, ctx);\n"
 			"CHK_(ptr != nullptr);\n");
 	}
 }
 
-void ParseFunctionGenerator::GenerateFieldSwitch(Formatter& format,
-    const std::vector<const FieldDescriptor*>& ordered_fields) {
+void ParseFunctionGenerator::GenerateFieldSwitch(Formatter& format, const std::vector<const FieldDescriptor*>& ordered_fields) 
+{
 	format("switch(tag >> 3) {\n");
 	format.Indent();
-
 	for(const auto* field : ordered_fields) {
 		PrintFieldComment(format, field);
 		format("case $1$:\n", field->number());
@@ -1070,17 +1065,15 @@ void ParseFunctionGenerator::GenerateFieldSwitch(Formatter& format,
 		if(is_repeat) {
 			format.Outdent();
 			format(
-				"  if (!ctx->DataAvailable(ptr)) break;\n"
-				"} while (::$proto_ns$::internal::ExpectTag<$1$>(ptr));\n",
+				"  if(!ctx->DataAvailable(ptr)) break;\n"
+				"} while(::$proto_ns$::internal::ExpectTag<$1$>(ptr));\n",
 				tag);
 		}
 		format.Outdent();
 		if(fallback_tag) {
-			format("} else if (static_cast<$uint8$>(tag) == $1$) {\n",
-			    fallback_tag & 0xFF);
+			format("} else if(static_cast<$uint8$>(tag) == $1$) {\n", fallback_tag & 0xFF);
 			format.Indent();
-			GenerateFieldBody(format, WireFormatLite::GetTagWireType(fallback_tag),
-			    field);
+			GenerateFieldBody(format, WireFormatLite::GetTagWireType(fallback_tag), field);
 			format.Outdent();
 		}
 		format(
@@ -1091,15 +1084,13 @@ void ParseFunctionGenerator::GenerateFieldSwitch(Formatter& format,
 	} // for loop over ordered fields
 
 	format(
-		"default:\n"
-		"  goto handle_unusual;\n");
+		"default: goto handle_unusual;\n");
 	format.Outdent();
 	format("}  // switch\n");
 }
 
 namespace {
-std::string FieldParseFunctionName(const FieldDescriptor* field,
-    const Options& options) {
+std::string FieldParseFunctionName(const FieldDescriptor* field, const Options& options) { 
 	ParseCardinality card = //
 	    field->is_packed()               ? ParseCardinality::kPacked
 	    : field->is_repeated()           ? ParseCardinality::kRepeated

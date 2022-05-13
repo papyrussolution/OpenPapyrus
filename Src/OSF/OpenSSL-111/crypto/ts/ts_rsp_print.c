@@ -117,7 +117,7 @@ int TS_TST_INFO_print_bio(BIO * bio, TS_TST_INFO * a)
 {
 	int v;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 
 	v = ASN1_INTEGER_get(a->version);

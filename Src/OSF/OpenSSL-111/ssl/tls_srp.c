@@ -21,7 +21,7 @@
 
 int SSL_CTX_SRP_CTX_free(struct ssl_ctx_st * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	OPENSSL_free(ctx->srp_ctx.login);
 	OPENSSL_free(ctx->srp_ctx.info);
@@ -118,7 +118,7 @@ err:
 
 int SSL_CTX_SRP_CTX_init(struct ssl_ctx_st * ctx)
 {
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	memzero(&ctx->srp_ctx, sizeof(ctx->srp_ctx));
 	ctx->srp_ctx.strength = SRP_MINIMAL_N;

@@ -2318,7 +2318,7 @@ int PPBillPacket::AttachToOrder(const PPBillPacket * pOrdPack)
 		const int r = AttachRowToOrder((int)i, pOrdPack);
 		if(r > 0)
 			ok = 1;
-		else if(r == 0)
+		else if(!r)
 			ok = 0;
 	}
 	return ok;
@@ -2986,7 +2986,7 @@ int PPBillPacket::_CreateBlank(PPID opID, PPID linkBillID, PPID locID, int dontI
 	if(opID) {
 		if((r = IsExpendOp(opID)) > 0)
 			Rec.Flags |= BILLF_GEXPEND;
-		else if(r == 0)
+		else if(!r)
 			Rec.Flags |= BILLF_GRECEIPT;
 		if(OpTypeID == PPOPT_GOODSRECEIPT) {
 			if(AccSheetID == 0) {
@@ -4332,7 +4332,7 @@ int FASTCALL PPBillPacket::InitAmounts(int fromDB)
 int PPBillPacket::SearchGoods(PPID goodsID, uint * pPos) const
 {
 	int    r = Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(PPTransferItem, GoodsID));
-	if(r == 0) {
+	if(!r) {
 		goodsID = -goodsID;
 		r = Lots.lsearch(&goodsID, pPos, CMPF_LONG, offsetof(PPTransferItem, GoodsID));
 	}
@@ -5893,7 +5893,7 @@ int PPBillPacket::SumAmounts(AmtList * pList, int fromDB)
 			while((r = P_BObj->trfr->EnumItems(Rec.ID, &r_by_bill, &ti)) > 0)
 				if(!(ti.Flags & PPTFR_PCKG))
 					btb.Add(&ti);
-			if(r == 0)
+			if(!r)
 				return 0;
 		}
 		else {

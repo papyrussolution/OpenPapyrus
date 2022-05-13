@@ -1625,11 +1625,11 @@ inline const ::PROTOBUF_NAMESPACE_ID::Any& OneOfsRequest::any_data() const {
 }
 inline void OneOfsRequest::unsafe_arena_set_allocated_any_data(
     ::PROTOBUF_NAMESPACE_ID::Any* any_data) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(any_data_);
   }
   any_data_ = any_data;
-  if (any_data) {
+  if(any_data) {
     
   } else {
     
@@ -1643,9 +1643,9 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* OneOfsRequest::release_any_data() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -1660,7 +1660,7 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* OneOfsRequest::unsafe_arena_release_any_dat
 }
 inline ::PROTOBUF_NAMESPACE_ID::Any* OneOfsRequest::_internal_mutable_any_data() {
   
-  if (any_data_ == nullptr) {
+  if(any_data_ == nullptr) {
     auto* p = CreateMaybeMessage<::PROTOBUF_NAMESPACE_ID::Any>(GetArenaForAllocation());
     any_data_ = p;
   }
@@ -1673,17 +1673,15 @@ inline ::PROTOBUF_NAMESPACE_ID::Any* OneOfsRequest::mutable_any_data() {
 }
 inline void OneOfsRequest::set_allocated_any_data(::PROTOBUF_NAMESPACE_ID::Any* any_data) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(any_data_);
   }
-  if (any_data) {
+  if(any_data) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(any_data));
-    if (message_arena != submessage_arena) {
-      any_data = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, any_data, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(any_data));
+    if(message_arena != submessage_arena) {
+      any_data = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, any_data, submessage_arena);
     }
     
   } else {

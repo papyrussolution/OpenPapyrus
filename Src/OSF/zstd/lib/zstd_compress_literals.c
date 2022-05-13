@@ -18,7 +18,7 @@
 
 static size_t showHexa(const void * src, size_t srcSize)
 {
-	const BYTE* const ip = (const BYTE*)src;
+	const BYTE * const ip = (const BYTE *)src;
 	size_t u;
 	for(u = 0; u<srcSize; u++) {
 		RAWLOG(6, " %02X", ip[u]); (void)ip;
@@ -34,7 +34,7 @@ static size_t showHexa(const void * src, size_t srcSize)
 ****************************************************************/
 size_t ZSTD_noCompressLiterals(void * dst, size_t dstCapacity, const void * src, size_t srcSize)
 {
-	BYTE* const ostart = (BYTE*)dst;
+	BYTE * const ostart = (BYTE *)dst;
 	const uint32 flSize = 1 + (srcSize>31) + (srcSize>4095);
 	DEBUGLOG(5, "ZSTD_noCompressLiterals: srcSize=%zu, dstCapacity=%zu", srcSize, dstCapacity);
 	RETURN_ERROR_IF(srcSize + flSize > dstCapacity, dstSize_tooSmall, "");
@@ -58,7 +58,7 @@ size_t ZSTD_noCompressLiterals(void * dst, size_t dstCapacity, const void * src,
 
 size_t ZSTD_compressRleLiteralsBlock(void * dst, size_t dstCapacity, const void * src, size_t srcSize)
 {
-	BYTE* const ostart = (BYTE*)dst;
+	BYTE * const ostart = (BYTE *)dst;
 	const uint32 flSize = 1 + (srcSize>31) + (srcSize>4095);
 	(void)dstCapacity; /* dstCapacity already guaranteed to be >=4, hence large enough */
 	switch(flSize) {
@@ -75,7 +75,7 @@ size_t ZSTD_compressRleLiteralsBlock(void * dst, size_t dstCapacity, const void 
 		    assert(0);
 	}
 
-	ostart[flSize] = *(const BYTE*)src;
+	ostart[flSize] = *(const BYTE *)src;
 	DEBUGLOG(5, "RLE literals: %u -> %u", (uint32)srcSize, (uint32)flSize + 1);
 	return flSize+1;
 }
@@ -87,11 +87,11 @@ size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf,
     const void * src, size_t srcSize,
     void * entropyWorkspace, size_t entropyWorkspaceSize,
     const int bmi2,
-    unsigned suspectUncompressible)
+    uint suspectUncompressible)
 {
 	const size_t minGain = ZSTD_minGain(srcSize, strategy);
 	const size_t lhSize = 3 + (srcSize >= 1 KB) + (srcSize >= 16 KB);
-	BYTE*  const ostart = (BYTE*)dst;
+	BYTE *  const ostart = (BYTE *)dst;
 	uint32 singleStream = srcSize < 256;
 	symbolEncodingType_e hType = set_compressed;
 	size_t cLitSize;
@@ -108,7 +108,7 @@ size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf,
 		return ZSTD_noCompressLiterals(dst, dstCapacity, src, srcSize);
 
 	/* small ? don't even attempt compression (speed opt) */
-#   define COMPRESS_LITERALS_SIZE_MIN 63
+#define COMPRESS_LITERALS_SIZE_MIN 63
 	{   
 		const size_t minLitSize = (prevHuf->repeatMode == HUF_repeat_valid) ? 6 : COMPRESS_LITERALS_SIZE_MIN;
 	    if(srcSize <= minLitSize) return ZSTD_noCompressLiterals(dst, dstCapacity, src, srcSize); 
@@ -117,10 +117,10 @@ size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf,
 	{   
 		HUF_repeat repeat = prevHuf->repeatMode;
 	    int const preferRepeat = (strategy < ZSTD_lazy) ? srcSize <= 1024 : 0;
-	    typedef size_t (* huf_compress_f)(void *, size_t, const void *, size_t, unsigned, unsigned, void *, size_t, HUF_CElt*, HUF_repeat*,
-		int, int, unsigned);
+	    typedef size_t (* huf_compress_f)(void *, size_t, const void *, size_t, uint, uint, void *, size_t, HUF_CElt*, HUF_repeat*, int, int, uint);
 	    huf_compress_f huf_compress;
-	    if(repeat == HUF_repeat_valid && lhSize == 3) singleStream = 1;
+	    if(repeat == HUF_repeat_valid && lhSize == 3) 
+			singleStream = 1;
 	    huf_compress = singleStream ? HUF_compress1X_repeat : HUF_compress4X_repeat;
 	    cLitSize = huf_compress(ostart+lhSize, dstCapacity-lhSize, src, srcSize,
 		    HUF_SYMBOLVALUE_MAX, LitHufLog, entropyWorkspace, entropyWorkspaceSize, (HUF_CElt*)nextHuf->CTable,

@@ -248,7 +248,7 @@ char * ssh_remove_duplicates(const char * list)
 	char * ret = NULL;
 	bool * should_copy = NULL, need_comma = false;
 
-	if(list == NULL) {
+	if(!list) {
 		return NULL;
 	}
 

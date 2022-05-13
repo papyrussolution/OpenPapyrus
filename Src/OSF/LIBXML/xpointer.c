@@ -1267,7 +1267,7 @@ static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObject * range)
 					tmp = xmlNewTextLen(content, len);
 				}
 				/* single sub text node selection */
-				if(list == NULL)
+				if(!list)
 					return tmp;
 				/* prune and return full set */
 				if(last)
@@ -1278,7 +1278,7 @@ static xmlNode * xmlXPtrBuildRangeNodeList(xmlXPathObject * range)
 			}
 			else {
 				tmp = xmlCopyNode(cur, 0);
-				if(list == NULL)
+				if(!list)
 					list = tmp;
 				else {
 					if(last)

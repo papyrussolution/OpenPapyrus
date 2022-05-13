@@ -273,7 +273,7 @@ bool MessageFormat::allocateArgTypes(int32_t capacity, UErrorCode & status) {
 		capacity = 2*argTypeCapacity;
 	}
 	Formattable::Type* a = (Formattable::Type*)uprv_realloc(argTypes, sizeof(*argTypes) * capacity);
-	if(a == NULL) {
+	if(!a) {
 		status = U_MEMORY_ALLOCATION_ERROR;
 		return FALSE;
 	}

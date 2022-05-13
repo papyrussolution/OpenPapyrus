@@ -1695,7 +1695,7 @@ UText * RegexMatcher::replaceAll(UText * replacement, UText * dest, UErrorCode &
 		return dest;
 	}
 
-	if(dest == NULL) {
+	if(!dest) {
 		UnicodeString emptyString;
 		UText empty = UTEXT_INITIALIZER;
 
@@ -1756,7 +1756,7 @@ UText * RegexMatcher::replaceFirst(UText * replacement, UText * dest, UErrorCode
 		return getInput(dest, status);
 	}
 
-	if(dest == NULL) {
+	if(!dest) {
 		UnicodeString emptyString;
 		UText empty = UTEXT_INITIALIZER;
 

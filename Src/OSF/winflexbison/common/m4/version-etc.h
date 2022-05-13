@@ -25,9 +25,9 @@
 /* The `sentinel' attribute was added in gcc 4.0.  */
 #ifndef _GL_ATTRIBUTE_SENTINEL
 #if 4 <= __GNUC__
-#  define _GL_ATTRIBUTE_SENTINEL __attribute__ ((__sentinel__))
+#define _GL_ATTRIBUTE_SENTINEL __attribute__ ((__sentinel__))
 #else
-#  define _GL_ATTRIBUTE_SENTINEL /* empty */
+#define _GL_ATTRIBUTE_SENTINEL /* empty */
 #endif
 #endif
 

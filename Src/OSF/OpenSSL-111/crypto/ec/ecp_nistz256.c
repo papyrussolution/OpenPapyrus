@@ -804,9 +804,9 @@ __owur static int ecp_nistz256_mult_precompute(EC_GROUP * group, BN_CTX * ctx)
 
 	if((pre_comp = ecp_nistz256_pre_comp_new(group)) == NULL)
 		return 0;
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			goto err;
 	}
 	BN_CTX_start(ctx);

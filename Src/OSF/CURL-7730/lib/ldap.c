@@ -282,7 +282,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 #else
 	rc = _ldap_url_parse(conn, &ludp);
 #endif
-	if(rc != 0) {
+	if(rc) {
 		failf(data, "LDAP local: %s", ldap_err2string(rc));
 		result = CURLE_LDAP_INVALID_URL;
 		goto quit;
@@ -465,7 +465,7 @@ static CURLcode Curl_ldap(struct connectdata * conn, bool * done)
 		rc = ldap_simple_bind_s(server, user, passwd);
 #endif
 	}
-	if(rc != 0) {
+	if(rc) {
 #ifdef USE_WIN32_LDAP
 		failf(data, "LDAP local: bind via ldap_win_bind %s", ldap_err2string(rc));
 #else

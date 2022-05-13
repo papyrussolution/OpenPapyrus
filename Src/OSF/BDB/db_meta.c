@@ -305,7 +305,7 @@ int __db_free(DBC * dbc, PAGE * h, uint32 flags)
 	COMPQUIET(position, 0);
 	if((ret = __memp_get_freelist(mpf, &nelem, &list)) != 0)
 		goto err1;
-	if(list == NULL)
+	if(!list)
 		goto no_sort;
 	if(h->pgno != last_pgno) {
 		/*

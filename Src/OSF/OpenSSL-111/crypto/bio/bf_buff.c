@@ -45,7 +45,7 @@ const BIO_METHOD * BIO_f_buffer(void)
 static int buffer_new(BIO * bi)
 {
 	BIO_F_BUFFER_CTX * ctx = static_cast<BIO_F_BUFFER_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL)
+	if(!ctx)
 		return 0;
 	ctx->ibuf_size = DEFAULT_BUFFER_SIZE;
 	ctx->ibuf = static_cast<char *>(OPENSSL_malloc(DEFAULT_BUFFER_SIZE));
@@ -71,7 +71,7 @@ static int buffer_free(BIO * a)
 {
 	BIO_F_BUFFER_CTX * b;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 	b = (BIO_F_BUFFER_CTX*)a->ptr;
 	OPENSSL_free(b->ibuf);

@@ -2250,11 +2250,11 @@ inline const ::protobuf_unittest::TestMaps& TestSubmessageMaps::m() const {
 }
 inline void TestSubmessageMaps::unsafe_arena_set_allocated_m(
     ::protobuf_unittest::TestMaps* m) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(m_);
   }
   m_ = m;
-  if (m) {
+  if(m) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -2268,9 +2268,9 @@ inline ::protobuf_unittest::TestMaps* TestSubmessageMaps::release_m() {
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -2285,7 +2285,7 @@ inline ::protobuf_unittest::TestMaps* TestSubmessageMaps::unsafe_arena_release_m
 }
 inline ::protobuf_unittest::TestMaps* TestSubmessageMaps::_internal_mutable_m() {
   _has_bits_[0] |= 0x00000001u;
-  if (m_ == nullptr) {
+  if(m_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestMaps>(GetArenaForAllocation());
     m_ = p;
   }
@@ -2298,15 +2298,14 @@ inline ::protobuf_unittest::TestMaps* TestSubmessageMaps::mutable_m() {
 }
 inline void TestSubmessageMaps::set_allocated_m(::protobuf_unittest::TestMaps* m) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete m_;
   }
-  if (m) {
+  if(m) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<::protobuf_unittest::TestMaps>::GetOwningArena(m);
-    if (message_arena != submessage_arena) {
-      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, m, submessage_arena);
+    if(message_arena != submessage_arena) {
+      m = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, m, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {

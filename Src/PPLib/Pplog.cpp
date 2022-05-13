@@ -1,5 +1,5 @@
 // PPLOG.CPP
-// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev, A.Osolotkin 1999, 2000, 2001, 2003, 2004, 2005, 2006, 2007, 2008, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -1423,18 +1423,18 @@ int PPSession::Log(const char * pFileName, const char * pStr, long options)
 	return ok;
 }
 
-int FASTCALL PPLogMessage(const char * pFileName, const char * pStr, long options)
+int STDCALL PPLogMessage(const char * pFileName, const char * pStr, long options)
 {
 	return DS.Log(pFileName, pStr, options);
 }
 
-int FASTCALL PPLogMessage(uint fileId, const char * pStr, long options)
+int STDCALL PPLogMessage(uint fileId, const char * pStr, long options)
 {
 	SString & r_file_name = SLS.AcquireRvlStr();
 	return PPGetFilePath(PPPATH_LOG, fileId, r_file_name) ? PPLogMessage(r_file_name, pStr, options) : 0;
 }
 
-int FASTCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long options)
+int STDCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long options)
 {
 	int    ok = 0;
 	const  uint c = rList.getCount();
@@ -1451,7 +1451,7 @@ int FASTCALL PPLogMessageList(uint fileId, const SStrCollection & rList, long op
 	return ok;
 }
 
-int FASTCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options)
+int STDCALL PPLogMessage(uint fileId, uint strGroup, uint strId, long options)
 {
 	SString & r_msg_buf = SLS.AcquireRvlStr(); // @v9.9.10
 	PPLoadString(strGroup, strId, r_msg_buf);

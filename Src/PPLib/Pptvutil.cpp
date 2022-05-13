@@ -4683,7 +4683,7 @@ void PosNodeCtrlGroup::handleEvent(TDialog * pDlg, TEvent & event)
 			Data.List.Set(&node_list);
 			SetupComboByBuddyList(pDlg, Ctlsel, Data.List);
 		}
-		else if(r == 0)
+		else if(!r)
 			PPError();
 		pDlg->clearEvent(event);
 	}

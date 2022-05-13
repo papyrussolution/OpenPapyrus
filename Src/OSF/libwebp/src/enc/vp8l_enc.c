@@ -313,7 +313,6 @@ static WebPEncodingError PaletteSortModifiedZeng(const WebPPicture* const pic, c
 	}
 	assert((last + 1) % num_colors == first);
 	WebPSafeFree(cooccurrence);
-
 	// Re-map the palette.
 	for(i = 0; i < num_colors; ++i) {
 		palette[i] = palette_sorted[remapping[(first + i) % num_colors]];
@@ -359,36 +358,33 @@ typedef enum {
 	kHistoTotal // Must be last.
 } HistoIx;
 
-static void AddSingleSubGreen(int p, uint32_t* const r, uint32_t* const b) {
+static void AddSingleSubGreen(int p, uint32_t* const r, uint32_t* const b) 
+{
 	const int green = p >> 8; // The upper bits are masked away later.
 	++r[((p >> 16) - green) & 0xff];
 	++b[((p >>  0) - green) & 0xff];
 }
 
-static void AddSingle(uint32_t p,
-    uint32_t* const a, uint32_t* const r,
-    uint32_t* const g, uint32_t* const b) {
+static void AddSingle(uint32_t p, uint32_t* const a, uint32_t* const r, uint32_t* const g, uint32_t* const b) 
+{
 	++a[(p >> 24) & 0xff];
 	++r[(p >> 16) & 0xff];
 	++g[(p >>  8) & 0xff];
 	++b[(p >>  0) & 0xff];
 }
 
-static FORCEINLINE uint32_t HashPix(uint32_t pix) {
+static FORCEINLINE uint32_t HashPix(uint32_t pix) 
+{
 	// Note that masking with 0xffffffffu is for preventing an
 	// 'unsigned int overflow' warning. Doesn't impact the compiled code.
 	return ((((uint64_t)pix + (pix >> 19)) * 0x39c5fba7ull) & 0xffffffffu) >> 24;
 }
 
-static int AnalyzeEntropy(const uint32_t* argb,
-    int width, int height, int argb_stride,
-    int use_palette,
-    int palette_size, int transform_bits,
-    EntropyIx* const min_entropy_ix,
-    int* const red_and_blue_always_zero) {
+static int AnalyzeEntropy(const uint32_t* argb, int width, int height, int argb_stride, int use_palette,
+    int palette_size, int transform_bits, EntropyIx* const min_entropy_ix, int* const red_and_blue_always_zero) 
+{
 	// Allocate histogram set with cache_bits = 0.
 	uint32_t* histo;
-
 	if(use_palette && palette_size <= 16) {
 		// In the case of small palettes, we pack 2, 4 or 8 pixels together. In
 		// practice, small palettes are better than any other transform.
@@ -410,22 +406,10 @@ static int AnalyzeEntropy(const uint32_t* argb,
 				if((pix_diff == 0) || (prev_row != NULL && pix == prev_row[x])) {
 					continue;
 				}
-				AddSingle(pix,
-				    &histo[kHistoAlpha * 256],
-				    &histo[kHistoRed * 256],
-				    &histo[kHistoGreen * 256],
-				    &histo[kHistoBlue * 256]);
-				AddSingle(pix_diff,
-				    &histo[kHistoAlphaPred * 256],
-				    &histo[kHistoRedPred * 256],
-				    &histo[kHistoGreenPred * 256],
-				    &histo[kHistoBluePred * 256]);
-				AddSingleSubGreen(pix,
-				    &histo[kHistoRedSubGreen * 256],
-				    &histo[kHistoBlueSubGreen * 256]);
-				AddSingleSubGreen(pix_diff,
-				    &histo[kHistoRedPredSubGreen * 256],
-				    &histo[kHistoBluePredSubGreen * 256]);
+				AddSingle(pix, &histo[kHistoAlpha * 256], &histo[kHistoRed * 256], &histo[kHistoGreen * 256], &histo[kHistoBlue * 256]);
+				AddSingle(pix_diff, &histo[kHistoAlphaPred * 256], &histo[kHistoRedPred * 256], &histo[kHistoGreenPred * 256], &histo[kHistoBluePred * 256]);
+				AddSingleSubGreen(pix, &histo[kHistoRedSubGreen * 256], &histo[kHistoBlueSubGreen * 256]);
+				AddSingleSubGreen(pix_diff, &histo[kHistoRedPredSubGreen * 256], &histo[kHistoBluePredSubGreen * 256]);
 				{
 					// Approximate the palette by the entropy of the multiplicative hash.
 					const uint32_t hash = HashPix(pix);
@@ -450,39 +434,21 @@ static int AnalyzeEntropy(const uint32_t* argb,
 			++histo[kHistoGreenPred * 256];
 			++histo[kHistoBluePred * 256];
 			++histo[kHistoAlphaPred * 256];
-
 			for(j = 0; j < kHistoTotal; ++j) {
 				entropy_comp[j] = VP8LBitsEntropy(&histo[j * 256], 256);
 			}
-			entropy[kDirect] = entropy_comp[kHistoAlpha] +
-			    entropy_comp[kHistoRed] +
-			    entropy_comp[kHistoGreen] +
-			    entropy_comp[kHistoBlue];
-			entropy[kSpatial] = entropy_comp[kHistoAlphaPred] +
-			    entropy_comp[kHistoRedPred] +
-			    entropy_comp[kHistoGreenPred] +
-			    entropy_comp[kHistoBluePred];
-			entropy[kSubGreen] = entropy_comp[kHistoAlpha] +
-			    entropy_comp[kHistoRedSubGreen] +
-			    entropy_comp[kHistoGreen] +
-			    entropy_comp[kHistoBlueSubGreen];
-			entropy[kSpatialSubGreen] = entropy_comp[kHistoAlphaPred] +
-			    entropy_comp[kHistoRedPredSubGreen] +
-			    entropy_comp[kHistoGreenPred] +
-			    entropy_comp[kHistoBluePredSubGreen];
+			entropy[kDirect] = entropy_comp[kHistoAlpha] + entropy_comp[kHistoRed] + entropy_comp[kHistoGreen] + entropy_comp[kHistoBlue];
+			entropy[kSpatial] = entropy_comp[kHistoAlphaPred] + entropy_comp[kHistoRedPred] + entropy_comp[kHistoGreenPred] + entropy_comp[kHistoBluePred];
+			entropy[kSubGreen] = entropy_comp[kHistoAlpha] + entropy_comp[kHistoRedSubGreen] + entropy_comp[kHistoGreen] + entropy_comp[kHistoBlueSubGreen];
+			entropy[kSpatialSubGreen] = entropy_comp[kHistoAlphaPred] + entropy_comp[kHistoRedPredSubGreen] + entropy_comp[kHistoGreenPred] + entropy_comp[kHistoBluePredSubGreen];
 			entropy[kPalette] = entropy_comp[kHistoPalette];
-
 			// When including transforms, there is an overhead in bits from
 			// storing them. This overhead is small but matters for small images.
 			// For spatial, there are 14 transformations.
-			entropy[kSpatial] += VP8LSubSampleSize(width, transform_bits) *
-			    VP8LSubSampleSize(height, transform_bits) *
-			    VP8LFastLog2(14);
+			entropy[kSpatial] += VP8LSubSampleSize(width, transform_bits) * VP8LSubSampleSize(height, transform_bits) * VP8LFastLog2(14);
 			// For color transforms: 24 as only 3 channels are considered in a
 			// ColorTransformElement.
-			entropy[kSpatialSubGreen] += VP8LSubSampleSize(width, transform_bits) *
-			    VP8LSubSampleSize(height, transform_bits) *
-			    VP8LFastLog2(24);
+			entropy[kSpatialSubGreen] += VP8LSubSampleSize(width, transform_bits) * VP8LSubSampleSize(height, transform_bits) * VP8LFastLog2(24);
 			// For palettes, add the cost of storing the palette.
 			// We empirically estimate the cost of a compressed entry as 8 bits.
 			// The palette is differential-coded when compressed hence a much
@@ -508,10 +474,8 @@ static int AnalyzeEntropy(const uint32_t* argb,
 					{ kHistoRedPredSubGreen, kHistoBluePredSubGreen },
 					{ kHistoRed, kHistoBlue }
 				};
-				const uint32_t* const red_histo =
-				    &histo[256 * kHistoPairs[*min_entropy_ix][0]];
-				const uint32_t* const blue_histo =
-				    &histo[256 * kHistoPairs[*min_entropy_ix][1]];
+				const uint32_t* const red_histo = &histo[256 * kHistoPairs[*min_entropy_ix][0]];
+				const uint32_t* const blue_histo = &histo[256 * kHistoPairs[*min_entropy_ix][1]];
 				for(i = 1; i < 256; ++i) {
 					if((red_histo[i] | blue_histo[i]) != 0) {
 						*red_and_blue_always_zero = 0;
@@ -915,7 +879,7 @@ static void StoreHuffmanCode(VP8LBitWriter* const bw,
 		}
 	}
 
-	if(count == 0) { // emit minimal tree for empty cases
+	if(!count) { // emit minimal tree for empty cases
 		// bits: small tree marker: 1, count-1: 0, large 8-bit code: 0, code: 0
 		VP8LPutBits(bw, 0x01, 4);
 	}
@@ -1730,7 +1694,8 @@ typedef struct {
 	WebPAuxStats* stats_;
 } StreamEncodeContext;
 
-static int EncodeStreamHook(void* input, void* data2) {
+static int EncodeStreamHook(void* input, void* data2) 
+{
 	StreamEncodeContext* const params = (StreamEncodeContext*)input;
 	const WebPConfig* const config = params->config_;
 	const WebPPicture* const picture = params->picture_;
@@ -1761,22 +1726,16 @@ static int EncodeStreamHook(void* input, void* data2) {
 	size_t best_size = ~(size_t)0;
 	VP8LBitWriter bw_init = *bw, bw_best;
 	(void)data2;
-
 	if(!VP8LBitWriterInit(&bw_best, 0) ||
 	    (num_crunch_configs > 1 && !VP8LBitWriterClone(bw, &bw_best))) {
 		err = VP8_ENC_ERROR_OUT_OF_MEMORY;
 		goto Error;
 	}
-
 	for(idx = 0; idx < num_crunch_configs; ++idx) {
 		const int entropy_idx = crunch_configs[idx].entropy_idx_;
-		enc->use_palette_ =
-		    (entropy_idx == kPalette) || (entropy_idx == kPaletteAndSpatial);
-		enc->use_subtract_green_ =
-		    (entropy_idx == kSubGreen) || (entropy_idx == kSpatialSubGreen);
-		enc->use_predict_ = (entropy_idx == kSpatial) ||
-		    (entropy_idx == kSpatialSubGreen) ||
-		    (entropy_idx == kPaletteAndSpatial);
+		enc->use_palette_ = (entropy_idx == kPalette) || (entropy_idx == kPaletteAndSpatial);
+		enc->use_subtract_green_ = (entropy_idx == kSubGreen) || (entropy_idx == kSpatialSubGreen);
+		enc->use_predict_ = (entropy_idx == kSpatial) || (entropy_idx == kSpatialSubGreen) || (entropy_idx == kPaletteAndSpatial);
 		// When using a palette, R/B==0, hence no need to test for cross-color.
 		if(low_effort || enc->use_palette_) {
 			enc->use_cross_color_ = 0;
@@ -2048,7 +2007,6 @@ WebPEncodingError VP8LEncodeStream(const WebPConfig* const config,
 			goto Error;
 		}
 	}
-
 Error:
 	VP8LBitWriterWipeOut(&bw_side);
 	VP8LEncoderDelete(enc_main);
@@ -2059,8 +2017,8 @@ Error:
 #undef CRUNCH_CONFIGS_MAX
 #undef CRUNCH_SUBCONFIGS_MAX
 
-int VP8LEncodeImage(const WebPConfig* const config,
-    const WebPPicture* const picture) {
+int VP8LEncodeImage(const WebPConfig* const config, const WebPPicture* const picture) 
+{
 	int width, height;
 	int has_alpha;
 	size_t coded_size;
@@ -2068,21 +2026,18 @@ int VP8LEncodeImage(const WebPConfig* const config,
 	int initial_size;
 	WebPEncodingError err = VP8_ENC_OK;
 	VP8LBitWriter bw;
-
-	if(picture == NULL) return 0;
-
+	if(picture == NULL) 
+		return 0;
 	if(config == NULL || picture->argb == NULL) {
 		err = VP8_ENC_ERROR_NULL_PARAMETER;
 		WebPEncodingSetError(picture, err);
 		return 0;
 	}
-
 	width = picture->width;
 	height = picture->height;
 	// Initialize BitWriter with size corresponding to 16 bpp to photo images and
 	// 8 bpp for graphical images.
-	initial_size = (config->image_hint == WEBP_HINT_GRAPH) ?
-	    width * height : width * height * 2;
+	initial_size = (config->image_hint == WEBP_HINT_GRAPH) ? width * height : width * height * 2;
 	if(!VP8LBitWriterInit(&bw, initial_size)) {
 		err = VP8_ENC_ERROR_OUT_OF_MEMORY;
 		goto Error;
@@ -2103,34 +2058,31 @@ UserAbort:
 		stats->PSNR[3] = 99.f;
 		stats->PSNR[4] = 99.f;
 	}
-
 	// Write image size.
 	if(!WriteImageSize(picture, &bw)) {
 		err = VP8_ENC_ERROR_OUT_OF_MEMORY;
 		goto Error;
 	}
-
 	has_alpha = WebPPictureHasTransparency(picture);
 	// Write the non-trivial Alpha flag and lossless version.
 	if(!WriteRealAlphaAndVersion(&bw, has_alpha)) {
 		err = VP8_ENC_ERROR_OUT_OF_MEMORY;
 		goto Error;
 	}
-
-	if(!WebPReportProgress(picture, 5, &percent)) goto UserAbort;
-
+	if(!WebPReportProgress(picture, 5, &percent)) 
+		goto UserAbort;
 	// Encode main image stream.
 	err = VP8LEncodeStream(config, picture, &bw, 1 /*use_cache*/);
-	if(err != VP8_ENC_OK) goto Error;
-
-	if(!WebPReportProgress(picture, 90, &percent)) goto UserAbort;
-
+	if(err != VP8_ENC_OK) 
+		goto Error;
+	if(!WebPReportProgress(picture, 90, &percent)) 
+		goto UserAbort;
 	// Finish the RIFF chunk.
 	err = WriteImage(picture, &bw, &coded_size);
-	if(err != VP8_ENC_OK) goto Error;
-
-	if(!WebPReportProgress(picture, 100, &percent)) goto UserAbort;
-
+	if(err != VP8_ENC_OK) 
+		goto Error;
+	if(!WebPReportProgress(picture, 100, &percent)) 
+		goto UserAbort;
 #if !defined(WEBP_DISABLE_STATS)
 	// Save size.
 	if(picture->stats != NULL) {
@@ -2138,7 +2090,6 @@ UserAbort:
 		picture->stats->lossless_size = (int)coded_size;
 	}
 #endif
-
 	if(picture->extra_info != NULL) {
 		const int mb_w = (width + 15) >> 4;
 		const int mb_h = (height + 15) >> 4;
@@ -2154,5 +2105,3 @@ Error:
 	}
 	return 1;
 }
-
-//------------------------------------------------------------------------------

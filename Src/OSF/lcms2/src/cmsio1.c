@@ -118,35 +118,29 @@ static boolint ReadICCMatrixRGB2XYZ(cmsMAT3* r, cmsHPROFILE hProfile)
 // Gray input pipeline
 static cmsPipeline * BuildGrayInputMatrixPipeline(cmsHPROFILE hProfile)
 {
-	cmsToneCurve * GrayTRC;
 	cmsPipeline * Lut;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
-	GrayTRC = (cmsToneCurve *)cmsReadTag(hProfile, cmsSigGrayTRCTag);
-	if(GrayTRC == NULL) return NULL;
+	cmsToneCurve * GrayTRC = (cmsToneCurve *)cmsReadTag(hProfile, cmsSigGrayTRCTag);
+	if(GrayTRC == NULL) 
+		return NULL;
 	Lut = cmsPipelineAlloc(ContextID, 1, 3);
 	if(Lut == NULL)
 		goto Error;
 	if(cmsGetPCS(hProfile) == cmsSigLabData) {
 		// In this case we implement the profile as an  identity matrix plus 3 tone curves
 		uint16 Zero[2] = { 0x8080, 0x8080 };
-		cmsToneCurve * EmptyTab;
 		cmsToneCurve * LabCurves[3];
-
-		EmptyTab = cmsBuildTabulatedToneCurve16(ContextID, 2, Zero);
-
+		cmsToneCurve * EmptyTab = cmsBuildTabulatedToneCurve16(ContextID, 2, Zero);
 		if(EmptyTab == NULL)
 			goto Error;
-
 		LabCurves[0] = GrayTRC;
 		LabCurves[1] = EmptyTab;
 		LabCurves[2] = EmptyTab;
-
 		if(!cmsPipelineInsertStage(Lut, cmsAT_END, cmsStageAllocMatrix(ContextID, 3,  1, OneToThreeInputMatrix, NULL)) ||
 		    !cmsPipelineInsertStage(Lut, cmsAT_END, cmsStageAllocToneCurves(ContextID, 3, LabCurves))) {
 			cmsFreeToneCurve(EmptyTab);
 			goto Error;
 		}
-
 		cmsFreeToneCurve(EmptyTab);
 	}
 	else {
@@ -154,9 +148,7 @@ static cmsPipeline * BuildGrayInputMatrixPipeline(cmsHPROFILE hProfile)
 		    !cmsPipelineInsertStage(Lut, cmsAT_END, cmsStageAllocMatrix(ContextID, 3,  1, GrayInputMatrix, NULL)))
 			goto Error;
 	}
-
 	return Lut;
-
 Error:
 	cmsPipelineFree(Lut);
 	return NULL;
@@ -618,30 +610,22 @@ cmsPipeline * CMSEXPORT _cmsReadDevicelinkLUT(cmsHPROFILE hProfile, uint32 Inten
 	cmsTagSignature tag16;
 	cmsTagSignature tagFloat;
 	cmsContext ContextID = cmsGetProfileContextID(hProfile);
-
 	if(Intent > INTENT_ABSOLUTE_COLORIMETRIC)
 		return NULL;
-
 	tag16 = Device2PCS16[Intent];
 	tagFloat = Device2PCSFloat[Intent];
-
 	// On named color, take the appropriate tag
 	if(cmsGetDeviceClass(hProfile) == cmsSigNamedColorClass) {
 		cmsNAMEDCOLORLIST* nc = (cmsNAMEDCOLORLIST*)cmsReadTag(hProfile, cmsSigNamedColor2Tag);
-
 		if(nc == NULL) return NULL;
-
 		Lut = cmsPipelineAlloc(ContextID, 0, 0);
 		if(Lut == NULL)
 			goto Error;
-
 		if(!cmsPipelineInsertStage(Lut, cmsAT_BEGIN, _cmsStageAllocNamedColor(nc, FALSE)))
 			goto Error;
-
 		if(cmsGetColorSpace(hProfile) == cmsSigLabData)
 			if(!cmsPipelineInsertStage(Lut, cmsAT_END, _cmsStageAllocLabV2ToV4(ContextID)))
 				goto Error;
-
 		return Lut;
 Error:
 		cmsPipelineFree(Lut);
@@ -653,35 +637,27 @@ Error:
 		// Floating point LUT are always V
 		return _cmsReadFloatDevicelinkTag(hProfile, tagFloat);
 	}
-
 	tagFloat = Device2PCSFloat[0];
 	if(cmsIsTag(hProfile, tagFloat)) {
 		return cmsPipelineDup((cmsPipeline *)cmsReadTag(hProfile, tagFloat));
 	}
-
 	if(!cmsIsTag(hProfile, tag16)) { // Is there any LUT-Based table?
 		tag16 = Device2PCS16[0];
 		if(!cmsIsTag(hProfile, tag16)) return NULL;
 	}
-
 	// Check profile version and LUT type. Do the necessary adjustments if needed
-
 	// Read the tag
 	Lut = (cmsPipeline *)cmsReadTag(hProfile, tag16);
 	if(Lut == NULL) return NULL;
-
 	// The profile owns the Lut, so we need to copy it
 	Lut = cmsPipelineDup(Lut);
 	if(Lut == NULL) return NULL;
-
 	// Now it is time for a controversial stuff. I found that for 3D LUTS using
 	// Lab used as indexer space,  trilinear interpolation should be used
 	if(cmsGetPCS(hProfile) == cmsSigLabData)
 		ChangeInterpolationToTrilinear(Lut);
-
 	// After reading it, we have info about the original type
 	OriginalType = _cmsGetTagTrueType(hProfile, tag16);
-
 	// We need to adjust data for Lab16 on output
 	if(OriginalType != cmsSigLut16Type) return Lut;
 	// Here it is possible to get Lab on both sides

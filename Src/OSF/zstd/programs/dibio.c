@@ -13,7 +13,7 @@
 *  Compiler Warnings
 ****************************************/
 #ifdef _MSC_VER
-#  pragma warning(disable : 4127)    /* disable: C4127: conditional expression is constant */
+#pragma warning(disable : 4127)    /* disable: C4127: conditional expression is constant */
 #endif
 #include "platform.h"       /* Large Files support */
 #include "util.h"           /* UTIL_getFileSize, UTIL_getTotalFileSize */
@@ -25,22 +25,21 @@
 //
 // Constants
 //
-#define KB *(1 <<10)
-#define MB *(1 <<20)
-#define GB *(1U<<30)
+//#define KB_Removed *(1 <<10)
+//#define MB_Removed *(1 <<20)
+//#define GB_Removed *(1U<<30)
 
-#define SAMPLESIZE_MAX (128 KB)
+#define SAMPLESIZE_MAX (SKILOBYTE(128))
 #define MEMMULT 11    /* rough estimation : memory cost to analyze 1 byte of sample */
 #define COVER_MEMMULT 9    /* rough estimation : memory cost to analyze 1 byte of sample */
 #define FASTCOVER_MEMMULT 1    /* rough estimation : memory cost to analyze 1 byte of sample */
-static const size_t g_maxMemory = (sizeof(size_t) == 4) ? (2 GB - 64 MB) : ((size_t)(512 MB) << sizeof(size_t));
+static const size_t g_maxMemory = (sizeof(size_t) == 4) ? (SGIGABYTE(2) - SMEGABYTE(64)) : ((size_t)(SMEGABYTE(512)) << sizeof(size_t));
 
 #define NOISELENGTH 32
-#define MAX_SAMPLES_SIZE (2 GB) /* training dataset limited to 2GB */
-
-/*-*************************************
-*  Console display
-***************************************/
+#define MAX_SAMPLES_SIZE (SGIGABYTE(2)) /* training dataset limited to 2GB */
+//
+// Console display
+//
 #define DISPLAY(...)         fprintf(stderr, __VA_ARGS__)
 #define DISPLAYLEVEL(l, ...) if(displayLevel>=l) { DISPLAY(__VA_ARGS__); }
 
@@ -143,7 +142,7 @@ static int DiB_loadFiles(void* buffer, size_t* bufferSizePtr, size_t* sampleSize
 	if(f)
 		fclose(f);
 	DISPLAYLEVEL(2, "\r%79s\r", "");
-	DISPLAYLEVEL(4, "Loaded %d KB total training data, %d nb samples \n", (int)(totalDataLoaded / (1 KB)), nbSamplesLoaded);
+	DISPLAYLEVEL(4, "Loaded %d KB total training data, %d nb samples \n", (int)(totalDataLoaded / SKILOBYTE(1)), nbSamplesLoaded);
 	*bufferSizePtr = totalDataLoaded;
 	return nbSamplesLoaded;
 }
@@ -151,7 +150,7 @@ static int DiB_loadFiles(void* buffer, size_t* bufferSizePtr, size_t* sampleSize
 #define DiB_rotl32(x, r) ((x << r) | (x >> (32 - r)))
 static uint32 DiB_rand(uint32* src)
 {
-	static const uint32 prime1 = 2654435761U;
+	static const uint32 prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
 	static const uint32 prime2 = 2246822519U;
 	uint32 rand32 = *src;
 	rand32 *= prime1;
@@ -183,12 +182,12 @@ static void DiB_shuffle(const char** fileNamesTable, unsigned nbFiles) {
 **********************************************************/
 static size_t DiB_findMaxMem(unsigned long long requiredMem)
 {
-	size_t const step = 8 MB;
+	size_t const step = SMEGABYTE(8);
 	void* testmem = NULL;
-
 	requiredMem = (((requiredMem >> 23) + 1) << 23);
 	requiredMem += step;
-	if(requiredMem > g_maxMemory) requiredMem = g_maxMemory;
+	if(requiredMem > g_maxMemory) 
+		requiredMem = g_maxMemory;
 	while(!testmem) {
 		testmem = SAlloc::M((size_t)requiredMem);
 		requiredMem -= step;
@@ -199,13 +198,12 @@ static size_t DiB_findMaxMem(unsigned long long requiredMem)
 
 static void DiB_fillNoise(void* buffer, size_t length)
 {
-	unsigned const prime1 = 2654435761U;
-	unsigned const prime2 = 2246822519U;
-	unsigned acc = prime1;
-	size_t p = 0;
-	for(p = 0; p<length; p++) {
+	//const uint prime1 = _SlConst.MagicHashPrime32/*2654435761U*/;
+	const uint prime2 = 2246822519U;
+	uint acc = _SlConst.MagicHashPrime32/*prime1*/;
+	for(size_t p = 0; p<length; p++) {
 		acc *= prime2;
-		((unsigned char*)buffer)[p] = (unsigned char)(acc >> 21);
+		((uchar*)buffer)[p] = (uchar)(acc >> 21);
 	}
 }
 
@@ -263,16 +261,14 @@ static fileStats DiB_fileStats(const char** fileNamesTable, int nbFiles, size_t 
 			if(fileSize > SAMPLESIZE_MAX) {
 				/* flag excessively large sample files */
 				fs.oneSampleTooLarge |= (fileSize > 2*SAMPLESIZE_MAX);
-
 				/* Limit to the first SAMPLESIZE_MAX (128kB) of the file */
-				DISPLAYLEVEL(3, "Sample file '%s' is too large, limiting to %d KB",
-				    fileNamesTable[n], SAMPLESIZE_MAX / (1 KB));
+				DISPLAYLEVEL(3, "Sample file '%s' is too large, limiting to %d KB", fileNamesTable[n], SAMPLESIZE_MAX / SKILOBYTE(1));
 			}
 			fs.nbSamples += 1;
 			fs.totalSizeToLoad += MIN(fileSize, SAMPLESIZE_MAX);
 		}
 	}
-	DISPLAYLEVEL(4, "Found training data %d files, %d KB, %d samples\n", nbFiles, (int)(fs.totalSizeToLoad / (1 KB)), fs.nbSamples);
+	DISPLAYLEVEL(4, "Found training data %d files, %d KB, %d samples\n", nbFiles, (int)(fs.totalSizeToLoad / SKILOBYTE(1)), fs.nbSamples);
 	return fs;
 }
 
@@ -306,14 +302,12 @@ int DiB_trainFromFiles(const char* dictFileName, size_t maxDictSize, const char*
 		/* TODO: there is opportunity to stop DiB_fileStats() early when the data limit is reached */
 		loadedSize = (size_t)MIN(MIN((int64)maxMem, fs.totalSizeToLoad), MAX_SAMPLES_SIZE);
 		if(memLimit != 0) {
-			DISPLAYLEVEL(2, "!  Warning : setting manual memory limit for dictionary training data at %u MB \n",
-			    (unsigned)(memLimit / (1 MB)));
+			DISPLAYLEVEL(2, "!  Warning : setting manual memory limit for dictionary training data at %u MB \n", (uint)(memLimit / SMEGABYTE(1)));
 			loadedSize = (size_t)MIN(loadedSize, memLimit);
 		}
 		srcBuffer = SAlloc::M(loadedSize+NOISELENGTH);
 		sampleSizes = (size_t*)SAlloc::M(fs.nbSamples * sizeof(size_t));
 	}
-
 	/* Checks */
 	if((!sampleSizes) || (!srcBuffer) || (!dictBuffer))
 		EXM_THROW(12, "not enough memory for DiB_trainFiles"); /* should not happen */
@@ -334,7 +328,7 @@ int DiB_trainFromFiles(const char* dictFileName, size_t maxDictSize, const char*
 	}
 	/* init */
 	if((int64)loadedSize < fs.totalSizeToLoad)
-		DISPLAYLEVEL(1, "Training samples set too large (%u MB); training on %u MB only...\n", (uint)(fs.totalSizeToLoad / (1 MB)), (uint)(loadedSize / (1 MB)));
+		DISPLAYLEVEL(1, "Training samples set too large (%u MB); training on %u MB only...\n", (uint)(fs.totalSizeToLoad / SMEGABYTE(1)), (uint)(loadedSize / SMEGABYTE(1)));
 	/* Load input buffer */
 	nbSamplesLoaded = DiB_loadFiles(srcBuffer, &loadedSize, sampleSizes, fs.nbSamples, fileNamesTable, nbFiles, chunkSize, displayLevel);
 	{   

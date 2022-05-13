@@ -1105,19 +1105,14 @@ static int parse_file(struct archive_read * a, struct archive_entry * entry,
 			path = mtree->contents_name.s;
 		else
 			path = archive_entry_pathname(entry);
-
-		if(archive_entry_filetype(entry) == AE_IFREG ||
-		    archive_entry_filetype(entry) == AE_IFDIR) {
+		if(archive_entry_filetype(entry) == AE_IFREG || archive_entry_filetype(entry) == AE_IFDIR) {
 			mtree->fd = open(path, O_RDONLY | O_BINARY | O_CLOEXEC);
 			__archive_ensure_cloexec_flag(mtree->fd);
-			if(mtree->fd == -1 &&
-			    (errno != ENOENT ||
-			    archive_strlen(&mtree->contents_name) > 0)) {
+			if(mtree->fd == -1 && (errno != ENOENT || archive_strlen(&mtree->contents_name) > 0)) {
 				archive_set_error(&a->archive, errno, "Can't open %s", path);
 				r = ARCHIVE_WARN;
 			}
 		}
-
 		st = &st_storage;
 		if(mtree->fd >= 0) {
 			if(fstat(mtree->fd, st) == -1) {
@@ -1173,62 +1168,44 @@ static int parse_file(struct archive_read * a, struct archive_entry * entry,
 				return r;
 			}
 		}
-
 		/*
 		 * If there is a contents file on disk, pick some of the
 		 * metadata from that file.  For most of these, we only
 		 * set it from the contents if it wasn't already parsed
 		 * from the specification.
 		 */
-		if(st != NULL) {
-			if(((parsed_kws & MTREE_HAS_DEVICE) == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0) &&
-			    (archive_entry_filetype(entry) == AE_IFCHR ||
-			    archive_entry_filetype(entry) == AE_IFBLK))
+		if(st) {
+			if(((parsed_kws & MTREE_HAS_DEVICE) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0) &&
+			    (archive_entry_filetype(entry) == AE_IFCHR || archive_entry_filetype(entry) == AE_IFBLK))
 				archive_entry_set_rdev(entry, st->st_rdev);
-			if((parsed_kws & (MTREE_HAS_GID | MTREE_HAS_GNAME))
-			    == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
+			if((parsed_kws & (MTREE_HAS_GID | MTREE_HAS_GNAME)) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
 				archive_entry_set_gid(entry, st->st_gid);
-			if((parsed_kws & (MTREE_HAS_UID | MTREE_HAS_UNAME))
-			    == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
+			if((parsed_kws & (MTREE_HAS_UID | MTREE_HAS_UNAME)) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
 				archive_entry_set_uid(entry, st->st_uid);
-			if((parsed_kws & MTREE_HAS_MTIME) == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0) {
+			if((parsed_kws & MTREE_HAS_MTIME) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0) {
 #if HAVE_STRUCT_STAT_ST_MTIMESPEC_TV_NSEC
-				archive_entry_set_mtime(entry, st->st_mtime,
-				    st->st_mtimespec.tv_nsec);
+				archive_entry_set_mtime(entry, st->st_mtime, st->st_mtimespec.tv_nsec);
 #elif HAVE_STRUCT_STAT_ST_MTIM_TV_NSEC
-				archive_entry_set_mtime(entry, st->st_mtime,
-				    st->st_mtim.tv_nsec);
+				archive_entry_set_mtime(entry, st->st_mtime, st->st_mtim.tv_nsec);
 #elif HAVE_STRUCT_STAT_ST_MTIME_N
-				archive_entry_set_mtime(entry, st->st_mtime,
-				    st->st_mtime_n);
+				archive_entry_set_mtime(entry, st->st_mtime, st->st_mtime_n);
 #elif HAVE_STRUCT_STAT_ST_UMTIME
-				archive_entry_set_mtime(entry, st->st_mtime,
-				    st->st_umtime*1000);
+				archive_entry_set_mtime(entry, st->st_mtime, st->st_umtime*1000);
 #elif HAVE_STRUCT_STAT_ST_MTIME_USEC
-				archive_entry_set_mtime(entry, st->st_mtime,
-				    st->st_mtime_usec*1000);
+				archive_entry_set_mtime(entry, st->st_mtime, st->st_mtime_usec*1000);
 #else
 				archive_entry_set_mtime(entry, st->st_mtime, 0);
 #endif
 			}
-			if((parsed_kws & MTREE_HAS_NLINK) == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
+			if((parsed_kws & MTREE_HAS_NLINK) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
 				archive_entry_set_nlink(entry, st->st_nlink);
-			if((parsed_kws & MTREE_HAS_PERM) == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
+			if((parsed_kws & MTREE_HAS_PERM) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
 				archive_entry_set_perm(entry, st->st_mode);
-			if((parsed_kws & MTREE_HAS_SIZE) == 0 ||
-			    (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
+			if((parsed_kws & MTREE_HAS_SIZE) == 0 || (parsed_kws & MTREE_HAS_NOCHANGE) != 0)
 				archive_entry_set_size(entry, st->st_size);
 			archive_entry_set_ino(entry, st->st_ino);
 			archive_entry_set_dev(entry, st->st_dev);
-
-			archive_entry_linkify(mtree->resolver, &entry,
-			    &sparse_entry);
+			archive_entry_linkify(mtree->resolver, &entry, &sparse_entry);
 		}
 		else if(parsed_kws & MTREE_HAS_OPTIONAL) {
 			/*
@@ -1240,10 +1217,8 @@ static int parse_file(struct archive_read * a, struct archive_entry * entry,
 			return ARCHIVE_OK;
 		}
 	}
-
 	mtree->cur_size = archive_entry_size(entry);
 	mtree->offset = 0;
-
 	return r;
 }
 /*

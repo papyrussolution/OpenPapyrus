@@ -1548,7 +1548,7 @@ int PPObjSCardSeries::Edit(PPID * pID, void * extraPtr)
 				int    r = ListToListDialog(&ll_data);
 				if(r > 0)
 					SetupQuotKind(1);
-				else if(r == 0)
+				else if(!r)
 					PPError();
 			}
 			else if(event.isClusterClk(CTL_SCARDSER_TYPE)) {
@@ -3053,7 +3053,7 @@ int PPObjSCard::VerifyOwner(PPSCardPacket & rScPack, PPID posNodeID, int updateI
 						}
 						ok = 1;
 					}
-					else if(r == 0)
+					else if(!r)
 						ok = 0;
 				}
 			}

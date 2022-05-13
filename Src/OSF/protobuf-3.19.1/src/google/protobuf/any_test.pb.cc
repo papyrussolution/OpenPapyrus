@@ -104,7 +104,7 @@ TestAny::TestAny(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   repeated_any_value_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:protobuf_unittest.TestAny)
@@ -142,7 +142,7 @@ text_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 
 TestAny::~TestAny() {
   // @@protoc_insertion_point(destructor:protobuf_unittest.TestAny)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -180,8 +180,8 @@ void TestAny::Clear() {
 }
 
 const char* TestAny::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -209,8 +209,8 @@ const char* TestAny::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_repeated_any_value(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -224,8 +224,7 @@ const char* TestAny::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::in
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -262,17 +261,13 @@ uint8_t* TestAny::_InternalSerialize(
   // .google.protobuf.Any any_value = 2;
   if(this->_internal_has_any_value()) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::any_value(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::any_value(this), target, stream);
   }
 
   // repeated .google.protobuf.Any repeated_any_value = 3;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_repeated_any_value_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_repeated_any_value_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(3, this->_internal_repeated_any_value(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, this->_internal_repeated_any_value(i), target, stream);
   }
 
   // string text = 4;
@@ -313,9 +308,7 @@ size_t TestAny::ByteSizeLong() const {
 
   // .google.protobuf.Any any_value = 2;
   if(this->_internal_has_any_value()) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *any_value_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*any_value_);
   }
 
   // int32 int32_value = 1;
@@ -395,7 +388,7 @@ void TestAny::InternalSwap(TestAny* other) {
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace protobuf_unittest
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestAny* Arena::CreateMaybeMessage< ::protobuf_unittest::TestAny >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::protobuf_unittest::TestAny * Arena::CreateMaybeMessage< ::protobuf_unittest::TestAny >(Arena* arena) {
   return Arena::CreateMessageInternal< ::protobuf_unittest::TestAny >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

@@ -204,7 +204,7 @@ static int ssl_session_strndup(char ** pdst, ASN1_OCTET_STRING * src)
 {
 	OPENSSL_free(*pdst);
 	*pdst = NULL;
-	if(src == NULL)
+	if(!src)
 		return 1;
 	*pdst = OPENSSL_strndup((char *)src->data, src->length);
 	if(*pdst == NULL)
@@ -217,7 +217,7 @@ static int ssl_session_strndup(char ** pdst, ASN1_OCTET_STRING * src)
 static int ssl_session_memcpy(uchar * dst, size_t * pdstlen,
     ASN1_OCTET_STRING * src, size_t maxlen)
 {
-	if(src == NULL) {
+	if(!src) {
 		*pdstlen = 0;
 		return 1;
 	}

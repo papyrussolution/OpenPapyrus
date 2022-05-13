@@ -103,18 +103,13 @@ void _cmsAllocAlarmCodesChunk(struct _cmsContext_struct* ctx, const struct _cmsC
 // Get rid of transform resources
 void CMSEXPORT cmsDeleteTransform(cmsHTRANSFORM hTransform)
 {
-	_cmsTRANSFORM* p = (_cmsTRANSFORM*)hTransform;
+	_cmsTRANSFORM * p = (_cmsTRANSFORM*)hTransform;
 	_cmsAssert(p != NULL);
-	if(p->GamutCheck)
-		cmsPipelineFree(p->GamutCheck);
-	if(p->Lut)
-		cmsPipelineFree(p->Lut);
-	if(p->InputColorant)
-		cmsFreeNamedColorList(p->InputColorant);
-	if(p->OutputColorant)
-		cmsFreeNamedColorList(p->OutputColorant);
-	if(p->Sequence)
-		cmsFreeProfileSequenceDescription(p->Sequence);
+	cmsPipelineFree(p->GamutCheck);
+	cmsPipelineFree(p->Lut);
+	cmsFreeNamedColorList(p->InputColorant);
+	cmsFreeNamedColorList(p->OutputColorant);
+	cmsFreeProfileSequenceDescription(p->Sequence);
 	if(p->UserData)
 		p->FreeUserData(p->ContextID, p->UserData);
 	_cmsFree(p->ContextID, (void *)p);
@@ -736,7 +731,7 @@ static void NormalizeXYZ(cmsCIEXYZ * Dest)
 
 static void SetWhitePoint(cmsCIEXYZ* wtPt, const cmsCIEXYZ* src)
 {
-	if(src == NULL) {
+	if(!src) {
 		wtPt->X = cmsD50X;
 		wtPt->Y = cmsD50Y;
 		wtPt->Z = cmsD50Z;

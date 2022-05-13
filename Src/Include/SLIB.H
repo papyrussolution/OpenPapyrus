@@ -585,7 +585,8 @@ public:
 		ListBoxDefSignature_STRING(0xABCD0004),   // StringListBoxDef
 		ListBoxDefSignature_DBQ(0xABCD0005),      // DBQListBoxDef
 		ListBoxDefSignature_STDTREE2(0xABCD0006), // StdTreeListBoxDef2
-		MagicHashPrime32(2654435761U)/*0x9e3779b1*/ // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
+		MagicHashPrime32(2654435761U)/*0x9e3779b1*/, // Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
+		GoldenRatioInt32(2654435769U)/*0x9e3779b9*/  // The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 	{
 	}
 	const uint VectorImageMask;
@@ -606,6 +607,8 @@ public:
 	const uint32 ListBoxDefSignature_DBQ;      //0xABCD0005 // DBQListBoxDef
 	const uint32 ListBoxDefSignature_STDTREE2; //0xABCD0006 // StdTreeListBoxDef2
 	const uint32 MagicHashPrime32;             // @v11.3.10 Knuth multiplicative hashing.  (Sorting & Searching, p. 510). the closest prime number to (2**32)*golden_ratio, where golden_ratio = (sqrt(5) - 1)/2.
+	const uint32 GoldenRatioInt32;             // @v11.3.12 The integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
+	//0x9e3779b9 is the integral part of the Golden Ratio's fractional part 0.61803398875… (sqrt(5)-1)/2, multiplied by 2^32.
 };
 
 extern const SlConstParam _SlConst;
@@ -11639,6 +11642,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOK_RU_SNILS         34 // @v10.8.1 Российский код СНИЛС
 #define SNTOK_RU_BIC           35 // @v10.8.1 Российский банковский идентификационный код (БИК)
 #define SNTOK_RU_KPP           36 // @v10.8.2 Российский код причины постановки на налоговый учет (КПП)
+#define SNTOK_LINGUACODE       37 // @v11.3.12 Код естественного языка
 
 #define SNTOKSEQ_DEC        0x00000001 // 0-9
 #define SNTOKSEQ_LATLWR     0x00000002 // a-z
@@ -11663,6 +11667,7 @@ int FASTCALL ExtStrSrch(const char * pBuffer, const char * pPattern, uint flags)
 #define SNTOKSEQ_BACKPCT    0x00100000 // Последовательность завершается символом % (без отключения остальных флагов)
 #define SNTOKSEQ_NUMERIC    0x00200000 // @v10.2.5 Многовариантное представление числа [+\-0-9.,' ]
 	// -9,999.99  +99'999,9  9 999.999  999
+#define SNTOKSEQ_LATHYPHENORUSCORE  0x00400000 // @v11.3.12 ТОЛЬКО LAT && (- || _)
 
 struct SNaturalTokenStat {
 	SNaturalTokenStat();
@@ -11769,6 +11774,8 @@ struct SJson {
 		tFALSE,
 		tNULL
 	};
+	static SJson * CreateObj(); // { return new SJson(tOBJECT); }
+	static SJson * CreateArr(); // { return new SJson(tARRAY); }
 	static SJson * FASTCALL Parse(const char * pText);
 	static bool FASTCALL IsObject(const SJson * pN) { return (pN && pN->Type == SJson::tOBJECT); }
 	static bool FASTCALL IsArray(const SJson * pN) { return (pN && pN->Type == SJson::tARRAY); }
@@ -11918,7 +11925,7 @@ int json_format_string(const char * pText, SString & rBuf);
 // @param buffer a null-terminated c-string containing a JSON document fragment
 // @return /*a code describing how the operation ended up*/
 //
-int FASTCALL json_parse_fragment(JsonParsingBlock * info, const char * buffer);
+int FASTCALL json_parse_fragment(JsonParsingBlock & rBlk, const char * pBuffer);
 //
 // Produces a document tree from a JSON markup text string that contains a complete document
 // @param root a reference to a pointer to a SJson type. The function allocates memory to the passed pointer and sets up the value
@@ -17003,6 +17010,8 @@ public:
 	int    GetCurrentStatus() const { return CurrentStatus; }
 protected:
 	const  STestSuite::Entry * GetSuiteEntry() const;
+	const char * GetInputPath() const;
+	const char * GetOutputPath() const;
 	const char * MakeInputFilePath(const char * pFileName);
 	const char * MakeOutputFilePath(const char * pFileName);
 	const char * GetTestName() const;
@@ -17072,9 +17081,9 @@ private:
 		SString rec, tail, s1, s2, temp_buf;
 		if(!rStr.IsEmpty()) {
 			int    r = rStr.Divide(';', rec, tail);
-			if(r != 0) {
+			if(r) {
 				r = rec.Divide('=', s1, s2);
-				if(r != 0) {
+				if(r) {
 					if(r > 0) {
 						KeyValuePair * p_pair = new KeyValuePair();
 						p_pair->Key = s1;

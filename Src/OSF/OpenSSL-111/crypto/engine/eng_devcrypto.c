@@ -537,7 +537,7 @@ static int digest_op(struct digest_ctx * ctx, const void * src, size_t srclen, v
 static int digest_update(EVP_MD_CTX * ctx, const void * data, size_t count)
 {
 	struct digest_ctx * digest_ctx = (struct digest_ctx *)EVP_MD_CTX_md_data(ctx);
-	if(count == 0)
+	if(!count)
 		return 1;
 	if(digest_ctx == NULL)
 		return 0;

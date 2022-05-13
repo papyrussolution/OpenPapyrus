@@ -823,9 +823,9 @@ int ec_wNAF_precompute_mult(EC_GROUP * group, BN_CTX * ctx)
 		goto err;
 	}
 
-	if(ctx == NULL) {
+	if(!ctx) {
 		ctx = new_ctx = BN_CTX_new();
-		if(ctx == NULL)
+		if(!ctx)
 			goto err;
 	}
 

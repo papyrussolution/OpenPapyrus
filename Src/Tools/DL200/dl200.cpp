@@ -1587,7 +1587,7 @@ IMPL_CMPFUNC(DL2_IndexItem, i1, i2)
 	const DL2_Storage::IndexItem * e1 = static_cast<const DL2_Storage::IndexItem *>(i1);
 	const DL2_Storage::IndexItem * e2 = static_cast<const DL2_Storage::IndexItem *>(i2);
 	int    r = (int)(e1->EntryType - e2->EntryType);
-	if(r == 0)
+	if(!r)
 		r = stricmp866(e1->Name, e2->Name);
 	return r;
 }

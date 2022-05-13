@@ -291,7 +291,8 @@ static char * ssh_session_get_host_port(ssh_session session)
  *
  * @return A list of supported key types, NULL on error.
  */
-struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session){
+struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session)
+{
 	struct ssh_list * entry_list = NULL;
 	struct ssh_iterator * it = NULL;
 	char * host_port = NULL;
@@ -299,55 +300,40 @@ struct ssh_list * ssh_known_hosts_get_algorithms(ssh_session session){
 	struct ssh_list * list = NULL;
 	int list_error = 0;
 	int rc;
-
-	if(session->opts.knownhosts == NULL ||
-	    session->opts.global_knownhosts == NULL) {
+	if(session->opts.knownhosts == NULL || session->opts.global_knownhosts == NULL) {
 		if(ssh_options_apply(session) < 0) {
-			ssh_set_error(session,
-			    SSH_REQUEST_DENIED,
-			    "Can't find a known_hosts file");
-
+			ssh_set_error(session, SSH_REQUEST_DENIED, "Can't find a known_hosts file");
 			return NULL;
 		}
 	}
-
 	host_port = ssh_session_get_host_port(session);
 	if(host_port == NULL) {
 		return NULL;
 	}
-
 	list = ssh_list_new();
-	if(list == NULL) {
+	if(!list) {
 		ZFREE(host_port);
 		return NULL;
 	}
-
-	rc = ssh_known_hosts_read_entries(host_port,
-		session->opts.knownhosts,
-		&entry_list);
-	if(rc != 0) {
+	rc = ssh_known_hosts_read_entries(host_port, session->opts.knownhosts, &entry_list);
+	if(rc) {
 		ssh_list_free(entry_list);
 		ssh_list_free(list);
 		return NULL;
 	}
-
-	rc = ssh_known_hosts_read_entries(host_port,
-		session->opts.global_knownhosts,
-		&entry_list);
+	rc = ssh_known_hosts_read_entries(host_port, session->opts.global_knownhosts, &entry_list);
 	ZFREE(host_port);
-	if(rc != 0) {
+	if(rc) {
 		ssh_list_free(entry_list);
 		ssh_list_free(list);
 		return NULL;
 	}
-
 	if(entry_list == NULL) {
 		ssh_list_free(list);
 		return NULL;
 	}
-
 	count = ssh_list_count(entry_list);
-	if(count == 0) {
+	if(!count) {
 		ssh_list_free(list);
 		ssh_list_free(entry_list);
 		return NULL;
@@ -397,30 +383,22 @@ error:
 static const char * ssh_known_host_sigs_from_hostkey_type(enum ssh_keytypes_e type)
 {
 	switch(type) {
-		case SSH_KEYTYPE_RSA:
-		    return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
-		case SSH_KEYTYPE_ED25519:
-		    return "ssh-ed25519";
+		case SSH_KEYTYPE_RSA: return "rsa-sha2-512,rsa-sha2-256,ssh-rsa";
+		case SSH_KEYTYPE_ED25519: return "ssh-ed25519";
 #ifdef HAVE_DSA
-		case SSH_KEYTYPE_DSS:
-		    return "ssh-dss";
+		case SSH_KEYTYPE_DSS: return "ssh-dss";
 #endif
 #ifdef HAVE_ECDH
-		case SSH_KEYTYPE_ECDSA_P256:
-		    return "ecdsa-sha2-nistp256";
-		case SSH_KEYTYPE_ECDSA_P384:
-		    return "ecdsa-sha2-nistp384";
-		case SSH_KEYTYPE_ECDSA_P521:
-		    return "ecdsa-sha2-nistp521";
+		case SSH_KEYTYPE_ECDSA_P256: return "ecdsa-sha2-nistp256";
+		case SSH_KEYTYPE_ECDSA_P384: return "ecdsa-sha2-nistp384";
+		case SSH_KEYTYPE_ECDSA_P521: return "ecdsa-sha2-nistp521";
 #endif
 		case SSH_KEYTYPE_UNKNOWN:
 		default:
-		    SSH_LOG(SSH_LOG_WARN, "The given type %d is not a base private key type "
-			"or is unsupported", type);
+		    SSH_LOG(SSH_LOG_WARN, "The given type %d is not a base private key type or is unsupported", type);
 		    return NULL;
 	}
 }
-
 /**
  * @internal
  * @brief Get the host keys algorithms identifiers from the known_hosts files
@@ -465,7 +443,7 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 	rc = ssh_known_hosts_read_entries(host_port,
 		session->opts.knownhosts,
 		&entry_list);
-	if(rc != 0) {
+	if(rc) {
 		ZFREE(host_port);
 		ssh_list_free(entry_list);
 		return NULL;
@@ -475,7 +453,7 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 		session->opts.global_knownhosts,
 		&entry_list);
 	ZFREE(host_port);
-	if(rc != 0) {
+	if(rc) {
 		ssh_list_free(entry_list);
 		return NULL;
 	}
@@ -485,7 +463,7 @@ char * ssh_known_hosts_get_algorithms_names(ssh_session session)
 	}
 
 	count = ssh_list_count(entry_list);
-	if(count == 0) {
+	if(!count) {
 		ssh_list_free(entry_list);
 		return NULL;
 	}
@@ -734,7 +712,7 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 		rc = ssh_known_hosts_read_entries(host_port,
 			session->opts.knownhosts,
 			&entry_list);
-		if(rc != 0) {
+		if(rc) {
 			ZFREE(host_port);
 			ssh_list_free(entry_list);
 			return SSH_KNOWN_HOSTS_ERROR;
@@ -745,7 +723,7 @@ enum ssh_known_hosts_e ssh_session_has_known_hosts_entry(ssh_session session){
 		rc = ssh_known_hosts_read_entries(host_port,
 			session->opts.global_knownhosts,
 			&entry_list);
-		if(rc != 0) {
+		if(rc) {
 			ZFREE(host_port);
 			ssh_list_free(entry_list);
 			return SSH_KNOWN_HOSTS_ERROR;
@@ -910,7 +888,7 @@ static enum ssh_known_hosts_e ssh_known_hosts_check_server_key(const char * host
 	struct ssh_iterator * it = NULL;
 	enum ssh_known_hosts_e found = SSH_KNOWN_HOSTS_UNKNOWN;
 	int rc = ssh_known_hosts_read_entries(hosts_entry, filename, &entry_list);
-	if(rc != 0) {
+	if(rc) {
 		ssh_list_free(entry_list);
 		return SSH_KNOWN_HOSTS_UNKNOWN;
 	}

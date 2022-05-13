@@ -38,38 +38,38 @@
 
 /* detects whether we are being compiled under msan */
 #ifndef ZSTD_MEMORY_SANITIZER
-#  if __has_feature(memory_sanitizer)
-#    define ZSTD_MEMORY_SANITIZER 1
-#  else
-#    define ZSTD_MEMORY_SANITIZER 0
+#if __has_feature(memory_sanitizer)
+#define ZSTD_MEMORY_SANITIZER 1
+#else
+#define ZSTD_MEMORY_SANITIZER 0
 #  endif
 #endif
 
 /* detects whether we are being compiled under asan */
 #ifndef ZSTD_ADDRESS_SANITIZER
-#  if __has_feature(address_sanitizer)
-#    define ZSTD_ADDRESS_SANITIZER 1
-#  elif defined(__SANITIZE_ADDRESS__)
-#    define ZSTD_ADDRESS_SANITIZER 1
-#  else
-#    define ZSTD_ADDRESS_SANITIZER 0
+#if __has_feature(address_sanitizer)
+#define ZSTD_ADDRESS_SANITIZER 1
+#elif defined(__SANITIZE_ADDRESS__)
+#define ZSTD_ADDRESS_SANITIZER 1
+#else
+#define ZSTD_ADDRESS_SANITIZER 0
 #  endif
 #endif
 
 /* detects whether we are being compiled under dfsan */
 #ifndef ZSTD_DATAFLOW_SANITIZER
-# if __has_feature(dataflow_sanitizer)
+#if __has_feature(dataflow_sanitizer)
 #  define ZSTD_DATAFLOW_SANITIZER 1
-# else
+#else
 #  define ZSTD_DATAFLOW_SANITIZER 0
-# endif
+#endif
 #endif
 
 /* Mark the internal assembly functions as hidden  */
 #ifdef __ELF__
-# define ZSTD_HIDE_ASM_FUNCTION(func) .hidden func
+#define ZSTD_HIDE_ASM_FUNCTION(func) .hidden func
 #else
-# define ZSTD_HIDE_ASM_FUNCTION(func)
+#define ZSTD_HIDE_ASM_FUNCTION(func)
 #endif
 
 /* Enable runtime BMI2 dispatch based on the CPU.
@@ -99,16 +99,16 @@
  * 100% of code to be instrumented to work.
  */
 #if defined(__GNUC__)
-#  if defined(__linux__) || defined(__linux) || defined(__APPLE__)
-#    if ZSTD_MEMORY_SANITIZER
-#      define ZSTD_ASM_SUPPORTED 0
-#    elif ZSTD_DATAFLOW_SANITIZER
-#      define ZSTD_ASM_SUPPORTED 0
-#    else
-#      define ZSTD_ASM_SUPPORTED 1
-#    endif
-#  else
-#    define ZSTD_ASM_SUPPORTED 0
+#if defined(__linux__) || defined(__linux) || defined(__APPLE__)
+#if ZSTD_MEMORY_SANITIZER
+#define ZSTD_ASM_SUPPORTED 0
+#elif ZSTD_DATAFLOW_SANITIZER
+#define ZSTD_ASM_SUPPORTED 0
+#else
+#define ZSTD_ASM_SUPPORTED 1
+#endif
+#else
+#define ZSTD_ASM_SUPPORTED 0
 #  endif
 #else
 #  define ZSTD_ASM_SUPPORTED 0
@@ -129,9 +129,9 @@
     ZSTD_ASM_SUPPORTED &&                                         \
     defined(__x86_64__) &&                                        \
     (DYNAMIC_BMI2 || defined(__BMI2__))
-# define ZSTD_ENABLE_ASM_X86_64_BMI2 1
+#define ZSTD_ENABLE_ASM_X86_64_BMI2 1
 #else
-# define ZSTD_ENABLE_ASM_X86_64_BMI2 0
+#define ZSTD_ENABLE_ASM_X86_64_BMI2 0
 #endif
 
 /*
@@ -140,9 +140,9 @@
  */
 #if defined(__ELF__) && (defined(__x86_64__) || defined(__i386__)) \
     && defined(__has_include)
-# if __has_include(<cet.h>)
-#  include <cet.h>
-# endif
+#if __has_include(<cet.h>)
+#include <cet.h>
+#endif
 #endif
 
 #endif /* ZSTD_PORTABILITY_MACROS_H */

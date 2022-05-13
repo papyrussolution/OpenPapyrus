@@ -101,20 +101,20 @@
 #if defined(NO_THREADS)
   typedef int MutexType;      // to keep a lock-count
 #elif defined(_WIN32) || defined(__CYGWIN32__) || defined(__CYGWIN64__)
-# ifndef WIN32_LEAN_AND_MEAN
-#   define WIN32_LEAN_AND_MEAN  // We only need minimal includes
-# endif
-# ifndef NOMINMAX
-#   define NOMINMAX             // Don't want windows to override min()/max()
-# endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN  // We only need minimal includes
+#endif
+#ifndef NOMINMAX
+#define NOMINMAX             // Don't want windows to override min()/max()
+#endif
 # ifdef GMUTEX_TRYLOCK
   // We need Windows NT or later for TryEnterCriticalSection().  If you
   // don't need that functionality, you can remove these _WIN32_WINNT
   // lines, and change TryLock() to assert(0) or something.
 #ifndef _WIN32_WINNT
-#     define _WIN32_WINNT 0x0400
+#define _WIN32_WINNT 0x0400
 #endif
-# endif
+#endif
 #include <windows.h>
   typedef CRITICAL_SECTION MutexType;
 #elif defined(HAVE_PTHREAD) && defined(HAVE_RWLOCK)
@@ -125,9 +125,9 @@
 # ifdef __linux__
 #if _XOPEN_SOURCE < 500      // including not being defined at all
 #     undef _XOPEN_SOURCE
-#     define _XOPEN_SOURCE 500  // may be needed to get the rwlock calls
+#define _XOPEN_SOURCE 500  // may be needed to get the rwlock calls
 #endif
-# endif
+#endif
 #if defined(HAVE_PTHREAD) && !defined(NO_THREADS)
 #include <pthread.h>
 #endif

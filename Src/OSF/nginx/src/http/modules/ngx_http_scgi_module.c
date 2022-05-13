@@ -461,7 +461,7 @@ static ngx_int_t ngx_http_scgi_create_key(ngx_http_request_t * r)
 {
 	ngx_http_scgi_loc_conf_t  * scf;
 	ngx_str_t * key = (ngx_str_t *)ngx_array_push(&r->cache->keys);
-	if(key == NULL) {
+	if(!key) {
 		return NGX_ERROR;
 	}
 	scf = (ngx_http_scgi_loc_conf_t *)ngx_http_get_module_loc_conf(r, ngx_http_scgi_module);

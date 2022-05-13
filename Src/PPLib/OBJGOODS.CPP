@@ -411,7 +411,7 @@ static int _Lock(PPID id)
 		PPSyncItem sync_item;
 		if((r = DS.GetSync().CreateMutex_(LConfig.SessionID, PPOBJ_GOODS, id, &mutex_id, &sync_item)) < 0)
 			return PPSetError(PPERR_GOODSISLOCKED, sync_item.Name);
-		else if(r == 0)
+		else if(!r)
 			return PPSetError(PPERR_LOGICLOCKFAULT);
 	}
 	return 1;

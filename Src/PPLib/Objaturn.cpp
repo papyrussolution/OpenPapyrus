@@ -152,7 +152,7 @@ int PPObjAccTurn::ReplyAccDel(PPID _id)
 	int    r = P_Tbl->SearchAccRef(_id, 1);
 	if(r > 0)
 		ok = RetRefsExistsErr(Obj, 0);
-	else if(r == 0)
+	else if(!r)
 		ok = DBRPL_ERROR;
 	return ok;
 }
@@ -165,7 +165,7 @@ int PPObjAccTurn::ReplyArticleDel(PPID _id)
 	if(r > 0) {
 		ok = RetRefsExistsErr(PPOBJ_BILL, bill_id);
 	}
-	else if(r == 0)
+	else if(!r)
 		ok = DBRPL_ERROR;
 	return ok;
 }

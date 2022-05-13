@@ -151,7 +151,7 @@ int PrcssrBillAutoCreate::CreateDraftBySupplOrders(const SStatFilt * pFilt)
 									p_pack = 0;
                                 }
 							}
-							else if(r == 0)
+							else if(!r)
 								log.LogLastError();
 						}
 					}

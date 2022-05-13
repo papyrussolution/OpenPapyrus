@@ -372,7 +372,7 @@ static uint re_string_context_at(const re_string_t * input, Idx idx, int eflags)
 	   and a page size can be as small as 4096 bytes.  So we cannot safely
 	   allocate anything larger than 4096 bytes.  Also care for the possibility
 	   of a few compiler-allocated temporary stack slots.  */
-	#  define __libc_use_alloca(n) ((n) < 4032)
+	#define __libc_use_alloca(n) ((n) < 4032)
 	#else
 	/* alloca is implemented with malloc, so just use malloc.  */
 		#define __libc_use_alloca(n) 0
@@ -720,10 +720,10 @@ static int internal_function __attribute((pure)) re_string_elem_size_at(const re
 
 #ifndef __GNUC_PREREQ
 #if defined __GNUC__ && defined __GNUC_MINOR__
-#  define __GNUC_PREREQ(maj, min) \
+#define __GNUC_PREREQ(maj, min) \
 	((__GNUC__ << 16) + __GNUC_MINOR__ >= ((maj) << 16) + (min))
 #else
-#  define __GNUC_PREREQ(maj, min) 0
+#define __GNUC_PREREQ(maj, min) 0
 #endif
 #endif
 

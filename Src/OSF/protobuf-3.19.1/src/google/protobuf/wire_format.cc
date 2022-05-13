@@ -1277,7 +1277,7 @@ uint8_t* WireFormat::InternalSerializeField(const FieldDescriptor* field,
 	}
 
 	if(field->is_packed()) {
-		if(count == 0) return target;
+		if(!count) return target;
 		target = stream->EnsureSpace(target);
 		switch(field->type()) {
 #define HANDLE_PRIMITIVE_TYPE(TYPE, CPPTYPE, TYPE_METHOD, CPPTYPE_METHOD)      \

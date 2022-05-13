@@ -259,10 +259,7 @@ long archive_entry_ctime_nsec(struct archive_entry * entry)
 
 dev_t archive_entry_dev(struct archive_entry * entry)
 {
-	if(entry->ae_stat.aest_dev_is_broken_down)
-		return ae_makedev(entry->ae_stat.aest_devmajor, entry->ae_stat.aest_devminor);
-	else
-		return (entry->ae_stat.aest_dev);
+	return (entry->ae_stat.aest_dev_is_broken_down) ? ae_makedev(entry->ae_stat.aest_devmajor, entry->ae_stat.aest_devminor) : (entry->ae_stat.aest_dev);
 }
 
 int archive_entry_dev_is_set(struct archive_entry * entry)
@@ -272,21 +269,15 @@ int archive_entry_dev_is_set(struct archive_entry * entry)
 
 dev_t archive_entry_devmajor(struct archive_entry * entry)
 {
-	if(entry->ae_stat.aest_dev_is_broken_down)
-		return (entry->ae_stat.aest_devmajor);
-	else
-		return major(entry->ae_stat.aest_dev);
+	return (entry->ae_stat.aest_dev_is_broken_down) ? (entry->ae_stat.aest_devmajor) : major(entry->ae_stat.aest_dev);
 }
 
 dev_t archive_entry_devminor(struct archive_entry * entry)
 {
-	if(entry->ae_stat.aest_dev_is_broken_down)
-		return (entry->ae_stat.aest_devminor);
-	else
-		return minor(entry->ae_stat.aest_dev);
+	return (entry->ae_stat.aest_dev_is_broken_down) ? (entry->ae_stat.aest_devminor) : minor(entry->ae_stat.aest_dev);
 }
 
-__LA_MODE_T archive_entry_filetype(struct archive_entry * entry)
+__LA_MODE_T FASTCALL archive_entry_filetype(const struct archive_entry * entry)
 {
 	return (AE_IFMT & entry->acl.mode);
 }
@@ -365,8 +356,7 @@ const wchar_t * archive_entry_gname_w(struct archive_entry * entry)
 	return NULL;
 }
 
-int _archive_entry_gname_l(struct archive_entry * entry,
-    const char ** p, size_t * len, struct archive_string_conv * sc)
+int _archive_entry_gname_l(struct archive_entry * entry, const char ** p, size_t * len, struct archive_string_conv * sc)
 {
 	return (archive_mstring_get_mbs_l(entry->archive, &entry->ae_gname, p, len, sc));
 }
@@ -376,8 +366,7 @@ const char * archive_entry_hardlink(struct archive_entry * entry)
 	const char * p;
 	if((entry->ae_set & AE_SET_HARDLINK) == 0)
 		return NULL;
-	if(archive_mstring_get_mbs(
-		    entry->archive, &entry->ae_hardlink, &p) == 0)
+	if(archive_mstring_get_mbs(entry->archive, &entry->ae_hardlink, &p) == 0)
 		return (p);
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -750,7 +739,7 @@ void archive_entry_set_ino64(struct archive_entry * entry, la_int64_t ino)
 void archive_entry_set_hardlink(struct archive_entry * entry, const char * target)
 {
 	archive_mstring_copy_mbs(&entry->ae_hardlink, target);
-	if(target != NULL)
+	if(target)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
@@ -759,7 +748,7 @@ void archive_entry_set_hardlink(struct archive_entry * entry, const char * targe
 void archive_entry_set_hardlink_utf8(struct archive_entry * entry, const char * target)
 {
 	archive_mstring_copy_utf8(&entry->ae_hardlink, target);
-	if(target != NULL)
+	if(target)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
@@ -768,7 +757,7 @@ void archive_entry_set_hardlink_utf8(struct archive_entry * entry, const char * 
 void archive_entry_copy_hardlink(struct archive_entry * entry, const char * target)
 {
 	archive_mstring_copy_mbs(&entry->ae_hardlink, target);
-	if(target != NULL)
+	if(target)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
@@ -777,7 +766,7 @@ void archive_entry_copy_hardlink(struct archive_entry * entry, const char * targ
 void archive_entry_copy_hardlink_w(struct archive_entry * entry, const wchar_t * target)
 {
 	archive_mstring_copy_wcs(&entry->ae_hardlink, target);
-	if(target != NULL)
+	if(target)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
@@ -785,12 +774,11 @@ void archive_entry_copy_hardlink_w(struct archive_entry * entry, const wchar_t *
 
 int archive_entry_update_hardlink_utf8(struct archive_entry * entry, const char * target)
 {
-	if(target != NULL)
+	if(target)
 		entry->ae_set |= AE_SET_HARDLINK;
 	else
 		entry->ae_set &= ~AE_SET_HARDLINK;
-	if(archive_mstring_update_utf8(entry->archive,
-	    &entry->ae_hardlink, target) == 0)
+	if(archive_mstring_update_utf8(entry->archive, &entry->ae_hardlink, target) == 0)
 		return 1;
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -918,7 +906,7 @@ int archive_entry_update_link_utf8(struct archive_entry * entry, const char * ta
 		r = archive_mstring_update_utf8(entry->archive, &entry->ae_symlink, target);
 	else
 		r = archive_mstring_update_utf8(entry->archive, &entry->ae_hardlink, target);
-	if(r == 0)
+	if(!r)
 		return 1;
 	if(errno == ENOMEM)
 		__archive_errx(1, "No memory");
@@ -1053,7 +1041,7 @@ void archive_entry_copy_sourcepath_w(struct archive_entry * entry, const wchar_t
 void archive_entry_set_symlink(struct archive_entry * entry, const char * linkname)
 {
 	archive_mstring_copy_mbs(&entry->ae_symlink, linkname);
-	if(linkname != NULL)
+	if(linkname)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
 		entry->ae_set &= ~AE_SET_SYMLINK;
@@ -1067,7 +1055,7 @@ void archive_entry_set_symlink_type(struct archive_entry * entry, int type)
 void archive_entry_set_symlink_utf8(struct archive_entry * entry, const char * linkname)
 {
 	archive_mstring_copy_utf8(&entry->ae_symlink, linkname);
-	if(linkname != NULL)
+	if(linkname)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
 		entry->ae_set &= ~AE_SET_SYMLINK;
@@ -1076,7 +1064,7 @@ void archive_entry_set_symlink_utf8(struct archive_entry * entry, const char * l
 void archive_entry_copy_symlink(struct archive_entry * entry, const char * linkname)
 {
 	archive_mstring_copy_mbs(&entry->ae_symlink, linkname);
-	if(linkname != NULL)
+	if(linkname)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
 		entry->ae_set &= ~AE_SET_SYMLINK;
@@ -1085,7 +1073,7 @@ void archive_entry_copy_symlink(struct archive_entry * entry, const char * linkn
 void archive_entry_copy_symlink_w(struct archive_entry * entry, const wchar_t * linkname)
 {
 	archive_mstring_copy_wcs(&entry->ae_symlink, linkname);
-	if(linkname != NULL)
+	if(linkname)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
 		entry->ae_set &= ~AE_SET_SYMLINK;
@@ -1093,7 +1081,7 @@ void archive_entry_copy_symlink_w(struct archive_entry * entry, const wchar_t * 
 
 int archive_entry_update_symlink_utf8(struct archive_entry * entry, const char * linkname)
 {
-	if(linkname != NULL)
+	if(linkname)
 		entry->ae_set |= AE_SET_SYMLINK;
 	else
 		entry->ae_set &= ~AE_SET_SYMLINK;

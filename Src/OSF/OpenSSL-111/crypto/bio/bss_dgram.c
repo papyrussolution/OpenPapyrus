@@ -152,7 +152,7 @@ static int dgram_new(BIO * bi)
 static int dgram_free(BIO * a)
 {
 	bio_dgram_data * data;
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if(!dgram_clear(a))
 		return 0;
@@ -163,7 +163,7 @@ static int dgram_free(BIO * a)
 
 static int dgram_clear(BIO * a)
 {
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if(a->shutdown) {
 		if(a->init) {
@@ -927,7 +927,7 @@ static int dgram_sctp_free(BIO * a)
 {
 	bio_dgram_sctp_data * data;
 
-	if(a == NULL)
+	if(!a)
 		return 0;
 	if(!dgram_clear(a))
 		return 0;

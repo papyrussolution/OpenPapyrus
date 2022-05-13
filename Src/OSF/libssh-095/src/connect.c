@@ -132,7 +132,7 @@ socket_t ssh_connect_host_nonblocking(ssh_session session, const char * host, co
 	struct addrinfo * ai = NULL;
 	struct addrinfo * itr = NULL;
 	int rc = getai(host, port, &ai);
-	if(rc != 0) {
+	if(rc) {
 		ssh_set_error(session, SSH_FATAL, "Failed to resolve hostname %s (%s)", host, gai_strerror(rc));
 		return -1;
 	}
@@ -148,7 +148,7 @@ socket_t ssh_connect_host_nonblocking(ssh_session session, const char * host, co
 			struct addrinfo * bind_itr;
 			SSH_LOG(SSH_LOG_PACKET, "Resolving %s", bind_addr);
 			rc = getai(bind_addr, 0, &bind_ai);
-			if(rc != 0) {
+			if(rc) {
 				ssh_set_error(session, SSH_FATAL, "Failed to resolve bind address %s (%s)", bind_addr, gai_strerror(rc));
 				ssh_connect_socket_close(s);
 				s = -1;
@@ -287,13 +287,13 @@ int ssh_select(ssh_channel * channels, ssh_channel * outchannels, socket_t maxfd
 		j = 0;
 		for(i = 0; channels[i]; i++) {
 			rc = ssh_channel_poll(channels[i], 0);
-			if(rc != 0) {
+			if(rc) {
 				outchannels[j] = channels[i];
 				j++;
 			}
 			else {
 				rc = ssh_channel_poll(channels[i], 1);
-				if(rc != 0) {
+				if(rc) {
 					outchannels[j] = channels[i];
 					j++;
 				}

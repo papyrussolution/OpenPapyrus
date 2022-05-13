@@ -3166,7 +3166,7 @@ XmlReader::XmlReader(const char * pPath, PPIDArray * pLogNumList, int subVer) : 
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
-		if(r == 0) {
+		if(!r) {
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
 				xmlNode * p_root = xmlDocGetRootElement(P_Doc);
@@ -4252,7 +4252,7 @@ XmlZRepReader::XmlZRepReader(const char * pPath)
 		r = xmlTextReaderRead(P_Reader);
 		while(r == 1)
 			r = xmlTextReaderRead(P_Reader);
-		if(r == 0) {
+		if(!r) {
 			P_Doc = xmlTextReaderCurrentDoc(P_Reader);
 			if(P_Doc) {
 				xmlNode * p_root = xmlDocGetRootElement(P_Doc);

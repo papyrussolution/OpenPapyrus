@@ -37,7 +37,7 @@
 #include <stdbool.h>
 #include "unicode/umachine.h"
 #ifndef __UTF_H__
-#   include "unicode/utf.h"
+#include "unicode/utf.h"
 #endif
 
 /* single-code point definitions -------------------------------------------- */

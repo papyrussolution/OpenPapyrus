@@ -570,7 +570,7 @@ void ExtGoodsSelDialog::searchBarcode()
 			grp_id = (GObj.Fetch(id, &rec) > 0) ? rec.ParentID : 0;
 			selectGoods(grp_id, id);
 		}
-		else if(r == 0)
+		else if(!r)
 			PPError();
 	}
 }

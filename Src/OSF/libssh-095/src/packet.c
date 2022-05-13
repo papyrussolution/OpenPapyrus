@@ -900,7 +900,7 @@ end:
 struct ssh_crypto_struct * ssh_packet_get_current_crypto(ssh_session session, enum ssh_crypto_direction_e direction)
 {
 	struct ssh_crypto_struct * crypto = NULL;
-	if(session == NULL) {
+	if(!session) {
 		return NULL;
 	}
 	if(session->current_crypto != NULL && session->current_crypto->used & direction) {

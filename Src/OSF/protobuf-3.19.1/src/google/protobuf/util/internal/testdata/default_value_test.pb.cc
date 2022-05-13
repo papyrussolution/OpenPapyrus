@@ -135,7 +135,7 @@ DefaultValueTest::DefaultValueTest(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   repeated_double_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.DefaultValueTest)
@@ -181,7 +181,7 @@ bytes_value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString
 
 DefaultValueTest::~DefaultValueTest() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.DefaultValueTest)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -218,8 +218,8 @@ void DefaultValueTest::Clear() {
 }
 
 const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -236,7 +236,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 18)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_repeated_double(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 17) {
+        } else if(static_cast<uint8_t>(tag) == 17) {
           _internal_add_repeated_double(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
           ptr += sizeof(double);
         } else
@@ -318,8 +318,7 @@ const char* DefaultValueTest::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPA
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -614,7 +613,7 @@ void DefaultValueTest::InternalSwap(DefaultValueTest* other) {
 }  // namespace testing
 }  // namespace proto_util_converter
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::DefaultValueTest* Arena::CreateMaybeMessage< ::proto_util_converter::testing::DefaultValueTest >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::DefaultValueTest * Arena::CreateMaybeMessage< ::proto_util_converter::testing::DefaultValueTest >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::DefaultValueTest >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

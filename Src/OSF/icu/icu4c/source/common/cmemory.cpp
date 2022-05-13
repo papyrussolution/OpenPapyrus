@@ -1,24 +1,19 @@
 // cmemory.c
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *   Copyright (C) 2002-2015, International Business Machines Corporation and others.  All Rights Reserved.
- *                     ICU Heap allocation.
- *                     All ICU heap allocation, both for C and C++ new of ICU
- *                     class types, comes through these functions.
- *
- *                     If you have a need to replace ICU allocation, this is the
- *                     place to do it.
- *
- *                     Note that uprv_malloc(0) returns a non-NULL pointer, and
- *                     that a subsequent free of that pointer value is a NOP.
- */
+// Copyright (C) 2002-2015, International Business Machines Corporation and others.  All Rights Reserved.
+// ICU Heap allocation.
+// All ICU heap allocation, both for C and C++ new of ICU
+// class types, comes through these functions.
+// 
+// If you have a need to replace ICU allocation, this is the place to do it.
+// 
+// Note that uprv_malloc(0) returns a non-NULL pointer, and that a subsequent free of that pointer value is a NOP.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 
-/* uprv_malloc(0) returns a pointer to this read-only data. */
-static const int32_t zeroMem[] = {0, 0, 0, 0, 0, 0};
-
+static const int32_t zeroMem[] = {0, 0, 0, 0, 0, 0}; /* uprv_malloc(0) returns a pointer to this read-only data. */
 /* Function Pointers for user-supplied heap functions  */
 static const void   * pContext;
 static UMemAllocFn    * pAlloc;
@@ -113,7 +108,8 @@ U_CAPI void U_EXPORT2 u_setMemoryFunctions(const void * context, UMemAllocFn * a
 	pFree     = f;
 }
 
-U_CFUNC bool cmemory_cleanup() {
+U_CFUNC bool cmemory_cleanup() 
+{
 	pContext   = NULL;
 	pAlloc     = NULL;
 	pRealloc   = NULL;

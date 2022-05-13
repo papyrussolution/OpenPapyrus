@@ -740,7 +740,7 @@ Book_Data::Book_Data(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Book.Data)
@@ -770,7 +770,7 @@ year_ = 0u;
 
 Book_Data::~Book_Data() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Book.Data)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -806,9 +806,9 @@ void Book_Data::Clear() {
 }
 
 const char* Book_Data::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -833,8 +833,7 @@ const char* Book_Data::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -985,7 +984,7 @@ Book_Label::Book_Label(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Book.Label)
@@ -1024,7 +1023,7 @@ value_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlread
 
 Book_Label::~Book_Label() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Book.Label)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1065,9 +1064,9 @@ void Book_Label::Clear() {
 }
 
 const char* Book_Label::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1095,8 +1094,7 @@ const char* Book_Label::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1288,7 +1286,7 @@ Book::Book(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   labels_(arena),
   primitive_repeated_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Book)
@@ -1369,7 +1367,7 @@ type_ = 1;
 
 Book::~Book() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Book)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1442,9 +1440,9 @@ void Book::Clear() {
 }
 
 const char* Book::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -1519,8 +1517,8 @@ const char* Book::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_labels(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<82>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<82>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -1565,16 +1563,15 @@ const char* Book::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::inter
             ptr += 1;
             _internal_add_primitive_repeated(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<112>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 114) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<112>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 114) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_primitive_repeated(), ptr, ctx);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -1621,9 +1618,7 @@ uint8_t* Book::_InternalSerialize(
   // optional .proto_util_converter.testing.Author author = 2;
   if(cached_has_bits & 0x00000008u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::author(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::author(this), target, stream);
   }
 
   // optional uint32 length = 3;
@@ -1646,25 +1641,19 @@ uint8_t* Book::_InternalSerialize(
   // optional group Data = 6 { ... };
   if(cached_has_bits & 0x00000010u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteGroup(
-        6, _Internal::data(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteGroup(6, _Internal::data(this), target, stream);
   }
 
   // optional .proto_util_converter.testing.Publisher publisher = 9;
   if(cached_has_bits & 0x00000020u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        9, _Internal::publisher(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(9, _Internal::publisher(this), target, stream);
   }
 
   // repeated .proto_util_converter.testing.Book.Label labels = 10;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_labels_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_labels_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(10, this->_internal_labels(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(10, this->_internal_labels(i), target, stream);
   }
 
   // optional .proto_util_converter.testing.Book.Type type = 11;
@@ -1685,9 +1674,7 @@ uint8_t* Book::_InternalSerialize(
   // optional .proto_util_converter.testing.AnyWrapper type_not_found = 13;
   if(cached_has_bits & 0x00000040u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        13, _Internal::type_not_found(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(13, _Internal::type_not_found(this), target, stream);
   }
 
   // repeated int32 primitive_repeated = 14;
@@ -1751,30 +1738,22 @@ size_t Book::ByteSizeLong() const {
 
     // optional .proto_util_converter.testing.Author author = 2;
     if(cached_has_bits & 0x00000008u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *author_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*author_);
     }
 
     // optional group Data = 6 { ... };
     if(cached_has_bits & 0x00000010u) {
-      total_size += 2 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GroupSize(
-          *data_);
+      total_size += 2 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::GroupSize(*data_);
     }
 
     // optional .proto_util_converter.testing.Publisher publisher = 9;
     if(cached_has_bits & 0x00000020u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *publisher_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*publisher_);
     }
 
     // optional .proto_util_converter.testing.AnyWrapper type_not_found = 13;
     if(cached_has_bits & 0x00000040u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *type_not_found_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*type_not_found_);
     }
 
     // optional int64 published = 4;
@@ -1874,7 +1853,7 @@ bool Book::IsInitialized() const {
   }
 
   if(_internal_has_publisher()) {
-    if (!publisher_->IsInitialized()) return false;
+    if(!publisher_->IsInitialized()) return false;
   }
   return true;
 }
@@ -1929,7 +1908,7 @@ Publisher::Publisher(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Publisher)
@@ -1957,7 +1936,7 @@ name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 
 Publisher::~Publisher() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Publisher)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -1992,9 +1971,9 @@ void Publisher::Clear() {
 }
 
 const char* Publisher::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2010,8 +1989,7 @@ const char* Publisher::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2143,7 +2121,7 @@ Author::Author(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   pseudonym_(arena),
   friend__(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Author)
@@ -2180,7 +2158,7 @@ name_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlready
 
 Author::~Author() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Author)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2222,9 +2200,9 @@ void Author::Clear() {
 }
 
 const char* Author::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2261,8 +2239,8 @@ const char* Author::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
             ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.Author.pseudonym");
             #endif  // !NDEBUG
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<26>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -2283,13 +2261,12 @@ const char* Author::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_friend_(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2351,11 +2328,9 @@ uint8_t* Author::_InternalSerialize(
   }
 
   // repeated .proto_util_converter.testing.Author friend = 5;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_friend__size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_friend__size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(5, this->_internal_friend_(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, this->_internal_friend_(i), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -2495,7 +2470,7 @@ BadAuthor::BadAuthor(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   name_(arena),
   alive_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.BadAuthor)
@@ -2536,7 +2511,7 @@ pseudonym_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAl
 
 BadAuthor::~BadAuthor() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.BadAuthor)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2579,9 +2554,9 @@ void BadAuthor::Clear() {
 }
 
 const char* BadAuthor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -2605,9 +2580,9 @@ const char* BadAuthor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 1;
             _internal_add_name(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<16>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 18) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<16>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 18) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_name(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -2630,14 +2605,13 @@ const char* BadAuthor::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 34)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedBoolParser(_internal_mutable_alive(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 32) {
+        } else if(static_cast<uint8_t>(tag) == 32) {
           _internal_add_alive(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -2855,7 +2829,7 @@ Primitive::Primitive(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   rep_double_(arena),
   rep_bool_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Primitive)
@@ -2916,7 +2890,7 @@ bytes_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlread
 
 Primitive::~Primitive() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Primitive)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -2982,9 +2956,9 @@ void Primitive::Clear() {
 }
 
 const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -3134,9 +3108,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_fix32(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<uint32_t>(ptr));
             ptr += sizeof(uint32_t);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<133>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 130) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<133>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 130) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFixed32Parser(_internal_mutable_rep_fix32(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3150,9 +3124,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_u32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<136>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 138) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<136>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 138) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_rep_u32(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3166,9 +3140,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_i32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<144>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 146) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<144>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 146) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_rep_i32(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3182,9 +3156,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_sf32(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<int32_t>(ptr));
             ptr += sizeof(int32_t);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<157>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 154) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<157>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 154) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSFixed32Parser(_internal_mutable_rep_sf32(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3198,9 +3172,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_s32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<160>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 162) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<160>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 162) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt32Parser(_internal_mutable_rep_s32(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3214,9 +3188,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_fix64(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<uint64_t>(ptr));
             ptr += sizeof(uint64_t);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<169>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 170) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<169>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 170) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFixed64Parser(_internal_mutable_rep_fix64(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3230,9 +3204,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_u64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<176>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 178) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<176>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 178) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_rep_u64(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3246,9 +3220,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_i64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<184>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 186) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<184>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 186) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt64Parser(_internal_mutable_rep_i64(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3262,9 +3236,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_sf64(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<int64_t>(ptr));
             ptr += sizeof(int64_t);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<193>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 194) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<193>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 194) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSFixed64Parser(_internal_mutable_rep_sf64(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3278,9 +3252,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_s64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<200>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 202) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<200>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 202) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt64Parser(_internal_mutable_rep_s64(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3298,8 +3272,8 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.Primitive.rep_str");
             #endif  // !NDEBUG
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<210>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<210>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -3312,8 +3286,8 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             auto str = _internal_add_rep_bytes();
             ptr = ::PROTOBUF_NAMESPACE_ID::internal::InlineGreedyStringParser(str, ptr, ctx);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<218>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<218>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -3325,9 +3299,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_float(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
             ptr += sizeof(float);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<229>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 226) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<229>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 226) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_rep_float(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3341,9 +3315,9 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_double(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
             ptr += sizeof(double);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<233>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 234) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<233>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 234) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_rep_double(), ptr, ctx);
           CHK_(ptr);
         } else
@@ -3357,16 +3331,15 @@ const char* Primitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::
             ptr += 2;
             _internal_add_rep_bool(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<240>(ptr));
-        } else if (static_cast<uint8_t>(tag) == 242) {
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<240>(ptr));
+        } else if(static_cast<uint8_t>(tag) == 242) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedBoolParser(_internal_mutable_rep_bool(), ptr, ctx);
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -3970,7 +3943,7 @@ PackedPrimitive::PackedPrimitive(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   rep_double_(arena),
   rep_bool_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.PackedPrimitive)
@@ -3999,7 +3972,7 @@ inline void PackedPrimitive::SharedCtor() {
 
 PackedPrimitive::~PackedPrimitive() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.PackedPrimitive)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4041,8 +4014,8 @@ void PackedPrimitive::Clear() {
 }
 
 const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4051,7 +4024,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 130)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFixed32Parser(_internal_mutable_rep_fix32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 133) {
+        } else if(static_cast<uint8_t>(tag) == 133) {
           _internal_add_rep_fix32(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<uint32_t>(ptr));
           ptr += sizeof(uint32_t);
         } else
@@ -4062,7 +4035,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 138)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_rep_u32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 136) {
+        } else if(static_cast<uint8_t>(tag) == 136) {
           _internal_add_rep_u32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
@@ -4073,7 +4046,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 146)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt32Parser(_internal_mutable_rep_i32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 144) {
+        } else if(static_cast<uint8_t>(tag) == 144) {
           _internal_add_rep_i32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
@@ -4084,7 +4057,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 154)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSFixed32Parser(_internal_mutable_rep_sf32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 157) {
+        } else if(static_cast<uint8_t>(tag) == 157) {
           _internal_add_rep_sf32(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<int32_t>(ptr));
           ptr += sizeof(int32_t);
         } else
@@ -4095,7 +4068,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 162)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt32Parser(_internal_mutable_rep_s32(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 160) {
+        } else if(static_cast<uint8_t>(tag) == 160) {
           _internal_add_rep_s32(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag32(&ptr));
           CHK_(ptr);
         } else
@@ -4106,7 +4079,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 170)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFixed64Parser(_internal_mutable_rep_fix64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 169) {
+        } else if(static_cast<uint8_t>(tag) == 169) {
           _internal_add_rep_fix64(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<uint64_t>(ptr));
           ptr += sizeof(uint64_t);
         } else
@@ -4117,7 +4090,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 178)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt64Parser(_internal_mutable_rep_u64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 176) {
+        } else if(static_cast<uint8_t>(tag) == 176) {
           _internal_add_rep_u64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
@@ -4128,7 +4101,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 186)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedInt64Parser(_internal_mutable_rep_i64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 184) {
+        } else if(static_cast<uint8_t>(tag) == 184) {
           _internal_add_rep_i64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
@@ -4139,7 +4112,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 194)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSFixed64Parser(_internal_mutable_rep_sf64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 193) {
+        } else if(static_cast<uint8_t>(tag) == 193) {
           _internal_add_rep_sf64(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<int64_t>(ptr));
           ptr += sizeof(int64_t);
         } else
@@ -4150,7 +4123,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 202)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedSInt64Parser(_internal_mutable_rep_s64(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 200) {
+        } else if(static_cast<uint8_t>(tag) == 200) {
           _internal_add_rep_s64(::PROTOBUF_NAMESPACE_ID::internal::ReadVarintZigZag64(&ptr));
           CHK_(ptr);
         } else
@@ -4161,7 +4134,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 226)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedFloatParser(_internal_mutable_rep_float(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 229) {
+        } else if(static_cast<uint8_t>(tag) == 229) {
           _internal_add_rep_float(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr));
           ptr += sizeof(float);
         } else
@@ -4172,7 +4145,7 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 234)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedDoubleParser(_internal_mutable_rep_double(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 233) {
+        } else if(static_cast<uint8_t>(tag) == 233) {
           _internal_add_rep_double(::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<double>(ptr));
           ptr += sizeof(double);
         } else
@@ -4183,14 +4156,13 @@ const char* PackedPrimitive::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 242)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedBoolParser(_internal_mutable_rep_bool(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 240) {
+        } else if(static_cast<uint8_t>(tag) == 240) {
           _internal_add_rep_bool(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint64(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -4541,7 +4513,7 @@ NestedBook::NestedBook(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.NestedBook)
@@ -4564,7 +4536,7 @@ book_ = nullptr;
 
 NestedBook::~NestedBook() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.NestedBook)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4600,9 +4572,9 @@ void NestedBook::Clear() {
 }
 
 const char* NestedBook::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4614,8 +4586,7 @@ const char* NestedBook::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID:
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -4648,9 +4619,7 @@ uint8_t* NestedBook::_InternalSerialize(
   // optional .proto_util_converter.testing.Book book = 1;
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::book(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::book(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -4672,9 +4641,7 @@ size_t NestedBook::ByteSizeLong() const {
   // optional .proto_util_converter.testing.Book book = 1;
   cached_has_bits = _has_bits_[0];
   if(cached_has_bits & 0x00000001u) {
-    total_size += 1 +
-      ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-        *book_);
+    total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*book_);
   }
 
   return MaybeComputeUnknownFieldsSize(total_size, &_cached_size_);
@@ -4714,7 +4681,7 @@ void NestedBook::CopyFrom(const NestedBook& from) {
 
 bool NestedBook::IsInitialized() const {
   if(_internal_has_book()) {
-    if (!book_->IsInitialized()) return false;
+    if(!book_->IsInitialized()) return false;
   }
   return true;
 }
@@ -4741,7 +4708,7 @@ BadNestedBook::BadNestedBook(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   book_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.BadNestedBook)
@@ -4758,7 +4725,7 @@ inline void BadNestedBook::SharedCtor() {
 
 BadNestedBook::~BadNestedBook() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.BadNestedBook)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -4788,8 +4755,8 @@ void BadNestedBook::Clear() {
 }
 
 const char* BadNestedBook::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -4798,14 +4765,13 @@ const char* BadNestedBook::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         if(PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 10)) {
           ptr = ::PROTOBUF_NAMESPACE_ID::internal::PackedUInt32Parser(_internal_mutable_book(), ptr, ctx);
           CHK_(ptr);
-        } else if (static_cast<uint8_t>(tag) == 8) {
+        } else if(static_cast<uint8_t>(tag) == 8) {
           _internal_add_book(::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr));
           CHK_(ptr);
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -4941,7 +4907,7 @@ Cyclic::Cyclic(::PROTOBUF_NAMESPACE_ID::Arena* arena,
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned),
   m_author_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.Cyclic)
@@ -4985,7 +4951,7 @@ m_str_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlread
 
 Cyclic::~Cyclic() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.Cyclic)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -5034,9 +5000,9 @@ void Cyclic::Clear() {
 }
 
 const char* Cyclic::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -5085,13 +5051,12 @@ const char* Cyclic::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::int
             ptr += 1;
             ptr = ctx->ParseMessage(_internal_add_m_author(), ptr);
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<42>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -5139,25 +5104,19 @@ uint8_t* Cyclic::_InternalSerialize(
   // optional .proto_util_converter.testing.Book m_book = 3;
   if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        3, _Internal::m_book(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(3, _Internal::m_book(this), target, stream);
   }
 
   // optional .proto_util_converter.testing.Cyclic m_cyclic = 4;
   if(cached_has_bits & 0x00000004u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        4, _Internal::m_cyclic(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(4, _Internal::m_cyclic(this), target, stream);
   }
 
   // repeated .proto_util_converter.testing.Author m_author = 5;
-  for (unsigned int i = 0,
-      n = static_cast<unsigned int>(this->_internal_m_author_size()); i < n; i++) {
+  for(unsigned int i = 0, n = static_cast<unsigned int>(this->_internal_m_author_size()); i < n; i++) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(5, this->_internal_m_author(i), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(5, this->_internal_m_author(i), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -5191,16 +5150,12 @@ size_t Cyclic::ByteSizeLong() const {
 
     // optional .proto_util_converter.testing.Book m_book = 3;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *m_book_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*m_book_);
     }
 
     // optional .proto_util_converter.testing.Cyclic m_cyclic = 4;
     if(cached_has_bits & 0x00000004u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *m_cyclic_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*m_cyclic_);
     }
 
     // optional int32 m_int = 1;
@@ -5260,10 +5215,10 @@ void Cyclic::CopyFrom(const Cyclic& from) {
 
 bool Cyclic::IsInitialized() const {
   if(_internal_has_m_book()) {
-    if (!m_book_->IsInitialized()) return false;
+    if(!m_book_->IsInitialized()) return false;
   }
   if(_internal_has_m_cyclic()) {
-    if (!m_cyclic_->IsInitialized()) return false;
+    if(!m_cyclic_->IsInitialized()) return false;
   }
   return true;
 }
@@ -5304,7 +5259,7 @@ TestJsonName1::TestJsonName1(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.TestJsonName1)
@@ -5323,7 +5278,7 @@ one_value_ = 0;
 
 TestJsonName1::~TestJsonName1() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.TestJsonName1)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -5354,9 +5309,9 @@ void TestJsonName1::Clear() {
 }
 
 const char* TestJsonName1::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -5369,8 +5324,7 @@ const char* TestJsonName1::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -5490,7 +5444,7 @@ TestJsonName2::TestJsonName2(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.TestJsonName2)
@@ -5509,7 +5463,7 @@ another_value_ = 0;
 
 TestJsonName2::~TestJsonName2() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.TestJsonName2)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -5540,9 +5494,9 @@ void TestJsonName2::Clear() {
 }
 
 const char* TestJsonName2::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -5555,8 +5509,7 @@ const char* TestJsonName2::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -5691,7 +5644,7 @@ TestPrimitiveFieldsWithSameJsonName::TestPrimitiveFieldsWithSameJsonName(::PROTO
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.TestPrimitiveFieldsWithSameJsonName)
@@ -5737,7 +5690,7 @@ val_str_1_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAl
 
 TestPrimitiveFieldsWithSameJsonName::~TestPrimitiveFieldsWithSameJsonName() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.TestPrimitiveFieldsWithSameJsonName)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -5788,9 +5741,9 @@ void TestPrimitiveFieldsWithSameJsonName::Clear() {
 }
 
 const char* TestPrimitiveFieldsWithSameJsonName::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -5944,8 +5897,7 @@ const char* TestPrimitiveFieldsWithSameJsonName::_InternalParse(const char* ptr,
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -6309,7 +6261,7 @@ TestRepeatedFieldsWithSameJsonName::TestRepeatedFieldsWithSameJsonName(::PROTOBU
   rep_str1_(arena),
   rep_str_1_(arena) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName)
@@ -6327,7 +6279,7 @@ inline void TestRepeatedFieldsWithSameJsonName::SharedCtor() {
 
 TestRepeatedFieldsWithSameJsonName::~TestRepeatedFieldsWithSameJsonName() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -6358,8 +6310,8 @@ void TestRepeatedFieldsWithSameJsonName::Clear() {
 }
 
 const char* TestRepeatedFieldsWithSameJsonName::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
-  while (!ctx->Done(&ptr)) {
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -6375,8 +6327,8 @@ const char* TestRepeatedFieldsWithSameJsonName::_InternalParse(const char* ptr, 
             ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName.rep_str1");
             #endif  // !NDEBUG
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<10>(ptr));
         } else
           goto handle_unusual;
         continue;
@@ -6392,13 +6344,12 @@ const char* TestRepeatedFieldsWithSameJsonName::_InternalParse(const char* ptr, 
             ::PROTOBUF_NAMESPACE_ID::internal::VerifyUTF8(str, "proto_util_converter.testing.TestRepeatedFieldsWithSameJsonName.rep_str_1");
             #endif  // !NDEBUG
             CHK_(ptr);
-            if (!ctx->DataAvailable(ptr)) break;
-          } while (::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
+            if(!ctx->DataAvailable(ptr)) break;
+          } while(::PROTOBUF_NAMESPACE_ID::internal::ExpectTag<18>(ptr));
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -6546,7 +6497,7 @@ TestMessageFieldsWithSameJsonName::TestMessageFieldsWithSameJsonName(::PROTOBUF_
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::Message(arena, is_message_owned) {
   SharedCtor();
-  if (!is_message_owned) {
+  if(!is_message_owned) {
     RegisterArenaDtor(arena);
   }
   // @@protoc_insertion_point(arena_constructor:proto_util_converter.testing.TestMessageFieldsWithSameJsonName)
@@ -6577,7 +6528,7 @@ inline void TestMessageFieldsWithSameJsonName::SharedCtor() {
 
 TestMessageFieldsWithSameJsonName::~TestMessageFieldsWithSameJsonName() {
   // @@protoc_insertion_point(destructor:proto_util_converter.testing.TestMessageFieldsWithSameJsonName)
-  if (GetArenaForAllocation() != nullptr) return;
+  if(GetArenaForAllocation() != nullptr) return;
   SharedDtor();
   _internal_metadata_.Delete<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
@@ -6620,9 +6571,9 @@ void TestMessageFieldsWithSameJsonName::Clear() {
 }
 
 const char* TestMessageFieldsWithSameJsonName::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) {
-#define CHK_(x) if (PROTOBUF_PREDICT_FALSE(!(x))) goto failure
+#define CHK_(x) if(PROTOBUF_PREDICT_FALSE(!(x))) goto failure
   _Internal::HasBits has_bits{};
-  while (!ctx->Done(&ptr)) {
+  while(!ctx->Done(&ptr)) {
     uint32_t tag;
     ptr = ::PROTOBUF_NAMESPACE_ID::internal::ReadTag(ptr, &tag);
     switch(tag >> 3) {
@@ -6642,8 +6593,7 @@ const char* TestMessageFieldsWithSameJsonName::_InternalParse(const char* ptr, :
         } else
           goto handle_unusual;
         continue;
-      default:
-        goto handle_unusual;
+      default: goto handle_unusual;
     }  // switch
   handle_unusual:
     if((tag == 0) || ((tag & 7) == 4)) {
@@ -6676,17 +6626,13 @@ uint8_t* TestMessageFieldsWithSameJsonName::_InternalSerialize(
   // optional .proto_util_converter.testing.Primitive prim1 = 1;
   if(cached_has_bits & 0x00000001u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        1, _Internal::prim1(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(1, _Internal::prim1(this), target, stream);
   }
 
   // optional .proto_util_converter.testing.Primitive prim_1 = 2;
   if(cached_has_bits & 0x00000002u) {
     target = stream->EnsureSpace(target);
-    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::
-      InternalWriteMessage(
-        2, _Internal::prim_1(this), target, stream);
+    target = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::InternalWriteMessage(2, _Internal::prim_1(this), target, stream);
   }
 
   if(PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
@@ -6709,16 +6655,12 @@ size_t TestMessageFieldsWithSameJsonName::ByteSizeLong() const {
   if(cached_has_bits & 0x00000003u) {
     // optional .proto_util_converter.testing.Primitive prim1 = 1;
     if(cached_has_bits & 0x00000001u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *prim1_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*prim1_);
     }
 
     // optional .proto_util_converter.testing.Primitive prim_1 = 2;
     if(cached_has_bits & 0x00000002u) {
-      total_size += 1 +
-        ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(
-          *prim_1_);
+      total_size += 1 + ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::MessageSize(*prim_1_);
     }
 
   }
@@ -6796,52 +6738,52 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY ::PROTOBUF_NAMESPACE_ID::internal::ExtensionIde
 }  // namespace testing
 }  // namespace proto_util_converter
 PROTOBUF_NAMESPACE_OPEN
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Book_Data* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Book_Data >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Book_Data * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Book_Data >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Book_Data >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Book_Label* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Book_Label >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Book_Label * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Book_Label >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Book_Label >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Book* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Book >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Book * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Book >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Book >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Publisher* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Publisher >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Publisher * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Publisher >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Publisher >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Author* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Author >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Author * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Author >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Author >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BadAuthor* Arena::CreateMaybeMessage< ::proto_util_converter::testing::BadAuthor >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BadAuthor * Arena::CreateMaybeMessage< ::proto_util_converter::testing::BadAuthor >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::BadAuthor >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Primitive* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Primitive >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Primitive * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Primitive >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Primitive >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::PackedPrimitive* Arena::CreateMaybeMessage< ::proto_util_converter::testing::PackedPrimitive >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::PackedPrimitive * Arena::CreateMaybeMessage< ::proto_util_converter::testing::PackedPrimitive >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::PackedPrimitive >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::NestedBook* Arena::CreateMaybeMessage< ::proto_util_converter::testing::NestedBook >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::NestedBook * Arena::CreateMaybeMessage< ::proto_util_converter::testing::NestedBook >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::NestedBook >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BadNestedBook* Arena::CreateMaybeMessage< ::proto_util_converter::testing::BadNestedBook >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::BadNestedBook * Arena::CreateMaybeMessage< ::proto_util_converter::testing::BadNestedBook >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::BadNestedBook >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Cyclic* Arena::CreateMaybeMessage< ::proto_util_converter::testing::Cyclic >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::Cyclic * Arena::CreateMaybeMessage< ::proto_util_converter::testing::Cyclic >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::Cyclic >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestJsonName1* Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestJsonName1 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestJsonName1 * Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestJsonName1 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::TestJsonName1 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestJsonName2* Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestJsonName2 >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestJsonName2 * Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestJsonName2 >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::TestJsonName2 >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestPrimitiveFieldsWithSameJsonName* Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestPrimitiveFieldsWithSameJsonName >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestPrimitiveFieldsWithSameJsonName * Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestPrimitiveFieldsWithSameJsonName >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::TestPrimitiveFieldsWithSameJsonName >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestRepeatedFieldsWithSameJsonName* Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestRepeatedFieldsWithSameJsonName >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestRepeatedFieldsWithSameJsonName * Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestRepeatedFieldsWithSameJsonName >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::TestRepeatedFieldsWithSameJsonName >(arena);
 }
-template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestMessageFieldsWithSameJsonName* Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestMessageFieldsWithSameJsonName >(Arena* arena) {
+template<> PROTOBUF_NOINLINE ::proto_util_converter::testing::TestMessageFieldsWithSameJsonName * Arena::CreateMaybeMessage< ::proto_util_converter::testing::TestMessageFieldsWithSameJsonName >(Arena* arena) {
   return Arena::CreateMessageInternal< ::proto_util_converter::testing::TestMessageFieldsWithSameJsonName >(arena);
 }
 PROTOBUF_NAMESPACE_CLOSE

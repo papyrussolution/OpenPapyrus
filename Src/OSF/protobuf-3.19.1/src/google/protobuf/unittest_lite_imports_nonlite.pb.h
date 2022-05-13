@@ -239,11 +239,11 @@ inline const ::protobuf_unittest::TestAllTypes& TestLiteImportsNonlite::message(
 }
 inline void TestLiteImportsNonlite::unsafe_arena_set_allocated_message(
     ::protobuf_unittest::TestAllTypes* message) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_);
   }
   message_ = message;
-  if (message) {
+  if(message) {
     _has_bits_[0] |= 0x00000001u;
   } else {
     _has_bits_[0] &= ~0x00000001u;
@@ -257,9 +257,9 @@ inline ::protobuf_unittest::TestAllTypes* TestLiteImportsNonlite::release_messag
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -274,7 +274,7 @@ inline ::protobuf_unittest::TestAllTypes* TestLiteImportsNonlite::unsafe_arena_r
 }
 inline ::protobuf_unittest::TestAllTypes* TestLiteImportsNonlite::_internal_mutable_message() {
   _has_bits_[0] |= 0x00000001u;
-  if (message_ == nullptr) {
+  if(message_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestAllTypes>(GetArenaForAllocation());
     message_ = p;
   }
@@ -287,17 +287,15 @@ inline ::protobuf_unittest::TestAllTypes* TestLiteImportsNonlite::mutable_messag
 }
 inline void TestLiteImportsNonlite::set_allocated_message(::protobuf_unittest::TestAllTypes* message) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_);
   }
-  if (message) {
+  if(message) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message));
-    if (message_arena != submessage_arena) {
-      message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, message, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message));
+    if(message_arena != submessage_arena) {
+      message = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, message, submessage_arena);
     }
     _has_bits_[0] |= 0x00000001u;
   } else {
@@ -327,11 +325,11 @@ inline const ::protobuf_unittest::TestRequired& TestLiteImportsNonlite::message_
 }
 inline void TestLiteImportsNonlite::unsafe_arena_set_allocated_message_with_required(
     ::protobuf_unittest::TestRequired* message_with_required) {
-  if (GetArenaForAllocation() == nullptr) {
+  if(GetArenaForAllocation() == nullptr) {
     delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_with_required_);
   }
   message_with_required_ = message_with_required;
-  if (message_with_required) {
+  if(message_with_required) {
     _has_bits_[0] |= 0x00000002u;
   } else {
     _has_bits_[0] &= ~0x00000002u;
@@ -345,9 +343,9 @@ inline ::protobuf_unittest::TestRequired* TestLiteImportsNonlite::release_messag
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
-  if (GetArenaForAllocation() == nullptr) { delete old; }
+  if(GetArenaForAllocation() == nullptr) { delete old; }
 #else  // PROTOBUF_FORCE_COPY_IN_RELEASE
-  if (GetArenaForAllocation() != nullptr) {
+  if(GetArenaForAllocation() != nullptr) {
     temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
   }
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
@@ -362,7 +360,7 @@ inline ::protobuf_unittest::TestRequired* TestLiteImportsNonlite::unsafe_arena_r
 }
 inline ::protobuf_unittest::TestRequired* TestLiteImportsNonlite::_internal_mutable_message_with_required() {
   _has_bits_[0] |= 0x00000002u;
-  if (message_with_required_ == nullptr) {
+  if(message_with_required_ == nullptr) {
     auto* p = CreateMaybeMessage<::protobuf_unittest::TestRequired>(GetArenaForAllocation());
     message_with_required_ = p;
   }
@@ -375,17 +373,15 @@ inline ::protobuf_unittest::TestRequired* TestLiteImportsNonlite::mutable_messag
 }
 inline void TestLiteImportsNonlite::set_allocated_message_with_required(::protobuf_unittest::TestRequired* message_with_required) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
-  if (message_arena == nullptr) {
+  if(message_arena == nullptr) {
     delete reinterpret_cast< ::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_with_required_);
   }
-  if (message_with_required) {
+  if(message_with_required) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
         ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper<
-            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(
-                reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_with_required));
-    if (message_arena != submessage_arena) {
-      message_with_required = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, message_with_required, submessage_arena);
+            ::PROTOBUF_NAMESPACE_ID::MessageLite>::GetOwningArena(reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(message_with_required));
+    if(message_arena != submessage_arena) {
+      message_with_required = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(message_arena, message_with_required, submessage_arena);
     }
     _has_bits_[0] |= 0x00000002u;
   } else {

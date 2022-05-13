@@ -2276,7 +2276,7 @@ void SimpleDateFormat::parse(const UnicodeString & text, Calendar& cal, ParsePos
 				// abutting numeric fields has failed.
 				if(fieldPat == abutPat) {
 					count -= abutPass++;
-					if(count == 0) {
+					if(!count) {
 						status = U_PARSE_ERROR;
 						goto ExitParse;
 					}

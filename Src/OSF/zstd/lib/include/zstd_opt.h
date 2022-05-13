@@ -18,7 +18,7 @@ extern "C" {
 #include "zstd_compress_internal.h"
 
 /* used in ZSTD_loadDictionaryContent() */
-void ZSTD_updateTree(ZSTD_matchState_t* ms, const BYTE* ip, const BYTE* iend);
+void ZSTD_updateTree(ZSTD_matchState_t* ms, const BYTE * ip, const BYTE * iend);
 
 size_t ZSTD_compressBlock_btopt(ZSTD_matchState_t* ms, seqStore_t* seqStore, uint32 rep[ZSTD_REP_NUM],
     void const* src, size_t srcSize);

@@ -457,7 +457,7 @@ int PPScaleDevice::GetChr()
 				collision++;
 			}
 		}
-		if(r == 0) {
+		if(!r) {
 			SString msg_buf;
 			PPSetAddedMsgString(__GetLastSystemErr(msg_buf));
 		}
@@ -4751,7 +4751,7 @@ int PPObjScale::HandleMsg(int msg, PPID _obj, PPID _id, void * extraPtr)
 					ok = RetRefsExistsErr(Obj, p_scale->ID);
 			}
 		}
-		else if(r == 0)
+		else if(!r)
 			ok = DBRPL_ERROR;
 	}
 	return ok;
@@ -4800,7 +4800,7 @@ int PPObjScale::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 				if(same_id == 0) {
 					p_pack->Rec.ID = 0;
 					r = PutPacket(pID, p_pack, 1);
-					if(r == 0) {
+					if(!r) {
 						pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCALE, p_pack->Rec.ID, p_pack->Rec.Name);
 						ok = -1;
 					}
@@ -4813,7 +4813,7 @@ int PPObjScale::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 			else {
 				p_pack->Rec.ID = *pID;
 				r = PutPacket(pID, p_pack, 1);
-				if(r == 0) {
+				if(!r) {
 					pCtx->OutputAcceptErrMsg(PPTXT_ERRACCEPTSCALE, p_pack->Rec.ID, p_pack->Rec.Name);
 					ok = -1;
 				}

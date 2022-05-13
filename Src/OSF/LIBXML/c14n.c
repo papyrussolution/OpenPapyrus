@@ -483,7 +483,7 @@ static int xmlC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int vi
 	 * Create a sorted list to store element namespaces
 	 */
 	list = xmlListCreate(NULL, (xmlListDataCompare)xmlC14NNsCompare);
-	if(list == NULL) {
+	if(!list) {
 		xmlC14NErrInternal("creating namespaces list (c14n)");
 		return -1;
 	}
@@ -583,7 +583,7 @@ static int xmlExcC14NProcessNamespacesAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int
 	 * Create a sorted list to store element namespaces
 	 */
 	list = xmlListCreate(NULL, (xmlListDataCompare)xmlC14NNsCompare);
-	if(list == NULL) {
+	if(!list) {
 		xmlC14NErrInternal("creating namespaces list (exc c14n)");
 		return -1;
 	}
@@ -945,7 +945,7 @@ static int xmlC14NProcessAttrsAxis(xmlC14NCtxPtr ctx, xmlNode * cur, int parent_
 	 * Create a sorted list to store element attributes
 	 */
 	list = xmlListCreate(NULL, (xmlListDataCompare)xmlC14NAttrsCompare);
-	if(list == NULL) {
+	if(!list) {
 		xmlC14NErrInternal("creating attributes list");
 		return -1;
 	}

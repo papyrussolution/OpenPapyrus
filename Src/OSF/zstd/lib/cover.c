@@ -43,10 +43,9 @@
  */
 #define COVER_MAX_SAMPLES_SIZE (sizeof(size_t) == 8 ? ((uint)-1) : ((uint)1 GB))
 #define COVER_DEFAULT_SPLITPOINT 1.0
-
-/*-*************************************
-*  Console display
-***************************************/
+//
+// Console display
+//
 #ifndef LOCALDISPLAYLEVEL
 static int g_displayLevel = 0;
 #endif
@@ -132,8 +131,8 @@ static int COVER_map_init(COVER_map_t * map, uint32 size)
 /**
  * Internal hash function
  */
-static const uint32 COVER_prime4bytes = 2654435761U;
-static uint32 FASTCALL COVER_map_hash(const COVER_map_t * map, uint32 key) { return (key * COVER_prime4bytes) >> (32 - map->sizeLog); }
+//static const uint32 COVER_prime4bytes = _SlConst.MagicHashPrime32/*2654435761U*/;
+static uint32 FASTCALL COVER_map_hash(const COVER_map_t * map, uint32 key) { return (key * _SlConst.MagicHashPrime32/*COVER_prime4bytes*/) >> (32 - map->sizeLog); }
 /**
  * Helper function that returns the index that a key should be placed into.
  */
@@ -266,7 +265,8 @@ static int COVER_cmp8(COVER_ctx_t * ctx, const void * lp, const void * rp)
  * NOTE: g_coverCtx must be set to call this function.  A global is required because
  * qsort doesn't take an opaque pointer.
  */
-static int WIN_CDECL COVER_strict_cmp(const void * lp, const void * rp) {
+static int WIN_CDECL COVER_strict_cmp(const void * lp, const void * rp) 
+{
 	int result = COVER_cmp(g_coverCtx, lp, rp);
 	if(result == 0) {
 		result = lp < rp ? -1 : 1;
@@ -315,7 +315,7 @@ static const size_t * COVER_lower_bound(const size_t * first, const size_t * las
 static void COVER_groupBy(const void * data, size_t count, size_t size, COVER_ctx_t * ctx,
     int (*cmp)(COVER_ctx_t *, const void *, const void *),
     void (*grp)(COVER_ctx_t *, const void *, const void *)) {
-	const BYTE * ptr = (const BYTE*)data;
+	const BYTE * ptr = (const BYTE *)data;
 	size_t num = 0;
 	while(num < count) {
 		const BYTE * grpEnd = ptr + size;
@@ -522,14 +522,13 @@ static void COVER_ctx_destroy(COVER_ctx_t * ctx)
  * Returns 0 on success or error code on error.
  * The context must be destroyed with `COVER_ctx_destroy()`.
  */
-static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer,
-    const size_t * samplesSizes, unsigned nbSamples,
-    unsigned d, double splitPoint) {
-	const BYTE * const samples = (const BYTE*)samplesBuffer;
+static size_t COVER_ctx_init(COVER_ctx_t * ctx, const void * samplesBuffer, const size_t * samplesSizes, uint nbSamples, uint d, double splitPoint) 
+{
+	const BYTE * const samples = (const BYTE *)samplesBuffer;
 	const size_t totalSamplesSize = COVER_sum(samplesSizes, nbSamples);
 	/* Split samples into testing and training sets */
-	const unsigned nbTrainSamples = splitPoint < 1.0 ? (uint)((double)nbSamples * splitPoint) : nbSamples;
-	const unsigned nbTestSamples = splitPoint < 1.0 ? nbSamples - nbTrainSamples : nbSamples;
+	const uint nbTrainSamples = splitPoint < 1.0 ? (uint)((double)nbSamples * splitPoint) : nbSamples;
+	const uint nbTestSamples = splitPoint < 1.0 ? nbSamples - nbTrainSamples : nbSamples;
 	const size_t trainingSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes, nbTrainSamples) : totalSamplesSize;
 	const size_t testSamplesSize = splitPoint < 1.0 ? COVER_sum(samplesSizes + nbTrainSamples, nbTestSamples) : totalSamplesSize;
 	/* Checks */
@@ -657,7 +656,7 @@ static size_t COVER_buildDictionary(const COVER_ctx_t * ctx, uint32 * freqs,
     COVER_map_t * activeDmers, void * dictBuffer,
     size_t dictBufferCapacity,
     ZDICT_cover_params_t parameters) {
-	BYTE * const dict = (BYTE*)dictBuffer;
+	BYTE * const dict = (BYTE *)dictBuffer;
 	size_t tail = dictBufferCapacity;
 	/* Divide the data into epochs. We will select one segment from each epoch. */
 	const COVER_epoch_info_t epochs = COVER_computeEpochs(
@@ -705,11 +704,10 @@ static size_t COVER_buildDictionary(const COVER_ctx_t * ctx, uint32 * freqs,
 	return tail;
 }
 
-ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(void * dictBuffer, size_t dictBufferCapacity,
-    const void * samplesBuffer, const size_t * samplesSizes, unsigned nbSamples,
+ZDICTLIB_API size_t ZDICT_trainFromBuffer_cover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer, const size_t * samplesSizes, uint nbSamples,
     ZDICT_cover_params_t parameters)
 {
-	BYTE* const dict = (BYTE*)dictBuffer;
+	BYTE * const dict = (BYTE *)dictBuffer;
 	COVER_ctx_t ctx;
 	COVER_map_t activeDmers;
 	parameters.splitPoint = 1.0;
@@ -816,7 +814,8 @@ _compressCleanup:
  */
 void COVER_best_init(COVER_best_t * best) 
 {
-	if(best==NULL) return; /* compatible with init on NULL */
+	if(best==NULL) 
+		return; /* compatible with init on NULL */
 	(void)ZSTD_pthread_mutex_init(&best->mutex, NULL);
 	(void)ZSTD_pthread_cond_init(&best->cond, NULL);
 	best->liveJobs = 0;
@@ -912,12 +911,13 @@ void COVER_best_finish(COVER_best_t * best, ZDICT_cover_params_t parameters,
 	}
 }
 
-COVER_dictSelection_t COVER_dictSelectionError(size_t error) {
+COVER_dictSelection_t COVER_dictSelectionError(size_t error) 
+{
 	COVER_dictSelection_t selection = { NULL, 0, error };
 	return selection;
 }
 
-unsigned COVER_dictSelectionIsError(COVER_dictSelection_t selection) 
+uint COVER_dictSelectionIsError(COVER_dictSelection_t selection) 
 {
 	return (ZSTD_isError(selection.totalCompressedSize) || !selection.dictContent);
 }
@@ -927,16 +927,16 @@ void COVER_dictSelectionFree(COVER_dictSelection_t selection)
 	SAlloc::F(selection.dictContent);
 }
 
-COVER_dictSelection_t COVER_selectDict(BYTE* customDictContent, size_t dictBufferCapacity,
-    size_t dictContentSize, const BYTE* samplesBuffer, const size_t* samplesSizes, uint nbFinalizeSamples,
+COVER_dictSelection_t COVER_selectDict(BYTE * customDictContent, size_t dictBufferCapacity,
+    size_t dictContentSize, const BYTE * samplesBuffer, const size_t* samplesSizes, uint nbFinalizeSamples,
     size_t nbCheckSamples, size_t nbSamples, ZDICT_cover_params_t params, size_t* offsets, size_t totalCompressedSize) 
 {
 	size_t largestDict = 0;
 	size_t largestCompressed = 0;
-	BYTE* customDictContentEnd = customDictContent + dictContentSize;
+	BYTE * customDictContentEnd = customDictContent + dictContentSize;
 
-	BYTE * largestDictbuffer = (BYTE*)SAlloc::M(dictBufferCapacity);
-	BYTE * candidateDictBuffer = (BYTE*)SAlloc::M(dictBufferCapacity);
+	BYTE * largestDictbuffer = (BYTE *)SAlloc::M(dictBufferCapacity);
+	BYTE * candidateDictBuffer = (BYTE *)SAlloc::M(dictBufferCapacity);
 	double regressionTolerance = ((double)params.shrinkDictMaxRegression / 100.0) + 1.00;
 	if(!largestDictbuffer || !candidateDictBuffer) {
 		SAlloc::F(largestDictbuffer);
@@ -1024,7 +1024,7 @@ static void COVER_tryParameters(void * opaque)
 	size_t totalCompressedSize = ERROR(GENERIC);
 	/* Allocate space for hash table, dict, and freqs */
 	COVER_map_t activeDmers;
-	BYTE* const dict = (BYTE*)SAlloc::M(dictBufferCapacity);
+	BYTE * const dict = (BYTE *)SAlloc::M(dictBufferCapacity);
 	COVER_dictSelection_t selection = COVER_dictSelectionError(ERROR(GENERIC));
 	uint32* const freqs = (uint32*)SAlloc::M(ctx->suffixSize * sizeof(uint32));
 	if(!COVER_map_init(&activeDmers, parameters.k - parameters.d + 1)) {
@@ -1058,7 +1058,7 @@ _cleanup:
 }
 
 ZDICTLIB_API size_t ZDICT_optimizeTrainFromBuffer_cover(void * dictBuffer, size_t dictBufferCapacity, const void * samplesBuffer,
-    const size_t* samplesSizes, unsigned nbSamples, ZDICT_cover_params_t* parameters)
+    const size_t* samplesSizes, uint nbSamples, ZDICT_cover_params_t* parameters)
 {
 	/* constants */
 	const uint   nbThreads = parameters->nbThreads;

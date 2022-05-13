@@ -92,7 +92,7 @@ namespace i18n {
 			int compare(const StringPiece & x) const 
 			{
 				int r = wordmemcmp(ptr_, x.ptr_, (length_ < x.length_ ? length_ : x.length_));
-				if(r == 0) {
+				if(!r) {
 					if(length_ < x.length_) 
 						r = -1;
 					else if(length_ > x.length_) 

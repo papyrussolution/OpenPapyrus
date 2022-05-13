@@ -198,7 +198,7 @@ static OSSL_STORE_INFO * try_decode_PKCS12(const char * pem_name,
 {
 	OSSL_STORE_INFO * store_info = NULL;
 	STACK_OF(OSSL_STORE_INFO) *ctx = static_cast<STACK_OF(OSSL_STORE_INFO) *>(*pctx);
-	if(ctx == NULL) {
+	if(!ctx) {
 		/* Initial parsing */
 		PKCS12 * p12;
 		int ok = 0;
@@ -814,7 +814,7 @@ static OSSL_STORE_LOADER_CTX * file_open(const OSSL_STORE_LOADER * loader, const
 	ERR_clear_error();
 
 	ctx = static_cast<OSSL_STORE_LOADER_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL) {
+	if(!ctx) {
 		OSSL_STOREerr(OSSL_STORE_F_FILE_OPEN, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
@@ -911,7 +911,7 @@ static int file_find(OSSL_STORE_LOADER_CTX * ctx, OSSL_STORE_SEARCH * search)
 	if(OSSL_STORE_SEARCH_get_type(search) == OSSL_STORE_SEARCH_BY_NAME) 
 	{
 		ulong hash = 0;
-		if(ctx == NULL)
+		if(!ctx)
 			return 1;
 		if(ctx->type != ossl_store_loader_ctx_st::is_dir) {
 			OSSL_STOREerr(OSSL_STORE_F_FILE_FIND,
@@ -935,7 +935,7 @@ static int file_find(OSSL_STORE_LOADER_CTX * ctx, OSSL_STORE_SEARCH * search)
 OSSL_STORE_LOADER_CTX * ossl_store_file_attach_pem_bio_int(BIO * bp)
 {
 	OSSL_STORE_LOADER_CTX * ctx = static_cast<OSSL_STORE_LOADER_CTX *>(OPENSSL_zalloc(sizeof(*ctx)));
-	if(ctx == NULL) {
+	if(!ctx) {
 		OSSL_STOREerr(OSSL_STORE_F_OSSL_STORE_FILE_ATTACH_PEM_BIO_INT, ERR_R_MALLOC_FAILURE);
 		return NULL;
 	}
