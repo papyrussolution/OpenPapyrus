@@ -188,11 +188,7 @@ static wchar_t * _strToWCS(wchar_t * dest, int32_t destCapacity, int32_t * pDest
 		if(0 < count && count <= destCapacity) {
 			uprv_memcpy(dest, intTarget, (size_t)count*sizeof(wchar_t));
 		}
-
-		if(pDestLength) {
-			*pDestLength = count;
-		}
-
+		ASSIGN_PTR(pDestLength, count);
 		/* free the allocated memory */
 		uprv_free(intTarget);
 	}
@@ -205,9 +201,7 @@ cleanup:
 		uprv_free(saveBuf);
 	}
 	u_terminateWChars(dest, destCapacity, count, pErrorCode);
-
 	u_releaseDefaultConverter(conv);
-
 	return dest;
 }
 
@@ -223,14 +217,10 @@ U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest,
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-
-	if((src==NULL && srcLength!=0) || srcLength < -1 ||
-	    (destCapacity<0) || (dest == NULL && destCapacity > 0)
-	    ) {
+	if((src==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 #ifdef U_WCHAR_IS_UTF16
 	/* wchar_t is UTF-16 just do a memcpy */
 	if(srcLength == -1) {
@@ -239,23 +229,13 @@ U_CAPI wchar_t * U_EXPORT2 u_strToWCS(wchar_t * dest,
 	if(0 < srcLength && srcLength <= destCapacity) {
 		u_memcpy((UChar *)dest, src, srcLength);
 	}
-	if(pDestLength) {
-		*pDestLength = srcLength;
-	}
-
+	ASSIGN_PTR(pDestLength, srcLength);
 	u_terminateUChars((UChar *)dest, destCapacity, srcLength, pErrorCode);
-
 	return dest;
-
 #elif defined U_WCHAR_IS_UTF32
-
-	return (wchar_t *)u_strToUTF32((UChar32*)dest, destCapacity, pDestLength,
-		   src, srcLength, pErrorCode);
-
+	return (wchar_t *)u_strToUTF32((UChar32*)dest, destCapacity, pDestLength, src, srcLength, pErrorCode);
 #else
-
 	return _strToWCS(dest, destCapacity, pDestLength, src, srcLength, pErrorCode);
-
 #endif
 }
 
@@ -416,21 +396,16 @@ static UChar * _strFromWCS(UChar * dest,
 	pTargetLimit = dest + destCapacity;
 
 	conv = u_getDefaultConverter(pErrorCode);
-
 	if(U_FAILURE(*pErrorCode)|| conv==NULL) {
 		goto cleanup;
 	}
-
 	for(;;) {
 		*pErrorCode = U_ZERO_ERROR;
-
 		/* convert to stack buffer*/
 		ucnv_toUnicode(conv, &pTarget, pTargetLimit, (const char **)&pCSrc, pCSrcLimit, NULL, (bool)(pCSrc==pCSrcLimit),
 		    pErrorCode);
-
 		/* increment count to number written to stack */
 		count += pTarget - target;
-
 		if(*pErrorCode==U_BUFFER_OVERFLOW_ERROR) {
 			target = uStack;
 			pTarget = uStack;
@@ -440,49 +415,31 @@ static UChar * _strFromWCS(UChar * dest,
 			break;
 		}
 	}
-
-	if(pDestLength) {
-		*pDestLength = count;
-	}
-
+	ASSIGN_PTR(pDestLength, count);
 	u_terminateUChars(dest, destCapacity, count, pErrorCode);
-
 cleanup:
-
 	if(cStack != pCSave) {
 		uprv_free(pCSave);
 	}
-
 	if(wStack != pWStack) {
 		uprv_free(pWStack);
 	}
-
 	u_releaseDefaultConverter(conv);
-
 	return dest;
 }
 
 #endif
 
-U_CAPI UChar * U_EXPORT2 u_strFromWCS(UChar * dest,
-    int32_t destCapacity,
-    int32_t * pDestLength,
-    const wchar_t * src,
-    int32_t srcLength,
-    UErrorCode * pErrorCode)
+U_CAPI UChar * U_EXPORT2 u_strFromWCS(UChar * dest, int32_t destCapacity, int32_t * pDestLength, const wchar_t * src, int32_t srcLength, UErrorCode * pErrorCode)
 {
 	/* args check */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
-
-	if((src==NULL && srcLength!=0) || srcLength < -1 ||
-	    (destCapacity<0) || (dest == NULL && destCapacity > 0)
-	    ) {
+	if((src==NULL && srcLength!=0) || srcLength < -1 || (destCapacity<0) || (dest == NULL && destCapacity > 0)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return NULL;
 	}
-
 #ifdef U_WCHAR_IS_UTF16
 	/* wchar_t is UTF-16 just do a memcpy */
 	if(srcLength == -1) {
@@ -491,23 +448,13 @@ U_CAPI UChar * U_EXPORT2 u_strFromWCS(UChar * dest,
 	if(0 < srcLength && srcLength <= destCapacity) {
 		u_memcpy(dest, (const UChar *)src, srcLength);
 	}
-	if(pDestLength) {
-		*pDestLength = srcLength;
-	}
-
+	ASSIGN_PTR(pDestLength, srcLength);
 	u_terminateUChars(dest, destCapacity, srcLength, pErrorCode);
-
 	return dest;
-
 #elif defined U_WCHAR_IS_UTF32
-
-	return u_strFromUTF32(dest, destCapacity, pDestLength,
-		   (UChar32*)src, srcLength, pErrorCode);
-
+	return u_strFromUTF32(dest, destCapacity, pDestLength, (UChar32*)src, srcLength, pErrorCode);
 #else
-
 	return _strFromWCS(dest, destCapacity, pDestLength, src, srcLength, pErrorCode);
-
 #endif
 }
 

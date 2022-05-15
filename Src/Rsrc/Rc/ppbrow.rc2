@@ -6629,6 +6629,7 @@ browser STYLOQBINDERY north(100), 1, 0, "@{view_styloqbindery}", OWNER|GRID, 0
 		TEST             : kbCtrlT,    PPDV_TEST01,         "@{test}\tCtrl-T"
 		separator
 		SYSJ             : kbCtrlJ,    PPDV_SYSJOURNAL,     "@{dobrowsesjbybill}\tCtrl-J"
+		REFRESH          : kbAltV,     PPDV_REFRESH01,      "@{refresh}\tAlt-V" // @v11.3.12
 	}
 }
 

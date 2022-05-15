@@ -1071,13 +1071,14 @@ private:
 
 void ATurnTmplDialog::swapPrim()
 {
-	char   pt[32], ft[32];
 	TCluster * clu = static_cast<TCluster *>(getCtrlView(CTL_ATRNTMPL_PRIMARY));
 	if(clu) {
-		clu->getText(0, pt, sizeof(pt));
-		clu->getText(1, ft, sizeof(ft));
-		clu->setText(0, ft);
-		clu->setText(1, pt);
+		SString pt_buf;
+		SString ft_buf;
+		clu->GetText(0, pt_buf);
+		clu->GetText(1, ft_buf);
+		clu->SetText(0, ft_buf);
+		clu->SetText(1, pt_buf);
 		clu->Draw_();
 	}
 }

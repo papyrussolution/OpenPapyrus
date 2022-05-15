@@ -32,12 +32,9 @@ static boolint pixman_have_vmx(void)
 {
 	int error, have_vmx;
 	size_t length = sizeof(have_vmx);
-
 	error = sysctlbyname("hw.optional.altivec", &have_vmx, &length, NULL, 0);
-
 	if(error)
 		return FALSE;
-
 	return have_vmx;
 }
 
@@ -51,12 +48,9 @@ static boolint pixman_have_vmx(void)
 	int error, have_vmx;
 	int mib[2] = { CTL_MACHDEP, CPU_ALTIVEC };
 	size_t length = sizeof(have_vmx);
-
 	error = sysctl(mib, 2, &have_vmx, &length, NULL, 0);
-
 	if(error != 0)
 		return FALSE;
-
 	return have_vmx;
 }
 
@@ -66,7 +60,6 @@ static boolint pixman_have_vmx(void)
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdio.h>
 #include <linux/auxvec.h>
 #include <asm/cputable.h>
 

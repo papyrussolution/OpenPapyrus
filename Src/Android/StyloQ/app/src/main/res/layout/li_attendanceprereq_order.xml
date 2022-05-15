@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout style="@style/ListItemRegular" xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/orderPrereqOrderListItem"
+    android:id="@+id/attendancePrereqOrderListItem"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"

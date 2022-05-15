@@ -3,8 +3,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -1166,28 +1165,28 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 	int r;
 	switch(key[0]) {
 		case 'a':
-		    if(strcmp(key, "abstract-file") == 0) {
+		    if(sstreq(key, "abstract-file")) {
 			    r = get_str_opt(a, &(iso9660->abstract_file_identifier), ABSTRACT_FILE_SIZE, key, value);
 			    iso9660->opt.abstract_file = r == ARCHIVE_OK;
 			    return r;
 		    }
-		    if(strcmp(key, "application-id") == 0) {
+		    if(sstreq(key, "application-id")) {
 			    r = get_str_opt(a, &(iso9660->application_identifier), APPLICATION_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.application_id = r == ARCHIVE_OK;
 			    return r;
 		    }
-		    if(strcmp(key, "allow-vernum") == 0) {
+		    if(sstreq(key, "allow-vernum")) {
 			    iso9660->opt.allow_vernum = value != NULL;
 			    return ARCHIVE_OK;
 		    }
 		    break;
 		case 'b':
-		    if(strcmp(key, "biblio-file") == 0) {
+		    if(sstreq(key, "biblio-file")) {
 			    r = get_str_opt(a, &(iso9660->bibliographic_file_identifier), BIBLIO_FILE_SIZE, key, value);
 			    iso9660->opt.biblio_file = r == ARCHIVE_OK;
 			    return r;
 		    }
-		    if(strcmp(key, "boot") == 0) {
+		    if(sstreq(key, "boot")) {
 			    if(value == NULL)
 				    iso9660->opt.boot = 0;
 			    else {
@@ -1196,16 +1195,16 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    }
 			    return ARCHIVE_OK;
 		    }
-		    if(strcmp(key, "boot-catalog") == 0) {
+		    if(sstreq(key, "boot-catalog")) {
 			    r = get_str_opt(a, &(iso9660->el_torito.catalog_filename), 1024, key, value);
 			    iso9660->opt.boot_catalog = r == ARCHIVE_OK;
 			    return r;
 		    }
-		    if(strcmp(key, "boot-info-table") == 0) {
+		    if(sstreq(key, "boot-info-table")) {
 			    iso9660->opt.boot_info_table = value != NULL;
 			    return ARCHIVE_OK;
 		    }
-		    if(strcmp(key, "boot-load-seg") == 0) {
+		    if(sstreq(key, "boot-load-seg")) {
 			    uint32 seg;
 			    iso9660->opt.boot_load_seg = 0;
 			    if(value == NULL)
@@ -1235,7 +1234,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    iso9660->opt.boot_load_seg = 1;
 			    return ARCHIVE_OK;
 		    }
-		    if(strcmp(key, "boot-load-size") == 0) {
+		    if(sstreq(key, "boot-load-size")) {
 			    int num = 0;
 			    r = get_num_opt(a, &num, 0xffff, 1, key, value);
 			    iso9660->opt.boot_load_size = r == ARCHIVE_OK;
@@ -1244,14 +1243,14 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    iso9660->el_torito.boot_load_size = (uint16)num;
 			    return ARCHIVE_OK;
 		    }
-		    if(strcmp(key, "boot-type") == 0) {
+		    if(sstreq(key, "boot-type")) {
 			    if(value == NULL)
 				    goto invalid_value;
-			    if(strcmp(value, "no-emulation") == 0)
+			    if(sstreq(value, "no-emulation"))
 				    iso9660->opt.boot_type = OPT_BOOT_TYPE_NO_EMU;
-			    else if(strcmp(value, "fd") == 0)
+			    else if(sstreq(value, "fd"))
 				    iso9660->opt.boot_type = OPT_BOOT_TYPE_FD;
-			    else if(strcmp(value, "hard-disk") == 0)
+			    else if(sstreq(value, "hard-disk"))
 				    iso9660->opt.boot_type = OPT_BOOT_TYPE_HARD_DISK;
 			    else
 				    goto invalid_value;
@@ -1259,11 +1258,9 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    break;
 		case 'c':
-		    if(strcmp(key, "compression-level") == 0) {
+		    if(sstreq(key, "compression-level")) {
 #ifdef HAVE_ZLIB_H
-			    if(value == NULL ||
-				!(value[0] >= '0' && value[0] <= '9') ||
-				value[1] != '\0')
+			    if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0')
 				    goto invalid_value;
 			    iso9660->zisofs.compression_level = value[0] - '0';
 			    iso9660->opt.compression_level = 1;
@@ -1273,7 +1270,7 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 			    return ARCHIVE_FATAL;
 #endif
 		    }
-		    if(strcmp(key, "copyright-file") == 0) {
+		    if(sstreq(key, "copyright-file")) {
 			    r = get_str_opt(a, &(iso9660->copyright_file_identifier), COPYRIGHT_FILE_SIZE, key, value);
 			    iso9660->opt.copyright_file = r == ARCHIVE_OK;
 			    return r;
@@ -1283,10 +1280,9 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		     * year(4),month(2),day(2),hour(2),minute(2),second(2).
 		     * e.g. "20090929033757"
 		     */
-		    if(strcmp(key, "creation") == 0) {
+		    if(sstreq(key, "creation")) {
 			    struct tm tm;
 			    char buf[5];
-
 			    p = value;
 			    if(p == NULL || strlen(p) < 14)
 				    goto invalid_value;
@@ -1309,9 +1305,8 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 #endif
 		    break;
 		case 'i':
-		    if(strcmp(key, "iso-level") == 0) {
-			    if(value != NULL && value[1] == '\0' &&
-				(value[0] >= '1' && value[0] <= '4')) {
+		    if(sstreq(key, "iso-level")) {
+			    if(value != NULL && value[1] == '\0' && (value[0] >= '1' && value[0] <= '4')) {
 				    iso9660->opt.iso_level = value[0]-'0';
 				    return ARCHIVE_OK;
 			    }
@@ -1319,12 +1314,12 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    break;
 		case 'j':
-		    if(strcmp(key, "joliet") == 0) {
+		    if(sstreq(key, "joliet")) {
 			    if(value == NULL)
 				    iso9660->opt.joliet = OPT_JOLIET_DISABLE;
-			    else if(strcmp(value, "1") == 0)
+			    else if(sstreq(value, "1"))
 				    iso9660->opt.joliet = OPT_JOLIET_ENABLE;
-			    else if(strcmp(value, "long") == 0)
+			    else if(sstreq(value, "long"))
 				    iso9660->opt.joliet = OPT_JOLIET_LONGNAME;
 			    else
 				    goto invalid_value;
@@ -1332,35 +1327,35 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    break;
 		case 'l':
-		    if(strcmp(key, "limit-depth") == 0) {
+		    if(sstreq(key, "limit-depth")) {
 			    iso9660->opt.limit_depth = value != NULL;
 			    return ARCHIVE_OK;
 		    }
-		    if(strcmp(key, "limit-dirs") == 0) {
+		    if(sstreq(key, "limit-dirs")) {
 			    iso9660->opt.limit_dirs = value != NULL;
 			    return ARCHIVE_OK;
 		    }
 		    break;
 		case 'p':
-		    if(strcmp(key, "pad") == 0) {
+		    if(sstreq(key, "pad")) {
 			    iso9660->opt.pad = value != NULL;
 			    return ARCHIVE_OK;
 		    }
-		    if(strcmp(key, "publisher") == 0) {
+		    if(sstreq(key, "publisher")) {
 			    r = get_str_opt(a, &(iso9660->publisher_identifier), PUBLISHER_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.publisher = r == ARCHIVE_OK;
 			    return r;
 		    }
 		    break;
 		case 'r':
-		    if(strcmp(key, "rockridge") == 0 || strcmp(key, "Rockridge") == 0) {
+		    if(sstreq(key, "rockridge") || sstreq(key, "Rockridge")) {
 			    if(value == NULL)
 				    iso9660->opt.rr = OPT_RR_DISABLED;
-			    else if(strcmp(value, "1") == 0)
+			    else if(sstreq(value, "1"))
 				    iso9660->opt.rr = OPT_RR_USEFUL;
-			    else if(strcmp(value, "strict") == 0)
+			    else if(sstreq(value, "strict"))
 				    iso9660->opt.rr = OPT_RR_STRICT;
-			    else if(strcmp(value, "useful") == 0)
+			    else if(sstreq(value, "useful"))
 				    iso9660->opt.rr = OPT_RR_USEFUL;
 			    else
 				    goto invalid_value;
@@ -1368,15 +1363,14 @@ static int iso9660_options(struct archive_write * a, const char * key, const cha
 		    }
 		    break;
 		case 'v':
-		    if(strcmp(key, "volume-id") == 0) {
-			    r = get_str_opt(a, &(iso9660->volume_identifier),
-				    VOLUME_IDENTIFIER_SIZE, key, value);
+		    if(sstreq(key, "volume-id")) {
+			    r = get_str_opt(a, &(iso9660->volume_identifier), VOLUME_IDENTIFIER_SIZE, key, value);
 			    iso9660->opt.volume_id = r == ARCHIVE_OK;
 			    return r;
 		    }
 		    break;
 		case 'z':
-		    if(strcmp(key, "zisofs") == 0) {
+		    if(sstreq(key, "zisofs")) {
 			    if(value == NULL)
 				    iso9660->opt.zisofs = OPT_ZISOFS_DISABLED;
 			    else {
@@ -2603,10 +2597,10 @@ static int set_directory_record_rr(uchar * bp, int dr_len,
 		 * the entry of "rr_moved" directory.
 		 * I don't understand this behavior.
 		 */
-		if(isoent->IsVirtual && isoent->parent == iso9660->primary.rootent && strcmp(isoent->file->basename.s, "rr_moved") == 0) rr_flag |= RR_USE_RE;
+		if(isoent->IsVirtual && isoent->parent == iso9660->primary.rootent && sstreq(isoent->file->basename.s, "rr_moved")) 
+			rr_flag |= RR_USE_RE;
 #endif
 	}
-
 	/* Write "SP" System Use Entry. */
 	if(t == DIR_REC_SELF && isoent == isoent->parent) {
 		length = 7;
@@ -4682,38 +4676,29 @@ static void isofile_connect_hardlink_files(struct iso9660 * iso9660)
 		target = hl->file_list.first;
 		archive_entry_set_nlink(target->entry, hl->nlink);
 		/* Set a hardlink target to reference entries. */
-		for(nf = target->hlnext;
-		    nf != NULL; nf = nf->hlnext) {
+		for(nf = target->hlnext; nf != NULL; nf = nf->hlnext) {
 			nf->hardlink_target = target;
 			archive_entry_set_nlink(nf->entry, hl->nlink);
 		}
 	}
 }
 
-static int isofile_hd_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int isofile_hd_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct hardlink * h1 = (const struct hardlink *)n1;
 	const struct hardlink * h2 = (const struct hardlink *)n2;
-
-	return (strcmp(archive_entry_pathname(h1->file_list.first->entry),
-	       archive_entry_pathname(h2->file_list.first->entry)));
+	return (strcmp(archive_entry_pathname(h1->file_list.first->entry), archive_entry_pathname(h2->file_list.first->entry)));
 }
 
 static int isofile_hd_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct hardlink * h = (const struct hardlink *)n;
-
-	return (strcmp(archive_entry_pathname(h->file_list.first->entry),
-	       (const char *)key));
+	return (strcmp(archive_entry_pathname(h->file_list.first->entry), (const char *)key));
 }
 
 static void isofile_init_hardlinks(struct iso9660 * iso9660)
 {
-	static const struct archive_rb_tree_ops rb_ops = {
-		isofile_hd_cmp_node, isofile_hd_cmp_key,
-	};
-
+	static const struct archive_rb_tree_ops rb_ops = { isofile_hd_cmp_node, isofile_hd_cmp_key, };
 	__archive_rb_tree_init(&(iso9660->hardlink_rbtree), &rb_ops);
 }
 
@@ -4838,14 +4823,12 @@ static int isoent_cmp_node(const struct archive_rb_node * n1, const struct archi
 static int isoent_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct isoent * e = (const struct isoent *)n;
-
 	return (strcmp(e->file->basename.s, (const char *)key));
 }
 
 static int isoent_add_child_head(struct isoent * parent, struct isoent * child)
 {
-	if(!__archive_rb_tree_insert_node(
-		    &(parent->rbtree), (struct archive_rb_node *)child))
+	if(!__archive_rb_tree_insert_node(&(parent->rbtree), (struct archive_rb_node *)child))
 		return 0;
 	if((child->chnext = parent->children.first) == NULL)
 		parent->children.last = &(child->chnext);
@@ -5154,7 +5137,7 @@ static int isoent_tree(struct archive_write * a, struct isoent ** isoentpp)
 	 * the same as the path of `cur_dirent', add isoent to
 	 * `cur_dirent'.
 	 */
-	if(archive_strlen(&(iso9660->cur_dirstr)) == archive_strlen(&(isoent->file->parentdir)) && strcmp(iso9660->cur_dirstr.s, fn) == 0) {
+	if(archive_strlen(&(iso9660->cur_dirstr)) == archive_strlen(&(isoent->file->parentdir)) && sstreq(iso9660->cur_dirstr.s, fn)) {
 		if(!isoent_add_child_tail(iso9660->cur_dirent, isoent)) {
 			np = (struct isoent *)__archive_rb_tree_find_node(&(iso9660->cur_dirent->rbtree), isoent->file->basename.s);
 			goto same_entry;

@@ -273,26 +273,20 @@ static bool U_CALLCONV loadData(UStringPrepProfile* profile,
 		return FALSE;
 	}
 	profile->isDataLoaded = TRUE;
-
 	/* if a different thread set it first, then close the extra data */
-	if(dataMemory!=NULL) {
+	if(dataMemory) {
 		udata_close(dataMemory); /* NULL if it was set correctly */
 	}
-
 	return profile->isDataLoaded;
 }
 
-static UStringPrepProfile* usprep_getProfile(const char * path,
-    const char * name,
-    UErrorCode * status) {
+static UStringPrepProfile* usprep_getProfile(const char * path, const char * name, UErrorCode * status) 
+{
 	UStringPrepProfile* profile = NULL;
-
 	initCache(status);
-
 	if(U_FAILURE(*status)) {
 		return NULL;
 	}
-
 	UStringPrepKey stackKey;
 	/*
 	 * const is cast way to save malloc, strcpy and free calls
@@ -301,7 +295,6 @@ static UStringPrepProfile* usprep_getProfile(const char * path,
 	 */
 	stackKey.name = (char *)name;
 	stackKey.path = (char *)path;
-
 	/* fetch the data from the cache */
 	umtx_lock(&usprepMutex);
 	profile = (UStringPrepProfile*)(uhash_get(SHARED_DATA_HASHTABLE, &stackKey));

@@ -792,6 +792,9 @@
     <ProjectReference Include="libcurl-7730.vcxproj">
       <Project>{fd47df9e-fd33-443d-9048-d802d3364469}</Project>
     </ProjectReference>
+    <ProjectReference Include="libxml.vcxproj">
+      <Project>{82523a80-856a-4957-bcea-1a5738139141}</Project>
+    </ProjectReference>
     <ProjectReference Include="openssl-111-crypto.vcxproj">
       <Project>{26070ad0-2d76-41a2-ab8b-864ea198cc6f}</Project>
     </ProjectReference>

@@ -388,8 +388,8 @@ SLTEST_R(SFileStorage)
 	const  ulong rng_gen_max = 0x7fffffffUL;
 	SHandle hw;
 	SHandle hr;
-	SString path = GetSuiteEntry()->InPath;
-	SString out_path = GetSuiteEntry()->OutPath;
+	const SString path(GetSuiteEntry()->InPath);
+	const SString out_path(GetSuiteEntry()->OutPath);
 	SString storage_base_path;
 	SString temp_buf;
 	SString _name;

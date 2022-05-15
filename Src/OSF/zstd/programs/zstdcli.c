@@ -62,14 +62,13 @@
 #define ZSTD_LZ4 "lz4"
 #define ZSTD_UNLZ4 "unlz4"
 
-#define KB *(1 <<10)
-#define MB *(1 <<20)
-#define GB *(1U<<30)
-
+//#define KB *(1 <<10)
+//#define MB *(1 <<20)
+//#define GB *(1U<<30)
 #define DISPLAY_LEVEL_DEFAULT 2
 
 static const char*    g_defaultDictName = "dictionary";
-static const unsigned g_defaultMaxDictSize = 110 KB;
+static const unsigned g_defaultMaxDictSize = SKILOBYTE(110);
 static const int g_defaultDictCLevel = 3;
 static const unsigned g_defaultSelectivityLevel = 9;
 static const unsigned g_defaultMaxWindowLog = 27;

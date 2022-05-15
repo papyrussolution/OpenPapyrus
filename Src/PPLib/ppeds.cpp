@@ -1416,7 +1416,7 @@ int PPEds::ObjIdfrDerEncode(const char * strToEncode, SString & rEncodedStr)
 				part_val = binval;
 				part_val &= mask;
 				part_val <<= 1; // Запомнили значение бита путем сдвига
-				part_val |= (long)(0x80 * powl(256, k)); // Поставили бит в 1
+				part_val |= (long)(0x80 * powl(256, static_cast<long double>(k))); // Поставили бит в 1
 				part_val |= ~mask;
 				binval |= mask;
 				binval &= part_val;
@@ -1696,16 +1696,16 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		}
 		void CalcLen()
 		{
-			Separator4.CatChar(HashAlgorytm.Len());
-			Separator3.CatChar(HashAlgorytm.Len() + Separator4.Len());
-			Separator5.CatChar(Hash.Len());
-			Separator2.CatChar(Separator3.Len() + Separator4.Len() + HashAlgorytm.Len() + Separator5.Len() + Hash.Len());
+			Separator4.CatChar(static_cast<int>(HashAlgorytm.Len()));
+			Separator3.CatChar(static_cast<int>(HashAlgorytm.Len() + Separator4.Len()));
+			Separator5.CatChar(static_cast<int>(Hash.Len()));
+			Separator2.CatChar(static_cast<int>(Separator3.Len() + Separator4.Len() + HashAlgorytm.Len() + Separator5.Len() + Hash.Len()));
 			if(Policy.Len())
-				Separator6.CatChar(Policy.Len());
+				Separator6.CatChar(static_cast<int>(Policy.Len()));
 			else
 				Separator6 = "";
 			if(Nonce.Len())
-				Separator7.CatChar(Nonce.Len());
+				Separator7.CatChar(static_cast<int>(Nonce.Len()));
 			else
 				Separator7 = "";
 			if(CertReq) {
@@ -1875,8 +1875,8 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 	printf("%s", request.cptr());
 	printf("\n");
 	{
-		uint   size = SIZEOFARRAY(resp_buf);
-		uint   l = SIZEOFARRAY(resp_buf);
+		size_t size = SIZEOFARRAY(resp_buf);
+		size_t l = SIZEOFARRAY(resp_buf);
 		uint   count = 20;
 		size_t recvd_size = 0;
 		size_t wr_pos = 0;
@@ -1931,7 +1931,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 		}
 		// Добавляем штмап в атрибут подписи
 		// Сначала раскодируем
-		cb_stamp_data = buf.GetSize() - pos - 4 - 9; // Почему тут еще 9? Да потому что первые 9 байт
+		cb_stamp_data = static_cast<DWORD>(buf.GetSize() - pos - 4 - 9); // Почему тут еще 9? Да потому что первые 9 байт
 		// в ответе - общая инфа об этом самом ответе. А дальше уже идет непосредственно
 		// штамп времени.
 		THROW_MEM(pb_stamp_data = new BYTE[cb_stamp_data]);
@@ -2001,7 +2001,7 @@ int PPEds::GetTimeStamp(const char * pSignFileName, int signerNumber, StTspRespo
 int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 {
 	int    ok = 1, r = -1;
-	size_t i = 0;
+	long   i = 0;
 	SFile file;
 	// @v11.2.0 SFindFile find_file;
 	SString path;
@@ -2017,10 +2017,10 @@ int PPEds::GetSignFilesForDoc(const char * pFileName, StrAssocArray & rFilesLis)
 			ok = 0;
 	}
 	else
-		rFilesLis.Add(i++, SUcSwitch(found_file.cFileName)); // @unicodeproblem
+		rFilesLis.Add(i++, SUcSwitch(found_file.cFileName));
 	if(ok == 1) {
 		while(FindNextFile(hd, &found_file)) { // @unicodeproblem // Выходим из цикла, когда функция возвратит ERROR_FILE_NOT_FOUND
-			rFilesLis.Add(i++, SUcSwitch(found_file.cFileName)); // @unicodeproblem
+			rFilesLis.Add(i++, SUcSwitch(found_file.cFileName));
 		}
 		if(r == -1)
 			r = GetLastError();
@@ -2040,7 +2040,7 @@ int PPEds::GetSignFileAndSignNames(int posInList, const char * pFileName, SStrin
 	StrAssocArray sign_files_list;
 	SString signer_name;
 	THROW(GetSignFilesForDoc(pFileName, sign_files_list));
-	for(size_t i = 1; i <= sign_files_list.getCount(); i++) {
+	for(uint i = 1; i <= sign_files_list.getCount(); i++) {
 		THROW(GetSignsCount(sign_files_list.Get(i-1).Txt, count));
 		if((posInList - (int)i) <= count)
 			rSignFileName.CopyFrom(sign_files_list.Get(i-1).Txt);

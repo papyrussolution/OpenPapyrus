@@ -3929,8 +3929,7 @@ CURLcode Curl_http_readwrite_headers(struct Curl_easy * data, struct connectdata
 		}
 #ifdef USE_ALTSVC
 		/* If enabled, the header is incoming and this is over HTTPS */
-		else if(data->asi && checkprefix("Alt-Svc:", headp) &&
-		    ((conn->handler->flags & PROTOPT_SSL) ||
+		else if(data->asi && checkprefix("Alt-Svc:", headp) && ((conn->handler->flags & PROTOPT_SSL) ||
 #ifdef CURLDEBUG
 		    /* allow debug builds to circumvent the HTTPS restriction */
 		    getenv("CURL_ALTSVC_HTTP")

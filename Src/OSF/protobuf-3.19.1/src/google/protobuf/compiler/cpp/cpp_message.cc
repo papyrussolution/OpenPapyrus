@@ -976,8 +976,7 @@ $annotate_repeated_extension_list_mutable$
 		Formatter::SaveState saver(&format);
 		format.Set("oneof_name", oneof->name());
 		format.Set("camel_oneof_name", UnderscoresToCamelCase(oneof->name(), true));
-		format(
-			"void ${1$clear_$oneof_name$$}$();\n"
+		format("void ${1$clear_$oneof_name$$}$();\n"
 			"$camel_oneof_name$Case $oneof_name$_case() const;\n",
 			oneof);
 	}
@@ -1023,16 +1022,11 @@ void MessageGenerator::GenerateSingularFieldHasBits(const FieldDescriptor* field
 		// Message fields have a has_$name$() method.
 		if(IsLazy(field, options_, scc_analyzer_)) {
 			format(
-				"inline bool $classname$::_internal_has_$name$() const {\n"
-				"  return !$name$_.IsCleared();\n"
-				"}\n");
+				"inline bool $classname$::_internal_has_$name$() const { return !$name$_.IsCleared(); }\n");
 		}
 		else {
 			format(
-				"inline bool $classname$::_internal_has_$name$() const {\n"
-				"  return this != internal_default_instance() "
-				"&& $name$_ != nullptr;\n"
-				"}\n");
+				"inline bool $classname$::_internal_has_$name$() const { return this != internal_default_instance() && $name$_ != nullptr; }\n");
 		}
 		format(
 			"inline bool $classname$::has_$name$() const {\n"
@@ -2333,44 +2327,38 @@ std::pair<size_t, size_t> MessageGenerator::GenerateOffsets(io::Printer* printer
 	else if(!has_bit_indices_.empty()) {
 		entries += has_bit_indices_.size();
 		for(int i = 0; i < has_bit_indices_.size(); i++) {
-			const std::string index =
-			    has_bit_indices_[i] >= 0 ? StrCat(has_bit_indices_[i]) : "~0u";
+			const std::string index = has_bit_indices_[i] >= 0 ? StrCat(has_bit_indices_[i]) : "~0u";
 			format("$1$,\n", index);
 		}
 	}
 	if(!inlined_string_indices_.empty()) {
 		entries += inlined_string_indices_.size();
 		for(int inlined_string_indice : inlined_string_indices_) {
-			const std::string index = inlined_string_indice >= 0
-			    ? StrCat(inlined_string_indice)
-			    : "~0u";
+			const std::string index = inlined_string_indice >= 0 ? StrCat(inlined_string_indice) : "~0u";
 			format("$1$,\n", index);
 		}
 	}
-
 	return std::make_pair(entries, offsets);
 }
 
-void MessageGenerator::GenerateSharedConstructorCode(io::Printer* printer) {
-	if(HasSimpleBaseClass(descriptor_, options_)) return;
+void MessageGenerator::GenerateSharedConstructorCode(io::Printer* printer) 
+{
+	if(HasSimpleBaseClass(descriptor_, options_)) 
+		return;
 	Formatter format(printer, variables_);
-
 	format("inline void $classname$::SharedCtor() {\n");
-
 	std::vector<bool> processed(optimized_order_.size(), false);
 	GenerateConstructorBody(printer, processed, false);
-
 	for(auto oneof : OneOfRange(descriptor_)) {
 		format("clear_has_$1$();\n", oneof->name());
 	}
-
 	format("}\n\n");
 }
 
-void MessageGenerator::GenerateSharedDestructorCode(io::Printer* printer) {
+void MessageGenerator::GenerateSharedDestructorCode(io::Printer* printer) 
+{
 	if(HasSimpleBaseClass(descriptor_, options_)) return;
 	Formatter format(printer, variables_);
-
 	format("inline void $classname$::SharedDtor() {\n");
 	format.Indent();
 	format("$DCHK$(GetArenaForAllocation() == nullptr);\n");
@@ -2379,7 +2367,6 @@ void MessageGenerator::GenerateSharedDestructorCode(io::Printer* printer) {
 	for(auto field : optimized_order_) {
 		field_generators_.get(field).GenerateDestructorCode(printer);
 	}
-
 	// Generate code to destruct oneofs. Clearing should do the work.
 	for(auto oneof : OneOfRange(descriptor_)) {
 		format("if(has_$1$()) {\n  clear_$1$();\n}\n", oneof->name());
@@ -2417,45 +2404,36 @@ void MessageGenerator::GenerateArenaDestructorCode(io::Printer* printer)
 			need_registration = true;
 		}
 	}
-
 	// Process oneof fields.
 	//
 	// Note:  As of 10/5/2016, GenerateArenaDestructorCode does not emit anything
 	// and returns false for oneof fields.
 	for(auto oneof : OneOfRange(descriptor_)) {
 		for(auto field : FieldRange(oneof)) {
-			if(!IsFieldStripped(field, options_) &&
-			    field_generators_.get(field).GenerateArenaDestructorCode(printer)) {
+			if(!IsFieldStripped(field, options_) && field_generators_.get(field).GenerateArenaDestructorCode(printer)) {
 				need_registration = true;
 			}
 		}
 	}
-
 	format.Outdent();
 	format("}\n");
-
 	if(need_registration) {
 		format(
-			"inline void $classname$::RegisterArenaDtor(::$proto_ns$::Arena* "
-			"arena) {\n"
-			"  if(arena != nullptr) {\n"
-			"    arena->OwnCustomDestructor(this, &$classname$::ArenaDtor);\n"
-			"  }\n"
+			"inline void $classname$::RegisterArenaDtor(::$proto_ns$::Arena * arena)\n{\n"
+			"\tif(arena != nullptr) {\n"
+			"\t\tarena->OwnCustomDestructor(this, &$classname$::ArenaDtor);\n"
+			"\t}\n"
 			"}\n");
 	}
 	else {
-		format(
-			"void $classname$::RegisterArenaDtor(::$proto_ns$::Arena*) {\n"
-			"}\n");
+		format("void $classname$::RegisterArenaDtor(::$proto_ns$::Arena*) {}\n");
 	}
 }
 
-void MessageGenerator::GenerateConstexprConstructor(io::Printer* printer) {
+void MessageGenerator::GenerateConstexprConstructor(io::Printer* printer) 
+{
 	Formatter format(printer, variables_);
-
-	format(
-		"constexpr $classname$::$classname$(\n"
-		"  ::$proto_ns$::internal::ConstantInitialized)");
+	format("constexpr $classname$::$classname$(::$proto_ns$::internal::ConstantInitialized)");
 	format.Indent();
 	const char* field_sep = ":";
 	const auto put_sep = [&] {
@@ -2470,72 +2448,50 @@ void MessageGenerator::GenerateConstexprConstructor(io::Printer* printer) {
 			put_sep();
 			gen.GenerateConstinitInitializer(printer);
 		}
-
 		if(IsAnyMessage(descriptor_, options_)) {
 			put_sep();
 			format("_any_metadata_(&type_url_, &value_)");
 		}
-
 		if(descriptor_->real_oneof_decl_count() != 0) {
 			put_sep();
 			format("_oneof_case_{}");
 		}
 	}
-
 	format.Outdent();
 	format("{}\n");
 }
 
-void MessageGenerator::GenerateConstructorBody(io::Printer* printer,
-    std::vector<bool> processed,
-    bool copy_constructor) const {
+void MessageGenerator::GenerateConstructorBody(io::Printer* printer, std::vector<bool> processed, bool copy_constructor) const 
+{
 	Formatter format(printer, variables_);
-
-	const RunMap runs = FindRuns(
-		optimized_order_, [copy_constructor, this](const FieldDescriptor* field) {
-						return (copy_constructor && IsPOD(field)) ||
-						(!copy_constructor &&
-						CanBeManipulatedAsRawBytes(field, options_, scc_analyzer_));
-					});
-
+	const RunMap runs = FindRuns(optimized_order_, [copy_constructor, this](const FieldDescriptor* field) {
+		return (copy_constructor && IsPOD(field)) || (!copy_constructor && CanBeManipulatedAsRawBytes(field, options_, scc_analyzer_));
+	});
 	std::string pod_template;
 	if(copy_constructor) {
 		pod_template =
-		    "::memcpy(&$first$_, &from.$first$_,\n"
-		    "  static_cast<size_t>(reinterpret_cast<char*>(&$last$_) -\n"
-		    "  reinterpret_cast<char*>(&$first$_)) + sizeof($last$_));\n";
+		    "::memcpy(&$first$_, &from.$first$_, static_cast<size_t>(reinterpret_cast<char*>(&$last$_) - reinterpret_cast<char*>(&$first$_)) + sizeof($last$_));\n";
 	}
 	else {
 		pod_template =
-		    "::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(\n"
-		    "    reinterpret_cast<char*>(&$first$_) - "
-		    "reinterpret_cast<char*>(this)),\n"
-		    "    0, static_cast<size_t>(reinterpret_cast<char*>(&$last$_) -\n"
-		    "    reinterpret_cast<char*>(&$first$_)) + sizeof($last$_));\n";
+		    "::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&$first$_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&$last$_) - reinterpret_cast<char*>(&$first$_)) + sizeof($last$_));\n";
 	}
-
 	for(int i = 0; i < optimized_order_.size(); ++i) {
 		if(processed[i]) {
 			continue;
 		}
-
 		const FieldDescriptor* field = optimized_order_[i];
 		const auto it = runs.find(field);
-
 		// We only apply the memset technique to runs of more than one field, as
 		// assignment is better than memset for generated code clarity.
 		if(it != runs.end() && it->second > 1) {
 			// Use a memset, then skip run_length fields.
 			const size_t run_length = it->second;
 			const std::string first_field_name = FieldName(field);
-			const std::string last_field_name =
-			    FieldName(optimized_order_[i + run_length - 1]);
-
+			const std::string last_field_name = FieldName(optimized_order_[i + run_length - 1]);
 			format.Set("first", first_field_name);
 			format.Set("last", last_field_name);
-
 			format(pod_template.c_str());
-
 			i += run_length - 1;
 			// ++i at the top of the loop.
 		}
@@ -2815,16 +2771,11 @@ void MessageGenerator::GenerateClear(io::Printer* printer)
 		// We can omit the if() for chunk size 1, or if our fields do not have
 		// hasbits. I don't understand the rationale for the last part of the
 		// condition, but it matches the old logic.
-		const bool have_outer_if = HasBitIndex(chunk.front()) != kNoHasbit &&
-		    chunk.size() > 1 &&
-		    (memset_end != chunk.back() || merge_zero_init);
-
+		const bool have_outer_if = HasBitIndex(chunk.front()) != kNoHasbit && chunk.size() > 1 && (memset_end != chunk.back() || merge_zero_init);
 		if(have_outer_if) {
 			// Emit an if() that will let us skip the whole chunk if none are set.
 			uint32_t chunk_mask = GenChunkMask(chunk, has_bit_indices_);
-			std::string chunk_mask_str =
-			    StrCat(strings::Hex(chunk_mask, strings::ZERO_PAD_8));
-
+			std::string chunk_mask_str = StrCat(strings::Hex(chunk_mask, strings::ZERO_PAD_8));
 			// Check (up to) 8 has_bits at a time if we have more than one field in
 			// this chunk.  Due to field layout ordering, we may check
 			// _has_bits_[last_chunk * 8 / 32] multiple times.
@@ -2844,14 +2795,10 @@ void MessageGenerator::GenerateClear(io::Printer* printer)
 				field_generators_.get(memset_start).GenerateMessageClearingCode(printer);
 			}
 			else {
-				format(
-					"::memset(&$1$_, 0, static_cast<size_t>(\n"
-					"    reinterpret_cast<char*>(&$2$_) -\n"
-					"    reinterpret_cast<char*>(&$1$_)) + sizeof($2$_));\n",
+				format("::memset(&$1$_, 0, static_cast<size_t>(reinterpret_cast<char*>(&$2$_) - reinterpret_cast<char*>(&$1$_)) + sizeof($2$_));\n",
 					FieldName(memset_start), FieldName(memset_end));
 			}
 		}
-
 		// Clear all non-zero-initializable fields in the chunk.
 		for(const auto& field : chunk) {
 			if(CanInitializeByZeroing(field)) continue;
@@ -2859,18 +2806,11 @@ void MessageGenerator::GenerateClear(io::Printer* printer)
 			// clear strings and messages if they were set.
 			//
 			// TODO(kenton):  Let the CppFieldGenerator decide this somehow.
-			bool have_enclosing_if =
-			    HasBitIndex(field) != kNoHasbit &&
-			    (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE ||
-			    field->cpp_type() == FieldDescriptor::CPPTYPE_STRING);
-
+			bool have_enclosing_if = HasBitIndex(field) != kNoHasbit && (field->cpp_type() == FieldDescriptor::CPPTYPE_MESSAGE || field->cpp_type() == FieldDescriptor::CPPTYPE_STRING);
 			if(have_enclosing_if) {
-				PrintPresenceCheck(format, field, has_bit_indices_, printer,
-				    &cached_has_word_index);
+				PrintPresenceCheck(format, field, has_bit_indices_, printer, &cached_has_word_index);
 			}
-
 			field_generators_.get(field).GenerateMessageClearingCode(printer);
-
 			if(have_enclosing_if) {
 				format.Outdent();
 				format("}\n");
@@ -3060,28 +3000,23 @@ void MessageGenerator::GenerateMergeFrom(io::Printer* printer) {
 			// into, rather than a generic Message.
 
 			format(
-				"const ::$proto_ns$::Message::ClassData "
-				"$classname$::_class_data_ = {\n"
+				"const ::$proto_ns$::Message::ClassData $classname$::_class_data_ = {\n"
 				"    ::$proto_ns$::Message::CopyWithSizeCheck,\n"
 				"    $classname$::MergeImpl\n"
 				"};\n"
 				"const ::$proto_ns$::Message::ClassData*"
 				"$classname$::GetClassData() const { return &_class_data_; }\n"
 				"\n"
-				"void $classname$::MergeImpl(::$proto_ns$::Message* to,\n"
-				"                      const ::$proto_ns$::Message& from) {\n"
-				"  static_cast<$classname$ *>(to)->MergeFrom(\n"
-				"      static_cast<const $classname$ &>(from));\n"
+				"void $classname$::MergeImpl(::$proto_ns$::Message* to, const ::$proto_ns$::Message& from) {\n"
+				"\tstatic_cast<$classname$ *>(to)->MergeFrom(static_cast<const $classname$ &>(from));\n"
 				"}\n"
 				"\n");
 		}
 		else {
 			// Generate CheckTypeAndMergeFrom().
 			format(
-				"void $classname$::CheckTypeAndMergeFrom(\n"
-				"    const ::$proto_ns$::MessageLite& from) {\n"
-				"  MergeFrom(*::$proto_ns$::internal::DownCast<const $classname$*>(\n"
-				"      &from));\n"
+				"void $classname$::CheckTypeAndMergeFrom(const ::$proto_ns$::MessageLite& from)\n{\n"
+				"\tMergeFrom(*::$proto_ns$::internal::DownCast<const $classname$*>(&from));\n"
 				"}\n");
 		}
 	}
@@ -3089,8 +3024,7 @@ void MessageGenerator::GenerateMergeFrom(io::Printer* printer) {
 		// In the simple case, we just define ClassData that vectors back to the
 		// simple implementation of Copy and Merge.
 		format(
-			"const ::$proto_ns$::Message::ClassData "
-			"$classname$::_class_data_ = {\n"
+			"const ::$proto_ns$::Message::ClassData $classname$::_class_data_ = {\n"
 			"    $superclass$::CopyImpl,\n"
 			"    $superclass$::MergeImpl,\n"
 			"};\n"
@@ -3240,30 +3174,19 @@ void MessageGenerator::GenerateClassSpecificMergeFrom(io::Printer* printer) {
 			format.Outdent();
 			format("}\n");
 		}
-		format(
-			"case $1$_NOT_SET: {\n"
-			"  break;\n"
-			"}\n",
-			ToUpper(oneof->name()));
+		format("case $1$_NOT_SET: break;\n", ToUpper(oneof->name()));
 		format.Outdent();
 		format("}\n");
 	}
 	if(num_weak_fields_) {
 		format("_weak_field_map_.MergeFrom(from._weak_field_map_);\n");
 	}
-
 	// Merging of extensions and unknown fields is done last, to maximize
 	// the opportunity for tail calls.
 	if(descriptor_->extension_range_count() > 0) {
-		format(
-			"_extensions_.MergeFrom(internal_default_instance(), "
-			"from._extensions_);\n");
+		format("_extensions_.MergeFrom(internal_default_instance(), from._extensions_);\n");
 	}
-
-	format(
-		"_internal_metadata_.MergeFrom<$unknown_fields_type$>(from._internal_"
-		"metadata_);\n");
-
+	format("_internal_metadata_.MergeFrom<$unknown_fields_type$>(from._internal_metadata_);\n");
 	format.Outdent();
 	format("}\n");
 }

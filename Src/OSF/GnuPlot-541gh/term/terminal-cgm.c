@@ -737,10 +737,7 @@ TERM_PUBLIC int CGM_set_font(GpTermEntry_Static * pThis, const char * font)
 	if(isempty(font))
 		font = CGM_default_font;
 	// find font in font table, or use 1st font 
-	if(comma)
-		len = comma - font;
-	else
-		len = strlen(font);
+	len = comma ? (comma - font) : strlen(font);
 	font_index = CGM_find_font(font, len, &width);
 	SETIFZ(font_index, 1);
 	cgm_next.font_index = font_index;

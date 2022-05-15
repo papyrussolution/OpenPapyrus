@@ -371,34 +371,30 @@ void StringFieldGenerator::GenerateMessageClearingCode(io::Printer* printer) con
 	}
 }
 
-void StringFieldGenerator::GenerateMergingCode(io::Printer* printer) const {
+void StringFieldGenerator::GenerateMergingCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	// TODO(gpike): improve this
 	format("_internal_set_$name$(from._internal_$name$());\n");
 }
 
-void StringFieldGenerator::GenerateSwappingCode(io::Printer* printer) const {
+void StringFieldGenerator::GenerateSwappingCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	if(!inlined_) {
-		format(
-			"::$proto_ns$::internal::ArenaStringPtr::InternalSwap(\n"
-			"    $init_value$,\n"
-			"    &$name$_, lhs_arena,\n"
-			"    &other->$name$_, rhs_arena\n"
-			");\n");
+		format("::$proto_ns$::internal::ArenaStringPtr::InternalSwap($init_value$, &$name$_, lhs_arena, &other->$name$_, rhs_arena);\n");
 	}
 	else {
 		// At this point, it's guaranteed that the two fields being swapped are on
 		// the same arena.
 		format(
-			"$name$_.Swap(&other->$name$_, nullptr, GetArenaForAllocation(), "
-			"_internal_$name$_donated(), other->_internal_$name$_donated(), "
-			"&$donating_states_word$, &(other->$donating_states_word$), "
-			"$mask_for_undonate$);\n");
+			"$name$_.Swap(&other->$name$_, nullptr, GetArenaForAllocation(), _internal_$name$_donated(), other->_internal_$name$_donated(), "
+			"&$donating_states_word$, &(other->$donating_states_word$), $mask_for_undonate$);\n");
 	}
 }
 
-void StringFieldGenerator::GenerateConstructorCode(io::Printer* printer) const {
+void StringFieldGenerator::GenerateConstructorCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	if(inlined_ && descriptor_->default_value_string().empty()) {
 		// Automatic initialization will construct the string.
@@ -435,16 +431,17 @@ void StringFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) con
 	format("}\n");
 }
 
-void StringFieldGenerator::GenerateDestructorCode(io::Printer* printer) const {
+void StringFieldGenerator::GenerateDestructorCode(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	if(inlined_) {
-		// The destructor is automatically invoked.
-		return;
+		return; // The destructor is automatically invoked.
 	}
 	format("$name$_.DestroyNoArena($init_value$);\n");
 }
 
-void StringFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const {
+void StringFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	if(descriptor_->type() == FieldDescriptor::TYPE_STRING) {
 		GenerateUtf8CheckCodeForString(
@@ -748,8 +745,7 @@ void RepeatedStringFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer
 		"  // @@protoc_insertion_point(field_list:$full_name$)\n"
 		"  return $name$_;\n"
 		"}\n"
-		"inline ::$proto_ns$::RepeatedPtrField<std::string>*\n"
-		"$classname$::mutable_$name$() {\n"
+		"inline ::$proto_ns$::RepeatedPtrField<std::string> * $classname$::mutable_$name$() {\n"
 		"$annotate_mutable_list$"
 		"  // @@protoc_insertion_point(field_mutable_list:$full_name$)\n"
 		"  return &$name$_;\n"

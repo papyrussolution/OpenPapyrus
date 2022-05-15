@@ -777,7 +777,7 @@ void TDialog::DisableClusterItem(uint ctlID, int itemNo, int toDisable)
 int TDialog::SetClusterItemText(uint ctlID, int itemNo /* 0.. */, const char * pText)
 {
 	TCluster * p_clu = static_cast<TCluster *>(getCtrlView(ctlID));
-	return p_clu ? p_clu->setText(itemNo, pText) : 0;
+	return p_clu ? p_clu->SetText(itemNo, pText) : 0;
 }
 
 int TDialog::SetDefaultButton(uint ctlID, int setDefault)

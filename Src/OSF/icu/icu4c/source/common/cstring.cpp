@@ -196,15 +196,15 @@ U_CAPI int32_t U_EXPORT2 T_CString_stringToInteger(const char * integerString, i
 
 U_CAPI int U_EXPORT2 uprv_stricmp(const char * str1, const char * str2) 
 {
-	if(str1==NULL) {
-		if(str2==NULL) {
+	if(!str1) {
+		if(!str2) {
 			return 0;
 		}
 		else {
 			return -1;
 		}
 	}
-	else if(str2==NULL) {
+	else if(!str2) {
 		return 1;
 	}
 	else {
@@ -240,15 +240,15 @@ U_CAPI int U_EXPORT2 uprv_stricmp(const char * str1, const char * str2)
 
 U_CAPI int U_EXPORT2 uprv_strnicmp(const char * str1, const char * str2, uint32_t n) 
 {
-	if(str1==NULL) {
-		if(str2==NULL) {
+	if(!str1) {
+		if(!str2) {
 			return 0;
 		}
 		else {
 			return -1;
 		}
 	}
-	else if(str2==NULL) {
+	else if(!str2) {
 		return 1;
 	}
 	else {

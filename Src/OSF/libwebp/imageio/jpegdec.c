@@ -12,16 +12,9 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./jpegdec.h"
-//#ifdef HAVE_CONFIG_H
-	//#include "webp/config.h"
-//#endif
-//#include <stdio.h>
 #ifdef WEBP_HAVE_JPEG
 #include <../osf/libjpeg/jpeglib.h>
 #include <../osf/libjpeg/jerror.h>
-//#include <setjmp.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "webp/encode.h"
 #include "./imageio_util.h"
 #include "./metadata.h"

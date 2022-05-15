@@ -367,8 +367,7 @@ int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data,
 						    message_len = 0;
 				    }
 				    if(session->ssh_msg_disconnect) {
-					    LIBSSH2_DISCONNECT(session, reason, message,
-					    message_len, language, language_len);
+					    LIBSSH2_DISCONNECT(session, reason, message, message_len, language, language_len);
 				    }
 				    _libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Disconnect(%d): %s(%s)", reason, message, language);
 			    }
@@ -760,10 +759,7 @@ libssh2_packet_add_jump_point3:
  * Scan the brigade for a matching packet type, optionally poll the socket for
  * a packet first
  */
-int _libssh2_packet_ask(LIBSSH2_SESSION * session, uchar packet_type,
-    uchar ** data, size_t * data_len,
-    int match_ofs, const uchar * match_buf,
-    size_t match_len)
+int _libssh2_packet_ask(LIBSSH2_SESSION * session, uchar packet_type, uchar ** data, uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len)
 {
 	LIBSSH2_PACKET * packet = (LIBSSH2_PACKET *)_libssh2_list_first(&session->packets);
 	_libssh2_debug(session, LIBSSH2_TRACE_TRANS, "Looking for packet of type: %d", (int)packet_type);
@@ -788,26 +784,16 @@ int _libssh2_packet_ask(LIBSSH2_SESSION * session, uchar packet_type,
  * Scan for any of a list of packet types in the brigade, optionally poll the
  * socket for a packet first
  */
-int _libssh2_packet_askv(LIBSSH2_SESSION * session,
-    const uchar * packet_types,
-    uchar ** data, size_t * data_len,
-    int match_ofs,
-    const uchar * match_buf,
-    size_t match_len)
+int _libssh2_packet_askv(LIBSSH2_SESSION * session, const uchar * packet_types, uchar ** data, uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len)
 {
 	int i, packet_types_len = strlen((char *)packet_types);
-
 	for(i = 0; i < packet_types_len; i++) {
-		if(0 == _libssh2_packet_ask(session, packet_types[i], data,
-			    data_len, match_ofs,
-			    match_buf, match_len)) {
+		if(0 == _libssh2_packet_ask(session, packet_types[i], data, data_len, match_ofs, match_buf, match_len)) {
 			return 0;
 		}
 	}
-
 	return -1;
 }
-
 /*
  * _libssh2_packet_require
  *
@@ -817,24 +803,16 @@ int _libssh2_packet_askv(LIBSSH2_SESSION * session,
  * Returns negative on error
  * Returns 0 when it has taken care of the requested packet.
  */
-int _libssh2_packet_require(LIBSSH2_SESSION * session, uchar packet_type,
-    uchar ** data, size_t * data_len,
-    int match_ofs,
-    const uchar * match_buf,
-    size_t match_len,
-    packet_require_state_t * state)
+int _libssh2_packet_require(LIBSSH2_SESSION * session, uchar packet_type, uchar ** data, uint32 * data_len, int match_ofs,
+    const uchar * match_buf, size_t match_len, packet_require_state_t * state)
 {
 	if(state->start == 0) {
-		if(_libssh2_packet_ask(session, packet_type, data, data_len,
-			    match_ofs, match_buf,
-			    match_len) == 0) {
+		if(_libssh2_packet_ask(session, packet_type, data, data_len, match_ofs, match_buf, match_len) == 0) {
 			/* A packet was available in the packet brigade */
 			return 0;
 		}
-
 		state->start = time(NULL);
 	}
-
 	while(session->socket_state == LIBSSH2_SOCKET_CONNECTED) {
 		int ret = _libssh2_transport_read(session);
 		if(ret == LIBSSH2_ERROR_EAGAIN)
@@ -878,7 +856,7 @@ int _libssh2_packet_require(LIBSSH2_SESSION * session, uchar packet_type,
 int _libssh2_packet_burn(LIBSSH2_SESSION * session, libssh2_nonblocking_states * state)
 {
 	uchar * data;
-	size_t data_len;
+	uint32  data_len;
 	uchar i, all_packets[255];
 	int ret;
 	if(*state == libssh2_NB_state_idle) {
@@ -927,7 +905,7 @@ int _libssh2_packet_burn(LIBSSH2_SESSION * session, libssh2_nonblocking_states *
  * a bailout. packet_types is a null terminated list of packet_type numbers
  */
 int _libssh2_packet_requirev(LIBSSH2_SESSION * session, const uchar * packet_types,
-    uchar ** data, size_t * data_len, int match_ofs, const uchar * match_buf, size_t match_len, packet_requirev_state_t * state)
+    uchar ** data, uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len, packet_requirev_state_t * state)
 {
 	if(_libssh2_packet_askv(session, packet_types, data, data_len, match_ofs, match_buf, match_len) == 0) {
 		/* One of the packets listed was available in the packet brigade */

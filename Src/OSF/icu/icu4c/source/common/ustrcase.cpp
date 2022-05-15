@@ -45,17 +45,14 @@ int32_t checkOverflowAndEditsError(int32_t destIndex, int32_t destCapacity,
 
 /* Appends a full case mapping result, see UCASE_MAX_STRING_LENGTH. */
 inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacity,
-    int32_t result, const UChar * s,
-    int32_t cpLength, uint32_t options, icu::Edits * edits) {
+    int32_t result, const UChar * s, int32_t cpLength, uint32_t options, icu::Edits * edits) 
+{
 	UChar32 c;
 	int32_t length;
-
 	/* decode the result */
 	if(result<0) {
 		/* (not) original code point */
-		if(edits!=NULL) {
-			edits->addUnchanged(cpLength);
-		}
+		CALLPTRMEMB(edits, addUnchanged(cpLength));
 		if(options & U_OMIT_UNCHANGED_TEXT) {
 			return destIndex;
 		}
@@ -73,23 +70,18 @@ inline int32_t appendResult(UChar * dest, int32_t destIndex, int32_t destCapacit
 		}
 		else if(destIndex<destCapacity && result<=0xffff) { // BMP slightly-fastpath
 			dest[destIndex++] = (UChar)result;
-			if(edits!=NULL) {
-				edits->addReplace(cpLength, 1);
-			}
+			CALLPTRMEMB(edits, addReplace(cpLength, 1));
 			return destIndex;
 		}
 		else {
 			c = result;
 			length = U16_LENGTH(c);
 		}
-		if(edits!=NULL) {
-			edits->addReplace(cpLength, length);
-		}
+		CALLPTRMEMB(edits, addReplace(cpLength, length));
 	}
 	if(length>(INT32_MAX-destIndex)) {
 		return -1; // integer overflow
 	}
-
 	if(destIndex<destCapacity) {
 		/* append the result */
 		if(c>=0) {
@@ -132,11 +124,9 @@ inline int32_t appendUChar(UChar * dest, int32_t destIndex, int32_t destCapacity
 	return destIndex+1;
 }
 
-int32_t appendNonEmptyUnchanged(UChar * dest, int32_t destIndex, int32_t destCapacity,
-    const UChar * s, int32_t length, uint32_t options, icu::Edits * edits) {
-	if(edits!=NULL) {
-		edits->addUnchanged(length);
-	}
+int32_t appendNonEmptyUnchanged(UChar * dest, int32_t destIndex, int32_t destCapacity, const UChar * s, int32_t length, uint32_t options, icu::Edits * edits) 
+{
+	CALLPTRMEMB(edits, addUnchanged(length));
 	if(options & U_OMIT_UNCHANGED_TEXT) {
 		return destIndex;
 	}
@@ -149,8 +139,8 @@ int32_t appendNonEmptyUnchanged(UChar * dest, int32_t destIndex, int32_t destCap
 	return destIndex + length;
 }
 
-inline int32_t appendUnchanged(UChar * dest, int32_t destIndex, int32_t destCapacity,
-    const UChar * s, int32_t length, uint32_t options, icu::Edits * edits) {
+inline int32_t appendUnchanged(UChar * dest, int32_t destIndex, int32_t destCapacity, const UChar * s, int32_t length, uint32_t options, icu::Edits * edits) 
+{
 	if(length <= 0) {
 		return destIndex;
 	}
@@ -494,24 +484,19 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalToTitle(int32_t caseLocale, uint32_t
 				}
 
 				/* Special case Dutch IJ titlecasing */
-				if(titleStart+1 < index &&
-				    caseLocale == UCASE_LOC_DUTCH &&
-				    (src[titleStart] == 0x0049 || src[titleStart] == 0x0069)) {
+				if(titleStart+1 < index && caseLocale == UCASE_LOC_DUTCH && (src[titleStart] == 0x0049 || src[titleStart] == 0x0069)) {
 					if(src[titleStart+1] == 0x006A) {
 						destIndex = appendUChar(dest, destIndex, destCapacity, 0x004A);
 						if(destIndex<0) {
 							errorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 							return 0;
 						}
-						if(edits!=NULL) {
-							edits->addReplace(1, 1);
-						}
+						CALLPTRMEMB(edits, addReplace(1, 1));
 						titleLimit++;
 					}
 					else if(src[titleStart+1] == 0x004A) {
 						// Keep the capital J from getting lowercased.
-						destIndex = appendUnchanged(dest, destIndex, destCapacity,
-							src+titleStart+1, 1, options, edits);
+						destIndex = appendUnchanged(dest, destIndex, destCapacity, src+titleStart+1, 1, options, edits);
 						if(destIndex<0) {
 							errorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 							return 0;
@@ -1251,40 +1236,27 @@ U_CFUNC int32_t U_CALLCONV ustrcase_internalFold(int32_t /* caseLocale */, uint3
 }
 
 U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    UStringCaseMapper * stringCaseMapper,
-    icu::Edits * edits,
-    UErrorCode & errorCode) {
+    UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength,
+    UStringCaseMapper * stringCaseMapper, icu::Edits * edits, UErrorCode & errorCode) 
+{
 	int32_t destLength;
-
 	/* check argument values */
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 ||
-	    (dest==NULL && destCapacity>0) ||
-	    src==NULL ||
-	    srcLength<-1
-	    ) {
+	if(destCapacity<0 || (dest==NULL && destCapacity>0) || src==NULL || srcLength<-1) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* get the string length */
 	if(srcLength==-1) {
 		srcLength = u_strlen(src);
 	}
-
 	/* check for overlapping source and destination */
-	if(dest!=NULL &&
-	    ((src>=dest && src<(dest+destCapacity)) ||
-	    (dest>=src && dest<(src+srcLength)))
-	    ) {
+	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
 		edits->reset();
 	}
@@ -1294,38 +1266,25 @@ U_CFUNC int32_t ustrcase_map(int32_t caseLocale, uint32_t options, UCASEMAP_BREA
 }
 
 U_CFUNC int32_t ustrcase_mapWithOverlap(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    UChar * dest, int32_t destCapacity,
-    const UChar * src, int32_t srcLength,
-    UStringCaseMapper * stringCaseMapper,
-    UErrorCode & errorCode) {
+    UChar * dest, int32_t destCapacity, const UChar * src, int32_t srcLength, UStringCaseMapper * stringCaseMapper, UErrorCode & errorCode) 
+{
 	UChar buffer[300];
 	UChar * temp;
-
 	int32_t destLength;
-
 	/* check argument values */
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 ||
-	    (dest==NULL && destCapacity>0) ||
-	    src==NULL ||
-	    srcLength<-1
-	    ) {
+	if(destCapacity<0 || (dest==NULL && destCapacity>0) || src==NULL || srcLength<-1) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* get the string length */
 	if(srcLength==-1) {
 		srcLength = u_strlen(src);
 	}
-
 	/* check for overlapping source and destination */
-	if(dest!=NULL &&
-	    ((src>=dest && src<(dest+destCapacity)) ||
-	    (dest>=src && dest<(src+srcLength)))
-	    ) {
+	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {
 		/* overlap: provide a temporary destination buffer and later copy the result */
 		if(destCapacity<=UPRV_LENGTHOF(buffer)) {
 			/* the stack buffer is large enough */
@@ -1460,14 +1419,12 @@ static int32_t _cmpFold(const UChar * s1, int32_t length1,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	/* initialize */
 	if(matchLen1) {
-		U_ASSERT(matchLen2 !=NULL);
+		U_ASSERT(matchLen2 != NULL);
 		*matchLen1 = 0;
 		*matchLen2 = 0;
 	}
-
 	start1 = m1 = org1 = s1;
 	if(length1==-1) {
 		limit1 = NULL;
@@ -1578,18 +1535,16 @@ static int32_t _cmpFold(const UChar * s1, int32_t length1,
 				/* is s1 at the end of the current stack? */
 				next1 = stack1[0].s;
 			}
-
-			if(next1!=NULL) {
+			if(next1) {
 				if(level2==0) {
 					next2 = s2;
 				}
 				else if(s2==limit2) {
 					U_ASSERT(level2==1);
-
 					/* is s2 at the end of the current stack? */
 					next2 = stack2[0].s;
 				}
-				if(next2!=NULL) {
+				if(next2) {
 					m1 = next1;
 					m2 = next2;
 				}

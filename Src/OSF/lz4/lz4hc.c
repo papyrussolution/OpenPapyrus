@@ -243,8 +243,7 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 				const uint8 * const dictStart = dictBase + hc4->lowLimit;
 				int back = 0;
 				const uint8 * vLimit = ip + (dictLimit - matchIndex);
-				if(vLimit > iHighLimit) 
-					vLimit = iHighLimit;
+				SETMIN(vLimit, iHighLimit);
 				matchLength = LZ4_count(ip+MINMATCH, matchPtr+MINMATCH, vLimit) + MINMATCH;
 				if((ip+matchLength == vLimit) && (vLimit < iHighLimit))
 					matchLength += LZ4_count(ip+matchLength, lowPrefixPtr, iHighLimit);
@@ -257,7 +256,6 @@ LZ4_FORCE_INLINE int LZ4HC_InsertAndGetWiderMatch(LZ4HC_CCtx_internal* hc4, cons
 				}
 			}
 		}
-
 		if(chainSwap && matchLength==longest) { /* better match => select a better chain */
 			assert(lookBackLength==0); /* search forward only */
 			if(matchIndex + longest <= ipIndex) {
@@ -399,7 +397,7 @@ LZ4_FORCE_INLINE int LZ4HC_encodeSequence(const uint8 ** ip, uint8 ** op, const 
 	const uint32 llAdd = (ll>=15) ? ((ll-15) / 255) + 1 : 0;
 	const uint32 mlAdd = (matchLength>=19) ? ((matchLength-19) / 255) + 1 : 0;
 	const uint32 cost = 1 + llAdd + ll + 2 + mlAdd;
-	if(start==NULL) start = *anchor; /* only works for single segment */
+	SETIFZQ(start, *anchor); // only works for single segment
 	/* g_debuglog_enable = (pos >= 2228) & (pos <= 2262); */
 	//DEBUGLOG(6, "pos:%7u -- literals:%3u, match:%4i, offset:%5u, cost:%3u + %u", pos, (uint32)(*ip - *anchor), matchLength, (uint32)(*ip-match), cost, totalCost);
 	totalCost += cost;
@@ -808,8 +806,8 @@ int LZ4_compress_HC_destSize(void * LZ4HC_Data, const char * source, char * dest
 LZ4_streamHC_t* LZ4_createStreamHC(void) 
 {
 	LZ4_streamHC_t * const LZ4_streamHCPtr = (LZ4_streamHC_t *)SAlloc::M(sizeof(LZ4_streamHC_t));
-	if(LZ4_streamHCPtr==NULL) return NULL;
-	LZ4_resetStreamHC(LZ4_streamHCPtr, LZ4HC_CLEVEL_DEFAULT);
+	if(LZ4_streamHCPtr) 
+		LZ4_resetStreamHC(LZ4_streamHCPtr, LZ4HC_CLEVEL_DEFAULT);
 	return LZ4_streamHCPtr;
 }
 
@@ -1319,7 +1317,8 @@ encode: // cur, last_match_pos, best_mlen, best_off must be set
 			    int const ml = opt[rPos].mlen;
 			    int const offset = opt[rPos].off;
 			    if(ml == 1) {
-				    ip++; rPos++; 
+				    ip++; 
+					rPos++; 
 					continue;
 			    } // literal; note: can end up with several literals, in which case, skip them 
 			    rPos += ml;

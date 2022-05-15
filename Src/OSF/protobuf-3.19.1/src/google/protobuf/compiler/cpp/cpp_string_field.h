@@ -55,8 +55,7 @@ class StringFieldGenerator : public FieldGenerator {
   void GenerateStaticMembers(io::Printer* printer) const override;
   void GenerateAccessorDeclarations(io::Printer* printer) const override;
   void GenerateInlineAccessorDefinitions(io::Printer* printer) const override;
-  void GenerateNonInlineAccessorDefinitions(
-      io::Printer* printer) const override;
+  void GenerateNonInlineAccessorDefinitions(io::Printer* printer) const override;
   void GenerateClearingCode(io::Printer* printer) const override;
   void GenerateMessageClearingCode(io::Printer* printer) const override;
   void GenerateMergingCode(io::Printer* printer) const override;
@@ -64,8 +63,7 @@ class StringFieldGenerator : public FieldGenerator {
   void GenerateConstructorCode(io::Printer* printer) const override;
   void GenerateCopyConstructorCode(io::Printer* printer) const override;
   void GenerateDestructorCode(io::Printer* printer) const override;
-  void GenerateSerializeWithCachedSizesToArray(
-      io::Printer* printer) const override;
+  void GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const override;
   void GenerateByteSize(io::Printer* printer) const override;
   void GenerateConstinitInitializer(io::Printer* printer) const override;
   bool IsInlined() const override { return inlined_; }

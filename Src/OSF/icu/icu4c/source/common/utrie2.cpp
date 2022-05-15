@@ -37,49 +37,40 @@ static uint32_t get32(const UNewTrie2 * trie, UChar32 c, bool fromLSCP)
 	return trie->data[block+(c&UTRIE2_DATA_MASK)];
 }
 
-U_CAPI uint32_t U_EXPORT2 utrie2_get32(const UTrie2 * trie, UChar32 c) {
-	if(trie->data16!=NULL) {
+U_CAPI uint32_t U_EXPORT2 utrie2_get32(const UTrie2 * trie, UChar32 c) 
+{
+	if(trie->data16)
 		return UTRIE2_GET16(trie, c);
-	}
-	else if(trie->data32!=NULL) {
+	else if(trie->data32)
 		return UTRIE2_GET32(trie, c);
-	}
-	else if((uint32_t)c>0x10ffff) {
+	else if((uint32_t)c>0x10ffff)
 		return trie->errorValue;
-	}
-	else {
+	else
 		return get32(trie->newTrie, c, TRUE);
-	}
 }
 
-U_CAPI uint32_t U_EXPORT2 utrie2_get32FromLeadSurrogateCodeUnit(const UTrie2 * trie, UChar32 c) {
-	if(!U_IS_LEAD(c)) {
+U_CAPI uint32_t U_EXPORT2 utrie2_get32FromLeadSurrogateCodeUnit(const UTrie2 * trie, UChar32 c) 
+{
+	if(!U_IS_LEAD(c))
 		return trie->errorValue;
-	}
-	if(trie->data16!=NULL) {
+	if(trie->data16)
 		return UTRIE2_GET16_FROM_U16_SINGLE_LEAD(trie, c);
-	}
-	else if(trie->data32!=NULL) {
+	else if(trie->data32)
 		return UTRIE2_GET32_FROM_U16_SINGLE_LEAD(trie, c);
-	}
-	else {
+	else
 		return get32(trie->newTrie, c, FALSE);
-	}
 }
 
-static inline int32_t u8Index(const UTrie2 * trie, UChar32 c, int32_t i) {
-	int32_t idx =
-	    _UTRIE2_INDEX_FROM_CP(
-		trie,
-		trie->data32==NULL ? trie->indexLength : 0,
-		c);
+static inline int32_t u8Index(const UTrie2 * trie, UChar32 c, int32_t i) 
+{
+	int32_t idx = _UTRIE2_INDEX_FROM_CP(trie, trie->data32==NULL ? trie->indexLength : 0, c);
 	return (idx<<3)|i;
 }
 
-U_CAPI int32_t U_EXPORT2 utrie2_internalU8NextIndex(const UTrie2 * trie, UChar32 c,
-    const uint8 * src, const uint8 * limit) {
-	int32_t i, length;
-	i = 0;
+U_CAPI int32_t U_EXPORT2 utrie2_internalU8NextIndex(const UTrie2 * trie, UChar32 c, const uint8 * src, const uint8 * limit) 
+{
+	int32_t length;
+	int32_t i = 0;
 	/* support 64-bit pointers by avoiding cast of arbitrary difference */
 	if((limit-src)<=7) {
 		length = (int32_t)(limit-src);
@@ -91,8 +82,8 @@ U_CAPI int32_t U_EXPORT2 utrie2_internalU8NextIndex(const UTrie2 * trie, UChar32
 	return u8Index(trie, c, i);
 }
 
-U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32 c,
-    const uint8 * start, const uint8 * src) {
+U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32 c, const uint8 * start, const uint8 * src) 
+{
 	int32_t i, length;
 	/* support 64-bit pointers by avoiding cast of arbitrary difference */
 	if((src-start)<=7) {
@@ -108,39 +99,31 @@ U_CAPI int32_t U_EXPORT2 utrie2_internalU8PrevIndex(const UTrie2 * trie, UChar32
 }
 
 U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
-    const void * data, int32_t length, int32_t * pActualLength,
-    UErrorCode * pErrorCode) {
+    const void * data, int32_t length, int32_t * pActualLength, UErrorCode * pErrorCode) 
+{
 	const UTrie2Header * header;
 	const uint16 * p16;
 	int32_t actualLength;
-
 	UTrie2 tempTrie;
 	UTrie2 * trie;
-
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
-	if(length<=0 || (U_POINTER_MASK_LSB(data, 3)!=0) ||
-	    valueBits<0 || UTRIE2_COUNT_VALUE_BITS<=valueBits
-	    ) {
+	if(length<=0 || (U_POINTER_MASK_LSB(data, 3)!=0) || valueBits<0 || UTRIE2_COUNT_VALUE_BITS<=valueBits) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* enough data for a trie header? */
 	if(length<(int32_t)sizeof(UTrie2Header)) {
 		*pErrorCode = U_INVALID_FORMAT_ERROR;
 		return 0;
 	}
-
 	/* check the signature */
 	header = (const UTrie2Header*)data;
 	if(header->signature!=UTRIE2_SIG) {
 		*pErrorCode = U_INVALID_FORMAT_ERROR;
 		return 0;
 	}
-
 	/* get the options */
 	if(valueBits!=(UTrie2ValueBits)(header->options&UTRIE2_OPTIONS_VALUE_BITS_MASK)) {
 		*pErrorCode = U_INVALID_FORMAT_ERROR;
@@ -152,13 +135,11 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 	tempTrie.dataLength = header->shiftedDataLength<<UTRIE2_INDEX_SHIFT;
 	tempTrie.index2NullOffset = header->index2NullOffset;
 	tempTrie.dataNullOffset = header->dataNullOffset;
-
 	tempTrie.highStart = header->shiftedHighStart<<UTRIE2_SHIFT_1;
 	tempTrie.highValueIndex = tempTrie.dataLength-UTRIE2_DATA_GRANULARITY;
 	if(valueBits==UTRIE2_16_VALUE_BITS) {
 		tempTrie.highValueIndex += tempTrie.indexLength;
 	}
-
 	/* calculate the actual length */
 	actualLength = (int32_t)sizeof(UTrie2Header)+tempTrie.indexLength*2;
 	if(valueBits==UTRIE2_16_VALUE_BITS) {
@@ -171,7 +152,6 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 		*pErrorCode = U_INVALID_FORMAT_ERROR; /* not enough bytes */
 		return 0;
 	}
-
 	/* allocate the trie */
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
 	if(trie==NULL) {
@@ -185,12 +165,10 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 #ifdef UTRIE2_DEBUG
 	trie->name = "fromSerialized";
 #endif
-
 	/* set the pointers to its index and data arrays */
 	p16 = (const uint16*)(header+1);
 	trie->index = p16;
 	p16 += trie->indexLength;
-
 	/* get the data */
 	switch(valueBits) {
 		case UTRIE2_16_VALUE_BITS:
@@ -216,25 +194,21 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openFromSerialized(UTrie2ValueBits valueBits,
 	return trie;
 }
 
-U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
-    uint32_t initialValue, uint32_t errorValue,
-    UErrorCode * pErrorCode) {
+U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits, uint32_t initialValue, uint32_t errorValue, UErrorCode * pErrorCode) 
+{
 	UTrie2 * trie;
 	UTrie2Header * header;
 	uint32_t * p;
 	uint16 * dest16;
 	int32_t indexLength, dataLength, length, i;
 	int32_t dataMove; /* >0 if the data is moved to the end of the index array */
-
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	if(valueBits<0 || UTRIE2_COUNT_VALUE_BITS<=valueBits) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* calculate the total length of the dummy trie data */
 	indexLength = UTRIE2_INDEX_1_OFFSET;
 	dataLength = UTRIE2_DATA_START_OFFSET+UTRIE2_DATA_GRANULARITY;
@@ -245,7 +219,6 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	else {
 		length += dataLength*4;
 	}
-
 	/* allocate the trie */
 	trie = (UTrie2*)uprv_malloc(sizeof(UTrie2));
 	if(trie==NULL) {
@@ -261,7 +234,6 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	}
 	trie->length = length;
 	trie->isMemoryOwned = TRUE;
-
 	/* set the UTrie2 fields */
 	if(valueBits==UTRIE2_16_VALUE_BITS) {
 		dataMove = indexLength;
@@ -269,7 +241,6 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	else {
 		dataMove = 0;
 	}
-
 	trie->indexLength = indexLength;
 	trie->dataLength = dataLength;
 	trie->index2NullOffset = UTRIE2_INDEX_2_OFFSET;
@@ -281,36 +252,29 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 #ifdef UTRIE2_DEBUG
 	trie->name = "dummy";
 #endif
-
 	/* set the header fields */
 	header = (UTrie2Header*)trie->memory;
-
 	header->signature = UTRIE2_SIG; /* "Tri2" */
 	header->options = (uint16)valueBits;
-
 	header->indexLength = (uint16)indexLength;
 	header->shiftedDataLength = (uint16)(dataLength>>UTRIE2_INDEX_SHIFT);
 	header->index2NullOffset = (uint16)UTRIE2_INDEX_2_OFFSET;
 	header->dataNullOffset = (uint16)dataMove;
 	header->shiftedHighStart = 0;
-
 	/* fill the index and data arrays */
 	dest16 = (uint16*)(header+1);
 	trie->index = dest16;
-
 	/* write the index-2 array values shifted right by UTRIE2_INDEX_SHIFT */
 	for(i = 0; i<UTRIE2_INDEX_2_BMP_LENGTH; ++i) {
 		*dest16++ = (uint16)(dataMove>>UTRIE2_INDEX_SHIFT); /* null data block */
 	}
-
 	/* write UTF-8 2-byte index-2 values, not right-shifted */
-	for(i = 0; i<(0xc2-0xc0); ++i) {                            /* C0..C1 */
+	for(i = 0; i<(0xc2-0xc0); ++i) { /* C0..C1 */
 		*dest16++ = (uint16)(dataMove+UTRIE2_BAD_UTF8_DATA_OFFSET);
 	}
-	for(; i<(0xe0-0xc0); ++i) {                                 /* C2..DF */
+	for(; i<(0xe0-0xc0); ++i) { /* C2..DF */
 		*dest16++ = (uint16)dataMove;
 	}
-
 	/* write the 16/32-bit data array */
 	switch(valueBits) {
 		case UTRIE2_16_VALUE_BITS:
@@ -352,12 +316,13 @@ U_CAPI UTrie2 * U_EXPORT2 utrie2_openDummy(UTrie2ValueBits valueBits,
 	return trie;
 }
 
-U_CAPI void U_EXPORT2 utrie2_close(UTrie2 * trie) {
-	if(trie!=NULL) {
+U_CAPI void U_EXPORT2 utrie2_close(UTrie2 * trie) 
+{
+	if(trie) {
 		if(trie->isMemoryOwned) {
 			uprv_free(trie->memory);
 		}
-		if(trie->newTrie!=NULL) {
+		if(trie->newTrie) {
 			uprv_free(trie->newTrie->data);
 #ifdef UCPTRIE_DEBUG
 			umutablecptrie_close(trie->newTrie->t3);
@@ -368,25 +333,18 @@ U_CAPI void U_EXPORT2 utrie2_close(UTrie2 * trie) {
 	}
 }
 
-U_CAPI bool U_EXPORT2 utrie2_isFrozen(const UTrie2 * trie) {
-	return (bool)(trie->newTrie==NULL);
-}
+U_CAPI bool U_EXPORT2 utrie2_isFrozen(const UTrie2 * trie) { return (bool)(trie->newTrie==NULL); }
 
-U_CAPI int32_t U_EXPORT2 utrie2_serialize(const UTrie2 * trie,
-    void * data, int32_t capacity,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 utrie2_serialize(const UTrie2 * trie, void * data, int32_t capacity, UErrorCode * pErrorCode) 
+{
 	/* argument check */
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
-	if(trie==NULL || trie->memory==NULL || trie->newTrie!=NULL ||
-	    capacity<0 || (capacity>0 && (data==NULL || (U_POINTER_MASK_LSB(data, 3)!=0)))
-	    ) {
+	if(trie==NULL || trie->memory==NULL || trie->newTrie!=NULL || capacity<0 || (capacity>0 && (data==NULL || (U_POINTER_MASK_LSB(data, 3)!=0)))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	if(capacity>=trie->length) {
 		uprv_memcpy(data, trie->memory, trie->length);
 	}
@@ -401,9 +359,7 @@ U_CAPI int32_t U_EXPORT2 utrie2_serialize(const UTrie2 * trie,
 #define MIN_VALUE(a, b) ((a)<(b) ? (a) : (b))
 
 /* default UTrie2EnumValue() returns the input value itself */
-static uint32_t U_CALLCONV enumSameValue(const void * /*context*/, uint32_t value) {
-	return value;
-}
+static uint32_t U_CALLCONV enumSameValue(const void * /*context*/, uint32_t value) { return value; }
 
 /**
  * Enumerate all ranges of code points with the same relevant values.
@@ -418,29 +374,22 @@ static uint32_t U_CALLCONV enumSameValue(const void * /*context*/, uint32_t valu
  * - Handle the null block specially because we know a priori that it is filled
  *   with a single value.
  */
-static void enumEitherTrie(const UTrie2 * trie,
-    UChar32 start, UChar32 limit,
-    UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange, const void * context) {
+static void enumEitherTrie(const UTrie2 * trie, UChar32 start, UChar32 limit, UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange, const void * context) 
+{
 	const uint32_t * data32;
 	const uint16 * idx;
-
 	uint32_t value, prevValue, initialValue;
 	UChar32 c, prev, highStart;
 	int32_t j, i2Block, prevI2Block, index2NullOffset, block, prevBlock, nullBlock;
-
 	if(enumRange==NULL) {
 		return;
 	}
-	if(enumValue==NULL) {
-		enumValue = enumSameValue;
-	}
-
+	SETIFZQ(enumValue, enumSameValue);
 	if(trie->newTrie==NULL) {
 		/* frozen trie */
 		idx = trie->index;
 		U_ASSERT(idx!=NULL); /* the following code assumes trie->newTrie is not NULL when idx is NULL */
 		data32 = trie->data32;
-
 		index2NullOffset = trie->index2NullOffset;
 		nullBlock = trie->dataNullOffset;
 	}
@@ -449,16 +398,12 @@ static void enumEitherTrie(const UTrie2 * trie,
 		idx = NULL;
 		data32 = trie->newTrie->data;
 		U_ASSERT(data32!=NULL); /* the following code assumes idx is not NULL when data32 is NULL */
-
 		index2NullOffset = trie->newTrie->index2NullOffset;
 		nullBlock = trie->newTrie->dataNullOffset;
 	}
-
 	highStart = trie->highStart;
-
 	/* get the enumeration value that corresponds to an initial-value trie data entry */
 	initialValue = enumValue(context, trie->initialValue);
-
 	/* set variables for previous range */
 	prevI2Block = -1;
 	prevBlock = -1;
@@ -495,9 +440,8 @@ static void enumEitherTrie(const UTrie2 * trie,
 		}
 		else {
 			/* supplementary code points */
-			if(idx!=NULL) {
-				i2Block = idx[(UTRIE2_INDEX_1_OFFSET-UTRIE2_OMITTED_BMP_INDEX_1_LENGTH)+
-				    (c>>UTRIE2_SHIFT_1)];
+			if(idx) {
+				i2Block = idx[(UTRIE2_INDEX_1_OFFSET-UTRIE2_OMITTED_BMP_INDEX_1_LENGTH)+(c>>UTRIE2_SHIFT_1)];
 			}
 			else {
 				i2Block = trie->newTrie->index1[c>>UTRIE2_SHIFT_1];
@@ -536,7 +480,7 @@ static void enumEitherTrie(const UTrie2 * trie,
 				i2Limit = UTRIE2_INDEX_2_BLOCK_LENGTH;
 			}
 			for(; i2<i2Limit; ++i2) {
-				if(idx!=NULL) {
+				if(idx) {
 					block = (int32_t)idx[i2Block+i2]<<UTRIE2_INDEX_SHIFT;
 				}
 				else {
@@ -575,18 +519,14 @@ static void enumEitherTrie(const UTrie2 * trie,
 			}
 		}
 	}
-
 	if(c>limit) {
 		c = limit; /* could be higher if in the index2NullOffset */
 	}
 	else if(c<limit) {
 		/* c==highStart<limit */
 		uint32_t highValue;
-		if(idx!=NULL) {
-			highValue =
-			    data32!=NULL ?
-			    data32[trie->highValueIndex] :
-			    idx[trie->highValueIndex];
+		if(idx) {
+			highValue = data32!=NULL ? data32[trie->highValueIndex] : idx[trie->highValueIndex];
 		}
 		else {
 			highValue = trie->newTrie->data[trie->newTrie->dataLength-UTRIE2_DATA_GRANULARITY];
@@ -601,19 +541,17 @@ static void enumEitherTrie(const UTrie2 * trie,
 		}
 		c = limit;
 	}
-
 	/* deliver last range */
 	enumRange(context, prev, c-1, prevValue);
 }
 
-U_CAPI void U_EXPORT2 utrie2_enum(const UTrie2 * trie,
-    UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange, const void * context) {
+U_CAPI void U_EXPORT2 utrie2_enum(const UTrie2 * trie, UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange, const void * context) 
+{
 	enumEitherTrie(trie, 0, 0x110000, enumValue, enumRange, context);
 }
 
-U_CAPI void U_EXPORT2 utrie2_enumForLeadSurrogate(const UTrie2 * trie, UChar32 lead,
-    UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange,
-    const void * context) {
+U_CAPI void U_EXPORT2 utrie2_enumForLeadSurrogate(const UTrie2 * trie, UChar32 lead, UTrie2EnumValue * enumValue, UTrie2EnumRange * enumRange, const void * context) 
+{
 	if(!U16_IS_LEAD(lead)) {
 		return;
 	}

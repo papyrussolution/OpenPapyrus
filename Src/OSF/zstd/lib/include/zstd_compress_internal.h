@@ -580,13 +580,11 @@ HINT_INLINE UNUSED_ATTR void ZSTD_storeSeq(seqStore_t* seqStorePtr, size_t litLe
 #endif
 	assert((size_t)(seqStorePtr->sequences - seqStorePtr->sequencesStart) < seqStorePtr->maxNbSeq);
 	/* copy Literals */
-	assert(seqStorePtr->maxNbLit <= 128 KB);
+	assert(seqStorePtr->maxNbLit <= SKILOBYTE(128));
 	assert(seqStorePtr->lit + litLength <= seqStorePtr->litStart + seqStorePtr->maxNbLit);
 	assert(literals + litLength <= litLimit);
 	if(litEnd <= litLimit_w) {
-		/* Common case we can use wildcopy.
-		 * First copy 16 bytes, because literals are likely short.
-		 */
+		// Common case we can use wildcopy. First copy 16 bytes, because literals are likely short.
 		ZSTD_STATIC_ASSERT(WILDCOPY_OVERLENGTH >= 16);
 		ZSTD_copy16(seqStorePtr->lit, literals);
 		if(litLength > 16) {

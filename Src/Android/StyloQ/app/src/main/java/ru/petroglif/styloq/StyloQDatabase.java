@@ -44,8 +44,11 @@ public class StyloQDatabase extends Database {
 		//
 		// Descr: Флаги записи таблицы данных StyloQ bindery (StyloQSec::Flags)
 		//
-		public static final int styloqfMediator = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
+		public static final int styloqfMediator         = 0x0001; // Запись соответствует kForeignService-медиатору. Флаг устанавливается/снимается при создании или обновлении
 			// записи после получения соответствующей информации от сервиса-медиатора
+		public static final int styloqfDocFinished      = 0x0002; // @v11.3.12 Для документа: цикл обработки для документа завершен
+		public static final int styloqfDocWaitForOrdrsp = 0x0004; // @v11.3.12 Для документа заказа: ожидает подтверждения заказа
+		public static final int styloqfDocWaitForDesadv = 0x0008; // @v11.3.12 Для документа заказа: ожидает документа отгрузки
 		//
 		public static final int doctypUndef       = 0;
 		public static final int doctypCommandList = 1;

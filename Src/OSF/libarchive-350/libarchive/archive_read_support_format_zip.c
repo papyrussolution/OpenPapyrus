@@ -2596,25 +2596,23 @@ static int archive_read_format_zip_has_encrypted_entries(struct archive_read * _
 	return ARCHIVE_READ_FORMAT_ENCRYPTION_DONT_KNOW;
 }
 
-static int archive_read_format_zip_options(struct archive_read * a,
-    const char * key, const char * val)
+static int archive_read_format_zip_options(struct archive_read * a, const char * key, const char * val)
 {
 	struct zip * zip;
 	int ret = ARCHIVE_FAILED;
-
 	zip = (struct zip *)(a->format->data);
-	if(strcmp(key, "compat-2x")  == 0) {
-		/* Handle filenames as libarchive 2.x */
-		zip->init_default_conversion = (val != NULL) ? 1 : 0;
+	if(sstreq(key, "compat-2x")) {
+		// Handle filenames as libarchive 2.x
+		zip->init_default_conversion = BIN(val);
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "hdrcharset")  == 0) {
+	else if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "zip: hdrcharset option needs a character-set name");
 		else {
 			zip->sconv = archive_string_conversion_from_charset(&a->archive, val, 0);
 			if(zip->sconv != NULL) {
-				if(strcmp(val, "UTF-8") == 0)
+				if(sstreq(val, "UTF-8"))
 					zip->sconv_utf8 = zip->sconv;
 				ret = ARCHIVE_OK;
 			}
@@ -2623,8 +2621,8 @@ static int archive_read_format_zip_options(struct archive_read * a,
 		}
 		return ret;
 	}
-	else if(strcmp(key, "ignorecrc32") == 0) {
-		/* Mostly useful for testing. */
+	else if(sstreq(key, "ignorecrc32")) {
+		// Mostly useful for testing
 		if(val == NULL || val[0] == 0) {
 			zip->crc32func = real_crc32;
 			zip->ignore_crc32 = 0;
@@ -2635,11 +2633,10 @@ static int archive_read_format_zip_options(struct archive_read * a,
 		}
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "mac-ext") == 0) {
+	else if(sstreq(key, "mac-ext")) {
 		zip->process_mac_extensions = (val != NULL && val[0] != 0);
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */
@@ -3090,12 +3087,10 @@ static const struct archive_rb_tree_ops rb_ops = {
 	&cmp_node, &cmp_key
 };
 
-static int rsrc_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int rsrc_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct zip_entry * e1 = (const struct zip_entry *)n1;
 	const struct zip_entry * e2 = (const struct zip_entry *)n2;
-
 	return (strcmp(e2->rsrcname.s, e1->rsrcname.s));
 }
 

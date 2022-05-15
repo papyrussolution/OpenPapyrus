@@ -183,17 +183,15 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 	if(filename[0] != '/' && p > filename && *p == '/') {
 		*p = '\0';
 	}
-
 	if(p < filename) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Found entry with empty filename");
 		return ARCHIVE_FATAL;
 	}
-
 	/*
 	 * '//' is the GNU filename table.
 	 * Later entries can refer to names in this table.
 	 */
-	if(strcmp(filename, "//") == 0) {
+	if(sstreq(filename, "//")) {
 		/* This must come before any call to _read_ahead. */
 		ar_parse_common_header(ar, entry, h);
 		archive_entry_copy_pathname(entry, filename);
@@ -221,12 +219,10 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		}
 		ar->strtab = st;
 		ar->strtab_size = entry_size;
-
 		if(*unconsumed) {
 			__archive_read_consume(a, *unconsumed);
 			*unconsumed = 0;
 		}
-
 		if((b = __archive_read_ahead(a, entry_size, NULL)) == NULL)
 			return ARCHIVE_FATAL;
 		memcpy(st, b, entry_size);
@@ -234,11 +230,9 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		/* All contents are consumed. */
 		ar->entry_bytes_remaining = 0;
 		archive_entry_set_size(entry, ar->entry_bytes_remaining);
-
 		/* Parse the filename table. */
 		return (ar_parse_gnu_filename_table(a));
 	}
-
 	/*
 	 * GNU variant handles long filenames by storing /<number>
 	 * to indicate a name stored in the filename table.
@@ -258,49 +252,43 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 			ar_parse_common_header(ar, entry, h);
 			return ARCHIVE_FATAL;
 		}
-
 		archive_entry_copy_pathname(entry, &ar->strtab[(size_t)number]);
 		/* Parse the time, owner, mode, size fields. */
 		return (ar_parse_common_header(ar, entry, h));
 	}
-
 	/*
 	 * BSD handles long filenames by storing "#1/" followed by the
 	 * length of filename as a decimal number, then prepends the
 	 * the filename to the file contents.
 	 */
 	if(strncmp(filename, "#1/", 3) == 0) {
-		/* Parse the time, owner, mode, size fields. */
-		/* This must occur before _read_ahead is called again. */
+		// Parse the time, owner, mode, size fields.
+		// This must occur before _read_ahead is called again.
 		ar_parse_common_header(ar, entry, h);
-
-		/* Parse the size of the name, adjust the file size. */
+		// Parse the size of the name, adjust the file size.
 		number = ar_atol10(h + AR_name_offset + 3, AR_name_size - 3);
-		/* Sanity check the filename length:
-		 *   = Must be <= SIZE_MAX - 1
-		 *   = Must be <= 1MB
-		 *   = Cannot be bigger than the entire entry
-		 */
-		if(number > SIZE_MAX - 1 || number > 1024 * 1024 || (int64)number > ar->entry_bytes_remaining) {
+		// Sanity check the filename length:
+		//   = Must be <= SIZE_MAX - 1
+		//   = Must be <= 1MB
+		//   = Cannot be bigger than the entire entry
+		if(number > (SIZE_MAX - 1) || number > (1024 * 1024) || (int64)number > ar->entry_bytes_remaining) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Bad input file size");
 			return ARCHIVE_FATAL;
 		}
 		bsd_name_length = (size_t)number;
 		ar->entry_bytes_remaining -= bsd_name_length;
-		/* Adjust file size reported to client. */
+		// Adjust file size reported to client
 		archive_entry_set_size(entry, ar->entry_bytes_remaining);
-
 		if(*unconsumed) {
 			__archive_read_consume(a, *unconsumed);
 			*unconsumed = 0;
 		}
-
-		/* Read the long name into memory. */
+		// Read the long name into memory.
 		if((b = __archive_read_ahead(a, bsd_name_length, NULL)) == NULL) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Truncated input file");
 			return ARCHIVE_FATAL;
 		}
-		/* Store it in the entry. */
+		// Store it in the entry.
 		p = (char *)SAlloc::M(bsd_name_length + 1);
 		if(!p) {
 			archive_set_error(&a->archive, ENOMEM, "Can't allocate fname buffer");
@@ -313,12 +301,11 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		SAlloc::F(p);
 		return ARCHIVE_OK;
 	}
-
-	/*
-	 * "/" is the SVR4/GNU archive symbol table.
-	 * "/SYM64/" is the SVR4/GNU 64-bit variant archive symbol table.
-	 */
-	if(strcmp(filename, "/") == 0 || strcmp(filename, "/SYM64/") == 0) {
+	// 
+	// "/" is the SVR4/GNU archive symbol table.
+	// "/SYM64/" is the SVR4/GNU 64-bit variant archive symbol table.
+	// 
+	if(sstreq(filename, "/") || sstreq(filename, "/SYM64/")) {
 		archive_entry_copy_pathname(entry, filename);
 		/* Parse the time, owner, mode, size fields. */
 		r = ar_parse_common_header(ar, entry, h);
@@ -326,63 +313,52 @@ static int _ar_read_header(struct archive_read * a, struct archive_entry * entry
 		archive_entry_set_filetype(entry, AE_IFREG);
 		return r;
 	}
-
 	/*
 	 * "__.SYMDEF" is a BSD archive symbol table.
 	 */
-	if(strcmp(filename, "__.SYMDEF") == 0) {
+	if(sstreq(filename, "__.SYMDEF")) {
 		archive_entry_copy_pathname(entry, filename);
-		/* Parse the time, owner, mode, size fields. */
+		// Parse the time, owner, mode, size fields.
 		return (ar_parse_common_header(ar, entry, h));
 	}
-
-	/*
-	 * Otherwise, this is a standard entry.  The filename
-	 * has already been trimmed as much as possible, based
-	 * on our current knowledge of the format.
-	 */
+	// 
+	// Otherwise, this is a standard entry.  The filename
+	// has already been trimmed as much as possible, based
+	// on our current knowledge of the format.
+	// 
 	archive_entry_copy_pathname(entry, filename);
 	return (ar_parse_common_header(ar, entry, h));
 }
 
-static int archive_read_format_ar_read_header(struct archive_read * a,
-    struct archive_entry * entry)
+static int archive_read_format_ar_read_header(struct archive_read * a, struct archive_entry * entry)
 {
 	struct ar * ar = (struct ar *)(a->format->data);
 	size_t unconsumed;
 	const void * header_data;
 	int ret;
-
 	if(!ar->read_global_header) {
-		/*
-		 * We are now at the beginning of the archive,
-		 * so we need first consume the ar global header.
-		 */
+		// 
+		// We are now at the beginning of the archive, so we need first consume the ar global header.
+		// 
 		__archive_read_consume(a, 8);
 		ar->read_global_header = 1;
-		/* Set a default format code for now. */
+		// Set a default format code for now
 		a->archive.archive_format = ARCHIVE_FORMAT_AR;
 	}
-
-	/* Read the header for the next file entry. */
+	// Read the header for the next file entry
 	if((header_data = __archive_read_ahead(a, 60, NULL)) == NULL)
-		/* Broken header. */
-		return (ARCHIVE_EOF);
-
+		return (ARCHIVE_EOF); /* Broken header. */
 	unconsumed = 60;
-
 	ret = _ar_read_header(a, entry, ar, (const char *)header_data, &unconsumed);
-
 	if(unconsumed)
 		__archive_read_consume(a, unconsumed);
-
 	return ret;
 }
 
 static int ar_parse_common_header(struct ar * ar, struct archive_entry * entry, const char * h)
 {
 	uint64 n;
-	/* Copy remaining header */
+	// Copy remaining header 
 	archive_entry_set_filetype(entry, AE_IFREG);
 	archive_entry_set_mtime(entry, (time_t)ar_atol10(h + AR_date_offset, AR_date_size), 0L);
 	archive_entry_set_uid(entry, (uid_t)ar_atol10(h + AR_uid_offset, AR_uid_size));
@@ -396,8 +372,7 @@ static int ar_parse_common_header(struct ar * ar, struct archive_entry * entry, 
 	return ARCHIVE_OK;
 }
 
-static int archive_read_format_ar_read_data(struct archive_read * a,
-    const void ** buff, size_t * size, int64 * offset)
+static int archive_read_format_ar_read_data(struct archive_read * a, const void ** buff, size_t * size, int64 * offset)
 {
 	ssize_t bytes_read;
 	struct ar * ar = (struct ar *)(a->format->data);
@@ -442,9 +417,8 @@ static int archive_read_format_ar_read_data(struct archive_read * a,
 
 static int archive_read_format_ar_skip(struct archive_read * a)
 {
-	int64 bytes_skipped;
 	struct ar * ar = (struct ar *)(a->format->data);
-	bytes_skipped = __archive_read_consume(a, ar->entry_bytes_remaining + ar->entry_padding + ar->entry_bytes_unconsumed);
+	int64 bytes_skipped = __archive_read_consume(a, ar->entry_bytes_remaining + ar->entry_padding + ar->entry_bytes_unconsumed);
 	if(bytes_skipped < 0)
 		return ARCHIVE_FATAL;
 	ar->entry_bytes_remaining = 0;
@@ -466,13 +440,13 @@ static int ar_parse_gnu_filename_table(struct archive_read * a)
 			*p = '\0';
 		}
 	}
-	/*
-	 * GNU ar always pads the table to an even size.
-	 * The pad character is either '\n' or '`'.
-	 */
+	// 
+	// GNU ar always pads the table to an even size.
+	// The pad character is either '\n' or '`'.
+	// 
 	if(p != ar->strtab + size && *p != '\n' && *p != '`')
 		goto bad_string_table;
-	/* Enforce zero termination. */
+	// Enforce zero termination.
 	ar->strtab[size - 1] = '\0';
 	return ARCHIVE_OK;
 bad_string_table:

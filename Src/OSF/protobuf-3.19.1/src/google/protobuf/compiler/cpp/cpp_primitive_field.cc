@@ -263,7 +263,8 @@ void RepeatedPrimitiveFieldGenerator::GeneratePrivateMembers(io::Printer* printe
 	}
 }
 
-void RepeatedPrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const {
+void RepeatedPrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format(
 		"private:\n"
@@ -271,16 +272,13 @@ void RepeatedPrimitiveFieldGenerator::GenerateAccessorDeclarations(io::Printer* 
 		"const ::$proto_ns$::RepeatedField< $type$ >&\n"
 		"    ${1$_internal_$name$$}$() const;\n"
 		"void ${1$_internal_add_$name$$}$($type$ value);\n"
-		"::$proto_ns$::RepeatedField< $type$ >*\n"
-		"    ${1$_internal_mutable_$name$$}$();\n"
+		"::$proto_ns$::RepeatedField< $type$ > * ${1$_internal_mutable_$name$$}$();\n"
 		"public:\n"
 		"$deprecated_attr$$type$ ${1$$name$$}$(int index) const;\n"
 		"$deprecated_attr$void ${1$set_$name$$}$(int index, $type$ value);\n"
 		"$deprecated_attr$void ${1$add_$name$$}$($type$ value);\n"
-		"$deprecated_attr$const ::$proto_ns$::RepeatedField< $type$ >&\n"
-		"    ${1$$name$$}$() const;\n"
-		"$deprecated_attr$::$proto_ns$::RepeatedField< $type$ >*\n"
-		"    ${1$mutable_$name$$}$();\n",
+		"$deprecated_attr$const ::$proto_ns$::RepeatedField< $type$ > & ${1$$name$$}$() const;\n"
+		"$deprecated_attr$::$proto_ns$::RepeatedField< $type$ > * ${1$mutable_$name$$}$();\n",
 		descriptor_);
 }
 
@@ -314,12 +312,10 @@ void RepeatedPrimitiveFieldGenerator::GenerateInlineAccessorDefinitions(io::Prin
 		"  // @@protoc_insertion_point(field_list:$full_name$)\n"
 		"  return _internal_$name$();\n"
 		"}\n"
-		"inline ::$proto_ns$::RepeatedField< $type$ >*\n"
-		"$classname$::_internal_mutable_$name$() {\n"
+		"inline ::$proto_ns$::RepeatedField< $type$ > * $classname$::_internal_mutable_$name$() {\n"
 		"  return &$name$_;\n"
 		"}\n"
-		"inline ::$proto_ns$::RepeatedField< $type$ >*\n"
-		"$classname$::mutable_$name$() {\n"
+		"inline ::$proto_ns$::RepeatedField< $type$ > * $classname$::mutable_$name$() {\n"
 		"$annotate_mutable_list$"
 		"  // @@protoc_insertion_point(field_mutable_list:$full_name$)\n"
 		"  return _internal_mutable_$name$();\n"
@@ -407,20 +403,18 @@ void RepeatedPrimitiveFieldGenerator::GenerateByteSize(io::Printer* printer) con
 	}
 	else {
 		format(
-			"total_size += $tag_size$ *\n"
-			"              "
-			"::$proto_ns$::internal::FromIntSize(this->_internal_$name$_size());\n"
+			"total_size += $tag_size$ * ::$proto_ns$::internal::FromIntSize(this->_internal_$name$_size());\n"
 			"total_size += data_size;\n");
 	}
 	format.Outdent();
 	format("}\n");
 }
 
-void RepeatedPrimitiveFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const {
+void RepeatedPrimitiveFieldGenerator::GenerateConstinitInitializer(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
 	format("$name$_()");
-	if(descriptor_->is_packed() && FixedSize(descriptor_->type()) == -1 &&
-	    HasGeneratedMethods(descriptor_->file(), options_)) {
+	if(descriptor_->is_packed() && FixedSize(descriptor_->type()) == -1 && HasGeneratedMethods(descriptor_->file(), options_)) {
 		format("\n, _$name$_cached_byte_size_(0)");
 	}
 }

@@ -535,12 +535,11 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	ret = cleanup_pathname(a);
 	if(ret != ARCHIVE_OK)
 		return ret;
-
 	/*
 	 * Check if we have a hardlink that points to itself.
 	 */
 	linkname = archive_entry_hardlink(a->entry);
-	if(linkname != NULL && strcmp(a->name, linkname) == 0) {
+	if(linkname != NULL && sstreq(a->name, linkname)) {
 		archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Skipping hardlink pointing to itself: %s", a->name);
 		return ARCHIVE_WARN;
 	}
@@ -551,7 +550,6 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	 * reason.
 	 */
 	umask(a->user_umask = umask(0));
-
 	/* Figure out what we need to do for this entry. */
 	a->todo = TODO_MODE_BASE;
 	if(a->flags & ARCHIVE_EXTRACT_PERM) {
@@ -567,8 +565,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		 * GID if we either set it (see set_ownership) or if
 		 * we've actually called stat() on the file after it
 		 * was restored.  Since there are several places at
-		 * which we might verify the GID, we need a TODO bit
-		 * to keep track.
+		 * which we might verify the GID, we need a TODO bit to keep track.
 		 */
 		if(a->mode & S_ISGID)
 			a->todo |= TODO_SGID | TODO_SGID_CHECK;
@@ -580,10 +577,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			a->todo |= TODO_SUID | TODO_SUID_CHECK;
 	}
 	else {
-		/*
-		 * User didn't request full permissions, so don't
-		 * restore SUID, SGID bits and obey umask.
-		 */
+		// User didn't request full permissions, so don't restore SUID, SGID bits and obey umask.
 		a->mode &= ~S_ISUID;
 		a->mode &= ~S_ISGID;
 		a->mode &= ~S_ISVTX;
@@ -617,7 +611,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			int i = archive_entry_xattr_reset(a->entry);
 			while(i--) {
 				archive_entry_xattr_next(a->entry, &attr_name, &attr_value, &attr_size);
-				if(attr_name != NULL && attr_value != NULL && attr_size > 0 && strcmp(attr_name, "trusted.richacl") == 0) {
+				if(attr_nameL && attr_value && attr_size > 0 && sstreq(attr_name, "trusted.richacl")) {
 					extract_acls = 0;
 					break;
 				}
@@ -651,30 +645,26 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			a->decmpfs_block_count = (uint)-1;
 		}
 	}
-	if((a->flags & ARCHIVE_EXTRACT_HFS_COMPRESSION_FORCED) != 0 &&
-	    (a->mode & AE_IFMT) == AE_IFREG && a->filesize > 0) {
+	if((a->flags & ARCHIVE_EXTRACT_HFS_COMPRESSION_FORCED) != 0 && (a->mode & AE_IFMT) == AE_IFREG && a->filesize > 0) {
 		a->todo |= TODO_HFS_COMPRESSION;
 		a->decmpfs_block_count = (uint)-1;
 	}
 	{
 		const char * p;
-
-		/* Check if the current file name is a type of the
-		 * resource fork file. */
+		// Check if the current file name is a type of the resource fork file.
 		p = strrchr(a->name, '/');
 		if(!p)
 			p = a->name;
 		else
 			p++;
 		if(p[0] == '.' && p[1] == '_') {
-			/* Do not compress "._XXX" files. */
+			// Do not compress "._XXX" files
 			a->todo &= ~TODO_HFS_COMPRESSION;
 			if(a->filesize > 0)
 				a->todo |= TODO_APPLEDOUBLE;
 		}
 	}
 #endif
-
 	if(a->flags & ARCHIVE_EXTRACT_XATTR) {
 #if ARCHIVE_XATTR_DARWIN
 		/*
@@ -683,10 +673,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		 * we skip extracting extended attributes.
 		 */
 		size_t metadata_size;
-
-		if((a->flags & ARCHIVE_EXTRACT_MAC_METADATA) == 0 ||
-		    archive_entry_mac_metadata(a->entry,
-		    &metadata_size) == NULL || metadata_size == 0)
+		if((a->flags & ARCHIVE_EXTRACT_MAC_METADATA) == 0 || archive_entry_mac_metadata(a->entry, &metadata_size) == NULL || metadata_size == 0)
 #endif
 		a->todo |= TODO_XATTR;
 	}
@@ -698,17 +685,14 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			return ret;
 	}
 #if defined(HAVE_FCHDIR) && defined(PATH_MAX)
-	/* If path exceeds PATH_MAX, shorten the path. */
-	edit_deep_directories(a);
+	edit_deep_directories(a); // If path exceeds PATH_MAX, shorten the path
 #endif
-
 	ret = restore_entry(a);
-
 #if defined(__APPLE__) && defined(UF_COMPRESSED) && defined(HAVE_ZLIB_H)
-	/*
-	 * Check if the filesystem the file is restoring on supports
-	 * HFS+ Compression. If not, cancel HFS+ Compression.
-	 */
+	// 
+	// Check if the filesystem the file is restoring on supports
+	// HFS+ Compression. If not, cancel HFS+ Compression.
+	// 
 	if(a->todo | TODO_HFS_COMPRESSION) {
 		/*
 		 * NOTE: UF_COMPRESSED is ignored even if the filesystem
@@ -722,7 +706,6 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			a->todo &= ~TODO_HFS_COMPRESSION;
 	}
 #endif
-
 	/*
 	 * TODO: There are rumours that some extended attributes must
 	 * be restored before file data is written.  If this is true,
@@ -732,7 +715,6 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 	 * many ways people are using xattrs, this may prove to be an
 	 * intractable problem.
 	 */
-
 #ifdef HAVE_FCHDIR
 	/* If we changed directory above, restore it here. */
 	if(a->restore_pwd >= 0) {
@@ -745,7 +727,6 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		a->restore_pwd = -1;
 	}
 #endif
-
 	/*
 	 * Fixup uses the unedited pathname from archive_entry_pathname(),
 	 * because it is relative to the base dir and the edited path
@@ -759,10 +740,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		fe->fixup |= TODO_MODE_BASE;
 		fe->mode = a->mode;
 	}
-
-	if((a->deferred & TODO_TIMES)
-	    && (archive_entry_mtime_is_set(entry)
-	   || archive_entry_atime_is_set(entry))) {
+	if((a->deferred & TODO_TIMES) && (archive_entry_mtime_is_set(entry) || archive_entry_atime_is_set(entry))) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
 			return ARCHIVE_FATAL;
@@ -788,8 +766,7 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		}
 		if(archive_entry_birthtime_is_set(entry)) {
 			fe->birthtime = archive_entry_birthtime(entry);
-			fe->birthtime_nanos = archive_entry_birthtime_nsec(
-				entry);
+			fe->birthtime_nanos = archive_entry_birthtime_nsec(entry);
 		}
 		else {
 			/* If birthtime is unset, use mtime. */
@@ -797,7 +774,6 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 			fe->birthtime_nanos = fe->mtime_nanos;
 		}
 	}
-
 	if(a->deferred & TODO_ACLS) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
@@ -805,25 +781,21 @@ static int _archive_write_disk_header(struct archive * _a, struct archive_entry 
 		fe->fixup |= TODO_ACLS;
 		archive_acl_copy(&fe->acl, archive_entry_acl(entry));
 	}
-
 	if(a->deferred & TODO_MAC_METADATA) {
-		const void * metadata;
 		size_t metadata_size;
-		metadata = archive_entry_mac_metadata(a->entry, &metadata_size);
+		const void * metadata = archive_entry_mac_metadata(a->entry, &metadata_size);
 		if(metadata != NULL && metadata_size > 0) {
 			fe = current_fixup(a, archive_entry_pathname(entry));
 			if(fe == NULL)
 				return ARCHIVE_FATAL;
 			fe->mac_metadata = SAlloc::M(metadata_size);
 			if(fe->mac_metadata != NULL) {
-				memcpy(fe->mac_metadata, metadata,
-				    metadata_size);
+				memcpy(fe->mac_metadata, metadata, metadata_size);
 				fe->mac_metadata_size = metadata_size;
 				fe->fixup |= TODO_MAC_METADATA;
 			}
 		}
 	}
-
 	if(a->deferred & TODO_FFLAGS) {
 		fe = current_fixup(a, archive_entry_pathname(entry));
 		if(fe == NULL)
@@ -2414,11 +2386,9 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 	b = t->next;
 	t->next = NULL;
 	a = p;
-
 	/* Step 2: Recursively sort the two sub-lists. */
 	a = sort_dir_list(a);
 	b = sort_dir_list(b);
-
 	/* Step 3: Merge the returned lists. */
 	/* Pick the first element for the merged list. */
 	if(strcmp(a->name, b->name) > 0) {
@@ -2429,7 +2399,6 @@ static struct fixup_entry * sort_dir_list(struct fixup_entry * p)               
 		t = p = b;
 		b = b->next;
 	}
-
 	/* Always put the later element on the list first. */
 	while(a != NULL && b != NULL) {
 		if(strcmp(a->name, b->name) > 0) {
@@ -2468,7 +2437,6 @@ static struct fixup_entry * new_fixup(struct archive_write_disk * a, const char 
 	fe->name = sstrdup(pathname);
 	return (fe);
 }
-
 /*
  * Returns a fixup structure for the current entry.
  */
@@ -2824,17 +2792,16 @@ static void cleanup_pathname_win(char * path)
 	char * p;
 	size_t alen, l;
 	int mb, complete, utf8;
-
 	alen = 0;
 	mb = 0;
 	complete = 1;
-	utf8 = (strcmp(nl_langinfo(CODESET), "UTF-8") == 0) ? 1 : 0;
+	utf8 = sstreq(nl_langinfo(CODESET), "UTF-8") ? 1 : 0;
 	for(p = path; *p != '\0'; p++) {
 		++alen;
 		if(*p == '\\') {
-			/* If previous byte is smaller than 128,
-			 * this is not second byte of multibyte characters,
-			 * so we can replace '\' with '/'. */
+			// If previous byte is smaller than 128,
+			// this is not second byte of multibyte characters,
+			// so we can replace '\' with '/'.
 			if(utf8 || !mb)
 				*p = '/';
 			else
@@ -2845,13 +2812,11 @@ static void cleanup_pathname_win(char * path)
 		else
 			mb = 0;
 		/* Rewrite the path name if its next character is unusable. */
-		if(*p == ':' || *p == '*' || *p == '?' || *p == '"' ||
-		    *p == '<' || *p == '>' || *p == '|')
+		if(*p == ':' || *p == '*' || *p == '?' || *p == '"' || *p == '<' || *p == '>' || *p == '|')
 			*p = '_';
 	}
 	if(complete)
 		return;
-
 	/*
 	 * Convert path separator in wide-character.
 	 */
@@ -2874,7 +2839,6 @@ static void cleanup_pathname_win(char * path)
 }
 
 #endif
-
 /*
  * Canonicalize the pathname.  In particular, this strips duplicate
  * '/' characters, '.' elements, and trailing '/'.  It also raises an
@@ -2882,33 +2846,26 @@ static void cleanup_pathname_win(char * path)
  * set) any '..' in the path or (if ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS
  * is set) if the path is absolute.
  */
-static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_string * a_estr,
-    int flags)
+static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_string * a_estr, int flags)
 {
 	char * dest, * src;
 	char separator = '\0';
-
 	dest = src = path;
 	if(*src == '\0') {
-		fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC,
-		    "Invalid empty ", "pathname");
+		fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC, "Invalid empty ", "pathname");
 		return ARCHIVE_FAILED;
 	}
-
 #if defined(__CYGWIN__)
 	cleanup_pathname_win(path);
 #endif
-	/* Skip leading '/'. */
+	// Skip leading '/'. 
 	if(*src == '/') {
 		if(flags & ARCHIVE_EXTRACT_SECURE_NOABSOLUTEPATHS) {
-			fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC,
-			    "Path is ", "absolute");
+			fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC, "Path is ", "absolute");
 			return ARCHIVE_FAILED;
 		}
-
 		separator = *src++;
 	}
-
 	/* Scan the pathname one element at a time. */
 	for(;;) {
 		/* src points to first char after '/' */
@@ -2933,11 +2890,8 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 			else if(src[1] == '.') {
 				if(src[2] == '/' || src[2] == '\0') {
 					/* Conditionally warn about '..' */
-					if(flags
-					    & ARCHIVE_EXTRACT_SECURE_NODOTDOT) {
-						fsobj_error(a_eno, a_estr,
-						    ARCHIVE_ERRNO_MISC,
-						    "Path contains ", "'..'");
+					if(flags & ARCHIVE_EXTRACT_SECURE_NODOTDOT) {
+						fsobj_error(a_eno, a_estr, ARCHIVE_ERRNO_MISC, "Path contains ", "'..'");
 						return ARCHIVE_FAILED;
 					}
 				}
@@ -2950,28 +2904,23 @@ static int cleanup_pathname_fsobj(char * path, int * a_eno, struct archive_strin
 				 */
 			}
 		}
-
 		/* Copy current element, including leading '/'. */
 		if(separator)
 			*dest++ = '/';
 		while(*src != '\0' && *src != '/') {
 			*dest++ = *src++;
 		}
-
 		if(*src == '\0')
 			break;
-
 		/* Skip '/' separator. */
 		separator = *src++;
 	}
 	/*
-	 * We've just copied zero or more path elements, not including the
-	 * final '/'.
+	 * We've just copied zero or more path elements, not including the final '/'.
 	 */
 	if(dest == path) {
 		/*
-		 * Nothing got copied.  The path must have been something
-		 * like '.' or '/' or './' or '/././././/./'.
+		 * Nothing got copied.  The path must have been something like '.' or '/' or './' or '/././././/./'.
 		 */
 		if(separator)
 			*dest++ = '/';
@@ -2989,15 +2938,13 @@ static int cleanup_pathname(struct archive_write_disk * a)
 	int error_number;
 	int rc;
 	archive_string_init(&error_string);
-	rc = cleanup_pathname_fsobj(a->name, &error_number, &error_string,
-		a->flags);
+	rc = cleanup_pathname_fsobj(a->name, &error_number, &error_string, a->flags);
 	if(rc != ARCHIVE_OK) {
 		archive_set_error(&a->archive, error_number, "%s", error_string.s);
 	}
 	archive_string_free(&error_string);
 	return rc;
 }
-
 /*
  * Create the parent directory of the specified path, assuming path
  * is already in mutable storage.
@@ -3006,7 +2953,6 @@ static int create_parent_dir(struct archive_write_disk * a, char * path)
 {
 	char * slash;
 	int r;
-
 	/* Remove tail element to obtain parent name. */
 	slash = strrchr(path, '/');
 	if(slash == NULL)
@@ -4104,11 +4050,11 @@ static int set_xattrs(struct archive_write_disk * a)
 			continue;
 #if ARCHIVE_XATTR_LINUX
 		/* Linux: quietly skip POSIX.1e ACL extended attributes */
-		if(strncmp(name, "system.", 7) == 0 && (strcmp(name + 7, "posix_acl_access") == 0 || strcmp(name + 7, "posix_acl_default") == 0))
+		if(strncmp(name, "system.", 7) == 0 && (sstreq(name + 7, "posix_acl_access") || sstreq(name + 7, "posix_acl_default")))
 			continue;
-		if(strncmp(name, "trusted.SGI_", 12) == 0 && (strcmp(name + 12, "ACL_DEFAULT") == 0 || strcmp(name + 12, "ACL_FILE") == 0))
+		if(strncmp(name, "trusted.SGI_", 12) == 0 && (sstreq(name + 12, "ACL_DEFAULT") || sstreq(name + 12, "ACL_FILE")))
 			continue;
-		/* Linux: xfsroot namespace is obsolete and unsupported */
+		// Linux: xfsroot namespace is obsolete and unsupported 
 		if(strncmp(name, "xfsroot.", 8) == 0) {
 			fail = 1;
 			archive_strcat(&errlist, name);
@@ -4127,14 +4073,11 @@ static int set_xattrs(struct archive_write_disk * a)
 		}
 		else {
 #if ARCHIVE_XATTR_LINUX
-			e = lsetxattr(archive_entry_pathname(entry),
-				name, value, size, 0);
+			e = lsetxattr(archive_entry_pathname(entry), name, value, size, 0);
 #elif ARCHIVE_XATTR_DARWIN
-			e = setxattr(archive_entry_pathname(entry),
-				name, value, size, 0, XATTR_NOFOLLOW);
+			e = setxattr(archive_entry_pathname(entry), name, value, size, 0, XATTR_NOFOLLOW);
 #elif ARCHIVE_XATTR_AIX
-			e = lsetea(archive_entry_pathname(entry),
-				name, value, size, 0);
+			e = lsetea(archive_entry_pathname(entry), name, value, size, 0);
 #endif
 		}
 		if(e == -1) {
@@ -4145,7 +4088,6 @@ static int set_xattrs(struct archive_write_disk * a)
 				fail = 1;
 		}
 	}
-
 	if(ret == ARCHIVE_WARN) {
 		if(fail && errlist.length > 0) {
 			errlist.length--;
@@ -4155,7 +4097,6 @@ static int set_xattrs(struct archive_write_disk * a)
 		else
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "Cannot restore extended attributes on this file system.");
 	}
-
 	archive_string_free(&errlist);
 	return ret;
 }

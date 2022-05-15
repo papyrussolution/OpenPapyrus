@@ -102,7 +102,7 @@ U_CAPI int32_t U_EXPORT2 ucol_mergeSortkeys(const uint8 * src1, int32_t src1Leng
 	    destCapacity<0 || (destCapacity>0 && dest==NULL)
 	    ) {
 		/* error, attempt to write a zero byte and return 0 */
-		if(dest!=NULL && destCapacity>0) {
+		if(dest && destCapacity>0) {
 			*dest = 0;
 		}
 		return 0;
@@ -173,7 +173,7 @@ U_CAPI int32_t U_EXPORT2 ucol_getSortKey(const UCollator * coll, const UChar * s
 {
 	UTRACE_ENTRY(UTRACE_UCOL_GET_SORTKEY);
 	if(UTRACE_LEVEL(UTRACE_VERBOSE)) {
-		UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, source string = %vh ", coll, source, ((sourceLength==-1 && source!=NULL) ? u_strlen(source) : sourceLength));
+		UTRACE_DATA3(UTRACE_VERBOSE, "coll=%p, source string = %vh ", coll, source, ((sourceLength==-1 && source) ? u_strlen(source) : sourceLength));
 	}
 	int32_t keySize = Collator::fromUCollator(coll)->getSortKey(source, sourceLength, result, resultLength);
 	UTRACE_DATA2(UTRACE_VERBOSE, "Sort Key = %vb", result, keySize);

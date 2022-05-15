@@ -4,14 +4,13 @@
 package ru.petroglif.styloq;
 
 import android.content.Intent;
-import android.text.TextPaint;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.ArrayList;
 
 public class CmdRGridActivity extends SLib.SlActivity {
 	public CmdRGridActivity()
@@ -20,94 +19,32 @@ public class CmdRGridActivity extends SLib.SlActivity {
 		ListData = null;
 		Vdl = null;
 	}
-	static class ViewDescrItem {
-		ViewDescrItem()
-		{
-			TotalFunc = 0;
-			RTotalResult = 0.0;
-			ITotalResult = 0;
-			LayoutWeight = 0.0f;
-			LayoutWidth = 0.0f;
-			AllNumeric = false;
-		}
-		String Zone;
-		String FieldName;
-		String Title;
-		int   TotalFunc;
-		double RTotalResult; // @v11.3.1
-		int    ITotalResult; // @v11.3.1
-		boolean AllNumeric;
-		float LayoutWeight;
-		float LayoutWidth; // @v11.2.11
-	}
 	private byte [] SvcIdent; // Получает через intent ("SvcIdent")
 	private String CmdName; // Получает через intent ("CmdName")
 	private String CmdDescr; // Получает через intent ("CmdDescr")
 	private JSONArray ListData;
-	private ArrayList <ViewDescrItem> Vdl;
-	//
-	// ARG(phase IN): 0 - preprocess, 1 - running
-	// ARG(level IN): 0 - detail, 1 - header, 2 - footer
-	//
-	private TextView CreateBaseEntryTextView(ArrayList <ViewDescrItem> viewDesription, int phase, int level, int columnIdx/*0..*/)
-	{
-		TextView result = null;
-		if(viewDesription != null && columnIdx >= 0 && columnIdx < viewDesription.size()) {
-			ViewDescrItem di = viewDesription.get(columnIdx);
-			result = new TextView(this);
-			result.setSingleLine();
-			int alignment = View.TEXT_ALIGNMENT_TEXT_START;
-			if(phase == 1 && di.AllNumeric && level == 0)
-				alignment = View.TEXT_ALIGNMENT_TEXT_END;
-			result.setTextAlignment(alignment);
-			/*
-			if(phase == 1)
-				result.setAutoSizeTextTypeWithDefaults(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
-			 */
-			if(level == 0)
-				result.setId(columnIdx + 1);
-			else if(level == 1)
-				result.setText(di.Title);
-			else if(level == 2) {
-				if(di.TotalFunc > 0)
-					if(di.TotalFunc == SLib.AGGRFUNC_COUNT)
-						result.setText(Integer.toString(di.ITotalResult));
-					else
-						result.setText(Double.toString(di.RTotalResult));
-				else
-					result.setText("");
-			}
-			int lo_width = 0;
-			float lo_weight = 0.0f/*di.LayoutWeight*/;
-			if(phase == 0)
-				lo_width = 0;
-			else
-				lo_width = (int)di.LayoutWidth;
-			LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(/*LinearLayout.LayoutParams.WRAP_CONTENT*/lo_width,
-					LinearLayout.LayoutParams.MATCH_PARENT, lo_weight);
-			lp.setMargins(6, 2, 6, 2);
-			result.setLayoutParams(lp);
-		}
-		return result;
-	}
+	ViewDescriptionList Vdl;
+	/*
 	//
 	// ARG(level IN): 0 - detail, 1 - header, 2 - footer
 	//
-	private LinearLayout CreateItemLayout(ArrayList <ViewDescrItem> viewDesription, int level)
+	private LinearLayout CreateItemLayout(ViewDescriptionList viewDesription, int level)
 	{
 		LinearLayout result = new LinearLayout(this);
 		result.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
 			LinearLayout.LayoutParams.WRAP_CONTENT));
 		result.setOrientation(LinearLayout.HORIZONTAL);
-		if(viewDesription != null && viewDesription.size() > 0) {
-			for(int i = 0; i < viewDesription.size(); i++) {
-				TextView tv2 = CreateBaseEntryTextView(viewDesription, 1, level, i);
+		if(viewDesription != null) {
+			final int cc = viewDesription.GetCount();
+			for(int i = 0; i < cc; i++) {
+				TextView tv2 = viewDesription.CreateBaseEntryTextView(this,1, level, i);
 				if(tv2 != null)
 					result.addView(tv2);
 			}
 		}
 		return  result;
 	}
+	*/
 	public Object HandleEvent(int ev, Object srcObj, Object subj)
 	{
 		Object result = null;
@@ -144,7 +81,6 @@ public class CmdRGridActivity extends SLib.SlActivity {
 								SLib.SetCtrlString(this, R.id.tbTitle, title_text);
 							}
 						}
-						boolean there_is_totals = false;
 						long doc_id = intent.getLongExtra("SvcReplyDocID", 0);
 						if(doc_id > 0) {
 							StyloQDatabase.SecStoragePacket doc_packet = db.GetPeerEntry(doc_id);
@@ -162,86 +98,26 @@ public class CmdRGridActivity extends SLib.SlActivity {
 							JSONObject js_vd = js.optJSONObject("ViewDescription");
 							ListData = js.optJSONArray("Iter");
 							if(js_vd != null) {
-								JSONArray _vdl = js_vd.optJSONArray("Items");
-								if(_vdl != null) {
-									Vdl = new ArrayList<ViewDescrItem>();
-									int i;
-									for(i = 0; i < _vdl.length(); i++) {
-										JSONObject _vdl_item = (JSONObject) _vdl.get(i);
-										if(_vdl_item != null) {
-											ViewDescrItem new_item = new ViewDescrItem();
-											new_item.Zone = _vdl_item.optString("Zone", "");
-											new_item.FieldName = _vdl_item.optString("FieldName", "");
-											new_item.Title = _vdl_item.optString("Text", "");
-											new_item.TotalFunc = _vdl_item.optInt("TotalFunc", 0);
-											Vdl.add(new_item);
-										}
-									}
-									double [] sum_len_list = new double[Vdl.size()];
-									float [] max_len_list = new float[Vdl.size()];
-									long [] cnt_list = new long[Vdl.size()];
-
-									//Paint p = new Paint();
-									//TextPaint tp = result.getPaint();
-									//CreateBaseEntryTextView(Vdl, 0, i);
-									for(i = 0; i < _vdl.length(); i++) {
-										ViewDescrItem di = Vdl.get(i);
-										TextView tv = CreateBaseEntryTextView(Vdl, 0, 0, i);
-										TextPaint tp = tv.getPaint();
-										di.AllNumeric = true;
-										double rtotal = 0.0;
-										int itotal = 0;
-										int _total_count = 0;
-										double _total_sum = 0.0;
-										double _total_max = -Double.MAX_VALUE;
-										double _total_min = Double.MAX_VALUE;
-										for(int j = 0; j < ListData.length(); j++) {
-											JSONObject cur_entry = (JSONObject)ListData.get(j);
-											String val = cur_entry.optString(di.FieldName, "");
-											_total_count++;
-											float tw = tp.measureText(val);
-											if(tw > 0.0) {
-												if(SLib.IsNumeric(val)) {
-													double rv = Double.valueOf(val);
-													_total_sum += rv;
-													if(_total_max < rv)
-														_total_max = rv;
-													if(_total_min > rv)
-														_total_min = rv;
+								Vdl = new ViewDescriptionList();
+								if(Vdl.FromJsonObj(js_vd)) {
+									final int _vdlc = Vdl.GetCount();
+									assert(_vdlc > 0);
+									SLib.Margin fld_mrgn = new SLib.Margin(4, 2, 4, 2);
+									for(int i = 0; i < _vdlc; i++) {
+										ViewDescriptionList.Item vdl_item = Vdl.Get(i);
+										if(vdl_item != null) {
+											vdl_item.Mrgn = fld_mrgn;
+											vdl_item.StyleRcId = R.style.ReportListItemText;
+											ViewDescriptionList.DataPreprocessBlock dpb = Vdl.StartDataPreprocessing(this, i);
+											if(dpb != null && dpb.ColumnDescription != null) {
+												for(int j = 0; j < ListData.length(); j++) {
+													JSONObject cur_entry = (JSONObject) ListData.get(j);
+													if(cur_entry != null)
+														Vdl.DataPreprocessingIter(dpb, cur_entry.optString(dpb.ColumnDescription.FieldName, ""));
 												}
-												else {
-													di.AllNumeric = false;
-												}
-												sum_len_list[i] += tw;
-												cnt_list[i]++;
-												if(max_len_list[i] < tw)
-													max_len_list[i] = tw;
+												Vdl.FinishDataProcessing(dpb);
+												dpb = null;
 											}
-											/*if(val.length() > 0) {
-												sum_len_list[i] += val.length();
-												cnt_list[i]++;
-											}*/
-										}
-										if(di.TotalFunc > 0) {
-											switch(di.TotalFunc) {
-												case SLib.AGGRFUNC_COUNT: di.ITotalResult = _total_count; break;
-												case SLib.AGGRFUNC_SUM: di.RTotalResult = _total_sum; break;
-												case SLib.AGGRFUNC_AVG: di.RTotalResult = (_total_count > 0) ? _total_sum / _total_count : 0.0; break;
-												case SLib.AGGRFUNC_MAX: di.RTotalResult = (_total_max > -Double.MAX_VALUE) ? _total_max : 0.0; break;
-												case SLib.AGGRFUNC_MIN: di.RTotalResult = (_total_min < Double.MAX_VALUE) ? _total_min : 0.0; break;
-											}
-											there_is_totals = true;
-										}
-									}
-									{
-										for(i = 0; i < _vdl.length(); i++) {
-											double avgl;
-											if(cnt_list[i] > 0)
-												avgl = (double) sum_len_list[i] / (double) cnt_list[i];
-											else
-												avgl = 1.0;
-											Vdl.get(i).LayoutWeight = (float) avgl;
-											Vdl.get(i).LayoutWidth = max_len_list[i];
 										}
 									}
 								}
@@ -250,16 +126,16 @@ public class CmdRGridActivity extends SLib.SlActivity {
 						{
 							LinearLayout header_layout = (LinearLayout)findViewById(R.id.gridCommandViewHeader);
 							if(header_layout != null) {
-								LinearLayout _lo_ = CreateItemLayout(Vdl, 1);
+								LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this, 1);
 								if(_lo_ != null)
 									header_layout.addView(_lo_);
 							}
 						}
 						{
-							if(there_is_totals) {
+							if(Vdl != null && Vdl.IsThereTotals()) {
 								LinearLayout bottom_layout = (LinearLayout) findViewById(R.id.gridCommandViewBottom);
 								if(bottom_layout != null) {
-									LinearLayout _lo_ = CreateItemLayout(Vdl, 2);
+									LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(Vdl, this,2);
 									if(_lo_ != null)
 										bottom_layout.addView(_lo_);
 								}
@@ -309,7 +185,7 @@ public class CmdRGridActivity extends SLib.SlActivity {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null && ev_subj.ItemView != null) {
-						LinearLayout _lo = CreateItemLayout(Vdl, 0);
+						LinearLayout _lo = ViewDescriptionList.CreateItemLayout(Vdl, this,0);
 						if(_lo != null) {
 							//((ViewGroup)ev_subj.ItemView).addView(_lo);
 							SLib.RecyclerListAdapter adapter = (srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
@@ -325,7 +201,6 @@ public class CmdRGridActivity extends SLib.SlActivity {
 						if(ev_subj.RvHolder != null) {
 							// RecyclerView
 							if(ListData != null && ev_subj.ItemIdx >= 0 && ev_subj.ItemIdx < ListData.length()) {
-								//
 								View iv = ev_subj.RvHolder.itemView;
 								{
 									int color_row_res = ((ev_subj.ItemIdx % 2) == 0) ? R.color.GridInterleavedOdd : R.color.GridInterleavedEven;
@@ -333,12 +208,15 @@ public class CmdRGridActivity extends SLib.SlActivity {
 								}
 								try {
 									JSONObject cur_entry = (JSONObject)ListData.get(ev_subj.ItemIdx);
-									for(int i = 0; i < Vdl.size(); i++) {
-										TextView ctl = (TextView) iv.findViewById(i+1);
+									final int _vdlc = Vdl.GetCount();
+									for(int i = 0; i < _vdlc; i++) {
+										TextView ctl = (TextView)iv.findViewById(i+1);
 										if(ctl != null) {
-											ViewDescrItem di = Vdl.get(i);
-											String val = cur_entry.optString(di.FieldName, "");
-											ctl.setText(val);
+											ViewDescriptionList.Item di = Vdl.Get(i);
+											if(di != null) {
+												String val = cur_entry.optString(di.FieldName, "");
+												ctl.setText(val);
+											}
 										}
 									}
 								} catch(JSONException exn) {

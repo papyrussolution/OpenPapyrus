@@ -5,8 +5,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -190,11 +189,9 @@ struct zisofs {
 	int pz;
 	int pz_log2_bs; /* Log2 of block size */
 	uint64 pz_uncompressed_size;
-
 	int initialized;
 	uchar   * uncompressed_buffer;
 	size_t uncompressed_buffer_size;
-
 	uint32 pz_offset;
 	uchar header[16];
 	size_t header_avail;
@@ -205,7 +202,6 @@ struct zisofs {
 	size_t block_pointers_avail;
 	size_t block_off;
 	uint32 block_avail;
-
 	z_stream stream;
 	int stream_valid;
 };
@@ -460,14 +456,10 @@ static int archive_read_format_iso9660_bid(struct archive_read * a, int best_bid
 	ssize_t bytes_read;
 	const uchar * p;
 	int seenTerminator;
-
-	/* If there's already a better bid than we can ever
-	   make, don't bother testing. */
+	// If there's already a better bid than we can ever make, don't bother testing.
 	if(best_bid > 48)
 		return -1;
-
 	iso9660 = (struct iso9660 *)(a->format->data);
-
 	/*
 	 * Skip the first 32k (reserved area) and get the first
 	 * 8 sectors of the volume descriptor table.  Of course,
@@ -516,7 +508,6 @@ static int archive_read_format_iso9660_bid(struct archive_read * a, int best_bid
 	 */
 	if(seenTerminator && iso9660->primary.location > 16)
 		return (48);
-
 	/* We didn't find a valid PVD; return a bid of zero. */
 	return 0;
 }
@@ -524,14 +515,14 @@ static int archive_read_format_iso9660_bid(struct archive_read * a, int best_bid
 static int archive_read_format_iso9660_options(struct archive_read * a, const char * key, const char * val)
 {
 	struct iso9660 * iso9660 = (struct iso9660 *)(a->format->data);
-	if(strcmp(key, "joliet") == 0) {
-		if(val == NULL || strcmp(val, "off") == 0 || strcmp(val, "ignore") == 0 || strcmp(val, "disable") == 0 || strcmp(val, "0") == 0)
+	if(sstreq(key, "joliet")) {
+		if(val == NULL || sstreq(val, "off") || sstreq(val, "ignore") || sstreq(val, "disable") || sstreq(val, "0"))
 			iso9660->opt_support_joliet = 0;
 		else
 			iso9660->opt_support_joliet = 1;
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "rockridge") == 0 || strcmp(key, "Rockridge") == 0) {
+	if(sstreq(key, "rockridge") || sstreq(key, "Rockridge")) {
 		iso9660->opt_support_rockridge = val != NULL;
 		return ARCHIVE_OK;
 	}

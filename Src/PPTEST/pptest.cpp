@@ -1320,7 +1320,7 @@ static void PrintGumboNode(GumboNode * pN, uint tabN, SFile & rF, SString & rTem
 			rF.WriteLine(rTempBuf.CR());
 			//
 			if(r_el.attributes.length) {
-				rTempBuf.Z().Tab(tabN).Cat("attributes:");
+				rTempBuf.Z().Tab(tabN).Cat("attributes").Colon();
 				rF.WriteLine(rTempBuf.CR());
 				for(uint i = 0; i < r_el.attributes.length; i++) {
 					GumboAttribute * p_attr = static_cast<GumboAttribute *>(r_el.attributes.data[i]);
@@ -1331,7 +1331,7 @@ static void PrintGumboNode(GumboNode * pN, uint tabN, SFile & rF, SString & rTem
 				}
 			}
 			if(r_el.children.length) {
-				rTempBuf.Z().Tab(tabN).Cat("children:");
+				rTempBuf.Z().Tab(tabN).Cat("children").Colon();
 				rF.WriteLine(rTempBuf.CR());
 				for(uint i = 0; i < r_el.children.length; i++) {
 					GumboNode * p_node = static_cast<GumboNode *>(r_el.children.data[i]);

@@ -485,7 +485,6 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 		    }
 	    }
 	    break;
-
 		case ZLIB_EXTERNAL_TRAILER:
 		    z->next_in = (Bytef*)buf;
 		    z->avail_in = (uInt)nbytes;
@@ -498,12 +497,10 @@ static CURLcode gzip_unencode_write(struct connectdata * conn, struct contenc_wr
 		    z->avail_in = (uInt)nbytes;
 		    break;
 	}
-
 	if(z->avail_in == 0) {
 		/* We don't have any data to inflate; wait until next time */
 		return CURLE_OK;
 	}
-
 	/* We've parsed the header, now uncompress the data */
 	return inflate_stream(conn, writer, ZLIB_GZIP_INFLATING);
 #endif
@@ -556,15 +553,13 @@ static CURLcode brotli_map_error(BrotliDecoderErrorCode be)
 #ifdef BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET
 		case BROTLI_DECODER_ERROR_DICTIONARY_NOT_SET:
 #endif
-		case BROTLI_DECODER_ERROR_INVALID_ARGUMENTS:
-		    return CURLE_BAD_CONTENT_ENCODING;
+		case BROTLI_DECODER_ERROR_INVALID_ARGUMENTS: return CURLE_BAD_CONTENT_ENCODING;
 		case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MODES:
 		case BROTLI_DECODER_ERROR_ALLOC_TREE_GROUPS:
 		case BROTLI_DECODER_ERROR_ALLOC_CONTEXT_MAP:
 		case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_1:
 		case BROTLI_DECODER_ERROR_ALLOC_RING_BUFFER_2:
-		case BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES:
-		    return CURLE_OUT_OF_MEMORY;
+		case BROTLI_DECODER_ERROR_ALLOC_BLOCK_TYPE_TREES: return CURLE_OUT_OF_MEMORY;
 		default:
 		    break;
 	}
@@ -577,7 +572,6 @@ static CURLcode brotli_init_writer(struct connectdata * conn, struct contenc_wri
 	(void)conn;
 	if(!writer->downstream)
 		return CURLE_WRITE_ERROR;
-
 	bp->br = BrotliDecoderCreateInstance(NULL, NULL, NULL);
 	return bp->br ? CURLE_OK : CURLE_OUT_OF_MEMORY;
 }

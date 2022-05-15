@@ -103,27 +103,22 @@ static int archive_compressor_gzip_free(struct archive_write_filter * f)
 	f->data = NULL;
 	return ARCHIVE_OK;
 }
-
 /*
  * Set write options.
  */
-static int archive_compressor_gzip_options(struct archive_write_filter * f, const char * key,
-    const char * value)
+static int archive_compressor_gzip_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = (struct private_data *)f->data;
-
-	if(strcmp(key, "compression-level") == 0) {
-		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') ||
-		    value[1] != '\0')
+	if(sstreq(key, "compression-level")) {
+		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0')
 			return ARCHIVE_WARN;
 		data->compression_level = value[0] - '0';
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "timestamp") == 0) {
+	if(sstreq(key, "timestamp")) {
 		data->timestamp = (value == NULL) ? -1 : 1;
 		return ARCHIVE_OK;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */

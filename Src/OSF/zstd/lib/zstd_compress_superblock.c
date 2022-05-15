@@ -42,7 +42,7 @@ static size_t ZSTD_compressSubBlock_literal(const HUF_CElt* hufTable,
     const int bmi2, int writeEntropy, int* entropyWritten)
 {
 	const size_t header = writeEntropy ? 200 : 0;
-	const size_t lhSize = 3 + (litSize >= (1 KB - header)) + (litSize >= (16 KB - header));
+	const size_t lhSize = 3 + (litSize >= (SKILOBYTE(1) - header)) + (litSize >= (SKILOBYTE(16) - header));
 	BYTE * const ostart = (BYTE *)dst;
 	BYTE * const oend = ostart + dstSize;
 	BYTE * op = ostart + lhSize;
@@ -89,7 +89,7 @@ static size_t ZSTD_compressSubBlock_literal(const HUF_CElt* hufTable,
 		    return ZSTD_noCompressLiterals(dst, dstSize, literals, litSize);
 	    }
 		/* If we are writing headers then allow expansion that doesn't change our header size. */
-	    if(lhSize < (size_t)(3 + (cLitSize >= 1 KB) + (cLitSize >= 16 KB))) {
+	    if(lhSize < (size_t)(3 + (cLitSize >= SKILOBYTE(1)) + (cLitSize >= SKILOBYTE(16)))) {
 		    assert(cLitSize > litSize);
 		    DEBUGLOG(5, "Literals expanded beyond allowed header size");
 		    return ZSTD_noCompressLiterals(dst, dstSize, literals, litSize);

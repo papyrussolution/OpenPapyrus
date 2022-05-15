@@ -90,7 +90,7 @@ size_t ZSTD_compressLiterals(ZSTD_hufCTables_t const* prevHuf,
     uint suspectUncompressible)
 {
 	const size_t minGain = ZSTD_minGain(srcSize, strategy);
-	const size_t lhSize = 3 + (srcSize >= 1 KB) + (srcSize >= 16 KB);
+	const size_t lhSize = 3 + (srcSize >= SKILOBYTE(1)) + (srcSize >= SKILOBYTE(16));
 	BYTE *  const ostart = (BYTE *)dst;
 	uint32 singleStream = srcSize < 256;
 	symbolEncodingType_e hType = set_compressed;

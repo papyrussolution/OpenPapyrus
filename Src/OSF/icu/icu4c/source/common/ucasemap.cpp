@@ -1,22 +1,13 @@
+// ucasemap.cpp
 // © 2016 and later: Unicode, Inc. and others.
 // License & terms of use: http://www.unicode.org/copyright.html
-/*
- *******************************************************************************
- *
- *   Copyright (C) 2005-2016, International Business Machines
- *   Corporation and others.  All Rights Reserved.
- *
- *******************************************************************************
- *   file name:  ucasemap.cpp
- *   encoding:   UTF-8
- *   tab size:   8 (not used)
- *   indentation:4
- *
- *   created on: 2005may06
- *   created by: Markus W. Scherer
- *
- *   Case mapping service object and functions using it.
- */
+// Copyright (C) 2005-2016, International Business Machines Corporation and others.  All Rights Reserved.
+// encoding:   UTF-8
+// created on: 2005may06
+// created by: Markus W. Scherer
+// 
+// Case mapping service object and functions using it.
+// 
 #include <icu-internal.h>
 #pragma hdrstop
 #include "unicode/casemap.h"
@@ -44,7 +35,8 @@ UCaseMap::~UCaseMap() {
 #endif
 }
 
-U_CAPI UCaseMap * U_EXPORT2 ucasemap_open(const char * locale, uint32_t options, UErrorCode * pErrorCode) {
+U_CAPI UCaseMap * U_EXPORT2 ucasemap_open(const char * locale, uint32_t options, UErrorCode * pErrorCode) 
+{
 	if(U_FAILURE(*pErrorCode)) {
 		return NULL;
 	}
@@ -108,16 +100,13 @@ U_CAPI void U_EXPORT2 ucasemap_setOptions(UCaseMap * csm, uint32_t options, UErr
 
 namespace {
 /* append a full case mapping result, see UCASE_MAX_STRING_LENGTH */
-inline bool appendResult(int32_t cpLength, int32_t result, const UChar * s,
-    ByteSink &sink, uint32_t options, icu::Edits * edits, UErrorCode & errorCode) {
+inline bool appendResult(int32_t cpLength, int32_t result, const UChar * s, ByteSink &sink, uint32_t options, icu::Edits * edits, UErrorCode & errorCode) 
+{
 	U_ASSERT(U_SUCCESS(errorCode));
-
 	/* decode the result */
 	if(result<0) {
 		/* (not) original code point */
-		if(edits!=NULL) {
-			edits->addUnchanged(cpLength);
-		}
+		CALLPTRMEMB(edits, addUnchanged(cpLength));
 		if((options & U_OMIT_UNCHANGED_TEXT) == 0) {
 			ByteSinkUtil::appendCodePoint(cpLength, ~result, sink);
 		}
@@ -138,10 +127,10 @@ inline bool appendResult(int32_t cpLength, int32_t result, const UChar * s,
 inline uint8 getTwoByteLead(UChar32 c) { return (uint8)((c >> 6) | 0xc0); }
 inline uint8 getTwoByteTrail(UChar32 c) { return (uint8)((c & 0x3f) | 0x80); }
 
-UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8 dir) {
+UChar32 U_CALLCONV utf8_caseContextIterator(void * context, int8 dir) 
+{
 	UCaseContext * csc = (UCaseContext*)context;
 	UChar32 c;
-
 	if(dir<0) {
 		/* reset for backward iteration */
 		csc->index = csc->cpStart;
@@ -795,44 +784,31 @@ void ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERA
 	}
 }
 
-int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM
-    char * dest, int32_t destCapacity,
-    const char * src, int32_t srcLength,
-    UTF8CaseMapper * stringCaseMapper,
-    icu::Edits * edits,
-    UErrorCode & errorCode) {
+int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_ITERATOR_PARAM char * dest, int32_t destCapacity,
+    const char * src, int32_t srcLength, UTF8CaseMapper * stringCaseMapper, icu::Edits * edits, UErrorCode & errorCode) 
+{
 	/* check argument values */
 	if(U_FAILURE(errorCode)) {
 		return 0;
 	}
-	if(destCapacity<0 ||
-	    (dest==NULL && destCapacity>0) ||
-	    (src==NULL && srcLength!=0) || srcLength<-1
-	    ) {
+	if(destCapacity<0 || (dest==NULL && destCapacity>0) || (src==NULL && srcLength!=0) || srcLength<-1) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* get the string length */
 	if(srcLength==-1) {
 		srcLength = (int32_t)uprv_strlen((const char *)src);
 	}
-
 	/* check for overlapping source and destination */
-	if(dest!=NULL &&
-	    ((src>=dest && src<(dest+destCapacity)) ||
-	    (dest>=src && dest<(src+srcLength)))
-	    ) {
+	if(dest && ((src>=dest && src<(dest+destCapacity)) || (dest>=src && dest<(src+srcLength)))) {
 		errorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	CheckedArrayByteSink sink(dest, destCapacity);
 	if(edits != nullptr && (options & U_EDITS_NO_RESET) == 0) {
 		edits->reset();
 	}
-	stringCaseMapper(caseLocale, options, UCASEMAP_BREAK_ITERATOR
-		    (const uint8 *) src, srcLength, sink, edits, errorCode);
+	stringCaseMapper(caseLocale, options, UCASEMAP_BREAK_ITERATOR (const uint8 *)src, srcLength, sink, edits, errorCode);
 	sink.Flush();
 	if(U_SUCCESS(errorCode)) {
 		if(sink.Overflowed()) {
@@ -847,99 +823,51 @@ int32_t ucasemap_mapUTF8(int32_t caseLocale, uint32_t options, UCASEMAP_BREAK_IT
 
 /* public API functions */
 
-U_CAPI int32_t U_EXPORT2 ucasemap_utf8ToLower(const UCaseMap * csm,
-    char * dest, int32_t destCapacity,
-    const char * src, int32_t srcLength,
-    UErrorCode * pErrorCode) {
-	return ucasemap_mapUTF8(
-		csm->caseLocale, csm->options, UCASEMAP_BREAK_ITERATOR_NULL
-		dest, destCapacity,
-		src, srcLength,
-		ucasemap_internalUTF8ToLower, NULL, *pErrorCode);
+U_CAPI int32_t U_EXPORT2 ucasemap_utf8ToLower(const UCaseMap * csm, char * dest, int32_t destCapacity, const char * src, int32_t srcLength, UErrorCode * pErrorCode) 
+{
+	return ucasemap_mapUTF8(csm->caseLocale, csm->options, UCASEMAP_BREAK_ITERATOR_NULL dest, destCapacity, src, srcLength, ucasemap_internalUTF8ToLower, NULL, *pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 ucasemap_utf8ToUpper(const UCaseMap * csm,
-    char * dest, int32_t destCapacity,
-    const char * src, int32_t srcLength,
-    UErrorCode * pErrorCode) {
-	return ucasemap_mapUTF8(
-		csm->caseLocale, csm->options, UCASEMAP_BREAK_ITERATOR_NULL
-		dest, destCapacity,
-		src, srcLength,
-		ucasemap_internalUTF8ToUpper, NULL, *pErrorCode);
+U_CAPI int32_t U_EXPORT2 ucasemap_utf8ToUpper(const UCaseMap * csm, char * dest, int32_t destCapacity, const char * src, int32_t srcLength, UErrorCode * pErrorCode) 
+{
+	return ucasemap_mapUTF8(csm->caseLocale, csm->options, UCASEMAP_BREAK_ITERATOR_NULL dest, destCapacity, src, srcLength, ucasemap_internalUTF8ToUpper, NULL, *pErrorCode);
 }
 
-U_CAPI int32_t U_EXPORT2 ucasemap_utf8FoldCase(const UCaseMap * csm,
-    char * dest, int32_t destCapacity,
-    const char * src, int32_t srcLength,
-    UErrorCode * pErrorCode) {
-	return ucasemap_mapUTF8(
-		UCASE_LOC_ROOT, csm->options, UCASEMAP_BREAK_ITERATOR_NULL
-		dest, destCapacity,
-		src, srcLength,
-		ucasemap_internalUTF8Fold, NULL, *pErrorCode);
+U_CAPI int32_t U_EXPORT2 ucasemap_utf8FoldCase(const UCaseMap * csm, char * dest, int32_t destCapacity, const char * src, int32_t srcLength, UErrorCode * pErrorCode) 
+{
+	return ucasemap_mapUTF8(UCASE_LOC_ROOT, csm->options, UCASEMAP_BREAK_ITERATOR_NULL dest, destCapacity, src, srcLength, ucasemap_internalUTF8Fold, NULL, *pErrorCode);
 }
 
 U_NAMESPACE_BEGIN
 
-void CaseMap::utf8ToLower(const char * locale, uint32_t options,
-    StringPiece src, ByteSink &sink, Edits * edits,
-    UErrorCode & errorCode) {
-	ucasemap_mapUTF8(
-		ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL
-		src.data(), src.length(),
-		ucasemap_internalUTF8ToLower, sink, edits, errorCode);
+void CaseMap::utf8ToLower(const char * locale, uint32_t options, StringPiece src, ByteSink &sink, Edits * edits, UErrorCode & errorCode) 
+{
+	ucasemap_mapUTF8(ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL src.data(), src.length(), ucasemap_internalUTF8ToLower, sink, edits, errorCode);
 }
 
-void CaseMap::utf8ToUpper(const char * locale, uint32_t options,
-    StringPiece src, ByteSink &sink, Edits * edits,
-    UErrorCode & errorCode) {
-	ucasemap_mapUTF8(
-		ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL
-		src.data(), src.length(),
-		ucasemap_internalUTF8ToUpper, sink, edits, errorCode);
+void CaseMap::utf8ToUpper(const char * locale, uint32_t options, StringPiece src, ByteSink &sink, Edits * edits, UErrorCode & errorCode) 
+{
+	ucasemap_mapUTF8(ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL src.data(), src.length(), ucasemap_internalUTF8ToUpper, sink, edits, errorCode);
 }
 
-void CaseMap::utf8Fold(uint32_t options,
-    StringPiece src, ByteSink &sink, Edits * edits,
-    UErrorCode & errorCode) {
-	ucasemap_mapUTF8(
-		UCASE_LOC_ROOT, options, UCASEMAP_BREAK_ITERATOR_NULL
-		src.data(), src.length(),
-		ucasemap_internalUTF8Fold, sink, edits, errorCode);
+void CaseMap::utf8Fold(uint32_t options, StringPiece src, ByteSink &sink, Edits * edits, UErrorCode & errorCode) 
+{
+	ucasemap_mapUTF8(UCASE_LOC_ROOT, options, UCASEMAP_BREAK_ITERATOR_NULL src.data(), src.length(), ucasemap_internalUTF8Fold, sink, edits, errorCode);
 }
 
-int32_t CaseMap::utf8ToLower(const char * locale, uint32_t options,
-    const char * src, int32_t srcLength,
-    char * dest, int32_t destCapacity, Edits * edits,
-    UErrorCode & errorCode) {
-	return ucasemap_mapUTF8(
-		ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL
-		dest, destCapacity,
-		src, srcLength,
-		ucasemap_internalUTF8ToLower, edits, errorCode);
+int32_t CaseMap::utf8ToLower(const char * locale, uint32_t options, const char * src, int32_t srcLength, char * dest, int32_t destCapacity, Edits * edits, UErrorCode & errorCode) 
+{
+	return ucasemap_mapUTF8(ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL dest, destCapacity, src, srcLength, ucasemap_internalUTF8ToLower, edits, errorCode);
 }
 
-int32_t CaseMap::utf8ToUpper(const char * locale, uint32_t options,
-    const char * src, int32_t srcLength,
-    char * dest, int32_t destCapacity, Edits * edits,
-    UErrorCode & errorCode) {
-	return ucasemap_mapUTF8(
-		ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL
-		dest, destCapacity,
-		src, srcLength,
-		ucasemap_internalUTF8ToUpper, edits, errorCode);
+int32_t CaseMap::utf8ToUpper(const char * locale, uint32_t options, const char * src, int32_t srcLength, char * dest, int32_t destCapacity, Edits * edits, UErrorCode & errorCode) 
+{
+	return ucasemap_mapUTF8(ustrcase_getCaseLocale(locale), options, UCASEMAP_BREAK_ITERATOR_NULL dest, destCapacity, src, srcLength, ucasemap_internalUTF8ToUpper, edits, errorCode);
 }
 
-int32_t CaseMap::utf8Fold(uint32_t options,
-    const char * src, int32_t srcLength,
-    char * dest, int32_t destCapacity, Edits * edits,
-    UErrorCode & errorCode) {
-	return ucasemap_mapUTF8(
-		UCASE_LOC_ROOT, options, UCASEMAP_BREAK_ITERATOR_NULL
-		dest, destCapacity,
-		src, srcLength,
-		ucasemap_internalUTF8Fold, edits, errorCode);
+int32_t CaseMap::utf8Fold(uint32_t options, const char * src, int32_t srcLength, char * dest, int32_t destCapacity, Edits * edits, UErrorCode & errorCode) 
+{
+	return ucasemap_mapUTF8(UCASE_LOC_ROOT, options, UCASEMAP_BREAK_ITERATOR_NULL dest, destCapacity, src, srcLength, ucasemap_internalUTF8Fold, edits, errorCode);
 }
 
 U_NAMESPACE_END

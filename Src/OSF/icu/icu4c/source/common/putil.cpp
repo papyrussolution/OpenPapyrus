@@ -2090,20 +2090,19 @@ U_CAPI void U_EXPORT2 u_versionFromString(UVersionInfo versionArray, const char 
 {
 	char * end;
 	uint16 part = 0;
-	if(versionArray==NULL) {
-		return;
-	}
-	if(versionString!=NULL) {
-		for(;;) {
-			versionArray[part] = (uint8)uprv_strtoul(versionString, &end, 10);
-			if(end==versionString || ++part==U_MAX_VERSION_LENGTH || *end!=U_VERSION_DELIMITER) {
-				break;
+	if(versionArray) {
+		if(versionString!=NULL) {
+			for(;;) {
+				versionArray[part] = (uint8)uprv_strtoul(versionString, &end, 10);
+				if(end==versionString || ++part==U_MAX_VERSION_LENGTH || *end!=U_VERSION_DELIMITER) {
+					break;
+				}
+				versionString = end+1;
 			}
-			versionString = end+1;
 		}
-	}
-	while(part<U_MAX_VERSION_LENGTH) {
-		versionArray[part++] = 0;
+		while(part<U_MAX_VERSION_LENGTH) {
+			versionArray[part++] = 0;
+		}
 	}
 }
 
@@ -2125,37 +2124,20 @@ U_CAPI void U_EXPORT2 u_versionToString(const UVersionInfo versionArray, char * 
 {
 	uint16 count, part;
 	uint8 field;
-	if(versionString==NULL) {
-		return;
-	}
-	if(versionArray==NULL) {
-		versionString[0] = 0;
-		return;
-	}
-	/* count how many fields need to be written */
-	for(count = 4; count>0 && versionArray[count-1]==0; --count) {
-	}
-	if(count <= 1) {
-		count = 2;
-	}
-	/* write the first part */
-	/* write the decimal field value */
-	field = versionArray[0];
-	if(field>=100) {
-		*versionString++ = (char)('0'+field/100);
-		field %= 100;
-	}
-	if(field>=10) {
-		*versionString++ = (char)('0'+field/10);
-		field %= 10;
-	}
-	*versionString++ = (char)('0'+field);
-	/* write the following parts */
-	for(part = 1; part<count; ++part) {
-		/* write a dot first */
-		*versionString++ = U_VERSION_DELIMITER;
+	if(versionString) {
+		if(versionArray==NULL) {
+			versionString[0] = 0;
+			return;
+		}
+		/* count how many fields need to be written */
+		for(count = 4; count>0 && versionArray[count-1]==0; --count) {
+		}
+		if(count <= 1) {
+			count = 2;
+		}
+		/* write the first part */
 		/* write the decimal field value */
-		field = versionArray[part];
+		field = versionArray[0];
 		if(field>=100) {
 			*versionString++ = (char)('0'+field/100);
 			field %= 100;
@@ -2165,9 +2147,25 @@ U_CAPI void U_EXPORT2 u_versionToString(const UVersionInfo versionArray, char * 
 			field %= 10;
 		}
 		*versionString++ = (char)('0'+field);
+		/* write the following parts */
+		for(part = 1; part<count; ++part) {
+			/* write a dot first */
+			*versionString++ = U_VERSION_DELIMITER;
+			/* write the decimal field value */
+			field = versionArray[part];
+			if(field>=100) {
+				*versionString++ = (char)('0'+field/100);
+				field %= 100;
+			}
+			if(field>=10) {
+				*versionString++ = (char)('0'+field/10);
+				field %= 10;
+			}
+			*versionString++ = (char)('0'+field);
+		}
+		/* NUL-terminate */
+		*versionString = 0;
 	}
-	/* NUL-terminate */
-	*versionString = 0;
 }
 
 U_CAPI void U_EXPORT2 u_getVersion(UVersionInfo versionArray) 

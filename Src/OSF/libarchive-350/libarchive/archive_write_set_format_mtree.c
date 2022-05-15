@@ -1182,92 +1182,88 @@ static int archive_write_mtree_options(struct archive_write * a, const char * ke
 {
 	struct mtree_writer * mtree = static_cast<struct mtree_writer *>(a->format_data);
 	int keybit = 0;
-
 	switch(key[0]) {
 		case 'a':
-		    if(strcmp(key, "all") == 0)
+		    if(sstreq(key, "all"))
 			    keybit = ~0;
 		    break;
 		case 'c':
-		    if(strcmp(key, "cksum") == 0)
+		    if(sstreq(key, "cksum"))
 			    keybit = F_CKSUM;
 		    break;
 		case 'd':
-		    if(strcmp(key, "device") == 0)
+		    if(sstreq(key, "device"))
 			    keybit = F_DEV;
-		    else if(strcmp(key, "dironly") == 0) {
-			    mtree->dironly = (value != NULL) ? 1 : 0;
+		    else if(sstreq(key, "dironly")) {
+			    mtree->dironly = BIN(value);
 			    return ARCHIVE_OK;
 		    }
 		    break;
 		case 'f':
-		    if(strcmp(key, "flags") == 0)
+		    if(sstreq(key, "flags"))
 			    keybit = F_FLAGS;
 		    break;
 		case 'g':
-		    if(strcmp(key, "gid") == 0)
+		    if(sstreq(key, "gid"))
 			    keybit = F_GID;
-		    else if(strcmp(key, "gname") == 0)
+		    else if(sstreq(key, "gname"))
 			    keybit = F_GNAME;
 		    break;
 		case 'i':
-		    if(strcmp(key, "indent") == 0) {
-			    mtree->indent = (value != NULL) ? 1 : 0;
+		    if(sstreq(key, "indent")) {
+			    mtree->indent = BIN(value);
 			    return ARCHIVE_OK;
 		    }
-		    else if(strcmp(key, "inode") == 0) {
+		    else if(sstreq(key, "inode")) {
 			    keybit = F_INO;
 		    }
 		    break;
 		case 'l':
-		    if(strcmp(key, "link") == 0)
+		    if(sstreq(key, "link"))
 			    keybit = F_SLINK;
 		    break;
 		case 'm':
-		    if(strcmp(key, "md5") == 0 ||
-			strcmp(key, "md5digest") == 0)
+		    if(sstreq(key, "md5") || sstreq(key, "md5digest"))
 			    keybit = F_MD5;
-		    if(strcmp(key, "mode") == 0)
+		    if(sstreq(key, "mode"))
 			    keybit = F_MODE;
 		    break;
 		case 'n':
-		    if(strcmp(key, "nlink") == 0)
+		    if(sstreq(key, "nlink"))
 			    keybit = F_NLINK;
 		    break;
 		case 'r':
-		    if(strcmp(key, "resdevice") == 0) {
+		    if(sstreq(key, "resdevice")) {
 			    keybit = F_RESDEV;
 		    }
-		    else if(strcmp(key, "ripemd160digest") == 0 ||
-			strcmp(key, "rmd160") == 0 ||
-			strcmp(key, "rmd160digest") == 0)
+		    else if(sstreq(key, "ripemd160digest") || sstreq(key, "rmd160") || sstreq(key, "rmd160digest"))
 			    keybit = F_RMD160;
 		    break;
 		case 's':
-		    if(strcmp(key, "sha1") == 0 || strcmp(key, "sha1digest") == 0)
+		    if(sstreq(key, "sha1") || sstreq(key, "sha1digest"))
 			    keybit = F_SHA1;
-		    if(strcmp(key, "sha256") == 0 || strcmp(key, "sha256digest") == 0)
+		    if(sstreq(key, "sha256") || sstreq(key, "sha256digest"))
 			    keybit = F_SHA256;
-		    if(strcmp(key, "sha384") == 0 || strcmp(key, "sha384digest") == 0)
+		    if(sstreq(key, "sha384") || sstreq(key, "sha384digest"))
 			    keybit = F_SHA384;
-		    if(strcmp(key, "sha512") == 0 || strcmp(key, "sha512digest") == 0)
+		    if(sstreq(key, "sha512") || sstreq(key, "sha512digest"))
 			    keybit = F_SHA512;
-		    if(strcmp(key, "size") == 0)
+		    if(sstreq(key, "size"))
 			    keybit = F_SIZE;
 		    break;
 		case 't':
-		    if(strcmp(key, "time") == 0)
+		    if(sstreq(key, "time"))
 			    keybit = F_TIME;
-		    else if(strcmp(key, "type") == 0)
+		    else if(sstreq(key, "type"))
 			    keybit = F_TYPE;
 		    break;
 		case 'u':
-		    if(strcmp(key, "uid") == 0)
+		    if(sstreq(key, "uid"))
 			    keybit = F_UID;
-		    else if(strcmp(key, "uname") == 0)
+		    else if(sstreq(key, "uname"))
 			    keybit = F_UNAME;
-		    else if(strcmp(key, "use-set") == 0) {
-			    mtree->output_global_set = (value != NULL) ? 1 : 0;
+		    else if(sstreq(key, "use-set")) {
+			    mtree->output_global_set = BIN(value);
 			    return ARCHIVE_OK;
 		    }
 		    break;
@@ -1541,28 +1537,24 @@ static void sum_write(struct archive_string * str, struct reg_info * reg)
 #undef append_digest
 }
 
-static int mtree_entry_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int mtree_entry_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct mtree_entry * e1 = (const struct mtree_entry *)n1;
 	const struct mtree_entry * e2 = (const struct mtree_entry *)n2;
-
 	return (strcmp(e2->basename.s, e1->basename.s));
 }
 
 static int mtree_entry_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct mtree_entry * e = (const struct mtree_entry *)n;
-
 	return (strcmp((const char *)key, e->basename.s));
 }
 
 #if defined(_WIN32) || defined(__CYGWIN__)
 static int cleanup_backslash_1(char * p)
 {
-	int mb, dos;
-
-	mb = dos = 0;
+	int mb = 0;
+	int dos = 0;
 	while(*p) {
 		if(*(uchar *)p > 127)
 			mb = 1;
@@ -1629,16 +1621,13 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	CXX_UNUSED(a);
 #endif
 	pathname =  file->pathname.s;
-	if(strcmp(pathname, ".") == 0) {
+	if(sstreq(pathname, ".")) {
 		archive_strcpy(&file->basename, ".");
 		return ARCHIVE_OK;
 	}
-
 	archive_strcpy(&(file->parentdir), pathname);
-
 	len = file->parentdir.length;
 	p = dirname = file->parentdir.s;
-
 	/*
 	 * Remove leading '/' and '../' elements
 	 */
@@ -1726,7 +1715,7 @@ static int mtree_entry_setup_filenames(struct archive_write * a, struct mtree_en
 	 * change the directory unexpectedly and so it will make a wrong
 	 * path.
 	 */
-	if(strcmp(p, ".") != 0 && strncmp(p, "./", 2) != 0) {
+	if(!sstreq(p, ".") && strncmp(p, "./", 2) != 0) {
 		struct archive_string as;
 		archive_string_init(&as);
 		archive_strcpy(&as, "./");
@@ -1885,9 +1874,9 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 	 * the same as the path of `cur_dirent', add `file' entry to
 	 * `cur_dirent'.
 	 */
-	if(archive_strlen(&(mtree->cur_dirstr)) == archive_strlen(&(file->parentdir)) && strcmp(mtree->cur_dirstr.s, fn) == 0) {
+	if(archive_strlen(&(mtree->cur_dirstr)) == archive_strlen(&(file->parentdir)) && sstreq(mtree->cur_dirstr.s, fn)) {
 		if(!__archive_rb_tree_insert_node(&(mtree->cur_dirent->dir_info->rbtree), (struct archive_rb_node *)file)) {
-			/* There is the same name in the tree. */
+			// There is the same name in the tree
 			np = (struct mtree_entry *)__archive_rb_tree_find_node(&(mtree->cur_dirent->dir_info->rbtree), file->basename.s);
 			goto same_entry;
 		}
@@ -1944,20 +1933,16 @@ static int mtree_entry_tree_add(struct archive_write * a, struct mtree_entry ** 
 			archive_string_free(&as);
 			if(r < ARCHIVE_WARN)
 				return r;
-
-			if(strcmp(vp->pathname.s, ".") == 0) {
+			if(sstreq(vp->pathname.s, ".")) {
 				vp->parent = vp;
 				mtree->root = vp;
 			}
 			else {
-				__archive_rb_tree_insert_node(
-					&(dent->dir_info->rbtree),
-					(struct archive_rb_node *)vp);
+				__archive_rb_tree_insert_node(&(dent->dir_info->rbtree), (struct archive_rb_node *)vp);
 				vp->parent = dent;
 			}
 			mtree_entry_register_add(mtree, vp);
 			np = vp;
-
 			fn += l;
 			if(fn[0] == '/')
 				fn++;

@@ -119,7 +119,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib;..\OSF\zstd\programs</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib\include;..\OSF\zstd\programs</AdditionalIncludeDirectories>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <SupportJustMyCode>false</SupportJustMyCode>
       <StringPooling>true</StringPooling>
@@ -177,7 +177,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib;..\OSF\zstd\programs</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib\include;..\OSF\zstd\programs</AdditionalIncludeDirectories>
       <DebugInformationFormat>None</DebugInformationFormat>
       <StringPooling>true</StringPooling>
       <ExceptionHandling>false</ExceptionHandling>

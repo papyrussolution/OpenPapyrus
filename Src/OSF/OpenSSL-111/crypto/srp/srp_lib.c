@@ -122,34 +122,24 @@ BIGNUM * SRP_Calc_x(const BIGNUM * s, const char * user, const char * pass)
 	EVP_MD_CTX * ctxt;
 	uchar * cs = NULL;
 	BIGNUM * res = NULL;
-
 	if((s == NULL) || (user == NULL) || (pass == NULL))
 		return NULL;
-
 	ctxt = EVP_MD_CTX_new();
 	if(ctxt == NULL)
 		return NULL;
 	if((cs = static_cast<uchar *>(OPENSSL_malloc(BN_num_bytes(s)))) == NULL)
 		goto err;
-
-	if(!EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL)
-	   || !EVP_DigestUpdate(ctxt, user, strlen(user))
-	   || !EVP_DigestUpdate(ctxt, ":", 1)
-	   || !EVP_DigestUpdate(ctxt, pass, strlen(pass))
-	   || !EVP_DigestFinal_ex(ctxt, dig, NULL)
-	   || !EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL))
+	if(!EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL) || !EVP_DigestUpdate(ctxt, user, strlen(user)) || 
+		!EVP_DigestUpdate(ctxt, ":", 1) || !EVP_DigestUpdate(ctxt, pass, strlen(pass)) || 
+		!EVP_DigestFinal_ex(ctxt, dig, NULL) || !EVP_DigestInit_ex(ctxt, EVP_sha1(), NULL))
 		goto err;
 	if(BN_bn2bin(s, cs) < 0)
 		goto err;
 	if(!EVP_DigestUpdate(ctxt, cs, BN_num_bytes(s)))
 		goto err;
-
-	if(!EVP_DigestUpdate(ctxt, dig, sizeof(dig))
-	   || !EVP_DigestFinal_ex(ctxt, dig, NULL))
+	if(!EVP_DigestUpdate(ctxt, dig, sizeof(dig)) || !EVP_DigestFinal_ex(ctxt, dig, NULL))
 		goto err;
-
 	res = BN_bin2bn(dig, sizeof(dig), NULL);
-
 err:
 	OPENSSL_free(cs);
 	EVP_MD_CTX_free(ctxt);
@@ -160,10 +150,8 @@ BIGNUM * SRP_Calc_A(const BIGNUM * a, const BIGNUM * N, const BIGNUM * g)
 {
 	BN_CTX * bn_ctx;
 	BIGNUM * A = NULL;
-
 	if(a == NULL || N == NULL || g == NULL || (bn_ctx = BN_CTX_new()) == NULL)
 		return NULL;
-
 	if((A = BN_new()) != NULL && !BN_mod_exp(A, g, a, N, bn_ctx)) {
 		BN_free(A);
 		A = NULL;
@@ -177,16 +165,10 @@ BIGNUM * SRP_Calc_client_key(const BIGNUM * N, const BIGNUM * B, const BIGNUM * 
 {
 	BIGNUM * tmp = NULL, * tmp2 = NULL, * tmp3 = NULL, * k = NULL, * K = NULL;
 	BN_CTX * bn_ctx;
-
-	if(u == NULL || B == NULL || N == NULL || g == NULL || x == NULL
-	   || a == NULL || (bn_ctx = BN_CTX_new()) == NULL)
+	if(u == NULL || B == NULL || N == NULL || g == NULL || x == NULL || a == NULL || (bn_ctx = BN_CTX_new()) == NULL)
 		return NULL;
-
-	if((tmp = BN_new()) == NULL ||
-	    (tmp2 = BN_new()) == NULL ||
-	    (tmp3 = BN_new()) == NULL)
+	if((tmp = BN_new()) == NULL || (tmp2 = BN_new()) == NULL || (tmp3 = BN_new()) == NULL)
 		goto err;
-
 	if(!BN_mod_exp(tmp, g, x, N, bn_ctx))
 		goto err;
 	if((k = srp_Calc_k(N, g)) == NULL)
@@ -204,7 +186,6 @@ BIGNUM * SRP_Calc_client_key(const BIGNUM * N, const BIGNUM * B, const BIGNUM * 
 		BN_free(K);
 		K = NULL;
 	}
-
 err:
 	BN_CTX_free(bn_ctx);
 	BN_clear_free(tmp);
@@ -219,10 +200,8 @@ int SRP_Verify_B_mod_N(const BIGNUM * B, const BIGNUM * N)
 	BIGNUM * r;
 	BN_CTX * bn_ctx;
 	int ret = 0;
-
 	if(B == NULL || N == NULL || (bn_ctx = BN_CTX_new()) == NULL)
 		return 0;
-
 	if((r = BN_new()) == NULL)
 		goto err;
 	/* Checks if B % N == 0 */

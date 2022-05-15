@@ -302,26 +302,19 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength
     uint16 options,
     UErrorCode * pErrorCode) {
 	int32_t destLength;
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	/* more error checking */
-	if(src==NULL || srcLength<-1 ||
-	    destSize<0 || (destSize>0 && dest==NULL)) {
+	if(src==NULL || srcLength<-1 || destSize<0 || (destSize>0 && dest==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* do input and output overlap? */
-	if(dest!=NULL &&
-	    ((src>=dest && src<dest+destSize) ||
-	    (dest>=src && dest<src+srcLength))) {
+	if(dest && ((src>=dest && src<dest+destSize) || (dest>=src && dest<src+srcLength))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	if(srcLength==-1) {
 		srcLength = u_strlen(src);
 	}
@@ -332,7 +325,6 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength
 		/* nothing to do */
 		destLength = 0;
 	}
-
 	return u_terminateUChars(dest, destSize, destLength, pErrorCode);
 }
 
@@ -343,49 +335,36 @@ U_CAPI int32_t U_EXPORT2 ubidi_writeReverse(const UChar * src, int32_t srcLength
 #if(defined(_MSC_VER) && (defined(_M_ARM64)) && (_MSC_VER < 1924))
 #pragma optimize( "", off )
 #endif
-U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi,
-    UChar * dest, int32_t destSize,
-    uint16 options,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 ubidi_writeReordered(UBiDi * pBiDi, UChar * dest, int32_t destSize, uint16 options, UErrorCode * pErrorCode) 
+{
 	const UChar * text;
 	UChar * saveDest;
 	int32_t length, destCapacity;
 	int32_t run, runCount, logicalStart, runLength;
-
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	/* more error checking */
-	if(pBiDi==NULL ||
-	    (text = pBiDi->text)==NULL || (length = pBiDi->length) < 0 ||
-	    destSize<0 || (destSize>0 && dest==NULL)) {
+	if(pBiDi==NULL || (text = pBiDi->text)==NULL || (length = pBiDi->length) < 0 || destSize<0 || (destSize>0 && dest==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* do input and output overlap? */
-	if(dest!=NULL &&
-	    ((text>=dest && text<dest+destSize) ||
-	    (dest>=text && dest<text+pBiDi->originalLength))) {
+	if(dest && ((text>=dest && text<dest+destSize) || (dest>=text && dest<text+pBiDi->originalLength))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	if(!length) {
 		/* nothing to do */
 		return u_terminateUChars(dest, destSize, 0, pErrorCode);
 	}
-
 	runCount = ubidi_countRuns(pBiDi, pErrorCode);
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-
 	/* destSize shrinks, later destination length=destCapacity-destSize */
 	saveDest = dest;
 	destCapacity = destSize;
-
 	/*
 	 * Option "insert marks" implies UBIDI_INSERT_LRM_FOR_NUMERIC if the
 	 * reordering mode (checked below) is appropriate.

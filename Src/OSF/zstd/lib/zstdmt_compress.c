@@ -103,7 +103,7 @@ static ZSTDMT_bufferPool* ZSTDMT_createBufferPool(uint maxNbBuffers, ZSTD_custom
 			bufPool = 0;
 		}
 		else {
-			bufPool->bufferSize = 64 KB;
+			bufPool->bufferSize = SKILOBYTE(64);
 			bufPool->totalBuffers = maxNbBuffers;
 			bufPool->nbBuffers = 0;
 			bufPool->cMem = cMem;

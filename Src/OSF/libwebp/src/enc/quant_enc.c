@@ -48,9 +48,6 @@
 
 #if defined(DEBUG_BLOCK)
 
-//#include <stdio.h>
-//#include <stdlib.h>
-
 static void PrintBlockInfo(const VP8EncIterator* const it,
     const VP8ModeScore* const rd) {
 	int i, j;

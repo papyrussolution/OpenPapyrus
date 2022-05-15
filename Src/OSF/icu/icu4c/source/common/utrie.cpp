@@ -36,14 +36,10 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_open(UNewTrie * fillIn,
     bool latin1Linear) {
 	UNewTrie * trie;
 	int32_t i, j;
-
-	if(maxDataLength<UTRIE_DATA_BLOCK_LENGTH ||
-	    (latin1Linear && maxDataLength<1024)
-	    ) {
+	if(maxDataLength<UTRIE_DATA_BLOCK_LENGTH || (latin1Linear && maxDataLength<1024)) {
 		return NULL;
 	}
-
-	if(fillIn!=NULL) {
+	if(fillIn) {
 		trie = fillIn;
 	}
 	else {
@@ -54,7 +50,7 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_open(UNewTrie * fillIn,
 	}
 	memzero(trie, sizeof(UNewTrie));
 	trie->isAllocated = (bool)(fillIn==NULL);
-	if(aliasData!=NULL) {
+	if(aliasData) {
 		trie->data = aliasData;
 		trie->isDataAllocated = FALSE;
 	}
@@ -97,17 +93,16 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_open(UNewTrie * fillIn,
 	return trie;
 }
 
-U_CAPI UNewTrie * U_EXPORT2 utrie_clone(UNewTrie * fillIn, const UNewTrie * other, uint32_t * aliasData, int32_t aliasDataCapacity) {
+U_CAPI UNewTrie * U_EXPORT2 utrie_clone(UNewTrie * fillIn, const UNewTrie * other, uint32_t * aliasData, int32_t aliasDataCapacity) 
+{
 	UNewTrie * trie;
 	bool isDataAllocated;
-
 	/* do not clone if other is not valid or already compacted */
 	if(other==NULL || other->data==NULL || other->isCompacted) {
 		return NULL;
 	}
-
 	/* clone data */
-	if(aliasData!=NULL && aliasDataCapacity>=other->dataCapacity) {
+	if(aliasData && aliasDataCapacity>=other->dataCapacity) {
 		isDataAllocated = FALSE;
 	}
 	else {
@@ -135,8 +130,9 @@ U_CAPI UNewTrie * U_EXPORT2 utrie_clone(UNewTrie * fillIn, const UNewTrie * othe
 	return trie;
 }
 
-U_CAPI void U_EXPORT2 utrie_close(UNewTrie * trie) {
-	if(trie!=NULL) {
+U_CAPI void U_EXPORT2 utrie_close(UNewTrie * trie) 
+{
+	if(trie) {
 		if(trie->isDataAllocated) {
 			uprv_free(trie->data);
 			trie->data = NULL;
@@ -147,20 +143,19 @@ U_CAPI void U_EXPORT2 utrie_close(UNewTrie * trie) {
 	}
 }
 
-U_CAPI uint32_t * U_EXPORT2 utrie_getData(UNewTrie * trie, int32_t * pLength) {
+U_CAPI uint32_t * U_EXPORT2 utrie_getData(UNewTrie * trie, int32_t * pLength) 
+{
 	if(trie==NULL || pLength==NULL) {
 		return NULL;
 	}
-
 	*pLength = trie->dataLength;
 	return trie->data;
 }
 
-static int32_t utrie_allocDataBlock(UNewTrie * trie) {
-	int32_t newBlock, newTop;
-
-	newBlock = trie->dataLength;
-	newTop = newBlock+UTRIE_DATA_BLOCK_LENGTH;
+static int32_t utrie_allocDataBlock(UNewTrie * trie) 
+{
+	int32_t newBlock = trie->dataLength;
+	int32_t newTop = newBlock+UTRIE_DATA_BLOCK_LENGTH;
 	if(newTop>trie->dataCapacity) {
 		/* out of memory in the data array */
 		return -1;
@@ -168,7 +163,6 @@ static int32_t utrie_allocDataBlock(UNewTrie * trie) {
 	trie->dataLength = newTop;
 	return newBlock;
 }
-
 /**
  * No error checking for illegal arguments.
  *
@@ -217,33 +211,25 @@ U_CAPI bool U_EXPORT2 utrie_set32(UNewTrie * trie, UChar32 c, uint32_t value) {
 	return TRUE;
 }
 
-U_CAPI uint32_t U_EXPORT2 utrie_get32(UNewTrie * trie, UChar32 c, bool * pInBlockZero) {
+U_CAPI uint32_t U_EXPORT2 utrie_get32(UNewTrie * trie, UChar32 c, bool * pInBlockZero) 
+{
 	int32_t block;
-
 	/* valid, uncompacted trie and valid c? */
 	if(trie==NULL || trie->isCompacted || (uint32_t)c>0x10ffff) {
-		if(pInBlockZero!=NULL) {
-			*pInBlockZero = TRUE;
-		}
+		ASSIGN_PTR(pInBlockZero, TRUE);
 		return 0;
 	}
-
 	block = trie->index[c>>UTRIE_SHIFT];
-	if(pInBlockZero!=NULL) {
-		*pInBlockZero = (bool)(block==0);
-	}
-
+	ASSIGN_PTR(pInBlockZero, (bool)(block==0));
 	return trie->data[ABS(block)+(c&UTRIE_MASK)];
 }
 
 /**
  * @internal
  */
-static void utrie_fillBlock(uint32_t * block, UChar32 start, UChar32 limit,
-    uint32_t value, uint32_t initialValue, bool overwrite) {
-	uint32_t * pLimit;
-
-	pLimit = block+limit;
+static void utrie_fillBlock(uint32_t * block, UChar32 start, UChar32 limit, uint32_t value, uint32_t initialValue, bool overwrite) 
+{
+	uint32_t * pLimit = block+limit;
 	block += start;
 	if(overwrite) {
 		while(block<pLimit) {
@@ -260,7 +246,8 @@ static void utrie_fillBlock(uint32_t * block, UChar32 start, UChar32 limit,
 	}
 }
 
-U_CAPI bool U_EXPORT2 utrie_setRange32(UNewTrie * trie, UChar32 start, UChar32 limit, uint32_t value, bool overwrite) {
+U_CAPI bool U_EXPORT2 utrie_setRange32(UNewTrie * trie, UChar32 start, UChar32 limit, uint32_t value, bool overwrite) 
+{
 	/*
 	 * repeat value in [start..limit[
 	 * mark index values for repeat-data blocks by setting bit 31 of the index values
@@ -268,46 +255,35 @@ U_CAPI bool U_EXPORT2 utrie_setRange32(UNewTrie * trie, UChar32 start, UChar32 l
 	 */
 	uint32_t initialValue;
 	int32_t block, rest, repeatBlock;
-
 	/* valid, uncompacted trie and valid indexes? */
-	if(trie==NULL || trie->isCompacted ||
-	    (uint32_t)start>0x10ffff || (uint32_t)limit>0x110000 || start>limit
-	    ) {
+	if(trie==NULL || trie->isCompacted || (uint32_t)start>0x10ffff || (uint32_t)limit>0x110000 || start>limit) {
 		return FALSE;
 	}
 	if(start==limit) {
 		return TRUE; /* nothing to do */
 	}
-
 	initialValue = trie->data[0];
 	if(start&UTRIE_MASK) {
 		UChar32 nextStart;
-
 		/* set partial block at [start..following block boundary[ */
 		block = utrie_getDataBlock(trie, start);
 		if(block<0) {
 			return FALSE;
 		}
-
 		nextStart = (start+UTRIE_DATA_BLOCK_LENGTH)&~UTRIE_MASK;
 		if(nextStart<=limit) {
-			utrie_fillBlock(trie->data+block, start&UTRIE_MASK, UTRIE_DATA_BLOCK_LENGTH,
-			    value, initialValue, overwrite);
+			utrie_fillBlock(trie->data+block, start&UTRIE_MASK, UTRIE_DATA_BLOCK_LENGTH, value, initialValue, overwrite);
 			start = nextStart;
 		}
 		else {
-			utrie_fillBlock(trie->data+block, start&UTRIE_MASK, limit&UTRIE_MASK,
-			    value, initialValue, overwrite);
+			utrie_fillBlock(trie->data+block, start&UTRIE_MASK, limit&UTRIE_MASK, value, initialValue, overwrite);
 			return TRUE;
 		}
 	}
-
 	/* number of positions in the last, partial block */
 	rest = limit&UTRIE_MASK;
-
 	/* round down limit to a block boundary */
 	limit &= ~UTRIE_MASK;
-
 	/* iterate over all-value blocks */
 	if(value==initialValue) {
 		repeatBlock = 0;
@@ -333,33 +309,27 @@ U_CAPI bool U_EXPORT2 utrie_setRange32(UNewTrie * trie, UChar32 start, UChar32 l
 				if(repeatBlock<0) {
 					return FALSE;
 				}
-
 				/* set the negative block number to indicate that it is a repeat block */
 				trie->index[start>>UTRIE_SHIFT] = -repeatBlock;
 				utrie_fillBlock(trie->data+repeatBlock, 0, UTRIE_DATA_BLOCK_LENGTH, value, initialValue, TRUE);
 			}
 		}
-
 		start += UTRIE_DATA_BLOCK_LENGTH;
 	}
-
 	if(rest>0) {
 		/* set partial block at [last block boundary..limit[ */
 		block = utrie_getDataBlock(trie, start);
 		if(block<0) {
 			return FALSE;
 		}
-
 		utrie_fillBlock(trie->data+block, 0, rest, value, initialValue, overwrite);
 	}
-
 	return TRUE;
 }
 
-static int32_t _findSameIndexBlock(const int32_t * idx, int32_t indexLength,
-    int32_t otherBlock) {
+static int32_t _findSameIndexBlock(const int32_t * idx, int32_t indexLength, int32_t otherBlock) 
+{
 	int32_t block, i;
-
 	for(block = UTRIE_BMP_INDEX_LENGTH; block<indexLength; block += UTRIE_SURROGATE_BLOCK_COUNT) {
 		for(i = 0; i<UTRIE_SURROGATE_BLOCK_COUNT; ++i) {
 			if(idx[block+i]!=idx[otherBlock+i]) {
@@ -1077,7 +1047,7 @@ U_CAPI void U_EXPORT2 utrie_enum(const UTrie * trie,
 		else {
 			prevBlock = block;
 			for(j = 0; j<UTRIE_DATA_BLOCK_LENGTH; ++j) {
-				value = enumValue(context, data32!=NULL ? data32[block+j] : idx[block+j]);
+				value = enumValue(context, data32 ? data32[block+j] : idx[block+j]);
 				if(value!=prevValue) {
 					if(prev<c) {
 						if(!enumRange(context, prev, c, prevValue)) {
@@ -1117,9 +1087,7 @@ U_CAPI void U_EXPORT2 utrie_enum(const UTrie * trie,
 			c += UTRIE_DATA_BLOCK_LENGTH<<10;
 			continue;
 		}
-
-		value = data32!=NULL ? data32[offset+(l&UTRIE_MASK)] : idx[offset+(l&UTRIE_MASK)];
-
+		value = data32 ? data32[offset+(l&UTRIE_MASK)] : idx[offset+(l&UTRIE_MASK)];
 		/* enumerate trail surrogates for this lead surrogate */
 		offset = trie->getFoldingOffset(value);
 		if(offset<=0) {
@@ -1166,7 +1134,7 @@ U_CAPI void U_EXPORT2 utrie_enum(const UTrie * trie,
 				else {
 					prevBlock = block;
 					for(j = 0; j<UTRIE_DATA_BLOCK_LENGTH; ++j) {
-						value = enumValue(context, data32!=NULL ? data32[block+j] : idx[block+j]);
+						value = enumValue(context, data32 ? data32[block+j] : idx[block+j]);
 						if(value!=prevValue) {
 							if(prev<c) {
 								if(!enumRange(context, prev, c, prevValue)) {

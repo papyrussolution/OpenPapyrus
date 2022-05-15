@@ -227,25 +227,25 @@ U_CAPI void U_EXPORT2 ubidi_close(UBiDi * pBiDi)
 {
 	if(pBiDi) {
 		pBiDi->pParaBiDi = NULL; /* in case one tries to reuse this block */
-		if(pBiDi->dirPropsMemory!=NULL) {
+		if(pBiDi->dirPropsMemory) {
 			uprv_free(pBiDi->dirPropsMemory);
 		}
-		if(pBiDi->levelsMemory!=NULL) {
+		if(pBiDi->levelsMemory) {
 			uprv_free(pBiDi->levelsMemory);
 		}
-		if(pBiDi->openingsMemory!=NULL) {
+		if(pBiDi->openingsMemory) {
 			uprv_free(pBiDi->openingsMemory);
 		}
-		if(pBiDi->parasMemory!=NULL) {
+		if(pBiDi->parasMemory) {
 			uprv_free(pBiDi->parasMemory);
 		}
-		if(pBiDi->runsMemory!=NULL) {
+		if(pBiDi->runsMemory) {
 			uprv_free(pBiDi->runsMemory);
 		}
-		if(pBiDi->isolatesMemory!=NULL) {
+		if(pBiDi->isolatesMemory) {
 			uprv_free(pBiDi->isolatesMemory);
 		}
-		if(pBiDi->insertPoints.points!=NULL) {
+		if(pBiDi->insertPoints.points) {
 			uprv_free(pBiDi->insertPoints.points);
 		}
 		uprv_free(pBiDi);
@@ -284,7 +284,7 @@ U_CAPI bool U_EXPORT2 ubidi_isInverse(UBiDi * pBiDi)
  */
 U_CAPI void U_EXPORT2 ubidi_setReorderingMode(UBiDi * pBiDi, UBiDiReorderingMode reorderingMode) 
 {
-	if((pBiDi!=NULL) && (reorderingMode >= UBIDI_REORDER_DEFAULT) && (reorderingMode < UBIDI_REORDER_COUNT)) {
+	if(pBiDi && (reorderingMode >= UBIDI_REORDER_DEFAULT) && (reorderingMode < UBIDI_REORDER_COUNT)) {
 		pBiDi->reorderingMode = reorderingMode;
 		pBiDi->isInverse = (bool)(reorderingMode == UBIDI_REORDER_INVERSE_NUMBERS_AS_L);
 	}
@@ -2894,21 +2894,10 @@ U_CAPI void U_EXPORT2 ubidi_getParagraphByIndex(const UBiDi * pBiDi, int32_t par
 	RETURN_VOID_IF_NOT_VALID_PARA_OR_LINE(pBiDi, *pErrorCode);
 	RETURN_VOID_IF_BAD_RANGE(paraIndex, 0, pBiDi->paraCount, *pErrorCode);
 	pBiDi = pBiDi->pParaBiDi; /* get Para object if Line object */
-	if(paraIndex) {
-		paraStart = pBiDi->paras[paraIndex-1].limit;
-	}
-	else {
-		paraStart = 0;
-	}
-	if(pParaStart!=NULL) {
-		*pParaStart = paraStart;
-	}
-	if(pParaLimit!=NULL) {
-		*pParaLimit = pBiDi->paras[paraIndex].limit;
-	}
-	if(pParaLevel!=NULL) {
-		*pParaLevel = GET_PARALEVEL(pBiDi, paraStart);
-	}
+	paraStart = paraIndex ? pBiDi->paras[paraIndex-1].limit : 0;
+	ASSIGN_PTR(pParaStart, paraStart);
+	ASSIGN_PTR(pParaLimit, pBiDi->paras[paraIndex].limit);
+	ASSIGN_PTR(pParaLevel, GET_PARALEVEL(pBiDi, paraStart));
 }
 
 U_CAPI int32_t U_EXPORT2 ubidi_getParagraph(const UBiDi * pBiDi, int32_t charIndex, int32_t * pParaStart, int32_t * pParaLimit, UBiDiLevel * pParaLevel, UErrorCode * pErrorCode) 

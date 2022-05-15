@@ -419,16 +419,13 @@ class PhoneNumberDesc final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_possible_length() const;
   void _internal_add_possible_length(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_possible_length();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_possible_length();
   public:
   int32_t possible_length(int index) const;
   void set_possible_length(int index, int32_t value);
   void add_possible_length(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      possible_length() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_possible_length();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & possible_length() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_possible_length();
 
   // repeated int32 possible_length_local_only = 10;
   int possible_length_local_only_size() const;
@@ -441,16 +438,13 @@ class PhoneNumberDesc final :
   const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
       _internal_possible_length_local_only() const;
   void _internal_add_possible_length_local_only(int32_t value);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      _internal_mutable_possible_length_local_only();
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * _internal_mutable_possible_length_local_only();
   public:
   int32_t possible_length_local_only(int index) const;
   void set_possible_length_local_only(int index, int32_t value);
   void add_possible_length_local_only(int32_t value);
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >&
-      possible_length_local_only() const;
-  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-      mutable_possible_length_local_only();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > & possible_length_local_only() const;
+  ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * mutable_possible_length_local_only();
 
   // optional string national_number_pattern = 2;
   bool has_national_number_pattern() const;
@@ -1553,8 +1547,7 @@ NumberFormat::leading_digits_pattern() const {
   // @@protoc_insertion_point(field_list:i18n.phonenumbers.NumberFormat.leading_digits_pattern)
   return leading_digits_pattern_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string>*
-NumberFormat::mutable_leading_digits_pattern() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField<std::string> * NumberFormat::mutable_leading_digits_pattern() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.NumberFormat.leading_digits_pattern)
   return &leading_digits_pattern_;
 }
@@ -1812,12 +1805,10 @@ PhoneNumberDesc::possible_length() const {
   // @@protoc_insertion_point(field_list:i18n.phonenumbers.PhoneNumberDesc.possible_length)
   return _internal_possible_length();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PhoneNumberDesc::_internal_mutable_possible_length() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PhoneNumberDesc::_internal_mutable_possible_length() {
   return &possible_length_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PhoneNumberDesc::mutable_possible_length() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PhoneNumberDesc::mutable_possible_length() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneNumberDesc.possible_length)
   return _internal_mutable_possible_length();
 }
@@ -1853,12 +1844,10 @@ PhoneNumberDesc::possible_length_local_only() const {
   // @@protoc_insertion_point(field_list:i18n.phonenumbers.PhoneNumberDesc.possible_length_local_only)
   return _internal_possible_length_local_only();
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PhoneNumberDesc::_internal_mutable_possible_length_local_only() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PhoneNumberDesc::_internal_mutable_possible_length_local_only() {
   return &possible_length_local_only_;
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t >*
-PhoneNumberDesc::mutable_possible_length_local_only() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedField< int32_t > * PhoneNumberDesc::mutable_possible_length_local_only() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneNumberDesc.possible_length_local_only)
   return _internal_mutable_possible_length_local_only();
 }
@@ -3956,8 +3945,7 @@ inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::mutable_number_format(
   // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.number_format)
   return number_format_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat >*
-PhoneMetadata::mutable_number_format() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat > * PhoneMetadata::mutable_number_format() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneMetadata.number_format)
   return &number_format_;
 }
@@ -3993,8 +3981,7 @@ inline ::i18n::phonenumbers::NumberFormat* PhoneMetadata::mutable_intl_number_fo
   // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadata.intl_number_format)
   return intl_number_format_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat >*
-PhoneMetadata::mutable_intl_number_format() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::NumberFormat > * PhoneMetadata::mutable_intl_number_format() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneMetadata.intl_number_format)
   return &intl_number_format_;
 }
@@ -4176,8 +4163,7 @@ inline ::i18n::phonenumbers::PhoneMetadata* PhoneMetadataCollection::mutable_met
   // @@protoc_insertion_point(field_mutable:i18n.phonenumbers.PhoneMetadataCollection.metadata)
   return metadata_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::PhoneMetadata >*
-PhoneMetadataCollection::mutable_metadata() {
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::i18n::phonenumbers::PhoneMetadata > * PhoneMetadataCollection::mutable_metadata() {
   // @@protoc_insertion_point(field_mutable_list:i18n.phonenumbers.PhoneMetadataCollection.metadata)
   return &metadata_;
 }

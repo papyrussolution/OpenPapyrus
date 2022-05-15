@@ -45,13 +45,13 @@
 #define TIMELOOP_NANOSEC      (1*1000000000ULL) /* 1 second */
 #define ACTIVEPERIOD_MICROSEC (70*TIMELOOP_MICROSEC) /* 70 seconds */
 #define COOLPERIOD_SEC        10
-#define KB *(1 <<10)
-#define MB *(1 <<20)
-#define GB *(1U<<30)
+//#define KB *(1 <<10)
+//#define MB *(1 <<20)
+//#define GB *(1U<<30)
 #define BMK_RUNTEST_DEFAULT_MS 1000
 
 static const size_t maxMemory = (sizeof(size_t)==4)  ?
-    /* 32-bit */ (2 GB - 64 MB) :
+    /* 32-bit */ (SGIGABYTE(2) - SMEGABYTE(64)) :
     /* 64-bit */ (size_t)(1ULL << ((sizeof(size_t)*8)-31));
 
 /* *************************************
@@ -476,7 +476,7 @@ static BMK_benchOutcome_t BMK_benchMemAdvancedNoAlloc(const void** srcPtrs, size
 						bacc += srcSizes[segNb];
 					}
 					pos = (uint32)(u - bacc);
-					bNb = pos / (128 KB);
+					bNb = pos / SKILOBYTE(128);
 					DISPLAY("(sample %u, block %u, pos %u) \n", segNb, bNb, pos);
 					{   
 						const size_t lowest = (u>5) ? 5 : u;
@@ -661,9 +661,8 @@ BMK_benchOutcome_t BMK_syntheticTest(int cLevel, double compressibility,
 
 static size_t BMK_findMaxMem(uint64 requiredMem)
 {
-	size_t const step = 64 MB;
+	size_t const step = SMEGABYTE(64);
 	BYTE* testmem = NULL;
-
 	requiredMem = (((requiredMem >> 26) + 1) << 26);
 	requiredMem += step;
 	if(requiredMem > maxMemory) 
@@ -748,7 +747,7 @@ BMK_benchOutcome_t BMK_benchFilesAdvanced(const char* const * fileNamesTable, un
 			SAlloc::F(fileSizes);
 			RETURN_ERROR(9, BMK_benchOutcome_t, "benchmark aborted");
 		}
-		if(dictFileSize > 64 MB) {
+		if(dictFileSize > SMEGABYTE(64)) {
 			SAlloc::F(fileSizes);
 			RETURN_ERROR(10, BMK_benchOutcome_t, "dictionary file %s too large", dictFileName);
 		}

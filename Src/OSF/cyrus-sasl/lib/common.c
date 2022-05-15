@@ -1843,17 +1843,13 @@ void _sasl_log(sasl_conn_t * conn,
 					    break;
 
 					case 'm': /* insert the errno string */
-					    result = _sasl_add_string(&out, &alloclen, &outlen,
-						    strerror(va_arg(ap, int)));
+					    result = _sasl_add_string(&out, &alloclen, &outlen, strerror(va_arg(ap, int)));
 					    if(result != SASL_OK)
 						    goto done;
-
 					    done = 1;
 					    break;
-
 					case 'z': /* insert the sasl error string */
-					    result = _sasl_add_string(&out, &alloclen, &outlen,
-						    (char *)sasl_errstring(va_arg(ap, int), NULL, NULL));
+					    result = _sasl_add_string(&out, &alloclen, &outlen, (char *)sasl_errstring(va_arg(ap, int), NULL, NULL));
 					    if(result != SASL_OK)
 						    goto done;
 
@@ -1918,15 +1914,12 @@ void _sasl_log(sasl_conn_t * conn,
 			}
 		}
 	}
-
 	/* put 0 at end */
 	result = _buf_alloc(&out, &alloclen, outlen+1);
 	if(result != SASL_OK) goto done;
 	out[outlen] = 0;
-
 	/* send log message */
 	result = log_cb(log_ctx, level, out);
-
 done:
 	va_end(ap);
 	if(out) sasl_FREE(out);
@@ -1949,17 +1942,14 @@ sasl_utils_t * _sasl_alloc_utils(sasl_conn_t * conn, sasl_global_callbacks_t * g
 		utils->getopt = &_sasl_global_getopt;
 		utils->getopt_context = global_callbacks;
 	}
-
 	utils->malloc = _sasl_allocation_utils.malloc;
 	utils->calloc = _sasl_allocation_utils.calloc;
 	utils->realloc = _sasl_allocation_utils.realloc;
 	utils->free = _sasl_allocation_utils.free;
-
 	utils->mutex_alloc = _sasl_mutex_utils.alloc;
 	utils->mutex_lock = _sasl_mutex_utils.lock;
 	utils->mutex_unlock = _sasl_mutex_utils.unlock;
 	utils->mutex_free = _sasl_mutex_utils.free;
-
 	utils->MD5Init  = &_sasl_MD5Init;
 	utils->MD5Update = &_sasl_MD5Update;
 	utils->MD5Final = &_sasl_MD5Final;
@@ -1973,21 +1963,14 @@ sasl_utils_t * _sasl_alloc_utils(sasl_conn_t * conn, sasl_global_callbacks_t * g
 	utils->rand = &sasl_rand;
 	utils->churn = &sasl_churn;
 	utils->checkpass = NULL;
-
 	utils->encode64 = &sasl_encode64;
 	utils->decode64 = &sasl_decode64;
-
 	utils->erasebuffer = &sasl_erasebuffer;
-
 	utils->getprop = &sasl_getprop;
 	utils->setprop = &sasl_setprop;
-
 	utils->getcallback = &_sasl_getcallback;
-
 	utils->log = &_sasl_log;
-
 	utils->seterror = &sasl_seterror;
-
 #ifndef macintosh
 	/* Aux Property Utilities */
 	utils->prop_new = &prop_new;
@@ -2003,21 +1986,17 @@ sasl_utils_t * _sasl_alloc_utils(sasl_conn_t * conn, sasl_global_callbacks_t * g
 	utils->prop_erase = &prop_erase;
 	utils->auxprop_store = &sasl_auxprop_store;
 #endif
-
 	/* Spares */
 	utils->spare_fptr = NULL;
 	utils->spare_fptr1 = utils->spare_fptr2 = NULL;
-
 	return utils;
 }
 
 int _sasl_free_utils(const sasl_utils_t ** utils)
 {
 	sasl_utils_t * nonconst;
-
 	if(!utils) return SASL_BADPARAM;
 	if(!*utils) return SASL_OK;
-
 	/* I wish we could avoid this cast, it's pretty gratuitous but it
 	 * does make life easier to have it const everywhere else. */
 	nonconst = (sasl_utils_t*)(*utils);

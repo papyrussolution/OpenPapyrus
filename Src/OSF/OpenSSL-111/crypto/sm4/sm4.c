@@ -93,10 +93,7 @@ static ossl_inline uint32_t rotl(uint32_t a, uint8_t n)
 
 static ossl_inline uint32_t load_u32_be(const uint8_t * b, uint32_t n)
 {
-	return ((uint32_t)b[4 * n] << 24) |
-	       ((uint32_t)b[4 * n + 1] << 16) |
-	       ((uint32_t)b[4 * n + 2] << 8) |
-	       ((uint32_t)b[4 * n + 3]);
+	return ((uint32_t)b[4 * n] << 24) | ((uint32_t)b[4 * n + 1] << 16) | ((uint32_t)b[4 * n + 2] << 8) | ((uint32_t)b[4 * n + 3]);
 }
 
 static ossl_inline void store_u32_be(uint32_t v, uint8_t * b)

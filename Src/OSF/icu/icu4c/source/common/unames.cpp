@@ -781,7 +781,7 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count, const char
 	indexes[0] = (uint16)code;
 	/* write each element */
 	for(;;) {
-		if(elementBases!=NULL) {
+		if(elementBases) {
 			*elementBases++ = s;
 		}
 		/* skip indexes[i] strings */
@@ -791,7 +791,7 @@ static uint16 writeFactorSuffix(const uint16 * factors, uint16 count, const char
 			}
 			--factor;
 		}
-		if(elements!=NULL) {
+		if(elements) {
 			*elements++ = s;
 		}
 		/* write element */
@@ -1276,7 +1276,7 @@ static int32_t calcNameSetLength(const uint16 * tokens, uint16 tokenCount, const
 			}
 			else {
 				/* count token word */
-				if(tokenLengths!=NULL) {
+				if(tokenLengths) {
 					/* use cached token length */
 					tokenLength = tokenLengths[c];
 					if(tokenLength==0) {
@@ -1307,7 +1307,7 @@ static void calcGroupNameSetsLengths(int32_t maxNameLength)
 	const uint8 * s, * line, * lineLimit;
 	int32_t groupCount, lineNumber, length;
 	tokenLengths = (int8*)uprv_malloc(tokenCount);
-	if(tokenLengths!=NULL) {
+	if(tokenLengths) {
 		memzero(tokenLengths, tokenCount);
 	}
 	group = GET_GROUPS(uCharNames);
@@ -1354,27 +1354,23 @@ static void calcGroupNameSetsLengths(int32_t maxNameLength)
 		group = NEXT_GROUP(group);
 		--groupCount;
 	}
-
-	if(tokenLengths!=NULL) {
+	if(tokenLengths) {
 		uprv_free(tokenLengths);
 	}
-
 	/* set gMax... - name length last for threading */
 	gMaxNameLength = maxNameLength;
 }
 
-static bool calcNameSetsLengths(UErrorCode * pErrorCode) {
+static bool calcNameSetsLengths(UErrorCode * pErrorCode) 
+{
 	static const char extChars[] = "0123456789ABCDEF<>-";
 	int32_t i, maxNameLength;
-
 	if(gMaxNameLength!=0) {
 		return TRUE;
 	}
-
 	if(!isDataLoaded(pErrorCode)) {
 		return FALSE;
 	}
-
 	/* set hex digits, used in various names, and <>-, used in extended names */
 	for(i = 0; i<(int32_t)sizeof(extChars)-1; ++i) {
 		SET_ADD(gNameSet, extChars[i]);
@@ -1398,29 +1394,23 @@ U_NAMESPACE_END
 
 U_NAMESPACE_USE
 
-U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice,
-    char * buffer, int32_t bufferLength,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 u_charName(UChar32 code, UCharNameChoice nameChoice, char * buffer, int32_t bufferLength, UErrorCode * pErrorCode) 
+{
 	AlgorithmicRange * algRange;
 	uint32_t * p;
 	uint32_t i;
 	int32_t length;
-
 	/* check the argument values */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	else if(nameChoice>=U_CHAR_NAME_CHOICE_COUNT ||
-	    bufferLength<0 || (bufferLength>0 && buffer==NULL)
-	    ) {
+	else if(nameChoice>=U_CHAR_NAME_CHOICE_COUNT || bufferLength<0 || (bufferLength>0 && buffer==NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	if((uint32_t)code>UCHAR_MAX_VALUE || !isDataLoaded(pErrorCode)) {
 		return u_terminateChars(buffer, bufferLength, 0, pErrorCode);
 	}
-
 	length = 0;
 
 	/* try algorithmic names first */

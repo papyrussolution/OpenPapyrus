@@ -98,7 +98,7 @@ static int archive_write_cpio_options(struct archive_write * a, const char * key
 {
 	struct cpio * cpio = (struct cpio *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-	if(strcmp(key, "hdrcharset")  == 0) {
+	if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "%s: hdrcharset option needs a character-set name", a->format_name);
 		else {

@@ -556,18 +556,16 @@ static int setup_xattrs(struct archive_read_disk * a, struct archive_entry * ent
 	for(p = list; (p - list) < list_size; p += strlen(p) + 1) {
 #if ARCHIVE_XATTR_LINUX
 		/* Linux: skip POSIX.1e ACL extended attributes */
-		if(strncmp(p, "system.", 7) == 0 && (strcmp(p + 7, "posix_acl_access") == 0 || strcmp(p + 7, "posix_acl_default") == 0))
+		if(strncmp(p, "system.", 7) == 0 && (sstreq(p + 7, "posix_acl_access") || sstreq(p + 7, "posix_acl_default")))
 			continue;
-		if(strncmp(p, "trusted.SGI_", 12) == 0 && (strcmp(p + 12, "ACL_DEFAULT") == 0 || strcmp(p + 12, "ACL_FILE") == 0))
+		if(strncmp(p, "trusted.SGI_", 12) == 0 && (sstreq(p + 12, "ACL_DEFAULT") || sstreq(p + 12, "ACL_FILE")))
 			continue;
-
 		/* Linux: xfsroot namespace is obsolete and unsupported */
 		if(strncmp(p, "xfsroot.", 8) == 0)
 			continue;
 #endif
 		setup_xattr(a, entry, p, *fd, path);
 	}
-
 	SAlloc::F(list);
 	return ARCHIVE_OK;
 }

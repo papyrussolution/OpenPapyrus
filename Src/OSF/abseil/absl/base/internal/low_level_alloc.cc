@@ -193,13 +193,10 @@ namespace {
 // Static storage space for the lazily-constructed, default global arena
 // instances.  We require this space because the whole point of LowLevelAlloc
 // is to avoid relying on malloc/new.
-alignas(LowLevelAlloc::Arena) unsigned char default_arena_storage[sizeof(
-	LowLevelAlloc::Arena)];
-alignas(LowLevelAlloc::Arena) unsigned char unhooked_arena_storage[sizeof(
-	LowLevelAlloc::Arena)];
+alignas(LowLevelAlloc::Arena) unsigned char default_arena_storage[sizeof(LowLevelAlloc::Arena)];
+alignas(LowLevelAlloc::Arena) unsigned char unhooked_arena_storage[sizeof(LowLevelAlloc::Arena)];
 #ifndef ABSL_LOW_LEVEL_ALLOC_ASYNC_SIGNAL_SAFE_MISSING
-alignas(
-	LowLevelAlloc::Arena) unsigned char unhooked_async_sig_safe_arena_storage
+alignas(LowLevelAlloc::Arena) unsigned char unhooked_async_sig_safe_arena_storage
 [sizeof(LowLevelAlloc::Arena)];
 #endif
 

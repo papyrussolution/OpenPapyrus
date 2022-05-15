@@ -16582,16 +16582,11 @@ static int shell_dbinfo_command(ShellState * p, int nArg, char ** azArg){
 		{ "software version:",     96  },
 	};
 	static const struct { const char * zName; const char * zSql; } aQuery[] = {
-		{ "number of tables:",
-		  "SELECT count(*) FROM %s WHERE type='table'" },
-		{ "number of indexes:",
-		  "SELECT count(*) FROM %s WHERE type='index'" },
-		{ "number of triggers:",
-		  "SELECT count(*) FROM %s WHERE type='trigger'" },
-		{ "number of views:",
-		  "SELECT count(*) FROM %s WHERE type='view'" },
-		{ "schema size:",
-		  "SELECT total(length(sql)) FROM %s" },
+		{ "number of tables:", "SELECT count(*) FROM %s WHERE type='table'" },
+		{ "number of indexes:", "SELECT count(*) FROM %s WHERE type='index'" },
+		{ "number of triggers:", "SELECT count(*) FROM %s WHERE type='trigger'" },
+		{ "number of views:", "SELECT count(*) FROM %s WHERE type='view'" },
+		{ "schema size:", "SELECT total(length(sql)) FROM %s" },
 	};
 	int i, rc;
 	unsigned iDataVersion;
@@ -16601,18 +16596,14 @@ static int shell_dbinfo_command(ShellState * p, int nArg, char ** azArg){
 	unsigned char aHdr[100];
 	open_db(p, 0);
 	if(p->db==0) return 1;
-	rc = sqlite3_prepare_v2(p->db,
-		"SELECT data FROM sqlite_dbpage(?1) WHERE pgno=1",
-		-1, &pStmt, 0);
+	rc = sqlite3_prepare_v2(p->db, "SELECT data FROM sqlite_dbpage(?1) WHERE pgno=1", -1, &pStmt, 0);
 	if(rc) {
 		utf8_printf(stderr, "error: %s\n", sqlite3_errmsg(p->db));
 		sqlite3_finalize(pStmt);
 		return 1;
 	}
 	sqlite3_bind_text(pStmt, 1, zDb, -1, SQLITE_STATIC);
-	if(sqlite3_step(pStmt)==SQLITE_ROW
-	 && sqlite3_column_bytes(pStmt, 0)>100
-	    ) {
+	if(sqlite3_step(pStmt)==SQLITE_ROW && sqlite3_column_bytes(pStmt, 0)>100) {
 		memcpy(aHdr, sqlite3_column_blob(pStmt, 0), 100);
 		sqlite3_finalize(pStmt);
 	}

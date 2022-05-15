@@ -2357,7 +2357,7 @@ int PPObjBrand::Write(PPObjPack * p, PPID * pID, void * stream, ObjTransmContext
 		PPTransaction tra(-1);
 		THROW(tra);
 		if(gg_obj.Search(id, 0) > 0) {
-			const long cur_owner = gg_obj.P_Tbl->data.ManufID; // as owner
+			const long cur_owner = gg_obj.P_Tbl->data.ManufID; // as an owner
 			if(!cur_owner || cur_owner == curOwner) {
 				gg_obj.P_Tbl->data.ManufID = newOwner;
 				gg_obj.P_Tbl->updateRec();

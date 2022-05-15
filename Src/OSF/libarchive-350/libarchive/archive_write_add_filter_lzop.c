@@ -168,7 +168,7 @@ static int archive_write_lzop_free(struct archive_write_filter * f)
 static int archive_write_lzop_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct write_lzop * data = (struct write_lzop *)f->data;
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		if(value == NULL || !(value[0] >= '1' && value[0] <= '9') || value[1] != '\0')
 			return ARCHIVE_WARN;
 		data->compression_level = value[0] - '0';

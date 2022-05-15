@@ -1273,13 +1273,14 @@ UnicodeSet & UnicodeSet::complement(const UnicodeString & s) {
  * @param c set whose elements are to be added to this set.
  * @see #add(char, char)
  */
-UnicodeSet & UnicodeSet::addAll(const UnicodeSet & c) {
-	if(c.len>0 && c.list!=NULL) {
+UnicodeSet & UnicodeSet::addAll(const UnicodeSet & c) 
+{
+	if(c.len>0 && c.list) {
 		add(c.list, c.len, 0);
 	}
 
 	// Add strings in order
-	if(c.strings!=NULL) {
+	if(c.strings) {
 		for(int32_t i = 0; i<c.strings->size(); ++i) {
 			const UnicodeString * s = (const UnicodeString *)c.strings->elementAt(i);
 			if(!stringsContains(*s)) {
@@ -1703,14 +1704,13 @@ void UnicodeSet::setToBogus()
 // Implementation: Fundamental operators
 //----------------------------------------------------------------
 
-static inline UChar32 max(UChar32 a, UChar32 b) {
-	return (a > b) ? a : b;
-}
+// @sobolev static inline UChar32 max(UChar32 a, UChar32 b) { return (a > b) ? a : b; }
 
 // polarity = 0, 3 is normal: x xor y
 // polarity = 1, 2: x xor ~y == x === y
 
-void UnicodeSet::exclusiveOr(const UChar32* other, int32_t otherLen, int8 polarity) {
+void UnicodeSet::exclusiveOr(const UChar32* other, int32_t otherLen, int8 polarity) 
+{
 	if(isFrozen() || isBogus()) {
 		return;
 	}
@@ -1782,7 +1782,7 @@ void UnicodeSet::add(const UChar32* other, int32_t otherLen, int8 polarity) {
 				    // Back up over overlapping ranges in buffer[]
 				    if(k > 0 && a <= buffer[k-1]) {
 					    // Pick latter end value in buffer[] vs. list[]
-					    a = max(list[i], buffer[--k]);
+					    a = smax(list[i], buffer[--k]);
 				    }
 				    else {
 					    // No overlap
@@ -1794,7 +1794,7 @@ void UnicodeSet::add(const UChar32* other, int32_t otherLen, int8 polarity) {
 			    }
 			    else if(b < a) { // take b
 				    if(k > 0 && b <= buffer[k-1]) {
-					    b = max(other[j], buffer[--k]);
+					    b = smax(other[j], buffer[--k]);
 				    }
 				    else {
 					    buffer[k++] = b;
@@ -1808,7 +1808,7 @@ void UnicodeSet::add(const UChar32* other, int32_t otherLen, int8 polarity) {
 				    // This is symmetrical; it doesn't matter if
 				    // we backtrack with a or b. - liu
 				    if(k > 0 && a <= buffer[k-1]) {
-					    a = max(list[i], buffer[--k]);
+					    a = smax(list[i], buffer[--k]);
 				    }
 				    else {
 					    // No overlap
@@ -2223,7 +2223,7 @@ UnicodeSet * UnicodeSet::freeze() {
 }
 
 int32_t UnicodeSet::span(const UChar * s, int32_t length, USetSpanCondition spanCondition) const {
-	if(length>0 && bmpSet!=NULL) {
+	if(length>0 && bmpSet) {
 		return (int32_t)(bmpSet->span(s, s+length, spanCondition)-s);
 	}
 	if(length<0) {
@@ -2232,7 +2232,7 @@ int32_t UnicodeSet::span(const UChar * s, int32_t length, USetSpanCondition span
 	if(!length) {
 		return 0;
 	}
-	if(stringSpan!=NULL) {
+	if(stringSpan) {
 		return stringSpan->span(s, length, spanCondition);
 	}
 	else if(hasStrings()) {
@@ -2297,8 +2297,9 @@ int32_t UnicodeSet::spanBack(const UChar * s, int32_t length, USetSpanCondition 
 	return prev;
 }
 
-int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const {
-	if(length>0 && bmpSet!=NULL) {
+int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const 
+{
+	if(length>0 && bmpSet) {
 		const uint8 * s0 = (const uint8 *)s;
 		return (int32_t)(bmpSet->spanUTF8(s0, length, spanCondition)-s0);
 	}
@@ -2308,7 +2309,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 	if(!length) {
 		return 0;
 	}
-	if(stringSpan!=NULL) {
+	if(stringSpan) {
 		return stringSpan->spanUTF8((const uint8 *)s, length, spanCondition);
 	}
 	else if(hasStrings()) {
@@ -2336,7 +2337,7 @@ int32_t UnicodeSet::spanUTF8(const char * s, int32_t length, USetSpanCondition s
 
 int32_t UnicodeSet::spanBackUTF8(const char * s, int32_t length, USetSpanCondition spanCondition) const 
 {
-	if(length>0 && bmpSet!=NULL) {
+	if(length>0 && bmpSet) {
 		const uint8 * s0 = (const uint8 *)s;
 		return bmpSet->spanBackUTF8(s0, length, spanCondition);
 	}
@@ -2346,7 +2347,7 @@ int32_t UnicodeSet::spanBackUTF8(const char * s, int32_t length, USetSpanConditi
 	if(!length) {
 		return 0;
 	}
-	if(stringSpan!=NULL) {
+	if(stringSpan) {
 		return stringSpan->spanBackUTF8((const uint8 *)s, length, spanCondition);
 	}
 	else if(hasStrings()) {

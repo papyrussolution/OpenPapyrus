@@ -19,55 +19,40 @@ using namespace icu::number;
 using namespace icu::number::impl;
 
 UnlocalizedNumberFormatter NumberPropertyMapper::create(const DecimalFormatProperties& properties,
-    const DecimalFormatSymbols& symbols,
-    DecimalFormatWarehouse& warehouse,
-    UErrorCode & status) {
+    const DecimalFormatSymbols& symbols, DecimalFormatWarehouse& warehouse, UErrorCode & status) 
+{
 	return NumberFormatter::with().macros(oldToNew(properties, symbols, warehouse, nullptr, status));
 }
 
 UnlocalizedNumberFormatter NumberPropertyMapper::create(const DecimalFormatProperties& properties,
-    const DecimalFormatSymbols& symbols,
-    DecimalFormatWarehouse& warehouse,
-    DecimalFormatProperties& exportedProperties,
-    UErrorCode & status) {
-	return NumberFormatter::with().macros(
-		oldToNew(
-			properties, symbols, warehouse, &exportedProperties, status));
+    const DecimalFormatSymbols& symbols, DecimalFormatWarehouse& warehouse, DecimalFormatProperties& exportedProperties, UErrorCode & status) 
+{
+	return NumberFormatter::with().macros(oldToNew(properties, symbols, warehouse, &exportedProperties, status));
 }
 
 MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& properties,
-    const DecimalFormatSymbols& symbols,
-    DecimalFormatWarehouse& warehouse,
-    DecimalFormatProperties* exportedProperties,
-    UErrorCode & status) {
+    const DecimalFormatSymbols& symbols, DecimalFormatWarehouse& warehouse, DecimalFormatProperties* exportedProperties, UErrorCode & status) 
+{
 	MacroProps macros;
 	Locale locale = symbols.getLocale();
-
-	/////////////
+	//
 	// SYMBOLS //
-	/////////////
-
+	//
 	macros.symbols.setTo(symbols);
-
-	//////////////////
+	//
 	// PLURAL RULES //
-	//////////////////
-
+	//
 	if(!properties.currencyPluralInfo.fPtr.isNull()) {
 		macros.rules = properties.currencyPluralInfo.fPtr->getPluralRules();
 	}
-
-	/////////////
+	//
 	// AFFIXES //
-	/////////////
-
+	//
 	warehouse.affixProvider.setTo(properties, status);
 	macros.affixProvider = &warehouse.affixProvider.get();
-
-	///////////
+	//
 	// UNITS //
-	///////////
-
+	//
 	bool useCurrency = (
 		!properties.currency.isNull() ||
 		!properties.currencyPluralInfo.fPtr.isNull() ||
@@ -79,11 +64,9 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		// NOTE: Slicing is OK.
 		macros.unit = currency; // NOLINT
 	}
-
-	///////////////////////
+	//
 	// ROUNDING STRATEGY //
-	///////////////////////
-
+	//
 	int32_t maxInt = properties.maximumIntegerDigits;
 	int32_t minInt = properties.minimumIntegerDigits;
 	int32_t maxFrac = properties.maximumFractionDigits;
@@ -142,9 +125,8 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		}
 	}
 	else if(explicitMinMaxSig) {
-		minSig = minSig < 1 ? 1 : minSig > kMaxIntFracSig ? kMaxIntFracSig : minSig;
-		maxSig = maxSig < 0 ? kMaxIntFracSig : maxSig < minSig ? minSig : maxSig > kMaxIntFracSig
-		    ? kMaxIntFracSig : maxSig;
+		minSig = (minSig < 1) ? 1 : ((minSig > kMaxIntFracSig) ? kMaxIntFracSig : minSig);
+		maxSig = (maxSig < 0) ? kMaxIntFracSig : ((maxSig < minSig) ? minSig : ((maxSig > kMaxIntFracSig) ? kMaxIntFracSig : maxSig));
 		precision = Precision::constructSignificant(minSig, maxSig);
 	}
 	else if(explicitMinMaxFrac) {
@@ -157,47 +139,31 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		macros.roundingMode = roundingMode;
 		macros.precision = precision;
 	}
-
-	///////////////////
+	//
 	// INTEGER WIDTH //
-	///////////////////
-
-	macros.integerWidth = IntegerWidth(
-		static_cast<digits_t>(minInt),
-		static_cast<digits_t>(maxInt),
-		properties.formatFailIfMoreThanMaxDigits);
-
-	///////////////////////
+	//
+	macros.integerWidth = IntegerWidth(static_cast<digits_t>(minInt), static_cast<digits_t>(maxInt), properties.formatFailIfMoreThanMaxDigits);
+	//
 	// GROUPING STRATEGY //
-	///////////////////////
-
+	//
 	macros.grouper = Grouper::forProperties(properties);
-
-	/////////////
+	//
 	// PADDING //
-	/////////////
-
+	//
 	if(properties.formatWidth > 0) {
 		macros.padder = Padder::forProperties(properties);
 	}
-
-	///////////////////////////////
+	//
 	// DECIMAL MARK ALWAYS SHOWN //
-	///////////////////////////////
-
-	macros.decimal = properties.decimalSeparatorAlwaysShown ? UNUM_DECIMAL_SEPARATOR_ALWAYS
-	    : UNUM_DECIMAL_SEPARATOR_AUTO;
-
-	///////////////////////
+	//
+	macros.decimal = properties.decimalSeparatorAlwaysShown ? UNUM_DECIMAL_SEPARATOR_ALWAYS : UNUM_DECIMAL_SEPARATOR_AUTO;
+	//
 	// SIGN ALWAYS SHOWN //
-	///////////////////////
-
+	//
 	macros.sign = properties.signAlwaysShown ? UNUM_SIGN_ALWAYS : UNUM_SIGN_AUTO;
-
-	/////////////////////////
+	//
 	// SCIENTIFIC NOTATION //
-	/////////////////////////
-
+	//
 	if(properties.minimumExponentDigits != -1) {
 		// Scientific notation is required.
 		// This whole section feels like a hack, but it is needed for regression tests.
@@ -254,11 +220,9 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 			macros.roundingMode = roundingMode;
 		}
 	}
-
-	//////////////////////
+	//
 	// COMPACT NOTATION //
-	//////////////////////
-
+	//
 	if(!properties.compactStyle.isNull()) {
 		if(properties.compactStyle.getNoError() == UNumberCompactStyle::UNUM_LONG) {
 			macros.notation = Notation::compactLong();
@@ -269,23 +233,18 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		// Do not forward the affix provider.
 		macros.affixProvider = nullptr;
 	}
-
-	/////////////////
+	//
 	// MULTIPLIERS //
-	/////////////////
-
+	//
 	macros.scale = scaleFromProperties(properties);
-
-	//////////////////////
+	//
 	// PROPERTY EXPORTS //
-	//////////////////////
-
+	//
 	if(exportedProperties != nullptr) {
 		exportedProperties->currency = currency;
 		exportedProperties->roundingMode = roundingMode;
 		exportedProperties->minimumIntegerDigits = minInt;
 		exportedProperties->maximumIntegerDigits = maxInt == -1 ? INT32_MAX : maxInt;
-
 		Precision rounding_;
 		if(precision.fType == Precision::PrecisionType::RND_CURRENCY) {
 			rounding_ = precision.withCurrency(currency, status);
@@ -320,13 +279,12 @@ MacroProps NumberPropertyMapper::oldToNew(const DecimalFormatProperties& propert
 		exportedProperties->maximumSignificantDigits = maxSig_;
 		exportedProperties->roundingIncrement = increment_;
 	}
-
 	return macros;
 }
 
-void PropertiesAffixPatternProvider::setTo(const DecimalFormatProperties& properties, UErrorCode & status) {
+void PropertiesAffixPatternProvider::setTo(const DecimalFormatProperties& properties, UErrorCode & status) 
+{
 	fBogus = false;
-
 	// There are two ways to set affixes in DecimalFormat: via the pattern string (applyPattern), and via the
 	// explicit setters (setPositivePrefix and friends).  The way to resolve the settings is as follows:
 	//
@@ -349,7 +307,6 @@ void PropertiesAffixPatternProvider::setTo(const DecimalFormatProperties& proper
 	const UnicodeString & psp = properties.positiveSuffixPattern;
 	const UnicodeString & npp = properties.negativePrefixPattern;
 	const UnicodeString & nsp = properties.negativeSuffixPattern;
-
 	if(!properties.positivePrefix.isBogus()) {
 		posPrefix = ppo;
 	}
@@ -360,7 +317,6 @@ void PropertiesAffixPatternProvider::setTo(const DecimalFormatProperties& proper
 		// UTS 35: Default positive prefix is empty string.
 		posPrefix = UnicodeString(u"");
 	}
-
 	if(!properties.positiveSuffix.isBogus()) {
 		posSuffix = pso;
 	}

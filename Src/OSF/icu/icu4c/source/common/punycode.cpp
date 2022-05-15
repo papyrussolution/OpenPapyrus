@@ -204,15 +204,12 @@ U_CAPI int32_t u_strToPunycode(const UChar * src, int32_t srcLength,
 			if(IS_BASIC(c)) {
 				cpBuffer[srcCPCount++] = 0;
 				if(destLength<destCapacity) {
-					dest[destLength] =
-					    caseFlags!=NULL ?
-					    asciiCaseMap((char)c, caseFlags[j]) :
-					    (char)c;
+					dest[destLength] = caseFlags ? asciiCaseMap((char)c, caseFlags[j]) : (char)c;
 				}
 				++destLength;
 			}
 			else {
-				n = (caseFlags!=NULL && caseFlags[j])<<31L;
+				n = (caseFlags && caseFlags[j])<<31L;
 				if(U16_IS_SINGLE(c)) {
 					n |= c;
 				}
@@ -236,15 +233,12 @@ U_CAPI int32_t u_strToPunycode(const UChar * src, int32_t srcLength,
 			if(IS_BASIC(c)) {
 				cpBuffer[srcCPCount++] = 0;
 				if(destLength<destCapacity) {
-					dest[destLength] =
-					    caseFlags!=NULL ?
-					    asciiCaseMap((char)c, caseFlags[j]) :
-					    (char)c;
+					dest[destLength] = caseFlags ? asciiCaseMap((char)c, caseFlags[j]) : (char)c;
 				}
 				++destLength;
 			}
 			else {
-				n = (caseFlags!=NULL && caseFlags[j])<<31L;
+				n = (caseFlags && caseFlags[j])<<31L;
 				if(U16_IS_SINGLE(c)) {
 					n |= c;
 				}
@@ -404,29 +398,24 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 	}
 	destLength = basicLength = destCPCount = j;
 	U_ASSERT(destLength>=0);
-
 	while(j>0) {
 		b = src[--j];
 		if(!IS_BASIC(b)) {
 			*pErrorCode = U_INVALID_CHAR_FOUND;
 			return 0;
 		}
-
 		if(j<destCapacity) {
 			dest[j] = (UChar)b;
-
-			if(caseFlags!=NULL) {
+			if(caseFlags) {
 				caseFlags[j] = IS_BASIC_UPPERCASE(b);
 			}
 		}
 	}
-
 	/* Initialize the state: */
 	n = INITIAL_N;
 	i = 0;
 	bias = INITIAL_BIAS;
 	firstSupplementaryIndex = 1000000000;
-
 	/*
 	 * Main decoding loop:
 	 * Start just after the last delimiter if any
@@ -447,7 +436,6 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 				*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 				return 0;
 			}
-
 			digit = decodeDigit(src[in++]);
 			if(digit<0) {
 				*pErrorCode = U_INVALID_CHAR_FOUND;
@@ -458,7 +446,6 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 				*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 				return 0;
 			}
-
 			i += digit*w;
 			/** RAM: comment out the old code for conformance with draft-ietf-idn-punycode-03.txt
 			   t=k-bias;
@@ -478,7 +465,6 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 			if(digit<t) {
 				break;
 			}
-
 			if(w>0x7fffffff/(BASE-t)) {
 				/* integer overflow */
 				*pErrorCode = U_ILLEGAL_CHAR_FOUND;
@@ -486,7 +472,6 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 			}
 			w *= BASE-t;
 		}
-
 		/*
 		 * Modification from sample code:
 		 * Increments destCPCount here,
@@ -494,7 +479,6 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 		 */
 		++destCPCount;
 		bias = adaptBias(i-oldi, destCPCount, (bool)(oldi==0));
-
 		/*
 		 * i was supposed to wrap around from (incremented) destCPCount to 0,
 		 * incrementing n each time, so we'll fix that now:
@@ -504,7 +488,6 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 			*pErrorCode = U_ILLEGAL_CHAR_FOUND;
 			return 0;
 		}
-
 		n += i/destCPCount;
 		i %= destCPCount;
 		/* not needed for Punycode: */
@@ -518,7 +501,7 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 
 		/* Insert n at position i of the output: */
 		cpLength = U16_LENGTH(n);
-		if(dest!=NULL && ((destLength+cpLength)<=destCapacity)) {
+		if(dest && ((destLength+cpLength)<=destCapacity)) {
 			int32_t codeUnitIndex;
 
 			/*
@@ -548,7 +531,7 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 			/* use the UChar index codeUnitIndex instead of the code point index i */
 			if(codeUnitIndex<destLength) {
 				uprv_memmove(dest+codeUnitIndex+cpLength, dest+codeUnitIndex, (destLength-codeUnitIndex)*U_SIZEOF_UCHAR);
-				if(caseFlags!=NULL) {
+				if(caseFlags) {
 					uprv_memmove(caseFlags+codeUnitIndex+cpLength, caseFlags+codeUnitIndex, destLength-codeUnitIndex);
 				}
 			}
@@ -561,7 +544,7 @@ U_CAPI int32_t u_strFromPunycode(const UChar * src, int32_t srcLength,
 				dest[codeUnitIndex] = U16_LEAD(n);
 				dest[codeUnitIndex+1] = U16_TRAIL(n);
 			}
-			if(caseFlags!=NULL) {
+			if(caseFlags) {
 				/* Case of last character determines uppercase flag: */
 				caseFlags[codeUnitIndex] = IS_BASIC_UPPERCASE(src[in-1]);
 				if(cpLength==2) {

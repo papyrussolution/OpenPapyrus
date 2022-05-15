@@ -3383,89 +3383,60 @@ FT_Face_GetCharVariantIndex(FT_Face face,
     FT_ULong variantSelector)
 {
 	FT_UInt result = 0;
-
-	if(face &&
-	    face->charmap &&
-	    face->charmap->encoding == FT_ENCODING_UNICODE) {
+	if(face && face->charmap && face->charmap->encoding == FT_ENCODING_UNICODE) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
 		FT_CMap ucmap = FT_CMAP(face->charmap);
-
 		if(charmap) {
 			FT_CMap vcmap = FT_CMAP(charmap);
-
 			if(charcode > 0xFFFFFFFFUL) {
-				FT_TRACE1(( "FT_Face_GetCharVariantIndex:"
-				    " too large charcode" ));
+				FT_TRACE1(( "FT_Face_GetCharVariantIndex: too large charcode" ));
 				FT_TRACE1(( " 0x%lx is truncated\n", charcode ));
 			}
 			if(variantSelector > 0xFFFFFFFFUL) {
-				FT_TRACE1(( "FT_Face_GetCharVariantIndex:"
-				    " too large variantSelector" ));
+				FT_TRACE1(( "FT_Face_GetCharVariantIndex: too large variantSelector" ));
 				FT_TRACE1(( " 0x%lx is truncated\n", variantSelector ));
 			}
-
-			result = vcmap->clazz->char_var_index(vcmap, ucmap,
-				(FT_UInt32)charcode,
-				(FT_UInt32)variantSelector);
+			result = vcmap->clazz->char_var_index(vcmap, ucmap, (FT_UInt32)charcode, (FT_UInt32)variantSelector);
 		}
 	}
-
 	return result;
 }
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(FT_Int)
-FT_Face_GetCharVariantIsDefault(FT_Face face,
-    FT_ULong charcode,
-    FT_ULong variantSelector)
+FT_EXPORT_DEF(FT_Int) FT_Face_GetCharVariantIsDefault(FT_Face face, FT_ULong charcode, FT_ULong variantSelector)
 {
 	FT_Int result = -1;
-
 	if(face) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
-
 		if(charmap) {
 			FT_CMap vcmap = FT_CMAP(charmap);
-
 			if(charcode > 0xFFFFFFFFUL) {
-				FT_TRACE1(( "FT_Face_GetCharVariantIsDefault:"
-				    " too large charcode" ));
+				FT_TRACE1(( "FT_Face_GetCharVariantIsDefault: too large charcode" ));
 				FT_TRACE1(( " 0x%lx is truncated\n", charcode ));
 			}
 			if(variantSelector > 0xFFFFFFFFUL) {
-				FT_TRACE1(( "FT_Face_GetCharVariantIsDefault:"
-				    " too large variantSelector" ));
+				FT_TRACE1(( "FT_Face_GetCharVariantIsDefault: too large variantSelector" ));
 				FT_TRACE1(( " 0x%lx is truncated\n", variantSelector ));
 			}
-
-			result = vcmap->clazz->char_var_default(vcmap,
-				(FT_UInt32)charcode,
-				(FT_UInt32)variantSelector);
+			result = vcmap->clazz->char_var_default(vcmap, (FT_UInt32)charcode, (FT_UInt32)variantSelector);
 		}
 	}
-
 	return result;
 }
 
 /* documentation is in freetype.h */
-
-FT_EXPORT_DEF(FT_UInt32*)
-FT_Face_GetVariantSelectors(FT_Face face)
+FT_EXPORT_DEF(FT_UInt32*) FT_Face_GetVariantSelectors(FT_Face face)
 {
 	FT_UInt32 * result = NULL;
-
 	if(face) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
-
 		if(charmap) {
 			FT_CMap vcmap  = FT_CMAP(charmap);
 			FT_Memory memory = FT_FACE_MEMORY(face);
-
 			result = vcmap->clazz->variant_list(vcmap, memory);
 		}
 	}
-
 	return result;
 }
 
@@ -3491,152 +3462,100 @@ FT_EXPORT_DEF(FT_UInt32*) FT_Face_GetVariantsOfChar(FT_Face face, FT_ULong charc
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(FT_UInt32*)
-FT_Face_GetCharsOfVariant(FT_Face face,
-    FT_ULong variantSelector)
+FT_EXPORT_DEF(FT_UInt32*) FT_Face_GetCharsOfVariant(FT_Face face, FT_ULong variantSelector)
 {
 	FT_UInt32 * result = NULL;
-
 	if(face) {
 		FT_CharMap charmap = find_variant_selector_charmap(face);
-
 		if(charmap) {
 			FT_CMap vcmap  = FT_CMAP(charmap);
 			FT_Memory memory = FT_FACE_MEMORY(face);
-
 			if(variantSelector > 0xFFFFFFFFUL) {
 				FT_TRACE1(( "FT_Get_Char_Index: too large variantSelector" ));
 				FT_TRACE1(( " 0x%lx is truncated\n", variantSelector ));
 			}
-
-			result = vcmap->clazz->variantchar_list(vcmap, memory,
-				(FT_UInt32)variantSelector);
+			result = vcmap->clazz->variantchar_list(vcmap, memory, (FT_UInt32)variantSelector);
 		}
 	}
-
 	return result;
 }
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(FT_UInt)
-FT_Get_Name_Index(FT_Face face,
-    const FT_String*  glyph_name)
+FT_EXPORT_DEF(FT_UInt) FT_Get_Name_Index(FT_Face face, const FT_String*  glyph_name)
 {
 	FT_UInt result = 0;
-
-	if(face &&
-	    FT_HAS_GLYPH_NAMES(face) &&
-	    glyph_name) {
+	if(face && FT_HAS_GLYPH_NAMES(face) && glyph_name) {
 		FT_Service_GlyphDict service;
-
-		FT_FACE_LOOKUP_SERVICE(face,
-		    service,
-		    GLYPH_DICT);
-
+		FT_FACE_LOOKUP_SERVICE(face, service, GLYPH_DICT);
 		if(service && service->name_index)
 			result = service->name_index(face, glyph_name);
 	}
-
 	return result;
 }
 
 /* documentation is in freetype.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Get_Glyph_Name(FT_Face face,
-    FT_UInt glyph_index,
-    FT_Pointer buffer,
-    FT_UInt buffer_max)
+FT_EXPORT_DEF(FT_Error) FT_Get_Glyph_Name(FT_Face face, FT_UInt glyph_index, FT_Pointer buffer, FT_UInt buffer_max)
 {
 	FT_Error error;
 	FT_Service_GlyphDict service;
-
 	if(!face)
 		return FT_THROW(Invalid_Face_Handle);
-
 	if(!buffer || buffer_max == 0)
 		return FT_THROW(Invalid_Argument);
-
 	/* clean up buffer */
 	((FT_Byte*)buffer)[0] = '\0';
-
 	if((FT_Long)glyph_index >= face->num_glyphs)
 		return FT_THROW(Invalid_Glyph_Index);
-
 	if(!FT_HAS_GLYPH_NAMES(face))
 		return FT_THROW(Invalid_Argument);
-
 	FT_FACE_LOOKUP_SERVICE(face, service, GLYPH_DICT);
 	if(service && service->get_name)
 		error = service->get_name(face, glyph_index, buffer, buffer_max);
 	else
 		error = FT_THROW(Invalid_Argument);
-
 	return error;
 }
 
 /* documentation is in freetype.h */
 
-FT_EXPORT_DEF(const char *)
-FT_Get_Postscript_Name(FT_Face face)
+FT_EXPORT_DEF(const char *) FT_Get_Postscript_Name(FT_Face face)
 {
 	const char * result = NULL;
-
 	if(!face)
 		goto Exit;
-
 	if(!result) {
 		FT_Service_PsFontName service;
-
-		FT_FACE_LOOKUP_SERVICE(face,
-		    service,
-		    POSTSCRIPT_FONT_NAME);
-
+		FT_FACE_LOOKUP_SERVICE(face, service, POSTSCRIPT_FONT_NAME);
 		if(service && service->get_ps_font_name)
 			result = service->get_ps_font_name(face);
 	}
-
 Exit:
 	return result;
 }
 
 /* documentation is in tttables.h */
-
-FT_EXPORT_DEF(void *)
-FT_Get_Sfnt_Table(FT_Face face,
-    FT_Sfnt_Tag tag)
+FT_EXPORT_DEF(void *) FT_Get_Sfnt_Table(FT_Face face, FT_Sfnt_Tag tag)
 {
 	void *        table = NULL;
 	FT_Service_SFNT_Table service;
-
 	if(face && FT_IS_SFNT(face)) {
 		FT_FACE_FIND_SERVICE(face, service, SFNT_TABLE);
 		if(service)
 			table = service->get_table(face, tag);
 	}
-
 	return table;
 }
 
 /* documentation is in tttables.h */
-
-FT_EXPORT_DEF(FT_Error)
-FT_Load_Sfnt_Table(FT_Face face,
-    FT_ULong tag,
-    FT_Long offset,
-    FT_Byte*   buffer,
-    FT_ULong*  length)
+FT_EXPORT_DEF(FT_Error) FT_Load_Sfnt_Table(FT_Face face, FT_ULong tag, FT_Long offset, FT_Byte*   buffer, FT_ULong*  length)
 {
 	FT_Service_SFNT_Table service;
-
 	if(!face || !FT_IS_SFNT(face))
 		return FT_THROW(Invalid_Face_Handle);
-
 	FT_FACE_FIND_SERVICE(face, service, SFNT_TABLE);
 	if(!service)
 		return FT_THROW(Unimplemented_Feature);
-
 	return service->load_table(face, tag, offset, buffer, length);
 }
 

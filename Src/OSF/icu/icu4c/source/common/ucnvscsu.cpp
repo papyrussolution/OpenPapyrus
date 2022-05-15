@@ -174,15 +174,14 @@ static void U_CALLCONV _SCSUReset(UConverter * cnv, UConverterResetChoice choice
 	}
 }
 
-static void U_CALLCONV _SCSUOpen(UConverter * cnv,
-    UConverterLoadArgs * pArgs,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV _SCSUOpen(UConverter * cnv, UConverterLoadArgs * pArgs, UErrorCode * pErrorCode) 
+{
 	const char * locale = pArgs->locale;
 	if(pArgs->onlyTestIsLoadable) {
 		return;
 	}
 	cnv->extraInfo = uprv_malloc(sizeof(SCSUData));
-	if(cnv->extraInfo!=NULL) {
+	if(cnv->extraInfo) {
 		if(locale!=NULL && locale[0]=='j' && locale[1]=='a' && (locale[2]==0 || locale[2]=='_')) {
 			((SCSUData*)cnv->extraInfo)->locale = l_ja;
 		}
@@ -194,7 +193,6 @@ static void U_CALLCONV _SCSUOpen(UConverter * cnv,
 	else {
 		*pErrorCode = U_MEMORY_ALLOCATION_ERROR;
 	}
-
 	/* Set the substitution character U+fffd as a Unicode string. */
 	cnv->subUChars[0] = 0xfffd;
 	cnv->subCharLen = -1;
@@ -202,7 +200,7 @@ static void U_CALLCONV _SCSUOpen(UConverter * cnv,
 
 static void U_CALLCONV _SCSUClose(UConverter * cnv) 
 {
-	if(cnv->extraInfo!=NULL) {
+	if(cnv->extraInfo) {
 		if(!cnv->isExtraLocal) {
 			uprv_free(cnv->extraInfo);
 		}

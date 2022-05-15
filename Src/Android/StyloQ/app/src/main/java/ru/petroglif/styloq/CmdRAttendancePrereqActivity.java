@@ -16,28 +16,25 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-
 import androidx.annotation.IdRes;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
-
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.textfield.TextInputEditText;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
-import java.util.Locale;
 
 public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
-	private CommonPrereqModule CPM;
+	public  CommonPrereqModule CPM;
 	private AttendanceBlock AttdcBlk;
 	private Param P;
+	private ViewDescriptionList VdlDocs; // Описание таблицы просмотра существующих заказов
 
 	private static class Param {
 		Param()
@@ -216,6 +213,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		CPM = new CommonPrereqModule(this);
 		P = new Param();
 		AttdcBlk = new AttendanceBlock(P);
+		VdlDocs = null;
 	}
 	private void NotifyTabContentChanged(CommonPrereqModule.Tab tabId, int innerViewId)
 	{
@@ -512,10 +510,34 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 		if(GetRecyclerListFocusedIndex(a) == itemIdxToDraw)
 			shaperc = R.drawable.shape_listitem_focused;
 		else {
-			//shaperc = IsObjInSearchResult(objType, objID) ? R.drawable.shape_listitem_found : R.drawable.shape_listitem;
-			shaperc = R.drawable.shape_listitem;
+			boolean is_catched = false;
+			if(objID > 0 && CPM.CurrentOrder != null) {
+				if(CPM.CurrentOrder.H != null) {
+					if(objType == SLib.PPOBJ_PERSON && objID == CPM.CurrentOrder.H.ClientID) {
+						is_catched = true;
+					}
+					else if(objType == SLib.PPOBJ_LOCATION && objID == CPM.CurrentOrder.H.DlvrLocID) {
+						is_catched = true;
+					}
+					else if(objType == SLib.PPOBJ_GOODS) {
+						if(CPM.HasGoodsInCurrentOrder(objID))
+							is_catched = true;
+					}
+					else if(objType == SLib.PPOBJ_PROCESSOR) {
+						if(CPM.HasPrcInCurrentOrder(objID))
+							is_catched = true;
+					}
+				}
+			}
+			if(is_catched)
+				shaperc = R.drawable.shape_listitem_catched;
+			else if(CPM.IsObjInSearchResult(objType, objID))
+				shaperc = R.drawable.shape_listitem_found;
+			else
+				shaperc = R.drawable.shape_listitem;
 		}
-		iv.setBackground(getResources().getDrawable(shaperc, getTheme()));
+		if(shaperc != 0)
+			iv.setBackground(getResources().getDrawable(shaperc, getTheme()));
 	}
 	private static class PrcByGoodsListAdapter extends ArrayAdapter {
 		private int RcId;
@@ -634,6 +656,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									P.MaxScheduleDays = 7;
 							}
 						}
+						CPM.GetCommonJsonFactors(js_head);
 						CPM.MakeGoodsGroupListFromCommonJson(js_head);
 						CPM.MakeProcessorListFromCommonJson(js_head);
 						CPM.MakeGoodsListFromCommonJson(js_head);
@@ -769,16 +792,9 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									CommonPrereqModule.ProcessorEntry prc_entry = CPM.FindProcessorItemByID(bk_item.PrcID);
 									if(prc_entry != null)
 										prc_name = prc_entry.JsItem.optString("nm", "");
-									if(bk_item.ReqTime != null) {
-										//bk_item.ReqTime.
-										timechunk_text = SLib.datetimefmt(bk_item.ReqTime, SLib.DATF_ISO8601, SLib.TIMF_HMS);
-										if(bk_item.EstimatedDurationSec > 0) {
-											SLib.LDATETIME finish_dtm = SLib.plusdatetimesec(bk_item.ReqTime, bk_item.EstimatedDurationSec);
-											if(finish_dtm != null) {
-												timechunk_text += (".." + SLib.datetimefmt(finish_dtm, SLib.DATF_ISO8601, SLib.TIMF_HMS));
-											}
-										}
-									}
+									SLib.STimeChunk tc = bk_item.GetEsimatedTimeChunk();
+									if(tc != null)
+										timechunk_text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
 								}
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_PRC, prc_name);
 								SLib.SetCtrlString(vg, R.id.CTL_DOCUMENT_TIMECHUNK, timechunk_text);
@@ -819,7 +835,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 										}
 										{
 											double val = cur_entry.JsItem.optDouble("price", 0.0);
-											SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_PRICE, (val > 0.0) ? SLib.formatdouble(val, 2) : "");
+											SLib.SetCtrlString(iv, R.id.ATTENDANCEPREREQ_GOODS_PRICE, (val > 0.0) ? CPM.FormatCurrency(val) : "");
 										}
 										{
 											View ctl = iv.findViewById(R.id.buttonOrder);
@@ -1099,9 +1115,42 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 								else if(a.GetListRcId() == R.id.attendancePrereqOrderListView) { // Список зафиксированных заказов
 									if(CPM.OrderHList != null && ev_subj.ItemIdx < CPM.OrderHList.size()) {
 										View iv = ev_subj.RvHolder.itemView;
-										Document.Head dh = CPM.OrderHList.get(ev_subj.ItemIdx);
-										if(dh != null) {
-											SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, (SLib.GetLen(dh.Code) > 0) ? dh.Code : "");
+										Document.DisplayEntry cur_entry = CPM.OrderHList.get(ev_subj.ItemIdx);
+										if(cur_entry != null && cur_entry.H != null) {
+											final int _vdlc = VdlDocs.GetCount();
+											for(int i = 0; i < _vdlc; i++) {
+												TextView ctl = (TextView)iv.findViewById(i+1);
+												if(ctl != null) {
+													ViewDescriptionList.Item di = VdlDocs.Get(i);
+													if(di != null) {
+														String text = null;
+														if(i == 0) { // date
+															SLib.LDATE d = null;
+															if(cur_entry.H.Time > 0)
+																d = SLib.BuildDateByEpoch(cur_entry.H.Time);
+															else if(cur_entry.H.CreationTime > 0)
+																d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
+															if(d != null)
+																text = d.Format(SLib.DATF_DMY);
+														}
+														else if(i == 1) { // code
+															text = cur_entry.H.Code;
+														}
+														else if(i == 2) { // amount
+															text = CPM.FormatCurrency(cur_entry.H.Amount);
+														}
+														else if(i == 3) { // time
+															if(cur_entry.SingleBkItem != null && cur_entry.SingleBkItem.ReqTime != null) {
+																SLib.STimeChunk tc = cur_entry.SingleBkItem.GetEsimatedTimeChunk();
+																if(tc != null)
+																	text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
+															}
+														}
+														ctl.setText(text);
+													}
+												}
+											}
+											/*SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_CODE, (SLib.GetLen(dh.Code) > 0) ? dh.Code : "");
 											{
 												SLib.LDATE d = null;
 												if(dh.Time > 0)
@@ -1114,7 +1163,7 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											{
 												String amount_text = String.format(Locale.US, "%12.2f", dh.Amount);
 												SLib.SetCtrlString(iv, R.id.CTL_DOCUMENT_AMOUNT, amount_text);
-											}
+											}*/
 										}
 									}
 								}
@@ -1248,8 +1297,101 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 											else {
 												lv = fv.findViewById(R.id.attendancePrereqOrderListView);
 												if(lv != null) {
-													((RecyclerView) lv).setLayoutManager(new LinearLayoutManager(this));
-													SetupRecyclerListView(fv, R.id.attendancePrereqOrderListView, R.layout.li_attendanceprereq_order);
+													StyloQApp app_ctx = (StyloQApp)getApplication();
+													SLib.Margin fld_mrgn = new SLib.Margin(8, 2, 8, 2);
+													VdlDocs = new ViewDescriptionList();
+													{ // #0
+														ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+														col.Title = app_ctx.GetString("billdate");
+														col.StyleRcId = R.style.OrderListItemText;
+														col.Mrgn = fld_mrgn;
+														VdlDocs.AddItem(col);
+													}
+													{ // #1
+														ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+														col.Title = app_ctx.GetString("billno");
+														col.TotalFunc = SLib.AGGRFUNC_COUNT;
+														col.StyleRcId = R.style.OrderListItemText;
+														col.Mrgn = fld_mrgn;
+														VdlDocs.AddItem(col);
+													}
+													{ // #2
+														ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+														col.Title = app_ctx.GetString("billamount");
+														col.TotalFunc = SLib.AGGRFUNC_SUM;
+														col.StyleRcId = R.style.OrderListItemText;
+														col.Mrgn = fld_mrgn;
+														col.ForceAlignment = -1;
+														VdlDocs.AddItem(col);
+													}
+													{ // #3
+														ViewDescriptionList.Item col = new ViewDescriptionList.Item();
+														col.Title = app_ctx.GetString("time");
+														col.StyleRcId = R.style.OrderListItemText;
+														col.Mrgn = fld_mrgn;
+														VdlDocs.AddItem(col);
+													}
+													if(CPM.OrderHList != null && CPM.OrderHList.size() > 0) {
+														final int _vdlc = VdlDocs.GetCount();
+														assert(_vdlc > 0);
+														for(int i = 0; i < _vdlc; i++) {
+															ViewDescriptionList.DataPreprocessBlock dpb = VdlDocs.StartDataPreprocessing(this, i);
+															if(dpb != null && dpb.ColumnDescription != null) {
+																for(int j = 0; j < CPM.OrderHList.size(); j++) {
+																	Document.DisplayEntry cur_entry = CPM.OrderHList.get(j);
+																	if(cur_entry != null && cur_entry.H != null) {
+																		String text = null;
+																		if(i == 0) { // date
+																			SLib.LDATE d = null;
+																			if(cur_entry.H.Time > 0)
+																				d = SLib.BuildDateByEpoch(cur_entry.H.Time);
+																			else if(cur_entry.H.CreationTime > 0)
+																				d = SLib.BuildDateByEpoch(cur_entry.H.CreationTime);
+																			if(d != null) {
+																				VdlDocs.DataPreprocessingIter(dpb, d.Format(SLib.DATF_DMY));
+																			}
+																		}
+																		else if(i == 1) { // code
+																			VdlDocs.DataPreprocessingIter(dpb, cur_entry.H.Code);
+																		}
+																		else if(i == 2) { // amount
+																			text = CPM.FormatCurrency(cur_entry.H.Amount);
+																			VdlDocs.DataPreprocessingIter(dpb, new Double(cur_entry.H.Amount), text);
+																		}
+																		else if(i == 3) { // time
+																			if(cur_entry.SingleBkItem != null && cur_entry.SingleBkItem.ReqTime != null) {
+																				SLib.STimeChunk tc = cur_entry.SingleBkItem.GetEsimatedTimeChunk();
+																				if(tc != null) {
+																					text = tc.Format(SLib.DATF_DMY, SLib.TIMF_HM);
+																					VdlDocs.DataPreprocessingIter(dpb, text);
+																				}
+																			}
+																		}
+																	}
+																}
+																VdlDocs.FinishDataProcessing(dpb);
+																dpb = null;
+															}
+														}
+														{
+															LinearLayout header_layout = (LinearLayout)fv.findViewById(R.id.attendancePrereqOrderListHeader);
+															if(header_layout != null) {
+																LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(VdlDocs, this, 1);
+																if(_lo_ != null)
+																	header_layout.addView(_lo_);
+															}
+															if(VdlDocs.IsThereTotals()) {
+																LinearLayout bottom_layout = (LinearLayout)fv.findViewById(R.id.attendancePrereqOrderListBottom);
+																if(bottom_layout != null) {
+																	LinearLayout _lo_ = ViewDescriptionList.CreateItemLayout(VdlDocs, this,2);
+																	if(_lo_ != null)
+																		bottom_layout.addView(_lo_);
+																}
+															}
+														}
+													}
+													((RecyclerView)lv).setLayoutManager(new LinearLayoutManager(this));
+													SetupRecyclerListView(fv, R.id.attendancePrereqOrderListView, 0);
 												}
 											}
 										}
@@ -1264,10 +1406,21 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 				{
 					SLib.ListViewEvent ev_subj = (subj instanceof SLib.ListViewEvent) ? (SLib.ListViewEvent) subj : null;
 					if(ev_subj != null) {
-						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.buttonOrder);
-						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.ATTENDANCEPREREQ_GOODS_EXPANDSTATUS);
-						SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.ATTENDANCEPREREQ_PRC_EXPANDSTATUS);
-						result = ev_subj.RvHolder;
+						if(ev_subj.RvHolder == null) {
+							if(ev_subj.ItemView != null && ev_subj.ItemView.getId() == R.id.attendancePrereqOrderListView) {
+								LinearLayout _lo = ViewDescriptionList.CreateItemLayout(VdlDocs, this,0);
+								if(_lo != null) {
+									SLib.RecyclerListAdapter adapter = (srcObj != null && srcObj instanceof SLib.RecyclerListAdapter) ? (SLib.RecyclerListAdapter)srcObj : null;
+									result = new SLib.RecyclerListViewHolder(_lo, adapter);
+								}
+							}
+						}
+						else {
+							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.buttonOrder);
+							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.ATTENDANCEPREREQ_GOODS_EXPANDSTATUS);
+							SLib.SetupRecyclerListViewHolderAsClickListener(ev_subj.RvHolder, ev_subj.ItemView, R.id.ATTENDANCEPREREQ_PRC_EXPANDSTATUS);
+							result = ev_subj.RvHolder;
+						}
 					}
 				}
 				break;
@@ -1482,8 +1635,10 @@ public class CmdRAttendancePrereqActivity extends SLib.SlActivity {
 									}
 									SLib.LTIME start_tm = new SLib.LTIME(hour, minuts, 0, 0);
 									try {
-										if(CPM.CurrentOrder == null)
-											CPM.CurrentOrder = new Document(SLib.sqbdtSvcReq, CPM.SvcIdent, (StyloQApp)getApplicationContext());
+										if(CPM.CurrentOrder == null) {
+											CPM.CurrentOrder = new Document(SLib.sqbdtSvcReq, CPM.SvcIdent, (StyloQApp) getApplicationContext());
+											CPM.CurrentOrder.H.BaseCurrencySymb = CPM.GetBaseCurrencySymb();
+										}
 										if(CPM.CurrentOrder.BkList == null)
 											CPM.CurrentOrder.BkList = new ArrayList<Document.BookingItem>();
 										CPM.CurrentOrder.BkList.clear();

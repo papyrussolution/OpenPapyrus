@@ -14,6 +14,11 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class Document {
+	Head H;
+	ArrayList <TransferItem> TiList;
+	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
+	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
+
 	public static class Head {
 		long   ID;
 		long   CreationTime;
@@ -26,7 +31,29 @@ public class Document {
 		String Code;
 		byte [] SvcIdent;
 		UUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
+		String BaseCurrencySymb;
 		String Memo;
+	}
+	//
+	// Descr: Специализированная структура используемая как элемент
+	//   списка документов для отображения. Одного Head недостаточно: бывает нужно
+	//   отображать данные, находящиеся в детализирующих списках (TransferItem, BookingItem).
+	//
+	public static class DisplayEntry {
+		DisplayEntry()
+		{
+			H = null;
+			SingleBkItem = null;
+		}
+		DisplayEntry(Document doc)
+		{
+			H = doc.H;
+			if(doc.BkList != null && doc.BkList.size() == 1) {
+				SingleBkItem = doc.BkList.get(0);
+			}
+		}
+		Head   H;
+		BookingItem SingleBkItem;
 	}
 	public static class LotExtCode {
 		int    Flags;
@@ -58,9 +85,8 @@ public class Document {
 		public boolean CanMerge(final TransferItem testItem)
 		{
 			boolean result = false;
-			if(testItem != null && testItem.GoodsID == GoodsID) {
+			if(testItem != null && testItem.GoodsID == GoodsID)
 				result = true;
-			}
 			return result;
 		}
 		public boolean Merge(final TransferItem testItem)
@@ -118,6 +144,19 @@ public class Document {
 			EstimatedDurationSec = 0;
 			Set = new ValuSet();
 			Memo = null;
+		}
+		SLib.STimeChunk GetEsimatedTimeChunk()
+		{
+			SLib.STimeChunk result = null;
+			if(ReqTime != null && SLib.CheckDate(ReqTime.d)) {
+				result = new SLib.STimeChunk();
+				result.Start = ReqTime;
+				if(EstimatedDurationSec >= 0)
+					result.Finish = SLib.plusdatetimesec(ReqTime, EstimatedDurationSec);
+				else
+					result.Finish = ReqTime;
+			}
+			return result;
 		}
 		int    RowIdx; // [1..]
 		int    PrcID;
@@ -203,6 +242,9 @@ public class Document {
 					String svc_ident_hex = Base64.getEncoder().encodeToString(H.SvcIdent);
 					if(SLib.GetLen(svc_ident_hex) > 0)
 						result.put("svcident", svc_ident_hex);
+				}
+				if(SLib.GetLen(H.BaseCurrencySymb) > 0) {
+					result.put("basecurrency", H.BaseCurrencySymb);
 				}
 				if(H.CreationTime > 0) {
 					SLib.LDATETIME dtm = new SLib.LDATETIME(H.CreationTime);
@@ -299,7 +341,7 @@ public class Document {
 								js_item.put("set", js_set);
 							}
 							if(SLib.GetLen(bi.Memo) > 0)
-								js_item.put("set", bi.Memo);
+								js_item.put("memo", bi.Memo);
 							js_list.put(js_item);
 						}
 					}
@@ -357,9 +399,15 @@ public class Document {
 				H.OpID = jsobj.optInt("opid", 0);
 				H.ClientID = jsobj.optInt("cliid", 0);
 				H.DlvrLocID = jsobj.optInt("dlvrlocid", 0);
-				String svc_ident_hex = jsobj.optString("svcident", null);
-				if(SLib.GetLen(svc_ident_hex) > 0) {
-					H.SvcIdent = Base64.getDecoder().decode(svc_ident_hex);
+				{
+					String svc_ident_hex = jsobj.optString("svcident", null);
+					if(SLib.GetLen(svc_ident_hex) > 0)
+						H.SvcIdent = Base64.getDecoder().decode(svc_ident_hex);
+				}
+				{
+					String base_currency_symb = jsobj.optString("basecurrency", null);
+					if(SLib.GetLen(base_currency_symb) > 0)
+						H.BaseCurrencySymb = base_currency_symb;
 				}
 				H.Code = jsobj.optString("code", null);
 				H.Memo = jsobj.optString("memo", null);
@@ -398,6 +446,22 @@ public class Document {
 							bi.GoodsID = js_item.optInt("goodsid", 0);
 							bi.Flags = js_item.optInt("flags", 0);
 							// @todo Не все поля считаны!
+							{
+								String req_time = js_item.optString("reqtime", null);
+								if(SLib.GetLen(req_time) > 0) {
+									bi.ReqTime = SLib.strtodatetime(req_time, SLib.DATF_ISO8601|SLib.DATF_CENTURY, 0);
+								}
+								bi.EstimatedDurationSec = js_item.optInt("estimateddurationsec", 0);
+								JSONObject js_set = js_item.optJSONObject("set");
+								if(js_set != null) {
+									bi.Set = new ValuSet();
+									bi.Set.Qtty = js_set.optDouble("qtty", 0.0);
+									bi.Set.Cost = js_set.optDouble("cost", 0.0);
+									bi.Set.Price = js_set.optDouble("price", 0.0);
+									bi.Set.Discount = js_set.optDouble("discount", 0.0);
+								}
+								bi.Memo = js_item.optString("memo", null);
+							}
 							if(BkList == null)
 								BkList = new ArrayList<BookingItem>();
 							BkList.add(bi);
@@ -412,8 +476,4 @@ public class Document {
 		}
 		return result;
 	}
-	Head H;
-	ArrayList <TransferItem> TiList;
-	ArrayList <BookingItem> BkList; // Список позиций повременных элементов, связанных с процессорами
-	ArrayList <LotExtCode> VXcL; // Валидирующий контейнер спецкодов. Применяется для проверки кодов, поступивших с документом в XcL
 }

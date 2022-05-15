@@ -119,7 +119,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <CompileAs>CompileAsCpp</CompileAs>
@@ -177,7 +177,7 @@
       <SDLCheck>
       </SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\OSF\zstd\lib\include</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile />
       <CompileAs>CompileAsCpp</CompileAs>

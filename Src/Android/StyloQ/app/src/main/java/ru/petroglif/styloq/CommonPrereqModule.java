@@ -24,9 +24,11 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Currency;
 import java.util.UUID;
 
 public class CommonPrereqModule {
@@ -38,9 +40,12 @@ public class CommonPrereqModule {
 	public SimpleSearchResult SearchResult;
 	public ArrayList<JSONObject> GoodsGroupListData;
 	public GoodsFilt Gf;
+	private String BaseCurrencySymb;
+	private int AgentID; // Если исходный документ для формирования заказов ассоциирован
+		// с агентом, то в этом поле устанавливается id этого агента (field agentid)
 	public ArrayList <WareEntry> GoodsListData;
 	public ArrayList <CommonPrereqModule.TabEntry> TabList;
-	public ArrayList <Document.Head> OrderHList;
+	public ArrayList /*<Document.Head>*/<Document.DisplayEntry> OrderHList;
 	public ArrayList<ProcessorEntry> ProcessorListData;
 	protected Document CurrentOrder;
 	protected boolean Locker_CommitCurrentDocument;
@@ -80,6 +85,7 @@ public class CommonPrereqModule {
 				CurrentOrder = new Document(SLib.PPEDIOP_ORDER, SvcIdent, appCtx);
 				CurrentOrder.H.ClientID = cliID;
 				CurrentOrder.H.DlvrLocID = dlvrLocID;
+				CurrentOrder.H.BaseCurrencySymb = BaseCurrencySymb;
 				result = true;
 			}
 			else {
@@ -107,10 +113,9 @@ public class CommonPrereqModule {
 		if(prcID > 0 && CurrentOrder != null && CurrentOrder.BkList != null && CurrentOrder.BkList.size() > 0) {
 			for(int i = 0; i < CurrentOrder.BkList.size(); i++) {
 				Document.BookingItem bi = CurrentOrder.BkList.get(i);
-				if(bi != null && bi.PrcID == prcID && bi.ReqTime != null && bi.EstimatedDurationSec > 0) {
-					SLib.LDATETIME finish_dtm = SLib.plusdatetimesec(bi.ReqTime, bi.EstimatedDurationSec);
-					if(finish_dtm != null) {
-						SLib.STimeChunk tc = new SLib.STimeChunk(bi.ReqTime, finish_dtm);
+				if(bi != null && bi.PrcID == prcID) {
+					SLib.STimeChunk tc = bi.GetEsimatedTimeChunk();
+					if(tc != null) {
 						if(result == null)
 							result = new ArrayList<SLib.STimeChunk>();
 						result.add(tc);
@@ -161,7 +166,44 @@ public class CommonPrereqModule {
 		}
 		return ok;
 	}
-	protected Document.TransferItem SearchGoodsItemInCurrentOrder(int goodsID)
+	public boolean HasPrcInCurrentOrder(int prcID)
+	{
+		boolean result = false;
+		if(CurrentOrder != null) {
+			if(CurrentOrder.BkList != null) {
+				for(int i = 0; !result && i < CurrentOrder.BkList.size(); i++) {
+					Document.BookingItem bi = CurrentOrder.BkList.get(i);
+					if(bi != null && bi.PrcID == prcID)
+						result = true;
+				}
+			}
+		}
+		return result;
+	}
+	public boolean HasGoodsInCurrentOrder(int goodsID)
+	{
+		boolean result = false;
+		if(CurrentOrder != null) {
+			if(CurrentOrder.TiList != null) {
+				for(int i = 0; !result && i < CurrentOrder.TiList.size(); i++) {
+					Document.TransferItem ti = CurrentOrder.TiList.get(i);
+					if(ti != null && ti.GoodsID == goodsID)
+						result = true;
+				}
+			}
+			if(!result) {
+				if(CurrentOrder.BkList != null) {
+					for(int i = 0; !result && i < CurrentOrder.BkList.size(); i++) {
+						Document.BookingItem bi = CurrentOrder.BkList.get(i);
+						if(bi != null && bi.GoodsID == goodsID)
+							result = true;
+					}
+				}
+			}
+		}
+		return result;
+	}
+	protected Document.TransferItem SearchGoodsItemInCurrentOrderTi(int goodsID)
 	{
 		Document.TransferItem result = null;
 		if(CurrentOrder != null && CurrentOrder.TiList != null) {
@@ -385,6 +427,14 @@ public class CommonPrereqModule {
 		}
 		return result;
 	}
+	public String GetSimpleSearchResultPattern()
+	{
+		return (SearchResult != null) ? SearchResult.Pattern : null;
+	}
+	public final boolean IsObjInSearchResult(int objType, int objID)
+	{
+		return (SearchResult != null) ? SearchResult.IsThereObj(objType, objID) : false;
+	}
 	public CommonPrereqModule(SLib.SlActivity activityInstance)
 	{
 		SvcIdent = null;
@@ -393,6 +443,8 @@ public class CommonPrereqModule {
 		CmdUuid = null;
 		GoodsGroupListData = null;
 		GoodsListData = null;
+		BaseCurrencySymb = null;
+		AgentID = 0;
 		Gf = null;
 		CurrentOrder = null;
 		OrderHList = null;
@@ -402,6 +454,8 @@ public class CommonPrereqModule {
 		ViewPagerResourceId = 0;
 		TabLayoutResourceId = 0;
 	}
+	String GetBaseCurrencySymb() { return BaseCurrencySymb; }
+	int   GetAgentID() { return AgentID; }
 	public void GetAttributesFromIntent(Intent intent)
 	{
 		if(intent != null) {
@@ -484,13 +538,13 @@ public class CommonPrereqModule {
 										Document local_doc = new Document();
 										if(local_doc.FromJson(json_doc)) {
 											if(OrderHList == null)
-												OrderHList = new ArrayList<Document.Head>();
+												OrderHList = new ArrayList<Document.DisplayEntry>();
 											// Эти операторы нужны на начальном этапе разработки поскольку
 											// финализация пакета документа появилась не сразу {
 											if(local_doc.GetNominalAmount() == 0.0)
 												local_doc.H.Amount = local_doc.CalcNominalAmount();
 											// }
-											OrderHList.add(local_doc.H);
+											OrderHList.add(new Document.DisplayEntry(local_doc));
 											local_doc.H = null;
 										}
 
@@ -725,6 +779,19 @@ public class CommonPrereqModule {
 			ok = false;
 		return ok;
 	}
+	public String FormatCurrency(double val)
+	{
+		NumberFormat format = NumberFormat.getCurrencyInstance();
+		format.setMaximumFractionDigits(2);
+		if(SLib.GetLen(BaseCurrencySymb) > 0)
+			format.setCurrency(Currency.getInstance(BaseCurrencySymb));
+		return format.format(val);
+	}
+	public void GetCommonJsonFactors(JSONObject jsHead) throws JSONException
+	{
+		BaseCurrencySymb = jsHead.optString("basecurrency", null);
+		AgentID = jsHead.optInt("agentid", 0);
+	}
 	public void MakeGoodsListFromCommonJson(JSONObject jsHead) throws JSONException
 	{
 		JSONArray temp_array = jsHead.optJSONArray("goods_list");
@@ -925,7 +992,9 @@ public class CommonPrereqModule {
 						CommonPrereqModule.SimpleSearchIndexEntry se = (CommonPrereqModule.SimpleSearchIndexEntry)item;
 						String pattern = null;
 						if(_ctx instanceof CmdROrderPrereqActivity)
-							pattern = ((CmdROrderPrereqActivity)_ctx).GetSimpleSearchResultPattern();
+							pattern = ((CmdROrderPrereqActivity)_ctx).CPM.GetSimpleSearchResultPattern();
+						else if(_ctx instanceof CmdRAttendancePrereqActivity)
+							pattern = ((CmdRAttendancePrereqActivity)_ctx).CPM.GetSimpleSearchResultPattern();
 						{
 							//SLib.SetCtrlString(convertView, R.id.CTL_SEARCHPANE_FOUNDTEXT, se.Text);
 							TextView v = convertView.findViewById(R.id.CTL_SEARCHPANE_FOUNDTEXT);

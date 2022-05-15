@@ -11,14 +11,7 @@
 
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#ifdef HAVE_CONFIG_H
-//#include "webp/config.h"
-//#endif
 #include "./webpdec.h"
-//#include <assert.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include "webp/decode.h"
 #include "webp/demux.h"
 #include "webp/encode.h"
 #include "../examples/unicode.h"

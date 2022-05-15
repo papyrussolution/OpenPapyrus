@@ -123,7 +123,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 			goto clean_exit;
 		}
 		exchange_state->e_packet[0] = packet_type_init;
-		_libssh2_htonu32(exchange_state->e_packet + 1, exchange_state->e_packet_len - 5);
+		_libssh2_htonu32(exchange_state->e_packet + 1, static_cast<uint32>(exchange_state->e_packet_len - 5));
 		if(_libssh2_bn_bits(exchange_state->e) % 8) {
 			_libssh2_bn_to_bin(exchange_state->e, exchange_state->e_packet + 5);
 		}
@@ -267,7 +267,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 			ret = _libssh2_error(session, LIBSSH2_ERROR_ALLOC, "Unable to allocate buffer for K");
 			goto clean_exit;
 		}
-		_libssh2_htonu32(exchange_state->k_value, exchange_state->k_value_len - 4);
+		_libssh2_htonu32(exchange_state->k_value, static_cast<uint32>(exchange_state->k_value_len - 4));
 		if(_libssh2_bn_bits(exchange_state->k) % 8) {
 			_libssh2_bn_to_bin(exchange_state->k, exchange_state->k_value + 4);
 		}
@@ -278,8 +278,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 		exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
 		libssh2_sha1_init(&exchange_hash_ctx);
 		if(session->local.banner) {
-			_libssh2_htonu32(exchange_state->h_sig_comp,
-			    strlen((char *)session->local.banner) - 2);
+			_libssh2_htonu32(exchange_state->h_sig_comp, static_cast<uint32>(strlen((char *)session->local.banner) - 2));
 			libssh2_sha1_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
 			libssh2_sha1_update(exchange_hash_ctx, (char *)session->local.banner, strlen((char *)session->local.banner) - 2);
 		}
@@ -288,13 +287,13 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 			libssh2_sha1_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
 			libssh2_sha1_update(exchange_hash_ctx, LIBSSH2_SSH_DEFAULT_BANNER, sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
 		}
-		_libssh2_htonu32(exchange_state->h_sig_comp, strlen((char *)session->remote.banner));
+		_libssh2_htonu32(exchange_state->h_sig_comp, static_cast<uint32>(strlen((char *)session->remote.banner)));
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
 		libssh2_sha1_update(exchange_hash_ctx, session->remote.banner, strlen((char *)session->remote.banner));
-		_libssh2_htonu32(exchange_state->h_sig_comp, session->local.kexinit_len);
+		_libssh2_htonu32(exchange_state->h_sig_comp, static_cast<uint32>(session->local.kexinit_len));
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
 		libssh2_sha1_update(exchange_hash_ctx, session->local.kexinit, session->local.kexinit_len);
-		_libssh2_htonu32(exchange_state->h_sig_comp, session->remote.kexinit_len);
+		_libssh2_htonu32(exchange_state->h_sig_comp, static_cast<uint32>(session->remote.kexinit_len));
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
 		libssh2_sha1_update(exchange_hash_ctx, session->remote.kexinit, session->remote.kexinit_len);
 		_libssh2_htonu32(exchange_state->h_sig_comp, session->server_hostkey_len);
@@ -316,7 +315,7 @@ static int diffie_hellman_sha1(LIBSSH2_SESSION * session,
 			libssh2_sha1_update(exchange_hash_ctx, midhash, midhash_len);
 		}
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->e_packet + 1, exchange_state->e_packet_len - 1);
-		_libssh2_htonu32(exchange_state->h_sig_comp, exchange_state->f_value_len);
+		_libssh2_htonu32(exchange_state->h_sig_comp, static_cast<uint32>(exchange_state->f_value_len));
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->f_value, exchange_state->f_value_len);
 		libssh2_sha1_update(exchange_hash_ctx, exchange_state->k_value, exchange_state->k_value_len);
@@ -576,8 +575,7 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 			goto clean_exit;
 		}
 		exchange_state->e_packet[0] = packet_type_init;
-		_libssh2_htonu32(exchange_state->e_packet + 1,
-		    exchange_state->e_packet_len - 5);
+		_libssh2_htonu32(exchange_state->e_packet + 1, exchange_state->e_packet_len - 5);
 		if(_libssh2_bn_bits(exchange_state->e) % 8) {
 			_libssh2_bn_to_bin(exchange_state->e, exchange_state->e_packet + 5);
 		}
@@ -728,9 +726,9 @@ static int diffie_hellman_sha256(LIBSSH2_SESSION * session,
 		exchange_state->exchange_hash = (void *)&exchange_hash_ctx;
 		libssh2_sha256_init(&exchange_hash_ctx);
 		if(session->local.banner) {
-			_libssh2_htonu32(exchange_state->h_sig_comp, strlen((char *)session->local.banner) - 2);
+			_libssh2_htonu32(exchange_state->h_sig_comp, strlen((const char *)session->local.banner) - 2);
 			libssh2_sha256_update(exchange_hash_ctx, exchange_state->h_sig_comp, 4);
-			libssh2_sha256_update(exchange_hash_ctx, (char *)session->local.banner, strlen((char *)session->local.banner) - 2);
+			libssh2_sha256_update(exchange_hash_ctx, (const char *)session->local.banner, strlen((char *)session->local.banner) - 2);
 		}
 		else {
 			_libssh2_htonu32(exchange_state->h_sig_comp, sizeof(LIBSSH2_SSH_DEFAULT_BANNER) - 1);
@@ -1351,7 +1349,7 @@ static size_t kex_method_list(uchar * buf, size_t list_strlen,
 
 #define LIBSSH2_METHOD_PREFS_STR(buf, prefvarlen, prefvar, defaultvar)	\
 	if(prefvar) {							   \
-		_libssh2_htonu32((buf), (prefvarlen));				\
+		_libssh2_htonu32((buf), static_cast<uint32>(prefvarlen)); /* @sobolev static_cast<uint32> */ \
 		buf += 4;							\
 		memcpy((buf), (prefvar), (prefvarlen));				\
 		buf += (prefvarlen);						\
@@ -1475,24 +1473,23 @@ static int kexinit(LIBSSH2_SESSION * session)
  * Kex specific variant of strstr()
  * Needle must be preceed by BOL or ',', and followed by ',' or EOL
  */
-static uchar * kex_agree_instr(uchar * haystack, ulong haystack_len, const uchar * needle, ulong needle_len)
+static uchar * kex_agree_instr(uchar * haystack, size_t haystackLen, const uchar * needle, size_t needleLen) // @sobolev (ulong needleLen)-->(size_t needleLen)
 {
 	uchar * s;
-	/* Haystack too short to bother trying */
-	if(haystack_len < needle_len) {
+	// Haystack too short to bother trying
+	if(haystackLen < needleLen) {
 		return NULL;
 	}
-	/* Needle at start of haystack */
-	if((strncmp((char *)haystack, (char *)needle, needle_len) == 0) && (needle_len == haystack_len || haystack[needle_len] == ',')) {
+	// Needle at start of haystack
+	if((strncmp((char *)haystack, (char *)needle, needleLen) == 0) && (needleLen == haystackLen || haystack[needleLen] == ',')) {
 		return haystack;
 	}
 	s = haystack;
-	/* Search until we run out of comas or we run out of haystack,
-	   whichever comes first */
-	while((s = (uchar *)sstrchr((char *)s, ',')) && ((haystack_len - (s - haystack)) > needle_len)) {
+	// Search until we run out of comas or we run out of haystack, whichever comes first
+	while((s = (uchar *)sstrchr((char *)s, ',')) && ((haystackLen - (s - haystack)) > needleLen)) {
 		s++;
-		/* Needle at X position */
-		if((strncmp((char *)s, (char *)needle, needle_len) == 0) && (((s - haystack) + needle_len) == haystack_len || s[needle_len] == ',')) {
+		// Needle at X position
+		if((strncmp((char *)s, (const char *)needle, needleLen) == 0) && (((s - haystack) + needleLen) == haystackLen || s[needleLen] == ',')) {
 			return s;
 		}
 	}
@@ -1625,7 +1622,7 @@ static int kex_agree_kex_hostkey(LIBSSH2_SESSION * session, uchar * kex, ulong k
 /* kex_agree_crypt
  * Agree on a cipher algo
  */
-static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * endpoint, uchar * crypt, ulong crypt_len)
+static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * endpoint, uchar * crypt, ulong cryptLen)
 {
 	const LIBSSH2_CRYPT_METHOD ** cryptp = libssh2_crypt_methods();
 	uchar * s;
@@ -1635,21 +1632,19 @@ static int kex_agree_crypt(LIBSSH2_SESSION * session, libssh2_endpoint_data * en
 		while(s && *s) {
 			uchar * p = (uchar *)sstrchr((char *)s, ',');
 			size_t method_len = (p ? (size_t)(p - s) : strlen((char *)s));
-			if(kex_agree_instr(crypt, crypt_len, s, method_len)) {
+			if(kex_agree_instr(crypt, cryptLen, s, method_len)) {
 				const LIBSSH2_CRYPT_METHOD * method = (const LIBSSH2_CRYPT_METHOD*)kex_get_method_by_name((char *)s, method_len, (const LIBSSH2_COMMON_METHOD**)cryptp);
-				if(!method) {
-					/* Invalid method -- Should never be reached */
-					return -1;
-				}
+				if(!method)
+					return -1; // Invalid method -- Should never be reached
 				endpoint->crypt = method;
 				return 0;
 			}
-			s = p ? p + 1 : NULL;
+			s = p ? (p + 1) : NULL;
 		}
 		return -1;
 	}
 	while(*cryptp && (*cryptp)->name) {
-		s = kex_agree_instr(crypt, crypt_len, (uchar *)(*cryptp)->name, strlen((*cryptp)->name));
+		s = kex_agree_instr(crypt, cryptLen, (uchar *)(*cryptp)->name, strlen((*cryptp)->name));
 		if(s) {
 			endpoint->crypt = *cryptp;
 			return 0;
@@ -1876,8 +1871,7 @@ int _libssh2_kex_exchange(LIBSSH2_SESSION * session, int reexchange, key_exchang
 		}
 
 		if(key_state->state == libssh2_NB_state_sent1) {
-			retcode = _libssh2_packet_require(session, SSH_MSG_KEXINIT,
-			    &key_state->data, &key_state->data_len, 0, NULL, 0, &key_state->req_state);
+			retcode = _libssh2_packet_require(session, SSH_MSG_KEXINIT, &key_state->data, &key_state->data_len, 0, NULL, 0, &key_state->req_state);
 			if(retcode == LIBSSH2_ERROR_EAGAIN) {
 				session->state &= ~LIBSSH2_STATE_KEX_ACTIVE;
 				return retcode;

@@ -1046,10 +1046,7 @@ void Normalizer2Impl::decomposeAndAppend(const UChar * src, const UChar * limit,
 		}
 		prevCC = cc;
 	}
-	if(!limit) { // appendZeroCC() needs limit!=NULL
-		limit = u_strchr(p, 0);
-	}
-
+	SETIFZQ(limit, u_strchr(p, 0)); // appendZeroCC() needs limit!=NULL
 	if(buffer.append(src, (int32_t)(p - src), FALSE, firstCC, prevCC, errorCode)) {
 		buffer.appendZeroCC(p, limit, errorCode);
 	}
@@ -1253,8 +1250,7 @@ void Normalizer2Impl::recompose(ReorderingBuffer &buffer, int32_t recomposeStart
 			// we have seen a starter that combines forward and
 			compositionsList!=NULL &&
 			// the backward-combining character is not blocked
-			(prevCC<cc || prevCC==0)
-			) {
+			(prevCC<cc || prevCC==0)) {
 			if(isJamoVT(norm16)) {
 				// c is a Jamo V/T, see if we can compose it with the previous character.
 				if(c<Hangul::JAMO_T_BASE) {
@@ -1262,10 +1258,7 @@ void Normalizer2Impl::recompose(ReorderingBuffer &buffer, int32_t recomposeStart
 					UChar prev = (UChar)(*starter-Hangul::JAMO_L_BASE);
 					if(prev<Hangul::JAMO_L_COUNT) {
 						pRemove = p-1;
-						UChar syllable = (UChar)
-						    (Hangul::HANGUL_BASE+
-						    (prev*Hangul::JAMO_V_COUNT+(c-Hangul::JAMO_V_BASE))*
-						    Hangul::JAMO_T_COUNT);
+						UChar syllable = (UChar)(Hangul::HANGUL_BASE + (prev*Hangul::JAMO_V_COUNT+(c-Hangul::JAMO_V_BASE)) * Hangul::JAMO_T_COUNT);
 						UChar t;
 						if(p!=limit && (t = (UChar)(*p-Hangul::JAMO_T_BASE))<Hangul::JAMO_T_COUNT) {
 							++p;
@@ -1875,16 +1868,14 @@ void Normalizer2Impl::composeAndAppend(const UChar * src, const UChar * limit,
 	if(!buffer.isEmpty()) {
 		const UChar * firstStarterInSrc = findNextCompBoundary(src, limit, onlyContiguous);
 		if(src!=firstStarterInSrc) {
-			const UChar * lastStarterInDest = findPreviousCompBoundary(buffer.getStart(),
-				buffer.getLimit(), onlyContiguous);
+			const UChar * lastStarterInDest = findPreviousCompBoundary(buffer.getStart(), buffer.getLimit(), onlyContiguous);
 			int32_t destSuffixLength = (int32_t)(buffer.getLimit()-lastStarterInDest);
 			UnicodeString middle(lastStarterInDest, destSuffixLength);
 			buffer.removeSuffix(destSuffixLength);
 			safeMiddle = middle;
 			middle.append(src, (int32_t)(firstStarterInSrc-src));
 			const UChar * middleStart = middle.getBuffer();
-			compose(middleStart, middleStart+middle.length(), onlyContiguous,
-			    TRUE, buffer, errorCode);
+			compose(middleStart, middleStart+middle.length(), onlyContiguous, TRUE, buffer, errorCode);
 			if(U_FAILURE(errorCode)) {
 				return;
 			}
@@ -1895,21 +1886,17 @@ void Normalizer2Impl::composeAndAppend(const UChar * src, const UChar * limit,
 		compose(src, limit, onlyContiguous, TRUE, buffer, errorCode);
 	}
 	else {
-		if(!limit) { // appendZeroCC() needs limit!=NULL
-			limit = u_strchr(src, 0);
-		}
+		SETIFZQ(limit, u_strchr(src, 0)); // appendZeroCC() needs limit!=NULL
 		buffer.appendZeroCC(src, limit, errorCode);
 	}
 }
 
-bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous,
-    const uint8 * src, const uint8 * limit,
-    ByteSink * sink, Edits * edits, UErrorCode & errorCode) const {
+bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous, const uint8 * src, const uint8 * limit, ByteSink * sink, Edits * edits, UErrorCode & errorCode) const 
+{
 	U_ASSERT(limit != nullptr);
 	UnicodeString s16;
 	uint8 minNoMaybeLead = leadByteForCP(minCompNoMaybeCP);
 	const uint8 * prevBoundary = src;
-
 	for(;;) {
 		// Fast path: Scan over a sequence of characters below the minimum "no or maybe" code point,
 		// or with (compYes && ccc==0) properties.
@@ -1918,8 +1905,7 @@ bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous,
 		for(;;) {
 			if(src == limit) {
 				if(prevBoundary != limit && sink != nullptr) {
-					ByteSinkUtil::appendUnchanged(prevBoundary, limit,
-					    *sink, options, edits, errorCode);
+					ByteSinkUtil::appendUnchanged(prevBoundary, limit, *sink, options, edits, errorCode);
 				}
 				return TRUE;
 			}
@@ -1950,11 +1936,8 @@ bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous,
 			if(isDecompNoAlgorithmic(norm16)) {
 				// Maps to a single isCompYesAndZeroCC character
 				// which also implies hasCompBoundaryBefore.
-				if(norm16HasCompBoundaryAfter(norm16, onlyContiguous) ||
-				    hasCompBoundaryBefore(src, limit)) {
-					if(prevBoundary != prevSrc &&
-					    !ByteSinkUtil::appendUnchanged(prevBoundary, prevSrc,
-					    *sink, options, edits, errorCode)) {
+				if(norm16HasCompBoundaryAfter(norm16, onlyContiguous) || hasCompBoundaryBefore(src, limit)) {
+					if(prevBoundary != prevSrc && !ByteSinkUtil::appendUnchanged(prevBoundary, prevSrc, *sink, options, edits, errorCode)) {
 						break;
 					}
 					appendCodePointDelta(prevSrc, src, getAlgorithmicDelta(norm16), *sink, edits);
@@ -1966,15 +1949,12 @@ bool Normalizer2Impl::composeUTF8(uint32_t options, bool onlyContiguous,
 				// The mapping is comp-normalized which also implies hasCompBoundaryBefore.
 				if(norm16HasCompBoundaryAfter(norm16, onlyContiguous) ||
 				    hasCompBoundaryBefore(src, limit)) {
-					if(prevBoundary != prevSrc &&
-					    !ByteSinkUtil::appendUnchanged(prevBoundary, prevSrc,
-					    *sink, options, edits, errorCode)) {
+					if(prevBoundary != prevSrc && !ByteSinkUtil::appendUnchanged(prevBoundary, prevSrc, *sink, options, edits, errorCode)) {
 						break;
 					}
 					const uint16 * mapping = getMapping(norm16);
 					int32_t length = *mapping++ & MAPPING_LENGTH_MASK;
-					if(!ByteSinkUtil::appendChange(prevSrc, src, (const UChar *)mapping, length,
-					    *sink, edits, errorCode)) {
+					if(!ByteSinkUtil::appendChange(prevSrc, src, (const UChar *)mapping, length, *sink, edits, errorCode)) {
 						break;
 					}
 					prevBoundary = src;

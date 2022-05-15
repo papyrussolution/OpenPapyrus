@@ -2473,6 +2473,10 @@ public class SLib {
 			int nd = DateToDaysSinceChristmas(d.year(), d.month(), d.day());
 			return DaysSinceChristmasToDate(nd + days);
 		}
+		public boolean IsEq(LDATE other)
+		{
+			return (other != null) ? (v == other.v) : false;
+		}
 		public int DayOfWeek(boolean sundayIsSeventh)
 		{
 			// 1/1/1970 - Thu (4)
@@ -3530,6 +3534,34 @@ public class SLib {
 				return new STimeChunk(st, fn);
 			}
 		}
+		String Format(int datf, int timf)
+		{
+			String result = null;
+			if(Start != null && CheckDate(Start.d)) {
+				if(Finish != null && CheckDate(Finish.d)) {
+					if(Start.d.IsEq(Finish.d)) {
+						result = Start.d.Format(datf);
+						if(Start.t.v == Finish.t.v) {
+							result += " " + timefmt(Start.t, timf);
+						}
+						else {
+							result += " " + timefmt(Start.t, timf) + ".." + timefmt(Finish.t, timf);
+						}
+					}
+					else
+						result = datetimefmt(Start, datf, timf) + ".." + datetimefmt(Finish, datf, timf);
+				}
+				else {
+					result = datetimefmt(Start, datf, timf) + "..";
+				}
+			}
+			else if(Finish != null && CheckDate(Finish.d)) {
+				result = ".." + datetimefmt(Finish, datf, timf);
+			}
+			else
+				result = "";
+			return result;
+		}
 		LDATETIME Start;
 		LDATETIME Finish;
 	}
@@ -3659,6 +3691,34 @@ public class SLib {
 		new IntToStrAssoc(uripprot_p_ORACLE,    "oracle" ),   // #42 private // @v10.9.2
 		new IntToStrAssoc(uripprotGit,          "git" ),      // #43 // @v11.1.11
 	};
+	//
+	public static class Margin {
+		Margin()
+		{
+			Left = 0;
+			Top = 0;
+			Right = 0;
+			Bottom = 0;
+		}
+		Margin(int all)
+		{
+			Left = all;
+			Top = all;
+			Right = all;
+			Bottom = all;
+		}
+		Margin(int left, int top, int right, int bottom)
+		{
+			Left = left;
+			Top = top;
+			Right = right;
+			Bottom = bottom;
+		}
+		int Left;
+		int Top;
+		int Right;
+		int Bottom;
+	}
 	//
 	static int GetUriSchemeId(String uriScheme)
 	{

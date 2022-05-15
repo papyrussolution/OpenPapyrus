@@ -1006,10 +1006,9 @@ static void U_CALLCONV ucnv_MBCSGetUnicodeSet(const UConverter * cnv, const USet
 static UChar32 _extFromU(UConverter * cnv, const UConverterSharedData * sharedData, UChar32 cp, const UChar ** source, const UChar * sourceLimit,
     uint8 ** target, const uint8 * targetLimit, int32_t ** offsets, int32_t sourceIndex, bool flush, UErrorCode * pErrorCode) 
 {
-	const int32_t * cx;
 	cnv->useSubChar1 = FALSE;
-	if((cx = sharedData->mbcs.extIndexes)!=NULL &&
-	    ucnv_extInitialMatchFromU(cnv, cx, cp, source, sourceLimit, (char **)target, (char *)targetLimit, offsets, sourceIndex, flush, pErrorCode)) {
+	const int32_t * cx = sharedData->mbcs.extIndexes;
+	if(cx && ucnv_extInitialMatchFromU(cnv, cx, cp, source, sourceLimit, (char **)target, (char *)targetLimit, offsets, sourceIndex, flush, pErrorCode)) {
 		return 0; /* an extension mapping handled the input */
 	}
 	/* GB 18030 */
@@ -1048,8 +1047,8 @@ static UChar32 _extFromU(UConverter * cnv, const UConverterSharedData * sharedDa
 static int8 _extToU(UConverter * cnv, const UConverterSharedData * sharedData, int8 length, const uint8 ** source, const uint8 * sourceLimit,
     UChar ** target, const UChar * targetLimit, int32_t ** offsets, int32_t sourceIndex, bool flush, UErrorCode * pErrorCode) 
 {
-	const int32_t * cx;
-	if((cx = sharedData->mbcs.extIndexes)!=NULL && ucnv_extInitialMatchToU(cnv, cx, length, (const char **)source, (const char *)sourceLimit,
+	const int32_t * cx = sharedData->mbcs.extIndexes;
+	if(cx && ucnv_extInitialMatchToU(cnv, cx, length, (const char **)source, (const char *)sourceLimit,
 		target, targetLimit, offsets, sourceIndex, flush, pErrorCode)) {
 		return 0; /* an extension mapping handled the input */
 	}
@@ -1224,20 +1223,17 @@ static bool _EBCDICSwapLFNL(UConverterSharedData * sharedData, UErrorCode * pErr
 	name = (char *)newResults+sizeofFromUBytes;
 	uprv_strcpy(name, sharedData->staticData->name);
 	uprv_strcat(name, UCNV_SWAP_LFNL_OPTION_STRING);
-
 	/* set the pointers */
 	icu::umtx_lock(NULL);
 	if(mbcsTable->swapLFNLStateTable==NULL) {
 		mbcsTable->swapLFNLStateTable = newStateTable;
 		mbcsTable->swapLFNLFromUnicodeBytes = (uint8 *)newResults;
 		mbcsTable->swapLFNLName = name;
-
 		newStateTable = NULL;
 	}
 	icu::umtx_unlock(NULL);
-
 	/* release the allocated memory if another thread beat us to it */
-	if(newStateTable!=NULL) {
+	if(newStateTable) {
 		uprv_free(newStateTable);
 	}
 	return TRUE;
@@ -1449,7 +1445,7 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData, UConvert
 		if(U_FAILURE(*pErrorCode)) {
 			return;
 		}
-		if(baseSharedData->staticData->conversionType!=UCNV_MBCS || baseSharedData->mbcs.baseSharedData!=NULL) {
+		if(baseSharedData->staticData->conversionType!=UCNV_MBCS || baseSharedData->mbcs.baseSharedData) {
 			ucnv_unload(baseSharedData);
 			*pErrorCode = U_INVALID_TABLE_FORMAT;
 			return;
@@ -1679,16 +1675,16 @@ static void U_CALLCONV ucnv_MBCSLoad(UConverterSharedData * sharedData, UConvert
 static void U_CALLCONV ucnv_MBCSUnload(UConverterSharedData * sharedData) 
 {
 	UConverterMBCSTable * mbcsTable = &sharedData->mbcs;
-	if(mbcsTable->swapLFNLStateTable!=NULL) {
+	if(mbcsTable->swapLFNLStateTable) {
 		uprv_free(mbcsTable->swapLFNLStateTable);
 	}
 	if(mbcsTable->stateTableOwned) {
 		uprv_free((void *)mbcsTable->stateTable);
 	}
-	if(mbcsTable->baseSharedData!=NULL) {
+	if(mbcsTable->baseSharedData) {
 		ucnv_unload(mbcsTable->baseSharedData);
 	}
-	if(mbcsTable->reconstitutedData!=NULL) {
+	if(mbcsTable->reconstitutedData) {
 		uprv_free(mbcsTable->reconstitutedData);
 	}
 }
@@ -1712,7 +1708,7 @@ static void U_CALLCONV ucnv_MBCSOpen(UConverter * cnv, UConverterLoadArgs * pArg
 		/* do this because double-checked locking is broken */
 		bool isCached;
 		icu::umtx_lock(NULL);
-		isCached = mbcsTable->swapLFNLStateTable!=NULL;
+		isCached = (mbcsTable->swapLFNLStateTable != NULL);
 		icu::umtx_unlock(NULL);
 		if(!isCached) {
 			if(!_EBCDICSwapLFNL(cnv->sharedData, pErrorCode)) {
@@ -1724,21 +1720,21 @@ static void U_CALLCONV ucnv_MBCSOpen(UConverter * cnv, UConverterLoadArgs * pArg
 			}
 		}
 	}
-	if(uprv_strstr(pArgs->name, "18030")!=NULL) {
-		if(uprv_strstr(pArgs->name, "gb18030")!=NULL || uprv_strstr(pArgs->name, "GB18030")!=NULL) {
+	if(uprv_strstr(pArgs->name, "18030")) {
+		if(uprv_strstr(pArgs->name, "gb18030") || uprv_strstr(pArgs->name, "GB18030")) {
 			/* set a flag for GB 18030 mode, which changes the callback behavior */
 			cnv->options |= _MBCS_OPTION_GB18030;
 		}
 	}
-	else if((uprv_strstr(pArgs->name, "KEIS")!=NULL) || (uprv_strstr(pArgs->name, "keis")!=NULL)) {
+	else if(uprv_strstr(pArgs->name, "KEIS") || uprv_strstr(pArgs->name, "keis")) {
 		/* set a flag for KEIS converter, which changes the SI/SO character sequence */
 		cnv->options |= _MBCS_OPTION_KEIS;
 	}
-	else if((uprv_strstr(pArgs->name, "JEF")!=NULL) || (uprv_strstr(pArgs->name, "jef")!=NULL)) {
+	else if(uprv_strstr(pArgs->name, "JEF") || uprv_strstr(pArgs->name, "jef")) {
 		/* set a flag for JEF converter, which changes the SI/SO character sequence */
 		cnv->options |= _MBCS_OPTION_JEF;
 	}
-	else if((uprv_strstr(pArgs->name, "JIPS")!=NULL) || (uprv_strstr(pArgs->name, "jips")!=NULL)) {
+	else if(uprv_strstr(pArgs->name, "JIPS") || uprv_strstr(pArgs->name, "jips")) {
 		/* set a flag for JIPS converter, which changes the SI/SO character sequence */
 		cnv->options |= _MBCS_OPTION_JIPS;
 	}
@@ -1747,17 +1743,15 @@ static void U_CALLCONV ucnv_MBCSOpen(UConverter * cnv, UConverterLoadArgs * pArg
 		cnv->maxBytesPerUChar = 3; /* SO+DBCS */
 	}
 	extIndexes = mbcsTable->extIndexes;
-	if(extIndexes!=NULL) {
+	if(extIndexes) {
 		maxBytesPerUChar = (int8)UCNV_GET_MAX_BYTES_PER_UCHAR(extIndexes);
 		if(outputType==MBCS_OUTPUT_2_SISO) {
 			++maxBytesPerUChar; /* SO + multiple DBCS */
 		}
-
 		if(maxBytesPerUChar>cnv->maxBytesPerUChar) {
 			cnv->maxBytesPerUChar = maxBytesPerUChar;
 		}
 	}
-
 #if 0
 	/*
 	 * documentation of UConverter fields used for status
@@ -1779,7 +1773,7 @@ U_CDECL_BEGIN
 
 static const char * U_CALLCONV ucnv_MBCSGetName(const UConverter * cnv) 
 {
-	if((cnv->options&UCNV_OPTION_SWAP_LFNL)!=0 && cnv->sharedData->mbcs.swapLFNLName!=NULL) {
+	if((cnv->options&UCNV_OPTION_SWAP_LFNL)!=0 && cnv->sharedData->mbcs.swapLFNLName) {
 		return cnv->sharedData->mbcs.swapLFNLName;
 	}
 	else {
@@ -2359,21 +2353,16 @@ U_CFUNC void ucnv_MBCSToUnicodeWithOffsets(UConverterToUnicodeArgs * pArgs, UErr
 					if(MBCS_ENTRY_IS_TRANSITION(entry)) {
 						state = (uint8)MBCS_ENTRY_TRANSITION_STATE(entry);
 						offset = MBCS_ENTRY_TRANSITION_OFFSET(entry);
-
 						++source;
-						if(source<sourceLimit &&
-						    MBCS_ENTRY_IS_FINAL(entry = stateTable[state][*source]) &&
-						    MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_VALID_16 &&
-						    (c = unicodeCodeUnits[offset+MBCS_ENTRY_FINAL_VALUE_16(entry)])<0xfffe
-						    ) {
+						if(source<sourceLimit && MBCS_ENTRY_IS_FINAL(entry = stateTable[state][*source]) &&
+						    MBCS_ENTRY_FINAL_ACTION(entry)==MBCS_STATE_VALID_16 && (c = unicodeCodeUnits[offset+MBCS_ENTRY_FINAL_VALUE_16(entry)])<0xfffe) {
 							++source;
 							*target++ = c;
 							if(offsets) {
 								*offsets++ = sourceIndex;
 								sourceIndex = (nextSourceIndex += 2);
 							}
-							state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0
-							      */
+							state = (uint8)MBCS_ENTRY_FINAL_STATE(entry); /* typically 0 */
 							offset = 0;
 						}
 						else {
@@ -3207,7 +3196,7 @@ U_CFUNC UChar32 ucnv_MBCSSimpleGetNextUChar(UConverterSharedData * sharedData,
 	if(c==0xfffe) {
 		/* try an extension mapping */
 		const int32_t * cx = sharedData->mbcs.extIndexes;
-		if(cx!=NULL) {
+		if(cx) {
 			return ucnv_extSimpleMatchToU(cx, source, length, useFallback);
 		}
 	}
@@ -4029,9 +4018,8 @@ U_CFUNC void ucnv_MBCSFromUnicodeWithOffsets(UConverterFromUnicodeArgs * pArgs, 
 			 * to avoid dealing with surrogates.
 			 * MBCS_FAST_MAX must be >=0xd7ff.
 			 */
-			if(c<=0xd7ff && mbcsIndex!=NULL) {
+			if(c<=0xd7ff && mbcsIndex) {
 				value = mbcsIndex[c>>6];
-
 				/* get the bytes and the length for the output (copied from below and adapted for
 				   utf8Friendly data) */
 				/* There are only roundtrips (!=0) and no-mapping (==0) entries. */
@@ -5535,22 +5523,15 @@ U_CFUNC bool ucnv_MBCSIsLeadByte(UConverterSharedData * sharedData, char byte)
 	return (bool)MBCS_ENTRY_IS_TRANSITION(sharedData->mbcs.stateTable[0][(uint8)byte]);
 }
 
-static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs,
-    int32_t offsetIndex,
-    UErrorCode * pErrorCode) {
+static void U_CALLCONV ucnv_MBCSWriteSub(UConverterFromUnicodeArgs * pArgs, int32_t offsetIndex, UErrorCode * pErrorCode) 
+{
 	UConverter * cnv = pArgs->converter;
 	char * p, * subchar;
 	char buffer[4];
 	int32_t length;
-
 	/* first, select between subChar and subChar1 */
-	if(cnv->subChar1!=0 &&
-	    (cnv->sharedData->mbcs.extIndexes!=NULL ?
-	    cnv->useSubChar1 :
-	    (cnv->invalidUCharBuffer[0]<=0xff))
-	    ) {
-		/* select subChar1 if it is set (not 0) and the unmappable Unicode code point is up to U+00ff (IBM MBCS
-		   behavior) */
+	if(cnv->subChar1!=0 && (cnv->sharedData->mbcs.extIndexes ? cnv->useSubChar1 : (cnv->invalidUCharBuffer[0]<=0xff))) {
+		// select subChar1 if it is set (not 0) and the unmappable Unicode code point is up to U+00ff (IBM MBCS behavior)
 		subchar = (char *)&cnv->subChar1;
 		length = 1;
 	}

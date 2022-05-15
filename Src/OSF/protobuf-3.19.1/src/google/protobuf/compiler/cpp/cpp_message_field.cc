@@ -305,20 +305,16 @@ void MessageFieldGenerator::GenerateInternalAccessorDefinitions(io::Printer* pri
 		// MergePartialFromCodedStream, and their purpose is to provide access to
 		// the field without creating a strong dependency on the message type.
 		format(
-			"const ::$proto_ns$::MessageLite& $classname$::_Internal::$name$(\n"
-			"    const $classname$* msg) {\n"
-			"  if(msg->$name$_ != nullptr) {\n"
-			"    return *msg->$name$_;\n"
-			"  } else if($type_default_instance_ptr$ != nullptr) {\n"
-			"    return *reinterpret_cast<const ::$proto_ns$::MessageLite*>($type_default_instance_ptr$);\n"
-			"  } else {\n"
-			"    return "
-			"*::$proto_ns$::internal::ImplicitWeakMessage::default_instance();\n"
-			"  }\n"
+			"const ::$proto_ns$::MessageLite & $classname$::_Internal::$name$(const $classname$* msg)\n{\n"
+			"\tif(msg->$name$_ != nullptr) {\n"
+			"\t\treturn *msg->$name$_;\n"
+			"\t} else if($type_default_instance_ptr$ != nullptr) {\n"
+			"\t\treturn *reinterpret_cast<const ::$proto_ns$::MessageLite*>($type_default_instance_ptr$);\n"
+			"\t} else {\n"
+			"\t\treturn *::$proto_ns$::internal::ImplicitWeakMessage::default_instance();\n"
+			"\t}\n"
 			"}\n");
-		format(
-			"::$proto_ns$::MessageLite*\n"
-			"$classname$::_Internal::mutable_$name$($classname$* msg) {\n");
+		format("::$proto_ns$::MessageLite * $classname$::_Internal::mutable_$name$($classname$* msg) {\n");
 		if(HasHasbit(descriptor_)) {
 			format("  msg->$set_hasbit$\n");
 		}
@@ -338,11 +334,7 @@ void MessageFieldGenerator::GenerateInternalAccessorDefinitions(io::Printer* pri
 		// This inline accessor directly returns member field and is used in
 		// Serialize such that AFDO profile correctly captures access information to
 		// message fields under serialize.
-		format(
-			"const $type$&\n"
-			"$classname$::_Internal::$name$(const $classname$* msg) {\n"
-			"  return *msg->$field_member$;\n"
-			"}\n");
+		format("const $type$ & $classname$::_Internal::$name$(const $classname$* msg) { return *msg->$field_member$; }\n");
 	}
 }
 
@@ -429,11 +421,14 @@ void MessageFieldGenerator::GenerateCopyConstructorCode(io::Printer* printer) co
 {
 	GOOGLE_CHECK(!IsFieldStripped(descriptor_, options_));
 	Formatter format(printer, variables_);
+	/*
 	format("if(from._internal_has_$name$()) {\n"
 		"  $name$_ = new $type$(*from.$name$_);\n"
 		"} else {\n"
 		"  $name$_ = nullptr;\n"
 		"}\n");
+	*/
+	format("$name$_ = from._internal_has_$name$() ? new $type$(*from.$name$_) : nullptr;\n");
 }
 
 void MessageFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* printer) const 
@@ -601,14 +596,12 @@ void MessageOneofFieldGenerator::GenerateSwappingCode(io::Printer* printer) cons
 
 void MessageOneofFieldGenerator::GenerateDestructorCode(io::Printer* printer) const 
 {
-	// We inherit from MessageFieldGenerator, so we need to override the default
-	// behavior.
+	// We inherit from MessageFieldGenerator, so we need to override the default behavior.
 }
 
 void MessageOneofFieldGenerator::GenerateConstructorCode(io::Printer* printer) const 
 {
-	// Don't print any constructor code. The field is in a union. We allocate
-	// space only when this field is used.
+	// Don't print any constructor code. The field is in a union. We allocate space only when this field is used.
 }
 
 void MessageOneofFieldGenerator::GenerateIsInitialized(io::Printer* printer) const 
@@ -682,8 +675,7 @@ void RepeatedMessageFieldGenerator::GenerateInlineAccessorDefinitions(io::Printe
 		"$type_reference_function$"
 		"  return $name$_$weak$.Mutable(index);\n"
 		"}\n"
-		"inline ::$proto_ns$::RepeatedPtrField< $type$ >*\n"
-		"$classname$::mutable_$name$() {\n"
+		"inline ::$proto_ns$::RepeatedPtrField< $type$ > * $classname$::mutable_$name$() {\n"
 		"$annotate_mutable_list$"
 		"  // @@protoc_insertion_point(field_mutable_list:$full_name$)\n"
 		"$type_reference_function$"

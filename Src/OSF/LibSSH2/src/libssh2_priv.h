@@ -153,7 +153,7 @@ void _libssh2_list_remove(struct list_node *entry);
 size_t _libssh2_base64_encode(struct _LIBSSH2_SESSION *session, const char *inp, size_t insize, char **outptr);
 uint FASTCALL _libssh2_ntohu32(const uchar *buf);
 uint64 FASTCALL _libssh2_ntohu64(const uchar *buf);
-void FASTCALL _libssh2_htonu32(uchar *buf, uint32 val);
+void FASTCALL _libssh2_htonu32(uchar * pBuf, uint32 val);
 void FASTCALL _libssh2_store_u32(uchar **buf, uint32 value);
 void FASTCALL _libssh2_store_str(uchar **buf, const char *str, size_t len);
 void *_libssh2_calloc(LIBSSH2_SESSION* session, size_t size);
@@ -523,9 +523,9 @@ typedef struct kmdhgGPshakex_state_t {
 	uchar * tmp;
 	uchar h_sig_comp[MAX_SHA_DIGEST_LEN];
 	uchar c;
-	size_t e_packet_len;
-	size_t s_packet_len;
-	size_t tmp_len;
+	uint32 e_packet_len; // @sobolev size_t-->uint32
+	uint32 s_packet_len; // @sobolev size_t-->uint32
+	uint32 tmp_len;      // @sobolev size_t-->uint32
 	_libssh2_bn_ctx * ctx;
 	_libssh2_bn * x;
 	_libssh2_bn * e;
@@ -535,9 +535,9 @@ typedef struct kmdhgGPshakex_state_t {
 	uchar * f_value;
 	uchar * k_value;
 	uchar * h_sig;
-	size_t f_value_len;
-	size_t k_value_len;
-	size_t h_sig_len;
+	uint32 f_value_len; // @sobolev size_t-->uint32
+	uint32 k_value_len; // @sobolev size_t-->uint32
+	uint32 h_sig_len;   // @sobolev size_t-->uint32
 	void * exchange_hash;
 	packet_require_state_t req_state;
 	libssh2_nonblocking_states burn_state;
@@ -551,8 +551,8 @@ typedef struct key_exchange_state_low_t {
 	_libssh2_bn * g; /* SSH2 defined value (2) */
 	uchar request[13];
 	uchar * data;
-	size_t request_len;
-	size_t data_len;
+	uint32 request_len; // @sobolev size_t-->uint32
+	uint32 data_len;    // @sobolev size_t-->uint32
 } key_exchange_state_low_t;
 
 typedef struct key_exchange_state_t {
@@ -560,7 +560,7 @@ typedef struct key_exchange_state_t {
 	packet_require_state_t req_state;
 	key_exchange_state_low_t key_state_low;
 	uchar * data;
-	size_t data_len;
+	uint32  data_len; // @sobolev size_t-->uint32
 	uchar * oldlocal;
 	size_t oldlocal_len;
 } key_exchange_state_t;
@@ -823,8 +823,8 @@ struct _LIBSSH2_SESSION {
 	size_t kexinit_data_len;
 	libssh2_nonblocking_states startup_state; /* State variables used in libssh2_session_startup() */
 	uchar * startup_data;
-	size_t startup_data_len;
-	uchar startup_service[sizeof("ssh-userauth") + 5 - 1];
+	uint32 startup_data_len; // @sobolev size_t-->uint32
+	uchar  startup_service[sizeof("ssh-userauth") + 5 - 1];
 	size_t startup_service_length;
 	packet_require_state_t startup_req_state;
 	key_exchange_state_t startup_key_state;
@@ -836,12 +836,12 @@ struct _LIBSSH2_SESSION {
 	int readPack_encrypted;
 	libssh2_nonblocking_states userauth_list_state; /* State variables used in libssh2_userauth_list() */
 	uchar * userauth_list_data;
-	size_t userauth_list_data_len;
+	uint32 userauth_list_data_len; // @sobolev size_t-->uint32
 	packet_requirev_state_t userauth_list_packet_requirev_state;
 	libssh2_nonblocking_states userauth_pswd_state; /* State variables used in libssh2_userauth_password_ex() */
 	uchar * userauth_pswd_data;
 	uchar userauth_pswd_data0;
-	size_t userauth_pswd_data_len;
+	uint32 userauth_pswd_data_len; // @sobolev size_t-->uint32
 	char * userauth_pswd_newpw;
 	int userauth_pswd_newpw_len;
 	packet_requirev_state_t userauth_pswd_packet_requirev_state;
@@ -856,7 +856,7 @@ struct _LIBSSH2_SESSION {
 	packet_requirev_state_t userauth_host_packet_requirev_state;
 	libssh2_nonblocking_states userauth_pblc_state; /* State variables used in libssh2_userauth_publickey_fromfile_ex() */
 	uchar * userauth_pblc_data;
-	size_t userauth_pblc_data_len;
+	uint32 userauth_pblc_data_len; // @sobolev size_t-->uint32
 	uchar * userauth_pblc_packet;
 	size_t userauth_pblc_packet_len;
 	uchar * userauth_pblc_method;
@@ -866,7 +866,7 @@ struct _LIBSSH2_SESSION {
 	packet_requirev_state_t userauth_pblc_packet_requirev_state;
 	libssh2_nonblocking_states userauth_kybd_state; /* State variables used in libssh2_userauth_keyboard_interactive_ex() */
 	uchar * userauth_kybd_data;
-	size_t userauth_kybd_data_len;
+	uint32 userauth_kybd_data_len; // @sobolev size_t-->uint32
 	uchar * userauth_kybd_packet;
 	size_t userauth_kybd_packet_len;
 	uint userauth_kybd_auth_name_len;
@@ -884,7 +884,7 @@ struct _LIBSSH2_SESSION {
 	uchar * open_packet;
 	size_t open_packet_len;
 	uchar * open_data;
-	size_t open_data_len;
+	uint32 open_data_len; // @sobolev size_t-->uint32
 	uint32 open_local_channel;
 	libssh2_nonblocking_states direct_state; /* State variables used in libssh2_channel_direct_tcpip_ex() */
 	uchar * direct_message;
@@ -1190,14 +1190,10 @@ int _libssh2_channel_forward_cancel(LIBSSH2_LISTENER * listener);
 //
 //
 int _libssh2_packet_read(LIBSSH2_SESSION * session);
-int _libssh2_packet_ask(LIBSSH2_SESSION * session, uchar packet_type, uchar ** data, size_t * data_len,
-    int match_ofs, const uchar * match_buf, size_t match_len);
-int _libssh2_packet_askv(LIBSSH2_SESSION * session, const uchar * packet_types,
-    uchar ** data, size_t * data_len, int match_ofs, const uchar * match_buf, size_t match_len);
-int _libssh2_packet_require(LIBSSH2_SESSION * session, uchar packet_type, uchar ** data, size_t * data_len, int match_ofs,
-    const uchar * match_buf, size_t match_len, packet_require_state_t * state);
-int _libssh2_packet_requirev(LIBSSH2_SESSION * session, const uchar * packet_types,
-    uchar ** data, size_t * data_len, int match_ofs, const uchar * match_buf, size_t match_len, packet_requirev_state_t * state);
+int _libssh2_packet_ask(LIBSSH2_SESSION * session, uchar packet_type, uchar ** data, uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len);
+int _libssh2_packet_askv(LIBSSH2_SESSION * session, const uchar * packet_types, uchar ** data, uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len);
+int _libssh2_packet_require(LIBSSH2_SESSION * session, uchar packet_type, uchar ** data, /*size_t*/uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len, packet_require_state_t * state);
+int _libssh2_packet_requirev(LIBSSH2_SESSION * session, const uchar * packet_types, uchar ** data, /*size_t*/uint32 * data_len, int match_ofs, const uchar * match_buf, size_t match_len, packet_requirev_state_t * state);
 int _libssh2_packet_burn(LIBSSH2_SESSION * session, libssh2_nonblocking_states * state);
 int _libssh2_packet_write(LIBSSH2_SESSION * session, uchar * data, ulong data_len);
 int _libssh2_packet_add(LIBSSH2_SESSION * session, uchar * data, size_t datalen, int macstate);

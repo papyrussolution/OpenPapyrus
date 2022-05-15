@@ -128,4 +128,22 @@
         <item name="android:textColor">@color/PrimaryDark</item>
         <item name="android:layout_gravity">center_horizontal|center_vertical</item>
     </style>
+    <style name="ReportListItemText">
+        <item name="android:textSize">11sp</item>
+        <item name="android:textColor">@color/TextPrimary</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_gravity">center_horizontal|center_vertical</item>
+    </style>
+    <style name="OrderListItemText">
+        <item name="android:textSize">13sp</item>
+        <item name="android:textColor">@color/TextPrimary</item>
+        <item name="android:layout_marginLeft">4dp</item>
+        <item name="android:layout_marginRight">4dp</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:layout_marginBottom">4dp</item>
+        <item name="android:layout_gravity">center_horizontal|center_vertical</item>
+    </style>
 </resources>

@@ -159,20 +159,16 @@ mask_t gf_eq(const gf a, const gf b)
 	gf c;
 	mask_t ret = 0;
 	uint i;
-
 	gf_sub(c, a, b);
 	gf_strong_reduce(c);
-
 	for(i = 0; i < NLIMBS; i++)
 		ret |= c->limb[LIMBPERM(i)];
-
 	return word_is_zero(ret);
 }
 
 mask_t gf_isr(gf a, const gf x)
 {
 	gf L0, L1, L2;
-
 	gf_sqr(L1, x);
 	gf_mul(L2, x, L1);
 	gf_sqr(L1, L2);

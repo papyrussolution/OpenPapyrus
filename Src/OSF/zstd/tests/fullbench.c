@@ -16,9 +16,9 @@
     #include "zstd_internal.h"   /* ZSTD_decodeSeqHeaders, ZSTD_blockHeaderSize, ZSTD_getcBlockSize, blockType_e, KB, MB */
     #include <zstd_decompress_internal.h> // ZSTD_DCtx struct 
 #else
-    #define KB *(1 <<10)
-    #define MB *(1 <<20)
-    #define GB *(1U<<30)
+    //#define KB *(1 <<10)
+    //#define MB *(1 <<20)
+    //#define GB *(1U<<30)
 typedef enum { bt_raw, bt_rle, bt_compressed, bt_reserved } blockType_e;
 #endif
 #define ZSTD_STATIC_LINKING_ONLY  /* ZSTD_compressBegin, ZSTD_compressContinue, etc. */
@@ -37,7 +37,7 @@ typedef enum { bt_raw, bt_rle, bt_compressed, bt_reserved } blockType_e;
 
 #define NBLOOPS    6
 #define TIMELOOP_S 2
-#define MAX_MEM    (1984 MB)
+#define MAX_MEM    (SMEGABYTE(1984))
 #define DEFAULT_CLEVEL 1
 #define COMPRESSIBILITY_DEFAULT 0.50
 static const size_t kSampleSizeDefault = 10000000;
@@ -58,7 +58,7 @@ static unsigned g_nbIterations = NBLOOPS;
 // 
 static size_t BMK_findMaxMem(uint64 requiredMem)
 {
-	size_t const step = 64 MB;
+	size_t const step = SMEGABYTE(64);
 	void* testmem = NULL;
 	requiredMem = (((requiredMem >> 26) + 1) << 26);
 	SETMIN(requiredMem, MAX_MEM);
@@ -531,7 +531,7 @@ static int benchMem(unsigned benchNb, const void* src, size_t srcSize, int cLeve
 				size_t const skippedSize = frameHeaderSize + ZSTD_blockHeaderSize;
 				memcpy(dstBuff2, dstBuff+skippedSize, g_cSize-skippedSize);
 			}
-			srcSize = srcSize > 128 KB ? 128 KB : srcSize; /* speed relative to block */
+			srcSize = srcSize > SKILOBYTE(128) ? SKILOBYTE(128) : srcSize; /* speed relative to block */
 			ZSTD_decompressBegin(g_zdc);
 			break;
 		}
@@ -565,7 +565,7 @@ static int benchMem(unsigned benchNb, const void* src, size_t srcSize, int cLeve
 			ip += ZSTD_decodeLiteralsBlock(g_zdc, ip, (size_t)(iend-ip), dstBuff, dstBuffSize, not_streaming); // skip literal segment 
 			g_cSize = (size_t)(iend-ip);
 			memcpy(dstBuff2, ip, g_cSize); /* copy rest of block (it starts by SeqHeader) */
-			srcSize = srcSize > 128 KB ? 128 KB : srcSize; /* speed relative to block */
+			srcSize = srcSize > SKILOBYTE(128) ? SKILOBYTE(128) : srcSize; /* speed relative to block */
 			break;
 		}
 #else

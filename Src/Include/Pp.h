@@ -46924,6 +46924,7 @@ public:
 		int    DlvrLocID; // service-domain-id
 		double Amount;    // @v11.3.10
 		SString Code;
+		SString BaseCurrencySymb; // @v11.3.12
 		SBinaryChunk SvcIdent;
 		S_GUID Uuid; // Уникальный идентификатор, генерируемый на стороне эмитента
 		SString Memo;
@@ -56941,8 +56942,8 @@ int    UpdatePassword();
 int    UnifyGoodsPrice();
 //int    SelectLot__(PPID loc, PPID goods, PPID exclude, PPID * pLotID, ReceiptTbl::Rec *);
 int    EditMainConfig();
-int    EditCommConfig();                                                       // COMMCFG.CPP
-int    EditCurrConfig();                                                       // COMMCFG.CPP
+int    EditCommConfig(); // COMMCFG.CPP
+int    EditCurrConfig(); // COMMCFG.CPP
 int    EditQCertDialog(QualityCertTbl::Rec * aRec, int viewOnly);
 int    ViewQCertDialog(PPID);
 int    ExecCSPanel(const CashNodePaneFilt *);

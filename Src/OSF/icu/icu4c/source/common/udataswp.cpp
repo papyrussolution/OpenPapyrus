@@ -248,12 +248,10 @@ U_CAPI int32_t U_EXPORT2 udata_swapInvStringBlock(const UDataSwapper * ds,
 	}
 }
 
-U_CAPI void U_EXPORT2 udata_printError(const UDataSwapper * ds,
-    const char * fmt,
-    ...) {
+U_CAPI void U_EXPORT2 udata_printError(const UDataSwapper * ds, const char * fmt, ...) 
+{
 	va_list args;
-
-	if(ds->printError!=NULL) {
+	if(ds->printError) {
 		va_start(args, fmt);
 		ds->printError(ds->printErrorContext, fmt, args);
 		va_end(args);
@@ -262,12 +260,10 @@ U_CAPI void U_EXPORT2 udata_printError(const UDataSwapper * ds,
 
 /* swap a data header ------------------------------------------------------- */
 
-U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds,
-    const void * inData, int32_t length, void * outData,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 udata_swapDataHeader(const UDataSwapper * ds, const void * inData, int32_t length, void * outData, UErrorCode * pErrorCode) 
+{
 	const DataHeader * pHeader;
 	uint16 headerSize, infoSize;
-
 	/* argument checking */
 	if(!pErrorCode || U_FAILURE(*pErrorCode)) {
 		return 0;

@@ -3299,7 +3299,7 @@ static char * PS_encode_image(GpTermEntry_Static * pThis, uint M, uint N, coordv
 		sprintf(encoded_image_ptr, "~>");
 		encoded_image_ptr += 2;
 	}
-	*return_num_bytes = (encoded_image_ptr - encoded_image);
+	*return_num_bytes = static_cast<int>(encoded_image_ptr - encoded_image);
 	assert(*return_num_bytes <= max_encoded_bytes);
 	return encoded_image;
 }

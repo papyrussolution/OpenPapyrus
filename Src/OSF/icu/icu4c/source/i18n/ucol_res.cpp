@@ -529,17 +529,13 @@ U_CAPI UCollator* ucol_open(const char * loc,
 	return result;
 }
 
-U_CAPI int32_t U_EXPORT2 ucol_getDisplayName(const char * objLoc,
-    const char * dispLoc,
-    UChar * result,
-    int32_t resultLength,
-    UErrorCode * status)
+U_CAPI int32_t U_EXPORT2 ucol_getDisplayName(const char * objLoc, const char * dispLoc, UChar * result, int32_t resultLength, UErrorCode * status)
 {
-	if(U_FAILURE(*status)) return -1;
+	if(U_FAILURE(*status)) 
+		return -1;
 	UnicodeString dst;
-	if(!(result==NULL && resultLength==0)) {
-		// NULL destination for pure preflighting: empty dummy string
-		// otherwise, alias the destination buffer
+	if(result || resultLength) {
+		// NULL destination for pure preflighting: empty dummy string otherwise, alias the destination buffer
 		dst.setTo(result, 0, resultLength);
 	}
 	Collator::getDisplayName(Locale(objLoc), Locale(dispLoc), dst);

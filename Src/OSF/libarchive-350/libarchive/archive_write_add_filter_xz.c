@@ -299,7 +299,7 @@ static int archive_compressor_xz_open(struct archive_write_filter * f)
 static int archive_compressor_xz_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0')
 			return ARCHIVE_WARN;
 		data->compression_level = value[0] - '0';
@@ -307,7 +307,7 @@ static int archive_compressor_xz_options(struct archive_write_filter * f, const 
 			data->compression_level = 9;
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "threads") == 0) {
+	else if(sstreq(key, "threads")) {
 		char * endptr;
 		if(value == NULL)
 			return ARCHIVE_WARN;

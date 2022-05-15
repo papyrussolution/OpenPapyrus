@@ -114,18 +114,11 @@ const char* cpptype_names_[FieldDescriptor::MAX_CPPTYPE + 1] = {
 	"CPPTYPE_ENUM",    "CPPTYPE_STRING", "CPPTYPE_MESSAGE"
 };
 
-static void ReportReflectionUsageTypeError(const Descriptor* descriptor, const FieldDescriptor* field,
-    const char* method, FieldDescriptor::CppType expected_type) {
+static void ReportReflectionUsageTypeError(const Descriptor* descriptor, const FieldDescriptor* field, const char* method, FieldDescriptor::CppType expected_type) 
+{
 	GOOGLE_LOG(FATAL)
-		<< "Protocol Buffer reflection usage error:\n"
-		"  Method      : google::protobuf::Reflection::"
-		<< method
-		<< "\n"
-		"  Message type: "
-		<< descriptor->full_name()
-		<< "\n"
-		"  Field       : "
-		<< field->full_name()
+		<< "Protocol Buffer reflection usage error:\n  Method      : google::protobuf::Reflection::"
+		<< method << "\n  Message type: " << descriptor->full_name() << "\n  Field       : " << field->full_name()
 		<< "\n"
 		"  Problem     : Field is not the right type for this message:\n"
 		"    Expected  : "
@@ -135,18 +128,10 @@ static void ReportReflectionUsageTypeError(const Descriptor* descriptor, const F
 		<< cpptype_names_[field->cpp_type()];
 }
 
-static void ReportReflectionUsageEnumTypeError(const Descriptor* descriptor, const FieldDescriptor* field,
-    const char* method, const EnumValueDescriptor* value) {
-	GOOGLE_LOG(FATAL) << "Protocol Buffer reflection usage error:\n"
-		"  Method      : google::protobuf::Reflection::"
-			  << method
-			  << "\n"
-		"  Message type: "
-			  << descriptor->full_name()
-			  << "\n"
-		"  Field       : "
-			  << field->full_name()
-			  << "\n"
+static void ReportReflectionUsageEnumTypeError(const Descriptor* descriptor, const FieldDescriptor* field, const char* method, const EnumValueDescriptor* value) 
+{
+	GOOGLE_LOG(FATAL) << "Protocol Buffer reflection usage error:\n  Method      : google::protobuf::Reflection::" << method
+			  << "\n  Message type: " << descriptor->full_name() << "\n  Field       : " << field->full_name() << "\n"
 		"  Problem     : Enum value did not match field type:\n"
 		"    Expected  : "
 			  << field->enum_type()->full_name()
@@ -155,10 +140,9 @@ static void ReportReflectionUsageEnumTypeError(const Descriptor* descriptor, con
 			  << value->full_name();
 }
 
-inline void CheckInvalidAccess(const internal::ReflectionSchema& schema,
-    const FieldDescriptor* field) {
-	GOOGLE_CHECK(!schema.IsFieldStripped(field))
-		<< "invalid access to a stripped field " << field->full_name();
+inline void CheckInvalidAccess(const internal::ReflectionSchema& schema, const FieldDescriptor* field) 
+{
+	GOOGLE_CHECK(!schema.IsFieldStripped(field)) << "invalid access to a stripped field " << field->full_name();
 }
 
 #define USAGE_CHECK(CONDITION, METHOD, ERROR_DESCRIPTION) \
@@ -1950,14 +1934,12 @@ const Message* Reflection::GetDefaultMessageInstance(const FieldDescriptor* fiel
 		}
 		return res;
 	}
-
 	// For other factories, we try the default's object field.
 	// In particular, the DynamicMessageFactory will cross link the default
 	// instances to allow for this. But only do this for real fields.
 	// This is an optimization to avoid going to GetPrototype() below, as that
 	// requires a lock and a map lookup.
-	if(!field->is_extension() && !field->options().weak() &&
-	    !IsLazyField(field) && !schema_.InRealOneof(field)) {
+	if(!field->is_extension() && !field->options().weak() && !IsLazyField(field) && !schema_.InRealOneof(field)) {
 		auto* res = DefaultRaw<const Message*>(field);
 		if(res != nullptr) {
 			return res;
@@ -1967,14 +1949,12 @@ const Message* Reflection::GetDefaultMessageInstance(const FieldDescriptor* fiel
 	return message_factory_->GetPrototype(field->message_type());
 }
 
-const Message& Reflection::GetMessage(const Message& message,
-    const FieldDescriptor* field,
-    MessageFactory* factory) const {
+const Message& Reflection::GetMessage(const Message& message, const FieldDescriptor* field, MessageFactory* factory) const 
+{
 	USAGE_CHECK_ALL(GetMessage, SINGULAR, MESSAGE);
 	CheckInvalidAccess(schema_, field);
-
-	if(factory == nullptr) factory = message_factory_;
-
+	if(factory == nullptr) 
+		factory = message_factory_;
 	if(field->is_extension()) {
 		return static_cast<const Message&>(GetExtensionSet(message).GetMessage(
 			       field->number(), field->message_type(), factory));
@@ -1991,23 +1971,18 @@ const Message& Reflection::GetMessage(const Message& message,
 	}
 }
 
-Message* Reflection::MutableMessage(Message* message,
-    const FieldDescriptor* field,
-    MessageFactory* factory) const {
+Message* Reflection::MutableMessage(Message* message, const FieldDescriptor* field, MessageFactory* factory) const 
+{
 	USAGE_CHECK_ALL(MutableMessage, SINGULAR, MESSAGE);
 	CheckInvalidAccess(schema_, field);
-
-	if(factory == nullptr) factory = message_factory_;
-
+	if(factory == nullptr) 
+		factory = message_factory_;
 	if(field->is_extension()) {
-		return static_cast<Message*>(
-			MutableExtensionSet(message)->MutableMessage(field, factory));
+		return static_cast<Message*>(MutableExtensionSet(message)->MutableMessage(field, factory));
 	}
 	else {
 		Message* result;
-
 		Message** result_holder = MutableRaw<Message*>(message, field);
-
 		if(schema_.InRealOneof(field)) {
 			if(!HasOneofField(*message, field)) {
 				ClearOneof(message, field->containing_oneof());
@@ -2019,7 +1994,6 @@ Message* Reflection::MutableMessage(Message* message,
 		else {
 			SetBit(message, field);
 		}
-
 		if(*result_holder == nullptr) {
 			const Message* default_message = GetDefaultMessageInstance(field);
 			*result_holder = default_message->New(message->GetArenaForAllocation());
@@ -2581,25 +2555,26 @@ bool Reflection::HasBit(const Message& message,
 	}
 }
 
-void Reflection::SetBit(Message* message, const FieldDescriptor* field) const {
+void Reflection::SetBit(Message* message, const FieldDescriptor* field) const 
+{
 	GOOGLE_DCHECK(!field->options().weak());
 	const uint32_t index = schema_.HasBitIndex(field);
-	if(index == static_cast<uint32_t>(-1)) return;
-	MutableHasBits(message)[index / 32] |=
-	    (static_cast<uint32_t>(1) << (index % 32));
+	if(index == static_cast<uint32_t>(-1)) 
+		return;
+	MutableHasBits(message)[index / 32] |= (static_cast<uint32_t>(1) << (index % 32));
 }
 
-void Reflection::ClearBit(Message* message,
-    const FieldDescriptor* field) const {
+void Reflection::ClearBit(Message* message, const FieldDescriptor* field) const 
+{
 	GOOGLE_DCHECK(!field->options().weak());
 	const uint32_t index = schema_.HasBitIndex(field);
-	if(index == static_cast<uint32_t>(-1)) return;
-	MutableHasBits(message)[index / 32] &=
-	    ~(static_cast<uint32_t>(1) << (index % 32));
+	if(index == static_cast<uint32_t>(-1)) 
+		return;
+	MutableHasBits(message)[index / 32] &= ~(static_cast<uint32_t>(1) << (index % 32));
 }
 
-void Reflection::SwapBit(Message* message1, Message* message2,
-    const FieldDescriptor* field) const {
+void Reflection::SwapBit(Message* message1, Message* message2, const FieldDescriptor* field) const 
+{
 	GOOGLE_DCHECK(!field->options().weak());
 	if(!schema_.HasHasbits()) {
 		return;
@@ -2619,28 +2594,28 @@ void Reflection::SwapBit(Message* message1, Message* message2,
 	}
 }
 
-bool Reflection::HasOneof(const Message& message,
-    const OneofDescriptor* oneof_descriptor) const {
+bool Reflection::HasOneof(const Message& message, const OneofDescriptor* oneof_descriptor) const 
+{
 	if(oneof_descriptor->is_synthetic()) {
 		return HasField(message, oneof_descriptor->field(0));
 	}
 	return (GetOneofCase(message, oneof_descriptor) > 0);
 }
 
-void Reflection::SetOneofCase(Message* message,
-    const FieldDescriptor* field) const {
+void Reflection::SetOneofCase(Message* message, const FieldDescriptor* field) const 
+{
 	*MutableOneofCase(message, field->containing_oneof()) = field->number();
 }
 
-void Reflection::ClearOneofField(Message* message,
-    const FieldDescriptor* field) const {
+void Reflection::ClearOneofField(Message* message, const FieldDescriptor* field) const 
+{
 	if(HasOneofField(*message, field)) {
 		ClearOneof(message, field->containing_oneof());
 	}
 }
 
-void Reflection::ClearOneof(Message* message,
-    const OneofDescriptor* oneof_descriptor) const {
+void Reflection::ClearOneof(Message* message, const OneofDescriptor* oneof_descriptor) const 
+{
 	if(oneof_descriptor->is_synthetic()) {
 		ClearField(message, oneof_descriptor->field(0));
 		return;
@@ -3047,30 +3022,30 @@ Metadata AssignDescriptors(const DescriptorTable* (*table)(),
 	return metadata;
 }
 
-void AssignDescriptors(const DescriptorTable* table, bool eager) {
-	if(!eager) eager = table->is_eager;
+void AssignDescriptors(const DescriptorTable* table, bool eager) 
+{
+	if(!eager) 
+		eager = table->is_eager;
 	call_once(*table->once, AssignDescriptorsImpl, table, eager);
 }
 
-AddDescriptorsRunner::AddDescriptorsRunner(const DescriptorTable* table) {
+AddDescriptorsRunner::AddDescriptorsRunner(const DescriptorTable* table) 
+{
 	AddDescriptors(table);
 }
 
-void RegisterFileLevelMetadata(const DescriptorTable* table) {
+void RegisterFileLevelMetadata(const DescriptorTable* table) 
+{
 	AssignDescriptors(table);
 	RegisterAllTypesInternal(table->file_level_metadata, table->num_messages);
 }
 
-void UnknownFieldSetSerializer(const uint8_t* base, uint32_t offset,
-    uint32_t /*tag*/, uint32_t /*has_offset*/,
-    io::CodedOutputStream* output) {
+void UnknownFieldSetSerializer(const uint8_t* base, uint32_t offset, uint32_t /*tag*/, uint32_t /*has_offset*/, io::CodedOutputStream* output) 
+{
 	const void* ptr = base + offset;
 	const InternalMetadata* metadata = static_cast<const InternalMetadata*>(ptr);
 	if(metadata->have_unknown_fields()) {
-		internal::WireFormat::SerializeUnknownFields(
-			metadata->unknown_fields<UnknownFieldSet>(
-				UnknownFieldSet::default_instance),
-			output);
+		internal::WireFormat::SerializeUnknownFields(metadata->unknown_fields<UnknownFieldSet>(UnknownFieldSet::default_instance), output);
 	}
 }
 }  // namespace internal

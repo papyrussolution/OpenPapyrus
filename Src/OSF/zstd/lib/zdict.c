@@ -640,7 +640,7 @@ static size_t ZDICT_analyzeEntropy(void *  dstBuffer, size_t maxDstSize, int com
 	HUF_CREATE_STATIC_CTABLE(hufTable, 255);
 	uint offcodeCount[OFFCODE_MAX+1];
 	short offcodeNCount[OFFCODE_MAX+1];
-	uint32 offcodeMax = ZSTD_highbit32((uint32)(dictBufferSize + 128 KB));
+	uint32 offcodeMax = ZSTD_highbit32((uint32)(dictBufferSize + SKILOBYTE(128)));
 	uint matchLengthCount[MaxML+1];
 	short matchLengthNCount[MaxML+1];
 	uint litLengthCount[MaxLL+1];

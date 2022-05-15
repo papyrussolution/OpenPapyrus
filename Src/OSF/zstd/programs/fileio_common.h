@@ -23,11 +23,11 @@ extern "C" {
 /*-*************************************
 *  Macros
 ***************************************/
-#define KB *(1 <<10)
-#define MB *(1 <<20)
-#define GB *(1U<<30)
-#undef MAX
-#define MAX(a, b) ((a)>(b) ? (a) : (b))
+//#define KB *(1 <<10)
+//#define MB *(1 <<20)
+//#define GB *(1U<<30)
+//#undef MAX
+//#define MAX(a, b) ((a)>(b) ? (a) : (b))
 
 extern FIO_display_prefs_t g_display_prefs;
 

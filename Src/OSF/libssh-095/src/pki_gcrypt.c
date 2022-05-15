@@ -21,12 +21,8 @@
 
 #ifdef HAVE_LIBGCRYPT
 
-#include <assert.h>
 #include <stdbool.h>
-#include <string.h>
-#include <stdlib.h>
 #include <gcrypt.h>
-#include <stdio.h>
 
 #define MAXLINESIZE 80
 #define RSA_HEADER_BEGIN "-----BEGIN RSA PRIVATE KEY-----"
@@ -917,41 +913,31 @@ ssh_string pki_private_key_to_pem(const ssh_key key,
 	return NULL;
 }
 
-ssh_key pki_private_key_from_base64(const char * b64_key,
-    const char * passphrase,
-    ssh_auth_callback auth_fn,
-    void * auth_data)
+ssh_key pki_private_key_from_base64(const char * b64_key, const char * passphrase, ssh_auth_callback auth_fn, void * auth_data)
 {
 	gcry_sexp_t dsa = NULL;
 	gcry_sexp_t rsa = NULL;
 	gcry_sexp_t ecdsa = NULL;
 	ssh_key key = NULL;
-	enum ssh_keytypes_e type;
 	int valid;
-
-	type = pki_privatekey_type_from_string(b64_key);
+	enum ssh_keytypes_e type = pki_privatekey_type_from_string(b64_key);
 	if(type == SSH_KEYTYPE_UNKNOWN) {
 		SSH_LOG(SSH_LOG_WARN, "Unknown or invalid private key.");
 		return NULL;
 	}
-
 	switch(type) {
 		case SSH_KEYTYPE_DSS:
 		    if(passphrase == NULL) {
 			    if(auth_fn) {
-				    valid = b64decode_dsa_privatekey(b64_key, &dsa, auth_fn,
-					    auth_data, "Passphrase for private key:");
+				    valid = b64decode_dsa_privatekey(b64_key, &dsa, auth_fn, auth_data, "Passphrase for private key:");
 			    }
 			    else {
-				    valid = b64decode_dsa_privatekey(b64_key, &dsa, NULL, NULL,
-					    NULL);
+				    valid = b64decode_dsa_privatekey(b64_key, &dsa, NULL, NULL, NULL);
 			    }
 		    }
 		    else {
-			    valid = b64decode_dsa_privatekey(b64_key, &dsa, NULL, (void *)
-				    passphrase, NULL);
+			    valid = b64decode_dsa_privatekey(b64_key, &dsa, NULL, (void *)passphrase, NULL);
 		    }
-
 		    if(!valid) {
 			    SSH_LOG(SSH_LOG_WARN, "Parsing private key");
 			    goto fail;
@@ -960,19 +946,15 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 		case SSH_KEYTYPE_RSA:
 		    if(passphrase == NULL) {
 			    if(auth_fn) {
-				    valid = b64decode_rsa_privatekey(b64_key, &rsa, auth_fn,
-					    auth_data, "Passphrase for private key:");
+				    valid = b64decode_rsa_privatekey(b64_key, &rsa, auth_fn, auth_data, "Passphrase for private key:");
 			    }
 			    else {
-				    valid = b64decode_rsa_privatekey(b64_key, &rsa, NULL, NULL,
-					    NULL);
+				    valid = b64decode_rsa_privatekey(b64_key, &rsa, NULL, NULL, NULL);
 			    }
 		    }
 		    else {
-			    valid = b64decode_rsa_privatekey(b64_key, &rsa, NULL,
-				    (void *)passphrase, NULL);
+			    valid = b64decode_rsa_privatekey(b64_key, &rsa, NULL, (void *)passphrase, NULL);
 		    }
-
 		    if(!valid) {
 			    SSH_LOG(SSH_LOG_WARN, "Parsing private key");
 			    goto fail;
@@ -984,33 +966,19 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 #if HAVE_GCRYPT_ECC
 		    if(passphrase == NULL) {
 			    if(auth_fn != NULL) {
-				    valid = b64decode_ecdsa_privatekey(b64_key,
-					    &ecdsa,
-					    auth_fn,
-					    auth_data,
-					    "Passphrase for private key:");
+				    valid = b64decode_ecdsa_privatekey(b64_key, &ecdsa, auth_fn, auth_data, "Passphrase for private key:");
 			    }
 			    else {
-				    valid = b64decode_ecdsa_privatekey(b64_key,
-					    &ecdsa,
-					    NULL,
-					    NULL,
-					    NULL);
+				    valid = b64decode_ecdsa_privatekey(b64_key, &ecdsa, NULL, NULL, NULL);
 			    }
 		    }
 		    else {
-			    valid = b64decode_ecdsa_privatekey(b64_key,
-				    &ecdsa,
-				    NULL,
-				    (void *)passphrase,
-				    NULL);
+			    valid = b64decode_ecdsa_privatekey(b64_key, &ecdsa, NULL, (void *)passphrase, NULL);
 		    }
-
 		    if(!valid) {
 			    SSH_LOG(SSH_LOG_WARN, "Parsing private key");
 			    goto fail;
 		    }
-
 		    /* pki_privatekey_type_from_string always returns P256 for ECDSA
 		     * keys, so we need to figure out the correct type here */
 		    type = pki_key_ecdsa_to_key_type(ecdsa);
@@ -1028,12 +996,10 @@ ssh_key pki_private_key_from_base64(const char * b64_key,
 		    SSH_LOG(SSH_LOG_WARN, "Unknown or invalid private key type %d", type);
 		    return NULL;
 	}
-
 	key = ssh_key_new();
 	if(!key) {
 		goto fail;
 	}
-
 	key->type = type;
 	key->type_c = ssh_key_type_to_char(type);
 	key->flags = SSH_KEY_FLAG_PRIVATE | SSH_KEY_FLAG_PUBLIC;

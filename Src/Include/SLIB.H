@@ -5,6 +5,9 @@
 #ifndef __SLIB_H
 #define __SLIB_H
 #define SLIBINCLUDED
+// Специальное определение, необходимое на начальной фазе сборки openssl 3.0. Для этого сделан отдельный проект SLIB, в котором SLIB_OSSL_VER_30 определен.
+//#define SLIB_OSSL_VER_30
+
 #ifndef __SLCONFIG_H
 	#include <slconfig.h>
 #endif
@@ -2457,6 +2460,7 @@ private:
 #define oneof13(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13))
 #define oneof14(f,c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14) ((f)==(c1)||(f)==(c2)||(f)==(c3)||(f)==(c4)||(f)==(c5)||(f)==(c6)||(f)==(c7)||(f)==(c8)||(f)==(c9)||(f)==(c10)||(f)==(c11)||(f)==(c12)||(f)==(c13)||(f)==(c14))
 #define NZOR(v,a)                   ((v)?(v):(a))
+#define NZSTR(v)                    ((v)?(v):"") // @v11.3.12
 //#define NZOR_F(v,a)                 ((!!(v))?(v):(a))
 // Использование SETIFZ может инициировать нежелательное замечание компилятора "assignment within conditional expression" (MSVC C4706).
 // Если этот побочный эффект неприемлем, то используйте SETIFZQ (в этом случае применить его в условном выражении не удасться.

@@ -269,12 +269,12 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 {
 	int ret = ARCHIVE_FAILED;
 	struct cpio * cpio = (struct cpio *)(a->format->data);
-	if(strcmp(key, "compat-2x")  == 0) {
-		/* Handle filenames as libarchive 2.x */
-		cpio->init_default_conversion = (val != NULL) ? 1 : 0;
+	if(sstreq(key, "compat-2x")) {
+		// Handle filenames as libarchive 2.x
+		cpio->init_default_conversion = BIN(val);
 		return ARCHIVE_OK;
 	}
-	else if(strcmp(key, "hdrcharset")  == 0) {
+	else if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cpio: hdrcharset option needs a character-set name");
 		else {
@@ -286,7 +286,6 @@ static int archive_read_format_cpio_options(struct archive_read * a, const char 
 		}
 		return ret;
 	}
-
 	/* Note: The "warn" return is just to inform the options
 	 * supervisor that we didn't handle it.  It will generate
 	 * a suitable error if no one used this option. */

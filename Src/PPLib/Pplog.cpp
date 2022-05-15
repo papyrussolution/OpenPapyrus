@@ -157,7 +157,7 @@ void LogListWindowSCI::Refresh(long item)
 			if(p_buf) {
 				temp_buf = p_buf+sizeof(long);
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8).CRB();
-				CallFunc(SCI_APPENDTEXT, static_cast<int>(temp_buf.Len()), reinterpret_cast<int>(temp_buf.cptr()));
+				CallFunc(SCI_APPENDTEXT, static_cast<int>(temp_buf.Len()), reinterpret_cast<intptr_t>(temp_buf.cptr()));
 				line_no_to_select++;
 			}
 		}
@@ -176,7 +176,7 @@ void LogListWindowSCI::Append()
 				SString temp_buf(p_buf+sizeof(long));
 				temp_buf.Strip().Transf(CTRANSF_INNER_TO_UTF8).CRB();
 				CallFunc(SCI_SETREADONLY);
-				CallFunc(SCI_APPENDTEXT, (int)temp_buf.Len(), (int)temp_buf.cptr());
+				CallFunc(SCI_APPENDTEXT, (int)temp_buf.Len(), (intptr_t)temp_buf.cptr());
 				CallFunc(SCI_SETREADONLY, 1);
 				CallFunc(SCI_GOTOLINE, vc);
 			}
@@ -362,7 +362,7 @@ void LogListWindowSCI::Resize()
 			if(p_view) {
 				p_view->CallFunc(SCI_SETREADONLY);
 				p_view->CallFunc(SCI_CLEARALL);
-				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (int)p_view->Doc.SciDoc);
+				p_view->CallFunc(SCI_RELEASEDOCUMENT, 0, (intptr_t)p_view->Doc.SciDoc);
 				SETIFZ(p_view->EndModalCmd, cmCancel);
 				APPL->DelItemFromMenu(p_view);
 				p_view->ResetOwnerCurrent();
@@ -586,14 +586,14 @@ long PPMsgLog::PutMessage(const char * pBody, long flags, const void * head, siz
 		SString body(pBody);
 		body.Chomp();
 		st.flags    = flags;
-		st.address  = hsize + sizeof(int16) + body.Len();
+		st.address  = static_cast<long>(hsize + sizeof(int16) + body.Len());
 		st.address += GetLogIdx(GetCount()).address;
 		lseek(Stream, 0, SEEK_END);
 		lseek(InStream, 0, SEEK_END);
 		_write(InStream, &st, sizeof(PPLogIdx));
 		_write(Stream, &hsize, sizeof(int16));
-		_write(Stream, head, hsize);
-		_write(Stream, body.cptr(), body.Len());
+		_write(Stream, head, static_cast<uint>(hsize));
+		_write(Stream, body.cptr(), static_cast<uint>(body.Len()));
 		AllCount++;
 		rval = ImplPutMsg(body, flags);
 	}
@@ -1324,7 +1324,7 @@ PPLogMsgSession::PPLogMsgSession(PPLogMsgQueue * pQueue) : PPThread(PPThread::kL
 			ok = 0;
 	}
 	if(ok) {
-		const int added_size = rMsgItem.Prefix.Len() + rMsgItem.Text.Len();
+		const long added_size = static_cast<long>(rMsgItem.Prefix.Len() + rMsgItem.Text.Len());
 		if((max_file_size > 0) && (current_size + added_size) >= max_file_size*1024) {
 			int    num_dig = 3;
 			long   counter = 0;

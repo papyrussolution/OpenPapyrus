@@ -144,15 +144,14 @@ void onig_null_warn(const char * s ARG_UNUSED)
 }
 
 #ifdef DEFAULT_WARN_FUNCTION
-static OnigWarnFunc onig_warn = (OnigWarnFunc)DEFAULT_WARN_FUNCTION;
+	static OnigWarnFunc onig_warn = (OnigWarnFunc)DEFAULT_WARN_FUNCTION;
 #else
-static OnigWarnFunc onig_warn = onig_null_warn;
+	static OnigWarnFunc onig_warn = onig_null_warn;
 #endif
-
 #ifdef DEFAULT_VERB_WARN_FUNCTION
-static OnigWarnFunc onig_verb_warn = (OnigWarnFunc)DEFAULT_VERB_WARN_FUNCTION;
+	static OnigWarnFunc onig_verb_warn = (OnigWarnFunc)DEFAULT_VERB_WARN_FUNCTION;
 #else
-static OnigWarnFunc onig_verb_warn = onig_null_warn;
+	static OnigWarnFunc onig_verb_warn = onig_null_warn;
 #endif
 
 void onig_set_warn_func(OnigWarnFunc f)
@@ -167,9 +166,8 @@ void onig_set_verb_warn_func(OnigWarnFunc f)
 
 void onig_warning(const char * s)
 {
-	if(onig_warn == onig_null_warn) 
-		return;
-	(*onig_warn)(s);
+	if(onig_warn != onig_null_warn) 
+		(*onig_warn)(s);
 }
 
 #define DEFAULT_MAX_CAPTURE_NUM   32767
@@ -395,12 +393,9 @@ static uchar * strcat_capa(uchar * dest, uchar * dest_end, const uchar * src, co
 }
 
 /* dest on static area */
-static uchar * strcat_capa_from_static(uchar * dest, uchar * dest_end,
-    const uchar * src, const uchar * src_end, int capa)
+static uchar * strcat_capa_from_static(uchar * dest, uchar * dest_end, const uchar * src, const uchar * src_end, int capa)
 {
-	uchar * r;
-
-	r = (uchar *)SAlloc::M(capa + 1);
+	uchar * r = (uchar *)SAlloc::M(capa + 1);
 	CHECK_NULL_RETURN(r);
 	onig_strcpy(r, dest, dest_end);
 	onig_strcpy(r + (dest_end - dest), src, src_end);
@@ -1241,7 +1236,6 @@ static int callout_name_entry(CalloutNameEntry** rentry, OnigEncoding enc,
 	*rentry = 0;
 	if(name_end - name <= 0)
 		return ONIGERR_INVALID_CALLOUT_NAME;
-
 	e = callout_name_find(enc, is_not_single, name, name_end);
 	if(IS_NULL(e)) {
 #ifdef USE_ST_LIBRARY
@@ -1252,7 +1246,6 @@ static int callout_name_entry(CalloutNameEntry** rentry, OnigEncoding enc,
 		}
 		e = (CalloutNameEntry*)SAlloc::M(sizeof(CalloutNameEntry));
 		CHECK_NULL_RETURN_MEMERR(e);
-
 		e->name = onigenc_strdup(enc, name, name_end);
 		if(IS_NULL(e->name)) {
 			SAlloc::F(e);  return ONIGERR_MEMORY;
@@ -1268,7 +1261,6 @@ static int callout_name_entry(CalloutNameEntry** rentry, OnigEncoding enc,
 			t->e     = NULL;
 			t->alloc = 0;
 			t->num   = 0;
-
 			t->e = (CalloutNameEntry*)SAlloc::M(sizeof(CalloutNameEntry) * alloc);
 			if(IS_NULL(t->e)) {
 				SAlloc::F(t);
@@ -1280,12 +1272,10 @@ static int callout_name_entry(CalloutNameEntry** rentry, OnigEncoding enc,
 		}
 		else if(t->num == t->alloc) {
 			int i;
-
 			alloc = t->alloc * 2;
 			t->e = (CalloutNameEntry*)SAlloc::R(t->e, sizeof(CalloutNameEntry) * alloc);
 			CHECK_NULL_RETURN_MEMERR(t->e);
 			t->alloc = alloc;
-
 clear:
 			for(i = t->num; i < t->alloc; i++) {
 				t->e[i].name       = NULL;
@@ -1298,12 +1288,10 @@ clear:
 		e->name = onigenc_strdup(enc, name, name_end);
 		if(IS_NULL(e->name)) return ONIGERR_MEMORY;
 #endif
-
 		CalloutNameIDCounter++;
 		e->id = CalloutNameIDCounter;
 		e->name_len = (int)(name_end - name);
 	}
-
 	*rentry = e;
 	return e->id;
 }
@@ -1312,22 +1300,19 @@ static int is_allowed_callout_name(OnigEncoding enc, uchar * name, uchar * name_
 {
 	uchar * p;
 	OnigCodePoint c;
-
-	if(name >= name_end) return 0;
-
+	if(name >= name_end) 
+		return 0;
 	p = name;
 	while(p < name_end) {
 		c = ONIGENC_MBC_TO_CODE(enc, p, name_end);
 		if(!IS_ALLOWED_CODE_IN_CALLOUT_NAME(c))
 			return 0;
-
 		if(p == name) {
-			if(c >= '0' && c <= '9') return 0;
+			if(c >= '0' && c <= '9') 
+				return 0;
 		}
-
 		p += ONIGENC_MBC_ENC_LEN(enc, p);
 	}
-
 	return 1;
 }
 

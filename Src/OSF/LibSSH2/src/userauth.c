@@ -672,9 +672,8 @@ static int userauth_hostbased_fromfile(LIBSSH2_SESSION * session, const char * u
 	}
 	if(session->userauth_host_state == libssh2_NB_state_sent) {
 		static const uchar reply_codes[3] = { SSH_MSG_USERAUTH_SUCCESS, SSH_MSG_USERAUTH_FAILURE, 0 };
-		size_t data_len;
-		rc = _libssh2_packet_requirev(session, reply_codes, &session->userauth_host_data,
-		    &data_len, 0, NULL, 0, &session->userauth_host_packet_requirev_state);
+		uint32 data_len;
+		rc = _libssh2_packet_requirev(session, reply_codes, &session->userauth_host_data, &data_len, 0, NULL, 0, &session->userauth_host_packet_requirev_state);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
 		}
@@ -805,12 +804,7 @@ int _libssh2_userauth_publickey(LIBSSH2_SESSION * session, const char * username
 	}
 
 	if(session->userauth_pblc_state == libssh2_NB_state_sent) {
-		rc = _libssh2_packet_requirev(session, reply_codes,
-		    &session->userauth_pblc_data,
-		    &session->userauth_pblc_data_len, 0,
-		    NULL, 0,
-		    &session->
-		    userauth_pblc_packet_requirev_state);
+		rc = _libssh2_packet_requirev(session, reply_codes, &session->userauth_pblc_data, &session->userauth_pblc_data_len, 0, NULL, 0, &session->userauth_pblc_packet_requirev_state);
 		if(rc == LIBSSH2_ERROR_EAGAIN) {
 			return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
 		}
@@ -1189,12 +1183,7 @@ static int userauth_keyboard_interactive(LIBSSH2_SESSION * session, const char *
 
 	for(;; ) {
 		if(session->userauth_kybd_state == libssh2_NB_state_sent) {
-			rc = _libssh2_packet_requirev(session, reply_codes,
-			    &session->userauth_kybd_data,
-			    &session->userauth_kybd_data_len,
-			    0, NULL, 0,
-			    &session->
-			    userauth_kybd_packet_requirev_state);
+			rc = _libssh2_packet_requirev(session, reply_codes, &session->userauth_kybd_data, &session->userauth_kybd_data_len, 0, NULL, 0, &session->userauth_kybd_packet_requirev_state);
 			if(rc == LIBSSH2_ERROR_EAGAIN) {
 				return _libssh2_error(session, LIBSSH2_ERROR_EAGAIN, "Would block");
 			}
@@ -1202,7 +1191,6 @@ static int userauth_keyboard_interactive(LIBSSH2_SESSION * session, const char *
 				session->userauth_kybd_state = libssh2_NB_state_idle;
 				return _libssh2_error(session, LIBSSH2_ERROR_AUTHENTICATION_FAILED, "Waiting for keyboard USERAUTH response");
 			}
-
 			if(session->userauth_kybd_data[0] == SSH_MSG_USERAUTH_SUCCESS) {
 				_libssh2_debug(session, LIBSSH2_TRACE_AUTH, "Keyboard-interactive authentication successful");
 				LIBSSH2_FREE(session, session->userauth_kybd_data);

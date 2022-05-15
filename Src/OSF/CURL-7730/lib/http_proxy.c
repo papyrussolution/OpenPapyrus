@@ -483,19 +483,13 @@ static CURLcode CONNECT(struct connectdata * conn,
 					continue;
 				}
 
-				if((checkprefix("WWW-Authenticate:", linep) &&
-				    (401 == k->httpcode)) ||
-				    (checkprefix("Proxy-authenticate:", linep) &&
-				    (407 == k->httpcode))) {
+				if((checkprefix("WWW-Authenticate:", linep) && (401 == k->httpcode)) || (checkprefix("Proxy-authenticate:", linep) && (407 == k->httpcode))) {
 					bool proxy = (k->httpcode == 407) ? TRUE : FALSE;
 					char * auth = Curl_copy_header_value(linep);
 					if(!auth)
 						return CURLE_OUT_OF_MEMORY;
-
 					result = Curl_http_input_auth(conn, proxy, auth);
-
 					SAlloc::F(auth);
-
 					if(result)
 						return result;
 				}
@@ -504,12 +498,10 @@ static CURLcode CONNECT(struct connectdata * conn,
 						/* A client MUST ignore any Content-Length or Transfer-Encoding
 						   header fields received in a successful response to CONNECT.
 						   "Successful" described as: 2xx (Successful). RFC 7231 4.3.6 */
-						infof(data, "Ignoring Content-Length in CONNECT %03d response\n",
-						    k->httpcode);
+						infof(data, "Ignoring Content-Length in CONNECT %03d response\n", k->httpcode);
 					}
 					else {
-						(void)curlx_strtoofft(linep +
-						    strlen("Content-Length:"), NULL, 10, &s->cl);
+						(void)curlx_strtoofft(linep + strlen("Content-Length:"), NULL, 10, &s->cl);
 					}
 				}
 				else if(Curl_compareheader(linep, "Connection:", "close"))
@@ -519,11 +511,9 @@ static CURLcode CONNECT(struct connectdata * conn,
 						/* A client MUST ignore any Content-Length or Transfer-Encoding
 						   header fields received in a successful response to CONNECT.
 						   "Successful" described as: 2xx (Successful). RFC 7231 4.3.6 */
-						infof(data, "Ignoring Transfer-Encoding in "
-						    "CONNECT %03d response\n", k->httpcode);
+						infof(data, "Ignoring Transfer-Encoding in CONNECT %03d response\n", k->httpcode);
 					}
-					else if(Curl_compareheader(linep,
-					    "Transfer-Encoding:", "chunked")) {
+					else if(Curl_compareheader(linep, "Transfer-Encoding:", "chunked")) {
 						infof(data, "CONNECT responded chunked\n");
 						s->chunked_encoding = TRUE;
 						/* init our chunky engine */
@@ -532,36 +522,28 @@ static CURLcode CONNECT(struct connectdata * conn,
 				}
 				else if(Curl_compareheader(linep, "Proxy-Connection:", "close"))
 					s->close_connection = TRUE;
-				else if(2 == sscanf(linep, "HTTP/1.%d %d",
-				    &subversion,
-				    &k->httpcode)) {
+				else if(2 == sscanf(linep, "HTTP/1.%d %d", &subversion, &k->httpcode)) {
 					/* store the HTTP code from the proxy */
 					data->info.httpproxycode = k->httpcode;
 				}
-
 				Curl_dyn_reset(&s->rcvbuf);
 			} /* while there's buffer left and loop is requested */
-
 			if(Curl_pgrsUpdate(conn))
 				return CURLE_ABORTED_BY_CALLBACK;
-
 			if(error)
 				return CURLE_RECV_ERROR;
-
 			if(data->info.httpproxycode/100 != 2) {
 				/* Deal with the possibly already received authenticate
 				   headers. 'newurl' is set to a new URL if we must loop. */
 				result = Curl_http_auth_act(conn);
 				if(result)
 					return result;
-
 				if(conn->bits.close)
 					/* the connection has been marked for closure, most likely in the
 					   Curl_http_auth_act() function and thus we can kill it at once
 					   below */
 					s->close_connection = TRUE;
 			}
-
 			if(s->close_connection && data->req.newurl) {
 				/* Connection closed by server. Don't use it anymore */
 				Curl_closesocket(conn, conn->sock[sockindex]);

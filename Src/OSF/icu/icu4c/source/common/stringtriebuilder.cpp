@@ -240,7 +240,7 @@ StringTrieBuilder::Node * StringTrieBuilder::makeNode(int32_t start, int32_t lim
 		Node * subNode = makeBranchSubNode(start, limit, unitIndex, length, errorCode);
 		node = new BranchHeadNode(length, subNode);
 	}
-	if(hasValue && node!=NULL) {
+	if(hasValue && node) {
 		if(matchNodesCanHaveValues()) {
 			((ValueNode*)node)->setValue(value);
 		}
@@ -324,7 +324,7 @@ StringTrieBuilder::Node * StringTrieBuilder::registerNode(Node * newNode, UError
 		return NULL;
 	}
 	const UHashElement * old = uhash_find(nodes, newNode);
-	if(old!=NULL) {
+	if(old) {
 		delete newNode;
 		return (Node*)old->key.pointer;
 	}
@@ -349,7 +349,7 @@ StringTrieBuilder::Node * StringTrieBuilder::registerFinalValue(int32_t value, U
 	}
 	FinalValueNode key(value);
 	const UHashElement * old = uhash_find(nodes, &key);
-	if(old!=NULL) {
+	if(old) {
 		return (Node*)old->key.pointer;
 	}
 	Node * newNode = new FinalValueNode(value);
@@ -494,9 +494,8 @@ int32_t StringTrieBuilder::ListBranchNode::markRightEdgesFirst(int32_t edgeNumbe
 		int32_t i = length;
 		do {
 			Node * edge = equal[--i];
-			if(edge!=NULL) {
+			if(edge)
 				edgeNumber = edge->markRightEdgesFirst(edgeNumber-step);
-			}
 			// For all but the rightmost edge, decrement the edge number.
 			step = 1;
 		} while(i>0);
@@ -516,7 +515,7 @@ void StringTrieBuilder::ListBranchNode::write(StringTrieBuilder &builder)
 	int32_t rightEdgeNumber = rightEdge==NULL ? firstEdgeNumber : rightEdge->getOffset();
 	do {
 		--unitNumber;
-		if(equal[unitNumber]!=NULL) {
+		if(equal[unitNumber]) {
 			equal[unitNumber]->writeUnlessInsideRightEdge(firstEdgeNumber, rightEdgeNumber, builder);
 		}
 	} while(unitNumber>0);

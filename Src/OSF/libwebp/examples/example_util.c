@@ -12,10 +12,6 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./example_util.h"
-//#include <assert.h>
-//#include <stdio.h>
-//#include <stdlib.h>
-//#include <string.h>
 #include "webp/mux_types.h"
 #include "../imageio/imageio_util.h"
 

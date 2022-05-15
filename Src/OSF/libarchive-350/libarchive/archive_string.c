@@ -1093,9 +1093,9 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 			 * "CP932" character-set, so we should use "SJIS"
 			 * instead if iconv_open failed.
 			 */
-			if(strcmp(tc, "CP932") == 0)
+			if(sstreq(tc, "CP932"))
 				sc->cd = iconv_open("SJIS", fc);
-			else if(strcmp(fc, "CP932") == 0)
+			else if(sstreq(fc, "CP932"))
 				sc->cd = iconv_open(tc, "SJIS");
 		}
 #if defined(_WIN32) && !defined(__CYGWIN__)
@@ -1108,7 +1108,7 @@ static struct archive_string_conv * create_sconv_object(const char * fc, const c
 		if(flag & SCONV_FROM_CHARSET) {
 			sc->cd_w = iconv_open("UTF-8", fc);
 			if(sc->cd_w == (iconv_t)-1 && (sc->flag & SCONV_BEST_EFFORT)) {
-				if(strcmp(fc, "CP932") == 0)
+				if(sstreq(fc, "CP932"))
 					sc->cd_w = iconv_open("UTF-8", "SJIS");
 			}
 		}

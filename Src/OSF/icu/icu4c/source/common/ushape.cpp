@@ -1447,15 +1447,11 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const UChar * source, int32_t sourceLengt
 	if(sourceLength<=0) {
 		return u_terminateUChars(dest, destCapacity, 0, pErrorCode);
 	}
-
 	/* check that source and destination do not overlap */
-	if(dest!=NULL &&
-	    ((source<=dest && dest<source+sourceLength) ||
-	    (dest<=source && source<dest+destCapacity))) {
+	if(dest && ((source<=dest && dest<source+sourceLength) || (dest<=source && source<dest+destCapacity))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
-
 	/* Does Options contain the new Seen Tail Unicode code point option */
 	if((options&U_SHAPE_TAIL_TYPE_MASK) == U_SHAPE_TAIL_NEW_UNICODE) {
 		shapeVars.tailChar = NEW_TAIL_CHAR;
@@ -1463,12 +1459,10 @@ U_CAPI int32_t U_EXPORT2 u_shapeArabic(const UChar * source, int32_t sourceLengt
 	else {
 		shapeVars.tailChar = OLD_TAIL_CHAR;
 	}
-
 	if((options&U_SHAPE_LETTERS_MASK)!=U_SHAPE_LETTERS_NOOP) {
 		UChar buffer[300];
 		UChar * tempbuffer, * tempsource = NULL;
 		int32_t outputSize, spacesCountl = 0, spacesCountr = 0;
-
 		if((options&U_SHAPE_AGGREGATE_TASHKEEL_MASK)>0) {
 			int32_t logical_order = (options&U_SHAPE_TEXT_DIRECTION_MASK) == U_SHAPE_TEXT_DIRECTION_LOGICAL;
 			int32_t aggregate_tashkeel =

@@ -925,14 +925,11 @@ void MessageFormat::format(int32_t msgStart, const void * plNumber,
 		else if(arg == NULL) {
 			appendTo.append(NULL_STRING, 4);
 		}
-		else if(plNumber!=NULL &&
-		    static_cast<const PluralSelectorContext *>(plNumber)->numberArgIndex==(i-2)) {
-			const PluralSelectorContext &pluralNumber =
-			    *static_cast<const PluralSelectorContext *>(plNumber);
+		else if(plNumber!=NULL && static_cast<const PluralSelectorContext *>(plNumber)->numberArgIndex==(i-2)) {
+			const PluralSelectorContext &pluralNumber = *static_cast<const PluralSelectorContext *>(plNumber);
 			if(pluralNumber.offset == 0) {
 				// The number was already formatted with this formatter.
-				appendTo.formatAndAppend(pluralNumber.formatter, pluralNumber.number,
-				    pluralNumber.numberString, success);
+				appendTo.formatAndAppend(pluralNumber.formatter, pluralNumber.number, pluralNumber.numberString, success);
 			}
 			else {
 				// Do not use the formatted (number-offset) string for a named argument
@@ -942,17 +939,13 @@ void MessageFormat::format(int32_t msgStart, const void * plNumber,
 		}
 		else if((formatter = getCachedFormatter(i -2)) != 0) {
 			// Handles all ArgType.SIMPLE, and formatters from setFormat() and its siblings.
-			if(dynamic_cast<const ChoiceFormat*>(formatter) ||
-			    dynamic_cast<const PluralFormat*>(formatter) ||
-			    dynamic_cast<const SelectFormat*>(formatter)) {
+			if(dynamic_cast<const ChoiceFormat*>(formatter) || dynamic_cast<const PluralFormat*>(formatter) || dynamic_cast<const SelectFormat*>(formatter)) {
 				// We only handle nested formats here if they were provided via
 				// setFormat() or its siblings. Otherwise they are not cached and instead
 				// handled below according to argType.
 				UnicodeString subMsgString;
 				formatter->format(*arg, subMsgString, success);
-				if(subMsgString.indexOf(LEFT_CURLY_BRACE) >= 0 ||
-				    (subMsgString.indexOf(SINGLE_QUOTE) >= 0 && !MessageImpl::jdkAposMode(msgPattern))
-				    ) {
+				if(subMsgString.indexOf(LEFT_CURLY_BRACE) >= 0 || (subMsgString.indexOf(SINGLE_QUOTE) >= 0 && !MessageImpl::jdkAposMode(msgPattern))) {
 					MessageFormat subMsgFormat(subMsgString, fLocale, success);
 					subMsgFormat.format(0, NULL, arguments, argumentNames, cnt, appendTo, ignore, success);
 				}

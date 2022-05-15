@@ -489,19 +489,19 @@ static void EMF_setfont()
 	count = MIN(strlen(_EMF.emf_fontname), 31);
 	if(((sub = strstr(_EMF.emf_fontname, " bold")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Bold")) != NULL)) {
 		bold = 700;
-		count = MIN(sub - _EMF.emf_fontname, count);
+		count = MIN(static_cast<int>(sub - _EMF.emf_fontname), count);
 	}
 	if(((sub = strstr(_EMF.emf_fontname, " italic")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Italic")) != NULL)) {
 		italic = 1;
-		count = MIN(sub - _EMF.emf_fontname, count);
+		count = MIN(static_cast<int>(sub - _EMF.emf_fontname), count);
 	}
 	if(((sub = strstr(_EMF.emf_fontname, " underline")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Underline")) != NULL)) {
 		underline = 1;
-		count = MIN(sub - _EMF.emf_fontname, count);
+		count = MIN(static_cast<int>(sub - _EMF.emf_fontname), count);
 	}
 	if(((sub = strstr(_EMF.emf_fontname, " strikeout")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " Strikeout")) != NULL) || ((sub = strstr(_EMF.emf_fontname, " StrikeOut")) != NULL)) {
 		strikeout = 1;
-		count = MIN(sub - _EMF.emf_fontname, count);
+		count = MIN(static_cast<int>(sub - _EMF.emf_fontname), count);
 	}
 	strnzcpy(font, _EMF.emf_fontname, count + 1);
 	EMF_SelectObject(EMF_STOCK_OBJECT_DEFAULT_FONT);

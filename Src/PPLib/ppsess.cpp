@@ -200,8 +200,8 @@ int FASTCALL StatusWinChange(int onLogon /*=0*/, long timer/*=-1*/)
 						Cat(mht_stat.UnusedSize).CatDiv(';', 2).
 						CatEq("GDI", gr_gdiobj).CatDiv(';', 2).
 						CatEq("USER", gr_userobj).CatDiv(';', 2).
-						Cat("FOCUS").Eq().CatHex((long)::GetFocus()).CatDiv(';', 2).
-						Cat("CAPTURE").Eq().CatHex((long)::GetCapture());
+						Cat("FOCUS").Eq().CatHex((ulong)::GetFocus()).CatDiv(';', 2).
+						Cat("CAPTURE").Eq().CatHex((ulong)::GetCapture());
 					p_app->AddStatusBarItem(r_sbuf);
 				}
 				else {
@@ -4090,7 +4090,7 @@ int PPSession::Login(const char * pDbSymb, const char * pUserName, const char * 
 				if(CheckExtFlag(ECF_PAPERLESSCHEQUE) && ini_file.Get(PPINISECT_CONFIG, PPINIPARAM_PAPERLESSCHEQUE_FAKEEADDR, sv) && sv.NotEmptyS()) {
 					SNaturalTokenArray nta;
 					PPTokenRecognizer trgn;
-					trgn.Run(sv.ucptr(), sv.Len(), nta, 0);
+					trgn.Run(sv.ucptr(), static_cast<int>(sv.Len()), nta, 0);
 					if(nta.Has(SNTOK_PHONE))
 						r_tla.PaperlessCheque_FakeEAddr = PPEAddr::Phone::NormalizeStr(sv, 0, temp_buf);
 					else if(nta.Has(SNTOK_EMAIL))

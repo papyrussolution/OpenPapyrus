@@ -25,16 +25,8 @@
  */
 
 /* get a const char * pointer to the key with the keyOffset byte offset from pRoot */
-#define RES_GET_KEY16(pResData, keyOffset) \
-	((keyOffset)<(pResData)->localKeyLimit ? \
-	(const char *)(pResData)->pRoot+(keyOffset) : \
-	(pResData)->poolBundleKeys+(keyOffset)-(pResData)->localKeyLimit)
-
-#define RES_GET_KEY32(pResData, keyOffset) \
-	((keyOffset)>=0 ? \
-	(const char *)(pResData)->pRoot+(keyOffset) : \
-	(pResData)->poolBundleKeys+((keyOffset)&0x7fffffff))
-
+#define RES_GET_KEY16(pResData, keyOffset) ((keyOffset)<(pResData)->localKeyLimit ? (const char *)(pResData)->pRoot+(keyOffset) : (pResData)->poolBundleKeys+(keyOffset)-(pResData)->localKeyLimit)
+#define RES_GET_KEY32(pResData, keyOffset) ((keyOffset)>=0 ? (const char *)(pResData)->pRoot+(keyOffset) : (pResData)->poolBundleKeys+((keyOffset)&0x7fffffff))
 #define URESDATA_ITEM_NOT_FOUND -1
 
 /* empty resources, returned when the resource offset is 0 */
@@ -257,7 +249,7 @@ U_CFUNC void res_load(ResourceData * pResData, const char * path, const char * n
 
 U_CFUNC void res_unload(ResourceData * pResData) 
 {
-	if(pResData->data!=NULL) {
+	if(pResData->data) {
 		udata_close(pResData->data);
 		pResData->data = NULL;
 	}
@@ -758,7 +750,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByIndex(const ResourceData * pResData,
 			    length = *p++;
 			    if(indexR<length) {
 				    const Resource * p32 = (const Resource*)(p+length+(~length&1));
-				    if(key!=NULL) {
+				    if(key) {
 					    *key = RES_GET_KEY16(pResData, p[indexR]);
 				    }
 				    return p32[indexR];
@@ -770,7 +762,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByIndex(const ResourceData * pResData,
 		    const uint16 * p = pResData->p16BitUnits+offset;
 		    length = *p++;
 		    if(indexR<length) {
-			    if(key!=NULL) {
+			    if(key) {
 				    *key = RES_GET_KEY16(pResData, p[indexR]);
 			    }
 			    return makeResourceFrom16(pResData, p[length+indexR]);
@@ -782,7 +774,7 @@ U_CAPI Resource U_EXPORT2 res_getTableItemByIndex(const ResourceData * pResData,
 			    const int32_t * p = pResData->pRoot+offset;
 			    length = *p++;
 			    if(indexR<length) {
-				    if(key!=NULL) {
+				    if(key) {
 					    *key = RES_GET_KEY32(pResData, p[indexR]);
 				    }
 				    return (Resource)p[length+indexR];
@@ -1101,14 +1093,10 @@ static void ures_swapResource(const UDataSwapper * ds,
 
 		    /* swap known formats */
 #if !UCONFIG_NO_COLLATION
-		    if(key!=NULL && /* the binary is in a table */
-			(key!=gUnknownKey ?
-		        /* its table key string is "%%CollationBin" */
-			0==ds->compareInvChars(ds, key, -1,
+		    if(key && /* the binary is in a table */ (key!=gUnknownKey ? /* its table key string is "%%CollationBin" */ 0==ds->compareInvChars(ds, key, -1,
 			gCollationBinKey, UPRV_LENGTHOF(gCollationBinKey)-1) :
 		        /* its table key string is unknown but it looks like a collation binary */
-			ucol_looksLikeCollationBinary(ds, p+1, count))
-			) {
+			ucol_looksLikeCollationBinary(ds, p+1, count))) {
 			    ucol_swap(ds, p+1, count, q+1, pErrorCode);
 		    }
 #endif
@@ -1148,21 +1136,18 @@ static void ures_swapResource(const UDataSwapper * ds,
 
 			    /* swap count */
 			    ds->swapArray32(ds, pKey32++, 4, qKey32++, pErrorCode);
-
 			    offset += 1+count;
 		    }
-
 		    if(count==0) {
 			    break;
 		    }
-
 		    p = inBundle+offset; /* pointer to table resources */
 		    q = outBundle+offset;
 
 		    /* recurse */
 		    for(i = 0; i<count; ++i) {
 			    const char * itemKey = gUnknownKey;
-			    if(pKey16!=NULL) {
+			    if(pKey16) {
 				    int32_t keyOffset = ds->readUInt16(pKey16[i]);
 				    if(keyOffset<pTempTable->localKeyLimit) {
 					    itemKey = (const char *)outBundle+keyOffset;
@@ -1177,15 +1162,13 @@ static void ures_swapResource(const UDataSwapper * ds,
 			    item = ds->readUInt32(p[i]);
 			    ures_swapResource(ds, inBundle, outBundle, item, itemKey, pTempTable, pErrorCode);
 			    if(U_FAILURE(*pErrorCode)) {
-				    udata_printError(ds, "ures_swapResource(table res=%08x)[%d].recurse(%08x) failed\n",
-					res, i, item);
+				    udata_printError(ds, "ures_swapResource(table res=%08x)[%d].recurse(%08x) failed\n", res, i, item);
 				    return;
 			    }
 		    }
-
 		    if(pTempTable->majorFormatVersion>1 || ds->inCharset==ds->outCharset) {
 			    /* no need to sort, just swap the offset/value arrays */
-			    if(pKey16!=NULL) {
+			    if(pKey16) {
 				    ds->swapArray16(ds, pKey16, count*2, qKey16, pErrorCode);
 				    ds->swapArray32(ds, p, count*4, q, pErrorCode);
 			    }
@@ -1195,7 +1178,6 @@ static void ures_swapResource(const UDataSwapper * ds,
 			    }
 			    break;
 		    }
-
 		    /*
 		     * We need to sort tables by outCharset key strings because they
 		     * sort differently for different charset families.
@@ -1204,7 +1186,7 @@ static void ures_swapResource(const UDataSwapper * ds,
 		     * sorting indexes and sort that.
 		     * Then we permutate and copy/swap the actual values.
 		     */
-		    if(pKey16!=NULL) {
+		    if(pKey16) {
 			    for(i = 0; i<count; ++i) {
 				    pTempTable->rows[i].keyIndex = ds->readUInt16(pKey16[i]);
 				    pTempTable->rows[i].sortIndex = i;
@@ -1233,9 +1215,8 @@ static void ures_swapResource(const UDataSwapper * ds,
 		     * before the results are copied to the outBundle.
 		     */
 		    /* keys */
-		    if(pKey16!=NULL) {
+		    if(pKey16) {
 			    uint16 * rKey16;
-
 			    if(pKey16!=qKey16) {
 				    rKey16 = qKey16;
 			    }

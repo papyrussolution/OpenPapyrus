@@ -132,7 +132,7 @@ static int string_is_numeric(const char* value)
 static int archive_compressor_zstd_options(struct archive_write_filter * f, const char * key, const char * value)
 {
 	struct private_data * data = (struct private_data *)f->data;
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		int level = satoi(value);
 		// If we don't have the library, hard-code the max level 
 		int minimum = CLEVEL_MIN;

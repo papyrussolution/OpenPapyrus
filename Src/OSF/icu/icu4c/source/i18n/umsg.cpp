@@ -213,9 +213,8 @@ U_CAPI int32_t U_EXPORT2 umsg_toPattern(const UMessageFormat * fmt, UChar * resu
 		return -1;
 	}
 	UnicodeString res;
-	if(!(result==NULL && resultLength==0)) {
-		// NULL destination for pure preflighting: empty dummy string
-		// otherwise, alias the destination buffer
+	if(result || resultLength) {
+		// NULL destination for pure preflighting: empty dummy string otherwise, alias the destination buffer
 		res.setTo(result, 0, resultLength);
 	}
 	((const MessageFormat*)fmt)->toPattern(res);

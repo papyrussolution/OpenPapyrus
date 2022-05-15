@@ -569,137 +569,47 @@ U_CAPI int32_t U_EXPORT2 udat_getSymbols(const UDateFormat     * fmt, UDateForma
 	}
 	int32_t count = 0;
 	const UnicodeString * res = NULL;
-
 	switch(type) {
-		case UDAT_ERAS:
-		    res = syms->getEras(count);
-		    break;
-
-		case UDAT_ERA_NAMES:
-		    res = syms->getEraNames(count);
-		    break;
-
-		case UDAT_MONTHS:
-		    res = syms->getMonths(count);
-		    break;
-
-		case UDAT_SHORT_MONTHS:
-		    res = syms->getShortMonths(count);
-		    break;
-
-		case UDAT_WEEKDAYS:
-		    res = syms->getWeekdays(count);
-		    break;
-
-		case UDAT_SHORT_WEEKDAYS:
-		    res = syms->getShortWeekdays(count);
-		    break;
-
-		case UDAT_AM_PMS:
-		    res = syms->getAmPmStrings(count);
-		    break;
-
+		case UDAT_ERAS: res = syms->getEras(count); break;
+		case UDAT_ERA_NAMES: res = syms->getEraNames(count); break;
+		case UDAT_MONTHS: res = syms->getMonths(count); break;
+		case UDAT_SHORT_MONTHS: res = syms->getShortMonths(count); break;
+		case UDAT_WEEKDAYS: res = syms->getWeekdays(count); break;
+		case UDAT_SHORT_WEEKDAYS: res = syms->getShortWeekdays(count); break;
+		case UDAT_AM_PMS: res = syms->getAmPmStrings(count); break;
 		case UDAT_LOCALIZED_CHARS:
 	    {
 		    UnicodeString res1;
-		    if(!(result==NULL && resultLength==0)) {
-			    // NULL destination for pure preflighting: empty dummy string
-			    // otherwise, alias the destination buffer
+		    if(result || resultLength) {
+			    // NULL destination for pure preflighting: empty dummy string otherwise, alias the destination buffer
 			    res1.setTo(result, 0, resultLength);
 		    }
 		    syms->getLocalPatternChars(res1);
 		    return res1.extract(result, resultLength, *status);
 	    }
-
-		case UDAT_NARROW_MONTHS:
-		    res = syms->getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_SHORTER_WEEKDAYS:
-		    res = syms->getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::SHORT);
-		    break;
-
-		case UDAT_NARROW_WEEKDAYS:
-		    res = syms->getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_STANDALONE_MONTHS:
-		    res = syms->getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
-		    break;
-
-		case UDAT_STANDALONE_SHORT_MONTHS:
-		    res = syms->getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
-		    break;
-
-		case UDAT_STANDALONE_NARROW_MONTHS:
-		    res = syms->getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_STANDALONE_WEEKDAYS:
-		    res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
-		    break;
-
-		case UDAT_STANDALONE_SHORT_WEEKDAYS:
-		    res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
-		    break;
-
-		case UDAT_STANDALONE_SHORTER_WEEKDAYS:
-		    res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::SHORT);
-		    break;
-
-		case UDAT_STANDALONE_NARROW_WEEKDAYS:
-		    res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_QUARTERS:
-		    res = syms->getQuarters(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE);
-		    break;
-
-		case UDAT_SHORT_QUARTERS:
-		    res = syms->getQuarters(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
-		    break;
-
-		case UDAT_NARROW_QUARTERS:
-		    res = syms->getQuarters(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_STANDALONE_QUARTERS:
-		    res = syms->getQuarters(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE);
-		    break;
-
-		case UDAT_STANDALONE_SHORT_QUARTERS:
-		    res = syms->getQuarters(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED);
-		    break;
-
-		case UDAT_STANDALONE_NARROW_QUARTERS:
-		    res = syms->getQuarters(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_CYCLIC_YEARS_WIDE:
-		    res = syms->getYearNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE);
-		    break;
-
-		case UDAT_CYCLIC_YEARS_ABBREVIATED:
-		    res = syms->getYearNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
-		    break;
-
-		case UDAT_CYCLIC_YEARS_NARROW:
-		    res = syms->getYearNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
-		    break;
-
-		case UDAT_ZODIAC_NAMES_WIDE:
-		    res = syms->getZodiacNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE);
-		    break;
-
-		case UDAT_ZODIAC_NAMES_ABBREVIATED:
-		    res = syms->getZodiacNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED);
-		    break;
-
-		case UDAT_ZODIAC_NAMES_NARROW:
-		    res = syms->getZodiacNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW);
-		    break;
+		case UDAT_NARROW_MONTHS: res = syms->getMonths(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW); break;
+		case UDAT_SHORTER_WEEKDAYS: res = syms->getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::SHORT); break;
+		case UDAT_NARROW_WEEKDAYS: res = syms->getWeekdays(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW); break;
+		case UDAT_STANDALONE_MONTHS: res = syms->getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE); break;
+		case UDAT_STANDALONE_SHORT_MONTHS: res = syms->getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED); break;
+		case UDAT_STANDALONE_NARROW_MONTHS: res = syms->getMonths(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW); break;
+		case UDAT_STANDALONE_WEEKDAYS: res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE); break;
+		case UDAT_STANDALONE_SHORT_WEEKDAYS: res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED); break;
+		case UDAT_STANDALONE_SHORTER_WEEKDAYS: res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::SHORT); break;
+		case UDAT_STANDALONE_NARROW_WEEKDAYS: res = syms->getWeekdays(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW); break;
+		case UDAT_QUARTERS: res = syms->getQuarters(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE); break;
+		case UDAT_SHORT_QUARTERS: res = syms->getQuarters(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED); break;
+		case UDAT_NARROW_QUARTERS: res = syms->getQuarters(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW); break;
+		case UDAT_STANDALONE_QUARTERS: res = syms->getQuarters(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::WIDE); break;
+		case UDAT_STANDALONE_SHORT_QUARTERS: res = syms->getQuarters(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::ABBREVIATED); break;
+		case UDAT_STANDALONE_NARROW_QUARTERS: res = syms->getQuarters(count, DateFormatSymbols::STANDALONE, DateFormatSymbols::NARROW); break;
+		case UDAT_CYCLIC_YEARS_WIDE: res = syms->getYearNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE); break;
+		case UDAT_CYCLIC_YEARS_ABBREVIATED: res = syms->getYearNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED); break;
+		case UDAT_CYCLIC_YEARS_NARROW: res = syms->getYearNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW); break;
+		case UDAT_ZODIAC_NAMES_WIDE: res = syms->getZodiacNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::WIDE); break;
+		case UDAT_ZODIAC_NAMES_ABBREVIATED: res = syms->getZodiacNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::ABBREVIATED); break;
+		case UDAT_ZODIAC_NAMES_NARROW: res = syms->getZodiacNames(count, DateFormatSymbols::FORMAT, DateFormatSymbols::NARROW); break;
 	}
-
 	if(index < count) {
 		return res[index].extract(result, resultLength, *status);
 	}

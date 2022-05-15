@@ -1245,17 +1245,21 @@ void TCluster::disableItem(int item, int disable)
 	EnableWindow(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, item+1)), disable == 0);
 }
 
-int TCluster::getText(int pos, char * buf, uint bufLen)
+int TCluster::GetText(int pos, SString & rBuf)
 {
 	int    ok = 0;
 	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {
-		strnzcpy(buf, Strings.at(pos), bufLen);
+		TView::SGetWindowText(GetDlgItem(Parent, MAKE_BUTTON_ID(Id, pos+1)), rBuf);
+		rBuf.Transf(CTRANSF_OUTER_TO_INNER);
+		//rBuf = Strings.at(pos);
 		ok = 1;
 	}
+	else
+		rBuf.Z();
 	return ok;
 }
 
-int TCluster::setText(int pos, const char * pText)
+int TCluster::SetText(int pos, const char * pText)
 {
 	int    ok = 0;
 	if(pos >= 0 && pos < static_cast<int>(getNumItems())) {

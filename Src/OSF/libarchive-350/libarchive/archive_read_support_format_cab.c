@@ -467,7 +467,7 @@ static int archive_read_format_cab_options(struct archive_read * a, const char *
 {
 	int ret = ARCHIVE_FAILED;
 	struct cab * cab = (struct cab *)(a->format->data);
-	if(strcmp(key, "hdrcharset")  == 0) {
+	if(sstreq(key, "hdrcharset")) {
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "cab: hdrcharset option needs a character-set name");
 		else {

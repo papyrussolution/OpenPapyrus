@@ -1176,12 +1176,10 @@ static inline int32_t MBCS_FROM_UCHAR32_ISO2022(UConverterSharedData* sharedData
 			return -length;
 		}
 	}
-
 	cx = sharedData->mbcs.extIndexes;
 	if(cx!=NULL) {
 		return ucnv_extSimpleMatchFromU(cx, c, value, useFallback);
 	}
-
 	/* unassigned */
 	return 0;
 }

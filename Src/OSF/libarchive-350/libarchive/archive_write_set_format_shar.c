@@ -149,7 +149,7 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 		case AE_IFDIR:
 		    archive_entry_set_size(entry, 0);
 		    /* Don't bother trying to recreate '.' */
-		    if(strcmp(name, ".") == 0 || strcmp(name, "./") == 0)
+		    if(sstreq(name, ".") || sstreq(name, "./"))
 			    return ARCHIVE_OK;
 		    break;
 		case AE_IFIFO:
@@ -183,23 +183,21 @@ static int archive_write_shar_header(struct archive_write * a, struct archive_en
 			*pp = '\0';
 
 			/* Try to avoid a lot of redundant mkdir commands. */
-			if(strcmp(p, ".") == 0) {
+			if(sstreq(p, ".")) {
 				/* Don't try to "mkdir ." */
 				SAlloc::F(p);
 			}
 			else if(shar->last_dir == NULL) {
 				archive_strcat(&shar->work, "mkdir -p ");
 				shar_quote(&shar->work, p, 1);
-				archive_strcat(&shar->work,
-				    " > /dev/null 2>&1\n");
+				archive_strcat(&shar->work, " > /dev/null 2>&1\n");
 				shar->last_dir = p;
 			}
-			else if(strcmp(p, shar->last_dir) == 0) {
-				/* We've already created this exact dir. */
+			else if(sstreq(p, shar->last_dir)) {
+				// We've already created this exact dir.
 				SAlloc::F(p);
 			}
-			else if(strlen(p) < strlen(shar->last_dir) &&
-			    strncmp(p, shar->last_dir, strlen(p)) == 0) {
+			else if(strlen(p) < strlen(shar->last_dir) && strncmp(p, shar->last_dir, strlen(p)) == 0) {
 				/* We've already created a subdir. */
 				SAlloc::F(p);
 			}

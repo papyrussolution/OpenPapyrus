@@ -103,31 +103,18 @@ static uint32 FUZ_highbit32(uint32 v32)
 /*=============================================
 *   Test macros
    =============================================*/
-#define CHECK_Z(f) {                               \
-		const size_t err = f;                          \
-		if(ZSTD_isError(err)) {                       \
-			DISPLAY("Error => %s : %s ", #f, ZSTD_getErrorName(err)); \
-			exit(1);                                   \
-		}   }
+#define CHECK_Z(f) { const size_t err = f; if(ZSTD_isError(err)) { DISPLAY("Error => %s : %s ", #f, ZSTD_getErrorName(err)); exit(1); }}
 
-#define CHECK_VAR(var, fn)  var = fn; \
-	if(ZSTD_isError(var)) { DISPLAYLEVEL(1, "%s : fails : %s \n", #fn, ZSTD_getErrorName(var)); goto _output_error; }
+#define CHECK_VAR(var, fn)  var = fn; if(ZSTD_isError(var)) { DISPLAYLEVEL(1, "%s : fails : %s \n", #fn, ZSTD_getErrorName(var)); goto _output_error; }
 #define CHECK_NEWV(var, fn)  size_t const CHECK_VAR(var, fn)
 #define CHECK(fn)  { CHECK_NEWV(__err, fn); }
 #define CHECKPLUS(var, fn, more)  { CHECK_NEWV(var, fn); more; }
-
-#define CHECK_OP(op, lhs, rhs) {                                  \
-		if(!((lhs)op(rhs))) {                                      \
-			DISPLAY("Error L%u => FAILED %s %s %s ", __LINE__, #lhs, #op, #rhs);  \
-			goto _output_error;                                       \
-		}                                                             \
-}
+#define CHECK_OP(op, lhs, rhs) { if(!((lhs)op(rhs))) { DISPLAY("Error L%u => FAILED %s %s %s ", __LINE__, #lhs, #op, #rhs); goto _output_error; }}
 #define CHECK_EQ(lhs, rhs) CHECK_OP(==, lhs, rhs)
 #define CHECK_LT(lhs, rhs) CHECK_OP(<, lhs, rhs)
-
-/*=============================================
-*   Memory Tests
-   =============================================*/
+//
+// Memory Tests
+//
 #if defined(__APPLE__) && defined(__MACH__)
 
 #include <malloc/malloc.h>    /* malloc_size */
@@ -136,8 +123,8 @@ typedef struct {
 	unsigned long long totalMalloc;
 	size_t currentMalloc;
 	size_t peakMalloc;
-	unsigned nbMalloc;
-	unsigned nbFree;
+	uint nbMalloc;
+	uint nbFree;
 } mallocCounter_t;
 
 static const mallocCounter_t INIT_MALLOC_COUNTER = { 0, 0, 0, 0, 0 };
@@ -146,9 +133,9 @@ static void * FUZ_mallocDebug(void * counter, size_t size)
 {
 	mallocCounter_t* const mcPtr = (mallocCounter_t*)counter;
 	void * const ptr = SAlloc::M(size);
-	if(ptr==NULL) return NULL;
-	DISPLAYLEVEL(4, "allocating %u KB => effectively %u KB \n",
-	    (uint)(size >> 10), (uint)(malloc_size(ptr) >> 10)); /* OS-X specific */
+	if(!ptr)
+		return NULL;
+	DISPLAYLEVEL(4, "allocating %u KB => effectively %u KB \n", (uint)(size >> 10), (uint)(malloc_size(ptr) >> 10)); /* OS-X specific */
 	mcPtr->totalMalloc += size;
 	mcPtr->currentMalloc += size;
 	if(mcPtr->currentMalloc > mcPtr->peakMalloc)
@@ -181,7 +168,6 @@ static int FUZ_mallocTests_internal(unsigned seed, double compressibility, unsig
 		exit(1);
 	}
 	RDG_genBuffer(inBuffer, inSize, compressibility, 0. /*auto*/, seed);
-
 	/* simple compression tests */
 	if(part <= 1) {
 		int compressionLevel;
@@ -195,11 +181,9 @@ static int FUZ_mallocTests_internal(unsigned seed, double compressibility, unsig
 			FUZ_displayMallocStats(malcount);
 		}
 	}
-
 	/* streaming compression tests */
 	if(part <= 2) {
-		int compressionLevel;
-		for(compressionLevel = 1; compressionLevel<=6; compressionLevel++) {
+		for(int compressionLevel = 1; compressionLevel<=6; compressionLevel++) {
 			mallocCounter_t malcount = INIT_MALLOC_COUNTER;
 			ZSTD_customMem const cMem = { FUZ_mallocDebug, FUZ_freeDebug, &malcount };
 			ZSTD_CCtx* const cstream = ZSTD_createCStream_advanced(cMem);
@@ -215,10 +199,8 @@ static int FUZ_mallocTests_internal(unsigned seed, double compressibility, unsig
 	}
 	/* advanced MT API test */
 	if(part <= 3) {
-		int nbThreads;
-		for(nbThreads = 1; nbThreads<=4; nbThreads++) {
-			int compressionLevel;
-			for(compressionLevel = 1; compressionLevel<=6; compressionLevel++) {
+		for(int nbThreads = 1; nbThreads<=4; nbThreads++) {
+			for(int compressionLevel = 1; compressionLevel<=6; compressionLevel++) {
 				mallocCounter_t malcount = INIT_MALLOC_COUNTER;
 				ZSTD_customMem const cMem = { FUZ_mallocDebug, FUZ_freeDebug, &malcount };
 				ZSTD_CCtx* const cctx = ZSTD_createCCtx_advanced(cMem);
@@ -231,7 +213,6 @@ static int FUZ_mallocTests_internal(unsigned seed, double compressibility, unsig
 			}
 		}
 	}
-
 	/* advanced MT streaming API test */
 	if(part <= 4) {
 		int nbThreads;
@@ -259,7 +240,8 @@ static int FUZ_mallocTests_internal(unsigned seed, double compressibility, unsig
 
 static int FUZ_mallocTests(unsigned seed, double compressibility, unsigned part)
 {
-	size_t const inSize = 64 MB + 16 MB + 4 MB + 1 MB + 256 KB + 64 KB; /* 85.3 MB */
+	size_t const inSize = SMEGABYTE(64) + SMEGABYTE(16) + SMEGABYTE(4) + SMEGABYTE(1) + 
+		SKILOBYTE(256) + SKILOBYTE(64); /* 85.3 MB */
 	size_t const outSize = ZSTD_compressBound(inSize);
 	void * const inBuffer = SAlloc::M(inSize);
 	void * const outBuffer = SAlloc::M(outSize);
@@ -285,8 +267,7 @@ static int FUZ_mallocTests(unsigned seed, double compressibility, unsigned part)
 
 #endif
 
-static void FUZ_decodeSequences(BYTE* dst, ZSTD_Sequence* seqs, size_t seqsSize,
-    BYTE* src, size_t size, ZSTD_sequenceFormat_e format)
+static void FUZ_decodeSequences(BYTE* dst, ZSTD_Sequence* seqs, size_t seqsSize, BYTE* src, size_t size, ZSTD_sequenceFormat_e format)
 {
 	size_t i;
 	size_t j;
@@ -296,7 +277,6 @@ static void FUZ_decodeSequences(BYTE* dst, ZSTD_Sequence* seqs, size_t seqsSize,
 		if(format == ZSTD_sf_noBlockDelimiters) {
 			assert(seqs[i].matchLength != 0 || seqs[i].offset != 0);
 		}
-
 		memcpy(dst, src, seqs[i].litLength);
 		dst += seqs[i].litLength;
 		src += seqs[i].litLength;
@@ -340,7 +320,7 @@ static void * threadPoolTests_compressionJob(void * payload) {
 static int threadPoolTests(void) {
 	int testResult = 0;
 	size_t err;
-	size_t const CNBuffSize = 5 MB;
+	size_t const CNBuffSize = SMEGABYTE(5);
 	void * const CNBuffer = SAlloc::M(CNBuffSize);
 	size_t const compressedBufferSize = ZSTD_compressBound(CNBuffSize);
 	void * const compressedBuffer = SAlloc::M(compressedBufferSize);
@@ -354,7 +334,6 @@ static int threadPoolTests(void) {
 	{
 		ZSTD_CCtx* cctx = ZSTD_createCCtx();
 		ZSTD_threadPool* pool = ZSTD_createThreadPool(kPoolNumThreads);
-
 		size_t nbThreads = 1;
 		for(; nbThreads <= kPoolNumThreads; ++nbThreads) {
 			ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
@@ -385,8 +364,8 @@ static int threadPoolTests(void) {
 	DISPLAYLEVEL(3, "OK \n");
 	DISPLAYLEVEL(3, "thread pool test : threadPool simultaneous usage: ");
 	{
-		void * const decodedBuffer2 = SAlloc::M(CNBuffSize);
-		void * const compressedBuffer2 = SAlloc::M(compressedBufferSize);
+		void * decodedBuffer2 = SAlloc::M(CNBuffSize);
+		void * compressedBuffer2 = SAlloc::M(compressedBufferSize);
 		ZSTD_threadPool* pool = ZSTD_createThreadPool(kPoolNumThreads);
 		ZSTD_CCtx* cctx1 = ZSTD_createCCtx();
 		ZSTD_CCtx* cctx2 = ZSTD_createCCtx();
@@ -412,13 +391,11 @@ static int threadPoolTests(void) {
 			goto _output_error;
 	}
 	DISPLAYLEVEL(3, "OK \n");
-
 _end:
 	SAlloc::F(CNBuffer);
 	SAlloc::F(compressedBuffer);
 	SAlloc::F(decodedBuffer);
 	return testResult;
-
 _output_error:
 	testResult = 1;
 	DISPLAY("Error detected in Unit tests ! \n");
@@ -426,16 +403,14 @@ _output_error:
 }
 
 #endif /* ZSTD_MULTITHREAD */
-
-/*=============================================
-*   Unit tests
-   =============================================*/
-
+// 
+// Unit tests
+// 
 static int basicUnitTests(const uint32 seed, double compressibility)
 {
-	size_t const CNBuffSize = 5 MB;
-	void * const CNBuffer = SAlloc::M(CNBuffSize);
-	size_t const compressedBufferSize = ZSTD_compressBound(CNBuffSize);
+	const size_t CNBuffSize = SMEGABYTE(5);
+	void * CNBuffer = SAlloc::M(CNBuffSize);
+	const size_t compressedBufferSize = ZSTD_compressBound(CNBuffSize);
 	void * const compressedBuffer = SAlloc::M(compressedBufferSize);
 	void * const decodedBuffer = SAlloc::M(CNBuffSize);
 	int testResult = 0;
@@ -867,8 +842,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	{   
 		ZSTD_CCtx* cctx = ZSTD_createCCtx();
 	    ZSTD_DCtx* dctx = ZSTD_createDCtx();
-	    size_t const srcSize = 300 KB;
-	    size_t const flushSize = 128 KB + 5;
+	    size_t const srcSize = SKILOBYTE(300);
+	    size_t const flushSize = SKILOBYTE(128) + 5;
 	    size_t const dstSize = ZSTD_compressBound(srcSize);
 	    char* src = (char *)CNBuffer;
 	    char* dst = (char *)compressedBuffer;
@@ -881,17 +856,17 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    }
 	    RDG_genBuffer(src, srcSize, 0.5, 0.5, seed);
 		/* Force an LDM to exist that crosses block boundary into uncompressible block */
-	    memcpy(src + 125 KB, src, 3 KB + 5);
+	    memcpy(src + SKILOBYTE(125), src, SKILOBYTE(3) + 5);
 
 		/* Enable MT, LDM, and opt parser */
 	    CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_nbWorkers, 1));
 	    CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_enableLongDistanceMatching, 1));
 	    CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 1));
 	    CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, 19));
-		/* Flushes a block of 128 KB and block of 5 bytes */
+		// Flushes a block of 128 KB and block of 5 bytes
 	    CHECK_Z(ZSTD_compressStream2(cctx, &out, &in, ZSTD_e_flush));
-		/* Compress the rest */
-	    in.size = 300 KB;
+		// Compress the rest 
+	    in.size = SKILOBYTE(300);
 	    CHECK_Z(ZSTD_compressStream2(cctx, &out, &in, ZSTD_e_end));
 	    CHECK_Z(ZSTD_decompress(decodedBuffer, CNBuffSize, dst, out.pos));
 	    ZSTD_freeCCtx(cctx);
@@ -972,7 +947,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "test%3i : testing refPrefx vs refPrefx + ldm (size comparison) : ", testNb++);
 	{
 		/* test a big buffer so that ldm can take effect */
-		size_t const size = 100 MB;
+		size_t const size = SMEGABYTE(100);
 		int const windowLog = 27;
 		size_t const dstSize = ZSTD_compressBound(size);
 		void * dict = SAlloc::M(size);
@@ -1207,7 +1182,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    CHECK_Z(ZSTD_compressEnd(cctx, compressedBuffer, compressedBufferSize, CNBuffer, 1) ); /* creates a block size of 1 */
 	    CHECK_Z(ZSTD_compressBegin_advanced(cctx, NULL, 0, params, ZSTD_CONTENTSIZE_UNKNOWN) ); /* re-use same parameters */
 	    {   
-			size_t const inSize = 2* 128 KB;
+			size_t const inSize = 2* SKILOBYTE(128);
 			size_t const outSize = ZSTD_compressBound(inSize);
 			CHECK_Z(ZSTD_compressEnd(cctx, compressedBuffer, outSize, CNBuffer, inSize) );
 			/* will fail if blockSize is not resized */
@@ -1425,7 +1400,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 			goto _end;
 		}
 		{
-			size_t const smallInSize = 32 KB;
+			size_t const smallInSize = SKILOBYTE(32);
 			ZSTD_compressionParameters const cparams_small = ZSTD_getCParams(STATIC_CCTX_LEVEL, smallInSize, 0);
 			size_t const smallCCtxSize = ZSTD_estimateCCtxSize_usingCParams(cparams_small);
 			size_t const staticCCtxSize = ZSTD_estimateCCtxSize(STATIC_CCTX_LEVEL);
@@ -1541,7 +1516,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 			DISPLAYLEVEL(3, "OK \n");
 			DISPLAYLEVEL(3, "test%3i : init static CStream with dictionary (should fail) : ", testNb++);
 			{ 
-				size_t const r = ZSTD_initCStream_usingDict(staticCCtx, CNBuffer, 64 KB, 1);
+				size_t const r = ZSTD_initCStream_usingDict(staticCCtx, CNBuffer, SKILOBYTE(64), 1);
 			  if(!ZSTD_isError(r)) goto _output_error; 
 			}
 			DISPLAYLEVEL(3, "OK \n");
@@ -1694,7 +1669,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "test%3i : setting multithreaded parameters : ", testNb++)
 	{
 		ZSTD_CCtx_params* params = ZSTD_createCCtxParams();
-		int const jobSize = 512 KB;
+		int const jobSize = SKILOBYTE(512);
 		int value;
 		/* Check that the overlap log and job size are unset. */
 		CHECK(ZSTD_CCtxParams_getParameter(params, ZSTD_c_overlapLog, &value) );
@@ -1725,8 +1700,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    int const segs = 4;
 		/* only use the first half so we don't push against size limit of compressedBuffer */
 	    size_t const segSize = (CNBuffSize / 2) / segs;
-
-	    const uint32 skipLen = 129 KB;
+	    const uint32 skipLen = SKILOBYTE(129);
 	    char* const skipBuff = (char *)SAlloc::M(skipLen);
 	    assert(skipBuff != NULL);
 	    memzero(skipBuff, skipLen);
@@ -1773,7 +1747,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    unsigned readMagic;
 	    unsigned long long receivedSize;
 	    size_t skippableSize;
-	    const uint32 skipLen = 129 KB;
+	    const uint32 skipLen = SKILOBYTE(129);
 	    char* const skipBuff = (char *)SAlloc::M(skipLen);
 	    assert(skipBuff != NULL);
 	    for(i = 0; i < skipLen; i++)
@@ -1896,8 +1870,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		 */
 		if((int)(compressibility * 100 + 0.1) == FUZ_compressibility_default) { /* test only valid with known
 			                                                                   input */
-			size_t const flatdictSize = 22 KB;
-			size_t const contentSize = 9 KB;
+			size_t const flatdictSize = SKILOBYTE(22);
+			size_t const contentSize = SKILOBYTE(9);
 			const void * const dict = (const char*)CNBuffer;
 			const void * const contentStart = (const char*)dict + flatdictSize;
 			/* These upper bounds are generally within a few bytes of the compressed size */
@@ -2000,10 +1974,10 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	/* Dictionary and dictBuilder tests */
 	{   ZSTD_CCtx* const cctx = ZSTD_createCCtx();
-	    size_t const dictBufferCapacity = 16 KB;
+	    size_t const dictBufferCapacity = SKILOBYTE(16);
 	    void * const dictBuffer = SAlloc::M(dictBufferCapacity);
-	    size_t const totalSampleSize = 1 MB;
-	    size_t const sampleUnitSize = 8 KB;
+	    size_t const totalSampleSize = SMEGABYTE(1);
+	    size_t const sampleUnitSize = SKILOBYTE(8);
 	    const uint32 nbSamples = (uint32)(totalSampleSize / sampleUnitSize);
 	    size_t* const samplesSizes = (size_t*)SAlloc::M(nbSamples * sizeof(size_t));
 	    size_t dictSize;
@@ -2204,7 +2178,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 					    DISPLAY("ZSTD_initStaticCDict failed ");
 					    goto _output_error;
 				    }
-				    cSize = ZSTD_compress_usingCDict(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(10 KB, CNBuffSize), cdict);
+				    cSize = ZSTD_compress_usingCDict(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(SKILOBYTE(10), CNBuffSize), cdict);
 				    if(ZSTD_isError(cSize)) {
 					    DISPLAY("ZSTD_compress_usingCDict failed ");
 					    goto _output_error;
@@ -2378,14 +2352,14 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		    size_t size1, size2;
 		    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
 		    CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, 7) );
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, 10 KB)) );
-		    size1 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, SKILOBYTE(10))) );
+		    size1 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 		    if(ZSTD_isError(size1)) goto _output_error;
 
 		    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, 10 KB)) );
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, SKILOBYTE(10))) );
 		    CHECK_Z(ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, 7) );
-		    size2 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+		    size2 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 		    if(ZSTD_isError(size2)) goto _output_error;
 		    if(size1 != size2) goto _output_error;
 	    }
@@ -2451,12 +2425,12 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    {
 		    size_t size1, size2;
 		    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, 10 KB)) );
-		    size1 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, SKILOBYTE(10))) );
+		    size1 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 		    if(ZSTD_isError(size1)) goto _output_error;
 
 		    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_only);
-		    size2 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+		    size2 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 		    if(ZSTD_isError(size2)) goto _output_error;
 
 		    if(size1 != size2) goto _output_error;
@@ -2467,12 +2441,12 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	    {
 		    size_t size1, size2;
 		    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
-		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, 10 KB)) );
-		    size1 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+		    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, CNBuffer, MIN(CNBuffSize, SKILOBYTE(10))) );
+		    size1 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 		    if(ZSTD_isError(size1)) goto _output_error;
 
 		    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
-		    size2 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+		    size2 = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 		    if(ZSTD_isError(size2)) goto _output_error;
 
 		    if(size1 == size2) goto _output_error;
@@ -2481,7 +2455,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	    ZSTD_CCtx_reset(cctx, ZSTD_reset_session_and_parameters);
 	    CHECK_Z(ZSTD_CCtx_loadDictionary(cctx, dictBuffer, dictSize) );
-	    cSize = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, 100 KB));
+	    cSize = ZSTD_compress2(cctx, compressedBuffer, compressedBufferSize, CNBuffer, MIN(CNBuffSize, SKILOBYTE(100)));
 	    CHECK_Z(cSize);
 	    DISPLAYLEVEL(3, "test%3i : ZSTD_decompressDCtx() with dictionary : ", testNb++);
 	    {
@@ -2662,11 +2636,11 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	/* COVER dictionary builder tests */
 	{   
 		ZSTD_CCtx* const cctx = ZSTD_createCCtx();
-	    size_t dictSize = 16 KB;
+	    size_t dictSize = SKILOBYTE(16);
 	    size_t optDictSize = dictSize;
 	    void * dictBuffer = SAlloc::M(dictSize);
-	    size_t const totalSampleSize = 1 MB;
-	    size_t const sampleUnitSize = 8 KB;
+	    size_t const totalSampleSize = SMEGABYTE(1);
+	    size_t const sampleUnitSize = SKILOBYTE(8);
 	    const uint32 nbSamples = (uint32)(totalSampleSize / sampleUnitSize);
 	    size_t* const samplesSizes = (size_t*)SAlloc::M(nbSamples * sizeof(size_t));
 	    uint32 seed32 = seed;
@@ -2969,8 +2943,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	/* block API tests */
 	{   ZSTD_CCtx* const cctx = ZSTD_createCCtx();
 	    ZSTD_DCtx* const dctx = ZSTD_createDCtx();
-	    static const size_t dictSize = 65 KB;
-	    static const size_t blockSize = 100 KB; /* won't cause pb with small dict size */
+	    static const size_t dictSize = SKILOBYTE(65);
+	    static const size_t blockSize = SKILOBYTE(100); /* won't cause pb with small dict size */
 	    size_t cSize2;
 	    assert(cctx); assert(dctx != NULL);
 
@@ -3051,15 +3025,12 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		if(r != blockSize) {
 			DISPLAYLEVEL(1,
 			    "ZSTD_decompressBlock() with _usingDict() and after insertBlock() fails : %u, instead of %u expected \n",
-			    (uint)r,
-			    (uint)blockSize);
+			    (uint)r, (uint)blockSize);
 			goto _output_error;
 		}
 	    }
-	    assert(memcpy((char *)CNBuffer+dictSize, decodedBuffer, blockSize*3)); /* ensure regenerated content is
-		                                                                     identical to origin */
+	    assert(memcpy((char *)CNBuffer+dictSize, decodedBuffer, blockSize*3)); /* ensure regenerated content is identical to origin */
 	    DISPLAYLEVEL(3, "OK \n");
-
 	    DISPLAYLEVEL(3, "test%3i : Block compression with CDict : ", testNb++);
 	    {
 		    ZSTD_CDict* const cdict = ZSTD_createCDict(CNBuffer, dictSize, 3);
@@ -3077,10 +3048,10 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		size_t sampleSize = 0;
 		size_t expectedCompressedSize = 39; /* block 1, 2: compressed, block 3: RLE, zstd 1.4.4 */
 		DISPLAYLEVEL(3, "test%3i : Long RLE test : ", testNb++);
-		memset((char *)CNBuffer+sampleSize, 'B', 256 KB - 1);
-		sampleSize += 256 KB - 1;
-		memset((char *)CNBuffer+sampleSize, 'A', 96 KB);
-		sampleSize += 96 KB;
+		memset((char *)CNBuffer+sampleSize, 'B', SKILOBYTE(256) - 1);
+		sampleSize += SKILOBYTE(256) - 1;
+		memset((char *)CNBuffer+sampleSize, 'A', SKILOBYTE(96));
+		sampleSize += SKILOBYTE(96);
 		cSize = ZSTD_compress(compressedBuffer, ZSTD_compressBound(sampleSize), CNBuffer, sampleSize, 1);
 		if(ZSTD_isError(cSize) || cSize > expectedCompressedSize) goto _output_error;
 		{
@@ -3091,13 +3062,14 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	}
 	DISPLAYLEVEL(3, "test%3i : ZSTD_generateSequences decode from sequences test : ", testNb++);
 	{
-		size_t srcSize = 150 KB;
+		size_t srcSize = SKILOBYTE(150);
 		BYTE* src = (BYTE*)CNBuffer;
 		BYTE* decoded = (BYTE*)compressedBuffer;
 		ZSTD_CCtx* cctx = ZSTD_createCCtx();
 		ZSTD_Sequence* seqs = (ZSTD_Sequence*)SAlloc::M(srcSize * sizeof(ZSTD_Sequence));
 		size_t seqsSize;
-		if(seqs == NULL) goto _output_error;
+		if(seqs == NULL) 
+			goto _output_error;
 		assert(cctx);
 		ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, 19);
 		/* Populate src with random data */
@@ -3120,7 +3092,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	DISPLAYLEVEL(3, "test%3i : ZSTD_getSequences followed by ZSTD_compressSequences : ", testNb++);
 	{
-		const size_t srcSize = 500 KB;
+		const size_t srcSize = SKILOBYTE(500);
 		const BYTE* const src = (BYTE*)CNBuffer;
 		BYTE* const dst = (BYTE*)compressedBuffer;
 		const size_t dstCapacity = ZSTD_compressBound(srcSize);
@@ -3281,10 +3253,10 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "OK \n");
 	DISPLAYLEVEL(3, "test%3i : incompressible data and ill suited dictionary : ", testNb++);
 	{ /* Train a dictionary on low characters */
-		size_t dictSize = 16 KB;
+		size_t dictSize = SKILOBYTE(16);
 		void * const dictBuffer = SAlloc::M(dictSize);
-		size_t const totalSampleSize = 1 MB;
-		size_t const sampleUnitSize = 8 KB;
+		size_t const totalSampleSize = SMEGABYTE(1);
+		size_t const sampleUnitSize = SKILOBYTE(8);
 		const uint32 nbSamples = (uint32)(totalSampleSize / sampleUnitSize);
 		size_t* const samplesSizes = (size_t*)SAlloc::M(nbSamples * sizeof(size_t));
 		if(!dictBuffer || !samplesSizes) goto _output_error;
@@ -3307,7 +3279,6 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 			SAlloc::F(outputBuffer);
 			ZSTD_freeCCtx(cctx);
 		}
-
 		SAlloc::F(dictBuffer);
 		SAlloc::F(samplesSizes);
 	}
@@ -3315,9 +3286,12 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	/* findFrameCompressedSize on skippable frames */
 	DISPLAYLEVEL(3, "test%3i : frame compressed size of skippable frame : ", testNb++);
-	{   const char* frame = "\x50\x2a\x4d\x18\x05\x0\x0\0abcde";
+	{   
+		const char* frame = "\x50\x2a\x4d\x18\x05\x0\x0\0abcde";
 	    size_t const frameSrcSize = 13;
-	    if(ZSTD_findFrameCompressedSize(frame, frameSrcSize) != frameSrcSize) goto _output_error; }
+	    if(ZSTD_findFrameCompressedSize(frame, frameSrcSize) != frameSrcSize) 
+			goto _output_error; 
+	}
 	DISPLAYLEVEL(3, "OK \n");
 
 	/* error string tests */
@@ -3333,10 +3307,10 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "test%3i : testing ZSTD dictionary sizes : ", testNb++);
 	RDG_genBuffer(CNBuffer, CNBuffSize, compressibility, 0., seed);
 	{
-		size_t const size = MIN(128 KB, CNBuffSize);
+		size_t const size = MIN(SKILOBYTE(128), CNBuffSize);
 		ZSTD_CCtx* const cctx = ZSTD_createCCtx();
 		ZSTD_CDict* const lgCDict = ZSTD_createCDict(CNBuffer, size, 1);
-		ZSTD_CDict* const smCDict = ZSTD_createCDict(CNBuffer, 1 KB, 1);
+		ZSTD_CDict* const smCDict = ZSTD_createCDict(CNBuffer, SKILOBYTE(1), 1);
 		ZSTD_frameHeader lgHeader;
 		ZSTD_frameHeader smHeader;
 
@@ -3356,13 +3330,11 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "test%3i : testing FSE_normalizeCount() PR#1255: ", testNb++);
 	{
 		short norm[32];
-		unsigned count[32];
-		unsigned const tableLog = 5;
-		size_t const nbSeq = 32;
-		unsigned const maxSymbolValue = 31;
-		size_t i;
-
-		for(i = 0; i < 32; ++i)
+		uint  count[32];
+		const uint tableLog = 5;
+		const size_t nbSeq = 32;
+		const uint maxSymbolValue = 31;
+		for(size_t i = 0; i < 32; ++i)
 			count[i] = 1;
 		/* Calling FSE_normalizeCount() on a uniform distribution should not
 		 * cause a division by zero.
@@ -3370,13 +3342,12 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		FSE_normalizeCount(norm, tableLog, count, nbSeq, maxSymbolValue, /* useLowProbCount */ 1);
 	}
 	DISPLAYLEVEL(3, "OK \n");
-
 	DISPLAYLEVEL(3, "test%3i : testing FSE_writeNCount() PR#2779: ", testNb++);
 	{
 		size_t const outBufSize = 9;
 		short const count[11] = {1, 0, 1, 0, 1, 0, 1, 0, 1, 9, 18};
-		unsigned const tableLog = 5;
-		unsigned const maxSymbolValue = 10;
+		const unsigned tableLog = 5;
+		const unsigned maxSymbolValue = 10;
 		BYTE* outBuf = (BYTE*)SAlloc::M(outBufSize*sizeof(BYTE));
 
 		/* Ensure that this write doesn't write out of bounds, and that
@@ -3386,7 +3357,6 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		SAlloc::F(outBuf);
 	}
 	DISPLAYLEVEL(3, "OK \n");
-
 	DISPLAYLEVEL(3, "test%3i : testing bitwise intrinsics PR#3045: ", testNb++);
 	{
 		uint32 seed_copy = seed; // need non-const seed to avoid compiler warning for FUZ_rand(&seed)
@@ -3397,27 +3367,24 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		uint32 highbit_only_32 = (uint32)1 << 31;
 		uint64 highbit_only_64 = (uint64)1 << 63;
 		uint32 i;
-		if(rand32 == 0) rand32 = 1; // CLZ and CTZ are undefined on 0
-		if(rand64 == 0) rand64 = 1; // CLZ and CTZ are undefined on 0
-
+		if(rand32 == 0) 
+			rand32 = 1; // CLZ and CTZ are undefined on 0
+		if(rand64 == 0) 
+			rand64 = 1; // CLZ and CTZ are undefined on 0
 		/* Test ZSTD_countTrailingZeros32 */
 		CHECK_EQ(ZSTD_countTrailingZeros32(lowbit_only_32), 0u);
 		CHECK_EQ(ZSTD_countTrailingZeros32(highbit_only_32), 31u);
 		CHECK_EQ(ZSTD_countTrailingZeros32(rand32), ZSTD_countTrailingZeros32_fallback(rand32));
-
 		/* Test ZSTD_countLeadingZeros32 */
 		CHECK_EQ(ZSTD_countLeadingZeros32(lowbit_only_32), 31u);
 		CHECK_EQ(ZSTD_countLeadingZeros32(highbit_only_32), 0u);
 		CHECK_EQ(ZSTD_countLeadingZeros32(rand32), ZSTD_countLeadingZeros32_fallback(rand32));
-
 		/* Test ZSTD_countTrailingZeros64 */
 		CHECK_EQ(ZSTD_countTrailingZeros64(lowbit_only_64), 0u);
 		CHECK_EQ(ZSTD_countTrailingZeros64(highbit_only_64), 63u);
-
 		/* Test ZSTD_countLeadingZeros64 */
 		CHECK_EQ(ZSTD_countLeadingZeros64(lowbit_only_64), 63u);
 		CHECK_EQ(ZSTD_countLeadingZeros64(highbit_only_64), 0u);
-
 		/* Test ZSTD_highbit32 */
 		CHECK_EQ(ZSTD_highbit32(lowbit_only_32), 0u);
 		CHECK_EQ(ZSTD_highbit32(highbit_only_32), 31u);
@@ -3462,7 +3429,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "test%3i : passing wrong full dict should fail on compressStream2 refPrefix ", testNb++);
 	{
 		ZSTD_CCtx* cctx = ZSTD_createCCtx();
-		size_t const srcSize = 1 MB + 5; /* A little more than ZSTDMT_JOBSIZE_MIN */
+		size_t const srcSize = SMEGABYTE(1) + 5; /* A little more than ZSTDMT_JOBSIZE_MIN */
 		size_t const dstSize = ZSTD_compressBound(srcSize);
 		void * const src = CNBuffer;
 		void * const dst = compressedBuffer;
@@ -3488,7 +3455,7 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 	DISPLAYLEVEL(3, "test%3i : small dictionary with multithreading and LDM ", testNb++);
 	{
 		ZSTD_CCtx* cctx = ZSTD_createCCtx();
-		size_t const srcSize = 1 MB + 5; /* A little more than ZSTDMT_JOBSIZE_MIN */
+		size_t const srcSize = SMEGABYTE(1) + 5; /* A little more than ZSTDMT_JOBSIZE_MIN */
 		size_t const dictSize = 10;
 		size_t const dstSize = ZSTD_compressBound(srcSize);
 		void * const src = CNBuffer;
@@ -3525,7 +3492,6 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		ZSTD_compressionParameters const cParams = ZSTD_getCParams(1, 0, 0);
 		ZSTD_compressionParameters const smallDict = ZSTD_adjustCParams(cParams, 0, 400);
 		ZSTD_compressionParameters const smallSrcAndDict = ZSTD_adjustCParams(cParams, 500, 400);
-
 		assert(smallSrcAndDict.windowLog == 10);
 		assert(!memcmp(&cParams, &smallDict, sizeof(cParams)));
 	}
@@ -3538,12 +3504,8 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		for(; level < ZSTD_maxCLevel(); ++level) {
 			size_t const currSize = ZSTD_estimateCCtxSize(level);
 			if(prevSize > currSize) {
-				DISPLAYLEVEL(3,
-				    "Error! previous cctx size: %zu at level: %d is larger than current cctx size: %zu at level: %d",
-				    prevSize,
-				    level-1,
-				    currSize,
-				    level);
+				DISPLAYLEVEL(3, "Error! previous cctx size: %zu at level: %d is larger than current cctx size: %zu at level: %d",
+				    prevSize, level-1, currSize, level);
 				goto _output_error;
 			}
 			prevSize = currSize;
@@ -3553,27 +3515,19 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 
 	DISPLAYLEVEL(3, "test%3i : check estimateCCtxSize() always larger or equal to ZSTD_estimateCCtxSize_usingCParams() : ", testNb++);
 	{
-		size_t const kSizeIncrement = 2 KB;
+		size_t const kSizeIncrement = SKILOBYTE(2);
 		int level = -3;
-
 		for(; level <= ZSTD_maxCLevel(); ++level) {
 			size_t dictSize = 0;
-			for(; dictSize <= 256 KB; dictSize += 8 * kSizeIncrement) {
-				size_t srcSize = 2 KB;
-				for(; srcSize < 300 KB; srcSize += kSizeIncrement) {
+			for(; dictSize <= SKILOBYTE(256); dictSize += 8 * kSizeIncrement) {
+				size_t srcSize = SKILOBYTE(2);
+				for(; srcSize < SKILOBYTE(300); srcSize += kSizeIncrement) {
 					ZSTD_compressionParameters const cParams = ZSTD_getCParams(level, srcSize, dictSize);
 					size_t const cctxSizeUsingCParams = ZSTD_estimateCCtxSize_usingCParams(cParams);
 					size_t const cctxSizeUsingLevel = ZSTD_estimateCCtxSize(level);
-					if(cctxSizeUsingLevel < cctxSizeUsingCParams
-					    || ZSTD_isError(cctxSizeUsingCParams)
-					    || ZSTD_isError(cctxSizeUsingLevel)) {
-						DISPLAYLEVEL(3,
-						    "error! l: %d dict: %zu srcSize: %zu cctx size cpar: %zu, cctx size level: %zu\n",
-						    level,
-						    dictSize,
-						    srcSize,
-						    cctxSizeUsingCParams,
-						    cctxSizeUsingLevel);
+					if(cctxSizeUsingLevel < cctxSizeUsingCParams || ZSTD_isError(cctxSizeUsingCParams) || ZSTD_isError(cctxSizeUsingLevel)) {
+						DISPLAYLEVEL(3, "error! l: %d dict: %zu srcSize: %zu cctx size cpar: %zu, cctx size level: %zu\n",
+						    level, dictSize, srcSize, cctxSizeUsingCParams, cctxSizeUsingLevel);
 						goto _output_error;
 					}
 				}
@@ -3581,7 +3535,6 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		}
 	}
 	DISPLAYLEVEL(3, "OK \n");
-
 	DISPLAYLEVEL(3, "test%3i : thread pool API tests : \n", testNb++)
 	{
 		int const threadPoolTestResult = threadPoolTests();
@@ -3590,15 +3543,12 @@ static int basicUnitTests(const uint32 seed, double compressibility)
 		}
 	}
 	DISPLAYLEVEL(3, "thread pool tests OK \n");
-
 #endif /* ZSTD_MULTITHREAD */
-
 _end:
 	SAlloc::F(CNBuffer);
 	SAlloc::F(compressedBuffer);
 	SAlloc::F(decodedBuffer);
 	return testResult;
-
 _output_error:
 	testResult = 1;
 	DISPLAY("Error detected in Unit tests ! \n");
@@ -3607,7 +3557,7 @@ _output_error:
 
 static int longUnitTests(const uint32 seed, double compressibility)
 {
-	size_t const CNBuffSize = 5 MB;
+	size_t const CNBuffSize = SMEGABYTE(5);
 	void * const CNBuffer = SAlloc::M(CNBuffSize);
 	size_t const compressedBufferSize = ZSTD_compressBound(CNBuffSize);
 	void * const compressedBuffer = SAlloc::M(compressedBufferSize);
@@ -3615,7 +3565,6 @@ static int longUnitTests(const uint32 seed, double compressibility)
 	int testResult = 0;
 	unsigned testNb = 0;
 	size_t cSize;
-
 	/* Create compressible noise */
 	if(!CNBuffer || !compressedBuffer || !decodedBuffer) {
 		DISPLAY("Not enough memory, aborting\n");
@@ -3789,11 +3738,12 @@ _output_error:
 
 static size_t findDiff(const void * buf1, const void * buf2, size_t max)
 {
-	const BYTE* b1 = (const BYTE*)buf1;
-	const BYTE* b2 = (const BYTE*)buf2;
+	const BYTE * b1 = (const BYTE*)buf1;
+	const BYTE * b2 = (const BYTE*)buf2;
 	size_t u;
 	for(u = 0; u<max; u++) {
-		if(b1[u] != b2[u]) break;
+		if(b1[u] != b2[u]) 
+			break;
 	}
 	return u;
 }
@@ -3831,8 +3781,7 @@ static size_t FUZ_randomLength(uint32* seed, uint32 maxLog)
 #define CHECK_Z(f) {                                          \
 		size_t const err = f;                                     \
 		if(ZSTD_isError(err)) {                                  \
-			DISPLAY("Error => %s : %s ",                          \
-			    #f, ZSTD_getErrorName(err));                  \
+			DISPLAY("Error => %s : %s ", #f, ZSTD_getErrorName(err));   \
 			DISPLAY(" (seed %u, test nb %u)  \n", (uint)seed, testNb);  \
 			goto _output_error;                                   \
 		}   }
@@ -3937,7 +3886,7 @@ static int fuzzerTests(uint32 seed, unsigned nbTests, unsigned startTest, const 
 			{
 				const size_t missing = (FUZ_rand(&lseed) % (cSize-2)) + 1;
 				const size_t tooSmallSize = cSize - missing;
-				const unsigned endMark = 0x4DC2B1A9;
+				const uint endMark = 0x4DC2B1A9;
 				memcpy(dstBuffer+tooSmallSize, &endMark, sizeof(endMark));
 				DISPLAYLEVEL(5, "fuzzer t%u: compress into too small buffer of size %u (missing %u bytes) \n",
 				    testNb, (uint)tooSmallSize, (uint)missing);
@@ -4185,9 +4134,9 @@ static int FUZ_usage(const char* programName)
     allows and interprets K, KB, KiB, M, MB and MiB suffix.
     Will also modify `*stringPtr`, advancing it to position where it stopped reading.
     Note : function result can overflow if digit string > MAX_UINT */
-static unsigned readU32FromChar(const char** stringPtr)
+static uint readU32FromChar(const char** stringPtr)
 {
-	unsigned result = 0;
+	uint result = 0;
 	while((**stringPtr >='0') && (**stringPtr <='9'))
 		result *= 10, result += (uint)(**stringPtr - '0'), (*stringPtr)++;
 	if((**stringPtr=='K') || (**stringPtr=='M')) {
@@ -4214,6 +4163,68 @@ static int longCommandWArg(const char** stringPtr, const char* longCommand)
 	return result;
 }
 
+#if 1 // @construction {
+
+enum {
+	zstdfuzzerfBigTest   = 0x0001,
+	zstdfuzzerfLongTest  = 0x0002,
+	zstdfuzzerfMainPause = 0x0004
+};
+
+int ZStdFuzzer(const char * pOutFileName, uint displayLevel_, uint memTestOnly_/*0..*/, uint maxDurationSec, uint flags)
+{
+	int    ok = 1;
+	uint32 seed = 0;
+	int seedset = 0;
+	//int argNb;
+	int nbTests = nbTestsDefault;
+	int testNb = 0;
+	int proba = FUZ_compressibility_default;
+	double probfloat;
+	int result = 0;
+	uint32 mainPause = BIN(flags & zstdfuzzerfMainPause);
+	uint32 maxDuration = maxDurationSec;
+	//int bigTests = 1;
+	//int longTests = 0;
+	//uint32 memTestsOnly = 0;
+	g_displayLevel = displayLevel_;
+	//const char * const programName = argv[0];
+	/* Get Seed */
+	DISPLAY("Starting zstd tester (%i-bits, %s)\n", (int)(sizeof(size_t)*8), ZSTD_VERSION_STRING);
+	if(!seedset) {
+		const time_t t = time(NULL);
+		const uint32 h = XXH32(&t, sizeof(t), 1);
+		seed = h % 10000;
+	}
+	DISPLAY("Seed = %u\n", (uint)seed);
+	if(proba!=FUZ_compressibility_default) 
+		DISPLAY("Compressibility : %i%%\n", proba);
+	probfloat = ((double)proba) / 100;
+	if(memTestOnly_) {
+		g_displayLevel = MAX(3, g_displayLevel);
+		return FUZ_mallocTests(seed, probfloat, memTestOnly_);
+	}
+	SETMAX(nbTests, testNb);
+	if(testNb==0) {
+		result = basicUnitTests(0, probfloat); /* constant seed for predictability */
+		if(!result && (flags & zstdfuzzerfLongTest)) {
+			result = longUnitTests(0, probfloat);
+		}
+	}
+	SETIFZQ(result, 
+		fuzzerTests(seed, (uint)nbTests, (uint)testNb, maxDuration, ((double)proba) / 100, 
+		/*bigTests*/BIN(flags & zstdfuzzerfBigTest)));
+	if(mainPause) {
+		int unused;
+		DISPLAY("Press Enter \n");
+		unused = getchar();
+		(void)unused;
+	}
+	return ok;
+}
+
+#endif // } 0
+
 int main(int argc, const char** argv)
 {
 	uint32 seed = 0;
@@ -4238,19 +4249,24 @@ int main(int argc, const char** argv)
 		/* Handle commands. Aggregated commands are allowed */
 		if(argument[0]=='-') {
 			if(longCommandWArg(&argument, "--memtest=")) {
-				memTestsOnly = readU32FromChar(&argument); continue;
+				memTestsOnly = readU32FromChar(&argument); 
+				continue;
 			}
 			if(!strcmp(argument, "--memtest")) {
-				memTestsOnly = 1; continue;
+				memTestsOnly = 1; 
+				continue;
 			}
 			if(!strcmp(argument, "--no-big-tests")) {
-				bigTests = 0; continue;
+				bigTests = 0; 
+				continue;
 			}
 			if(!strcmp(argument, "--long-tests")) {
-				longTests = 1; continue;
+				longTests = 1; 
+				continue;
 			}
 			if(!strcmp(argument, "--no-long-tests")) {
-				longTests = 0; continue;
+				longTests = 0; 
+				continue;
 			}
 			argument++;
 			while(*argument!=0) {
@@ -4278,9 +4294,14 @@ int main(int argc, const char** argv)
 					    argument++;
 					    nbTests = 0;
 					    maxDuration = readU32FromChar(&argument);
-					    if(*argument=='s') argument++; /* seconds */
-					    if(*argument=='m') maxDuration *= 60, argument++; /* minutes */
-					    if(*argument=='n') argument++;
+					    if(*argument=='s') 
+							argument++; /* seconds */
+					    if(*argument=='m') {
+							maxDuration *= 60; /* minutes */
+							argument++; 
+						}
+					    if(*argument=='n') 
+							argument++;
 					    break;
 					case 's':
 					    argument++;
@@ -4317,15 +4338,14 @@ int main(int argc, const char** argv)
 		g_displayLevel = MAX(3, g_displayLevel);
 		return FUZ_mallocTests(seed, probfloat, memTestsOnly);
 	}
-	if(nbTests < testNb) nbTests = testNb;
+	SETMAX(nbTests, testNb);
 	if(testNb==0) {
 		result = basicUnitTests(0, probfloat); /* constant seed for predictability */
 		if(!result && longTests) {
 			result = longUnitTests(0, probfloat);
 		}
 	}
-	if(!result)
-		result = fuzzerTests(seed, (uint)nbTests, (uint)testNb, maxDuration, ((double)proba) / 100, bigTests);
+	SETIFZQ(result, fuzzerTests(seed, (uint)nbTests, (uint)testNb, maxDuration, ((double)proba) / 100, bigTests));
 	if(mainPause) {
 		int unused;
 		DISPLAY("Press Enter \n");

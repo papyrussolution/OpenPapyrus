@@ -14,8 +14,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace i18n {
 namespace phonenumbers {
-constexpr PhoneNumber::PhoneNumber(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PhoneNumber::PhoneNumber(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : extension_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , raw_input_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , preferred_domestic_carrier_code_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -37,17 +36,18 @@ PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PhoneNumberDefaultTypeInternal 
 }  // namespace i18n
 namespace i18n {
 namespace phonenumbers {
-bool PhoneNumber_CountryCodeSource_IsValid(int value) {
-  switch (value) {
-    case 0:
-    case 1:
-    case 5:
-    case 10:
-    case 20:
-      return true;
-    default:
-      return false;
-  }
+bool PhoneNumber_CountryCodeSource_IsValid(int value)
+{
+	switch(value) {
+		case 0:
+		case 1:
+		case 5:
+		case 10:
+		case 20:
+			return true;
+		default:
+			return false;
+	}
 }
 
 static ::PROTOBUF_NAMESPACE_ID::internal::ExplicitlyConstructed<std::string> PhoneNumber_CountryCodeSource_strings[5] = {};
@@ -75,30 +75,22 @@ static const int PhoneNumber_CountryCodeSource_entries_by_number[] = {
   0, // 20 -> FROM_DEFAULT_COUNTRY
 };
 
-const std::string& PhoneNumber_CountryCodeSource_Name(
-    PhoneNumber_CountryCodeSource value) {
-  static const bool dummy =
-      ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
-          PhoneNumber_CountryCodeSource_entries,
-          PhoneNumber_CountryCodeSource_entries_by_number,
-          5, PhoneNumber_CountryCodeSource_strings);
-  (void) dummy;
-  int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(
-      PhoneNumber_CountryCodeSource_entries,
-      PhoneNumber_CountryCodeSource_entries_by_number,
-      5, value);
-  return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() :
-                     PhoneNumber_CountryCodeSource_strings[idx].get();
+const std::string& PhoneNumber_CountryCodeSource_Name(PhoneNumber_CountryCodeSource value)
+{
+	static const bool dummy = ::PROTOBUF_NAMESPACE_ID::internal::InitializeEnumStrings(
+		PhoneNumber_CountryCodeSource_entries, PhoneNumber_CountryCodeSource_entries_by_number, 5, PhoneNumber_CountryCodeSource_strings);
+	(void)dummy;
+	int idx = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumName(PhoneNumber_CountryCodeSource_entries, PhoneNumber_CountryCodeSource_entries_by_number, 5, value);
+	return idx == -1 ? ::PROTOBUF_NAMESPACE_ID::internal::GetEmptyString() : PhoneNumber_CountryCodeSource_strings[idx].get();
 }
-bool PhoneNumber_CountryCodeSource_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PhoneNumber_CountryCodeSource* value) {
-  int int_value;
-  bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(
-      PhoneNumber_CountryCodeSource_entries, 5, name, &int_value);
-  if (success) {
-    *value = static_cast<PhoneNumber_CountryCodeSource>(int_value);
-  }
-  return success;
+bool PhoneNumber_CountryCodeSource_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PhoneNumber_CountryCodeSource * value)
+{
+	int int_value;
+	bool success = ::PROTOBUF_NAMESPACE_ID::internal::LookUpEnumValue(PhoneNumber_CountryCodeSource_entries, 5, name, &int_value);
+	if(success) {
+		*value = static_cast<PhoneNumber_CountryCodeSource>(int_value);
+	}
+	return success;
 }
 #if (__cplusplus < 201703) && (!defined(_MSC_VER) || (_MSC_VER >= 1900 && _MSC_VER < 1912))
 constexpr PhoneNumber_CountryCodeSource PhoneNumber::UNSPECIFIED;
@@ -161,9 +153,7 @@ PhoneNumber::PhoneNumber(const PhoneNumber& from)
   if(from._internal_has_preferred_domestic_carrier_code()) {
     preferred_domestic_carrier_code_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_preferred_domestic_carrier_code(), GetArenaForAllocation());
   }
-  ::memcpy(&national_number_, &from.national_number_,
-    static_cast<size_t>(reinterpret_cast<char*>(&number_of_leading_zeros_) -
-    reinterpret_cast<char*>(&national_number_)) + sizeof(number_of_leading_zeros_));
+  ::memcpy(&national_number_, &from.national_number_, static_cast<size_t>(reinterpret_cast<char*>(&number_of_leading_zeros_) - reinterpret_cast<char*>(&national_number_)) + sizeof(number_of_leading_zeros_));
   // @@protoc_insertion_point(copy_constructor:i18n.phonenumbers.PhoneNumber)
 }
 
@@ -180,10 +170,7 @@ preferred_domestic_carrier_code_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::inte
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   preferred_domestic_carrier_code_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&national_number_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&country_code_source_) -
-    reinterpret_cast<char*>(&national_number_)) + sizeof(country_code_source_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&national_number_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&country_code_source_) - reinterpret_cast<char*>(&national_number_)) + sizeof(country_code_source_));
 number_of_leading_zeros_ = 1;
 }
 
@@ -205,8 +192,7 @@ void PhoneNumber::ArenaDtor(void* object) {
   PhoneNumber* _this = reinterpret_cast< PhoneNumber* >(object);
   (void)_this;
 }
-void PhoneNumber::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PhoneNumber::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PhoneNumber::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -230,9 +216,7 @@ void PhoneNumber::Clear() {
     }
   }
   if(cached_has_bits & 0x000000f8u) {
-    ::memset(&national_number_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&country_code_source_) -
-        reinterpret_cast<char*>(&national_number_)) + sizeof(country_code_source_));
+    ::memset(&national_number_, 0, static_cast<size_t>(reinterpret_cast<char*>(&country_code_source_) - reinterpret_cast<char*>(&national_number_)) + sizeof(country_code_source_));
     number_of_leading_zeros_ = 1;
   }
   _has_bits_.Clear();
@@ -330,10 +314,7 @@ const char* PhoneNumber::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -483,10 +464,9 @@ size_t PhoneNumber::ByteSizeLong() const {
   return total_size;
 }
 
-void PhoneNumber::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneNumber*>(
-      &from));
+void PhoneNumber::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneNumber*>(&from));
 }
 
 void PhoneNumber::MergeFrom(const PhoneNumber& from) {
@@ -544,21 +524,9 @@ void PhoneNumber::InternalSwap(PhoneNumber* other) {
   auto* rhs_arena = other->GetArenaForAllocation();
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &extension_, lhs_arena,
-      &other->extension_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &raw_input_, lhs_arena,
-      &other->raw_input_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &preferred_domestic_carrier_code_, lhs_arena,
-      &other->preferred_domestic_carrier_code_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &extension_, lhs_arena, &other->extension_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &raw_input_, lhs_arena, &other->raw_input_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &preferred_domestic_carrier_code_, lhs_arena, &other->preferred_domestic_carrier_code_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(PhoneNumber, country_code_source_)
       + sizeof(PhoneNumber::country_code_source_)

@@ -294,7 +294,6 @@ int archive_write_set_format_xar(struct archive * _a)
 	file_init_hardlinks(xar);
 	archive_string_init(&(xar->tstr));
 	archive_string_init(&(xar->vstr));
-
 	/*
 	 * Create the root directory.
 	 */
@@ -310,7 +309,6 @@ int archive_write_set_format_xar(struct archive * _a)
 	archive_string_init(&(xar->cur_dirstr));
 	archive_string_ensure(&(xar->cur_dirstr), 1);
 	xar->cur_dirstr.s[0] = 0;
-
 	/*
 	 * Initialize option.
 	 */
@@ -321,9 +319,7 @@ int archive_write_set_format_xar(struct archive * _a)
 	xar->opt_compression = GZIP;
 	xar->opt_compression_level = 6;
 	xar->opt_threads = 1;
-
 	a->format_data = xar;
-
 	a->format_name = "xar";
 	a->format_options = xar_options;
 	a->format_write_header = xar_write_header;
@@ -333,21 +329,20 @@ int archive_write_set_format_xar(struct archive * _a)
 	a->format_free = xar_free;
 	a->archive.archive_format = ARCHIVE_FORMAT_XAR;
 	a->archive.archive_format_name = "xar";
-
 	return ARCHIVE_OK;
 }
 
 static int xar_options(struct archive_write * a, const char * key, const char * value)
 {
 	struct xar * xar = (struct xar *)a->format_data;
-	if(strcmp(key, "checksum") == 0) {
+	if(sstreq(key, "checksum")) {
 		if(value == NULL)
 			xar->opt_sumalg = CKSUM_NONE;
 		else if(sstreq(value, "none"))
 			xar->opt_sumalg = CKSUM_NONE;
-		else if(strcmp(value, "sha1") == 0)
+		else if(sstreq(value, "sha1"))
 			xar->opt_sumalg = CKSUM_SHA1;
-		else if(strcmp(value, "md5") == 0)
+		else if(sstreq(value, "md5"))
 			xar->opt_sumalg = CKSUM_MD5;
 		else {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown checksum name: `%s'", value);
@@ -355,27 +350,27 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "compression") == 0) {
+	if(sstreq(key, "compression")) {
 		const char * name = NULL;
 		if(value == NULL)
 			xar->opt_compression = NONE;
 		else if(sstreq(value, "none"))
 			xar->opt_compression = NONE;
-		else if(strcmp(value, "gzip") == 0)
+		else if(sstreq(value, "gzip"))
 			xar->opt_compression = GZIP;
-		else if(strcmp(value, "bzip2") == 0)
+		else if(sstreq(value, "bzip2"))
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 			xar->opt_compression = BZIP2;
 #else
 			name = "bzip2";
 #endif
-		else if(strcmp(value, "lzma") == 0)
+		else if(sstreq(value, "lzma"))
 #ifdef HAVE_LZMA_H
 			xar->opt_compression = LZMA;
 #else
 			name = "lzma";
 #endif
-		else if(strcmp(value, "xz") == 0)
+		else if(sstreq(value, "xz"))
 #ifdef HAVE_LZMA_H
 			xar->opt_compression = XZ;
 #else
@@ -391,24 +386,22 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "compression-level") == 0) {
-		if(value == NULL ||
-		    !(value[0] >= '0' && value[0] <= '9') ||
-		    value[1] != '\0') {
+	if(sstreq(key, "compression-level")) {
+		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0') {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Illegal value `%s'", value);
 			return ARCHIVE_FAILED;
 		}
 		xar->opt_compression_level = value[0] - '0';
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "toc-checksum") == 0) {
+	if(sstreq(key, "toc-checksum")) {
 		if(value == NULL)
 			xar->opt_toc_sumalg = CKSUM_NONE;
 		else if(sstreq(value, "none"))
 			xar->opt_toc_sumalg = CKSUM_NONE;
-		else if(strcmp(value, "sha1") == 0)
+		else if(sstreq(value, "sha1"))
 			xar->opt_toc_sumalg = CKSUM_SHA1;
-		else if(strcmp(value, "md5") == 0)
+		else if(sstreq(value, "md5"))
 			xar->opt_toc_sumalg = CKSUM_MD5;
 		else {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown checksum name: `%s'", value);
@@ -416,9 +409,8 @@ static int xar_options(struct archive_write * a, const char * key, const char * 
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "threads") == 0) {
+	if(sstreq(key, "threads")) {
 		char * endptr;
-
 		if(value == NULL)
 			return ARCHIVE_FAILED;
 		errno = 0;
@@ -1925,7 +1917,7 @@ static int file_tree(struct archive_write * a, struct file ** filepp)
 	 * the same as the path of `cur_dirent', add isoent to
 	 * `cur_dirent'.
 	 */
-	if(archive_strlen(&(xar->cur_dirstr)) == archive_strlen(&(file->parentdir)) && strcmp(xar->cur_dirstr.s, fn) == 0) {
+	if(archive_strlen(&(xar->cur_dirstr)) == archive_strlen(&(file->parentdir)) && sstreq(xar->cur_dirstr.s, fn)) {
 		if(!file_add_child_tail(xar->cur_dirent, file)) {
 			np = (struct file *)__archive_rb_tree_find_node(&(xar->cur_dirent->rbtree), file->basename.s);
 			goto same_entry;
@@ -2128,30 +2120,24 @@ static void file_connect_hardlink_files(struct xar * xar)
 			/* It means this file is a hardlink
 			 * target itself. */
 			target->hardlink_target = target;
-		for(nf = target->hlnext;
-		    nf != NULL; nf = nf->hlnext) {
+		for(nf = target->hlnext; nf != NULL; nf = nf->hlnext) {
 			nf->hardlink_target = target;
 			archive_entry_set_nlink(nf->entry, hl->nlink);
 		}
 	}
 }
 
-static int file_hd_cmp_node(const struct archive_rb_node * n1,
-    const struct archive_rb_node * n2)
+static int file_hd_cmp_node(const struct archive_rb_node * n1, const struct archive_rb_node * n2)
 {
 	const struct hardlink * h1 = (const struct hardlink *)n1;
 	const struct hardlink * h2 = (const struct hardlink *)n2;
-
-	return (strcmp(archive_entry_pathname(h1->file_list.first->entry),
-	       archive_entry_pathname(h2->file_list.first->entry)));
+	return (strcmp(archive_entry_pathname(h1->file_list.first->entry), archive_entry_pathname(h2->file_list.first->entry)));
 }
 
 static int file_hd_cmp_key(const struct archive_rb_node * n, const void * key)
 {
 	const struct hardlink * h = (const struct hardlink *)n;
-
-	return (strcmp(archive_entry_pathname(h->file_list.first->entry),
-	       (const char *)key));
+	return (strcmp(archive_entry_pathname(h->file_list.first->entry), (const char *)key));
 }
 
 static void file_init_hardlinks(struct xar * xar)

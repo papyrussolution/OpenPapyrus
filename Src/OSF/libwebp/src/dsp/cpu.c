@@ -12,11 +12,6 @@
 //
 #include <libwebp-internal.h>
 #pragma hdrstop
-//#include "src/dsp/dsp.h"
-//#if defined(WEBP_HAVE_NEON_RTCD)
-	//#include <stdio.h>
-	//#include <string.h>
-//#endif
 #if defined(WEBP_ANDROID_NEON)
 	#include <cpu-features.h>
 #endif

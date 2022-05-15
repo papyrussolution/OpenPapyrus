@@ -2701,6 +2701,9 @@ int PPStyloQInterchange::Document::FromJsonObject(const SJson * pJsObj)
 			else if(p_cur->Text.IsEqiAscii("svcident")) {
 				SvcIdent.FromMime64(SJson::Unescape(p_cur->P_Child->Text));
 			}
+			else if(p_cur->Text.IsEqiAscii("basecurrency")) { // @v11.3.12
+				BaseCurrencySymb = SJson::Unescape(p_cur->P_Child->Text);
+			}
 			else if(p_cur->Text.IsEqiAscii("crtm")) {
 				CreationTime.Set(SJson::Unescape(p_cur->P_Child->Text), DATF_ISO8601|DATF_CENTURY, 0);
 			}
@@ -6555,7 +6558,7 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 						const PPID tec_id = tec_id_list.get(tecidx);
 						if(rTSesObj.TecObj.Fetch(tec_id, &tec_rec) > 0 && tec_rec.GoodsID == goods_id) {
 							if(tec_rec.Capacity > 0.0) {
-								tec_time_sec = 1.0 / tec_rec.Capacity;
+								tec_time_sec = R0i(1.0 / tec_rec.Capacity);
 								break;
 							}
 						}
@@ -6596,6 +6599,27 @@ SJson * PPStyloQInterchange::MakeRsrvAttendancePrereqResponse_Prc(const SBinaryC
 	return p_result;
 }
 
+static int StqInsertIntoJs_BaseCurrency(SJson * pJs) // @v11.3.12
+{
+	int    ok = -1;
+	if(pJs) {
+		if(LConfig.BaseCurID > 0) {
+			PPObjCurrency cur_obj;
+			PPCurrency cur_rec;
+			if(cur_obj.Fetch(LConfig.BaseCurID, &cur_rec) > 0 && cur_rec.Symb[0]) {
+				SString temp_buf;
+				(temp_buf = cur_rec.Symb).Strip();
+				if(temp_buf.IsAscii()) {
+					temp_buf.ToUpper();
+					pJs->InsertString("basecurrency", temp_buf);
+					ok = 1;
+				}
+			}
+		}
+	}
+	return ok;
+}
+
 int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommandList::Item & rCmdItem, const StyloQCore::StoragePacket & rCliPack, const SGeoPosLL & rGeoPos,
 	SString & rResult, SString & rDocDeclaration)
 {
@@ -6626,6 +6650,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvAttendancePrereq(const StyloQCommand
 	long   max_schedule_days = 7;
 	THROW(GetOwnPeerEntry(&own_pack) > 0);
 	THROW_PP(own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident), PPERR_SQ_UNDEFOWNSVCID);
+	StqInsertIntoJs_BaseCurrency(&js); // @v11.3.12
 	{
 		if(rCmdItem.GetAttendanceParam(param) > 0) {
 			max_schedule_days = inrangeordefault(param.MaxScheduleDays, 1L, 365L, 7L);
@@ -6797,6 +6822,7 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 	PPStyloPalmPacket stp_pack;
 	StyloQCore::StoragePacket own_pack;
 	SBinaryChunk bc_own_ident;
+	PPID   agent_psn_id = 0;
 	THROW(GetOwnPeerEntry(&own_pack) > 0);
 	THROW_PP(own_pack.Pool.Get(SSecretTagPool::tagSvcIdent, &bc_own_ident), PPERR_SQ_UNDEFOWNSVCID);
 	THROW(rCmdItem.Param.ReadStatic(&stylopalm_id, sizeof(stylopalm_id))); // @todo err
@@ -6807,14 +6833,20 @@ int PPStyloQInterchange::ProcessCommand_RsrvOrderPrereq(const StyloQCommandList:
 			PPIDArray stp_id_list;
 			if(stp_obj.GetListByPerson(local_person_id, stp_id_list) > 0) {
 				stylopalm_id = stp_id_list.get(0);
+				agent_psn_id = local_person_id;
 			}
 		}
 	}
 	THROW(stp_obj.GetPacket(stylopalm_id, &stp_pack) > 0);
 	{
+		const bool is_agent_orders = (rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT);
 		SJson js(SJson::tOBJECT);
+		StqInsertIntoJs_BaseCurrency(&js);
+		if(is_agent_orders && agent_psn_id) {
+			js.InsertInt("agentid", agent_psn_id);
+		}
 		THROW(MakeRsrvPriceListResponse_ExportGoods(bc_own_ident, &stp_pack, &js, &stat));
-		if(rCmdItem.ObjTypeRestriction == PPOBJ_PERSON && rCmdItem.ObjGroupRestriction == PPPRK_AGENT) {
+		if(is_agent_orders) {
 			THROW(MakeRsrvPriceListResponse_ExportClients(bc_own_ident, &stp_pack, &js, &stat));
 		}
 		THROW(js.ToStr(rResult));
@@ -7854,8 +7886,9 @@ SJson * PPStyloQInterchange::ProcessCommand_PostDocument(const SBinaryChunk & rO
 					if(checkdate(dtm_finish.d) && checktime(dtm_finish.t)) {
 						tses_pack.Rec.FinDt = dtm_finish.d;
 						tses_pack.Rec.FinTm = dtm_finish.t;
-						tses_pack.Rec.PlannedTiming = duration; // @v11.3.12
+						tses_pack.Rec.PlannedTiming = R0i(duration); // @v11.3.12
 					}
+					tses_pack.Rec.PlannedQtty = 1.0; // @v11.3.12
 				}
 				{
 					PPTransaction tra(1);

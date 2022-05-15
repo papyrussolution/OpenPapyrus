@@ -23,7 +23,6 @@ class FlagRegistry {
 public:
 	FlagRegistry() = default;
 	~FlagRegistry() = default;
-
 	// Store a flag in this registry. Takes ownership of *flag.
 	void RegisterFlag(CommandLineFlag& flag, const char* filename);
 	void Lock() ABSL_EXCLUSIVE_LOCK_FUNCTION(lock_) 
@@ -138,27 +137,26 @@ FlagRegistry& FlagRegistry::GlobalRegistry() {
 	return *global_registry;
 }
 
-// --------------------------------------------------------------------
-
-void ForEachFlag(std::function<void(CommandLineFlag&)> visitor) {
+void ForEachFlag(std::function<void(CommandLineFlag&)> visitor) 
+{
 	FlagRegistry& registry = FlagRegistry::GlobalRegistry();
-
 	if(registry.finalized_flags_.load(std::memory_order_acquire)) {
-		for(const auto& i : registry.flat_flags_) visitor(*i);
+		for(const auto& i : registry.flat_flags_) 
+				visitor(*i);
 	}
-
 	FlagRegistryLock frl(registry);
-	for(const auto& i : registry.flags_) visitor(*i.second);
+	for(const auto& i : registry.flags_) 
+			visitor(*i.second);
 }
 
-// --------------------------------------------------------------------
-
-bool RegisterCommandLineFlag(CommandLineFlag& flag, const char* filename) {
+bool RegisterCommandLineFlag(CommandLineFlag& flag, const char* filename) 
+{
 	FlagRegistry::GlobalRegistry().RegisterFlag(flag, filename);
 	return true;
 }
 
-void FinalizeRegistry() {
+void FinalizeRegistry() 
+{
 	auto& registry = FlagRegistry::GlobalRegistry();
 	FlagRegistryLock frl(registry);
 	if(registry.finalized_flags_.load(std::memory_order_relaxed)) {
@@ -178,7 +176,7 @@ void FinalizeRegistry() {
 // --------------------------------------------------------------------
 
 namespace {
-class RetiredFlagObj final : public CommandLineFlag {
+class RetiredFlagObj final alignas(sizeof(void *)) : public CommandLineFlag { // @sobolev alignas(8)
 public:
 	constexpr RetiredFlagObj(const char* name, FlagFastTypeId type_id) : name_(name), type_id_(type_id) 
 	{

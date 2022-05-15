@@ -233,8 +233,9 @@ static void U_CALLCONV _ISCIIOpen(UConverter * cnv, UConverterLoadArgs * pArgs, 
 	}
 }
 
-static void U_CALLCONV _ISCIIClose(UConverter * cnv) {
-	if(cnv->extraInfo!=NULL) {
+static void U_CALLCONV _ISCIIClose(UConverter * cnv) 
+{
+	if(cnv->extraInfo) {
 		if(!cnv->isExtraLocal) {
 			uprv_free(cnv->extraInfo);
 		}
@@ -242,7 +243,8 @@ static void U_CALLCONV _ISCIIClose(UConverter * cnv) {
 	}
 }
 
-static const char * U_CALLCONV _ISCIIgetName(const UConverter * cnv) {
+static const char * U_CALLCONV _ISCIIgetName(const UConverter * cnv) 
+{
 	if(cnv->extraInfo) {
 		UConverterDataISCII* myData = (UConverterDataISCII*)cnv->extraInfo;
 		return myData->name;
@@ -250,7 +252,8 @@ static const char * U_CALLCONV _ISCIIgetName(const UConverter * cnv) {
 	return NULL;
 }
 
-static void U_CALLCONV _ISCIIReset(UConverter * cnv, UConverterResetChoice choice) {
+static void U_CALLCONV _ISCIIReset(UConverter * cnv, UConverterResetChoice choice) 
+{
 	UConverterDataISCII* data = (UConverterDataISCII*)(cnv->extraInfo);
 	if(choice<=UCNV_RESET_TO_UNICODE) {
 		cnv->toUnicodeStatus = missingCharMarker;

@@ -14,8 +14,7 @@
 PROTOBUF_PRAGMA_INIT_SEG
 namespace i18n {
 namespace phonenumbers {
-constexpr NumberFormat::NumberFormat(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr NumberFormat::NumberFormat(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : leading_digits_pattern_()
   , pattern_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
   , format_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -30,8 +29,7 @@ struct NumberFormatDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT NumberFormatDefaultTypeInternal _NumberFormat_default_instance_;
-constexpr PhoneNumberDesc::PhoneNumberDesc(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PhoneNumberDesc::PhoneNumberDesc(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : possible_length_()
   , possible_length_local_only_()
   , national_number_pattern_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -44,8 +42,7 @@ struct PhoneNumberDescDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PhoneNumberDescDefaultTypeInternal _PhoneNumberDesc_default_instance_;
-constexpr PhoneMetadata::PhoneMetadata(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PhoneMetadata::PhoneMetadata(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : number_format_()
   , intl_number_format_()
   , id_(&::PROTOBUF_NAMESPACE_ID::internal::fixed_address_empty_string)
@@ -86,8 +83,7 @@ struct PhoneMetadataDefaultTypeInternal {
 	};
 };
 PROTOBUF_ATTRIBUTE_NO_DESTROY PROTOBUF_CONSTINIT PhoneMetadataDefaultTypeInternal _PhoneMetadata_default_instance_;
-constexpr PhoneMetadataCollection::PhoneMetadataCollection(
-  ::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
+constexpr PhoneMetadataCollection::PhoneMetadataCollection(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized)
   : metadata_(){}
 struct PhoneMetadataCollectionDefaultTypeInternal {
 	constexpr PhoneMetadataCollectionDefaultTypeInternal() : _instance(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized{}) {}
@@ -201,8 +197,7 @@ void NumberFormat::ArenaDtor(void* object) {
   NumberFormat* _this = reinterpret_cast< NumberFormat* >(object);
   (void)_this;
 }
-void NumberFormat::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void NumberFormat::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void NumberFormat::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -308,10 +303,7 @@ const char* NumberFormat::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_I
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -436,10 +428,9 @@ size_t NumberFormat::ByteSizeLong() const {
   return total_size;
 }
 
-void NumberFormat::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const NumberFormat*>(
-      &from));
+void NumberFormat::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const NumberFormat*>(&from));
 }
 
 void NumberFormat::MergeFrom(const NumberFormat& from) {
@@ -490,26 +481,10 @@ void NumberFormat::InternalSwap(NumberFormat* other) {
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   swap(_has_bits_[0], other->_has_bits_[0]);
   leading_digits_pattern_.InternalSwap(&other->leading_digits_pattern_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &pattern_, lhs_arena,
-      &other->pattern_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &format_, lhs_arena,
-      &other->format_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &national_prefix_formatting_rule_, lhs_arena,
-      &other->national_prefix_formatting_rule_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &domestic_carrier_code_formatting_rule_, lhs_arena,
-      &other->domestic_carrier_code_formatting_rule_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &pattern_, lhs_arena, &other->pattern_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &format_, lhs_arena, &other->format_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &national_prefix_formatting_rule_, lhs_arena, &other->national_prefix_formatting_rule_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &domestic_carrier_code_formatting_rule_, lhs_arena, &other->domestic_carrier_code_formatting_rule_, rhs_arena);
   swap(national_prefix_optional_when_formatting_, other->national_prefix_optional_when_formatting_);
 }
 
@@ -587,8 +562,7 @@ void PhoneNumberDesc::ArenaDtor(void* object) {
   PhoneNumberDesc* _this = reinterpret_cast< PhoneNumberDesc* >(object);
   (void)_this;
 }
-void PhoneNumberDesc::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PhoneNumberDesc::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PhoneNumberDesc::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -679,10 +653,7 @@ const char* PhoneNumberDesc::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPAC
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -742,16 +713,14 @@ size_t PhoneNumberDesc::ByteSizeLong() const {
   // repeated int32 possible_length = 9;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->possible_length_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_possible_length_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_possible_length_size());
     total_size += data_size;
   }
 
   // repeated int32 possible_length_local_only = 10;
   {
     size_t data_size = ::PROTOBUF_NAMESPACE_ID::internal::WireFormatLite::Int32Size(this->possible_length_local_only_);
-    total_size += 1 *
-                  ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_possible_length_local_only_size());
+    total_size += 1 * ::PROTOBUF_NAMESPACE_ID::internal::FromIntSize(this->_internal_possible_length_local_only_size());
     total_size += data_size;
   }
 
@@ -776,10 +745,9 @@ size_t PhoneNumberDesc::ByteSizeLong() const {
   return total_size;
 }
 
-void PhoneNumberDesc::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneNumberDesc*>(
-      &from));
+void PhoneNumberDesc::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneNumberDesc*>(&from));
 }
 
 void PhoneNumberDesc::MergeFrom(const PhoneNumberDesc& from) {
@@ -821,16 +789,8 @@ void PhoneNumberDesc::InternalSwap(PhoneNumberDesc* other) {
   swap(_has_bits_[0], other->_has_bits_[0]);
   possible_length_.InternalSwap(&other->possible_length_);
   possible_length_local_only_.InternalSwap(&other->possible_length_local_only_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &national_number_pattern_, lhs_arena,
-      &other->national_number_pattern_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &example_number_, lhs_arena,
-      &other->example_number_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &national_number_pattern_, lhs_arena, &other->national_number_pattern_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &example_number_, lhs_arena, &other->example_number_, rhs_arena);
 }
 
 std::string PhoneNumberDesc::GetTypeName() const { return "i18n.phonenumbers.PhoneNumberDesc"; }
@@ -891,74 +851,23 @@ class PhoneMetadata::_Internal {
   static bool MissingRequiredFields(const HasBits& has_bits) { return ((has_bits[0] & 0x00000001) ^ 0x00000001) != 0; }
 };
 
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::general_desc(const PhoneMetadata* msg) {
-  return *msg->general_desc_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::fixed_line(const PhoneMetadata* msg) {
-  return *msg->fixed_line_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::mobile(const PhoneMetadata* msg) {
-  return *msg->mobile_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::toll_free(const PhoneMetadata* msg) {
-  return *msg->toll_free_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::premium_rate(const PhoneMetadata* msg) {
-  return *msg->premium_rate_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::shared_cost(const PhoneMetadata* msg) {
-  return *msg->shared_cost_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::personal_number(const PhoneMetadata* msg) {
-  return *msg->personal_number_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::voip(const PhoneMetadata* msg) {
-  return *msg->voip_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::pager(const PhoneMetadata* msg) {
-  return *msg->pager_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::uan(const PhoneMetadata* msg) {
-  return *msg->uan_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::emergency(const PhoneMetadata* msg) {
-  return *msg->emergency_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::voicemail(const PhoneMetadata* msg) {
-  return *msg->voicemail_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::short_code(const PhoneMetadata* msg) {
-  return *msg->short_code_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::standard_rate(const PhoneMetadata* msg) {
-  return *msg->standard_rate_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::carrier_specific(const PhoneMetadata* msg) {
-  return *msg->carrier_specific_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::sms_services(const PhoneMetadata* msg) {
-  return *msg->sms_services_;
-}
-const ::i18n::phonenumbers::PhoneNumberDesc&
-PhoneMetadata::_Internal::no_international_dialling(const PhoneMetadata* msg) {
-  return *msg->no_international_dialling_;
-}
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::general_desc(const PhoneMetadata* msg) { return *msg->general_desc_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::fixed_line(const PhoneMetadata* msg) { return *msg->fixed_line_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::mobile(const PhoneMetadata* msg) { return *msg->mobile_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::toll_free(const PhoneMetadata* msg) { return *msg->toll_free_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::premium_rate(const PhoneMetadata* msg) { return *msg->premium_rate_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::shared_cost(const PhoneMetadata* msg) { return *msg->shared_cost_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::personal_number(const PhoneMetadata* msg) { return *msg->personal_number_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::voip(const PhoneMetadata* msg) { return *msg->voip_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::pager(const PhoneMetadata* msg) { return *msg->pager_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::uan(const PhoneMetadata* msg) { return *msg->uan_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::emergency(const PhoneMetadata* msg) { return *msg->emergency_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::voicemail(const PhoneMetadata* msg) { return *msg->voicemail_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::short_code(const PhoneMetadata* msg) { return *msg->short_code_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::standard_rate(const PhoneMetadata* msg) { return *msg->standard_rate_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::carrier_specific(const PhoneMetadata* msg) { return *msg->carrier_specific_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::sms_services(const PhoneMetadata* msg) { return *msg->sms_services_; }
+const ::i18n::phonenumbers::PhoneNumberDesc & PhoneMetadata::_Internal::no_international_dialling(const PhoneMetadata* msg) { return *msg->no_international_dialling_; }
 PhoneMetadata::PhoneMetadata(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                          bool is_message_owned)
   : ::PROTOBUF_NAMESPACE_ID::MessageLite(arena, is_message_owned),
@@ -1032,94 +941,24 @@ PhoneMetadata::PhoneMetadata(const PhoneMetadata& from)
   if(from._internal_has_leading_digits()) {
     leading_digits_.Set(::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::EmptyDefault{}, from._internal_leading_digits(), GetArenaForAllocation());
   }
-  if(from._internal_has_general_desc()) {
-    general_desc_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.general_desc_);
-  } else {
-    general_desc_ = nullptr;
-  }
-  if(from._internal_has_fixed_line()) {
-    fixed_line_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.fixed_line_);
-  } else {
-    fixed_line_ = nullptr;
-  }
-  if(from._internal_has_mobile()) {
-    mobile_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.mobile_);
-  } else {
-    mobile_ = nullptr;
-  }
-  if(from._internal_has_toll_free()) {
-    toll_free_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.toll_free_);
-  } else {
-    toll_free_ = nullptr;
-  }
-  if(from._internal_has_premium_rate()) {
-    premium_rate_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.premium_rate_);
-  } else {
-    premium_rate_ = nullptr;
-  }
-  if(from._internal_has_shared_cost()) {
-    shared_cost_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.shared_cost_);
-  } else {
-    shared_cost_ = nullptr;
-  }
-  if(from._internal_has_personal_number()) {
-    personal_number_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.personal_number_);
-  } else {
-    personal_number_ = nullptr;
-  }
-  if(from._internal_has_voip()) {
-    voip_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.voip_);
-  } else {
-    voip_ = nullptr;
-  }
-  if(from._internal_has_pager()) {
-    pager_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.pager_);
-  } else {
-    pager_ = nullptr;
-  }
-  if(from._internal_has_no_international_dialling()) {
-    no_international_dialling_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.no_international_dialling_);
-  } else {
-    no_international_dialling_ = nullptr;
-  }
-  if(from._internal_has_uan()) {
-    uan_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.uan_);
-  } else {
-    uan_ = nullptr;
-  }
-  if(from._internal_has_emergency()) {
-    emergency_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.emergency_);
-  } else {
-    emergency_ = nullptr;
-  }
-  if(from._internal_has_voicemail()) {
-    voicemail_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.voicemail_);
-  } else {
-    voicemail_ = nullptr;
-  }
-  if(from._internal_has_short_code()) {
-    short_code_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.short_code_);
-  } else {
-    short_code_ = nullptr;
-  }
-  if(from._internal_has_standard_rate()) {
-    standard_rate_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.standard_rate_);
-  } else {
-    standard_rate_ = nullptr;
-  }
-  if(from._internal_has_carrier_specific()) {
-    carrier_specific_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.carrier_specific_);
-  } else {
-    carrier_specific_ = nullptr;
-  }
-  if(from._internal_has_sms_services()) {
-    sms_services_ = new ::i18n::phonenumbers::PhoneNumberDesc(*from.sms_services_);
-  } else {
-    sms_services_ = nullptr;
-  }
-  ::memcpy(&country_code_, &from.country_code_,
-    static_cast<size_t>(reinterpret_cast<char*>(&mobile_number_portable_region_) -
-    reinterpret_cast<char*>(&country_code_)) + sizeof(mobile_number_portable_region_));
+  general_desc_ = from._internal_has_general_desc() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.general_desc_) : nullptr;
+  fixed_line_ = from._internal_has_fixed_line() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.fixed_line_) : nullptr;
+  mobile_ = from._internal_has_mobile() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.mobile_) : nullptr;
+  toll_free_ = from._internal_has_toll_free() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.toll_free_) : nullptr;
+  premium_rate_ = from._internal_has_premium_rate() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.premium_rate_) : nullptr;
+  shared_cost_ = from._internal_has_shared_cost() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.shared_cost_) : nullptr;
+  personal_number_ = from._internal_has_personal_number() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.personal_number_) : nullptr;
+  voip_ = from._internal_has_voip() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.voip_) : nullptr;
+  pager_ = from._internal_has_pager() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.pager_) : nullptr;
+  no_international_dialling_ = from._internal_has_no_international_dialling() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.no_international_dialling_) : nullptr;
+  uan_ = from._internal_has_uan() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.uan_) : nullptr;
+  emergency_ = from._internal_has_emergency() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.emergency_) : nullptr;
+  voicemail_ = from._internal_has_voicemail() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.voicemail_) : nullptr;
+  short_code_ = from._internal_has_short_code() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.short_code_) : nullptr;
+  standard_rate_ = from._internal_has_standard_rate() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.standard_rate_) : nullptr;
+  carrier_specific_ = from._internal_has_carrier_specific() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.carrier_specific_) : nullptr;
+  sms_services_ = from._internal_has_sms_services() ? new ::i18n::phonenumbers::PhoneNumberDesc(*from.sms_services_) : nullptr;
+  ::memcpy(&country_code_, &from.country_code_, static_cast<size_t>(reinterpret_cast<char*>(&mobile_number_portable_region_) - reinterpret_cast<char*>(&country_code_)) + sizeof(mobile_number_portable_region_));
   // @@protoc_insertion_point(copy_constructor:i18n.phonenumbers.PhoneMetadata)
 }
 
@@ -1156,10 +995,7 @@ leading_digits_.UnsafeSetDefault(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStr
 #ifdef PROTOBUF_FORCE_COPY_DEFAULT_STRING
   leading_digits_.Set(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), "", GetArenaForAllocation());
 #endif // PROTOBUF_FORCE_COPY_DEFAULT_STRING
-::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(
-    reinterpret_cast<char*>(&general_desc_) - reinterpret_cast<char*>(this)),
-    0, static_cast<size_t>(reinterpret_cast<char*>(&mobile_number_portable_region_) -
-    reinterpret_cast<char*>(&general_desc_)) + sizeof(mobile_number_portable_region_));
+::memset(reinterpret_cast<char*>(this) + static_cast<size_t>(reinterpret_cast<char*>(&general_desc_) - reinterpret_cast<char*>(this)), 0, static_cast<size_t>(reinterpret_cast<char*>(&mobile_number_portable_region_) - reinterpret_cast<char*>(&general_desc_)) + sizeof(mobile_number_portable_region_));
 }
 
 PhoneMetadata::~PhoneMetadata() {
@@ -1202,8 +1038,7 @@ void PhoneMetadata::ArenaDtor(void* object) {
   PhoneMetadata* _this = reinterpret_cast< PhoneMetadata* >(object);
   (void)_this;
 }
-void PhoneMetadata::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PhoneMetadata::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PhoneMetadata::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -1316,9 +1151,7 @@ void PhoneMetadata::Clear() {
     sms_services_->Clear();
   }
   if(cached_has_bits & 0x3e000000u) {
-    ::memset(&country_code_, 0, static_cast<size_t>(
-        reinterpret_cast<char*>(&mobile_number_portable_region_) -
-        reinterpret_cast<char*>(&country_code_)) + sizeof(mobile_number_portable_region_));
+    ::memset(&country_code_, 0, static_cast<size_t>(reinterpret_cast<char*>(&mobile_number_portable_region_) - reinterpret_cast<char*>(&country_code_)) + sizeof(mobile_number_portable_region_));
   }
   _has_bits_.Clear();
   _internal_metadata_.Clear<std::string>();
@@ -1618,10 +1451,7 @@ const char* PhoneMetadata::_InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2018,10 +1848,9 @@ size_t PhoneMetadata::ByteSizeLong() const {
   return total_size;
 }
 
-void PhoneMetadata::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneMetadata*>(
-      &from));
+void PhoneMetadata::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneMetadata*>(&from));
 }
 
 void PhoneMetadata::MergeFrom(const PhoneMetadata& from) {
@@ -2159,46 +1988,14 @@ void PhoneMetadata::InternalSwap(PhoneMetadata* other) {
   swap(_has_bits_[0], other->_has_bits_[0]);
   number_format_.InternalSwap(&other->number_format_);
   intl_number_format_.InternalSwap(&other->intl_number_format_);
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &id_, lhs_arena,
-      &other->id_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &international_prefix_, lhs_arena,
-      &other->international_prefix_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &national_prefix_, lhs_arena,
-      &other->national_prefix_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &preferred_extn_prefix_, lhs_arena,
-      &other->preferred_extn_prefix_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &national_prefix_for_parsing_, lhs_arena,
-      &other->national_prefix_for_parsing_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &national_prefix_transform_rule_, lhs_arena,
-      &other->national_prefix_transform_rule_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &preferred_international_prefix_, lhs_arena,
-      &other->preferred_international_prefix_, rhs_arena
-  );
-  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(
-      &::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(),
-      &leading_digits_, lhs_arena,
-      &other->leading_digits_, rhs_arena
-  );
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &id_, lhs_arena, &other->id_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &international_prefix_, lhs_arena, &other->international_prefix_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &national_prefix_, lhs_arena, &other->national_prefix_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &preferred_extn_prefix_, lhs_arena, &other->preferred_extn_prefix_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &national_prefix_for_parsing_, lhs_arena, &other->national_prefix_for_parsing_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &national_prefix_transform_rule_, lhs_arena, &other->national_prefix_transform_rule_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &preferred_international_prefix_, lhs_arena, &other->preferred_international_prefix_, rhs_arena);
+  ::PROTOBUF_NAMESPACE_ID::internal::ArenaStringPtr::InternalSwap(&::PROTOBUF_NAMESPACE_ID::internal::GetEmptyStringAlreadyInited(), &leading_digits_, lhs_arena, &other->leading_digits_, rhs_arena);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
       PROTOBUF_FIELD_OFFSET(PhoneMetadata, mobile_number_portable_region_)
       + sizeof(PhoneMetadata::mobile_number_portable_region_)
@@ -2251,8 +2048,7 @@ void PhoneMetadataCollection::ArenaDtor(void* object) {
   PhoneMetadataCollection* _this = reinterpret_cast< PhoneMetadataCollection* >(object);
   (void)_this;
 }
-void PhoneMetadataCollection::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {
-}
+void PhoneMetadataCollection::RegisterArenaDtor(::PROTOBUF_NAMESPACE_ID::Arena*) {}
 void PhoneMetadataCollection::SetCachedSize(int size) const {
   _cached_size_.Set(size);
 }
@@ -2294,10 +2090,7 @@ const char* PhoneMetadataCollection::_InternalParse(const char* ptr, ::PROTOBUF_
       ctx->SetLastTag(tag);
       goto message_done;
     }
-    ptr = UnknownFieldParse(
-        tag,
-        _internal_metadata_.mutable_unknown_fields<std::string>(),
-        ptr, ctx);
+    ptr = UnknownFieldParse(tag, _internal_metadata_.mutable_unknown_fields<std::string>(), ptr, ctx);
     CHK_(ptr != nullptr);
   }  // while
 message_done:
@@ -2350,10 +2143,9 @@ size_t PhoneMetadataCollection::ByteSizeLong() const {
   return total_size;
 }
 
-void PhoneMetadataCollection::CheckTypeAndMergeFrom(
-    const ::PROTOBUF_NAMESPACE_ID::MessageLite& from) {
-  MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneMetadataCollection*>(
-      &from));
+void PhoneMetadataCollection::CheckTypeAndMergeFrom(const ::PROTOBUF_NAMESPACE_ID::MessageLite& from)
+{
+	MergeFrom(*::PROTOBUF_NAMESPACE_ID::internal::DownCast<const PhoneMetadataCollection*>(&from));
 }
 
 void PhoneMetadataCollection::MergeFrom(const PhoneMetadataCollection& from) {

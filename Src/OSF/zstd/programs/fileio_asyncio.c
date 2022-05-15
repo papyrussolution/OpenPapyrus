@@ -30,7 +30,7 @@ static unsigned AIO_fwriteSparse(FILE* file, const void* buffer, size_t bufferSi
 	size_t bufferSizeT = bufferSize / sizeof(size_t);
 	const size_t* const bufferTEnd = bufferT + bufferSizeT;
 	const size_t* ptrT = bufferT;
-	static const size_t segmentSizeT = (32 KB) / sizeof(size_t); /* check every 32 KB */
+	static const size_t segmentSizeT = SKILOBYTE(32) / sizeof(size_t); /* check every 32 KB */
 	if(prefs->testMode) 
 		return 0; /* do not output anything in test mode */
 	if(!prefs->sparseFileSupport) { /* normal write */
@@ -40,10 +40,10 @@ static unsigned AIO_fwriteSparse(FILE* file, const void* buffer, size_t bufferSi
 		return 0;
 	}
 	/* avoid int overflow */
-	if(storedSkips > 1 GB) {
-		if(LONG_SEEK(file, 1 GB, SEEK_CUR) != 0)
+	if(storedSkips > SGIGABYTE(1)) {
+		if(LONG_SEEK(file, SGIGABYTE(1), SEEK_CUR) != 0)
 			EXM_THROW(91, "1 GB skip error (sparse file support)");
-		storedSkips -= 1 GB;
+		storedSkips -= SGIGABYTE(1);
 	}
 	while(ptrT < bufferTEnd) {
 		size_t nb0T;

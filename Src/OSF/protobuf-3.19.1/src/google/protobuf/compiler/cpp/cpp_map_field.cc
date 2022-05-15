@@ -93,15 +93,11 @@ void MapFieldGenerator::GenerateAccessorDeclarations(io::Printer* printer) const
 	Formatter format(printer, variables_);
 	format(
 		"private:\n"
-		"const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
-		"    ${1$_internal_$name$$}$() const;\n"
-		"::$proto_ns$::Map< $key_cpp$, $val_cpp$ >*\n"
-		"    ${1$_internal_mutable_$name$$}$();\n"
+		"const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > & ${1$_internal_$name$$}$() const;\n"
+		"::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * ${1$_internal_mutable_$name$$}$();\n"
 		"public:\n"
-		"$deprecated_attr$const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
-		"    ${1$$name$$}$() const;\n"
-		"$deprecated_attr$::$proto_ns$::Map< $key_cpp$, $val_cpp$ >*\n"
-		"    ${1$mutable_$name$$}$();\n",
+		"$deprecated_attr$const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > & ${1$$name$$}$() const;\n"
+		"$deprecated_attr$::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * ${1$mutable_$name$$}$();\n",
 		descriptor_);
 }
 
@@ -109,21 +105,17 @@ void MapFieldGenerator::GenerateInlineAccessorDefinitions(io::Printer* printer) 
 	Formatter format(printer, variables_);
 	format(
 		"inline const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
-		"$classname$::_internal_$name$() const {\n"
-		"  return $name$_.GetMap();\n"
-		"}\n"
+		"$classname$::_internal_$name$() const { return $name$_.GetMap(); }\n"
 		"inline const ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >&\n"
 		"$classname$::$name$() const {\n"
 		"$annotate_get$"
 		"  // @@protoc_insertion_point(field_map:$full_name$)\n"
 		"  return _internal_$name$();\n"
 		"}\n"
-		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >*\n"
-		"$classname$::_internal_mutable_$name$() {\n"
+		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * $classname$::_internal_mutable_$name$() {\n"
 		"  return $name$_.MutableMap();\n"
 		"}\n"
-		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ >*\n"
-		"$classname$::mutable_$name$() {\n"
+		"inline ::$proto_ns$::Map< $key_cpp$, $val_cpp$ > * $classname$::mutable_$name$() {\n"
 		"$annotate_mutable$"
 		"  // @@protoc_insertion_point(field_mutable_map:$full_name$)\n"
 		"  return _internal_mutable_$name$();\n"
@@ -242,16 +234,12 @@ void MapFieldGenerator::GenerateSerializeWithCachedSizesToArray(io::Printer* pri
 	format("}\n");
 }
 
-void MapFieldGenerator::GenerateByteSize(io::Printer* printer) const {
+void MapFieldGenerator::GenerateByteSize(io::Printer* printer) const 
+{
 	Formatter format(printer, variables_);
-	format(
-		"total_size += $tag_size$ *\n"
-		"    "
-		"::$proto_ns$::internal::FromIntSize(this->_internal_$name$_size());\n"
-		"for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator\n"
-		"    it = this->_internal_$name$().begin();\n"
-		"    it != this->_internal_$name$().end(); ++it) {\n"
-		"  total_size += $map_classname$::Funcs::ByteSizeLong(it->first, it->second);\n"
+	format("total_size += $tag_size$ * ::$proto_ns$::internal::FromIntSize(this->_internal_$name$_size());\n"
+		"for(::$proto_ns$::Map< $key_cpp$, $val_cpp$ >::const_iterator it = this->_internal_$name$().begin(); it != this->_internal_$name$().end(); ++it) {\n"
+		"\ttotal_size += $map_classname$::Funcs::ByteSizeLong(it->first, it->second);\n"
 		"}\n");
 }
 

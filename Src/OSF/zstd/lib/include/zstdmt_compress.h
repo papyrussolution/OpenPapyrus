@@ -34,10 +34,10 @@ extern "C" {
 #define ZSTDMT_NBWORKERS_MAX ((sizeof(void*)==4) /*32-bit*/ ? 64 : 256)
 #endif
 #ifndef ZSTDMT_JOBSIZE_MIN   /* a different value can be selected at compile time */
-#define ZSTDMT_JOBSIZE_MIN (512 KB)
+#define ZSTDMT_JOBSIZE_MIN (SKILOBYTE(512))
 #endif
 #define ZSTDMT_JOBLOG_MAX   (MEM_32bits() ? 29 : 30)
-#define ZSTDMT_JOBSIZE_MAX  (MEM_32bits() ? (512 MB) : (1024 MB))
+#define ZSTDMT_JOBSIZE_MAX  (MEM_32bits() ? SMEGABYTE(512) : SMEGABYTE(1024))
 
 /* ========================================================
  * ===  Private interface, for use by ZSTD_compress.c   ===

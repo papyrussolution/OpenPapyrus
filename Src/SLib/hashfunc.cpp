@@ -2188,7 +2188,8 @@ uint64 _crc64_proc(uint64 crc, const void * in_data, const uint64_t len)
 #ifdef REDIS_TEST
 
 #define UNUSED(x) (void)(x)
-int crc64Test(int argc, char *argv[]) {
+int crc64Test(int argc, char *argv[]) 
+{
     UNUSED(argc);
     UNUSED(argv);
     crc64_init();

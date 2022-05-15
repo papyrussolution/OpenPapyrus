@@ -30,8 +30,8 @@ U_NAMESPACE_BEGIN
 Normalizer2::~Normalizer2() {
 }
 
-void Normalizer2::normalizeUTF8(uint32_t /*options*/, StringPiece src, ByteSink &sink,
-    Edits * edits, UErrorCode & errorCode) const {
+void Normalizer2::normalizeUTF8(uint32_t /*options*/, StringPiece src, ByteSink &sink, Edits * edits, UErrorCode & errorCode) const 
+{
 	if(U_FAILURE(errorCode)) {
 		return;
 	}
@@ -43,29 +43,16 @@ void Normalizer2::normalizeUTF8(uint32_t /*options*/, StringPiece src, ByteSink 
 	normalize(src16, errorCode).toUTF8(sink);
 }
 
-bool Normalizer2::getRawDecomposition(UChar32, UnicodeString & ) const {
-	return FALSE;
-}
-
-UChar32 Normalizer2::composePair(UChar32, UChar32) const {
-	return U_SENTINEL;
-}
-
-uint8 Normalizer2::getCombiningClass(UChar32 /*c*/) const {
-	return 0;
-}
-
-bool Normalizer2::isNormalizedUTF8(StringPiece s, UErrorCode & errorCode) const {
-	return U_SUCCESS(errorCode) && isNormalized(UnicodeString::fromUTF8(s), errorCode);
-}
+bool Normalizer2::getRawDecomposition(UChar32, UnicodeString & ) const { return FALSE; }
+UChar32 Normalizer2::composePair(UChar32, UChar32) const { return U_SENTINEL; }
+uint8 Normalizer2::getCombiningClass(UChar32 /*c*/) const { return 0; }
+bool Normalizer2::isNormalizedUTF8(StringPiece s, UErrorCode & errorCode) const { return U_SUCCESS(errorCode) && isNormalized(UnicodeString::fromUTF8(s), errorCode); }
 
 // Normalizer2 implementation for the old UNORM_NONE.
 class NoopNormalizer2 : public Normalizer2 {
 	virtual ~NoopNormalizer2();
-
-	virtual UnicodeString & normalize(const UnicodeString & src,
-	    UnicodeString & dest,
-	    UErrorCode & errorCode) const U_OVERRIDE {
+	virtual UnicodeString & normalize(const UnicodeString & src, UnicodeString & dest, UErrorCode & errorCode) const U_OVERRIDE 
+	{
 		if(U_SUCCESS(errorCode)) {
 			if(&dest!=&src) {
 				dest = src;
@@ -76,9 +63,8 @@ class NoopNormalizer2 : public Normalizer2 {
 		}
 		return dest;
 	}
-
-	virtual void normalizeUTF8(uint32_t options, StringPiece src, ByteSink &sink,
-	    Edits * edits, UErrorCode & errorCode) const U_OVERRIDE {
+	virtual void normalizeUTF8(uint32_t options, StringPiece src, ByteSink &sink, Edits * edits, UErrorCode & errorCode) const U_OVERRIDE 
+	{
 		if(U_SUCCESS(errorCode)) {
 			if(edits != nullptr) {
 				if((options & U_EDITS_NO_RESET) == 0) {
@@ -92,10 +78,8 @@ class NoopNormalizer2 : public Normalizer2 {
 			sink.Flush();
 		}
 	}
-
-	virtual UnicodeString & normalizeSecondAndAppend(UnicodeString & first,
-	    const UnicodeString & second,
-	    UErrorCode & errorCode) const U_OVERRIDE {
+	virtual UnicodeString & normalizeSecondAndAppend(UnicodeString & first, const UnicodeString & second, UErrorCode & errorCode) const U_OVERRIDE 
+	{
 		if(U_SUCCESS(errorCode)) {
 			if(&first!=&second) {
 				first.append(second);
@@ -106,10 +90,8 @@ class NoopNormalizer2 : public Normalizer2 {
 		}
 		return first;
 	}
-
-	virtual UnicodeString & append(UnicodeString & first,
-	    const UnicodeString & second,
-	    UErrorCode & errorCode) const U_OVERRIDE {
+	virtual UnicodeString & append(UnicodeString & first, const UnicodeString & second, UErrorCode & errorCode) const U_OVERRIDE 
+	{
 		if(U_SUCCESS(errorCode)) {
 			if(&first!=&second) {
 				first.append(second);
@@ -120,54 +102,35 @@ class NoopNormalizer2 : public Normalizer2 {
 		}
 		return first;
 	}
-
-	virtual bool getDecomposition(UChar32, UnicodeString & ) const U_OVERRIDE {
-		return FALSE;
-	}
-
+	virtual bool getDecomposition(UChar32, UnicodeString & ) const U_OVERRIDE { return FALSE; }
 	// No need to U_OVERRIDE the default getRawDecomposition().
-	virtual bool isNormalized(const UnicodeString & , UErrorCode & errorCode) const U_OVERRIDE {
-		return U_SUCCESS(errorCode);
-	}
-
-	virtual bool isNormalizedUTF8(StringPiece, UErrorCode & errorCode) const U_OVERRIDE {
-		return U_SUCCESS(errorCode);
-	}
-
-	virtual UNormalizationCheckResult quickCheck(const UnicodeString & , UErrorCode &) const U_OVERRIDE {
-		return UNORM_YES;
-	}
-
-	virtual int32_t spanQuickCheckYes(const UnicodeString & s, UErrorCode &) const U_OVERRIDE {
-		return s.length();
-	}
-
-	virtual bool hasBoundaryBefore(UChar32) const U_OVERRIDE {
-		return TRUE;
-	}
-
-	virtual bool hasBoundaryAfter(UChar32) const U_OVERRIDE {
-		return TRUE;
-	}
-
-	virtual bool isInert(UChar32) const U_OVERRIDE {
-		return TRUE;
-	}
+	virtual bool isNormalized(const UnicodeString & , UErrorCode & errorCode) const U_OVERRIDE { return U_SUCCESS(errorCode); }
+	virtual bool isNormalizedUTF8(StringPiece, UErrorCode & errorCode) const U_OVERRIDE { return U_SUCCESS(errorCode); }
+	virtual UNormalizationCheckResult quickCheck(const UnicodeString & , UErrorCode &) const U_OVERRIDE { return UNORM_YES; }
+	virtual int32_t spanQuickCheckYes(const UnicodeString & s, UErrorCode &) const U_OVERRIDE { return s.length(); }
+	virtual bool hasBoundaryBefore(UChar32) const U_OVERRIDE { return TRUE; }
+	virtual bool hasBoundaryAfter(UChar32) const U_OVERRIDE { return TRUE; }
+	virtual bool isInert(UChar32) const U_OVERRIDE { return TRUE; }
 };
 
-NoopNormalizer2::~NoopNormalizer2() {
+NoopNormalizer2::~NoopNormalizer2() 
+{
 }
 
-Normalizer2WithImpl::~Normalizer2WithImpl() {
+Normalizer2WithImpl::~Normalizer2WithImpl() 
+{
 }
 
-DecomposeNormalizer2::~DecomposeNormalizer2() {
+DecomposeNormalizer2::~DecomposeNormalizer2() 
+{
 }
 
-ComposeNormalizer2::~ComposeNormalizer2() {
+ComposeNormalizer2::~ComposeNormalizer2() 
+{
 }
 
-FCDNormalizer2::~FCDNormalizer2() {
+FCDNormalizer2::~FCDNormalizer2() 
+{
 }
 
 // instance cache ---------------------------------------------------------- ***
@@ -302,29 +265,28 @@ U_NAMESPACE_END
 
 U_NAMESPACE_USE
 
-U_CAPI const UNormalizer2 * U_EXPORT2 unorm2_getNFCInstance(UErrorCode * pErrorCode) {
+U_CAPI const UNormalizer2 * U_EXPORT2 unorm2_getNFCInstance(UErrorCode * pErrorCode) 
+{
 	return (const UNormalizer2*)Normalizer2::getNFCInstance(*pErrorCode);
 }
 
-U_CAPI const UNormalizer2 * U_EXPORT2 unorm2_getNFDInstance(UErrorCode * pErrorCode) {
+U_CAPI const UNormalizer2 * U_EXPORT2 unorm2_getNFDInstance(UErrorCode * pErrorCode) 
+{
 	return (const UNormalizer2*)Normalizer2::getNFDInstance(*pErrorCode);
 }
 
-U_CAPI void U_EXPORT2 unorm2_close(UNormalizer2 * norm2) {
+U_CAPI void U_EXPORT2 unorm2_close(UNormalizer2 * norm2) 
+{
 	delete (Normalizer2*)norm2;
 }
 
-U_CAPI int32_t U_EXPORT2 unorm2_normalize(const UNormalizer2 * norm2,
-    const UChar * src, int32_t length,
-    UChar * dest, int32_t capacity,
-    UErrorCode * pErrorCode) {
+U_CAPI int32_t U_EXPORT2 unorm2_normalize(const UNormalizer2 * norm2, const UChar * src, int32_t length,
+    UChar * dest, int32_t capacity, UErrorCode * pErrorCode) 
+{
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if((src==NULL ? length!=0 : length<-1) ||
-	    (dest==NULL ? capacity!=0 : capacity<0) ||
-	    (src==dest && src!=NULL)
-	    ) {
+	if((src==NULL ? length!=0 : length<-1) || (dest==NULL ? capacity!=0 : capacity<0) || (src==dest && src!=NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -356,11 +318,7 @@ static int32_t normalizeSecondAndAppend(const UNormalizer2 * norm2,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if((second==NULL ? secondLength!=0 : secondLength<-1) ||
-	    (first==NULL ? (firstCapacity!=0 || firstLength!=0) :
-	    (firstCapacity<0 || firstLength<-1)) ||
-	    (first==second && first!=NULL)
-	    ) {
+	if((second==NULL ? secondLength!=0 : secondLength<-1) || (first==NULL ? (firstCapacity!=0 || firstLength!=0) : (firstCapacity<0 || firstLength<-1)) || (first==second && first!=NULL)) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -409,20 +367,14 @@ U_CAPI int32_t U_EXPORT2 unorm2_normalizeSecondAndAppend(const UNormalizer2 * no
     UChar * first, int32_t firstLength, int32_t firstCapacity,
     const UChar * second, int32_t secondLength,
     UErrorCode * pErrorCode) {
-	return normalizeSecondAndAppend(norm2,
-		   first, firstLength, firstCapacity,
-		   second, secondLength,
-		   TRUE, pErrorCode);
+	return normalizeSecondAndAppend(norm2, first, firstLength, firstCapacity, second, secondLength, TRUE, pErrorCode);
 }
 
 U_CAPI int32_t U_EXPORT2 unorm2_append(const UNormalizer2 * norm2,
     UChar * first, int32_t firstLength, int32_t firstCapacity,
     const UChar * second, int32_t secondLength,
     UErrorCode * pErrorCode) {
-	return normalizeSecondAndAppend(norm2,
-		   first, firstLength, firstCapacity,
-		   second, secondLength,
-		   FALSE, pErrorCode);
+	return normalizeSecondAndAppend(norm2, first, firstLength, firstCapacity, second, secondLength, FALSE, pErrorCode);
 }
 
 U_CAPI int32_t U_EXPORT2 unorm2_getDecomposition(const UNormalizer2 * norm2,
@@ -471,13 +423,12 @@ U_CAPI uint8 U_EXPORT2 unorm2_getCombiningClass(const UNormalizer2 * norm2, UCha
 	return reinterpret_cast<const Normalizer2 *>(norm2)->getCombiningClass(c);
 }
 
-U_CAPI bool U_EXPORT2 unorm2_isNormalized(const UNormalizer2 * norm2,
-    const UChar * s, int32_t length,
-    UErrorCode * pErrorCode) {
+U_CAPI bool U_EXPORT2 unorm2_isNormalized(const UNormalizer2 * norm2, const UChar * s, int32_t length, UErrorCode * pErrorCode) 
+{
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if((s==NULL && length!=0) || length<-1) {
+	if((!s && length) || length<-1) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -485,13 +436,12 @@ U_CAPI bool U_EXPORT2 unorm2_isNormalized(const UNormalizer2 * norm2,
 	return ((const Normalizer2*)norm2)->isNormalized(sString, *pErrorCode);
 }
 
-U_CAPI UNormalizationCheckResult U_EXPORT2 unorm2_quickCheck(const UNormalizer2 * norm2,
-    const UChar * s, int32_t length,
-    UErrorCode * pErrorCode) {
+U_CAPI UNormalizationCheckResult U_EXPORT2 unorm2_quickCheck(const UNormalizer2 * norm2, const UChar * s, int32_t length, UErrorCode * pErrorCode) 
+{
 	if(U_FAILURE(*pErrorCode)) {
 		return UNORM_NO;
 	}
-	if((s==NULL && length!=0) || length<-1) {
+	if((!s && length) || length<-1) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return UNORM_NO;
 	}
@@ -505,7 +455,7 @@ U_CAPI int32_t U_EXPORT2 unorm2_spanQuickCheckYes(const UNormalizer2 * norm2,
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
-	if((s==NULL && length!=0) || length<-1) {
+	if((!s && length) || length<-1) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}
@@ -513,21 +463,14 @@ U_CAPI int32_t U_EXPORT2 unorm2_spanQuickCheckYes(const UNormalizer2 * norm2,
 	return ((const Normalizer2*)norm2)->spanQuickCheckYes(sString, *pErrorCode);
 }
 
-U_CAPI bool U_EXPORT2 unorm2_hasBoundaryBefore(const UNormalizer2 * norm2, UChar32 c) {
-	return ((const Normalizer2*)norm2)->hasBoundaryBefore(c);
-}
-
-U_CAPI bool U_EXPORT2 unorm2_hasBoundaryAfter(const UNormalizer2 * norm2, UChar32 c) {
-	return ((const Normalizer2*)norm2)->hasBoundaryAfter(c);
-}
-
-U_CAPI bool U_EXPORT2 unorm2_isInert(const UNormalizer2 * norm2, UChar32 c) {
-	return ((const Normalizer2*)norm2)->isInert(c);
-}
+U_CAPI bool U_EXPORT2 unorm2_hasBoundaryBefore(const UNormalizer2 * norm2, UChar32 c) { return ((const Normalizer2*)norm2)->hasBoundaryBefore(c); }
+U_CAPI bool U_EXPORT2 unorm2_hasBoundaryAfter(const UNormalizer2 * norm2, UChar32 c) { return ((const Normalizer2*)norm2)->hasBoundaryAfter(c); }
+U_CAPI bool U_EXPORT2 unorm2_isInert(const UNormalizer2 * norm2, UChar32 c) { return ((const Normalizer2*)norm2)->isInert(c); }
 
 // Some properties APIs ---------------------------------------------------- ***
 
-U_CAPI uint8 U_EXPORT2 u_getCombiningClass(UChar32 c) {
+U_CAPI uint8 U_EXPORT2 u_getCombiningClass(UChar32 c) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const Normalizer2 * nfd = Normalizer2::getNFDInstance(errorCode);
 	if(U_SUCCESS(errorCode)) {
@@ -538,7 +481,8 @@ U_CAPI uint8 U_EXPORT2 u_getCombiningClass(UChar32 c) {
 	}
 }
 
-U_CFUNC uint16 unorm_getFCD16(UChar32 c) {
+U_CFUNC uint16 unorm_getFCD16(UChar32 c) 
+{
 	UErrorCode errorCode = U_ZERO_ERROR;
 	const Normalizer2Impl * impl = Normalizer2Factory::getNFCImpl(errorCode);
 	if(U_SUCCESS(errorCode)) {

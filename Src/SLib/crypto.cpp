@@ -1,5 +1,5 @@
 // CRYPTO.CPP
-// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 1996, 2003, 2010, 2016, 2019, 2020, 2021, 2022
 // @threadsafe
 //
 #include <slib-internal.h>

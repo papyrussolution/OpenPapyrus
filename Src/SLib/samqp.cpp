@@ -6805,7 +6805,7 @@ int amqp_ssl_socket_set_cacert(amqp_socket_t * base, const char * cacert)
 	{
 		amqp_ssl_socket_t * self = reinterpret_cast<amqp_ssl_socket_t *>(base);
 		int status = SSL_CTX_load_verify_locations(self->ctx, cacert, NULL);
-		if(1 != status) {
+		if(status != 1) {
 			return AMQP_STATUS_SSL_ERROR;
 		}
 		return AMQP_STATUS_OK;
@@ -6820,11 +6820,11 @@ int amqp_ssl_socket_set_key(amqp_socket_t * base, const char * cert, const char 
 	{
 		amqp_ssl_socket_t * self = reinterpret_cast<amqp_ssl_socket_t *>(base);
 		int status = SSL_CTX_use_certificate_chain_file(self->ctx, cert);
-		if(1 != status) {
+		if(status != 1) {
 			return AMQP_STATUS_SSL_ERROR;
 		}
 		status = SSL_CTX_use_PrivateKey_file(self->ctx, key, SSL_FILETYPE_PEM);
-		if(1 != status) {
+		if(status != 1) {
 			return AMQP_STATUS_SSL_ERROR;
 		}
 		return AMQP_STATUS_OK;
@@ -6850,7 +6850,7 @@ int amqp_ssl_socket_set_key_buffer(amqp_socket_t * base, const char * cert, cons
 	}
 	self = reinterpret_cast<amqp_ssl_socket_t *>(base);
 	status = SSL_CTX_use_certificate_chain_file(self->ctx, cert);
-	if(1 != status) {
+	if(status != 1) {
 		return AMQP_STATUS_SSL_ERROR;
 	}
 	buf = BIO_new_mem_buf((void *)key, (int)n);
@@ -6862,7 +6862,7 @@ int amqp_ssl_socket_set_key_buffer(amqp_socket_t * base, const char * cert, cons
 		goto error;
 	}
 	status = SSL_CTX_use_RSAPrivateKey(self->ctx, rsa);
-	if(1 != status) {
+	if(status != 1) {
 		goto error;
 	}
 exit:
@@ -7077,7 +7077,9 @@ int amqp_uninitialize_ssl_library()
 	ERR_remove_state(0);
 #endif
 #ifndef LIBRESSL_VERSION_NUMBER
-	FIPS_mode_set(0);
+	#ifndef SLIB_OSSL_VER_30
+		FIPS_mode_set(0);
+	#endif
 #endif
 	CRYPTO_set_locking_callback(NULL);
 	CRYPTO_set_id_callback(NULL);

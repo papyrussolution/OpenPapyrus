@@ -115,15 +115,14 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 {
 	struct pax * pax = (struct pax *)a->format_data;
 	int ret = ARCHIVE_FAILED;
-	if(strcmp(key, "hdrcharset")  == 0) {
+	if(sstreq(key, "hdrcharset")) {
 		/*
 		 * The character-set we can use are defined in
 		 * IEEE Std 1003.1-2001
 		 */
 		if(val == NULL || val[0] == 0)
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: hdrcharset option needs a character-set name");
-		else if(strcmp(val, "BINARY") == 0 ||
-		    strcmp(val, "binary") == 0) {
+		else if(sstreq(val, "BINARY") || sstreq(val, "binary")) {
 			/*
 			 * Specify binary mode. We will not convert
 			 * filenames, uname and gname to any charsets.
@@ -131,7 +130,7 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 			pax->opt_binary = 1;
 			ret = ARCHIVE_OK;
 		}
-		else if(strcmp(val, "UTF-8") == 0) {
+		else if(sstreq(val, "UTF-8")) {
 			/*
 			 * Specify UTF-8 character-set to be used for
 			 * filenames. This is almost the test that
@@ -149,20 +148,20 @@ static int archive_write_pax_options(struct archive_write * a, const char * key,
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: invalid charset name");
 		return ret;
 	}
-	else if(strcmp(key, "xattrheader") == 0) {
+	else if(sstreq(key, "xattrheader")) {
 		if(val == NULL || val[0] == 0) {
 			archive_set_error(&a->archive, ARCHIVE_ERRNO_MISC, "pax: xattrheader requires a value");
 		}
-		else if(strcmp(val, "ALL") == 0 || strcmp(val, "all") == 0) {
+		else if(sstreq(val, "ALL") || sstreq(val, "all")) {
 			pax->flags |= WRITE_LIBARCHIVE_XATTR | WRITE_SCHILY_XATTR;
 			ret = ARCHIVE_OK;
 		}
-		else if(strcmp(val, "SCHILY") == 0 || strcmp(val, "schily") == 0) {
+		else if(sstreq(val, "SCHILY") || sstreq(val, "schily")) {
 			pax->flags |= WRITE_SCHILY_XATTR;
 			pax->flags &= ~WRITE_LIBARCHIVE_XATTR;
 			ret = ARCHIVE_OK;
 		}
-		else if(strcmp(val, "LIBARCHIVE") == 0 || strcmp(val, "libarchive") == 0) {
+		else if(sstreq(val, "LIBARCHIVE") || sstreq(val, "libarchive")) {
 			pax->flags |= WRITE_LIBARCHIVE_XATTR;
 			pax->flags &= ~WRITE_SCHILY_XATTR;
 			ret = ARCHIVE_OK;

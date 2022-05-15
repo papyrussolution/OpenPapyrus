@@ -12,12 +12,6 @@
 #include <libwebp-internal.h>
 #pragma hdrstop
 #include "./wicdec.h"
-//#ifdef HAVE_CONFIG_H
-//#include "webp/config.h"
-//#endif
-//#include <assert.h>
-//#include <stdio.h>
-//#include <string.h>
 #ifdef HAVE_WINCODEC_H
 #ifdef __MINGW32__
 #define INITGUID  // Without this GUIDs are declared extern and fail to link
@@ -27,8 +21,6 @@
 #define _WIN32_IE 0x500  // Workaround bug in shlwapi.h when compiling C++ code with COBJMACROS.
 #include <ole2.h>  // CreateStreamOnHGlobal()
 #include <shlwapi.h>
-//#include <tchar.h>
-//#include <windows.h>
 #include <wincodec.h>
 #include "../examples/unicode.h"
 #include "./imageio_util.h"

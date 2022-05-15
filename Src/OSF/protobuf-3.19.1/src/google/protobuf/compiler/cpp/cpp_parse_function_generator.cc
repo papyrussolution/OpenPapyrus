@@ -591,9 +591,7 @@ void ParseFunctionGenerator::GenerateFastFieldEntries(Formatter& format, const s
 		format("{$1$, ", info.func_name.empty() ? fallback : info.func_name);
 		if(info.bits.data) {
 			GOOGLE_DCHECK_NE(nullptr, info.field);
-			format(
-				"{$1$, $2$, "
-				"static_cast<uint16_t>(PROTOBUF_FIELD_OFFSET($classname$, $3$_))}",
+			format("{$1$, $2$, static_cast<uint16_t>(PROTOBUF_FIELD_OFFSET($classname$, $3$_))}",
 				info.bits.coded_tag(), info.bits.hasbit_idx(), FieldName(info.field));
 		}
 		else {
@@ -603,20 +601,14 @@ void ParseFunctionGenerator::GenerateFastFieldEntries(Formatter& format, const s
 	}
 }
 
-void ParseFunctionGenerator::GenerateArenaString(Formatter& format,
-    const FieldDescriptor* field) {
+void ParseFunctionGenerator::GenerateArenaString(Formatter& format, const FieldDescriptor* field) 
+{
 	if(HasHasbit(field)) {
 		format("_Internal::set_has_$1$(&$has_bits$);\n", FieldName(field));
 	}
-	std::string default_string =
-	    field->default_value_string().empty()
-	    ? "::" + ProtobufNamespace(options_) +
-	    "::internal::GetEmptyStringAlreadyInited()"
-	    : QualifiedClassName(field->containing_type(), options_) +
-	    "::" + MakeDefaultName(field) + ".get()";
-	format(
-		"if(arena != nullptr) {\n"
-		"  ptr = ctx->ReadArenaString(ptr, &$msg$$name$_, arena");
+	std::string default_string = field->default_value_string().empty() ? "::" + ProtobufNamespace(options_) +
+	    "::internal::GetEmptyStringAlreadyInited()" : QualifiedClassName(field->containing_type(), options_) + "::" + MakeDefaultName(field) + ".get()";
+	format("if(arena != nullptr) {\n  ptr = ctx->ReadArenaString(ptr, &$msg$$name$_, arena");
 	if(IsStringInlined(field, options_)) {
 		GOOGLE_DCHECK(!inlined_string_indices_.empty());
 		int inlined_string_index = inlined_string_indices_[field->index()];

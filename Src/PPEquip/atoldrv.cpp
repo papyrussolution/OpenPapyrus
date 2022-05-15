@@ -830,7 +830,9 @@ SCS_ATOLDRV::~SCS_ATOLDRV()
 
 /*virtual*/int SCS_ATOLDRV::PreprocessChZnCode(int op, const char * pCode, double qtty, uint uomFragm, CCheckPacket::PreprocessChZnCodeResult & rResult) // @v11.2.12
 {
-	rResult.Z();
+	if(op == 0) { // Другие операции этот блок менять не должны!
+		rResult.Z();
+	}
 	int    ok = 1;
 	int    mcv_status = -1;
 	SString temp_buf;

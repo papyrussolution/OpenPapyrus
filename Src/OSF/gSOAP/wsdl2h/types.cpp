@@ -927,13 +927,12 @@ void Types::define(const char * URI, const char * name, const xs__complexType & 
 		const char * t = deftname(STRUCT, "*", true, prefix, URI, name);
 		if(t) {
 			if(yflag)
-				fprintf(stream, "\n/// Typedef synonym for struct %s.\ntypedef struct %s %s;\n", t, t,
-					t);
+				fprintf(stream, "\n/// Typedef synonym for struct %s.\ntypedef struct %s %s;\n", t, t, t);
 		}
 		else if(name) {
 			t = deftypemap[cname(prefix, URI, name)];
 			if(t) {
-				fprintf(stream, "\n/// Imported complexType \"%s\":%s from typemap %s.\n", URI, name, mapfile ? mapfile : "");
+				fprintf(stream, "\n/// Imported complexType \"%s\":%s from typemap %s.\n", URI, name, NZSTR(mapfile));
 				document(complexType.annotation);
 				if(*t)
 					format(t);
@@ -973,8 +972,7 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 	if(!anonymous) {
 		t = deftypemap[cname(NULL, URI, name)];
 		if(t) {
-			fprintf(stream, "\n/// Imported simpleType \"%s\":%s from typemap %s.\n", URI, name,
-				mapfile ? mapfile : "");
+			fprintf(stream, "\n/// Imported simpleType \"%s\":%s from typemap %s.\n", URI, name, mapfile ? mapfile : "");
 			document(simpleType.annotation);
 			if(*t)
 				format(t);
@@ -989,8 +987,7 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 		if(simpleType.restriction->simpleTypePtr() && simpleType.restriction->simpleTypePtr()->schemaPtr())
 			baseURI = simpleType.restriction->simpleTypePtr()->schemaPtr()->targetNamespace;
 		if(!anonymous)
-			fprintf(stream, "\n/// \"%s\":%s is a simpleType restriction of %s.\n", URI ? URI : "", name,
-				base);
+			fprintf(stream, "\n/// \"%s\":%s is a simpleType restriction of %s.\n", URI ? URI : "", name, base);
 		document(simpleType.annotation);
 		document(simpleType.restriction->annotation);
 		if(!simpleType.restriction->enumeration.empty()) {
@@ -999,9 +996,7 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 			if(!anonymous) {
 				t = deftname(ENUM, NULL, false, prefix, URI, name);
 				if(t && !eflag)
-					fprintf(stream,
-						"/// Note: enum values are prefixed with '%s' to avoid name clashes, please use wsdl2h option -e to omit this prefix\n",
-						t);
+					fprintf(stream, "/// Note: enum values are prefixed with '%s' to avoid name clashes, please use wsdl2h option -e to omit this prefix\n", t);
 			}
 			SETIFZ(t, gname(URI, name));
 			if(!anonymous)
@@ -1015,9 +1010,7 @@ void Types::gen(const char * URI, const char * name, const xs__simpleType & simp
 					is_numeric &= is_integer(s);
 			}
 			SetOfString enumvals;
-			for(vector <xs__enumeration>::const_iterator enumeration2 =
-			            simpleType.restriction->enumeration.begin();
-			    enumeration2 != simpleType.restriction->enumeration.end(); ++enumeration2) {
+			for(vector <xs__enumeration>::const_iterator enumeration2 = simpleType.restriction->enumeration.begin(); enumeration2 != simpleType.restriction->enumeration.end(); ++enumeration2) {
 				const char * s;
 				document((*enumeration2).annotation);
 				if((s = (*enumeration2).value)) {

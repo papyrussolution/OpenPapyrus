@@ -200,7 +200,7 @@ static int32_t _concatenate(const UChar * left, int32_t leftLength, const UChar 
 		return 0;
 	}
 	/* check for overlapping right and destination */
-	if(dest!=NULL && ((right>=dest && right<(dest+destCapacity)) || (rightLength>0 && dest>=right && dest<(right+rightLength)))) {
+	if(dest && ((right>=dest && right<(dest+destCapacity)) || (rightLength>0 && dest>=right && dest<(right+rightLength)))) {
 		*pErrorCode = U_ILLEGAL_ARGUMENT_ERROR;
 		return 0;
 	}

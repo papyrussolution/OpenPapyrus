@@ -3,8 +3,7 @@
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
+ * modification, are permitted provided that the following conditions are met:
  * 1. Redistributions of source code must retain the above copyright
  *    notice, this list of conditions and the following disclaimer.
  * 2. Redistributions in binary form must reproduce the above copyright
@@ -260,36 +259,35 @@ int archive_write_set_format_7zip(struct archive * _a)
 static int _7z_options(struct archive_write * a, const char * key, const char * value)
 {
 	struct _7zip * zip = (struct _7zip *)a->format_data;
-	if(strcmp(key, "compression") == 0) {
+	if(sstreq(key, "compression")) {
 		const char * name = NULL;
-		if(value == NULL || strcmp(value, "copy") == 0 || strcmp(value, "COPY") == 0 || strcmp(value, "store") == 0 || strcmp(value, "STORE") == 0)
+		if(value == NULL || sstreq(value, "copy") || sstreq(value, "COPY") || sstreq(value, "store") || sstreq(value, "STORE"))
 			zip->opt_compression = _7Z_COPY;
-		else if(strcmp(value, "deflate") == 0 ||
-		    strcmp(value, "DEFLATE") == 0)
+		else if(sstreq(value, "deflate") || sstreq(value, "DEFLATE"))
 #ifdef HAVE_ZLIB_H
 			zip->opt_compression = _7Z_DEFLATE;
 #else
 			name = "deflate";
 #endif
-		else if(strcmp(value, "bzip2") == 0 || strcmp(value, "BZIP2") == 0)
+		else if(sstreq(value, "bzip2") || sstreq(value, "BZIP2"))
 #if defined(HAVE_BZLIB_H) && defined(BZ_CONFIG_ERROR)
 			zip->opt_compression = _7Z_BZIP2;
 #else
 			name = "bzip2";
 #endif
-		else if(strcmp(value, "lzma1") == 0 || strcmp(value, "LZMA1") == 0)
+		else if(sstreq(value, "lzma1") || sstreq(value, "LZMA1"))
 #if HAVE_LZMA_H
 			zip->opt_compression = _7Z_LZMA1;
 #else
 			name = "lzma1";
 #endif
-		else if(strcmp(value, "lzma2") == 0 || strcmp(value, "LZMA2") == 0)
+		else if(sstreq(value, "lzma2") || sstreq(value, "LZMA2"))
 #if HAVE_LZMA_H
 			zip->opt_compression = _7Z_LZMA2;
 #else
 			name = "lzma2";
 #endif
-		else if(strcmp(value, "ppmd") == 0 || strcmp(value, "PPMD") == 0 || strcmp(value, "PPMd") == 0)
+		else if(sstreq(value, "ppmd") || sstreq(value, "PPMD") || sstreq(value, "PPMd"))
 			zip->opt_compression = _7Z_PPMD;
 		else {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Unknown compression name: `%s'", value);
@@ -301,7 +299,7 @@ static int _7z_options(struct archive_write * a, const char * key, const char * 
 		}
 		return ARCHIVE_OK;
 	}
-	if(strcmp(key, "compression-level") == 0) {
+	if(sstreq(key, "compression-level")) {
 		if(value == NULL || !(value[0] >= '0' && value[0] <= '9') || value[1] != '\0') {
 			archive_set_error(&(a->archive), ARCHIVE_ERRNO_MISC, "Illegal value `%s'", value);
 			return ARCHIVE_FAILED;
@@ -1939,8 +1937,7 @@ static int compression_end(struct archive * a, struct la_zstream * lastrm)
 {
 	if(lastrm->valid) {
 		lastrm->prop_size = 0;
-		SAlloc::F(lastrm->props);
-		lastrm->props = NULL;
+		ZFREE(lastrm->props);
 		return (lastrm->end(a, lastrm));
 	}
 	return ARCHIVE_OK;

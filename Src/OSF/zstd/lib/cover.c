@@ -41,7 +41,7 @@
  * Most 32bit platforms have 2GB user-mode addressable space and we allocate a large
  * contiguous buffer, so 1GB is already a high limit.
  */
-#define COVER_MAX_SAMPLES_SIZE (sizeof(size_t) == 8 ? ((uint)-1) : ((uint)1 GB))
+#define COVER_MAX_SAMPLES_SIZE (sizeof(size_t) == 8 ? ((uint)-1) : ((uint)SGIGABYTE(1)))
 #define COVER_DEFAULT_SPLITPOINT 1.0
 //
 // Console display

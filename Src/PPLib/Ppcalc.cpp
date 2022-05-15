@@ -955,7 +955,7 @@ int PosPaymentBlock::EditDialog2()
 			disableCtrl(CTL_CPPAYM_CSHAMT, (Data.DisabledKinds & (1 << cpmCash))); // @v10.0.10
 			disableCtrl(CTL_CPPAYM_BNKAMT, (Data.DisabledKinds & (1 << cpmBank))); // @v10.0.10
 			disableCtrl(CTL_CPPAYM_CRDCARDAMT, (Data.DisabledKinds & (1 << cpmIncorpCrd))); // @v10.0.10
-			SetupKind();
+			SetupKind(cpmUndef);
 			setCtrlReal(CTL_CPPAYM_CSHAMT, Data.CcPl.Get(CCAMTTYP_CASH));
 			setCtrlReal(CTL_CPPAYM_BNKAMT, Data.CcPl.Get(CCAMTTYP_BANK));
 			setCtrlReal(CTL_CPPAYM_CRDCARDAMT, 0.0);
@@ -1063,11 +1063,22 @@ int PosPaymentBlock::EditDialog2()
 				else {
 					PPListDialog::handleEvent(event);
 					if(event.isClusterClk(CTL_CPPAYM_KIND)) {
-						SetupKind();
+						SetupKind(cpmUndef);
 					}
 					else if(event.isClusterClk(CTL_CPPAYM_USEBONUS)) {
 						ToggleBonusAvailability(LOGIC(getCtrlUInt16(CTL_CPPAYM_USEBONUS)), false/*force*/);
 					}
+					// @v11.3.12 {
+					else if(event.isKeyDown(GetSwitchKey(0))) {
+						const CheckPaymMethod k = static_cast<CheckPaymMethod>(GetClusterData(CTL_CPPAYM_KIND));
+						if(k == cpmCash)
+							SetupKind(cpmBank);
+						else if(k == cpmBank)
+							SetupKind(cpmIncorpCrd);
+						else if(k == cpmIncorpCrd)
+							SetupKind(cpmCash);
+					}
+					// } @v11.3.12 
 					else if(TVCMD == cmCtlColor) {
 						TDrawCtrlData * p_dc = static_cast<TDrawCtrlData *>(TVINFOPTR);
 						if(p_dc && getCtrlHandle(CTL_CPPAYM_EADDR) == p_dc->H_Ctl) {
@@ -1397,31 +1408,72 @@ int PosPaymentBlock::EditDialog2()
 				ok = -1;
 			return ok;
 		}
-		void   SetupKind()
+		int GetSwitchKey(SString * pText) const
+		{
+			ASSIGN_PTR(pText, "[F2]");
+			return kbF2;
+		}
+		void   SetPaymKindSwitchKeyText(TCluster * pClu, uint itemIdx)
+		{
+			if(pClu) {
+				SString temp_buf;
+				SString switch_key_text;
+				GetSwitchKey(&switch_key_text);
+				const uint cc = pClu->getNumItems();
+				for(uint i = 0; i < cc; i++) {
+					pClu->GetText(i, temp_buf);
+					size_t sktpos = 0;
+					if(temp_buf.Search(switch_key_text, 0, 0, &sktpos)) {
+						if(i != itemIdx)
+							pClu->SetText(i, temp_buf.Trim(sktpos).Strip());
+					}
+					else if(i == itemIdx)
+						pClu->SetText(i, temp_buf.Space().Cat(switch_key_text));
+				}
+			}
+		}
+		void   SetupKind(CheckPaymMethod outerKind)
 		{
 			// @v10.3.0 (never used) const int prev_kind = Data.Kind;
-			Data.Kind = static_cast<CheckPaymMethod>(GetClusterData(CTL_CPPAYM_KIND));
-			if(Data.Kind == cpmCash) {
-				double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
-				Data.CcPl.Set(CCAMTTYP_CASH, val);
-				Data.CcPl.Set(CCAMTTYP_BANK, 0.0);
-				SetupAmount();
-				State |= stLock;
-				selectCtrl(CTL_CPPAYM_CASH);
-				State &= ~stLock;
-			}
-			else if(Data.Kind == cpmBank) {
-				double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
-				Data.CcPl.Set(CCAMTTYP_CASH, 0.0);
-				Data.CcPl.Set(CCAMTTYP_BANK, val);
-				SetupAmount();
-			}
-			else if(Data.Kind == cpmIncorpCrd) {
-				SString crd_code;
-				getCtrlString(CTL_CPPAYM_CRDCARDAMT, crd_code);
-				if(!crd_code.NotEmptyS())
-					selectCtrl(CTL_CPPAYM_CRDCARDAMT);
-				SetupCrdCard(0);
+			TCluster * p_clu = (TCluster *)getCtrlView(CTL_CPPAYM_KIND);
+			if(p_clu) {
+				SString temp_buf;
+				if(outerKind == cpmUndef)
+					Data.Kind = static_cast<CheckPaymMethod>(GetClusterData(CTL_CPPAYM_KIND));
+				else {
+					SetClusterData(CTL_CPPAYM_KIND, outerKind);
+					Data.Kind = outerKind;
+				}
+				switch(Data.Kind) {
+					case cpmCash:
+						{
+							double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
+							Data.CcPl.Set(CCAMTTYP_CASH, val);
+							Data.CcPl.Set(CCAMTTYP_BANK, 0.0);
+							SetupAmount();
+							State |= stLock;
+							selectCtrl(CTL_CPPAYM_CASH);
+							State &= ~stLock;
+							SetPaymKindSwitchKeyText(p_clu, 1);
+						}
+						break;
+					case cpmBank:
+						{
+							double val = TotalConst - Data.CcPl.Get(CCAMTTYP_CRDCARD);
+							Data.CcPl.Set(CCAMTTYP_CASH, 0.0);
+							Data.CcPl.Set(CCAMTTYP_BANK, val);
+							SetupAmount();
+							SetPaymKindSwitchKeyText(p_clu, 2);
+						}
+						break;
+					case cpmIncorpCrd:
+						getCtrlString(CTL_CPPAYM_CRDCARDAMT, temp_buf);
+						if(!temp_buf.NotEmptyS())
+							selectCtrl(CTL_CPPAYM_CRDCARDAMT);
+						SetupCrdCard(0);
+						SetPaymKindSwitchKeyText(p_clu, 0);
+						break;
+				}
 			}
 		}
 		void   SetupAmount(uint lockCtl = 0)

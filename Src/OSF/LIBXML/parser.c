@@ -924,7 +924,7 @@ static void xmlAddDefAttrs(xmlParserCtxt * ctxt, const xmlChar * fullname, const
 	defaults->values[5 * defaults->nbAttrs] = name;
 	defaults->values[5 * defaults->nbAttrs + 1] = prefix;
 	// intern the string and precompute the end 
-	len = sstrlen(value);
+	len = sstrleni(value);
 	value = xmlDictLookup(ctxt->dict, value, len);
 	defaults->values[5 * defaults->nbAttrs + 2] = value;
 	defaults->values[5 * defaults->nbAttrs + 3] = value + len;
@@ -8008,8 +8008,8 @@ reparse:
 		}
 		if(attname && attvalue) {
 			if(len < 0)
-				len = sstrlen(attvalue);
-			if((attname == ctxt->str_xmlns) && (aprefix == NULL)) {
+				len = sstrleni(attvalue);
+			if((attname == ctxt->str_xmlns) && !aprefix) {
 				const xmlChar * URL = xmlDictLookup(ctxt->dict, attvalue, len);
 				xmlURI * uri;
 				if(!URL) {
@@ -8577,7 +8577,7 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 	}
 	// Capture start position 
 	if(ctxt->record_info) {
-		node_info.begin_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
+		node_info.begin_pos = ctxt->input->consumed + static_cast<long>(CUR_PTR - ctxt->input->base);
 		node_info.begin_line = ctxt->input->line;
 	}
 	if(ctxt->spaceNr == 0)
@@ -8630,7 +8630,7 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 		if(nsNr != ctxt->nsNr)
 			nsPop(ctxt, ctxt->nsNr - nsNr);
 		if(ret && ctxt->record_info) {
-			node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
+			node_info.end_pos = ctxt->input->consumed + static_cast<long>(CUR_PTR - ctxt->input->base);
 			node_info.end_line = ctxt->input->line;
 			node_info.P_Node = ret;
 			xmlParserAddNodeInfo(ctxt, &node_info);
@@ -8654,7 +8654,7 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 		// Capture end position and add node
 		// 
 		if(ret && ctxt->record_info) {
-			node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
+			node_info.end_pos = ctxt->input->consumed + static_cast<long>(CUR_PTR - ctxt->input->base);
 			node_info.end_line = ctxt->input->line;
 			node_info.P_Node = ret;
 			xmlParserAddNodeInfo(ctxt, &node_info);
@@ -8691,7 +8691,7 @@ void FASTCALL xmlParseElement(xmlParserCtxt * ctxt)
 	 * Capture end position and add node
 	 */
 	if(ret && ctxt->record_info) {
-		node_info.end_pos = ctxt->input->consumed + (CUR_PTR - ctxt->input->base);
+		node_info.end_pos = ctxt->input->consumed + static_cast<long>(CUR_PTR - ctxt->input->base);
 		node_info.end_line = ctxt->input->line;
 		node_info.P_Node = ret;
 		xmlParserAddNodeInfo(ctxt, &node_info);

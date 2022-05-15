@@ -3670,8 +3670,8 @@ public:
 	bool   mark(int item);
 	void   press(ushort item);
 	uint   getNumItems() const;
-	int    getText(int pos, char *, uint bufLen);
-	int    setText(int pos, const char *);
+	int    GetText(int pos, SString & rBuf);
+	int    SetText(int pos, const char *);
 	void   addItem(int, const char *);
 	void   deleteItem(int);
 	void   disableItem(int pos /* 0.. */, int disable);

@@ -16,7 +16,7 @@
 #include <arch_intrinsics.h>
 #include <curve448utils.h>
 
-#if(ARCH_WORD_BITS == 64)
+#if (ARCH_WORD_BITS == 64)
 typedef uint64_t word_t, mask_t;
 typedef __uint128_t dword_t;
 typedef int32_t hsword_t;
@@ -39,7 +39,7 @@ typedef int64_t dsword_t;
 #if C448_WORD_BITS == 64
 #define SC_LIMB(x) (x)
 #elif C448_WORD_BITS == 32
-#define SC_LIMB(x) ((uint32_t)(x)),((x) >> 32)
+#define SC_LIMB(x) ((uint32_t)(x)), ((x) >> 32)
 #else
 #error "For now we only support 32- and 64-bit architectures."
 #endif
@@ -56,22 +56,20 @@ typedef int64_t dsword_t;
  */
 static ossl_inline c448_bool_t mask_to_bool(mask_t m)
 {
-    return (c448_sword_t)(sword_t)m;
+	return (c448_sword_t)(sword_t)m;
 }
 
 static ossl_inline mask_t bool_to_mask(c448_bool_t m)
 {
-    /* On most arches this will be optimized to a simple cast. */
-    mask_t ret = 0;
-    uint i;
-    uint limit = sizeof(c448_bool_t) / sizeof(mask_t);
-
-    if(limit < 1)
-        limit = 1;
-    for (i = 0; i < limit; i++)
-        ret |= ~word_is_zero(m >> (i * 8 * sizeof(word_t)));
-
-    return ret;
+	/* On most arches this will be optimized to a simple cast. */
+	mask_t ret = 0;
+	uint i;
+	uint limit = sizeof(c448_bool_t) / sizeof(mask_t);
+	if(limit < 1)
+		limit = 1;
+	for(i = 0; i < limit; i++)
+		ret |= ~word_is_zero(m >> (i * 8 * sizeof(word_t)));
+	return ret;
 }
 
-#endif                          /* HEADER_WORD_H */
+#endif /* HEADER_WORD_H */

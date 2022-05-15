@@ -1223,7 +1223,7 @@ static BZFILE * bzopen_or_bzdopen(const char * path/* no use when bzdopen */, in
 	strcat(mode2, writing ? "w" : "r");
 	strcat(mode2, "b"); /* binary mode */
 	if(open_mode==0) {
-		if(path==NULL || strcmp(path, "")==0) {
+		if(isempty(path)) {
 			fp = (writing ? stdout : stdin);
 			SET_BINARY_MODE(fp);
 		}

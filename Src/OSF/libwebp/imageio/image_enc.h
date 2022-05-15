@@ -14,11 +14,6 @@
 #ifndef WEBP_IMAGEIO_IMAGE_ENC_H_
 #define WEBP_IMAGEIO_IMAGE_ENC_H_
 
-//#include <stdio.h>
-//#ifdef HAVE_CONFIG_H
-//#include "webp/config.h"
-//#endif
-//#include "webp/types.h"
 #include "webp/decode.h"
 
 //#ifdef __cplusplus

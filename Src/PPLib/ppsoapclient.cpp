@@ -1,5 +1,5 @@
 // PPSOAPCLIENT.CPP
-// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021
+// Copyright (c) A.Sobolev 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022
 // @codepage UTF-8
 //
 #include <pp.h>
@@ -433,7 +433,7 @@ int UhttDocumentPacket::SetFile(const char * pFileName)
 		STempBuffer tbuf(8192*3); // Кратность размера буфера 3 КРИТИЧНА!
 		SString temp_str;
 		THROW(f.CalcSize(&Size));
-		for(int64 rest_size = Size; rest_size > 0;) {
+		for(uint64 rest_size = static_cast<uint64>(Size); rest_size > 0;) {
 			size_t temp_sz = static_cast<size_t>(MIN(rest_size, tbuf.GetSize()));
 			if(temp_sz) {
 				THROW(f.ReadV(tbuf, temp_sz));

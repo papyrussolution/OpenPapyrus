@@ -96,7 +96,7 @@ char const* FIO_lzmaVersion(void)
 // Constants
 // 
 #define ADAPT_WINDOWLOG_DEFAULT 23   /* 8 MB */
-#define DICTSIZE_MAX (32 MB)   /* protection against large input (attack scenario) */
+#define DICTSIZE_MAX SMEGABYTE(32) // protection against large input (attack scenario)
 
 #define FNSPACE 30
 
@@ -594,7 +594,7 @@ static FILE* FIO_openDstFile(FIO_ctx_t* fCtx, FIO_prefs_t* const prefs, const ch
 		 * 3. We fail the call and execution continues but a warning message might be shown.
 		 * In all cases due execution continues. For now, I believe that this is a more cost-effective
 		 * solution than managing the buffers allocations ourselves (will require an API change). */
-		if(setvbuf(f, NULL, _IOFBF, 1 MB))
+		if(setvbuf(f, NULL, _IOFBF, SMEGABYTE(1)))
 			DISPLAYLEVEL(2, "Warning: setvbuf failed for %s\n", dstFileName);
 		return f;
 	}
@@ -744,16 +744,15 @@ static unsigned FIO_highbit64(unsigned long long v)
 }
 
 static void FIO_adjustMemLimitForPatchFromMode(FIO_prefs_t* const prefs,
-    unsigned long long const dictSize,
-    unsigned long long const maxSrcFileSize)
+    unsigned long long const dictSize, unsigned long long const maxSrcFileSize)
 {
 	unsigned long long maxSize = MAX(prefs->memLimit, MAX(dictSize, maxSrcFileSize));
-	unsigned const maxWindowSize = (1U << ZSTD_WINDOWLOG_MAX);
+	const uint maxWindowSize = (1U << ZSTD_WINDOWLOG_MAX);
 	if(maxSize == UTIL_FILESIZE_UNKNOWN)
 		EXM_THROW(42, "Using --patch-from with stdin requires --stream-size");
 	assert(maxSize != UTIL_FILESIZE_UNKNOWN);
 	if(maxSize > maxWindowSize)
-		EXM_THROW(42, "Can't handle files larger than %u GB\n", maxWindowSize/(1 GB));
+		EXM_THROW(42, "Can't handle files larger than %u GB\n", maxWindowSize/SGIGABYTE(1));
 	FIO_setMemLimit(prefs, (unsigned)maxSize);
 }
 
@@ -1745,7 +1744,7 @@ void FIO_displayCompressionParameters(const FIO_prefs_t* prefs) {
 	if(prefs->targetCBlockSize)
 		DISPLAY(" --target-compressed-block-size=%u", (unsigned)prefs->targetCBlockSize);
 	DISPLAY("%s", INDEX(compressLiteralsOptions, prefs->literalCompressionMode));
-	DISPLAY(" --memory=%u", prefs->memLimit ? prefs->memLimit : 128 MB);
+	DISPLAY(" --memory=%u", prefs->memLimit ? prefs->memLimit : SMEGABYTE(128));
 	DISPLAY(" --threads=%d", prefs->nbWorkers);
 	DISPLAY("%s", prefs->excludeCompressedFiles ? " --exclude-compressed" : "");
 	DISPLAY(" --%scontent-size", prefs->contentSize ? "" : "no-");
@@ -1962,13 +1961,11 @@ static void FIO_freeDResources(dRess_t ress)
     @return : 0 (no error) */
 static int FIO_passThrough(dRess_t * ress)
 {
-	size_t const blockSize = MIN(MIN(64 KB, ZSTD_DStreamInSize()), ZSTD_DStreamOutSize());
+	size_t const blockSize = MIN(MIN(SKILOBYTE(64), ZSTD_DStreamInSize()), ZSTD_DStreamOutSize());
 	IOJob_t * writeJob = AIO_WritePool_acquireJob(ress->writeCtx);
 	AIO_ReadPool_fillBuffer(ress->readCtx, blockSize);
-
 	while(ress->readCtx->srcBufferLoaded) {
-		size_t writeSize;
-		writeSize = MIN(blockSize, ress->readCtx->srcBufferLoaded);
+		size_t writeSize = MIN(blockSize, ress->readCtx->srcBufferLoaded);
 		assert(writeSize <= writeJob->bufferSize);
 		memcpy(writeJob->buffer, ress->readCtx->srcBuffer, writeSize);
 		writeJob->usedBufferSize = writeSize;
@@ -1999,7 +1996,7 @@ static void FIO_zstdErrorHelp(const FIO_prefs_t* const prefs, const dRess_t* res
 		DISPLAYLEVEL(1, "%s : Window size larger than maximum : %llu > %u \n",
 		    srcFileName, windowSize, prefs->memLimit);
 		if(windowLog <= ZSTD_WINDOWLOG_MAX) {
-			unsigned const windowMB = (unsigned)((windowSize >> 20) + ((windowSize & ((1 MB) - 1)) != 0));
+			unsigned const windowMB = (unsigned)((windowSize >> 20) + ((windowSize & (SMEGABYTE(1) - 1)) != 0));
 			assert(windowSize < (uint64)(1ULL << 52)); /* ensure now overflow for windowMB */
 			DISPLAYLEVEL(1, "%s : Use --long=%u or --memory=%uMB \n",
 			    srcFileName, windowLog, windowMB);

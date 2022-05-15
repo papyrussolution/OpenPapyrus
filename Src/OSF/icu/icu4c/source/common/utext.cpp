@@ -390,19 +390,16 @@ U_CAPI int32_t U_EXPORT2 utext_extract(UText * ut,
 	return ut->pFuncs->extract(ut, start, limit, dest, destCapacity, status);
 }
 
-U_CAPI bool U_EXPORT2 utext_equals(const UText * a, const UText * b) {
-	if(a==NULL || b==NULL ||
-	    a->magic != UTEXT_MAGIC ||
-	    b->magic != UTEXT_MAGIC) {
+U_CAPI bool U_EXPORT2 utext_equals(const UText * a, const UText * b) 
+{
+	if(a==NULL || b==NULL || a->magic != UTEXT_MAGIC || b->magic != UTEXT_MAGIC) {
 		// Null or invalid arguments don't compare equal to anything.
 		return FALSE;
 	}
-
 	if(a->pFuncs != b->pFuncs) {
 		// Different types of text providers.
 		return FALSE;
 	}
-
 	if(a->context != b->context) {
 		// Different sources (different strings)
 		return FALSE;
@@ -603,15 +600,13 @@ U_CAPI UText * U_EXPORT2 utext_setup(UText * ut, int32_t extraSpace, UErrorCode 
 	return ut;
 }
 
-U_CAPI UText * U_EXPORT2 utext_close(UText * ut) {
-	if(ut==NULL ||
-	    ut->magic != UTEXT_MAGIC ||
-	    (ut->flags & UTEXT_OPEN) == 0) {
+U_CAPI UText * U_EXPORT2 utext_close(UText * ut) 
+{
+	if(ut==NULL || ut->magic != UTEXT_MAGIC || (ut->flags & UTEXT_OPEN) == 0) {
 		// The supplied ut is not an open UText.
 		// Do nothing.
 		return ut;
 	}
-
 	// If the provider gave us a close function, call it now.
 	// This will clean up anything allocated specifically by the provider.
 	if(ut->pFuncs->close != NULL) {
@@ -632,7 +627,6 @@ U_CAPI UText * U_EXPORT2 utext_close(UText * ut) {
 	//   intended to cause applications that inadvertently use a closed
 	//   utext to crash with null pointer errors.
 	ut->pFuncs        = NULL;
-
 	if(ut->flags & UTEXT_HEAP_ALLOCATED) {
 		// This UText was allocated by UText setup.  We need to free it.
 		// Clear magic, so we can detect if the user messes up and immediately
@@ -643,7 +637,6 @@ U_CAPI UText * U_EXPORT2 utext_close(UText * ut) {
 	}
 	return ut;
 }
-
 //
 // invalidateChunk   Reset a chunk to have no contents, so that the next call
 //                   to access will cause new data to load.
@@ -1384,23 +1377,15 @@ static UChar * utext_strFromUTF8(UChar * dest,
 			reqLength += U16_LENGTH(ch);
 		}
 	}
-
 	reqLength += (int32_t)(pDest - dest);
-
-	if(pDestLength) {
-		*pDestLength = reqLength;
-	}
-
+	ASSIGN_PTR(pDestLength, reqLength);
 	/* Terminate the buffer */
 	u_terminateUChars(dest, destCapacity, reqLength, pErrorCode);
-
 	return dest;
 }
 
-static int32_t U_CALLCONV utf8TextExtract(UText * ut,
-    int64_t start, int64_t limit,
-    UChar * dest, int32_t destCapacity,
-    UErrorCode * pErrorCode) {
+static int32_t U_CALLCONV utf8TextExtract(UText * ut, int64_t start, int64_t limit, UChar * dest, int32_t destCapacity, UErrorCode * pErrorCode) 
+{
 	if(U_FAILURE(*pErrorCode)) {
 		return 0;
 	}
@@ -1411,12 +1396,10 @@ static int32_t U_CALLCONV utf8TextExtract(UText * ut,
 	int32_t length  = ut->b;
 	int32_t start32 = pinIndex(start, length);
 	int32_t limit32 = pinIndex(limit, length);
-
 	if(start32>limit32) {
 		*pErrorCode = U_INDEX_OUTOFBOUNDS_ERROR;
 		return 0;
 	}
-
 	// adjust the incoming indexes to land on code point boundaries if needed.
 	//    adjust by no more than three, because that is the largest number of trail bytes
 	//    in a well formed UTF8 character.
@@ -1439,12 +1422,9 @@ static int32_t U_CALLCONV utf8TextExtract(UText * ut,
 			limit32--;
 		}
 	}
-
 	// Do the actual extract.
 	int32_t destLength = 0;
-	utext_strFromUTF8(dest, destCapacity, &destLength,
-	    (const char *)ut->context+start32, limit32-start32,
-	    pErrorCode);
+	utext_strFromUTF8(dest, destCapacity, &destLength, (const char *)ut->context+start32, limit32-start32, pErrorCode);
 	utf8TextAccess(ut, limit32, TRUE);
 	return destLength;
 }
@@ -1453,7 +1433,8 @@ static int32_t U_CALLCONV utf8TextExtract(UText * ut,
 // utf8TextMapOffsetToNative
 //
 // Map a chunk (UTF-16) offset to a native index.
-static int64_t U_CALLCONV utf8TextMapOffsetToNative(const UText * ut) {
+static int64_t U_CALLCONV utf8TextMapOffsetToNative(const UText * ut) 
+{
 	//
 	UTF8Buf * u8b = (UTF8Buf*)ut->p;
 	U_ASSERT(ut->chunkOffset>ut->nativeIndexingLimit && ut->chunkOffset<=ut->chunkLength);

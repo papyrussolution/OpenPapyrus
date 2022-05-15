@@ -1218,24 +1218,21 @@ static int PThr4wTest_Reuse2()
 	for(i = 0; i < NUMTHREADS; i++) {
 		if(t[i].p != NULL) {
 			uint j;
-			uint thisMax = t[i].x;
+			uint this_max = t[i].x;
 			for(j = i+1; j < NUMTHREADS; j++) {
 				if(t[i].p == t[j].p) {
 					if(t[i].x == t[j].x)
 						notUnique++;
-					if(thisMax < t[j].x)
-						thisMax = t[j].x;
+					SETMAX(this_max, t[j].x);
 					t[j].p = NULL;
 				}
 			}
-			if(reuseMin > thisMax)
-				reuseMin = thisMax;
-			if(reuseMax < thisMax)
-				reuseMax = thisMax;
+			SETMIN(reuseMin, this_max);
+			SETMAX(reuseMax, this_max);
 		}
 	}
 	for(i = 0; i < NUMTHREADS; i++)
-		if(t[i].p != NULL)
+		if(t[i].p)
 			totalHandles++;
 	// 
 	// pthread_t reuse counts start at 0, so we need to add 1
@@ -4923,7 +4920,7 @@ static int PThr4wTest_Exit2()
 	public:
 		static void * ThreadFunc(void * arg)
 		{
-			int failed = (int)arg;
+			int failed = reinterpret_cast<int>(arg);
 			pthread_exit(arg);
 			// Never reached. 
 			// Trick gcc compiler into not issuing a warning here

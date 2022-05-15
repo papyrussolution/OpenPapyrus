@@ -74,15 +74,12 @@ constexpr PhoneNumber_CountryCodeSource PhoneNumber_CountryCodeSource_CountryCod
 constexpr int PhoneNumber_CountryCodeSource_CountryCodeSource_ARRAYSIZE = PhoneNumber_CountryCodeSource_CountryCodeSource_MAX + 1;
 
 const std::string& PhoneNumber_CountryCodeSource_Name(PhoneNumber_CountryCodeSource value);
-template<typename T>
-inline const std::string& PhoneNumber_CountryCodeSource_Name(T enum_t_value) {
-  static_assert(::std::is_same<T, PhoneNumber_CountryCodeSource>::value ||
-    ::std::is_integral<T>::value,
-    "Incorrect type passed to function PhoneNumber_CountryCodeSource_Name.");
-  return PhoneNumber_CountryCodeSource_Name(static_cast<PhoneNumber_CountryCodeSource>(enum_t_value));
+template<typename T> inline const std::string& PhoneNumber_CountryCodeSource_Name(T enum_t_value)
+{
+	static_assert(::std::is_same<T, PhoneNumber_CountryCodeSource>::value || ::std::is_integral<T>::value, "Incorrect type passed to function PhoneNumber_CountryCodeSource_Name.");
+	return PhoneNumber_CountryCodeSource_Name(static_cast<PhoneNumber_CountryCodeSource>(enum_t_value));
 }
-bool PhoneNumber_CountryCodeSource_Parse(
-    ::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PhoneNumber_CountryCodeSource* value);
+bool PhoneNumber_CountryCodeSource_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, PhoneNumber_CountryCodeSource * value);
 // ===================================================================
 
 class PhoneNumber final :
@@ -179,35 +176,23 @@ class PhoneNumber final :
   // nested types ----------------------------------------------------
 
   typedef PhoneNumber_CountryCodeSource CountryCodeSource;
-  static constexpr CountryCodeSource UNSPECIFIED =
-    PhoneNumber_CountryCodeSource_UNSPECIFIED;
-  static constexpr CountryCodeSource FROM_NUMBER_WITH_PLUS_SIGN =
-    PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_PLUS_SIGN;
-  static constexpr CountryCodeSource FROM_NUMBER_WITH_IDD =
-    PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_IDD;
-  static constexpr CountryCodeSource FROM_NUMBER_WITHOUT_PLUS_SIGN =
-    PhoneNumber_CountryCodeSource_FROM_NUMBER_WITHOUT_PLUS_SIGN;
-  static constexpr CountryCodeSource FROM_DEFAULT_COUNTRY =
-    PhoneNumber_CountryCodeSource_FROM_DEFAULT_COUNTRY;
-  static inline bool CountryCodeSource_IsValid(int value) {
-    return PhoneNumber_CountryCodeSource_IsValid(value);
+  static constexpr CountryCodeSource UNSPECIFIED = PhoneNumber_CountryCodeSource_UNSPECIFIED;
+  static constexpr CountryCodeSource FROM_NUMBER_WITH_PLUS_SIGN = PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_PLUS_SIGN;
+  static constexpr CountryCodeSource FROM_NUMBER_WITH_IDD = PhoneNumber_CountryCodeSource_FROM_NUMBER_WITH_IDD;
+  static constexpr CountryCodeSource FROM_NUMBER_WITHOUT_PLUS_SIGN = PhoneNumber_CountryCodeSource_FROM_NUMBER_WITHOUT_PLUS_SIGN;
+  static constexpr CountryCodeSource FROM_DEFAULT_COUNTRY = PhoneNumber_CountryCodeSource_FROM_DEFAULT_COUNTRY;
+  static inline bool CountryCodeSource_IsValid(int value) { return PhoneNumber_CountryCodeSource_IsValid(value); }
+  static constexpr CountryCodeSource CountryCodeSource_MIN = PhoneNumber_CountryCodeSource_CountryCodeSource_MIN;
+  static constexpr CountryCodeSource CountryCodeSource_MAX = PhoneNumber_CountryCodeSource_CountryCodeSource_MAX;
+  static constexpr int CountryCodeSource_ARRAYSIZE = PhoneNumber_CountryCodeSource_CountryCodeSource_ARRAYSIZE;
+  template<typename T> static inline const std::string& CountryCodeSource_Name(T enum_t_value)
+  {
+  	static_assert(::std::is_same<T, CountryCodeSource>::value || ::std::is_integral<T>::value, "Incorrect type passed to function CountryCodeSource_Name.");
+  	return PhoneNumber_CountryCodeSource_Name(enum_t_value);
   }
-  static constexpr CountryCodeSource CountryCodeSource_MIN =
-    PhoneNumber_CountryCodeSource_CountryCodeSource_MIN;
-  static constexpr CountryCodeSource CountryCodeSource_MAX =
-    PhoneNumber_CountryCodeSource_CountryCodeSource_MAX;
-  static constexpr int CountryCodeSource_ARRAYSIZE =
-    PhoneNumber_CountryCodeSource_CountryCodeSource_ARRAYSIZE;
-  template<typename T>
-  static inline const std::string& CountryCodeSource_Name(T enum_t_value) {
-    static_assert(::std::is_same<T, CountryCodeSource>::value ||
-      ::std::is_integral<T>::value,
-      "Incorrect type passed to function CountryCodeSource_Name.");
-    return PhoneNumber_CountryCodeSource_Name(enum_t_value);
-  }
-  static inline bool CountryCodeSource_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name,
-      CountryCodeSource* value) {
-    return PhoneNumber_CountryCodeSource_Parse(name, value);
+  static inline bool CountryCodeSource_Parse(::PROTOBUF_NAMESPACE_ID::ConstStringParam name, CountryCodeSource* value)
+  {
+  	return PhoneNumber_CountryCodeSource_Parse(name, value);
   }
 
   // accessors -------------------------------------------------------
