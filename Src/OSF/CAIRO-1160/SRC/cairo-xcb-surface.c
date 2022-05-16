@@ -794,11 +794,8 @@ static cairo_int_status_t _cairo_xcb_fallback_compositor_mask(const cairo_compos
 {
 	cairo_xcb_surface_t * surface = (cairo_xcb_surface_t*)extents->surface;
 	cairo_surface_t * fallback = _cairo_xcb_surface_fallback(surface, extents);
-
-	return _cairo_surface_mask(fallback, extents->op,
-		   &extents->source_pattern.base,
-		   &extents->mask_pattern.base,
-		   extents->clip);
+	return _cairo_surface_mask(fallback, extents->op, &extents->source_pattern.base,
+		   &extents->mask_pattern.base, extents->clip);
 }
 
 static cairo_int_status_t _cairo_xcb_fallback_compositor_stroke(const cairo_compositor_t * compositor,
@@ -1280,11 +1277,9 @@ slim_hidden_def(cairo_xcb_surface_create_with_xrender_format);
 /* This does the necessary fixup when a surface's drawable or size changed. */
 static void _drawable_changed(cairo_xcb_surface_t * surface)
 {
-	_cairo_surface_set_error(&surface->base,
-	    _cairo_surface_begin_modification(&surface->base));
+	_cairo_surface_set_error(&surface->base, _cairo_surface_begin_modification(&surface->base));
 	_cairo_boxes_clear(&surface->fallback_damage);
 	cairo_surface_destroy(&surface->fallback->base);
-
 	surface->deferred_clear = FALSE;
 	surface->fallback = NULL;
 }
@@ -1315,22 +1310,18 @@ void cairo_xcb_surface_set_size(cairo_surface_t * abstract_surface,
     int height)
 {
 	cairo_xcb_surface_t * surface;
-
 	if(UNLIKELY(abstract_surface->status))
 		return;
 	if(UNLIKELY(abstract_surface->finished)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
 	if(!_cairo_surface_is_xcb(abstract_surface)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return;
 	}
 	if(width > XLIB_COORD_MAX || height > XLIB_COORD_MAX || width <= 0 || height <= 0) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_INVALID_SIZE));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_INVALID_SIZE));
 		return;
 	}
 	surface = (cairo_xcb_surface_t*)abstract_surface;
@@ -1364,8 +1355,7 @@ void cairo_xcb_surface_set_drawable(cairo_surface_t * abstract_surface, xcb_draw
 	if(UNLIKELY(abstract_surface->status))
 		return;
 	if(UNLIKELY(abstract_surface->finished)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
 	if(!_cairo_surface_is_xcb(abstract_surface)) {

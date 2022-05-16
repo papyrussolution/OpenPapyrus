@@ -64,7 +64,7 @@ void _cairo_rtree_node_destroy(cairo_rtree_t * rtree, cairo_rtree_node_t * node)
 		rtree->destroy(node);
 	}
 	else {
-		for(i = 0; i < 4 && node->children[i] != NULL; i++)
+		for(i = 0; i < 4 && node->children[i]; i++)
 			_cairo_rtree_node_destroy(rtree, node->children[i]);
 	}
 	_cairo_freepool_free(&rtree->node_freepool, node);
@@ -75,10 +75,10 @@ void _cairo_rtree_node_collapse(cairo_rtree_t * rtree, cairo_rtree_node_t * node
 	int i;
 	do {
 		assert(node->state == CAIRO_RTREE_NODE_DIVIDED);
-		for(i = 0; i < 4 && node->children[i] != NULL; i++)
+		for(i = 0; i < 4 && node->children[i]; i++)
 			if(node->children[i]->state != CAIRO_RTREE_NODE_AVAILABLE)
 				return;
-		for(i = 0; i < 4 && node->children[i] != NULL; i++)
+		for(i = 0; i < 4 && node->children[i]; i++)
 			_cairo_rtree_node_destroy(rtree, node->children[i]);
 		node->children[0] = NULL;
 		node->state = CAIRO_RTREE_NODE_AVAILABLE;
@@ -188,7 +188,7 @@ cairo_int_status_t _cairo_rtree_evict_random(cairo_rtree_t * rtree, int width, i
 				rtree->destroy(node);
 			}
 			else {
-				for(i = 0; i < 4 && node->children[i] != NULL; i++)
+				for(i = 0; i < 4 && node->children[i]; i++)
 					_cairo_rtree_node_destroy(rtree, node->children[i]);
 				node->children[0] = NULL;
 			}

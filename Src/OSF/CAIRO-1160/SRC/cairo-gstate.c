@@ -879,22 +879,16 @@ cairo_status_t _cairo_gstate_in_stroke(cairo_gstate_t * gstate,
 	/* Before we perform the expensive stroke analysis,
 	 * check whether the point is within the extents of the path.
 	 */
-	_cairo_path_fixed_approximate_stroke_extents(path,
-	    &gstate->stroke_style,
-	    &gstate->ctm,
-	    gstate->target->is_vector,
-	    &extents);
-	if(x < extents.x || x > extents.x + extents.width ||
-	    y < extents.y || y > extents.y + extents.height) {
+	_cairo_path_fixed_approximate_stroke_extents(path, &gstate->stroke_style,
+	    &gstate->ctm, gstate->target->is_vector, &extents);
+	if(x < extents.x || x > extents.x + extents.width || y < extents.y || y > extents.y + extents.height) {
 		*inside_ret = FALSE;
 		return CAIRO_STATUS_SUCCESS;
 	}
-
 	limit.p1.x = _cairo_fixed_from_double(x) - 1;
 	limit.p1.y = _cairo_fixed_from_double(y) - 1;
 	limit.p2.x = limit.p1.x + 2;
 	limit.p2.y = limit.p1.y + 2;
-
 	_cairo_traps_init(&traps);
 	_cairo_traps_limit(&traps, &limit, 1);
 

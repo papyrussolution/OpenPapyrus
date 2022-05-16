@@ -524,7 +524,7 @@ int SelectObjectBlock::DistribCCheck::Begin(PPID * pID, const Header & rHdr)
 	THROW(CnObj.Fetch(rHdr.PosNodeID, &cn_rec) > 0);
 	THROW(cn_rec.CashType == PPCMT_DISTRIB);
 	THROW(LocObj.Fetch(rHdr.LocID, &loc_rec) > 0);
-	THROW(loc_rec.Type == LOCTYP_ADDRESS);
+	THROW_PP(loc_rec.Type == LOCTYP_ADDRESS, PPERR_LOCMUSTBEADDR);
 	THROW(loc_rec.OwnerID != 0);
 	if(rHdr.SCardID) {
 		PPObjSCardSeries scs_obj;

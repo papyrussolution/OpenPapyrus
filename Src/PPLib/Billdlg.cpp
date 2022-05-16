@@ -3372,9 +3372,11 @@ int PPObjBill::EditFreightDialog(PPBillPacket & rPack)
 			// @v11.2.9 {
 			else if(event.isCbSelected(CTLSEL_FREIGHT_DLVRLOC)) { 
 				Data.PortOfDischarge = getCtrlLong(CTLSEL_FREIGHT_ARRIVLOC);
-				const int sdar = Data.SetupDlvrAddr(getCtrlLong(CTLSEL_FREIGHT_DLVRLOC));
-				if(!sdar)
+				PPID dlvr_loc_id = getCtrlLong(CTLSEL_FREIGHT_DLVRLOC);
+				const int sdar = Data.SetupDlvrAddr(dlvr_loc_id);
+				if(!sdar) {
 					PPError();
+				}
 				// @v11.3.2 {	
 				else if(sdar == 2) {
 					setCtrlLong(CTLSEL_FREIGHT_ARRIVLOC, Data.PortOfDischarge);

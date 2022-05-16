@@ -52,7 +52,8 @@ static int BitWriterResize(VP8BitWriter* const bw, size_t extra_size) {
 	return 1;
 }
 
-static void Flush(VP8BitWriter* const bw) {
+static void Flush(VP8BitWriter* const bw) 
+{
 	const int s = 8 + bw->nb_bits_;
 	const int32_t bits = bw->value_ >> s;
 	assert(bw->nb_bits_ >= 0);
@@ -125,7 +126,8 @@ int VP8PutBit(VP8BitWriter* const bw, int bit, int prob) {
 	return bit;
 }
 
-int VP8PutBitUniform(VP8BitWriter* const bw, int bit) {
+int FASTCALL VP8PutBitUniform(VP8BitWriter* const bw, int bit) 
+{
 	const int split = bw->range_ >> 1;
 	if(bit) {
 		bw->value_ += split + 1;
@@ -138,7 +140,8 @@ int VP8PutBitUniform(VP8BitWriter* const bw, int bit) {
 		bw->range_ = kNewRange[bw->range_];
 		bw->value_ <<= 1;
 		bw->nb_bits_ += 1;
-		if(bw->nb_bits_ > 0) Flush(bw);
+		if(bw->nb_bits_ > 0) 
+			Flush(bw);
 	}
 	return bit;
 }
@@ -151,7 +154,8 @@ void VP8PutBits(VP8BitWriter* const bw, uint32_t value, int nb_bits) {
 	}
 }
 
-void VP8PutSignedBits(VP8BitWriter* const bw, int value, int nb_bits) {
+void VP8PutSignedBits(VP8BitWriter* const bw, int value, int nb_bits) 
+{
 	if(!VP8PutBitUniform(bw, value != 0)) return;
 	if(value < 0) {
 		VP8PutBits(bw, ((-value) << 1) | 1, nb_bits + 1);

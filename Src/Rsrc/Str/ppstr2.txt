@@ -2232,6 +2232,8 @@ PPERR_UNDEFBILLIMPOP                "В конфигурации импорта 
 PPERR_BILLIMPOPCANTBIACC            "Для конфигурации '%s' вид операции импорта не может быть бухгалтерской операцией"
 PPERR_BILLIMPSRCCOD2NEEDED          "Для конфигурации '%s' необходим ИНН поставщика" // пока только для предопределенной конфигурации импорта piefCokeOrder
 PPERR_TECHCANTBESELFPARENTED        "Технология не может быть родительской сама для себя"
+PPERR_LOCMUSTBEADDR                 "Локация должна быть адресом"
+PPERR_LOCMUSTBEADDRORWAREHOUSE      "Локация должна быть адресом либо складом"
 
 // LastError
 

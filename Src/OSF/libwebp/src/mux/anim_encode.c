@@ -567,23 +567,23 @@ static int GetSubRects(const WebPPicture* const prev_canvas, const WebPPicture* 
 		   &params->rect_lossy_, &params->sub_frame_lossy_);
 }
 
-static FORCEINLINE int clip(int v, int min_v, int max_v) { return (v < min_v) ? min_v : (v > max_v) ? max_v : v; }
+// @sobolev (replaced with sclamp) static FORCEINLINE int clip(int v, int min_v, int max_v) { return (v < min_v) ? min_v : (v > max_v) ? max_v : v; }
 
 int WebPAnimEncoderRefineRect(const WebPPicture* const prev_canvas, const WebPPicture* const curr_canvas,
     int is_lossless, float quality, int* const x_offset, int* const y_offset, int* const width, int* const height) 
 {
 	FrameRectangle rect;
-	const int right = clip(*x_offset + *width, 0, curr_canvas->width);
-	const int left = clip(*x_offset, 0, curr_canvas->width - 1);
-	const int bottom = clip(*y_offset + *height, 0, curr_canvas->height);
-	const int top = clip(*y_offset, 0, curr_canvas->height - 1);
+	const int right = sclamp(*x_offset + *width, 0, curr_canvas->width);
+	const int left = sclamp(*x_offset, 0, curr_canvas->width - 1);
+	const int bottom = sclamp(*y_offset + *height, 0, curr_canvas->height);
+	const int top = sclamp(*y_offset, 0, curr_canvas->height - 1);
 	if(prev_canvas == NULL || curr_canvas == NULL || prev_canvas->width != curr_canvas->width || prev_canvas->height != curr_canvas->height || !prev_canvas->use_argb || !curr_canvas->use_argb) {
 		return 0;
 	}
 	rect.x_offset_ = left;
 	rect.y_offset_ = top;
-	rect.width_ = clip(right - left, 0, curr_canvas->width - rect.x_offset_);
-	rect.height_ = clip(bottom - top, 0, curr_canvas->height - rect.y_offset_);
+	rect.width_ = sclamp(right - left, 0, curr_canvas->width - rect.x_offset_);
+	rect.height_ = sclamp(bottom - top, 0, curr_canvas->height - rect.y_offset_);
 	MinimizeChangeRectangle(prev_canvas, curr_canvas, &rect, is_lossless, quality);
 	SnapToEvenOffsets(&rect);
 	*x_offset = rect.x_offset_;

@@ -568,7 +568,7 @@ int PPFreight::SetupDlvrAddr(PPID dlvrAddrID)
 		PPObjLocation loc_obj;
 		LocationTbl::Rec loc_rec;
 		THROW(loc_obj.Fetch(dlvrAddrID, &loc_rec) > 0);
-		THROW(loc_rec.Type == LOCTYP_ADDRESS);
+		THROW_PP(oneof2(loc_rec.Type, LOCTYP_ADDRESS, LOCTYP_WAREHOUSE), PPERR_LOCMUSTBEADDRORWAREHOUSE);
 		if(DlvrAddrID != dlvrAddrID) {
 			DlvrAddrID = dlvrAddrID;
 			ok = 1;

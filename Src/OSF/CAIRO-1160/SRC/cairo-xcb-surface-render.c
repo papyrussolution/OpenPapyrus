@@ -2358,7 +2358,7 @@ static cairo_status_t _clip_and_composite(cairo_xcb_surface_t * dst,
 		    cairo_region_contains_rectangle(clip_region,
 		    &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 			clip_region = NULL;
-		if(clip_region != NULL) {
+		if(clip_region) {
 			status = _cairo_xcb_surface_set_clip_region(dst, clip_region);
 			if(UNLIKELY(status)) {
 				_cairo_xcb_connection_release(dst->connection);
@@ -2814,7 +2814,7 @@ static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
 				clip_region = NULL;
 
 			if(clip_surface == FALSE) {
-				if(clip_region != NULL) {
+				if(clip_region) {
 					status = _cairo_xcb_surface_set_clip_region(dst, clip_region);
 					if(UNLIKELY(status))
 						return status;
@@ -2822,7 +2822,7 @@ static cairo_status_t _composite_polygon(cairo_xcb_surface_t * dst,
 
 				status = _cairo_xcb_surface_fixup_unbounded(dst, extents);
 
-				if(clip_region != NULL)
+				if(clip_region)
 					_cairo_xcb_surface_clear_clip_region(dst);
 			}
 			else {
@@ -3326,25 +3326,17 @@ static cairo_int_status_t _composite_opacity_boxes(void * closure,
 	}
 	else
 		info.src = NULL;
-
 	info.opacity = mask_pattern->color.alpha;
-
 	/* XXX for lots of boxes create a clip region for the fully opaque areas */
 	if(clip) {
 		for(i = 0; i < clip->num_boxes; i++)
-			do_unaligned_box(composite_opacity, &info,
-			    &clip->boxes[i], dst_x, dst_y);
+			do_unaligned_box(composite_opacity, &info, &clip->boxes[i], dst_x, dst_y);
 	}
 	else {
-		composite_opacity(&info,
-		    extents->x - dst_x,
-		    extents->y - dst_y,
-		    extents->width,
-		    extents->height,
-		    0xffff);
+		composite_opacity(&info, extents->x - dst_x, extents->y - dst_y,
+		    extents->width, extents->height, 0xffff);
 	}
 	cairo_surface_destroy(&info.src->base);
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

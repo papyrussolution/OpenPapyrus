@@ -68,7 +68,7 @@ static void SmoothSegmentMap(VP8Encoder* const enc)
 //
 // set segment susceptibility alpha_ / beta_
 //
-static FORCEINLINE int clip(int v, int m, int M) { return (v < m) ? m : (v > M) ? M : v; }
+// @sobolev (replaced with sclamp) static FORCEINLINE int clip(int v, int m, int M) { return (v < m) ? m : (v > M) ? M : v; }
 
 static void SetSegmentAlphas(VP8Encoder* const enc, const int centers[NUM_MB_SEGMENTS], int mid) 
 {
@@ -89,8 +89,8 @@ static void SetSegmentAlphas(VP8Encoder* const enc, const int centers[NUM_MB_SEG
 	for(n = 0; n < nb; ++n) {
 		const int alpha = 255 * (centers[n] - mid) / (max - min);
 		const int beta = 255 * (centers[n] - min) / (max - min);
-		enc->dqm_[n].alpha_ = clip(alpha, -127, 127);
-		enc->dqm_[n].beta_ = clip(beta, 0, 255);
+		enc->dqm_[n].alpha_ = sclamp(alpha, -127, 127);
+		enc->dqm_[n].beta_ = sclamp(beta, 0, 255);
 	}
 }
 //
@@ -105,7 +105,7 @@ static void SetSegmentAlphas(VP8Encoder* const enc, const int centers[NUM_MB_SEG
 static int FASTCALL FinalAlphaValue(int alpha) 
 {
 	alpha = MAX_ALPHA - alpha;
-	return clip(alpha, 0, MAX_ALPHA);
+	return sclamp(alpha, 0, MAX_ALPHA);
 }
 
 static int FASTCALL GetAlpha(const VP8Histogram * const histo) 

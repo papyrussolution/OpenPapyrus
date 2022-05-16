@@ -55,19 +55,11 @@ static cairo_int_status_t _cairo_fallback_compositor_mask(const cairo_compositor
 {
 	cairo_image_surface_t * image;
 	cairo_int_status_t status;
-
 	TRACE_FUNCTION_SIMPLE();
-
 	image = _cairo_surface_map_to_image(extents->surface, &extents->unbounded);
-
-	status = _cairo_surface_offset_mask(&image->base,
-		extents->unbounded.x,
-		extents->unbounded.y,
-		extents->op,
-		&extents->source_pattern.base,
-		&extents->mask_pattern.base,
-		extents->clip);
-
+	status = _cairo_surface_offset_mask(&image->base, extents->unbounded.x,
+		extents->unbounded.y, extents->op, &extents->source_pattern.base,
+		&extents->mask_pattern.base, extents->clip);
 	return _cairo_surface_unmap_image(extents->surface, image);
 }
 

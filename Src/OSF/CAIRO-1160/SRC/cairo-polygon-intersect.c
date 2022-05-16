@@ -1027,13 +1027,13 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 			    left = e1->prev;
 			    right = e1->next;
 
-			    if(left != NULL) {
+			    if(left) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, left, e1);
 				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
-			    if(right != NULL) {
+			    if(right) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
 				    if(UNLIKELY(status))
 					    goto unwind;
@@ -1082,13 +1082,13 @@ static cairo_status_t intersection_sweep(cairo_bo_event_t  ** start_events, int 
 
 			    /* after the swap e2 is left of e1 */
 
-			    if(left != NULL) {
+			    if(left) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, left, e2);
 				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
-			    if(right != NULL) {
+			    if(right) {
 				    status = event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
 				    if(UNLIKELY(status))
 					    goto unwind;

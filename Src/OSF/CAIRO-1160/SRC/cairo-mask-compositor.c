@@ -33,18 +33,10 @@
 #include "cairoint.h"
 #pragma hdrstop
 
-typedef cairo_int_status_t
-(* draw_func_t) (const cairo_mask_compositor_t * compositor,
-    cairo_surface_t * dst,
-    void * closure,
-    cairo_operator_t op,
-    const cairo_pattern_t * src,
-    const cairo_rectangle_int_t * src_sample,
-    int dst_x,
-    int dst_y,
-    const cairo_rectangle_int_t * extents,
-    cairo_clip_t * clip);
-
+typedef cairo_int_status_t (* draw_func_t) (const cairo_mask_compositor_t * compositor,
+    cairo_surface_t * dst, void * closure, cairo_operator_t op, const cairo_pattern_t * src,
+    const cairo_rectangle_int_t * src_sample, int dst_x, int dst_y,
+    const cairo_rectangle_int_t * extents, cairo_clip_t * clip);
 static void do_unaligned_row(void (*blt)(void * closure,
     int16 x, int16 y,
     int16 w, int16 h,
@@ -501,7 +493,7 @@ static cairo_status_t clip_and_composite(const cairo_mask_compositor_t * composi
 		clip_region = _cairo_clip_get_region(extents->clip);
 		if((need_clip & FORCE_CLIP_REGION) == 0 && _cairo_composite_rectangles_can_reduce_clip(extents, extents->clip))
 			clip_region = NULL;
-		if(clip_region != NULL) {
+		if(clip_region) {
 			status = compositor->set_clip_region(dst, clip_region);
 			if(UNLIKELY(status)) {
 				compositor->release(dst);

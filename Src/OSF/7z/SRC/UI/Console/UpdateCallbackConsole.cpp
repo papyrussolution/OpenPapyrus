@@ -100,8 +100,7 @@ HRESULT CUpdateCallbackConsole::OpenResult(const CCodecs * codecs, const CArchiv
 		}
 	}
 	else {
-		if(_so)
-			_so->Flush();
+		CALLPTRMEMB(_so, Flush());
 		if(_se) {
 			*_se << kError << name << endl;
 			HRESULT res = Print_OpenArchive_Error(*_se, codecs, arcLink);

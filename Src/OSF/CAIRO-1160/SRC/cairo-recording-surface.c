@@ -1914,18 +1914,14 @@ static cairo_status_t _recording_surface_get_ink_bbox(cairo_recording_surface_t 
 	cairo_surface_t * null_surface;
 	cairo_surface_t * analysis_surface;
 	cairo_status_t status;
-
 	null_surface = _cairo_null_surface_create(surface->base.content);
 	analysis_surface = _cairo_analysis_surface_create(null_surface);
 	cairo_surface_destroy(null_surface);
-
 	status = analysis_surface->status;
 	if(UNLIKELY(status))
 		return status;
-
 	if(transform != NULL)
 		_cairo_analysis_surface_set_ctm(analysis_surface, transform);
-
 	status = _cairo_recording_surface_replay(&surface->base, analysis_surface);
 	_cairo_analysis_surface_get_bounding_box(analysis_surface, bbox);
 	cairo_surface_destroy(analysis_surface);

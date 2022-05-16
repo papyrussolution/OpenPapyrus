@@ -427,17 +427,13 @@ void cairo_tee_surface_add(cairo_surface_t * abstract_surface, cairo_surface_t *
 	if(UNLIKELY(abstract_surface->status))
 		return;
 	if(UNLIKELY(abstract_surface->finished)) {
-		status = _cairo_surface_set_error(abstract_surface,
-			_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		status = _cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	if(abstract_surface->backend != &cairo_tee_surface_backend) {
-		status = _cairo_surface_set_error(abstract_surface,
-			_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+		status = _cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return;
 	}
-
 	if(UNLIKELY(target->status)) {
 		status = _cairo_surface_set_error(abstract_surface, target->status);
 		return;
@@ -461,41 +457,31 @@ void cairo_tee_surface_remove(cairo_surface_t * abstract_surface,
 	cairo_tee_surface_t * surface;
 	cairo_surface_wrapper_t * slaves;
 	int n, num_slaves;
-
 	if(UNLIKELY(abstract_surface->status))
 		return;
 	if(UNLIKELY(abstract_surface->finished)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	if(abstract_surface->backend != &cairo_tee_surface_backend) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return;
 	}
-
 	surface = (cairo_tee_surface_t*)abstract_surface;
 	if(target == surface->master.target) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_INVALID_INDEX));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_INVALID_INDEX));
 		return;
 	}
-
 	num_slaves = _cairo_array_num_elements(&surface->slaves);
 	slaves = _cairo_array_index(&surface->slaves, 0);
 	for(n = 0; n < num_slaves; n++) {
 		if(slaves[n].target == target)
 			break;
 	}
-
 	if(n == num_slaves) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_INVALID_INDEX));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_INVALID_INDEX));
 		return;
 	}
-
 	_cairo_surface_wrapper_fini(&slaves[n]);
 	for(n++; n < num_slaves; n++)
 		slaves[n-1] = slaves[n];

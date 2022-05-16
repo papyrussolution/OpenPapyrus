@@ -307,12 +307,9 @@ static cairo_surface_t * create_composite_mask(const cairo_traps_compositor_t * 
 
 		surface->is_clear = TRUE;
 	}
-
 	if(mask_func) {
-		status = mask_func(compositor, surface, draw_closure,
-			CAIRO_OPERATOR_SOURCE, src, src_x, src_y,
-			extents->bounded.x, extents->bounded.y,
-			&extents->bounded, extents->clip);
+		status = mask_func(compositor, surface, draw_closure, CAIRO_OPERATOR_SOURCE, src, src_x, src_y,
+			extents->bounded.x, extents->bounded.y, &extents->bounded, extents->clip);
 		if(LIKELY(status == CAIRO_INT_STATUS_SUCCESS)) {
 			surface->is_clear = FALSE;
 			goto out;
@@ -320,38 +317,27 @@ static cairo_surface_t * create_composite_mask(const cairo_traps_compositor_t * 
 		if(UNLIKELY(status != CAIRO_INT_STATUS_UNSUPPORTED))
 			goto error;
 	}
-
 	/* Is it worth setting the clip region here? */
-	status = draw_func(compositor, surface, draw_closure,
-		CAIRO_OPERATOR_ADD, src, src_x, src_y,
-		extents->bounded.x, extents->bounded.y,
-		&extents->bounded, NULL);
+	status = draw_func(compositor, surface, draw_closure, CAIRO_OPERATOR_ADD, src, src_x, src_y,
+		extents->bounded.x, extents->bounded.y, &extents->bounded, NULL);
 	if(UNLIKELY(status))
 		goto error;
-
 	surface->is_clear = FALSE;
 	if(extents->clip->path != NULL) {
-		status = combine_clip_as_traps(compositor, surface,
-			extents->clip, &extents->bounded);
+		status = combine_clip_as_traps(compositor, surface, extents->clip, &extents->bounded);
 		if(status == CAIRO_INT_STATUS_UNSUPPORTED) {
-			status = _cairo_clip_combine_with_surface(extents->clip, surface,
-				extents->bounded.x,
-				extents->bounded.y);
+			status = _cairo_clip_combine_with_surface(extents->clip, surface, extents->bounded.x, extents->bounded.y);
 		}
 		if(UNLIKELY(status))
 			goto error;
 	}
 	else if(extents->clip->boxes) {
-		blt_unaligned_boxes(compositor, surface,
-		    extents->bounded.x, extents->bounded.y,
-		    extents->clip->boxes, extents->clip->num_boxes);
+		blt_unaligned_boxes(compositor, surface, extents->bounded.x, extents->bounded.y, extents->clip->boxes, extents->clip->num_boxes);
 	}
-
 out:
 	compositor->release(surface);
 	cairo_surface_destroy(src);
 	return surface;
-
 error:
 	compositor->release(surface);
 	if(status != CAIRO_INT_STATUS_NOTHING_TO_DO) {
@@ -434,15 +420,10 @@ static cairo_status_t clip_and_composite_combine(const cairo_traps_compositor_t 
 	    0, 0,
 	    0, 0,
 	    extents->bounded.width,  extents->bounded.height);
-
-	status = draw_func(compositor, tmp, draw_closure, op,
-		src, src_x, src_y,
-		extents->bounded.x, extents->bounded.y,
-		&extents->bounded, NULL);
-
+	status = draw_func(compositor, tmp, draw_closure, op, src, src_x, src_y,
+		extents->bounded.x, extents->bounded.y, &extents->bounded, NULL);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	clip = traps_get_clip_surface(compositor, extents, &extents->bounded);
 	if(UNLIKELY((status = clip->status)))
 		goto cleanup;
@@ -966,34 +947,24 @@ static cairo_status_t composite_aligned_boxes(const cairo_traps_compositor_t * c
 			op = CAIRO_OPERATOR_SOURCE;
 
 		src = compositor->pattern_to_surface(dst, source, FALSE,
-			&extents->bounded,
-			&extents->source_sample_area,
-			&src_x, &src_y);
+			&extents->bounded, &extents->source_sample_area, &src_x, &src_y);
 		if(LIKELY(src->status == CAIRO_STATUS_SUCCESS)) {
 			status = compositor->composite_boxes(dst, op, src, mask,
-				src_x, src_y,
-				mask_x, mask_y,
-				0, 0,
-				boxes, &extents->bounded);
+				src_x, src_y, mask_x, mask_y, 0, 0, boxes, &extents->bounded);
 			cairo_surface_destroy(src);
 		}
 		else
 			status = src->status;
-
 		cairo_surface_destroy(mask);
 	}
-
 	if(status == CAIRO_STATUS_SUCCESS && !extents->is_bounded)
 		status = fixup_unbounded(compositor, extents, boxes);
-
 	compositor->release(dst);
-
 	return status;
 }
 
 static cairo_status_t upload_boxes(const cairo_traps_compositor_t * compositor,
-    cairo_composite_rectangles_t * extents,
-    cairo_boxes_t * boxes)
+    cairo_composite_rectangles_t * extents, cairo_boxes_t * boxes)
 {
 	cairo_surface_t * dst = extents->surface;
 	const cairo_pattern_t * source = &extents->source_pattern.base;
@@ -1018,21 +989,15 @@ static cairo_status_t upload_boxes(const cairo_traps_compositor_t * compositor,
 	ty += limit.y;
 
 	if(src->type == CAIRO_SURFACE_TYPE_IMAGE)
-		status = compositor->draw_image_boxes(dst,
-			(cairo_image_surface_t*)src,
-			boxes, tx, ty);
+		status = compositor->draw_image_boxes(dst, (cairo_image_surface_t*)src, boxes, tx, ty);
 	else
-		status = compositor->copy_boxes(dst, src, boxes, &extents->bounded,
-			tx, ty);
-
+		status = compositor->copy_boxes(dst, src, boxes, &extents->bounded, tx, ty);
 	return status;
 }
 
-static cairo_int_status_t trim_extents_to_traps(cairo_composite_rectangles_t * extents,
-    cairo_traps_t * traps)
+static cairo_int_status_t trim_extents_to_traps(cairo_composite_rectangles_t * extents, cairo_traps_t * traps)
 {
 	cairo_box_t box;
-
 	_cairo_traps_extents(traps, &box);
 	return _cairo_composite_rectangles_intersect_mask_extents(extents, &box);
 }
@@ -1041,7 +1006,6 @@ static cairo_int_status_t trim_extents_to_tristrip(cairo_composite_rectangles_t 
     cairo_tristrip_t * strip)
 {
 	cairo_box_t box;
-
 	_cairo_tristrip_extents(strip, &box);
 	return _cairo_composite_rectangles_intersect_mask_extents(extents, &box);
 }
@@ -1157,7 +1121,7 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
 			cairo_region_t * clip_region = _cairo_clip_get_region(extents->clip);
 			if(clip_region && cairo_region_contains_rectangle(clip_region, &extents->unbounded) == CAIRO_REGION_OVERLAP_IN)
 				clip_region = NULL;
-			if(clip_region != NULL) {
+			if(clip_region) {
 				status = compositor->set_clip_region(dst, clip_region);
 				if(UNLIKELY(status))
 					return status;
@@ -1166,7 +1130,7 @@ static cairo_status_t clip_and_composite_polygon(const cairo_traps_compositor_t 
 				status = fixup_unbounded_with_mask(compositor, extents);
 			else
 				status = fixup_unbounded(compositor, extents, NULL);
-			if(clip_region != NULL)
+			if(clip_region)
 				compositor->set_clip_region(dst, NULL);
 		}
 		return status;

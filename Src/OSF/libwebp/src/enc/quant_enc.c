@@ -119,11 +119,7 @@ static void PrintBlockInfo(const VP8EncIterator* const it,
 
 #endif   // DEBUG_BLOCK
 
-//------------------------------------------------------------------------------
-
-static FORCEINLINE int clip(int v, int m, int M) {
-	return v < m ? m : v > M ? M : v;
-}
+// @sobolev (replaced with sclamp) static FORCEINLINE int clip(int v, int m, int M) { return v < m ? m : v > M ? M : v; }
 
 static const uint8 kZigzag[16] = {
 	0, 1, 4, 8, 5, 2, 3, 6, 9, 12, 13, 10, 7, 11, 14, 15
@@ -248,14 +244,14 @@ static void SetupMatrices(VP8Encoder* enc) {
 		VP8SegmentInfo* const m = &enc->dqm_[i];
 		const int q = m->quant_;
 		int q_i4, q_i16, q_uv;
-		m->y1_.q_[0] = kDcTable[clip(q + enc->dq_y1_dc_, 0, 127)];
-		m->y1_.q_[1] = kAcTable[clip(q,                  0, 127)];
+		m->y1_.q_[0] = kDcTable[sclamp(q + enc->dq_y1_dc_, 0, 127)];
+		m->y1_.q_[1] = kAcTable[sclamp(q,                  0, 127)];
 
-		m->y2_.q_[0] = kDcTable[ clip(q + enc->dq_y2_dc_, 0, 127)] * 2;
-		m->y2_.q_[1] = kAcTable2[clip(q + enc->dq_y2_ac_, 0, 127)];
+		m->y2_.q_[0] = kDcTable[sclamp(q + enc->dq_y2_dc_, 0, 127)] * 2;
+		m->y2_.q_[1] = kAcTable2[sclamp(q + enc->dq_y2_ac_, 0, 127)];
 
-		m->uv_.q_[0] = kDcTable[clip(q + enc->dq_uv_dc_, 0, 117)];
-		m->uv_.q_[1] = kAcTable[clip(q + enc->dq_uv_ac_, 0, 127)];
+		m->uv_.q_[0] = kDcTable[sclamp(q + enc->dq_uv_dc_, 0, 117)];
+		m->uv_.q_[1] = kAcTable[sclamp(q + enc->dq_uv_ac_, 0, 127)];
 
 		q_i4  = ExpandMatrix(&m->y1_, 0);
 		q_i16 = ExpandMatrix(&m->y2_, 1);
@@ -294,14 +290,15 @@ static void SetupMatrices(VP8Encoder* enc) {
 // save a little decoding-CPU by turning filtering off for these.
 #define FSTRENGTH_CUTOFF 2
 
-static void SetupFilterStrength(VP8Encoder* const enc) {
+static void SetupFilterStrength(VP8Encoder* const enc) 
+{
 	int i;
 	// level0 is in [0..500]. Using '-f 50' as filter_strength is mid-filtering.
 	const int level0 = 5 * enc->config_->filter_strength;
 	for(i = 0; i < NUM_MB_SEGMENTS; ++i) {
 		VP8SegmentInfo* const m = &enc->dqm_[i];
 		// We focus on the quantization of AC coeffs.
-		const int qstep = kAcTable[clip(m->quant_, 0, 127)] >> 2;
+		const int qstep = kAcTable[sclamp(m->quant_, 0, 127)] >> 2;
 		const int base_strength =
 		    VP8FilterStrengthFromDelta(enc->filter_hdr_.sharpness_, qstep);
 		// Segments with lower complexity ('beta') will be less filtered.
@@ -416,7 +413,7 @@ void VP8SetSegmentParams(VP8Encoder* const enc, float quality) {
 		const double c = pow(c_base, expn);
 		const int q = (int)(127. * (1. - c));
 		assert(expn > 0.);
-		enc->dqm_[i].quant_ = clip(q, 0, 127);
+		enc->dqm_[i].quant_ = sclamp(q, 0, 127);
 	}
 
 	// purely indicative in the bitstream (except for the 1-segment case)
@@ -435,13 +432,12 @@ void VP8SetSegmentParams(VP8Encoder* const enc, float quality) {
 	// we rescale by the user-defined strength of adaptation
 	dq_uv_ac = dq_uv_ac * enc->config_->sns_strength / 100;
 	// and make it safe.
-	dq_uv_ac = clip(dq_uv_ac, MIN_DQ_UV, MAX_DQ_UV);
+	dq_uv_ac = sclamp(dq_uv_ac, MIN_DQ_UV, MAX_DQ_UV);
 	// We also boost the dc-uv-quant a little, based on sns-strength, since
 	// U/V channels are quite more reactive to high quants (flat DC-blocks
 	// tend to appear, and are unpleasant).
 	dq_uv_dc = -4 * enc->config_->sns_strength / 100;
-	dq_uv_dc = clip(dq_uv_dc, -15, 15); // 4bit-signed max allowed
-
+	dq_uv_dc = sclamp(dq_uv_dc, -15, 15); // 4bit-signed max allowed
 	enc->dq_y1_dc_ = 0; // TODO(skal): dq-lum
 	enc->dq_y2_dc_ = 0;
 	enc->dq_y2_ac_ = 0;

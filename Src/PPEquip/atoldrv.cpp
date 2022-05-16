@@ -1863,7 +1863,7 @@ int SCS_ATOLDRV::PrintCheck(CCheckPacket * pPack, uint flags)
 #ifdef  NDEBUG
 	bool   use_json_cmd = false; // @v11.3.5 @debug
 #else
-	bool   use_json_cmd = true; // @v11.3.5 @debug
+	bool   use_json_cmd = false/*true*/; // @v11.3.5 @debug
 #endif // ! NDEBUG
 	bool   is_format = false;
 	bool   enabled = true;

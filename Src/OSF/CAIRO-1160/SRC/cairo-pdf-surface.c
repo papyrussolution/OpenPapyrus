@@ -6713,26 +6713,19 @@ static cairo_int_status_t _cairo_pdf_surface_mask(void * abstract_surface, cairo
 	if(_cairo_pattern_is_constant_alpha(mask, &extents.bounded, &alpha) &&
 	    _can_paint_pattern(source)) {
 		_cairo_output_stream_printf(surface->output, "q\n");
-		status = _cairo_pdf_surface_paint_pattern(surface,
-			op,
-			source,
-			&extents.bounded,
-			alpha,
-			FALSE);                            /* mask */
+		status = _cairo_pdf_surface_paint_pattern(surface, op, source,
+			&extents.bounded, alpha, FALSE); /* mask */
 		if(UNLIKELY(status))
 			goto cleanup;
-
 		_cairo_output_stream_printf(surface->output, "Q\n");
 		_cairo_composite_rectangles_fini(&extents);
 		return _cairo_output_stream_get_status(surface->output);
 	}
-
 	group = _cairo_pdf_surface_create_smask_group(surface, &extents.bounded);
 	if(UNLIKELY(group == NULL)) {
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto cleanup;
 	}
-
 	group->operation = PDF_MASK;
 	status = _cairo_pattern_create_copy(&group->source, source);
 	if(UNLIKELY(status)) {
@@ -6750,33 +6743,23 @@ static cairo_int_status_t _cairo_pdf_surface_mask(void * abstract_surface, cairo
 		status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 		goto cleanup;
 	}
-
 	status = _cairo_pdf_surface_add_smask_group(surface, group);
 	if(UNLIKELY(status)) {
 		_cairo_pdf_smask_group_destroy(group);
 		goto cleanup;
 	}
-
 	status = _cairo_pdf_surface_add_smask(surface, group->group_res);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	status = _cairo_pdf_surface_add_xobject(surface, group->source_res);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	status = _cairo_pdf_operators_flush(&surface->pdf_operators);
 	if(UNLIKELY(status))
 		goto cleanup;
-
-	_cairo_output_stream_printf(surface->output,
-	    "q /s%d gs /x%d Do Q\n",
-	    group->group_res.id,
-	    group->source_res.id);
-
+	_cairo_output_stream_printf(surface->output, "q /s%d gs /x%d Do Q\n", group->group_res.id, group->source_res.id);
 	_cairo_composite_rectangles_fini(&extents);
 	return _cairo_output_stream_get_status(surface->output);
-
 cleanup:
 	_cairo_composite_rectangles_fini(&extents);
 	return status;
@@ -6950,36 +6933,26 @@ static cairo_int_status_t _cairo_pdf_surface_fill(void * abstract_surface,
 			fill_rule);
 		if(UNLIKELY(status))
 			goto cleanup;
-
-		status = _cairo_pdf_surface_paint_pattern(surface,
-			op,
-			source,
-			&extents.bounded,
-			1.0,                            /* alpha */
-			FALSE);                            /* mask */
+		status = _cairo_pdf_surface_paint_pattern(surface, op, source,
+			&extents.bounded, 1.0/* alpha */, FALSE/* mask */);
 		if(UNLIKELY(status))
 			goto cleanup;
-
 		_cairo_output_stream_printf(surface->output, "Q\n");
 		status = _cairo_output_stream_get_status(surface->output);
 		goto cleanup;
 	}
-
 	pattern_res.id = 0;
 	gstate_res.id = 0;
-	status = _cairo_pdf_surface_add_pdf_pattern(surface, source, op,
-		&extents.bounded,
+	status = _cairo_pdf_surface_add_pdf_pattern(surface, source, op, &extents.bounded,
 		&pattern_res, &gstate_res);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	if(gstate_res.id != 0) {
 		group = _cairo_pdf_surface_create_smask_group(surface, &extents.bounded);
 		if(UNLIKELY(group == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto cleanup;
 		}
-
 		group->operation = PDF_FILL;
 		status = _cairo_pattern_create_copy(&group->source, source);
 		if(UNLIKELY(status)) {
@@ -7197,23 +7170,18 @@ static cairo_int_status_t _cairo_pdf_surface_show_text_glyphs(void * abstract_su
 
 	pattern_res.id = 0;
 	gstate_res.id = 0;
-	status = _cairo_pdf_surface_add_pdf_pattern(surface, source, op,
-		&extents.bounded,
-		&pattern_res, &gstate_res);
+	status = _cairo_pdf_surface_add_pdf_pattern(surface, source, op, &extents.bounded, &pattern_res, &gstate_res);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	status = _cairo_pdf_surface_select_operator(surface, op);
 	if(UNLIKELY(status))
 		goto cleanup;
-
 	if(gstate_res.id != 0) {
 		group = _cairo_pdf_surface_create_smask_group(surface, &extents.bounded);
 		if(UNLIKELY(group == NULL)) {
 			status = _cairo_error(CAIRO_STATUS_NO_MEMORY);
 			goto cleanup;
 		}
-
 		group->operation = PDF_SHOW_GLYPHS;
 		status = _cairo_pattern_create_copy(&group->source, source);
 		if(UNLIKELY(status)) {

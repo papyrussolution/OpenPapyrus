@@ -625,21 +625,21 @@ cairo_region_t * _cairo_analysis_surface_get_unsupported(cairo_surface_t * abstr
 	return &surface->fallback_region;
 }
 
-boolint _cairo_analysis_surface_has_supported(cairo_surface_t * abstract_surface)
+boolint FASTCALL _cairo_analysis_surface_has_supported(const cairo_surface_t * abstract_surface)
 {
-	cairo_analysis_surface_t * surface = reinterpret_cast<cairo_analysis_surface_t *>(abstract_surface);
+	const cairo_analysis_surface_t * surface = reinterpret_cast<const cairo_analysis_surface_t *>(abstract_surface);
 	return surface->has_supported;
 }
 
-boolint _cairo_analysis_surface_has_unsupported(cairo_surface_t * abstract_surface)
+boolint FASTCALL _cairo_analysis_surface_has_unsupported(const cairo_surface_t * abstract_surface)
 {
-	cairo_analysis_surface_t * surface = reinterpret_cast<cairo_analysis_surface_t *>(abstract_surface);
+	const cairo_analysis_surface_t * surface = reinterpret_cast<const cairo_analysis_surface_t *>(abstract_surface);
 	return surface->has_unsupported;
 }
 
-void _cairo_analysis_surface_get_bounding_box(cairo_surface_t * abstract_surface, cairo_box_t * bbox)
+void FASTCALL _cairo_analysis_surface_get_bounding_box(const cairo_surface_t * abstract_surface, cairo_box_t * bbox)
 {
-	cairo_analysis_surface_t * surface = reinterpret_cast<cairo_analysis_surface_t *>(abstract_surface);
+	const cairo_analysis_surface_t * surface = reinterpret_cast<const cairo_analysis_surface_t *>(abstract_surface);
 	*bbox = surface->page_bbox;
 }
 

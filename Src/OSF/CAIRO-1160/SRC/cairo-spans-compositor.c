@@ -569,36 +569,23 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 
 		/* All typical cases will have been resolved before now... */
 		if(need_clip_mask) {
-			mask = get_clip_surface(compositor, dst, extents->clip,
-				&extents->bounded);
+			mask = get_clip_surface(compositor, dst, extents->clip, &extents->bounded);
 			if(UNLIKELY(mask->status))
 				return mask->status;
-
 			mask_x = -extents->bounded.x;
 			mask_y = -extents->bounded.y;
 		}
-
 		/* XXX but this is still ugly */
 		if(!no_mask) {
-			src = compositor->pattern_to_surface(dst,
-				&extents->mask_pattern.base,
-				TRUE,
-				&extents->bounded,
-				&extents->mask_sample_area,
-				&src_x, &src_y);
+			src = compositor->pattern_to_surface(dst, &extents->mask_pattern.base,
+				TRUE, &extents->bounded, &extents->mask_sample_area, &src_x, &src_y);
 			if(UNLIKELY(src->status)) {
 				cairo_surface_destroy(mask);
 				return src->status;
 			}
-
 			if(mask != NULL) {
-				status = compositor->composite_boxes(mask, CAIRO_OPERATOR_IN,
-					src, NULL,
-					src_x, src_y,
-					0, 0,
-					mask_x, mask_y,
-					boxes, &extents->bounded);
-
+				status = compositor->composite_boxes(mask, CAIRO_OPERATOR_IN, src, NULL,
+					src_x, src_y, 0, 0, mask_x, mask_y, boxes, &extents->bounded);
 				cairo_surface_destroy(src);
 			}
 			else {
@@ -607,28 +594,19 @@ static cairo_int_status_t composite_aligned_boxes(const cairo_spans_compositor_t
 				mask_y = src_y;
 			}
 		}
-
-		src = compositor->pattern_to_surface(dst, source, FALSE,
-			&extents->bounded,
-			&extents->source_sample_area,
-			&src_x, &src_y);
+		src = compositor->pattern_to_surface(dst, source, FALSE, &extents->bounded,
+			&extents->source_sample_area, &src_x, &src_y);
 		if(LIKELY(src->status == CAIRO_STATUS_SUCCESS)) {
 			status = compositor->composite_boxes(dst, op, src, mask,
-				src_x, src_y,
-				mask_x, mask_y,
-				0, 0,
-				boxes, &extents->bounded);
+				src_x, src_y, mask_x, mask_y, 0, 0, boxes, &extents->bounded);
 			cairo_surface_destroy(src);
 		}
 		else
 			status = src->status;
-
 		cairo_surface_destroy(mask);
 	}
-
 	if(status == CAIRO_INT_STATUS_SUCCESS && !extents->is_bounded)
 		status = fixup_unbounded_boxes(compositor, extents, boxes);
-
 	return status;
 }
 

@@ -432,22 +432,17 @@ static cairo_status_t generate(cairo_rectangular_scan_converter_t * self, cairo_
 		sweep_line.current_y++;
 		while(stop != NULL && stop->bottom_y < start->top_y) {
 			if(stop->bottom_y != sweep_line.current_y) {
-				render_rows(&sweep_line, renderer,
-				    stop->bottom_y - sweep_line.current_y);
+				render_rows(&sweep_line, renderer, stop->bottom_y - sweep_line.current_y);
 				sweep_line.current_y = stop->bottom_y;
 			}
-
 			render_rows(&sweep_line, renderer, 1);
-
 			do {
 				sweep_line_delete(&sweep_line, stop);
 				stop = peek_stop(&sweep_line);
 			} while(stop != NULL && stop->bottom_y == sweep_line.current_y);
-
 			sweep_line.current_y++;
 		}
 	} while(true);
-
 end:
 	render_rows(&sweep_line, renderer, 1);
 	stop = peek_stop(&sweep_line);
@@ -604,7 +599,6 @@ cairo_status_t _cairo_rectangular_scan_converter_add_box(cairo_rectangular_scan_
 		self->num_rectangles++;
 	else
 		self->tail->count--;
-
 	return CAIRO_STATUS_SUCCESS;
 }
 

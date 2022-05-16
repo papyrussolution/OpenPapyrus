@@ -41,9 +41,8 @@ uint8* VP8BitWriterFinish(VP8BitWriter* const bw);
 // Release any pending memory and zeroes the object. Not a mandatory call.
 // Only useful in case of error, when the internal buffer hasn't been grabbed!
 void VP8BitWriterWipeOut(VP8BitWriter* const bw);
-
-int VP8PutBit(VP8BitWriter* const bw, int bit, int prob);
-int VP8PutBitUniform(VP8BitWriter* const bw, int bit);
+int  VP8PutBit(VP8BitWriter* const bw, int bit, int prob);
+int  FASTCALL VP8PutBitUniform(VP8BitWriter* const bw, int bit);
 void VP8PutBits(VP8BitWriter* const bw, uint32_t value, int nb_bits);
 void VP8PutSignedBits(VP8BitWriter* const bw, int value, int nb_bits);
 

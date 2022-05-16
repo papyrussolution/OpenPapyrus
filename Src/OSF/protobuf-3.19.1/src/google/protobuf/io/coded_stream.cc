@@ -663,7 +663,8 @@ int64_t EpsCopyOutputStream::ByteCount(uint8_t* ptr) const {
 // Flushes what's written out to the underlying ZeroCopyOutputStream buffers.
 // Returns the size remaining in the buffer and sets buffer_end_ to the start
 // of the remaining buffer, ie. [buffer_end_, buffer_end_ + return value)
-int EpsCopyOutputStream::Flush(uint8_t* ptr) {
+int EpsCopyOutputStream::Flush(uint8_t* ptr) 
+{
 	while(buffer_end_ && ptr > end_) {
 		int overrun = ptr - end_;
 		GOOGLE_DCHECK(!had_error_);
@@ -702,8 +703,10 @@ uint8_t* EpsCopyOutputStream::FlushAndResetBuffer(uint8_t* ptr) {
 	return SetInitialBuffer(buffer_end_, s);
 }
 
-bool EpsCopyOutputStream::Skip(int count, uint8_t** pp) {
-	if(count < 0) return false;
+bool EpsCopyOutputStream::Skip(int count, uint8_t** pp) 
+{
+	if(count < 0) 
+		return false;
 	if(had_error_) {
 		*pp = buffer_;
 		return false;

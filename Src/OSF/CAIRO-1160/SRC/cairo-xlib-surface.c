@@ -1992,48 +1992,35 @@ XRenderPictFormat * cairo_xlib_surface_get_xrender_format(cairo_surface_t * surf
  *
  * Since: 1.0
  **/
-void cairo_xlib_surface_set_size(cairo_surface_t * abstract_surface,
-    int width,
-    int height)
+void cairo_xlib_surface_set_size(cairo_surface_t * abstract_surface, int width, int height)
 {
 	cairo_xlib_surface_t * surface = (cairo_xlib_surface_t*)abstract_surface;
 	cairo_status_t status;
-
 	if(UNLIKELY(abstract_surface->status))
 		return;
 	if(UNLIKELY(abstract_surface->finished)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	if(!_cairo_surface_is_xlib(abstract_surface)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return;
 	}
-
 	if(surface->width == width && surface->height == height)
 		return;
-
 	if(!valid_size(width, height)) {
-		_cairo_surface_set_error(abstract_surface,
-		    _cairo_error(CAIRO_STATUS_INVALID_SIZE));
+		_cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_INVALID_SIZE));
 		return;
 	}
-
 	status = _cairo_surface_flush(abstract_surface, 0);
 	if(UNLIKELY(status)) {
 		_cairo_surface_set_error(abstract_surface, status);
 		return;
 	}
-
 	_cairo_xlib_surface_discard_shm(surface);
-
 	surface->width = width;
 	surface->height = height;
 }
-
 /**
  * cairo_xlib_surface_set_drawable:
  * @surface: a #cairo_surface_t for the XLib backend
@@ -2057,24 +2044,18 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 {
 	cairo_xlib_surface_t * surface = (cairo_xlib_surface_t*)abstract_surface;
 	cairo_status_t status;
-
 	if(UNLIKELY(abstract_surface->status))
 		return;
 	if(UNLIKELY(abstract_surface->finished)) {
-		status = _cairo_surface_set_error(abstract_surface,
-			_cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
+		status = _cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_FINISHED));
 		return;
 	}
-
 	if(!_cairo_surface_is_xlib(abstract_surface)) {
-		status = _cairo_surface_set_error(abstract_surface,
-			_cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
+		status = _cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_SURFACE_TYPE_MISMATCH));
 		return;
 	}
-
 	if(!valid_size(width, height)) {
-		status = _cairo_surface_set_error(abstract_surface,
-			_cairo_error(CAIRO_STATUS_INVALID_SIZE));
+		status = _cairo_surface_set_error(abstract_surface, _cairo_error(CAIRO_STATUS_INVALID_SIZE));
 		return;
 	}
 
@@ -2090,13 +2071,10 @@ void cairo_xlib_surface_set_drawable(cairo_surface_t * abstract_surface,
 
 	if(surface->drawable != drawable) {
 		cairo_xlib_display_t * display;
-
 		status = _cairo_xlib_display_acquire(surface->base.device, &display);
 		if(UNLIKELY(status))
 			return;
-
 		X_DEBUG((display->display, "set_drawable (drawable=%x)", (uint)drawable));
-
 		if(surface->picture != None) {
 			XRenderFreePicture(display->display, surface->picture);
 			if(UNLIKELY(status)) {

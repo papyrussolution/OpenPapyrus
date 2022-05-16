@@ -1043,12 +1043,12 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    }
 			    left = e1->prev;
 			    right = e1->next;
-			    if(left != NULL) {
+			    if(left) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, e1);
 				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
-			    if(right != NULL) {
+			    if(right) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
 				    if(UNLIKELY(status))
 					    goto unwind;
@@ -1088,13 +1088,13 @@ static cairo_status_t _cairo_bentley_ottmann_tessellate_bo_edges(cairo_bo_event_
 			    right = e2->next;
 			    _cairo_bo_sweep_line_swap(&sweep_line, e1, e2);
 			    /* after the swap e2 is left of e1 */
-			    if(left != NULL) {
+			    if(left) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, left, e2);
 				    if(UNLIKELY(status))
 					    goto unwind;
 			    }
 
-			    if(right != NULL) {
+			    if(right) {
 				    status = _cairo_bo_event_queue_insert_if_intersect_below_current_y(&event_queue, e1, right);
 				    if(UNLIKELY(status))
 					    goto unwind;

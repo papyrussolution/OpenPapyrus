@@ -463,12 +463,8 @@ static cairo_int_status_t _cairo_quartz_init_glyph_metrics(cairo_quartz_scaled_f
 	slfprintf_stderr("[0x%04x] extents: bearings: %f %f dim: %f %f adv: %f\n\n", glyph,
 	    extents.x_bearing, extents.y_bearing, extents.width, extents.height, extents.x_advance);
 #endif
-
 FAIL:
-	_cairo_scaled_glyph_set_metrics(scaled_glyph,
-	    &font->base,
-	    &extents);
-
+	_cairo_scaled_glyph_set_metrics(scaled_glyph, &font->base, &extents);
 	return status;
 }
 
@@ -476,17 +472,14 @@ static void _cairo_quartz_path_apply_func(void * info, const CGPathElement * el)
 {
 	cairo_path_fixed_t * path = (cairo_path_fixed_t*)info;
 	cairo_status_t status;
-
 	switch(el->type) {
 		case kCGPathElementMoveToPoint:
-		    status = _cairo_path_fixed_move_to(path,
-			    _cairo_fixed_from_double(el->points[0].x),
+		    status = _cairo_path_fixed_move_to(path, _cairo_fixed_from_double(el->points[0].x),
 			    _cairo_fixed_from_double(el->points[0].y));
 		    assert(!status);
 		    break;
 		case kCGPathElementAddLineToPoint:
-		    status = _cairo_path_fixed_line_to(path,
-			    _cairo_fixed_from_double(el->points[0].x),
+		    status = _cairo_path_fixed_line_to(path, _cairo_fixed_from_double(el->points[0].x),
 			    _cairo_fixed_from_double(el->points[0].y));
 		    assert(!status);
 		    break;
@@ -497,7 +490,6 @@ static void _cairo_quartz_path_apply_func(void * info, const CGPathElement * el)
 			    fx = fy = 0;
 		    x = _cairo_fixed_to_double(fx);
 		    y = _cairo_fixed_to_double(fy);
-
 		    status = _cairo_path_fixed_curve_to(path,
 			    _cairo_fixed_from_double((x + el->points[0].x * 2.0) / 3.0),
 			    _cairo_fixed_from_double((y + el->points[0].y * 2.0) / 3.0),

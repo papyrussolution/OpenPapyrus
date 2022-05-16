@@ -234,7 +234,7 @@ static int bbuf_init(BBuf* buf, int size)
 static void bbuf_free(BBuf* bbuf)
 {
 	if(IS_NOT_NULL(bbuf)) {
-		if(IS_NOT_NULL(bbuf->p)) SAlloc::F(bbuf->p);
+		SAlloc::F(bbuf->p);
 		SAlloc::F(bbuf);
 	}
 }
@@ -611,11 +611,12 @@ int onig_print_names(FILE* fp, regex_t* reg)
 
 static int i_free_name_entry(uchar * key, NameEntry* e, void * arg ARG_UNUSED)
 {
-	SAlloc::F(e->name);
-	if(IS_NOT_NULL(e->back_refs)) 
+	if(e) {
+		SAlloc::F(e->name);
 		SAlloc::F(e->back_refs);
-	SAlloc::F(key);
-	SAlloc::F(e);
+		SAlloc::F(key);
+		SAlloc::F(e);
+	}
 	return ST_DELETE;
 }
 
@@ -690,9 +691,8 @@ int onig_foreach_name(regex_t* reg, int (*func)(const uchar *, const uchar *, in
 
 static int i_renumber_name(uchar * key ARG_UNUSED, NameEntry* e, GroupNumMap* map)
 {
-	int i;
 	if(e->back_num > 1) {
-		for(i = 0; i < e->back_num; i++) {
+		for(int i = 0; i < e->back_num; i++) {
 			e->back_refs[i] = map[e->back_refs[i]].new_val;
 		}
 	}
@@ -714,10 +714,7 @@ int onig_renumber_name_table(regex_t* reg, GroupNumMap* map)
 int onig_number_of_names(regex_t* reg)
 {
 	NameTable* t = (NameTable*)reg->name_table;
-	if(IS_NOT_NULL(t))
-		return t->num_entries;
-	else
-		return 0;
+	return t ? t->num_entries : 0;
 }
 
 #else  /* USE_ST_LIBRARY */
@@ -865,7 +862,8 @@ static int name_add(regex_t* reg, uchar * name, uchar * name_end, int backref, S
 		CHECK_NULL_RETURN_MEMERR(e);
 		e->name = onigenc_strdup(reg->enc, name, name_end);
 		if(IS_NULL(e->name)) {
-			SAlloc::F(e);  return ONIGERR_MEMORY;
+			SAlloc::F(e);  
+			return ONIGERR_MEMORY;
 		}
 		r = onig_st_insert_strend(t, e->name, (e->name + (name_end - name)), (HashDataType)e);
 		if(r < 0) return r;
@@ -1135,7 +1133,8 @@ static int global_callout_name_table_free(void)
 {
 	if(IS_NOT_NULL(GlobalCalloutNameTable)) {
 		int r = callout_name_table_clear(GlobalCalloutNameTable);
-		if(r) return r;
+		if(r) 
+			return r;
 		onig_st_free_table(GlobalCalloutNameTable);
 		GlobalCalloutNameTable = 0;
 		CalloutNameIDCounter = 0;

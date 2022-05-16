@@ -265,7 +265,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int3
 			if(UNLIKELY(status))
 				return status;
 			left = right;
-			if(left != NULL)
+			if(left)
 				left = left->next;
 		}
 	}
@@ -294,7 +294,7 @@ static inline cairo_status_t _active_edges_to_traps(cairo_bo_edge_t * left, int3
 			if(UNLIKELY(status))
 				return status;
 			left = right;
-			if(left != NULL)
+			if(left)
 				left = left->next;
 		}
 	}

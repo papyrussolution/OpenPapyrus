@@ -316,35 +316,26 @@ static cairo_int_status_t _paint_page(cairo_paginated_surface_t * surface)
 	cairo_surface_t * analysis;
 	cairo_int_status_t status;
 	boolint has_supported, has_page_fallback, has_finegrained_fallback;
-
 	if(UNLIKELY(surface->target->status))
 		return surface->target->status;
-
 	analysis = _cairo_analysis_surface_create(surface->target);
 	if(UNLIKELY(analysis->status))
 		return _cairo_surface_set_error(surface->target, analysis->status);
-
-	status = surface->backend->set_paginated_mode(surface->target,
-		CAIRO_PAGINATED_MODE_ANALYZE);
+	status = surface->backend->set_paginated_mode(surface->target, CAIRO_PAGINATED_MODE_ANALYZE);
 	if(UNLIKELY(status))
 		goto FAIL;
-
 	status = _cairo_recording_surface_replay_and_create_regions(surface->recording_surface,
 		NULL, analysis, FALSE);
 	if(status)
 		goto FAIL;
-
 	assert(analysis->status == CAIRO_STATUS_SUCCESS);
-
 	if(surface->backend->set_bounding_box) {
 		cairo_box_t bbox;
-
 		_cairo_analysis_surface_get_bounding_box(analysis, &bbox);
 		status = surface->backend->set_bounding_box(surface->target, &bbox);
 		if(UNLIKELY(status))
 			goto FAIL;
 	}
-
 	if(surface->backend->set_fallback_images_required) {
 		boolint has_fallbacks = _cairo_analysis_surface_has_unsupported(analysis);
 
